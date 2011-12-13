@@ -1,0 +1,14 @@
+﻿Property Value Providers
+=============================
+
+1 InheritedIsEnabled [Done]
+2 Local [Done]
+
+4 Style [Done]
+5 ImplicitStyle [Done]
+
+6 InheritedProperty
+	- InheritedContext
+7 InheritedDataContext [Done]
+8 DefaultValue [Done]
+9 AutoCreate [Done]

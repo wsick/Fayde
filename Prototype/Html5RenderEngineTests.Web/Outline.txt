@@ -1,0 +1,55 @@
+﻿UIElement:
+
+_DoMeasureWithError
+	GetPreviousConstraint
+	GetVisualParent
+	_IsAttached
+_MeasureWithError - abstract
+_DoArrangeWithError
+	"Value" type
+	ReadLocalValue
+	Value.IsNull
+	Value.AsRect
+	LayoutSlotProperty
+	GetVisualParent
+	GetPreviousConstraint
+	Surface.GetWindow (GetWidth and GetHeight)
+	Canvas.GetLeft(this)
+	Canvas.GetTop(this)
+_ArrangeWithError - abstract
+
+FrameworkElement:
+
+_ComputeBounds
+	_GetRenderVisible
+	_GetGlobalBounds
+	IntersectBoundsWithClipPath
+	Rect.Transform
+	_ComputeGlobalBounds
+	_ComputeSurfaceBounds
+_MeasureWithError
+	error
+	GetPreviousConstraint
+	SetPreviousConstraint
+_MeasureOverrideWithError
+	_GetVisualTreeWalker
+_ArrangeWithError
+	"Value" type
+	ReadLocalValue(LayoutSlotProperty)
+	Value.IsNull
+	Value.AsRect
+	LayoutSlotProperty
+	SetLayoutSlot
+	GetPreviousConstraint
+	GetPreviousConstraint
+	ClearValue
+	LayoutClipProperty
+	_HiddenDesire
+	SetVisualOffset
+	_GetRenderSize
+	_SetRenderSize
+	Surface.IsTopLevel
+	GetLastRenderSize
+	SetLastRenderSize
+_ArrangeOverrideWithError
+	_GetVisualTreeWalker

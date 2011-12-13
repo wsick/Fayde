@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Html5 Render Engine Tests</title>
+	<script type="text/javascript" src="Scripts/jquery-1.7.js"></script>
+    <script type="text/javascript" src="Scripts/Primitives.js"></script>
+	<script type="text/javascript" src="Scripts/Shape.js"></script>
+    <script type="text/javascript" src="Scripts/DependencyObject.js"></script>
+    <script type="text/javascript" src="Scripts/UIElement.js"></script>
+    <script type="text/javascript" src="Scripts/FrameworkElement.js"></script>
+    <script type="text/javascript" src="Scripts/Border.js"></script>
+    <script type="text/javascript" src="Scripts/RenderEngine.js"></script>
+	<script type="text/javascript">
+        var rect = new Rectangle();
+	    rect.Width = 100;
+	    rect.Height = 100;
+
+	    var circle = new Circle();
+	    circle.Left = 300;
+	    circle.Top = 300;
+	    circle.Radius = 50;
+
+	    var border = new Border();
+	    border.Left = 50;
+	    border.Top = 100;
+	    border.Width = 300;
+	    border.Height = 200;
+	    border.Background = 'rgb(100, 200, 0)';
+	    border.BorderThickness = 3;
+	    border.CornerRadius.TopLeft = 10;
+	    border.CornerRadius.TopRight = 20;
+	    border.CornerRadius.BottomRight = 30;
+	    border.CornerRadius.BottomLeft = 40;
+
+	    $(document).ready(function () {
+	        MainSurface.AttachTo($("#testCanvas")[0]);
+	        MainSurface.AddChild(rect);
+	        MainSurface.AddChild(circle);
+	        MainSurface.AddChild(border);
+	        StartEngine();
+	    });
+
+	    var growingCircle = true;
+	    window.setInterval(function () {
+	        if (growingCircle) {
+	            circle.Radius += 1;
+	        } else {
+	            circle.Radius -= 1;
+	        }
+	        if (circle.Radius <= 0)
+	            growingCircle = true;
+	        else if (circle.Radius >= 300)
+	            growingCircle = false;
+	    }, 10);
+
+	    window.setInterval(function () {
+	        circle.Background = "#" + genRandomHex() + genRandomHex() + genRandomHex() + genRandomHex() + genRandomHex() + genRandomHex();
+	    }, 500);
+
+	    var growingRect = true;
+	    window.setInterval(function () {
+	        if (growingRect) {
+	            rect.Height += 10;
+	        } else {
+	            rect.Height -= 10;
+	        }
+	        if (rect.Height <= 0)
+	            growingRect = true;
+	        else if (rect.Height >= 600)
+	            growingRect = false;
+	    }, 10);
+
+        function genRandomHex() {
+            var val = Math.floor(Math.random() * 17);
+            if (val < 10)
+                return val.toString();
+            if (val == 10)
+                return "A";
+            if (val == 11)
+                return "B";
+            if (val == 12)
+                return "C";
+            if (val == 13)
+                return "D";
+            if (val == 14)
+                return "E";
+            return "F";
+        }
+	</script>
+</head>
+<body>
+    <div style="width: 600px; height: 600px; border: solid 1px black;">
+	    <canvas id="testCanvas" width="600" height="600">
+	    </canvas>
+    </div>
+</body>
+</html>
