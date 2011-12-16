@@ -21,6 +21,15 @@ _PropagateInheritedValue [Done]
 _GetInheritedValueSource [Done]
 _SetInheritedValueSource [Done]
 _GetPropertyValueProvider [Done]
+_IsValueValid
+SetValue [Done]
+
+
+
+DependencyProperty
+=============================
+_Coerce [Done]
+_Validate
 
 
 
