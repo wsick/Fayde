@@ -3,13 +3,30 @@
 <head>
     <title>Html5 Render Engine Tests</title>
 	<script type="text/javascript" src="Scripts/jquery-1.7.js"></script>
-    <script type="text/javascript" src="Scripts/DependencyObject.js"></script>
-<!--    <script type="text/javascript" src="Scripts/Primitives.js"></script>
+<!--    <script type="text/javascript" src="Scripts/Framework/DependencyObject.js"></script>
+    <script type="text/javascript" src="Scripts/Primitives.js"></script>
 	<script type="text/javascript" src="Scripts/Shape.js"></script>
     <script type="text/javascript" src="Scripts/Border.js"></script>
     <script type="text/javascript" src="Scripts/RenderEngine.js"></script>-->
     <script type="text/javascript">
-        
+        BaseClass.prototype = new Object();
+        BaseClass.prototype.constructor = BaseClass;
+        function BaseClass() { }
+        BaseClass.prototype.method1 = function () {
+            alert("Base");
+        };
+
+        InheritedClass.prototype = new BaseClass();
+        InheritedClass.prototype.constructor = InheritedClass;
+        function InheritedClass() {
+            BaseClass.call(this);
+        }
+        InheritedClass.prototype.method1 = function () {
+            BaseClass.prototype.method1.call(this, 1, 2, 3);
+            alert("Inherited");
+        };
+        var t = new InheritedClass();
+        t.method1();
     </script>
 </head>
 <body>

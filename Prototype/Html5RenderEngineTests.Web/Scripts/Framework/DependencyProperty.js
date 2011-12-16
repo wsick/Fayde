@@ -1,4 +1,6 @@
-﻿function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom) {
+﻿DependencyProperty.prototype = new Object();
+DependencyProperty.prototype.constructor = DependencyProperty;
+function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom) {
     this.Name = name;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
@@ -36,7 +38,6 @@
         return this._Validator(instance, propd, value, error);
     };
 }
-DependencyProperty.prototype = new Object();
 DependencyProperty.Register = function (name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();

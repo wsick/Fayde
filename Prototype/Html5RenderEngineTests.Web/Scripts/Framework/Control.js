@@ -1,8 +1,5 @@
 ﻿/// <reference path="FrameworkElement.js" />
 
-function Control() {
-    FrameworkElement.apply(this);
-}
 //Control.BackgroundProperty;
 //Control.BorderBrushProperty;
 //Control.BorderThicknessProperty;
@@ -23,3 +20,7 @@ Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", Control, tr
 //Control.VerticalContentAlignmentProperty;
 //Control.DefaultStyleKeyProperty;
 Control.prototype = new FrameworkElement();
+Control.prototype.constructor = Control;
+function Control() {
+    FrameworkElement.call(this);
+}

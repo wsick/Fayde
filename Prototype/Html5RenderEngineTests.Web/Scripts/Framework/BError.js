@@ -1,4 +1,6 @@
-﻿function BError() {
+﻿BError.prototype = new Object();
+BError.prototype.constructor = BError;
+function BError() {
     this.Number = 0;
     this.Code = 0;
     this.CharPosition = 0;
@@ -14,4 +16,3 @@
     };
 }
 BError.UnauthorizedAccess = 1;
-BError.prototype = new Object();

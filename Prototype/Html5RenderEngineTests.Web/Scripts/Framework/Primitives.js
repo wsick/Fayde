@@ -17,14 +17,17 @@ var VerticalAlignment = {
     Stretch: 3
 };
 
+CornerRadius.prototype = new Object();
+CornerRadius.prototype.constructor = CornerRadius;
 function CornerRadius() {
     this.TopLeft = 0;
     this.TopRight = 0;
     this.BottomRight = 0;
     this.BottomLeft = 0;
 }
-CornerRadius.prototype = new Object();
 
+Thickness.prototype = new Object();
+Thickness.prototype.constructor = Thickness;
 function Thickness() {
     this.Left = 0;
     this.Top = 0;
@@ -39,14 +42,16 @@ function Thickness() {
         return t;
     };
 }
-Thickness.prototype = new Object();
 
+Point.prototype = new Object();
+Point.prototype.constructor = Point;
 function Point(x, y) {
     this.X = x;
     this.Y = y;
 }
-Point.prototype = new Object();
 
+Size.prototype = new Object();
+Size.prototype.constructor = Size;
 function Size(width, height) {
     this.Width = width;
     this.Height = height;
@@ -69,8 +74,9 @@ function Size(width, height) {
         return new Size(Math.max(this.Width, size2.Width), Math.max(this.Height, size2.Height));
     };
 }
-Size.prototype = new Object();
 
+Rect.prototype = new Object();
+Rect.prototype.constructor = Rect;
 function Rect(x, y, width, height) {
     if (x)
         this.X = x;
@@ -117,4 +123,3 @@ function Rect(x, y, width, height) {
         return result;
     }
 }
-Rect.prototype = new Object();

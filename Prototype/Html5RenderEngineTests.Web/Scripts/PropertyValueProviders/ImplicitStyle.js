@@ -16,7 +16,7 @@ _StyleMask.All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _Styl
 _StyleMask.None = 0;
 
 function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.apply(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._Styles = null;
     this._StyleMask = _StyleMask.None;
     this._ht = new Array();

@@ -32,11 +32,11 @@ function _PropertyValueProvider(obj, propPrecedence, flags) {
     this.GetPropertyValue = function (propd) {
         alert("Abstract Method");
     };
-    this.ForeachValue = function (func) {
+    this.ForeachValue = function (func, data) {
         if (!func)
             return;
         for (var value in this._ht)
-            func(value);
+            func(value, data);
     };
     this.RecomputePropertyValue = function (propd, providerFlags, error) {
     };

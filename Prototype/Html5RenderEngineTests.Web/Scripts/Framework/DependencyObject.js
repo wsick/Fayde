@@ -5,14 +5,14 @@
 /// <reference path="DependencyProperty.js" />
 /// <reference path="FrameworkElement.js" />
 
+DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
+
+DependencyObject.prototype = new Object();
+DependencyObject.prototype.constructor = DependencyObject;
 function DependencyObject() {
     this._Providers = new Array();
     this._ProviderBitmasks = new Array();
 }
-
-DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
-
-DependencyObject.prototype = new Object();
 DependencyObject.prototype._ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };

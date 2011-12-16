@@ -52,13 +52,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
+    <Content Include="NotImplemented\Annotations.txt" />
     <Content Include="NotImplemented\DependencyProperty.txt" />
     <Content Include="Outline.txt" />
     <Content Include="Scripts\Border.js" />
     <Content Include="Scripts\Canvas.js" />
+    <Content Include="Scripts\Framework\Collection.js" />
     <Content Include="Scripts\Framework\Control.js" />
     <Content Include="Scripts\Framework\DependencyObject.js" />
     <Content Include="Scripts\Framework\BError.js" />
+    <Content Include="Scripts\Framework\DependencyObjectCollection.js" />
     <Content Include="Scripts\Framework\DependencyProperty.js" />
     <Content Include="Scripts\Framework\FrameworkElement.js" />
     <Content Include="Scripts\Framework\VisualTreeWalker.js" />
@@ -79,6 +82,7 @@
     <Content Include="Scripts\Framework\StackPanel.js" />
     <Content Include="Scripts\Framework\Style.js" />
     <Content Include="Scripts\Framework\UIElement.js" />
+    <Content Include="Scripts\UnitTesting.js" />
     <Content Include="test1.html" />
     <Content Include="test2.html" />
     <Content Include="tests.html" />

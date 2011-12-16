@@ -1,9 +1,10 @@
 ﻿/// <reference path="PropertyValueProvider.js" />
 
-function _DefaultValuePropertyProvider(obj, propPrecedence) {
-    _PropertyValueProvider.apply(this, obj, propPrecedence, 0);
-    this.GetPropertyValue = function (propd) {
-        return propd.DefaultValue;
-    };
-}
 _DefaultValuePropertyProvider.prototype = new _PropertyValueProvider();
+_DefaultValuePropertyProvider.prototype.constructor = _DefaultValuePropertyProvider;
+function _DefaultValuePropertyProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, 0);  
+}
+_DefaultValuePropertyProvider.prototype.GetPropertyValue = function (propd) {
+    return propd.DefaultValue;
+};
