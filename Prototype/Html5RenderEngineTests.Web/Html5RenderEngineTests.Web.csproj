@@ -56,7 +56,7 @@
     <Content Include="NotImplemented\DependencyProperty.txt" />
     <Content Include="Outline.txt" />
     <Content Include="Scripts\Border.js" />
-    <Content Include="Scripts\Canvas.js" />
+    <Content Include="Scripts\Framework\Canvas.js" />
     <Content Include="Scripts\Framework\Collection.js" />
     <Content Include="Scripts\Framework\Control.js" />
     <Content Include="Scripts\Framework\DependencyObject.js" />
@@ -64,6 +64,7 @@
     <Content Include="Scripts\Framework\DependencyObjectCollection.js" />
     <Content Include="Scripts\Framework\DependencyProperty.js" />
     <Content Include="Scripts\Framework\FrameworkElement.js" />
+    <Content Include="Scripts\Framework\UIElementCollection.js" />
     <Content Include="Scripts\Framework\VisualTreeWalker.js" />
     <Content Include="Scripts\jquery-1.7.js" />
     <Content Include="Scripts\Framework\Panel.js" />

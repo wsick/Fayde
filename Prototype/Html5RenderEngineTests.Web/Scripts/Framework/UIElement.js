@@ -1,6 +1,7 @@
 ﻿/// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
 /// <reference path="DependencyProperty.js" />
+/// <reference path="Canvas.js" />
 
 //UIElement.ClipProperty;
 //UIElement.CacheModeProperty;
