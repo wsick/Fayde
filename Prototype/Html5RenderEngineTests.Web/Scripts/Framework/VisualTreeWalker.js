@@ -10,12 +10,15 @@ _VisualTreeWalker.prototype.constructor = _VisualTreeWalker;
 function _VisualTreeWalker(/* UIElement */obj, /* _VisualTreeWalkerDirection */direction) {
     this._Offset = 0;
     this._Collection = null;
-    this._Content = obj.GetSubtreeObject();
-    this._Direction = direction;
+    this._Content = obj._GetSubtreeObject();
+    if (direction)
+        this._Direction = direction;
+    else
+        this._Direction = _VisualTreeWalkerDirection.Logical;
     if (this._Content) {
-        if (this._Content instanceof Collection) { //WTF: Collection?
+        if (this._Content instanceof Collection) {
             this._Collection = this._Content;
-            if (this._Content instanceof UIElementCollection) //WTF: UIElementCollection
+            if (this._Content instanceof UIElementCollection)
                 this._Direction = _VisualTreeWalkerDirection.Logical;
         }
     }

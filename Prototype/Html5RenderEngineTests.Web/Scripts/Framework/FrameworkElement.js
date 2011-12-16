@@ -166,7 +166,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     this.UpdateBounds();
 
     var margin = this.GetMargin();
-    var size = availableSize.GrowByThickness(margin.Negative());
+    var size = availableSize.GrowByThickness(margin.Negate());
 
     size = this._ApplySizeConstraints(size);
 
@@ -200,7 +200,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     this.SetDesiredSize(size);
 };
-FrameworkElement.prototype._MeasureOverrideWithEror = function (availableSize) {
+FrameworkElement.prototype._MeasureOverrideWithEror = function (availableSize, error) {
     var desired = new Size(0, 0);
     availableSize = availableSize.Max(desired);
 
@@ -255,7 +255,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     this.ClearValue(LayoutClipProperty);
 
     var margin = this.GetMargin();
-    var childRect = finalRect.GrowBy(margin.Negative());
+    var childRect = finalRect.GrowBy(margin.Negate());
 
     this.UpdateTransform();
     this.UpdateProjection();
