@@ -6,7 +6,7 @@ function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.apply(this, obj, propPrecedence);
     this._Source = null;
     this._SourceDataContextChanged = function (sender, args, error) {
-        this._Object.ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
     };
     this.GetPropertyValue = function (propd) {
         if (!this._Source || propd != FrameworkElement.DataContextProperty)
@@ -26,13 +26,13 @@ function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
 
         if (oldValue != newValue) {
             var error = new BError();
-            this._Object.ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
         }
     };
     this.EmitChanged = function () {
         if (this._Source) {
             var error = new BError();
-            this._Object.ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
         }
     };
 }

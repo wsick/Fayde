@@ -52,16 +52,19 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
+    <Content Include="NotImplemented\DependencyProperty.txt" />
     <Content Include="Outline.txt" />
     <Content Include="Scripts\Border.js" />
     <Content Include="Scripts\Canvas.js" />
-    <Content Include="Scripts\Control.js" />
-    <Content Include="Scripts\DependencyObject.js" />
-    <Content Include="Scripts\Error.js" />
-    <Content Include="Scripts\FrameworkElement.js" />
+    <Content Include="Scripts\Framework\Control.js" />
+    <Content Include="Scripts\Framework\DependencyObject.js" />
+    <Content Include="Scripts\Framework\BError.js" />
+    <Content Include="Scripts\Framework\DependencyProperty.js" />
+    <Content Include="Scripts\Framework\FrameworkElement.js" />
+    <Content Include="Scripts\Framework\VisualTreeWalker.js" />
     <Content Include="Scripts\jquery-1.7.js" />
-    <Content Include="Scripts\Panel.js" />
-    <Content Include="Scripts\Primitives.js" />
+    <Content Include="Scripts\Framework\Panel.js" />
+    <Content Include="Scripts\Framework\Primitives.js" />
     <Content Include="Scripts\PropertyValueProviders\AutoCreate.js" />
     <Content Include="Scripts\PropertyValueProviders\DefaultValue.js" />
     <Content Include="Scripts\PropertyValueProviders\ImplicitStyle.js" />
@@ -73,11 +76,12 @@
     <Content Include="Scripts\PropertyValueProviders\Style.js" />
     <Content Include="Scripts\RenderEngine.js" />
     <Content Include="Scripts\Shape.js" />
-    <Content Include="Scripts\StackPanel.js" />
-    <Content Include="Scripts\Style.js" />
-    <Content Include="Scripts\UIElement.js" />
+    <Content Include="Scripts\Framework\StackPanel.js" />
+    <Content Include="Scripts\Framework\Style.js" />
+    <Content Include="Scripts\Framework\UIElement.js" />
     <Content Include="test1.html" />
     <Content Include="test2.html" />
+    <Content Include="tests.html" />
     <Content Include="Todo.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">

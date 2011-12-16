@@ -44,7 +44,7 @@ function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
             this._CurrentValue = newValue;
 
             var error = new BError();
-            this._Object.ProviderValueChanged(this._PropertyPrecedence, Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
             return true;
         }
         return false;

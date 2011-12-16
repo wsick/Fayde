@@ -14,7 +14,7 @@ function Panel() {
         return this.GetValue(Panel.ChildrenProperty);
     };
     this.SetChildren = function (value) {
-        this.SetValue(Panel.ChildrenProperty);
+        this.SetValue(Panel.ChildrenProperty, value);
     };
 
     this.GetIsItemsHost = function () {
@@ -32,6 +32,15 @@ function Panel() {
     };
 }
 Panel.BackgroundProperty = DependencyProperty.Register("Background", Panel);
-Panel.ChildrenProperty = DependencyProperty.Register("Children", Panel);
-Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", Panel);
+Panel.ChildrenProperty = DependencyProperty.Register("Children", Panel,
+    {
+        GetValue: function (propd, obj) {
+            var col = new UIElementCollection();
+            col.SetIsSecondaryParent(true);
+            if (obj)
+                obj._SetSubtreeObject(col);
+            return col;
+        }
+    });
+Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", Panel, false);
 Panel.prototype = new FrameworkElement();

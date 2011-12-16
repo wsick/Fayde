@@ -8,13 +8,13 @@ function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
         if (value)
             return value;
 
-        value = propd.IsAutoCreated() ? propd.GetAutoCreatedValue(this._Object) : null;
+        value = propd._IsAutoCreated() ? propd._GetAutoCreatedValue(this._Object) : null;
         if (!value)
             return null;
 
         this._ht[propd] = value;
         var error = new BError();
-        this._Object.ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
         return value;
     };
     this.RecomputePropertyValue = function (propd, providerFlags, error) {
@@ -32,6 +32,6 @@ function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
 _AutoCreatePropertyValueProvider.prototype = new _PropertyValueProvider();
 
 var _AutoCreators = {
-    DefaultFontSize: 11,
-    DefaultBlackBrush: "#000000"
+    DefaultFontSize: { GetValue: function (propd, obj) { return 11; } },
+    DefaultBlackBrush: { GetValue: function (propd, obj) { return "#000000"; } }
 };

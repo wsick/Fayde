@@ -1,7 +1,8 @@
-﻿function DependencyProperty(name, ownerType, defaultValue) {
+﻿function DependencyProperty(name, ownerType, defaultValue, autocreator) {
     this.Name = name;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
+    this._AutoCreator = autocreator;
     this.toString = function () {
         var funcNameRegex = /function (.{1,})\(/;
         var results = (funcNameRegex).exec(this.OwnerType.toString());
@@ -10,6 +11,12 @@
     };
     this._HasDefaultValue = function () {
         return this.DefaultValue != null;
+    };
+    this._IsAutoCreated = function () {
+        return this._AutoCreator != undefined && this._AutoCreator != null;
+    };
+    this._GetAutoCreatedValue = function (obj) {
+        return this._AutoCreator.GetValue(this, obj);
     };
 }
 DependencyProperty.prototype = new Object();

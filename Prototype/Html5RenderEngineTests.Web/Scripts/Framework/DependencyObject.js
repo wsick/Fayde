@@ -1,5 +1,7 @@
 ﻿/// <reference path="/Scripts/jquery-1.7.js" />
 /// <reference path="/Scripts/PropertyValueProviders/PropertyValueProvider.js" />
+/// <reference path="/Scripts/PropertyValueProviders/Inherited.js" />
+/// <reference path="BError.js" />
 /// <reference path="DependencyProperty.js" />
 /// <reference path="FrameworkElement.js" />
 
@@ -15,7 +17,7 @@ function DependencyObject() {
         //Establish providers used
         var bitmask = this._ProviderBitmasks[propd] || 0;
         bitmask |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
-        if (propd.IsAutoCreated())
+        if (propd._IsAutoCreated())
             bitmask != 1 << _PropertyPrecedence.AutoCreate;
         if (propd._HasDefaultValue())
             bitmask != 1 << _PropertyPrecedence.DefaultValue;
@@ -51,7 +53,7 @@ function DependencyObject() {
         }
         higher &= bitmask;
         higher |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
-        if (propd.IsAutoCreated())
+        if (propd._IsAutoCreated())
             higher |= 1 << _PropertyPrecedence.AutoCreate;
         if (propd._HasDefaultValue())
             higher |= 1 << _PropertyPrecedence.DefaultValue;
@@ -186,6 +188,51 @@ function DependencyObject() {
             else if (i > providerPrecedence && provider._HasFlag(_ProviderFlags.RecomputesOnHigherPriorityChange))
                 provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnHigherPriorityChange, error);
         }
+    };
+    this._PropagateInheritedValue = function (inheritable, source, newValue) {
+        if (!this._Providers[_PropertyPrecedence.Inherited])
+            return true;
+
+        this._Providers[_PropertyPrecedence.Inherited].SetPropertySource(inheritable, source);
+        var propd = _InheritedPropertyValueProvider.GetProperty(inheritable, this);
+        if (!propd)
+            return false;
+
+        var error = new BError();
+        this._ProviderValueChanged(_PropertyPrecedence.Inherited, propd, null, newValue, true, false, false, error);
+        return this._GetPropertyValueProvider(propd) == _PropertyPrecedence.Inherited;
+    };
+    this._GetInheritedValueSource = function (inheritable) {
+        if (!this._Providers[_PropertyPrecedence.Inherited])
+            return null;
+        return this._Providers[_PropertyPrecedence.Inherited]._GetPropertySource(inheritable);
+    };
+    this._SetInheritedValueSource = function (inheritable, source) {
+        if (!this._Providers[_PropertyPrecedence.Inherited])
+            return;
+
+        if (!source) {
+            var propd = _InheritedPropertyValueProvider.GetProperty(inheritable, this);
+            if (propd)
+                return;
+            var bitmask = this._ProviderBitmasks[propd];
+            bitmask &= ~(1 << _PropertyPrecedence.Inherited);
+            this._ProviderBitmasks[propd] = bitmask;
+        }
+        this._Providers[_PropertyPrecedence.Inherited]._SetPropertySource(inheritable, source);
+    };
+    this._GetPropertyValueProvider = function (propd) {
+        var bitmask = this._ProviderBitmasks[propd];
+        for (var i = 0; i < _PropertyPrecedence.Lowest; i++) {
+            var p = 1 << i;
+            if ((bitmask & p) == p)
+                return i;
+            if (i == _PropertyPrecedence.DefaultValue && propd._HasDefaultValue())
+                return i;
+            if (i == _PropertyPrecedence.AutoCreate && propd._IsAutoCreated())
+                return i;
+        }
+        return -1;
     };
     this._OnPropertyChanged = function (args, error) {
         if (args.Property == DependencyObject.NameProperty) {

@@ -7,8 +7,35 @@
 4 Style [Done]
 5 ImplicitStyle [Done]
 
-6 InheritedProperty
-	- InheritedContext
+6 InheritedProperty [Done]
+	- InheritedContext [Done]
 7 InheritedDataContext [Done]
 8 DefaultValue [Done]
 9 AutoCreate [Done]
+
+
+
+DependencyObject
+=============================
+_PropagateInheritedValue [Done]
+_GetInheritedValueSource [Done]
+_SetInheritedValueSource [Done]
+_GetPropertyValueProvider [Done]
+
+
+
+UIElement
+=============================
+_GetSubtreeObject
+_SetSubtreeObject
+
+
+
+Collection
+=============================
+GetValueAt
+GetCount
+UIElementCollection
+	GetValueAtZIndex
+	GetZSortedCount
+	ResortByZIndex

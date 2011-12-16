@@ -25,17 +25,11 @@ function UIElement() {
                 this.GetVisualParent().SetSizeDirty();
         }
     };
-    this.GetDesiredSize = function () {
-        return this._DesiredSize;
-    };
-    this.SetDesiredSize = function (value) {
-        this._DesiredSize = value;
-    };
     this.GetUseLayoutRounding = function () {
-        return this.UseLayoutRounding; //bool
+        return this.GetValue(UIElement.UseLayoutRoundingProperty);
     };
     this.SetUseLayoutRounding = function (value) {
-        this.UseLayoutRounding = value;
+        this.SetValue(UIElement.UseLayoutRoundingProperty, value);
     };
     this.GetVisualParent = function () {
         return this._Parent; //UIElement
@@ -53,11 +47,6 @@ function UIElement() {
     this.InvalidateArrange = function () {
         this._DirtyFlags.SetArrangeDirty();
         //TODO: Alert redraw necessary
-    };
-    this._GetVisualTreeWalker = function () {
-    };
-    this._GetSubtreeExtents = function () {
-        return this._Extents;
     };
     this._ComputeBounds = function () {
         AbstractMethod();
@@ -122,4 +111,19 @@ function UIElement() {
     };
     this._ArrangeWithError = function (finalRect, error) { };
 }
+//UIElement.ClipProperty;
+//UIElement.CacheModeProperty;
+//UIElement.EffectProperty;
+//UIElement.ProjectionProperty;
+//UIElement.IsHitTestVisibleProperty;
+//UIElement.OpacityMaskProperty;
+//UIElement.OpacityProperty;
+//UIElement.RenderTransformOriginProperty;
+//UIElement.VisibilityProperty;
+UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", UIElement);
+//UIElement.AllowDropProperty;
+//UIElement.CursorProperty;
+//UIElement.ResourcesProperty;
+//UIElement.TagProperty;
+//UIElement.TriggersProperty;
 UIElement.prototype = new DependencyObject();
