@@ -8,6 +8,9 @@ function Border() {
     FrameworkElement.call(this);
 }
 
+//////////////////////////////////////////
+// DEPENDENCY PROPERTIES
+//////////////////////////////////////////
 Border.BackgroundProperty = DependencyProperty.Register("Background", Border);
 Border.prototype.GetBackground = function () {
     return this.GetValue(Border.BackgroundProperty);
@@ -56,6 +59,9 @@ Border.prototype.SetPadding = function (value) {
     this.SetValue(Border.PaddingProperty, value);
 };
 
+//////////////////////////////////////////
+// INSTANCE METHODS
+//////////////////////////////////////////
 Border.prototype.IsLayoutContainer = function () { return true; };
 Border.prototype._MeasureOverrideWithEror = function (availableSize, error) {
     var desired = new Size(0, 0);

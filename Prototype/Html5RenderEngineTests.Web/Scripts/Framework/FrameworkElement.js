@@ -9,6 +9,10 @@ FrameworkElement.prototype.constructor = FrameworkElement;
 function FrameworkElement() {
     UIElement.call(this);
 }
+
+//////////////////////////////////////////
+// DEPENDENCY PROPERTIES
+//////////////////////////////////////////
 FrameworkElement.prototype.GetActualWidth = function () {
     return this.ActualWidth;
 };
@@ -81,6 +85,10 @@ FrameworkElement.prototype.GetVerticalAlignment = function () {
 FrameworkElement.prototype.SetVerticalAlignment = function (value) {
     this.VerticalAlignment = value;
 };
+
+//////////////////////////////////////////
+// INSTANCE METHODS
+//////////////////////////////////////////
 FrameworkElement.prototype._ApplySizeConstraints = function (size) {
     var specified = new Size(this.GetWidth(), this.GetHeight());
     var constrained = new Size(this.GetMinWidth(), this.GetMinHeight());
