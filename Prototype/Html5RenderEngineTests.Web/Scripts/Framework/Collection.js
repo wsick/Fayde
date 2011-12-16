@@ -10,6 +10,9 @@ function Collection() {
 Collection.prototype.GetCount = function () {
     return this._ht.length;
 };
+Collection.prototype.GetValueAt = function (index) {
+    return this._ht[index];
+};
 Collection.prototype.Add = function (value) {
     var rv = this.Insert(this._ht.length, value);
     return rv ? this._ht.length - 1 : -1;

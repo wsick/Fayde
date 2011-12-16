@@ -42,9 +42,9 @@ _SetSubtreeObject
 
 Collection
 =============================
-GetValueAt
-GetCount
+GetValueAt [Done]
+GetCount [Done]
 UIElementCollection
-	GetValueAtZIndex
-	GetZSortedCount
-	ResortByZIndex
+	GetValueAtZIndex [Done]
+	GetZSortedCount [Done]
+	ResortByZIndex [Done]

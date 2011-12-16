@@ -131,3 +131,17 @@ UIElement.prototype._DoArrangeWithError = function (error) {
     }
 };
 UIElement.prototype._ArrangeWithError = function (finalRect, error) { };
+
+// STATICS
+UIElement.ZIndexComparer = function (uie1, uie2) {
+    var zi1 = Canvas.GetZIndex(uie1);
+    var zi2 = Canvas.GetZIndex(uie2);
+    if (zi1 == zi2) {
+        var z1 = Canvas.GetZ(uie1);
+        var z2 = Canvas.GetZ(uie2);
+        if (isNaN(z1) || isNaN(z2))
+            return 0;
+        return z1 > z2 ? 1 : (z1 < z2 ? -1 : 0);
+    }
+    return zi1 - zi2;
+};
