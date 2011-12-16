@@ -8,6 +8,9 @@
 function DependencyObject() {
     this._Providers = new Array();
     this._ProviderBitmasks = new Array();
+    this._ReadLocalValue = function (propd) {
+        return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+    };
     this.GetValue = function (propd, startingPrecedence, endingPrecedence) {
         if (startingPrecedence === undefined)
             startingPrecedence = _PropertyPrecedence.Highest;
@@ -36,8 +39,51 @@ function DependencyObject() {
         }
         return null;
     };
-    this.SetValue = function (propd, value) {
-        NotImplemented();
+    this.SetValue = function (propd, value, error) {
+        var hasCoercer = propd._HasCoercer();
+        var coerced = value;
+        if ((hasCoercer && !(coerced = propd._Coerce(this, coerced, error)))
+            || !this._IsValueValid(propd, coerced, error) 
+            || !propd._Validate(this, coerced, error)) {
+            return false;
+        }
+        return this._SetValueImpl(propd, coerced, error);
+    };
+    this._SetValueImpl = function (propd, value, error) {
+        if (this._IsFrozen) {
+            error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
+            return false;
+        }
+        var currentValue;
+        var equal = false;
+
+        if (!(currentValue = this._ReadLocalValue(propd)))
+            if (propd._IsAutoCreated())
+                currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+
+        if (currentValue && value)
+            equal = !propd._AlwaysChange && currentValue == value;
+        else
+            equal = !currentValue && !value;
+
+        if (!equal) {
+            var newValue;
+            this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+            if (propd._IsAutoCreated())
+                this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
+
+            if (value && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
+                newValue = value;
+            else
+                newValue = null;
+
+            if (newValue) {
+                this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
+            }
+            this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
+        }
+
+        return true;
     };
     this._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
         var bitmask = this._ProviderBitmasks[propd] || 0;
@@ -59,16 +105,16 @@ function DependencyObject() {
             higher |= 1 << _PropertyPrecedence.DefaultValue;
 
         for (var j = providerPrecedence; j >= _PropertyPrecedence.Highest; j--) {
-            if (!(bitmask & (1 << i)))
+            if (!(higher & (1 << j)))
                 continue;
             var provider = this._Providers[i];
             if (!provider)
                 continue;
             if (provider.GetPropertyValue(propd)) {
-                return this._CallRecomputePropertyValueForProviders(propd, providerPrecedence);
+                this._CallRecomputePropertyValueForProviders(propd, providerPrecedence, error);
+                return;
             }
         }
-        // TODO: Finish
 
         var oldValue = undefined;
         var newValue = undefined;
@@ -88,26 +134,26 @@ function DependencyObject() {
         }
 
         var equal = false;
-        if (oldValue && newValue) {
-            equal = !propd._AlwaysChange() && oldValue == newValue;
+        if (oldValue != undefined && newValue != undefined) {
+            equal = !propd._AlwaysChange && oldValue == newValue;
         }
 
         if (equal)
-            return null;
+            return;
 
         if (providerPrecedence != _PropertyPrecedence.IsEnabled && this._Providers[_PropertyPrecedence.IsEnabled] && this._Providers[_PropertyPrecedence.IsEnabled].LocalValueChanged(propd))
-            return null;
+            return;
 
         this._CallRecomputePropertyValueForProviders(propd, providerPrecedence, error);
 
         var oldDO = undefined;
         var newDO = undefined;
 
-        var setsParent = setParent && !propd.IsCustom();
+        var setsParent = setParent && !propd._IsCustom;
 
-        if (oldValue && oldValue instanceof DependencyObject)
+        if (oldValue && (oldValue instanceof DependencyObject))
             oldDO = oldValue;
-        if (newValue && newValue instanceof DependencyObject)
+        if (newValue && (newValue instanceof DependencyObject))
             newDO = newValue;
 
         if (oldDO) {
@@ -116,7 +162,7 @@ function DependencyObject() {
                 oldDO._RemoveParent(this, null);
                 oldDO._RemoveTarget(this);
                 oldDO._RemovePropertyChangeListener(this, propd);
-                if (oldDO) { //TODO: Change to oldDO.Is(Type::COLLECTION)...
+                if (oldDO instanceof Collection) {
                     //TODO: Remove Changed event handler
                     //TODO: Remove ItemChanged event handler
                 }
@@ -134,7 +180,7 @@ function DependencyObject() {
 
                 newDO._SetResourceBase(this._GetResourceBase());
 
-                if (newDO) { //TODO: Change to oldDO.Is(Type::COLLECTION)...
+                if (newDO instanceof Collection) {
                     //TODO: Add Changed event handler
                     //TODO: Add ItemChanged event handler
                 }
@@ -172,8 +218,8 @@ function DependencyObject() {
             }
         }
 
-        //Needs clock tick..
-        return;
+        //if ([this property has an active animation])
+            //Needs clock tick..
     };
     this._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
         for (var i = 0; i < _PropertyPrecedence.Count; i++) {
@@ -243,5 +289,5 @@ function DependencyObject() {
         NotImplemented();
     };
 }
-DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject);
+DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 DependencyObject.prototype = new Object();

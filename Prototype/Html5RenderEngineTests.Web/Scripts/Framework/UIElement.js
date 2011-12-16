@@ -1,5 +1,6 @@
 ﻿/// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
+/// <reference path="DependencyProperty.js" />
 
 function UIElement() {
     DependencyObject.apply(this);
@@ -122,7 +123,7 @@ function UIElement() {
 //UIElement.VisibilityProperty;
 UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", UIElement);
 //UIElement.AllowDropProperty;
-//UIElement.CursorProperty;
+//UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement, CursorType.Default, null, UIElement._CoerceCursor);
 //UIElement.ResourcesProperty;
 //UIElement.TagProperty;
 //UIElement.TriggersProperty;

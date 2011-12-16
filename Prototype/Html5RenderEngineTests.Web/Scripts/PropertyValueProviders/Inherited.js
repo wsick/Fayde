@@ -24,10 +24,10 @@ function _InheritedPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.apply(this, obj, propPrecedence, 0);
     this._ht = new Array();
     this.GetPropertyValue = function (propd) {
-        var inheritable = _InheritedPropertyValueProvider.GetInheritable(this._Object, propd);
-        if (inheritable == _Inheritable.None)
+        if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
             return null;
 
+        var inheritable = _InheritedPropertyValueProvider.GetInheritable(this._Object, propd);
         var ancestor = this._GetPropertySource(inheritable);
         if (!ancestor)
             return null;
@@ -69,9 +69,9 @@ function _InheritedPropertyValueProvider(obj, propPrecedence) {
         }
         if (element instanceof UIElement) {
             var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical, true);
-            var child;
-            while (child = walker.Step()) {
-                this.WalkTree(rootParent, child, context, props, adding);
+            var child2;
+            while (child2 = walker.Step()) {
+                this.WalkTree(rootParent, child2, context, props, adding);
             }
         }
     };
@@ -100,7 +100,7 @@ function _InheritedPropertyValueProvider(obj, propPrecedence) {
 
             this.WalkSubtree(root, element, eleContext, props, adding);
         } else {
-            var eleContext = new _InheritedContext(element, context);
+            var eleContext2 = new _InheritedContext(element, context);
 
             this.MaybeRemoveInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
             this.MaybeRemoveInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
@@ -114,7 +114,7 @@ function _InheritedPropertyValueProvider(obj, propPrecedence) {
             this.MaybeRemoveInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
             this.MaybeRemoveInheritedValue(context.FontResourceSource, _Inheritable.FontResource, props, element);
 
-            props = eleContext.Compare(context, props);
+            props = eleContext2.Compare(context, props);
             if (props == _Inheritable.None)
                 return;
 
@@ -186,6 +186,10 @@ function _InheritedPropertyValueProvider(obj, propPrecedence) {
             delete this._ht[inheritable];
     };
 }
+_InheritedPropertyValueProvider.IsInherited = function (obj, propd) {
+    var inheritable = _InheritedPropertyValueProvider.GetInheritable(obj, propd);
+    return inheritable != _Inheritable.None;
+};
 _InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
     if (propd == Control.ForegroundProperty || propd == TextBlock.ForegroundProperty || propd == TextElement.ForegroundProperty)
         return _Inheritable.Foreground;
