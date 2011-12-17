@@ -3,26 +3,14 @@
 /// <reference path="DependencyProperty.js" />
 /// <reference path="Canvas.js" />
 
-//UIElement.ClipProperty;
-//UIElement.CacheModeProperty;
-//UIElement.EffectProperty;
-//UIElement.ProjectionProperty;
-//UIElement.IsHitTestVisibleProperty;
-//UIElement.OpacityMaskProperty;
-//UIElement.OpacityProperty;
-//UIElement.RenderTransformOriginProperty;
-//UIElement.VisibilityProperty;
-UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", UIElement);
-//UIElement.AllowDropProperty;
-//UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement, CursorType.Default, null, UIElement._CoerceCursor);
-//UIElement.ResourcesProperty;
-//UIElement.TagProperty;
-//UIElement.TriggersProperty;
-
 UIElement.prototype = new DependencyObject();
 UIElement.prototype.constructor = UIElement;
 function UIElement() {
     DependencyObject.call(this);
+    this._Bounds = new Rect();
+    this._GlobalBounds = new Rect();
+    this._SurfaceBounds = new Rect();
+    this._Extents = new Rect();
     this._Parent = null;
     this._DesiredSize = null;
     var uie = this;
@@ -47,21 +35,56 @@ function UIElement() {
         }
     };
 }
+
+//////////////////////////////////////////
+// DEPENDENCY PROPERTIES
+//////////////////////////////////////////
+
+//UIElement.ClipProperty;
+//UIElement.CacheModeProperty;
+//UIElement.EffectProperty;
+//UIElement.ProjectionProperty;
+//UIElement.IsHitTestVisibleProperty;
+//UIElement.OpacityMaskProperty;
+//UIElement.OpacityProperty;
+//UIElement.RenderTransformOriginProperty;
+//UIElement.AllowDropProperty;
+//UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement, CursorType.Default, null, UIElement._CoerceCursor);
+//UIElement.ResourcesProperty;
+//UIElement.TriggersProperty;
+
+UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", UIElement);
 UIElement.prototype.GetUseLayoutRounding = function () {
     return this.GetValue(UIElement.UseLayoutRoundingProperty);
 };
 UIElement.prototype.SetUseLayoutRounding = function (value) {
     this.SetValue(UIElement.UseLayoutRoundingProperty, value);
 };
+
+UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", UIElement);
+UIElement.prototype.GetVisibility = function () {
+    return this.GetValue(UIElement.VisibilityProperty);
+};
+UIElement.prototype.SetVisibility = function (value) {
+    this.SetValue(UIElement.VisibilityProperty, value);
+};
+
+UIElement.TagProperty = DependencyProperty.Register("Tag", UIElement);
+UIElement.prototype.GetTag = function () {
+    return this.GetValue(UIElement.TagProperty);
+};
+UIElement.prototype.SetTag = function (value) {
+    this.SetValue(UIElement.TagProperty, value);
+};
+
+//////////////////////////////////////////
+// INSTANCE METHODS
+//////////////////////////////////////////
 UIElement.prototype.GetVisualParent = function () {
     return this._Parent; //UIElement
 };
-UIElement.prototype.IsLayoutContainer = function () {
-    return false;
-};
-UIElement.prototype.IsContainer = function () {
-    return this.IsLayoutContainer();
-};
+UIElement.prototype.IsLayoutContainer = function () { return false; };
+UIElement.prototype.IsContainer = function () { return this.IsLayoutContainer(); };
 UIElement.prototype.InvalidateMeasure = function () {
     this._DirtyFlags.SetMeasureDirty();
     //TODO: Alert redraw necessary
@@ -132,8 +155,39 @@ UIElement.prototype._DoArrangeWithError = function (error) {
     }
 };
 UIElement.prototype._ArrangeWithError = function (finalRect, error) { };
+UIElement.prototype._ShiftPosition = function (point) {
+    this._Bounds.X = point.X;
+    this._Bounds.Y = point.Y;
+};
+UIElement.prototype._InsideObject = function (x, y) {
+    NotImplemented();
+};
 
 // STATICS
+UIElement._IntersectBoundsWithClipPath = function (unclipped, transform) {
+    var clip = this.GetClip();
+    var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);
+    var box;
+
+    if (!clip && !layoutClip)
+        return unclipped;
+    if (clip)
+        box = clip.GetBounds();
+    else
+        box = layoutClip.GetBounds();
+
+    if (layoutClip)
+        box = box.Intersection(layoutClip.GetBounds());
+
+    if (!this._GetRenderVisible())
+        box = new Rect(0, 0, 0, 0);
+
+    //if (transform)
+    //    box = box.Transform(this._AbsoluteTransform);
+
+    return box.Intersection(unclipped);
+};
+
 UIElement.ZIndexComparer = function (uie1, uie2) {
     var zi1 = Canvas.GetZIndex(uie1);
     var zi2 = Canvas.GetZIndex(uie2);
