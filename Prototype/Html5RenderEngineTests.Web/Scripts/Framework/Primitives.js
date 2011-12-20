@@ -25,14 +25,20 @@ function CornerRadius() {
     this.BottomRight = 0;
     this.BottomLeft = 0;
 }
+CornerRadius.prototype.IsZero = function () {
+    return this.TopLeft == 0
+        && this.TopRight == 0
+        && this.BottomRight == 0
+        && this.BottomLeft == 0;
+};
 
 Thickness.prototype = new Object();
 Thickness.prototype.constructor = Thickness;
-function Thickness() {
-    this.Left = 0;
-    this.Top = 0;
-    this.Right = 0;
-    this.Bottom = 0;
+function Thickness(left, top, right, bottom) {
+    this.Left = left || 0;
+    this.Top = top || 0;
+    this.Right = right || 0;
+    this.Bottom = bottom || 0;
 }
 Thickness.Plus = function (thickness2) {
     var t = new Thickness();
@@ -40,6 +46,14 @@ Thickness.Plus = function (thickness2) {
     t.Right = this.Right + thickness2.Right;
     t.Top = this.Top + thickness2.Top;
     t.Bottom = this.Bottom + thickness2.Bottom;
+    return t;
+};
+Thickness.Half = function () {
+    var t = new Thickness();
+    t.Left = this.Left / 2;
+    t.Top = this.Top / 2;
+    t.Right = this.Right / 2;
+    t.Bottom = this.Bottom / 2;
     return t;
 };
 Thickness.Negate = function () {
@@ -129,4 +143,9 @@ Rect.prototype.Intersection = function (rect2) {
     result.Width = Math.max(0, Math.min(this.X + this.Width, rect2.X + rect2.Width) - result.X);
     result.Height = Math.max(0, Math.min(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y);
     return result;
+};
+Rect.prototype.Draw = function (surface, /* CornerRadius */adjusted) {
+    if (adjusted.IsZero()) { 
+    } else {
+    }
 };

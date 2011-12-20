@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Scripts/jquery-1.7.js" type="text/javascript"></script>
+    <script src="/Scripts/kinetic-v2.3.2.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        //var shapes = new Array();
+
+        $(document).ready(function () {
+            var canvas = document.getElementById("testCanvas");
+            var ctx = canvas.getContext("2d");
+
+            drawBox(ctx, 100, 100, 100, 100, 5);
+        });
+
+        /*
+        $(document).ready(function () {
+            var stage = new Kinetic.Stage("container", 800, 600);
+            for (var i = 0; i < 200; i++) {
+                var left = randomInt(0, 400);
+                var top = randomInt(0, 400);
+                var width = randomInt(0, 800 - left);
+                var height = randomInt(0, 600 - top);
+                var shape = new Kinetic.Shape(function () { drawBox(this.getContext(), left, top, width, height); });
+                stage.add(shape);
+            }
+        });
+        */
+        function randomInt(low, high) {
+            return Math.floor(Math.random() * (high - low + 1) + low);
+        }
+        function drawBox(ctx, left, top, width, height, stroke) {
+            ctx.beginPath();
+            ctx.rect(left + stroke / 2, top + stroke / 2, width - stroke, height - stroke);
+            ctx.lineWidth = stroke;
+            ctx.strokeStyle = "black";
+            ctx.fillStyle = "#00D2FF";
+            ctx.fill();
+            ctx.stroke();
+            ctx.closePath();
+        }
+    </script>
+</head>
+<body>
+    <div id="container" style="width: 600px; height: 600px; border: solid 1px black;">
+	    <canvas id="testCanvas" width="600" height="600">
+	    </canvas>
+    </div>
+</body>
+</html>

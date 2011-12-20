@@ -127,7 +127,7 @@ UIElement.prototype._DoArrangeWithError = function (error) {
     if (!parent) {
         var desired = new Size();
         var available = new Size();
-        var surface = MainSurface;
+        var surface = this.MainSurface;
 
         if (this.IsLayoutContainer()) {
             desired = this.GetDesiredSize();
@@ -161,6 +161,11 @@ UIElement.prototype._ShiftPosition = function (point) {
 };
 UIElement.prototype._InsideObject = function (x, y) {
     NotImplemented();
+};
+UIElement.prototype._Render = function (ctx) {
+};
+UIElement.prototype._FrontToBack = function (surfaceRegion, renderList) {
+    
 };
 
 // STATICS

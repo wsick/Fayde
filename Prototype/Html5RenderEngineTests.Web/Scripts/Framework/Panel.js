@@ -90,6 +90,8 @@ Panel.prototype._MeasureOverrideWithEror = function (availableSize, error) {
     var result = new Size(0, 0);
     return result;
 };
+Panel.prototype._Render = function (ctx) {
+};
 
 //STATICS
 Panel._CreateChildren = {
