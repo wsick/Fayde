@@ -7,7 +7,7 @@ Canvas.TopProperty = DependencyProperty.RegisterAttached("Top", Canvas, 0.0);
 Canvas.ZIndexProperty = DependencyProperty.RegisterAttached("ZIndex", Canvas, 0);
 Canvas.ZProperty = DependencyProperty.RegisterAttached("Z", Canvas, NaN);
 
-Canvas.prototype = new Panel();
+Canvas.prototype = new Panel;
 Canvas.prototype.constructor = Canvas;
 function Canvas() {
     this._IsCanvas = true;

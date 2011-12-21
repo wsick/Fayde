@@ -64,6 +64,7 @@
     <Content Include="Scripts\Framework\BError.js" />
     <Content Include="Scripts\Framework\DependencyObjectCollection.js" />
     <Content Include="Scripts\Framework\DependencyProperty.js" />
+    <Content Include="Scripts\Framework\MulticastEvent.js" />
     <Content Include="Scripts\Framework\FrameworkElement.js" />
     <Content Include="Scripts\Framework\LayoutInformation.js" />
     <Content Include="Scripts\Framework\Matrix.js" />

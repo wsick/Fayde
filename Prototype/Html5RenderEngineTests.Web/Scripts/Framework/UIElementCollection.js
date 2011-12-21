@@ -1,7 +1,7 @@
 ﻿/// <reference path="DependencyObjectCollection.js" />
 /// <reference path="UIElement.js" />
 
-UIElementCollection.prototype = new DependencyObjectCollection();
+UIElementCollection.prototype = new DependencyObjectCollection;
 UIElementCollection.prototype.constructor = UIElementCollection;
 function UIElementCollection() {
     UIElementCollection.call(this);

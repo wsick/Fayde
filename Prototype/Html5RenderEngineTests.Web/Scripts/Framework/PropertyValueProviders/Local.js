@@ -1,6 +1,6 @@
 ﻿/// <reference path="PropertyValueProvider.js" />
 
-_LocalPropertyValueProvider.prototype = new _PropertyValueProvider();
+_LocalPropertyValueProvider.prototype = new _PropertyValueProvider;
 _LocalPropertyValueProvider.prototype.con = _LocalPropertyValueProvider;
 function _LocalPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);

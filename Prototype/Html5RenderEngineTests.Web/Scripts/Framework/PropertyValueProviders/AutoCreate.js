@@ -5,7 +5,7 @@ var _AutoCreators = {
     DefaultBlackBrush: { GetValue: function (propd, obj) { return "#000000"; } }
 };
 
-_AutoCreatePropertyValueProvider.prototype = new _PropertyValueProvider();
+_AutoCreatePropertyValueProvider.prototype = new _PropertyValueProvider;
 _AutoCreatePropertyValueProvider.prototype.constructor = _AutoCreatePropertyValueProvider;
 function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);

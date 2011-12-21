@@ -1,4 +1,4 @@
-﻿Matrix.prototype = new Object();
+﻿Matrix.prototype = new Object;
 Matrix.prototype.constructor = Matrix;
 function Matrix() {
     this._Elements = [
@@ -18,7 +18,7 @@ Matrix.Multiply = function (mat1, mat2) {
     NotImplemented();
 };
 
-TranslationMatrix.prototype = new Matrix();
+TranslationMatrix.prototype = Matrix.prototype;
 TranslationMatrix.prototype.constructor = TranslationMatrix;
 TranslationMatrix.prototype.X = 0;
 TranslationMatrix.prototype.Y = 0;
@@ -38,7 +38,7 @@ TranslationMatrix.prototype.Apply = function (ctx) {
     ctx.translate(this.X, this.Y);
 };
 
-RotationMatrix.prototype = new Matrix();
+RotationMatrix.prototype = Matrix.prototype;
 RotationMatrix.prototype.constructor = RotationMatrix;
 RotationMatrix.prototype.Angle = 0;
 function RotationMatrix(angleRad) {
@@ -56,7 +56,7 @@ RotationMatrix.prototype.Apply = function (ctx) {
     ctx.rotate(this.Angle);
 };
 
-ScalingMatrix.prototype = new Matrix();
+ScalingMatrix.prototype = Matrix.prototype;
 ScalingMatrix.prototype.constructor = ScalingMatrix;
 ScalingMatrix.prototype.X = 1;
 ScalingMatrix.prototype.Y = 1;
@@ -76,7 +76,7 @@ ScalingMatrix.prototype.Apply = function (ctx) {
     ctx.scale(this.X, this.Y);
 };
 
-ShearingMatrix.prototype = new Matrix();
+ShearingMatrix.prototype = Matrix.prototype;
 ShearingMatrix.prototype.constructor = ShearingMatrix;
 ShearingMatrix.prototype.ShearX = 0;
 ShearingMatrix.prototype.ShearY = 0;

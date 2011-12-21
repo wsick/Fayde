@@ -1,6 +1,6 @@
 ﻿/// <reference path="Collection.js" />
 
-DependencyObjectCollection.prototype = new Collection();
+DependencyObjectCollection.prototype = new Collection;
 DependencyObjectCollection.prototype.constructor = DependencyObjectCollection;
 function DependencyObjectCollection(setsParent) {
     Collection.call(this);

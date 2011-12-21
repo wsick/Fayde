@@ -7,13 +7,13 @@ var Orientation = {
     Horizontal: "Horizontal"
 };
 
-StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", StackPanel, Orientation.Horizontal);
 
-StackPanel.prototype = new Panel();
+StackPanel.prototype = new Panel;
 StackPanel.prototype.constructor = StackPanel;
 function StackPanel() {
     Panel.call(this);
 }
+StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", StackPanel, Orientation.Horizontal);
 StackPanel.prototype._OrientationChanged = function (d, e) {
     if (!d)
         return;

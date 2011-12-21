@@ -4,15 +4,26 @@
 /// <reference path="BError.js" />
 /// <reference path="DependencyProperty.js" />
 /// <reference path="FrameworkElement.js" />
+/// <reference path="PropertyValueProviders/Local.js"/>
+/// <reference path="PropertyValueProviders/DefaultValue.js"/>
+/// <reference path="PropertyValueProviders/AutoCreate.js"/>
+/// <reference path="MulticastEvent.js"/>
+
+DependencyObject.prototype = new Object;
+DependencyObject.prototype.constructor = DependencyObject;
+function DependencyObject() {
+    this._Initialize();
+}
 
 DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 
-DependencyObject.prototype = new Object();
-DependencyObject.prototype.constructor = DependencyObject;
-function DependencyObject() {
+DependencyObject.prototype._Initialize = function () {
     this._Providers = new Array();
+    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalPropertyValueProvider(this, _PropertyPrecedence.LocalValue);
+    this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyProvider(this, _PropertyPrecedence.DefaultValue);
+    this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
     this._ProviderBitmasks = new Array();
-}
+};
 DependencyObject.prototype._ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
@@ -308,14 +319,6 @@ DependencyObject.prototype._GetPropertyValueProvider = function (propd) {
     }
     return -1;
 };
-DependencyObject.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property == DependencyObject.NameProperty) {
-    }
-    this._NotifyPropertyChangeListeners(args, error);
-};
-DependencyObject.prototype._NotifyPropertyChangeListeners = function (args, error) {
-    NotImplemented();
-};
 DependencyObject.prototype._AddSecondaryParent = function () {
     NotImplemented();
 };
@@ -327,6 +330,20 @@ DependencyObject.prototype._AddParent = function (obj, mergeNamesFromSubtree, er
 };
 DependencyObject.prototype._RemoveParent = function (obj, error) {
     NotImplemented();
+};
+DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
+    //TODO: Handle type problems
+    return true;
+};
+
+DependencyObject.prototype.PropertyChanged = new MulticastEvent();
+DependencyObject.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property == DependencyObject.NameProperty) {
+        //TODO: Unregister old name
+        //TODO: Register new name
+        //TODO: if hydrated from xaml, notify parent
+    }
+    this.PropertyChanged.Raise(this, args);
 };
 
 DependencyObject._PropagateMentor = function (value, newMentor) {

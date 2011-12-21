@@ -19,7 +19,7 @@ Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", Control, tr
 //Control.TemplateProperty;
 //Control.VerticalContentAlignmentProperty;
 //Control.DefaultStyleKeyProperty;
-Control.prototype = new FrameworkElement();
+Control.prototype = new FrameworkElement;
 Control.prototype.constructor = Control;
 function Control() {
     FrameworkElement.call(this);

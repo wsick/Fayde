@@ -20,7 +20,7 @@ var _Inheritable = {
 _Inheritable.All = 0x7ff;
 _Inheritable.None = 0;
 
-_InheritedPropertyValueProvider.prototype = new _PropertyValueProvider();
+_InheritedPropertyValueProvider.prototype = new _PropertyValueProvider;
 _InheritedPropertyValueProvider.prototype.constructor = _InheritedPropertyValueProvider;
 function _InheritedPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, 0);
@@ -308,7 +308,7 @@ _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
 //////////////////////////////////////////
 // INHERITED CONTEXT
 //////////////////////////////////////////
-_InheritedContext.prototype = new Object();
+_InheritedContext.prototype = new Object;
 _InheritedContext.prototype.constructor = _InheritedContext;
 function _InheritedContext() {
     if (arguments.length != 2) {

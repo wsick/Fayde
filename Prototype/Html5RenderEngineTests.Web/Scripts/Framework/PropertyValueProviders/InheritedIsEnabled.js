@@ -2,7 +2,7 @@
 /// <reference path="/Scripts/Control.js" />
 /// <reference path="/Scripts/BError.js" />
 
-_InheritedIsEnabledPropertyValueProvider.prototype = new _PropertyValueProvider();
+_InheritedIsEnabledPropertyValueProvider.prototype = new _PropertyValueProvider;
 _InheritedIsEnabledPropertyValueProvider.prototype.constructor = _InheritedIsEnabledPropertyValueProvider;
 function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);

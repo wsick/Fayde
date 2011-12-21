@@ -2,7 +2,7 @@
 /// <reference path="Primitives.js"/>
 /// <reference path="Brush.js"/>
 
-Surface.prototype = new Object();
+Surface.prototype = new Object;
 Surface.prototype.constructor = Surface;
 Surface.prototype._BackgroundColor = new Color();
 /*
@@ -21,8 +21,10 @@ Surface.prototype.GetExtents = function () {
     return new Size(this._jCanvas.height(), this._jCanvas.width());
 };
 Surface.prototype._Attach = function (/* UIElement */element) {
+    NotImplemented();
 };
 Surface.prototype._AttachLayer = function (/* UIElement */layer) {
+    NotImplemented();
 };
 Surface.prototype.Render = function (region) {
     var ctx = new _RenderContext(this);
@@ -41,7 +43,7 @@ Surface.prototype.Render = function (region) {
 };
 
 
-_RenderContext.prototype = new Object();
+_RenderContext.prototype = new Object;
 _RenderContext.prototype.constructor = _RenderContext;
 _RenderContext.prototype._Surface = new Surface();
 function _RenderContext(surface) {
@@ -75,14 +77,14 @@ _RenderContext.prototype.Fill = function (region, brush) {
     }
 };
 _RenderContext.prototype.CustomRender = function (painterFunc) {
-    var args = new Array();
-    args.push(this._Surface._Ctx);
-    var skip = true; //ignore 1st argument (painterFunc)
-    for (var i in arguments) {
-        if (skip)
-            skip = false;
-        else
-            args.push(arguments[i]);
-    }
+    var args = toArray.call(arguments);
+    args.shift(); //remove painterFunc
+    args.unshift(this._Surface._Ctx); //add canvas context
     painterFunc.apply(this, args);
+};
+function toArray() {
+    var arr = new Array();
+    for (var i in this)
+        arr.push(this[i]);
+    return arr;
 };

@@ -1,12 +1,12 @@
 ﻿/// <reference path="DependencyObject.js" />
 
-Collection.CountProperty = DependencyProperty.Register("Count", Collection, 0);
-Collection.prototype = new DependencyObject();
+Collection.prototype = new DependencyObject;
 Collection.prototype.constructor = Collection;
 function Collection() {
     DependencyObject.call(this);
     this._ht = new Array();
 }
+Collection.CountProperty = DependencyProperty.Register("Count", Collection, 0);
 Collection.prototype.GetCount = function () {
     return this._ht.length;
 };

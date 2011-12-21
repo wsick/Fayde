@@ -2,7 +2,7 @@
 /// <reference path="/Scripts/Error.js" />
 /// <reference path="/Scripts/FrameworkElement.js" />
 
-_InheritedDataContextPropertyValueProvider.prototype = new _PropertyValueProvider();
+_InheritedDataContextPropertyValueProvider.prototype = new _PropertyValueProvider;
 _InheritedDataContextPropertyValueProvider.prototype.constructor = _InheritedDataContextPropertyValueProvider;
 function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence);

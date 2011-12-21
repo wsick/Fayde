@@ -3,7 +3,7 @@
 /// <reference path="FrameworkElement.js" />
 /// <reference path="Surface.js"/>
 
-Border.prototype = new FrameworkElement();
+Border.prototype = new FrameworkElement;
 Border.prototype.constructor = Border;
 function Border() {
     FrameworkElement.call(this);

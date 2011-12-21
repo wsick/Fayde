@@ -3,7 +3,7 @@
 /// <reference path="DependencyProperty.js" />
 /// <reference path="Canvas.js" />
 
-UIElement.prototype = new DependencyObject();
+UIElement.prototype = new DependencyObject;
 UIElement.prototype.constructor = UIElement;
 function UIElement() {
     DependencyObject.call(this);
@@ -201,6 +201,10 @@ UIElement.prototype._PostRender = function (ctx, region) {
     }
 };
 UIElement.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== UIElement) {
+        DependencyObject.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
     if (args.Property == UIElement.VisibilityProperty) {
         this._IsVisible = args.NewValue == Visibility.Visible;
         this._InvalidateVisibility();
@@ -210,6 +214,8 @@ UIElement.prototype._OnPropertyChanged = function (args, error) {
             parent._InvalidateMeasure();
         //TODO: change focus
     }
+    //TODO: Check invalidation of some properties
+    this.PropertyChanged.Raise(this, args);
 };
 UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transform) {
     var clip = this.GetClip();

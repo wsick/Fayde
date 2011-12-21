@@ -1,7 +1,7 @@
 ﻿/// <reference path="DependencyProperty.js"/>
 /// <reference path="Primitives.js"/>
 
-LayoutInformation.prototype = new Object();
+LayoutInformation.prototype = new Object;
 LayoutInformation.prototype.constructor = new LayoutInformation;
 function LayoutInformation() {
 }

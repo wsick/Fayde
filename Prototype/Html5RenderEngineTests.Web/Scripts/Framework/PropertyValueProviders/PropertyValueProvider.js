@@ -22,23 +22,24 @@ var _ProviderFlags = {
     ProvidesLocalValue: 8
 };
 
+_PropertyValueProvider.prototype = new Object;
+_PropertyValueProvider.prototype.constructor = _PropertyValueProvider;
 function _PropertyValueProvider(obj, propPrecedence, flags) {
     this._Object = obj;
     this._PropertyPrecedence = propPrecedence;
     this._Flags = flags;
-    this._HasFlag = function (flag) {
-        return (this._Flags & flag) != 0;
-    };
-    this.GetPropertyValue = function (propd) {
-        alert("Abstract Method");
-    };
-    this.ForeachValue = function (func, data) {
-        if (!func)
-            return;
-        for (var value in this._ht)
-            func(value, data);
-    };
-    this.RecomputePropertyValue = function (propd, providerFlags, error) {
-    };
 }
-_PropertyValueProvider.prototype = new Object();
+_PropertyValueProvider.prototype._HasFlag = function (flag) {
+    return (this._Flags & flag) != 0;
+};
+_PropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    AbstractMethod();
+};
+_PropertyValueProvider.prototype.ForeachValue = function (func, data) {
+    if (!func)
+        return;
+    for (var value in this._ht)
+        func(value, data);
+};
+_PropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+};

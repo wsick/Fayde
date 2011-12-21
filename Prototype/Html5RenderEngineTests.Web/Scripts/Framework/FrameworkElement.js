@@ -3,7 +3,7 @@
 /// <reference path="UIElement.js" />
 /// <reference path="Matrix.js"/>
 
-FrameworkElement.prototype = new UIElement();
+FrameworkElement.prototype = new UIElement;
 FrameworkElement.prototype.constructor = FrameworkElement;
 function FrameworkElement() {
     UIElement.call(this);
@@ -488,7 +488,12 @@ FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, erro
     return arranged;
 };
 FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
-    this._NotifyPropertyChangeListeners(args, error);
+    if (args.Property.OwnerType !== FrameworkElement) {
+        UIElement.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    //TODO: Check invalidation of some properties
+    this.PropertyChanged.Raise(this, args);
 };
 FrameworkElement.prototype._InsideObject = function (x, y) {
     var framework = new Size(this.GetActualWidth(), this.GetActualHeight());

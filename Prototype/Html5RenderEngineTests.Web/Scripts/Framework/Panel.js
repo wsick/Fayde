@@ -3,7 +3,7 @@
 /// <reference path="FrameworkElement.js" />
 /// <reference path="LayoutInformation.js"/>
 
-Panel.prototype = new FrameworkElement();
+Panel.prototype = new FrameworkElement;
 Panel.prototype.constructor = Panel;
 function Panel() {
     FrameworkElement.call(this);

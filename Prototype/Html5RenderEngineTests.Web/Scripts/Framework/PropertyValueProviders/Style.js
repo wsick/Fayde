@@ -1,7 +1,7 @@
 ﻿/// <reference path="PropertyValueProvider.js" />
 /// <reference path="/Scripts/Style.js" />
 
-_StylePropertyValueProvider.prototype = new _PropertyValueProvider();
+_StylePropertyValueProvider.prototype = new _PropertyValueProvider;
 _StylePropertyValueProvider.prototype.constructor = _StylePropertyValueProvider;
 function _StylePropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);

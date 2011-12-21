@@ -5,7 +5,7 @@
     ZReverse: 3
 };
 
-_VisualTreeWalker.prototype = new Object();
+_VisualTreeWalker.prototype = new Object;
 _VisualTreeWalker.prototype.constructor = _VisualTreeWalker;
 function _VisualTreeWalker(/* UIElement */obj, /* _VisualTreeWalkerDirection */direction) {
     this._Offset = 0;

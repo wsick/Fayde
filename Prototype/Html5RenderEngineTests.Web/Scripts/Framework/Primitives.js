@@ -17,7 +17,7 @@ var VerticalAlignment = {
     Stretch: 3
 };
 
-CornerRadius.prototype = new Object();
+CornerRadius.prototype = new Object;
 CornerRadius.prototype.constructor = CornerRadius;
 function CornerRadius() {
     this.TopLeft = 0;
@@ -32,7 +32,7 @@ CornerRadius.prototype.IsZero = function () {
         && this.BottomLeft == 0;
 };
 
-Thickness.prototype = new Object();
+Thickness.prototype = new Object;
 Thickness.prototype.constructor = Thickness;
 function Thickness(left, top, right, bottom) {
     this.Left = left || 0;
@@ -65,14 +65,14 @@ Thickness.Negate = function () {
     return t;
 };
 
-Point.prototype = new Object();
+Point.prototype = new Object;
 Point.prototype.constructor = Point;
 function Point(x, y) {
     this.X = x;
     this.Y = y;
 }
 
-Size.prototype = new Object();
+Size.prototype = new Object;
 Size.prototype.constructor = Size;
 function Size(width, height) {
     this.Width = width;
@@ -97,7 +97,7 @@ Size.prototype.Max = function (size2) {
     return new Size(Math.max(this.Width, size2.Width), Math.max(this.Height, size2.Height));
 };
 
-Rect.prototype = new Object();
+Rect.prototype = new Object;
 Rect.prototype.constructor = Rect;
 Rect.prototype.X = 0;
 Rect.prototype.Y = 0;
@@ -151,7 +151,7 @@ Rect.prototype.RoundIn = function () {
     return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
 }
 
-Clip.prototype = new Rect();
+Clip.prototype = new Rect;
 Clip.prototype.constructor = Clip;
 function Clip(rect) {
     Rect.call(this);
