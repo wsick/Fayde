@@ -1,6 +1,7 @@
 ﻿/// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
 /// <reference path="UIElement.js" />
+/// <reference path="Matrix.js"/>
 
 FrameworkElement.prototype = new UIElement();
 FrameworkElement.prototype.constructor = FrameworkElement;
@@ -15,7 +16,7 @@ function FrameworkElement() {
 //////////////////////////////////////////
 // DEPENDENCY PROPERTIES
 //////////////////////////////////////////
-FrameworkElement.HeightProperty = DependencyProperty.Register("Height", FrameworkElement, NaN, null, null, null, _DoubleDotNegativeValidator);
+FrameworkElement.HeightProperty = DependencyProperty.Register("Height", FrameworkElement, NaN);
 FrameworkElement.prototype.GetHeight = function () {
     return this.GetValue(FrameworkElement.HeightProperty);
 };
@@ -23,7 +24,7 @@ FrameworkElement.prototype.SetHeight = function (value) {
     this.SetValue(FrameworkElement.HeightProperty, value);
 };
 
-FrameworkElement.WidthProperty = DependencyProperty.Register("Width", FrameworkElement, NaN, null, null, null, _DoubleDotNegativeValidator);
+FrameworkElement.WidthProperty = DependencyProperty.Register("Width", FrameworkElement, NaN);
 FrameworkElement.prototype.GetWidth = function () {
     return this.GetValue(FrameworkElement.WidthProperty);
 };
@@ -166,7 +167,7 @@ FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
 FrameworkElement.prototype._GetSubtreeExtents = function () {
     if (!this.GetSubtreeObject())
         return this._ExtentsWithChildren;
-    return this._ExtentsWithChildren;
+    return this._Extents;
 };
 FrameworkElement.prototype._UpdateBounds = function () {
     NotImplemented();
@@ -186,11 +187,24 @@ FrameworkElement.prototype._ComputeBounds = function () {
         item = walker.Step();
     }
 
-    this._Bounds = IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-    this._BoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteXform);
+    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteXform);
+    this._BoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteXform);
 
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
+};
+FrameworkElement.prototype._ComputeGlobalBounds = function () {
+    UIElement.prototype._ComputeGlobalBounds.call(this);
+    this._GlobalBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._LocalProjection);
+};
+FrameworkElement.prototype._ComputeSurfaceBounds = function () {
+    UIElement.prototype._ComputeSurfaceBounds.call(this);
+    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
+};
+FrameworkElement.prototype._GetGlobalBounds = function () {
+    if (this._GetSubtreeObject())
+        return this._GlobalBoundsWithChildren;
+    return this._GlobalBounds;
 };
 FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
@@ -198,14 +212,15 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     if (isNaN(availableSize.Width) || isNaN(availableSize.Height)) {
         error.SetErrored("Cannot call Measure using a size with NaN values");
+        //LayoutInformation.SetLayoutExceptionElement(this);
         return;
     }
 
-    var lastSize = GetPreviousConstraint(this);
+    var lastSize = LayoutInformation.GetPreviousConstraint(this);
     var shouldMeasure = this._DirtyFlags.Measure | (!lastSize || lastSize.Width != availableSize.Width || last.Height != availableSize.Height);
 
     if (this.GetVisibility() == Visibility.Visible) {
-        SetPreviousConstraint(this, availableSize);
+        LayoutInformation.SetPreviousConstraint(this, availableSize);
         this.SetDesiredSize(new Size(0, 0));
         return;
     }
@@ -217,7 +232,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     if (!shouldMeasure)
         return;
 
-    SetPreviousConstraint(this, availableSize);
+    LayoutInformation.SetPreviousConstraint(this, availableSize);
 
     this.InvalidateArrange();
     this.UpdateBounds();
@@ -275,7 +290,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
 
-    var slotValue = this.ReadLocalValue(LayoutSlotProperty);
+    var slotValue = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var slot = lastVal.IsNull() ? null : lastVal.AsRect();
 
     var shouldArrange = this._DirtyFlags.Arrange;
@@ -297,19 +312,19 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     var parent = this.GetVisualParent();
 
     if (this.GetVisibility() != Visibility.Visible) {
-        SetLayoutSlot(this, finalRect);
+        LayoutInformation.SetLayoutSlot(this, finalRect);
         return;
     }
 
     if (!shouldArrange)
         return;
 
-    var measure = GetPreviousConstraint(this);
+    var measure = LayoutInformation.GetPreviousConstraint(this);
     if (this.IsContainer() && !measure)
         this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
-    measure = GetPreviousConstraint(this);
+    measure = LayoutInformation.GetPreviousConstraint(this);
 
-    this.ClearValue(LayoutClipProperty);
+    this.ClearValue(LayoutInformation.LayoutClipProperty);
 
     var margin = this.GetMargin();
     var childRect = finalRect.GrowBy(margin.Negate());
@@ -334,7 +349,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
 
     offer = offer.Max(framework);
 
-    SetLayoutSlot(this, finalRect);
+    LayoutInformation.SetLayoutSlot(this, finalRect);
 
     if (this.ArrangeOverride)
         response = this.ArrangeOverride(this, offer, error);
@@ -366,7 +381,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
 
     this._DirtyFlags.Arrange = false;
     var visualOffset = new Point(childRect.X, childRect.Y);
-    SetVisualOffset(this, visualOffset);
+    LayoutInformation.SetVisualOffset(this, visualOffset);
 
     var oldSize = this._GetRenderSize();
 
@@ -424,7 +439,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
 
     /* 
     LAYOUT TRANSFORM NOT IMPLEMENTED YET
-    layoutXform = Matrix.BuildIdentity();
+    layoutXform = new Matrix();
     layoutXform = layoutXform.Translate(visualOffset.X, visualOffset.Y);
     if (flipHoriz) {
     layoutXform = layoutXform.Translate(response.Width, 0);
@@ -432,7 +447,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     }
     */
 
-    SetVisualOffset(this, visualOffset);
+    LayoutInformation.SetVisualOffset(this, visualOffset);
 
     var element = new Rect(0, 0, response.Width, response.Height);
     var layoutClip = childRect;
@@ -448,12 +463,12 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
         var rectangle = new RectangleGeometry();
         rectangle.SetRect(layoutClip);
-        SetLayoutClip(this, rectangle);
+        LayoutInformation.SetLayoutClip(this, rectangle);
     }
 
     if (oldSize.NotEquals(response)) {
-        if (!GetLastRenderSize(this)) {
-            SetLastRenderSize(this, oldSize);
+        if (!LayoutInformation.GetLastRenderSize(this)) {
+            LayoutInformation.SetLastRenderSize(this, oldSize);
             this.SetSizeDirty();
         }
     }
@@ -491,4 +506,34 @@ FrameworkElement.prototype._InsideObject = function (x, y) {
 };
 FrameworkElement.prototype._InsideLayoutClip = function (x, y) {
     NotImplemented();
+};
+FrameworkElement.prototype._HasLayoutClip = function () {
+    var element = this;
+    while (element) {
+        if (LayoutInformation.GetLayoutClip(element))
+            return true;
+        if (element instanceof Canvas || element instanceof UserControl)
+            break;
+        element = element.GetVisualParent();
+    }
+    return false;
+};
+FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
+    var element = this;
+
+    ctx.Save();
+    while (element) {
+        var geom = LayoutInformation.GetLayoutClip(element);
+        if (geom)
+            ctx.Clip(geom);
+
+        if (element instanceof Canvas || element instanceof UserControl)
+            break;
+        var visualOffset = LayoutInformation.GetVisualOffset(element);
+        if (visualOffset)
+            ctx.Transform(new TranslationMatrix(-visualOffset.X, -visualOffset.Y));
+
+        element = element.GetVisualParent();
+    }
+    ctx.Restore();
 };

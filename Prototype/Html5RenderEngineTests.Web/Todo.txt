@@ -37,16 +37,22 @@ UIElement
 =============================
 _GetSubtreeObject
 _SetSubtreeObject
-_GetRenderVisible
-_GetGlobalBounds
+_GetRenderVisible [Done]
+_GetGlobalBounds [Done]
 _IntersectBoundsWithClipPath [Done]
+_ComputeGlobalBounds [Done]
+_ComputeSurfaceBounds [Done]
 
+
+
+FrameworkElement
+=============================
+_ComputeGlobalBounds [Done]
+_ComputeSurfaceBounds [Done]
 
 
 Panel
 =============================
-_ComputeGlobalBounds
-_ComputeSurfaceBounds
 _EffectPadding?
 
 

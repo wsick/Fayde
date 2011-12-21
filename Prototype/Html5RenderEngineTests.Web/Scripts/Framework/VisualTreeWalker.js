@@ -62,7 +62,7 @@ _VisualTreeWalker.prototype.Step = function () {
         }
     }
 };
-_VisualTreeWalker.prototype.GetCount() = function () {
+_VisualTreeWalker.prototype.GetCount = function () {
     if (!this._Content)
         return 0;
     if (!this._Collection)

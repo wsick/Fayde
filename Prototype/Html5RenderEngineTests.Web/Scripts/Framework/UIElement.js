@@ -7,6 +7,7 @@ UIElement.prototype = new DependencyObject();
 UIElement.prototype.constructor = UIElement;
 function UIElement() {
     DependencyObject.call(this);
+    this._IsVisible = true;
     this._Bounds = new Rect();
     this._GlobalBounds = new Rect();
     this._SurfaceBounds = new Rect();
@@ -93,7 +94,22 @@ UIElement.prototype.InvalidateArrange = function () {
     this._DirtyFlags.SetArrangeDirty();
     //TODO: Alert redraw necessary
 };
+UIElement.prototype._GetRenderVisible = function () {
+    return this._IsVisible;
+};
 UIElement.prototype._ComputeBounds = function () {
+    AbstractMethod();
+};
+UIElement.prototype._ComputeGlobalBounds = function () {
+    this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._LocalProjection);
+};
+UIElement.prototype._ComputeSurfaceBounds = function () {
+    this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteProjection);
+};
+UIElement.prototype._GetGlobalBounds = function () {
+    return this._GlobalBounds;
+};
+UIElement.prototype._GetSubtreeExtents = function () {
     AbstractMethod();
 };
 UIElement.prototype._DoMeasureWithError = function (error) {
@@ -162,14 +178,40 @@ UIElement.prototype._ShiftPosition = function (point) {
 UIElement.prototype._InsideObject = function (x, y) {
     NotImplemented();
 };
-UIElement.prototype._Render = function (ctx) {
-};
-UIElement.prototype._FrontToBack = function (surfaceRegion, renderList) {
-    
-};
+UIElement.prototype._DoRender = function (ctx, parentRegion) {
+    var region = this._GetSubtreeExtents();
+    //region = region.Transform(this._RenderTransform);
+    region = region.RoundOut();
+    region = region.Intersection(parentRegion);
+    if (!this._GetRenderVisible() || region.IsEmpty()) //TODO: Check opacity
+        return;
 
-// STATICS
-UIElement._IntersectBoundsWithClipPath = function (unclipped, transform) {
+    //TODO: render to intermediate not implemented
+    this._Render(ctx, region);
+    this._PostRender(ctx, region);
+};
+UIElement.prototype._Render = function (ctx, region) {
+    AbstractMethod();
+};
+UIElement.prototype._PostRender = function (ctx, region) {
+    var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
+    var child;
+    while (child = walker.Step()) {
+        child._DoRender(ctx, region);
+    }
+};
+UIElement.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property == UIElement.VisibilityProperty) {
+        this._IsVisible = args.NewValue == Visibility.Visible;
+        this._InvalidateVisibility();
+        this._InvalidateMeasure();
+        var parent = this.GetVisualParent();
+        if (parent)
+            parent._InvalidateMeasure();
+        //TODO: change focus
+    }
+};
+UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transform) {
     var clip = this.GetClip();
     var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);
     var box;
@@ -193,6 +235,7 @@ UIElement._IntersectBoundsWithClipPath = function (unclipped, transform) {
     return box.Intersection(unclipped);
 };
 
+// STATICS
 UIElement.ZIndexComparer = function (uie1, uie2) {
     var zi1 = Canvas.GetZIndex(uie1);
     var zi2 = Canvas.GetZIndex(uie2);

@@ -99,15 +99,15 @@ Size.prototype.Max = function (size2) {
 
 Rect.prototype = new Object();
 Rect.prototype.constructor = Rect;
+Rect.prototype.X = 0;
+Rect.prototype.Y = 0;
+Rect.prototype.Width = 0;
+Rect.prototype.Height = 0;
 function Rect(x, y, width, height) {
-    if (x)
-        this.X = x;
-    if (y)
-        this.Y = y;
-    if (width)
-        this.Width = width;
-    if (height)
-        this.Height = height;
+    this.X = x || 0;
+    this.Y = y || 0;
+    this.Width = width || 0;
+    this.Height = height || 0;
 }
 Rect.prototype.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;
@@ -144,8 +144,20 @@ Rect.prototype.Intersection = function (rect2) {
     result.Height = Math.max(0, Math.min(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y);
     return result;
 };
-Rect.prototype.Draw = function (surface, /* CornerRadius */adjusted) {
-    if (adjusted.IsZero()) { 
-    } else {
-    }
-};
+Rect.prototype.RoundOut = function () {
+    return new Rect(Math.floor(this.X), Math.floor(this.Y), Math.ceil(this.X + this.Width) - Math.floor(this.X), Math.ceil(this.Y + this.Height) - Math.floor(this.Y));
+}
+Rect.prototype.RoundIn = function () {
+    return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
+}
+
+Clip.prototype = new Rect();
+Clip.prototype.constructor = Clip;
+function Clip(rect) {
+    Rect.call(this);
+    var rounded = rect.RoundOut();
+    this.X = rounded.X;
+    this.Y = rounded.Y;
+    this.Width = rounded.Width;
+    this.Height = rounded.Height;
+}

@@ -1,6 +1,7 @@
 ﻿/// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
 /// <reference path="FrameworkElement.js" />
+/// <reference path="LayoutInformation.js"/>
 
 Panel.prototype = new FrameworkElement();
 Panel.prototype.constructor = Panel;
@@ -57,8 +58,8 @@ Panel.prototype._ComputeBounds = function () {
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
     }
 
-    this._Bounds = UIElement._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false); //.Transform(this._AbsoluteTransform);
-    this._BoundsWithChildren = UIElement._IntersectBoundsWithClipPath(this._ExtentsWithChildren.GrowByThickness(this._EffectPadding), false); //.Transform(this._AbsoluteTransform);
+    this._Bounds = UIElement._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
+    this._BoundsWithChildren = UIElement._IntersectBoundsWithClipPath(this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
 
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
@@ -90,7 +91,24 @@ Panel.prototype._MeasureOverrideWithEror = function (availableSize, error) {
     var result = new Size(0, 0);
     return result;
 };
-Panel.prototype._Render = function (ctx) {
+Panel.prototype._Render = function (ctx, region) {
+    var background = this.GetBackground();
+    if (!background)
+        return;
+    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
+    framework = this._ApplySizeConstraints(framework);
+    if (framework.Width <= 0 || framework.Height <= 0)
+        return;
+    var area = new Rect(0, 0, framework.Width, framework.Height);
+
+    if (!this._HasLayoutClip() /* && ... */) {
+        //TODO:
+    } else {
+        ctx.Save();
+        this._RenderLayoutClip(ctx);
+        ctx.Fill(area, background);
+        ctx.Restore();
+    }
 };
 
 //STATICS

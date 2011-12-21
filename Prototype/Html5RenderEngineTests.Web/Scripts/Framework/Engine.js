@@ -18,15 +18,7 @@ Engine.prototype.Start = function () {
     setTimeout(function () { engine._Tick(); }, (1.0 / fps) * 1000.0);
 };
 Engine.prototype._Tick = function () {
-    var ctx = new _RenderContext(this.MainSurface);
-    surface.Paint(ctx);
-};
-
-_RenderContext.prototype = new Object();
-_RenderContext.prototype.constructor = _RenderContext;
-function _RenderContext(surface) {
-    this._Surface = surface;
-}
-_RenderContext.prototype.GetSurface = function () {
-    return this._Surface;
+    var extents = this.MainSurface.GetExtents();
+    var region = new Rect(0, 0, extents.Width, extents.Height);
+    this.MainSurface.Render(region);
 };

@@ -93,31 +93,86 @@ Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     }
     return finalSize;
 };
-Border.prototype._Render = function (ctx) {
-    var background = this.GetBackground();
+Border.prototype._Render = function (ctx, region) {
     var borderBrush = this.GetBorderBrush();
-    var radius = this.GetCornerRadius();
-    var thickness = this.GetBorderThickness();
     var paintBorder = this._Extents;
-    var paintBackground = paintBorder.GrowByThickness(thickness.Negate());
+    var paintBackground = paintBorder.GrowByThickness(this.GetBorderThickness().Negate());
 
-    if (!background && !borderBrush)
+    if (!this.GetBackground() && !borderBrush)
         return;
-
     if (paintBorder.IsEmpty())
         return;
 
-    if (borderBrush || radius != new CornerRadius()) {
-        this._RenderImpl(ctx.GetSurface());
+    //BorderBrush or CornerRadius?
+    if (borderBrush || this.GetCornerRadius().IsZero()) {
+        ctx.Save();
+        this._RenderImpl(ctx, region);
+        ctx.Restore();
         return;
     }
+
+    //If we got this far, all we have left to paint is the background
+    if (!this._HasLayoutClip() /* && IsIntegerTranslation  */) {
+        //TODO:
+
+    } else {
+        ctx.Save();
+        this._RenderImpl(ctx, region);
+        ctx.Restore();
+    }
 };
-Border.prototype._RenderImpl = function (surface, pathOnly) {
-    //cairo_save(surface); //WTF: ?
-    if (!path_only)
-        this._RenderLayoutClip(surface);
-    surface.DrawRectangle(this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius(), pathOnly);
+Border.prototype._RenderImpl = function (ctx, region, pathOnly) {
+    ctx.Save();
+    if (!pathOnly)
+        this._RenderLayoutClip(ctx);
+    ctx.CustomRender(Border._Painter, this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius());
+    ctx.Restore();
 };
 
+Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRect, thickness, cornerRadius, pathOnly) {
+    var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
+
+    canvasCtx.beginPath();
+    if (cornerRadius.IsZero()) {
+        canvasCtx.rect(pathRect.Left, pathRect.Top, pathRect.Width, pathRect.Height);
+    } else {
+        var left = pathRect.Left;
+        var top = pathRect.Top;
+        var right = pathRect.Left + pathRect.Width;
+        var bottom = pathRect.Top + pathRect.Height;
+
+        canvasCtx.moveTo(left + cornerRadius.TopLeft, top);
+        //top edge
+        canvasCtx.lineTo(right - cornerRadius.TopRight, top);
+        //top right arc
+        if (cornerRadius.TopRight > 0)
+            canvasCtx.arcTo(right, top, right, top + cornerRadius.TopRight, cornerRadius.TopRight);
+        //right edge
+        canvasCtx.lineTo(right, bottom - cornerRadius.BottomRight);
+        //bottom right arc
+        if (cornerRadius.BottomRight > 0)
+            canvasCtx.arcTo(right, bottom, right - cornerRadius.BottomRight, bottom, cornerRadius.BottomRight);
+        //bottom edge
+        canvasCtx.lineTo(left + cornerRadius.BottomLeft, bottom);
+        //bottom left arc
+        if (cornerRadius.BottomLeft > 0)
+            canvasCtx.arcTo(left, bottom, left, bottom - cornerRadius.BottomLeft, cornerRadius.BottomLeft);
+        //left edge
+        canvasCtx.lineTo(left, top + cornerRadius.TopRight);
+        //top left arc
+        if (cornerRadius.TopLeft > 0)
+            canvasCtx.arcTo(left, top, left + cornerRadius.TopLeft, top, cornerRadius.TopLeft);
+    }
+    if (backgroundBrush) {
+        canvasCtx.fillStyle = backgroundBrush._Translate();
+        canvasCtx.fill();
+    }
+    if (borderBrush && !thickness.IsEmpty()) {
+        canvasCtx.lineWidth = thickness;
+        canvasCtx.strokeStyle = borderBrush._TranslateToHtml5();
+        canvasCtx.stroke();
+    }
+    canvasCtx.closePath();
+};
 Border._ThicknessValidator = function () {
 };

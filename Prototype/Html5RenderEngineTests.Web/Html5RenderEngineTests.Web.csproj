@@ -65,8 +65,11 @@
     <Content Include="Scripts\Framework\DependencyObjectCollection.js" />
     <Content Include="Scripts\Framework\DependencyProperty.js" />
     <Content Include="Scripts\Framework\FrameworkElement.js" />
+    <Content Include="Scripts\Framework\LayoutInformation.js" />
+    <Content Include="Scripts\Framework\Matrix.js" />
     <Content Include="Scripts\Framework\Surface.js" />
     <Content Include="Scripts\Framework\UIElementCollection.js" />
+    <Content Include="Scripts\Framework\UserControl.js" />
     <Content Include="Scripts\Framework\VisualTreeWalker.js" />
     <Content Include="Scripts\jquery-1.7.1-vsdoc.js" />
     <Content Include="Scripts\jquery-1.7.1.js" />
