@@ -3,7 +3,9 @@
 <head>
     <title></title>
     <script src="/Scripts/jquery-1.7.js" type="text/javascript"></script>
-    
+
+    <script src="/Scripts/Framework/Debug.js" type="text/javascript"></script>
+
     <script src="Scripts/Framework/Primitives.js" type="text/javascript"></script>
     <script src="Scripts/Framework/BError.js" type="text/javascript"></script>
     <script src="Scripts/Framework/Brush.js" type="text/javascript"></script>
@@ -42,7 +44,7 @@
             __Engine.MainSurface.Init($("#testCanvas"));
             var view = buildTestView();
             __Engine.Load(view);
-            __Engine.Start();
+            //__Engine.Start();
         });
 
         function buildTestView() {

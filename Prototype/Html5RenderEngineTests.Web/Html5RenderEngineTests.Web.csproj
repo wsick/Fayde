@@ -60,6 +60,7 @@
     <Content Include="Scripts\Framework\Canvas.js" />
     <Content Include="Scripts\Framework\Collection.js" />
     <Content Include="Scripts\Framework\Control.js" />
+    <Content Include="Scripts\Framework\Debug.js" />
     <Content Include="Scripts\Framework\DependencyObject.js" />
     <Content Include="Scripts\Framework\BError.js" />
     <Content Include="Scripts\Framework\DependencyObjectCollection.js" />
