@@ -19,11 +19,11 @@ var VerticalAlignment = {
 
 CornerRadius.prototype = new Object;
 CornerRadius.prototype.constructor = CornerRadius;
-function CornerRadius() {
-    this.TopLeft = 0;
-    this.TopRight = 0;
-    this.BottomRight = 0;
-    this.BottomLeft = 0;
+function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
+    this.TopLeft = topLeft || 0;
+    this.TopRight = topRight || 0;
+    this.BottomRight = bottomRight || 0;
+    this.BottomLeft = bottomLeft || 0;
 }
 CornerRadius.prototype.IsZero = function () {
     return this.TopLeft == 0

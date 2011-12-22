@@ -16,3 +16,4 @@ BError.prototype.IsErrored = function () {
     return this.Number > 0;
 };
 BError.UnauthorizedAccess = 1;
+BError.Argument = 2;

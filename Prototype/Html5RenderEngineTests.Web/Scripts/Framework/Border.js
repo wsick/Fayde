@@ -129,6 +129,48 @@ Border.prototype._RenderImpl = function (ctx, region, pathOnly) {
     ctx.Restore();
 };
 
+Border.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Border) {
+        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    if (args.Property == Border.ChildProperty) {
+        if (args.OldValue && args.OldValue instanceof UIElement) {
+            this._ElementRemoved(args.OldValue);
+            this._SetSubtreeObject(null);
+            if (args.OldValue instanceof FrameworkElement) {
+                args.OldValue._SetLogicalParent(null, error);
+                if (error.IsErrored())
+                    return;
+            }
+        }
+        if (args.NewValue && args.NewValue instanceof UIElement) {
+            this._SetSubtreeObject(args.NewValue);
+            this._ElementAdded(args.NewValue);
+            if (args.NewValue instanceof FrameworkElement) {
+                var logicalParent = args.NewValue._GetLogicalParent();
+                if (logicalParent && logicalParent !== this) {
+                    error.SetErrored(BError.Argument, "Content is already a child of another element.");
+                    return;
+                }
+                args.NewValue._SetLogicalParent(this, error);
+                if (error.IsErrored())
+                    return;
+            }
+        }
+        this._UpdateBounds();
+        this._InvalidateMeasure();
+    } else if (args.Property == Border.PaddingProperty || args.Property == Border.BorderThicknessProperty) {
+        this._InvalidateMeasure();
+    } else if (args.Property == Border.BackgroundProperty) {
+        this._Invalidate();
+    } else if (args.Property == Border.BorderBrushProperty) {
+        this._Invalidate();
+    }
+
+    this.PropertyChanged.Raise(this, args);
+};
+
 Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRect, thickness, cornerRadius, pathOnly) {
     var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
 

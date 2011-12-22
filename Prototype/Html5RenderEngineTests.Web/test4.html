@@ -24,6 +24,7 @@
 
     <script src="Scripts/Framework/DependencyProperty.js" type="text/javascript"></script>
     <script src="Scripts/Framework/DependencyObject.js" type="text/javascript"></script>
+    <script src="Scripts/Framework/Collection.js" type="text/javascript"></script>
     <script src="Scripts/Framework/Style.js" type="text/javascript"></script>
     <script src="Scripts/Framework/VisualTreeWalker.js" type="text/javascript"></script>
     
@@ -37,28 +38,33 @@
     <script src="Scripts/Framework/UserControl.js" type="text/javascript"></script>
 
     <script src="Scripts/Framework/Surface.js" type="text/javascript"></script>
-    <script src="Scripts/Framework/Engine.js" type="text/javascript"></script>
+    <script src="Scripts/Framework/App.js" type="text/javascript"></script>
 
     <script type="text/javascript">
         $(document).ready(function () {
-            __Engine.MainSurface.Init($("#testCanvas"));
+            _Console.Init("#console");
+            App.Instance.MainSurface.Init($("#testCanvas"));
             var view = buildTestView();
-            __Engine.Load(view);
-            //__Engine.Start();
+            App.Instance.Load(view);
         });
 
         function buildTestView() {
             var b = new Border();
             b.SetBorderBrush(new SolidColorBrush(new Color(255, 255, 255, 1.0)));
             b.SetBorderThickness(new Thickness(1, 1, 1, 1));
+            b.SetCornerRadius(new CornerRadius(5, 5, 5, 5));
             return b;
         }
     </script>
 </head>
 <body>
-    <div style="width: 600px; height: 600px; border: solid 1px black;">
-	    <canvas id="testCanvas" width="600" height="600">
-	    </canvas>
+    <div>
+        <div style="width: 600px; height: 600px; border: solid 1px black;">
+	        <canvas id="testCanvas" width="600" height="600">
+	        </canvas>
+        </div>
+        <div id="console">
+        </div>
     </div>
 </body>
 </html>

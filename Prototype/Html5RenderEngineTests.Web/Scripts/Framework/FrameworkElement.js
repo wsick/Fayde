@@ -162,15 +162,15 @@ FrameworkElement.prototype._ApplySizeConstraints = function (size) {
     return constrained;
 };
 FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
-    NotImplemented();
+    NotImplemented("FrameworkElement._ApplyTemplateWithError(error)");
 };
 FrameworkElement.prototype._GetSubtreeExtents = function () {
-    if (!this.GetSubtreeObject())
+    if (!this._GetSubtreeObject())
         return this._ExtentsWithChildren;
     return this._Extents;
 };
 FrameworkElement.prototype._UpdateBounds = function () {
-    NotImplemented();
+    NotImplemented("FrameworkElement._UpdateBounds()");
 };
 FrameworkElement.prototype._ComputeBounds = function () {
     var size = new Size(this.GetActualWidth(), this.GetActualHeight());
@@ -510,7 +510,7 @@ FrameworkElement.prototype._InsideObject = function (x, y) {
     return UIElement.prototype._InsideObject.call(this, x, y);
 };
 FrameworkElement.prototype._InsideLayoutClip = function (x, y) {
-    NotImplemented();
+    NotImplemented("FrameworkElement._InsideLayoutClip(x, y)");
 };
 FrameworkElement.prototype._HasLayoutClip = function () {
     var element = this;
@@ -541,4 +541,9 @@ FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
         element = element.GetVisualParent();
     }
     ctx.Restore();
+};
+FrameworkElement.prototype._ElementRemoved = function (value) {
+    UIElement.prototype._ElementRemoved.call(this, value);
+    if (this._GetSubtreeObject() == value)
+        this._SetSubtreeObject(null);
 };

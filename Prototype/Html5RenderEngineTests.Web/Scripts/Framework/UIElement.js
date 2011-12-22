@@ -86,19 +86,70 @@ UIElement.prototype.GetVisualParent = function () {
 };
 UIElement.prototype.IsLayoutContainer = function () { return false; };
 UIElement.prototype.IsContainer = function () { return this.IsLayoutContainer(); };
-UIElement.prototype.InvalidateMeasure = function () {
+UIElement.prototype._SetIsLoaded = function (value) {
+    if (this._IsLoaded != value) {
+        this._IsLoaded = value;
+        this._OnIsLoadedChanged(value);
+    }
+};
+UIElement.prototype._OnIsLoadedChanged = function (loaded) {
+    if (!this._IsLoaded) {
+        //TODO: Unloaded Event
+        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
+    }
+
+    var walker = new _VisualTreeWalker(this);
+    var element;
+    while (element = walker.Step()) {
+        element._SetIsLoaded(loaded);
+    }
+
+    if (this._IsLoaded) {
+        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
+        //TODO: Loaded Event
+    }
+};
+UIElement.prototype._FullInvalidate = function (renderTransform) {
+    this._Invalidate();
+    if (renderTransform) {
+        this._UpdateTransform();
+        this._UpdateProjection();
+    }
+    this._UpdateBounds(true);
+};
+UIElement.prototype._Invalidate = function (rect) {
+    if (!rect)
+        rect = this._SurfaceBounds;
+    if (!this._GetRenderVisible() /* || opacity causes invisible */)
+        return;
+
+    if (this._IsAttached) {
+        //TODO: Alert needs redraw
+        //TODO: Finish
+    }
+};
+UIElement.prototype._InvalidateMeasure = function () {
     this._DirtyFlags.SetMeasureDirty();
     //TODO: Alert redraw necessary
 };
-UIElement.prototype.InvalidateArrange = function () {
+UIElement.prototype._InvalidateArrange = function () {
     this._DirtyFlags.SetArrangeDirty();
     //TODO: Alert redraw necessary
 };
 UIElement.prototype._GetRenderVisible = function () {
     return this._IsVisible;
 };
+UIElement.prototype._UpdateBounds = function (forceRedraw) {
+    NotImplemented("UIElement._UpdateBounds(forceRedraw)");
+};
+UIElement.prototype._UpdateTransform = function () {
+    NotImplemented("UIElement._UpdateTransform()");
+};
+UIElement.prototype._UpdateProjection = function () {
+    NotImplemented("UIElement._UpdateProjection()");
+};
 UIElement.prototype._ComputeBounds = function () {
-    AbstractMethod();
+    AbstractMethod("UIElement._ComputeBounds()");
 };
 UIElement.prototype._ComputeGlobalBounds = function () {
     this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._LocalProjection);
@@ -109,8 +160,14 @@ UIElement.prototype._ComputeSurfaceBounds = function () {
 UIElement.prototype._GetGlobalBounds = function () {
     return this._GlobalBounds;
 };
+UIElement.prototype._GetSubtreeObject = function () {
+    return this._SubtreeObject;
+};
+UIElement.prototype._SetSubtreeObject = function (value) {
+    this._SubtreeObject = value;
+};
 UIElement.prototype._GetSubtreeExtents = function () {
-    AbstractMethod();
+    AbstractMethod("UIElement._GetSubtreeExtents()");
 };
 UIElement.prototype._DoMeasureWithError = function (error) {
     var lastSize = GetPreviousConstraint(this);
@@ -129,7 +186,7 @@ UIElement.prototype._DoMeasureWithError = function (error) {
     }
 
     if (parent)
-        parent.InvalidateMeasure();
+        parent._InvalidateMeasure();
 
     this._DirtyFlags.Measure = true;
 };
@@ -167,7 +224,7 @@ UIElement.prototype._DoArrangeWithError = function (error) {
         this._ArrangeWithError(last, error);
     } else {
         if (parent)
-            parent.InvalidateArrange();
+            parent._InvalidateArrange();
     }
 };
 UIElement.prototype._ArrangeWithError = function (finalRect, error) { };
@@ -176,7 +233,7 @@ UIElement.prototype._ShiftPosition = function (point) {
     this._Bounds.Y = point.Y;
 };
 UIElement.prototype._InsideObject = function (x, y) {
-    NotImplemented();
+    NotImplemented("UIElement._InsideObject(x, y)");
 };
 UIElement.prototype._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
@@ -191,7 +248,7 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     this._PostRender(ctx, region);
 };
 UIElement.prototype._Render = function (ctx, region) {
-    AbstractMethod();
+    AbstractMethod("UIElement._Render(ctx, region)");
 };
 UIElement.prototype._PostRender = function (ctx, region) {
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
@@ -240,6 +297,12 @@ UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transfor
 
     return box.Intersection(unclipped);
 };
+UIElement.prototype._ElementRemoved = function (item) {
+    NotImplemented("UIElement._ElementRemoved(item)");
+}
+UIElement.prototype._ElementAdded = function (item) {
+    NotImplemented("UIElement._ElementAdded(item)");
+}
 
 // STATICS
 UIElement.ZIndexComparer = function (uie1, uie2) {

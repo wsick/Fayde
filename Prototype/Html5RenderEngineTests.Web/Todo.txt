@@ -23,6 +23,8 @@ _SetInheritedValueSource [Done]
 _GetPropertyValueProvider [Done]
 _IsValueValid
 SetValue [Done]
+_IsAttached [Done]
+_SetIsAttached [Done]
 
 
 
@@ -42,6 +44,12 @@ _GetGlobalBounds [Done]
 _IntersectBoundsWithClipPath [Done]
 _ComputeGlobalBounds [Done]
 _ComputeSurfaceBounds [Done]
+_FullInvalidate [Done]
+_InvalidateMeasure [NFI]
+_SetIsLoaded [Done]
+_UpdateBounds [NI]
+_UpdateTransform [NI]
+_UpdateProjection [NI]
 
 
 

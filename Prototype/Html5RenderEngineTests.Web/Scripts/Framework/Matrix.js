@@ -15,7 +15,7 @@ Matrix.prototype.Apply = function (ctx) {
     ctx.transform(elements[0][0], elements[1][0], elements[0][1], elements[1][1], elements[0][2], elements[1][2]);
 };
 Matrix.Multiply = function (mat1, mat2) {
-    NotImplemented();
+    NotImplemented("Matrix.Multiply(mat1, mat2)");
 };
 
 TranslationMatrix.prototype = Matrix.prototype;

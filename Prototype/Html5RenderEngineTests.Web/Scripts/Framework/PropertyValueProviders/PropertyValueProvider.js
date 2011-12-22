@@ -33,13 +33,13 @@ _PropertyValueProvider.prototype._HasFlag = function (flag) {
     return (this._Flags & flag) != 0;
 };
 _PropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    AbstractMethod();
+    AbstractMethod("_PropertyValueProvider.GetPropertyValue(propd)");
 };
 _PropertyValueProvider.prototype.ForeachValue = function (func, data) {
     if (!func)
         return;
     for (var value in this._ht)
-        func(value, data);
+        func(value, this._ht[value], data);
 };
 _PropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
 };

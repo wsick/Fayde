@@ -1,6 +1,8 @@
 ﻿/// <reference path="/Scripts/kinetic-v2.3.2.js"/>
 /// <reference path="Primitives.js"/>
 /// <reference path="Brush.js"/>
+/// <reference path="Collection.js"/>
+/// <reference path="Debug.js"/>
 
 Surface.prototype = new Object;
 Surface.prototype.constructor = Surface;
@@ -11,6 +13,7 @@ function Surface(containerId, width, height) {
 }
 */
 function Surface() {
+    this._Layers = new Collection();
 }
 Surface.prototype.Init = function (jCanvas) {
     this._jCanvas = jCanvas;
@@ -21,10 +24,39 @@ Surface.prototype.GetExtents = function () {
     return new Size(this._jCanvas.height(), this._jCanvas.width());
 };
 Surface.prototype._Attach = function (/* UIElement */element) {
-    NotImplemented();
+    if (this._TopLevel) {
+        //TODO: Detach previous layer
+    }
+
+    if (!element) {
+        return;
+    }
+
+    if (!(element instanceof UIElement)) {
+        _Console.WriteLine("Unsupported top level element.");
+        return;
+    }
+
+    //TODO: Prepare namescope
+    //TODO: Enable events
+
+    this._TopLevel = element;
+
+    //TODO: Register Loaded event
+
+    this._AttachLayer(this._TopLevel);
 };
 Surface.prototype._AttachLayer = function (/* UIElement */layer) {
-    NotImplemented();
+    if (layer === this._TopLevel)
+        this._Layers.Insert(0, layer);
+    else
+        this._Layers.Add(layer);
+
+    layer._FullInvalidate(true);
+    layer._InvalidateMeasure();
+    layer._SetIsAttached(true);
+    layer._SetIsLoaded(true);
+    //TODO: App Loaded event
 };
 Surface.prototype.Render = function (region) {
     var ctx = new _RenderContext(this);
@@ -79,7 +111,7 @@ _RenderContext.prototype.Fill = function (region, brush) {
 _RenderContext.prototype.CustomRender = function (painterFunc) {
     var args = toArray.call(arguments);
     args.shift(); //remove painterFunc
-    args.unshift(this._Surface._Ctx); //add canvas context
+    args.unshift(this._Surface._Ctx); //prepend canvas context
     painterFunc.apply(this, args);
 };
 function toArray() {

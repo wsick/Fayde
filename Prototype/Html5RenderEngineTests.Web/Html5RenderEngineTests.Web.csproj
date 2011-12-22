@@ -89,7 +89,7 @@
     <Content Include="Scripts\Framework\PropertyValueProviders\PropertyValueProvider.js" />
     <Content Include="Scripts\Framework\PropertyValueProviders\Style.js" />
     <Content Include="Scripts\kinetic-v2.3.2.js" />
-    <Content Include="Scripts\Framework\Engine.js" />
+    <Content Include="Scripts\Framework\App.js" />
     <Content Include="Scripts\Shape.js" />
     <Content Include="Scripts\Framework\StackPanel.js" />
     <Content Include="Scripts\Framework\Style.js" />

@@ -18,6 +18,7 @@ function DependencyObject() {
 DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 
 DependencyObject.prototype._Initialize = function () {
+    this._IsAttached = false;
     this._Providers = new Array();
     this._Providers[_PropertyPrecedence.LocalValue] = new _LocalPropertyValueProvider(this, _PropertyPrecedence.LocalValue);
     this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyProvider(this, _PropertyPrecedence.DefaultValue);
@@ -320,20 +321,30 @@ DependencyObject.prototype._GetPropertyValueProvider = function (propd) {
     return -1;
 };
 DependencyObject.prototype._AddSecondaryParent = function () {
-    NotImplemented();
+    NotImplemented("DependencyObject._AddSecondaryParent()");
 };
 DependencyObject.prototype._RemoveSecondaryParent = function (obj) {
-    NotImplemented();
+    NotImplemented("DependencyObject._RemoveSecondaryParent(obj)");
 };
 DependencyObject.prototype._AddParent = function (obj, mergeNamesFromSubtree, error) {
-    NotImplemented();
+    NotImplemented("DependencyObject._AddParent(obj, mergeNamesFromSubtree, error)");
 };
 DependencyObject.prototype._RemoveParent = function (obj, error) {
-    NotImplemented();
+    NotImplemented("DependencyObject._RemoveParent(obj, error)");
 };
 DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
     //TODO: Handle type problems
     return true;
+};
+DependencyObject.prototype._SetIsAttached = function (value) {
+    if (this._IsAttached == value)
+        return;
+    this._IsAttached = value;
+    this._OnIsAttachedChanged(value);
+};
+DependencyObject.prototype._OnIsAttachedChanged = function (value) {
+    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
+    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
 };
 
 DependencyObject.prototype.PropertyChanged = new MulticastEvent();
@@ -346,7 +357,15 @@ DependencyObject.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
-DependencyObject._PropagateMentor = function (value, newMentor) {
+DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
+    if (propd._IsCustom)
+        return;
+
+    if (value && value instanceof DependencyObject) {
+        value._SetIsAttached(newIsAttached);
+    }
+};
+DependencyObject._PropagateMentor = function (propd, value, newMentor) {
     if (value && value instanceof DependencyObject) {
         value._SetMentor(newMentor);
     }
