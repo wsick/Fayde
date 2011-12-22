@@ -2,6 +2,7 @@
 /// <reference path="DependencyObject.js" />
 /// <reference path="DependencyProperty.js" />
 /// <reference path="Canvas.js" />
+/// <reference path="Dirty.js"/>
 
 UIElement.prototype = new DependencyObject;
 UIElement.prototype.constructor = UIElement;
@@ -14,27 +15,8 @@ function UIElement() {
     this._Extents = new Rect();
     this._Parent = null;
     this._DesiredSize = null;
-    var uie = this;
-    this._DirtyFlags = {
-        Measure: false,
-        Arrange: false,
-        Size: false,
-        SetMeasureDirty: function () {
-            this.Measure = true;
-            if (uie.GetVisualParent())
-                uie.GetVisualParent().SetMeasureDirty();
-        },
-        SetArrangeDirty: function () {
-            this.Arrange = true;
-            if (uie.GetVisualParent())
-                uie.GetVisualParent().SetArrangeDirty();
-        },
-        SetSizeDirty: function () {
-            this.Size = true;
-            if (uie.GetVisualParent())
-                uie.GetVisualParent().SetSizeDirty();
-        }
-    };
+    this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
+    this._DirtyFlags = _Dirty.Measure;
 }
 
 //////////////////////////////////////////
@@ -129,11 +111,13 @@ UIElement.prototype._Invalidate = function (rect) {
     }
 };
 UIElement.prototype._InvalidateMeasure = function () {
-    this._DirtyFlags.SetMeasureDirty();
+    this._DirtyFlags |= _Dirty.Measure;
+    this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
     //TODO: Alert redraw necessary
 };
 UIElement.prototype._InvalidateArrange = function () {
-    this._DirtyFlags.SetArrangeDirty();
+    this._DirtyFlags |= _Dirty.Arrange;
+    this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
     //TODO: Alert redraw necessary
 };
 UIElement.prototype._GetRenderVisible = function () {
@@ -188,7 +172,7 @@ UIElement.prototype._DoMeasureWithError = function (error) {
     if (parent)
         parent._InvalidateMeasure();
 
-    this._DirtyFlags.Measure = true;
+    this._DirtyFlags &= ~_Dirty.Measure;
 };
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
@@ -303,6 +287,20 @@ UIElement.prototype._ElementRemoved = function (item) {
 UIElement.prototype._ElementAdded = function (item) {
     NotImplemented("UIElement._ElementAdded(item)");
 }
+UIElement.prototype._UpdateLayer = function (pass, error) {
+};
+
+UIElement.prototype._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
+UIElement.prototype._ClearFlag = function (flag) { this._Flags &= ~flag; };
+UIElement.prototype._SetFlag = function (flag) { this._Flags |= flag; };
+UIElement.prototype._PropagateFlagUp = function (flag) {
+    this._SetFlag(flag);
+    var e = e.GetVisualParent();
+    while (e && !e._HasFlag(flag)) {
+        e._SetFlag(flag);
+        e = e.GetVisualParent();
+    }
+};
 
 // STATICS
 UIElement.ZIndexComparer = function (uie1, uie2) {
@@ -316,4 +314,17 @@ UIElement.ZIndexComparer = function (uie1, uie2) {
         return z1 > z2 ? 1 : (z1 < z2 ? -1 : 0);
     }
     return zi1 - zi2;
+};
+
+var UIElementFlags = {
+    None: 0,
+    
+    RenderVisible: 0x02,
+    HitTestVisible: 0x04,
+    TotalRenderVisible: 0x08,
+    TotalHitTestVisible: 0x10,
+
+    DirtyArrangeHint: 0x800,
+    DirtyMeasureHint: 0x1000,
+    DirtySizeHint: 0x2000
 };

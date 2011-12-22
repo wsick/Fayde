@@ -74,6 +74,8 @@ function Point(x, y) {
 
 Size.prototype = new Object;
 Size.prototype.constructor = Size;
+Size.prototype.Width = 0;
+Size.prototype.Height = 0;
 function Size(width, height) {
     this.Width = width;
     this.Height = height;
@@ -95,6 +97,9 @@ Size.prototype.Min = function (size2) {
 };
 Size.prototype.Max = function (size2) {
     return new Size(Math.max(this.Width, size2.Width), Math.max(this.Height, size2.Height));
+};
+Size.prototype.Equals = function (size2) {
+    return this.Width == size2.Width && this.Height == size2.Height;
 };
 
 Rect.prototype = new Object;

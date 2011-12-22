@@ -165,7 +165,7 @@ FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
     NotImplemented("FrameworkElement._ApplyTemplateWithError(error)");
 };
 FrameworkElement.prototype._GetSubtreeExtents = function () {
-    if (!this._GetSubtreeObject())
+    if (this._GetSubtreeObject())
         return this._ExtentsWithChildren;
     return this._Extents;
 };
@@ -217,7 +217,8 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     }
 
     var lastSize = LayoutInformation.GetPreviousConstraint(this);
-    var shouldMeasure = this._DirtyFlags.Measure | (!lastSize || lastSize.Width != availableSize.Width || last.Height != availableSize.Height);
+    var shouldMeasure = this._DirtyFlags & _Dirty.Measure > 0;
+    shouldMeasure |= (!lastSize || lastSize.Width != availableSize.Width || last.Height != availableSize.Height);
 
     if (this.GetVisibility() == Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
@@ -250,7 +251,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
         return;
 
-    this._DirtyFlags.Measure = false;
+    this._DirtyFlags &= ~_Dirty.Measure;
     this._HiddenDesire = size;
 
     if (!parent || !parent.IsCanvas) {
@@ -293,7 +294,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     var slotValue = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var slot = lastVal.IsNull() ? null : lastVal.AsRect();
 
-    var shouldArrange = this._DirtyFlags.Arrange;
+    var shouldArrange = this._DirtyFlags & _Dirty.Arrange > 0;
 
     if (this.GetUseLayoutRounding()) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
@@ -329,9 +330,9 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     var margin = this.GetMargin();
     var childRect = finalRect.GrowBy(margin.Negate());
 
-    this.UpdateTransform();
-    this.UpdateProjection();
-    this.UpdateBounds();
+    this._UpdateTransform();
+    this._UpdateProjection();
+    this._UpdateBounds();
 
     var offer = this._HiddenDesire;
 
@@ -379,7 +380,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
 
-    this._DirtyFlags.Arrange = false;
+    this._DirtyFlags &= ~_Dirty.Arrange;
     var visualOffset = new Point(childRect.X, childRect.Y);
     LayoutInformation.SetVisualOffset(this, visualOffset);
 
@@ -469,7 +470,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     if (oldSize.NotEquals(response)) {
         if (!LayoutInformation.GetLastRenderSize(this)) {
             LayoutInformation.SetLastRenderSize(this, oldSize);
-            this.SetSizeDirty();
+            this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
         }
     }
 };
@@ -546,4 +547,7 @@ FrameworkElement.prototype._ElementRemoved = function (value) {
     UIElement.prototype._ElementRemoved.call(this, value);
     if (this._GetSubtreeObject() == value)
         this._SetSubtreeObject(null);
+};
+FrameworkElement.prototype._UpdateLayer = function (pass, error) {
+    NotImplemented("FrameworkElement._UpdateLayer(pass, error)");
 };

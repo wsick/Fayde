@@ -15,6 +15,14 @@
 
 
 
+Surface
+=============================
+_DownDirtyNode
+_UpDirtyNode
+_ProcessUpDirtyElements
+_ProcessDownDirtyElements
+
+
 DependencyObject
 =============================
 _PropagateInheritedValue [Done]
@@ -57,6 +65,7 @@ FrameworkElement
 =============================
 _ComputeGlobalBounds [Done]
 _ComputeSurfaceBounds [Done]
+_UpdateLayer
 
 
 Panel

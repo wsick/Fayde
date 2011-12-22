@@ -64,3 +64,15 @@ LayoutInformation.GetVisualOffset = function (d) {
 LayoutInformation.SetVisualOffset = function (d, value) {
     d.SetValue(LayoutInformation.VisualOffsetProperty, value);
 };
+
+
+LayoutPass.prototype = new Object;
+LayoutPass.prototype.constructor = LayoutPass;
+function LayoutPass() {
+    this._MeasureList = new List();
+    this._ArrangeList = new List();
+    this._SizeList = new List();
+    this._Count = 0;
+    this._Updated = false;
+}
+LayoutPass.MaxCount = 250;
