@@ -19,6 +19,7 @@ App.prototype.Start = function () {
 App.prototype._Tick = function () {
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
+    this.MainSurface.ProcessDirtyElements();
     this.MainSurface.Render(region);
 };
 App.Instance = new App();

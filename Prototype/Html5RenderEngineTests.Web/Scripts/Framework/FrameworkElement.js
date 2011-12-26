@@ -2,6 +2,7 @@
 /// <reference path="DependencyObject.js" />
 /// <reference path="UIElement.js" />
 /// <reference path="Matrix.js"/>
+/// <reference path="List.js"/>
 
 FrameworkElement.prototype = new UIElement;
 FrameworkElement.prototype.constructor = FrameworkElement;
@@ -180,11 +181,10 @@ FrameworkElement.prototype._ComputeBounds = function () {
     this._ExtentsWithChildren = this._Extents;
 
     var walker = this._GetVisualTreeWalker();
-    var item = walker.Step();
-    while (item) {
+    var item;
+    while (item = walker.Step()) {
         if (item._GetRenderVisible())
             this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
-        item = walker.Step();
     }
 
     this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteXform);
@@ -222,7 +222,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     if (this.GetVisibility() == Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
-        this.SetDesiredSize(new Size(0, 0));
+        this._DesiredSize = new Size(0, 0);
         return;
     }
 
@@ -235,8 +235,8 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     LayoutInformation.SetPreviousConstraint(this, availableSize);
 
-    this.InvalidateArrange();
-    this.UpdateBounds();
+    this._InvalidateArrange();
+    this._UpdateBounds();
 
     var margin = this.GetMargin();
     var size = availableSize.GrowByThickness(margin.Negate());
@@ -256,7 +256,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     if (!parent || !parent.IsCanvas) {
         if (this._IsCanvas || !this.IsLayoutContainer()) {
-            this.SetDesiredSize(new Size(0, 0));
+            this._DesiredSize = new Size(0, 0);
             return;
         }
     }
@@ -271,18 +271,17 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
         size.Height = Math.round(size.Height);
     }
 
-    this.SetDesiredSize(size);
+    this._DesiredSize = size;
 };
 FrameworkElement.prototype._MeasureOverrideWithEror = function (availableSize, error) {
     var desired = new Size(0, 0);
     availableSize = availableSize.Max(desired);
 
-    var walker = this._GetVisualTreeWalker();
-    var child = walker.Step();
-    while (child) {
+    var walker = new _VisualTreeWalker(this);
+    var child;
+    while (child = walker.Step()) {
         child._MeasureWithError(availableSize, error);
-        desired = child.GetDesiredSize();
-        child = walker.Step();
+        desired = child._DesiredSize;
     }
 
     return desired.Min(availableSize);
@@ -291,8 +290,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
 
-    var slotValue = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
-    var slot = lastVal.IsNull() ? null : lastVal.AsRect();
+    var slot = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
 
     var shouldArrange = this._DirtyFlags & _Dirty.Arrange > 0;
 
@@ -300,13 +298,13 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
 
-    shouldArrange = shouldArrange | (slot ? slot != finalRect : true); //TODO: "!=" for rect, need to implement operator
+    shouldArrange = shouldArrange | (slot ? !slot.Equals(finalRect) : true);
 
     if (finalRect.Width < 0 || finalRect.Height < 0
             || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
             || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
-        var desired = this.GetDesiredSize();
-        //Invalid arguments, error?
+        var desired = this._DesiredSize;
+        //Warn: Invalid arguments
         return;
     }
 
@@ -384,24 +382,24 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     var visualOffset = new Point(childRect.X, childRect.Y);
     LayoutInformation.SetVisualOffset(this, visualOffset);
 
-    var oldSize = this._GetRenderSize();
+    var oldSize = this._RenderSize;
 
     if (this.GetUseLayoutRounding()) {
         response.Width = Math.round(response.Width);
         response.Height = Math.round(response.Height);
     }
 
-    this._SetRenderSize(response);
+    this._RenderSize = response;
     var constrainedResponse = response.Min(this._ApplySizeConstraints(response));
 
     if (!parent || parent._IsCanvas()) {
         if (!this.IsLayoutContainer()) {
-            this._SetRenderSize(new Size(0, 0));
+            this._RenderSize = new Size(0, 0);
             return;
         }
     }
 
-    var isTopLevel = this._IsAttached && MainSurface.IsTopLevel(this);
+    var isTopLevel = this._IsAttached && App.Instance.MainSurface._IsTopLevel(this);
 
     if (!isTopLevel) {
         switch (horiz) {
@@ -477,13 +475,12 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
 FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     var arranged = finalSize;
 
-    var walker = this._GetVisualTreeWalker();
-    var child = walker.Step();
-    while (child) {
+    var walker = new _VisualTreeWalker(this);
+    var child;
+    while (child = walker.Step()) {
         var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
         child._ArrangeWithError(childRect, error);
         arranged = arranged.Max(finalSize);
-        child = walker.Step();
     }
 
     return arranged;
@@ -549,5 +546,88 @@ FrameworkElement.prototype._ElementRemoved = function (value) {
         this._SetSubtreeObject(null);
 };
 FrameworkElement.prototype._UpdateLayer = function (pass, error) {
-    NotImplemented("FrameworkElement._UpdateLayer(pass, error)");
+    var element = this;
+    var parent;
+    while (parent = element.GetVisualParent())
+        element = parent;
+
+    while (pass._Count < LayoutPass.MaxCount) {
+        var node;
+        while (node = pass._ArrangeList.First()) {
+            node.UIElement._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
+            pass._ArrangeList.Remove(node);
+        }
+        while (node = pass._SizeList.First()) {
+            node.UIElement._PropagateFlagUp(UIElementFlags.DirtySizeHint);
+            pass._SizeList.Remove(node);
+        }
+        pass._Count = pass._Count + 1;
+
+        var flag = UIElementFlags.None;
+        if (element.GetVisibility() == Visibility.Visible) {
+            if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
+                flag = UIElementFlags.DirtyMeasureHint;
+            else if (element._HasFlag(UIElementFlags.DirtyArrangeHint))
+                flag = UIElementFlags.DirtyArrangeHint;
+            else if (element._HasFlag(UIElementFlags.DirtySizeHint))
+                flag = UIElementFlags.DirtySizeHint;
+        }
+
+        if (flag != UIElementFlags.None) {
+            var measureWalker = new _DeepTreeWalker(element);
+            var child;
+            while (child = measureWalker.Step()) {
+                if (child.GetVisibility() != Visibility.Visible || !child._HasFlag(flag)) {
+                    measureWalker.SkipBranch();
+                    continue;
+                }
+                child._ClearFlag(flag);
+                switch (flag) {
+                    case UIElementFlags.DirtyMeasureHint:
+                        if (child._DirtyFlags & _Dirty.Measure)
+                            pass._MeasureList.Append(new UIElementNode(child));
+                        break;
+                    case UIElementFlags.DirtyArrangeHint:
+                        if (child._DirtyFlags & _Dirty.Arrange)
+                            pass._ArrangeList.Append(new UIElementNode(child));
+                        break;
+                    case UIElementFlags.DirtySizeHint:
+                        if (child.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+                            pass._SizeList.Append(new UIElementNode(child));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (flag == UIElementFlags.DirtyMeasureHint) {
+            while (node = pass._MeasureList.First()) {
+                pass._MeasureList.Remove(node);
+                node.UIElement._DoMeasureWithError(error);
+                pass._Updated = true;
+            }
+        } else if (flag == UIElementFlags.DirtyArrangeHint) {
+            while (node = pass._ArrangeList.First()) {
+                pass._ArrangeList.Remove(node);
+                node.UIElement._DoArrangeWithError(error);
+                pass._Updated = true;
+                if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
+                    break;
+            }
+        } else if (flag == UIElementFlags.DirtySizeHint) {
+            while (node = pass._SizeList.First()) {
+                pass._SizeList.Remove(node);
+                var fe = node.UIElement;
+                pass._Updated = true;
+                var last = LayoutInformation.GetLastRenderSize(fe);
+                if (last) {
+                    fe.ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                    //TODO: SizeChanged Event 
+                }
+            }
+        } else {
+            break;
+        }
+    }
 };

@@ -3,6 +3,7 @@
 /// <reference path="DependencyProperty.js" />
 /// <reference path="Canvas.js" />
 /// <reference path="Dirty.js"/>
+/// <reference path="App.js"/>
 
 UIElement.prototype = new DependencyObject;
 UIElement.prototype.constructor = UIElement;
@@ -14,9 +15,17 @@ function UIElement() {
     this._SurfaceBounds = new Rect();
     this._Extents = new Rect();
     this._Parent = null;
-    this._DesiredSize = null;
+    this._DesiredSize = new Size();
+    this._RenderSize = new Size();
     this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
     this._DirtyFlags = _Dirty.Measure;
+
+    /*
+    this._ComputeLocalTransform();
+    this._ComputeLocalProjection();
+    this._ComputeTotalRenderVisibility();
+    this._ComputeTotalHitTestVisibility();
+    */
 }
 
 //////////////////////////////////////////
@@ -63,8 +72,11 @@ UIElement.prototype.SetTag = function (value) {
 //////////////////////////////////////////
 // INSTANCE METHODS
 //////////////////////////////////////////
+UIElement.prototype.SetVisualParent = function (/* UIElement */value) {
+    this._VisualParent = value;
+};
 UIElement.prototype.GetVisualParent = function () {
-    return this._Parent; //UIElement
+    return this._VisualParent; //UIElement
 };
 UIElement.prototype.IsLayoutContainer = function () { return false; };
 UIElement.prototype.IsContainer = function () { return this.IsLayoutContainer(); };
@@ -154,7 +166,7 @@ UIElement.prototype._GetSubtreeExtents = function () {
     AbstractMethod("UIElement._GetSubtreeExtents()");
 };
 UIElement.prototype._DoMeasureWithError = function (error) {
-    var lastSize = GetPreviousConstraint(this);
+    var lastSize = LayoutInformation.GetPreviousConstraint(this);
     var parent = this.GetVisualParent();
     var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
 
@@ -163,9 +175,9 @@ UIElement.prototype._DoMeasureWithError = function (error) {
     }
 
     if (last) {
-        var previousDesired = this.GetDesiredSize();
+        var previousDesired = this._DesiredSize;
         this._MeasureWithError(last, error);
-        if (previousDesired == this.GetDesiredSize())
+        if (previousDesired == this._DesiredSize)
             return;
     }
 
@@ -176,24 +188,23 @@ UIElement.prototype._DoMeasureWithError = function (error) {
 };
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
-    var lastVal = this.ReadLocalValue(LayoutSlotProperty);
-    var lastRect = lastVal.IsNull() ? null : lastVal.AsRect();
+    var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var previousRenderSize = new Size();
     var parent = this.GetVisualParent();
 
     if (!parent) {
         var desired = new Size();
         var available = new Size();
-        var surface = this.MainSurface;
+        var surface = App.Instance.MainSurface;
 
         if (this.IsLayoutContainer()) {
-            desired = this.GetDesiredSize();
-            if (this._IsAttached && surface.IsTopLevel(this) && !this.GetParent()) {
-                var measure = GetPreviousConstraint(this);
+            desired = this._DesiredSize;
+            if (this._IsAttached && surface._IsTopLevel(this) && !this.GetParent()) {
+                var measure = LayoutInformation.GetPreviousConstraint(this);
                 if (measure)
-                    desired = desired.Max(GetPreviousConstraint(this));
+                    desired = desired.Max(LayoutInformation.GetPreviousConstraint(this));
                 else
-                    desired = new Size(surface.GetWindow().GetWidth(), surface.GetWindow().GetHeight());
+                    desired = new Size(surface.GetWidth(), surface.GetHeight());
             }
         } else {
             desired = new Size(this.GetActualWidth(), this.GetActualHeight());
@@ -282,10 +293,46 @@ UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transfor
     return box.Intersection(unclipped);
 };
 UIElement.prototype._ElementRemoved = function (item) {
-    NotImplemented("UIElement._ElementRemoved(item)");
+    this._Invalidate(item._GetSubtreeBounds());
+    item.SetVisualParent(null);
+    item._SetIsLoaded(false);
+    item._IsAttached = false;
+    item._SetMentor(null);
+
+    var emptySlot = new Rect();
+    LayoutInformation.SetLayoutSlot(item, emptySlot);
+    item.ClearValue(LayoutInformation.LayoutClipProperty);
+
+    this._InvalidateMeasure();
+
+    this._Providers[_PropertyPrecedence.Inherited].ClearInheritedPropertiesOnRemovingFromTree(item);
 }
 UIElement.prototype._ElementAdded = function (item) {
-    NotImplemented("UIElement._ElementAdded(item)");
+    item.SetVisualParent(this);
+    item._UpdateTotalRenderVisibility();
+    item._UpdateTotalHitTestVisibility();
+    item._Invalidate();
+
+    this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(item);
+    item._IsAttached = true;
+    item._SetIsLoaded(true);
+    var o = this;
+    while (o && !(o instanceof FrameworkElement))
+        o = o._GetMentor();
+    item._SetMentor(o);
+
+    this._UpdateBounds(true);
+
+    this._InvalidateMeasure();
+    this.ClearValue(LayoutInformation.LayoutClipProperty);
+    this.ClearValue(LayoutInformation.PreviousConstraintProperty);
+    item._RenderSize = new Size(0, 0);
+    item._UpdateTransform();
+    item._UpdateProjection();
+    item._InvalidateMeasure();
+    item._InvalidateArrange();
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+        item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 UIElement.prototype._UpdateLayer = function (pass, error) {
 };
@@ -295,10 +342,10 @@ UIElement.prototype._ClearFlag = function (flag) { this._Flags &= ~flag; };
 UIElement.prototype._SetFlag = function (flag) { this._Flags |= flag; };
 UIElement.prototype._PropagateFlagUp = function (flag) {
     this._SetFlag(flag);
-    var e = e.GetVisualParent();
-    while (e && !e._HasFlag(flag)) {
-        e._SetFlag(flag);
-        e = e.GetVisualParent();
+    var el = this.GetVisualParent();
+    while (el && !el._HasFlag(flag)) {
+        el._SetFlag(flag);
+        el = el.GetVisualParent();
     }
 };
 

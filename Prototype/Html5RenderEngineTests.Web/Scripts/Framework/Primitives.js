@@ -155,6 +155,9 @@ Rect.prototype.RoundOut = function () {
 Rect.prototype.RoundIn = function () {
     return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
 }
+Rect.prototype.Equals = function (rect2) {
+    return this.X == rect2.X && this.Y == rect2.Y && this.Width == rect2.Width && this.Height == rect2.Height;
+};
 
 Clip.prototype = new Rect;
 Clip.prototype.constructor = Clip;

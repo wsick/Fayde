@@ -72,7 +72,7 @@ Border.prototype._MeasureOverrideWithEror = function (availableSize, error) {
     var child;
     while (child = walker.Step()) {
         child._MeasureWithError(availableSize.GrowByThickness(border.Negate()), error);
-        desired = child.GetDesiredSize();
+        desired = child._DesiredSize;
     }
     desired = desired.GrowByThickness(border);
     desired = desired.Min(availableSize);

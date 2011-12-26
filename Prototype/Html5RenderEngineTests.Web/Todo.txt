@@ -19,8 +19,8 @@ Surface
 =============================
 _DownDirtyNode
 _UpDirtyNode
-_ProcessUpDirtyElements
-_ProcessDownDirtyElements
+_ProcessUpDirtyElements [Done]
+_ProcessDownDirtyElements [Done]
 
 
 DependencyObject
@@ -45,8 +45,8 @@ _Validate
 
 UIElement
 =============================
-_GetSubtreeObject
-_SetSubtreeObject
+_GetSubtreeObject [Done]
+_SetSubtreeObject [Done]
 _GetRenderVisible [Done]
 _GetGlobalBounds [Done]
 _IntersectBoundsWithClipPath [Done]
@@ -58,6 +58,13 @@ _SetIsLoaded [Done]
 _UpdateBounds [NI]
 _UpdateTransform [NI]
 _UpdateProjection [NI]
+_CacheInvalidateHint
+_ComputeTotalRenderVisibility
+_ComputeTotalHitTestVisibility
+_ComputeLocalTransform
+_ComputeLocalProjection
+_UpdateTotalRenderVisibility
+_UpdateTotalHitTestVisibility
 
 
 
@@ -65,7 +72,7 @@ FrameworkElement
 =============================
 _ComputeGlobalBounds [Done]
 _ComputeSurfaceBounds [Done]
-_UpdateLayer
+_UpdateLayer [Done]
 
 
 Panel

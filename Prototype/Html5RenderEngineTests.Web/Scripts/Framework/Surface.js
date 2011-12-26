@@ -25,7 +25,13 @@ Surface.prototype.Init = function (jCanvas) {
     this._UpDirty = new _DirtyList();
 };
 Surface.prototype.GetExtents = function () {
-    return new Size(this._jCanvas.height(), this._jCanvas.width());
+    return new Size(this.GetWidth(), this.GetHeight());
+};
+Surface.prototype.GetWidth = function () {
+    return this._jCanvas.width();
+};
+Surface.prototype.GetHeight = function () {
+    return this._jCanvas.height();
 };
 Surface.prototype.Render = function (region) {
     var ctx = new _RenderContext(this);
@@ -87,7 +93,7 @@ Surface.prototype._IsTopLevel = function (/* UIElement */top) {
     }
     return ret;
 };
-Surface.prototype._ProcessDirtyElements = function () {
+Surface.prototype.ProcessDirtyElements = function () {
     var error = new BError();
     return this._UpdateLayout(error);
 };
@@ -114,7 +120,7 @@ Surface.prototype._UpdateLayout = function (error) {
             layer._UpdateLayer(pass, error);
         }
 
-        dirty |= downDirty.IsEmpty() || !upDirty.IsEmpty();
+        dirty |= this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
         this._ProcessDownDirtyElements();
         this._ProcessUpDirtyElements();
 
@@ -131,10 +137,155 @@ Surface.prototype._UpdateLayout = function (error) {
     return dirty;
 };
 Surface.prototype._ProcessDownDirtyElements = function () {
-    NotImplemented("Surface._ProcessDownDirtyElements");
+    var visualParent;
+    var node;
+    while (node = this._DownDirty.GetFirst()) {
+        var uie = node.Element;
+
+        if (uie._DirtyFlags & _Dirty.RenderVisibility) {
+            uie._DirtyFlags &= ~_Dirty.RenderVisibility;
+
+            var ovisible = uie._GetRenderVisible();
+
+            uie._UpdateBounds();
+
+            var visualParent = uie.GetVisualParent();
+            if (visualParent)
+                visualParent._UpdateBounds();
+
+            uie._ComputeTotalRenderVisibility();
+
+            if (!uie._GetRenderVisible())
+                uie._CacheInvalidateHint();
+
+            if (ovisible != uie._GetRenderVisible())
+                this._AddDirtyElement(uie, _Dirty.NewBounds);
+
+            this._PropagateDirtyFlagToChildren(uie, _Dirty.NewBounds);
+        }
+
+        if (uie._DirtyFlags & _Dirty.HitTestVisibility) {
+            uie._DirtyFlags &= ~_Dirty.HitTestVisibility;
+
+            uie._ComputeTotalHitTestVisibility();
+
+            this._PropagateDirtyFlagToChildren(uie, _Dirty.HitTestVisibility);
+        }
+
+        if (uie._DirtyFlags & _Dirty.LocalTransform) {
+            uie._DirtyFlags &= ~_Dirty.LocalTransform;
+            uie._DirtyFlags |= _Dirty.Transform;
+            uie._ComputeLocalTransform();
+        }
+        if (uie._DirtyFlags & _Dirty.LocalProjection) {
+            uie._DirtyFlags &= ~_Dirty.LocalProjection;
+            uie._DirtyFlags |= _Dirty.Transform;
+            uie._ComputeLocalProjection();
+        }
+        if (uie._DirtyFlags & _Dirty.Transform) {
+            uie._DirtyFlags &= ~_Dirty.Transform;
+            uie._ComputeTransform();
+            visualParent = uie.GetVisualParent();
+            if (visualParent)
+                visualParent._UpdateBounds();
+            this._PropagateDirtyFlagToChildren(uie, _Dirty.Transform);
+        }
+
+        if (uie._DirtyFlags & _Dirty.LocalClip) {
+            uie._DirtyFlags &= ~_Dirty.LocalClip;
+            uie._DirtyFlags |= _Dirty.Clip;
+        }
+        if (uie._DirtyFlags & _Dirty.Clip) {
+            uie._DirtyFlags &= ~_Dirty.Clip;
+            this._PropagateDirtyFlagToChildren(uie, _Dirty.Clip);
+        }
+
+        if (uie._DirtyFlags & _Dirty.ChildrenZIndices) {
+            uie._DirtyFlags &= ~_Dirty.ChildrenZIndices;
+            if (~(uie instanceof Panel)) {
+                //Warning: Only applicable to Panel subclasses
+            } else {
+                uie.GetChildren().ResortByZIndex();
+            }
+        }
+
+        if (!(uie._DirtyFlags & _Dirty.DownDirtyState) && uie._DownDirtyNode) {
+            this._DownDirtyNode.RemoveDirtyNode(uie._DownDirtyNode);
+            uie._DownDirtyNode = null;
+        }
+    }
+
+    if (!this._DownDirty.IsEmpty()) {
+        //TODO: Warning
+    }
 };
 Surface.prototype._ProcessUpDirtyElements = function () {
-    NotImplemented("Surface._ProcessUpDirtyElements");
+    var visualParent;
+    var node;
+    while (node = this._UpDirty.GetFirst()) {
+        var uie = node.Element;
+        if (uie._DirtyFlags & _Dirty.Bounds) {
+            uie._DirtyFlags &= ~_Dirty.Bounds;
+
+            var oextents = uie._GetSubtreeExtents();
+            var oglobalbounds = uie._GetGlobalBounds();
+            var osubtreebounds = uie._GetSubtreeBounds();
+
+            uie._ComputeBounds();
+
+            if (!oglobalbounds.Equals(uie._GetGlobalBounds())) {
+                visualParent = uie.GetVisualParent();
+                if (visualParent) {
+                    visualParent._UpdateBounds();
+                    visualParent._Invalidate(osubtreebounds);
+                    visualParent._Invalidate(uie._GetSubtreeBounds());
+                }
+            }
+
+            if (!oextents.Equals(uie._GetSubtreeExtents())) {
+                uie._Invalidate(uie._GetSubtreeBounds());
+            }
+
+            if (uie._ForceInvalidateOfNewBounds) {
+                uie._ForceInvalidateOfNewBounds = false;
+                uie._InvalidateSubtreePaint();
+            }
+        }
+
+        if (uie._DirtyFlags & _Dirty.NewBounds) {
+            visualParent = uie.GetVisualParent();
+            if (visualParent)
+                visualParent._Invalidate(uie._GetSubtreeBounds());
+            else if (this._IsTopLevel(uie))
+                uie._InvalidateSubtreePaint();
+            uie._DirtyFlags &= ~_Dirty.NewBounds;
+        }
+
+        if (uie._DirtyFlags & _Dirty.Invalidate) {
+            uie._DirtyFlags &= ~_Dirty.Invalidate;
+            var dirty = uie._DirtyRegion;
+            visualParent = uie.GetVisualParent();
+            if (visualParent) {
+                visualParent._Invalidate(dirty);
+            } else {
+                if (uie._IsAttached()) {
+                    var count = dirty.GetRectangleCount();
+                    for (var i = count - 1; i >= 0; i--) {
+                        this._Invalidate(dirty.GetRectangle(i));
+                    }
+                }
+            }
+        }
+
+        if (!(uie._DirtyFlags & _Dirty.UpDirtyState)) {
+            this._UpDirty.RemoveDirtyNode(uie._UpDirtyNode);
+            uie._UpDirtyNode = null;
+        }
+    }
+
+    if (!this._UpDirty.IsEmpty()) {
+        //TODO: Warning
+    }
 };
 Surface.prototype._PropagateDirtyFlagToChildren = function (element, dirt) {
     var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical);
