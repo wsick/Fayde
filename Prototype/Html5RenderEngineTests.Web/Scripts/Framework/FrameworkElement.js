@@ -4,6 +4,10 @@
 /// <reference path="Matrix.js"/>
 /// <reference path="List.js"/>
 /// <reference path="TreeWalkers.js"/>
+/// <reference path="PropertyValueProviders/PropertyValueProvider.js"/>
+/// <reference path="PropertyValueProviders/Style.js"/>
+/// <reference path="PropertyValueProviders/ImplicitStyle.js"/>
+/// <reference path="PropertyValueProviders/InheritedDataContext.js"/>
 
 FrameworkElement.prototype = new UIElement;
 FrameworkElement.prototype.constructor = FrameworkElement;
@@ -13,6 +17,11 @@ function FrameworkElement() {
     this._GlobalBoundsWithChildren = new Rect();
     this._SurfaceBoundsWithChildren = new Rect();
     this._ExtentsWithChildren = new Rect();
+
+    this._Providers[_PropertyPrecedence.LocalStyle] = new _StylePropertyValueProvider(this, _PropertyPrecedence.LocalStyle);
+    this._Providers[_PropertyPrecedence.ImplicitStyle] = new _ImplicitStylePropertyValueProvider(this, _PropertyPrecedence.ImplicitStyle);
+    this._Providers[_PropertyPrecedence.DynamicValue] = new _FrameworkElementProvider(this, _PropertyPrecedence.DynamicValue);
+    this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 }
 
 //////////////////////////////////////////
@@ -221,7 +230,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     var shouldMeasure = this._DirtyFlags & _Dirty.Measure > 0;
     shouldMeasure |= (!last || last.Width != availableSize.Width || last.Height != availableSize.Height);
 
-    if (this.GetVisibility() == Visibility.Visible) {
+    if (this.GetVisibility() != Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
         this._DesiredSize = new Size(0, 0);
         return;
@@ -630,5 +639,32 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
         } else {
             break;
         }
+    }
+};
+
+
+_FrameworkElementProvider.prototype = new _PropertyValueProvider;
+_FrameworkElementProvider.prototype.constructor = _FrameworkElementProvider;
+function _FrameworkElementProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, 0);
+    this._ActualHeight = null;
+    this._ActualWidth = null;
+    this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+}
+_FrameworkElementProvider.prototype.GetPropertyValue = function (propd) {
+    if (propd != FrameworkElement.ActualHeightProperty && propd != FrameworkElement.ActualWidthProperty)
+        return undefined;
+
+    var actual = this._Object._ComputeActualSize();
+    if (!this._Last.Equals(actual)) {
+        this._Last = actual;
+        this._ActualHeight = actual.Height;
+        this._ActualWidth = actual.Width;
+    }
+
+    if (propd == FrameworkElement.ActualHeightProperty) {
+        return this._ActualHeight;
+    } else {
+        return this._ActualWidth;
     }
 };
