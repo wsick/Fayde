@@ -1,16 +1,26 @@
-﻿_DirtyList.prototype = new Object;
+﻿/// <reference path="List.js"/>
+
+_DirtyList.prototype = new Object;
 _DirtyList.prototype.constructor = _DirtyList;
+_DirtyList.prototype._DirtyNodes = new List();
 function _DirtyList() {
 }
 _DirtyList.prototype.AddDirtyNode = function (node) {
+    this._DirtyNodes.Append(node);
 };
 _DirtyList.prototype.RemoveDirtyNode = function (node) {
+    if (!this._DirtyNodes)
+        return;
+    this._DirtyNodes.Remove(node);
 };
 _DirtyList.prototype.GetFirst = function () {
+    this._DirtyNodes.First();
 };
 _DirtyList.prototype.IsEmpty = function () {
+    return this._DirtyNodes.IsEmpty();
 };
 _DirtyList.prototype.Clear = function () {
+    this._DirtyNodes.Clear();
 };
 
 var _Dirty = {

@@ -67,6 +67,11 @@ List.prototype.InsertBefore = function (node, before) {
     before.Previous = node;
     this._Count++;
 };
+List.prototype.Clear = function () {
+    this._Count = 0;
+    this._Head = null;
+    this._Tail = null;
+};
 
 Node.prototype = new Object;
 Node.prototype.constructor = Node;
