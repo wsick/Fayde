@@ -61,12 +61,12 @@ DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endin
     var bitmask = this._ProviderBitmasks[propd] || 0;
     bitmask |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
     if (propd._IsAutoCreated())
-        bitmask != 1 << _PropertyPrecedence.AutoCreate;
+        bitmask |= 1 << _PropertyPrecedence.AutoCreate;
     if (propd._HasDefaultValue())
-        bitmask != 1 << _PropertyPrecedence.DefaultValue;
+        bitmask |= 1 << _PropertyPrecedence.DefaultValue;
 
     //Loop through providers and find the first provider that is on and contains the property value
-    for (var i = startingPrecedence; i >= endingPrecedence; i--) {
+    for (var i = startingPrecedence; i <= endingPrecedence; i++) {
         if (!(bitmask & (1 << i)))
             continue;
         var provider = this._Providers[i];

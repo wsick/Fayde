@@ -53,7 +53,7 @@ UIElement.prototype.SetUseLayoutRounding = function (value) {
     this.SetValue(UIElement.UseLayoutRoundingProperty, value);
 };
 
-UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", UIElement);
+UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", UIElement, Visibility.Visible);
 UIElement.prototype.GetVisibility = function () {
     return this.GetValue(UIElement.VisibilityProperty);
 };
@@ -166,7 +166,7 @@ UIElement.prototype._GetSubtreeExtents = function () {
     AbstractMethod("UIElement._GetSubtreeExtents()");
 };
 UIElement.prototype._DoMeasureWithError = function (error) {
-    var lastSize = LayoutInformation.GetPreviousConstraint(this);
+    var last = LayoutInformation.GetPreviousConstraint(this);
     var parent = this.GetVisualParent();
     var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
 
@@ -177,7 +177,7 @@ UIElement.prototype._DoMeasureWithError = function (error) {
     if (last) {
         var previousDesired = this._DesiredSize;
         this._MeasureWithError(last, error);
-        if (previousDesired == this._DesiredSize)
+        if (previousDesired.Equals(this._DesiredSize))
             return;
     }
 

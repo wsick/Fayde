@@ -2,7 +2,7 @@
 /// <reference path="/Scripts/Framework/DependencyObject.js" />
 /// <reference path="/Scripts/Framework/FrameworkElement.js" />
 /// <reference path="/Scripts/Framework/Control.js" />
-/// <reference path="/Scripts/Framework/VisualTreeWalker.js" />
+/// <reference path="/Scripts/Framework/TreeWalkers.js" />
 
 var _Inheritable = {
     Foreground: 1 << 0,

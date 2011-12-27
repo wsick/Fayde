@@ -3,6 +3,7 @@
 /// <reference path="UIElement.js" />
 /// <reference path="Matrix.js"/>
 /// <reference path="List.js"/>
+/// <reference path="TreeWalkers.js"/>
 
 FrameworkElement.prototype = new UIElement;
 FrameworkElement.prototype.constructor = FrameworkElement;
@@ -216,9 +217,9 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
         return;
     }
 
-    var lastSize = LayoutInformation.GetPreviousConstraint(this);
+    var last = LayoutInformation.GetPreviousConstraint(this);
     var shouldMeasure = this._DirtyFlags & _Dirty.Measure > 0;
-    shouldMeasure |= (!lastSize || lastSize.Width != availableSize.Width || last.Height != availableSize.Height);
+    shouldMeasure |= (!last || last.Width != availableSize.Width || last.Height != availableSize.Height);
 
     if (this.GetVisibility() == Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);

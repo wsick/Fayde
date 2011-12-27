@@ -50,6 +50,23 @@ List.prototype.Remove = function (node) {
 
     this._Count--;
 };
+List.prototype.InsertBefore = function (node, before) {
+    if (before == null) {
+        this.Append(node);
+        return;
+    }
+
+    node.Next = before;
+    node.Previous = before.Previous;
+
+    if (before.Previous)
+        before.Previous.Next = node;
+    else
+        this._Head = node;
+
+    before.Previous = node;
+    this._Count++;
+};
 
 Node.prototype = new Object;
 Node.prototype.constructor = Node;
