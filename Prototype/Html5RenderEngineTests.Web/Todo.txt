@@ -33,6 +33,7 @@ _IsValueValid
 SetValue [Done]
 _IsAttached [Done]
 _SetIsAttached [Done]
+_AddParent
 
 
 
@@ -58,14 +59,13 @@ _SetIsLoaded [Done]
 _UpdateBounds [NI]
 _UpdateTransform [NI]
 _UpdateProjection [NI]
-_CacheInvalidateHint
+_CacheInvalidateHint [Done]
 _ComputeTotalRenderVisibility
 _ComputeTotalHitTestVisibility
 _ComputeLocalTransform
 _ComputeLocalProjection
 _UpdateTotalRenderVisibility
 _UpdateTotalHitTestVisibility
-_AddParent
 
 
 
@@ -78,6 +78,9 @@ _ApplyTemplateWithError [Done]
 _DoApplyTemplateWithError [Done]
 _OnApplyTemplate [Done]
 _GetDefaultTemplate [Done]
+_OnIsLoadedChanged [Done]
+_SetImplicitStyles
+_ClearImplicitStyles [Done]
 
 
 

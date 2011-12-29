@@ -54,6 +54,7 @@ Surface.prototype._Attach = function (/* UIElement */element) {
     }
 
     if (!element) {
+        this._Invalidate();
         return;
     }
 
@@ -67,7 +68,7 @@ Surface.prototype._Attach = function (/* UIElement */element) {
 
     this._TopLevel = element;
 
-    //TODO: Register Loaded event
+    //TODO: Subscribe Loaded event
 
     this._AttachLayer(this._TopLevel);
 };
@@ -97,6 +98,13 @@ Surface.prototype.ProcessDirtyElements = function () {
     var error = new BError();
     return this._UpdateLayout(error);
 };
+Surface.prototype._Invalidate = function (rect) {
+    if (!rect)
+        rect = new Rect(0, 0, this.GetWidth(), this.GetHeight());
+    var surface = this;
+    setTimeout(function () { surface.Render(rect); }, 1);
+};
+
 Surface.prototype._UpdateLayout = function (error) {
     if (!this._Layers)
         return false;
@@ -166,9 +174,7 @@ Surface.prototype._ProcessDownDirtyElements = function () {
 
         if (uie._DirtyFlags & _Dirty.HitTestVisibility) {
             uie._DirtyFlags &= ~_Dirty.HitTestVisibility;
-
             uie._ComputeTotalHitTestVisibility();
-
             this._PropagateDirtyFlagToChildren(uie, _Dirty.HitTestVisibility);
         }
 

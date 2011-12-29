@@ -177,9 +177,6 @@ FrameworkElement.prototype._GetSubtreeExtents = function () {
         return this._ExtentsWithChildren;
     return this._Extents;
 };
-FrameworkElement.prototype._UpdateBounds = function () {
-    NotImplemented("FrameworkElement._UpdateBounds()");
-};
 FrameworkElement.prototype._ComputeBounds = function () {
     var size = new Size(this.GetActualWidth(), this.GetActualHeight());
     size = this._ApplySizeConstraints(size);
@@ -668,6 +665,13 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
         }
     }
 };
+FrameworkElement.prototype._SetImplicitStyles = function (styleMask, styles) {
+    NotImplemented("FrameworkElement._SetImplicitStyles");
+};
+FrameworkElement.prototype._ClearImplicitStyles = function (styleMask) {
+    var error = new BError();
+    this._Providers[_PropertyPrecedence.ImplicitStyle].ClearStyles(styleMask, error);
+};
 FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
     if (this._GetSubtreeObject())
         return false;
@@ -692,6 +696,18 @@ FrameworkElement.prototype._GetDefaultTemplate = function () {
     if (this._GetDefaultTemplateCallback)
         return this._GetDefaultTemplateCallback(this);
     return null;
+};
+
+FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
+    if (loaded)
+        this._SetImplicitStyles(_StyleMask.All);
+    else
+        this._ClearImplicitStyles(_StyleMask.VisualTree);
+
+    UIElement.prototype._OnIsLoadedChanged.call(this, loaded);
+
+    if (this._Providers[_PropertyPrecedence.InheritedDataContext])
+        this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
 
 FrameworkElement.prototype.TemplatedApplied = new MulticastEvent();

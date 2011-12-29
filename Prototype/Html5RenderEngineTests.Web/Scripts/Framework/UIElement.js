@@ -86,28 +86,7 @@ UIElement.prototype.GetVisualParent = function () {
 };
 UIElement.prototype.IsLayoutContainer = function () { return false; };
 UIElement.prototype.IsContainer = function () { return this.IsLayoutContainer(); };
-UIElement.prototype._SetIsLoaded = function (value) {
-    if (this._IsLoaded != value) {
-        this._IsLoaded = value;
-        this._OnIsLoadedChanged(value);
-    }
-};
-UIElement.prototype._OnIsLoadedChanged = function (loaded) {
-    if (!this._IsLoaded) {
-        //TODO: Unloaded Event
-        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
-    }
-
-    var walker = new _VisualTreeWalker(this);
-    var element;
-    while (element = walker.Step()) {
-        element._SetIsLoaded(loaded);
-    }
-
-    if (this._IsLoaded) {
-        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
-        //TODO: Loaded Event
-    }
+UIElement.prototype._CacheInvalidateHint = function () {
 };
 UIElement.prototype._FullInvalidate = function (renderTransform) {
     this._Invalidate();
@@ -124,8 +103,12 @@ UIElement.prototype._Invalidate = function (rect) {
         return;
 
     if (this._IsAttached) {
+        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Invalidate);
+        //WTF: Invalidate bitmap cache
+        //TODO: Render Intermediate not implemented
+        this._DirtyRegion = this._DirtyRegion.Union(rect);
         //TODO: Alert needs redraw
-        //TODO: Finish
+        this._OnInvalidated();
     }
 };
 UIElement.prototype._InvalidateMeasure = function () {
@@ -355,6 +338,55 @@ UIElement.prototype._ElementAdded = function (item) {
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 UIElement.prototype._UpdateLayer = function (pass, error) {
+};
+
+
+UIElement.prototype._SetIsLoaded = function (value) {
+    if (this._IsLoaded != value) {
+        this._IsLoaded = value;
+        this._OnIsLoadedChanged(value);
+    }
+};
+UIElement.prototype._OnIsLoadedChanged = function (loaded) {
+    if (!this._IsLoaded) {
+        //TODO: Unloaded Event
+        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
+    }
+
+    var walker = new _VisualTreeWalker(this);
+    var element;
+    while (element = walker.Step()) {
+        element._SetIsLoaded(loaded);
+    }
+
+    if (this._IsLoaded) {
+        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
+        //TODO: Loaded Event
+    }
+};
+
+UIElement.prototype._OnIsAttachedChanged = function (value) {
+    if (this._SubtreeObject)
+        this._SubtreeObject._SetIsAttached(value);
+
+    DependencyObject.prototype._OnIsAttachedChanged.call(this, value);
+
+    if (!value) {
+        this._CacheInvalidateHint();
+
+        var surface = App.Instance.MainSurface;
+        if (surface) {
+            surface._RemoveDirtyElement(this);
+            //TODO: Focus Element
+            //if (surface.GetFocusedElement() === this)
+            //    surface.FocusElement(null);
+        }
+    }
+};
+
+UIElement.prototype.Invalidated = new MulticastEvent();
+UIElement.prototype._OnInvalidated = function () {
+    this.Invalidated.Raise(this, null);
 };
 
 UIElement.prototype._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
