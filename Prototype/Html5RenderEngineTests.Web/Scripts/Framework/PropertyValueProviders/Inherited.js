@@ -3,6 +3,8 @@
 /// <reference path="/Scripts/Framework/FrameworkElement.js" />
 /// <reference path="/Scripts/Framework/Control.js" />
 /// <reference path="/Scripts/Framework/TreeWalkers.js" />
+/// <reference path="/Scripts/Framework/TextBlock.js"/>
+/// <reference path="/Scripts/Framework/TextElement.js"/>
 
 var _Inheritable = {
     Foreground: 1 << 0,

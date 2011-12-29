@@ -65,6 +65,7 @@ _ComputeLocalTransform
 _ComputeLocalProjection
 _UpdateTotalRenderVisibility
 _UpdateTotalHitTestVisibility
+_AddParent
 
 
 
@@ -73,6 +74,11 @@ FrameworkElement
 _ComputeGlobalBounds [Done]
 _ComputeSurfaceBounds [Done]
 _UpdateLayer [Done]
+_ApplyTemplateWithError [Done]
+_DoApplyTemplateWithError [Done]
+_OnApplyTemplate [Done]
+_GetDefaultTemplate [Done]
+
 
 
 Panel

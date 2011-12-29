@@ -172,9 +172,6 @@ FrameworkElement.prototype._ApplySizeConstraints = function (size) {
 
     return constrained;
 };
-FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
-    NotImplemented("FrameworkElement._ApplyTemplateWithError(error)");
-};
 FrameworkElement.prototype._GetSubtreeExtents = function () {
     if (this._GetSubtreeObject())
         return this._ExtentsWithChildren;
@@ -500,7 +497,37 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
         UIElement.prototype._OnPropertyChanged.call(this, args, error);
         return;
     }
-    //TODO: Check invalidation of some properties
+
+    if (args.Property == FrameworkElement.WidthProperty
+        || args.Property == FrameworkElement.MaxWidthProperty
+        || args.Property == FrameworkElement.MinWidthProperty
+        || args.Property == FrameworkElement.HeightProperty
+        || args.Property == FrameworkElement.MaxHeightProperty
+        || args.Property == FrameworkElement.MinHeightProperty
+        || args.Property == FrameworkElement.MarginProperty
+        || args.Property == FrameworkElement.FlowDirectionProperty) {
+        //var p = this._GetRenderTransformOrigin();
+        //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
+        this._FullInvalidate(false);
+
+        var visualParent = this.GetVisualParent();
+        if (visualParent)
+            visualParent._InvalidateMeasure();
+
+        this._InvalidateMeasure();
+        this._InvalidateArrange();
+        this._UpdateBounds();
+    } else if (args.Property == FrameworkElement.StyleProperty) {
+        var newStyle = args.NewValue;
+        if (!error.IsErrored())
+            this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
+        if (error.IsErrored())
+            return;
+    } else if (args.Property == FrameworkElement.HorizontalAlignmentProperty
+        || args.Property == FrameworkElement.VerticalAlignmentProperty) {
+        this._InvalidateArrange();
+        this._FullInvalidate(true);
+    }
     this.PropertyChanged.Raise(this, args);
 };
 FrameworkElement.prototype._InsideObject = function (x, y) {
@@ -641,6 +668,37 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
         }
     }
 };
+FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
+    if (this._GetSubtreeObject())
+        return false;
+
+    var result = this._DoApplyTemplateWithError(error);
+    if (result)
+        this._OnApplyTemplate();
+    return result;
+};
+FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
+    var d = this._GetDefaultTemplate();
+    if (d) {
+        d._AddParent(this, error);
+        if (error.IsErrored())
+            return false;
+        this._SetSubtreeObject(d);
+        this._ElementAdded(d);
+    }
+    return d != null;
+};
+FrameworkElement.prototype._GetDefaultTemplate = function () {
+    if (this._GetDefaultTemplateCallback)
+        return this._GetDefaultTemplateCallback(this);
+    return null;
+};
+
+FrameworkElement.prototype.TemplatedApplied = new MulticastEvent();
+FrameworkElement.prototype._OnApplyTemplate = function () {
+    this.TemplatedApplied.Raise(this, null);
+};
+
 
 
 _FrameworkElementProvider.prototype = new _PropertyValueProvider;

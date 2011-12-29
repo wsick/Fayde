@@ -304,13 +304,13 @@ Surface.prototype._AddDirtyElement = function (/* UIElement */element, dirt) {
         if (element._DownDirtyNode)
             return;
         element._DownDirtyNode = new DirtyNode(element);
-        this._DownDirtyNode.AddDirtyNode(element._DownDirtyNode);
+        this._DownDirty.AddDirtyNode(element._DownDirtyNode);
     }
     if (dirt & _Dirty.UpDirtyState) {
         if (element._UpDirtyNode)
             return;
         element._UpDirtyNode = new DirtyNode(element);
-        this._UpDirtyNode.AddDirtyNode(element._UpDirtyNode);
+        this._UpDirty.AddDirtyNode(element._UpDirtyNode);
     }
     //TODO: Alert redraw needed
 };

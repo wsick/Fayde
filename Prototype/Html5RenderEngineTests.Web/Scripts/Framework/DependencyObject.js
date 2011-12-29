@@ -250,7 +250,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
         if (this._Providers[_PropertyPrecedence.Inherited]) {
             if (providerPrecedence == _PropertyPrecedence.Inherited) {
             } else {
-                if (_InheritedPropertyValueProvider.IsPropertyInherited(this, propd)
+                if (_InheritedPropertyValueProvider.IsInherited(this, propd)
                          && this._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited) {
                     this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedProperty(propd, this, this);
                 }

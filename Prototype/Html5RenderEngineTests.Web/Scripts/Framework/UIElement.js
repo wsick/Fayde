@@ -10,22 +10,28 @@ UIElement.prototype.constructor = UIElement;
 function UIElement() {
     DependencyObject.call(this);
     this._IsVisible = true;
+
+    this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
+    
+    this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
+
+    this._HiddenDesire = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
     this._Bounds = new Rect();
     this._GlobalBounds = new Rect();
     this._SurfaceBounds = new Rect();
-    this._Extents = new Rect();
-    this._Parent = null;
+
+    this._DirtyFlags = _Dirty.Measure;
+    this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
+    this._UpDirtyNode = this._DownDirtyNode = null;
+    this._ForceInvalidateOfNewBounds = false;
+    this._DirtyRegion = new Rect();
     this._DesiredSize = new Size();
     this._RenderSize = new Size();
-    this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
-    this._DirtyFlags = _Dirty.Measure;
 
-    /*
     this._ComputeLocalTransform();
     this._ComputeLocalProjection();
     this._ComputeTotalRenderVisibility();
     this._ComputeTotalHitTestVisibility();
-    */
 }
 
 //////////////////////////////////////////
@@ -136,13 +142,15 @@ UIElement.prototype._GetRenderVisible = function () {
     return this._IsVisible;
 };
 UIElement.prototype._UpdateBounds = function (forceRedraw) {
-    NotImplemented("UIElement._UpdateBounds(forceRedraw)");
+    if (this._IsAttached)
+        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
+    this._ForceInvalidateOfNewBounds |= forceRedraw;
 };
 UIElement.prototype._UpdateTransform = function () {
-    NotImplemented("UIElement._UpdateTransform()");
+    //NotImplemented("UIElement._UpdateTransform()");
 };
 UIElement.prototype._UpdateProjection = function () {
-    NotImplemented("UIElement._UpdateProjection()");
+    //NotImplemented("UIElement._UpdateProjection()");
 };
 UIElement.prototype._ComputeBounds = function () {
     AbstractMethod("UIElement._ComputeBounds()");
@@ -152,6 +160,18 @@ UIElement.prototype._ComputeGlobalBounds = function () {
 };
 UIElement.prototype._ComputeSurfaceBounds = function () {
     this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteProjection);
+};
+UIElement.prototype._ComputeLocalTransform = function () {
+    //NotImplemented("UIElement._ComputeLocalTransform");
+};
+UIElement.prototype._ComputeLocalProjection = function () {
+    //NotImplemented("UIElement._ComputeLocalProjection");
+};
+UIElement.prototype._ComputeTotalRenderVisibility = function () {
+    NotImplemented("UIElement._ComputeTotalRenderVisibility");
+};
+UIElement.prototype._ComputeTotalHitTestVisibility = function () {
+    NotImplemented("UIElement._ComputeTotalHitTestVisibility");
 };
 UIElement.prototype._GetGlobalBounds = function () {
     return this._GlobalBounds;

@@ -72,6 +72,8 @@
     <Content Include="Scripts\Framework\LayoutInformation.js" />
     <Content Include="Scripts\Framework\Matrix.js" />
     <Content Include="Scripts\Framework\Surface.js" />
+    <Content Include="Scripts\Framework\TextBlock.js" />
+    <Content Include="Scripts\Framework\TextElement.js" />
     <Content Include="Scripts\Framework\UIElementCollection.js" />
     <Content Include="Scripts\Framework\UserControl.js" />
     <Content Include="Scripts\Framework\TreeWalkers.js" />
