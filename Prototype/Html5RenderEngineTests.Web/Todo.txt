@@ -17,8 +17,8 @@
 
 Surface
 =============================
-_DownDirtyNode
-_UpDirtyNode
+_DownDirtyNode [Done]
+_UpDirtyNode [Done]
 _ProcessUpDirtyElements [Done]
 _ProcessDownDirtyElements [Done]
 
@@ -33,7 +33,12 @@ _IsValueValid
 SetValue [Done]
 _IsAttached [Done]
 _SetIsAttached [Done]
+_ClearValue [Done]
+_GetParent [Done]
 _AddParent
+_RemoveParent
+_AddSecondaryParent
+_RemoveSecondaryParent
 
 
 
@@ -41,12 +46,6 @@ DependencyProperty
 =============================
 _Coerce [Done]
 _Validate
-_ClearValue [Done]
-_GetParent [Done]
-_AddParent
-_RemoveParent
-_AddSecondaryParent
-_RemoveSecondaryParent
 
 
 UIElement

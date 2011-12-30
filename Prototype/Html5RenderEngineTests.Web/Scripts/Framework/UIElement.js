@@ -413,7 +413,6 @@ UIElement.prototype._ElementAdded = function (item) {
 UIElement.prototype._UpdateLayer = function (pass, error) {
 };
 
-
 UIElement.prototype._SetIsLoaded = function (value) {
     if (this._IsLoaded != value) {
         this._IsLoaded = value;
