@@ -37,8 +37,14 @@ function UIElement() {
 //////////////////////////////////////////
 // DEPENDENCY PROPERTIES
 //////////////////////////////////////////
+UIElement.ClipProperty = DependencyProperty.Register("Clip", UIElement);
+UIElement.prototype.GetClip = function () {
+    return this.GetValue(UIElement.ClipProperty);
+};
+UIElement.prototype.SetClip = function (value) {
+    this.SetValue(UIElement.ClipProperty, value);
+};
 
-//UIElement.ClipProperty;
 //UIElement.CacheModeProperty;
 //UIElement.EffectProperty;
 //UIElement.ProjectionProperty;
@@ -167,6 +173,15 @@ UIElement.prototype._SetSubtreeObject = function (value) {
 };
 UIElement.prototype._GetSubtreeExtents = function () {
     AbstractMethod("UIElement._GetSubtreeExtents()");
+};
+UIElement.prototype._GetSubtreeBounds = function () {
+    return this._SurfaceBounds;
+};
+UIElement.prototype._SetRenderSize = function (value) {
+    this._RenderSize = value;
+};
+UIElement.prototype._GetRenderSize = function () {
+    return this._RenderSize;
 };
 UIElement.prototype._DoMeasureWithError = function (error) {
     var last = LayoutInformation.GetPreviousConstraint(this);
@@ -361,9 +376,10 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
 
     if (this._IsLoaded) {
         //TODO: SetIsLoaded for all FrameworkElements in GetResources()
-        //TODO: Loaded Event
+        this.Loaded.Raise(this, null);
     }
 };
+UIElement.prototype.Loaded = new MulticastEvent();
 
 UIElement.prototype._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)

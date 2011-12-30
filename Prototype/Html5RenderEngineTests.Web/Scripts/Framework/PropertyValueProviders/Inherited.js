@@ -182,7 +182,7 @@ _InheritedPropertyValueProvider.prototype.ClearInheritedPropertiesOnRemovingFrom
 _InheritedPropertyValueProvider.prototype._GetPropertySource = function (inheritableOrProp) {
     if (inheritableOrProp instanceof DependencyProperty)
         return this._ht[GetInheritableFromProperty(inheritableOrProp)];
-    return this._ht[inheritable];
+    return this._ht[inheritableOrProp];
 };
 _InheritedPropertyValueProvider.prototype._SetPropertySource = function (inheritable, source) {
     if (source)

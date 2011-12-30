@@ -66,6 +66,7 @@ _ComputeLocalTransform
 _ComputeLocalProjection
 _UpdateTotalRenderVisibility
 _UpdateTotalHitTestVisibility
+_GetRenderSize [Done]
 
 
 
@@ -81,6 +82,7 @@ _GetDefaultTemplate [Done]
 _OnIsLoadedChanged [Done]
 _SetImplicitStyles
 _ClearImplicitStyles [Done]
+_ComputeActualSize [Done]
 
 
 

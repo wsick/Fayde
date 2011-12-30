@@ -2,19 +2,11 @@
 
 Color.prototype = new Object;
 Color.prototype.constructor = Color;
-Color.prototype.R = 255;
-Color.prototype.G = 255;
-Color.prototype.B = 255;
-Color.prototype.A = 1.0;
 function Color(r, g, b, a) {
-    if (r)
-        this.R = r;
-    if (g)
-        this.G = g;
-    if (b)
-        this.B = b;
-    if (a)
-        this.A = a;
+    this.R = r == null ? 255 : r;
+    this.G = g == null ? 255 : g;
+    this.B = b == null ? 255 : b;
+    this.A = a == null ? 1.0 : a;
 }
 Color.prototype.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";

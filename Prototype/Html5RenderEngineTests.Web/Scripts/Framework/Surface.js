@@ -8,13 +8,13 @@
 
 Surface.prototype = new Object;
 Surface.prototype.constructor = Surface;
-Surface.prototype._BackgroundColor = new Color();
 /*
 function Surface(containerId, width, height) {
     this._Stage = new Kinetic.Stage(containerId, width, height);
 }
 */
 function Surface() {
+    this._BackgroundColor = new Color();
 }
 Surface.prototype.Init = function (jCanvas) {
     this._jCanvas = jCanvas;
@@ -70,7 +70,15 @@ Surface.prototype._Attach = function (/* UIElement */element) {
 
     //TODO: Subscribe Loaded event
 
+    this._TopLevel.Loaded.Subscribe(this._HandleTopLevelLoaded);
     this._AttachLayer(this._TopLevel);
+    var surface = this;
+    var postAttach = function () {
+        surface._TopLevel._SetIsAttached(true);
+        surface._TopLevel._SetIsLoaded(true);
+        //TODO: App Loaded event
+    };
+    setTimeout(postAttach, 1);
 };
 Surface.prototype._AttachLayer = function (/* UIElement */layer) {
     if (layer === this._TopLevel)
@@ -83,6 +91,20 @@ Surface.prototype._AttachLayer = function (/* UIElement */layer) {
     layer._SetIsAttached(true);
     layer._SetIsLoaded(true);
     //TODO: App Loaded event
+};
+Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
+    var element = sender;
+    var topLevel = App.Instance.MainSurface._TopLevel;
+    topLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
+    if (element === topLevel) {
+        //TODO: this.Resize.Raise(this, null);
+
+        //element._UpdateTotalRenderVisibility();
+        //element._UpdateTotalHitTestVisibility();
+        element._FullInvalidate(true);
+
+        element._InvalidateMeasure();
+    }
 };
 Surface.prototype._IsTopLevel = function (/* UIElement */top) {
     if (!top || !this._Layers)
@@ -332,7 +354,6 @@ Surface.prototype._RemoveDirtyElement = function (/* UIElement */element) {
 
 _RenderContext.prototype = new Object;
 _RenderContext.prototype.constructor = _RenderContext;
-_RenderContext.prototype._Surface = new Surface();
 function _RenderContext(surface) {
     this._Surface = surface;
 }

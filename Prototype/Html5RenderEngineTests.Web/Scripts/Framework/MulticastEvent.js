@@ -1,7 +1,9 @@
-﻿MulticastEvent.prototype = new Object;
+﻿/// <reference path="Debug.js"/>
+
+MulticastEvent.prototype = new Object;
 MulticastEvent.prototype.constructor = MulticastEvent;
-MulticastEvent.prototype._Listeners = new Array();
 function MulticastEvent() {
+    this._Listeners = new Array();
 }
 MulticastEvent.prototype.Subscribe = function (callback) {
     this._Listeners.push(callback);

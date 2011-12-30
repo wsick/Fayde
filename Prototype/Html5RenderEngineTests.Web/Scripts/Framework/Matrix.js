@@ -20,12 +20,10 @@ Matrix.Multiply = function (mat1, mat2) {
 
 TranslationMatrix.prototype = Matrix.prototype;
 TranslationMatrix.prototype.constructor = TranslationMatrix;
-TranslationMatrix.prototype.X = 0;
-TranslationMatrix.prototype.Y = 0;
 function TranslationMatrix(x, y) {
     Matrix.call(this);
-    this.X = x;
-    this.Y = y;
+    this.X = x == null ? 0 : x;
+    this.Y = y == null ? 0 : y;
 }
 TranslationMatrix.prototype.GetElements = function () {
     return [
@@ -40,10 +38,9 @@ TranslationMatrix.prototype.Apply = function (ctx) {
 
 RotationMatrix.prototype = Matrix.prototype;
 RotationMatrix.prototype.constructor = RotationMatrix;
-RotationMatrix.prototype.Angle = 0;
 function RotationMatrix(angleRad) {
     Matrix.call(this);
-    this.Angle = angleRad;
+    this.Angle = angleRad == null ? 0 : angleRad;
 }
 RotationMatrix.prototype.GetElements = function () {
     return [
@@ -58,12 +55,10 @@ RotationMatrix.prototype.Apply = function (ctx) {
 
 ScalingMatrix.prototype = Matrix.prototype;
 ScalingMatrix.prototype.constructor = ScalingMatrix;
-ScalingMatrix.prototype.X = 1;
-ScalingMatrix.prototype.Y = 1;
 function ScalingMatrix(x, y) {
     Matrix.call(this);
-    this.X = x;
-    this.Y = y;
+    this.X = x == null ? 1 : x;
+    this.Y = y == null ? 1 : y;
 }
 ScalingMatrix.prototype.GetElements = function () {
     return [
@@ -78,12 +73,10 @@ ScalingMatrix.prototype.Apply = function (ctx) {
 
 ShearingMatrix.prototype = Matrix.prototype;
 ShearingMatrix.prototype.constructor = ShearingMatrix;
-ShearingMatrix.prototype.ShearX = 0;
-ShearingMatrix.prototype.ShearY = 0;
 function ShearingMatrix(shearX, shearY) {
     Matrix.call(this);
-    this.ShearX = shearX;
-    this.ShearY = shearY;
+    this.ShearX = shearX == null ? 0 : shearX;
+    this.ShearY = shearY == null ? 0 : shearY;
 }
 ShearingMatrix.prototype.GetElements = function () {
     return [

@@ -68,17 +68,15 @@ Thickness.Negate = function () {
 Point.prototype = new Object;
 Point.prototype.constructor = Point;
 function Point(x, y) {
-    this.X = x;
-    this.Y = y;
+    this.X = x || 0;
+    this.Y = y || 0;
 }
 
 Size.prototype = new Object;
 Size.prototype.constructor = Size;
-Size.prototype.Width = 0;
-Size.prototype.Height = 0;
 function Size(width, height) {
-    this.Width = width;
-    this.Height = height;
+    this.Width = width || 0;
+    this.Height = height || 0;
 }
 Size.prototype.GrowBy = function (width, height) {
     var h = this.Height;
@@ -104,10 +102,6 @@ Size.prototype.Equals = function (size2) {
 
 Rect.prototype = new Object;
 Rect.prototype.constructor = Rect;
-Rect.prototype.X = 0;
-Rect.prototype.Y = 0;
-Rect.prototype.Width = 0;
-Rect.prototype.Height = 0;
 function Rect(x, y, width, height) {
     this.X = x || 0;
     this.Y = y || 0;

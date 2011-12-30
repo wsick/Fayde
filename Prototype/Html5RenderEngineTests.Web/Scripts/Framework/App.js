@@ -3,8 +3,8 @@
 App.prototype = new Object;
 App.prototype.constructor = App;
 function App() {
+    this.MainSurface = new Surface();
 }
-App.prototype.MainSurface = new Surface();
 App.prototype.Load = function (/* UIElement */element) {
     if (!(element instanceof UIElement))
         return;

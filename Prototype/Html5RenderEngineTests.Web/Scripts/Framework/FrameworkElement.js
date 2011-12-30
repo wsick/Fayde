@@ -177,6 +177,18 @@ FrameworkElement.prototype._GetSubtreeExtents = function () {
         return this._ExtentsWithChildren;
     return this._Extents;
 };
+FrameworkElement.prototype._ComputeActualSize = function () {
+    var parent = this.GetVisualParent();
+    if (this.GetVisibility() != Visibility.Visible)
+        return new Size(0.0, 0.0);
+
+    if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
+        return this._GetRenderSize();
+
+    var actual = new Size(0, 0);
+    actual = this._ApplySizeConstraints(actual);
+    return actual;
+};
 FrameworkElement.prototype._ComputeBounds = function () {
     var size = new Size(this.GetActualWidth(), this.GetActualHeight());
     size = this._ApplySizeConstraints(size);
@@ -184,7 +196,7 @@ FrameworkElement.prototype._ComputeBounds = function () {
     this._Extents = new Rect(0, 0, size.Width, size.Height);
     this._ExtentsWithChildren = this._Extents;
 
-    var walker = this._GetVisualTreeWalker();
+    var walker = new _VisualTreeWalker(this);
     var item;
     while (item = walker.Step()) {
         if (item._GetRenderVisible())
@@ -209,6 +221,11 @@ FrameworkElement.prototype._GetGlobalBounds = function () {
     if (this._GetSubtreeObject())
         return this._GlobalBoundsWithChildren;
     return this._GlobalBounds;
+};
+FrameworkElement.prototype._GetSubtreeBounds = function () {
+    if (this._GetSubtreeObject())
+        return this._SurfaceBoundsWithChildren;
+    return this._SurfaceBounds;
 };
 FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
@@ -393,12 +410,12 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         response.Height = Math.round(response.Height);
     }
 
-    this._RenderSize = response;
+    this._SetRenderSize(response);
     var constrainedResponse = response.Min(this._ApplySizeConstraints(response));
 
     if (!parent || parent._IsCanvas()) {
         if (!this.IsLayoutContainer()) {
-            this._RenderSize = new Size(0, 0);
+            this._SetRenderSize(new Size(0, 0));
             return;
         }
     }

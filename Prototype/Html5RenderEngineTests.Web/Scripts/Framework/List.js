@@ -1,9 +1,9 @@
 ﻿List.prototype = new Object;
 List.prototype.constructor = List;
-List.prototype._Count = 0;
-List.prototype._Head = null;
-List.prototype._Tail = null;
 function List() {
+    this._Count = 0;
+    this._Head = null;
+    this._Tail = null;
 }
 List.prototype.First = function () {
     return this._Head;
@@ -75,13 +75,19 @@ List.prototype.Clear = function () {
 
 Node.prototype = new Object;
 Node.prototype.constructor = Node;
-Node.prototype.Previous = null;
-Node.prototype.Next = null;
 function Node() {
+    this.Previous = null;
+    this.Next = null;
 }
 
 UIElementNode.prototype = new Node;
 UIElementNode.prototype.constructor = UIElementNode;
 function UIElementNode(/* UIElement */element) {
     this.UIElement = element;
+}
+
+DirtyNode.prototype = new Node;
+DirtyNode.prototype.constructor = DirtyNode;
+function DirtyNode(/* UIElement */element) {
+    this.Element = element;
 }
