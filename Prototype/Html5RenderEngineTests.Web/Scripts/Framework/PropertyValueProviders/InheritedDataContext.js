@@ -23,9 +23,15 @@ _InheritedDataContextPropertyValueProvider.prototype.SetDataSource = function (s
     var oldValue = this._Source ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
     var newValue = source ? source.GetValue(FrameworkElement.DataContextProperty) : null;
 
-    this._Source.RemovePropertyChangeListener(FrameworkElement.DataContextProperty);
+    if (this._Source) {
+        this._Source._RemovePropertyChangeHandler(FrameworkElement.DataContextProperty, this._SourceDataContextChanged);
+        //TODO: Remove Handler - Destroyed Event
+    }
     this._Source = source;
-    this._Source.AddPropertyChangeListener(FrameworkElement.DataContextProperty, this._SourceDataContextChanged);
+    if (this._Source) {
+        this._Source._AddPropertyChangeHandler(FrameworkElement.DataContextProperty, this._SourceDataContextChanged);
+        //TODO: Add Handler - Destroyed Event
+    }
 
     if (oldValue != newValue) {
         var error = new BError();

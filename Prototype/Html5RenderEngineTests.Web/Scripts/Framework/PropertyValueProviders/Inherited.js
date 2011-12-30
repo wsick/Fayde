@@ -10,6 +10,9 @@ var Control = {};
 var TextBlock = {};
 var TextElement = {};
 var Run = {};
+function Image() {};
+function MediaElement() { };
+function Popup() { };
 
 var _Inheritable = {
     Foreground: 1 << 0,
@@ -108,7 +111,7 @@ _InheritedPropertyValueProvider.prototype.WalkTree = function (rootParent, eleme
         if (props == _Inheritable.None)
             return;
 
-        this.WalkSubtree(root, element, eleContext, props, adding);
+        this.WalkSubtree(rootParent, element, eleContext, props, adding);
     } else {
         var eleContext2 = new _InheritedContext(element, context);
 
@@ -128,7 +131,7 @@ _InheritedPropertyValueProvider.prototype.WalkTree = function (rootParent, eleme
         if (props == _Inheritable.None)
             return;
 
-        this.WalkSubtree(root, element, context, props, adding);
+        this.WalkSubtree(rootParent, element, context, props, adding);
     }
 };
 _InheritedPropertyValueProvider.prototype.MaybePropagateInheritedValue = function (source, prop, props, element) {
@@ -399,7 +402,7 @@ _InheritedContext.prototype.Compare = function (withContext, props) {
 _InheritedContext.prototype.GetLocalSource = function (obj, prop) {
     var source = null;
     var propd = _InheritedPropertyValueProvider.GetProperty(prop, obj);
-    if (propd && obj.GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited)
+    if (propd && obj._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited)
         source = obj;
     return source;
 };

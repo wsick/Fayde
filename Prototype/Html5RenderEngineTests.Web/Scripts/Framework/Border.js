@@ -85,8 +85,8 @@ Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     var walker = new _VisualTreeWalker(this);
     var child;
     while (child = walker.Step()) {
-        var childRect = new Rect(0, 0, finalSize.Width, finalSize, Height);
-        childRect = childRect.GrowBy(border.Negate());
+        var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
+        childRect = childRect.GrowByThickness(border.Negate());
         child._ArrangeWithError(childRect, error);
         arranged = new Size(childRect.Width, childRect.Height).GrowBy(border);
         arranged = arranged.Max(finalSize);

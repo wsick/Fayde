@@ -18,7 +18,7 @@ Matrix.Multiply = function (mat1, mat2) {
     NotImplemented("Matrix.Multiply(mat1, mat2)");
 };
 
-TranslationMatrix.prototype = Matrix.prototype;
+TranslationMatrix.prototype = new Matrix;
 TranslationMatrix.prototype.constructor = TranslationMatrix;
 function TranslationMatrix(x, y) {
     Matrix.call(this);
@@ -36,7 +36,7 @@ TranslationMatrix.prototype.Apply = function (ctx) {
     ctx.translate(this.X, this.Y);
 };
 
-RotationMatrix.prototype = Matrix.prototype;
+RotationMatrix.prototype = new Matrix;
 RotationMatrix.prototype.constructor = RotationMatrix;
 function RotationMatrix(angleRad) {
     Matrix.call(this);
@@ -53,7 +53,7 @@ RotationMatrix.prototype.Apply = function (ctx) {
     ctx.rotate(this.Angle);
 };
 
-ScalingMatrix.prototype = Matrix.prototype;
+ScalingMatrix.prototype = new Matrix;
 ScalingMatrix.prototype.constructor = ScalingMatrix;
 function ScalingMatrix(x, y) {
     Matrix.call(this);
@@ -71,7 +71,7 @@ ScalingMatrix.prototype.Apply = function (ctx) {
     ctx.scale(this.X, this.Y);
 };
 
-ShearingMatrix.prototype = Matrix.prototype;
+ShearingMatrix.prototype = new Matrix;
 ShearingMatrix.prototype.constructor = ShearingMatrix;
 function ShearingMatrix(shearX, shearY) {
     Matrix.call(this);

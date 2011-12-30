@@ -312,8 +312,12 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
         return;
 
     //TODO: render to intermediate not implemented
+    var visualOffset = LayoutInformation.GetVisualOffset(this);
+    ctx.Save();
+    ctx.Transform(new TranslationMatrix(visualOffset.X, visualOffset.Y));
     this._Render(ctx, region);
     this._PostRender(ctx, region);
+    ctx.Restore();
 };
 UIElement.prototype._Render = function (ctx, region) {
     AbstractMethod("UIElement._Render(ctx, region)");
@@ -400,14 +404,14 @@ UIElement.prototype._ElementAdded = function (item) {
     this._UpdateBounds(true);
 
     this._InvalidateMeasure();
-    this.ClearValue(LayoutInformation.LayoutClipProperty);
-    this.ClearValue(LayoutInformation.PreviousConstraintProperty);
+    this._ClearValue(LayoutInformation.LayoutClipProperty);
+    this._ClearValue(LayoutInformation.PreviousConstraintProperty);
     item._RenderSize = new Size(0, 0);
     item._UpdateTransform();
     item._UpdateProjection();
     item._InvalidateMeasure();
     item._InvalidateArrange();
-    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 UIElement.prototype._UpdateLayer = function (pass, error) {

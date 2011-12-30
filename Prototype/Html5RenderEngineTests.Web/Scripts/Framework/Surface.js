@@ -14,7 +14,6 @@ function Surface(containerId, width, height) {
 }
 */
 function Surface() {
-    this._BackgroundColor = new Color();
 }
 Surface.prototype.Init = function (jCanvas) {
     this._jCanvas = jCanvas;
@@ -41,8 +40,6 @@ Surface.prototype.Render = function (region) {
     if (this._Layers)
         layerCount = this._Layers.GetCount();
 
-    this._Ctx.fillStyle = this._BackgroundColor.toString();
-    this._Ctx.fillRect(region.X, region.Y, region.Width, region.Height);
     for (var i = 0; i < layerCount; i++) {
         var layer = this._Layers.GetValueAt(i);
         layer._DoRender(ctx, region);

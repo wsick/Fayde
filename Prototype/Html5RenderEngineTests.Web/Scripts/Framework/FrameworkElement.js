@@ -1,4 +1,5 @@
-﻿/// <reference path="Primitives.js" />
+﻿/// <reference path="BError.js"/>
+/// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
 /// <reference path="UIElement.js" />
 /// <reference path="Matrix.js"/>
@@ -48,16 +49,10 @@ FrameworkElement.ActualHeightProperty = DependencyProperty.Register("ActualHeigh
 FrameworkElement.prototype.GetActualHeight = function () {
     return this.GetValue(FrameworkElement.ActualHeightProperty);
 };
-FrameworkElement.prototype.SetActualHeight = function (value) {
-    this.SetValue(FrameworkElement.ActualHeightProperty, value);
-};
 
 FrameworkElement.ActualWidthProperty = DependencyProperty.Register("ActualWidth", FrameworkElement);
 FrameworkElement.prototype.GetActualWidth = function () {
     return this.GetValue(FrameworkElement.ActualWidthProperty);
-};
-FrameworkElement.prototype.SetActualWidth = function (value) {
-    this.SetValue(FrameworkElement.ActualWidthProperty, value);
 };
 
 FrameworkElement.DataContextProperty = DependencyProperty.Register("DataContext", FrameworkElement);
@@ -178,6 +173,7 @@ FrameworkElement.prototype._GetSubtreeExtents = function () {
         return this._ExtentsWithChildren;
     return this._Extents;
 };
+
 FrameworkElement.prototype._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
     if (this.GetVisibility() != Visibility.Visible)
@@ -218,6 +214,7 @@ FrameworkElement.prototype._ComputeSurfaceBounds = function () {
     UIElement.prototype._ComputeSurfaceBounds.call(this);
     this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
 };
+
 FrameworkElement.prototype._GetGlobalBounds = function () {
     if (this._GetSubtreeObject())
         return this._GlobalBoundsWithChildren;
@@ -228,6 +225,7 @@ FrameworkElement.prototype._GetSubtreeBounds = function () {
         return this._SurfaceBoundsWithChildren;
     return this._SurfaceBounds;
 };
+
 FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
         return;
@@ -320,7 +318,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
 
-    shouldArrange = shouldArrange || (slot ? !slot.Equals(finalRect) : true);
+    shouldArrange = shouldArrange || (slot ? !Rect.Equals(slot, finalRect) : true);
 
     if (finalRect.Width < 0 || finalRect.Height < 0
             || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
@@ -414,7 +412,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     this._SetRenderSize(response);
     var constrainedResponse = response.Min(this._ApplySizeConstraints(response));
 
-    if (!parent || parent._IsCanvas()) {
+    if (!parent || parent instanceof Canvas) {
         if (!this.IsLayoutContainer()) {
             this._SetRenderSize(new Size(0, 0));
             return;
@@ -479,7 +477,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         layoutClip.Y = Math.round(layoutClip.Y);
     }
 
-    if (((!isTopLevel && !Rect.Equals(element, element.Intersection(layoutClip))) || !Rect.Equals(constrainedResponse, response)) && !this._IsCanvas() && ((parent && !parent._IsCanvas()) || this.IsContainer())) {
+    if (((!isTopLevel && !Rect.Equals(element, element.Intersection(layoutClip))) || !Rect.Equals(constrainedResponse, response)) && !(this instanceof Canvas) && ((parent && !(parent instanceof Canvas)) || this.IsContainer())) {
         var frameworkClip = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
         layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
         var rectangle = new RectangleGeometry();
@@ -507,44 +505,7 @@ FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, erro
 
     return arranged;
 };
-FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== FrameworkElement) {
-        UIElement.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
 
-    if (args.Property == FrameworkElement.WidthProperty
-        || args.Property == FrameworkElement.MaxWidthProperty
-        || args.Property == FrameworkElement.MinWidthProperty
-        || args.Property == FrameworkElement.HeightProperty
-        || args.Property == FrameworkElement.MaxHeightProperty
-        || args.Property == FrameworkElement.MinHeightProperty
-        || args.Property == FrameworkElement.MarginProperty
-        || args.Property == FrameworkElement.FlowDirectionProperty) {
-        //var p = this._GetRenderTransformOrigin();
-        //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
-        this._FullInvalidate(false);
-
-        var visualParent = this.GetVisualParent();
-        if (visualParent)
-            visualParent._InvalidateMeasure();
-
-        this._InvalidateMeasure();
-        this._InvalidateArrange();
-        this._UpdateBounds();
-    } else if (args.Property == FrameworkElement.StyleProperty) {
-        var newStyle = args.NewValue;
-        if (!error.IsErrored())
-            this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
-        if (error.IsErrored())
-            return;
-    } else if (args.Property == FrameworkElement.HorizontalAlignmentProperty
-        || args.Property == FrameworkElement.VerticalAlignmentProperty) {
-        this._InvalidateArrange();
-        this._FullInvalidate(true);
-    }
-    this.PropertyChanged.Raise(this, args);
-};
 FrameworkElement.prototype._InsideObject = function (x, y) {
     var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
     var nx = x;
@@ -559,6 +520,7 @@ FrameworkElement.prototype._InsideObject = function (x, y) {
 
     return UIElement.prototype._InsideObject.call(this, x, y);
 };
+
 FrameworkElement.prototype._InsideLayoutClip = function (x, y) {
     NotImplemented("FrameworkElement._InsideLayoutClip(x, y)");
 };
@@ -592,6 +554,7 @@ FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
     }
     ctx.Restore();
 };
+
 FrameworkElement.prototype._ElementRemoved = function (value) {
     UIElement.prototype._ElementRemoved.call(this, value);
     if (this._GetSubtreeObject() == value)
@@ -683,6 +646,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
         }
     }
 };
+
 FrameworkElement.prototype._SetImplicitStyles = function (styleMask, styles) {
     NotImplemented("FrameworkElement._SetImplicitStyles");
 };
@@ -690,6 +654,7 @@ FrameworkElement.prototype._ClearImplicitStyles = function (styleMask) {
     var error = new BError();
     this._Providers[_PropertyPrecedence.ImplicitStyle].ClearStyles(styleMask, error);
 };
+
 FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
     if (this._GetSubtreeObject())
         return false;
@@ -716,6 +681,45 @@ FrameworkElement.prototype._GetDefaultTemplate = function () {
     return null;
 };
 
+FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== FrameworkElement) {
+        UIElement.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+
+    if (args.Property == FrameworkElement.WidthProperty
+        || args.Property == FrameworkElement.MaxWidthProperty
+        || args.Property == FrameworkElement.MinWidthProperty
+        || args.Property == FrameworkElement.HeightProperty
+        || args.Property == FrameworkElement.MaxHeightProperty
+        || args.Property == FrameworkElement.MinHeightProperty
+        || args.Property == FrameworkElement.MarginProperty
+        || args.Property == FrameworkElement.FlowDirectionProperty) {
+        //var p = this._GetRenderTransformOrigin();
+        //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
+        this._FullInvalidate(false);
+
+        var visualParent = this.GetVisualParent();
+        if (visualParent)
+            visualParent._InvalidateMeasure();
+
+        this._InvalidateMeasure();
+        this._InvalidateArrange();
+        this._UpdateBounds();
+    } else if (args.Property == FrameworkElement.StyleProperty) {
+        var newStyle = args.NewValue;
+        if (!error.IsErrored())
+            this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
+        if (error.IsErrored())
+            return;
+    } else if (args.Property == FrameworkElement.HorizontalAlignmentProperty
+        || args.Property == FrameworkElement.VerticalAlignmentProperty) {
+        this._InvalidateArrange();
+        this._FullInvalidate(true);
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+
 FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
     if (loaded)
         this._SetImplicitStyles(_StyleMask.All);
@@ -733,6 +737,41 @@ FrameworkElement.prototype._OnApplyTemplate = function () {
     this.TemplatedApplied.Raise(this, null);
 };
 
+FrameworkElement.prototype._SetLogicalParent = function (value, error) {
+    if (this._LogicalParent == value)
+        return;
+
+    if (false/* TODO: IsShuttingDown */) {
+        this._LogicalParent = null;
+        return;
+    }
+
+    if (value && this._LogicalParent && this._LogicalParent != value) {
+        error.SetErrored(BError.InvalidOperation, "Element is a child of another element");
+        return;
+    }
+
+    var oldParent = this._LogicalParent;
+    this._LogicalParent = value;
+    this._OnLogicalParentChanged(oldParent, value);
+};
+FrameworkElement.prototype._GetLogicalParent = function () {
+    return this._LogicalParent;
+};
+FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newParent) {
+    if (false/* TODO: this._IsDisposing() */) {
+    } else {
+        var visualParent;
+        if (newParent && newParent instanceof FrameworkElement)
+            this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(newParent);
+        else if ((visualParent = this.GetVisualParent()) && visualParent instanceof FrameworkElement)
+            this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(visualParent);
+        else
+            this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(null);
+        if (this._IsLoaded)
+            this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
+    }
+};
 
 
 _FrameworkElementProvider.prototype = new _PropertyValueProvider;

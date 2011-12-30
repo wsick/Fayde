@@ -79,6 +79,8 @@ DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endin
     return null;
 };
 DependencyObject.prototype.SetValue = function (propd, value, error) {
+    if (error == null)
+        error = new BError();
     var hasCoercer = propd._HasCoercer();
     var coerced = value;
     if ((hasCoercer && !(coerced = propd._Coerce(this, coerced, error)))
@@ -369,6 +371,11 @@ DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
     return true;
 };
 
+DependencyObject.prototype._AddTarget = function (obj) {
+};
+DependencyObject.prototype._RemoveTarget = function (obj) {
+};
+
 DependencyObject.prototype._GetParent = function () {
     return this._Parent;
 };
@@ -383,6 +390,13 @@ DependencyObject.prototype._AddParent = function (obj, mergeNamesFromSubtree, er
 };
 DependencyObject.prototype._RemoveParent = function (obj, error) {
     NotImplemented("DependencyObject._RemoveParent(obj, error)");
+};
+
+DependencyObject.prototype._GetResourceBase = function () {
+    NotImplemented("DependencyObject._GetResourceBase");
+};
+DependencyObject.prototype._SetResourceBase = function () {
+    NotImplemented("DependencyObject._SetResourceBase");
 };
 
 DependencyObject.prototype._SetIsAttached = function (value) {
@@ -404,6 +418,19 @@ DependencyObject.prototype._OnPropertyChanged = function (args, error) {
         //TODO: if hydrated from xaml, notify parent
     }
     this.PropertyChanged.Raise(this, args);
+};
+
+DependencyObject.prototype._AddPropertyChangeListener = function (listener, childPropd) {
+    NotImplemented("DependencyObject._AddPropertyChangeListener");
+};
+DependencyObject.prototype._RemovePropertyChangeListener = function (listener, childPropd) {
+    NotImplemented("DependencyObject._RemovePropertyChangeListener");
+};
+DependencyObject.prototype._AddPropertyChangeHandler = function (propd, callback) {
+    NotImplemented("DependencyObject._AddPropertyChangeHandler");
+};
+DependencyObject.prototype._RemovePropertyChangeHandler = function (propd, callback) {
+    NotImplemented("DependencyObject._RemovePropertyChangeHandler");
 };
 
 DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {

@@ -17,3 +17,4 @@ BError.prototype.IsErrored = function () {
 };
 BError.UnauthorizedAccess = 1;
 BError.Argument = 2;
+BError.InvalidOperation = 3;

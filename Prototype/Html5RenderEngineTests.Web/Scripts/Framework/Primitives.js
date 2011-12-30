@@ -140,7 +140,7 @@ Rect.prototype.Union = function (rect2) {
 };
 Rect.prototype.Intersection = function (rect2) {
     var result = new Rect(0, 0, 0, 0);
-    result.X = Math.max(this.X, rect2.x);
+    result.X = Math.max(this.X, rect2.X);
     result.Y = Math.max(this.Y, rect2.Y);
     result.Width = Math.max(0, Math.min(this.X + this.Width, rect2.X + rect2.Width) - result.X);
     result.Height = Math.max(0, Math.min(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y);

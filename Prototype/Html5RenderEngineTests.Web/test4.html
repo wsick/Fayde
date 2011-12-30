@@ -56,15 +56,23 @@
         });
 
         function buildTestView() {
+            var child = new Border();
+            child.SetBorderBrush(new SolidColorBrush(new Color(128, 128, 128, 1.0)));
+            child.SetBorderThickness(new Thickness(1, 1, 1, 1));
+            child.SetWidth(100);
+            child.SetHorizontalAlignment(HorizontalAlignment.Right);
+
             var b = new Border();
             b.SetBorderBrush(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
             b.SetBorderThickness(new Thickness(1, 1, 1, 1));
             b.SetCornerRadius(new CornerRadius(5, 5, 5, 5));
+            b.SetMargin(new Thickness(5, 5, 5, 5));
+            b.SetChild(child);
             return b;
         }
     </script>
 </head>
-<body style="background: #ffff00;">
+<body>
     <div>
         <div style="width: 600px; height: 600px; background: #efefef;">
 	        <canvas id="testCanvas" width="600" height="600">

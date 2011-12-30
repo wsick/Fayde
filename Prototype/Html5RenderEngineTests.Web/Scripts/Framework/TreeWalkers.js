@@ -63,6 +63,7 @@ _VisualTreeWalker.prototype.Step = function () {
             result = this._Content;
         }
     }
+    return result;
 };
 _VisualTreeWalker.prototype.GetCount = function () {
     if (!this._Content)
