@@ -183,32 +183,27 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
         var right = pathRect.X + pathRect.Width;
         var bottom = pathRect.Y + pathRect.Height;
 
-        var topLeft = cornerRadius.TopLeft;
-        var topRight = cornerRadius.TopRight;
-        var bottomRight = cornerRadius.BottomRight;
-        var bottomLeft = cornerRadius.BottomLeft;
-
-        canvasCtx.moveTo(left + topLeft, top);
+        canvasCtx.moveTo(left + cornerRadius.TopLeft, top);
         //top edge
-        canvasCtx.lineTo(right - topRight, top);
+        canvasCtx.lineTo(right - cornerRadius.TopRight, top);
         //top right arc
-        if (topRight > 0)
-            canvasCtx.quadraticCurveTo(right, top, right, top + topRight);
+        if (cornerRadius.TopRight > 0)
+            canvasCtx.quadraticCurveTo(right, top, right, top + cornerRadius.TopRight);
         //right edge
-        canvasCtx.lineTo(right, bottom - bottomRight);
+        canvasCtx.lineTo(right, bottom - cornerRadius.BottomRight);
         //bottom right arc
-        if (bottomRight > 0)
-            canvasCtx.quadraticCurveTo(right, bottom, right - bottomRight, bottom);
+        if (cornerRadius.BottomRight > 0)
+            canvasCtx.quadraticCurveTo(right, bottom, right - cornerRadius.BottomRight, bottom);
         //bottom edge
-        canvasCtx.lineTo(left + bottomLeft, bottom);
+        canvasCtx.lineTo(left + cornerRadius.BottomLeft, bottom);
         //bottom left arc
-        if (bottomLeft > 0)
-            canvasCtx.quadraticCurveTo(left, bottom, left, bottom - bottomLeft);
+        if (cornerRadius.BottomLeft > 0)
+            canvasCtx.quadraticCurveTo(left, bottom, left, bottom - cornerRadius.BottomLeft);
         //left edge
-        canvasCtx.lineTo(left, top + topLeft);
+        canvasCtx.lineTo(left, top + cornerRadius.TopLeft);
         //top left arc
-        if (topLeft > 0)
-            canvasCtx.quadraticCurveTo(left, top, left + topLeft, top);
+        if (cornerRadius.TopLeft > 0)
+            canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
     }
     if (backgroundBrush) {
         canvasCtx.fillStyle = backgroundBrush._Translate();
