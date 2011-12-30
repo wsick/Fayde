@@ -150,7 +150,7 @@ Surface.prototype._UpdateLayout = function (error) {
             layer._UpdateLayer(pass, error);
         }
 
-        dirty |= this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
+        dirty = dirty || this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
         this._ProcessDownDirtyElements();
         this._ProcessUpDirtyElements();
 
@@ -261,7 +261,7 @@ Surface.prototype._ProcessUpDirtyElements = function () {
 
             uie._ComputeBounds();
 
-            if (!oglobalbounds.Equals(uie._GetGlobalBounds())) {
+            if (!Rect.Equals(oglobalbounds, uie._GetGlobalBounds())) {
                 visualParent = uie.GetVisualParent();
                 if (visualParent) {
                     visualParent._UpdateBounds();
@@ -270,7 +270,7 @@ Surface.prototype._ProcessUpDirtyElements = function () {
                 }
             }
 
-            if (!oextents.Equals(uie._GetSubtreeExtents())) {
+            if (!Rect.Equals(oextents, uie._GetSubtreeExtents())) {
                 uie._Invalidate(uie._GetSubtreeBounds());
             }
 
@@ -296,11 +296,15 @@ Surface.prototype._ProcessUpDirtyElements = function () {
             if (visualParent) {
                 visualParent._Invalidate(dirty);
             } else {
-                if (uie._IsAttached()) {
+                if (uie._IsAttached) {
+                    this._Invalidate(dirty);
+                    /*
+                    OPTIMIZATION NOT IMPLEMENTED
                     var count = dirty.GetRectangleCount();
                     for (var i = count - 1; i >= 0; i--) {
-                        this._Invalidate(dirty.GetRectangle(i));
+                    this._Invalidate(dirty.GetRectangle(i));
                     }
+                    */
                 }
             }
         }

@@ -9,7 +9,6 @@ UIElement.prototype = new DependencyObject;
 UIElement.prototype.constructor = UIElement;
 function UIElement() {
     DependencyObject.call(this);
-    this._IsVisible = true;
 
     this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
     
@@ -50,7 +49,15 @@ UIElement.prototype.SetClip = function (value) {
 //UIElement.ProjectionProperty;
 //UIElement.IsHitTestVisibleProperty;
 //UIElement.OpacityMaskProperty;
-//UIElement.OpacityProperty;
+
+UIElement.OpacityProperty = DependencyProperty.Register("Opacity", UIElement);
+UIElement.prototype.GetOpacity = function () {
+    return this.GetValue(UIElement.OpacityProperty);
+};
+UIElement.prototype.SetOpacity = function (value) {
+    this.SetValue(UIElement.OpacityProperty, value);
+};
+
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
 //UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement, CursorType.Default, null, UIElement._CoerceCursor);
@@ -94,6 +101,7 @@ UIElement.prototype.IsLayoutContainer = function () { return false; };
 UIElement.prototype.IsContainer = function () { return this.IsLayoutContainer(); };
 UIElement.prototype._CacheInvalidateHint = function () {
 };
+
 UIElement.prototype._FullInvalidate = function (renderTransform) {
     this._Invalidate();
     if (renderTransform) {
@@ -127,9 +135,10 @@ UIElement.prototype._InvalidateArrange = function () {
     this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
     //TODO: Alert redraw necessary
 };
-UIElement.prototype._GetRenderVisible = function () {
-    return this._IsVisible;
+UIElement.prototype._InvalidateSubtreePaint = function () {
+    this._Invalidate(this._GetSubtreeBounds());
 };
+
 UIElement.prototype._UpdateBounds = function (forceRedraw) {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
@@ -156,12 +165,58 @@ UIElement.prototype._ComputeLocalTransform = function () {
 UIElement.prototype._ComputeLocalProjection = function () {
     //NotImplemented("UIElement._ComputeLocalProjection");
 };
+
 UIElement.prototype._ComputeTotalRenderVisibility = function () {
-    NotImplemented("UIElement._ComputeTotalRenderVisibility");
+    if (this._GetActualTotalRenderVisibility())
+        this._Flags |= UIElementFlags.TotalRenderVisible;
+    else
+        this._Flags &= ~UIElementFlags.TotalRenderVisible;
 };
+UIElement.prototype._UpdateTotalRenderVisibility = function () {
+    if (this._IsAttached)
+        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.RenderVisibility);
+};
+UIElement.prototype._GetActualTotalRenderVisibility = function () {
+    var visible = (this._Flags & UIElementFlags.RenderVisible) != 0;
+    var parentVisible = true;
+    this._TotalOpacity = this.GetOpacity();
+
+    var visualParent = this.GetVisualParent();
+    if (visualParent) {
+        visualParent._ComputeTotalRenderVisibility();
+        parentVisible = visible && visualParent._GetRenderVisible();
+        this._TotalOpacity = visualParent._TotalOpacity;
+    }
+    visible = visible && parentVisible;
+    return visible;
+};
+UIElement.prototype._GetRenderVisible = function () {
+    return (this._Flags & UIElementFlags.TotalRenderVisible) != 0;
+};
+
 UIElement.prototype._ComputeTotalHitTestVisibility = function () {
-    NotImplemented("UIElement._ComputeTotalHitTestVisibility");
+    if (this._GetActualTotalHitTestVisibility())
+        this._Flags |= UIElementFlags.TotalHitTestVisible;
+    else
+        this._Flags &= ~UIElementFlags.TotalHitTestVisible;
 };
+UIElement.prototype._UpdateTotalHitTestVisibility = function () {
+    if (this._IsAttached)
+        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.HitTestVisibility);
+};
+UIElement.prototype._GetActualTotalHitTestVisibility = function () {
+    var visible = (this._Flags & UIElementFlags.HitTestVisible) != 0;
+    var visualParent;
+    if (visible && (visualParent = this.GetVisualParent())) {
+        visualParent._ComputeTotalRenderVisibility();
+        visible = visible && visualParent._GetHitTestVisible();
+    }
+    return visible;
+};
+UIElement.prototype._GetHitTestVisible = function () {
+    return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
+};
+
 UIElement.prototype._GetGlobalBounds = function () {
     return this._GlobalBounds;
 };
@@ -206,7 +261,7 @@ UIElement.prototype._DoMeasureWithError = function (error) {
 };
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
-    var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var previousRenderSize = new Size();
     var parent = this.GetVisualParent();
 
@@ -217,7 +272,7 @@ UIElement.prototype._DoArrangeWithError = function (error) {
 
         if (this.IsLayoutContainer()) {
             desired = this._DesiredSize;
-            if (this._IsAttached && surface._IsTopLevel(this) && !this.GetParent()) {
+            if (this._IsAttached && surface._IsTopLevel(this) && !this._GetParent()) {
                 var measure = LayoutInformation.GetPreviousConstraint(this);
                 if (measure)
                     desired = desired.Max(LayoutInformation.GetPreviousConstraint(this));
@@ -276,7 +331,10 @@ UIElement.prototype._OnPropertyChanged = function (args, error) {
         return;
     }
     if (args.Property == UIElement.VisibilityProperty) {
-        this._IsVisible = args.NewValue == Visibility.Visible;
+        if (args.NewValue == Visibility.Visible)
+            this._Flags |= UIElementFlags.RenderVisible;
+        else
+            this._Flags &= ~UIElementFlags.RenderVisible;
         this._InvalidateVisibility();
         this._InvalidateMeasure();
         var parent = this.GetVisualParent();
@@ -332,8 +390,8 @@ UIElement.prototype._ElementAdded = function (item) {
     item._Invalidate();
 
     this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(item);
-    item._IsAttached = true;
-    item._SetIsLoaded(true);
+    item._SetIsAttached(this._IsAttached);
+    item._SetIsLoaded(this._IsLoaded);
     var o = this;
     while (o && !(o instanceof FrameworkElement))
         o = o._GetMentor();

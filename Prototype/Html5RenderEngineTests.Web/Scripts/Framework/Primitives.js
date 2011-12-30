@@ -40,7 +40,7 @@ function Thickness(left, top, right, bottom) {
     this.Right = right || 0;
     this.Bottom = bottom || 0;
 }
-Thickness.Plus = function (thickness2) {
+Thickness.prototype.Plus = function (thickness2) {
     var t = new Thickness();
     t.Left = this.Left + thickness2.Left;
     t.Right = this.Right + thickness2.Right;
@@ -48,7 +48,7 @@ Thickness.Plus = function (thickness2) {
     t.Bottom = this.Bottom + thickness2.Bottom;
     return t;
 };
-Thickness.Half = function () {
+Thickness.prototype.Half = function () {
     var t = new Thickness();
     t.Left = this.Left / 2;
     t.Top = this.Top / 2;
@@ -56,7 +56,7 @@ Thickness.Half = function () {
     t.Bottom = this.Bottom / 2;
     return t;
 };
-Thickness.Negate = function () {
+Thickness.prototype.Negate = function () {
     var t = new Thickness();
     t.Left = -this.Left;
     t.Right = -this.Right;
@@ -149,8 +149,12 @@ Rect.prototype.RoundOut = function () {
 Rect.prototype.RoundIn = function () {
     return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
 }
-Rect.prototype.Equals = function (rect2) {
-    return this.X == rect2.X && this.Y == rect2.Y && this.Width == rect2.Width && this.Height == rect2.Height;
+Rect.Equals = function (rect1, rect2) {
+    if (rect1 == null && rect2 == null)
+        return true;
+    if (rect1 == null || rect2 == null)
+        return false;
+    return rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
 };
 
 Clip.prototype = new Rect;

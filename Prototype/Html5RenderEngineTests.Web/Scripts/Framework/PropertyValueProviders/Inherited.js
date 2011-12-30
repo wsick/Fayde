@@ -6,6 +6,11 @@
 /// <reference path="/Scripts/Framework/TextBlock.js"/>
 /// <reference path="/Scripts/Framework/TextElement.js"/>
 
+var Control = {};
+var TextBlock = {};
+var TextElement = {};
+var Run = {};
+
 var _Inheritable = {
     Foreground: 1 << 0,
     FontFamily: 1 << 1,
@@ -30,20 +35,20 @@ function _InheritedPropertyValueProvider(obj, propPrecedence) {
 }
 _InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
-        return null;
+        return undefined;
 
     var inheritable = _InheritedPropertyValueProvider.GetInheritable(this._Object, propd);
     var ancestor = this._GetPropertySource(inheritable);
     if (!ancestor)
-        return null;
+        return undefined;
 
     var ancestorPropd = _InheritedPropertyValueProvider.GetProperty(inheritable, ancestor);
     if (!ancestorPropd)
-        return null;
+        return undefined;
     var v = ancestor.GetValue(ancestorPropd);
     if (v)
         return v;
-    return null;
+    return undefined;
 };
 _InheritedPropertyValueProvider.prototype.WalkSubtree = function (rootParent, element, context, props, adding) {
     if (element instanceof TextElement || element instanceof TextBlock) {

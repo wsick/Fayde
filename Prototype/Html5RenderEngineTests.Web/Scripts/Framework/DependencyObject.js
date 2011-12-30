@@ -25,9 +25,7 @@ DependencyObject.prototype._Initialize = function () {
     this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
     this._ProviderBitmasks = new Array();
 };
-DependencyObject.prototype._ReadLocalValue = function (propd) {
-    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
-};
+
 DependencyObject.prototype._GetMentor = function () {
     return this._Mentor;
 };
@@ -51,6 +49,7 @@ DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
         this._MentorChangedCallback(this, newValue);
     }
 };
+
 DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endingPrecedence) {
     if (startingPrecedence === undefined)
         startingPrecedence = _PropertyPrecedence.Highest;
@@ -88,6 +87,16 @@ DependencyObject.prototype.SetValue = function (propd, value, error) {
         return false;
     }
     return this._SetValueImpl(propd, coerced, error);
+};
+DependencyObject.prototype._ReadLocalValue = function (propd) {
+    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+};
+DependencyObject.prototype._ClearValue = function (propd, notifyListeners, error) {
+    if (notifyListeners == undefined)
+        notifyListeners = true;
+    if (error == undefined)
+        error = new BError();
+    NotImplemented("DependencyObject._ClearValue");
 };
 DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
     if (this._IsFrozen) {
@@ -320,6 +329,14 @@ DependencyObject.prototype._GetPropertyValueProvider = function (propd) {
     }
     return -1;
 };
+DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
+    //TODO: Handle type problems
+    return true;
+};
+
+DependencyObject.prototype._GetParent = function () {
+    return this._Parent;
+};
 DependencyObject.prototype._AddSecondaryParent = function () {
     NotImplemented("DependencyObject._AddSecondaryParent()");
 };
@@ -332,10 +349,7 @@ DependencyObject.prototype._AddParent = function (obj, mergeNamesFromSubtree, er
 DependencyObject.prototype._RemoveParent = function (obj, error) {
     NotImplemented("DependencyObject._RemoveParent(obj, error)");
 };
-DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
-    //TODO: Handle type problems
-    return true;
-};
+
 DependencyObject.prototype._SetIsAttached = function (value) {
     if (this._IsAttached == value)
         return;

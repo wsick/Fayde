@@ -41,14 +41,18 @@ DependencyProperty
 =============================
 _Coerce [Done]
 _Validate
-
+_ClearValue
+_GetParent [Done]
+_AddParent
+_RemoveParent
+_AddSecondaryParent
+_RemoveSecondaryParent
 
 
 UIElement
 =============================
 _GetSubtreeObject [Done]
 _SetSubtreeObject [Done]
-_GetRenderVisible [Done]
 _GetGlobalBounds [Done]
 _IntersectBoundsWithClipPath [Done]
 _ComputeGlobalBounds [Done]
@@ -60,12 +64,20 @@ _UpdateBounds [NI]
 _UpdateTransform [NI]
 _UpdateProjection [NI]
 _CacheInvalidateHint [Done]
-_ComputeTotalRenderVisibility
-_ComputeTotalHitTestVisibility
 _ComputeLocalTransform
 _ComputeLocalProjection
-_UpdateTotalRenderVisibility
-_UpdateTotalHitTestVisibility
+_InvalidateSubtreePaint
+
+_ComputeTotalRenderVisibility [Done]
+_UpdateTotalRenderVisibility [Done]
+_GetActualTotalRenderVisibility [Done]
+_GetRenderVisible [Done]
+
+_ComputeTotalHitTestVisibility [Done]
+_UpdateTotalHitTestVisibility [Done]
+_GetActualTotalHitTestVisibility [Done]
+_GetHitTestVisible [Done]
+
 _GetRenderSize [Done]
 
 

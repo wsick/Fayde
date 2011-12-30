@@ -8,6 +8,7 @@
 /// <reference path="PropertyValueProviders/Style.js"/>
 /// <reference path="PropertyValueProviders/ImplicitStyle.js"/>
 /// <reference path="PropertyValueProviders/InheritedDataContext.js"/>
+/// <reference path="Geometry.js"/>
 
 FrameworkElement.prototype = new UIElement;
 FrameworkElement.prototype.constructor = FrameworkElement;
@@ -83,7 +84,7 @@ FrameworkElement.prototype.SetLanguage = function (value) {
     this.SetValue(FrameworkElement.LanguageProperty, value);
 };
 
-FrameworkElement.MarginProperty = DependencyProperty.Register("Margin", FrameworkElement);
+FrameworkElement.MarginProperty = DependencyProperty.Register("Margin", FrameworkElement, new Thickness());
 FrameworkElement.prototype.GetMargin = function () {
     return this.GetValue(FrameworkElement.MarginProperty);
 };
@@ -238,8 +239,8 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     }
 
     var last = LayoutInformation.GetPreviousConstraint(this);
-    var shouldMeasure = this._DirtyFlags & _Dirty.Measure > 0;
-    shouldMeasure |= (!last || last.Width != availableSize.Width || last.Height != availableSize.Height);
+    var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
+    shouldMeasure = shouldMeasure || (!last || last.Width != availableSize.Width || last.Height != availableSize.Height);
 
     if (this.GetVisibility() != Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
@@ -311,7 +312,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
 
-    var slot = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var slot = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
 
     var shouldArrange = this._DirtyFlags & _Dirty.Arrange > 0;
 
@@ -344,7 +345,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
     measure = LayoutInformation.GetPreviousConstraint(this);
 
-    this.ClearValue(LayoutInformation.LayoutClipProperty);
+    this._ClearValue(LayoutInformation.LayoutClipProperty);
 
     var margin = this.GetMargin();
     var childRect = finalRect.GrowBy(margin.Negate());
@@ -478,7 +479,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         layoutClip.Y = Math.round(layoutClip.Y);
     }
 
-    if (((!isTopLevel && element.NotEquals(element.Intersection(layoutClip))) || constrainedResponse.NotEquals(response)) && !this._IsCanvas() && ((parent && !parent._IsCanvas()) || this.IsContainer())) {
+    if (((!isTopLevel && !Rect.Equals(element, element.Intersection(layoutClip))) || !Rect.Equals(constrainedResponse, response)) && !this._IsCanvas() && ((parent && !parent._IsCanvas()) || this.IsContainer())) {
         var frameworkClip = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
         layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
         var rectangle = new RectangleGeometry();
@@ -486,7 +487,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         LayoutInformation.SetLayoutClip(this, rectangle);
     }
 
-    if (oldSize.NotEquals(response)) {
+    if (!Rect.Equals(oldSize, response)) {
         if (!LayoutInformation.GetLastRenderSize(this)) {
             LayoutInformation.SetLastRenderSize(this, oldSize);
             this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
