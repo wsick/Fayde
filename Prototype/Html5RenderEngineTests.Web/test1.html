@@ -8,29 +8,106 @@
 	<script type="text/javascript" src="Scripts/Shape.js"></script>
     <script type="text/javascript" src="Scripts/Border.js"></script>
     <script type="text/javascript" src="Scripts/RenderEngine.js"></script>-->
+    <script src="Scripts/Framework/Primitives.js" type="text/javascript"></script>
     <script type="text/javascript">
-        BaseClass.prototype = new Object();
-        BaseClass.prototype.constructor = BaseClass;
-        function BaseClass() { }
-        BaseClass.prototype.method1 = function () {
-            alert("Base");
-        };
+        $(document).ready(test);
+        function test() {
+            var canvas = document.getElementById('testCanvas');
+            var canvasCtx = canvas.getContext('2d');
 
-        InheritedClass.prototype = new BaseClass();
-        InheritedClass.prototype.constructor = InheritedClass;
-        function InheritedClass() {
-            BaseClass.call(this);
+            
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(20, 20);
+            canvasCtx.lineTo(100, 20);
+            canvasCtx.arcTo(105, 20, 105, 25, 5);
+            canvasCtx.lineTo(105, 120);
+            canvasCtx.stroke();
+            canvasCtx.closePath();
+
+
+            canvasCtx.beginPath();
+
+            var left = 0.5;
+            var top = 0.5;
+            var right = 599.5;
+            var bottom = 599.5;
+
+            var topLeft = 5;
+            var topRight = 5;
+            var bottomRight = 5;
+            var bottomLeft = 5;
+
+            var topLeft1 = new Point(left, top + topLeft);
+            var topLeft2 = new Point(left + topLeft, top);
+            var topRight1 = new Point(right - topRight, top);
+            var topRight2 = new Point(right, top + topRight);
+            var bottomRight1 = new Point(right, bottom - bottomRight);
+            var bottomRight2 = new Point(right - bottomRight, bottom);
+            var bottomLeft1 = new Point(left + bottomLeft, bottom);
+            var bottomLeft2 = new Point(left, bottom - bottomLeft);
+
+            moveTo(canvasCtx, topLeft2);
+
+            lineTo(canvasCtx, topRight1);
+            if (topRight > 0)
+                arcTo(canvasCtx, new Point(right, top), topRight2, topRight);
+
+            lineTo(canvasCtx, bottomRight1);
+            if (bottomRight > 0)
+                arcTo(canvasCtx, new Point(right, bottom), bottomRight2, bottomRight);
+
+            lineTo(canvasCtx, bottomLeft1);
+            if (bottomLeft > 0)
+                arcTo(canvasCtx, new Point(left, bottom), bottomLeft2, bottomLeft);
+
+            lineTo(canvasCtx, topLeft1);
+            if (topLeft > 0)
+                arcTo(canvasCtx, new Point(left, top), topLeft2, topLeft);
+
+            if (false) {
+                canvasCtx.moveTo(left + topLeft, top);
+                //top edge
+                canvasCtx.lineTo(right - topRight, top);
+                //top right arc
+                if (topRight > 0)
+                    canvasCtx.arcTo(right, top, right, top + topRight, topRight);
+                //right edge
+                canvasCtx.lineTo(right, bottom - bottomRight);
+                //bottom right arc
+                if (bottomRight > 0)
+                    canvasCtx.arcTo(right, bottom, right - bottomRight, bottom, bottomRight);
+                //bottom edge
+                canvasCtx.lineTo(left + bottomLeft, bottom);
+                //bottom left arc
+                if (bottomLeft > 0)
+                    canvasCtx.arcTo(left, bottom, left, bottom - bottomLeft, bottomLeft);
+                //left edge
+                canvasCtx.lineTo(left, top + topLeft);
+                //top left arc
+                if (topLeft > 0)
+                    canvasCtx.arcTo(left, top, left + topLeft, top, topLeft);
+            }
+
+            canvasCtx.lineWidth = 1;
+            canvasCtx.strokeStyle = "rgb(0, 0, 0)";
+            canvasCtx.stroke();
+
+            canvasCtx.closePath();
         }
-        InheritedClass.prototype.method1 = function () {
-            BaseClass.prototype.method1.call(this, 1, 2, 3);
-            alert("Inherited");
-        };
-        var t = new InheritedClass();
-        t.method1();
+
+        function moveTo(ctx, point) {
+            ctx.moveTo(point.X, point.Y);
+        }
+        function lineTo(ctx, end) {
+            ctx.lineTo(end.X, end.Y);
+        }
+        function arcTo(ctx, control, end, radius) {
+            ctx.quadraticCurveTo(control.X, control.Y, end.X, end.Y);
+        }
     </script>
 </head>
 <body>
-    <div style="width: 600px; height: 600px; border: solid 1px black;">
+    <div style="width: 600px; height: 600px;">
 	    <canvas id="testCanvas" width="600" height="600">
 	    </canvas>
     </div>
