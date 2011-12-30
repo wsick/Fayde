@@ -68,7 +68,7 @@ FrameworkElement.prototype.SetDataContext = function (value) {
     this.SetValue(FrameworkElement.DataContextProperty, value);
 };
 
-FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", FrameworkElement);
+FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", FrameworkElement, HorizontalAlignment.Stretch);
 FrameworkElement.prototype.GetHorizontalAlignment = function () {
     return this.GetValue(FrameworkElement.HorizontalAlignmentProperty);
 };
@@ -92,7 +92,7 @@ FrameworkElement.prototype.SetMargin = function (value) {
     this.SetValue(FrameworkElement.MarginProperty, value);
 };
 
-FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", FrameworkElement);
+FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", FrameworkElement, Number.POSITIVE_INFINITY);
 FrameworkElement.prototype.GetMaxHeight = function () {
     return this.GetValue(FrameworkElement.MaxHeightProperty);
 };
@@ -100,7 +100,7 @@ FrameworkElement.prototype.SetMaxHeight = function (value) {
     this.SetValue(FrameworkElement.MaxHeightProperty, value);
 };
 
-FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", FrameworkElement);
+FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", FrameworkElement, Number.POSITIVE_INFINITY);
 FrameworkElement.prototype.GetMaxWidth = function () {
     return this.GetValue(FrameworkElement.MaxWidthProperty);
 };
@@ -108,7 +108,7 @@ FrameworkElement.prototype.SetMaxWidth = function (value) {
     this.SetValue(FrameworkElement.MaxWidthProperty, value);
 };
 
-FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", FrameworkElement);
+FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", FrameworkElement, 0.0);
 FrameworkElement.prototype.GetMinHeight = function () {
     return this.GetValue(FrameworkElement.MinHeightProperty);
 };
@@ -116,7 +116,7 @@ FrameworkElement.prototype.SetMinHeight = function (value) {
     this.SetValue(FrameworkElement.MinHeightProperty, value);
 };
 
-FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", FrameworkElement);
+FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", FrameworkElement, 0.0);
 FrameworkElement.prototype.GetMinWidth = function () {
     return this.GetValue(FrameworkElement.MinWidthProperty);
 };
@@ -124,7 +124,7 @@ FrameworkElement.prototype.SetMinWidth = function (value) {
     this.SetValue(FrameworkElement.MinWidthProperty, value);
 };
 
-FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", FrameworkElement);
+FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", FrameworkElement, VerticalAlignment.Stretch);
 FrameworkElement.prototype.GetVerticalAlignment = function () {
     return this.GetValue(FrameworkElement.VerticalAlignmentProperty);
 };
@@ -314,13 +314,13 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
 
     var slot = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
 
-    var shouldArrange = this._DirtyFlags & _Dirty.Arrange > 0;
+    var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
 
     if (this.GetUseLayoutRounding()) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
 
-    shouldArrange = shouldArrange | (slot ? !slot.Equals(finalRect) : true);
+    shouldArrange = shouldArrange || (slot ? !slot.Equals(finalRect) : true);
 
     if (finalRect.Width < 0 || finalRect.Height < 0
             || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
@@ -348,7 +348,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     this._ClearValue(LayoutInformation.LayoutClipProperty);
 
     var margin = this.GetMargin();
-    var childRect = finalRect.GrowBy(margin.Negate());
+    var childRect = finalRect.GrowByThickness(margin.Negate());
 
     this._UpdateTransform();
     this._UpdateProjection();
@@ -644,7 +644,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
                             pass._ArrangeList.Append(new UIElementNode(child));
                         break;
                     case UIElementFlags.DirtySizeHint:
-                        if (child.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+                        if (child._ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
                             pass._SizeList.Append(new UIElementNode(child));
                         break;
                     default:
@@ -674,7 +674,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
                 pass._Updated = true;
                 var last = LayoutInformation.GetLastRenderSize(fe);
                 if (last) {
-                    fe.ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                    fe._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
                     //TODO: SizeChanged Event 
                 }
             }

@@ -176,12 +176,12 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
 
     canvasCtx.beginPath();
     if (cornerRadius.IsZero()) {
-        canvasCtx.rect(pathRect.Left, pathRect.Top, pathRect.Width, pathRect.Height);
+        canvasCtx.rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
     } else {
-        var left = pathRect.Left;
-        var top = pathRect.Top;
-        var right = pathRect.Left + pathRect.Width;
-        var bottom = pathRect.Top + pathRect.Height;
+        var left = pathRect.X;
+        var top = pathRect.Y;
+        var right = pathRect.X + pathRect.Width;
+        var bottom = pathRect.Y + pathRect.Height;
 
         canvasCtx.moveTo(left + cornerRadius.TopLeft, top);
         //top edge
@@ -211,7 +211,7 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
     }
     if (borderBrush && !thickness.IsEmpty()) {
         canvasCtx.lineWidth = thickness;
-        canvasCtx.strokeStyle = borderBrush._TranslateToHtml5();
+        canvasCtx.strokeStyle = borderBrush._Translate();
         canvasCtx.stroke();
     }
     canvasCtx.closePath();

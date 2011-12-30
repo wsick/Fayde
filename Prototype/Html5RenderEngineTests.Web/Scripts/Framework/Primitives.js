@@ -20,10 +20,10 @@ var VerticalAlignment = {
 CornerRadius.prototype = new Object;
 CornerRadius.prototype.constructor = CornerRadius;
 function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
-    this.TopLeft = topLeft || 0;
-    this.TopRight = topRight || 0;
-    this.BottomRight = bottomRight || 0;
-    this.BottomLeft = bottomLeft || 0;
+    this.TopLeft = topLeft == null ? 0 : topLeft;
+    this.TopRight = topRight == null ? 0 : topRight;
+    this.BottomRight = bottomRight == null ? 0 : bottomRight;
+    this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
 }
 CornerRadius.prototype.IsZero = function () {
     return this.TopLeft == 0
@@ -35,10 +35,10 @@ CornerRadius.prototype.IsZero = function () {
 Thickness.prototype = new Object;
 Thickness.prototype.constructor = Thickness;
 function Thickness(left, top, right, bottom) {
-    this.Left = left || 0;
-    this.Top = top || 0;
-    this.Right = right || 0;
-    this.Bottom = bottom || 0;
+    this.Left = left == null ? 0 : left;
+    this.Top = top == null ? 0 : top;
+    this.Right = right == null ? 0 : right;
+    this.Bottom = bottom == null ? 0 : bottom;
 }
 Thickness.prototype.Plus = function (thickness2) {
     var t = new Thickness();
@@ -64,19 +64,22 @@ Thickness.prototype.Negate = function () {
     t.Bottom = -this.Bottom;
     return t;
 };
+Thickness.prototype.IsEmpty = function () {
+    return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
+};
 
 Point.prototype = new Object;
 Point.prototype.constructor = Point;
 function Point(x, y) {
-    this.X = x || 0;
-    this.Y = y || 0;
+    this.X = x == null ? 0 : x;
+    this.Y = y == null ? 0 : y;
 }
 
 Size.prototype = new Object;
 Size.prototype.constructor = Size;
 function Size(width, height) {
-    this.Width = width || 0;
-    this.Height = height || 0;
+    this.Width = width == null ? 0 : width;
+    this.Height = height == null ? 0 : height;
 }
 Size.prototype.GrowBy = function (width, height) {
     var h = this.Height;
@@ -103,10 +106,10 @@ Size.prototype.Equals = function (size2) {
 Rect.prototype = new Object;
 Rect.prototype.constructor = Rect;
 function Rect(x, y, width, height) {
-    this.X = x || 0;
-    this.Y = y || 0;
-    this.Width = width || 0;
-    this.Height = height || 0;
+    this.X = x == null ? 0 : x;
+    this.Y = y == null ? 0 : y;
+    this.Width = width == null ? 0 : width;
+    this.Height = height == null ? 0 : height;
 }
 Rect.prototype.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;

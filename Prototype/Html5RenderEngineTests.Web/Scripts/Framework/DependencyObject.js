@@ -96,7 +96,42 @@ DependencyObject.prototype._ClearValue = function (propd, notifyListeners, error
         notifyListeners = true;
     if (error == undefined)
         error = new BError();
-    NotImplemented("DependencyObject._ClearValue");
+
+    //WTF: GetAnimationStorageFor
+
+    var oldLocalValue;
+    if (!(oldLocalValue = this._ReadLocalValue(propd))) {
+        if (propd._IsAutoCreated())
+            oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+    }
+
+    if (oldLocalValue) {
+        if (oldLocalValue instanceof DependencyObject) {
+            if (oldLocalValue != null && !propd._IsCustom) {
+                oldLocalValue._RemoveParent(this, null);
+
+                //TODO: RemovePropertyChangeListener
+                oldLocalValue._SetIsAttached(false);
+                if (oldLocalValue instanceof Collection) {
+                    //TODO: Changed Event - Remove Handler
+                    //TODO: Item Changed Event - Remove Handler
+                }
+            }
+        }
+        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+        if (propd._IsAutoCreated())
+            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
+    }
+
+    for (var i = _PropertyPrecedence.LocalValue + 1; i < _PropertyPrecedence.Count; i++) {
+        var provider = this._Providers[i];
+        if (provider && provider._HasFlag(_ProviderFlags.RecomputesOnClear))
+            provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnClear, error);
+    }
+
+    if (oldLocalValue) {
+        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
+    }
 };
 DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
     if (this._IsFrozen) {

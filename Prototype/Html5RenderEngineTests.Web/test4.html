@@ -57,16 +57,16 @@
 
         function buildTestView() {
             var b = new Border();
-            b.SetBorderBrush(new SolidColorBrush(new Color(255, 255, 255, 1.0)));
+            b.SetBorderBrush(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
             b.SetBorderThickness(new Thickness(1, 1, 1, 1));
             b.SetCornerRadius(new CornerRadius(5, 5, 5, 5));
             return b;
         }
     </script>
 </head>
-<body>
+<body style="background: #ffff00;">
     <div>
-        <div style="width: 600px; height: 600px; border: solid 1px black;">
+        <div style="width: 600px; height: 600px; background: #efefef;">
 	        <canvas id="testCanvas" width="600" height="600">
 	        </canvas>
         </div>

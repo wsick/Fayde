@@ -41,7 +41,7 @@ DependencyProperty
 =============================
 _Coerce [Done]
 _Validate
-_ClearValue
+_ClearValue [Done]
 _GetParent [Done]
 _AddParent
 _RemoveParent
