@@ -67,7 +67,7 @@ Surface.prototype._Attach = function (/* UIElement */element) {
 
     //TODO: Subscribe Loaded event
 
-    this._TopLevel.Loaded.Subscribe(this._HandleTopLevelLoaded);
+    this._TopLevel.Loaded.Subscribe(this._HandleTopLevelLoaded, this);
     this._AttachLayer(this._TopLevel);
     var surface = this;
     var postAttach = function () {
@@ -91,9 +91,8 @@ Surface.prototype._AttachLayer = function (/* UIElement */layer) {
 };
 Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
-    var topLevel = App.Instance.MainSurface._TopLevel;
-    topLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
-    if (element === topLevel) {
+    this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
+    if (element === this._TopLevel) {
         //TODO: this.Resize.Raise(this, null);
 
         //element._UpdateTotalRenderVisibility();
@@ -235,7 +234,7 @@ Surface.prototype._ProcessDownDirtyElements = function () {
         }
 
         if (!(uie._DirtyFlags & _Dirty.DownDirtyState) && uie._DownDirtyNode) {
-            this._DownDirtyNode.RemoveDirtyNode(uie._DownDirtyNode);
+            this._DownDirty.RemoveDirtyNode(uie._DownDirtyNode);
             uie._DownDirtyNode = null;
         }
     }

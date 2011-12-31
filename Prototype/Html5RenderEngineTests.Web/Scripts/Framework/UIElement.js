@@ -238,6 +238,7 @@ UIElement.prototype._SetRenderSize = function (value) {
 UIElement.prototype._GetRenderSize = function () {
     return this._RenderSize;
 };
+
 UIElement.prototype._DoMeasureWithError = function (error) {
     var last = LayoutInformation.GetPreviousConstraint(this);
     var parent = this.GetVisualParent();
@@ -258,6 +259,10 @@ UIElement.prototype._DoMeasureWithError = function (error) {
         parent._InvalidateMeasure();
 
     this._DirtyFlags &= ~_Dirty.Measure;
+};
+UIElement.prototype.Measure = function (availableSize) {
+    var error = new BError();
+    this._MeasureWithError(availableSize, error);
 };
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
@@ -295,7 +300,12 @@ UIElement.prototype._DoArrangeWithError = function (error) {
             parent._InvalidateArrange();
     }
 };
+UIElement.prototype.Arrange = function (finalRect) {
+    var error = new BError();
+    this._ArrangeWithError(finalRect, error);
+};
 UIElement.prototype._ArrangeWithError = function (finalRect, error) { };
+
 UIElement.prototype._ShiftPosition = function (point) {
     this._Bounds.X = point.X;
     this._Bounds.Y = point.Y;

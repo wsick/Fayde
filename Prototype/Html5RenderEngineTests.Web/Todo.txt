@@ -49,6 +49,9 @@ _RemovePropertyChangeListener
 _SetLogicalParent [Done]
 _GetLogicalParent [Done]
 _OnLogicalParentChanged [Done]
+_OnSubPropertyChanged
+_OnCollectionChanged
+_OnCollectionItemChanged
 
 
 
@@ -111,6 +114,9 @@ _ComputeActualSize [Done]
 Panel
 =============================
 _EffectPadding?
+_OnSubPropertyChanged
+_OnCollectionChanged
+_OnCollectionItemChanged
 
 
 

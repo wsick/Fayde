@@ -90,6 +90,42 @@ DependencyObject.prototype.SetValue = function (propd, value, error) {
     }
     return this._SetValueImpl(propd, coerced, error);
 };
+DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
+    if (this._IsFrozen) {
+        error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
+        return false;
+    }
+    var currentValue;
+    var equal = false;
+
+    if (!(currentValue = this._ReadLocalValue(propd)))
+        if (propd._IsAutoCreated())
+            currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+
+    if (currentValue && value)
+        equal = !propd._AlwaysChange && currentValue == value;
+    else
+        equal = !currentValue && !value;
+
+    if (!equal) {
+        var newValue;
+        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+        if (propd._IsAutoCreated())
+            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
+
+        if (value && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
+            newValue = value;
+        else
+            newValue = null;
+
+        if (newValue) {
+            this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
+        }
+        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
+    }
+
+    return true;
+};
 DependencyObject.prototype._ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
@@ -135,41 +171,15 @@ DependencyObject.prototype._ClearValue = function (propd, notifyListeners, error
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
     }
 };
-DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
-    if (this._IsFrozen) {
-        error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
-        return false;
-    }
-    var currentValue;
-    var equal = false;
-
-    if (!(currentValue = this._ReadLocalValue(propd)))
-        if (propd._IsAutoCreated())
-            currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
-
-    if (currentValue && value)
-        equal = !propd._AlwaysChange && currentValue == value;
-    else
-        equal = !currentValue && !value;
-
-    if (!equal) {
-        var newValue;
-        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
-        if (propd._IsAutoCreated())
-            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
-
-        if (value && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
-            newValue = value;
-        else
-            newValue = null;
-
-        if (newValue) {
-            this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
-        }
-        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
-    }
-
-    return true;
+DependencyObject.prototype._GetValueNoAutoCreate = function (propd) {
+    var v = this.GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
+    if (!v && propd._IsAutoCreated())
+        v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+    return v;
+};
+DependencyObject.prototype._PropertyHasNoValueAutoCreate = function (propd, obj) {
+    var v = this._GetValueNoAutoCreate(propd);
+    return v == null ? obj == null : v == obj;
 };
 DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
     var bitmask = this._ProviderBitmasks[propd] || 0;
@@ -244,13 +254,13 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
 
     if (oldDO) {
         if (setsParent) {
-            oldDO._IsAttached = false;
+            oldDO._SetIsAttached(false);
             oldDO._RemoveParent(this, null);
             oldDO._RemoveTarget(this);
             oldDO._RemovePropertyChangeListener(this, propd);
             if (oldDO instanceof Collection) {
-                //TODO: Remove Changed event handler
-                //TODO: Remove ItemChanged event handler
+                oldDO.Changed.Unsubscribe(this._OnCollectionChanged);
+                oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged);
             }
         } else {
             oldDO._SetMentor(null);
@@ -259,7 +269,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
 
     if (newDO) {
         if (setsParent) {
-            newDO._IsAttached = this._IsAttached;
+            newDO._SetIsAttached(this._IsAttached);
             newDO._AddParent(this, mergeNamesOnSetParent, error);
             if (error.IsErrored())
                 return;
@@ -267,8 +277,8 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
             newDO._SetResourceBase(this._GetResourceBase());
 
             if (newDO instanceof Collection) {
-                //TODO: Add Changed event handler
-                //TODO: Add ItemChanged event handler
+                newDO.Changed.Subscribe(this._OnCollectionChanged, this);
+                newDO.ItemChanged.Subscribe(this._OnCollectionItemChanged, this);
             }
 
             newDO._AddPropertyChangeListener(this, propd);
@@ -431,6 +441,11 @@ DependencyObject.prototype._AddPropertyChangeHandler = function (propd, callback
 };
 DependencyObject.prototype._RemovePropertyChangeHandler = function (propd, callback) {
     NotImplemented("DependencyObject._RemovePropertyChangeHandler");
+};
+
+DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
+};
+DependencyObject.prototype._OnCollectionItemChanged = function (sender, args) {
 };
 
 DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {

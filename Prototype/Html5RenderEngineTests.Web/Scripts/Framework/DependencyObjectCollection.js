@@ -19,9 +19,9 @@ DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newV
 };
 DependencyObjectCollection.prototype.AddedToCollection = function (value, error) {
     if (this._SetsParent) {
-        var existingParent = value.GetParent();
+        var existingParent = value._GetParent();
         value._AddParent(this, true, error);
-        if (!error.IsErrored() && !existingParent && this._IsSecondaryParent)
+        if (!error.IsErrored() && !existingParent && this._GetIsSecondaryParent())
             value._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
@@ -29,9 +29,9 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
         value._SetMentor(this._Mentor);
     }
 
-    value.AddPropertyChangeListener(this);
+    value._AddPropertyChangeListener(this);
 
-    var rv = Collection.prototype.AddedToCollection(value, error);
+    var rv = Collection.prototype.AddedToCollection.call(this, value, error);
     value._IsAttached = rv && this._IsAttached;
     if (!rv) {
         if (this._SetsParent) {
@@ -46,13 +46,13 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
 DependencyObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof DependencyObject) {
-            value.RemovePropertyChangeListener(this);
-            if (this._IsSecondaryParent)
+            value._RemovePropertyChangeListener(this);
+            if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
-            if (this._SetsParent && value.GetParent() == this)
+            if (this._SetsParent && value._GetParent() == this)
                 value._RemoveParent(this, null);
-            value._IsAttached = false;
+            value._SetIsAttached(false);
         }
     }
 };

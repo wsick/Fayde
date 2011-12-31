@@ -5,12 +5,12 @@ MulticastEvent.prototype.constructor = MulticastEvent;
 function MulticastEvent() {
     this._Listeners = new Array();
 }
-MulticastEvent.prototype.Subscribe = function (callback) {
-    this._Listeners.push(callback);
+MulticastEvent.prototype.Subscribe = function (callback, closure) {
+    this._Listeners.push({ Callback: callback, Closure: closure });
 };
-MulticastEvent.prototype.Unsubscribe = function (callback) {
+MulticastEvent.prototype.Unsubscribe = function (callback, closure) {
     for (var i in this._Listeners) {
-        if (this._Listeners[i] === callback) {
+        if (this._Listeners[i].Callback === callback) {
             this._Listeners.splice(i, 1);
             return;
         }
@@ -19,6 +19,7 @@ MulticastEvent.prototype.Unsubscribe = function (callback) {
 MulticastEvent.prototype.Raise = function (sender, args) {
     var listeners = this._Listeners;
     for (var i in listeners) {
-        listeners[i](sender, args);
+        var listener = listeners[i];
+        listener.Callback.call(listener.Closure, sender, args);
     }
 };

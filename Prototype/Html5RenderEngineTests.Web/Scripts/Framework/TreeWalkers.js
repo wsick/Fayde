@@ -31,7 +31,7 @@ _VisualTreeWalker.prototype.Step = function () {
         var count = this.GetCount();
         if (count < 0 || this._Offset >= count)
             return null;
-        if (count == 1 && index == 0) {
+        if (count == 1 && this._Offset == 0) {
             this._Offset++;
             return this._Collection.GetValueAt(0);
         }

@@ -4,7 +4,7 @@
 UIElementCollection.prototype = new DependencyObjectCollection;
 UIElementCollection.prototype.constructor = UIElementCollection;
 function UIElementCollection() {
-    UIElementCollection.call(this);
+    DependencyObjectCollection.call(this);
     this._ZSorted = new Array();
 }
 UIElementCollection.prototype.GetValueAtZIndex = function (index) {

@@ -7,25 +7,26 @@ var Orientation = {
     Horizontal: "Horizontal"
 };
 
-
 StackPanel.prototype = new Panel;
 StackPanel.prototype.constructor = StackPanel;
 function StackPanel() {
     Panel.call(this);
 }
-StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", StackPanel, Orientation.Horizontal);
-StackPanel.prototype._OrientationChanged = function (d, e) {
-    if (!d)
-        return;
-    d.InvalidateMeasure();
-    d.InvalidateArrange();
-};
+
+StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", StackPanel, Orientation.Vertical);
 StackPanel.prototype.GetOrientation = function () {
     return this.GetValue(StackPanel.OrientationProperty);
 };
 StackPanel.prototype.SetOrientation = function (value) {
     this.SetValue(StackPanel.OrientationProperty, value);
 };
+StackPanel._OrientationChanged = function (d, args) {
+    if (!d)
+        return;
+    d._InvalidateMeasure();
+    d._InvalidateArrange();
+};
+
 StackPanel.prototype.MeasureOverride = function (constraint) {
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
@@ -44,10 +45,11 @@ StackPanel.prototype.MeasureOverride = function (constraint) {
         childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
     }
 
-    for (var i = 0; i < this.Children.length; i++) {
-        var child = this.Children[i];
+    var children = this.GetChildren();
+    for (var i = 0; i < children.GetCount(); i++) {
+        var child = children.GetValueAt(i);
         child.Measure(childAvailable);
-        var size = child.DesiredSize;
+        var size = child._DesiredSize;
 
         if (this.GetOrientation() == Orientation.Vertical) {
             measured.Height += size.Height;
@@ -68,9 +70,10 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
     else
         arranged.Width = 0;
 
-    for (var i = 0; i < this.Children.length; i++) {
-        var child = this.Children[i];
-        var size = child.DesiredSize;
+    var children = this.GetChildren();
+    for (var i = 0; i < children.GetCount(); i++) {
+        var child = children.GetValueAt(i);
+        var size = child._DesiredSize;
 
         if (this.GetOrientation() == Orientation.Vertical) {
             size.Width = arrangeSize.Width;

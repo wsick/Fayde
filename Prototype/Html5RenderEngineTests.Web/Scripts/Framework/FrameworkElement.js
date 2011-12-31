@@ -371,7 +371,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     LayoutInformation.SetLayoutSlot(this, finalRect);
 
     if (this.ArrangeOverride)
-        response = this.ArrangeOverride(this, offer, error);
+        response = this.ArrangeOverride(offer, error);
     else
         response = this._ArrangeOverrideWithError(offer, error);
 
