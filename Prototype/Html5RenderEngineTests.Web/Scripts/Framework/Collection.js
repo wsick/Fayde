@@ -29,7 +29,7 @@ Collection.prototype.Insert = function (index, value) {
     var error = new BError();
     if (this.AddedToCollection(value, error)) {
         this._ht.splice(index, 0, value);
-        this._OnChanged(CollectionChangedArgs.Action.Add, null, value, index);
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, value, index);
         return true;
     }
     return false;
@@ -46,7 +46,7 @@ Collection.prototype.RemoveAt = function (index) {
     var value = this._ht[index];
     this._ht.splice(index, 1);
     this.RemovedFromCollection(value, true);
-    this._OnChanged(CollectionChangedArgs.Action.Remove, value, null, index);
+    this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, null, index);
     return true;
 };
 Collection.prototype.IndexOf = function (value) {
@@ -61,19 +61,25 @@ Collection.prototype.CanAdd = function (value) { return true; };
 Collection.prototype.AddedToCollection = function (value, error) { return true; };
 Collection.prototype.RemovedFromCollection = function (value, isValueSafe) { };
 
-Collection.prototype._GetIsSecondaryParent = function () {
-    return this._IsSecondaryParent;
-};
-Collection.prototype._SetIsSecondaryParent = function (value) {
-    this._IsSecondaryParent = value;
-};
-
 Collection.prototype.ItemChanged = new MulticastEvent();
+Collection.prototype._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
+    this.ItemChanged.Raise(this, new ItemChangedArgs(obj, propd, oldValue, newValue));
+};
 
 Collection.prototype.Changed = new MulticastEvent();
-Collection.prototype._OnChanged = function (action, oldValue, newValue, index) {
+Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index) {
     this.Changed.Raise(this, new CollectionChangedArgs(action, oldValue, newValue, index));
 };
+
+
+ItemChangedArgs.prototype = new Object;
+ItemChangedArgs.prototype.constructor = ItemChangedArgs;
+function ItemChangedArgs(item, propd, oldValue, newValue) {
+    this.Item = item;
+    this.Property = propd;
+    this.OldValue = oldValue;
+    this.NewValue = newValue;
+}
 
 CollectionChangedArgs.Action = {
     Clearing: 0,

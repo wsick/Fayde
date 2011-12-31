@@ -8,10 +8,12 @@
 /// <reference path="PropertyValueProviders/DefaultValue.js"/>
 /// <reference path="PropertyValueProviders/AutoCreate.js"/>
 /// <reference path="MulticastEvent.js"/>
+/// <reference path="DependencyObjectCollection.js"/>
 
 DependencyObject.prototype = new Object;
 DependencyObject.prototype.constructor = DependencyObject;
 function DependencyObject() {
+    this._TypeName = this._GetTypeName();
     this._Initialize();
 }
 
@@ -24,6 +26,12 @@ DependencyObject.prototype._Initialize = function () {
     this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyProvider(this, _PropertyPrecedence.DefaultValue);
     this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
     this._ProviderBitmasks = new Array();
+    this._SecondaryParents = new Array();
+};
+DependencyObject.prototype._GetTypeName = function () {
+    var funcNameRegex = /function (.{1,})\(/;
+    var results = (funcNameRegex).exec(this.constructor.toString());
+    return (results && results.length > 1) ? results[1] : "";
 };
 
 DependencyObject.prototype._GetMentor = function () {
@@ -177,7 +185,7 @@ DependencyObject.prototype._GetValueNoAutoCreate = function (propd) {
         v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     return v;
 };
-DependencyObject.prototype._PropertyHasNoValueAutoCreate = function (propd, obj) {
+DependencyObject.prototype._PropertyHasValueNoAutoCreate = function (propd, obj) {
     var v = this._GetValueNoAutoCreate(propd);
     return v == null ? obj == null : v == obj;
 };
@@ -257,7 +265,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
             oldDO._SetIsAttached(false);
             oldDO._RemoveParent(this, null);
             oldDO._RemoveTarget(this);
-            oldDO._RemovePropertyChangeListener(this, propd);
+            oldDO.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
             if (oldDO instanceof Collection) {
                 oldDO.Changed.Unsubscribe(this._OnCollectionChanged);
                 oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged);
@@ -281,7 +289,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
                 newDO.ItemChanged.Subscribe(this._OnCollectionItemChanged, this);
             }
 
-            newDO._AddPropertyChangeListener(this, propd);
+            newDO.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
             newDO._AddTarget(this);
         } else {
             var cur = this;
@@ -389,17 +397,98 @@ DependencyObject.prototype._RemoveTarget = function (obj) {
 DependencyObject.prototype._GetParent = function () {
     return this._Parent;
 };
-DependencyObject.prototype._AddSecondaryParent = function () {
-    NotImplemented("DependencyObject._AddSecondaryParent()");
+DependencyObject.prototype._PermitsMultipleParents = function () {
+    return true;
+};
+DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree, error) {
+    if (false/* TODO: IsShuttingDown */) {
+        this._Parent = null;
+        return;
+    }
+
+    var current = parent;
+    while (current) {
+        if (current == this) {
+            //Warn: cycle found
+            return;
+        }
+        current = current._GetParent();
+    }
+
+    if (this._Parent && !this._PermitsMultipleParents()) {
+        if (parent instanceof DependencyObjectCollection && (!parent._GetIsSecondaryParent() || this._HasSecondaryParents())) {
+            error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
+            return;
+        }
+    }
+
+    if (this._Parent || this._HasSecondaryParents()) {
+        this._AddSecondaryParent(parent);
+        if (this._Parent && !(this._Parent instanceof ResourceDictionary))
+            this._SetMentor(null);
+        if (this._SecondaryParents.length > 1 || !(parent instanceof DependencyObjectCollection) || !parent._GetIsSecondaryParent())
+            return;
+    }
+
+    //TODO: Register namescopes
+
+    if (!error || !error.IsErrored()) {
+        this._Parent = parent;
+        var d = parent;
+        while (d && !(d instanceof FrameworkElement)) {
+            d = d._GetMentor();
+        }
+        this._SetMentor(d);
+    }
+};
+DependencyObject.prototype._RemoveParent = function (parent, error) {
+    if (this._RemoveSecondaryParent(parent)) {
+        if (this._HasSecondaryParents() || !(parent instanceof DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
+            return;
+    } else {
+        //WTF: Hack?
+        if (this._Parent != parent)
+            return;
+    }
+
+    if (false/* TODO:IsShuttingDown */) {
+        this._Parent = null;
+        return;
+    }
+
+    if (!this._HasSecondaryParents()) {
+        //TODO: Unregister names
+        this._SetMentor(null);
+    }
+
+    if (!error || !error.IsErrored()) {
+        if (this._Parent == parent)
+            this._Parent = null;
+    }
+};
+DependencyObject.prototype._AddSecondaryParent = function (obj) {
+    //TODO: Subscribe to obj.Destroyed --> When destroyed, RemoveSecondaryParent(obj)
+    this._SecondaryParents.push(obj);
 };
 DependencyObject.prototype._RemoveSecondaryParent = function (obj) {
-    NotImplemented("DependencyObject._RemoveSecondaryParent(obj)");
+    var index = -1;
+    for (var i = 0; i < this._SecondaryParents.length; i++) {
+        if (this._SecondaryParents[i] == obj) {
+            index = i;
+            break;
+        }
+    }
+    if (index < 0)
+        return false;
+    this._SecondaryParents.splice(index, 1);
+    //TODO: Unsubscribe to obj.Destroyed
+    return true;
 };
-DependencyObject.prototype._AddParent = function (obj, mergeNamesFromSubtree, error) {
-    NotImplemented("DependencyObject._AddParent(obj, mergeNamesFromSubtree, error)");
+DependencyObject.prototype._GetSecondaryParents = function () {
+    return this._SecondaryParents;
 };
-DependencyObject.prototype._RemoveParent = function (obj, error) {
-    NotImplemented("DependencyObject._RemoveParent(obj, error)");
+DependencyObject.prototype._HasSecondaryParents = function () {
+    return this._SecondaryParents.length > 0;
 };
 
 DependencyObject.prototype._GetResourceBase = function () {
@@ -429,19 +518,7 @@ DependencyObject.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-
-DependencyObject.prototype._AddPropertyChangeListener = function (listener, childPropd) {
-    NotImplemented("DependencyObject._AddPropertyChangeListener");
-};
-DependencyObject.prototype._RemovePropertyChangeListener = function (listener, childPropd) {
-    NotImplemented("DependencyObject._RemovePropertyChangeListener");
-};
-DependencyObject.prototype._AddPropertyChangeHandler = function (propd, callback) {
-    NotImplemented("DependencyObject._AddPropertyChangeHandler");
-};
-DependencyObject.prototype._RemovePropertyChangeHandler = function (propd, callback) {
-    NotImplemented("DependencyObject._RemovePropertyChangeHandler");
-};
+DependencyObject.prototype._OnSubPropertyChanged = function (sender, args) { };
 
 DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
 };

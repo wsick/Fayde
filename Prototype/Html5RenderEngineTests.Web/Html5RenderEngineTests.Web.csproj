@@ -72,6 +72,7 @@
     <Content Include="Scripts\Framework\FrameworkElement.js" />
     <Content Include="Scripts\Framework\LayoutInformation.js" />
     <Content Include="Scripts\Framework\Matrix.js" />
+    <Content Include="Scripts\Framework\ResourceDictionary.js" />
     <Content Include="Scripts\Framework\Surface.js" />
     <Content Include="Scripts\Framework\TextBlock.js" />
     <Content Include="Scripts\Framework\TextElement.js" />

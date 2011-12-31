@@ -163,11 +163,15 @@ Panel.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-Panel.prototype._OnSubPropertyChanged = function (propd, obj, subObjArgs) {
-    NotImplemented("Panel._OnSubPropertyChanged");
+Panel.prototype._OnSubPropertyChanged = function (sender, args) {
+    if (args.Property && args.Property == Panel.BackgroundProperty) {
+        this._Invalidate();
+    } else {
+        FrameworkElement.prototype._OnSubPropertyChanged.call(this, sender, args);
+    }
 };
 Panel.prototype._OnCollectionChanged = function (sender, args) {
-    if (this._PropertyHasNoValueAutoCreate(Panel.ChildrenProperty, sender)) {
+    if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
         var error = new BError();
         switch (args.Action) {
             case CollectionChangedArgs.Action.Replace:
@@ -195,7 +199,16 @@ Panel.prototype._OnCollectionChanged = function (sender, args) {
     }
 };
 Panel.prototype._OnCollectionItemChanged = function (sender, args) {
-    NotImplemented("Panel._OnCollectionItemChanged");
+    if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
+        if (args.Property == Canvas.ZIndexProperty || args.Property == Canvas.ZProperty) {
+            args.Item._Invalidate();
+            if (this._IsAttached) {
+                App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
+            }
+            return;
+        }
+    }
+    FrameworkElement.prototype._OnCollectionItemChanged.call(this, sender, args);
 };
 Panel.prototype._OnIsAttachedChanged = function (value) {
     FrameworkElement.prototype._OnIsAttachedChanged.call(this, value);

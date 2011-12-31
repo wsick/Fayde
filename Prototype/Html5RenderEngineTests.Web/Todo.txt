@@ -36,22 +36,18 @@ _IsAttached [Done]
 _SetIsAttached [Done]
 _ClearValue [Done]
 _GetParent [Done]
-_AddParent
-_RemoveParent
-_AddSecondaryParent
-_RemoveSecondaryParent
+_AddParent [Done]
+_RemoveParent [Done]
+_AddSecondaryParent [Done]
+_RemoveSecondaryParent [Done]
 _GetResourceBase
 _SetResourceBase
-_AddPropertyChangeHandler
-_RemovePropertyChangeHandler
-_AddPropertyChangeListener
-_RemovePropertyChangeListener
 _SetLogicalParent [Done]
 _GetLogicalParent [Done]
 _OnLogicalParentChanged [Done]
-_OnSubPropertyChanged
-_OnCollectionChanged
-_OnCollectionItemChanged
+_OnSubPropertyChanged [Done]
+_OnCollectionChanged [Done]
+_OnCollectionItemChanged [Done]
 
 
 

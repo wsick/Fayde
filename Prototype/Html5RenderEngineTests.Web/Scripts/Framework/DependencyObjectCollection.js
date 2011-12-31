@@ -7,9 +7,18 @@ function DependencyObjectCollection(setsParent) {
     this._IsSecondaryParent = false;
     this._SetsParent = !setsParent ? true : setsParent;
 }
+
 DependencyObjectCollection.prototype.IsElementType = function (value) {
     return value instanceof DependencyObject;
 };
+
+DependencyObjectCollection.prototype._GetIsSecondaryParent = function () {
+    return this._IsSecondaryParent;
+};
+DependencyObjectCollection.prototype._SetIsSecondaryParent = function (value) {
+    this._IsSecondaryParent = value;
+};
+
 DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newValue) {
     DependencyObject.prototype._OnMentorChanged.call(this, oldValue, newValue);
     for (var i = 0; i < this._ht.length; i++) {
@@ -17,6 +26,7 @@ DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newV
             this._ht[i]._SetMentor(newValue);
     }
 };
+
 DependencyObjectCollection.prototype.AddedToCollection = function (value, error) {
     if (this._SetsParent) {
         var existingParent = value._GetParent();
@@ -29,7 +39,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
         value._SetMentor(this._Mentor);
     }
 
-    value._AddPropertyChangeListener(this);
+    value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
 
     var rv = Collection.prototype.AddedToCollection.call(this, value, error);
     value._IsAttached = rv && this._IsAttached;
@@ -46,7 +56,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
 DependencyObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof DependencyObject) {
-            value._RemovePropertyChangeListener(this);
+            value.Unsubscribe(this._OnSubPropertyChanged, this);
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
@@ -55,4 +65,7 @@ DependencyObjectCollection.prototype.RemovedFromCollection = function (value, is
             value._SetIsAttached(false);
         }
     }
+};
+DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
+    this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
 };

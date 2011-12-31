@@ -1,6 +1,6 @@
 ﻿/// <reference path="PropertyValueProvider.js" />
-/// <reference path="/Scripts/Control.js" />
-/// <reference path="/Scripts/BError.js" />
+/// <reference path="/Scripts/Framework/BError.js" />
+/// <reference path="/Scripts/Framework/Control.js" />
 
 _InheritedIsEnabledPropertyValueProvider.prototype = new _PropertyValueProvider;
 _InheritedIsEnabledPropertyValueProvider.prototype.constructor = _InheritedIsEnabledPropertyValueProvider;
@@ -27,13 +27,31 @@ _InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (sou
     }
 
     if (this._Source != source) {
-        this._Source.RemovePropertyChangeListener(Control.IsEnabledProperty);
+        this._DetachListener(this._Source);
         this._Source = source;
-        this._Source.AddPropertyChangeListener(Control.IsEnabledProperty, this.LocalValueChanged);
+        this._AttachListener(this._Source);
     }
 
     if (!source || this._Object.IsAttached())
         this.LocalValueChanged(null);
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._AttachListener = function (obj) {
+    if (source) {
+        var matchFunc = function (sender, args) {
+            return this == args.Property; //Closure - Control.IsEnabledProperty
+        };
+        source.PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Control.IsEnabledProperty);
+        //TODO: Add Handler - Destroyed Event
+    }
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._DetachListener = function (source) {
+    if (source) {
+        source.PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Control.IsEnabledProperty);
+        //TODO: Remove Handler - Destroyed Event
+    }
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._IsEnabledChanged = function (sender, args) {
+    this.LocalValueChanged(args.Property);
 };
 _InheritedIsEnabledPropertyValueProvider.prototype.LocalValueChanged = function (propd) {
     if (propd && propd != Control.IsEnabledProperty)
