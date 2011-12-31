@@ -17,7 +17,17 @@ function DependencyObject() {
     this._Initialize();
 }
 
+//////////////////////////////////////////
+// DEPENDENCY PROPERTIES
+//////////////////////////////////////////
 DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
+
+//////////////////////////////////////////
+// INSTANCE METHODS
+//////////////////////////////////////////
+DependencyObject.prototype.FindName = function (name) {
+    NotImplemented("DependencyObject.FindName");
+};
 
 DependencyObject.prototype._Initialize = function () {
     this._IsAttached = false;

@@ -48,6 +48,7 @@ _OnLogicalParentChanged [Done]
 _OnSubPropertyChanged [Done]
 _OnCollectionChanged [Done]
 _OnCollectionItemChanged [Done]
+FindName
 
 
 
