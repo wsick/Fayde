@@ -110,9 +110,9 @@ _ComputeActualSize [Done]
 Panel
 =============================
 _EffectPadding?
-_OnSubPropertyChanged
-_OnCollectionChanged
-_OnCollectionItemChanged
+_OnSubPropertyChanged [Done]
+_OnCollectionChanged [Done]
+_OnCollectionItemChanged [Done]
 
 
 

@@ -28,8 +28,11 @@
 
     <script src="Scripts/Framework/DependencyObject.js" type="text/javascript"></script>
     <script src="Scripts/Framework/Collection.js" type="text/javascript"></script>
+    <script src="Scripts/Framework/DependencyObjectCollection.js" type="text/javascript"></script>
+    <script src="Scripts/Framework/UIElementCollection.js" type="text/javascript"></script>
     <script src="Scripts/Framework/Style.js" type="text/javascript"></script>
     <script src="Scripts/Framework/TreeWalkers.js" type="text/javascript"></script>
+    <script src="Scripts/Framework/ResourceDictionary.js" type="text/javascript"></script>
     
     <script src="Scripts/Framework/Geometry.js" type="text/javascript"></script>
     <script src="Scripts/Framework/UIElement.js" type="text/javascript"></script>
@@ -48,14 +51,17 @@
     <script src="Scripts/Framework/App.js" type="text/javascript"></script>
 
     <script type="text/javascript">
+        var root;
         $(document).ready(function () {
             _Console.Init("#console");
             App.Instance.MainSurface.Init($("#testCanvas"));
-            var view = buildTestView();
-            App.Instance.Load(view);
+            root = buildTestView();
+            App.Instance.Load(root);
+            addElement();
         });
 
         function buildTestView() {
+            /*
             var child = new Border();
             child.SetBorderBrush(new SolidColorBrush(new Color(128, 128, 128, 1.0)));
             child.SetBorderThickness(new Thickness(1, 1, 1, 1));
@@ -67,8 +73,27 @@
             b.SetBorderThickness(new Thickness(1, 1, 1, 1));
             b.SetCornerRadius(new CornerRadius(5, 5, 5, 5));
             b.SetMargin(new Thickness(5, 5, 5, 5));
+            b.SetMinWidth(50);
+            b.SetMinHeight(50);
             b.SetChild(child);
+
             return b;
+            */
+            
+            var panel = new StackPanel();
+            panel.SetBackground(new SolidColorBrush(new Color(128, 0, 0, 1.0)));
+            return panel;
+        }
+
+        function addElement() {
+            var b = new Border();
+            b.SetBorderBrush(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
+            b.SetBorderThickness(new Thickness(1, 1, 1, 1));
+            b.SetCornerRadius(new CornerRadius(5, 5, 5, 5));
+            b.SetMargin(new Thickness(5, 5, 5, 5));
+            b.SetMinWidth(50);
+            b.SetMinHeight(50);
+            root.GetChildren().Add(b);
         }
     </script>
 </head>

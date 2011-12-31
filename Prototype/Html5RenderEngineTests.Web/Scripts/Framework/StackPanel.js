@@ -33,16 +33,16 @@ StackPanel.prototype.MeasureOverride = function (constraint) {
 
     if (this.GetOrientation() == Orientation.Vertical) {
         childAvailable.Width = constraint.Width;
-        if (isNaN(this.Width))
-            childAvailable.Width = this.Width;
-        childAvailable.Width = Math.min(childAvailable.Width, this.MaxWidth);
-        childAvailable.Width = Math.max(childAvailable.Width, this.MinWidth);
+        if (!isNaN(this.GetWidth()))
+            childAvailable.Width = this.GetWidth();
+        childAvailable.Width = Math.min(childAvailable.Width, this.GetMaxWidth());
+        childAvailable.Width = Math.max(childAvailable.Width, this.GetMinWidth());
     } else {
         childAvailable.Height = constraint.Height;
-        if (isNaN(this.Height))
-            childAvailable.Height = this.Height;
-        childAvailable.Height = Math.min(childAvailable.Height, this.MaxHeight);
-        childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
+        if (!isNaN(this.GetHeight()))
+            childAvailable.Height = this.GetHeight();
+        childAvailable.Height = Math.min(childAvailable.Height, this.GetMaxHeight());
+        childAvailable.Height = Math.max(childAvailable.Height, this.GetMinHeight());
     }
 
     var children = this.GetChildren();

@@ -110,7 +110,7 @@ Panel.prototype._Render = function (ctx, region) {
         return;
     var area = new Rect(0, 0, framework.Width, framework.Height);
 
-    if (!this._HasLayoutClip() /* && ... */) {
+    if (!this._HasLayoutClip() && false/* TODO: IsIntegerTranslation */) {
         //TODO:
     } else {
         ctx.Save();
