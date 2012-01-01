@@ -339,7 +339,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         return;
 
     var measure = LayoutInformation.GetPreviousConstraint(this);
-    if (this.IsContainer() && !measure)
+    if (this.IsContainer() && measure == null)
         this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
     measure = LayoutInformation.GetPreviousConstraint(this);
 
@@ -418,7 +418,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     this._SetRenderSize(response);
     var constrainedResponse = response.Min(this._ApplySizeConstraints(response));
 
-    if (!parent || parent instanceof Canvas) {
+    if (parent == null || parent instanceof Canvas) {
         if (!this.IsLayoutContainer()) {
             this._SetRenderSize(new Size(0, 0));
             return;

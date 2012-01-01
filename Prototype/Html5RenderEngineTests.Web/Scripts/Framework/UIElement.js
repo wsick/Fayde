@@ -405,7 +405,7 @@ UIElement.prototype._ElementAdded = function (item) {
     item._SetIsAttached(this._IsAttached);
     item._SetIsLoaded(this._IsLoaded);
     var o = this;
-    while (o && !(o instanceof FrameworkElement))
+    while (o != null && !(o instanceof FrameworkElement))
         o = o._GetMentor();
     item._SetMentor(o);
 
