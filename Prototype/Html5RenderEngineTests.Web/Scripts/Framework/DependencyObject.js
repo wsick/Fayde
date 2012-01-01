@@ -44,6 +44,13 @@ DependencyObject.prototype._GetTypeName = function () {
     return (results && results.length > 1) ? results[1] : "";
 };
 
+DependencyObject.prototype._GetTemplateOwner = function () {
+    return this._TemplateOwner;
+};
+DependencyObject.prototype._SetTemplateOwner = function (value) {
+    this._TemplateOwner = value;
+};
+
 DependencyObject.prototype._GetMentor = function () {
     return this._Mentor;
 };
@@ -108,46 +115,7 @@ DependencyObject.prototype.SetValue = function (propd, value, error) {
     }
     return this._SetValueImpl(propd, coerced, error);
 };
-DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
-    if (this._IsFrozen) {
-        error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
-        return false;
-    }
-    var currentValue;
-    var equal = false;
-
-    if (!(currentValue = this._ReadLocalValue(propd)))
-        if (propd._IsAutoCreated())
-            currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
-
-    if (currentValue && value)
-        equal = !propd._AlwaysChange && currentValue == value;
-    else
-        equal = !currentValue && !value;
-
-    if (!equal) {
-        var newValue;
-        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
-        if (propd._IsAutoCreated())
-            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
-
-        if (value && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
-            newValue = value;
-        else
-            newValue = null;
-
-        if (newValue) {
-            this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
-        }
-        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
-    }
-
-    return true;
-};
-DependencyObject.prototype._ReadLocalValue = function (propd) {
-    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
-};
-DependencyObject.prototype._ClearValue = function (propd, notifyListeners, error) {
+DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error) {
     if (notifyListeners == undefined)
         notifyListeners = true;
     if (error == undefined)
@@ -188,6 +156,45 @@ DependencyObject.prototype._ClearValue = function (propd, notifyListeners, error
     if (oldLocalValue) {
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
     }
+};
+DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
+    if (this._IsFrozen) {
+        error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
+        return false;
+    }
+    var currentValue;
+    var equal = false;
+
+    if (!(currentValue = this._ReadLocalValue(propd)))
+        if (propd._IsAutoCreated())
+            currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+
+    if (currentValue && value)
+        equal = !propd._AlwaysChange && currentValue == value;
+    else
+        equal = !currentValue && !value;
+
+    if (!equal) {
+        var newValue;
+        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+        if (propd._IsAutoCreated())
+            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
+
+        if (value && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
+            newValue = value;
+        else
+            newValue = null;
+
+        if (newValue) {
+            this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
+        }
+        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
+    }
+
+    return true;
+};
+DependencyObject.prototype._ReadLocalValue = function (propd) {
+    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
 DependencyObject.prototype._GetValueNoAutoCreate = function (propd) {
     var v = this.GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
@@ -247,8 +254,8 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
         newValue = newProviderValue;
     }
 
-    var equal = false;
-    if (oldValue != undefined && newValue != undefined) {
+    var equal = oldValue == null && newValue == null;
+    if (oldValue != null && newValue != null) {
         equal = !propd._AlwaysChange && oldValue == newValue;
     }
 

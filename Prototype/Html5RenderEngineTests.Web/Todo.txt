@@ -31,10 +31,11 @@ _GetInheritedValueSource [Done]
 _SetInheritedValueSource [Done]
 _GetPropertyValueProvider [Done]
 _IsValueValid
+GetValue [Done]
 SetValue [Done]
+ClearValue [Done]
 _IsAttached [Done]
 _SetIsAttached [Done]
-_ClearValue [Done]
 _GetParent [Done]
 _AddParent [Done]
 _RemoveParent [Done]
@@ -105,6 +106,7 @@ _OnIsLoadedChanged [Done]
 _SetImplicitStyles
 _ClearImplicitStyles [Done]
 _ComputeActualSize [Done]
+_SetTemplateBinding
 
 
 

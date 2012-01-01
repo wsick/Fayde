@@ -329,9 +329,7 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     this._PostRender(ctx, region);
     ctx.Restore();
 };
-UIElement.prototype._Render = function (ctx, region) {
-    AbstractMethod("UIElement._Render(ctx, region)");
-};
+UIElement.prototype._Render = function (ctx, region) { };
 UIElement.prototype._PostRender = function (ctx, region) {
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
     var child;
@@ -414,8 +412,8 @@ UIElement.prototype._ElementAdded = function (item) {
     this._UpdateBounds(true);
 
     this._InvalidateMeasure();
-    this._ClearValue(LayoutInformation.LayoutClipProperty);
-    this._ClearValue(LayoutInformation.PreviousConstraintProperty);
+    this.ClearValue(LayoutInformation.LayoutClipProperty);
+    this.ClearValue(LayoutInformation.PreviousConstraintProperty);
     item._RenderSize = new Size(0, 0);
     item._UpdateTransform();
     item._UpdateProjection();

@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
+    <Content Include="multicastevent-test.html" />
     <Content Include="NotImplemented\Annotations.txt" />
     <Content Include="NotImplemented\DependencyProperty.txt" />
     <Content Include="Outline.txt" />
@@ -59,13 +60,17 @@
     <Content Include="Scripts\Framework\Brush.js" />
     <Content Include="Scripts\Framework\Canvas.js" />
     <Content Include="Scripts\Framework\Collection.js" />
+    <Content Include="Scripts\Framework\ContentControl.js" />
+    <Content Include="Scripts\Framework\ContentPresenter.js" />
     <Content Include="Scripts\Framework\Control.js" />
+    <Content Include="Scripts\Framework\ControlTemplate.js" />
     <Content Include="Scripts\Framework\Debug.js" />
     <Content Include="Scripts\Framework\DependencyObject.js" />
     <Content Include="Scripts\Framework\BError.js" />
     <Content Include="Scripts\Framework\DependencyObjectCollection.js" />
     <Content Include="Scripts\Framework\DependencyProperty.js" />
     <Content Include="Scripts\Framework\Dirty.js" />
+    <Content Include="Scripts\Framework\FrameworkTemplate.js" />
     <Content Include="Scripts\Framework\Geometry.js" />
     <Content Include="Scripts\Framework\List.js" />
     <Content Include="Scripts\Framework\MulticastEvent.js" />
@@ -117,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Scripts\Framework\Expression.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

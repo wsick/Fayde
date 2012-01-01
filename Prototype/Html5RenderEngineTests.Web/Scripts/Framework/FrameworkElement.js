@@ -343,7 +343,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
     measure = LayoutInformation.GetPreviousConstraint(this);
 
-    this._ClearValue(LayoutInformation.LayoutClipProperty);
+    this.ClearValue(LayoutInformation.LayoutClipProperty);
 
     var margin = this.GetMargin();
     var childRect = finalRect.GrowByThickness(margin.Negate());
@@ -637,7 +637,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
                 pass._Updated = true;
                 var last = LayoutInformation.GetLastRenderSize(fe);
                 if (last) {
-                    fe._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                    fe.ClearValue(LayoutInformation.LastRenderSizeProperty, false);
                     //TODO: SizeChanged Event 
                 }
             }

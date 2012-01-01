@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Scripts/jquery-1.7.js" type="text/javascript"></script>
+    <script src="/Scripts/Framework/Debug.js" type="text/javascript"></script>
+    <script src="/Scripts/Framework/MulticastEvent.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            _Console.Init("#console");
+            testEvents();
+        });
+
+        var Event1 = new MulticastEvent();
+        var Event2 = new MulticastEvent();
+
+        SomeObject.prototype = new Object;
+        SomeObject.prototype.constructor = SomeObject;
+        function SomeObject(id) {
+            this._ID = id;
+        }
+        SomeObject.prototype.HandleEvent1 = function (sender, args) {
+            _Console.WriteLine("HandleEvent1 [Closure ID: " + this._ID + "]: " + args.toString());
+        };
+        SomeObject.prototype.HandleEvent2 = function (sender, args) {
+            _Console.WriteLine("HandleEvent2 [Closure ID: " + this._ID + "]: " + args.toString());
+        };
+
+        function testEvents() {
+            var obj1 = new SomeObject(1);
+            Event1.Subscribe(obj1.HandleEvent1, obj1);
+            Event2.Subscribe(obj1.HandleEvent2, obj1);
+
+            var obj2 = new SomeObject(2);
+            var matchFunc1 = function (sender, args) {
+                _Console.WriteLine("MatchFunc (Event1) (obj2) [Closure ID: " + this._ID + "]");
+                return true;
+            };
+            Event1.SubscribeSpecific(obj2.HandleEvent1, obj2, matchFunc1, obj2);
+            var matchFunc2 = function (sender, args) {
+                _Console.WriteLine("MatchFunc (Event2) (obj2) [Closure ID: " + this._ID + "]");
+                return false;
+            };
+            Event2.SubscribeSpecific(obj2.HandleEvent2, obj2, matchFunc2, obj2);
+
+            _Console.WriteLine("Raising Event1");
+            Event1.Raise({ Name: "Turkey" }, { SomeProperty: 2 });
+            _Console.WriteLine("Raising Event2");
+            Event2.Raise({ Name: "Ham" }, { SomeProperty: 5 });
+            _Console.WriteLine("Unsubscribing to Event1: obj1");
+            Event1.Unsubscribe(obj1.HandleEvent1, obj1);
+            _Console.WriteLine("Unsubscribing to Event1: obj2");
+            Event1.Unsubscribe(obj2.HandleEvent1, obj2, obj2);
+            _Console.WriteLine("Raising Event1");
+            Event1.Raise({ Name: "Salami" }, { SomePRoperty: 9 });
+        }
+    </script>
+</head>
+<body>
+    <div id="console">
+        
+    </div>
+</body>
+</html>
