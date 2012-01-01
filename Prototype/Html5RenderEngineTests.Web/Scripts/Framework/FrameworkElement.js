@@ -375,6 +375,12 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     else
         response = this._ArrangeOverrideWithError(offer, error);
 
+    if (horiz == HorizontalAlignment.Stretch)
+        response.Width = Math.max(response.Width, framework.Width);
+
+    if (vert == VerticalAlignment.Stretch)
+        response.Height = Math.max(response.Height, framework.Height);
+
     /*
     LAYOUT TRANSFORM NOT IMPLEMENTED YET
     FLOW DIRECTION NOT IMPLEMENTED YET
@@ -419,8 +425,8 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         }
     }
 
-    var isTopLevel = this._IsAttached && App.Instance.MainSurface._IsTopLevel(this);
-
+    var surface = App.Instance.MainSurface;
+    var isTopLevel = this._IsAttached && surface._IsTopLevel(this);
     if (!isTopLevel) {
         switch (horiz) {
             case HorizontalAlignment.Left:

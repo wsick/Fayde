@@ -40,6 +40,7 @@ Surface.prototype.Render = function (region) {
     if (this._Layers)
         layerCount = this._Layers.GetCount();
 
+    ctx.Clear(region);
     for (var i = 0; i < layerCount; i++) {
         var layer = this._Layers.GetValueAt(i);
         layer._DoRender(ctx, region);
@@ -383,6 +384,9 @@ _RenderContext.prototype.Fill = function (region, brush) {
         this._Surface._Ctx.fillStyle = brush._Translate();
         this._Surface._Ctx.fillRect(region.X, region.Y, region.Width, region.Height);
     }
+};
+_RenderContext.prototype.Clear = function (rect) {
+    this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
 };
 _RenderContext.prototype.CustomRender = function (painterFunc) {
     var args = toArray.call(arguments);

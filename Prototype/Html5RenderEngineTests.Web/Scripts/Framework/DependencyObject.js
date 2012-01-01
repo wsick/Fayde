@@ -169,10 +169,10 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
         if (propd._IsAutoCreated())
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
 
-    if (currentValue && value)
+    if (currentValue != null && value != null)
         equal = !propd._AlwaysChange && currentValue == value;
     else
-        equal = !currentValue && !value;
+        equal = currentValue == null && value == null;
 
     if (!equal) {
         var newValue;
@@ -180,12 +180,12 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
         if (propd._IsAutoCreated())
             this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
 
-        if (value && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
+        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
             newValue = value;
         else
             newValue = null;
 
-        if (newValue) {
+        if (newValue != null) {
             this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
         }
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
@@ -208,7 +208,7 @@ DependencyObject.prototype._PropertyHasValueNoAutoCreate = function (propd, obj)
 };
 DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
     var bitmask = this._ProviderBitmasks[propd] || 0;
-    if (newProviderValue)
+    if (newProviderValue != null)
         bitmask |= 1 << providerPrecedence;
     else
         bitmask &= ~(1 << providerPrecedence);
@@ -229,9 +229,9 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
         if (!(higher & (1 << j)))
             continue;
         var provider = this._Providers[i];
-        if (!provider)
+        if (provider == null)
             continue;
-        if (provider.GetPropertyValue(propd)) {
+        if (provider.GetPropertyValue(propd) != null) {
             this._CallRecomputePropertyValueForProviders(propd, providerPrecedence, error);
             return;
         }
@@ -240,12 +240,12 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
     var oldValue = undefined;
     var newValue = undefined;
 
-    if (!oldProviderValue || !newProviderValue) {
+    if (oldProviderValue == null || newProviderValue == null) {
         var lowerPriorityValue = this.GetValue(propd, providerPrecedence + 1);
-        if (!newProviderValue) {
+        if (newProviderValue == null) {
             oldValue = oldProviderValue;
             newValue = lowerPriorityValue;
-        } else if (!oldProviderValue) {
+        } else if (oldProviderValue == null) {
             oldValue = lowerPriorityValue;
             newValue = newProviderValue;
         }
