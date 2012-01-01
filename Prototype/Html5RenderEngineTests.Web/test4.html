@@ -83,13 +83,6 @@
             var panel = new StackPanel();
             panel.SetBackground(new SolidColorBrush(new Color(128, 0, 0, 1.0)));
             return panel;
-
-            var uc = new UserControl();
-            uc.SetBackground(new SolidColorBrush(new Color(255, 255, 0, 1.0)));
-            uc.SetWidth(600);
-            uc.SetHeight(600);
-            uc.SetContent(panel);
-            return uc;
         }
 
         function addElement() {
@@ -101,7 +94,6 @@
             b.SetMinWidth(50);
             b.SetMinHeight(50);
             root.GetChildren().Add(b);
-            //root.GetContent().GetChildren().Add(b);
         }
     </script>
 </head>
