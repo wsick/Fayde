@@ -52,12 +52,14 @@
 
     <script type="text/javascript">
         var root;
+        var border;
         $(document).ready(function () {
             _Console.Init("#console");
             App.Instance.MainSurface.Init($("#testCanvas"));
             root = buildTestView();
             App.Instance.Load(root);
-            addElement();
+            border = createBorder();
+            root.GetChildren().Add(border);
         });
 
         function buildTestView() {
@@ -85,7 +87,7 @@
             return panel;
         }
 
-        function addElement() {
+        function createBorder() {
             var b = new Border();
             b.SetBorderBrush(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
             b.SetBorderThickness(new Thickness(1, 1, 1, 1));
@@ -93,13 +95,13 @@
             b.SetMargin(new Thickness(5, 5, 5, 5));
             b.SetMinWidth(50);
             b.SetMinHeight(50);
-            root.GetChildren().Add(b);
+            return b;
         }
     </script>
 </head>
 <body>
     <div>
-        <div style="width: 600px; height: 600px; background: #efefef;">
+        <div style="width: 600px; height: 600px;">
 	        <canvas id="testCanvas" width="600" height="600">
 	        </canvas>
         </div>
