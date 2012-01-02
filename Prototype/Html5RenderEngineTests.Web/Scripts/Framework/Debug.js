@@ -1,4 +1,6 @@
-﻿Console.prototype = new Object;
+﻿/// <reference path="/Scripts/jquery-1.7.js"/>
+
+Console.prototype = new Object;
 Console.prototype.constructor = Console;
 function Console() {
     this._Queue = new Array();
@@ -32,6 +34,9 @@ Console.prototype.WriteLine = function (message, color) {
         else
             this._TextBox.append(message);
         this._TextBox.append("<br />");
+
+        var end = this._TextBox.children().last().offset().top;
+        this._TextBox[0].scrollTop = end;
     }
     else
         this._Enqueue({ Message: message, Color: color });
@@ -48,4 +53,5 @@ function NotImplemented(method) {
 
 function Fatal(error) {
     _Console.WriteLine("<b>FATAL</b>: " + error.toString(), "#ff0000");
+    App.Instance._Stop();
 }

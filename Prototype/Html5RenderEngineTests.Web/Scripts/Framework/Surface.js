@@ -115,12 +115,11 @@ Surface.prototype._IsTopLevel = function (/* UIElement */top) {
 };
 Surface.prototype.ProcessDirtyElements = function () {
     var error = new BError();
-    this._UpdateLayout(error);
+    var dirty = this._UpdateLayout(error);
     if (error.IsErrored()) {
         Fatal(error);
-        return false;
     }
-    return true;
+    return dirty;
 };
 Surface.prototype._Invalidate = function (rect) {
     if (!rect)

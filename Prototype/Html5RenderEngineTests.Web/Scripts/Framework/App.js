@@ -22,8 +22,10 @@ App.prototype._Tick = function () {
     this._IsRunning = true;
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
-    if (!this.MainSurface.ProcessDirtyElements())
-        clearInterval(this._TickID);
+    this.MainSurface.ProcessDirtyElements();
     this._IsRunning = false;
+};
+App.prototype._Stop = function () {
+    clearInterval(this._TickID);
 };
 App.Instance = new App();
