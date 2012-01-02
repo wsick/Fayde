@@ -1,5 +1,5 @@
-﻿/// <reference path="DependencyObjectCollection.js"/>
-/// <reference path="Panel.js"/>
+﻿/// <reference path="Panel.js"/>
+/// <reference path="DependencyObjectCollection.js"/>
 
 var GridUnitType = {
     Auto: 0,
@@ -80,6 +80,85 @@ Grid.prototype.SetRowDefinitions = function (value) {
 //////////////////////////////////////////
 // INSTANCE METHODS
 //////////////////////////////////////////
+Grid.prototype._MeasureOverrideWithEror = function (availableSize, error) {
+    NotImplemented("Grid._MeasureOverrideWithEror");
+};
+Grid.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+    NotImplemented("Grid._ArrangeOverrideWithError");
+};
+
+Grid.prototype._ExpandStarRows = function (availableSize) {
+    NotImplemented("Grid._ExpandStarRows");
+};
+Grid.prototype._ExpandStarCols = function (availableSize) {
+    NotImplemented("Grid._ExpandStarCols");
+};
+Grid.prototype._AllocateDesiredSize = function (rowCount, colCount) {
+    NotImplemented("Grid._AllocateDesiredSize");
+};
+Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desiredSize) {
+    NotImplemented("Grid._AssignSize");
+};
+
+Grid.prototype._CreateMatrices = function (rowCount, colCount) {
+    if (this._RowMatrix == null || this._ColMatrix == null || this._RowMatrixDim != rowCount || this._ColMatrixDim != colCount) {
+        this._DestroyMatrices();
+
+        this._RowMatrixDim = rowCount;
+        this._RowMatrix = new Array();
+        for (var i = 0; i < rowCount; i++) {
+            this._RowMatrix.push(new Array());
+        }
+
+        this._ColMatrixDim = colCount;
+        this._ColMatrix = new Array();
+        for (var j = 0; j < colCount; j++) {
+            this._RowMatrix.push(new Array());
+        }
+    }
+
+    for (var r = 0; r < rowCount; r++) {
+        for (var rr = 0; rr <= r; rr++) {
+            this._RowMatrix[r][rr] = new _Segment();
+        }
+    }
+
+    for (var c = 0; c < colCount; c++) {
+        for (var cc = 0; cc <= c; cc++) {
+            this._ColMatrix[c][cc] = new _Segment();
+        }
+    }
+};
+Grid.prototype._DestroyMatrices = function () {
+    this._RowMatrix = null;
+    this._ColMatrix = null;
+};
+Grid.prototype._SaveMeasureResults = function () {
+    for (var i = 0; i < this._RowMatrixDim; i++) {
+        for (var j = 0; j < this._RowMatrixDim; j++) {
+            this._RowMatrix[i][j]._OriginalSize = this._RowMatrix[i][j]._OfferedSize;
+        }
+    }
+
+    for (var a = 0; a < this._ColMatrixDim; a++) {
+        for (var b = 0; b < this._ColMatrixDim; b++) {
+            this._ColMatrix[a][b]._OriginalSize = this._ColMatrix[i][j]._OfferedSize;
+        }
+    }
+};
+Grid.prototype._RestoreMeasureResults = function () {
+    for (var i = 0; i < this._RowMatrixDim; i++) {
+        for (var j = 0; j < this._RowMatrixDim; j++) {
+            this._RowMatrix[i][j]._OfferedSize = this._RowMatrix[i][j]._OriginalSize;
+        }
+    }
+
+    for (var a = 0; a < this._ColMatrixDim; a++) {
+        for (var b = 0; b < this._ColMatrixDim; b++) {
+            this._ColMatrix[a][b]._OfferedSize = this._ColMatrix[i][j]._OriginalSize;
+        }
+    }
+};
 
 Grid.prototype._ComputeBounds = function () {
     Panel.prototype._ComputeBounds.call(this);
