@@ -81,6 +81,7 @@
     <Content Include="Scripts\Framework\Surface.js" />
     <Content Include="Scripts\Framework\TextBlock.js" />
     <Content Include="Scripts\Framework\TextElement.js" />
+    <Content Include="Scripts\Framework\TextLayout.js" />
     <Content Include="Scripts\Framework\UIElementCollection.js" />
     <Content Include="Scripts\Framework\UserControl.js" />
     <Content Include="Scripts\Framework\TreeWalkers.js" />

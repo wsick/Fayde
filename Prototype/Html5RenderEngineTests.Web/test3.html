@@ -11,7 +11,10 @@
             var canvas = document.getElementById("testCanvas");
             var ctx = canvas.getContext("2d");
 
-            drawBox(ctx, 100, 100, 100, 100, 5);
+            drawBox(ctx, 0, 0, 100, 100, 1);
+            drawText(ctx, "Hey brad", "12pt Calibri", 100, 100, "left", "top");
+            //drawText(ctx, "Hey brad", "12pt Calibri", 100, 100, "center", "middle");
+            //drawText(ctx, "Hey brad", "12pt Calibri", 100, 100, "right", "bottom");
         });
 
         /*
@@ -35,10 +38,18 @@
             ctx.rect(left + stroke / 2, top + stroke / 2, width - stroke, height - stroke);
             ctx.lineWidth = stroke;
             ctx.strokeStyle = "black";
-            ctx.fillStyle = "#00D2FF";
+            ctx.fillStyle = "#FFFFFF";
             ctx.fill();
             ctx.stroke();
             ctx.closePath();
+        }
+
+        function drawText(ctx, text, font, x, y, align, baseline) {
+            ctx.font = font;
+            ctx.textAlign = align;
+            ctx.textBaseline = baseline;
+            ctx.fillStyle = "black";
+            ctx.fillText(text, x, y);
         }
     </script>
 </head>

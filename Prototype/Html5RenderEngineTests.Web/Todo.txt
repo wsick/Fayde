@@ -50,6 +50,8 @@ _OnSubPropertyChanged [Done]
 _OnCollectionChanged [Done]
 _OnCollectionItemChanged [Done]
 FindName
+_GetValueNoAutoCreate [Done]
+_GetValueNoDefault [Done]
 
 
 
@@ -127,3 +129,24 @@ UIElementCollection
 	GetValueAtZIndex [Done]
 	GetZSortedCount [Done]
 	ResortByZIndex [Done]
+
+
+
+TextBlock
+=============================
+_ComputeBounds [Done]
+_ComputeActuals [Done]
+Layout
+_UpdateFontDescriptions
+_OnPropertyChanged
+_OnSubPropertyChanged [Done]
+_OnCollectionChanged
+
+TextLayout
+=============================
+Layout
+GetActualExtents
+SetMaxWidth
+SetAvailableWidth
+GetRenderExtents
+GetBaselineOffset

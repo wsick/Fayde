@@ -99,12 +99,13 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
             arranged.Width += size.Width;
             arranged.Height = Math.max(arranged.Height, size.Height);
         }
-
-        if (this.GetOrientation() == Orientation.Vertical)
-            arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
-        else
-            arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
-
-        return arranged;
     }
+
+    if (this.GetOrientation() == Orientation.Vertical)
+        arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
+    else
+        arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
+
+    return arranged;
+
 };

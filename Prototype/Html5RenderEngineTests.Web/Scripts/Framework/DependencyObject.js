@@ -202,6 +202,19 @@ DependencyObject.prototype._GetValueNoAutoCreate = function (propd) {
         v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     return v;
 };
+DependencyObject.prototype._GetValueNoDefault = function (propd) {
+    var value = null;
+    for (var i = 0; i < _PropertyPrecedence.DefaultValue; i++) {
+        var provider = this._Providers[i];
+        if (provider == null)
+            continue;
+        value = provider.GetPropertyValue(propd);
+        if (value == undefined)
+            continue;
+        return value;
+    }
+    return null;
+};
 DependencyObject.prototype._PropertyHasValueNoAutoCreate = function (propd, obj) {
     var v = this._GetValueNoAutoCreate(propd);
     return v == null ? obj == null : v == obj;

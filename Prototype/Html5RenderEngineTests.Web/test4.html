@@ -52,14 +52,17 @@
 
     <script type="text/javascript">
         var root;
-        var border;
+        var border1;
+        var border2;
         $(document).ready(function () {
             _Console.Init("#console");
             App.Instance.MainSurface.Init($("#testCanvas"));
             root = buildTestView();
             App.Instance.Load(root);
-            border = createBorder();
-            root.GetChildren().Add(border);
+            border1 = createBorder1();
+            border2 = createBorder2();
+            root.GetChildren().Add(border1);
+            root.GetChildren().Add(border2);
         });
 
         function buildTestView() {
@@ -87,7 +90,7 @@
             return panel;
         }
 
-        function createBorder() {
+        function createBorder1() {
             var b = new Border();
             b.SetBorderBrush(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
             b.SetBorderThickness(new Thickness(1, 1, 1, 1));
@@ -95,6 +98,13 @@
             b.SetMargin(new Thickness(5, 5, 5, 5));
             b.SetMinWidth(50);
             b.SetMinHeight(50);
+            return b;
+        }
+
+        function createBorder2() {
+            var b = new Border();
+            b.SetBackground(new SolidColorBrush(new Color(255, 255, 0, 1.0)));
+            b.SetMinHeight(200);
             return b;
         }
     </script>
