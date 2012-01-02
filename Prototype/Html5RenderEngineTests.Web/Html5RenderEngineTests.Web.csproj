@@ -51,6 +51,7 @@
     <Reference Include="System.Web.ApplicationServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="grid-tests\test1.html" />
     <Content Include="index.html" />
     <Content Include="multicastevent-test.html" />
     <Content Include="NotImplemented\Annotations.txt" />

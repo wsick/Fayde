@@ -15,6 +15,10 @@ BError.prototype.SetErrored = function (number, message, code) {
 BError.prototype.IsErrored = function () {
     return this._Number > 0;
 };
+BError.prototype.toString = function () {
+    return "[" + this._Number + "] " + this.Message;
+};
 BError.UnauthorizedAccess = 1;
 BError.Argument = 2;
 BError.InvalidOperation = 3;
+BError.Exception = 4;

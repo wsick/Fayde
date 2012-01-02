@@ -14,11 +14,16 @@ App.prototype.Load = function (/* UIElement */element) {
 App.prototype.Start = function () {
     var fps = 30.0;
     var app = this;
-    setInterval(function () { app._Tick(); }, (1.0 / fps) * 1000.0);
+    this._TickID = setInterval(function () { app._Tick(); }, (1.0 / fps) * 1000.0);
 };
 App.prototype._Tick = function () {
+    if (this._IsRunning)
+        return;
+    this._IsRunning = true;
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
-    this.MainSurface.ProcessDirtyElements();
+    if (!this.MainSurface.ProcessDirtyElements())
+        clearInterval(this._TickID);
+    this._IsRunning = false;
 };
 App.Instance = new App();

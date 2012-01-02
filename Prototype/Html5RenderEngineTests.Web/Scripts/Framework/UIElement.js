@@ -316,6 +316,8 @@ UIElement.prototype._InsideObject = function (x, y) {
 UIElement.prototype._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
     //region = region.Transform(this._RenderTransform);
+    if (!region)
+        return;
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
     if (!this._GetRenderVisible() || region.IsEmpty()) //TODO: Check opacity

@@ -62,20 +62,14 @@ Grid.prototype.SetShowGridLines = function (value) {
     this.SetValue(Grid.ShowGridLinesProperty, value);
 };
 
-Grid.ColumnDefinitionsProperty = DependencyProperty.Register("ColumnDefinitions", Grid);
+Grid.ColumnDefinitionsProperty = DependencyProperty.Register("ColumnDefinitions", Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
 Grid.prototype.GetColumnDefinitions = function () {
     return this.GetValue(Grid.ColumnDefinitionsProperty);
 };
-Grid.prototype.SetColumnDefinitions = function (value) {
-    this.SetValue(Grid.ColumnDefinitionsProperty, value);
-};
 
-Grid.RowDefinitionsProperty = DependencyProperty.Register("RowDefinitions", Grid);
+Grid.RowDefinitionsProperty = DependencyProperty.Register("RowDefinitions", Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
 Grid.prototype.GetRowDefinitions = function () {
     return this.GetValue(Grid.RowDefinitionsProperty);
-};
-Grid.prototype.SetRowDefinitions = function (value) {
-    this.SetValue(Grid.RowDefinitionsProperty, value);
 };
 
 //////////////////////////////////////////
@@ -83,7 +77,7 @@ Grid.prototype.SetRowDefinitions = function (value) {
 //////////////////////////////////////////
 Grid.prototype._MeasureOverrideWithEror = function (availableSize, error) {
     var totalSize = availableSize;
-    var columns = this._GetColumnDefinitionsNoAutoCreate();
+    var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var colCount = cols ? cols.GetCount() : 0;
     var rowCount = rows ? rows.GetCount() : 0;
@@ -237,7 +231,7 @@ Grid.prototype._MeasureOverrideWithEror = function (availableSize, error) {
             }
 
             child._MeasureWithError(childSize, error);
-            var desired = child.GetDesiredSize();
+            var desired = child._DesiredSize;
 
             if (!starAuto) {
                 node = new _GridNode(this._RowMatrix, row + rowspan - 1, row, desired.Height);
@@ -250,7 +244,7 @@ Grid.prototype._MeasureOverrideWithEror = function (availableSize, error) {
         sizes.Remove(separator);
 
         while (node = sizes.Last()) {
-            this._Cell._DesiredSize = Math.max(this._Cell._DesiredSize, node._Size);
+            node._Cell._DesiredSize = Math.max(node._Cell._DesiredSize, node._Size);
             this._AllocateDesiredSize(rowCount, colCount);
             sizes.Remove(node);
         }
@@ -266,7 +260,7 @@ Grid.prototype._MeasureOverrideWithEror = function (availableSize, error) {
         gridSize.Width += this._ColMatrix[c][c]._DesiredSize;
     }
     for (r = 0; r < rowCount; r++) {
-        gridSize.Height += this._RowMatrix[c][c]._DesiredSize;
+        gridSize.Height += this._RowMatrix[r][r]._DesiredSize;
     }
     return gridSize;
 };
@@ -406,7 +400,8 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
     var count = 0;
     var assigned;
     var segmentSize;
-    for (var i = start; i <= end; i++) {
+    var i;
+    for (i = start; i <= end; i++) {
         segmentSize = this._DesiredSize != null ? matrix[i][i]._DesiredSize : matrix[i][i]._OfferedSize;
         if (segmentSize < matrix[i][i]._Max)
             count += (unitType == GridUnitType.Star) ? matrix[i][i]._Stars : 1;
@@ -414,7 +409,7 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
     do {
         assigned = false;
         var contribution = size / count;
-        for (var j = start; j <= end; j++) {
+        for (i = start; i <= end; i++) {
             segmentSize = this._DesiredSize != null ? matrix[i][i]._DesiredSize : matrix[i][i]._OfferedSize;
             if (!(matrix[i][i]._Type == unitType && segmentSize < matrix[i][i]._Max))
                 continue;
@@ -445,19 +440,19 @@ Grid.prototype._CreateMatrices = function (rowCount, colCount) {
         this._ColMatrixDim = colCount;
         this._ColMatrix = new Array();
         for (var j = 0; j < colCount; j++) {
-            this._RowMatrix.push(new Array());
+            this._ColMatrix.push(new Array());
         }
     }
 
     for (var r = 0; r < rowCount; r++) {
         for (var rr = 0; rr <= r; rr++) {
-            this._RowMatrix[r][rr] = new _Segment();
+            this._RowMatrix[r].push(new _Segment());
         }
     }
 
     for (var c = 0; c < colCount; c++) {
         for (var cc = 0; cc <= c; cc++) {
-            this._ColMatrix[c][cc] = new _Segment();
+            this._ColMatrix[c].push(new _Segment());
         }
     }
 };
@@ -466,28 +461,32 @@ Grid.prototype._DestroyMatrices = function () {
     this._ColMatrix = null;
 };
 Grid.prototype._SaveMeasureResults = function () {
-    for (var i = 0; i < this._RowMatrixDim; i++) {
-        for (var j = 0; j < this._RowMatrixDim; j++) {
+    var i;
+    var j;
+    for (i = 0; i < this._RowMatrixDim; i++) {
+        for (j = 0; j <= i; j++) {
             this._RowMatrix[i][j]._OriginalSize = this._RowMatrix[i][j]._OfferedSize;
         }
     }
 
-    for (var a = 0; a < this._ColMatrixDim; a++) {
-        for (var b = 0; b < this._ColMatrixDim; b++) {
-            this._ColMatrix[a][b]._OriginalSize = this._ColMatrix[i][j]._OfferedSize;
+    for (i = 0; i < this._ColMatrixDim; i++) {
+        for (j = 0; j <= i; j++) {
+            this._ColMatrix[i][j]._OriginalSize = this._ColMatrix[i][j]._OfferedSize;
         }
     }
 };
 Grid.prototype._RestoreMeasureResults = function () {
-    for (var i = 0; i < this._RowMatrixDim; i++) {
-        for (var j = 0; j < this._RowMatrixDim; j++) {
+    var i;
+    var j;
+    for (i = 0; i < this._RowMatrixDim; i++) {
+        for (j = 0; j <= i; j++) {
             this._RowMatrix[i][j]._OfferedSize = this._RowMatrix[i][j]._OriginalSize;
         }
     }
 
-    for (var a = 0; a < this._ColMatrixDim; a++) {
-        for (var b = 0; b < this._ColMatrixDim; b++) {
-            this._ColMatrix[a][b]._OfferedSize = this._ColMatrix[i][j]._OriginalSize;
+    for (i = 0; i < this._ColMatrixDim; i++) {
+        for (j = 0; j <= i; j++) {
+            this._ColMatrix[i][j]._OfferedSize = this._ColMatrix[i][j]._OriginalSize;
         }
     }
 };
@@ -721,7 +720,7 @@ function _GridNode(matrix, row, col, size) {
     this._Row = row;
     this._Col = col;
     this._Size = size;
-    this._Cell = this._Matrix[row][col];
+    this._Cell = this._Matrix == null ? null : this._Matrix[row][col];
 }
 
 
