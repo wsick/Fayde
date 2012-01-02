@@ -57,6 +57,9 @@ Collection.prototype.IndexOf = function (value) {
     }
     return -1;
 };
+Collection.prototype.Contains = function (value) {
+    return this.IndexOf(value) > -1;
+};
 Collection.prototype.CanAdd = function (value) { return true; };
 Collection.prototype.AddedToCollection = function (value, error) { return true; };
 Collection.prototype.RemovedFromCollection = function (value, isValueSafe) { };
