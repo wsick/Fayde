@@ -47,5 +47,5 @@ function NotImplemented(method) {
 }
 
 function Fatal(error) {
-    _Console.WriteLine("Error: " + error.toString(), "#ff0000");
+    _Console.WriteLine("<b>FATAL</b>: " + error.toString(), "#ff0000");
 }
