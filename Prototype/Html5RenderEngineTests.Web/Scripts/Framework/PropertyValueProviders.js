@@ -1,18 +1,388 @@
-﻿/// <reference path="PropertyValueProvider.js" />
-/// <reference path="/Scripts/Framework/DependencyObject.js" />
-/// <reference path="/Scripts/Framework/FrameworkElement.js" />
-/// <reference path="/Scripts/Framework/Control.js" />
-/// <reference path="/Scripts/Framework/TreeWalkers.js" />
-/// <reference path="/Scripts/Framework/TextBlock.js"/>
-/// <reference path="/Scripts/Framework/TextElement.js"/>
+﻿/// <reference path="BError.js"/>
+/// <reference path="DependencyObject.js" />
+/// <reference path="Collections.js" />
+/// <reference path="FrameworkElement.js"/>
+/// <reference path="Control.js"/>
+/// <reference path="TextElement.js"/>
+/// <reference path="TextBlock.js"/>
 
 var Control = {};
 var TextBlock = {};
 var TextElement = {};
 var Run = {};
-function Image() {};
+function Image() { };
 function MediaElement() { };
 function Popup() { };
+
+var _PropertyPrecedence = {
+    IsEnabled: 0,
+    LocalValue: 1,
+    DynamicValue: 2,
+
+    LocalStyle: 3,
+    ImplicitStyle: 4,
+
+    Inherited: 5,
+    InheritedDataContext: 6,
+    DefaultValue: 7,
+    AutoCreate: 8
+};
+_PropertyPrecedence.Highest = _PropertyPrecedence.IsEnabled;
+_PropertyPrecedence.Lowest = _PropertyPrecedence.AutoCreate;
+_PropertyPrecedence.Count = 9;
+
+var _ProviderFlags = {
+    RecomputesOnLowerPriorityChange: 1,
+    RecomputesOnHigherPriorityChange: 2,
+    RecomputesOnClear: 4,
+    ProvidesLocalValue: 8
+};
+
+//#region _PropertyValueProvider
+
+_PropertyValueProvider.prototype = new Object;
+_PropertyValueProvider.prototype.constructor = _PropertyValueProvider;
+function _PropertyValueProvider(obj, propPrecedence, flags) {
+    this._Object = obj;
+    this._PropertyPrecedence = propPrecedence;
+    this._Flags = flags;
+}
+_PropertyValueProvider.prototype._HasFlag = function (flag) {
+    return (this._Flags & flag) != 0;
+};
+_PropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    AbstractMethod("_PropertyValueProvider.GetPropertyValue(propd)");
+};
+_PropertyValueProvider.prototype.ForeachValue = function (func, data) {
+    if (!func)
+        return;
+    for (var value in this._ht)
+        func(value, this._ht[value], data);
+};
+_PropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+};
+
+//#endregion
+
+//#region _InheritedIsEnabledPropertyValueProvider
+
+_InheritedIsEnabledPropertyValueProvider.prototype = new _PropertyValueProvider;
+_InheritedIsEnabledPropertyValueProvider.prototype.constructor = _InheritedIsEnabledPropertyValueProvider;
+function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
+    this._Source = null;
+    this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+}
+_InheritedIsEnabledPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    if (propd == Control.IsEnabledProperty)
+        return this._CurrentValue;
+    return null;
+};
+_InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (source) {
+    if (source) {
+        while (source) {
+            if (source instanceof Control)
+                break;
+            else if (source instanceof FrameworkElement)
+                source = source.GetLogicalParent();
+            else
+                source = null;
+        }
+    }
+
+    if (this._Source != source) {
+        this._DetachListener(this._Source);
+        this._Source = source;
+        this._AttachListener(this._Source);
+    }
+
+    if (!source || this._Object.IsAttached())
+        this.LocalValueChanged(null);
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._AttachListener = function (obj) {
+    if (source) {
+        var matchFunc = function (sender, args) {
+            return this == args.Property; //Closure - Control.IsEnabledProperty
+        };
+        source.PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Control.IsEnabledProperty);
+        //TODO: Add Handler - Destroyed Event
+    }
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._DetachListener = function (source) {
+    if (source) {
+        source.PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Control.IsEnabledProperty);
+        //TODO: Remove Handler - Destroyed Event
+    }
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._IsEnabledChanged = function (sender, args) {
+    this.LocalValueChanged(args.Property);
+};
+_InheritedIsEnabledPropertyValueProvider.prototype.LocalValueChanged = function (propd) {
+    if (propd && propd != Control.IsEnabledProperty)
+        return false;
+
+    var localEnabled = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source.GetValue(Control.IsEnabledProperty) : null;
+    var newValue = localEnabled == true && (parentEnabled == null || parentEnabled == true);
+    if (newValue != this._CurrentValue) {
+        var oldValue = this._CurrentValue;
+        this._CurrentValue = newValue;
+
+        var error = new BError();
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
+        return true;
+    }
+    return false;
+};
+
+//#endregion
+
+//#region _LocalPropertyValueProvider
+
+_LocalPropertyValueProvider.prototype = new _PropertyValueProvider;
+_LocalPropertyValueProvider.prototype.con = _LocalPropertyValueProvider;
+function _LocalPropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    this._ht = new Array();
+}
+_LocalPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    return this._ht[propd];
+};
+_LocalPropertyValueProvider.prototype.SetValue = function (propd, value) {
+    this._ht[propd] = value;
+};
+_LocalPropertyValueProvider.prototype.ClearValue = function (propd) {
+    delete this._ht[propd];
+};
+
+//#endregion
+
+//#region _StylePropertyValueProvider
+
+_StylePropertyValueProvider.prototype = new _PropertyValueProvider;
+_StylePropertyValueProvider.prototype.constructor = _StylePropertyValueProvider;
+function _StylePropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    this._ht = new Array();
+}
+_StylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    return this._ht[propd];
+};
+_StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, reason, error) {
+    if ((reason & _ProviderFlags.RecomputesOnClear) == 0)
+        return;
+
+    var oldValue = undefined;
+    var newValue = undefined;
+    var propd = null;
+
+    var walker = new _DeepStyleWalker(this._Style);
+    var setter;
+    while (setter = walker.Step()) {
+        propd = setter.GetValue(Setter.PropertyProperty);
+        if (propd != prop)
+            continue;
+
+        newValue = setter.GetValue(Setter.ConvertedValueProperty);
+        oldValue = this._ht[propd];
+        this._ht[propd] = newValue;
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
+        if (error.IsErrored())
+            return;
+    }
+};
+_StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
+    var oldValue = undefined;
+    var newValue = undefined;
+
+    var oldWalker = new _DeepStyleWalker(this._Style);
+    var newWalker = new _DeepStyleWalker(style);
+
+    var oldSetter = oldWalker.Step();
+    var newSetter = newWalker.Step();
+    var oldProp;
+    var newProp;
+
+    while (oldSetter || newSetter) {
+        if (oldSetter)
+            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
+        if (newSetter)
+            newProp = newSetter.GetValue(Setter.PropertyProperty);
+        if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
+            //Property in old style, not in new style
+            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = null;
+            delete this._ht[oldProp];
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
+            oldSetter = oldWalker.Step();
+        } else if (oldProp == newProp) {
+            //Property in both styles
+            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            this._ht[oldProp] = newValue;
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
+            oldSetter = oldWalker.Step();
+            newSetter = newWalker.Step();
+        } else {
+            //Property in new style, not in old style
+            oldValue = null;
+            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            this._ht[newProp] = newValue;
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
+            newSetter = newWalker.Step();
+        }
+    }
+
+    this._Style = style;
+};
+
+//#endregion
+
+//#region _ImplicitStylePropertyValueProvider
+
+var _StyleIndex = {
+    VisualTree: 0,
+    ApplicationResources: 1,
+    GenericXaml: 2,
+    Count: 3
+};
+var _StyleMask = {
+    VisualTree: 1 << _StyleIndex.VisualTree,
+    ApplicationResources: 1 << _StyleIndex.ApplicationResources,
+    GenericXaml: 1 << _StyleIndex.GenericXaml
+};
+_StyleMask.All = _StyleMask.VisualTree | _StyleMask.ApplicationResources | _StyleMask.GenericXaml;
+_StyleMask.None = 0;
+
+_ImplicitStylePropertyValueProvider.prototype = new _PropertyValueProvider;
+_ImplicitStylePropertyValueProvider.prototype.constructor = _ImplicitStylePropertyValueProvider;
+function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    this._Styles = null;
+    this._StyleMask = _StyleMask.None;
+    this._ht = new Array();
+}
+
+_ImplicitStylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    return this._ht[propd];
+};
+_ImplicitStylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+    if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
+        return;
+
+    if (!this._Styles)
+        return;
+
+    var oldValue = undefined;
+    var newValue = null;
+    var propd = null;
+
+    var walker = new _DeepStyleWalker(this._Styles);
+    var setter;
+    while (setter = walker.Step()) {
+        propd = setter.GetValue(Setter.PropertyProperty);
+        if (propd != propd)
+            continue;
+
+        newValue = setter.GetValue(Setter.ConvertedValueProperty);
+        oldValue = this._ht[propd];
+        this._ht[propd] = newValue;
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
+        if (error.IsErrored())
+            return;
+    }
+};
+_ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask, styles, error) {
+    var isChanged = !this._Styles || styleMask != this._StyleMask;
+    if (!isChanged) {
+        for (var i = 0; i < _StyleIndex.Count; i++) {
+            if (styles[i] != this._Styles[i]) {
+                isChanged = true;
+                break;
+            }
+        }
+    }
+    if (!isChanged)
+        return;
+
+    var oldValue = undefined;
+    var newValue = undefined;
+
+    var oldWalker = new _DeepStyleWalker(this._Styles);
+    var newWalker = new _DeepStyleWalker(styles);
+
+    var oldSetter = oldWalker.Step();
+    var newSetter = newWalker.Step();
+
+    while (oldSetter || newSetter) {
+        var oldProp;
+        var newProp;
+        if (oldSetter)
+            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
+        if (newSetter)
+            newProp = newSetter.GetValue(Setter.PropertyProperty);
+
+        if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
+            //Property in old style, not in new style
+            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = null;
+            delete this._ht[oldProp];
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
+            oldSetter = oldWalker.Step();
+        }
+        else if (oldProp == newProp) {
+            //Property in both styles
+            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            this._ht[oldProp] = newValue;
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
+            oldSetter = oldWalker.Step();
+            newSetter = newWalker.Step();
+        } else {
+            //Property in new style, not in old style
+            oldValue = null;
+            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            this._ht[newProp] = newValue;
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
+            newSetter = newWalker.Step();
+        }
+    }
+
+    this._Styles = styles;
+    this._StyleMask = styleMask;
+};
+_ImplicitStylePropertyValueProvider.prototype.SetStyles = function (styleMask, styles, error) {
+    if (!this._Styles)
+        return;
+
+    var newStyles = $.clone(this._Styles); //WTF: Does $.clone fully work for us?
+    if (styleMask & _StyleMask.GenericXaml)
+        newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
+    if (styleMask & _StyleMask.ApplicationResources)
+        newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
+    if (styleMask & _StyleMask.VisualTree)
+        newStyles[_StyleIndex.VisualTree] = this._Styles[_StyleIndex.VisualTree];
+
+    this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
+};
+_ImplicitStylePropertyValueProvider.prototype.ClearStyles = function (styleMask, error) {
+    if (!this._Styles)
+        return;
+
+    var newStyles = $.clone(this._Styles); //WTF: Does $.clone fully work for us?
+    if (styleMask & _StyleMask.GenericXaml)
+        newStyles[_StyleIndex.GenericXaml] = null;
+    if (styleMask & _StyleMask.ApplicationResources)
+        newStyles[_StyleIndex.ApplicationResources] = null;
+    if (styleMask & _StyleMask.VisualTree)
+        newStyles[_StyleIndex.VisualTree] = null;
+
+    this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
+};
+
+//#endregion
+
+//#region _InheritedPropertyValueProvider
 
 var _Inheritable = {
     Foreground: 1 << 0,
@@ -314,10 +684,8 @@ _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
     return null;
 };
 
+//#region _InheritedContext
 
-//////////////////////////////////////////
-// INHERITED CONTEXT
-//////////////////////////////////////////
 _InheritedContext.prototype = new Object;
 _InheritedContext.prototype.constructor = _InheritedContext;
 function _InheritedContext() {
@@ -406,3 +774,119 @@ _InheritedContext.prototype.GetLocalSource = function (obj, prop) {
         source = obj;
     return source;
 };
+
+//#endregion
+
+//#endregion
+
+//#region _InheritedDataContextPropertyValueProvider
+
+_InheritedDataContextPropertyValueProvider.prototype = new _PropertyValueProvider;
+_InheritedDataContextPropertyValueProvider.prototype.constructor = _InheritedDataContextPropertyValueProvider;
+function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence);
+    this._Source = null;
+}
+_InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    if (!this._Source || propd != FrameworkElement.DataContextProperty)
+        return null;
+    return this._Source.GetValue(propd);
+};
+_InheritedDataContextPropertyValueProvider.prototype.SetDataSource = function (source) {
+    if (this._Source == source)
+        return;
+
+    var oldValue = this._Source ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
+    var newValue = source ? source.GetValue(FrameworkElement.DataContextProperty) : null;
+
+    this._DetachListener(this._Source);
+    this._Source = source;
+    this._AttachListener(this._Source);
+
+    if (oldValue != newValue) {
+        var error = new BError();
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
+    }
+};
+_InheritedDataContextPropertyValueProvider.prototype._AttachListener = function (source) {
+    if (source) {
+        var matchFunc = function (sender, args) {
+            return this == args.Property; //Closure - FrameworkElement.DataContextProperty
+        };
+        source.PropertyChanged.SubscribeSpecific(this._SourceDataContextChanged, this, matchFunc, FrameworkElement.DataContextProperty);
+        //TODO: Add Handler - Destroyed Event
+    }
+};
+_InheritedDataContextPropertyValueProvider.prototype._DetachListener = function (source) {
+    if (source) {
+        source.PropertyChanged.Unsubscribe(this._SourceDataContextChanged, this, FrameworkElement.DataContextProperty);
+        //TODO: Remove Handler - Destroyed Event
+    }
+};
+_InheritedDataContextPropertyValueProvider.prototype._SourceDataContextChanged = function (sender, args) {
+    var error = BError();
+    this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
+};
+_InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
+    if (this._Source) {
+        var error = new BError();
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
+    }
+};
+
+
+//#endregion
+
+//#region _DefaultValuePropertyProvider
+
+_DefaultValuePropertyProvider.prototype = new _PropertyValueProvider;
+_DefaultValuePropertyProvider.prototype.constructor = _DefaultValuePropertyProvider;
+function _DefaultValuePropertyProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, 0);
+}
+_DefaultValuePropertyProvider.prototype.GetPropertyValue = function (propd) {
+    return propd.DefaultValue;
+};
+
+//#endregion
+
+//#region _AutoCreatePropertyValueProvider
+
+var _AutoCreators = {
+    DefaultFontSize: { GetValue: function (propd, obj) { return 11; } },
+    DefaultBlackBrush: { GetValue: function (propd, obj) { return "#000000"; } }
+};
+
+_AutoCreatePropertyValueProvider.prototype = new _PropertyValueProvider;
+_AutoCreatePropertyValueProvider.prototype.constructor = _AutoCreatePropertyValueProvider;
+function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    this._ht = new Array();
+}
+_AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    var value = this.ReadLocalValue(propd);
+    if (value)
+        return value;
+
+    value = propd._IsAutoCreated() ? propd._GetAutoCreatedValue(this._Object) : null;
+    if (!value)
+        return null;
+
+    this._ht[propd] = value;
+    var error = new BError();
+    this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
+    return value;
+};
+_AutoCreatePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+    if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
+        return;
+    this.ClearValue(propd);
+};
+_AutoCreatePropertyValueProvider.prototype.ReadLocalValue = function (propd) {
+    return this._ht[propd];
+};
+_AutoCreatePropertyValueProvider.prototype.ClearValue = function (propd) {
+    delete this._ht[propd];
+};
+
+//#endregion
