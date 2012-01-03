@@ -22,6 +22,29 @@ var Orientation = {
     Horizontal: "Horizontal"
 };
 
+var TextAlignment = {
+    Left: 0,
+    Center: 1,
+    Right: 2
+};
+
+var TextTrimming = {
+    None: 0
+};
+
+var TextWrapping = {
+    NoWrap: 0,
+    Wrap: 1
+};
+
+var TextDecorations = {
+    None: 0
+};
+
+var LineStackingStrategy = {
+    MaxHeight: 0
+};
+
 //#region CornerRadius
 
 CornerRadius.prototype = new Object;

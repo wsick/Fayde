@@ -162,20 +162,22 @@ TextBlock
 =============================
 _ComputeBounds [Done]
 _ComputeActuals [Done]
+_GetTextInternal [Done]
+_SetTextInternal [Done]
+_SerializeText [Done]
 Layout
 _UpdateFontDescriptions
-_OnPropertyChanged
+_UpdateLayoutAttributes [Done]
+_UpdateLayoutAttributesForInline [Done]
+_OnPropertyChanged [Mostly Done]
 _OnSubPropertyChanged [Done]
-_OnCollectionChanged
+_OnCollectionChanged [Done]
 
 
 
 
 TextLayout
 =============================
-Layout
-GetActualExtents
-SetMaxWidth
-SetAvailableWidth
-GetRenderExtents
+Layout 
+GetActualExtents [Done]
 GetBaselineOffset

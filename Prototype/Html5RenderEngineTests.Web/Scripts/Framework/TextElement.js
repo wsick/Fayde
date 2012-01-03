@@ -1,5 +1,7 @@
 ﻿/// <reference path="DependencyObject.js"/>
 
+//#region TextElement
+
 TextElement.prototype = new DependencyObject;
 TextElement.prototype.constructor = TextElement;
 function TextElement() {
@@ -78,21 +80,25 @@ TextElement.prototype.SetFontResource = function (value) {
     this.SetValue(TextElement.FontResourceProperty, value);
 };
 
+//#endregion
 
-///////////////////////////////////////////
+//#region Inline
+
 Inline.prototype = new TextElement;
 Inline.prototype.constructor = Inline;
 function Inline() {
     TextElement.call(this);
 }
 
+//#endregion
+
+//#region Run
 
 Run.prototype = new Inline;
 Run.prototype.constructor = Run;
 function Run() {
     Inline.call(this);
 }
-
 Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", Run);
 Run.prototype.GetFlowDirection = function () {
     return this.GetValue(Run.FlowDirectionProperty);
@@ -100,3 +106,25 @@ Run.prototype.GetFlowDirection = function () {
 Run.prototype.SetFlowDirection = function (value) {
     this.SetValue(Run.FlowDirectionProperty, value);
 };
+
+//#endregion
+
+//#region Span
+
+Span.prototype = new Inline;
+Span.prototype.constructor = Span;
+function Span() {
+    Inline.call(this);
+}
+
+//#endregion
+
+//#region LineBreak
+
+LineBreak.prototype = new Inline;
+LineBreak.prototype.constructor = LineBreak;
+function LineBreak() {
+    Inline.call(this);
+}
+
+//#endregion
