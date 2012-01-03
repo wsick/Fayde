@@ -57,7 +57,6 @@
     <Content Include="NotImplemented\Annotations.txt" />
     <Content Include="Outline.txt" />
     <Content Include="Scripts\Framework\Border.js" />
-    <Content Include="Scripts\Framework\Brush.js" />
     <Content Include="Scripts\Framework\Canvas.js" />
     <Content Include="Scripts\Framework\Collections.js" />
     <Content Include="Scripts\Framework\ContentControl.js" />
@@ -76,7 +75,6 @@
     <Content Include="Scripts\Framework\MulticastEvent.js" />
     <Content Include="Scripts\Framework\FrameworkElement.js" />
     <Content Include="Scripts\Framework\LayoutInformation.js" />
-    <Content Include="Scripts\Framework\Matrix.js" />
     <Content Include="Scripts\Framework\PropertyValueProviders.js" />
     <Content Include="Scripts\Framework\Surface.js" />
     <Content Include="Scripts\Framework\TextBlock.js" />
