@@ -95,6 +95,7 @@
                 grid.GetChildren().Add((function () {
                     var border = new Border();
                     border.SetBackground(new SolidColorBrush(new Color(240, 248, 255))); //AliceBlue
+                    border.SetMinHeight(200);
                     return border;
                 })());
                 grid.GetChildren().Add((function () {
@@ -122,7 +123,7 @@
 
             top.GetChildren().Add((function () {
                 var border = new Border();
-                border.SetBackground(new SolidColorBrush(new Color(0, 0, 0)));
+                border.SetBorderBrush(new SolidColorBrush(new Color(0, 0, 0)));
                 border.SetBorderThickness(new Thickness(1, 1, 1, 1));
                 border.SetCornerRadius(new CornerRadius(5, 5, 5, 5));
                 border.SetMargin(new Thickness(5, 5, 5, 5));

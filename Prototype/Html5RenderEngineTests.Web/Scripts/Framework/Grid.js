@@ -403,27 +403,30 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
     var assigned;
     var segmentSize;
     var i;
+    var cur;
     for (i = start; i <= end; i++) {
-        segmentSize = this._DesiredSize != null ? matrix[i][i]._DesiredSize : matrix[i][i]._OfferedSize;
+        cur = matrix[i][i];
+        segmentSize = desiredSize ? cur._DesiredSize : cur._OfferedSize;
         if (segmentSize < matrix[i][i]._Max)
-            count += (unitType == GridUnitType.Star) ? matrix[i][i]._Stars : 1;
+            count += (unitType == GridUnitType.Star) ? cur._Stars : 1;
     }
     do {
         assigned = false;
         var contribution = size / count;
         for (i = start; i <= end; i++) {
-            segmentSize = this._DesiredSize != null ? matrix[i][i]._DesiredSize : matrix[i][i]._OfferedSize;
-            if (!(matrix[i][i]._Type == unitType && segmentSize < matrix[i][i]._Max))
+            cur = matrix[i][i];
+            segmentSize = desiredSize ? cur._DesiredSize : cur._OfferedSize;
+            if (!(matrix[i][i]._Type == unitType && segmentSize < cur._Max))
                 continue;
             var newSize = segmentSize;
-            newSize += contribution * (unitType == GridUnitType.Star ? matrix[i][i]._Stars : 1);
-            newSize = Math.min(newSize, matrix[i][i]._Max);
+            newSize += contribution * (unitType == GridUnitType.Star ? cur._Stars : 1);
+            newSize = Math.min(newSize, cur._Max);
             assigned = assigned || (newSize > segmentSize);
             size -= newSize - segmentSize;
             if (desiredSize)
-                matrix[i][i]._DesiredSize = newSize;
+                cur._DesiredSize = newSize;
             else
-                matrix[i][i]._OfferedSize = newSize;
+                cur._OfferedSize = newSize;
         }
     } while (assigned);
     return size;

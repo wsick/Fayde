@@ -322,14 +322,16 @@ UIElement.prototype._InsideObject = function (x, y) {
 UIElement.prototype._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
     if (!region) {
-        Warn("Render Extents are empty.");
+        Warn("Render Extents are empty. [" + this._TypeName + "]");
         return;
     }
     //region = region.Transform(this._RenderTransform);
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
-    if (!this._GetRenderVisible() || region.IsEmpty()) //TODO: Check opacity
+    if (!this._GetRenderVisible() || region.IsEmpty()) {//TODO: Check opacity
+        Info("Nothing to render. [" + this._TypeName + "]");
         return;
+    }
 
     //TODO: render to intermediate not implemented
     var visualOffset = LayoutInformation.GetVisualOffset(this);

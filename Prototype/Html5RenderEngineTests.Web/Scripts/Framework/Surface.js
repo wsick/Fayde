@@ -178,7 +178,7 @@ Surface.prototype._ProcessDownDirtyElements = function () {
 
             uie._UpdateBounds();
 
-            var visualParent = uie.GetVisualParent();
+            visualParent = uie.GetVisualParent();
             if (visualParent)
                 visualParent._UpdateBounds();
 

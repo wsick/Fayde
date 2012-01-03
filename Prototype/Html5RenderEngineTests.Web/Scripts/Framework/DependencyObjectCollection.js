@@ -66,6 +66,14 @@ DependencyObjectCollection.prototype.RemovedFromCollection = function (value, is
         }
     }
 };
+DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
+    Collection.prototype._OnIsAttachedChanged.call(this, value);
+    for (var i = 0; i < this.GetCount(); i++) {
+        var value = this.GetValueAt(i);
+        if (value instanceof DependencyObject)
+            value._SetIsAttached(value);
+    }
+};
 DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
     this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
 };

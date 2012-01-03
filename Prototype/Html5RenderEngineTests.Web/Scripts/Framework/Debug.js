@@ -70,14 +70,14 @@ function Debug(message) {
 }
 function Warn(message) {
     if (_Console._Level <= DebugLevel.Warn)
-        _Console.WriteLine("<i>WARN</i>: " + message);
+        _Console.WriteLine("<i>WARN</i>: " + message, "#FF6A00");
 }
 function Error(error) {
     if (_Console._Level <= DebugLevel.Error)
-        _Console.WriteLine("<b>ERROR</b>: " + error.toString());
+        _Console.WriteLine("<b>ERROR</b>: " + error.toString(), "#0026FF");
 }
 function Fatal(error) {
     if (_Console._Level <= DebugLevel.Fatal)
-        _Console.WriteLine("<b>FATAL</b>: " + error.toString(), "#ff0000");
+        _Console.WriteLine("<b>FATAL</b>: " + error.toString(), "#FF0000");
     App.Instance._Stop();
 }
