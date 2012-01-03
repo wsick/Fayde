@@ -9,9 +9,8 @@ function Panel() {
     FrameworkElement.call(this);
 }
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 Panel.BackgroundProperty = DependencyProperty.Register("Background", Panel);
 Panel.prototype.GetBackground = function () {
     return this.GetValue(Panel.BackgroundProperty);
@@ -45,9 +44,10 @@ Panel.prototype.SetIsItemsHost = function (value) {
     this.SetValue(Panel.IsItemsHostProperty, value);
 };
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
+//#endregion
+
+//#region INSTANCE METHODS
+
 Panel.prototype.CanFindElement = function () { return this.GetBackground() != null; }
 Panel.prototype.IsLayoutContainer = function () { return true; };
 Panel.prototype.IsContainer = function () { return true; };
@@ -217,3 +217,5 @@ Panel.prototype._OnIsAttachedChanged = function (value) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
 };
+
+//#endregion

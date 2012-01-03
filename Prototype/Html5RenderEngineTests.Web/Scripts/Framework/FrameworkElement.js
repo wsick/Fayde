@@ -11,6 +11,8 @@
 /// <reference path="PropertyValueProviders/InheritedDataContext.js"/>
 /// <reference path="Geometry.js"/>
 
+//#region FrameworkElement
+
 FrameworkElement.prototype = new UIElement;
 FrameworkElement.prototype.constructor = FrameworkElement;
 function FrameworkElement() {
@@ -29,9 +31,8 @@ function FrameworkElement() {
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 }
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 FrameworkElement.HeightProperty = DependencyProperty.Register("Height", FrameworkElement, NaN);
 FrameworkElement.prototype.GetHeight = function () {
     return this.GetValue(FrameworkElement.HeightProperty);
@@ -146,9 +147,10 @@ FrameworkElement.prototype.SetFlowDirection = function (value) {
     this.SetValue(FrameworkElement.FlowDirectionProperty, value);
 };
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
+//#endregion
+
+//#region INSTANCE METHODS
+
 FrameworkElement.prototype._ApplySizeConstraints = function (size) {
     var specified = new Size(this.GetWidth(), this.GetHeight());
     var constrained = new Size(this.GetMinWidth(), this.GetMinHeight());
@@ -230,7 +232,6 @@ FrameworkElement.prototype._GetSubtreeBounds = function () {
 };
 
 FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
-    Info("FrameworkElement._MeasureWithError [" + this._TypeName + "]");
     if (error.IsErrored())
         return;
 
@@ -311,7 +312,6 @@ FrameworkElement.prototype._MeasureOverrideWithError = function (availableSize, 
     return desired.Min(availableSize);
 };
 FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
-    Info("FrameworkElement._ArrangeWithError [" + this._TypeName + "]");
     if (error.IsErrored())
         return;
 
@@ -782,7 +782,11 @@ FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newPar
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
     }
 };
+//#endregion
 
+//#endregion
+
+//#region FrameworkElementProvider
 
 _FrameworkElementProvider.prototype = new _PropertyValueProvider;
 _FrameworkElementProvider.prototype.constructor = _FrameworkElementProvider;
@@ -809,3 +813,5 @@ _FrameworkElementProvider.prototype.GetPropertyValue = function (propd) {
         return this._ActualWidth;
     }
 };
+
+//#endregion

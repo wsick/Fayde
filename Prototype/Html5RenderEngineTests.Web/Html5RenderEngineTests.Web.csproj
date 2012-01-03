@@ -55,12 +55,11 @@
     <Content Include="index.html" />
     <Content Include="multicastevent-test.html" />
     <Content Include="NotImplemented\Annotations.txt" />
-    <Content Include="NotImplemented\DependencyProperty.txt" />
     <Content Include="Outline.txt" />
     <Content Include="Scripts\Framework\Border.js" />
     <Content Include="Scripts\Framework\Brush.js" />
     <Content Include="Scripts\Framework\Canvas.js" />
-    <Content Include="Scripts\Framework\Collection.js" />
+    <Content Include="Scripts\Framework\Collections.js" />
     <Content Include="Scripts\Framework\ContentControl.js" />
     <Content Include="Scripts\Framework\ContentPresenter.js" />
     <Content Include="Scripts\Framework\Control.js" />
@@ -68,7 +67,6 @@
     <Content Include="Scripts\Framework\Debug.js" />
     <Content Include="Scripts\Framework\DependencyObject.js" />
     <Content Include="Scripts\Framework\BError.js" />
-    <Content Include="Scripts\Framework\DependencyObjectCollection.js" />
     <Content Include="Scripts\Framework\DependencyProperty.js" />
     <Content Include="Scripts\Framework\Dirty.js" />
     <Content Include="Scripts\Framework\FrameworkTemplate.js" />
@@ -79,12 +77,10 @@
     <Content Include="Scripts\Framework\FrameworkElement.js" />
     <Content Include="Scripts\Framework\LayoutInformation.js" />
     <Content Include="Scripts\Framework\Matrix.js" />
-    <Content Include="Scripts\Framework\ResourceDictionary.js" />
     <Content Include="Scripts\Framework\Surface.js" />
     <Content Include="Scripts\Framework\TextBlock.js" />
     <Content Include="Scripts\Framework\TextElement.js" />
     <Content Include="Scripts\Framework\TextLayout.js" />
-    <Content Include="Scripts\Framework\UIElementCollection.js" />
     <Content Include="Scripts\Framework\UserControl.js" />
     <Content Include="Scripts\Framework\TreeWalkers.js" />
     <Content Include="Scripts\jquery-1.7.1-vsdoc.js" />

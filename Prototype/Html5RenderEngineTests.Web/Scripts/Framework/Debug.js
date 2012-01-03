@@ -22,8 +22,9 @@ Console.prototype.Init = function (selector) {
 Console.prototype._Flush = function () {
     var data;
     while (data = this._Dequeue()) {
-        this.WriteLine("[PRE] " + data.Message, data.Color);
+        this.WriteLineInternal("[PRE] " + data.Message, data.Color);
     }
+    this.ScrollToEnd();
 }
 Console.prototype._Dequeue = function () {
     if (this._Queue.length < 1)
@@ -36,19 +37,30 @@ Console.prototype._Enqueue = function (data) {
     this._Queue.push(data);
 };
 Console.prototype.WriteLine = function (message, color) {
-    if (this._TextBox) {
-        this._TextBox.append("> ");
-        if (color)
-            this._TextBox.append("<span style=\"color: " + color + ";\">" + message + "</span>");
-        else
-            this._TextBox.append(message);
-        this._TextBox.append("<br />");
-
-        var end = this._TextBox.children().last().offset().top;
-        this._TextBox[0].scrollTop = end;
+    if (this.WriteLineInternal(message, color)) {
+        this.ScrollToEnd();
     }
-    else
+};
+Console.prototype.WriteLineInternal = function (message, color) {
+    if (!this._TextBox) {
         this._Enqueue({ Message: message, Color: color });
+        return false;
+    }
+
+    this._TextBox.append("> ");
+    if (color)
+        this._TextBox.append("<span style=\"color: " + color + ";\">" + message + "</span>");
+    else
+        this._TextBox.append(message);
+    this._TextBox.append("<br />");
+    return true;
+};
+Console.prototype.ScrollToEnd = function () {
+    var offset = this._TextBox.children().last().offset();
+    if (!offset)
+        return;
+    var end = offset.top;
+    this._TextBox[0].scrollTop = end;
 };
 var _Console = new Console(DebugLevel.Info);
 

@@ -5,6 +5,19 @@
 /// <reference path="Dirty.js"/>
 /// <reference path="App.js"/>
 
+var UIElementFlags = {
+    None: 0,
+
+    RenderVisible: 0x02,
+    HitTestVisible: 0x04,
+    TotalRenderVisible: 0x08,
+    TotalHitTestVisible: 0x10,
+
+    DirtyArrangeHint: 0x800,
+    DirtyMeasureHint: 0x1000,
+    DirtySizeHint: 0x2000
+};
+
 UIElement.prototype = new DependencyObject;
 UIElement.prototype.constructor = UIElement;
 function UIElement() {
@@ -36,9 +49,8 @@ function UIElement() {
     this._ComputeTotalHitTestVisibility();
 }
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 UIElement.ClipProperty = DependencyProperty.Register("Clip", UIElement);
 UIElement.prototype.GetClip = function () {
     return this.GetValue(UIElement.ClipProperty);
@@ -91,9 +103,10 @@ UIElement.prototype.SetTag = function (value) {
     this.SetValue(UIElement.TagProperty, value);
 };
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
+//#endregion
+
+//#region INSTANCE METHODS
+
 UIElement.prototype.SetVisualParent = function (/* UIElement */value) {
     this._VisualParent = value;
 };
@@ -129,7 +142,6 @@ UIElement.prototype._Invalidate = function (rect) {
     }
 };
 UIElement.prototype._InvalidateMeasure = function () {
-    Info("UIElement._InvalidateMeasure [" + this._TypeName + "]");
     this._DirtyFlags |= _Dirty.Measure;
     this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
     //TODO: Alert redraw necessary
@@ -244,7 +256,6 @@ UIElement.prototype._GetRenderSize = function () {
 };
 
 UIElement.prototype._DoMeasureWithError = function (error) {
-    Info("UIElement._DoMeasureWithError [" + this._TypeName + "]");
     var last = LayoutInformation.GetPreviousConstraint(this);
     var parent = this.GetVisualParent();
     var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
@@ -271,7 +282,6 @@ UIElement.prototype.Measure = function (availableSize) {
 };
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
-    Info("UIElement._DoArrangeWithError [" + this._TypeName + "]");
     var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var previousRenderSize = new Size();
     var parent = this.GetVisualParent();
@@ -496,6 +506,8 @@ UIElement.prototype._PropagateFlagUp = function (flag) {
     }
 };
 
+//#endregion
+
 // STATICS
 UIElement.ZIndexComparer = function (uie1, uie2) {
     var zi1 = Canvas.GetZIndex(uie1);
@@ -508,17 +520,4 @@ UIElement.ZIndexComparer = function (uie1, uie2) {
         return z1 > z2 ? 1 : (z1 < z2 ? -1 : 0);
     }
     return zi1 - zi2;
-};
-
-var UIElementFlags = {
-    None: 0,
-    
-    RenderVisible: 0x02,
-    HitTestVisible: 0x04,
-    TotalRenderVisible: 0x08,
-    TotalHitTestVisible: 0x10,
-
-    DirtyArrangeHint: 0x800,
-    DirtyMeasureHint: 0x1000,
-    DirtySizeHint: 0x2000
 };

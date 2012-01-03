@@ -2,16 +2,13 @@
 /// <reference path="DependencyObject.js" />
 /// <reference path="Panel.js" />
 
-var Orientation = {
-    Vertical: "Vertical",
-    Horizontal: "Horizontal"
-};
-
 StackPanel.prototype = new Panel;
 StackPanel.prototype.constructor = StackPanel;
 function StackPanel() {
     Panel.call(this);
 }
+
+//#region DEPENDENCY PROPERTIES
 
 StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", StackPanel, Orientation.Vertical);
 StackPanel.prototype.GetOrientation = function () {
@@ -26,6 +23,10 @@ StackPanel._OrientationChanged = function (d, args) {
     d._InvalidateMeasure();
     d._InvalidateArrange();
 };
+
+//#endregion
+
+//#region INSTANCE METHODS
 
 StackPanel.prototype.MeasureOverride = function (constraint) {
     Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
@@ -111,3 +112,5 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
     return arranged;
 
 };
+
+//#endregion

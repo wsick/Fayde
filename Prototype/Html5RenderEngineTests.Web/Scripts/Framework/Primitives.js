@@ -17,6 +17,13 @@ var VerticalAlignment = {
     Stretch: 3
 };
 
+var Orientation = {
+    Vertical: "Vertical",
+    Horizontal: "Horizontal"
+};
+
+//#region CornerRadius
+
 CornerRadius.prototype = new Object;
 CornerRadius.prototype.constructor = CornerRadius;
 function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
@@ -31,6 +38,10 @@ CornerRadius.prototype.IsZero = function () {
         && this.BottomRight == 0
         && this.BottomLeft == 0;
 };
+
+//#endregion
+
+//#region Thickness
 
 Thickness.prototype = new Object;
 Thickness.prototype.constructor = Thickness;
@@ -68,12 +79,20 @@ Thickness.prototype.IsEmpty = function () {
     return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
 };
 
+//#endregion
+
+//#region Point
+
 Point.prototype = new Object;
 Point.prototype.constructor = Point;
 function Point(x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
+
+//#endregion
+
+//#region Size
 
 Size.prototype = new Object;
 Size.prototype.constructor = Size;
@@ -102,6 +121,10 @@ Size.prototype.Max = function (size2) {
 Size.prototype.Equals = function (size2) {
     return this.Width == size2.Width && this.Height == size2.Height;
 };
+
+//#endregion
+
+//#region Rect
 
 Rect.prototype = new Object;
 Rect.prototype.constructor = Rect;
@@ -160,6 +183,10 @@ Rect.Equals = function (rect1, rect2) {
     return rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
 };
 
+//#endregion
+
+//#region Clip
+
 Clip.prototype = new Rect;
 Clip.prototype.constructor = Clip;
 function Clip(rect) {
@@ -170,3 +197,5 @@ function Clip(rect) {
     this.Width = rounded.Width;
     this.Height = rounded.Height;
 }
+
+//#endregion
