@@ -15,6 +15,9 @@ FrameworkElement.prototype = new UIElement;
 FrameworkElement.prototype.constructor = FrameworkElement;
 function FrameworkElement() {
     UIElement.call(this);
+    
+    this.TemplatedApplied = new MulticastEvent();
+
     this._BoundsWithChildren = new Rect();
     this._GlobalBoundsWithChildren = new Rect();
     this._SurfaceBoundsWithChildren = new Rect();
@@ -227,6 +230,7 @@ FrameworkElement.prototype._GetSubtreeBounds = function () {
 };
 
 FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
+    Info("FrameworkElement._MeasureWithError [" + this._TypeName + "]");
     if (error.IsErrored())
         return;
 
@@ -275,7 +279,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     this._HiddenDesire = size;
 
     if (!parent || !parent.IsCanvas) {
-        if (this._IsCanvas || !this.IsLayoutContainer()) {
+        if (this instanceof Canvas || !this.IsLayoutContainer()) {
             this._DesiredSize = new Size(0, 0);
             return;
         }
@@ -293,7 +297,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     this._DesiredSize = size;
 };
-FrameworkElement.prototype._MeasureOverrideWithEror = function (availableSize, error) {
+FrameworkElement.prototype._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
     availableSize = availableSize.Max(desired);
 
@@ -307,6 +311,7 @@ FrameworkElement.prototype._MeasureOverrideWithEror = function (availableSize, e
     return desired.Min(availableSize);
 };
 FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
+    Info("FrameworkElement._ArrangeWithError [" + this._TypeName + "]");
     if (error.IsErrored())
         return;
 
@@ -318,13 +323,13 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
 
-    shouldArrange = shouldArrange || (slot ? !Rect.Equals(slot, finalRect) : true);
+    shouldArrange = shouldArrange || (slot != null ? !Rect.Equals(slot, finalRect) : true);
 
     if (finalRect.Width < 0 || finalRect.Height < 0
             || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
             || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
         var desired = this._DesiredSize;
-        //Warn: Invalid arguments
+        Warn("Invalid arguments to Arrange.");
         return;
     }
 
@@ -371,7 +376,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     LayoutInformation.SetLayoutSlot(this, finalRect);
 
     if (this.ArrangeOverride)
-        response = this.ArrangeOverride(offer, error);
+        response = this.ArrangeOverride(offer);
     else
         response = this._ArrangeOverrideWithError(offer, error);
 
@@ -738,7 +743,6 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
 
-FrameworkElement.prototype.TemplatedApplied = new MulticastEvent();
 FrameworkElement.prototype._OnApplyTemplate = function () {
     this.TemplatedApplied.Raise(this, null);
 };

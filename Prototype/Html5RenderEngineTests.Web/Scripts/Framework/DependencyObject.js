@@ -37,6 +37,7 @@ DependencyObject.prototype._Initialize = function () {
     this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
     this._ProviderBitmasks = new Array();
     this._SecondaryParents = new Array();
+    this.PropertyChanged = new MulticastEvent();
 };
 DependencyObject.prototype._GetTypeName = function () {
     var funcNameRegex = /function (.{1,})\(/;
@@ -297,8 +298,8 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
             oldDO._RemoveTarget(this);
             oldDO.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
             if (oldDO instanceof Collection) {
-                oldDO.Changed.Unsubscribe(this._OnCollectionChanged);
-                oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged);
+                oldDO.Changed.Unsubscribe(this._OnCollectionChanged, this);
+                oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged, this);
             }
         } else {
             oldDO._SetMentor(null);
@@ -543,7 +544,6 @@ DependencyObject.prototype._OnIsAttachedChanged = function (value) {
     this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
 };
 
-DependencyObject.prototype.PropertyChanged = new MulticastEvent();
 DependencyObject.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property == DependencyObject.NameProperty) {
         //TODO: Unregister old name

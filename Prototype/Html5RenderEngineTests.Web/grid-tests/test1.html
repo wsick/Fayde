@@ -90,6 +90,7 @@
                     coldef.SetWidth(new GridLength(75, GridUnitType.Pixel));
                     return coldef;
                 })());
+
                 //Children
                 grid.GetChildren().Add((function () {
                     var border = new Border();
@@ -115,6 +116,7 @@
                     Grid.SetColumn(border, 1);
                     return border;
                 })());
+
                 return grid;
             })());
 
@@ -147,7 +149,7 @@
 	        <canvas id="testCanvas" width="600" height="600">
 	        </canvas>
         </div>
-        <div id="console" style="font-size: 12px; font-family: Consolas; overflow-y: scroll; height: 200px; border: solid 1px black;">
+        <div id="console" style="margin-top: 10px; font-size: 12px; font-family: Consolas; overflow-y: scroll; height: 200px; border: solid 1px black;">
         </div>
     </div>
 </body>

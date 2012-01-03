@@ -28,6 +28,7 @@ StackPanel._OrientationChanged = function (d, args) {
 };
 
 StackPanel.prototype.MeasureOverride = function (constraint) {
+    Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
 
@@ -63,6 +64,7 @@ StackPanel.prototype.MeasureOverride = function (constraint) {
     return measured;
 };
 StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
+    Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
     var arranged = arrangeSize;
 
     if (this.GetOrientation() == Orientation.Vertical)

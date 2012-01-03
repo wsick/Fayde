@@ -10,7 +10,6 @@ Canvas.ZProperty = DependencyProperty.RegisterAttached("Z", Canvas, NaN);
 Canvas.prototype = new Panel;
 Canvas.prototype.constructor = Canvas;
 function Canvas() {
-    this._IsCanvas = true;
 }
 
 // STATICS

@@ -1,9 +1,18 @@
 ﻿/// <reference path="/Scripts/jquery-1.7.js"/>
 
+var DebugLevel = {
+    Info: 0,
+    Debug: 1,
+    Warn: 2,
+    Error: 3,
+    Fatal: 4
+};
+
 Console.prototype = new Object;
 Console.prototype.constructor = Console;
-function Console() {
+function Console(level) {
     this._Queue = new Array();
+    this._Level = level;
 }
 Console.prototype.Init = function (selector) {
     this._TextBox = $(selector);
@@ -41,17 +50,34 @@ Console.prototype.WriteLine = function (message, color) {
     else
         this._Enqueue({ Message: message, Color: color });
 };
-var _Console = new Console();
+var _Console = new Console(DebugLevel.Info);
 
 function AbstractMethod(method) {
-    _Console.WriteLine("Abstract Method. [" + method + "]");
+    Warn("Abstract Method [" + method + "]");
 }
 
 function NotImplemented(method) {
-    _Console.WriteLine("Not Implemented. [" + method + "]");
+    Warn("Not Implemented [" + method + "]");
 }
 
+function Info(message) {
+    if (_Console._Level <= DebugLevel.Info)
+        _Console.WriteLine("<i>INFO</i>: " + message);
+}
+function Debug(message) {
+    if (_Console._Level <= DebugLevel.Debug)
+        _Console.WriteLine("<i>DEBUG</i>: " + message);
+}
+function Warn(message) {
+    if (_Console._Level <= DebugLevel.Warn)
+        _Console.WriteLine("<i>WARN</i>: " + message);
+}
+function Error(error) {
+    if (_Console._Level <= DebugLevel.Error)
+        _Console.WriteLine("<b>ERROR</b>: " + error.toString());
+}
 function Fatal(error) {
-    _Console.WriteLine("<b>FATAL</b>: " + error.toString(), "#ff0000");
+    if (_Console._Level <= DebugLevel.Fatal)
+        _Console.WriteLine("<b>FATAL</b>: " + error.toString(), "#ff0000");
     App.Instance._Stop();
 }

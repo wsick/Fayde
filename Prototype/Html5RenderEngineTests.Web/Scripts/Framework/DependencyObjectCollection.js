@@ -36,7 +36,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
         if (error.IsErrored())
             return false;
     } else {
-        value._SetMentor(this._Mentor);
+        value._SetMentor(this._GetMentor());
     }
 
     value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
@@ -46,7 +46,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     if (!rv) {
         if (this._SetsParent) {
             value._RemoveParent(this, error);
-            value._SetMentor(this._Mentor);
+            value._SetMentor(this._GetMentor());
         } else {
             value._SetMentor(null);
         }

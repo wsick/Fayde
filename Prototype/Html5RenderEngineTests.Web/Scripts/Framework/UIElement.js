@@ -10,6 +10,9 @@ UIElement.prototype.constructor = UIElement;
 function UIElement() {
     DependencyObject.call(this);
 
+    this.Loaded = new MulticastEvent();
+    this.Invalidated = new MulticastEvent();
+
     this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
     
     this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
@@ -126,6 +129,7 @@ UIElement.prototype._Invalidate = function (rect) {
     }
 };
 UIElement.prototype._InvalidateMeasure = function () {
+    Info("UIElement._InvalidateMeasure [" + this._TypeName + "]");
     this._DirtyFlags |= _Dirty.Measure;
     this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
     //TODO: Alert redraw necessary
@@ -142,7 +146,7 @@ UIElement.prototype._InvalidateSubtreePaint = function () {
 UIElement.prototype._UpdateBounds = function (forceRedraw) {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
-    this._ForceInvalidateOfNewBounds |= forceRedraw;
+    this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
 };
 UIElement.prototype._UpdateTransform = function () {
     //NotImplemented("UIElement._UpdateTransform()");
@@ -240,6 +244,7 @@ UIElement.prototype._GetRenderSize = function () {
 };
 
 UIElement.prototype._DoMeasureWithError = function (error) {
+    Info("UIElement._DoMeasureWithError [" + this._TypeName + "]");
     var last = LayoutInformation.GetPreviousConstraint(this);
     var parent = this.GetVisualParent();
     var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
@@ -266,6 +271,7 @@ UIElement.prototype.Measure = function (availableSize) {
 };
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
+    Info("UIElement._DoArrangeWithError [" + this._TypeName + "]");
     var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var previousRenderSize = new Size();
     var parent = this.GetVisualParent();
@@ -315,9 +321,11 @@ UIElement.prototype._InsideObject = function (x, y) {
 };
 UIElement.prototype._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
-    //region = region.Transform(this._RenderTransform);
-    if (!region)
+    if (!region) {
+        Warn("Render Extents are empty.");
         return;
+    }
+    //region = region.Transform(this._RenderTransform);
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
     if (!this._GetRenderVisible() || region.IsEmpty()) //TODO: Check opacity
@@ -450,7 +458,6 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
         this.Loaded.Raise(this, null);
     }
 };
-UIElement.prototype.Loaded = new MulticastEvent();
 
 UIElement.prototype._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
@@ -471,7 +478,6 @@ UIElement.prototype._OnIsAttachedChanged = function (value) {
     }
 };
 
-UIElement.prototype.Invalidated = new MulticastEvent();
 UIElement.prototype._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
 };

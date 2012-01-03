@@ -8,11 +8,6 @@
 
 Surface.prototype = new Object;
 Surface.prototype.constructor = Surface;
-/*
-function Surface(containerId, width, height) {
-    this._Stage = new Kinetic.Stage(containerId, width, height);
-}
-*/
 function Surface() {
 }
 Surface.prototype.Init = function (jCanvas) {
@@ -22,6 +17,8 @@ Surface.prototype.Init = function (jCanvas) {
     this._Layers = new Collection();
     this._DownDirty = new _DirtyList();
     this._UpDirty = new _DirtyList();
+
+    //this._Stage = new Kinetic.Stage(containerId, width, height);
 };
 Surface.prototype.GetExtents = function () {
     return new Size(this.GetWidth(), this.GetHeight());
@@ -151,11 +148,11 @@ Surface.prototype._UpdateLayout = function (error) {
             layer._UpdateLayer(pass, error);
         }
 
-        dirty = dirty || this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
+        //dirty = dirty || !this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
         this._ProcessDownDirtyElements();
         this._ProcessUpDirtyElements();
 
-        if (pass._Updated && dirty) {
+        if (pass._Updated/* && dirty*/) {
             //TODO: LayoutUpdated Event
         }
     }
@@ -167,6 +164,7 @@ Surface.prototype._UpdateLayout = function (error) {
 
     return dirty;
 };
+//Down --> Transformation, Opacity
 Surface.prototype._ProcessDownDirtyElements = function () {
     var visualParent;
     var node;
@@ -245,9 +243,10 @@ Surface.prototype._ProcessDownDirtyElements = function () {
     }
 
     if (!this._DownDirty.IsEmpty()) {
-        //TODO: Warning
+        Warn("Finished DownDirty pass, not empty.");
     }
 };
+//Up --> Bounds, Invalidation
 Surface.prototype._ProcessUpDirtyElements = function () {
     var visualParent;
     var node;
@@ -317,7 +316,7 @@ Surface.prototype._ProcessUpDirtyElements = function () {
     }
 
     if (!this._UpDirty.IsEmpty()) {
-        //TODO: Warning
+        Warn("Finished UpDirty pass, not empty.");
     }
 };
 Surface.prototype._PropagateDirtyFlagToChildren = function (element, dirt) {
@@ -349,9 +348,9 @@ Surface.prototype._AddDirtyElement = function (/* UIElement */element, dirt) {
 };
 Surface.prototype._RemoveDirtyElement = function (/* UIElement */element) {
     if (element._UpDirtyNode)
-        this._UpDirtyNode.RemoveDirtyNode(element._UpDirtyNode);
+        this._UpDirty.RemoveDirtyNode(element._UpDirtyNode);
     if (element._DownDirtyNode)
-        this._DownDirtyNode.RemoveDirtyNode(element._DownDirtyNode);
+        this._DownDirty.RemoveDirtyNode(element._DownDirtyNode);
     element._UpDirtyNode = null;
     element._DownDirtyNode = null;
 };

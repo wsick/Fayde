@@ -76,6 +76,7 @@ Grid.prototype.GetRowDefinitions = function () {
 // INSTANCE METHODS
 //////////////////////////////////////////
 Grid.prototype._MeasureOverrideWithEror = function (availableSize, error) {
+    Info("Grid._MeasureOverrideWithEror [" + this._TypeName + "]");
     var totalSize = availableSize;
     var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
@@ -265,6 +266,7 @@ Grid.prototype._MeasureOverrideWithEror = function (availableSize, error) {
     return gridSize;
 };
 Grid.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+    Info("Grid._ArrangeOverrideWithError [" + this._TypeName + "]");
     var columns = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
 
@@ -529,7 +531,7 @@ Grid.prototype._OnPropertyChanged = function (args, error) {
 Grid.prototype._OnCollectionChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Grid.ColumnDefinitionsProperty, sender)
         || this._PropertyHasValueNoAutoCreate(Grid.RowDefinitionsProperty, sender)) {
-        
+        this._InvalidateMeasure();
     } else {
         Panel.prototype._OnCollectionChanged.call(this, sender, args);
     }

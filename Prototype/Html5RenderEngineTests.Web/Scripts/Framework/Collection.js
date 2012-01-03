@@ -5,6 +5,8 @@ Collection.prototype.constructor = Collection;
 function Collection() {
     DependencyObject.call(this);
     this._ht = new Array();
+    this.Changed = new MulticastEvent();
+    this.ItemChanged = new MulticastEvent();
 }
 Collection.CountProperty = DependencyProperty.Register("Count", Collection, 0);
 Collection.prototype.GetCount = function () {
@@ -64,12 +66,9 @@ Collection.prototype.CanAdd = function (value) { return true; };
 Collection.prototype.AddedToCollection = function (value, error) { return true; };
 Collection.prototype.RemovedFromCollection = function (value, isValueSafe) { };
 
-Collection.prototype.ItemChanged = new MulticastEvent();
 Collection.prototype._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
     this.ItemChanged.Raise(this, new ItemChangedArgs(obj, propd, oldValue, newValue));
 };
-
-Collection.prototype.Changed = new MulticastEvent();
 Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index) {
     this.Changed.Raise(this, new CollectionChangedArgs(action, oldValue, newValue, index));
 };
