@@ -32,7 +32,6 @@ Surface.prototype.GetHeight = function () {
 Surface.prototype.Render = function (region) {
     var ctx = new _RenderContext(this);
 
-    var renderList = new Array();
     var layerCount = 0;
     if (this._Layers)
         layerCount = this._Layers.GetCount();
@@ -353,6 +352,13 @@ Surface.prototype._RemoveDirtyElement = function (/* UIElement */element) {
         this._DownDirty.RemoveDirtyNode(element._DownDirtyNode);
     element._UpDirtyNode = null;
     element._DownDirtyNode = null;
+};
+
+Surface.MeasureText = function (text) {
+    if (!Surface._MeasureCanvas)
+        Surface._MeasureCanvas = document.createElement('canvas');
+    var ctx = Surface._MeasureCanvas.getContext('2d');
+    return new Size(ctx.measureText(text).width, /* TODO: Determine text height */NaN);
 };
 
 

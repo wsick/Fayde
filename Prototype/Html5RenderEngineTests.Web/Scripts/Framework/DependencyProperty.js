@@ -26,7 +26,7 @@ DependencyProperty.prototype._GetAutoCreatedValue = function (obj) {
         return this._AutoCreator.GetValue(this, obj);
     };
 DependencyProperty.prototype._HasCoercer = function () {
-    return this._Coercer != undefined && this._Coercer != null;
+    return this._Coercer != null;
 };
 DependencyProperty.prototype._Coerce = function (instance, value, error) {
     if (!this._Coercer)

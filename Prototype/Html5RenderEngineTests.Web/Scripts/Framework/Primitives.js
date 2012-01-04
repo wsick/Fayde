@@ -1,4 +1,6 @@
-﻿var Visibility = {
+﻿/// <reference path="Debug.js"/>
+
+var Visibility = {
     Visible: 0,
     Collapsed: 1
 };
@@ -38,7 +40,12 @@ var TextWrapping = {
 };
 
 var TextDecorations = {
-    None: 0
+    None: 0,
+    Underline: 1
+};
+
+var FlowDirection = {
+    LeftToRight: 0
 };
 
 var LineStackingStrategy = {
@@ -143,6 +150,9 @@ Size.prototype.Max = function (size2) {
 };
 Size.prototype.Equals = function (size2) {
     return this.Width == size2.Width && this.Height == size2.Height;
+};
+Size.prototype.toString = function () {
+    return "[Width = " + this.Width + "; Height = " + this.Height + "]";
 };
 
 //#endregion
@@ -370,5 +380,84 @@ ShearingMatrix.prototype.GetElements = function () {
         [0, 0, 1]
     ];
 };
+
+//#endregion
+
+//#region Font
+
+Font.prototype = new Object;
+Font.prototype.constructor = Font;
+function Font() {
+    Object.call(this);
+    this._Family = Font.DEFAULT_FAMILY;
+    this._Stretch = Font.DEFAULT_STRETCH;
+    this._Style = Font.DEFAULT_STYLE;
+    this._Weight = Font.DEFAULT_WEIGHT;
+    this._Size = Font.DEFAULT_SIZE;
+}
+
+Font.prototype.GetFamily = function () {
+    return this._Family;
+};
+Font.prototype.SetFamily = function (value) {
+    if (this._Family == value)
+        return false;
+    this._Family = value;
+    return true;
+};
+
+Font.prototype.GetStretch = function () {
+    return this._Stretch;
+};
+Font.prototype.SetStretch = function (value) {
+    if (this._Stretch == value)
+        return false;
+    this._Stretch = value;
+    return true;
+};
+
+Font.prototype.GetStyle = function () {
+    return this._Style;
+};
+Font.prototype.SetStyle = function (value) {
+    if (this._Style == value)
+        return false;
+    this._Style = value;
+    return true;
+};
+
+Font.prototype.GetWeight = function () {
+    return this._Weight;
+};
+Font.prototype.SetWeight = function (value) {
+    if (this._Weight == value)
+        return false;
+    this._Weight = value;
+    return true;
+};
+
+Font.prototype.GetSize = function () {
+    return this._Size;
+};
+Font.prototype.SetSize = function (value) {
+    if (this._Size == value)
+        return false;
+    this._Size = value;
+    return true;
+};
+
+Font.prototype.GetActualHeight = function () {
+    NotImplemented("Font.GetActualHeight");
+};
+
+Font.prototype._Translate = function () {
+    NotImplemented("Font._Translate");
+};
+
+Font.DEFAULT_FAMILY = "";
+Font.DEFAULT_STRETCH = "";
+Font.DEFAULT_STYLE = "";
+Font.DEFAULT_WEIGHT = "normal";
+Font.DEFAULT_SIZE = "12px";
 
 //#endregion

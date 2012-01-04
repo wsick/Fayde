@@ -56,7 +56,6 @@ Collection.prototype.RemoveAt = function (index) {
     return true;
 };
 Collection.prototype.IndexOf = function (value) {
-    var v;
     for (var i = 0; i < this.GetCount(); i++) {
         if (value == this._ht[i])
             return i;
@@ -183,9 +182,9 @@ DependencyObjectCollection.prototype.RemovedFromCollection = function (value, is
 DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
     Collection.prototype._OnIsAttachedChanged.call(this, value);
     for (var i = 0; i < this.GetCount(); i++) {
-        var value = this.GetValueAt(i);
-        if (value instanceof DependencyObject)
-            value._SetIsAttached(value);
+        var val = this.GetValueAt(i);
+        if (val instanceof DependencyObject)
+            val._SetIsAttached(value);
     }
 };
 DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
@@ -250,6 +249,7 @@ InlineCollection.prototype.Equals = function (inlines) {
 InlineCollection.prototype.IsElementType = function (value) {
     return value instanceof Inline;
 };
+InlineCollection.prototype._SetIsForHyperlink = function () { this._ForHyperlink = true; };
 
 //#endregion
 
@@ -260,6 +260,22 @@ ResourceDictionary.prototype.constructor = ResourceDictionary;
 function ResourceDictionary() {
     Collection.call(this);
 }
+
+ResourceDictionary.MergedDictionariesProperty = DependencyProperty.Register("MergedDictionaries", ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+ResourceDictionary.prototype.GetMergedDictionaries = function () {
+    return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
+};
+
+ResourceDictionary.prototype.AddedToCollection = function (value, error) {
+    NotImplemented("ResourceDictionary.AddedToCollection");
+};
+ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
+    NotImplemented("ResourceDictionary.RemovedFromCollection");
+};
+
+ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
+    NotImplemented("ResourceDictionary._OnIsAttachedChanged");
+};
 
 //#endregion
 

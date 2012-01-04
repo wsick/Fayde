@@ -145,18 +145,19 @@ Panel.prototype._OnPropertyChanged = function (args, error) {
     } else if (args.Property == Panel.ChildrenProperty) {
         var collection;
         var count;
+        var i;
         this._SetSubtreeObject(args.NewValue ? args.NewValue : null);
         if (args.OldValue) {
             collection = args.OldValue;
-            var count = collection.GetCount();
-            for (var i = 0; i < count; i++) {
+            count = collection.GetCount();
+            for (i = 0; i < count; i++) {
                 this._ElementRemoved(collection.GetValueAt(i));
             }
         }
         if (args.NewValue) {
             collection = args.NewValue;
-            var count = collection.GetCount();
-            for (var i = 0; i < count; i++) {
+            count = collection.GetCount();
+            for (i = 0; i < count; i++) {
                 this._ElementAdded(collection.GetValueAt(i));
             }
         }

@@ -20,6 +20,8 @@ function TextBlock() {
     this._Dirty = true;
 
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
+
+    this._Font = new Font();
 }
 
 //#region DEPENDENCY PROPERTIES
@@ -32,7 +34,7 @@ TextBlock.prototype.SetForeground = function (value) {
     this.SetValue(TextBlock.ForegroundProperty, value);
 };
 
-TextBlock.FontFamilyProperty = DependencyProperty.Register("FontFamily", TextBlock);
+TextBlock.FontFamilyProperty = DependencyProperty.Register("FontFamily", TextBlock, Font.DEFAULT_FAMILY);
 TextBlock.prototype.GetFontFamily = function () {
     return this.GetValue(TextBlock.FontFamilyProperty);
 };
@@ -40,7 +42,7 @@ TextBlock.prototype.SetFontFamily = function (value) {
     this.SetValue(TextBlock.FontFamilyProperty, value);
 };
 
-TextBlock.FontStretchProperty = DependencyProperty.Register("FontStretch", TextBlock);
+TextBlock.FontStretchProperty = DependencyProperty.Register("FontStretch", TextBlock, Font.DEFAULT_STRETCH);
 TextBlock.prototype.GetFontStretch = function () {
     return this.GetValue(TextBlock.FontStretchProperty);
 };
@@ -48,7 +50,7 @@ TextBlock.prototype.SetFontStretch = function (value) {
     this.SetValue(TextBlock.FontStretchProperty, value);
 };
 
-TextBlock.FontStyleProperty = DependencyProperty.Register("FontStyle", TextBlock);
+TextBlock.FontStyleProperty = DependencyProperty.Register("FontStyle", TextBlock, Font.DEFAULT_STYLE);
 TextBlock.prototype.GetFontStyle = function () {
     return this.GetValue(TextBlock.FontStyleProperty);
 };
@@ -56,7 +58,7 @@ TextBlock.prototype.SetFontStyle = function (value) {
     this.SetValue(TextBlock.FontStyleProperty, value);
 };
 
-TextBlock.FontWeightProperty = DependencyProperty.Register("FontWeight", TextBlock, "normal");
+TextBlock.FontWeightProperty = DependencyProperty.Register("FontWeight", TextBlock, Font.DEFAULT_WEIGHT);
 TextBlock.prototype.GetFontWeight = function () {
     return this.GetValue(TextBlock.FontWeightProperty);
 };
@@ -64,7 +66,7 @@ TextBlock.prototype.SetFontWeight = function (value) {
     this.SetValue(TextBlock.FontWeightProperty, value);
 };
 
-TextBlock.FontSizeProperty = DependencyProperty.Register("FontSize", TextBlock);
+TextBlock.FontSizeProperty = DependencyProperty.Register("FontSize", TextBlock, Font.DEFAULT_SIZE);
 TextBlock.prototype.GetFontSize = function () {
     return this.GetValue(TextBlock.FontSizeProperty);
 };
@@ -206,8 +208,7 @@ TextBlock.prototype._ArrangeOverrideWithError = function (finalSize, error) {
 
 TextBlock.prototype.Layout = function (/* Size */constraint) {
     if (this._WasSet && this._GetValueNoDefault(TextBlock.TextProperty) == null) {
-        //TODO: Set this._ActualHeight based on font properties
-        NotImplemented("TextBlock.Layout --> Discover font height");
+        this._ActualHeight = this._Font.GetActualHeight();
         this._ActualWidth = 0.0;
     } else if (!this._WasSet) {
         this._ActualHeight = 0.0;
@@ -221,11 +222,26 @@ TextBlock.prototype.Layout = function (/* Size */constraint) {
     }
     this._Dirty = false;
 };
-TextBlock.prototype._UpdateFontDescription = function (force) {
-    NotImplemented("TextBlock._UpdateFontDescription");
+TextBlock.prototype._UpdateFont = function (force) {
+    var changed = false;
+
+    changed = changed || this._Font.SetFamily(this.GetFontFamily());
+    changed = changed || this._Font.SetStretch(this.GetFontStretch());
+    changed = changed || this._Font.SetStyle(this.GetFontStyle());
+    changed = changed || this._Font.SetWeight(this.GetFontWeight());
+    changed = changed || this._Font.SetSize(this.GetFontSize());
+
+    changed = changed || force;
+    return changed;
 };
-TextBlock.prototype._UpdateFontDescriptions = function (force) {
-    NotImplemented("TextBlock._UpdateFontDescriptions");
+TextBlock.prototype._UpdateFonts = function (force) {
+    if (!this._UpdateFont(force))
+        return false;
+    this._InvalidateMeasure();
+    this._InvalidateArrange();
+    this._UpdateBounds(true);
+    this._Dirty = true;
+    return true;
 };
 TextBlock.prototype._UpdateLayoutAttributes = function () {
     var inlines = this.GetInlines();
@@ -233,7 +249,7 @@ TextBlock.prototype._UpdateLayoutAttributes = function () {
     this._InvalidateMeasure();
     this._InvalidateArrange();
 
-    this._UpdateFontDescription(false);
+    this._UpdateFont(false);
 
     var length = 0;
     var runs = new List();
@@ -249,7 +265,6 @@ TextBlock.prototype._UpdateLayoutAttributes = function () {
 TextBlock.prototype._UpdateLayoutAttributesForInline = function (item, length, runs) {
     if (item instanceof Run) {
         var text = item.GetText();
-        var t = new String;
         if (text && text.length) {
             runs.Append(new _TextLayoutAttributes(item, length));
             length += text.length;
@@ -270,7 +285,7 @@ TextBlock.prototype._SerializeText = function (str) {
     var inlines = this.GetInlines();
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
-        str = str.concat(inlines.GetValueAt(i)._SerializeText());
+        str = inlines.GetValueAt(i)._SerializeText(str);
     }
     return str;
 };
@@ -279,7 +294,6 @@ TextBlock.prototype._GetTextInternal = function (inlines) {
         return "";
     var block = "";
     var count = inlines.GetCount();
-    var item;
     for (var i = 0; i < count; i++) {
         block = block.concat(inlines.GetValueAt(i)._SerializeText());
     }
@@ -326,9 +340,8 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
         FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
         if (args.Property != FrameworkElement.LanguageProperty)
             return;
-        if (!this._UpdateFontDescriptions(false))
+        if (!this._UpdateFonts(false))
             return;
-        this._Dirty = true;
     }
 
     if (args.Property == TextBlock.FontFamilyProperty
@@ -336,8 +349,7 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
         || args.Property == TextBlock.FontStretchProperty
         || args.Property == TextBlock.FontStyleProperty
         || args.Property == TextBlock.FontWeightProperty) {
-        if (this._UpdateFontDescriptions(false))
-            this._Dirty = true;
+        this._UpdateFonts(false);
     } else if (args.Property == TextBlock.TextProperty) {
         if (this._SetValue) {
             this._SetTextInternal(args.NewValue)

@@ -165,8 +165,9 @@ _ComputeActuals [Done]
 _GetTextInternal [Done]
 _SetTextInternal [Done]
 _SerializeText [Done]
-Layout
-_UpdateFontDescriptions
+Layout [Done]
+_UpdateFont [Done]
+_UpdateFonts [Done]
 _UpdateLayoutAttributes [Done]
 _UpdateLayoutAttributesForInline [Done]
 _OnPropertyChanged [Mostly Done]
@@ -178,6 +179,14 @@ _OnCollectionChanged [Done]
 
 TextLayout
 =============================
-Layout 
+Layout [Done]
+ - layoutWordFunc
+ - layoutLwsp
 GetActualExtents [Done]
 GetBaselineOffset
+OverrideLineHeight
+GetDescendOverride
+GetLineHeightOverride
+_ValidateAttrs
+IsLineBreak
+_Render [Done]

@@ -329,7 +329,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
             || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
             || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
         var desired = this._DesiredSize;
-        Warn("Invalid arguments to Arrange.");
+        Warn("Invalid arguments to Arrange. Desired = " + desired.toString());
         return;
     }
 
@@ -518,12 +518,10 @@ FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, erro
 };
 
 FrameworkElement.prototype._InsideObject = function (x, y) {
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
-    var nx = x;
-    var ny = y;
-
-    //this._TransformPoint(nx, ny);
-    //if (nx < 0 || ny < 0 || nx > framework.Width || ny > framework.Height)
+    //var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
+    //var np = new Point(x, y);
+    //this._TransformPoint(np);
+    //if (np.X < 0 || np.Y < 0 || np.X > framework.Width || np.Y > framework.Height)
     //    return false;
 
     if (!this._InsideLayoutClip(x, y))

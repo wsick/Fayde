@@ -4,6 +4,7 @@
 /// <reference path="Canvas.js" />
 /// <reference path="Dirty.js"/>
 /// <reference path="App.js"/>
+/// <reference path="Collections.js"/>
 
 var UIElementFlags = {
     None: 0,
@@ -76,8 +77,16 @@ UIElement.prototype.SetOpacity = function (value) {
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
 //UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement, CursorType.Default, null, UIElement._CoerceCursor);
-//UIElement.ResourcesProperty;
-//UIElement.TriggersProperty;
+
+UIElement.ResourcesProperty = DependencyProperty.Register("Resources", UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
+UIElement.prototype.GetResources = function () {
+    return this.GetValue(UIElement.ResourcesProperty);
+};
+
+UIElement.TriggersProperty = DependencyProperty.Register("Triggers", UIElement/*, null, { GetValue: function () { } }*/);
+UIElement.prototype.GetTriggers = function () {
+    return this.GetValue(UIElement.TriggersProperty);
+};
 
 UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", UIElement);
 UIElement.prototype.GetUseLayoutRounding = function () {
@@ -283,12 +292,10 @@ UIElement.prototype.Measure = function (availableSize) {
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
     var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
-    var previousRenderSize = new Size();
     var parent = this.GetVisualParent();
 
     if (!parent) {
         var desired = new Size();
-        var available = new Size();
         var surface = App.Instance.MainSurface;
 
         if (this.IsLayoutContainer()) {
@@ -406,7 +413,7 @@ UIElement.prototype._ElementRemoved = function (item) {
     this._Invalidate(item._GetSubtreeBounds());
     item.SetVisualParent(null);
     item._SetIsLoaded(false);
-    item._IsAttached = false;
+    item._SetIsAttached(false);
     item._SetMentor(null);
 
     var emptySlot = new Rect();
@@ -436,7 +443,7 @@ UIElement.prototype._ElementAdded = function (item) {
     this._InvalidateMeasure();
     this.ClearValue(LayoutInformation.LayoutClipProperty);
     this.ClearValue(LayoutInformation.PreviousConstraintProperty);
-    item._RenderSize = new Size(0, 0);
+    item._SetRenderSize(new Size(0, 0));
     item._UpdateTransform();
     item._UpdateProjection();
     item._InvalidateMeasure();
@@ -470,7 +477,6 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
         this.Loaded.Raise(this, null);
     }
 };
-
 UIElement.prototype._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
@@ -489,7 +495,6 @@ UIElement.prototype._OnIsAttachedChanged = function (value) {
         }
     }
 };
-
 UIElement.prototype._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
 };
@@ -508,7 +513,6 @@ UIElement.prototype._PropagateFlagUp = function (flag) {
 
 //#endregion
 
-// STATICS
 UIElement.ZIndexComparer = function (uie1, uie2) {
     var zi1 = Canvas.GetZIndex(uie1);
     var zi2 = Canvas.GetZIndex(uie2);

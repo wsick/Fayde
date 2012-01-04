@@ -96,7 +96,6 @@ Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
 Border.prototype._Render = function (ctx, region) {
     var borderBrush = this.GetBorderBrush();
     var paintBorder = this._Extents;
-    var paintBackground = paintBorder.GrowByThickness(this.GetBorderThickness().Negate());
 
     if (!this.GetBackground() && !borderBrush)
         return;
@@ -114,6 +113,7 @@ Border.prototype._Render = function (ctx, region) {
     //If we got this far, all we have left to paint is the background
     if (!this._HasLayoutClip() /* && IsIntegerTranslation  */) {
         //TODO:
+        //var paintBackground = paintBorder.GrowByThickness(this.GetBorderThickness().Negate());
 
     } else {
         ctx.Save();

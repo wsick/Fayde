@@ -1,5 +1,7 @@
 ﻿/// <reference path="Primitives.js"/>
 /// <reference path="Debug.js"/>
+/// <reference path="List.js"/>
+/// <reference path="Surface.js"/>
 
 //#region TextLayout
 
@@ -169,7 +171,169 @@ TextLayout.prototype.GetActualExtents = function () {
     return new Size(this._ActualWidth, this._ActualHeight);
 };
 TextLayout.prototype.Layout = function () {
-    NotImplemented("TextLayout.Layout");
+    if (!isNaN(this._ActualWidth))
+        return;
+
+    this._ActualHeight = 0.0;
+    this._ActualWidth = 0.0;
+    this._IsWrapped = false;
+    this._ClearLines();
+    this._Count = 0;
+
+    if (this._Text == null || !TextLayout._ValidateAttrs(this._Attributes))
+        return;
+
+    var word;
+    if (this._Wrapping === TextWrapping.Wrap)
+        word._BreakOps = new Array();
+    else
+        word._BreakOps = null;
+
+    var layoutWordFunc = function () { NotImplemented("layoutWordFunc"); };
+    var layoutLwsp = function () { NotImplemented("layoutLwsp"); };
+
+    var line = new _TextLayoutLine(this, 0, 0);
+    if (this.OverrideLineHeight()) {
+        line._Descend = this.GetDescendOverride();
+        line._Height = this.GetLineHeightOverride();
+    }
+    this._Lines.push(line);
+
+    var index = 0;
+    var attrs = this._Attributes.First();
+    var nattrs;
+    var end;
+    var run;
+    do {
+        nattrs = attrs.Next;
+        end = nattrs ? nattrs._Start : this._Length;
+        run = new _TextLayoutRun(line, attrs, index);
+        line._Runs.push(run);
+
+        word._Font = attrs.GetFont();
+
+        if (c == null) {
+            if (!this.OverrideLineHeight()) {
+                line._Descend = Math.min(line._Descend, font._Descender());
+                line._Height = Math.max(line._Height, font._Height());
+            }
+            this._ActualHeight += line._Height;
+            break;
+        }
+
+        //layout until attrs change
+        while (index < end) {
+            var linebreak = false;
+            var wrapped = false;
+            var prev = null;
+
+            //layout until end of line or max width reached
+            while (index < end) {
+                var lineBreakLength = TextLayout.IsLineBreak(this._Text.slice(index, end - index));
+                if (lineBreakLength > 0) {
+                    if (line._Length == 0 && !this.OverrideLineHeight()) {
+                        line._Descend = font._Descender();
+                        line._Height = font._Height();
+                    }
+
+                    line._Length += lineBreakLength; //bytes
+                    run._Length += lineBreakLength; //bytes
+                    line._Count += lineBreakLength; //chars
+                    run._Count += lineBreakLength; //chars
+                    index += lineBreakLength;
+                    linebreak = true;
+                    break;
+                }
+
+                word._LineAdvance = line._Advance;
+                word._Prev = prev;
+                if (layoutWordFunc(word, this._Text.slice(index, end - index), this._MaxWidth)) {
+                    this._IsWrapped = true;
+                    wrapped = true;
+                }
+
+                if (word._Length > 0) {
+                    //append the word to the run/line
+                    if (!this.OverrideLineHeight()) {
+                        line._Descend = Math.min(line._Descend, font._Descender());
+                        line._Height = Math.max(line._Height, font._Height());
+                    }
+
+                    line._Advance += word._Advance;
+                    run._Advance += word._Advance;
+                    line._Width = line._Advance;
+                    line._Length += word._Length;
+                    run._Length += word._Length;
+                    line._Count += word._Count;
+                    run._Count += word._Count;
+
+                    index += word._Count;
+                    prev = word._Prev;
+                }
+
+                if (wrapped)
+                    break;
+
+                word._LineAdvance = line._Advance;
+                word._Prev = prev;
+                layoutLwsp(word, this._Text.slice(index, end - index));
+
+                if (word._Length > 0) {
+                    if (!this.OverrideLineHeight()) {
+                        line._Descend = Math.min(line._Descend, font._Descender());
+                        line._Height = Math.max(line._Height, font._Height());
+                    }
+
+                    line._Advance += word._Advance;
+                    run._Advance += word._Advance;
+                    line._Width = line._Advance;
+                    line._Length += word._Length;
+                    run._Length += word._Length;
+                    line._Count += word._Count;
+                    run._Count += word._Count;
+
+                    index += word._Count;
+                    prev = word._Prev;
+                }
+            }
+
+            var atend = this._Text.slice(index, end - index).length < 1;
+            if (linebreak || wrapped || atend) {
+                this._ActualWidth = Math.max(this._ActualWidth, atend ? line._Advance : line._Width);
+                this._ActualHeight += line._Height;
+
+                if (linebreak || wrapped) {
+                    line = new _TextLayoutLine(this, index, index);
+                    if (!this.OverrideLineHeight()) {
+                        if (end - index < 1) {
+                            line._Descend = font._Descender();
+                            line._Height = font._Height();
+                        }
+                    } else {
+                        line._Descend = this.GetDescendOverride();
+                        line._Height = this.GetLineHeightOverride();
+                    }
+
+                    if (linebreak && (end - index < 1))
+                        this._ActualHeight += line._Height;
+
+                    this._Lines.push(line);
+                    prev = null;
+                }
+
+                if (index < end) {
+                    run = new _TextLayoutRun(line, attrs, index);
+                    line._Runs.push(run);
+                }
+            }
+        }
+
+        attrs = nattrs;
+    } while (c != null);
+    this._Count = index;
+};
+TextLayout._ValidateAttrs = function (/* List */attributes) {
+    NotImplemented("TextLayout._ValidateAttrs");
 };
 TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
     var deltax = 0.0;
@@ -187,6 +351,20 @@ TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
             break;
     }
     return deltax;
+};
+TextLayout.prototype._Render = function (ctx, origin, offset) {
+    var line;
+    var x;
+    var y = offset.Y;
+
+    this.Layout();
+
+    for (var i = 0; i < this._Lines.length; i++) {
+        line = this._Lines[i];
+        x = offset.X + this._HorizontalAlignment(line._Advance);
+        line._Render(ctx, origin, x, y);
+        y += line._Height;
+    }
 };
 
 TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
@@ -217,6 +395,17 @@ function _TextLayoutLine(layout, start, offset) {
     this._Length = 0;
     this._Count = 0;
 }
+_TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
+    var run;
+    var x0 = left;
+    var y0 = top + this._Height + this._Descend;
+
+    for (var i = 0; i < this._Runs.length; i++) {
+        run = this._Runs[i];
+        run._Render(ctx, origin, x0, y0);
+        x0 += run._Advance;
+    }
+};
 
 //#endregion
 
@@ -234,10 +423,108 @@ function _TextLayoutRun(line, attrs, start) {
     this._Count = 0;
 }
 _TextLayoutRun.prototype._GenerateCache = function () {
-    NotImplemented("_TextLayoutRun._GenerateCache");
+    var selectionLength = this._Line._Layout.GetSelectionLength();
+    var selectionStart = this._Line._Layout.GetSelectionStart();
+    var text = this._Line._Layout.GetText();
+    var font = this._Attrs.GetFont();
+
+    var len;
+    var index = this._Start;
+    //glyph before selection
+    if (selectionLength == 0 || this._Start < selectionStart) {
+        len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(this._Start, this._Length), font));
+        index += len;
+    }
+
+    //glyph with selection
+    var selectionEnd = this._Start + selectionStart + selectionLength;
+    var runEnd = this.Start + this._Length;
+    if (index < runEnd && index < selectionEnd) {
+        len = Math.min(runEnd - index, selectionEnd - index);
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(index, len), font, true));
+        index += len;
+    }
+
+    //glyph after selection
+    if (index < runEnd) {
+        len = runEnd - index;
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(index, len), font));
+        index += len;
+    }
 };
 _TextLayoutRun.prototype._ClearCache = function () {
     this._Clusters = new Array();
 };
+_TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
+    var x0 = x;
+    if (this._Clusters.length == 0)
+        this._GenerateCache();
+
+    for (var i = 0; i < this._Clusters.length; i++) {
+        var cluster = this._Clusters[i];
+        ctx.Save();
+        cluster._Render(ctx, origin, this._Attributes, x0, y);
+        ctx.Restore();
+        x0 += cluster._Advance;
+    }
+};
+
+//#endregion
+
+//#region _TextLayoutGlyphCluster
+
+_TextLayoutGlyphCluster.prototype = new Object;
+_TextLayoutGlyphCluster.prototype.constructor = _TextLayoutGlyphCluster;
+function _TextLayoutGlyphCluster(text, font, selected) {
+    Object.call(this);
+    this._Text = text;
+    this._Selected = selected == true;
+    this._Advance = Surface.MeasureText(text, font).Width;
+}
+_TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) {
+    if (this._Text.length == 0 || this._Advance == 0.0)
+        return;
+    var font = attrs.GetFont();
+    var y0 = font._Ascender();
+    ctx.Translate(x, y - y0);
+
+    var brush;
+    var area;
+    if (this._Selected && (brush = attrs.GetBackground(true))) {
+        area = new Rect(origin.X, origin.Y, this._Advance, font._Height());
+        ctx.Fill(area, brush); //selection background
+    }
+    if (!(brush = attrs.GetForeground(selected)))
+        return;
+    ctx.CustomRender(_TextLayoutGlyphCluster.Painter, this._Text, attrs.GetForeground(), attrs.GetFont());
+    if (attrs.IsUnderlined()) {
+        //TODO: Underline
+    }
+};
+_TextLayoutGlyphCluster.Painter = function (canvasCtx, text, foreground, font) {
+    canvasCtx.fillStyle = foreground._Translate();
+    canvasCtx.font = font._Translate();
+    canvasCtx.textAlign = "left";
+    canvasCtx.textBaseline = "top";
+    canvasCtx.fillText(text, 0, 0);
+};
+
+//#endregion
+
+//#region _TextLayoutAttributes
+
+_TextLayoutAttributes.prototype = new Node;
+_TextLayoutAttributes.prototype.constructor = _TextLayoutAttributes;
+function _TextLayoutAttributes(source, start) {
+    Node.call(this);
+    this._Source = source;
+    this._Start = start == null ? 0 : start;
+}
+_TextLayoutAttributes.prototype.GetBackground = function (selected) { return this._Source.GetBackground(selected); };
+_TextLayoutAttributes.prototype.GetForeground = function (selected) { return this._Source.GetForeground(selected); };
+_TextLayoutAttributes.prototype.GetFont = function () { return this._Source.GetFont(); };
+_TextLayoutAttributes.prototype.GetDirection = function () { return this._Source.GetDirection(); };
+_TextLayoutAttributes.prototype.IsUnderlined = function () { return this._Source.GetTextDecorations() & TextDecorations.Underline; };
 
 //#endregion
