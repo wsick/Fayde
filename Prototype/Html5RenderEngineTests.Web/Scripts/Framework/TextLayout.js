@@ -29,7 +29,6 @@ function TextLayout() {
     this._Length = 0;
     this._Count = 0;
 }
-
 TextLayout.prototype.GetSelectionLength = function () {
     return this._SelectionLength;
 };
@@ -202,18 +201,31 @@ TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
 
 //#endregion
 
-
+//#region _TextLayoutLine
 
 _TextLayoutLine.prototype = new Object;
 _TextLayoutLine.prototype.constructor = _TextLayoutLine;
-function _TextLayoutLine() {
+function _TextLayoutLine(layout, start, offset) {
+    this._Runs = new Array();
+    this._Layout = layout;
+    this._Start = start;
+    this._Offset = offset;
+    this._Advance = 0.0;
+    this._Descend = 0.0;
+    this._Height = 0.0;
+    this._Width = 0.0;
+    this._Length = 0;
+    this._Count = 0;
 }
 
+//#endregion
 
+//#region _TextLayoutRun
 
 _TextLayoutRun.prototype = new Object;
 _TextLayoutRun.prototype.constructor = _TextLayoutRun;
 function _TextLayoutRun(line, attrs, start) {
+    this._Clusters = new Array();
     this._Attrs = attrs;
     this._Start = start;
     this._Line = line;
@@ -221,3 +233,11 @@ function _TextLayoutRun(line, attrs, start) {
     this._Length = 0;
     this._Count = 0;
 }
+_TextLayoutRun.prototype._GenerateCache = function () {
+    NotImplemented("_TextLayoutRun._GenerateCache");
+};
+_TextLayoutRun.prototype._ClearCache = function () {
+    this._Clusters = new Array();
+};
+
+//#endregion
