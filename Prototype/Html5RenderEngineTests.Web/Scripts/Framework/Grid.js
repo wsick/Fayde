@@ -75,8 +75,8 @@ Grid.prototype.GetRowDefinitions = function () {
 //////////////////////////////////////////
 // INSTANCE METHODS
 //////////////////////////////////////////
-Grid.prototype._MeasureOverrideWithEror = function (availableSize, error) {
-    Info("Grid._MeasureOverrideWithEror [" + this._TypeName + "]");
+Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
+    Info("Grid._MeasureOverrideWithError [" + this._TypeName + "]");
     var totalSize = availableSize;
     var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();

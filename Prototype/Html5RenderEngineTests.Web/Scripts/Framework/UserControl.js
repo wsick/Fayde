@@ -22,7 +22,7 @@ UserControl.prototype.SetContent = function (value) {
 //////////////////////////////////////////
 UserControl.prototype.IsLayoutContainer = function () { return true; };
 
-UserControl.prototype._MeasureOverrideWithEror = function (availableSize, error) {
+UserControl.prototype._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
 
     var border = this.GetPadding().Plus(this.GetBorderThickness());

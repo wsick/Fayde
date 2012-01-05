@@ -271,7 +271,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     if (this.MeasureOverride)
         size = this.MeasureOverride(size);
     else
-        size = this._MeasureOverrideWithEror(size, error);
+        size = this._MeasureOverrideWithError(size, error);
 
     if (error.IsErrored())
         return;

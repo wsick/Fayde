@@ -196,7 +196,7 @@ TextBlock.prototype._ComputeActualSize = function () {
     result = result.GrowByThickness(padding);
     return result;
 };
-TextBlock.prototype._MeasureOverrideWithEror = function (availableSize, error) {
+TextBlock.prototype._MeasureOverrideWithError = function (availableSize, error) {
     var padding = this.GetPadding();
     var constraint = availableSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);

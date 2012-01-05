@@ -96,8 +96,8 @@ Panel.prototype._InsideObject = function (x, y) {
 Panel.prototype._EmptyBackground = function () {
     return this.GetBackground() == null;
 };
-Panel.prototype._MeasureOverrideWithEror = function (availableSize, error) {
-    Info("Panel._MeasureOverrideWithEror [" + this._TypeName + "]");
+Panel.prototype._MeasureOverrideWithError = function (availableSize, error) {
+    Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
     var result = new Size(0, 0);
     return result;
 };
