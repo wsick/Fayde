@@ -1,4 +1,5 @@
 ﻿/// <reference path="Debug.js"/>
+/// <reference path="Surface.js"/>
 
 var Visibility = {
     Visible: 0,
@@ -450,6 +451,13 @@ Font.prototype.SetSize = function (value) {
 
 Font.prototype.GetActualHeight = function () {
     NotImplemented("Font.GetActualHeight");
+};
+
+Font.prototype._Descender = function () { return 0.0; }; //most likely removable
+Font.prototype._Ascender = function () { return 0.0; }; //most likely removable
+Font.prototype._Height = function () {
+    NotImplemented("Font._Height needs height measurement from Surface.MeasureText");
+    return Surface.MeasureText(" ").Height;
 };
 
 Font.prototype._Translate = function () {
