@@ -354,11 +354,23 @@ Surface.prototype._RemoveDirtyElement = function (/* UIElement */element) {
     element._DownDirtyNode = null;
 };
 
-Surface.MeasureText = function (text) {
+Surface.MeasureText = function (text, font) {
     if (!Surface._MeasureCanvas)
         Surface._MeasureCanvas = document.createElement('canvas');
     var ctx = Surface._MeasureCanvas.getContext('2d');
-    return new Size(ctx.measureText(text).width, /* TODO: Determine text height */NaN);
+    ctx.font = font._Translate();
+    return new Size(ctx.measureText(text).width, Surface._MeasureHeight(text, font));
+};
+Surface._MeasureHeight = function (text, font) {
+    var body = document.getElementsByTagName("body")[0];
+    var dummy = document.createElement("div");
+    var dummyText = document.createTextNode("M");
+    dummy.appendChild(dummyText);
+    dummy.setAttribute("style", "font: " + font._Translate() + ";");
+    body.appendChild(dummy);
+    var result = dummy.offsetHeight;
+    body.removeChild(dummy);
+    return result; 
 };
 
 

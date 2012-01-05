@@ -55,6 +55,16 @@ Collection.prototype.RemoveAt = function (index) {
     this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, null, index);
     return true;
 };
+Collection.prototype.Clear = function () {
+    this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
+    var old = this._ht;
+    this._ht = new Array();
+    for (var i = 0; i < old.length; i++) {
+        this.RemovedFromCollection(old[i], true);
+    }
+    this._RaiseChanged(CollectionChangedArgs.Action.Cleared, null, null, -1);
+    return true;
+};
 Collection.prototype.IndexOf = function (value) {
     for (var i = 0; i < this.GetCount(); i++) {
         if (value == this._ht[i])

@@ -144,7 +144,7 @@ TextLayout.prototype.GetText = function () {
     return this._Text;
 };
 TextLayout.prototype.SetText = function (value, length) {
-    if (this._Text) {
+    if (value) {
         this._Text = value;
         this._Length = length == -1 ? value.length : length;
     } else {
@@ -227,15 +227,16 @@ TextLayout.prototype.Layout = function () {
     var nattrs;
     var end;
     var run;
+    var font;
     do {
         nattrs = attrs.Next;
         end = nattrs ? nattrs._Start : this._Length;
         run = new _TextLayoutRun(line, attrs, index);
         line._Runs.push(run);
 
-        word._Font = attrs.GetFont();
+        word._Font = font = attrs.GetFont();
 
-        if (c == null) {
+        if (end - index <= 0) {
             if (!this.OverrideLineHeight()) {
                 line._Descend = Math.min(line._Descend, font._Descender());
                 line._Height = Math.max(line._Height, font._Height());
@@ -268,7 +269,7 @@ TextLayout.prototype.Layout = function () {
                 }
 
                 word._LineAdvance = line._Advance;
-                if (layoutWordFunc(word, this._Text.slice(index, end - index), this._MaxWidth)) {
+                if (layoutWordFunc(word, this._Text.slice(index, end - index), font, this._MaxWidth)) {
                     this._IsWrapped = true;
                     wrapped = true;
                 }
@@ -295,7 +296,7 @@ TextLayout.prototype.Layout = function () {
                     break;
 
                 word._LineAdvance = line._Advance;
-                TextLayout._LayoutLwsp(word, this._Text.slice(index, end - index));
+                TextLayout._LayoutLwsp(word, this._Text.slice(index, end - index), font);
 
                 if (word._Length > 0) {
                     if (!this.OverrideLineHeight()) {
@@ -346,7 +347,7 @@ TextLayout.prototype.Layout = function () {
         }
 
         attrs = nattrs;
-    } while (c != null);
+    } while (end - index > 0);
     this._Count = index;
 };
 TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
@@ -411,19 +412,19 @@ TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
     }
     return availWidth;
 };
-TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
+TextLayout._LayoutWordWrap = function (word, text, font, maxWidth) {
     NotImplemented("TextLayout._LayoutWordWrap");
 };
-TextLayout._LayoutWordNoWrap = function (word, text) {
-    var advance = Surface.MeasureText(text).Width;
+TextLayout._LayoutWordNoWrap = function (word, text, font) {
+    var advance = Surface.MeasureText(text, font).Width;
     word._Advance = advance;
     word._LineAdvance += advance;
     word._Count = text.length;
     word._Length = text.length;
     return false;
 };
-TextLayout._LayoutLwsp = function (word, text) {
-    var advance = Surface.MeasureText(text).Width;
+TextLayout._LayoutLwsp = function (word, text, font) {
+    var advance = Surface.MeasureText(text, font).Width;
     word._Advance = advance;
     word._LineAdvance += advance;
     word._Count = text.length;
@@ -451,7 +452,8 @@ function _TextLayoutLine(layout, start, offset) {
 _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
     var run;
     var x0 = left;
-    var y0 = top + this._Height + this._Descend;
+    //var y0 = top + this._Height + this._Descend; //not using this: we set html5 canvas to render top-left corner of text at x,y
+    var y0 = top; 
 
     for (var i = 0; i < this._Runs.length; i++) {
         run = this._Runs[i];
@@ -517,7 +519,7 @@ _TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
     for (var i = 0; i < this._Clusters.length; i++) {
         var cluster = this._Clusters[i];
         ctx.Save();
-        cluster._Render(ctx, origin, this._Attributes, x0, y);
+        cluster._Render(ctx, origin, this._Attrs, x0, y);
         ctx.Restore();
         x0 += cluster._Advance;
     }
@@ -540,7 +542,7 @@ _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) 
         return;
     var font = attrs.GetFont();
     var y0 = font._Ascender();
-    ctx.Translate(x, y - y0);
+    ctx.Transform(new TranslationMatrix(x, y - y0));
 
     var brush;
     var area;
@@ -548,7 +550,7 @@ _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) 
         area = new Rect(origin.X, origin.Y, this._Advance, font._Height());
         ctx.Fill(area, brush); //selection background
     }
-    if (!(brush = attrs.GetForeground(selected)))
+    if (!(brush = attrs.GetForeground(this._Selected)))
         return;
     ctx.CustomRender(_TextLayoutGlyphCluster.Painter, this._Text, attrs.GetForeground(), attrs.GetFont());
     if (attrs.IsUnderlined()) {

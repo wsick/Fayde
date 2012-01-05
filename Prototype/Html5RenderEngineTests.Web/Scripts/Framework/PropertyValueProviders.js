@@ -436,7 +436,7 @@ _InheritedPropertyValueProvider.prototype.WalkSubtree = function (rootParent, el
             childProp = Section.BlocksProperty;
 
         if (childProp) {
-            var col = element.GetValueNoAutoCreate(childProp);
+            var col = element._GetValueNoAutoCreate(childProp);
             if (col) {
                 var count = col.GetCount();
                 for (var i = 0; i < count; i++) {

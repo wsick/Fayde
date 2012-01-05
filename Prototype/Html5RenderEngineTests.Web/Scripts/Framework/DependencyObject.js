@@ -376,7 +376,7 @@ DependencyObject.prototype._PropagateInheritedValue = function (inheritable, sou
     if (inheritedProvider == null)
         return true;
 
-    inheritedProvider.SetPropertySource(inheritable, source);
+    inheritedProvider._SetPropertySource(inheritable, source);
     var propd = _InheritedPropertyValueProvider.GetProperty(inheritable, this);
     if (!propd)
         return false;

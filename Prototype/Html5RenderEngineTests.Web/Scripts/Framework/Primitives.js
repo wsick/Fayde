@@ -456,8 +456,7 @@ Font.prototype.GetActualHeight = function () {
 Font.prototype._Descender = function () { return 0.0; }; //most likely removable
 Font.prototype._Ascender = function () { return 0.0; }; //most likely removable
 Font.prototype._Height = function () {
-    NotImplemented("Font._Height needs height measurement from Surface.MeasureText");
-    return Surface.MeasureText(" ").Height;
+    return Surface.MeasureText("M", this).Height;
 };
 
 Font.prototype._Translate = function () {
@@ -465,7 +464,7 @@ Font.prototype._Translate = function () {
     return this.GetSize() + " " + this.GetFamily();
 };
 
-Font.DEFAULT_FAMILY = "";
+Font.DEFAULT_FAMILY = "Calibri";
 Font.DEFAULT_STRETCH = "";
 Font.DEFAULT_STYLE = "";
 Font.DEFAULT_WEIGHT = "normal";

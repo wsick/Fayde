@@ -263,6 +263,9 @@ UIElement.prototype._SetRenderSize = function (value) {
 UIElement.prototype._GetRenderSize = function () {
     return this._RenderSize;
 };
+UIElement.prototype._GetOriginPoint = function () {
+    return new Point(0.0, 0.0);
+};
 
 UIElement.prototype._DoMeasureWithError = function (error) {
     var last = LayoutInformation.GetPreviousConstraint(this);
