@@ -156,6 +156,30 @@ TextLayout.prototype.SetText = function (value, length) {
     return true;
 };
 
+TextLayout.prototype.GetBaselineOffset = function () {
+    if (this._Lines.length == 0)
+        return 0;
+    var line = this._Lines[0];
+    return line._Height + line._Descend;
+};
+TextLayout.prototype.OverrideLineHeight = function () {
+    return this.GetLineStackingStrategy() == LineStackingStrategy.BlockLineHeight && this.GetLineHeight() != 0;
+};
+TextLayout.prototype.GetLineHeightOverride = function () {
+    if (isNaN(this.GetLineHeight()))
+        return this._BaseHeight;
+    return this.GetLineHeight();
+};
+TextLayout.prototype.GetDescendOverride = function () {
+    if (isNaN(this.GetLineHeight()))
+        return this._BaseDescent;
+
+    if (this._BaseHeight == 0.0)
+        return 0.0;
+
+    return this.GetLineHeight() * (this._BaseDescent / this._BaseHeight);
+}
+
 TextLayout.prototype._ClearLines = function () {
     this._Lines = new Array();
 };
@@ -325,9 +349,6 @@ TextLayout.prototype.Layout = function () {
     } while (c != null);
     this._Count = index;
 };
-TextLayout._ValidateAttrs = function (/* List */attributes) {
-    NotImplemented("TextLayout._ValidateAttrs");
-};
 TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
     var deltax = 0.0;
     var width;
@@ -360,6 +381,21 @@ TextLayout.prototype._Render = function (ctx, origin, offset) {
     }
 };
 
+TextLayout._ValidateAttrs = function (/* List */attributes) {
+    var attrs;
+    if (!(attrs = attributes.First()) || attrs._Start != 0)
+        return false;
+
+    while (attrs != null) {
+        if (!attrs.GetFont()) //WTF: This whole method may not be valid in our case
+            return false;
+        attrs = attrs.Next;
+    }
+    return true;
+};
+TextLayout.IsLineBreak = function (text) {
+    NotImplemented("TextLayout.IsLineBreak");
+};
 TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
     if (!isFinite(availWidth)) {
         if (!isFinite(maxWidth))

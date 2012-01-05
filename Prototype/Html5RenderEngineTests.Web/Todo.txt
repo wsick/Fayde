@@ -176,18 +176,25 @@ _OnCollectionChanged [Done]
 
 
 
-
 TextLayout
 =============================
 Layout [Done]
 GetActualExtents [Done]
-GetBaselineOffset
-OverrideLineHeight
-GetDescendOverride
-GetLineHeightOverride
-_ValidateAttrs
+GetBaselineOffset [Done]
+OverrideLineHeight [Done]
+GetLineHeightOverride [Done]
+GetDescendOverride [Done]
+_ValidateAttrs [Done]
 IsLineBreak
 _Render [Done]
 _LayoutWordWrap
 _LayoutWordNoWrap [Done]
 _LayoutLwsp [Done]
+
+
+
+Font
+=============================
+_Descender
+_Height
+_Ascender

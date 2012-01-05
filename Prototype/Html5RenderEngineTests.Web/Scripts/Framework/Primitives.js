@@ -50,7 +50,8 @@ var FlowDirection = {
 };
 
 var LineStackingStrategy = {
-    MaxHeight: 0
+    MaxHeight: 0,
+    BlockLineHeight: 1
 };
 
 //#region CornerRadius
