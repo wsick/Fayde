@@ -450,10 +450,10 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         switch (vert) {
             case VerticalAlignment.Top:
                 break;
-            case VerticalAlignment.Center:
+            case VerticalAlignment.Bottom:
                 visualOffset.Y += childRect.Height - constrainedResponse.Height;
                 break;
-            case VerticalAlignment.Bottom:
+            case VerticalAlignment.Center:
                 visualOffset.Y += (childRect.Height - constrainedResponse.Height) * 0.5;
                 break;
             default:
