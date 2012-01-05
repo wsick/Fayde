@@ -251,7 +251,7 @@ TextLayout.prototype.Layout = function () {
 
             //layout until end of line or max width reached
             while (index < end) {
-                var lineBreakLength = TextLayout.IsLineBreak(this._Text.slice(index, end - index));
+                var lineBreakLength = TextLayout._IsLineBreak(this._Text.slice(index, end - index));
                 if (lineBreakLength > 0) {
                     if (line._Length == 0 && !this.OverrideLineHeight()) {
                         line._Descend = font._Descender();
@@ -393,8 +393,14 @@ TextLayout._ValidateAttrs = function (/* List */attributes) {
     }
     return true;
 };
-TextLayout.IsLineBreak = function (text) {
-    NotImplemented("TextLayout.IsLineBreak");
+TextLayout._IsLineBreak = function (text) {
+    var c0 = text.charAt(0);
+    if (c0 == '\n')
+        return 1;
+    var c1 = text.charAt(1);
+    if (c0 == '\r' && c1 == '\n')
+        return 2;
+    return 0;
 };
 TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
     if (!isFinite(availWidth)) {

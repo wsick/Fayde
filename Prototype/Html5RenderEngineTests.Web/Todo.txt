@@ -185,7 +185,7 @@ OverrideLineHeight [Done]
 GetLineHeightOverride [Done]
 GetDescendOverride [Done]
 _ValidateAttrs [Done]
-IsLineBreak
+_IsLineBreak [Done]
 _Render [Done]
 _LayoutWordWrap
 _LayoutWordNoWrap [Done]
