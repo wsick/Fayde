@@ -64,7 +64,7 @@ Border.prototype.SetPadding = function (value) {
 // INSTANCE METHODS
 //////////////////////////////////////////
 Border.prototype.IsLayoutContainer = function () { return true; };
-Border.prototype._MeasureOverrideWithEror = function (availableSize, error) {
+Border.prototype._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
     var border = this.GetPadding().Plus(this.GetBorderThickness());
 
