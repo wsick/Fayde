@@ -215,12 +215,15 @@ TextBlock.prototype._ArrangeOverrideWithError = function (finalSize, error) {
 };
 
 TextBlock.prototype._Render = function (ctx, region) {
+    ctx.Save();
+    this._RenderLayoutClip(ctx);
     var padding = this.GetPadding();
     var offset = new Point(padding.Left, padding.Top);
     if (this.GetFlowDirection() === FlowDirection.RightToLeft) {
         NotImplemented("TextBlock._Render: Right to left");
     }
     this._Layout._Render(ctx, this._GetOriginPoint(), offset);
+    ctx.Restore();
 };
 
 TextBlock.prototype.Layout = function (/* Size */constraint) {

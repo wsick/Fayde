@@ -55,6 +55,31 @@ var LineStackingStrategy = {
     BlockLineHeight: 1
 };
 
+var FontWeights = {
+    Normal: "normal",
+    Bold: "bold",
+    Bolder: "bolder",
+    Lighter: "lighter"
+};
+
+var FontStyles = {
+    Normal: "normal",
+    Italic: "italic",
+    Oblique: "oblique"
+};
+
+var FontStretches = {
+    UltraCondensed: "ultra-condensed",
+    ExtraCondensed: "extra-condensed",
+    Condensed: "condensed",
+    SemiCondensed: "semi-condensed",
+    Normal: "normal",
+    SemiExpanded: "semi-expanded",
+    Expanded: "expanded",
+    ExtraExpanded: "extra-expanded",
+    UltraExpanded: "ultra-expanded"
+};
+
 //#region CornerRadius
 
 CornerRadius.prototype = new Object;
@@ -460,14 +485,22 @@ Font.prototype._Height = function () {
 };
 
 Font.prototype._Translate = function () {
-    NotImplemented("Font._Translate");
-    return this.GetSize() + " " + this.GetFamily();
+    var s = "";
+    var style = this.GetStyle();
+    var weight = this.GetWeight();
+    if (style && style !== FontStyles.Normal)
+        s += style.toString() + " ";
+    if (weight && weight !== FontWeights.Normal)
+        s += weight.toString() + " ";
+    s += this.GetSize() + " ";
+    s += this.GetFamily() + " ";
+    return s;
 };
 
 Font.DEFAULT_FAMILY = "Calibri";
-Font.DEFAULT_STRETCH = "";
-Font.DEFAULT_STYLE = "";
-Font.DEFAULT_WEIGHT = "normal";
+Font.DEFAULT_STRETCH = FontStretches.Normal;
+Font.DEFAULT_STYLE = FontStyles.Normal;
+Font.DEFAULT_WEIGHT = FontWeights.Normal;
 Font.DEFAULT_SIZE = "12px";
 
 //#endregion

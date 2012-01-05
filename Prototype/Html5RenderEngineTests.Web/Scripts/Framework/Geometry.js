@@ -40,3 +40,8 @@ RectangleGeometry.prototype.ComputePathBounds = function () {
         return rect;
     return new Rect(0.0, 0.0, 0.0, 0.0);
 };
+
+RectangleGeometry.prototype.Draw = function (canvasCtx) {
+    var rect = this.GetRect();
+    canvasCtx.rect(rect.X, rect.Y, rect.Width, rect.Height);
+};

@@ -546,8 +546,8 @@ FrameworkElement.prototype._HasLayoutClip = function () {
 };
 FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
     var element = this;
+    var inverse = new TranslationMatrix(0, 0);
 
-    ctx.Save();
     while (element) {
         var geom = LayoutInformation.GetLayoutClip(element);
         if (geom)
@@ -556,12 +556,15 @@ FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
         if (element instanceof Canvas || element instanceof UserControl)
             break;
         var visualOffset = LayoutInformation.GetVisualOffset(element);
-        if (visualOffset)
+        if (visualOffset) {
             ctx.Transform(new TranslationMatrix(-visualOffset.X, -visualOffset.Y));
+            inverse.X += visualOffset.X;
+            inverse.Y += visualOffset.Y;
+        }
 
         element = element.GetVisualParent();
     }
-    ctx.Restore();
+    ctx.Transform(inverse);
 };
 
 FrameworkElement.prototype._ElementRemoved = function (value) {
