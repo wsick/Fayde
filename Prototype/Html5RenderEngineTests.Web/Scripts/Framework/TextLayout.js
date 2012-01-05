@@ -183,14 +183,13 @@ TextLayout.prototype.Layout = function () {
     if (this._Text == null || !TextLayout._ValidateAttrs(this._Attributes))
         return;
 
-    var word;
+    var word = new _LayoutWord();
     if (this._Wrapping === TextWrapping.Wrap)
         word._BreakOps = new Array();
     else
         word._BreakOps = null;
 
-    var layoutWordFunc = function () { NotImplemented("layoutWordFunc"); };
-    var layoutLwsp = function () { NotImplemented("layoutLwsp"); };
+    var layoutWordFunc = this._Wrapping === TextWrapping.NoWrap ? TextLayout._LayoutWordNoWrap : TextLayout._LayoutWordWrap;
 
     var line = new _TextLayoutLine(this, 0, 0);
     if (this.OverrideLineHeight()) {
@@ -225,7 +224,6 @@ TextLayout.prototype.Layout = function () {
         while (index < end) {
             var linebreak = false;
             var wrapped = false;
-            var prev = null;
 
             //layout until end of line or max width reached
             while (index < end) {
@@ -246,7 +244,6 @@ TextLayout.prototype.Layout = function () {
                 }
 
                 word._LineAdvance = line._Advance;
-                word._Prev = prev;
                 if (layoutWordFunc(word, this._Text.slice(index, end - index), this._MaxWidth)) {
                     this._IsWrapped = true;
                     wrapped = true;
@@ -268,15 +265,13 @@ TextLayout.prototype.Layout = function () {
                     run._Count += word._Count;
 
                     index += word._Count;
-                    prev = word._Prev;
                 }
 
                 if (wrapped)
                     break;
 
                 word._LineAdvance = line._Advance;
-                word._Prev = prev;
-                layoutLwsp(word, this._Text.slice(index, end - index));
+                TextLayout._LayoutLwsp(word, this._Text.slice(index, end - index));
 
                 if (word._Length > 0) {
                     if (!this.OverrideLineHeight()) {
@@ -293,7 +288,6 @@ TextLayout.prototype.Layout = function () {
                     run._Count += word._Count;
 
                     index += word._Count;
-                    prev = word._Prev;
                 }
             }
 
@@ -318,7 +312,6 @@ TextLayout.prototype.Layout = function () {
                         this._ActualHeight += line._Height;
 
                     this._Lines.push(line);
-                    prev = null;
                 }
 
                 if (index < end) {
@@ -375,6 +368,24 @@ TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
             return Math.min(actualWidth, maxWidth);
     }
     return availWidth;
+};
+TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
+    NotImplemented("TextLayout._LayoutWordWrap");
+};
+TextLayout._LayoutWordNoWrap = function (word, text) {
+    var advance = Surface.MeasureText(text).Width;
+    word._Advance = advance;
+    word._LineAdvance += advance;
+    word._Count = text.length;
+    word._Length = text.length;
+    return false;
+};
+TextLayout._LayoutLwsp = function (word, text) {
+    var advance = Surface.MeasureText(text).Width;
+    word._Advance = advance;
+    word._LineAdvance += advance;
+    word._Count = text.length;
+    word._Length = text.length;
 };
 
 //#endregion
@@ -526,5 +537,21 @@ _TextLayoutAttributes.prototype.GetForeground = function (selected) { return thi
 _TextLayoutAttributes.prototype.GetFont = function () { return this._Source.GetFont(); };
 _TextLayoutAttributes.prototype.GetDirection = function () { return this._Source.GetDirection(); };
 _TextLayoutAttributes.prototype.IsUnderlined = function () { return this._Source.GetTextDecorations() & TextDecorations.Underline; };
+
+//#endregion
+
+//#region _LayoutWord
+
+_LayoutWord.prototype = new Object;
+_LayoutWord.prototype.constructor = _LayoutWord;
+function _LayoutWord() {
+    Object.call(this);
+    this._Advance = 0.0;
+    this._LineAdvance = 0.0;
+    this._Length = 0;
+    this._Count = 0;
+    this._BreakOps = null;
+    this._Font = new Font();
+}
 
 //#endregion

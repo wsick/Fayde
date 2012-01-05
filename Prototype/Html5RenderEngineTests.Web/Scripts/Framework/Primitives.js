@@ -36,7 +36,8 @@ var TextTrimming = {
 
 var TextWrapping = {
     NoWrap: 0,
-    Wrap: 1
+    Wrap: 1,
+    WrapWithOverflow: 2
 };
 
 var TextDecorations = {
@@ -452,6 +453,7 @@ Font.prototype.GetActualHeight = function () {
 
 Font.prototype._Translate = function () {
     NotImplemented("Font._Translate");
+    return this.GetSize() + " " + this.GetFamily();
 };
 
 Font.DEFAULT_FAMILY = "";

@@ -180,8 +180,6 @@ _OnCollectionChanged [Done]
 TextLayout
 =============================
 Layout [Done]
- - layoutWordFunc
- - layoutLwsp
 GetActualExtents [Done]
 GetBaselineOffset
 OverrideLineHeight
@@ -190,3 +188,6 @@ GetLineHeightOverride
 _ValidateAttrs
 IsLineBreak
 _Render [Done]
+_LayoutWordWrap
+_LayoutWordNoWrap [Done]
+_LayoutLwsp [Done]
