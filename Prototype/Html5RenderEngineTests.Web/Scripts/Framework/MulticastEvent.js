@@ -31,3 +31,7 @@ MulticastEvent.prototype.Raise = function (sender, args) {
         listener.Callback.call(listener.Closure, sender, args);
     }
 };
+MulticastEvent.prototype.RaiseAsync = function (sender, args) {
+    var me = this;
+    setTimeout(function () { me.Raise(sender, args); }, 1);
+};

@@ -47,7 +47,8 @@ var TextDecorations = {
 };
 
 var FlowDirection = {
-    LeftToRight: 0
+    LeftToRight: 0,
+    RightToLeft: 1
 };
 
 var LineStackingStrategy = {
@@ -78,6 +79,13 @@ var FontStretches = {
     Expanded: "expanded",
     ExtraExpanded: "extra-expanded",
     UltraExpanded: "ultra-expanded"
+};
+
+var ScrollBarVisibility = {
+    Auto: 0,
+    Disabled: 1,
+    Hidden: 2,
+    Visible: 3
 };
 
 //#region CornerRadius

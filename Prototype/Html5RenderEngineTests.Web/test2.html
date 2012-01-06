@@ -3,21 +3,9 @@
 <head>
     <title></title>
     <script type="text/javascript">
-        //var test1 = new Panel();
-        //test1.Method1();
-        //test1.Method2();
-
-        //var test2 = new Canvas();
-        //test2.Method1();
-        //test2.Method2();
-
-        //alert(Canvas.TopProperty);
-
-        testing();
-        function testing(input) {
-            alert(input == null);
-            alert(input === undefined);
-        }
+        setTimeout(function () { alert("Async"); }, 1);
+        var baseDate = new Date();
+        alert("Starting timer");
     </script>
 </head>
 <body>

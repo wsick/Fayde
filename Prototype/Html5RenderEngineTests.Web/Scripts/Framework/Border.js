@@ -121,10 +121,9 @@ Border.prototype._Render = function (ctx, region) {
         ctx.Restore();
     }
 };
-Border.prototype._RenderImpl = function (ctx, region, pathOnly) {
+Border.prototype._RenderImpl = function (ctx, region) {
     ctx.Save();
-    if (!pathOnly)
-        this._RenderLayoutClip(ctx);
+    this._RenderLayoutClip(ctx);
     ctx.CustomRender(Border._Painter, this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius());
     ctx.Restore();
 };

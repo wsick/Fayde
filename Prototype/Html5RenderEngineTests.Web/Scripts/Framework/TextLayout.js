@@ -180,6 +180,16 @@ TextLayout.prototype.GetDescendOverride = function () {
     return this.GetLineHeight() * (this._BaseDescent / this._BaseHeight);
 }
 
+TextLayout.prototype.GetLineFromY = function (offset, y) {
+    NotImplemented("TextLayout.GetLineFromY");
+};
+TextLayout.prototype.GetLineFromIndex = function (index) {
+    NotImplemented("TextLayout.GetLineFromIndex");
+};
+TextLayout.prototype.GetCursorFromXY = function (offset, x, y) {
+    NotImplemented("TextLayout.GetCursorFromXY");
+};
+
 TextLayout.prototype._ClearLines = function () {
     this._Lines = new Array();
 };
