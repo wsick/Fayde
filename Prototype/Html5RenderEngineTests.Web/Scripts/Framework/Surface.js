@@ -402,7 +402,7 @@ _RenderContext.prototype.Restore = function () {
 };
 _RenderContext.prototype.Fill = function (region, brush) {
     if (region instanceof Rect) {
-        this._Surface._Ctx.fillStyle = brush._Translate();
+        this._Surface._Ctx.fillStyle = brush._Translate(this._Surface._Ctx, region);
         this._Surface._Ctx.fillRect(region.X, region.Y, region.Width, region.Height);
     }
 };

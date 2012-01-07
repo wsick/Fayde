@@ -568,7 +568,7 @@ _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) 
     }
 };
 _TextLayoutGlyphCluster.Painter = function (canvasCtx, text, foreground, font) {
-    canvasCtx.fillStyle = foreground._Translate();
+    canvasCtx.fillStyle = foreground._Translate(canvasCtx);
     canvasCtx.font = font._Translate();
     canvasCtx.textAlign = "left";
     canvasCtx.textBaseline = "top";

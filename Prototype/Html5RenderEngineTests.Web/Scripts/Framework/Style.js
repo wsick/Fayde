@@ -1,35 +1,42 @@
 ﻿/// <reference path="DependencyObject.js" />
+/// <reference path="App.js"/>
 
-//////////////////////////////////////////
-// SETTER BASE
-//////////////////////////////////////////
-_SetterBase.prototype = new DependencyObject;
-_SetterBase.prototype.constructor = _SetterBase;
-function _SetterBase() {
+//#region SetterBase
+
+SetterBase.prototype = new DependencyObject;
+SetterBase.prototype.constructor = SetterBase;
+function SetterBase() {
     DependencyObject.call(this);
     this._IsAttached = false;
 }
-_SetterBase.prototype.Seal = function () {
-    if (this.GetIsSealed())
-        return;
-    this.SetIsSealed(true);
-};
-_SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", _SetterBase, false);
-_SetterBase.prototype.SetIsSealed = function (value) {
-    this.SetValue(_SetterBase.IsSealedProperty, value);
-};
-_SetterBase.prototype.GetIsSealed = function () {
-    return this.GetValue(_SetterBase.IsSealedProperty);
+
+//#region DEPENDENCY PROPERTIES
+
+SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", SetterBase, false);
+SetterBase.prototype.GetIsSealed = function () {
+    return this.GetValue(SetterBase.IsSealedProperty);
 };
 
-//////////////////////////////////////////
-// SETTER
-//////////////////////////////////////////
-Setter.prototype = new _SetterBase;
+//#endregion
+
+SetterBase.prototype._Seal = function () {
+    if (this.GetIsSealed())
+        return;
+    this.SetValue(SetterBase.IsSealedProperty, true);
+};
+
+//#endregion
+
+//#region Setter
+
+Setter.prototype = new SetterBase;
 Setter.prototype.constructor = Setter;
 function Setter() {
-    _SetterBase.call(this);
+    SetterBase.call(this);
 }
+
+//#region DEPENDENCY PROPERTIES
+
 Setter.PropertyProperty = DependencyProperty.Register("Property", Setter);
 Setter.prototype.GetProperty = function () {
     return this.GetValue(Setter.PropertyProperty);
@@ -37,6 +44,7 @@ Setter.prototype.GetProperty = function () {
 Setter.prototype.SetProperty = function (value) {
     this.SetValue(Setter.PropertyProperty, value);
 };
+
 Setter.ValueProperty = DependencyProperty.Register("Value", Setter);
 Setter.prototype.GetValue_Prop = function () {
     return this.GetValue(Setter.ValueProperty);
@@ -44,11 +52,75 @@ Setter.prototype.GetValue_Prop = function () {
 Setter.prototype.SetValue_Prop = function (value) {
     this.SetValue(Setter.ValueProperty, value);
 };
+
 Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", Setter);
 
-//////////////////////////////////////////
-// DEEP STYLE WALKER
-//////////////////////////////////////////
+//#endregion
+
+//#endregion
+
+//#region Style
+
+Style.prototype = new DependencyObject;
+Style.prototype.constructor = Style;
+function Style() {
+    DependencyObject.call(this);
+}
+
+//#region DEPENDENCY PROPERTIES
+
+Style.SettersProperty = DependencyProperty.Register("Setters", Style);
+Style.prototype.GetSetters = function () {
+    this.GetValue(Style.SettersProperty);
+};
+
+Style.IsSealedProperty = DependencyProperty.Register("IsSealed", Style);
+Style.prototype.GetIsSealed = function () {
+    return this.GetValue(Style.IsSealedProperty);
+};
+
+Style.BasedOnProperty = DependencyProperty.Register("BasedOn", Style);
+Style.prototype.GetBasedOn = function () {
+    return this.GetValue(Style.BasedOnProperty);
+};
+Style.prototype.SetBasedOn = function (value) {
+    this.SetValue(Style.BasedOnProperty, value);
+};
+
+Style.TargetTypeProperty = DependencyProperty.Register("TargetType", Style);
+Style.prototype.GetTargetType = function () {
+    return this.GetValue(Style.TargetTypeProperty);
+};
+Style.prototype.SetTargetType = function (value) {
+    this.SetValue(Style.TargetTypeProperty, value);
+};
+
+//#endregion
+
+Style.prototype._Seal = function () {
+    if (this.GetIsSealed())
+        return;
+
+    var app = App.Instance;
+    if (!app)
+        return;
+
+    app.ConvertSetterValues(this);
+    this.SetValue(Style.IsSealedProperty, true);
+    var setters = this.GetSetters();
+    for (var i = 0; i < setters.length; i++) {
+        setters[i]._Seal();
+    }
+
+    var base = this.GetBasedOn();
+    if (base)
+        base._Seal();
+};
+
+//#endregion
+
+//#region _DeepStyleWalker
+
 _DeepStyleWalker.prototype = new Object;
 _DeepStyleWalker.prototype.constructor = _DeepStyleWalker;
 function _DeepStyleWalker(style) {
@@ -81,52 +153,7 @@ _DeepStyleWalker.prototype.Step = function () {
         this._Offset++;
         return s;
     }
-    return null;
+    return undefined;
 };
 
-//////////////////////////////////////////
-// STYLE
-//////////////////////////////////////////
-Style.prototype = new DependencyObject;
-Style.prototype.constructor = Style;
-function Style() {
-    DependencyObject.call(this);   
-}
-Style.BasedOnProperty = DependencyProperty.Register("BasedOn", Style);
-
-Style.SettersProperty = DependencyProperty.Register("Setters", Style);
-Style.prototype.SetSetters = function (value) {
-    this.SetValue(Style.SettersProperty, value);
-};
-Style.prototype.GetSetters = function () {
-    this.GetValue(Style.SettersProperty);
-};
-
-Style.IsSealedProperty = DependencyProperty.Register("IsSealed", Style);
-Style.prototype.SetIsSealed = function (value) {
-    this.SetValue(Style.IsSealedProperty, value);
-};
-Style.prototype.GetIsSealed = function () {
-    return this.GetValue(Style.IsSealedProperty);
-};
-Style.prototype.Seal = function () {
-    if (this.GetIsSealed())
-        return;
-
-    var application = Application.GetCurrent();
-    if (!application)
-        return;
-
-    application.ConvertSetterValues(this);
-    this.SetIsSealed(true);
-    var setters = this.GetSetters();
-    for (var i = 0; i < setters.length; i++) {
-        setters[i].Seal();
-    }
-
-    var base = this.GetBasedOn();
-    if (base)
-        base.Seal();
-};
-
-Style.TargetTypeProperty = DependencyProperty.Register("TargetType", Style);
+//#endregion

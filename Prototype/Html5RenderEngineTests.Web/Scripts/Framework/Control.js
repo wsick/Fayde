@@ -1,5 +1,7 @@
 ﻿/// <reference path="FrameworkElement.js" />
-/// <reference path="PropertyValueProviders/InheritedIsEnabled.js"/>
+/// <reference path="PropertyValueProviders.js"/>
+
+//#region Control
 
 Control.prototype = new FrameworkElement;
 Control.prototype.constructor = Control;
@@ -9,9 +11,8 @@ function Control() {
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 }
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 Control.BackgroundProperty = DependencyProperty.Register("Background", Control);
 Control.prototype.GetBackground = function () {
     return this.GetValue(Control.BackgroundProperty);
@@ -36,7 +37,7 @@ Control.prototype.SetBorderThickness = function (value) {
     this.SetValue(Control.BorderThicknessProperty, value);
 };
 
-Control.FontFamilyProperty = DependencyProperty.Register("FontFamily", Control);
+Control.FontFamilyProperty = DependencyProperty.Register("FontFamily", Control, Font.DEFAULT_FAMILY);
 Control.prototype.GetFontFamily = function () {
     return this.GetValue(Control.FontFamilyProperty);
 };
@@ -44,7 +45,7 @@ Control.prototype.SetFontFamily = function (value) {
     this.SetValue(Control.FontFamilyProperty, value);
 };
 
-Control.FontSizeProperty = DependencyProperty.Register("FontSize", Control);
+Control.FontSizeProperty = DependencyProperty.Register("FontSize", Control, Font.DEFAULT_SIZE);
 Control.prototype.GetFontSize = function () {
     return this.GetValue(Control.FontSizeProperty);
 };
@@ -52,7 +53,7 @@ Control.prototype.SetFontSize = function (value) {
     this.SetValue(Control.FontSizeProperty, value);
 };
 
-Control.FontStretchProperty = DependencyProperty.Register("FontStretch", Control);
+Control.FontStretchProperty = DependencyProperty.Register("FontStretch", Control, Font.DEFAULT_STRETCH);
 Control.prototype.GetFontStretch = function () {
     return this.GetValue(Control.FontStretchProperty);
 };
@@ -60,7 +61,7 @@ Control.prototype.SetFontStretch = function (value) {
     this.SetValue(Control.FontStretchProperty, value);
 };
 
-Control.FontStyleProperty = DependencyProperty.Register("FontStyle", Control);
+Control.FontStyleProperty = DependencyProperty.Register("FontStyle", Control, Font.DEFAULT_STYLE);
 Control.prototype.GetFontStyle = function () {
     return this.GetValue(Control.FontStyleProperty);
 };
@@ -68,7 +69,7 @@ Control.prototype.SetFontStyle = function (value) {
     this.SetValue(Control.FontStyleProperty, value);
 };
 
-Control.FontWeightProperty = DependencyProperty.Register("FontWeight", Control);
+Control.FontWeightProperty = DependencyProperty.Register("FontWeight", Control, Font.DEFAULT_WEIGHT);
 Control.prototype.GetFontWeight = function () {
     return this.GetValue(Control.FontWeightProperty);
 };
@@ -164,9 +165,10 @@ Control.prototype.SetDefaultStyleKey = function (value) {
     this.SetValue(Control.DefaultStyleKeyProperty, value);
 };
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
+//#endregion
+
+//#region INSTANCE METHODS
+
 Control.prototype._ElementAdded = function (item) {
     var error;
     item._AddParent(this, error);
@@ -263,3 +265,7 @@ Control.prototype._DoApplyTemplateWithError = function (error) {
 
     return true;
 };
+
+//#endregion
+
+//#endregion

@@ -1,5 +1,6 @@
 ﻿/// <reference path="Debug.js"/>
 /// <reference path="Surface.js"/>
+/// <reference path="DependencyObject.js"/>
 
 var Visibility = {
     Visible: 0,
@@ -155,6 +156,9 @@ function Point(x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
+Point.prototype.Apply = function (matrix) {
+    return matrix.Multiply(this);
+};
 
 //#endregion
 
@@ -291,7 +295,7 @@ Brush.prototype = new Object;
 Brush.prototype.constructor = Brush;
 function Brush() {
 };
-Brush.prototype._Translate = function () {
+Brush.prototype._Translate = function (ctx) {
     AbstractMethod("Brush._Translate()");
 };
 
@@ -305,9 +309,155 @@ function SolidColorBrush(color) {
     Brush.call(this);
     this._Color = color;
 }
-SolidColorBrush.prototype._Translate = function () {
+SolidColorBrush.prototype._Translate = function (ctx) {
     return this._Color.toString();
 };
+
+//#endregion
+
+//#region GradientStop
+
+GradientStop.prototype = new DependencyObject;
+GradientStop.prototype.constructor = GradientStop;
+function GradientStop() {
+    DependencyObject.call(this);
+}
+
+GradientStop.ColorProperty = DependencyProperty.Register("Color", GradientStop, new Color());
+GradientStop.prototype.GetColor = function () {
+    return this.GetValue(GradientStop.ColorProperty);
+};
+GradientStop.prototype.SetColor = function (value) {
+    this.SetValue(GradientStop.ColorProperty, value);
+};
+
+GradientStop.OffsetProperty = DependencyProperty.Register("Offset", GradientStop, 0.0);
+GradientStop.prototype.GetOffset = function () {
+    return this.GetValue(GradientStop.OffsetProperty);
+};
+GradientStop.prototype.SetOffset = function (value) {
+    this.SetValue(GradientStop.OffsetProperty, value);
+};
+
+//#endregion
+
+//#region GradientStopCollection
+
+GradientStopCollection.prototype = new DependencyObjectCollection;
+GradientStopCollection.prototype.constructor = GradientStopCollection;
+function GradientStopCollection() {
+    DependencyObjectCollection.call(this);
+}
+GradientStopCollection.prototype.IsElementType = function (value) {
+    return value instanceof GradientStop;
+};
+
+//#endregion
+
+//#region GradientBrush
+
+GradientBrush.prototype = new Brush;
+GradientBrush.prototype.constructor = GradientBrush;
+function GradientBrush() {
+    Brush.call(this);
+}
+
+GradientBrush.GradientStopsProperty = DependencyProperty.Register("GradientStops", GradientBrush);
+GradientBrush.prototype.GetGradientStops = function () {
+    return this.GetValue(GradientBrush.GradientStopsProperty);
+};
+GradientBrush.prototype.SetGradientStops = function (value) {
+    this.SetValue(GradientBrush.GradientStopsProperty, value);
+};
+
+//#endregion
+
+//#region LinearGradientBrush
+
+LinearGradientBrush.prototype = new GradientBrush;
+LinearGradientBrush.prototype.constructor = LinearGradientBrush;
+function LinearGradientBrush() {
+    GradientBrush.call(this);
+}
+
+//#region DEPENDENCY PROPERTIES
+
+LinearGradientBrush.StartPointProperty = DependencyProperty.Register("StartPoint", LinearGradientBrush);
+LinearGradientBrush.prototype.GetStartPoint = function () {
+    return this.GetValue(LinearGradientBrush.StartPointProperty);
+};
+LinearGradientBrush.prototype.SetStartPoint = function (value) {
+    this.SetValue(LinearGradientBrush.StartPointProperty, value);
+};
+
+LinearGradientBrush.EndPointProperty = DependencyProperty.Register("EndPoint", LinearGradientBrush);
+LinearGradientBrush.prototype.GetEndPoint = function () {
+    return this.GetValue(LinearGradientBrush.EndPointProperty);
+};
+LinearGradientBrush.prototype.SetEndPoint = function (value) {
+    this.SetValue(LinearGradientBrush.EndPointProperty, value);
+};
+
+//#endregion
+
+LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
+    var transform = new Matrix();
+    var start = this.GetStartPoint().Apply(transform);
+    var end = this.GetEndPoint().Apply(transform);
+    var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
+    var stops = this.GetGradientStops();
+    for (var i = 0; i < stops.GetCount(); i++) {
+        var stop = stops.GetValueAt(i);
+        grd.addColorStop(stop.GetOffset(), stop.GetColor()._Translate());
+    }
+    return grd;
+};
+
+//#endregion
+
+//#region RadialGradientBrush
+
+RadialGradientBrush.prototype = new GradientBrush;
+RadialGradientBrush.prototype.constructor = RadialGradientBrush;
+function RadialGradientBrush() {
+    GradientBrush.call(this);
+}
+
+//#region DEPENDENCY PROPERTIES
+
+RadialGradientBrush.CenterProperty = DependencyProperty.Register("Center", RadialGradientBrush, new Point(0.5, 0.5));
+RadialGradientBrush.prototype.GetCenter = function () {
+    return this.GetValue(RadialGradientBrush.CenterProperty);
+};
+RadialGradientBrush.prototype.SetCenter = function (value) {
+    this.SetValue(RadialGradientBrush.CenterProperty, value);
+};
+
+RadialGradientBrush.GradientOriginProperty = DependencyProperty.Register("GradientOrigin", RadialGradientBrush, new Point(0.5, 0.5));
+RadialGradientBrush.prototype.GetGradientOrigin = function () {
+    return this.GetValue(RadialGradientBrush.GradientOriginProperty);
+};
+RadialGradientBrush.prototype.SetGradientoOrigin = function (value) {
+    this.SetValue(RadialGradientBrush.GradientOriginProperty, value);
+};
+
+RadialGradientBrush.RadiusXProperty = DependencyProperty.Register("RadiusX", RadialGradientBrush, 0.5);
+RadialGradientBrush.prototype.GetRadiusX = function () {
+    return this.GetValue(RadialGradientBrush.RadiusXProperty);
+};
+RadialGradientBrush.prototype.SetRadiusX = function (value) {
+    this.SetValue(RadialGradientBrush.RadiusXProperty, value);
+};
+
+RadialGradientBrush.RadiusYProperty = DependencyProperty.Register("RadiusY", RadialGradientBrush, 0.5);
+RadialGradientBrush.prototype.GetRadiusY = function () {
+    return this.GetValue(RadialGradientBrush.RadiusYProperty);
+};
+RadialGradientBrush.prototype.SetRadiusY = function (value) {
+    this.SetValue(RadialGradientBrush.RadiusYProperty, value);
+};
+
+//#endregion
 
 //#endregion
 
@@ -316,21 +466,69 @@ SolidColorBrush.prototype._Translate = function () {
 Matrix.prototype = new Object;
 Matrix.prototype.constructor = Matrix;
 function Matrix() {
-    this._Elements = [
-        [1, 0, 0],
-        [0, 1, 0],
-        [0, 0, 1]
-    ];
+    this._Elements = Matrix.CreateIdentityArray();
 }
 Matrix.prototype.GetElements = function () {
     return this._Elements;
+};
+Matrix.prototype.SetElement = function (i, j, value) {
+    this._Elements[i][j] = value;
 };
 Matrix.prototype.Apply = function (ctx) {
     var elements = this.GetElements();
     ctx.transform(elements[0][0], elements[1][0], elements[0][1], elements[1][1], elements[0][2], elements[1][2]);
 };
-Matrix.Multiply = function (mat1, mat2) {
-    NotImplemented("Matrix.Multiply(mat1, mat2)");
+Matrix.prototype.Multiply = function (val) {
+    if (val instanceof Point) {
+        var result = new Point();
+        val = [[val2.X], [val2.Y], [0]];
+        for (var i = 0; i < 3; i++) {
+            result.X += this._Elements[0][i] * val[i][0];
+            result.Y += this._Elements[1][i] * val[i][0];
+        }
+        return result;
+    }
+    if (val instanceof Matrix) {
+        var result = new Matrix();
+        var arr1 = this.GetElements();
+        var arr2 = val.GetElements();
+        for (var i = 0; i < arr1.length; i++) {
+            result[i] = new Array();
+            for (var j = 0; j < arr2.length; j++) {
+                var temp = 0;
+                for (var k = 0; k < arr2[j].length; k++) {
+                    temp += arr1[i][k] * arr2[k][j];
+                }
+                result.SetElement(i, j, temp);
+            }
+        }
+        return result;
+    }
+    NotImplemented("Matrix.Multiply");
+};
+Matrix.prototype.toString = function () {
+    var t = new String();
+    t += "[\n";
+    var arr = this.GetElements();
+    for (var i = 0; i < arr.length; i++) {
+        t += "[";
+        for (var j = 0; j < arr[i].length; j++) {
+            t += arr[i][j].toString();
+            t += ",";
+        }
+        t = t.substr(0, t.length - 1)
+        t += "],\n";
+    }
+    t = t.substr(0, t.length - 2);
+    t += "\n]";
+    return t;
+};
+Matrix.CreateIdentityArray = function () {
+    return [
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+    ];
 };
 
 //#endregion
@@ -346,8 +544,8 @@ function TranslationMatrix(x, y) {
 }
 TranslationMatrix.prototype.GetElements = function () {
     return [
-        [1, 0, x],
-        [0, 1, y],
+        [1, 0, this.X],
+        [0, 1, this.Y],
         [0, 0, 1]
     ];
 };

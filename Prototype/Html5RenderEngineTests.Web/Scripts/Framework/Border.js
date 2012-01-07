@@ -205,12 +205,12 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
             canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
     }
     if (backgroundBrush) {
-        canvasCtx.fillStyle = backgroundBrush._Translate();
+        canvasCtx.fillStyle = backgroundBrush._Translate(canvasCtx, pathRect);
         canvasCtx.fill();
     }
     if (borderBrush && !thickness.IsEmpty()) {
         canvasCtx.lineWidth = thickness;
-        canvasCtx.strokeStyle = borderBrush._Translate();
+        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx);
         canvasCtx.stroke();
     }
     canvasCtx.closePath();

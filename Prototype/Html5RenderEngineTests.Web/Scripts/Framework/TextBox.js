@@ -2,6 +2,7 @@
 /// <reference path="PropertyValueProviders.js"/>
 /// <reference path="Primitives.js"/>
 /// <reference path="List.js"/>
+/// <reference path="Style.js"/>
 
 //#region TextBox
 
@@ -124,6 +125,73 @@ TextBox.prototype.OnApplyTemplate = function () {
     }
 };
 
+TextBox.prototype.SyncSelectedText = function () {
+    if (this._SelectionCursor != this._SelectionAnchor) {
+        var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
+        var end = Math.max(this._SelectionAnchor, this._SelectionCursor);
+        var text = this._Buffer.slice(start, end);
+
+        this._SetValue = false;
+        this.SetSelectedText(TextBox.SelectedTextProperty, text);
+        this._SetValue = true;
+    } else {
+        this._SetValue = false;
+        this.SetSelectedText("");
+        this._SetValue = true;
+    }
+};
+TextBox.prototype.SyncText = function () {
+    this._SetValue = false;
+    this.SetValue(TextBox.TextProperty, this._Buffer);
+    this._SetValue = true;
+};
+
+TextBox.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== TextBox) {
+        TextBoxBase.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    NotImplemented("TextBox._OnPropertyChanged");
+};
+
+//#endregion
+
+//#region DEFAULT STYLE
+
+TextBox.GetDefaultStyle = function () {
+    var style = new Style();
+    
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.BorderThicknessProperty);
+        setter.SetValue_Prop(new Thickness(1, 1, 1, 1));
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.BackgroundProperty);
+        setter.SetValue_Prop(new SolidColorBrush(new Color(255, 255, 255, 1.0)));
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.ForegroundProperty);
+        setter.SetValue_Prop(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.PaddingProperty);
+        setter.SetValue_Prop(new Thickness(2, 2, 2, 2));
+        return setter;
+    })());
+
+    return style;
+};
+
 //#endregion
 
 //#endregion
@@ -147,6 +215,11 @@ TextBoxBase.prototype = new Control;
 TextBoxBase.prototype.constructor = TextBoxBase;
 function TextBoxBase() {
     Control.call(this);
+    this._SelectionAnchor = 0;
+    this._SelectionCursor = 0;
+    this._Buffer = new String();
+
+    this._Font = new Font();
 }
 
 //#endregion
