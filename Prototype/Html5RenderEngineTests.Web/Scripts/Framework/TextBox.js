@@ -160,7 +160,7 @@ TextBox.prototype._OnPropertyChanged = function (args, error) {
 
 TextBox.GetDefaultStyle = function () {
     var style = new Style();
-    
+
     style.GetSetters().Add((function () {
         var setter = new Setter();
         setter.SetProperty(Control.BorderThicknessProperty);
@@ -186,6 +186,40 @@ TextBox.GetDefaultStyle = function () {
         var setter = new Setter();
         setter.SetProperty(Control.PaddingProperty);
         setter.SetValue_Prop(new Thickness(2, 2, 2, 2));
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.BorderBrushProperty);
+        setter.SetValue_Prop((function () {
+            var brush = new LinearGradientBrush();
+            brush.GetGradientStops().Add((function () {
+                var stop = new GradientStop();
+                stop.SetColor(new Color(163, 174, 185));
+                stop.SetOffset(0.0);
+                return stop;
+            })());
+            brush.GetGradientStops().Add((function () {
+                var stop = new GradientStop();
+                stop.SetColor(new Color(131, 153, 169));
+                stop.SetOffset(0.375);
+                return stop;
+            })());
+            brush.GetGradientStops().Add((function () {
+                var stop = new GradientStop();
+                stop.SetColor(new Color(113, 133, 151));
+                stop.SetOffset(0.375);
+                return stop;
+            })());
+            brush.GetGradientStops().Add((function () {
+                var stop = new GradientStop();
+                stop.SetColor(new Color(97, 117, 132));
+                stop.SetOffset(1.0);
+                return stop;
+            })());
+            return brush;
+        })());
         return setter;
     })());
 
