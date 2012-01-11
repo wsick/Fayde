@@ -41,9 +41,9 @@ App.prototype._Stop = function () {
     clearInterval(this._TickID);
 };
 App.prototype._GetImplicitStyles = function (fe, styleMask) {
-    var genericXamlStyle = null;
-    var appResourcesStyle = null;
-    var visualTreeStyle = null;
+    var genericXamlStyle = undefined;
+    var appResourcesStyle = undefined;
+    var visualTreeStyle = undefined;
     if ((styleMask & _StyleMask.GenericXaml) != 0) {
         if (fe instanceof Control) {
             var styleKey = fe.GetDefaultStyleKey();
