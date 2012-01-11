@@ -84,7 +84,7 @@ _InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (sou
             if (source instanceof Control)
                 break;
             else if (source instanceof FrameworkElement)
-                source = source.GetLogicalParent();
+                source = source._GetLogicalParent();
             else
                 source = null;
         }

@@ -377,7 +377,7 @@ Grid.prototype._AllocateDesiredSize = function (rowCount, colCount) {
                 var current = matrix[row][col]._DesiredSize;
                 var totalAllocated = 0;
                 for (var a = row; a >= col; a--) {
-                    totalAllocated += matrix[i][i]._DesiredSize;
+                    totalAllocated += matrix[a][a]._DesiredSize;
                 }
                 if (totalAllocated < current) {
                     var additional = current - totalAllocated;

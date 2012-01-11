@@ -15,6 +15,13 @@
 
 
 
+App
+=============================
+_GetImplicitStyles [Done]
+_GetGenericXamlStyleFor
+
+
+
 Surface
 =============================
 _DownDirtyNode [Done]
@@ -49,9 +56,25 @@ _OnLogicalParentChanged [Done]
 _OnSubPropertyChanged [Done]
 _OnCollectionChanged [Done]
 _OnCollectionItemChanged [Done]
-FindName
+FindName [Done]
+FindNameScope [Done]
 _GetValueNoAutoCreate [Done]
 _GetValueNoDefault [Done]
+_RegisterAllNamesRootedAt [Done]
+_UnregisterAllNamesRootedAt [Done]
+
+
+
+NameScope
+=============================
+_MergeTemporaryScope [Done]
+_GetTemporary [Done]
+_SetTemporary [Done]
+GetIsLocked [Done]
+Lock [Done]
+RegisterName [Done]
+UnregisterName [Done]
+FindName [Done]
 
 
 
@@ -102,10 +125,10 @@ _ComputeSurfaceBounds [Done]
 _UpdateLayer [Done]
 _ApplyTemplateWithError [Done]
 _DoApplyTemplateWithError [Done]
-_OnApplyTemplate [Done]
+OnApplyTemplate [Done]
 _GetDefaultTemplate [Done]
 _OnIsLoadedChanged [Done]
-_SetImplicitStyles
+_SetImplicitStyles [Done]
 _ClearImplicitStyles [Done]
 _ComputeActualSize [Done]
 _SetTemplateBinding
@@ -146,6 +169,13 @@ _OnCollectionChanged [Done]
 _OnCollectionItemChanged [Done]
 
 
+
+Control
+=============================
+GetIsTemplateItem
+
+
+
 Collection
 =============================
 GetValueAt [Done]
@@ -154,6 +184,13 @@ UIElementCollection
 	GetValueAtZIndex [Done]
 	GetZSortedCount [Done]
 	ResortByZIndex [Done]
+
+
+
+ResourceDictionary
+=============================
+_GetInternalSource
+_SetInternalSourceWithError
 
 
 

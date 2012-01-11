@@ -269,11 +269,49 @@ ResourceDictionary.prototype = new Collection;
 ResourceDictionary.prototype.constructor = ResourceDictionary;
 function ResourceDictionary() {
     Collection.call(this);
+    this._KeyIndex = new Array();
 }
 
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.Register("MergedDictionaries", ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 ResourceDictionary.prototype.GetMergedDictionaries = function () {
     return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
+};
+
+ResourceDictionary.prototype.ContainsKey = function (key) {
+    return this._KeyIndex[key] != undefined;
+};
+ResourceDictionary.prototype._GetIndexFromKey = function (key) {
+    return this.KeyIndex[key];
+};
+ResourceDictionary.prototype.Get = function (key) {
+    if (this.ContainsKey(key))
+        return this.GetValueAt(this._GetIndexFromKey(key));
+    return this._GetFromMergedDictionaries(key);
+};
+ResourceDictionary.prototype._GetFromMergedDictionaries = function (key) {
+    var merged = this.GetMergedDictionaries();
+
+    if (!merged)
+        return undefined;
+
+    for (var i = 0; i < merged.GetCount(); i++) {
+        var dict = merged.GetValueAt(i);
+        var value = dict.Get(key);
+        if (value != undefined)
+            return value;
+    }
+    return undefined;
+};
+ResourceDictionary.prototype.Set = function (key, value) {
+    var oldValue;
+    if (this.ContainsKey(key)) {
+        oldValue = this.Get(key);
+        this.Remove(oldValue);
+    }
+    var index = this.Add(value);
+    this._KeyIndex[key] = index;
+    this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
+    return true;
 };
 
 ResourceDictionary.prototype.AddedToCollection = function (value, error) {
@@ -284,7 +322,13 @@ ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSaf
 };
 
 ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
-    NotImplemented("ResourceDictionary._OnIsAttachedChanged");
+    Collection.prototype._OnIsAttachedChanged.call(this, value);
+
+    for (var i = 0; i < this._ht.length; i++) {
+        var obj = this._ht[i];
+        if (obj instanceof DependencyObject)
+            obj._SetIsAttached(value);
+    }
 };
 
 //#endregion
@@ -336,6 +380,45 @@ ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (s
     }
 
     return true;
+};
+
+//#endregion
+
+//#region GradientStop
+
+GradientStop.prototype = new DependencyObject;
+GradientStop.prototype.constructor = GradientStop;
+function GradientStop() {
+    DependencyObject.call(this);
+}
+
+GradientStop.ColorProperty = DependencyProperty.Register("Color", GradientStop, new Color());
+GradientStop.prototype.GetColor = function () {
+    return this.GetValue(GradientStop.ColorProperty);
+};
+GradientStop.prototype.SetColor = function (value) {
+    this.SetValue(GradientStop.ColorProperty, value);
+};
+
+GradientStop.OffsetProperty = DependencyProperty.Register("Offset", GradientStop, 0.0);
+GradientStop.prototype.GetOffset = function () {
+    return this.GetValue(GradientStop.OffsetProperty);
+};
+GradientStop.prototype.SetOffset = function (value) {
+    this.SetValue(GradientStop.OffsetProperty, value);
+};
+
+//#endregion
+
+//#region GradientStopCollection
+
+GradientStopCollection.prototype = new DependencyObjectCollection;
+GradientStopCollection.prototype.constructor = GradientStopCollection;
+function GradientStopCollection() {
+    DependencyObjectCollection.call(this);
+}
+GradientStopCollection.prototype.IsElementType = function (value) {
+    return value instanceof GradientStop;
 };
 
 //#endregion

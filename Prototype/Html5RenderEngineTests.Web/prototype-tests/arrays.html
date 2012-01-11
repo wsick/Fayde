@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+        SomeObject.prototype = new Object;
+        SomeObject.prototype.constructor = SomeObject;
+        function SomeObject() {
+            this._Names = new Array();
+            this._Names["Test1"] = 10;
+            for (var i in this._Names) {
+                alert(i);
+            }
+            delete this._Names["Test1"];
+            for (var i in this._Names) {
+                alert(i);
+            }
+        }
+
+        var t = new SomeObject();
+    </script>
+</head>
+<body>
+
+</body>
+</html>

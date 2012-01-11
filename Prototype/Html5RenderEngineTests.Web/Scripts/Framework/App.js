@@ -1,10 +1,22 @@
 /// <reference path="Surface.js"/>
+/// <reference path="Collections.js"/>
 
-App.prototype = new Object;
+App.prototype = new DependencyObject;
 App.prototype.constructor = App;
 function App() {
+    DependencyObject.call(this);
     this.MainSurface = new Surface();
 }
+
+App.ResourcesProperty = DependencyProperty.Register("Resources", App, null, { GetValue: function () { return new ResourceDictionary(); } });
+App.prototype.GetResources = function () {
+    return this.GetValue(App.ResourcesProperty);
+};
+App.prototype.SetResources = function (value) {
+    this.SetValue(App.ResourcesProperty, value);
+};
+
+
 App.prototype.Load = function (/* UIElement */element) {
     if (!(element instanceof UIElement))
         return;
@@ -27,5 +39,52 @@ App.prototype._Tick = function () {
 };
 App.prototype._Stop = function () {
     clearInterval(this._TickID);
+};
+App.prototype._GetImplicitStyles = function (fe, styleMask) {
+    var genericXamlStyle = null;
+    var appResourcesStyle = null;
+    var visualTreeStyle = null;
+    if ((styleMask & _StyleMask.GenericXaml) != 0) {
+        if (fe instanceof Control) {
+            var styleKey = fe.GetDefaultStyleKey();
+            if (styleKey != null)
+                genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
+        }
+    }
+    if ((styleMask & _StyleMask.ApplicationResources) != 0) {
+        //appResourcesStyle = this.Resources.Get(fe.constructor);
+        //if (appResourcesStyle == null)
+        appResourcesStyle = this.GetResources().Get(fe._TypeName);
+    }
+    if ((styleMask & _StyleMask.VisualTree) != 0) {
+        var isControl = fe instanceof Control;
+        var el = fe;
+        while (el != null) {
+            if (el.TemplateOwner != null && fe.TemplateOwner == null) {
+                el = el.TemplateOwner;
+                continue;
+            }
+            if (!isControl && el == fe.TemplateOwner)
+                break;
+
+            //visualTreeStyle = el.Resources.Get(fe.constructor);
+            //if (visualTreeStyle != null)
+            //break;
+            visualTreeStyle = el.GetResources().Get(fe._TypeName);
+            if (visualTreeStyle != null)
+                break;
+
+            el = el.GetVisualParent();
+        }
+    }
+
+    var styles = new Array();
+    styles[_StyleIndex.GenericXaml] = genericXamlStyle;
+    styles[_StyleIndex.ApplicationResources] = appResourcesStyle;
+    styles[_StyleIndex.VisualTree] = visualTreeStyle;
+    return styles;
+};
+App.prototype._GetGenericXamlStyleFor = function (type) {
+    NotImplemented("App._GetGenericXamlStyleFor");
 };
 App.Instance = new App();

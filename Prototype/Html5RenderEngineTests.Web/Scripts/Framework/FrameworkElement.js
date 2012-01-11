@@ -10,6 +10,7 @@
 /// <reference path="PropertyValueProviders/ImplicitStyle.js"/>
 /// <reference path="PropertyValueProviders/InheritedDataContext.js"/>
 /// <reference path="Geometry.js"/>
+/// <reference path="Validators.js"/>
 
 //#region FrameworkElement
 
@@ -660,7 +661,28 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
 };
 
 FrameworkElement.prototype._SetImplicitStyles = function (styleMask, styles) {
-    NotImplemented("FrameworkElement._SetImplicitStyles");
+    var app = App.Instance;
+    if (!app)
+        return;
+
+    if (styles == null)
+        styles = app._GetImplicitStyles(this, styleMask);
+
+    var error = new BError();
+
+    if (styles) {
+        for (var i = 0; i < _StyleIndex.Count; i++) {
+            var style = styles[i];
+            if (!style)
+                continue;
+            if (!Validators.StyleValidator(this, FrameworkElement.StyleProperty, style, error)) {
+                Warn("Style validation failed.");
+                return;
+            }
+        }
+    }
+
+    this._Providers[_PropertyPrecedence.ImplicitStyle].SetStyles(styleMask, styles, error);
 };
 FrameworkElement.prototype._ClearImplicitStyles = function (styleMask) {
     var error = new BError();
@@ -673,7 +695,7 @@ FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
 
     var result = this._DoApplyTemplateWithError(error);
     if (result)
-        this._OnApplyTemplate();
+        this.OnApplyTemplate();
     return result;
 };
 FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
@@ -744,7 +766,7 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
 
-FrameworkElement.prototype._OnApplyTemplate = function () {
+FrameworkElement.prototype.OnApplyTemplate = function () {
     this.TemplatedApplied.Raise(this, null);
 };
 
@@ -787,7 +809,7 @@ FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newPar
 
 //#endregion
 
-//#region FrameworkElementProvider
+//#region _FrameworkElementProvider
 
 _FrameworkElementProvider.prototype = new _PropertyValueProvider;
 _FrameworkElementProvider.prototype.constructor = _FrameworkElementProvider;

@@ -1,14 +1,12 @@
-﻿/// <reference path="/Scripts/jquery-1.7.js" />
-/// <reference path="PropertyValueProviders/PropertyValueProvider.js" />
-/// <reference path="PropertyValueProviders/Inherited.js" />
+﻿/// <reference path="../jquery-1.7.js" />
+/// <reference path="PropertyValueProviders.js" />
 /// <reference path="BError.js" />
 /// <reference path="DependencyProperty.js" />
 /// <reference path="FrameworkElement.js" />
-/// <reference path="PropertyValueProviders/Local.js"/>
-/// <reference path="PropertyValueProviders/DefaultValue.js"/>
-/// <reference path="PropertyValueProviders/AutoCreate.js"/>
 /// <reference path="MulticastEvent.js"/>
-/// <reference path="DependencyObjectCollection.js"/>
+/// <reference path="Collections.js"/>
+
+//#region DependencyObject
 
 DependencyObject.prototype = new Object;
 DependencyObject.prototype.constructor = DependencyObject;
@@ -17,16 +15,45 @@ function DependencyObject() {
     this._Initialize();
 }
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
-DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
+//#region DEPENDENCY PROPERTIES
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
-DependencyObject.prototype.FindName = function (name) {
-    NotImplemented("DependencyObject.FindName");
+DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
+DependencyObject.prototype.GetName = function () {
+    return this.GetValue(DependencyObject.NameProperty);
+};
+DependencyObject.prototype.SetName = function (value) {
+    this.SetValue(DependencyObject.NameProperty, value);
+};
+
+//#endregion
+
+//#region INSTANCE METHODS
+
+DependencyObject.prototype.FindName = function (name, templateItem) {
+    if (templateItem === undefined)
+        templateItem = Control.GetIsTemplateItem(this);
+
+    var scope = NameScope.GetNameScope(this);
+    if (scope && (templateItem === scope.GetIsLocked()))
+        return scope.FindName(name);
+
+    if (this._Parent)
+        return this._Parent.FindName(name, templateItem);
+
+    return undefined;
+};
+DependencyObject.prototype.FindNameScope = function (templateNamescope) {
+    if (templateNamescope === undefined)
+        templateNamescope = Control.GetIsTemplateItem(this);
+
+    var scope = NameScope.GetNameScope(this);
+    if (scope && (templateNamescope === scope.GetIsLocked()))
+        return scope;
+
+    if (this._Parent) {
+        return this._Parent.FindNameScope(templateNamescope);
+    }
+    return undefined;
 };
 
 DependencyObject.prototype._Initialize = function () {
@@ -465,7 +492,42 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
             return;
     }
 
-    //TODO: Register namescopes
+    var thisScope = NameScope.GetNameScope(this);
+    var parentScope = parent.FindNameScope();
+    if (thisScope) {
+        if (thisScope._GetTemporary()) {
+            if (parentScope) {
+                parentScope._MergeTemporaryScope(thisScope, error);
+                this.ClearValue(NameScope.NameScopeProperty, false);
+            }
+        } else {
+            if (true /* TODO: this._IsHydratedFromXaml()*/) {
+                var name = this.GetName();
+                if (parentScope && name && name.length > 0) {
+                    var existingObj = parentScope.FindName(name);
+                    if (existingObj !== this) {
+                        if (existingObj) {
+                            error.SetErrored(BError.Argument, "Name is already registered in new parent namescope.");
+                            return;
+                        }
+                        parentScope.RegisterName(name, this);
+                    }
+                }
+            }
+        }
+    } else {
+        if (parentScope && mergeNamesFromSubtree) {
+            var tempScope = new NameScope();
+            tempScope._SetTemporary(true);
+
+            this._RegisterAllNamesRootedAt(tempScope, error);
+
+            if (error.IsErrored())
+                return;
+
+            parentScope._MergeTemporaryScope(tempScope, error);
+        }
+    }
 
     if (error == null || !error.IsErrored()) {
         this._Parent = parent;
@@ -492,7 +554,9 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
     }
 
     if (!this._HasSecondaryParents()) {
-        //TODO: Unregister names
+        var parentScope = parent.FindNameScope();
+        if (parentScope)
+            this._UnregisterAllNamesRootedAt(parentScope);
         this._SetMentor(null);
     }
 
@@ -559,6 +623,54 @@ DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
 DependencyObject.prototype._OnCollectionItemChanged = function (sender, args) {
 };
 
+DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+    if (error.IsErrored())
+        return;
+    if (this._RegisteringNames)
+        return;
+    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
+        return;
+
+    this._RegisteringNames = true;
+
+    var mergeNamescope = false;
+    var registerName = false;
+    var recurse = false;
+
+    var thisNs = NameScope.GetNameScope(this);
+
+    this._RegisteringNames = false;
+};
+DependencyObject.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+    if (this._RegisteringNames)
+        return;
+    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
+        return;
+    this._RegisteringNames = true;
+
+    var thisNs = NameScope.GetNameScope(this);
+    if (/* TODO: this._IsHydratedFromXaml() || */ thisNs == null || thisNs._GetTemporary()) {
+        var name = this.GetName();
+        if (name && name.length > 0)
+            fromNs.UnregisterName(name);
+    }
+
+    if (thisNs && !thisNs._GetTemporary()) {
+        this._RegisteringNames = false;
+        return;
+    }
+
+    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
+    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
+
+    this._RegisteringNames = false;
+}
+
+DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
+    if (!propd._IsCustom && value != null && value instanceof DependencyObject) {
+        value._UnregisterAllNamesRootedAt(fromNs);
+    }
+};
 DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
     if (propd._IsCustom)
         return;
@@ -572,3 +684,98 @@ DependencyObject._PropagateMentor = function (propd, value, newMentor) {
         value._SetMentor(newMentor);
     }
 };
+
+//#endregion
+
+//#endregion
+
+//#region NameScope
+
+NameScope.prototype = new DependencyObject;
+NameScope.prototype.constructor = NameScope;
+function NameScope() {
+    DependencyObject.call(this);
+    this._IsLocked = false;
+    this._Names = null;
+    this._Temporary = false;
+}
+
+NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", NameScope);
+NameScope.GetNameScope = function (d) {
+    return d.GetValue(NameScope.NameScopeProperty);
+};
+NameScope.SetNameScope = function (d, value) {
+    d.SetValue(NameScope.NameScopeProperty, value);
+};
+
+NameScope.prototype.GetIsLocked = function () {
+    return this._IsLocked;
+};
+NameScope.prototype.Lock = function () {
+    this._IsLocked = true;
+};
+
+NameScope.prototype.RegisterName = function (name, obj) {
+    if (this.GetIsLocked())
+        return;
+    if (!this._Names)
+        this._Names = new Array();
+
+    var existingObj = this._Names[name];
+    if (existingObj == obj)
+        return;
+
+    if (existingObj) {
+        //TODO: Remove Handler - Destroyed Event (existingObj)
+    }
+
+    //TODO: Add Handler - Destroyed Event (obj)
+    this._Names[name] = obj;
+};
+NameScope.prototype.UnregisterName = function (name) {
+    if (this.GetIsLocked())
+        return;
+    if (!this._Names)
+        return;
+
+    var objd = this._Names[name];
+    if (objd instanceof DependencyObject) {
+        //TODO: Remove handler - Destroyed Event
+        delete this._Names[name];
+    }
+};
+NameScope.prototype.FindName = function (name) {
+    if (!this._Names)
+        return undefined;
+    if (name == null) {
+        Warn("(null) name specified in NameScope.FindName.");
+        return undefined;
+    }
+    return this._Names[name];
+};
+
+NameScope.prototype._MergeTemporaryScope = function (temp, error) {
+    if (!temp || !temp._Names)
+        return;
+
+    for (var name in temp._Names) {
+        var value = temp._Names[name];
+        var o = this.FindName(name);
+        if (o && o !== value) {
+            error.SetErrored(BError.Argument, "The name already exists in the tree.");
+            return;
+        }
+    }
+
+    for (var name in temp._Names) {
+        this.RegisterName(name, temp._Names[name]);
+    }
+};
+NameScope.prototype._GetTemporary = function () {
+    return this._Temporary;
+};
+NameScope.prototype._SetTemporary = function (value) {
+    this._Temporary = value;
+};
+
+//#endregion
