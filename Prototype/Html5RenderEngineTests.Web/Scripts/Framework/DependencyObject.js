@@ -591,10 +591,17 @@ DependencyObject.prototype._HasSecondaryParents = function () {
 };
 
 DependencyObject.prototype._GetResourceBase = function () {
-    NotImplemented("DependencyObject._GetResourceBase");
+    var rb = this._ResourceBase;
+    if (rb)
+        rb = rb.replace(/^\s+/, ''); //trim if not null
+    if (rb != null && rb.length > 0)
+        return this._ResourceBase;
+    if (this._Parent != null)
+        return this._Parent._GetResourceBase();
+    return this._ResourceBase;
 };
-DependencyObject.prototype._SetResourceBase = function () {
-    NotImplemented("DependencyObject._SetResourceBase");
+DependencyObject.prototype._SetResourceBase = function (value) {
+    this._ResourceBase = value;
 };
 
 DependencyObject.prototype._SetIsAttached = function (value) {

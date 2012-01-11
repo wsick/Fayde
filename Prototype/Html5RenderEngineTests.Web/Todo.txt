@@ -48,8 +48,8 @@ _AddParent [Done]
 _RemoveParent [Done]
 _AddSecondaryParent [Done]
 _RemoveSecondaryParent [Done]
-_GetResourceBase
-_SetResourceBase
+_GetResourceBase [Done]
+_SetResourceBase [Done]
 _SetLogicalParent [Done]
 _GetLogicalParent [Done]
 _OnLogicalParentChanged [Done]
