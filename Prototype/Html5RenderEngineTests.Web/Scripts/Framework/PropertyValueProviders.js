@@ -352,16 +352,21 @@ _ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask
     this._StyleMask = styleMask;
 };
 _ImplicitStylePropertyValueProvider.prototype.SetStyles = function (styleMask, styles, error) {
-    if (!this._Styles)
+    if (!styles)
         return;
 
-    var newStyles = $.clone(this._Styles); //WTF: Does $.clone fully work for us?
-    if (styleMask & _StyleMask.GenericXaml)
+    var newStyles = new Array();
+    if (this._Styles) {
         newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
-    if (styleMask & _StyleMask.ApplicationResources)
         newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
-    if (styleMask & _StyleMask.VisualTree)
         newStyles[_StyleIndex.VisualTree] = this._Styles[_StyleIndex.VisualTree];
+    }
+    if (styleMask & _StyleMask.GenericXaml)
+        newStyles[_StyleIndex.GenericXaml] = styles[_StyleIndex.GenericXaml];
+    if (styleMask & _StyleMask.ApplicationResources)
+        newStyles[_StyleIndex.ApplicationResources] = styles[_StyleIndex.ApplicationResources];
+    if (styleMask & _StyleMask.VisualTree)
+        newStyles[_StyleIndex.VisualTree] = styles[_StyleIndex.VisualTree];
 
     this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
 };
