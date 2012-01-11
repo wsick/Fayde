@@ -172,7 +172,8 @@ _OnCollectionItemChanged [Done]
 
 Control
 =============================
-GetIsTemplateItem
+GetIsTemplateItem [Done]
+SetIsTemplateItem [Done]
 
 
 

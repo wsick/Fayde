@@ -101,14 +101,6 @@ Control.prototype.SetIsEnabled = function (value) {
     this.SetValue(Control.IsEnabledProperty, value);
 };
 
-Control.IsTemplateItemProperty = DependencyProperty.Register("IsTemplateItem", Control);
-Control.prototype.GetIsTemplateItem = function () {
-    return this.GetValue(Control.IsTemplateItemProperty);
-};
-Control.prototype.SetIsTemplateItem = function (value) {
-    this.SetValue(Control.IsTemplateItemProperty, value);
-};
-
 Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", Control, true);
 Control.prototype.GetIsTabStop = function () {
     return this.GetValue(Control.IsTabStopProperty);
@@ -163,6 +155,14 @@ Control.prototype.GetDefaultStyleKey = function () {
 };
 Control.prototype.SetDefaultStyleKey = function (value) {
     this.SetValue(Control.DefaultStyleKeyProperty, value);
+};
+
+Control.IsTemplateItemProperty = DependencyProperty.RegisterAttached("IsTemplateItem", Control);
+Control.GetIsTemplateItem = function (d) {
+    return d.GetValue(Control.IsTemplateItemProperty);
+};
+Control.SetIsTemplateItem = function (d, value) {
+    d.SetValue(Control.IsTemplateItemProperty, value);
 };
 
 //#endregion
