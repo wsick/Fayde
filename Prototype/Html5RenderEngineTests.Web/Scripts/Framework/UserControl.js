@@ -89,7 +89,9 @@ UserControl.prototype._OnPropertyChanged = function (args, error) {
 
 //#region ANNOTATIONS
 
-UserControl.Annotations.ContentProperty = UserControl.ContentProperty;
+UserControl.Annotations = {
+    ContentProperty: UserControl.ContentProperty
+};
 
 //#endregion
 

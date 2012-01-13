@@ -52,7 +52,9 @@ ContentControl.prototype._GetDefaultTemplate = function () {
 
 //#region ANNOTATIONS
 
-ContentControl.Annotations.ContentProperty = ContentControl.ContentProperty;
+ContentControl.Annotations = {
+    ContentProperty: ContentControl.ContentProperty
+};
 
 //#endregion
 

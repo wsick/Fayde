@@ -226,7 +226,9 @@ Panel.prototype._OnIsAttachedChanged = function (value) {
 
 //#region ANNOTATIONS
 
-Panel.Annotations.ContentProperty = Panel.ChildrenProperty;
+Panel.Annotations = {
+    ContentProperty: Panel.ChildrenProperty
+};
 
 //#endregion
 

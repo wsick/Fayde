@@ -35,4 +35,5 @@ JsonParser.CreateObject = function (json, namescope) {
             dobj.SetValue(contentPropd, JsonParser.CreateObject(json.Content));
         }
     }
+    return dobj;
 };

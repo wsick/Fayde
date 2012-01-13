@@ -23,7 +23,9 @@ ItemsControl.prototype.SetItems = function (value) {
 
 //#region ANNOTATIONS
 
-ItemsControl.Annotations.ContentProperty = ItemsControl.ItemsProperty;
+ItemsControl.Annotations = {
+    ContentProperty: ItemsControl.ItemsProperty
+};
 
 //#endregion
 

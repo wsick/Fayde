@@ -88,7 +88,9 @@ ContentPresenter.prototype._GetFallbackRoot = function () {
 
 //#region ANNOTATIONS
 
-ContentPresenter.Annotations.ContentProperty = ContentPresenter.ContentProperty;
+ContentPresenter.Annotations = {
+    ContentProperty: ContentPresenter.ContentProperty
+};
 
 //#endregion
 

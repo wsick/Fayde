@@ -177,7 +177,9 @@ Border.prototype._OnPropertyChanged = function (args, error) {
 
 //#region ANNOTATIONS
 
-Border.Annotations.ContentProperty = Border.ChildProperty;
+Border.Annotations = {
+    ContentProperty: Border.ChildProperty
+};
 
 //#endregion
 

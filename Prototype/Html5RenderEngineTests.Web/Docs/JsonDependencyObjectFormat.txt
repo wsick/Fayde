@@ -14,7 +14,7 @@
 	<Optional> Content: <Json Object>
 }
 
-"Content" is used by:
+"Content" is used by: 
 	- Border - ChildProperty
 	- Control (abstract class)
 		- UserControl - ContentProperty

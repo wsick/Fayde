@@ -458,7 +458,9 @@ TextBlock.prototype._OnCollectionChanged = function (sender, args) {
 
 //#region ANNOTATIONS
 
-TextBlock.Annotations.ContentProperty = TextBlock.InlinesProperty;
+TextBlock.Annotations = {
+    ContentProperty: TextBlock.InlinesProperty
+};
 
 //#endregion
 
