@@ -22,18 +22,33 @@ JsonParser.CreateObject = function (json, namescope) {
             }
         }
     }
-    var annotations = json.Type.Annotations;
-    if (annotations && (contentPropd = annotations.ContentProperty)) {
+
+    var contentPropd = JsonParser.GetAnnotationMember(json.Type, "ContentProperty");
+    if (contentPropd) {
         if (contentPropd._IsAutoCreated()) {
             var content = dobj.GetValue(contentPropd);
             if (content instanceof Collection) {
-                for (var i in json.Children) {
-                    content.Add(JsonParser.CreateObject(json.Children[i], namescope));
+                if (json.Children) {
+                    for (var i in json.Children) {
+                        content.Add(JsonParser.CreateObject(json.Children[i], namescope));
+                    }
                 }
             }
         } else {
-            dobj.SetValue(contentPropd, JsonParser.CreateObject(json.Content));
+            if (json.Content)
+                dobj.SetValue(contentPropd, JsonParser.CreateObject(json.Content, namescope));
         }
     }
     return dobj;
+};
+
+JsonParser.GetAnnotationMember = function (type, member) {
+    if (type == Object)
+        return null;
+    if (type.Annotations == null)
+        return JsonParser.GetAnnotationMember(type.GetBaseClass(), member);
+    var annotation = type.Annotations[member];
+    if (annotation == null)
+        return JsonParser.GetAnnotationMember(type.GetBaseClass(), member);
+    return annotation;
 };
