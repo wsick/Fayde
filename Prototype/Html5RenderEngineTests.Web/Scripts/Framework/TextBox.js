@@ -638,151 +638,6 @@ TextBox.prototype.SetVerticalScrollBarVisibility = function (value) {
 
 //#region INSTANCE METHODS
 
-TextBox.prototype.GetDefaultStyle = function () {
-    var style = new Style();
-
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.BorderThicknessProperty);
-        setter.SetValue_Prop(new Thickness(1, 1, 1, 1));
-        return setter;
-    })());
-
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.BackgroundProperty);
-        setter.SetValue_Prop(new SolidColorBrush(new Color(255, 255, 255, 1.0)));
-        return setter;
-    })());
-
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.ForegroundProperty);
-        setter.SetValue_Prop(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
-        return setter;
-    })());
-
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.PaddingProperty);
-        setter.SetValue_Prop(new Thickness(2, 2, 2, 2));
-        return setter;
-    })());
-
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.BorderBrushProperty);
-        setter.SetValue_Prop((function () {
-            var brush = new LinearGradientBrush();
-            brush.GetGradientStops().Add((function () {
-                var stop = new GradientStop();
-                stop.SetColor(new Color(163, 174, 185));
-                stop.SetOffset(0.0);
-                return stop;
-            })());
-            brush.GetGradientStops().Add((function () {
-                var stop = new GradientStop();
-                stop.SetColor(new Color(131, 153, 169));
-                stop.SetOffset(0.375);
-                return stop;
-            })());
-            brush.GetGradientStops().Add((function () {
-                var stop = new GradientStop();
-                stop.SetColor(new Color(113, 133, 151));
-                stop.SetOffset(0.375);
-                return stop;
-            })());
-            brush.GetGradientStops().Add((function () {
-                var stop = new GradientStop();
-                stop.SetColor(new Color(97, 117, 132));
-                stop.SetOffset(1.0);
-                return stop;
-            })());
-            return brush;
-        })());
-        return setter;
-    })());
-
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.TemplateProperty);
-        setter.SetValue_Prop((function () {
-            return ControlTemplate.CreateTemplateFromJson({
-                Type: Grid,
-                Name: "RootElement",
-                Children: [
-                    {
-                        Type: Border,
-                        Name: "Border",
-                        Props: {
-                            CornerRadius: new Thickness(1, 1, 1, 1),
-                            Opacity: 1.0,
-                            BorderThickness: new TemplateBinding("BorderThickness"),
-                            Background: new TemplateBinding("Background"),
-                            BorderBrush: new TemplateBinding("BorderBrush")
-                        },
-                        Content: {
-                            Type: Grid,
-                            Children: [
-                                {
-                                    Type: Border,
-                                    Name: "ReadOnlyVisualElement",
-                                    Props: {
-                                        Opacity: 0.0,
-                                        Background: new SolidColorBrush(Color.FromHex("#5EC9C9C9"))
-                                    }
-                                },
-                                {
-                                    Type: Border,
-                                    Name: "MouseOverBorder",
-                                    Props: {
-                                        BorderThickness: new Thickness(1, 1, 1, 1),
-                                        BorderBrush: new SolidColorBrush(0, 0, 0, 0.0)
-                                    },
-                                    Content: {
-                                        Type: Border,
-                                        Name: "ContentElement",
-                                        Props: {
-                                            Padding: new TemplateBinding("Padding"),
-                                            //IsTabStop: false,
-                                            BorderThickness: new Thickness(0, 0, 0, 0)
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        Type: Border,
-                        Name: "DisabledVisualElement",
-                        Props: {
-                            Background: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
-                            BorderBrush: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
-                            BorderThickness: new TemplateBinding("BorderThickness"),
-                            Opacity: 0.0,
-                            IsHitTestVisible: false
-                        }
-                    },
-                    {
-                        Type: Border,
-                        Name: "FocusVisualElement",
-                        Props: {
-                            BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
-                            BorderThickness: new TemplateBinding("BorderThickness"),
-                            Margin: new Thickness(1, 1, 1, 1),
-                            Opacity: 0.0,
-                            IsHitTestVisible: false
-                        }
-                    },
-                ]
-            });
-        })());
-        return setter;
-    })());
-
-    return style;
-};
-
 TextBox.prototype.OnApplyTemplate = function () {
     TextBoxBase.prototype.OnApplyTemplate.call(this);
 
@@ -965,6 +820,155 @@ TextBox.prototype._EmitTextChanged = function () {
 };
 TextBox.prototype._EmitSelectionChanged = function () {
     this.TextChanged.RaiseAsync(this, {});
+};
+
+//#endregion
+
+//#region DEFAULT STYLE
+
+TextBox.prototype.GetDefaultStyle = function () {
+    var style = new Style();
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.BorderThicknessProperty);
+        setter.SetValue_Prop(new Thickness(1, 1, 1, 1));
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.BackgroundProperty);
+        setter.SetValue_Prop(new SolidColorBrush(new Color(255, 255, 255, 1.0)));
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.ForegroundProperty);
+        setter.SetValue_Prop(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.PaddingProperty);
+        setter.SetValue_Prop(new Thickness(2, 2, 2, 2));
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.BorderBrushProperty);
+        setter.SetValue_Prop((function () {
+            var brush = new LinearGradientBrush();
+            brush.GetGradientStops().Add((function () {
+                var stop = new GradientStop();
+                stop.SetColor(new Color(163, 174, 185));
+                stop.SetOffset(0.0);
+                return stop;
+            })());
+            brush.GetGradientStops().Add((function () {
+                var stop = new GradientStop();
+                stop.SetColor(new Color(131, 153, 169));
+                stop.SetOffset(0.375);
+                return stop;
+            })());
+            brush.GetGradientStops().Add((function () {
+                var stop = new GradientStop();
+                stop.SetColor(new Color(113, 133, 151));
+                stop.SetOffset(0.375);
+                return stop;
+            })());
+            brush.GetGradientStops().Add((function () {
+                var stop = new GradientStop();
+                stop.SetColor(new Color(97, 117, 132));
+                stop.SetOffset(1.0);
+                return stop;
+            })());
+            return brush;
+        })());
+        return setter;
+    })());
+
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.TemplateProperty);
+        setter.SetValue_Prop((function () {
+            return ControlTemplate.CreateTemplateFromJson({
+                Type: Grid,
+                Name: "RootElement",
+                Children: [
+                    {
+                        Type: Border,
+                        Name: "Border",
+                        Props: {
+                            CornerRadius: new Thickness(1, 1, 1, 1),
+                            Opacity: 1.0,
+                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            Background: new TemplateBinding("Background"),
+                            BorderBrush: new TemplateBinding("BorderBrush")
+                        },
+                        Content: {
+                            Type: Grid,
+                            Children: [
+                                {
+                                    Type: Border,
+                                    Name: "ReadOnlyVisualElement",
+                                    Props: {
+                                        Opacity: 0.0,
+                                        Background: new SolidColorBrush(Color.FromHex("#5EC9C9C9"))
+                                    }
+                                },
+                                {
+                                    Type: Border,
+                                    Name: "MouseOverBorder",
+                                    Props: {
+                                        BorderThickness: new Thickness(1, 1, 1, 1),
+                                        BorderBrush: new SolidColorBrush(0, 0, 0, 0.0)
+                                    },
+                                    Content: {
+                                        Type: Border,
+                                        Name: "ContentElement",
+                                        Props: {
+                                            Padding: new TemplateBinding("Padding"),
+                                            //IsTabStop: false,
+                                            BorderThickness: new Thickness(0, 0, 0, 0)
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        Type: Border,
+                        Name: "DisabledVisualElement",
+                        Props: {
+                            Background: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
+                            BorderBrush: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
+                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            Opacity: 0.0,
+                            IsHitTestVisible: false
+                        }
+                    },
+                    {
+                        Type: Border,
+                        Name: "FocusVisualElement",
+                        Props: {
+                            BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            Margin: new Thickness(1, 1, 1, 1),
+                            Opacity: 0.0,
+                            IsHitTestVisible: false
+                        }
+                    },
+                ]
+            });
+        })());
+        return setter;
+    })());
+
+    return style;
 };
 
 //#endregion
