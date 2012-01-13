@@ -1,15 +1,17 @@
 ﻿/// <reference path="FrameworkElement.js"/>
 /// <reference path="ContentControl.js"/>
 
+//#region ContentPresenter
+
 ContentPresenter.prototype = new FrameworkElement;
 ContentPresenter.prototype.constructor = ContentPresenter;
 function ContentPresenter() {
     FrameworkElement.call(this);
 }
+ContentPresenter.GetBaseClass = function () { return FrameworkElement; };
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 ContentPresenter.ContentProperty = DependencyProperty.Register("Content", ContentPresenter);
 ContentPresenter.prototype.GetContent = function () {
     return this.GetValue(ContentPresenter.ContentProperty);
@@ -26,17 +28,18 @@ ContentPresenter.prototype.SetContentTemplate = function (value) {
     this.SetValue(ContentPresenter.ContentTemplateProperty, value);
 };
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
+//#endregion
+
+//#region INSTANCE METHODS
+
 ContentPresenter.prototype._GetDefaultTemplate = function () {
     var templateOwner = this._GetTemplateOwner();
     if (templateOwner) {
         if (this._ReadLocalValue(ContentPresenter.ContentProperty) == undefined) {
-            this._SetTemplateBinding(ContentPresenter.ContentProperty, new _TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+            this._SetTemplateBinding(ContentPresenter.ContentProperty, new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
         if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) == undefined) {
-            this._SetTemplateBinding(ContentPresenter.ContentTemplateProperty, new _TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+            this._SetTemplateBinding(ContentPresenter.ContentTemplateProperty, new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }
     }
 
@@ -80,3 +83,13 @@ ContentPresenter.prototype._GetFallbackRoot = function () {
         this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
     return this._FallbackRoot;
 };
+
+//#endregion
+
+//#region ANNOTATIONS
+
+ContentPresenter.Annotations.ContentProperty = ContentPresenter.ContentProperty;
+
+//#endregion
+
+//#endregion

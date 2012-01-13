@@ -23,6 +23,7 @@ function TextBlock() {
 
     this._Font = new Font();
 }
+TextBlock.GetBaseClass = function () { return FrameworkElement; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -455,6 +456,12 @@ TextBlock.prototype._OnCollectionChanged = function (sender, args) {
 
 //#endregion
 
+//#region ANNOTATIONS
+
+TextBlock.Annotations.ContentProperty = TextBlock.InlinesProperty;
+
+//#endregion
+
 //#endregion
 
 //#region _TextBlockDynamicPropertyValueProvider
@@ -466,6 +473,8 @@ function _TextBlockDynamicPropertyValueProvider(obj, propPrecedence) {
     this._BaselineOffsetValue = null;
     this._TextValue = null;
 }
+_TextBlockDynamicPropertyValueProvider.GetBaseClass = function () { return _FrameworkElementProvider; };
+
 _TextBlockDynamicPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (propd == TextBlock.BaselineOffsetProperty) {
         var layout = this._Object._Layout;

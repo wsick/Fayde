@@ -1,10 +1,14 @@
-﻿List.prototype = new Object;
+﻿//#region List
+
+List.prototype = new Object;
 List.prototype.constructor = List;
 function List() {
     this._Count = 0;
     this._Head = null;
     this._Tail = null;
 }
+List.GetBaseClass = function () { return Object; };
+
 List.prototype.First = function () {
     return this._Head;
 };
@@ -73,21 +77,41 @@ List.prototype.Clear = function () {
     this._Tail = null;
 };
 
+//#endregion
+
+//#region Node
+
 Node.prototype = new Object;
 Node.prototype.constructor = Node;
 function Node() {
+    Object.call(this);
     this.Previous = null;
     this.Next = null;
 }
+Node.GetBaseClass = function () { return Object; };
+
+//#endregion
+
+//#region UIElementNode
 
 UIElementNode.prototype = new Node;
 UIElementNode.prototype.constructor = UIElementNode;
 function UIElementNode(/* UIElement */element) {
+    Node.call(this);
     this.UIElement = element;
 }
+UIElementNode.GetBaseClass = function () { return Node; };
+
+//#endregion
+
+//#region DirtyNode
 
 DirtyNode.prototype = new Node;
 DirtyNode.prototype.constructor = DirtyNode;
 function DirtyNode(/* UIElement */element) {
+    Node.call(this);
     this.Element = element;
 }
+DirtyNode.GetBaseClass = function () { return Node; };
+
+//#endregion

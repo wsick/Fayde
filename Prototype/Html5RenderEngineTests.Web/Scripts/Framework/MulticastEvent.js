@@ -1,10 +1,14 @@
 ﻿/// <reference path="Debug.js"/>
 
+//#region MulticastEvent
+
 MulticastEvent.prototype = new Object;
 MulticastEvent.prototype.constructor = MulticastEvent;
 function MulticastEvent() {
     this._Listeners = new Array();
 }
+MulticastEvent.GetBaseClass = function () { return Object; };
+
 MulticastEvent.prototype.Subscribe = function (callback, closure) {
     this._Listeners.push({ Callback: callback, Closure: closure });
 };
@@ -35,3 +39,5 @@ MulticastEvent.prototype.RaiseAsync = function (sender, args) {
     var me = this;
     setTimeout(function () { me.Raise(sender, args); }, 1);
 };
+
+//#endregion

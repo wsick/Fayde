@@ -12,6 +12,7 @@ function TextElement() {
     this._Font = new Font();
     this._UpdateFont(true);
 }
+TextElement.GetBaseClass = function () { return DependencyObject; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -137,6 +138,8 @@ function Inline() {
     TextElement.call(this);
     this._Autogen = false;
 }
+Inline.GetBaseClass = function () { return TextElement; };
+
 Inline.prototype.Equals = function (inline) {
     if (this.GetFontFamily() != inline.GetFontFamily())
         return false;
@@ -171,6 +174,7 @@ Run.prototype.constructor = Run;
 function Run() {
     Inline.call(this);
 }
+Run.GetBaseClass = function () { return Inline; };
 
 Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", Run, FlowDirection.LeftToRight);
 Run.prototype.GetFlowDirection = function () {
@@ -204,6 +208,7 @@ Span.prototype.constructor = Span;
 function Span() {
     Inline.call(this);
 }
+Span.GetBaseClass = function () { return Inline; };
 
 Span._CreateInlineCollection = function (obj) {
     var inlines = new InlineCollection();
@@ -244,6 +249,7 @@ LineBreak.prototype.constructor = LineBreak;
 function LineBreak() {
     Inline.call(this);
 }
+LineBreak.GetBaseClass = function () { return Inline; };
 
 //#endregion
 
@@ -254,6 +260,7 @@ Hyperlink.prototype.constructor = Hyperlink;
 function Hyperlink() {
     Span.call(this);
 }
+Hyperlink.GetBaseClass = function () { return Span; };
 
 //#endregion
 
@@ -264,16 +271,7 @@ Block.prototype.constructor = Block;
 function Block() {
     TextElement.call(this);
 }
-
-//#endregion
-
-//#region Paragraph
-
-Paragraph.prototype = new Block;
-Paragraph.prototype.constructor = Paragraph;
-function Paragraph() {
-    Block.call(this);
-}
+Block.GetBaseClass = function () { return TextElement; };
 
 Block.InlinesProperty = DependencyProperty.Register("Inlines", Block);
 Block.prototype.GetInlines = function () {
@@ -285,6 +283,17 @@ Block.prototype.SetInlines = function (value) {
 
 //#endregion
 
+//#region Paragraph
+
+Paragraph.prototype = new Block;
+Paragraph.prototype.constructor = Paragraph;
+function Paragraph() {
+    Block.call(this);
+}
+Paragraph.GetBaseClass = function () { return Block; };
+
+//#endregion
+
 //#region Section
 
 Section.prototype = new TextElement;
@@ -292,6 +301,7 @@ Section.prototype.constructor = Section;
 function Section() {
     TextElement.call(this);
 }
+Section.GetBaseClass = function () { return TextElement; };
 
 Section.BlocksProperty = DependencyProperty.Register("Blocks", Section);
 Section.prototype.GetBlocks = function () {

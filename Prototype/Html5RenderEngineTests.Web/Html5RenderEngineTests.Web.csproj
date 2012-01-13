@@ -51,11 +51,11 @@
     <Reference Include="System.Web.ApplicationServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Docs\JsonDependencyObjectFormat.txt" />
     <Content Include="grid-tests\test1.html" />
     <Content Include="index.html" />
     <Content Include="multicastevent-test.html" />
     <Content Include="NotImplemented\Annotations.txt" />
-    <Content Include="Outline.txt" />
     <Content Include="prototype-tests\arrays.html" />
     <Content Include="Scripts\Framework\Border.js" />
     <Content Include="Scripts\Framework\Brushes.js" />
@@ -71,6 +71,8 @@
     <Content Include="Scripts\Framework\Dirty.js" />
     <Content Include="Scripts\Framework\Geometry.js" />
     <Content Include="Scripts\Framework\Grid.js" />
+    <Content Include="Scripts\Framework\ItemsControl.js" />
+    <Content Include="Scripts\Framework\JsonParser.js" />
     <Content Include="Scripts\Framework\List.js" />
     <Content Include="Scripts\Framework\MulticastEvent.js" />
     <Content Include="Scripts\Framework\FrameworkElement.js" />
@@ -103,7 +105,7 @@
     <Content Include="test4.html" />
     <Content Include="tests.html" />
     <Content Include="textbox-tests\test1.html" />
-    <Content Include="Todo.txt" />
+    <Content Include="Docs\Todo.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

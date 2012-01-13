@@ -3,15 +3,17 @@
 /// <reference path="FrameworkElement.js" />
 /// <reference path="Surface.js"/>
 
+//#region Border
+
 Border.prototype = new FrameworkElement;
 Border.prototype.constructor = Border;
 function Border() {
     FrameworkElement.call(this);
 }
+Border.GetBaseClass = function () { return FrameworkElement; };
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 Border.BackgroundProperty = DependencyProperty.Register("Background", Border);
 Border.prototype.GetBackground = function () {
     return this.GetValue(Border.BackgroundProperty);
@@ -60,9 +62,10 @@ Border.prototype.SetPadding = function (value) {
     this.SetValue(Border.PaddingProperty, value);
 };
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
+//#endregion
+
+//#region INSTANCE METHODS
+
 Border.prototype.IsLayoutContainer = function () { return true; };
 Border.prototype._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
@@ -170,6 +173,14 @@ Border.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
+//#endregion
+
+//#region ANNOTATIONS
+
+Border.Annotations.ContentProperty = Border.ChildProperty;
+
+//#endregion
+
 Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRect, thickness, cornerRadius, pathOnly) {
     var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
 
@@ -217,3 +228,5 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
 };
 Border._ThicknessValidator = function () {
 };
+
+//#endregion

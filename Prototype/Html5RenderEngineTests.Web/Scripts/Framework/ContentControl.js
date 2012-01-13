@@ -1,11 +1,14 @@
 ﻿/// <reference path="Control.js"/>
 /// <reference path="ControlTemplate.js"/>
 
+//#region ContentControl
+
 ContentControl.prototype = new Control;
 ContentControl.prototype.constructor = ContentControl;
 function ContentControl() {
     Control.call(this);
 }
+ContentControl.GetBaseClass = function () { return Control; };
 
 ContentControl._FallbackTemplate = (function () {
     //TODO: Create fallback template
@@ -14,9 +17,8 @@ ContentControl._FallbackTemplate = (function () {
     return new ControlTemplate();
 })();
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 ContentControl.ContentProperty = DependencyProperty.Register("Content", ContentControl);
 ContentControl.prototype.GetContent = function () {
     return this.GetValue(ContentControl.ContentProperty);
@@ -33,9 +35,10 @@ ContentControl.prototype.SetContentTemplate = function (value) {
     this.SetValue(ContentControl.ContentTemplateProperty, value);
 };
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
+//#endregion
+
+//#region INSTANCE METHODS
+
 ContentControl.prototype._GetFallbackRoot = function () {
     if (this._FallbackRoot == null)
         this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
@@ -44,3 +47,13 @@ ContentControl.prototype._GetFallbackRoot = function () {
 ContentControl.prototype._GetDefaultTemplate = function () {
     return this._FallbackRoot;
 };
+
+//#endregion
+
+//#region ANNOTATIONS
+
+ContentControl.Annotations.ContentProperty = ContentControl.ContentProperty;
+
+//#endregion
+
+//#endregion

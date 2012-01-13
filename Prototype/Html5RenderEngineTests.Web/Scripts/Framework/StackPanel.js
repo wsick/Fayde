@@ -2,11 +2,14 @@
 /// <reference path="DependencyObject.js" />
 /// <reference path="Panel.js" />
 
+//#region StackPanel
+
 StackPanel.prototype = new Panel;
 StackPanel.prototype.constructor = StackPanel;
 function StackPanel() {
     Panel.call(this);
 }
+StackPanel.GetBaseClass = function () { return Panel; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -112,5 +115,7 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
     return arranged;
 
 };
+
+//#endregion
 
 //#endregion

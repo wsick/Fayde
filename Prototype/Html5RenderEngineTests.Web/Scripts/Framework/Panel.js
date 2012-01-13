@@ -3,11 +3,14 @@
 /// <reference path="FrameworkElement.js" />
 /// <reference path="LayoutInformation.js"/>
 
+//#region Panel
+
 Panel.prototype = new FrameworkElement;
 Panel.prototype.constructor = Panel;
 function Panel() {
     FrameworkElement.call(this);
 }
+Panel.GetBaseClass = function () { return FrameworkElement; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -218,5 +221,13 @@ Panel.prototype._OnIsAttachedChanged = function (value) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
 };
+
+//#endregion
+
+//#region ANNOTATIONS
+
+Panel.Annotations.ContentProperty = Panel.ChildrenProperty;
+
+//#endregion
 
 //#endregion

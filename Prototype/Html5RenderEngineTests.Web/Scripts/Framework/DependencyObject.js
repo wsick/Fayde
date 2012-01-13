@@ -14,6 +14,7 @@ function DependencyObject() {
     this._TypeName = this._GetTypeName();
     this._Initialize();
 }
+DependencyObject.GetBaseClass = function () { return Object; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -54,6 +55,18 @@ DependencyObject.prototype.FindNameScope = function (templateNamescope) {
         return this._Parent.FindNameScope(templateNamescope);
     }
     return undefined;
+};
+DependencyObject.prototype.SetNameOnScope = function (name, scope) {
+    if (scope.FindName(name))
+        return false;
+
+    this.SetValue(DependencyObject.NameProperty, name);
+    scope.RegisterName(name, this);
+    return true;
+};
+
+DependencyObject.prototype.GetDependencyProperty = function (propName) {
+    return DependencyProperty.GetDependencyProperty(this.constructor, propName);
 };
 
 DependencyObject.prototype._Initialize = function () {
@@ -616,10 +629,21 @@ DependencyObject.prototype._OnIsAttachedChanged = function (value) {
 };
 
 DependencyObject.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property == DependencyObject.NameProperty) {
-        //TODO: Unregister old name
-        //TODO: Register new name
-        //TODO: if hydrated from xaml, notify parent
+    if (args.Property === DependencyObject.NameProperty) {
+        var scope = this.FindNameScope();
+        if (scope && args.NewValue) {
+            if (args.OldValue)
+                scope.UnregisterName(args.OldValue);
+            scope.RegisterName(args.NewValue, this);
+            if (/* TODO: this.IsHydratedFromXaml() && */this._Parent) {
+                scope = this._Parent.FindNameScope();
+                if (scope) {
+                    if (args.OldValue)
+                        scope.UnregisterName(args.OldValue);
+                    scope.RegisterName(args.NewValue, this);
+                }
+            }
+        }
     }
     this.PropertyChanged.Raise(this, args);
 };
@@ -706,6 +730,7 @@ function NameScope() {
     this._Names = null;
     this._Temporary = false;
 }
+NameScope.GetBaseClass = function () { return DependencyObject; };
 
 NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", NameScope);
 NameScope.GetNameScope = function (d) {

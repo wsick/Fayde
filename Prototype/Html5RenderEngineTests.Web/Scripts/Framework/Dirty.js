@@ -5,6 +5,8 @@ _DirtyList.prototype.constructor = _DirtyList;
 function _DirtyList() {
     this._DirtyNodes = new List();
 }
+_DirtyList.GetBaseClass = function () { return Object; };
+
 _DirtyList.prototype.AddDirtyNode = function (node) {
     this._DirtyNodes.Append(node);
 };

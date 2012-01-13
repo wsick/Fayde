@@ -31,6 +31,8 @@ function TextLayout() {
     this._Length = 0;
     this._Count = 0;
 }
+TextLayout.GetBaseClass = function () { return Object; };
+
 TextLayout.prototype.GetSelectionLength = function () {
     return this._SelectionLength;
 };
@@ -64,7 +66,7 @@ TextLayout.prototype.GetTextAlignment = function () {
 TextLayout.prototype.SetTextAlignment = function (value) {
     if (this._Alignment == value)
         return false;
-    this._Alignment = alignment;
+    this._Alignment = value;
     this._ResetState();
     return true;
 };
@@ -188,6 +190,13 @@ TextLayout.prototype.GetLineFromIndex = function (index) {
 };
 TextLayout.prototype.GetCursorFromXY = function (offset, x, y) {
     NotImplemented("TextLayout.GetCursorFromXY");
+};
+TextLayout.prototype.GetCursor = function (offset, pos) {
+    NotImplemented("TextLayout.GetCursor");
+};
+
+TextLayout.prototype.Select = function (start, length) {
+    NotImplemented("TextLayout.Select");
 };
 
 TextLayout.prototype._ClearLines = function () {
@@ -459,6 +468,8 @@ function _TextLayoutLine(layout, start, offset) {
     this._Length = 0;
     this._Count = 0;
 }
+_TextLayoutLine.GetBaseClass = function () { return Object; };
+
 _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
     var run;
     var x0 = left;
@@ -487,6 +498,8 @@ function _TextLayoutRun(line, attrs, start) {
     this._Length = 0;
     this._Count = 0;
 }
+_TextLayoutRun.GetBaseClass = function () { return Object; };
+
 _TextLayoutRun.prototype._GenerateCache = function () {
     var selectionLength = this._Line._Layout.GetSelectionLength();
     var selectionStart = this._Line._Layout.GetSelectionStart();
@@ -547,6 +560,8 @@ function _TextLayoutGlyphCluster(text, font, selected) {
     this._Selected = selected == true;
     this._Advance = Surface.MeasureText(text, font).Width;
 }
+_TextLayoutGlyphCluster.GetBaseClass = function () { return Object; };
+
 _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) {
     if (this._Text.length == 0 || this._Advance == 0.0)
         return;
@@ -586,6 +601,8 @@ function _TextLayoutAttributes(source, start) {
     this._Source = source;
     this._Start = start == null ? 0 : start;
 }
+_TextLayoutAttributes.GetBaseClass = function () { return Node; };
+
 _TextLayoutAttributes.prototype.GetBackground = function (selected) { return this._Source.GetBackground(selected); };
 _TextLayoutAttributes.prototype.GetForeground = function (selected) { return this._Source.GetForeground(selected); };
 _TextLayoutAttributes.prototype.GetFont = function () { return this._Source.GetFont(); };
@@ -607,5 +624,6 @@ function _LayoutWord() {
     this._BreakOps = null;
     this._Font = new Font();
 }
+_LayoutWord.GetBaseClass = function () { return Object; };
 
 //#endregion

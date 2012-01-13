@@ -62,6 +62,7 @@ _GetValueNoAutoCreate [Done]
 _GetValueNoDefault [Done]
 _RegisterAllNamesRootedAt [Done]
 _UnregisterAllNamesRootedAt [Done]
+GetDependencyProperty [Done]
 
 
 
@@ -241,12 +242,22 @@ _Ascender [Done]
 
 TextBoxBase
 =============================
+_BatchPush [Done]
+_BatchPop [Done]
+_SyncAndEmit [Done]
+_EmitTextChanged [Done]
+_EmitSelectionChanged [Done]
+_ClearSelection [Done]
 
 
 
 TextBox
 =============================
-
+OnApplyTemplate [Done]
+_OnPropertyChanged
+_OnSubPropertyChanged [Done]
+_EmitTextChanged [Done]
+_EmitSelectionChanged [Done]
 
 
 TextBoxView

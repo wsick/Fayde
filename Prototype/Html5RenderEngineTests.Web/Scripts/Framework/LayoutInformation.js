@@ -1,14 +1,16 @@
 ﻿/// <reference path="DependencyProperty.js"/>
 /// <reference path="Primitives.js"/>
 
+//#region LayoutInformation
+
 LayoutInformation.prototype = new Object;
 LayoutInformation.prototype.constructor = new LayoutInformation;
 function LayoutInformation() {
 }
+LayoutInformation.GetBaseClass = function () { return Object; };
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttached("LayoutClip", LayoutInformation);
 LayoutInformation.GetLayoutClip = function (d) {
     return d.GetValue(LayoutInformation.LayoutClipProperty);
@@ -65,6 +67,11 @@ LayoutInformation.SetVisualOffset = function (d, value) {
     d.SetValue(LayoutInformation.VisualOffsetProperty, value);
 };
 
+//#endregion
+
+//#endregion
+
+//#region LayoutPass
 
 LayoutPass.prototype = new Object;
 LayoutPass.prototype.constructor = LayoutPass;
@@ -75,4 +82,8 @@ function LayoutPass() {
     this._Count = 0;
     this._Updated = false;
 }
+LayoutPass.GetBaseClass = function () { return Object; };
+
 LayoutPass.MaxCount = 250;
+
+//#endregion

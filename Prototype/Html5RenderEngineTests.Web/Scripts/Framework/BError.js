@@ -7,6 +7,8 @@ function BError() {
     this.LineNumber = 0;
     this.Message = "";
 }
+BError.GetBaseClass = function () { return Object; };
+
 BError.prototype.SetErrored = function (number, message, code) {
     this._Number = number;
     this.Message = message;

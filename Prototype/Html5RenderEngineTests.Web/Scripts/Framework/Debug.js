@@ -14,6 +14,8 @@ function Console(level) {
     this._Queue = new Array();
     this._Level = level;
 }
+Console.GetBaseClass = function () { return Object; };
+
 Console.prototype.Init = function (selector) {
     this._TextBox = $(selector);
     if (this._TextBox)

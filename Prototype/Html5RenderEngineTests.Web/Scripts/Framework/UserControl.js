@@ -1,14 +1,16 @@
 ﻿/// <reference path="Control.js"/>
 
+//#region UserControl
+
 UserControl.prototype = new Control;
 UserControl.prototype.constructor = UserControl;
 function UserControl() {
     Control.call(this);
 }
+UserControl.GetBaseClass = function () { return Control; };
 
-//////////////////////////////////////////
-// DEPENDENCY PROPERTIES
-//////////////////////////////////////////
+//#region DEPENDENCY PROPERTIES
+
 UserControl.ContentProperty = DependencyProperty.Register("Content", UserControl);
 UserControl.prototype.GetContent = function () {
     return this.GetValue(UserControl.ContentProperty);
@@ -17,9 +19,10 @@ UserControl.prototype.SetContent = function (value) {
     this.SetValue(UserControl.ContentProperty, value);
 };
 
-//////////////////////////////////////////
-// INSTANCE METHODS
-//////////////////////////////////////////
+//#endregion
+
+//#region INSTANCE METHODS
+
 UserControl.prototype.IsLayoutContainer = function () { return true; };
 
 UserControl.prototype._MeasureOverrideWithError = function (availableSize, error) {
@@ -81,3 +84,13 @@ UserControl.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
+
+//#endregion
+
+//#region ANNOTATIONS
+
+UserControl.Annotations.ContentProperty = UserControl.ContentProperty;
+
+//#endregion
+
+//#endregion

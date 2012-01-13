@@ -6,10 +6,14 @@
 /// <reference path="Dirty.js"/>
 /// <reference path="Debug.js"/>
 
+//#region Surface
+
 Surface.prototype = new Object;
 Surface.prototype.constructor = Surface;
 function Surface() {
 }
+Surface.GetBaseClass = function () { return Object; };
+
 Surface.prototype.Init = function (jCanvas) {
     this._jCanvas = jCanvas;
     this._Canvas = jCanvas[0];
@@ -57,7 +61,9 @@ Surface.prototype._Attach = function (/* UIElement */element) {
         return;
     }
 
-    //TODO: Prepare namescope
+    if (NameScope.GetNameScope(element) == null) {
+        NameScope.SetNameScope(element, new NameScope());
+    }
     //TODO: Enable events
 
     this._TopLevel = element;
@@ -370,15 +376,20 @@ Surface._MeasureHeight = function (text, font) {
     body.appendChild(dummy);
     var result = dummy.offsetHeight;
     body.removeChild(dummy);
-    return result; 
+    return result;
 };
 
+//#endregion
+
+//#region _RenderContext
 
 _RenderContext.prototype = new Object;
 _RenderContext.prototype.constructor = _RenderContext;
 function _RenderContext(surface) {
     this._Surface = surface;
 }
+_RenderContext.GetBaseClass = function () { return Object; };
+
 _RenderContext.prototype.GetSurface = function () {
     return this._Surface;
 };
@@ -421,3 +432,5 @@ function toArray() {
         arr.push(this[i]);
     return arr;
 };
+
+//#endregion

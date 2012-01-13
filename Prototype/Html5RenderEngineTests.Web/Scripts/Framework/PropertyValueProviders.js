@@ -47,6 +47,8 @@ function _PropertyValueProvider(obj, propPrecedence, flags) {
     this._PropertyPrecedence = propPrecedence;
     this._Flags = flags;
 }
+_PropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _PropertyValueProvider.prototype._HasFlag = function (flag) {
     return (this._Flags & flag) != 0;
 };
@@ -73,6 +75,8 @@ function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
     this._Source = null;
     this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
 }
+_InheritedIsEnabledPropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _InheritedIsEnabledPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (propd == Control.IsEnabledProperty)
         return this._CurrentValue;
@@ -145,6 +149,8 @@ function _LocalPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
+_LocalPropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _LocalPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
@@ -165,6 +171,8 @@ function _StylePropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._ht = new Array();
 }
+_StylePropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _StylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
@@ -262,6 +270,7 @@ function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
     this._StyleMask = _StyleMask.None;
     this._ht = new Array();
 }
+_ImplicitStylePropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
 
 _ImplicitStylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];
@@ -284,7 +293,7 @@ _ImplicitStylePropertyValueProvider.prototype.RecomputePropertyValue = function 
         if (propd != propd)
             continue;
 
-        newValue = setter.GetValue(Setter.ConvertedValueProperty);
+        newValue = setter.GetValue(Setter.ValueProperty); //DIV: ConvertedValueProperty
         oldValue = this._ht[propd];
         this._ht[propd] = newValue;
         this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
@@ -324,7 +333,7 @@ _ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask
 
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
             //Property in old style, not in new style
-            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            oldValue = oldSetter.GetValue(Setter.ValueProperty);
             newValue = null;
             delete this._ht[oldProp];
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
@@ -332,8 +341,8 @@ _ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask
         }
         else if (oldProp == newProp) {
             //Property in both styles
-            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
-            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            oldValue = oldSetter.GetValue(Setter.ValueProperty);
+            newValue = newSetter.GetValue(Setter.ValueProperty);
             this._ht[oldProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
@@ -341,7 +350,7 @@ _ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask
         } else {
             //Property in new style, not in old style
             oldValue = null;
-            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter.GetValue(Setter.ValueProperty);
             this._ht[newProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
             newSetter = newWalker.Step();
@@ -411,6 +420,8 @@ function _InheritedPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, 0);
     this._ht = new Array();
 }
+_InheritedPropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
         return undefined;
@@ -744,6 +755,8 @@ function _InheritedContext() {
         if (!this.FontResourceSource && parentContext) this.FontResourceSource = parentContext.FontResourceSource;
     }
 }
+_InheritedContext.GetBaseClass = function () { return Object; };
+
 _InheritedContext.prototype.Compare = function (withContext, props) {
     var rv = _Inheritable.None;
 
@@ -792,6 +805,8 @@ function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence);
     this._Source = null;
 }
+_InheritedDataContextPropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (!this._Source || propd != FrameworkElement.DataContextProperty)
         return null;
@@ -839,7 +854,6 @@ _InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
     }
 };
 
-
 //#endregion
 
 //#region _DefaultValuePropertyProvider
@@ -849,6 +863,8 @@ _DefaultValuePropertyProvider.prototype.constructor = _DefaultValuePropertyProvi
 function _DefaultValuePropertyProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, 0);
 }
+_DefaultValuePropertyProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _DefaultValuePropertyProvider.prototype.GetPropertyValue = function (propd) {
     return propd.DefaultValue;
 };
@@ -868,6 +884,8 @@ function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
+_AutoCreatePropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);
     if (value)

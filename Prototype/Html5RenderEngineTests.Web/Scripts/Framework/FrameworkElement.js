@@ -2,13 +2,8 @@
 /// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
 /// <reference path="UIElement.js" />
-/// <reference path="Matrix.js"/>
 /// <reference path="List.js"/>
-/// <reference path="TreeWalkers.js"/>
-/// <reference path="PropertyValueProviders/PropertyValueProvider.js"/>
-/// <reference path="PropertyValueProviders/Style.js"/>
-/// <reference path="PropertyValueProviders/ImplicitStyle.js"/>
-/// <reference path="PropertyValueProviders/InheritedDataContext.js"/>
+/// <reference path="PropertyValueProviders.js"/>
 /// <reference path="Geometry.js"/>
 /// <reference path="Validators.js"/>
 
@@ -31,6 +26,7 @@ function FrameworkElement() {
     this._Providers[_PropertyPrecedence.DynamicValue] = new _FrameworkElementProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 }
+FrameworkElement.GetBaseClass = function () { return UIElement; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -584,10 +580,12 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
         while (node = pass._ArrangeList.First()) {
             node.UIElement._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
             pass._ArrangeList.Remove(node);
+            Info("PropagateFlagUp DirtyArrangeHint");
         }
         while (node = pass._SizeList.First()) {
             node.UIElement._PropagateFlagUp(UIElementFlags.DirtySizeHint);
             pass._SizeList.Remove(node);
+            Info("PropagateFlagUp DirtySizeHint");
         }
         pass._Count = pass._Count + 1;
 
@@ -630,12 +628,14 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
         }
 
         if (flag == UIElementFlags.DirtyMeasureHint) {
+            Info("Starting _MeasureList Update: " + pass._MeasureList._Count);
             while (node = pass._MeasureList.First()) {
                 pass._MeasureList.Remove(node);
                 node.UIElement._DoMeasureWithError(error);
                 pass._Updated = true;
             }
         } else if (flag == UIElementFlags.DirtyArrangeHint) {
+            Info("Starting _ArrangeList Update: " + pass._ArrangeList._Count);
             while (node = pass._ArrangeList.First()) {
                 pass._ArrangeList.Remove(node);
                 node.UIElement._DoArrangeWithError(error);
@@ -654,6 +654,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
                     //TODO: SizeChanged Event 
                 }
             }
+            Info("Completed _SizeList Update");
         } else {
             break;
         }
@@ -689,6 +690,9 @@ FrameworkElement.prototype._ClearImplicitStyles = function (styleMask) {
     this._Providers[_PropertyPrecedence.ImplicitStyle].ClearStyles(styleMask, error);
 };
 
+FrameworkElement.prototype.OnApplyTemplate = function () {
+    this.TemplatedApplied.Raise(this, null);
+};
 FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
     if (this._GetSubtreeObject())
         return false;
@@ -766,10 +770,6 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
 
-FrameworkElement.prototype.OnApplyTemplate = function () {
-    this.TemplatedApplied.Raise(this, null);
-};
-
 FrameworkElement.prototype._SetLogicalParent = function (value, error) {
     if (this._LogicalParent == value)
         return;
@@ -819,6 +819,8 @@ function _FrameworkElementProvider(obj, propPrecedence) {
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 }
+_FrameworkElementProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+
 _FrameworkElementProvider.prototype.GetPropertyValue = function (propd) {
     if (propd != FrameworkElement.ActualHeightProperty && propd != FrameworkElement.ActualWidthProperty)
         return undefined;

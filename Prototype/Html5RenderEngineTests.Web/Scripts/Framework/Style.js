@@ -9,6 +9,7 @@ function SetterBase() {
     DependencyObject.call(this);
     this._IsAttached = false;
 }
+SetterBase.GetBaseClass = function () { return DependencyObject; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -19,10 +20,72 @@ SetterBase.prototype.GetIsSealed = function () {
 
 //#endregion
 
+SetterBase.prototype.GetAttached = function () {
+    return this._Attached;
+};
+SetterBase.prototype.SetAttached = function (value) {
+    this._Attached = value;
+};
 SetterBase.prototype._Seal = function () {
     if (this.GetIsSealed())
         return;
     this.SetValue(SetterBase.IsSealedProperty, true);
+};
+
+//#endregion
+
+//#region SetterBaseCollection
+
+SetterBaseCollection.prototype = new DependencyObjectCollection;
+SetterBaseCollection.prototype.constructor = SetterBaseCollection;
+function SetterBaseCollection() {
+    DependencyObjectCollection.call(this);
+}
+SetterBaseCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+
+SetterBaseCollection.IsSealedProperty = DependencyProperty.Register("IsSealed", SetterBaseCollection);
+SetterBaseCollection.prototype.GetIsSealed = function () {
+    return this.GetValue(SetterBaseCollection.IsSealedProperty);
+};
+SetterBaseCollection.prototype.SetIsSealed = function (value) {
+    this.SetValue(SetterBaseCollection.IsSealedProperty, value);
+};
+
+SetterBaseCollection.prototype._Seal = function () {
+    this.SetIsSealed(true);
+
+    var error = new BError();
+    var iterator = this.GetIterator();
+    var setter;
+    while (iterator.Next(error) && (setter = iterator.GetCurrent(error))) {
+        setter._Seal();
+    }
+};
+
+SetterBaseCollection.prototype.AddedToCollection = function (value, error) {
+    if (!value || !this._ValidateSetter(value, error))
+        return false;
+    if (value instanceof SetterBase) {
+        value.SetAttached(true);
+        value._Seal();
+    }
+    return DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error);
+};
+SetterBaseCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+    if (isValueSafe) {
+        if (value instanceof SetterBase)
+            value.SetAttached(false);
+    }
+    DependencyObjectCollection.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+};
+
+SetterBaseCollection.prototype.IsElementType = function (value) {
+    return value instanceof SetterBase;
+};
+
+SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
+    NotImplemented("SetterBaseCollection._ValidateSetter");
+    return true;
 };
 
 //#endregion
@@ -34,6 +97,7 @@ Setter.prototype.constructor = Setter;
 function Setter() {
     SetterBase.call(this);
 }
+Setter.GetBaseClass = function () { return SetterBase; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -66,12 +130,13 @@ Style.prototype.constructor = Style;
 function Style() {
     DependencyObject.call(this);
 }
+Style.GetBaseClass = function () { return DependencyObject; };
 
 //#region DEPENDENCY PROPERTIES
 
-Style.SettersProperty = DependencyProperty.Register("Setters", Style);
+Style.SettersProperty = DependencyProperty.Register("Setters", Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
 Style.prototype.GetSetters = function () {
-    this.GetValue(Style.SettersProperty);
+    return this.GetValue(Style.SettersProperty);
 };
 
 Style.IsSealedProperty = DependencyProperty.Register("IsSealed", Style);
@@ -132,6 +197,8 @@ function _DeepStyleWalker(styles) {
     else if (styles instanceof Array)
         this._InitializeStyles(styles);
 }
+_DeepStyleWalker.GetBaseClass = function () { return Object; };
+
 _DeepStyleWalker.prototype.Step = function () {
     if (this._Offset < this._Setters.length) {
         var s = this._Setters[this._Offset];
@@ -166,7 +233,7 @@ _DeepStyleWalker.prototype._InitializeStyles = function (styles) {
     for (var i = 0; i < _StyleIndex.Count; i++) {
         var style = styles[i];
         while (style != null) {
-            if (stylesSeen[style])
+            if (stylesSeen[style]) //FIX: NOT GONNA WORK
                 continue;
 
             var setters = style.GetSetters();

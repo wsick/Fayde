@@ -10,6 +10,7 @@ function Control() {
 
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 }
+Control.GetBaseClass = function () { return FrameworkElement; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -157,7 +158,7 @@ Control.prototype.SetDefaultStyleKey = function (value) {
     this.SetValue(Control.DefaultStyleKeyProperty, value);
 };
 
-Control.IsTemplateItemProperty = DependencyProperty.RegisterAttached("IsTemplateItem", Control);
+Control.IsTemplateItemProperty = DependencyProperty.RegisterAttached("IsTemplateItem", Control, false);
 Control.GetIsTemplateItem = function (d) {
     return d.GetValue(Control.IsTemplateItemProperty);
 };
@@ -168,6 +169,21 @@ Control.SetIsTemplateItem = function (d, value) {
 //#endregion
 
 //#region INSTANCE METHODS
+
+Control.prototype.GetDefaultStyle = function () {
+    return null;
+};
+Control.prototype.GetTemplateChild = function (name) {
+    if (this._TemplateRoot)
+        return this._TemplateRoot.FindName(name);
+    return null;
+};
+Control.prototype.SetVisualParent = function (visualParent) {
+    if (this.GetVisualParent() != visualParent) {
+        FrameworkElement.prototype.SetVisualParent.call(this, visualParent);
+        this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
+    }
+};
 
 Control.prototype._ElementAdded = function (item) {
     var error;
@@ -184,21 +200,9 @@ Control.prototype._ElementRemoved = function (item) {
     item._RemoveParent(this, error);
     FrameworkElement.prototype._ElementRemoved.call(this, item);
 };
-Control.prototype.GetTemplateChild = function (name) {
-    if (this._TemplateRoot)
-        return this._TemplateRoot.FindName(name);
-    return null;
-};
 
 Control.prototype._InsideObject = function (x, y) {
     return false;
-};
-
-Control.prototype.SetVisualParent = function (visualParent) {
-    if (this.GetVisualParent() != visualParent) {
-        FrameworkElement.prototype.SetVisualParent.call(this, visualParent);
-        this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
-    }
 };
 
 Control.prototype._UpdateIsEnabledSource = function (control) {
@@ -243,7 +247,7 @@ Control.prototype._DoApplyTemplateWithError = function (error) {
 
     var root = t._GetVisualTreeWithError(this, error);
     if (root && !(root instanceof UIElement)) {
-        //Warn: root was not a UIElement
+        Warn("Root element in template was not a UIElement.");
         root = null;
     }
 

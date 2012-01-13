@@ -12,6 +12,8 @@ function Collection() {
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();
 }
+Collection.GetBaseClass = function () { return DependencyObject; };
+
 Collection.CountProperty = DependencyProperty.Register("Count", Collection, 0);
 Collection.prototype.GetCount = function () {
     return this._ht.length;
@@ -78,12 +80,43 @@ Collection.prototype.Contains = function (value) {
 Collection.prototype.CanAdd = function (value) { return true; };
 Collection.prototype.AddedToCollection = function (value, error) { return true; };
 Collection.prototype.RemovedFromCollection = function (value, isValueSafe) { };
+Collection.prototype.GetIterator = function () {
+    return new CollectionIterator(this);
+};
 
 Collection.prototype._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
     this.ItemChanged.Raise(this, new ItemChangedArgs(obj, propd, oldValue, newValue));
 };
 Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index) {
     this.Changed.Raise(this, new CollectionChangedArgs(action, oldValue, newValue, index));
+};
+
+//#endregion
+
+//#region CollectionIterator
+
+CollectionIterator.prototype = new Object;
+CollectionIterator.prototype.constructor = CollectionIterator;
+function CollectionIterator(collection) {
+    Object.call(this);
+    this._Collection = collection;
+    this._Index = -1;
+}
+CollectionIterator.GetBaseClass = function () { return Object; };
+
+CollectionIterator.prototype.Next = function (error) {
+    this._Index++;
+    return this._Index < this._Collection.GetCount();
+};
+CollectionIterator.prototype.Reset = function () {
+    this._Index = -1;
+};
+CollectionIterator.prototype.GetCurrent = function (error) {
+    if (this._Index < 0 || this._Index >= this._Collection.GetCount()) {
+        error.SetErrored(BError.InvalidOperation, "Index out of bounds.");
+        return null;
+    }
+    return this._Collection.GetValueAt(this._Index);
 };
 
 //#endregion
@@ -98,6 +131,7 @@ function ItemChangedArgs(item, propd, oldValue, newValue) {
     this.OldValue = oldValue;
     this.NewValue = newValue;
 }
+ItemChangedArgs.GetBaseClass = function () { return Object; };
 
 //#endregion
 
@@ -118,6 +152,7 @@ function CollectionChangedArgs(action, oldValue, newValue, index) {
     this.NewValue = newValue;
     this.Index = index;
 }
+CollectionChangedArgs.GetBaseClass = function () { return Object; };
 
 //#endregion
 
@@ -130,6 +165,7 @@ function DependencyObjectCollection(setsParent) {
     this._IsSecondaryParent = false;
     this._SetsParent = !setsParent ? true : setsParent;
 }
+DependencyObjectCollection.GetBaseClass = function () { return Collection; };
 
 DependencyObjectCollection.prototype.IsElementType = function (value) {
     return value instanceof DependencyObject;
@@ -211,6 +247,8 @@ function UIElementCollection() {
     DependencyObjectCollection.call(this);
     this._ZSorted = new Array();
 }
+UIElementCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+
 UIElementCollection.prototype.GetValueAtZIndex = function (index) {
     return this._ZSorted[index];
 };
@@ -244,6 +282,8 @@ InlineCollection.prototype.constructor = InlineCollection;
 function InlineCollection() {
     DependencyObjectCollection.call(this);
 }
+InlineCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+
 InlineCollection.prototype.AddedToCollection = function (value, error) {
     if (this._ForHyperlink) {
         if (false) { //TODO: if (!this._IsValueSupportedInHyperlinkn(value)) {
@@ -271,6 +311,7 @@ function ResourceDictionary() {
     Collection.call(this);
     this._KeyIndex = new Array();
 }
+ResourceDictionary.GetBaseClass = function () { return Collection; };
 
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.Register("MergedDictionaries", ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 ResourceDictionary.prototype.GetMergedDictionaries = function () {
@@ -340,6 +381,8 @@ ResourceDictionaryCollection.prototype.constructor = ResourceDictionaryCollectio
 function ResourceDictionaryCollection() {
     DependencyObjectCollection.call(this);
 }
+ResourceDictionaryCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+
 ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
     if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
         return false;
@@ -391,6 +434,7 @@ GradientStop.prototype.constructor = GradientStop;
 function GradientStop() {
     DependencyObject.call(this);
 }
+GradientStop.GetBaseClass = function () { return DependencyObject; };
 
 GradientStop.ColorProperty = DependencyProperty.Register("Color", GradientStop, new Color());
 GradientStop.prototype.GetColor = function () {
@@ -417,6 +461,8 @@ GradientStopCollection.prototype.constructor = GradientStopCollection;
 function GradientStopCollection() {
     DependencyObjectCollection.call(this);
 }
+GradientStopCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+
 GradientStopCollection.prototype.IsElementType = function (value) {
     return value instanceof GradientStop;
 };
@@ -450,6 +496,8 @@ function _VisualTreeWalker(/* UIElement */obj, /* _VisualTreeWalkerDirection */d
         }
     }
 }
+_VisualTreeWalker.GetBaseClass = function () { return Object; };
+
 _VisualTreeWalker.prototype.Step = function () {
     var result = null;
     if (this._Collection) {
@@ -504,14 +552,16 @@ _VisualTreeWalker.prototype.GetCount = function () {
 
 _DeepTreeWalker.prototype = new Object;
 _DeepTreeWalker.prototype.constructor = _DeepTreeWalker;
-_DeepTreeWalker.prototype._WalkList = new List();
-_DeepTreeWalker.prototype._Last = null;
-_DeepTreeWalker.prototype._Direction = _VisualTreeWalkerDirection.Logical;
 function _DeepTreeWalker(/* UIElement */top, /* _VisualTreeWalkerDirection */direction) {
+    this._WalkList = new List();
     this._WalkList.Append(new UIElementNode(top));
+    this._Last = null;
+    this._Direction = _VisualTreeWalkerDirection.Logical;
     if (direction)
         this._Direction = direction;
 }
+_DeepTreeWalker.GetBaseClass = function () { return Object; };
+
 _DeepTreeWalker.prototype.Step = function () {
     if (this._Last) {
         var walker = new _VisualTreeWalker(this._Last, this._Direction);

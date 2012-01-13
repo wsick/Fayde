@@ -19,6 +19,8 @@ var UIElementFlags = {
     DirtySizeHint: 0x2000
 };
 
+//#region UIElement
+
 UIElement.prototype = new DependencyObject;
 UIElement.prototype.constructor = UIElement;
 function UIElement() {
@@ -28,7 +30,7 @@ function UIElement() {
     this.Invalidated = new MulticastEvent();
 
     this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
-    
+
     this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
     this._HiddenDesire = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
@@ -49,6 +51,7 @@ function UIElement() {
     this._ComputeTotalRenderVisibility();
     this._ComputeTotalHitTestVisibility();
 }
+UIElement.GetBaseClass = function () { return DependencyObject; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -514,6 +517,23 @@ UIElement.prototype._PropagateFlagUp = function (flag) {
     }
 };
 
+UIElement.prototype.__DebugDirtyFlags = function () {
+    var t = new String();
+    if (this._DirtyFlags & _Dirty.Measure)
+        t = t.concat("[Measure]");
+    if (this._DirtyFlags & _Dirty.Arrange)
+        t = t.concat("[Arrange]");
+    if (this._DirtyFlags & _Dirty.Bounds)
+        t = t.concat("[Bounds]");
+    if (this._DirtyFlags & _Dirty.ChildrenZIndices)
+        t = t.concat("[ChildrenZIndices]");
+    if (this._DirtyFlags & _Dirty.Clip)
+        t = t.concat("[Clip]");
+    if (this._DirtyFlags & _Dirty.Invalidate)
+        t = t.concat("[Invalidate]");
+    return t;
+};
+
 //#endregion
 
 UIElement.ZIndexComparer = function (uie1, uie2) {
@@ -528,3 +548,5 @@ UIElement.ZIndexComparer = function (uie1, uie2) {
     }
     return zi1 - zi2;
 };
+
+//#endregion

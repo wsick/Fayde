@@ -8,6 +8,8 @@ Brush.prototype.constructor = Brush;
 function Brush() {
     DependencyObject.call(this);
 };
+Brush.GetBaseClass = function () { return DependencyObject; };
+
 Brush.prototype._Translate = function (ctx) {
     AbstractMethod("Brush._Translate()");
 };
@@ -16,12 +18,14 @@ Brush.prototype._Translate = function (ctx) {
 
 //#region SolidColorBrush
 
-SolidColorBrush.prototype = Brush.prototype;
+SolidColorBrush.prototype = new Brush;
 SolidColorBrush.prototype.constructor = SolidColorBrush;
 function SolidColorBrush(color) {
     Brush.call(this);
     this._Color = color;
 }
+SolidColorBrush.GetBaseClass = function () { return Brush; };
+
 SolidColorBrush.prototype._Translate = function (ctx) {
     return this._Color.toString();
 };
@@ -35,8 +39,9 @@ GradientBrush.prototype.constructor = GradientBrush;
 function GradientBrush() {
     Brush.call(this);
 }
+GradientBrush.GetBaseClass = function () { return Brush; };
 
-GradientBrush.GradientStopsProperty = DependencyProperty.Register("GradientStops", GradientBrush);
+GradientBrush.GradientStopsProperty = DependencyProperty.Register("GradientStops", GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.prototype.GetGradientStops = function () {
     return this.GetValue(GradientBrush.GradientStopsProperty);
 };
@@ -53,6 +58,7 @@ LinearGradientBrush.prototype.constructor = LinearGradientBrush;
 function LinearGradientBrush() {
     GradientBrush.call(this);
 }
+LinearGradientBrush.GetBaseClass = function () { return GradientBrush; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -96,6 +102,7 @@ RadialGradientBrush.prototype.constructor = RadialGradientBrush;
 function RadialGradientBrush() {
     GradientBrush.call(this);
 }
+RadialGradientBrush.GetBaseClass = function () { return GradientBrush; };
 
 //#region DEPENDENCY PROPERTIES
 

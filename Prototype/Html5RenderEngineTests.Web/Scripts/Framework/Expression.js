@@ -1,24 +1,32 @@
-﻿_Expression.prototype = new Object;
-_Expression.prototype.constructor = _Expression;
-function _Expression() {
-}
+﻿//#region Expression
 
-_Expression.prototype._GetValue = function (propd) {
+Expression.prototype = new Object;
+Expression.prototype.constructor = Expression;
+function Expression() {
+}
+Expression.GetBaseClass = function () { return Object; };
+
+Expression.prototype._GetValue = function (propd) {
     AbstractMethod("_Expression._GetValue");
 };
-_Expression.prototype._OnAttached = function (element) {
+Expression.prototype._OnAttached = function (element) {
     this._Attached = true;
 };
-_Expression.prototype._OnDetached = function (element) {
+Expression.prototype._OnDetached = function (element) {
     this._Attached = false;
 };
 
+//#endregion
 
+//#region TemplateBindingExpression
 
-_TemplateBindingExpression.prototype = new _Expression;
-_TemplateBindingExpression.prototype.constructor = _TemplateBindingExpression;
-function _TemplateBindingExpression(sourcePropd, targetPropd) {
-    _Expression.call(this);
+TemplateBindingExpression.prototype = new Expression;
+TemplateBindingExpression.prototype.constructor = TemplateBindingExpression;
+function TemplateBindingExpression(sourcePropd, targetPropd) {
+    Expression.call(this);
     this._SourceProperty = sourcePropd;
     this._TargetProperty = targetPropd;
 }
+TemplateBindingExpression.GetBaseClass = function () { return Expression; };
+
+//#endregion

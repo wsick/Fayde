@@ -6,6 +6,7 @@
 /// <reference path="ContentPresenter.js"/>
 /// <reference path="ContentControl.js"/>
 /// <reference path="Border.js"/>
+/// <reference path="Templates.js"/>
 
 //#region _TextBoxBaseDynamicPropertyValueProvider
 
@@ -20,6 +21,7 @@ function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroun
     this._SelectionForeground = undefined;
     this._BaselineOffset = undefined;
 }
+_TextBoxBaseDynamicPropertyValueProvider.GetBaseClass = function () { return _FrameworkElementProvider; };
 
 _TextBoxBaseDynamicPropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
     if (propd == this._BackgroundPropd)
@@ -56,7 +58,6 @@ _TextBoxBaseDynamicPropertyValueProvider.prototype._InitializeSelectionBrushes =
         this._SelectionForeground = new SolidColorBrush(new Color(255, 255, 255));
 };
 
-
 //#endregion
 
 //#region _TextBoxDynamicPropertyValueProvider
@@ -67,6 +68,7 @@ function _TextBoxDynamicPropertyValueProvider(obj, propPrecedence) {
     _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence, 
         TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
 }
+_TextBoxDynamicPropertyValueProvider.GetBaseClass = function () { return _TextBoxBaseDynamicPropertyValueProvider; };
 
 //#endregion
 
@@ -78,6 +80,7 @@ function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
     _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence, 
         PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
 }
+_PasswordBoxDynamicPropertyValueProvider.GetBaseClass = function () { return _TextBoxBaseDynamicPropertyValueProvider; };
 
 //#endregion
 
@@ -98,6 +101,7 @@ function _TextBoxView() {
     this._TextBox = null;
     this._Dirty = false;
 }
+_TextBoxView.GetBaseClass = function () { return FrameworkElement; };
 
 _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
     if (this._TextBox == value)
@@ -118,7 +122,7 @@ _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
 
         this._Layout.SetTextAlignment(this._TextBox.GetTextAlignment());
         this._Layout.SetTextWrapping(this._TextBox.GetTextWrapping());
-        this._HadSelectedText = this._TextBox.HadSelectedText();
+        this._HadSelectedText = this._TextBox.HasSelectedText();
         this._SelectionChanged = true;
         this._UpdateText();
 
@@ -226,10 +230,10 @@ _TextBoxView.prototype._UpdateCursor = function (invalidate) {
     this._Cursor = this._Layout.GetCursor(new Point(), cur);
     rect = this._Cursor; //.Transform(this._AbsoluteTransform);
 
-    this._TextBox._ImCtx.SetCursorLocation(rect);
+    //TODO: this._TextBox._ImCtx.SetCursorLocation(rect);
 
-    if (this._Cursor != current)
-        this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
+    //TODO: if (this._Cursor != current)
+        //TODO: this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
 
     if (invalidate && this._CursorVisible)
         this._InvalidateCursor();
@@ -281,7 +285,7 @@ _TextBoxView.prototype.GetCursorFromXY = function (x, y) {
 
 _TextBoxView.prototype._Render = function (ctx, region) {
     var renderSize = this._RenderSize;
-    this._Providers[_PropertyPrecedence.DynamicValue]._InitializeSelectionBrushes();
+    this._TextBox._Providers[_PropertyPrecedence.DynamicValue]._InitializeSelectionBrushes();
 
     this._UpdateCursor(false);
 
@@ -331,6 +335,32 @@ _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
 
 //#endregion
 
+var _TextBoxModelChanged = {
+    Nothing: 0,
+    TextAlignment: 1,
+    TextWrapping: 2,
+    Selection: 3,
+    Brush: 4,
+    Font: 5,
+    Text: 6
+};
+var _TextBoxEmitChanged = {
+    NOTHING: 0,
+    SELECTION: 1 << 0,
+    TEXT: 1 << 1
+};
+
+//#region _TextBoxModelChangedEventArgs
+
+_TextBoxModelChangedEventArgs.prototype = new Object;
+_TextBoxModelChangedEventArgs.prototype.constructor = _TextBoxModelChangedEventArgs;
+function _TextBoxModelChangedEventArgs(changed, propArgs) {
+    Object.call(this);
+}
+_TextBoxModelChangedEventArgs.GetBaseClass = function () { return Object; };
+
+//#endregion
+
 //#region TextBoxBase
 
 TextBoxBase.prototype = new Control;
@@ -342,46 +372,36 @@ function TextBoxBase() {
     this._Buffer = new String();
 
     this._Font = new Font();
+
+    this.ModelChanged = new MulticastEvent();
+
+    this._Batch = 0;
 }
+TextBoxBase.GetBaseClass = function () { return Control; };
 
-TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
-    //var changed = _TextBoxModelChanged.Nothing;
-    if (args.Property === Control.FontFamilyProperty) {
-        this._Font.SetFamily(args.NewValue);
-        //changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontSizeProperty) {
-        this._Font.SetSize(args.NewValue);
-        //changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontStretchProperty) {
-        this._Font.SetStretch(args.NewValue);
-        //changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontStyleProperty) {
-        this._Font.SetStyle(args.NewValue);
-        //changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontWeightProperty) {
-        this._Font.SetWeight(args.NewValue);
-        //changed = _TextBoxModelChanged.Font;
-    }
-
-    //TODO: if (changed !== _TextBoxModelChanged.Nothing)
-    //TODO: Emit - Model Changed Event
-
-    if (args.Property.OwnerType !== TextBoxBase) {
-        Control.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-
-    this.PropertyChanged.Raise(this, args);
+TextBoxBase.prototype.HasSelectedText = function () {
+    return this._SelectionCursor !== this._SelectionAnchor;
 };
-TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property === Control.BackgroundProperty
-        || args.Property === Control.ForegroundProperty) {
-        //TODO: Emit - Model Changed Event
-        this._Invalidate();
-    }
-
-    if (args.Property.OwnerType !== TextBoxBase)
-        Control.prototype._OnSubPropertyChanged.call(this, sender, args);
+TextBoxBase.prototype.GetFont = function () {
+    return this._Font;
+};
+TextBoxBase.prototype.GetTextDecorations = function () {
+    return TextDecorations.None;
+};
+TextBoxBase.prototype.GetCursor = function () {
+    return this._SelectionCursor;
+};
+TextBoxBase.prototype.GetSelectionStart = function () {
+    AbstractMethod("TextBoxBase.GetSelectionStart");
+};
+TextBoxBase.prototype.SetSelectionStart = function (value) {
+    AbstractMethod("TextBoxBase.SetSelectionStart");
+};
+TextBoxBase.prototype.GetSelectionLength = function () {
+    AbstractMethod("TextBoxBase.GetSelectionLength");
+};
+TextBoxBase.prototype.SetSelectionLength = function (value) {
+    AbstractMethod("TextBoxBase.SetSelectionLength");
 };
 
 TextBoxBase.prototype.OnApplyTemplate = function () {
@@ -417,6 +437,95 @@ TextBoxBase.prototype.OnApplyTemplate = function () {
     Control.prototype.OnApplyTemplate.call(this);
 };
 
+TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
+    var changed = _TextBoxModelChanged.Nothing;
+    if (args.Property === Control.FontFamilyProperty) {
+        this._Font.SetFamily(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    } else if (args.Property === Control.FontSizeProperty) {
+        this._Font.SetSize(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    } else if (args.Property === Control.FontStretchProperty) {
+        this._Font.SetStretch(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    } else if (args.Property === Control.FontStyleProperty) {
+        this._Font.SetStyle(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    } else if (args.Property === Control.FontWeightProperty) {
+        this._Font.SetWeight(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    }
+
+    if (changed !== _TextBoxModelChanged.Nothing)
+        this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
+
+    if (args.Property.OwnerType !== TextBoxBase) {
+        Control.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+
+    this.PropertyChanged.Raise(this, args);
+};
+TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
+    if (args.Property === Control.BackgroundProperty
+        || args.Property === Control.ForegroundProperty) {
+        //TODO: Emit - Model Changed Event
+        this._Invalidate();
+    }
+
+    if (args.Property.OwnerType !== TextBoxBase)
+        Control.prototype._OnSubPropertyChanged.call(this, sender, args);
+};
+
+TextBoxBase.prototype._BatchPush = function () {
+    this._Batch++;
+};
+TextBoxBase.prototype._BatchPop = function () {
+    if (this._Batch == 0) {
+        Warn("TextBoxBase._Batch underflow");
+        return;
+    }
+    this._Batch--;
+};
+TextBoxBase.prototype._SyncAndEmit = function (syncText) {
+    if (syncText == undefined)
+        syncText = true;
+
+    if (this._Batch != 0 || this._Emit == _TextBoxEmitChanged.NOTHING)
+        return;
+
+    if (syncText && (this._Emit & _TextBoxEmitChanged.TEXT))
+        this._SyncText();
+
+    if (this._Emit & _TextBoxEmitChanged.SELECTION)
+        this._SyncSelectedText();
+
+    if (this._IsLoaded) {
+        this._Emit &= this._EventsMask;
+        if (this._Emit & _TextBoxEmitChanged.TEXT)
+            this._EmitTextChanged();
+        if (this._Emit & _TextBoxEmitChanged.SELECTION)
+            this._EmitSelectionChanged();
+    }
+
+    this._Emit = _TextBoxEmitChanged.NOTHING;
+};
+TextBoxBase.prototype._SyncText = function () {
+    AbstractMethod("TextBoxBase._SyncText");
+};
+TextBoxBase.prototype._SyncSelectedText = function () {
+    AbstractMethod("TextBoxBase._SyncSelectedText");
+};
+TextBoxBase.prototype.ClearSelection = function (start) {
+    this._BatchPush();
+    this.SetSelectionStart(start);
+    this.SetSelectionLength(0);
+    this._BatchPop();
+};
+
+TextBoxBase.prototype._EmitTextChanged = function () { };
+TextBoxBase.prototype._EmitSelectionChanged = function () { };
+
 //#endregion
 
 //#region TextBox
@@ -427,7 +536,13 @@ function TextBox() {
     TextBoxBase.call(this);
 
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
+
+    this._EventsMask = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
+
+    this.SelectionChanged = new MulticastEvent();
+    this.TextChanged = new MulticastEvent();
 }
+TextBox.GetBaseClass = function () { return TextBoxBase; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -455,7 +570,7 @@ TextBox.prototype.SetBaselineOffset = function (value) {
     this.SetValue(TextBox.BaselineOffsetProperty, value);
 };
 
-TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", TextBox);
+TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", TextBox, "");
 TextBox.prototype.GetSelectedText = function () {
     return this.GetValue(TextBox.SelectedTextProperty);
 };
@@ -463,7 +578,7 @@ TextBox.prototype.SetSelectedText = function (value) {
     this.SetValue(TextBox.SelectedTextProperty, value);
 };
 
-TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", TextBox);
+TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", TextBox, 0);
 TextBox.prototype.GetSelectionLength = function () {
     return this.GetValue(TextBox.SelectionLengthProperty);
 };
@@ -471,7 +586,7 @@ TextBox.prototype.SetSelectionLength = function (value) {
     this.SetValue(TextBox.SelectionLengthProperty, value);
 };
 
-TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", TextBox);
+TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", TextBox, 0);
 TextBox.prototype.GetSelectionStart = function () {
     return this.GetValue(TextBox.SelectionStartProperty);
 };
@@ -487,7 +602,7 @@ TextBox.prototype.SetText = function (value) {
     this.SetValue(TextBox.TextProperty, value);
 };
 
-TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", TextBox);
+TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", TextBox, TextAlignment.Left);
 TextBox.prototype.GetTextAlignment = function () {
     return this.GetValue(TextBox.TextAlignmentProperty);
 };
@@ -495,7 +610,7 @@ TextBox.prototype.SetTextAlignment = function (value) {
     this.SetValue(TextBox.TextAlignmentProperty, value);
 };
 
-TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", TextBox);
+TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", TextBox, TextWrapping.NoWrap);
 TextBox.prototype.GetTextWrapping = function () {
     return this.GetValue(TextBox.TextWrappingProperty);
 };
@@ -503,7 +618,7 @@ TextBox.prototype.SetTextWrapping = function (value) {
     this.SetValue(TextBox.TextWrappingProperty, value);
 };
 
-TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", TextBox);
+TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", TextBox, ScrollBarVisibility.Hidden);
 TextBox.prototype.GetHorizontalScrollBarVisibility = function () {
     return this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
 };
@@ -511,7 +626,7 @@ TextBox.prototype.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
 };
 
-TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", TextBox);
+TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", TextBox, ScrollBarVisibility.Hidden);
 TextBox.prototype.GetVerticalScrollBarVisibility = function () {
     return this.GetValue(TextBox.VerticalScrollBarVisibilityProperty);
 };
@@ -523,57 +638,7 @@ TextBox.prototype.SetVerticalScrollBarVisibility = function (value) {
 
 //#region INSTANCE METHODS
 
-TextBox.prototype.OnApplyTemplate = function () {
-    TextBoxBase.prototype.OnApplyTemplate.call(this);
-
-    if (this._ContentElement)
-        return;
-    var prop;
-    if ((prop = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
-        this._ContentElement.SetValue(prop, this.GetValue(TextBox.VerticalScrollBarVisibilityProperty));
-
-    if ((prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
-        if (this.GetTextWrapping() === TextWrapping.Wrap)
-            this._ContentElement.SetValue(prop, ScrollBarVisibility.Disabled);
-        else
-            this._ContentElement.SetValue(prop, this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
-    }
-};
-
-TextBox.prototype.SyncSelectedText = function () {
-    if (this._SelectionCursor != this._SelectionAnchor) {
-        var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
-        var end = Math.max(this._SelectionAnchor, this._SelectionCursor);
-        var text = this._Buffer.slice(start, end);
-
-        this._SetValue = false;
-        this.SetSelectedText(TextBox.SelectedTextProperty, text);
-        this._SetValue = true;
-    } else {
-        this._SetValue = false;
-        this.SetSelectedText("");
-        this._SetValue = true;
-    }
-};
-TextBox.prototype.SyncText = function () {
-    this._SetValue = false;
-    this.SetValue(TextBox.TextProperty, this._Buffer);
-    this._SetValue = true;
-};
-
-TextBox.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== TextBox) {
-        TextBoxBase.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-    NotImplemented("TextBox._OnPropertyChanged");
-};
-
-//#endregion
-
-//#region DEFAULT STYLE
-
-TextBox.GetDefaultStyle = function () {
+TextBox.prototype.GetDefaultStyle = function () {
     var style = new Style();
 
     style.GetSetters().Add((function () {
@@ -638,7 +703,237 @@ TextBox.GetDefaultStyle = function () {
         return setter;
     })());
 
+    style.GetSetters().Add((function () {
+        var setter = new Setter();
+        setter.SetProperty(Control.TemplateProperty);
+        setter.SetValue_Prop((function () {
+            return ControlTemplate.CreateTemplateFromJson({
+                Type: Grid,
+                Name: "RootElement",
+                Children: [
+                    {
+                        Type: Border,
+                        Name: "Border",
+                        Props: {
+                            CornerRadius: new Thickness(1, 1, 1, 1)
+                        },
+                        Content: {
+                            Type: Grid,
+                            Children: [
+                                {
+                                    Type: Border,
+                                    Name: "ReadOnlyVisualElement"
+                                },
+                                {
+                                    Type: Border,
+                                    Name: "MouseOverBorder",
+                                    Content: {
+                                        Type: Border,
+                                        Name: "ContentElement"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        Type: Border,
+                        Name: "DisabledVisualElement"
+                    },
+                    {
+                        Type: Border,
+                        Name: "FocusVisualElement"
+                    },
+                ]
+            });
+        })());
+        return setter;
+    })());
+
     return style;
+};
+
+TextBox.prototype.OnApplyTemplate = function () {
+    TextBoxBase.prototype.OnApplyTemplate.call(this);
+
+    if (!this._ContentElement)
+        return;
+    var prop;
+    if ((prop = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
+        this._ContentElement.SetValue(prop, this.GetValue(TextBox.VerticalScrollBarVisibilityProperty));
+
+    if ((prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
+        if (this.GetTextWrapping() === TextWrapping.Wrap)
+            this._ContentElement.SetValue(prop, ScrollBarVisibility.Disabled);
+        else
+            this._ContentElement.SetValue(prop, this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+    }
+};
+
+TextBox.prototype.GetDisplayText = function () {
+    return this.GetText();
+};
+
+TextBox.prototype._SyncSelectedText = function () {
+    if (this._SelectionCursor != this._SelectionAnchor) {
+        var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
+        var end = Math.max(this._SelectionAnchor, this._SelectionCursor);
+        var text = this._Buffer.slice(start, end);
+
+        this._SetValue = false;
+        this.SetSelectedText(TextBox.SelectedTextProperty, text);
+        this._SetValue = true;
+    } else {
+        this._SetValue = false;
+        this.SetSelectedText("");
+        this._SetValue = true;
+    }
+};
+TextBox.prototype._SyncText = function () {
+    this._SetValue = false;
+    this.SetValue(TextBox.TextProperty, this._Buffer);
+    this._SetValue = true;
+};
+
+TextBox.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== TextBox) {
+        TextBoxBase.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+
+    var changed = _TextBoxModelChanged.Nothing;
+    var propd;
+    var start;
+    var length;
+    var textLen;
+    /*if (args.Property === TextBox.AcceptsReturnProperty) {
+    NotImplemented("TextBox._OnPropertyChanged");
+    } else if (args.Property === TextBox.CaretBrushProperty) {
+    NotImplemented("TextBox._OnPropertyChanged");
+    } else if (args.Property === TextBox.FontSourceProperty) {
+    NotImplemented("TextBox._OnPropertyChanged");
+    } else if (args.Property === TextBox.IsReadOnlyProperty) {
+    NotImplemented("TextBox._OnPropertyChanged");
+    } else if (args.Property === TextBox.MaxLengthProperty) {
+    NotImplemented("TextBox._OnPropertyChanged");
+    } else */
+    if (args.Property === TextBox.SelectedTextProperty) {
+        if (this._SetValue) {
+            length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
+            start = Math.min(this._SelectionAnchor, this._SelectionCursor);
+
+            //TODO: Create undo
+            //TODO: Clear redos
+            this.ClearSelection(start + textLen);
+            //TODO: ResetIMContext();
+            this._SyncAndEmit();
+            NotImplemented("TextBox._OnPropertyChanged");
+        }
+    } else if (args.Property === TextBox.SelectionStartProperty) {
+        length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
+        start = args.NewValue;
+        if (start > this._Buffer.length) {
+            this.SetSelectionStart(this._Buffer.length);
+            return;
+        }
+
+        if (start + length > this._Buffer.length) {
+            this._BatchPush();
+            length = this._Buffer.length - start;
+            this.SetSelectionLength(length);
+            this._BatchPop();
+        }
+
+        if (this._SelectionAnchor != start) {
+            changed = _TextBoxModelChanged.Selection;
+            this._HaveOffset = false;
+        }
+
+        this._SelectionCursor = start + length;
+        this._SelectionAnchor = start;
+
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        this._SyncAndEmit();
+    } else if (args.Property === TextBox.SelectionLengthProperty) {
+        start = Math.min(this._SelectionAnchor, this._SelectionCursor);
+        length = args.NewValue;
+        if (start + length > this._Buffer.length) {
+            length = this._Buffer.length - start;
+            this.SetSelectionLength(length);
+            return;
+        }
+        if (this._SelectionCursor != (start + length)) {
+            changed = _TextBoxModelChanged.Selection;
+            this._HaveOffset = false;
+        }
+
+        this._SelectionCursor = start + length;
+        this._SelectionAnchor = start;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        this._SyncAndEmit();
+    } else if (args.Property === TextBox.SelectionBackgroundProperty) {
+        changed = _TextBoxModelChanged.Brush;
+    } else if (args.Property === TextBox.SelectionForegroundProperty) {
+        changed = _TextBoxModelChanged.Brush;
+    } else if (args.Property === TextBox.TextProperty) {
+        if (this._SetValue) {
+            //TODO: Build undo action
+            //TODO: Clear redo stack
+
+            this._Emit |= _TextBoxEmitChanged.TEXT;
+            this.ClearSelection(0);
+            //TODO: ResetIMContext();
+            this._SyncAndEmit(false);
+            NotImplemented("TextBox._OnPropertyChanged");
+        }
+        changed = _TextBoxModelChanged.Text;
+    } else if (args.Property === TextBox.TextAlignmentProperty) {
+        changed = _TextBoxModelChanged.TextAlignment;
+    } else if (args.Property === TextBox.TextWrappingProperty) {
+        if (this._ContentElement) {
+            if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
+                if (args.NewValue === TextWrapping.Wrap)
+                    this._ContentElement.SetValue(propd, ScrollBarVisibility.Disabled);
+                else
+                    this._ContentElement.SetValue(propd, this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+            }
+        }
+        changed = _TextBoxModelChanged.TextWrapping
+    } else if (args.Property === TextBox.HorizontalScrollBarVisibilityProperty) {
+        if (this._ContentElement) {
+            if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
+                if (this.GetTextWrapping() === TextWrapping.Wrap)
+                    this._ContentElement.SetValue(propd, ScrollBarVisibility.Disabled);
+                else
+                    this._ContentElement.SetValue(propd, args.NewValue);
+            }
+        }
+    } else if (args.Property === TextBox.VerticalScrollBarVisibilityProperty) {
+        if (this._ContentElement) {
+            if ((propd = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
+                this._ContentElement.SetValue(propd, args.NewValue);
+        }
+    }
+
+    this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
+
+    this.PropertyChanged.Raise(this, args);
+};
+TextBox.prototype._OnSubPropertyChanged = function (sender, args) {
+    if (args.Property && (args.Property === TextBox.SelectionBackgroundProperty
+        || args.Property === TextBox.SelectionForegroundProperty)) {
+        this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
+        this._Invalidate();
+    }
+
+    if (args.Property.OwnerType !== TextBox)
+        TextBoxBase.prototype._OnSubPropertyChanged.call(this, sender, args);
+};
+
+TextBox.prototype._EmitTextChanged = function () {
+    this.SelectionChanged.RaiseAsync(this, {});
+};
+TextBox.prototype._EmitSelectionChanged = function () {
+    this.TextChanged.RaiseAsync(this, {});
 };
 
 //#endregion
@@ -653,6 +948,8 @@ function PasswordBox() {
     TextBoxBase.call(this);
 
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
+    this._EventsMask = _TextBoxEmitChanged.TEXT;
 }
+PasswordBox.GetBaseClass = function () { return TextBoxBase; };
 
 //#endregion

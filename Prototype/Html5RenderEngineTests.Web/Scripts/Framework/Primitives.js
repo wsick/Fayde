@@ -99,6 +99,8 @@ function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
     this.BottomRight = bottomRight == null ? 0 : bottomRight;
     this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
 }
+CornerRadius.GetBaseClass = function () { return Object; };
+
 CornerRadius.prototype.IsZero = function () {
     return this.TopLeft == 0
         && this.TopRight == 0
@@ -118,6 +120,8 @@ function Thickness(left, top, right, bottom) {
     this.Right = right == null ? 0 : right;
     this.Bottom = bottom == null ? 0 : bottom;
 }
+Thickness.GetBaseClass = function () { return Object; };
+
 Thickness.prototype.Plus = function (thickness2) {
     var t = new Thickness();
     t.Left = this.Left + thickness2.Left;
@@ -156,6 +160,8 @@ function Point(x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
+Point.GetBaseClass = function () { return Object; };
+
 Point.prototype.Apply = function (matrix) {
     return matrix.Multiply(this);
 };
@@ -170,6 +176,8 @@ function Size(width, height) {
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
+Size.GetBaseClass = function () { return Object; };
+
 Size.prototype.GrowBy = function (width, height) {
     var h = this.Height;
     var w = this.Width;
@@ -207,6 +215,8 @@ function Rect(x, y, width, height) {
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
+Rect.GetBaseClass = function () { return Object; };
+
 Rect.prototype.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;
 };
@@ -270,6 +280,7 @@ function Clip(rect) {
     this.Width = rounded.Width;
     this.Height = rounded.Height;
 }
+Clip.GetBaseClass = function () { return Rect; };
 
 //#endregion
 
@@ -283,6 +294,8 @@ function Color(r, g, b, a) {
     this.B = b == null ? 255 : b;
     this.A = a == null ? 1.0 : a;
 }
+Color.GetBaseClass = function () { return Object; };
+
 Color.prototype.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
 };
@@ -296,6 +309,8 @@ Matrix.prototype.constructor = Matrix;
 function Matrix() {
     this._Elements = Matrix.CreateIdentityArray();
 }
+Matrix.GetBaseClass = function () { return Object; };
+
 Matrix.prototype.GetElements = function () {
     return this._Elements;
 };
@@ -370,6 +385,8 @@ function TranslationMatrix(x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
+TranslationMatrix.GetBaseClass = function () { return Matrix; };
+
 TranslationMatrix.prototype.GetElements = function () {
     return [
         [1, 0, this.X],
@@ -391,6 +408,8 @@ function RotationMatrix(angleRad) {
     Matrix.call(this);
     this.Angle = angleRad == null ? 0 : angleRad;
 }
+RotationMatrix.GetBaseClass = function () { return Matrix; };
+
 RotationMatrix.prototype.GetElements = function () {
     return [
         [Math.cos(this.Angle), -1 * Math.sin(this.Angle), 0],
@@ -413,6 +432,8 @@ function ScalingMatrix(x, y) {
     this.X = x == null ? 1 : x;
     this.Y = y == null ? 1 : y;
 }
+ScalingMatrix.GetBaseClass = function () { return Matrix; };
+
 ScalingMatrix.prototype.GetElements = function () {
     return [
         [this.X, 0, 0],
@@ -435,6 +456,8 @@ function ShearingMatrix(shearX, shearY) {
     this.ShearX = shearX == null ? 0 : shearX;
     this.ShearY = shearY == null ? 0 : shearY;
 }
+ShearingMatrix.GetBaseClass = function () { return Matrix; };
+
 ShearingMatrix.prototype.GetElements = function () {
     return [
         [1, this.ShearX, 0],
@@ -457,6 +480,7 @@ function Font() {
     this._Weight = Font.DEFAULT_WEIGHT;
     this._Size = Font.DEFAULT_SIZE;
 }
+Font.GetBaseClass = function () { return Object; };
 
 Font.prototype.GetFamily = function () {
     return this._Family;

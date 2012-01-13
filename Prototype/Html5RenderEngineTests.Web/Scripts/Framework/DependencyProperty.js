@@ -1,4 +1,6 @@
-﻿DependencyProperty.prototype = new Object;
+﻿//#region DependencyProperty
+
+DependencyProperty.prototype = new Object;
 DependencyProperty.prototype.constructor = DependencyProperty;
 function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom) {
     this.Name = name;
@@ -10,6 +12,8 @@ function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer,
     this._Validator = validator;
     this._IsCustom = isCustom;
 }
+DependencyProperty.GetBaseClass = function () { return Object; };
+
 DependencyProperty.prototype.toString = function () {
     var funcNameRegex = /function (.{1,})\(/;
     var results = (funcNameRegex).exec(this.OwnerType.toString());
@@ -23,8 +27,8 @@ DependencyProperty.prototype._IsAutoCreated = function () {
     return this._AutoCreator != undefined && this._AutoCreator != null;
 };
 DependencyProperty.prototype._GetAutoCreatedValue = function (obj) {
-        return this._AutoCreator.GetValue(this, obj);
-    };
+    return this._AutoCreator.GetValue(this, obj);
+};
 DependencyProperty.prototype._HasCoercer = function () {
     return this._Coercer != null;
 };
@@ -57,3 +61,14 @@ DependencyProperty.RegisterAttached = function (name, ownerType, defaultValue) {
     DependencyProperty._Registered[ownerType][name] = propd;
     return propd;
 }
+DependencyProperty.GetDependencyProperty = function (ownerType, name) {
+    var reg = DependencyProperty._Registered;
+    if (!reg)
+        return null;
+    var reg = reg[ownerType];
+    if (!reg)
+        return null;
+    return reg[name];
+};
+
+//#endregion

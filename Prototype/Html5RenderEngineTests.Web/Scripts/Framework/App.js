@@ -7,6 +7,7 @@ function App() {
     DependencyObject.call(this);
     this.MainSurface = new Surface();
 }
+App.GetBaseClass = function () { return DependencyObject; };
 
 App.ResourcesProperty = DependencyProperty.Register("Resources", App, null, { GetValue: function () { return new ResourceDictionary(); } });
 App.prototype.GetResources = function () {
@@ -46,9 +47,12 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
     var visualTreeStyle = undefined;
     if ((styleMask & _StyleMask.GenericXaml) != 0) {
         if (fe instanceof Control) {
-            var styleKey = fe.GetDefaultStyleKey();
-            if (styleKey != null)
-                genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
+            genericXamlStyle = fe.GetDefaultStyle();
+            if (!genericXamlStyle) {
+                var styleKey = fe.GetDefaultStyleKey();
+                if (styleKey != null)
+                    genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
+            }
         }
     }
     if ((styleMask & _StyleMask.ApplicationResources) != 0) {
@@ -60,11 +64,11 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
         var isControl = fe instanceof Control;
         var el = fe;
         while (el != null) {
-            if (el.TemplateOwner != null && fe.TemplateOwner == null) {
-                el = el.TemplateOwner;
+            if (el._TemplateOwner != null && fe._TemplateOwner == null) {
+                el = el._TemplateOwner;
                 continue;
             }
-            if (!isControl && el == fe.TemplateOwner)
+            if (!isControl && el == fe._TemplateOwner)
                 break;
 
             //visualTreeStyle = el.Resources.Get(fe.constructor);
