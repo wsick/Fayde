@@ -5,11 +5,20 @@
 		<Property Name>: <Property Value>,
 		...
 	},
+	<Optional> AttachedProps: [
+		{
+			<Optional> NsPrefix: <Namespace Prefix>,
+			Owner: <Owner Type>,
+			Prop: <Property Name>
+			Value: <Property Value>
+		},
+		...
+	],
 	<Optional> Children: [
-		[<Json Object (1)>],
-		[<Json Object (2)>],
-		..
-		[<Json Object (n)>]
+		<Json Object (1)>,
+		<Json Object (2)>,
+		...
+		<Json Object (n)>
 	],
 	<Optional> Content: <Json Object>
 }

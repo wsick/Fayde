@@ -715,21 +715,38 @@ TextBox.prototype.GetDefaultStyle = function () {
                         Type: Border,
                         Name: "Border",
                         Props: {
-                            CornerRadius: new Thickness(1, 1, 1, 1)
+                            CornerRadius: new Thickness(1, 1, 1, 1),
+                            Opacity: 1.0,
+                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            Background: new TemplateBinding("Background"),
+                            BorderBrush: new TemplateBinding("BorderBrush")
                         },
                         Content: {
                             Type: Grid,
                             Children: [
                                 {
                                     Type: Border,
-                                    Name: "ReadOnlyVisualElement"
+                                    Name: "ReadOnlyVisualElement",
+                                    Props: {
+                                        Opacity: 0.0,
+                                        Background: new SolidColorBrush(Color.FromHex("#5EC9C9C9"))
+                                    }
                                 },
                                 {
                                     Type: Border,
                                     Name: "MouseOverBorder",
+                                    Props: {
+                                        BorderThickness: new Thickness(1, 1, 1, 1),
+                                        BorderBrush: new SolidColorBrush(0, 0, 0, 0.0)
+                                    },
                                     Content: {
                                         Type: Border,
-                                        Name: "ContentElement"
+                                        Name: "ContentElement",
+                                        Props: {
+                                            Padding: new TemplateBinding("Padding"),
+                                            //IsTabStop: false,
+                                            BorderThickness: new Thickness(0, 0, 0, 0)
+                                        }
                                     }
                                 }
                             ]
@@ -737,11 +754,25 @@ TextBox.prototype.GetDefaultStyle = function () {
                     },
                     {
                         Type: Border,
-                        Name: "DisabledVisualElement"
+                        Name: "DisabledVisualElement",
+                        Props: {
+                            Background: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
+                            BorderBrush: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
+                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            Opacity: 0.0,
+                            IsHitTestVisible: false
+                        }
                     },
                     {
                         Type: Border,
-                        Name: "FocusVisualElement"
+                        Name: "FocusVisualElement",
+                        Props: {
+                            BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            Margin: new Thickness(1, 1, 1, 1),
+                            Opacity: 0.0,
+                            IsHitTestVisible: false
+                        }
                     },
                 ]
             });

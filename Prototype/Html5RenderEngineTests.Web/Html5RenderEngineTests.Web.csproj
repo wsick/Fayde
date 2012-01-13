@@ -57,6 +57,7 @@
     <Content Include="multicastevent-test.html" />
     <Content Include="NotImplemented\Annotations.txt" />
     <Content Include="prototype-tests\arrays.html" />
+    <Content Include="prototype-tests\parsing.html" />
     <Content Include="Scripts\Framework\Border.js" />
     <Content Include="Scripts\Framework\Brushes.js" />
     <Content Include="Scripts\Framework\Canvas.js" />

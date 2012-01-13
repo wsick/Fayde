@@ -66,8 +66,22 @@ UIElement.prototype.SetClip = function (value) {
 //UIElement.CacheModeProperty;
 //UIElement.EffectProperty;
 //UIElement.ProjectionProperty;
-//UIElement.IsHitTestVisibleProperty;
-//UIElement.OpacityMaskProperty;
+
+UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", UIElement);
+UIElement.prototype.GetIsHitTestVisible = function () {
+    return this.GetValue(UIElement.IsHitTestVisibleProperty);
+};
+UIElement.prototype.SetIsHitTestVisible = function (value) {
+    this.SetValue(UIElement.IsHitTestVisibleProperty, value);
+};
+
+UIElement.OpacityMaskProperty = DependencyProperty.Register("OpacityMask", UIElement);
+UIElement.prototype.GetOpacityMask = function () {
+    return this.GetValue(UIElement.OpacityMaskProperty);
+};
+UIElement.prototype.SetOpacityMask = function (value) {
+    this.SetValue(UIElement.OpacityMaskProperty, value);
+};
 
 UIElement.OpacityProperty = DependencyProperty.Register("Opacity", UIElement);
 UIElement.prototype.GetOpacity = function () {
@@ -79,7 +93,14 @@ UIElement.prototype.SetOpacity = function (value) {
 
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
-//UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement, CursorType.Default, null, UIElement._CoerceCursor);
+
+UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement); //, CursorType.Default, null, UIElement._CoerceCursor);
+UIElement.prototype.GetCursor = function () {
+    return this.GetValue(UIElement.CursorProperty);
+};
+UIElement.prototype.SetCursor = function (value) {
+    this.SetValue(UIElement.CursorProperty, value);
+};
 
 UIElement.ResourcesProperty = DependencyProperty.Register("Resources", UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.prototype.GetResources = function () {

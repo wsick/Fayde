@@ -296,6 +296,29 @@ function Color(r, g, b, a) {
 }
 Color.GetBaseClass = function () { return Object; };
 
+Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
+Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
+
+Color.FromHex = function (hex) {
+    var match;
+    var r;
+    var g;
+    var b;
+    var a;
+    if ((match = Color.__AlphaRegex.exec(hex)) != null) {
+        a = parseInt(match[1], 16) / 255.0;
+        r = parseInt(match[2], 16);
+        g = parseInt(match[3], 16);
+        b = parseInt(match[4], 16);
+    } else if ((match == Color.__NoAlphaRegex(hex)) != null) {
+        a = 1.0;
+        r = parseInt(match[1], 16);
+        g = parseInt(match[2], 16);
+        b = parseInt(match[3], 16);
+    }
+    return new Color(r, g, b, a);
+};
+
 Color.prototype.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
 };
