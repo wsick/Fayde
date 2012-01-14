@@ -47,9 +47,8 @@
     <script src="../Scripts/Framework/Surface.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/App.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/JsonParser.js" type="text/javascript"></script>
-
+    
     <script type="text/javascript">
-        var noobs;
         $(document).ready(function () {
             _Console.Init("#console");
             App.Instance.MainSurface.Init($("#testCanvas"));
@@ -59,92 +58,7 @@
 
         function buildTestView() {
             var top = new StackPanel();
-            top.SetBackground(new SolidColorBrush(new Color(128, 0, 0)));
-            top.SetOrientation(Orientation.Horizontal);
-
-            top.GetChildren().Add((function () {
-                var grid = new Grid();
-                grid.SetMinWidth(200);
-                grid.SetMinHeight(200);
-                //Row Definitions
-                grid.GetRowDefinitions().Add((function () {
-                    var rowdef = new RowDefinition();
-                    rowdef.SetHeight(new GridLength(2, GridUnitType.Star));
-                    return rowdef;
-                })());
-                grid.GetRowDefinitions().Add((function () {
-                    var rowdef = new RowDefinition();
-                    rowdef.SetHeight(new GridLength(3, GridUnitType.Star));
-                    return rowdef;
-                })());
-                //Column Definitions
-                grid.GetColumnDefinitions().Add((function () {
-                    var coldef = new ColumnDefinition();
-                    coldef.SetWidth(new GridLength(25, GridUnitType.Pixel));
-                    return coldef;
-                })());
-                grid.GetColumnDefinitions().Add((function () {
-                    var coldef = new ColumnDefinition();
-                    coldef.SetWidth(new GridLength(75, GridUnitType.Pixel));
-                    return coldef;
-                })());
-
-                //Children
-                grid.GetChildren().Add((function () {
-                    var border = new Border();
-                    border.SetBackground(new SolidColorBrush(new Color(240, 248, 255))); //AliceBlue
-                    border.SetMinHeight(200);
-                    return border;
-                })());
-                grid.GetChildren().Add((function () {
-                    var border = new Border();
-                    border.SetBackground(new SolidColorBrush(new Color(255, 255, 0))); //Yellow
-                    Grid.SetRow(border, 1);
-                    return border;
-                })());
-                grid.GetChildren().Add((function () {
-                    var border = new Border();
-                    border.SetBackground(new SolidColorBrush(new Color(127, 255, 212))); //Aquamarine
-                    Grid.SetColumn(border, 1);
-                    return border;
-                })());
-                grid.GetChildren().Add((function () {
-                    var border = new Border();
-                    border.SetBackground(new SolidColorBrush(new Color(255, 228, 196))); //Bisque
-                    Grid.SetRow(border, 1);
-                    Grid.SetColumn(border, 1);
-                    return border;
-                })());
-
-                return grid;
-            })());
-
-            top.GetChildren().Add((function () {
-                var border = new Border();
-                border.SetBorderBrush(new SolidColorBrush(new Color(0, 0, 0)));
-                border.SetBorderThickness(new Thickness(1, 1, 1, 1));
-                border.SetCornerRadius(new CornerRadius(5, 5, 5, 5));
-                border.SetMargin(new Thickness(5, 5, 5, 5));
-                border.SetMinWidth(50);
-                border.SetMinHeight(50);
-                return border;
-            })());
-
-            top.GetChildren().Add((function () {
-                var border = new Border();
-                border.SetBackground(new SolidColorBrush(Color.FromHex("#201010FF")));
-                border.SetMinHeight(200);
-                border.SetMinWidth(300);
-                border.SetChild((function () {
-                    var textblock = new TextBlock();
-                    //textblock.SetForeground(new SolidColorBrush(Color.FromHex("#80FFFFFF")));
-                    textblock.SetText("noobs are usddd ddd ddd ddd ddds");
-                    return textblock;
-                })());
-                noobs = border;
-                return border;
-            })());
-
+            top.SetBackground(new SolidColorBrush(Color.FromHex("#FFFFFF00")));
             return top;
         }
     </script>

@@ -533,7 +533,7 @@ _InheritedPropertyValueProvider.prototype.MaybeRemoveInheritedValue = function (
     if (!source) return;
     if ((props & prop) == 0) return;
 
-    if (source == element.GetInheritedValueSource(prop))
+    if (source == element._GetInheritedValueSource(prop))
         element._PropagateInheritedValue(prop, null, null);
 };
 _InheritedPropertyValueProvider.prototype.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
