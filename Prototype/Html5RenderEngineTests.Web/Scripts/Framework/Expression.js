@@ -29,6 +29,17 @@ Expression.prototype._OnDetached = function (element) {
 
 //#endregion
 
+//#region BindingExpressionBase
+
+BindingExpressionBase.prototype = new Expression;
+BindingExpressionBase.prototype.constructor = BindingExpressionBase;
+function BindingExpressionBase() {
+    Expression.call(this);
+}
+BindingExpressionBase.GetBaseClass = function () { return Expression; };
+
+//#endregion
+
 //#region TemplateBindingExpression
 
 TemplateBindingExpression.prototype = new Expression;

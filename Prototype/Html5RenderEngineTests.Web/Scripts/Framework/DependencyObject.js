@@ -117,6 +117,133 @@ DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
     }
 };
 
+DependencyObject.prototype.SetValue = function (propd, value) {
+    if (propd == null)
+        throw new ArgumentException("No property specified.");
+    if (propd.IsReadOnly) {
+        throw new InvalidOperationException();
+    }
+
+    if (value instanceof UnsetValue) {
+        this.ClearValue(propd);
+        return;
+    }
+
+    var expression;
+    if (value instanceof Expression)
+        expression = value;
+    var bindingExpression;
+    if (value instanceof BindingExpressionBase)
+        bindingExpression = value;
+
+    if (bindingExpression != null) {
+        var path = bindingExpression.Binding.Path.Path;
+        if ((!path || path === ".") && bindingExpression.Binding.Mode === BindingMode.TwoWay)
+            throw new ArgumentException("TwoWay bindings require a non-empty Path.");
+        bindingExpression.Binding.Seal();
+    }
+
+    var existing = null;
+    if (this._Expressions != null) {
+        var refExisting = new RefParam();
+        if (this._Expressions.TryGetValue(propd, refParam))
+            existing = refExisting.Value
+    }
+
+    var addingExpression = false;
+    var updateTwoWay = false;
+    if (expression != null) {
+        if (!existing.RefEquals(expression)) {
+            if (expression._Attached)
+                throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
+
+            if (existing != null)
+                this._RemoveExpression(propd);
+            if (this._Expressions == null)
+                this._Expressions = new Dictionary();
+            this._Expressions.Add(propd, expression);
+            expression._OnAttached(this);
+        }
+        addingExpression = true;
+        value = expression.GetValue(propd);
+    } else if (existing != null) {
+        if (existing instanceof BindingExpressionBase) {
+            if (existing.Binding.Mode === BindingMode.TwoWay) {
+                updateTwoWay = !existing._Updating && !propd._IsCustom;
+            } else if (!existing._Updating || existing.Binding.Mode === BindingMode.OneTime) {
+                this._RemoveExpression(propd);
+            }
+        } else if (!existing._Updating) {
+            this._RemoveExpression(propd);
+        }
+    }
+
+    try {
+        this._SetValue(propd, value);
+        if (updateTwoWay)
+            existing._TryUpdateSourceObject(value);
+    } catch (err) {
+        if (!addingExpression)
+            throw err;
+        this._SetValue(propd, propd.DefaultValue);
+        if (updateTwoWay)
+            existing._TryUpdateSourceObject(value);
+    }
+};
+DependencyObject.prototype._SetValue = function (propd, value, error) {
+    if (error == null)
+        error = new BError();
+    var hasCoercer = propd._HasCoercer();
+    var coerced = value;
+    if ((hasCoercer && !(coerced = propd._Coerce(this, coerced, error)))
+            || !this._IsValueValid(propd, coerced, error)
+            || !propd._Validate(this, coerced, error)) {
+        if (error.IsErrored())
+            throw new error.CreateException();
+        return false;
+    }
+    var retVal = this._SetValueImpl(propd, coerced, error);
+    if (error.IsErrored())
+        throw new error.CreateException();
+    return retVal;
+};
+DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
+    if (this._IsFrozen) {
+        error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
+        return false;
+    }
+    var currentValue;
+    var equal = false;
+
+    if ((currentValue = this._ReadLocalValue(propd)) == null)
+        if (propd._IsAutoCreated())
+            currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+
+    if (currentValue != null && value != null)
+        equal = !propd._AlwaysChange && currentValue == value;
+    else
+        equal = currentValue == null && value == null;
+
+    if (!equal) {
+        var newValue;
+        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+        if (propd._IsAutoCreated())
+            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
+
+        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
+            newValue = value;
+        else
+            newValue = null;
+
+        if (newValue != null) {
+            this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
+        }
+        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
+    }
+
+    return true;
+};
+
 DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endingPrecedence) {
     if (startingPrecedence === undefined)
         startingPrecedence = _PropertyPrecedence.Highest;
@@ -144,18 +271,6 @@ DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endin
         return val;
     }
     return null;
-};
-DependencyObject.prototype.SetValue = function (propd, value, error) {
-    if (error == null)
-        error = new BError();
-    var hasCoercer = propd._HasCoercer();
-    var coerced = value;
-    if ((hasCoercer && !(coerced = propd._Coerce(this, coerced, error)))
-            || !this._IsValueValid(propd, coerced, error)
-            || !propd._Validate(this, coerced, error)) {
-        return false;
-    }
-    return this._SetValueImpl(propd, coerced, error);
 };
 DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error) {
     if (notifyListeners == undefined)
@@ -198,42 +313,6 @@ DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error)
     if (oldLocalValue != null) {
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
     }
-};
-DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
-    if (this._IsFrozen) {
-        error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
-        return false;
-    }
-    var currentValue;
-    var equal = false;
-
-    if ((currentValue = this._ReadLocalValue(propd)) == null)
-        if (propd._IsAutoCreated())
-            currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
-
-    if (currentValue != null && value != null)
-        equal = !propd._AlwaysChange && currentValue == value;
-    else
-        equal = currentValue == null && value == null;
-
-    if (!equal) {
-        var newValue;
-        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
-        if (propd._IsAutoCreated())
-            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
-
-        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
-            newValue = value;
-        else
-            newValue = null;
-
-        if (newValue != null) {
-            this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
-        }
-        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
-    }
-
-    return true;
 };
 DependencyObject.prototype._ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
@@ -464,6 +543,13 @@ DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
     //TODO: Handle type problems
     return true;
 };
+DependencyObject.prototype._RemoveExpression = function (propd) {
+    var ref = new RefParam();
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, ref)) {
+        this._Expressions.Remove(propd);
+        ref.Value._OnDetached(this);
+    }
+};
 
 DependencyObject.prototype._AddTarget = function (obj) {
 };
@@ -681,7 +767,7 @@ DependencyObject.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
     this._RegisteringNames = true;
 
     var thisNs = NameScope.GetNameScope(this);
-    if (/* TODO: this._IsHydratedFromXaml() || */ thisNs == null || thisNs._GetTemporary()) {
+    if (/* TODO: this._IsHydratedFromXaml() || */thisNs == null || thisNs._GetTemporary()) {
         var name = this.GetName();
         if (name && name.length > 0)
             fromNs.UnregisterName(name);

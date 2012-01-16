@@ -15,7 +15,7 @@ function TextBlock() {
 
     this._ActualHeight = 0.0;
     this._ActualWidth = 0.0;
-    this._SetValue = true;
+    this._SetsValue = true;
     this._WasSet = true;
     this._Dirty = true;
 
@@ -321,7 +321,7 @@ TextBlock.prototype._GetTextInternal = function (inlines) {
     return block;
 };
 TextBlock.prototype._SetTextInternal = function (text) {
-    this._SetValue = false;
+    this._SetsValue = false;
 
     var value;
     var inlines = this.GetValue(TextBlock.InlinesProperty);
@@ -352,7 +352,7 @@ TextBlock.prototype._SetTextInternal = function (text) {
         this.SetText("");
     }
 
-    this._SetValue = true;
+    this._SetsValue = true;
 };
 
 TextBlock.prototype._OnPropertyChanged = function (args, error) {
@@ -372,7 +372,7 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
         || args.Property == TextBlock.FontWeightProperty) {
         this._UpdateFonts(false);
     } else if (args.Property == TextBlock.TextProperty) {
-        if (this._SetValue) {
+        if (this._SetsValue) {
             this._SetTextInternal(args.NewValue)
 
             this._UpdateLayoutAttributes();
@@ -382,10 +382,10 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
             invalidate = false;
         }
     } else if (args.Property == TextBlock.InlinesProperty) {
-        if (this._SetValue) {
-            this._SetValue = false;
+        if (this._SetsValue) {
+            this._SetsValue = false;
             this.SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
-            this._SetValue = true;
+            this._SetsValue = true;
 
             this._UpdateLayoutAttributes();
             this._Dirty = true;
@@ -437,15 +437,15 @@ TextBlock.prototype._OnCollectionChanged = function (sender, args) {
     if (args.Action == CollectionChangedArgs.Action.Clearing)
         return;
 
-    if (!this._SetValue)
+    if (!this._SetsValue)
         return;
 
     if (args.Action == CollectionChangedArgs.Add)
         this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
 
-    this._SetValue = false;
+    this._SetsValue = false;
     this.SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
-    this._SetValue = true;
+    this._SetsValue = true;
 
     this._UpdateLayoutAttributes();
     this._InvalidateMeasure();
