@@ -428,6 +428,9 @@ _RenderContext.prototype.CustomRender = function (painterFunc) {
     args.unshift(this._Surface._Ctx); //prepend canvas context
     painterFunc.apply(this, args);
 };
+_RenderContext.prototype.SetGlobalAlpha = function (alpha) {
+    this._Surface._Ctx.globalAlpha = alpha;
+};
 function toArray() {
     var arr = new Array();
     for (var i in this)
