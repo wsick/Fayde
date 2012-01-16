@@ -62,7 +62,7 @@ LinearGradientBrush.GetBaseClass = function () { return GradientBrush; };
 
 //#region DEPENDENCY PROPERTIES
 
-LinearGradientBrush.StartPointProperty = DependencyProperty.Register("StartPoint", LinearGradientBrush);
+LinearGradientBrush.StartPointProperty = DependencyProperty.Register("StartPoint", LinearGradientBrush, new Point());
 LinearGradientBrush.prototype.GetStartPoint = function () {
     return this.GetValue(LinearGradientBrush.StartPointProperty);
 };
@@ -70,7 +70,7 @@ LinearGradientBrush.prototype.SetStartPoint = function (value) {
     this.SetValue(LinearGradientBrush.StartPointProperty, value);
 };
 
-LinearGradientBrush.EndPointProperty = DependencyProperty.Register("EndPoint", LinearGradientBrush);
+LinearGradientBrush.EndPointProperty = DependencyProperty.Register("EndPoint", LinearGradientBrush, new Point(1, 1));
 LinearGradientBrush.prototype.GetEndPoint = function () {
     return this.GetValue(LinearGradientBrush.EndPointProperty);
 };
