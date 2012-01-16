@@ -5,6 +5,7 @@
 /// <reference path="FrameworkElement.js" />
 /// <reference path="MulticastEvent.js"/>
 /// <reference path="Collections.js"/>
+/// <reference path="List.js"/>
 
 //#region DependencyObject
 
@@ -146,14 +147,14 @@ DependencyObject.prototype.SetValue = function (propd, value) {
     var existing = null;
     if (this._Expressions != null) {
         var refExisting = new RefParam();
-        if (this._Expressions.TryGetValue(propd, refParam))
+        if (this._Expressions.TryGetValue(propd, refExisting))
             existing = refExisting.Value
     }
 
     var addingExpression = false;
     var updateTwoWay = false;
     if (expression != null) {
-        if (!existing.RefEquals(expression)) {
+        if (!expression.RefEquals(existing)) {
             if (expression._Attached)
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
 
