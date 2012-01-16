@@ -89,6 +89,10 @@ var ScrollBarVisibility = {
     Visible: 3
 };
 
+function IsOpacityInvisible(opacity) {
+    return opacity <= 0.0;
+}
+
 //#region RefParam
 
 RefParam.prototype = new RefObject;
@@ -337,6 +341,10 @@ Color.FromHex = function (hex) {
     return new Color(r, g, b, a);
 };
 
+Color.prototype._Translate = function () {
+    return this.toString();
+};
+
 Color.prototype.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
 };
@@ -366,7 +374,7 @@ Matrix.prototype.Apply = function (ctx) {
 Matrix.prototype.Multiply = function (val) {
     if (val instanceof Point) {
         var result = new Point();
-        val = [[val2.X], [val2.Y], [0]];
+        val = [[val.X], [val.Y], [0]];
         for (var i = 0; i < 3; i++) {
             result.X += this._Elements[0][i] * val[i][0];
             result.Y += this._Elements[1][i] * val[i][0];
