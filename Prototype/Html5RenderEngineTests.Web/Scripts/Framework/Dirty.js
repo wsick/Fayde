@@ -1,11 +1,12 @@
 ﻿/// <reference path="List.js"/>
 
-_DirtyList.prototype = new Object;
+_DirtyList.prototype = new RefObject;
 _DirtyList.prototype.constructor = _DirtyList;
 function _DirtyList() {
+    RefObject.call(this);
     this._DirtyNodes = new List();
 }
-_DirtyList.GetBaseClass = function () { return Object; };
+_DirtyList.GetBaseClass = function () { return RefObject; };
 
 _DirtyList.prototype.AddDirtyNode = function (node) {
     this._DirtyNodes.Append(node);

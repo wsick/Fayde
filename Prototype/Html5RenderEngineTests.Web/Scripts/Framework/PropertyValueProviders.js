@@ -40,14 +40,15 @@ var _ProviderFlags = {
 
 //#region _PropertyValueProvider
 
-_PropertyValueProvider.prototype = new Object;
+_PropertyValueProvider.prototype = new RefObject;
 _PropertyValueProvider.prototype.constructor = _PropertyValueProvider;
 function _PropertyValueProvider(obj, propPrecedence, flags) {
+    RefObject.call(this);
     this._Object = obj;
     this._PropertyPrecedence = propPrecedence;
     this._Flags = flags;
 }
-_PropertyValueProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+_PropertyValueProvider.GetBaseClass = function () { return RefObject; };
 
 _PropertyValueProvider.prototype._HasFlag = function (flag) {
     return (this._Flags & flag) != 0;
@@ -702,9 +703,10 @@ _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
 
 //#region _InheritedContext
 
-_InheritedContext.prototype = new Object;
+_InheritedContext.prototype = new RefObject;
 _InheritedContext.prototype.constructor = _InheritedContext;
 function _InheritedContext() {
+    RefObject.call(this);
     if (arguments.length != 2) {
         this.ForegroundSource = arguments[0];
         this.FontFamilySource = arguments[1];
@@ -755,7 +757,7 @@ function _InheritedContext() {
         if (!this.FontResourceSource && parentContext) this.FontResourceSource = parentContext.FontResourceSource;
     }
 }
-_InheritedContext.GetBaseClass = function () { return Object; };
+_InheritedContext.GetBaseClass = function () { return RefObject; };
 
 _InheritedContext.prototype.Compare = function (withContext, props) {
     var rv = _Inheritable.None;

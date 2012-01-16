@@ -89,17 +89,30 @@ var ScrollBarVisibility = {
     Visible: 3
 };
 
+//#region RefParam
+
+RefParam.prototype = new RefObject;
+RefParam.prototype.constructor = RefParam;
+function RefParam(v) {
+    RefObject.call(this);
+    this.Value = v;
+}
+RefParam.GetBaseClass = function () { return RefObject; };
+
+//#endregion
+
 //#region CornerRadius
 
-CornerRadius.prototype = new Object;
+CornerRadius.prototype = new RefObject;
 CornerRadius.prototype.constructor = CornerRadius;
 function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
+    RefObject.call(this);
     this.TopLeft = topLeft == null ? 0 : topLeft;
     this.TopRight = topRight == null ? 0 : topRight;
     this.BottomRight = bottomRight == null ? 0 : bottomRight;
     this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
 }
-CornerRadius.GetBaseClass = function () { return Object; };
+CornerRadius.GetBaseClass = function () { return RefObject; };
 
 CornerRadius.prototype.IsZero = function () {
     return this.TopLeft == 0
@@ -112,15 +125,16 @@ CornerRadius.prototype.IsZero = function () {
 
 //#region Thickness
 
-Thickness.prototype = new Object;
+Thickness.prototype = new RefObject;
 Thickness.prototype.constructor = Thickness;
 function Thickness(left, top, right, bottom) {
+    RefObject.call(this);
     this.Left = left == null ? 0 : left;
     this.Top = top == null ? 0 : top;
     this.Right = right == null ? 0 : right;
     this.Bottom = bottom == null ? 0 : bottom;
 }
-Thickness.GetBaseClass = function () { return Object; };
+Thickness.GetBaseClass = function () { return RefObject; };
 
 Thickness.prototype.Plus = function (thickness2) {
     var t = new Thickness();
@@ -154,13 +168,14 @@ Thickness.prototype.IsEmpty = function () {
 
 //#region Point
 
-Point.prototype = new Object;
+Point.prototype = new RefObject;
 Point.prototype.constructor = Point;
 function Point(x, y) {
+    RefObject.call(this);
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
-Point.GetBaseClass = function () { return Object; };
+Point.GetBaseClass = function () { return RefObject; };
 
 Point.prototype.Apply = function (matrix) {
     return matrix.Multiply(this);
@@ -170,13 +185,14 @@ Point.prototype.Apply = function (matrix) {
 
 //#region Size
 
-Size.prototype = new Object;
+Size.prototype = new RefObject;
 Size.prototype.constructor = Size;
 function Size(width, height) {
+    RefObject.call(this);
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
-Size.GetBaseClass = function () { return Object; };
+Size.GetBaseClass = function () { return RefObject; };
 
 Size.prototype.GrowBy = function (width, height) {
     var h = this.Height;
@@ -207,15 +223,16 @@ Size.prototype.toString = function () {
 
 //#region Rect
 
-Rect.prototype = new Object;
+Rect.prototype = new RefObject;
 Rect.prototype.constructor = Rect;
 function Rect(x, y, width, height) {
+    RefObject.call(this);
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
-Rect.GetBaseClass = function () { return Object; };
+Rect.GetBaseClass = function () { return RefObject; };
 
 Rect.prototype.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;
@@ -286,15 +303,16 @@ Clip.GetBaseClass = function () { return Rect; };
 
 //#region Color
 
-Color.prototype = new Object;
+Color.prototype = new RefObject;
 Color.prototype.constructor = Color;
 function Color(r, g, b, a) {
+    RefObject.call(this);
     this.R = r == null ? 255 : r;
     this.G = g == null ? 255 : g;
     this.B = b == null ? 255 : b;
     this.A = a == null ? 1.0 : a;
 }
-Color.GetBaseClass = function () { return Object; };
+Color.GetBaseClass = function () { return RefObject; };
 
 Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
@@ -327,12 +345,13 @@ Color.prototype.toString = function () {
 
 //#region Matrix
 
-Matrix.prototype = new Object;
+Matrix.prototype = new RefObject;
 Matrix.prototype.constructor = Matrix;
 function Matrix() {
+    RefObject.call(this);
     this._Elements = Matrix.CreateIdentityArray();
 }
-Matrix.GetBaseClass = function () { return Object; };
+Matrix.GetBaseClass = function () { return RefObject; };
 
 Matrix.prototype.GetElements = function () {
     return this._Elements;
@@ -493,17 +512,17 @@ ShearingMatrix.prototype.GetElements = function () {
 
 //#region Font
 
-Font.prototype = new Object;
+Font.prototype = new RefObject;
 Font.prototype.constructor = Font;
 function Font() {
-    Object.call(this);
+    RefObject.call(this);
     this._Family = Font.DEFAULT_FAMILY;
     this._Stretch = Font.DEFAULT_STRETCH;
     this._Style = Font.DEFAULT_STYLE;
     this._Weight = Font.DEFAULT_WEIGHT;
     this._Size = Font.DEFAULT_SIZE;
 }
-Font.GetBaseClass = function () { return Object; };
+Font.GetBaseClass = function () { return RefObject; };
 
 Font.prototype.GetFamily = function () {
     return this._Family;

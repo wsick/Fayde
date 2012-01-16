@@ -1,4 +1,4 @@
-﻿/// <reference path="/Scripts/kinetic-v2.3.2.js"/>
+﻿/// <reference path="../kinetic-v2.3.2.js"/>
 /// <reference path="Primitives.js"/>
 /// <reference path="Brush.js"/>
 /// <reference path="Collection.js"/>
@@ -8,11 +8,12 @@
 
 //#region Surface
 
-Surface.prototype = new Object;
+Surface.prototype = new RefObject;
 Surface.prototype.constructor = Surface;
 function Surface() {
+    RefObject.call(this);
 }
-Surface.GetBaseClass = function () { return Object; };
+Surface.GetBaseClass = function () { return RefObject; };
 
 Surface.prototype.Init = function (jCanvas) {
     this._jCanvas = jCanvas;
@@ -383,12 +384,13 @@ Surface._MeasureHeight = function (text, font) {
 
 //#region _RenderContext
 
-_RenderContext.prototype = new Object;
+_RenderContext.prototype = new RefObject;
 _RenderContext.prototype.constructor = _RenderContext;
 function _RenderContext(surface) {
+    RefObject.call(this);
     this._Surface = surface;
 }
-_RenderContext.GetBaseClass = function () { return Object; };
+_RenderContext.GetBaseClass = function () { return RefObject; };
 
 _RenderContext.prototype.GetSurface = function () {
     return this._Surface;

@@ -95,14 +95,14 @@ Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index
 
 //#region CollectionIterator
 
-CollectionIterator.prototype = new Object;
+CollectionIterator.prototype = new RefObject;
 CollectionIterator.prototype.constructor = CollectionIterator;
 function CollectionIterator(collection) {
-    Object.call(this);
+    RefObject.call(this);
     this._Collection = collection;
     this._Index = -1;
 }
-CollectionIterator.GetBaseClass = function () { return Object; };
+CollectionIterator.GetBaseClass = function () { return RefObject; };
 
 CollectionIterator.prototype.Next = function (error) {
     this._Index++;
@@ -123,15 +123,16 @@ CollectionIterator.prototype.GetCurrent = function (error) {
 
 //#region ItemChangedArgs
 
-ItemChangedArgs.prototype = new Object;
+ItemChangedArgs.prototype = new RefObject;
 ItemChangedArgs.prototype.constructor = ItemChangedArgs;
 function ItemChangedArgs(item, propd, oldValue, newValue) {
+    RefObject.call(this);
     this.Item = item;
     this.Property = propd;
     this.OldValue = oldValue;
     this.NewValue = newValue;
 }
-ItemChangedArgs.GetBaseClass = function () { return Object; };
+ItemChangedArgs.GetBaseClass = function () { return RefObject; };
 
 //#endregion
 
@@ -144,15 +145,16 @@ CollectionChangedArgs.Action = {
     Remove: 3,
     Replace: 4
 };
-CollectionChangedArgs.prototype = new Object;
+CollectionChangedArgs.prototype = new RefObject;
 CollectionChangedArgs.prototype.constructor = CollectionChangedArgs;
 function CollectionChangedArgs(action, oldValue, newValue, index) {
+    RefObject.call(this);
     this.Action = action;
     this.OldValue = oldValue;
     this.NewValue = newValue;
     this.Index = index;
 }
-CollectionChangedArgs.GetBaseClass = function () { return Object; };
+CollectionChangedArgs.GetBaseClass = function () { return RefObject; };
 
 //#endregion
 
@@ -219,7 +221,7 @@ DependencyObjectCollection.prototype.RemovedFromCollection = function (value, is
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
-            if (this._SetsParent && value._GetParent() == this)
+            if (this._SetsParent && value._GetParent().RefEquals(this))
                 value._RemoveParent(this, null);
             value._SetIsAttached(false);
         }
@@ -478,9 +480,10 @@ var _VisualTreeWalkerDirection = {
 
 //#region _VisualTreeWalker
 
-_VisualTreeWalker.prototype = new Object;
+_VisualTreeWalker.prototype = new RefObject;
 _VisualTreeWalker.prototype.constructor = _VisualTreeWalker;
 function _VisualTreeWalker(/* UIElement */obj, /* _VisualTreeWalkerDirection */direction) {
+    RefObject.call(this);
     this._Offset = 0;
     this._Collection = null;
     this._Content = obj._GetSubtreeObject();
@@ -496,7 +499,7 @@ function _VisualTreeWalker(/* UIElement */obj, /* _VisualTreeWalkerDirection */d
         }
     }
 }
-_VisualTreeWalker.GetBaseClass = function () { return Object; };
+_VisualTreeWalker.GetBaseClass = function () { return RefObject; };
 
 _VisualTreeWalker.prototype.Step = function () {
     var result = null;
@@ -550,9 +553,10 @@ _VisualTreeWalker.prototype.GetCount = function () {
 
 //#region _DeepTreeWalker
 
-_DeepTreeWalker.prototype = new Object;
+_DeepTreeWalker.prototype = new RefObject;
 _DeepTreeWalker.prototype.constructor = _DeepTreeWalker;
 function _DeepTreeWalker(/* UIElement */top, /* _VisualTreeWalkerDirection */direction) {
+    RefObject.call(this);
     this._WalkList = new List();
     this._WalkList.Append(new UIElementNode(top));
     this._Last = null;
@@ -560,7 +564,7 @@ function _DeepTreeWalker(/* UIElement */top, /* _VisualTreeWalkerDirection */dir
     if (direction)
         this._Direction = direction;
 }
-_DeepTreeWalker.GetBaseClass = function () { return Object; };
+_DeepTreeWalker.GetBaseClass = function () { return RefObject; };
 
 _DeepTreeWalker.prototype.Step = function () {
     if (this._Last) {

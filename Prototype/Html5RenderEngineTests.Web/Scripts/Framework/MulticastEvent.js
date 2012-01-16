@@ -2,12 +2,13 @@
 
 //#region MulticastEvent
 
-MulticastEvent.prototype = new Object;
+MulticastEvent.prototype = new RefObject;
 MulticastEvent.prototype.constructor = MulticastEvent;
 function MulticastEvent() {
+    RefObject.call(this);
     this._Listeners = new Array();
 }
-MulticastEvent.GetBaseClass = function () { return Object; };
+MulticastEvent.GetBaseClass = function () { return RefObject; };
 
 MulticastEvent.prototype.Subscribe = function (callback, closure) {
     this._Listeners.push({ Callback: callback, Closure: closure });

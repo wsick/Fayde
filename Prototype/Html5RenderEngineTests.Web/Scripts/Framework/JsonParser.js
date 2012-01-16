@@ -43,7 +43,7 @@ JsonParser.CreateObject = function (json, namescope) {
 };
 
 JsonParser.GetAnnotationMember = function (type, member) {
-    if (type == Object)
+    if (type === RefObject)
         return null;
     if (type.Annotations == null)
         return JsonParser.GetAnnotationMember(type.GetBaseClass(), member);

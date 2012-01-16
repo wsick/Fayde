@@ -186,9 +186,10 @@ Style.prototype._Seal = function () {
 
 //#region _DeepStyleWalker
 
-_DeepStyleWalker.prototype = new Object;
+_DeepStyleWalker.prototype = new RefObject;
 _DeepStyleWalker.prototype.constructor = _DeepStyleWalker;
 function _DeepStyleWalker(styles) {
+    RefObject.call(this);
     this._Setters = new Array();
     this._Offset = 0;
 
@@ -197,7 +198,7 @@ function _DeepStyleWalker(styles) {
     else if (styles instanceof Array)
         this._InitializeStyles(styles);
 }
-_DeepStyleWalker.GetBaseClass = function () { return Object; };
+_DeepStyleWalker.GetBaseClass = function () { return RefObject; };
 
 _DeepStyleWalker.prototype.Step = function () {
     if (this._Offset < this._Setters.length) {

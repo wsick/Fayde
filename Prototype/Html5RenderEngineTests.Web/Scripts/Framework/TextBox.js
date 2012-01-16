@@ -352,12 +352,12 @@ var _TextBoxEmitChanged = {
 
 //#region _TextBoxModelChangedEventArgs
 
-_TextBoxModelChangedEventArgs.prototype = new Object;
+_TextBoxModelChangedEventArgs.prototype = new RefObject;
 _TextBoxModelChangedEventArgs.prototype.constructor = _TextBoxModelChangedEventArgs;
 function _TextBoxModelChangedEventArgs(changed, propArgs) {
-    Object.call(this);
+    RefObject.call(this);
 }
-_TextBoxModelChangedEventArgs.GetBaseClass = function () { return Object; };
+_TextBoxModelChangedEventArgs.GetBaseClass = function () { return RefObject; };
 
 //#endregion
 

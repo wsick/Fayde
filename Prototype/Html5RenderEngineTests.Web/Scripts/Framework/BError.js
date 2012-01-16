@@ -1,13 +1,14 @@
-﻿BError.prototype = new Object;
+﻿BError.prototype = new RefObject;
 BError.prototype.constructor = BError;
 function BError() {
+    RefObject.call(this);
     this._Number = 0;
     this.Code = 0;
     this.CharPosition = 0;
     this.LineNumber = 0;
     this.Message = "";
 }
-BError.GetBaseClass = function () { return Object; };
+BError.GetBaseClass = function () { return RefObject; };
 
 BError.prototype.SetErrored = function (number, message, code) {
     this._Number = number;

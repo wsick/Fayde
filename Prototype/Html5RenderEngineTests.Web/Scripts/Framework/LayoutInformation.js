@@ -3,11 +3,12 @@
 
 //#region LayoutInformation
 
-LayoutInformation.prototype = new Object;
+LayoutInformation.prototype = new RefObject;
 LayoutInformation.prototype.constructor = new LayoutInformation;
 function LayoutInformation() {
+    RefObject.call(this);
 }
-LayoutInformation.GetBaseClass = function () { return Object; };
+LayoutInformation.GetBaseClass = function () { return RefObject; };
 
 //#region DEPENDENCY PROPERTIES
 
@@ -73,16 +74,17 @@ LayoutInformation.SetVisualOffset = function (d, value) {
 
 //#region LayoutPass
 
-LayoutPass.prototype = new Object;
+LayoutPass.prototype = new RefObject;
 LayoutPass.prototype.constructor = LayoutPass;
 function LayoutPass() {
+    RefObject.call(this);
     this._MeasureList = new List();
     this._ArrangeList = new List();
     this._SizeList = new List();
     this._Count = 0;
     this._Updated = false;
 }
-LayoutPass.GetBaseClass = function () { return Object; };
+LayoutPass.GetBaseClass = function () { return RefObject; };
 
 LayoutPass.MaxCount = 250;
 

@@ -8,13 +8,14 @@
 
 //#region DependencyObject
 
-DependencyObject.prototype = new Object;
+DependencyObject.prototype = new RefObject;
 DependencyObject.prototype.constructor = DependencyObject;
 function DependencyObject() {
+    RefObject.call(this);
     this._TypeName = this._GetTypeName();
     this._Initialize();
 }
-DependencyObject.GetBaseClass = function () { return Object; };
+DependencyObject.GetBaseClass = function () { return RefObject; };
 
 //#region DEPENDENCY PROPERTIES
 

@@ -1,13 +1,14 @@
 ﻿//#region List
 
-List.prototype = new Object;
+List.prototype = new RefObject;
 List.prototype.constructor = List;
 function List() {
+    RefObject.call(this);
     this._Count = 0;
     this._Head = null;
     this._Tail = null;
 }
-List.GetBaseClass = function () { return Object; };
+List.GetBaseClass = function () { return RefObject; };
 
 List.prototype.First = function () {
     return this._Head;
@@ -81,14 +82,14 @@ List.prototype.Clear = function () {
 
 //#region Node
 
-Node.prototype = new Object;
+Node.prototype = new RefObject;
 Node.prototype.constructor = Node;
 function Node() {
-    Object.call(this);
+    RefObject.call(this);
     this.Previous = null;
     this.Next = null;
 }
-Node.GetBaseClass = function () { return Object; };
+Node.GetBaseClass = function () { return RefObject; };
 
 //#endregion
 

@@ -1,8 +1,9 @@
 ﻿//#region DependencyProperty
 
-DependencyProperty.prototype = new Object;
+DependencyProperty.prototype = new RefObject;
 DependencyProperty.prototype.constructor = DependencyProperty;
 function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom) {
+    RefObject.call(this);
     this.Name = name;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
@@ -12,7 +13,7 @@ function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer,
     this._Validator = validator;
     this._IsCustom = isCustom;
 }
-DependencyProperty.GetBaseClass = function () { return Object; };
+DependencyProperty.GetBaseClass = function () { return RefObject; };
 
 DependencyProperty.prototype.toString = function () {
     var funcNameRegex = /function (.{1,})\(/;
@@ -70,5 +71,16 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
         return null;
     return reg[name];
 };
+
+//#endregion
+
+//#region UnsetValue
+
+UnsetValue.prototype = new RefObject;
+UnsetValue.prototype.constructor = UnsetValue;
+function UnsetValue() {
+    RefObject.call(this);
+}
+UnsetValue.GetBaseClass = function () { return RefObject; };
 
 //#endregion

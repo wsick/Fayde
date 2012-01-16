@@ -5,9 +5,10 @@
 
 //#region TextLayout
 
-TextLayout.prototype = new Object;
+TextLayout.prototype = new RefObject;
 TextLayout.prototype.constructor = TextLayout;
 function TextLayout() {
+    RefObject.call(this);
     this._SelectionStart = 0;
     this._SelectionLength = 0;
     
@@ -31,7 +32,7 @@ function TextLayout() {
     this._Length = 0;
     this._Count = 0;
 }
-TextLayout.GetBaseClass = function () { return Object; };
+TextLayout.GetBaseClass = function () { return RefObject; };
 
 TextLayout.prototype.GetSelectionLength = function () {
     return this._SelectionLength;
@@ -454,9 +455,10 @@ TextLayout._LayoutLwsp = function (word, text, font) {
 
 //#region _TextLayoutLine
 
-_TextLayoutLine.prototype = new Object;
+_TextLayoutLine.prototype = new RefObject;
 _TextLayoutLine.prototype.constructor = _TextLayoutLine;
 function _TextLayoutLine(layout, start, offset) {
+    RefObject.call(this);
     this._Runs = new Array();
     this._Layout = layout;
     this._Start = start;
@@ -468,7 +470,7 @@ function _TextLayoutLine(layout, start, offset) {
     this._Length = 0;
     this._Count = 0;
 }
-_TextLayoutLine.GetBaseClass = function () { return Object; };
+_TextLayoutLine.GetBaseClass = function () { return RefObject; };
 
 _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
     var run;
@@ -487,9 +489,10 @@ _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
 
 //#region _TextLayoutRun
 
-_TextLayoutRun.prototype = new Object;
+_TextLayoutRun.prototype = new RefObject;
 _TextLayoutRun.prototype.constructor = _TextLayoutRun;
 function _TextLayoutRun(line, attrs, start) {
+    RefObject.call(this);
     this._Clusters = new Array();
     this._Attrs = attrs;
     this._Start = start;
@@ -498,7 +501,7 @@ function _TextLayoutRun(line, attrs, start) {
     this._Length = 0;
     this._Count = 0;
 }
-_TextLayoutRun.GetBaseClass = function () { return Object; };
+_TextLayoutRun.GetBaseClass = function () { return RefObject; };
 
 _TextLayoutRun.prototype._GenerateCache = function () {
     var selectionLength = this._Line._Layout.GetSelectionLength();
@@ -552,15 +555,15 @@ _TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
 
 //#region _TextLayoutGlyphCluster
 
-_TextLayoutGlyphCluster.prototype = new Object;
+_TextLayoutGlyphCluster.prototype = new RefObject;
 _TextLayoutGlyphCluster.prototype.constructor = _TextLayoutGlyphCluster;
 function _TextLayoutGlyphCluster(text, font, selected) {
-    Object.call(this);
+    RefObject.call(this);
     this._Text = text;
     this._Selected = selected == true;
     this._Advance = Surface.MeasureText(text, font).Width;
 }
-_TextLayoutGlyphCluster.GetBaseClass = function () { return Object; };
+_TextLayoutGlyphCluster.GetBaseClass = function () { return RefObject; };
 
 _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) {
     if (this._Text.length == 0 || this._Advance == 0.0)
@@ -613,10 +616,10 @@ _TextLayoutAttributes.prototype.IsUnderlined = function () { return this._Source
 
 //#region _LayoutWord
 
-_LayoutWord.prototype = new Object;
+_LayoutWord.prototype = new RefObject;
 _LayoutWord.prototype.constructor = _LayoutWord;
 function _LayoutWord() {
-    Object.call(this);
+    RefObject.call(this);
     this._Advance = 0.0;
     this._LineAdvance = 0.0;
     this._Length = 0;
@@ -624,6 +627,6 @@ function _LayoutWord() {
     this._BreakOps = null;
     this._Font = new Font();
 }
-_LayoutWord.GetBaseClass = function () { return Object; };
+_LayoutWord.GetBaseClass = function () { return RefObject; };
 
 //#endregion

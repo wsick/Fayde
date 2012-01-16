@@ -63,6 +63,22 @@ _GetValueNoDefault [Done]
 _RegisterAllNamesRootedAt [Done]
 _UnregisterAllNamesRootedAt [Done]
 GetDependencyProperty [Done]
+_RemoveExpression [Done]
+
+
+
+Expression
+=============================
+_Attached [Done]
+_OnAttached [Done]
+_OnDetached [Done]
+
+
+
+BindingExpressionBase
+=============================
+_TryUpdateSourceObject
+_Updating
 
 
 
@@ -258,6 +274,7 @@ _OnPropertyChanged
 _OnSubPropertyChanged [Done]
 _EmitTextChanged [Done]
 _EmitSelectionChanged [Done]
+
 
 
 TextBoxView
