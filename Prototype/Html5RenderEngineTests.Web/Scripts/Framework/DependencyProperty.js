@@ -67,9 +67,13 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
     if (!reg)
         return null;
     var reg = reg[ownerType];
-    if (!reg)
-        return null;
-    return reg[name];
+    var propd;
+    if (reg)
+        propd = reg[name];
+    if (!propd && ownerType !== RefObject) {
+        propd = DependencyProperty.GetDependencyProperty(ownerType.GetBaseClass(), name);
+    }
+    return propd;
 };
 
 //#endregion
