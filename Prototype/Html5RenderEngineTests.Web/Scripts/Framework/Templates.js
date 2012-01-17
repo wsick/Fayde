@@ -7,26 +7,12 @@ FrameworkTemplate.prototype = new DependencyObject;
 FrameworkTemplate.prototype.constructor = FrameworkTemplate;
 function FrameworkTemplate() {
     DependencyObject.call(this);
-    this._IsHijacked = false;
 }
 FrameworkTemplate.GetBaseClass = function () { return DependencyObject; };
 
-FrameworkTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
-    if (this._IsHijacked) {
-        return this._HijackVisual;
-    }
+FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
 };
-
-FrameworkTemplate.prototype._Hijack = function (root) {
-    this._IsHijacked = true;
-    this._HijackVisual = root;
-};
-FrameworkTemplate.prototype._Unhijack = function () {
-    this._IsHijacked = false;
-    this._HijackVisual = undefined;
-};
-
 //#endregion
 
 //#region ControlTemplate
@@ -48,11 +34,19 @@ ControlTemplate.prototype.SetTargetType = function (value) {
 
 ControlTemplate.CreateTemplateFromJson = function (json) {
     var template = new ControlTemplate();
-    var namescope = new NameScope();
-    var root = JsonParser.CreateObject(json, namescope);
-    NameScope.SetNameScope(root, namescope);
-    template._Hijack(root);
+    template._TempJson = json;
     return template;
+};
+ControlTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
+    if (this._TempJson) {
+        var namescope = new NameScope();
+        var parser = new JsonParser();
+        parser._TemplateBindingSource = templateBindingSource;
+        var root = parser.CreateObject(this._TempJson, namescope);
+        NameScope.SetNameScope(root, namescope);
+        return root;
+    }
+    FrameworkTemplate.prototype._GetVisualTreeWithError.call(this, templateBindingSource, error);
 };
 
 //#endregion
@@ -69,7 +63,8 @@ DataTemplate.GetBaseClass = function () { return FrameworkTemplate; };
 DataTemplate.CreateTemplateFromJson = function (json) {
     var template = new DataTemplate();
     var namescope = new NameScope();
-    var root = JsonParser.CreateObject(json, namescope);
+    var parser = new JsonParser();
+    var root = parser.CreateObject(json, namescope);
     NameScope.SetNameScope(root, namescope);
     template._Hijack(root);
     return template;

@@ -83,7 +83,7 @@ UIElement.prototype.SetOpacityMask = function (value) {
     this.SetValue(UIElement.OpacityMaskProperty, value);
 };
 
-UIElement.OpacityProperty = DependencyProperty.Register("Opacity", UIElement);
+UIElement.OpacityProperty = DependencyProperty.Register("Opacity", UIElement, 1.0);
 UIElement.prototype.GetOpacity = function () {
     return this.GetValue(UIElement.OpacityProperty);
 };
@@ -162,7 +162,7 @@ UIElement.prototype._FullInvalidate = function (renderTransform) {
 UIElement.prototype._Invalidate = function (rect) {
     if (!rect)
         rect = this._SurfaceBounds;
-    if (!this._GetRenderVisible() /* || opacity causes invisible */)
+    if (!this._GetRenderVisible() || IsOpacityInvisible(this._TotalOpacity))
         return;
 
     if (this._IsAttached) {
@@ -184,8 +184,19 @@ UIElement.prototype._InvalidateArrange = function () {
     this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
     //TODO: Alert redraw necessary
 };
+UIElement.prototype._InvalidateVisibility = function () {
+    this._UpdateTotalRenderVisibility();
+    this._InvalidateParent(this._GetSubtreeBounds());
+};
 UIElement.prototype._InvalidateSubtreePaint = function () {
     this._Invalidate(this._GetSubtreeBounds());
+};
+UIElement.prototype._InvalidateParent = function (r) {
+    var visualParent = this.GetVisualParent();
+    if (visualParent)
+        visualParent._Invalidate(r);
+    else if (this._IsAttached)
+        App.Instance.MainSurface._Invalidate(r);
 };
 
 UIElement.prototype._UpdateBounds = function (forceRedraw) {
@@ -234,7 +245,7 @@ UIElement.prototype._GetActualTotalRenderVisibility = function () {
     if (visualParent) {
         visualParent._ComputeTotalRenderVisibility();
         parentVisible = visible && visualParent._GetRenderVisible();
-        this._TotalOpacity = visualParent._TotalOpacity;
+        this._TotalOpacity *= visualParent._TotalOpacity;
     }
     visible = visible && parentVisible;
     return visible;
@@ -372,7 +383,7 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     //region = region.Transform(this._RenderTransform);
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
-    if (!this._GetRenderVisible() || region.IsEmpty()) {//TODO: Check opacity
+    if (!this._GetRenderVisible() || IsOpacityInvisible(this._TotalOpacity) || region.IsEmpty()) {
         Info("Nothing to render. [" + this._TypeName + "]");
         return;
     }
@@ -381,6 +392,7 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     var visualOffset = LayoutInformation.GetVisualOffset(this);
     ctx.Save();
     ctx.Transform(new TranslationMatrix(visualOffset.X, visualOffset.Y));
+    ctx.SetGlobalAlpha(this._TotalOpacity);
     this._Render(ctx, region);
     this._PostRender(ctx, region);
     ctx.Restore();
@@ -392,26 +404,6 @@ UIElement.prototype._PostRender = function (ctx, region) {
     while (child = walker.Step()) {
         child._DoRender(ctx, region);
     }
-};
-UIElement.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== UIElement) {
-        DependencyObject.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-    if (args.Property == UIElement.VisibilityProperty) {
-        if (args.NewValue == Visibility.Visible)
-            this._Flags |= UIElementFlags.RenderVisible;
-        else
-            this._Flags &= ~UIElementFlags.RenderVisible;
-        this._InvalidateVisibility();
-        this._InvalidateMeasure();
-        var parent = this.GetVisualParent();
-        if (parent)
-            parent._InvalidateMeasure();
-        //TODO: change focus
-    }
-    //TODO: Check invalidation of some properties
-    this.PropertyChanged.Raise(this, args);
 };
 UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transform) {
     var clip = this.GetClip();
@@ -508,6 +500,7 @@ UIElement.prototype._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
 
+    this._InvalidateVisibility();
     DependencyObject.prototype._OnIsAttachedChanged.call(this, value);
 
     if (!value) {
@@ -524,6 +517,29 @@ UIElement.prototype._OnIsAttachedChanged = function (value) {
 };
 UIElement.prototype._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
+};
+
+UIElement.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== UIElement) {
+        DependencyObject.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    if (args.Property === UIElement.OpacityProperty) {
+        this._InvalidateVisibility();
+    } else if (args.Property === UIElement.VisibilityProperty) {
+        if (args.NewValue === Visibility.Visible)
+            this._Flags |= UIElementFlags.RenderVisible;
+        else
+            this._Flags &= ~UIElementFlags.RenderVisible;
+        this._InvalidateVisibility();
+        this._InvalidateMeasure();
+        var parent = this.GetVisualParent();
+        if (parent)
+            parent._InvalidateMeasure();
+        //TODO: change focus
+    }
+    //TODO: Check invalidation of some properties
+    this.PropertyChanged.Raise(this, args);
 };
 
 UIElement.prototype._HasFlag = function (flag) { return (this._Flags & flag) == flag; };

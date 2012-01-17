@@ -17,8 +17,8 @@ function Expression() {
 }
 Expression.GetBaseClass = function () { return RefObject; };
 
-Expression.prototype._GetValue = function (propd) {
-    AbstractMethod("_Expression._GetValue");
+Expression.prototype.GetValue = function (propd) {
+    AbstractMethod("_Expression.GetValue");
 };
 Expression.prototype._OnAttached = function (element) {
     this._Attached = true;
@@ -51,7 +51,7 @@ function TemplateBindingExpression(sourcePropd, targetPropd) {
 }
 TemplateBindingExpression.GetBaseClass = function () { return Expression; };
 
-TemplateBindingExpression.prototype._GetValue = function (propd) {
+TemplateBindingExpression.prototype.GetValue = function (propd) {
     var source = this.Target._TemplateOwner;
     var value = null;
     if (source != null)

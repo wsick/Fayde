@@ -108,13 +108,13 @@ _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
         return;
 
     if (this._TextBox) {
-        //TODO: Remove ModelChanged handler
+        this._TextBox.ModelChanged.Unsubscribe(this._OnModelChanged, this);
     }
 
     this._TextBox = value;
 
     if (this._TextBox) {
-        //TODO: Add ModelChanged handler
+        this._TextBox.ModelChanged.Subscribe(this._OnModelChanged, this);
 
         this._Layout.SetTextAttributes(new List());
         var attrs = new _TextLayoutAttributes(this._TextBox, 0);
@@ -327,6 +327,46 @@ _TextBoxView.prototype.OnMouseLeftButtonUp = function (args) {
     this._TextBox.OnMouseLeftButtonUp(args);
 };
 
+_TextBoxView.prototype._OnModelChanged = function (sender, args) {
+    switch (args.Changed) {
+        case _TextBoxModelChanged.TextAlignment:
+            if (this._Layout.SetTextAlignment(args.NewValue))
+                this._Dirty = true;
+            break;
+        case _TextBoxModelChanged.TextWrapping:
+            if (this._Layout.SetTextWrapping(args.NewValue))
+                this._Dirty = true;
+            break;
+        case _TextBoxModelChanged.Selection:
+            if (this._HadSelectedText || this._TextBox.HasSelectedText()) {
+                this._HadSelectedText = this._TextBox.HasSelectedText();
+                this._SelectionChanged = true;
+                this._ResetCursorBlink(false);
+            } else {
+                this._ResetCursorBlink(true);
+                return;
+            }
+            break;
+        case _TextBoxModelChanged.Brush:
+            break;
+        case _TextBoxModelChanged.Font:
+            this._Layout._ResetState();
+            this._Dirty = true;
+            break;
+        case _TextBoxModelChanged.Text:
+            this._UpdateText();
+            this._Dirty = true;
+            break;
+        default:
+            return;
+    }
+    if (this._Dirty) {
+        this._InvalidateMeasure();
+        this._UpdateBounds(true);
+    }
+    this._Invalidate();
+};
+
 _TextBoxView.CURSOR_BLINK_DIVIDER = 3;
 _TextBoxView.CURSOR_BLINK_OFF_MULTIPLIER = 2;
 _TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER = 3;
@@ -356,6 +396,8 @@ _TextBoxModelChangedEventArgs.prototype = new RefObject;
 _TextBoxModelChangedEventArgs.prototype.constructor = _TextBoxModelChangedEventArgs;
 function _TextBoxModelChangedEventArgs(changed, propArgs) {
     RefObject.call(this);
+    this.Changed = changed;
+    this.PropArgs = propArgs;
 }
 _TextBoxModelChangedEventArgs.GetBaseClass = function () { return RefObject; };
 
@@ -469,7 +511,7 @@ TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
 TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
     if (args.Property === Control.BackgroundProperty
         || args.Property === Control.ForegroundProperty) {
-        //TODO: Emit - Model Changed Event
+        this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
         this._Invalidate();
     }
 
@@ -903,7 +945,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                         Type: Border,
                         Name: "Border",
                         Props: {
-                            CornerRadius: new Thickness(1, 1, 1, 1),
+                            CornerRadius: new CornerRadius(1, 1, 1, 1),
                             Opacity: 1.0,
                             BorderThickness: new TemplateBinding("BorderThickness"),
                             Background: new TemplateBinding("Background"),
@@ -925,7 +967,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                                     Name: "MouseOverBorder",
                                     Props: {
                                         BorderThickness: new Thickness(1, 1, 1, 1),
-                                        BorderBrush: new SolidColorBrush(0, 0, 0, 0.0)
+                                        BorderBrush: new SolidColorBrush(Color.FromHex("#00000000"))
                                     },
                                     Content: {
                                         Type: Border,
@@ -961,7 +1003,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                             Opacity: 0.0,
                             IsHitTestVisible: false
                         }
-                    },
+                    }
                 ]
             });
         })());

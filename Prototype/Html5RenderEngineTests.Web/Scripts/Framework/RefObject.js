@@ -11,6 +11,8 @@ function RefObject() {
     RefObject._LastID = this._ID = id;
 }
 RefObject.prototype.RefEquals = function (robj) {
+    if (robj == null)
+        return false;
     if (!(robj instanceof RefObject))
         return false;
     return this._ID === robj._ID;

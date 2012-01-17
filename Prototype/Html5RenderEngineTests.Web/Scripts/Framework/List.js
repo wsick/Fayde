@@ -1,4 +1,6 @@
-﻿//#region List
+﻿/// <reference path="Primitives.js"/>
+
+//#region List
 
 List.prototype = new RefObject;
 List.prototype.constructor = List;
@@ -114,5 +116,28 @@ function DirtyNode(/* UIElement */element) {
     this.Element = element;
 }
 DirtyNode.GetBaseClass = function () { return Node; };
+
+//#endregion
+
+//#region Dictionary
+
+Dictionary.prototype = new RefObject;
+Dictionary.prototype.constructor = Dictionary;
+function Dictionary() {
+    RefObject.call(this);
+    this._ht = new Array();
+}
+Dictionary.GetBaseClass = function () { return RefObject; };
+
+Dictionary.prototype.TryGetValue = function (key, refParam) {
+    refParam.Value = this._ht[key];
+    return refParam.Value != null;
+};
+Dictionary.prototype.Add = function (key, value) {
+    this._ht[key] = value;
+};
+Dictionary.prototype.Remove = function (key) {
+    delete this._ht[key];
+};
 
 //#endregion
