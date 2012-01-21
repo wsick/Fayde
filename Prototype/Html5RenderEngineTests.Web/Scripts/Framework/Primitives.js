@@ -332,7 +332,7 @@ Color.FromHex = function (hex) {
         r = parseInt(match[2], 16);
         g = parseInt(match[3], 16);
         b = parseInt(match[4], 16);
-    } else if ((match == Color.__NoAlphaRegex(hex)) != null) {
+    } else if ((match == Color.__NoAlphaRegex.exec(hex)) != null) {
         a = 1.0;
         r = parseInt(match[1], 16);
         g = parseInt(match[2], 16);
