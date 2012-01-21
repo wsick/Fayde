@@ -160,13 +160,13 @@ TextLayout.prototype.SetText = function (value, length) {
 };
 
 TextLayout.prototype.GetBaselineOffset = function () {
-    if (this._Lines.length == 0)
+    if (this._Lines.length === 0)
         return 0;
     var line = this._Lines[0];
     return line._Height + line._Descend;
 };
 TextLayout.prototype.OverrideLineHeight = function () {
-    return this.GetLineStackingStrategy() == LineStackingStrategy.BlockLineHeight && this.GetLineHeight() != 0;
+    return this.GetLineStackingStrategy() === LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
 };
 TextLayout.prototype.GetLineHeightOverride = function () {
     if (isNaN(this.GetLineHeight()))
@@ -193,7 +193,69 @@ TextLayout.prototype.GetCursorFromXY = function (offset, x, y) {
     NotImplemented("TextLayout.GetCursorFromXY");
 };
 TextLayout.prototype.GetCursor = function (offset, pos) {
-    NotImplemented("TextLayout.GetCursor");
+    var x0 = offset.X;
+    var y0 = offset.Y;
+    var height = 0.0;
+    var y1 = 0.0;
+
+    var cursor = 0;
+    for (var i = 0; i < this._Lines.length; i++) {
+        var line = this._Lines[i];
+
+        //adjust x0 for horizontal alignment
+        x0 = offset.X + this._HorizontalAlignment(line._Advance);
+
+        //set y1 to baseline
+        y1 = y0 + line._Height + line._Descend;
+        height = line._Height;
+
+        if (pos >= cursor + line._Count) {
+            if ((i + 1) === this._Lines.length) {
+                if (TextLayout._IsLineBreak(this._Text.substr(line._Start + line._Length - 1, 2))) {
+                    //cursor is lonely just below the last line
+                    x0 = offset.X + this._HorizontalAlignment(0.0);
+                    y0 += line._Height;
+                } else {
+                    //cursor is at the end of the last line
+                    x0 += line._Advance;
+                }
+                break;
+            }
+            cursor += line._Count;
+            y0 += line._Height;
+            continue;
+        }
+
+        //cursor is on this line...
+        for (var j = 0; j < line._Runs.length; j++) {
+            var run = line._Runs[j];
+            end = run._Start + run._Length;
+
+            if (pos >= cursor + run._Count) {
+                cursor += run._Count;
+                x0 += run._Advance;
+                continue;
+            }
+
+            //cursor is in this run
+            var font = run._Attrs.GetFont();
+            var remainingSize = Surface.MeasureText(this._Text.slice(run._Start, pos), font);
+            x0 += remainingSize.Width;
+            break;
+        }
+        break;
+    }
+    return new Rect(x0, y0, 1.0, height);
+};
+TextLayout.prototype._FindLineWithIndex = function (index) {
+    var cursor = 0;
+    for (var i = 0; i < this._Lines.length; i++) {
+        var line = this._Lines[i];
+        if (index < cursor + line._Count)
+            return line;
+        cursor += line._Count;
+    }
+    return null;
 };
 
 TextLayout.prototype.Select = function (start, length) {
@@ -272,7 +334,7 @@ TextLayout.prototype.Layout = function () {
 
             //layout until end of line or max width reached
             while (index < end) {
-                var lineBreakLength = TextLayout._IsLineBreak(this._Text.slice(index, end - index));
+                var lineBreakLength = TextLayout._IsLineBreak(this._Text.slice(index, end));
                 if (lineBreakLength > 0) {
                     if (line._Length == 0 && !this.OverrideLineHeight()) {
                         line._Descend = font._Descender();
@@ -289,7 +351,7 @@ TextLayout.prototype.Layout = function () {
                 }
 
                 word._LineAdvance = line._Advance;
-                if (layoutWordFunc(word, this._Text.slice(index, end - index), font, this._MaxWidth)) {
+                if (layoutWordFunc(word, this._Text.slice(index, end), font, this._MaxWidth)) {
                     this._IsWrapped = true;
                     wrapped = true;
                 }
@@ -316,7 +378,7 @@ TextLayout.prototype.Layout = function () {
                     break;
 
                 word._LineAdvance = line._Advance;
-                TextLayout._LayoutLwsp(word, this._Text.slice(index, end - index), font);
+                TextLayout._LayoutLwsp(word, this._Text.slice(index, end), font);
 
                 if (word._Length > 0) {
                     if (!this.OverrideLineHeight()) {
@@ -336,7 +398,7 @@ TextLayout.prototype.Layout = function () {
                 }
             }
 
-            var atend = this._Text.slice(index, end - index).length < 1;
+            var atend = this._Text.slice(index, end).length < 1;
             if (linebreak || wrapped || atend) {
                 this._ActualWidth = Math.max(this._ActualWidth, atend ? line._Advance : line._Width);
                 this._ActualHeight += line._Height;
@@ -416,10 +478,10 @@ TextLayout._ValidateAttrs = function (/* List */attributes) {
 };
 TextLayout._IsLineBreak = function (text) {
     var c0 = text.charAt(0);
-    if (c0 == '\n')
+    if (c0 === '\n')
         return 1;
     var c1 = text.charAt(1);
-    if (c0 == '\r' && c1 == '\n')
+    if (c0 === '\r' && c1 === '\n')
         return 2;
     return 0;
 };
@@ -463,7 +525,7 @@ function _TextLayoutLine(layout, start, offset) {
     this._Layout = layout;
     this._Start = start;
     this._Offset = offset;
-    this._Advance = 0.0;
+    this._Advance = 0.0; //after layout, will contain horizontal distance this line advances
     this._Descend = 0.0;
     this._Height = 0.0;
     this._Width = 0.0;
@@ -497,7 +559,7 @@ function _TextLayoutRun(line, attrs, start) {
     this._Attrs = attrs;
     this._Start = start;
     this._Line = line;
-    this._Advance = 0.0;
+    this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
     this._Length = 0;
     this._Count = 0;
 }
