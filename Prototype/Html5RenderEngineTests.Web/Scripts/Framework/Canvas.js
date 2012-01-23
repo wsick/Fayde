@@ -1,6 +1,7 @@
-﻿/// <reference path="Primitives.js" />
+﻿/// <reference path="Panel.js" />
+/// CODE
+/// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
-/// <reference path="Panel.js" />
 
 //#region Canvas
 

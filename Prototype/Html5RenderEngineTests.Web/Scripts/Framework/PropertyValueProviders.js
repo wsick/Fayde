@@ -1,10 +1,12 @@
-﻿/// <reference path="BError.js"/>
+﻿/// <reference path="RefObject.js"/>
+/// CODE
 /// <reference path="DependencyObject.js" />
 /// <reference path="Collections.js" />
 /// <reference path="FrameworkElement.js"/>
 /// <reference path="Control.js"/>
 /// <reference path="TextElement.js"/>
 /// <reference path="TextBlock.js"/>
+/// <reference path="BError.js"/>
 
 var Control = {};
 var TextBlock = {};

@@ -1,5 +1,6 @@
-﻿/// <reference path="DependencyProperty.js"/>
-/// <reference path="DependencyObject.js"/>
+﻿/// <reference path="DependencyObject.js"/>
+/// CODE
+/// <reference path="DependencyProperty.js"/>
 
 //#region Brush
 

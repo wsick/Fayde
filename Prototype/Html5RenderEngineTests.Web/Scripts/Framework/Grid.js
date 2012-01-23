@@ -1,4 +1,5 @@
-﻿/// <reference path="Panel.js"/>
+﻿/// <reference path="RefObject.js"/>
+/// <reference path="Panel.js"/>
 /// <reference path="DependencyObjectCollection.js"/>
 /// <reference path="List.js"/>
 

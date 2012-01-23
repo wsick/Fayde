@@ -1,6 +1,7 @@
-﻿/// <reference path="Primitives.js" />
+﻿/// <reference path="FrameworkElement.js"/>
+/// CODE
+/// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
-/// <reference path="FrameworkElement.js" />
 /// <reference path="Surface.js"/>
 
 //#region Border

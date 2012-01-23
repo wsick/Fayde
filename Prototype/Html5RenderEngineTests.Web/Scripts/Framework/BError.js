@@ -1,4 +1,6 @@
-﻿BError.prototype = new RefObject;
+﻿/// <reference path="RefObject.js"/>
+
+BError.prototype = new RefObject;
 BError.prototype.constructor = BError;
 function BError() {
     RefObject.call(this);

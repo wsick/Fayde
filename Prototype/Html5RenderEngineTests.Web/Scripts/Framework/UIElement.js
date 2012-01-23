@@ -1,5 +1,6 @@
-﻿/// <reference path="Primitives.js" />
-/// <reference path="DependencyObject.js" />
+﻿/// <reference path="DependencyObject.js" />
+/// CODE
+/// <reference path="Primitives.js" />
 /// <reference path="DependencyProperty.js" />
 /// <reference path="Canvas.js" />
 /// <reference path="Dirty.js"/>

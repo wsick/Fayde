@@ -1,8 +1,9 @@
-﻿/// <reference path="../jquery-1.7.js" />
+﻿/// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="../jquery-1.7.js" />
 /// <reference path="PropertyValueProviders.js" />
 /// <reference path="BError.js" />
 /// <reference path="DependencyProperty.js" />
-/// <reference path="FrameworkElement.js" />
 /// <reference path="MulticastEvent.js"/>
 /// <reference path="Collections.js"/>
 /// <reference path="List.js"/>

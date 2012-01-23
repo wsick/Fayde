@@ -1,4 +1,5 @@
 ﻿/// <reference path="Control.js"/>
+/// CODE
 /// <reference path="ControlTemplate.js"/>
 
 //#region ContentControl

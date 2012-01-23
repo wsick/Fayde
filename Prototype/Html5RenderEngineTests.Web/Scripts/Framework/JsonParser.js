@@ -1,4 +1,6 @@
-﻿/// <reference path="Collection.js"/>
+﻿/// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="Collection.js"/>
 /// <reference path="Expression.js"/>
 
 //#region JsonParser

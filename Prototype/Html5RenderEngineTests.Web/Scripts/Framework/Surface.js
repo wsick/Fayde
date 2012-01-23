@@ -1,4 +1,6 @@
-﻿/// <reference path="../kinetic-v2.3.2.js"/>
+﻿/// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="../kinetic-v2.3.2.js"/>
 /// <reference path="Primitives.js"/>
 /// <reference path="Brush.js"/>
 /// <reference path="Collection.js"/>

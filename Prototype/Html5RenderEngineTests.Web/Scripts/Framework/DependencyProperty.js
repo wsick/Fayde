@@ -1,4 +1,6 @@
-﻿//#region DependencyProperty
+﻿/// <reference path="RefObject.js"/>
+
+//#region DependencyProperty
 
 DependencyProperty.prototype = new RefObject;
 DependencyProperty.prototype.constructor = DependencyProperty;

@@ -1,5 +1,7 @@
-﻿/// <reference path="List.js"/>
+﻿/// <reference path="RefObject.js"/>
 /// <reference path="DependencyObject.js" />
+/// CODE
+/// <reference path="List.js"/>
 /// <reference path="UIElement.js" />
 
 //#region Collection

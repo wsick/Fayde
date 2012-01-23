@@ -1,4 +1,7 @@
-﻿/// <reference path="DependencyObject.js" />
+﻿/// <reference path="RefObject.js"/>
+/// <reference path="DependencyObject.js" />
+/// <reference path="Collections"/>
+/// CODE
 /// <reference path="App.js"/>
 
 //#region SetterBase

@@ -1,4 +1,6 @@
-﻿/// <reference path="List.js"/>
+﻿/// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="List.js"/>
 
 _DirtyList.prototype = new RefObject;
 _DirtyList.prototype.constructor = _DirtyList;

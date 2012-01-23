@@ -1,4 +1,6 @@
-﻿/// <reference path="Debug.js"/>
+﻿/// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="Debug.js"/>
 
 //#region MulticastEvent
 

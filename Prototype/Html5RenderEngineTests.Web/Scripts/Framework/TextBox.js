@@ -1,5 +1,8 @@
-﻿/// <reference path="Control.js"/>
+﻿/// <reference path="RefObject.js"/>
 /// <reference path="PropertyValueProviders.js"/>
+/// <reference path="Control.js"/>
+/// <reference path="FrameworkElement.js"/>
+/// CODE
 /// <reference path="Primitives.js"/>
 /// <reference path="List.js"/>
 /// <reference path="Style.js"/>

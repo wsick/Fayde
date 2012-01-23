@@ -1,9 +1,10 @@
-﻿/// <reference path="BError.js"/>
+﻿/// <reference path="UIElement.js"/>
+/// <reference path="PropertyValueProviders.js"/>
+/// CODE
+/// <reference path="BError.js"/>
 /// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
-/// <reference path="UIElement.js" />
 /// <reference path="List.js"/>
-/// <reference path="PropertyValueProviders.js"/>
 /// <reference path="Geometry.js"/>
 /// <reference path="Validators.js"/>
 

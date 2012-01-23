@@ -1,4 +1,5 @@
 ﻿/// <reference path="DependencyObject.js"/>
+/// CODE
 /// <reference path="JsonParser.js"/>
 
 //#region FrameworkTemplate

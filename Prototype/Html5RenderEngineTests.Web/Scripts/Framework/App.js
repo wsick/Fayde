@@ -1,3 +1,5 @@
+/// <reference path="DependencyObject.js"/>
+/// CODE
 /// <reference path="Surface.js"/>
 /// <reference path="Collections.js"/>
 

@@ -1,6 +1,4 @@
-﻿/// <reference path="Debug.js"/>
-/// <reference path="Surface.js"/>
-/// <reference path="DependencyObject.js"/>
+﻿/// <reference path="RefObject.js"/>
 
 var Visibility = {
     Visible: 0,

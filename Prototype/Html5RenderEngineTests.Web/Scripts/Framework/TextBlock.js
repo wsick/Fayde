@@ -1,8 +1,9 @@
-﻿/// <reference path="Primitives.js"/>
-/// <reference path="FrameworkElement.js"/>
+﻿/// <reference path="FrameworkElement.js"/>
+/// <reference path="PropertyValueProviders.js"/>
+/// CODE
+/// <reference path="Primitives.js"/>
 /// <reference path="TextLayout.js"/>
 /// <reference path="Collections.js"/>
-/// <reference path="PropertyValueProviders.js"/>
 
 //#region TextBlock
 

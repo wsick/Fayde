@@ -1,4 +1,6 @@
-﻿/// <reference path="DependencyProperty.js"/>
+﻿/// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="DependencyProperty.js"/>
 /// <reference path="ContentControl.js"/>
 
 var BindingMode = {
