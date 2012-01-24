@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Diagnostics;
+using System;
 
 namespace JsSingularity
 {
@@ -37,6 +38,33 @@ namespace JsSingularity
                     sw.WriteLine(sr.ReadLine());
                 }
             }
+        }
+
+        public string GetPathRelativeTo(string basePath)
+        {
+            var dir = new DirectoryInfo(basePath);
+
+            var baseFs = new FolderStack(dir);
+            var fileFs = new FolderStack(new FileInfo(FullPath).Directory);
+            var kickedStack = new Stack<DirectoryInfo>();
+
+            string temp = string.Empty;
+            while (baseFs.CurrentDirectory.FullName != fileFs.CurrentDirectory.FullName)
+            {
+                if (baseFs.CurrentDirectory.FullName.Length > fileFs.CurrentDirectory.FullName.Length)
+                    baseFs.Pop();
+                else
+                {
+                    kickedStack.Push(fileFs.Pop());
+                    temp += "../";
+                }
+            }
+            while (kickedStack.Any())
+            {
+                temp += kickedStack.Pop() + "/";
+            }
+            temp += new FileInfo(FullPath).Name;
+            return temp;
         }
 
         public bool Matches(JsFile other)

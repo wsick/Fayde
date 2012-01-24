@@ -11,6 +11,8 @@ namespace JsSingularity
         private static readonly Regex JS_REF_REGEX = new Regex(@"///\s?<reference\spath=""(?<filename>[^\\/:*?""<>|\r\n]+\.js)""\s?/>", RegexOptions.Compiled);
         private static readonly Regex CANCEL_REF_REGEX = new Regex(@"///\s*CODE", RegexOptions.Compiled);
 
+        private static readonly string JS_INCLUDE_FORMAT = "<script src=\"{0}\" type=\"text/javascript\"></script>";
+        
         public Combiner()
         {
         }
@@ -18,6 +20,7 @@ namespace JsSingularity
         public bool ShouldSearchSubDirectories { get; set; }
         public string ScriptsFolder { get; set; }
         public string DeployPath { get; set; }
+        public string IncludesFilePath { get; set; }
 
         protected DirectoryInfo ScriptsDirectory { get; set; }
 
@@ -25,24 +28,9 @@ namespace JsSingularity
         {
             ScriptsDirectory = new DirectoryInfo(ScriptsFolder);
 
-            var tempfi = new FileInfo(Guid.NewGuid().ToString() + ".temp");
-            try
-            {
-                using (var sw = new StreamWriter(tempfi.FullName) { AutoFlush = true })
-                {
-                    foreach (var jf in CollectOrderedFiles())
-                    {
-                        jf.WriteToStream(sw);
-                        sw.WriteLine();
-                    }
-                }
-                File.Copy(tempfi.FullName, DeployPath, true);
-            }
-            finally
-            {
-                if (tempfi.Exists)
-                    tempfi.Delete();
-            }
+            var orderedFiles = CollectOrderedFiles().ToList();
+            WriteDebugIncludes(orderedFiles);
+            WriteCombinedJavascript(orderedFiles);
         }
 
         protected IEnumerable<JsFile> CollectOrderedFiles()
@@ -90,6 +78,51 @@ namespace JsSingularity
             }
             jf.ResolveRefs();
             return jf;
+        }
+
+        protected void WriteDebugIncludes(IEnumerable<JsFile> orderedFiles)
+        {
+            if (string.IsNullOrWhiteSpace(IncludesFilePath))
+                return;
+            var tempfi = new FileInfo(Guid.NewGuid().ToString() + ".temp");
+            try
+            {
+                using (var sw = new StreamWriter(tempfi.FullName) { AutoFlush = true })
+                {
+                    foreach (var jf in orderedFiles)
+                    {
+                        sw.WriteLine(JS_INCLUDE_FORMAT, jf.GetPathRelativeTo(ScriptsDirectory.FullName));
+                    }
+                }
+                File.Copy(tempfi.FullName, IncludesFilePath, true);
+            }
+            finally
+            {
+                if (tempfi.Exists)
+                    tempfi.Delete();
+            }
+        }
+
+        protected void WriteCombinedJavascript(IEnumerable<JsFile> orderedFiles)
+        {
+            var tempfi = new FileInfo(Guid.NewGuid().ToString() + ".temp");
+            try
+            {
+                using (var sw = new StreamWriter(tempfi.FullName) { AutoFlush = true })
+                {
+                    foreach (var jf in orderedFiles)
+                    {
+                        jf.WriteToStream(sw);
+                        sw.WriteLine();
+                    }
+                }
+                File.Copy(tempfi.FullName, DeployPath, true);
+            }
+            finally
+            {
+                if (tempfi.Exists)
+                    tempfi.Delete();
+            }
         }
     }
 }

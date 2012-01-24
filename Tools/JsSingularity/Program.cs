@@ -12,6 +12,7 @@ namespace JsSingularity
             //  DeployPath
             //  ScriptsFolder
             //  IncludeSubdirectories
+            //  IncludesFile
             var cmdLine = ParseCommandLine(args).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             var combiner = new Combiner
@@ -19,6 +20,7 @@ namespace JsSingularity
                 DeployPath = cmdLine.Value("DeployPath"),
                 ScriptsFolder = cmdLine.Value("ScriptsFolder"),
                 ShouldSearchSubDirectories = cmdLine.Value("IncludeSubdirectories").EqualsIgnoreCase("true"),
+                IncludesFilePath = cmdLine.Value("IncludesFile"),
             };
             combiner.Combine();
         }
