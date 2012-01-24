@@ -55,8 +55,9 @@
     <Content Include="grid-tests\test1.html" />
     <Content Include="index.html" />
     <Content Include="multicastevent-test.html" />
-    <Content Include="NotImplemented\Annotations.txt" />
+    <Content Include="Docs\Annotations.txt" />
     <Content Include="prototype-tests\arrays.html" />
+    <Content Include="prototype-tests\kinetic.html" />
     <Content Include="prototype-tests\parsing.html" />
     <Content Include="Scripts\Framework\Border.js" />
     <Content Include="Scripts\Framework\Brushes.js" />
