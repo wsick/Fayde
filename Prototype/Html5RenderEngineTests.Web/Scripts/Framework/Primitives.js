@@ -117,10 +117,10 @@ function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
 CornerRadius.GetBaseClass = function () { return RefObject; };
 
 CornerRadius.prototype.IsZero = function () {
-    return this.TopLeft == 0
-        && this.TopRight == 0
-        && this.BottomRight == 0
-        && this.BottomLeft == 0;
+    return this.TopLeft === 0
+        && this.TopRight === 0
+        && this.BottomRight === 0
+        && this.BottomLeft === 0;
 };
 
 //#endregion
@@ -370,18 +370,18 @@ Matrix.prototype.Apply = function (ctx) {
     ctx.transform(elements[0][0], elements[1][0], elements[0][1], elements[1][1], elements[0][2], elements[1][2]);
 };
 Matrix.prototype.Multiply = function (val) {
+    var arr1 = this.GetElements();
     if (val instanceof Point) {
         var result = new Point();
-        val = [[val.X], [val.Y], [0]];
+        val = [[val.X], [val.Y], [1]];
         for (var i = 0; i < 3; i++) {
-            result.X += this._Elements[0][i] * val[i][0];
-            result.Y += this._Elements[1][i] * val[i][0];
+            result.X += arr1[0][i] * val[i][0];
+            result.Y += arr1[1][i] * val[i][0];
         }
         return result;
     }
     if (val instanceof Matrix) {
         var result = new Matrix();
-        var arr1 = this.GetElements();
         var arr2 = val.GetElements();
         for (var i = 0; i < arr1.length; i++) {
             result[i] = new Array();
@@ -396,6 +396,16 @@ Matrix.prototype.Multiply = function (val) {
         return result;
     }
     NotImplemented("Matrix.Multiply");
+};
+Matrix.prototype.Copy = function () {
+    var m = new Matrix();
+    var els = this.GetElements();
+    for (var i = 0; i < 3; i++) {
+        for (var j = 0; j < 3; j++) {
+            m.SetElement(i, j, els[i][j]);
+        }
+    }
+    return m;
 };
 Matrix.prototype.toString = function () {
     var t = new String();
@@ -442,6 +452,9 @@ TranslationMatrix.prototype.GetElements = function () {
         [0, 0, 1]
     ];
 };
+TranslationMatrix.prototype.GetInverse = function () {
+    return new TranslationMatrix(-this.X, -this.Y);
+};
 TranslationMatrix.prototype.Apply = function (ctx) {
     ctx.translate(this.X, this.Y);
 };
@@ -464,6 +477,9 @@ RotationMatrix.prototype.GetElements = function () {
         [Math.sin(this.Angle), Math.cos(this.Angle), 0],
         [0, 0, 1]
     ];
+};
+RotationMatrix.prototype.GetInverse = function () {
+    return new RotationMatrix(-this.Angle);
 };
 RotationMatrix.prototype.Apply = function (ctx) {
     ctx.rotate(this.Angle);
@@ -489,6 +505,9 @@ ScalingMatrix.prototype.GetElements = function () {
         [0, 0, 1]
     ];
 };
+ScalingMatrix.prototype.GetInverse = function () {
+    return new ScalingMatrix(-this.X, -this.Y);
+};
 ScalingMatrix.prototype.Apply = function (ctx) {
     ctx.scale(this.X, this.Y);
 };
@@ -512,6 +531,12 @@ ShearingMatrix.prototype.GetElements = function () {
         [this.ShearY, 1, 0],
         [0, 0, 1]
     ];
+};
+ShearingMatrix.prototype.GetInverse = function () {
+    return new ShearingMatrix(-this.ShearX, -this.ShearY);
+};
+ShearingMatrix.prototype.Apply = function () {
+    NotImplemented("ShearingMatrix.Apply");
 };
 
 //#endregion
