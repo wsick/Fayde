@@ -21,16 +21,17 @@ namespace JsSingularity
 
         public bool Push(string directory)
         {
-            _CurrentDirectory = new DirectoryInfo(Path.Combine(_CurrentDirectory.FullName, directory));
+            _CurrentDirectory = new DirectoryInfo(Path.Combine(CurrentDirectory.FullName, directory));
             return _CurrentDirectory.Exists;
         }
 
         public DirectoryInfo Pop()
         {
-            if (_CurrentDirectory == null)
+            if (CurrentDirectory == null)
                 return null;
-            _CurrentDirectory = _CurrentDirectory.Parent;
-            return _CurrentDirectory;
+            var lastDir = CurrentDirectory;
+            _CurrentDirectory = CurrentDirectory.Parent;
+            return lastDir;
         }
 
         public FolderStack Save()

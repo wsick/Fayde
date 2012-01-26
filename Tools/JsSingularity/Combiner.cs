@@ -21,6 +21,7 @@ namespace JsSingularity
         public string ScriptsFolder { get; set; }
         public string DeployPath { get; set; }
         public string IncludesFilePath { get; set; }
+        public string BaseIncludesPath { get; set; }
 
         protected DirectoryInfo ScriptsDirectory { get; set; }
 
@@ -91,7 +92,7 @@ namespace JsSingularity
                 {
                     foreach (var jf in orderedFiles)
                     {
-                        sw.WriteLine(JS_INCLUDE_FORMAT, jf.GetPathRelativeTo(ScriptsDirectory.FullName));
+                        sw.WriteLine(JS_INCLUDE_FORMAT, jf.GetPathRelativeTo(BaseIncludesPath));
                     }
                 }
                 File.Copy(tempfi.FullName, IncludesFilePath, true);

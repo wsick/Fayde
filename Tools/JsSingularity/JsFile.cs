@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
-using System;
 
 namespace JsSingularity
 {
@@ -52,16 +51,16 @@ namespace JsSingularity
             while (baseFs.CurrentDirectory.FullName != fileFs.CurrentDirectory.FullName)
             {
                 if (baseFs.CurrentDirectory.FullName.Length > fileFs.CurrentDirectory.FullName.Length)
-                    baseFs.Pop();
-                else
                 {
-                    kickedStack.Push(fileFs.Pop());
+                    baseFs.Pop();
                     temp += "../";
                 }
+                else
+                    kickedStack.Push(fileFs.Pop());
             }
             while (kickedStack.Any())
             {
-                temp += kickedStack.Pop() + "/";
+                temp += kickedStack.Pop().Name + "/";
             }
             temp += new FileInfo(FullPath).Name;
             return temp;

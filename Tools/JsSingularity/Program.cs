@@ -13,6 +13,7 @@ namespace JsSingularity
             //  ScriptsFolder
             //  IncludeSubdirectories
             //  IncludesFile
+            //  BaseIncludePath
             var cmdLine = ParseCommandLine(args).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             var combiner = new Combiner
@@ -21,6 +22,7 @@ namespace JsSingularity
                 ScriptsFolder = cmdLine.Value("ScriptsFolder"),
                 ShouldSearchSubDirectories = cmdLine.Value("IncludeSubdirectories").EqualsIgnoreCase("true"),
                 IncludesFilePath = cmdLine.Value("IncludesFile"),
+                BaseIncludesPath = cmdLine.Value("BaseIncludesPath"),
             };
             combiner.Combine();
         }
