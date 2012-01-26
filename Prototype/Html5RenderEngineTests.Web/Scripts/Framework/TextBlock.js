@@ -356,6 +356,10 @@ TextBlock.prototype._SetTextInternal = function (text) {
     this._SetsValue = true;
 };
 
+TextBlock.prototype._CanFindElement = function () {
+    return true;
+};
+
 TextBlock.prototype._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {

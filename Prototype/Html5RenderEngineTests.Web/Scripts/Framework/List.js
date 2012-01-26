@@ -32,6 +32,7 @@ List.prototype.Prepend = function (node) {
         this._Tail = node;
     this._Head = node;
     this._Count++;
+    return node;
 };
 List.prototype.Append = function (node) {
     node.Previous = this._Tail;
@@ -42,6 +43,7 @@ List.prototype.Append = function (node) {
         this._Head = node;
     this._Tail = node;
     this._Count++;
+    return node;
 };
 List.prototype.Remove = function (node) {
     if (node.Previous)

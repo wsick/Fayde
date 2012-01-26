@@ -515,21 +515,46 @@ FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, erro
     return arranged;
 };
 
-FrameworkElement.prototype._InsideObject = function (x, y) {
-    //var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
-    //var np = new Point(x, y);
-    //this._TransformPoint(np);
-    //if (np.X < 0 || np.Y < 0 || np.X > framework.Width || np.Y > framework.Height)
-    //    return false;
+FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
+    if (!this._GetRenderVisible())
+        return;
+    if (!this._GetIsHitTestVisible())
+        return;
+
+    if (!this._InsideClip(ctx, p.X, p.Y))
+        return;
+
+    var node = uielist.Prepend(new UIElementNode(this));
+    var hit = false;
+    var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZReverse, false);
+    var child;
+    while (child = walker.Step()) {
+        child._HitTestPoint(ctx, p, uielist);
+        if (!node.RefEquals(uielist.First())) {
+            hit = true;
+            break;
+        }
+    }
+
+    if (!hit && !(this._CanFindElement() && this._InsideObject(ctx, p.X, p.Y)))
+        uielist.Remove(node);
+};
+FrameworkElement.prototype._InsideObject = function (ctx, x, y) {
+    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var np = new Point(x, y);
+    this._TransformPoint(np);
+    if (np.X < 0 || np.Y < 0 || np.X > framework.Width || np.Y > framework.Height)
+        return false;
 
     if (!this._InsideLayoutClip(x, y))
         return false;
 
-    return UIElement.prototype._InsideObject.call(this, x, y);
+    return UIElement.prototype._InsideObject.call(this, ctx, x, y);
 };
 
 FrameworkElement.prototype._InsideLayoutClip = function (x, y) {
-    NotImplemented("FrameworkElement._InsideLayoutClip(x, y)");
+    //NotImplemented("FrameworkElement._InsideLayoutClip(x, y)");
+    return true;
 };
 FrameworkElement.prototype._HasLayoutClip = function () {
     var element = this;

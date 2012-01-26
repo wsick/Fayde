@@ -202,8 +202,15 @@ Control.prototype._ElementRemoved = function (item) {
     FrameworkElement.prototype._ElementRemoved.call(this, item);
 };
 
+Control.prototype._CanFindElement = function () {
+    return this.GetIsEnabled();
+};
 Control.prototype._InsideObject = function (x, y) {
     return false;
+};
+Control.prototype._HitTestPoint = function (ctx, p, uielist) {
+    if (this.GetIsEnabled())
+        FrameworkElement.prototype._HitTestPoint.call(this, ctx, p, uielist);
 };
 
 Control.prototype._UpdateIsEnabledSource = function (control) {

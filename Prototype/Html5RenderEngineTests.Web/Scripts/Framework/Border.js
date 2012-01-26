@@ -107,7 +107,7 @@ Border.prototype._Render = function (ctx, region) {
         return;
 
     //BorderBrush or CornerRadius?
-    if (borderBrush || this.GetCornerRadius().IsZero()) {
+    if (borderBrush || !this.GetCornerRadius().IsZero()) {
         ctx.Save();
         this._RenderImpl(ctx, region);
         ctx.Restore();
@@ -115,7 +115,7 @@ Border.prototype._Render = function (ctx, region) {
     }
 
     //If we got this far, all we have left to paint is the background
-    if (!this._HasLayoutClip() /* && IsIntegerTranslation  */) {
+    if (!this._HasLayoutClip() && false /* TODO: IsIntegerTranslation  */) {
         //TODO:
         //var paintBackground = paintBorder.GrowByThickness(this.GetBorderThickness().Negate());
 
@@ -130,6 +130,10 @@ Border.prototype._RenderImpl = function (ctx, region) {
     this._RenderLayoutClip(ctx);
     ctx.CustomRender(Border._Painter, this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius());
     ctx.Restore();
+};
+
+Border.prototype._CanFindElement = function () {
+    return this.GetBackground() != null || this.GetBorderBrush() != null;
 };
 
 Border.prototype._OnPropertyChanged = function (args, error) {

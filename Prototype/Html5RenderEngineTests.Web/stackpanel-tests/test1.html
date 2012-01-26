@@ -4,57 +4,54 @@
     <title></title>
     <script src="../Scripts/jquery-1.7.js" type="text/javascript"></script>
     
-    <script src="../Scripts/Framework/RefObject.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/Debug.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Primitives.js" type="text/javascript"></script>
-
-    <script src="../Scripts/Framework/List.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/EventArgs.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/RefObject.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Validators.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/BError.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Dirty.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/MulticastEvent.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/DependencyProperty.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/LayoutInformation.js" type="text/javascript"></script>
-
+    <script src="../Scripts/Framework/Dirty.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Expression.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/JsonParser.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/List.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/MulticastEvent.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Primitives.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/PropertyValueProviders.js" type="text/javascript"></script>
-
+    <script src="../Scripts/Framework/Surface.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/TextLayout.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/DependencyObject.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Collections.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Style.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Brushes.js" type="text/javascript"></script>
-
     <script src="../Scripts/Framework/Geometry.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/UIElement.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/FrameworkElement.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/LayoutInformation.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/Templates.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Control.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/TextElement.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/UIElement.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/App.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Brushes.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Collections.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/FrameworkElement.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/Panel.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/StackPanel.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Grid.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Canvas.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Style.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/TextBlock.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/Border.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Canvas.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/ContentPresenter.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Control.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/Grid.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/ItemsControl.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/TextBox.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/UserControl.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/ContentControl.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/ContentPresenter.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Templates.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/Expression.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/ButtonBase.js" type="text/javascript"></script>
 
-    <script src="../Scripts/Framework/TextElement.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/TextLayout.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/TextBlock.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/TextBox.js" type="text/javascript"></script>
-
-    <script src="../Scripts/Framework/Validators.js" type="text/javascript"></script>
-
-    <script src="../Scripts/Framework/Surface.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/App.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/JsonParser.js" type="text/javascript"></script>
-    
     <script type="text/javascript">
+        var root;
         $(document).ready(function () {
             _Console.Init("#console");
-            App.Instance.MainSurface.Init($("#testCanvas"));
+            RegisterHUD("mouse", "#hud-mouse");
+            RegisterHUD("els", "#hud-els");
             root = buildTestView();
-            App.Instance.Load(root);
+            App.Instance.Load(root, $("#canvas"));
         });
 
         function buildTestView() {
@@ -66,9 +63,13 @@
 </head>
 <body>
     <div>
-        <div style="width: 600px; height: 600px;">
-	        <canvas id="testCanvas" width="600" height="600">
-	        </canvas>
+        <div id="container">
+            <canvas id="canvas" width="600" height="600">
+            </canvas>
+        </div>
+        <div id="hud-mouse" style="height: 25px;">
+        </div>
+        <div id="hud-els" style="height: 25px;">
         </div>
         <div id="console" style="margin-top: 10px; font-size: 12px; font-family: Consolas; overflow-y: scroll; height: 200px; border: solid 1px black;">
         </div>

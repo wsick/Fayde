@@ -20,7 +20,8 @@ App.prototype.SetResources = function (value) {
 };
 
 
-App.prototype.Load = function (/* UIElement */element) {
+App.prototype.Load = function (/* UIElement */element, containerId, width, height) {
+    this.MainSurface.Init(containerId, width, height);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);

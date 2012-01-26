@@ -8,6 +8,8 @@ var DebugLevel = {
     Fatal: 4
 };
 
+//#region Console
+
 Console.prototype = new Object;
 Console.prototype.constructor = Console;
 function Console(level) {
@@ -66,6 +68,24 @@ Console.prototype.ScrollToEnd = function () {
 };
 var _Console = new Console(DebugLevel.Info);
 
+//#endregion
+
+//#region HUD
+
+HUD.prototype = new Object;
+HUD.prototype.constructor = HUD;
+function HUD(jSelector) {
+    Object.call(this);
+    this._Selector = jSelector;
+};
+HUD.prototype.SetMessage = function (message) {
+    $(this._Selector)[0].innerText = message;
+};
+
+var HUDs = new Array();
+
+//#endregion
+
 function AbstractMethod(method) {
     Warn("Abstract Method [" + method + "]");
 }
@@ -94,4 +114,14 @@ function Fatal(error) {
     if (_Console._Level <= DebugLevel.Fatal)
         _Console.WriteLine("<b>FATAL</b>: " + error.toString(), "#FF0000");
     App.Instance._Stop();
+}
+
+function RegisterHUD(id, jSelector) {
+    HUDs[id] = new HUD(jSelector);
+};
+function HUDUpdate(id, message) {
+    var hud = HUDs[id];
+    if (!hud)
+        return;
+    hud.SetMessage(message);
 }

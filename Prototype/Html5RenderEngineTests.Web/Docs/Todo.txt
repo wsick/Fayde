@@ -129,7 +129,7 @@ _GetRenderVisible [Done]
 _ComputeTotalHitTestVisibility [Done]
 _UpdateTotalHitTestVisibility [Done]
 _GetActualTotalHitTestVisibility [Done]
-_GetHitTestVisible [Done]
+_GetIsHitTestVisible [Done]
 
 _GetRenderSize [Done]
 

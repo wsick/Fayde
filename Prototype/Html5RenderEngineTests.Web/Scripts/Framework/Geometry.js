@@ -52,6 +52,7 @@ RectangleGeometry.prototype.ComputePathBounds = function () {
 
 RectangleGeometry.prototype.Draw = function (canvasCtx) {
     var rect = this.GetRect();
+    canvasCtx.beginPath();
     canvasCtx.rect(rect.X, rect.Y, rect.Width, rect.Height);
 };
 

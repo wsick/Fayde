@@ -1,6 +1,6 @@
 ﻿/// <reference path="RefObject.js"/>
 /// CODE
-/// <reference path="../kinetic-v2.3.2.js"/>
+/// <reference path="http://www.html5canvastutorials.com/libraries/kinetic-v3.6.2.js"/>
 /// <reference path="Primitives.js"/>
 /// <reference path="Brush.js"/>
 /// <reference path="Collection.js"/>
@@ -18,15 +18,17 @@ function Surface() {
 Surface.GetBaseClass = function () { return RefObject; };
 
 Surface.prototype.Init = function (jCanvas) {
-    this._jCanvas = jCanvas;
-    this._Canvas = jCanvas[0];
-    this._Ctx = this._Canvas.getContext("2d");
+    Surface._TestCanvas = document.createElement('canvas');
     this._Layers = new Collection();
     this._DownDirty = new _DirtyList();
     this._UpDirty = new _DirtyList();
 
-    //this._Stage = new Kinetic.Stage(containerId, width, height);
+    this._jCanvas = jCanvas;
+    this._Ctx = this._jCanvas[0].getContext('2d');
+    this._CanvasOffset = this._jCanvas.offset();
+    this.RegisterEvents();
 };
+Surface.prototype.GetCanvas = function () { return this._jCanvas[0]; };
 Surface.prototype.GetExtents = function () {
     return new Size(this.GetWidth(), this.GetHeight());
 };
@@ -67,6 +69,7 @@ Surface.prototype._Attach = function (/* UIElement */element) {
     if (NameScope.GetNameScope(element) == null) {
         NameScope.SetNameScope(element, new NameScope());
     }
+
     //TODO: Enable events
 
     this._TopLevel = element;
@@ -84,7 +87,7 @@ Surface.prototype._Attach = function (/* UIElement */element) {
     setTimeout(postAttach, 1);
 };
 Surface.prototype._AttachLayer = function (/* UIElement */layer) {
-    if (layer === this._TopLevel)
+    if (layer.RefEquals(this._TopLevel))
         this._Layers.Insert(0, layer);
     else
         this._Layers.Add(layer);
@@ -98,11 +101,11 @@ Surface.prototype._AttachLayer = function (/* UIElement */layer) {
 Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
     this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
-    if (element === this._TopLevel) {
+    if (element.RefEquals(this._TopLevel)) {
         //TODO: this.Resize.Raise(this, null);
 
-        //element._UpdateTotalRenderVisibility();
-        //element._UpdateTotalHitTestVisibility();
+        element._UpdateTotalRenderVisibility();
+        element._UpdateTotalHitTestVisibility();
         element._FullInvalidate(true);
 
         element._InvalidateMeasure();
@@ -114,7 +117,8 @@ Surface.prototype._IsTopLevel = function (/* UIElement */top) {
     var ret = false; //TODO: full-screen message
     var count = this._Layers.GetCount();
     for (var i = 0; i < count && !ret; i++) {
-        ret = this._Layers.GetValueAt(i) === top;
+        var layer = this._Layers.GetValueAt(i);
+        ret = top.RefEquals(layer);
     }
     return ret;
 };
@@ -143,17 +147,18 @@ Surface.prototype._UpdateLayout = function (error) {
         pass._Updated = false;
         for (var i = 0; i < this._Layers.GetCount(); i++) {
             var layer = this._Layers.GetValueAt(i);
-            if (!layer._HasFlag(UIElementFlags.DirtyMeasureHint) && !layer._HasFlag(UIElementFlags.DirtyArrangeHint))
+            var element = layer;
+            if (!element._HasFlag(UIElementFlags.DirtyMeasureHint) && !element._HasFlag(UIElementFlags.DirtyArrangeHint))
                 continue;
 
-            var last = LayoutInformation.GetPreviousConstraint(layer);
+            var last = LayoutInformation.GetPreviousConstraint(element);
             var available = new Size(this.GetWidth(), this.GetHeight());
-            if (layer.IsContainer() && (!last || (!last.Equals(available)))) {
-                layer._InvalidateMeasure();
-                LayoutInformation.SetPreviousConstraint(layer, available);
+            if (element.IsContainer() && (!last || (!last.Equals(available)))) {
+                element._InvalidateMeasure();
+                LayoutInformation.SetPreviousConstraint(element, available);
             }
 
-            layer._UpdateLayer(pass, error);
+            element._UpdateLayer(pass, error);
         }
 
         //dirty = dirty || !this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
@@ -363,10 +368,36 @@ Surface.prototype._RemoveDirtyElement = function (/* UIElement */element) {
     element._DownDirtyNode = null;
 };
 
+Surface.prototype.RegisterEvents = function () {
+    var surface = this;
+    var canvas = this.GetCanvas();
+    //canvas.addEventListener("mouseover", function (e) { });
+    canvas.addEventListener("mousemove", function (e) { surface._HandleMouseEvent("move", surface._GetMousePosition(event)); });
+    canvas.addEventListener("mousedown", function (e) { surface._HandleMouseEvent("down", surface._GetMousePosition(event)); });
+    canvas.addEventListener("mouseup", function (e) { surface._HandleMouseEvent("up", surface._GetMousePosition(event)); });
+    canvas.addEventListener("mousewheel", function (e) { surface._HandleMouseEvent("wheel", surface._GetMousePosition(event)); });
+};
+Surface.prototype._HandleMouseEvent = function (type, pos) {
+    HUDUpdate("mouse", "X: " + pos.X.toString() + "; Y: " + pos.Y.toString());
+    var ctx = new _RenderContext(this);
+    var newInputList = new List();
+    var layerCount = this._Layers.GetCount();
+    for (var i = layerCount - 1; i >= 0 && newInputList.IsEmpty(); i--) {
+        var layer = this._Layers.GetValueAt(i);
+        layer._HitTestPoint(ctx, pos, newInputList);
+    }
+    HUDUpdate("els", "Elements Found: " + newInputList._Count.toString());
+};
+Surface.prototype._GetMousePosition = function (evt) {
+    return new Point(
+        evt.clientX - this._CanvasOffset.left,
+        evt.clientY - this._CanvasOffset.top);
+};
+
 Surface.MeasureText = function (text, font) {
-    if (!Surface._MeasureCanvas)
-        Surface._MeasureCanvas = document.createElement('canvas');
-    var ctx = Surface._MeasureCanvas.getContext('2d');
+    if (!Surface._TestCanvas)
+        Surface._TestCanvas = document.createElement('canvas');
+    var ctx = Surface._TestCanvas.getContext('2d');
     ctx.font = font._Translate();
     return new Size(ctx.measureText(text).width, Surface._MeasureHeight(text, font));
 };
@@ -391,6 +422,7 @@ _RenderContext.prototype.constructor = _RenderContext;
 function _RenderContext(surface) {
     RefObject.call(this);
     this._Surface = surface;
+    this._Transforms = new Array();
 }
 _RenderContext.GetBaseClass = function () { return RefObject; };
 
@@ -398,21 +430,42 @@ _RenderContext.prototype.GetSurface = function () {
     return this._Surface;
 };
 _RenderContext.prototype.Clip = function (clip) {
+    this._DrawClip(clip);
+    this._Surface._Ctx.clip();
+};
+_RenderContext.prototype.IsPointInClipPath = function (clip, p) {
+    this._Surface._Ctx.clear();
+    this._DrawClip(clip);
+    return this._Surface._Ctx.isPointInPath(p.X, p.Y);
+};
+_RenderContext.prototype._DrawClip = function (clip) {
     if (clip instanceof Rect) {
         this._Surface._Ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
-        this._Surface._Ctx.clip();
     } else if (clip instanceof Geometry) {
         clip.Draw(this._Surface._Ctx);
-        this._Surface._Ctx.clip();
     }
 };
 _RenderContext.prototype.Transform = function (matrix) {
     matrix.Apply(this._Surface._Ctx);
+    this._CurrentTransform = matrix.Multiply(this._CurrentTransform);
+    this._InverseTransform = this._InverseTransform.Multiply(matrix.GetInverse());
+};
+_RenderContext.prototype.GetCurrentTransform = function () {
+    return this._CurrentTransform;
+};
+_RenderContext.prototype.GetInverseTransform = function () {
+    return this._InverseTransform;
 };
 _RenderContext.prototype.Save = function () {
     this._Surface._Ctx.save();
+    this._Transforms.push({ Current: this._CurrentTransform, Inverse: this._InverseTransform });
+    this._CurrentTransform = this._CurrentTransform == null ? new Matrix() : this._CurrentTransform.Copy();
+    this._InverseTransform = this._InverseTransform == null ? new Matrix() : this._InverseTransform.Copy();
 }
 _RenderContext.prototype.Restore = function () {
+    var temp = this._Transforms.pop();
+    this._CurrentTransform = temp.Current;
+    this._InverseTransform = temp.Inverse;
     this._Surface._Ctx.restore();
 };
 _RenderContext.prototype.Fill = function (region, brush) {

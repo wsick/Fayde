@@ -52,7 +52,6 @@ Panel.prototype.SetIsItemsHost = function (value) {
 
 //#region INSTANCE METHODS
 
-Panel.prototype.CanFindElement = function () { return this.GetBackground() != null; }
 Panel.prototype.IsLayoutContainer = function () { return true; };
 Panel.prototype.IsContainer = function () { return true; };
 Panel.prototype._ComputeBounds = function () {
@@ -92,11 +91,6 @@ Panel.prototype._ShiftPosition = function (point) {
     this._BoundsWithChildren.X += dx;
     this._BoundsWithChildren.Y += dy;
 };
-Panel.prototype._InsideObject = function (x, y) {
-    if (this.GetBackground())
-        return FrameworkElement.prototype._InsideObject.call(this, x, y);
-    return false;
-};
 Panel.prototype._EmptyBackground = function () {
     return this.GetBackground() == null;
 };
@@ -123,6 +117,13 @@ Panel.prototype._Render = function (ctx, region) {
         ctx.Fill(area, background);
         ctx.Restore();
     }
+};
+
+Panel.prototype._CanFindElement = function () { return this.GetBackground() != null; }
+Panel.prototype._InsideObject = function (ctx, x, y) {
+    if (this.GetBackground())
+        return FrameworkElement.prototype._InsideObject.call(this, ctx, x, y);
+    return false;
 };
 
 Panel.prototype._ElementAdded = function (item) {

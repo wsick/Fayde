@@ -1,7 +1,7 @@
 ﻿/// <reference path="RefObject.js"/>
+/// <reference path="Primitives.js"/>
 /// CODE
 /// <reference path="DependencyProperty.js"/>
-/// <reference path="Primitives.js"/>
 
 //#region LayoutInformation
 

@@ -270,12 +270,43 @@ UIElement.prototype._GetActualTotalHitTestVisibility = function () {
     var visualParent;
     if (visible && (visualParent = this.GetVisualParent())) {
         visualParent._ComputeTotalRenderVisibility();
-        visible = visible && visualParent._GetHitTestVisible();
+        visible = visible && visualParent._GetIsHitTestVisible();
     }
     return visible;
 };
-UIElement.prototype._GetHitTestVisible = function () {
+UIElement.prototype._GetIsHitTestVisible = function () {
     return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
+};
+
+UIElement.prototype._HitTestPoint = function (ctx, p, uielist) {
+    uielist.Prepend(new UIElementNode(this));
+};
+UIElement.prototype._InsideObject = function (ctx, x, y) {
+    return this._InsideClip(ctx, x, y);
+};
+UIElement.prototype._InsideClip = function (ctx, x, y) {
+    var clip = this.GetClip();
+    if (!clip)
+        return true;
+
+    var np = new Point(x, y);
+    this._TransformPoint(np);
+
+    if (!clip.GetBounds().PointInside(np))
+        return false;
+
+    return ctx.IsPointInClipPath(clip, np);
+};
+UIElement.prototype._CanFindElement = function () {
+    return false;
+};
+UIElement.prototype._TransformPoint = function (p) {
+    var inverse;
+    if (!this._CachedTransform || !(inverse = this._CachedTransform.Inverse))
+        return;
+    var np = inverse.Multiply(p);
+    p.X = np.X;
+    p.Y = np.Y;
 };
 
 UIElement.prototype._GetGlobalBounds = function () {
@@ -372,9 +403,6 @@ UIElement.prototype._ShiftPosition = function (point) {
     this._Bounds.X = point.X;
     this._Bounds.Y = point.Y;
 };
-UIElement.prototype._InsideObject = function (x, y) {
-    NotImplemented("UIElement._InsideObject(x, y)");
-};
 UIElement.prototype._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
     if (!region) {
@@ -393,6 +421,7 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     var visualOffset = LayoutInformation.GetVisualOffset(this);
     ctx.Save();
     ctx.Transform(new TranslationMatrix(visualOffset.X, visualOffset.Y));
+    this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
     this._Render(ctx, region);
     this._PostRender(ctx, region);
@@ -501,6 +530,7 @@ UIElement.prototype._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
 
+    //HACK:
     this._InvalidateVisibility();
     DependencyObject.prototype._OnIsAttachedChanged.call(this, value);
 

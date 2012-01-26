@@ -61,6 +61,7 @@
     <Content Include="prototype-tests\parsing.html" />
     <Content Include="Scripts\Framework\Border.js" />
     <Content Include="Scripts\Framework\Brushes.js" />
+    <Content Include="Scripts\Framework\ButtonBase.js" />
     <Content Include="Scripts\Framework\Canvas.js" />
     <Content Include="Scripts\Framework\Collections.js" />
     <Content Include="Scripts\Framework\ContentControl.js" />
@@ -120,6 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="Scripts\Framework\EventArgs.js" />
     <Content Include="Scripts\Framework\Expression.js" />
   </ItemGroup>
   <ItemGroup>
