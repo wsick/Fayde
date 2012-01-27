@@ -51,6 +51,27 @@ function UIElement() {
     this._ComputeLocalProjection();
     this._ComputeTotalRenderVisibility();
     this._ComputeTotalHitTestVisibility();
+
+    this.MouseMove = new MulticastEvent();
+    this.MouseMove.Subscribe(this.OnMouseMove, this);
+    
+    this.MouseLeftButtonDown = new MulticastEvent();
+    this.MouseLeftButtonDown.Subscribe(this.OnMouseLeftButtonDown, this);
+
+    this.MouseLeftButtonUp = new MulticastEvent();
+    this.MouseLeftButtonUp.Subscribe(this.OnMouseLeftButtonUp, this);
+
+    this.MouseRightButtonDown = new MulticastEvent();
+    this.MouseRightButtonDown.Subscribe(this.OnMouseRightButtonDown, this);
+
+    this.MouseRightButtonUp = new MulticastEvent();
+    this.MouseRightButtonUp.Subscribe(this.OnMouseRightButtonUp, this);
+
+    this.MouseEnter = new MulticastEvent();
+    this.MouseEnter.Subscribe(this.OnMouseEnter, this);
+
+    this.MouseLeave = new MulticastEvent();
+    this.MouseLeave.Subscribe(this.OnMouseLeave, this);
 }
 UIElement.GetBaseClass = function () { return DependencyObject; };
 
@@ -601,6 +622,79 @@ UIElement.prototype.__DebugDirtyFlags = function () {
         t = t.concat("[Invalidate]");
     return t;
 };
+
+UIElement.prototype.CaptureMouse = function () {
+    NotImplemented("UIElement.CaptureMouse");
+};
+UIElement.prototype.ReleaseMouuseCapture = function () {
+    NotImplemented("UIElement.ReleaseMouuseCapture");
+};
+
+//#endregion
+
+//#region MOUSE EVENTS
+
+UIElement.prototype._EmitMouseEvent = function (type, button, absolutePos) {
+    var func;
+    if (type === "up") {
+        if (Surface.IsLeftButton(button))
+            func = this._EmitMouseLeftButtonUp;
+        else if (Surface.IsRightButton(button))
+            func = this._EmitMouseRightButtonUp;
+    } else if (type === "down") {
+        if (Surface.IsLeftButton(button))
+            func = this._EmitMouseLeftButtonDown;
+        else if (Surface.IsRightButton(button))
+            func = this._EmitMouseRightButtonDown;
+    } else if (type === "leave") {
+        func = this._EmitMouseLeave;
+    } else if (type === "enter") {
+        func = this._EmitMouseEnter;
+    }
+    if (func)
+        func.call(this, absolutePos);
+};
+
+UIElement.prototype._EmitMouseMoveEvent = function (absolutePos) {
+    this.MouseMove.Raise(this, new MouseEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseMove = function (sender, args) { };
+
+UIElement.prototype._EmitMouseLeftButtonDown = function (absolutePos) {
+    HUDUpdate("clicky", "MouseLeftButtonDown " + absolutePos.toString());
+    this.MouseLeftButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseLeftButtonDown = function (sender, args) { };
+
+UIElement.prototype._EmitMouseLeftButtonUp = function (absolutePos) {
+    HUDUpdate("clicky", "MouseLeftButtonUp " + absolutePos.toString());
+    this.MouseLeftButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseLeftButtonUp = function (sender, args) { };
+
+UIElement.prototype._EmitMouseRightButtonDown = function (absolutePos) {
+    HUDUpdate("clicky", "MouseRightButtonDown " + absolutePos.toString());
+    this.MouseRightButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseRightButtonDown = function (sender, args) { };
+
+UIElement.prototype._EmitMouseRightButtonUp = function (absolutePos) {
+    HUDUpdate("clicky", "MouseRightButtonUp " + absolutePos.toString());
+    this.MouseRightButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseRightButtonUp = function (sender, args) { };
+
+UIElement.prototype._EmitMouseEnter = function (absolutePos) {
+    this.MouseEnter.Raise(this, new MouseEventArgs(absolutePos));
+    Info("MouseEnter: " + this._TypeName);
+};
+UIElement.prototype.OnMouseEnter = function (sender, args) { };
+
+UIElement.prototype._EmitMouseLeave = function (absolutePos) {
+    this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
+    Info("MouseLeave: " + this._TypeName);
+};
+UIElement.prototype.OnMouseLeave = function (sender, args) { };
 
 //#endregion
 

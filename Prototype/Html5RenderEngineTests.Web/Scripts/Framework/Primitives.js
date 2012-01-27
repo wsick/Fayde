@@ -87,6 +87,12 @@ var ScrollBarVisibility = {
     Visible: 3
 };
 
+var ClickMode = {
+    Release: 0,
+    Press: 1,
+    Hover: 2
+};
+
 function IsOpacityInvisible(opacity) {
     return opacity <= 0.0;
 }
@@ -181,6 +187,9 @@ Point.GetBaseClass = function () { return RefObject; };
 
 Point.prototype.Apply = function (matrix) {
     return matrix.Multiply(this);
+};
+Point.prototype.toString = function () {
+    return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
 };
 
 //#endregion

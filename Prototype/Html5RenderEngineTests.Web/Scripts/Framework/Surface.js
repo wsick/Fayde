@@ -1,12 +1,13 @@
 ﻿/// <reference path="RefObject.js"/>
 /// CODE
-/// <reference path="http://www.html5canvastutorials.com/libraries/kinetic-v3.6.2.js"/>
 /// <reference path="Primitives.js"/>
 /// <reference path="Brush.js"/>
 /// <reference path="Collection.js"/>
 /// <reference path="LayoutInformation.js"/>
 /// <reference path="Dirty.js"/>
 /// <reference path="Debug.js"/>
+/// <reference path="EventArgs.js"/>
+/// <reference path="List.js"/>
 
 //#region Surface
 
@@ -14,6 +15,7 @@ Surface.prototype = new RefObject;
 Surface.prototype.constructor = Surface;
 function Surface() {
     RefObject.call(this);
+    this._InputList = new List();
 }
 Surface.GetBaseClass = function () { return RefObject; };
 
@@ -371,27 +373,73 @@ Surface.prototype._RemoveDirtyElement = function (/* UIElement */element) {
 Surface.prototype.RegisterEvents = function () {
     var surface = this;
     var canvas = this.GetCanvas();
-    //canvas.addEventListener("mouseover", function (e) { });
-    canvas.addEventListener("mousemove", function (e) { surface._HandleMouseEvent("move", surface._GetMousePosition(event)); });
-    canvas.addEventListener("mousedown", function (e) { surface._HandleMouseEvent("down", surface._GetMousePosition(event)); });
-    canvas.addEventListener("mouseup", function (e) { surface._HandleMouseEvent("up", surface._GetMousePosition(event)); });
-    canvas.addEventListener("mousewheel", function (e) { surface._HandleMouseEvent("wheel", surface._GetMousePosition(event)); });
+    canvas.addEventListener("mouseout", function (e) { surface._HandleMouseEvent("out", null, surface._GetMousePosition(event)); });
+    canvas.addEventListener("mousemove", function (e) { surface._HandleMouseEvent("move", null, surface._GetMousePosition(event)); });
+    canvas.addEventListener("mousedown", function (e) { surface._HandleMouseEvent("down", event.button, surface._GetMousePosition(event)); });
+    canvas.addEventListener("mouseup", function (e) { surface._HandleMouseEvent("up", event.button, surface._GetMousePosition(event)); });
+    canvas.addEventListener("mousewheel", function (e) { surface._HandleMouseEvent("wheel", null, surface._GetMousePosition(event)); });
 };
-Surface.prototype._HandleMouseEvent = function (type, pos) {
-    HUDUpdate("mouse", "X: " + pos.X.toString() + "; Y: " + pos.Y.toString());
-    var ctx = new _RenderContext(this);
-    var newInputList = new List();
-    var layerCount = this._Layers.GetCount();
-    for (var i = layerCount - 1; i >= 0 && newInputList.IsEmpty(); i--) {
-        var layer = this._Layers.GetValueAt(i);
-        layer._HitTestPoint(ctx, pos, newInputList);
+Surface.prototype._HandleMouseEvent = function (type, button, pos) {
+    HUDUpdate("mouse", pos.toString());
+    if (this._Captured) {
+        this._EmitMouseList(type, button, pos, this._InputList);
+    } else {
+        this.ProcessDirtyElements();
+        var ctx = new _RenderContext(this);
+        var newInputList = new List();
+        var layerCount = this._Layers.GetCount();
+        for (var i = layerCount - 1; i >= 0 && newInputList.IsEmpty(); i--) {
+            var layer = this._Layers.GetValueAt(i);
+            layer._HitTestPoint(ctx, pos, newInputList);
+        }
+
+        var indices = {};
+        this._FindFirstCommonElement(this._InputList, newInputList, indices);
+        this._EmitMouseList("leave", button, pos, this._InputList, indices.Index1);
+        this._EmitMouseList("enter", button, pos, newInputList, indices.Index2);
+        this._EmitMouseList(type, button, pos, newInputList);
+
+        HUDUpdate("els", "Elements Found: " + newInputList._Count.toString());
+        this._InputList = newInputList;
     }
-    HUDUpdate("els", "Elements Found: " + newInputList._Count.toString());
 };
 Surface.prototype._GetMousePosition = function (evt) {
     return new Point(
         evt.clientX - this._CanvasOffset.left,
         evt.clientY - this._CanvasOffset.top);
+};
+Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
+    var ui1 = list1.Last();
+    var i1 = list1._Count - 1;
+    var ui2 = list2.Last();
+    var i2 = list2._Count - 1;
+
+    outObj.Index1 = -1;
+    outObj.Index2 = -1;
+
+    while (ui1 != null && ui2 != null) {
+        if (ui1.UIElement.RefEquals(ui2.UIElement)) {
+            outObj.Index1 = i1;
+            outObj.Index2 = i2;
+        } else {
+            return;
+        }
+        ui1 = ui1.Previous;
+        ui2 = ui2.Previous;
+        i1--;
+        i2--;
+    }
+};
+Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) {
+    if (endIndex === 0)
+        return;
+    var i = 0;
+    if (!endIndex || endIndex === -1)
+        endIndex = list._Count;
+    for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
+        node.UIElement._EmitMouseEvent(type, button, pos);
+        //i++;
+    }
 };
 
 Surface.MeasureText = function (text, font) {
@@ -411,6 +459,12 @@ Surface._MeasureHeight = function (text, font) {
     var result = dummy.offsetHeight;
     body.removeChild(dummy);
     return result;
+};
+Surface.IsLeftButton = function (button) {
+    return button === 1;
+};
+Surface.IsRightButton = function (button) {
+    return button === 2;
 };
 
 //#endregion

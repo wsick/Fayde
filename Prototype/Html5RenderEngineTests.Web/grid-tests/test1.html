@@ -5,8 +5,8 @@
     <script src="../Scripts/jquery-1.7.js" type="text/javascript"></script>
 
     <script src="../Scripts/Framework/Debug.js" type="text/javascript"></script>
-    <script src="../Scripts/Framework/EventArgs.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/RefObject.js" type="text/javascript"></script>
+    <script src="../Scripts/Framework/EventArgs.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/Validators.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/BError.js" type="text/javascript"></script>
     <script src="../Scripts/Framework/DependencyProperty.js" type="text/javascript"></script>
@@ -50,6 +50,7 @@
             _Console.Init("#console");
             RegisterHUD("mouse", "#hud-mouse");
             RegisterHUD("els", "#hud-els");
+            RegisterHUD("clicky", "#hud-clicky");
             root = buildTestView();
             App.Instance.Load(root, $("#canvas"));
         });
@@ -155,6 +156,8 @@
         <div id="hud-mouse" style="height: 25px;">
         </div>
         <div id="hud-els" style="height: 25px;">
+        </div>
+        <div id="hud-clicky" style="height: 25px;">
         </div>
         <div id="console" style="margin-top: 10px; font-size: 12px; font-family: Consolas; overflow-y: scroll; height: 200px; border: solid 1px black;">
         </div>
