@@ -62,6 +62,7 @@
     <Content Include="prototype-tests\parsing.html" />
     <Content Include="Scripts\Framework\Border.js" />
     <Content Include="Scripts\Framework\Brushes.js" />
+    <Content Include="Scripts\Framework\Button.js" />
     <Content Include="Scripts\Framework\ButtonBase.js" />
     <Content Include="Scripts\Framework\Canvas.js" />
     <Content Include="Scripts\Framework\Collections.js" />

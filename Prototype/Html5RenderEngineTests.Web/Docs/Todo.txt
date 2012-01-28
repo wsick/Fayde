@@ -133,6 +133,9 @@ _GetIsHitTestVisible [Done]
 
 _GetRenderSize [Done]
 
+_EmitLostMouseCapture [Done]
+CanCaptureMouse [Done]
+
 
 
 FrameworkElement

@@ -95,7 +95,7 @@ Control.prototype.SetHorizontalContentAlignment = function (value) {
     this.SetValue(Control.HorizontalContentAlignmentProperty, value);
 };
 
-Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", Control, true);
+Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
 Control.prototype.GetIsEnabled = function () {
     return this.GetValue(Control.IsEnabledProperty);
 };
@@ -202,6 +202,10 @@ Control.prototype._ElementRemoved = function (item) {
     FrameworkElement.prototype._ElementRemoved.call(this, item);
 };
 
+Control.prototype.CanCaptureMouse = function () {
+    return this.GetIsEnabled();
+};
+
 Control.prototype._CanFindElement = function () {
     return this.GetIsEnabled();
 };
@@ -279,5 +283,52 @@ Control.prototype._DoApplyTemplateWithError = function (error) {
 };
 
 //#endregion
+
+//#region FOCUS
+
+Control.prototype.Focus = function (recurse) {
+    recurse = recurse === undefined || recurse === true;
+    if (!this._IsAttached)
+        return false;
+
+    var surface = App.Instance.MainSurface;
+    var walker = new _DeepTreeWalker(this);
+    var uie;
+    while (uie = walker.Step()) {
+        if (uie.GetVisibility() !== Visibility.Visible) {
+            walker.SkipBranch();
+            continue;
+        }
+
+        var c;
+        if (uie instanceof Control)
+            c = uie;
+        if (c == null)
+            continue;
+
+        if (!c.GetIsEnabled()) {
+            if (!recurse)
+                return false;
+            walker.SkipBranch();
+            continue;
+        }
+
+        var loaded = false;
+        for (var check = this; !loaded && check != null; check = check.GetVisualParent())
+            loaded = loaded || check._IsLoaded;
+
+        if (loaded && c._GetRenderVisible() && c.GetIsTabStop())
+            return surface._FocusElement(c);
+
+        if (!recurse)
+            return false;
+    }
+    return false;
+};
+
+//#endregion
+
+Control.prototype.OnIsEnabledChanged = function (args) {
+}
 
 //#endregion

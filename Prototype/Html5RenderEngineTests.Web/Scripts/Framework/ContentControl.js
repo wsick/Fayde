@@ -1,6 +1,7 @@
 ﻿/// <reference path="Control.js"/>
 /// CODE
-/// <reference path="ControlTemplate.js"/>
+/// <reference path="Templates.js"/>
+/// <reference path="Grid.js"/>
 
 //#region ContentControl
 
@@ -14,6 +15,15 @@ ContentControl.GetBaseClass = function () { return Control; };
 ContentControl._FallbackTemplate = (function () {
     //TODO: Create fallback template
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
+    ControlTemplate.CreateTemplateFromJson({
+        Type: Grid,
+        Children: [
+            {
+                Type: TextBlock
+                //TODO: , Text: new Binding()
+            }
+        ]
+    });
     NotImplemented("ContentControl._FallbackTemplate");
     return new ControlTemplate();
 })();

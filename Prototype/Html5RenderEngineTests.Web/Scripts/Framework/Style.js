@@ -137,7 +137,7 @@ Style.GetBaseClass = function () { return DependencyObject; };
 
 //#region DEPENDENCY PROPERTIES
 
-Style.SettersProperty = DependencyProperty.Register("Setters", Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
+Style.SettersProperty = DependencyProperty.RegisterFull("Setters", Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
 Style.prototype.GetSetters = function () {
     return this.GetValue(Style.SettersProperty);
 };

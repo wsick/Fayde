@@ -36,7 +36,7 @@ TextBlock.prototype.SetPadding = function (value) {
     this.SetValue(TextBlock.PaddingProperty, value);
 };
 
-TextBlock.ForegroundProperty = DependencyProperty.Register("Foreground", TextBlock, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
+TextBlock.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", TextBlock, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
 TextBlock.prototype.GetForeground = function () {
     return this.GetValue(TextBlock.ForegroundProperty);
 };
@@ -116,7 +116,7 @@ TextBlock.prototype.SetText = function (value) {
     this.SetValue(TextBlock.TextProperty, value);
 };
 
-TextBlock.InlinesProperty = DependencyProperty.Register("Inlines", TextBlock, null, { GetValue: function () { return new InlineCollection(); } });
+TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", TextBlock, null, { GetValue: function () { return new InlineCollection(); } });
 TextBlock.prototype.GetInlines = function () {
     return this.GetValue(TextBlock.InlinesProperty);
 };

@@ -42,7 +42,7 @@ function GradientBrush() {
 }
 GradientBrush.GetBaseClass = function () { return Brush; };
 
-GradientBrush.GradientStopsProperty = DependencyProperty.Register("GradientStops", GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
+GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.prototype.GetGradientStops = function () {
     return this.GetValue(GradientBrush.GradientStopsProperty);
 };
@@ -63,7 +63,7 @@ LinearGradientBrush.GetBaseClass = function () { return GradientBrush; };
 
 //#region DEPENDENCY PROPERTIES
 
-LinearGradientBrush.StartPointProperty = DependencyProperty.Register("StartPoint", LinearGradientBrush, new Point());
+LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", LinearGradientBrush, new Point());
 LinearGradientBrush.prototype.GetStartPoint = function () {
     return this.GetValue(LinearGradientBrush.StartPointProperty);
 };
@@ -71,7 +71,7 @@ LinearGradientBrush.prototype.SetStartPoint = function (value) {
     this.SetValue(LinearGradientBrush.StartPointProperty, value);
 };
 
-LinearGradientBrush.EndPointProperty = DependencyProperty.Register("EndPoint", LinearGradientBrush, new Point(1, 1));
+LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterFull("EndPoint", LinearGradientBrush, new Point(1, 1));
 LinearGradientBrush.prototype.GetEndPoint = function () {
     return this.GetValue(LinearGradientBrush.EndPointProperty);
 };
@@ -107,7 +107,7 @@ RadialGradientBrush.GetBaseClass = function () { return GradientBrush; };
 
 //#region DEPENDENCY PROPERTIES
 
-RadialGradientBrush.CenterProperty = DependencyProperty.Register("Center", RadialGradientBrush, new Point(0.5, 0.5));
+RadialGradientBrush.CenterProperty = DependencyProperty.RegisterFull("Center", RadialGradientBrush, new Point(0.5, 0.5));
 RadialGradientBrush.prototype.GetCenter = function () {
     return this.GetValue(RadialGradientBrush.CenterProperty);
 };
@@ -115,7 +115,7 @@ RadialGradientBrush.prototype.SetCenter = function (value) {
     this.SetValue(RadialGradientBrush.CenterProperty, value);
 };
 
-RadialGradientBrush.GradientOriginProperty = DependencyProperty.Register("GradientOrigin", RadialGradientBrush, new Point(0.5, 0.5));
+RadialGradientBrush.GradientOriginProperty = DependencyProperty.RegisterFull("GradientOrigin", RadialGradientBrush, new Point(0.5, 0.5));
 RadialGradientBrush.prototype.GetGradientOrigin = function () {
     return this.GetValue(RadialGradientBrush.GradientOriginProperty);
 };
@@ -123,7 +123,7 @@ RadialGradientBrush.prototype.SetGradientoOrigin = function (value) {
     this.SetValue(RadialGradientBrush.GradientOriginProperty, value);
 };
 
-RadialGradientBrush.RadiusXProperty = DependencyProperty.Register("RadiusX", RadialGradientBrush, 0.5);
+RadialGradientBrush.RadiusXProperty = DependencyProperty.RegisterFull("RadiusX", RadialGradientBrush, 0.5);
 RadialGradientBrush.prototype.GetRadiusX = function () {
     return this.GetValue(RadialGradientBrush.RadiusXProperty);
 };
@@ -131,7 +131,7 @@ RadialGradientBrush.prototype.SetRadiusX = function (value) {
     this.SetValue(RadialGradientBrush.RadiusXProperty, value);
 };
 
-RadialGradientBrush.RadiusYProperty = DependencyProperty.Register("RadiusY", RadialGradientBrush, 0.5);
+RadialGradientBrush.RadiusYProperty = DependencyProperty.RegisterFull("RadiusY", RadialGradientBrush, 0.5);
 RadialGradientBrush.prototype.GetRadiusY = function () {
     return this.GetValue(RadialGradientBrush.RadiusYProperty);
 };

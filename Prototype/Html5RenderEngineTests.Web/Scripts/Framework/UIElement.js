@@ -51,6 +51,35 @@ function UIElement() {
     this._ComputeLocalProjection();
     this._ComputeTotalRenderVisibility();
     this._ComputeTotalHitTestVisibility();
+
+    this.MouseMove = new MulticastEvent();
+    this.MouseMove.Subscribe(this.OnMouseMove, this);
+    
+    this.MouseLeftButtonDown = new MulticastEvent();
+    this.MouseLeftButtonDown.Subscribe(this.OnMouseLeftButtonDown, this);
+
+    this.MouseLeftButtonUp = new MulticastEvent();
+    this.MouseLeftButtonUp.Subscribe(this.OnMouseLeftButtonUp, this);
+
+    this.MouseRightButtonDown = new MulticastEvent();
+    this.MouseRightButtonDown.Subscribe(this.OnMouseRightButtonDown, this);
+
+    this.MouseRightButtonUp = new MulticastEvent();
+    this.MouseRightButtonUp.Subscribe(this.OnMouseRightButtonUp, this);
+
+    this.MouseEnter = new MulticastEvent();
+    this.MouseEnter.Subscribe(this.OnMouseEnter, this);
+
+    this.MouseLeave = new MulticastEvent();
+    this.MouseLeave.Subscribe(this.OnMouseLeave, this);
+
+    this.LostMouseCapture = new MulticastEvent();
+
+    this.GotFocus = new MulticastEvent();
+    this.GotFocus.Subscribe(this.OnGotFocus, this);
+
+    this.LostFocus = new MulticastEvent();
+    this.LostFocus.Subscribe(this.OnLostFocus, this);
 }
 UIElement.GetBaseClass = function () { return DependencyObject; };
 
@@ -95,7 +124,7 @@ UIElement.prototype.SetOpacity = function (value) {
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
 
-UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement); //, CursorType.Default, null, UIElement._CoerceCursor);
+UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
 UIElement.prototype.GetCursor = function () {
     return this.GetValue(UIElement.CursorProperty);
 };
@@ -103,12 +132,12 @@ UIElement.prototype.SetCursor = function (value) {
     this.SetValue(UIElement.CursorProperty, value);
 };
 
-UIElement.ResourcesProperty = DependencyProperty.Register("Resources", UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
+UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.prototype.GetResources = function () {
     return this.GetValue(UIElement.ResourcesProperty);
 };
 
-UIElement.TriggersProperty = DependencyProperty.Register("Triggers", UIElement/*, null, { GetValue: function () { } }*/);
+UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", UIElement/*, null, { GetValue: function () { } }*/);
 UIElement.prototype.GetTriggers = function () {
     return this.GetValue(UIElement.TriggersProperty);
 };
@@ -601,6 +630,113 @@ UIElement.prototype.__DebugDirtyFlags = function () {
         t = t.concat("[Invalidate]");
     return t;
 };
+
+//#endregion
+
+//#region MOUSE
+
+UIElement.prototype.CanCaptureMouse = function () { return true; };
+UIElement.prototype.CaptureMouse = function () {
+    if (!this._IsAttached)
+        return false;
+    return App.Instance.MainSurface.SetMouseCapture(this);
+};
+UIElement.prototype.ReleaseMouseCapture = function () {
+    if (!this._IsAttached)
+        return;
+    App.Instance.MainSurface.ReleaseMouseCapture(this);
+};
+
+UIElement.prototype._EmitMouseEvent = function (type, button, absolutePos) {
+    var func;
+    if (type === "up") {
+        if (Surface.IsLeftButton(button))
+            func = this._EmitMouseLeftButtonUp;
+        else if (Surface.IsRightButton(button))
+            func = this._EmitMouseRightButtonUp;
+    } else if (type === "down") {
+        if (Surface.IsLeftButton(button))
+            func = this._EmitMouseLeftButtonDown;
+        else if (Surface.IsRightButton(button))
+            func = this._EmitMouseRightButtonDown;
+    } else if (type === "leave") {
+        func = this._EmitMouseLeave;
+    } else if (type === "enter") {
+        func = this._EmitMouseEnter;
+    }
+    if (func)
+        func.call(this, absolutePos);
+};
+
+UIElement.prototype._EmitMouseMoveEvent = function (absolutePos) {
+    this.MouseMove.Raise(this, new MouseEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseMove = function (sender, args) { };
+
+UIElement.prototype._EmitMouseLeftButtonDown = function (absolutePos) {
+    HUDUpdate("clicky", "MouseLeftButtonDown " + absolutePos.toString());
+    this.MouseLeftButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseLeftButtonDown = function (sender, args) { };
+
+UIElement.prototype._EmitMouseLeftButtonUp = function (absolutePos) {
+    HUDUpdate("clicky", "MouseLeftButtonUp " + absolutePos.toString());
+    this.MouseLeftButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseLeftButtonUp = function (sender, args) { };
+
+UIElement.prototype._EmitMouseRightButtonDown = function (absolutePos) {
+    HUDUpdate("clicky", "MouseRightButtonDown " + absolutePos.toString());
+    this.MouseRightButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseRightButtonDown = function (sender, args) { };
+
+UIElement.prototype._EmitMouseRightButtonUp = function (absolutePos) {
+    HUDUpdate("clicky", "MouseRightButtonUp " + absolutePos.toString());
+    this.MouseRightButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
+};
+UIElement.prototype.OnMouseRightButtonUp = function (sender, args) { };
+
+UIElement.prototype._EmitMouseEnter = function (absolutePos) {
+    this.MouseEnter.Raise(this, new MouseEventArgs(absolutePos));
+    Info("MouseEnter: " + this._TypeName);
+};
+UIElement.prototype.OnMouseEnter = function (sender, args) { };
+
+UIElement.prototype._EmitMouseLeave = function (absolutePos) {
+    this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
+    Info("MouseLeave: " + this._TypeName);
+};
+UIElement.prototype.OnMouseLeave = function (sender, args) { };
+
+UIElement.prototype._EmitLostMouseCapture = function (absolutePos) {
+    this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
+};
+
+//#endregion
+
+//#region FOCUS
+
+UIElement.prototype.Focus = function (recurse) {
+    return false;
+};
+
+UIElement.prototype._EmitFocusChange = function (type) {
+    if (type === "got")
+        node.UIElement._EmitGotFocus();
+    else if (type === "lost")
+        node.UIElement._EmitLostFocus();
+};
+
+UIElement.prototype._EmitGotFocus = function () {
+    this.GotFocus.Raise(this, new EventArgs());
+};
+UIElement.prototype.OnGotFocus = function (sender, args) { };
+
+UIElement.prototype._EmitLostFocus = function () {
+    this.LostFocus.Raise(this, new EventArgs());
+};
+UIElement.prototype.OnLostFocus = function (sender, args) { };
 
 //#endregion
 
