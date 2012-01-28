@@ -48,7 +48,7 @@ DependencyProperty.prototype._Validate = function (instance, propd, value, error
 };
 
 DependencyProperty.Register = function (name, ownerType, defaultValue, changedCallback) {
-    DependencyProperty.RegisterFull(name, ownerType, defaultValue, null, null, null, null, true, changedCallback);
+    return DependencyProperty.RegisterFull(name, ownerType, defaultValue, null, null, null, null, true, changedCallback);
 };
 DependencyProperty.RegisterFull = function (name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     if (!DependencyProperty._Registered)
