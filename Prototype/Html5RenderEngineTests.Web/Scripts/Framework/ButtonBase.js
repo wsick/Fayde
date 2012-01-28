@@ -75,10 +75,29 @@ ButtonBase.prototype.OnIsEnabledChanged = function (e) {
 ButtonBase.prototype.OnIsPressedChanged = function (e) {
     this._UpdateVisualState();
 };
+ButtonBase.prototype._IsValidMousePosition = function () {
+    var pos = this._MousePosition;
+    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
+        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
+};
+
+ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
+    if (this._SuspendStateChanges)
+        return;
+    this.ChangeVisualState(useTransitions === undefined ? true : useTransitions);
+};
+ButtonBase.prototype.ChangeVisualState = function (useTransitions) {
+    //Nothing to do in ButtonBase
+};
+ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
+    return VisualStateManager.GoToState(this, stateName, useTransitions);
+};
 
 //#region MOUSE
 
 ButtonBase.prototype.OnMouseEnter = function (sender, args) {
+    ContentControl.prototype.OnMouseEnter.call(this, sender, args);
+
     this.SetIsMouseOver(true);
 
     this._SuspendStateChanges = true;
@@ -89,10 +108,12 @@ ButtonBase.prototype.OnMouseEnter = function (sender, args) {
         }
     } finally {
         this._SuspendStateChanges = false;
-        this._UpdateVisualState();
+        this.UpdateVisualState();
     }
 };
 ButtonBase.prototype.OnMouseLeave = function (sender, args) {
+    ContentControl.prototype.OnMouseLeave.call(this, sender, args);
+
     this.SetIsMouseOver(false);
 
     this._SuspendStateChanges = true;
@@ -101,10 +122,12 @@ ButtonBase.prototype.OnMouseLeave = function (sender, args) {
             this.SetIsPressed(false);
     } finally {
         this._SuspendStateChanges = false;
-        this._UpdateVisualState();
+        this.UpdateVisualState();
     }
 };
 ButtonBase.prototype.OnMouseMove = function (sender, args) {
+    ContentControl.prototype.OnMouseMove.call(this, sender, args);
+
     this._MousePosition = args.GetPosition(this);
 
     if (this._IsMouseLeftButtonDown && this.GetIsEnabled() && this.GetClickMode() !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
@@ -112,6 +135,8 @@ ButtonBase.prototype.OnMouseMove = function (sender, args) {
     }
 };
 ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
+    ContentControl.prototype.OnMouseLeftButtonDown.call(this, sender, args);
+
     this._IsMouseLeftButtonDown = true;
     if (!this.GetIsEnabled())
         return;
@@ -128,13 +153,15 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
             this.SetIsPressed(true);
     } finally {
         this._SuspendStateChanges = false;
-        this._UpdateVisualState();
+        this.UpdateVisualState();
     }
 
     if (clickMode === ClickMode.Press)
         this._EmitClick();
 };
 ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
+    ContentControl.prototype.OnMouseLeftButtonUp.call(this, sender, args);
+
     this._IsMouseLeftButtonDown = false;
     if (!this.GetIsEnabled())
         return;
@@ -152,10 +179,14 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
     }
 };
 ButtonBase.prototype.OnGotFocus = function (sender, args) {
+    ContentControl.prototype.OnGotFocus.call(this, sender, args);
+
     this.SetIsFocused(true);
-    this._UpdateVisualState();
+    this.UpdateVisualState();
 };
 ButtonBase.prototype.OnLostFocus = function (sender, args) {
+    ContentControl.prototype.OnLostFocus.call(this, sender, args);
+
     this.SetIsFocused(false);
 
     this._SuspendStateChanges = true;
@@ -167,7 +198,7 @@ ButtonBase.prototype.OnLostFocus = function (sender, args) {
         }
     } finally {
         this._SuspendStateChanges = false;
-        this._UpdateVisualState();
+        this.UpdateVisualState();
     }
 };
 
@@ -179,41 +210,21 @@ ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
     this.ReleaseMouseCapture();
     this._IsMouseCaptured = false;
 };
-ButtonBase.prototype._IsValidMousePosition = function () {
-    var pos = this._MousePosition;
-    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
-        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
-};
-
-ButtonBase.prototype._UpdateVisualState = function () {
-    if (this._SuspendStateChanges)
-        return;
-    this.ChangeVisualState();
-};
-ButtonBase.prototype.ChangeVisualState = function () {
-    //Nothing to do in ButtonBase
-};
-ButtonBase.prototype._ChangeVisualState = function (state) {
-    var previousState = this._CurrentState;
-    if (state.RefEquals(previousState))
-        return;
-
-    if (state != null && this._IsLoaded && this._GetLogicalParent() != null) {
-        try {
-            state.Begin();
-            this._CurrentState = state;
-            if (previousState != null) {
-                previousState.Stop();
-            }
-        } catch (err) {
-        }
-    }
-};
 
 ButtonBase.prototype._EmitClick = function () {
+    //TODO: Execute Command
     this.Click.Raise(this, null);
 };
 
 //#endregion
+
+ButtonBase._GetVisualRoot = function (d) {
+    var parent = d;
+    while (parent != null) {
+        d = parent;
+        parent = VisualTreeHelper.GetParent(parent);
+    }
+    return d;
+};
 
 //#endregion

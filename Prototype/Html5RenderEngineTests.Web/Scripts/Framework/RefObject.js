@@ -18,5 +18,10 @@ RefObject.prototype.RefEquals = function (robj) {
     return this._ID === robj._ID;
 };
 RefObject.GetBaseClass = function () { return Object; };
+RefObject.As = function (obj, type) {
+    if (obj instanceof type)
+        return obj;
+    return null;
+};
 
 ///#endregion

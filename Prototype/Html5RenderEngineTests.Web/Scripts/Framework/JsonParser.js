@@ -50,6 +50,13 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
     }
     return dobj;
 };
+JsonParser.prototype.CreateObjectNoNamescope = function (json) {
+    var namescope = new NameScope();
+    return this.CreateObject(json, namescope);
+};
+JsonParser.prototype.CreateStyle = function (json) {
+    NotImplemented("JsonParser.CreateStyle");
+};
 JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
     if (!propd._IsAutoCreated())
         return false;
