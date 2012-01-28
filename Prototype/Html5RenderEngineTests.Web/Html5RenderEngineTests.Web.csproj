@@ -104,7 +104,7 @@
     <Content Include="Scripts\Framework\Style.js" />
     <Content Include="Scripts\Framework\UIElement.js" />
     <Content Include="Scripts\UnitTesting.js" />
-    <Content Include="stackpanel-tests\test1.html" />
+    <Content Include="tests\stackpanel\test1.html" />
     <Content Include="test1.html" />
     <Content Include="test2.html" />
     <Content Include="test3.html" />
