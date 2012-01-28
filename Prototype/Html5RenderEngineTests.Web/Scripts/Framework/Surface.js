@@ -379,8 +379,15 @@ Surface.prototype.RegisterEvents = function () {
     canvas.addEventListener("mouseup", function (e) { surface._HandleMouseEvent("up", event.button, surface._GetMousePosition(event)); });
     canvas.addEventListener("mousewheel", function (e) { surface._HandleMouseEvent("wheel", null, surface._GetMousePosition(event)); });
 };
-Surface.prototype._HandleMouseEvent = function (type, button, pos) {
+Surface.prototype._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
     HUDUpdate("mouse", pos.toString());
+    this._CurrentPos = pos;
+    if (this._EmittingMouseEvent)
+        return false;
+    if (this._TopLevel == null)
+        return false;
+
+    this._EmittingMouseEvent = true;
     if (this._Captured) {
         this._EmitMouseList(type, button, pos, this._InputList);
     } else {
@@ -395,13 +402,22 @@ Surface.prototype._HandleMouseEvent = function (type, button, pos) {
 
         var indices = {};
         this._FindFirstCommonElement(this._InputList, newInputList, indices);
-        this._EmitMouseList("leave", button, pos, this._InputList, indices.Index1);
-        this._EmitMouseList("enter", button, pos, newInputList, indices.Index2);
-        this._EmitMouseList(type, button, pos, newInputList);
+        if (emitLeave === undefined || emitLeave === true)
+            this._EmitMouseList("leave", button, pos, this._InputList, indices.Index1);
+        if (emitEnter === undefined || emitEnter === true)
+            this._EmitMouseList("enter", button, pos, newInputList, indices.Index2);
+        if (type !== "noop")
+            this._EmitMouseList(type, button, pos, newInputList);
 
         HUDUpdate("els", "Elements Found: " + newInputList._Count.toString());
         this._InputList = newInputList;
     }
+
+    if (this._PendingCapture)
+        this._PerformCapture(this._PendingCapture);
+    if (this._PendingReleaseCapture || (this._Captured && !this._Captured.CanCaptureMouse()))
+        this._PerformReleaseCapture();
+    this._EmittingMouseEvent = false;
 };
 Surface.prototype._GetMousePosition = function (evt) {
     return new Point(
@@ -440,6 +456,41 @@ Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) 
         node.UIElement._EmitMouseEvent(type, button, pos);
         //i++;
     }
+};
+
+Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
+    if (this._Captured || this._PendingCapture)
+        return uie.RefEquals(this._Captured) || uie.RefEquals(this._PendingCapture);
+    if (!this._EmittingMouseEvent)
+        return false;
+    this._PendingCapture = this._Capture;
+    return true;
+};
+Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
+    if (!uie.RefEquals(this._Captured) && !uie.RefEquals(this._PendingCapture))
+        return;
+    if (this._EmittingMouseEvent)
+        this._PendingReleaseCapture = true;
+    else
+        this._PerformReleaseCapture();
+};
+Surface.prototype._PerformCapture = function (/* UIElement */uie) {
+    this._Captured = uie;
+    var newInputList = new List();
+    while (uie != null) {
+        newInputList.Append(new UIElementNode(uie));
+        uie = uie.GetVisualParent();
+    }
+    this._InputList = newInputList;
+    this._PendingCapture = null;
+};
+Surface.prototype._PerformReleaseCapture = function () {
+    var oldCaptured = this._Captured;
+    this._Captured = null;
+    this._PendingReleaseCapture = false;
+    oldCaptured._EmitLostMouseCapture(this._CurrentPos);
+    //force "MouseEnter" on any new elements
+    this._HandleMouseEvent("noop", null, this._CurrentPos, false, true);
 };
 
 Surface.MeasureText = function (text, font) {

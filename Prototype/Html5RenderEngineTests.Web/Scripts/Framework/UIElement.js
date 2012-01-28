@@ -72,6 +72,8 @@ function UIElement() {
 
     this.MouseLeave = new MulticastEvent();
     this.MouseLeave.Subscribe(this.OnMouseLeave, this);
+
+    this.LostMouseCapture = new MulticastEvent();
 }
 UIElement.GetBaseClass = function () { return DependencyObject; };
 
@@ -623,16 +625,21 @@ UIElement.prototype.__DebugDirtyFlags = function () {
     return t;
 };
 
-UIElement.prototype.CaptureMouse = function () {
-    NotImplemented("UIElement.CaptureMouse");
-};
-UIElement.prototype.ReleaseMouuseCapture = function () {
-    NotImplemented("UIElement.ReleaseMouuseCapture");
-};
-
 //#endregion
 
-//#region MOUSE EVENTS
+//#region MOUSE
+
+UIElement.prototype.CanCaptureMouse = function () { return true; };
+UIElement.prototype.CaptureMouse = function () {
+    if (!this._IsAttached)
+        return false;
+    return App.Instance.MainSurface.SetMouseCapture(this);
+};
+UIElement.prototype.ReleaseMouseCapture = function () {
+    if (!this._IsAttached)
+        return;
+    App.Instance.MainSurface.ReleaseMouseCapture(this);
+};
 
 UIElement.prototype._EmitMouseEvent = function (type, button, absolutePos) {
     var func;
@@ -695,6 +702,10 @@ UIElement.prototype._EmitMouseLeave = function (absolutePos) {
     Info("MouseLeave: " + this._TypeName);
 };
 UIElement.prototype.OnMouseLeave = function (sender, args) { };
+
+UIElement.prototype._EmitLostMouseCapture = function (absolutePos) {
+    this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
+};
 
 //#endregion
 

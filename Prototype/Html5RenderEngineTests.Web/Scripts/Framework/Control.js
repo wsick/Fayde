@@ -202,6 +202,10 @@ Control.prototype._ElementRemoved = function (item) {
     FrameworkElement.prototype._ElementRemoved.call(this, item);
 };
 
+Control.prototype.CanCaptureMouse = function () {
+    return this.GetIsEnabled();
+};
+
 Control.prototype._CanFindElement = function () {
     return this.GetIsEnabled();
 };

@@ -831,6 +831,7 @@ FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newPar
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
     }
 };
+
 //#endregion
 
 //#endregion

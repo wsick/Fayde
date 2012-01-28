@@ -52,7 +52,7 @@ ButtonBase.prototype.SetIsMouseOver = function (value) {
 
 //#endregion
 
-//#region MOUSE EVENTS
+//#region MOUSE
 
 ButtonBase.prototype.OnMouseEnter = function (sender, args) {
     this.SetIsMouseOver(true);
@@ -113,12 +113,6 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
     }
 };
 
-ButtonBase.prototype._EmitClick = function () {
-    this.Click.Raise(this, null);
-};
-
-//#endregion
-
 ButtonBase.prototype._CaptureMouseInternal = function () {
     if (!this._IsMouseCaptured)
         this._IsMouseCaptured = this.CaptureMouse();
@@ -132,5 +126,11 @@ ButtonBase.prototype._IsValidMousePosition = function () {
     return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
         && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
 };
+
+ButtonBase.prototype._EmitClick = function () {
+    this.Click.Raise(this, null);
+};
+
+//#endregion
 
 //#endregion
