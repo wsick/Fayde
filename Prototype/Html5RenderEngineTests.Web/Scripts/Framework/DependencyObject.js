@@ -21,7 +21,7 @@ DependencyObject.GetBaseClass = function () { return RefObject; };
 
 //#region DEPENDENCY PROPERTIES
 
-DependencyObject.NameProperty = DependencyProperty.Register("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
+DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 DependencyObject.prototype.GetName = function () {
     return this.GetValue(DependencyObject.NameProperty);
 };

@@ -17,7 +17,7 @@ TextElement.GetBaseClass = function () { return DependencyObject; };
 
 //#region DEPENDENCY PROPERTIES
 
-TextElement.ForegroundProperty = DependencyProperty.Register("Foreground", TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
+TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
 TextElement.prototype.GetForeground = function () {
     return this.GetValue(TextElement.ForegroundProperty);
 };
@@ -217,7 +217,7 @@ Span._CreateInlineCollection = function (obj) {
         inlines._SetIsForHyperlink();
     return inlines;
 };
-Span.InlinesProperty = DependencyProperty.Register("Inlines", Span, null, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
+Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", Span, null, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
 Span.prototype.GetInlines = function () {
     return this.GetValue(Span.InlinesProperty);
 };

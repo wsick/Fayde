@@ -20,6 +20,7 @@ ContentControl._FallbackTemplate = (function () {
         Children: [
             {
                 Type: TextBlock
+                //TODO: , Text: new Binding()
             }
         ]
     });

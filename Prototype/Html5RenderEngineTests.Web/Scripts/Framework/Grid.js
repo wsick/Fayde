@@ -66,12 +66,12 @@ Grid.prototype.SetShowGridLines = function (value) {
     this.SetValue(Grid.ShowGridLinesProperty, value);
 };
 
-Grid.ColumnDefinitionsProperty = DependencyProperty.Register("ColumnDefinitions", Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
+Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
 Grid.prototype.GetColumnDefinitions = function () {
     return this.GetValue(Grid.ColumnDefinitionsProperty);
 };
 
-Grid.RowDefinitionsProperty = DependencyProperty.Register("RowDefinitions", Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
+Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
 Grid.prototype.GetRowDefinitions = function () {
     return this.GetValue(Grid.RowDefinitionsProperty);
 };

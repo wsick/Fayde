@@ -124,7 +124,7 @@ UIElement.prototype.SetOpacity = function (value) {
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
 
-UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
+UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
 UIElement.prototype.GetCursor = function () {
     return this.GetValue(UIElement.CursorProperty);
 };
@@ -132,12 +132,12 @@ UIElement.prototype.SetCursor = function (value) {
     this.SetValue(UIElement.CursorProperty, value);
 };
 
-UIElement.ResourcesProperty = DependencyProperty.Register("Resources", UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
+UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.prototype.GetResources = function () {
     return this.GetValue(UIElement.ResourcesProperty);
 };
 
-UIElement.TriggersProperty = DependencyProperty.Register("Triggers", UIElement/*, null, { GetValue: function () { } }*/);
+UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", UIElement/*, null, { GetValue: function () { } }*/);
 UIElement.prototype.GetTriggers = function () {
     return this.GetValue(UIElement.TriggersProperty);
 };

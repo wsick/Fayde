@@ -11,7 +11,7 @@ function App() {
 }
 App.GetBaseClass = function () { return DependencyObject; };
 
-App.ResourcesProperty = DependencyProperty.Register("Resources", App, null, { GetValue: function () { return new ResourceDictionary(); } });
+App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", App, null, { GetValue: function () { return new ResourceDictionary(); } });
 App.prototype.GetResources = function () {
     return this.GetValue(App.ResourcesProperty);
 };

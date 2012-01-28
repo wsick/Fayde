@@ -31,7 +31,7 @@ Border.prototype.SetBorderBrush = function (value) {
     this.SetValue(Border.BorderBrushProperty, value);
 };
 
-Border.BorderThicknessProperty = DependencyProperty.Register("BorderThickness", Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
+Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
 Border.prototype.GetBorderThickness = function () {
     return this.GetValue(Border.BorderThicknessProperty);
 };
@@ -47,7 +47,7 @@ Border.prototype.SetChild = function (value) {
     this.SetValue(Border.ChildProperty, value);
 };
 
-Border.CornerRadiusProperty = DependencyProperty.Register("CornerRadius", Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
+Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
 Border.prototype.GetCornerRadius = function () {
     return this.GetValue(Border.CornerRadiusProperty);
 };
@@ -55,7 +55,7 @@ Border.prototype.SetCornerRadius = function (value) {
     this.SetValue(Border.CornerRadiusProperty, value);
 };
 
-Border.PaddingProperty = DependencyProperty.Register("Padding", Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
+Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
 Border.prototype.GetPadding = function () {
     return this.GetValue(Border.PaddingProperty);
 };

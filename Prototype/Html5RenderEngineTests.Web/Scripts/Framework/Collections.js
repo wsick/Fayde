@@ -16,7 +16,7 @@ function Collection() {
 }
 Collection.GetBaseClass = function () { return DependencyObject; };
 
-Collection.CountProperty = DependencyProperty.Register("Count", Collection, 0);
+Collection.CountProperty = DependencyProperty.RegisterFull("Count", Collection, 0);
 Collection.prototype.GetCount = function () {
     return this._ht.length;
 };
@@ -317,7 +317,7 @@ function ResourceDictionary() {
 }
 ResourceDictionary.GetBaseClass = function () { return Collection; };
 
-ResourceDictionary.MergedDictionariesProperty = DependencyProperty.Register("MergedDictionaries", ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 ResourceDictionary.prototype.GetMergedDictionaries = function () {
     return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
 };

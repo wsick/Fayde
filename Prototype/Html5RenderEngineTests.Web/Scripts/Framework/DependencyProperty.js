@@ -4,7 +4,7 @@
 
 DependencyProperty.prototype = new RefObject;
 DependencyProperty.prototype.constructor = DependencyProperty;
-function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom) {
+function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     RefObject.call(this);
     this.Name = name;
     this.OwnerType = ownerType;
@@ -14,6 +14,7 @@ function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer,
     this._AlwaysChange = alwaysChange;
     this._Validator = validator;
     this._IsCustom = isCustom;
+    this._ChangedCallback = changedCallback;
 }
 DependencyProperty.GetBaseClass = function () { return RefObject; };
 
@@ -45,12 +46,16 @@ DependencyProperty.prototype._Validate = function (instance, propd, value, error
         return true;
     return this._Validator(instance, propd, value, error);
 };
-DependencyProperty.Register = function (name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom) {
+
+DependencyProperty.Register = function (name, ownerType, defaultValue, changedCallback) {
+    DependencyProperty.RegisterFull(name, ownerType, defaultValue, null, null, null, null, true, changedCallback);
+};
+DependencyProperty.RegisterFull = function (name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();
     if (!DependencyProperty._Registered[ownerType])
         DependencyProperty._Registered[ownerType] = new Array();
-    var propd = new DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom);
+    var propd = new DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
     DependencyProperty._Registered[ownerType][name] = propd;
     return propd;
 }

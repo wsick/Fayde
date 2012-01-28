@@ -32,7 +32,7 @@ Panel._CreateChildren = {
         return col;
     }
 };
-Panel.ChildrenProperty = DependencyProperty.Register("Children", Panel, null, Panel._CreateChildren);
+Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", Panel, null, Panel._CreateChildren);
 Panel.prototype.GetChildren = function () {
     return this.GetValue(Panel.ChildrenProperty);
 };
