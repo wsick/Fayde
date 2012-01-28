@@ -57,18 +57,28 @@ ButtonBase.prototype.SetIsMouseOver = function (value) {
 ButtonBase.prototype.OnMouseEnter = function (sender, args) {
     this.SetIsMouseOver(true);
 
-    if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled()) {
-        this.SetIsPressed(true);
-        this._EmitClick();
+    this._SuspendStateChanges = true;
+    try {
+        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled()) {
+            this.SetIsPressed(true);
+            this._EmitClick();
+        }
+    } finally {
+        this._SuspendStateChanges = false;
+        this._UpdateVisualState();
     }
-    //TODO: Update visual state
 };
 ButtonBase.prototype.OnMouseLeave = function (sender, args) {
     this.SetIsMouseOver(false);
 
-    if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled())
-        this.SetIsPressed(false);
-    //TODO: Update visual state
+    this._SuspendStateChanges = true;
+    try {
+        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled())
+            this.SetIsPressed(false);
+    } finally {
+        this._SuspendStateChanges = false;
+        this._UpdateVisualState();
+    }
 };
 ButtonBase.prototype.OnMouseMove = function (sender, args) {
     this._MousePosition = args.GetPosition(this);
@@ -86,11 +96,16 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
         return;
 
     //TODO: args.Handled = true;
-    //TODO: Focus
-    this._CaptureMouseInternal();
-    if (_IsMouseCaptured)
-        this.SetIsPressed(true);
-    //TOOD: Update Visual State
+    this._SuspendStateChanges = true;
+    try {
+        this.Focus();
+        this._CaptureMouseInternal();
+        if (_IsMouseCaptured)
+            this.SetIsPressed(true);
+    } finally {
+        this._SuspendStateChanges = false;
+        this._UpdateVisualState();
+    }
 
     if (clickMode === ClickMode.Press)
         this._EmitClick();
@@ -112,6 +127,25 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
         this.SetIsPressed(false);
     }
 };
+ButtonBase.prototype.OnGotFocus = function (sender, args) {
+    this.SetIsFocused(true);
+    this._UpdateVisualState();
+};
+ButtonBase.prototype.OnLostFocus = function (sender, args) {
+    this.SetIsFocused(false);
+
+    this._SuspendStateChanges = true;
+    try {
+        if (this.GetClickMode() !== ClickMode.Hover) {
+            this.SetIsPressed(false);
+            this._ReleaseMouseCaptureInternal();
+            this._IsSpaceKeyDown = false;
+        }
+    } finally {
+        this._SuspendStateChanges = false;
+        this._UpdateVisualState();
+    }
+};
 
 ButtonBase.prototype._CaptureMouseInternal = function () {
     if (!this._IsMouseCaptured)
@@ -125,6 +159,12 @@ ButtonBase.prototype._IsValidMousePosition = function () {
     var pos = this._MousePosition;
     return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
         && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
+};
+
+ButtonBase.prototype._UpdateVisualState = function () {
+    if (this._SuspendStateChanges)
+        return;
+    NotImplemented("ButtonBase._UpdateVisualState");
 };
 
 ButtonBase.prototype._EmitClick = function () {

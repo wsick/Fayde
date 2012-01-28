@@ -93,6 +93,11 @@ var ClickMode = {
     Hover: 2
 };
 
+var CursorType = {
+    Default: ""
+    //TODO: Add cursor types
+};
+
 function IsOpacityInvisible(opacity) {
     return opacity <= 0.0;
 }

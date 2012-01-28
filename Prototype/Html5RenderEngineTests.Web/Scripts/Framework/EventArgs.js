@@ -1,14 +1,25 @@
 ﻿/// <reference path="RefObject.js"/>
 
+//#region EventArgs
+
+EventArgs.prototype = new RefObject;
+EventArgs.prototype.constructor = EventArgs;
+function EventArgs() {
+    RefObject.call(this);
+}
+EventArgs.GetBaseClass = function () { return RefObject; };
+
+//#endregion
+
 //#region MouseEventArgs
 
-MouseEventArgs.prototype = new RefObject;
+MouseEventArgs.prototype = new EventArgs;
 MouseEventArgs.prototype.constructor = MouseEventArgs;
 function MouseEventArgs(absolutePos) {
-    RefObject.call(this);
+    EventArgs.call(this);
     this._AbsolutePosition = absolutePos;
 }
-MouseEventArgs.GetBaseClass = function () { return RefObject; };
+MouseEventArgs.GetBaseClass = function () { return EventArgs; };
 
 MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
     if (relativeTo._IsAttached)

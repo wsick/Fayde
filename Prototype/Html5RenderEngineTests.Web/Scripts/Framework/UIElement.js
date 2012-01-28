@@ -74,6 +74,12 @@ function UIElement() {
     this.MouseLeave.Subscribe(this.OnMouseLeave, this);
 
     this.LostMouseCapture = new MulticastEvent();
+
+    this.GotFocus = new MulticastEvent();
+    this.GotFocus.Subscribe(this.OnGotFocus, this);
+
+    this.LostFocus = new MulticastEvent();
+    this.LostFocus.Subscribe(this.OnLostFocus, this);
 }
 UIElement.GetBaseClass = function () { return DependencyObject; };
 
@@ -118,7 +124,7 @@ UIElement.prototype.SetOpacity = function (value) {
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
 
-UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement); //, CursorType.Default, null, UIElement._CoerceCursor);
+UIElement.CursorProperty = DependencyProperty.Register("Cursor", UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
 UIElement.prototype.GetCursor = function () {
     return this.GetValue(UIElement.CursorProperty);
 };
@@ -706,6 +712,31 @@ UIElement.prototype.OnMouseLeave = function (sender, args) { };
 UIElement.prototype._EmitLostMouseCapture = function (absolutePos) {
     this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
 };
+
+//#endregion
+
+//#region FOCUS
+
+UIElement.prototype.Focus = function (recurse) {
+    return false;
+};
+
+UIElement.prototype._EmitFocusChange = function (type) {
+    if (type === "got")
+        node.UIElement._EmitGotFocus();
+    else if (type === "lost")
+        node.UIElement._EmitLostFocus();
+};
+
+UIElement.prototype._EmitGotFocus = function () {
+    this.GotFocus.Raise(this, new EventArgs());
+};
+UIElement.prototype.OnGotFocus = function (sender, args) { };
+
+UIElement.prototype._EmitLostFocus = function () {
+    this.LostFocus.Raise(this, new EventArgs());
+};
+UIElement.prototype.OnLostFocus = function (sender, args) { };
 
 //#endregion
 
