@@ -25,6 +25,8 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
 
             var propd = dobj.GetDependencyProperty(propName);
             if (propd) {
+                if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
+                    continue;
                 if (propValue instanceof TemplateBinding) {
                     var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
                     propValue = new TemplateBindingExpression(sourcePropd, propd);
@@ -40,21 +42,24 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
 
     var contentPropd = this.GetAnnotationMember(json.Type, "ContentProperty");
     if (contentPropd) {
-        if (contentPropd._IsAutoCreated()) {
-            var content = dobj.GetValue(contentPropd);
-            if (content instanceof Collection) {
-                if (json.Children) {
-                    for (var i in json.Children) {
-                        content.Add(this.CreateObject(json.Children[i], namescope));
-                    }
-                }
-            }
-        } else {
-            if (json.Content)
-                dobj.SetValue(contentPropd, this.CreateObject(json.Content, namescope));
+        if (json.Children) {
+            this.TrySetCollectionProperty(json.Children, dobj, contentPropd, namescope);
+        } else if (json.Content) {
+            dobj.SetValue(contentPropd, this.CreateObject(json.Content, namescope));
         }
     }
     return dobj;
+};
+JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
+    if (!propd._IsAutoCreated())
+        return false;
+    var val = dobj.GetValue(propd);
+    if (!(val instanceof Collection))
+        return false;
+    for (var i in subJson) {
+        val.Add(this.CreateObject(subJson[i], namescope));
+    }
+    return true;
 };
 JsonParser.prototype.GetAnnotationMember = function (type, member) {
     if (type === RefObject)
@@ -65,6 +70,14 @@ JsonParser.prototype.GetAnnotationMember = function (type, member) {
     if (annotation == null)
         return this.GetAnnotationMember(type.GetBaseClass(), member);
     return annotation;
+};
+
+JsonParser.CreateSetter = function (dobj, propName, value) {
+    var setter = new Setter();
+    var propd = dobj.GetDependencyProperty(propName);
+    setter.SetProperty(propd);
+    setter.SetValue_Prop(value);
+    return setter;
 };
 
 //#endregion
