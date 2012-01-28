@@ -13,6 +13,9 @@ function ButtonBase() {
     this._MousePosition = new Point();
 
     this.Click = new MulticastEvent();
+
+    this.Loaded.Subscribe(function () { this._IsLoaded = true; this._UpdateVisualState(); }, this);
+    this.SetIsTabStop(true);
 }
 ButtonBase.GetBaseClass = function () { return ContentControl; };
 
@@ -26,7 +29,7 @@ ButtonBase.prototype.SetClickMode = function (value) {
     this.SetValue(ButtonBase.ClickModeProperty, value);
 };
 
-ButtonBase.IsPressedProperty = DependencyProperty.Register("IsPressed", ButtonBase, false);
+ButtonBase.IsPressedProperty = DependencyProperty.Register("IsPressed", ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
 ButtonBase.prototype.GetIsPressed = function () {
 	return this.GetValue(ButtonBase.IsPressedProperty);
 };
@@ -51,6 +54,27 @@ ButtonBase.prototype.SetIsMouseOver = function (value) {
 };
 
 //#endregion
+
+ButtonBase.prototype.OnIsEnabledChanged = function (e) {
+    ContentControl.prototype.OnIsEnabledChanged.call(this, e);
+    var isEnabled = e.NewValue;
+    this._SuspendStateChanges = true;
+    try {
+        if (!isEnabled) {
+            this.SetIsFocused(false);
+            this.SetIsPressed(false);
+            this._IsMouseCaptured = false;
+            this._IsSpaceKeyDown = false;
+            this._IsMouseLeftButtonDown = false;
+        }
+    } finally {
+        this._SuspendStateChanges = false;
+        this._UpdateVisualState();
+    }
+};
+ButtonBase.prototype.OnIsPressedChanged = function (e) {
+    this._UpdateVisualState();
+};
 
 //#region MOUSE
 
@@ -164,7 +188,26 @@ ButtonBase.prototype._IsValidMousePosition = function () {
 ButtonBase.prototype._UpdateVisualState = function () {
     if (this._SuspendStateChanges)
         return;
-    NotImplemented("ButtonBase._UpdateVisualState");
+    this.ChangeVisualState();
+};
+ButtonBase.prototype.ChangeVisualState = function () {
+    //Nothing to do in ButtonBase
+};
+ButtonBase.prototype._ChangeVisualState = function (state) {
+    var previousState = this._CurrentState;
+    if (state.RefEquals(previousState))
+        return;
+
+    if (state != null && this._IsLoaded && this._GetLogicalParent() != null) {
+        try {
+            state.Begin();
+            this._CurrentState = state;
+            if (previousState != null) {
+                previousState.Stop();
+            }
+        } catch (err) {
+        }
+    }
 };
 
 ButtonBase.prototype._EmitClick = function () {

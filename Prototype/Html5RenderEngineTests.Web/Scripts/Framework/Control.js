@@ -95,7 +95,7 @@ Control.prototype.SetHorizontalContentAlignment = function (value) {
     this.SetValue(Control.HorizontalContentAlignmentProperty, value);
 };
 
-Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", Control, true);
+Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
 Control.prototype.GetIsEnabled = function () {
     return this.GetValue(Control.IsEnabledProperty);
 };
@@ -327,5 +327,8 @@ Control.prototype.Focus = function (recurse) {
 };
 
 //#endregion
+
+Control.prototype.OnIsEnabledChanged = function (args) {
+}
 
 //#endregion

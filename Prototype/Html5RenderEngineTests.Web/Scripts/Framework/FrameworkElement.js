@@ -796,6 +796,15 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
 
+FrameworkElement.prototype.SetVisualParent = function (/* UIElement */value) {
+    UIElement.prototype.SetVisualParent.call(this, value);
+
+    if (!this._LogicalParent && (this._VisualParent == null || this._VisualParent instanceof FrameworkElement)) {
+        this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(this._VisualParent);
+        if (this._IsLoaded)
+            this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
+    }
+};
 FrameworkElement.prototype._SetLogicalParent = function (value, error) {
     if (this._LogicalParent == value)
         return;
