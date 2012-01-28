@@ -3,6 +3,7 @@
 /// <reference path="Collections.js"/>
 /// CODE
 /// <reference path="App.js"/>
+/// <reference path="JsonParser.js"/>
 
 //#region SetterBase
 
@@ -183,6 +184,17 @@ Style.prototype._Seal = function () {
     var base = this.GetBasedOn();
     if (base)
         base._Seal();
+};
+
+Style.prototype._AddSetter = function (dobj, propName, value) {
+    this.GetSetters().Add(JsonParser.CreateSetter(dobj, propName, value));
+};
+Style.prototype._AddSetterJson = function (dobj, propName, json) {
+    var parser = new JsonParser();
+    this._AddSetter(dobj, propName, parser.CreateObjectNoNamescope(json));
+};
+Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJson) {
+    this._AddSetter(dobj, propName, ControlTemplate.CreateTemplateFromJson(templateJson));
 };
 
 //#endregion
