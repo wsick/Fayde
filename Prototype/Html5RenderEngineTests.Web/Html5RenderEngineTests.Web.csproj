@@ -56,9 +56,9 @@
     <Content Include="index.html" />
     <Content Include="multicastevent-test.html" />
     <Content Include="Docs\Annotations.txt" />
-    <Content Include="prototype-tests\arrays.html" />
-    <Content Include="prototype-tests\kinetic.html" />
-    <Content Include="prototype-tests\parsing.html" />
+    <Content Include="tests\prototype\arrays.html" />
+    <Content Include="tests\prototype\kinetic.html" />
+    <Content Include="tests\prototype\parsing.html" />
     <Content Include="Scripts\Framework\Border.js" />
     <Content Include="Scripts\Framework\Brushes.js" />
     <Content Include="Scripts\Framework\Button.js" />
@@ -110,7 +110,8 @@
     <Content Include="test3.html" />
     <Content Include="test4.html" />
     <Content Include="tests.html" />
-    <Content Include="textbox-tests\test1.html" />
+    <Content Include="tests\jsonparser\test1.html" />
+    <Content Include="tests\textbox\test1.html" />
     <Content Include="Docs\Todo.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
