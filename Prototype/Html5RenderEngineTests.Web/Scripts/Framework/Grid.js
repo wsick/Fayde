@@ -593,7 +593,7 @@ RowDefinition.prototype.constructor = RowDefinition;
 function RowDefinition() {
     DependencyObject.call(this);
 }
-RowDefinition.prototype.GetBaseClass = function () { return DependencyObject; };
+RowDefinition.GetBaseClass = function () { return DependencyObject; };
 
 RowDefinition.HeightProperty = DependencyProperty.Register("Height", RowDefinition, new GridLength(1.0, GridUnitType.Star));
 RowDefinition.prototype.GetHeight = function () {
