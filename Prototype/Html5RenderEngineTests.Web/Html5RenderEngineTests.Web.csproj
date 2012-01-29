@@ -52,8 +52,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Docs\JsonDependencyObjectFormat.txt" />
+    <Content Include="Fayde.js" />
     <Content Include="index.html" />
     <Content Include="Scripts\Framework\VisualStateManager.js" />
+    <Content Include="test-includes.txt" />
     <Content Include="tests\jsonparser\test2.html" />
     <Content Include="tests\prototype\multicastevent.html" />
     <Content Include="Docs\Annotations.txt" />
@@ -134,6 +136,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UpdateIncludes.bat" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
