@@ -53,7 +53,7 @@
   <ItemGroup>
     <Content Include="Docs\JsonDependencyObjectFormat.txt" />
     <Content Include="index.html" />
-    <Content Include="multicastevent-test.html" />
+    <Content Include="tests\prototype\multicastevent.html" />
     <Content Include="Docs\Annotations.txt" />
     <Content Include="tests\grid\test1.html" />
     <Content Include="tests\grid\test2.html" />
