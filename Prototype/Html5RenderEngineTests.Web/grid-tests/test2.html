@@ -57,7 +57,7 @@
 
         function constructJson() {
 
-            var root = 
+            var root =
             {
                 Type: StackPanel,
                 Props:
@@ -79,8 +79,54 @@
                                     {
                                         Height: new GridLength(2, GridUnitType.Star)
                                     }
+                                },
+                                {
+                                    Type: RowDefinition,
+                                    Props:
+                                    {
+                                        Height: new GridLength(3, GridUnitType.Star)
+                                    }
+                                }],
+                            ColumnDefinitions: [
+                                {
+                                    Type: ColumnDefinition,
+                                    Props:
+                                    {
+                                        Width: new GridLength(25, GridUnitType.Pixel)
+                                    }
+                                },
+                                {
+                                    Type: ColumnDefinition,
+                                    Props:
+                                    {
+                                        Width: new GridLength(75, GridUnitType.Pixel)
+                                    }
                                 }]
-                        }
+                        },
+                        Children: [
+                            {
+                                Type: Border,
+                                Props:
+                                {
+                                    Background: new SolidColorBrush(new Color(240, 248, 255)),
+                                    MinHeight: 200
+                                }
+                            },
+                            {
+                                Type: Border,
+                                Props:
+                                {
+                                    Background: new SolidColorBrush(new Color(255, 255, 0))
+                                },
+                                AttachedProps: [
+                                    {
+                                        Owner: Grid,
+                                        Property: "Row",
+                                        Value: 1
+                                    }
+                                ]
+                            }
+                        ]
                     }]
             }
             return root;
