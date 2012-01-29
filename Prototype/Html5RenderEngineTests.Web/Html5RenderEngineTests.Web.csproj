@@ -53,6 +53,8 @@
   <ItemGroup>
     <Content Include="Docs\JsonDependencyObjectFormat.txt" />
     <Content Include="index.html" />
+    <Content Include="Scripts\Framework\VisualStateManager.js" />
+    <Content Include="tests\jsonparser\test2.html" />
     <Content Include="tests\prototype\multicastevent.html" />
     <Content Include="Docs\Annotations.txt" />
     <Content Include="tests\grid\test1.html" />
