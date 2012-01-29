@@ -1,6 +1,6 @@
 ﻿/// <reference path="DependencyObject.js"/>
-/// CODE
 /// <reference path="Collections.js"/>
+/// CODE
 
 //#region VisualState
 
