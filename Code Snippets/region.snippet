@@ -1,0 +1,31 @@
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>region</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>region</Shortcut>
+    <Description>Code snippet for a region</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+      <SnippetType>SurroundsWith</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Region Name</ToolTip>
+        <Default>region</Default>
+      </Literal>
+      <Literal>
+        <ID>selected</ID>
+        <ToolTip>Code</ToolTip>
+        <Default></Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[//#region $name$
+
+$selected$
+
+//#endregion$end$]]></Code>
+  </Snippet>
+</CodeSnippet>
