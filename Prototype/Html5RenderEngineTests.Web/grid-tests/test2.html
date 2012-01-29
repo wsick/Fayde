@@ -125,9 +125,73 @@
                                         Value: 1
                                     }
                                 ]
+                            },
+                            {
+                                Type: Border,
+                                Props:
+                                {
+                                    Background: new SolidColorBrush(new Color(127, 255, 212))
+                                },
+                                AttachedProps: [
+                                    {
+                                        Owner: Grid,
+                                        Prop: "Column",
+                                        Value: 1
+                                    }
+                                ]
+                            },
+                            {
+                                Type: Border,
+                                Props:
+                                {
+                                    Background: new SolidColorBrush(new Color(255, 228, 196))
+                                },
+                                AttachedProps: [
+                                    {
+                                        Owner: Grid,
+                                        Prop: "Row",
+                                        Value: 1
+                                    },
+                                    {
+                                        Owner: Grid,
+                                        Prop: "Column",
+                                        Value: 1
+                                    }
+                                ]
                             }
                         ]
-                    }]
+                    },
+                    {
+                        Type: Border,
+                        Props:
+                            {
+                                BorderBrush: new SolidColorBrush(new Color(0, 0, 0)),
+                                BorderThickness: new Thickness(1, 1, 1, 1),
+                                CornerRadius: new CornerRadius(5, 5, 5, 5),
+                                Margin: new Thickness(5, 5, 5, 5),
+                                MinWidth: 50,
+                                MinHeight: 50
+                            }
+                    },
+                    {
+                        Type: Border,
+                        Props:
+                            {
+                                Background: new SolidColorBrush(Color.FromHex("#201010FF")),
+                                MinHeight: 200,
+                                MinWidth: 300,
+                                Child:
+                                    {
+                                        Type: TextBlock,
+                                        Props:
+                                            {
+                                                Foreground: new SolidColorBrush(Color.FromHex("#80FFFFFF")),
+                                                Text: "noobs are usddd ddd ddd ddd ddds"
+                                            }
+                                    }
+                            }
+                    }
+                ]
             }
             return root;
 
