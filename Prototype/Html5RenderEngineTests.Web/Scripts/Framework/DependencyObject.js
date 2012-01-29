@@ -10,14 +10,12 @@
 
 //#region DependencyObject
 
-DependencyObject.prototype = new RefObject;
-DependencyObject.prototype.constructor = DependencyObject;
 function DependencyObject() {
     RefObject.call(this);
     this._TypeName = this._GetTypeName();
     this._Initialize();
 }
-DependencyObject.GetBaseClass = function () { return RefObject; };
+RefObject.Register(DependencyObject, RefObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -811,15 +809,13 @@ DependencyObject._PropagateMentor = function (propd, value, newMentor) {
 
 //#region NameScope
 
-NameScope.prototype = new DependencyObject;
-NameScope.prototype.constructor = NameScope;
 function NameScope() {
     DependencyObject.call(this);
     this._IsLocked = false;
     this._Names = null;
     this._Temporary = false;
 }
-NameScope.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(NameScope, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

@@ -7,8 +7,6 @@
 
 //#region Button
 
-Button.prototype = new ButtonBase;
-Button.prototype.constructor = Button;
 function Button() {
     ButtonBase.call(this);
     this._ElementRoot = null;
@@ -16,7 +14,7 @@ function Button() {
     this._StateNormal = null;
     this.SetIsTabStop(false);
 }
-Button.GetBaseClass = function () { return ButtonBase; };
+RefObject.Register(Button, ButtonBase);
 
 Button.StateDisabled = "";
 Button.StatePressed = "";

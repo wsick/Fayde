@@ -11,8 +11,6 @@
 
 //#region FrameworkElement
 
-FrameworkElement.prototype = new UIElement;
-FrameworkElement.prototype.constructor = FrameworkElement;
 function FrameworkElement() {
     UIElement.call(this);
     
@@ -28,7 +26,7 @@ function FrameworkElement() {
     this._Providers[_PropertyPrecedence.DynamicValue] = new _FrameworkElementProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 }
-FrameworkElement.GetBaseClass = function () { return UIElement; };
+RefObject.Register(FrameworkElement, UIElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -848,15 +846,13 @@ FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newPar
 
 //#region _FrameworkElementProvider
 
-_FrameworkElementProvider.prototype = new _PropertyValueProvider;
-_FrameworkElementProvider.prototype.constructor = _FrameworkElementProvider;
 function _FrameworkElementProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, 0);
     this._ActualHeight = null;
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 }
-_FrameworkElementProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+RefObject.Register(_FrameworkElementProvider, _PropertyValueProvider);
 
 _FrameworkElementProvider.prototype.GetPropertyValue = function (propd) {
     if (propd != FrameworkElement.ActualHeightProperty && propd != FrameworkElement.ActualWidthProperty)

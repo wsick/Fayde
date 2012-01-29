@@ -12,12 +12,10 @@ var BindingMode = {
 
 //#region Expression
 
-Expression.prototype = new RefObject;
-Expression.prototype.constructor = Expression;
 function Expression() {
     RefObject.call(this);
 }
-Expression.GetBaseClass = function () { return RefObject; };
+RefObject.Register(Expression, RefObject);
 
 Expression.prototype.GetValue = function (propd) {
     AbstractMethod("_Expression.GetValue");
@@ -33,25 +31,21 @@ Expression.prototype._OnDetached = function (element) {
 
 //#region BindingExpressionBase
 
-BindingExpressionBase.prototype = new Expression;
-BindingExpressionBase.prototype.constructor = BindingExpressionBase;
 function BindingExpressionBase() {
     Expression.call(this);
 }
-BindingExpressionBase.GetBaseClass = function () { return Expression; };
+RefObject.Register(BindingExpressionBase, Expression);
 
 //#endregion
 
 //#region TemplateBindingExpression
 
-TemplateBindingExpression.prototype = new Expression;
-TemplateBindingExpression.prototype.constructor = TemplateBindingExpression;
 function TemplateBindingExpression(sourcePropd, targetPropd) {
     Expression.call(this);
     this.SourceProperty = sourcePropd;
     this.TargetProperty = targetPropd;
 }
-TemplateBindingExpression.GetBaseClass = function () { return Expression; };
+RefObject.Register(TemplateBindingExpression, Expression);
 
 TemplateBindingExpression.prototype.GetValue = function (propd) {
     var source = this.Target._TemplateOwner;

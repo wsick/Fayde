@@ -6,15 +6,13 @@
 
 //#region Collection
 
-Collection.prototype = new DependencyObject;
-Collection.prototype.constructor = Collection;
 function Collection() {
     DependencyObject.call(this);
     this._ht = new Array();
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();
 }
-Collection.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(Collection, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -102,14 +100,12 @@ Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index
 
 //#region CollectionIterator
 
-CollectionIterator.prototype = new RefObject;
-CollectionIterator.prototype.constructor = CollectionIterator;
 function CollectionIterator(collection) {
     RefObject.call(this);
     this._Collection = collection;
     this._Index = -1;
 }
-CollectionIterator.GetBaseClass = function () { return RefObject; };
+RefObject.Register(CollectionIterator, RefObject);
 
 CollectionIterator.prototype.Next = function (error) {
     this._Index++;
@@ -130,8 +126,6 @@ CollectionIterator.prototype.GetCurrent = function (error) {
 
 //#region ItemChangedArgs
 
-ItemChangedArgs.prototype = new RefObject;
-ItemChangedArgs.prototype.constructor = ItemChangedArgs;
 function ItemChangedArgs(item, propd, oldValue, newValue) {
     RefObject.call(this);
     this.Item = item;
@@ -139,7 +133,7 @@ function ItemChangedArgs(item, propd, oldValue, newValue) {
     this.OldValue = oldValue;
     this.NewValue = newValue;
 }
-ItemChangedArgs.GetBaseClass = function () { return RefObject; };
+RefObject.Register(ItemChangedArgs, RefObject);
 
 //#endregion
 
@@ -152,8 +146,6 @@ CollectionChangedArgs.Action = {
     Remove: 3,
     Replace: 4
 };
-CollectionChangedArgs.prototype = new RefObject;
-CollectionChangedArgs.prototype.constructor = CollectionChangedArgs;
 function CollectionChangedArgs(action, oldValue, newValue, index) {
     RefObject.call(this);
     this.Action = action;
@@ -161,20 +153,18 @@ function CollectionChangedArgs(action, oldValue, newValue, index) {
     this.NewValue = newValue;
     this.Index = index;
 }
-CollectionChangedArgs.GetBaseClass = function () { return RefObject; };
+RefObject.Register(CollectionChangedArgs, RefObject);
 
 //#endregion
 
 //#region DependencyObjectCollection
 
-DependencyObjectCollection.prototype = new Collection;
-DependencyObjectCollection.prototype.constructor = DependencyObjectCollection;
 function DependencyObjectCollection(setsParent) {
     Collection.call(this);
     this._IsSecondaryParent = false;
     this._SetsParent = !setsParent ? true : setsParent;
 }
-DependencyObjectCollection.GetBaseClass = function () { return Collection; };
+RefObject.Register(DependencyObjectCollection, Collection);
 
 DependencyObjectCollection.prototype.IsElementType = function (value) {
     return value instanceof DependencyObject;
@@ -250,13 +240,11 @@ DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, a
 
 //#region UIElementCollection
 
-UIElementCollection.prototype = new DependencyObjectCollection;
-UIElementCollection.prototype.constructor = UIElementCollection;
 function UIElementCollection() {
     DependencyObjectCollection.call(this);
     this._ZSorted = new Array();
 }
-UIElementCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(UIElementCollection, DependencyObjectCollection);
 
 UIElementCollection.prototype.GetValueAtZIndex = function (index) {
     return this._ZSorted[index];
@@ -286,12 +274,10 @@ UIElementCollection.prototype.IsElementType = function (value) {
 
 //#region InlineCollection
 
-InlineCollection.prototype = new DependencyObjectCollection;
-InlineCollection.prototype.constructor = InlineCollection;
 function InlineCollection() {
     DependencyObjectCollection.call(this);
 }
-InlineCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(InlineCollection, DependencyObjectCollection);
 
 InlineCollection.prototype.AddedToCollection = function (value, error) {
     if (this._ForHyperlink) {
@@ -314,13 +300,11 @@ InlineCollection.prototype._SetIsForHyperlink = function () { this._ForHyperlink
 
 //#region ResourceDictionary
 
-ResourceDictionary.prototype = new Collection;
-ResourceDictionary.prototype.constructor = ResourceDictionary;
 function ResourceDictionary() {
     Collection.call(this);
     this._KeyIndex = new Array();
 }
-ResourceDictionary.GetBaseClass = function () { return Collection; };
+RefObject.Register(ResourceDictionary, Collection);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -389,12 +373,10 @@ ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
 
 //#region ResourceDictionaryCollection
 
-ResourceDictionaryCollection.prototype = new DependencyObjectCollection;
-ResourceDictionaryCollection.prototype.constructor = ResourceDictionaryCollection;
 function ResourceDictionaryCollection() {
     DependencyObjectCollection.call(this);
 }
-ResourceDictionaryCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(ResourceDictionaryCollection, DependencyObjectCollection);
 
 ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
     if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
@@ -442,12 +424,10 @@ ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (s
 
 //#region GradientStop
 
-GradientStop.prototype = new DependencyObject;
-GradientStop.prototype.constructor = GradientStop;
 function GradientStop() {
     DependencyObject.call(this);
 }
-GradientStop.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(GradientStop, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -473,12 +453,10 @@ GradientStop.prototype.SetOffset = function (value) {
 
 //#region GradientStopCollection
 
-GradientStopCollection.prototype = new DependencyObjectCollection;
-GradientStopCollection.prototype.constructor = GradientStopCollection;
 function GradientStopCollection() {
     DependencyObjectCollection.call(this);
 }
-GradientStopCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(GradientStopCollection, DependencyObjectCollection);
 
 GradientStopCollection.prototype.IsElementType = function (value) {
     return value instanceof GradientStop;
@@ -495,8 +473,6 @@ var _VisualTreeWalkerDirection = {
 
 //#region _VisualTreeWalker
 
-_VisualTreeWalker.prototype = new RefObject;
-_VisualTreeWalker.prototype.constructor = _VisualTreeWalker;
 function _VisualTreeWalker(/* UIElement */obj, /* _VisualTreeWalkerDirection */direction) {
     RefObject.call(this);
     this._Offset = 0;
@@ -514,7 +490,7 @@ function _VisualTreeWalker(/* UIElement */obj, /* _VisualTreeWalkerDirection */d
         }
     }
 }
-_VisualTreeWalker.GetBaseClass = function () { return RefObject; };
+RefObject.Register(_VisualTreeWalker, RefObject);
 
 _VisualTreeWalker.prototype.Step = function () {
     var result = null;
@@ -568,8 +544,6 @@ _VisualTreeWalker.prototype.GetCount = function () {
 
 //#region _DeepTreeWalker
 
-_DeepTreeWalker.prototype = new RefObject;
-_DeepTreeWalker.prototype.constructor = _DeepTreeWalker;
 function _DeepTreeWalker(/* UIElement */top, /* _VisualTreeWalkerDirection */direction) {
     RefObject.call(this);
     this._WalkList = new List();
@@ -579,7 +553,7 @@ function _DeepTreeWalker(/* UIElement */top, /* _VisualTreeWalkerDirection */dir
     if (direction)
         this._Direction = direction;
 }
-_DeepTreeWalker.GetBaseClass = function () { return RefObject; };
+RefObject.Register(_DeepTreeWalker, RefObject);
 
 _DeepTreeWalker.prototype.Step = function () {
     if (this._Last) {

@@ -5,13 +5,11 @@
 
 //#region App
 
-App.prototype = new DependencyObject;
-App.prototype.constructor = App;
 function App() {
     DependencyObject.call(this);
     this.MainSurface = new Surface();
 }
-App.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(App, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

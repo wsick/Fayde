@@ -2,8 +2,6 @@
 
 //#region DependencyProperty
 
-DependencyProperty.prototype = new RefObject;
-DependencyProperty.prototype.constructor = DependencyProperty;
 function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     RefObject.call(this);
     this.Name = name;
@@ -17,7 +15,7 @@ function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocr
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
 }
-DependencyProperty.GetBaseClass = function () { return RefObject; };
+RefObject.Register(DependencyProperty, RefObject);
 
 DependencyProperty.prototype.toString = function () {
     var funcNameRegex = /function (.{1,})\(/;
@@ -88,11 +86,9 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
 
 //#region UnsetValue
 
-UnsetValue.prototype = new RefObject;
-UnsetValue.prototype.constructor = UnsetValue;
 function UnsetValue() {
     RefObject.call(this);
 }
-UnsetValue.GetBaseClass = function () { return RefObject; };
+RefObject.Register(UnsetValue, RefObject);
 
 //#endregion

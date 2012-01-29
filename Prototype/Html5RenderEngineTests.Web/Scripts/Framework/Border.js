@@ -7,12 +7,10 @@
 
 //#region Border
 
-Border.prototype = new FrameworkElement;
-Border.prototype.constructor = Border;
 function Border() {
     FrameworkElement.call(this);
 }
-Border.GetBaseClass = function () { return FrameworkElement; };
+RefObject.Register(Border, FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 

@@ -5,12 +5,10 @@
 
 //#region StackPanel
 
-StackPanel.prototype = new Panel;
-StackPanel.prototype.constructor = StackPanel;
 function StackPanel() {
     Panel.call(this);
 }
-StackPanel.GetBaseClass = function () { return Panel; };
+RefObject.Register(StackPanel, Panel);
 
 //#region DEPENDENCY PROPERTIES
 

@@ -24,8 +24,6 @@ var UIElementFlags = {
 
 //#region UIElement
 
-UIElement.prototype = new DependencyObject;
-UIElement.prototype.constructor = UIElement;
 function UIElement() {
     DependencyObject.call(this);
 
@@ -83,7 +81,7 @@ function UIElement() {
     this.LostFocus = new MulticastEvent();
     this.LostFocus.Subscribe(this.OnLostFocus, this);
 }
-UIElement.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(UIElement, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

@@ -7,12 +7,10 @@
 
 //#region Panel
 
-Panel.prototype = new FrameworkElement;
-Panel.prototype.constructor = Panel;
 function Panel() {
     FrameworkElement.call(this);
 }
-Panel.GetBaseClass = function () { return FrameworkElement; };
+RefObject.Register(Panel, FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 

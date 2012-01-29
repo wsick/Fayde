@@ -11,8 +11,6 @@
 
 //#region Surface
 
-Surface.prototype = new RefObject;
-Surface.prototype.constructor = Surface;
 function Surface() {
     RefObject.call(this);
     this._InputList = new List();
@@ -21,7 +19,7 @@ function Surface() {
     this._UserInitiatedEvent = false;
     this._Cursor = CursorType.Default;
 }
-Surface.GetBaseClass = function () { return RefObject; };
+RefObject.Register(Surface, RefObject);
 
 Surface.prototype.Init = function (jCanvas) {
     Surface._TestCanvas = document.createElement('canvas');
@@ -625,14 +623,12 @@ Surface._ElementPathToRoot = function (source) {
 
 //#region _RenderContext
 
-_RenderContext.prototype = new RefObject;
-_RenderContext.prototype.constructor = _RenderContext;
 function _RenderContext(surface) {
     RefObject.call(this);
     this._Surface = surface;
     this._Transforms = new Array();
 }
-_RenderContext.GetBaseClass = function () { return RefObject; };
+RefObject.Register(_RenderContext, RefObject);
 
 _RenderContext.prototype.GetSurface = function () {
     return this._Surface;
@@ -705,13 +701,11 @@ function toArray() {
 
 //#region FocusChangedNode
 
-FocusChangedNode.prototype = new Node;
-FocusChangedNode.prototype.constructor = FocusChangedNode;
 function FocusChangedNode(lostFocus, gotFocus) {
     Node.call(this);
     this.LostFocus = lostFocus;
     this.GotFocus = gotFocus;
 }
-FocusChangedNode.GetBaseClass = function () { return Node; };
+RefObject.Register(FocusChangedNode, Node);
 
 //#endregion

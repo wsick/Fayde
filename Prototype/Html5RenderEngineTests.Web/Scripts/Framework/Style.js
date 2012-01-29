@@ -7,13 +7,11 @@
 
 //#region SetterBase
 
-SetterBase.prototype = new DependencyObject;
-SetterBase.prototype.constructor = SetterBase;
 function SetterBase() {
     DependencyObject.call(this);
     this._IsAttached = false;
 }
-SetterBase.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(SetterBase, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -40,12 +38,10 @@ SetterBase.prototype._Seal = function () {
 
 //#region SetterBaseCollection
 
-SetterBaseCollection.prototype = new DependencyObjectCollection;
-SetterBaseCollection.prototype.constructor = SetterBaseCollection;
 function SetterBaseCollection() {
     DependencyObjectCollection.call(this);
 }
-SetterBaseCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(SetterBaseCollection, DependencyObjectCollection);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -100,12 +96,10 @@ SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
 
 //#region Setter
 
-Setter.prototype = new SetterBase;
-Setter.prototype.constructor = Setter;
 function Setter() {
     SetterBase.call(this);
 }
-Setter.GetBaseClass = function () { return SetterBase; };
+RefObject.Register(Setter, SetterBase);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -133,12 +127,10 @@ Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", fu
 
 //#region Style
 
-Style.prototype = new DependencyObject;
-Style.prototype.constructor = Style;
 function Style() {
     DependencyObject.call(this);
 }
-Style.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(Style, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -205,8 +197,6 @@ Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJs
 
 //#region _DeepStyleWalker
 
-_DeepStyleWalker.prototype = new RefObject;
-_DeepStyleWalker.prototype.constructor = _DeepStyleWalker;
 function _DeepStyleWalker(styles) {
     RefObject.call(this);
     this._Setters = new Array();
@@ -217,7 +207,7 @@ function _DeepStyleWalker(styles) {
     else if (styles instanceof Array)
         this._InitializeStyles(styles);
 }
-_DeepStyleWalker.GetBaseClass = function () { return RefObject; };
+RefObject.Register(_DeepStyleWalker, RefObject);
 
 _DeepStyleWalker.prototype.Step = function () {
     if (this._Offset < this._Setters.length) {

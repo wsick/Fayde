@@ -11,14 +11,12 @@ var GridUnitType = {
 
 //#region Grid
 
-Grid.prototype = new Panel;
-Grid.prototype.constructor = Grid;
 function Grid() {
     Panel.call(this);
     this._RowMatrix = null;
     this._ColMatrix = null;
 }
-Grid.GetBaseClass = function () { return Panel; };
+RefObject.Register(Grid, Panel);
 
 //#region ATTACHED DEPENDENCY PROPERTIES
 
@@ -571,14 +569,12 @@ Grid.prototype._OnCollectionItemChanged = function (sender, args) {
 
 //#region GridLength
 
-GridLength.prototype = new RefObject;
-GridLength.prototype.constructor = GridLength;
 function GridLength(value, type) {
     RefObject.call(this);
     this.Value = value == null ? 0 : value;
     this.Type = type == null ? GridUnitType.Auto : type;
 }
-GridLength.GetBaseClass = function () { return RefObject; };
+RefObject.Register(GridLength, RefObject);
 
 GridLength.Equals = function (gl1, gl2) {
     return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
@@ -588,12 +584,10 @@ GridLength.Equals = function (gl1, gl2) {
 
 //#region RowDefinition
 
-RowDefinition.prototype = new DependencyObject;
-RowDefinition.prototype.constructor = RowDefinition;
 function RowDefinition() {
     DependencyObject.call(this);
 }
-RowDefinition.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(RowDefinition, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -635,12 +629,10 @@ RowDefinition.prototype.SetActualHeight = function (value) {
 
 //#region RowDefinitionCollection
 
-RowDefinitionCollection.prototype = new DependencyObjectCollection;
-RowDefinitionCollection.prototype.constructor = RowDefinitionCollection;
 function RowDefinitionCollection() {
     DependencyObjectCollection.call(this);
 }
-RowDefinitionCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(RowDefinitionCollection, DependencyObjectCollection);
 
 RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
@@ -654,12 +646,10 @@ RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
 
 //#region ColumnDefinition
 
-ColumnDefinition.prototype = new DependencyObject;
-ColumnDefinition.prototype.constructor = ColumnDefinition;
 function ColumnDefinition() {
     DependencyObject.call(this);
 }
-ColumnDefinition.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(ColumnDefinition, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -701,12 +691,10 @@ ColumnDefinition.prototype.SetActualWidth = function (value) {
 
 //#region ColumnDefinitionCollection
 
-ColumnDefinitionCollection.prototype = new DependencyObjectCollection;
-ColumnDefinitionCollection.prototype.constructor = ColumnDefinitionCollection;
 function ColumnDefinitionCollection() {
     DependencyObjectCollection.call(this);
 }
-ColumnDefinitionCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(ColumnDefinitionCollection, DependencyObjectCollection);
 
 ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
@@ -720,8 +708,6 @@ ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error)
 
 //#region _Segment
 
-_Segment.prototype = new RefObject;
-_Segment.prototype.constructor = _Segment;
 function _Segment(offered, min, max, unitType) {
     RefObject.call(this);
     this._DesiredSize = offered == null ? 0 : offered;
@@ -733,7 +719,7 @@ function _Segment(offered, min, max, unitType) {
     this._OfferedSize = this._Clamp(offered);
     this._OriginalSize = this._OfferedSize;
 }
-_Segment.GetBaseClass = function () { return RefObject; };
+RefObject.Register(_Segment, RefObject);
 
 _Segment.prototype._SetOfferedToDesired = function () {
     this._OfferedSize = this._DesiredSize;
@@ -755,8 +741,6 @@ _Segment.prototype._Clamp = function (value) {
 
 //#region _GridNode
 
-_GridNode.prototype = new Node;
-_GridNode.prototype.constructor = _GridNode;
 function _GridNode(matrix, row, col, size) {
     Node.call(this);
     this._Matrix = matrix;
@@ -765,14 +749,12 @@ function _GridNode(matrix, row, col, size) {
     this._Size = size;
     this._Cell = this._Matrix == null ? null : this._Matrix[row][col];
 }
-_GridNode.GetBaseClass = function () { return Node; };
+RefObject.Register(_GridNode, Node);
 
 //#endregion
 
 //#region _GridWalker
 
-_GridWalker.prototype = new RefObject;
-_GridWalker.prototype.constructor = _GridWalker;
 function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
     RefObject.call(this);
     this._HasAutoAuto = false;
@@ -806,6 +788,6 @@ function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
         this._HasAutoStar = this._HasAutoStar || (autoRow && starCol);
     }
 }
-_GridWalker.GetBaseClass = function () { return RefObject; };
+RefObject.Register(_GridWalker, RefObject);
 
 //#endregion

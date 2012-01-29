@@ -13,8 +13,6 @@
 
 //#region _TextBoxBaseDynamicPropertyValueProvider
 
-_TextBoxBaseDynamicPropertyValueProvider.prototype = new _FrameworkElementProvider;
-_TextBoxBaseDynamicPropertyValueProvider.prototype.constructor = _TextBoxBaseDynamicPropertyValueProvider;
 function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
     _FrameworkElementProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear | _ProviderFlags.RecomputesOnLowerPriorityChange);
     this._ForegroundPropd = foregroundPropd;
@@ -24,7 +22,7 @@ function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroun
     this._SelectionForeground = undefined;
     this._BaselineOffset = undefined;
 }
-_TextBoxBaseDynamicPropertyValueProvider.GetBaseClass = function () { return _FrameworkElementProvider; };
+RefObject.Register(_TextBoxBaseDynamicPropertyValueProvider, _FrameworkElementProvider);
 
 _TextBoxBaseDynamicPropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
     if (propd == this._BackgroundPropd)
@@ -65,32 +63,26 @@ _TextBoxBaseDynamicPropertyValueProvider.prototype._InitializeSelectionBrushes =
 
 //#region _TextBoxDynamicPropertyValueProvider
 
-_TextBoxDynamicPropertyValueProvider.prototype = new _TextBoxBaseDynamicPropertyValueProvider;
-_TextBoxDynamicPropertyValueProvider.prototype.constructor = _TextBoxDynamicPropertyValueProvider;
 function _TextBoxDynamicPropertyValueProvider(obj, propPrecedence) {
     _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence, 
         TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
 }
-_TextBoxDynamicPropertyValueProvider.GetBaseClass = function () { return _TextBoxBaseDynamicPropertyValueProvider; };
+RefObject.Register(_TextBoxDynamicPropertyValueProvider, _TextBoxBaseDynamicPropertyValueProvider);
 
 //#endregion
 
 //#region _PasswordBoxDynamicPropertyValueProvider
 
-_PasswordBoxDynamicPropertyValueProvider.prototype = new _TextBoxBaseDynamicPropertyValueProvider;
-_PasswordBoxDynamicPropertyValueProvider.prototype.constructor = _PasswordBoxDynamicPropertyValueProvider;
 function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
     _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence, 
         PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
 }
-_PasswordBoxDynamicPropertyValueProvider.GetBaseClass = function () { return _TextBoxBaseDynamicPropertyValueProvider; };
+RefObject.Register(_PasswordBoxDynamicPropertyValueProvider, _TextBoxBaseDynamicPropertyValueProvider);
 
 //#endregion
 
 //#region _TextBoxView
 
-_TextBoxView.prototype = new FrameworkElement;
-_TextBoxView.prototype.constructor = _TextBoxView;
 function _TextBoxView() {
     FrameworkElement.call(this);
 
@@ -104,7 +96,7 @@ function _TextBoxView() {
     this._TextBox = null;
     this._Dirty = false;
 }
-_TextBoxView.GetBaseClass = function () { return FrameworkElement; };
+RefObject.Register(_TextBoxView, FrameworkElement);
 
 _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
     if (this._TextBox == value)
@@ -395,21 +387,17 @@ var _TextBoxEmitChanged = {
 
 //#region _TextBoxModelChangedEventArgs
 
-_TextBoxModelChangedEventArgs.prototype = new RefObject;
-_TextBoxModelChangedEventArgs.prototype.constructor = _TextBoxModelChangedEventArgs;
 function _TextBoxModelChangedEventArgs(changed, propArgs) {
     RefObject.call(this);
     this.Changed = changed;
     this.PropArgs = propArgs;
 }
-_TextBoxModelChangedEventArgs.GetBaseClass = function () { return RefObject; };
+RefObject.Register(_TextBoxModelChangedEventArgs, RefObject);
 
 //#endregion
 
 //#region TextBoxBase
 
-TextBoxBase.prototype = new Control;
-TextBoxBase.prototype.constructor = TextBoxBase;
 function TextBoxBase() {
     Control.call(this);
     this._SelectionAnchor = 0;
@@ -422,7 +410,7 @@ function TextBoxBase() {
 
     this._Batch = 0;
 }
-TextBoxBase.GetBaseClass = function () { return Control; };
+RefObject.Register(TextBoxBase, Control);
 
 TextBoxBase.prototype.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
@@ -575,8 +563,6 @@ TextBoxBase.prototype._EmitSelectionChanged = function () { };
 
 //#region TextBox
 
-TextBox.prototype = new TextBoxBase;
-TextBox.prototype.constructor = TextBox;
 function TextBox() {
     TextBoxBase.call(this);
 
@@ -587,7 +573,7 @@ function TextBox() {
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
 }
-TextBox.GetBaseClass = function () { return TextBoxBase; };
+RefObject.Register(TextBox, TextBoxBase);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -1022,14 +1008,12 @@ TextBox.prototype.GetDefaultStyle = function () {
 
 //#region PasswordBox
 
-PasswordBox.prototype = new TextBoxBase;
-PasswordBox.prototype.constructor = PasswordBox;
 function PasswordBox() {
     TextBoxBase.call(this);
 
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._EventsMask = _TextBoxEmitChanged.TEXT;
 }
-PasswordBox.GetBaseClass = function () { return TextBoxBase; };
+RefObject.Register(PasswordBox, TextBoxBase);
 
 //#endregion

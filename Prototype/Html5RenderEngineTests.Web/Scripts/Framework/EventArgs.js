@@ -2,24 +2,20 @@
 
 //#region EventArgs
 
-EventArgs.prototype = new RefObject;
-EventArgs.prototype.constructor = EventArgs;
 function EventArgs() {
     RefObject.call(this);
 }
-EventArgs.GetBaseClass = function () { return RefObject; };
+RefObject.Register(EventArgs, RefObject);
 
 //#endregion
 
 //#region MouseEventArgs
 
-MouseEventArgs.prototype = new EventArgs;
-MouseEventArgs.prototype.constructor = MouseEventArgs;
 function MouseEventArgs(absolutePos) {
     EventArgs.call(this);
     this._AbsolutePosition = absolutePos;
 }
-MouseEventArgs.GetBaseClass = function () { return EventArgs; };
+RefObject.Register(MouseEventArgs, EventArgs);
 
 MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
     if (relativeTo._IsAttached)
@@ -33,11 +29,9 @@ MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
 
 //#region MouseButtonEventArgs
 
-MouseButtonEventArgs.prototype = new MouseEventArgs;
-MouseButtonEventArgs.prototype.constructor = MouseButtonEventArgs;
 function MouseButtonEventArgs(absolutePos) {
     MouseEventArgs.call(this, absolutePos);
 }
-MouseButtonEventArgs.GetBaseClass = function () { return MouseEventArgs; };
+RefObject.Register(MouseButtonEventArgs, MouseEventArgs);
 
 //#endregion

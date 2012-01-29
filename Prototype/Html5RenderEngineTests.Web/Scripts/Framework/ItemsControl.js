@@ -4,12 +4,10 @@ var ItemCollection = {};//TODO: Implement
 
 //#region ItemsControl
 
-ItemsControl.prototype = new Control;
-ItemsControl.prototype.constructor = ItemsControl;
 function ItemsControl() {
     Control.call(this);
 }
-ItemsControl.GetBaseClass = function () { return Control; };
+RefObject.Register(ItemsControl, Control);
 
 //#region DEPENDENCY PROPERTIES
 

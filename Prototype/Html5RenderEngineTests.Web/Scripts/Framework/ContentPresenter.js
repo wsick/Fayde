@@ -5,12 +5,10 @@
 
 //#region ContentPresenter
 
-ContentPresenter.prototype = new FrameworkElement;
-ContentPresenter.prototype.constructor = ContentPresenter;
 function ContentPresenter() {
     FrameworkElement.call(this);
 }
-ContentPresenter.GetBaseClass = function () { return FrameworkElement; };
+RefObject.Register(ContentPresenter, FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 

@@ -2,12 +2,10 @@
 
 //#region Geometry
 
-Geometry.prototype = new DependencyObject;
-Geometry.prototype.constructor = Geometry;
 function Geometry() {
     this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 }
-Geometry.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(Geometry, DependencyObject);
 
 Geometry.prototype.GetBounds = function () {
     var compute = this._LocalBounds.IsEmpty();
@@ -29,11 +27,9 @@ Geometry.prototype.ComputePathBounds = function () {
 
 //#region RectangleGeometry
 
-RectangleGeometry.prototype = new Geometry;
-RectangleGeometry.prototype.constructor = RectangleGeometry;
 function RectangleGeometry() {
 }
-RectangleGeometry.GetBaseClass = function () { return Geometry; };
+RefObject.Register(RectangleGeometry, Geometry);
 
 //#region DEPENDENCY PROPERTIES
 

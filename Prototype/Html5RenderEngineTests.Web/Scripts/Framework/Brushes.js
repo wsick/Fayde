@@ -6,12 +6,10 @@
 
 //#region Brush
 
-Brush.prototype = new DependencyObject;
-Brush.prototype.constructor = Brush;
 function Brush() {
     DependencyObject.call(this);
 };
-Brush.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(Brush, DependencyObject);
 
 Brush.prototype._Translate = function (ctx) {
     AbstractMethod("Brush._Translate()");
@@ -21,13 +19,11 @@ Brush.prototype._Translate = function (ctx) {
 
 //#region SolidColorBrush
 
-SolidColorBrush.prototype = new Brush;
-SolidColorBrush.prototype.constructor = SolidColorBrush;
 function SolidColorBrush(color) {
     Brush.call(this);
     this._Color = color;
 }
-SolidColorBrush.GetBaseClass = function () { return Brush; };
+RefObject.Register(SolidColorBrush, Brush);
 
 SolidColorBrush.prototype._Translate = function (ctx) {
     return this._Color.toString();
@@ -37,12 +33,10 @@ SolidColorBrush.prototype._Translate = function (ctx) {
 
 //#region GradientBrush
 
-GradientBrush.prototype = new Brush;
-GradientBrush.prototype.constructor = GradientBrush;
 function GradientBrush() {
     Brush.call(this);
 }
-GradientBrush.GetBaseClass = function () { return Brush; };
+RefObject.Register(GradientBrush, Brush);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -60,12 +54,10 @@ GradientBrush.prototype.SetGradientStops = function (value) {
 
 //#region LinearGradientBrush
 
-LinearGradientBrush.prototype = new GradientBrush;
-LinearGradientBrush.prototype.constructor = LinearGradientBrush;
 function LinearGradientBrush() {
     GradientBrush.call(this);
 }
-LinearGradientBrush.GetBaseClass = function () { return GradientBrush; };
+RefObject.Register(LinearGradientBrush, GradientBrush);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -104,12 +96,10 @@ LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
 
 //#region RadialGradientBrush
 
-RadialGradientBrush.prototype = new GradientBrush;
-RadialGradientBrush.prototype.constructor = RadialGradientBrush;
 function RadialGradientBrush() {
     GradientBrush.call(this);
 }
-RadialGradientBrush.GetBaseClass = function () { return GradientBrush; };
+RefObject.Register(RadialGradientBrush, GradientBrush);
 
 //#region DEPENDENCY PROPERTIES
 

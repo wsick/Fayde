@@ -6,14 +6,12 @@
 
 //#region Control
 
-Control.prototype = new FrameworkElement;
-Control.prototype.constructor = Control;
 function Control() {
     FrameworkElement.call(this);
 
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 }
-Control.GetBaseClass = function () { return FrameworkElement; };
+RefObject.Register(Control, FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 

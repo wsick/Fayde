@@ -5,12 +5,10 @@
 
 //#region JsonParser
 
-JsonParser.prototype = new RefObject;
-JsonParser.prototype.constructor = JsonParser;
 function JsonParser() {
     RefObject.call(this);
 }
-JsonParser.GetBaseClass = function () { return RefObject; };
+RefObject.Register(JsonParser, RefObject);
 
 JsonParser.prototype.CreateObject = function (json, namescope) {
     var dobj = new json.Type();
@@ -118,12 +116,10 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
 
 //#region TemplateBinding
 
-TemplateBinding.prototype = new RefObject;
-TemplateBinding.prototype.constructor = TemplateBinding;
 function TemplateBinding(path) {
     RefObject.call(this);
     this.Path = path;
 }
-TemplateBinding.GetBaseClass = function () { return RefObject; };
+RefObject.Register(TemplateBinding, RefObject);
 
 //#endregion

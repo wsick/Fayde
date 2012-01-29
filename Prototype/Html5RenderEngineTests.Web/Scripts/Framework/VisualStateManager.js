@@ -4,12 +4,10 @@
 
 //#region VisualState
 
-VisualState.prototype = new DependencyObject;
-VisualState.prototype.constructor = VisualState;
 function VisualState() {
     DependencyObject.call(this);
 }
-VisualState.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(VisualState, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -35,12 +33,10 @@ VisualState.Annotations = {
 
 //#region VisualStateCollection
 
-VisualStateCollection.prototype = new DependencyObjectCollection;
-VisualStateCollection.prototype.constructor = VisualStateCollection;
 function VisualStateCollection() {
     DependencyObjectCollection.call(this);
 }
-VisualStateCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(VisualStateCollection, DependencyObjectCollection);
 
 VisualStateCollection.prototype.IsElementType = function (value) {
     return value instanceof VisualState;
@@ -50,13 +46,11 @@ VisualStateCollection.prototype.IsElementType = function (value) {
 
 //#region VisualStateGroup
 
-VisualStateGroup.prototype = new DependencyObject;
-VisualStateGroup.prototype.constructor = VisualStateGroup;
 function VisualStateGroup() {
     DependencyObject.call(this);
     this._States = new VisualStateCollection();
 }
-VisualStateGroup.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(VisualStateGroup, DependencyObject);
 
 VisualStateGroup.prototype.GetStates = function () {
     return this._States;
@@ -84,12 +78,10 @@ VisualStateGroup.Annotations = {
 
 //#region VisualStateGroupCollection
 
-VisualStateGroupCollection.prototype = new DependencyObjectCollection;
-VisualStateGroupCollection.prototype.constructor = VisualStateGroupCollection;
 function VisualStateGroupCollection() {
     DependencyObjectCollection.call(this);
 }
-VisualStateGroupCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RefObject.Register(VisualStateGroupCollection, DependencyObjectCollection);
 
 VisualStateGroupCollection.prototype.IsElementType = function (value) {
     return value instanceof VisualStateGroup;
@@ -99,12 +91,10 @@ VisualStateGroupCollection.prototype.IsElementType = function (value) {
 
 //#region VisualStateManager
 
-VisualStateManager.prototype = new DependencyObject;
-VisualStateManager.prototype.constructor = VisualStateManager;
 function VisualStateManager() {
     DependencyObject.call(this);
 }
-VisualStateManager.GetBaseClass = function () { return DependencyObject; };
+RefObject.Register(VisualStateManager, DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

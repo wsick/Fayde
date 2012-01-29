@@ -7,12 +7,10 @@
 
 //#region LayoutInformation
 
-LayoutInformation.prototype = new RefObject;
-LayoutInformation.prototype.constructor = new LayoutInformation;
 function LayoutInformation() {
     RefObject.call(this);
 }
-LayoutInformation.GetBaseClass = function () { return RefObject; };
+RefObject.Register(LayoutInformation, RefObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -78,8 +76,6 @@ LayoutInformation.SetVisualOffset = function (d, value) {
 
 //#region LayoutPass
 
-LayoutPass.prototype = new RefObject;
-LayoutPass.prototype.constructor = LayoutPass;
 function LayoutPass() {
     RefObject.call(this);
     this._MeasureList = new List();
@@ -88,7 +84,7 @@ function LayoutPass() {
     this._Count = 0;
     this._Updated = false;
 }
-LayoutPass.GetBaseClass = function () { return RefObject; };
+RefObject.Register(LayoutPass, RefObject);
 
 LayoutPass.MaxCount = 250;
 

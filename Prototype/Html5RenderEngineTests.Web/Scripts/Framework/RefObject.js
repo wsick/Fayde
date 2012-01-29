@@ -24,4 +24,10 @@ RefObject.As = function (obj, type) {
     return null;
 };
 
+RefObject.Register = function (type, parentType) {
+    type.prototype = new parentType;
+    type.prototype.constructor = type;
+    type.GetBaseClass = function () { return parentType; };
+};
+
 ///#endregion

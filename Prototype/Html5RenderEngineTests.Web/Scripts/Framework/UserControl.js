@@ -3,12 +3,10 @@
 
 //#region UserControl
 
-UserControl.prototype = new Control;
-UserControl.prototype.constructor = UserControl;
 function UserControl() {
     Control.call(this);
 }
-UserControl.GetBaseClass = function () { return Control; };
+RefObject.Register(UserControl, Control);
 
 //#region DEPENDENCY PROPERTIES
 

@@ -5,12 +5,10 @@
 
 //#region Canvas
 
-Canvas.prototype = new Panel;
-Canvas.prototype.constructor = Canvas;
 function Canvas() {
     Panel.call(this);
 }
-Canvas.GetBaseClass = function () { return Panel; };
+RefObject.Register(Canvas, Panel);
 
 //#region DEPENDENCY PROPERTIES
 

@@ -5,12 +5,10 @@
 
 //#region ContentControl
 
-ContentControl.prototype = new Control;
-ContentControl.prototype.constructor = ContentControl;
 function ContentControl() {
     Control.call(this);
 }
-ContentControl.GetBaseClass = function () { return Control; };
+RefObject.Register(ContentControl, Control);
 
 ContentControl._FallbackTemplate = (function () {
     //TODO: Create fallback template

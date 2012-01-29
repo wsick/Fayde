@@ -7,8 +7,6 @@
 
 //#region TextBlock
 
-TextBlock.prototype = new FrameworkElement;
-TextBlock.prototype.constructor = TextBlock;
 function TextBlock() {
     FrameworkElement.call(this);
 
@@ -24,7 +22,7 @@ function TextBlock() {
 
     this._Font = new Font();
 }
-TextBlock.GetBaseClass = function () { return FrameworkElement; };
+RefObject.Register(TextBlock, FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -473,14 +471,12 @@ TextBlock.Annotations = {
 
 //#region _TextBlockDynamicPropertyValueProvider
 
-_TextBlockDynamicPropertyValueProvider.prototype = new _FrameworkElementProvider;
-_TextBlockDynamicPropertyValueProvider.prototype.constructor = _TextBlockDynamicPropertyValueProvider;
 function _TextBlockDynamicPropertyValueProvider(obj, propPrecedence) {
     _FrameworkElementProvider.call(this, obj, propPrecedence);
     this._BaselineOffsetValue = null;
     this._TextValue = null;
 }
-_TextBlockDynamicPropertyValueProvider.GetBaseClass = function () { return _FrameworkElementProvider; };
+RefObject.Register(_TextBlockDynamicPropertyValueProvider, _FrameworkElementProvider);
 
 _TextBlockDynamicPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (propd == TextBlock.BaselineOffsetProperty) {
