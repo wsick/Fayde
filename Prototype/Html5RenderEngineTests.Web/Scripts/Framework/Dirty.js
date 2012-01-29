@@ -6,7 +6,7 @@ function _DirtyList() {
     RefObject.call(this);
     this._DirtyNodes = new List();
 }
-RefObject.Register(_DirtyList, RefObject);
+_DirtyList.InheritFrom(RefObject);
 
 _DirtyList.prototype.AddDirtyNode = function (node) {
     this._DirtyNodes.Append(node);

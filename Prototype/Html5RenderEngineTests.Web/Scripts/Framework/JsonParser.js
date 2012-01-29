@@ -8,7 +8,7 @@
 function JsonParser() {
     RefObject.call(this);
 }
-RefObject.Register(JsonParser, RefObject);
+JsonParser.InheritFrom(RefObject);
 
 JsonParser.prototype.CreateObject = function (json, namescope) {
     var dobj = new json.Type();
@@ -120,6 +120,6 @@ function TemplateBinding(path) {
     RefObject.call(this);
     this.Path = path;
 }
-RefObject.Register(TemplateBinding, RefObject);
+TemplateBinding.InheritFrom(RefObject);
 
 //#endregion

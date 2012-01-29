@@ -8,7 +8,7 @@
 function Canvas() {
     Panel.call(this);
 }
-RefObject.Register(Canvas, Panel);
+Canvas.InheritFrom(Panel);
 
 //#region DEPENDENCY PROPERTIES
 

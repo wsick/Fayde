@@ -8,7 +8,7 @@
 function StackPanel() {
     Panel.call(this);
 }
-RefObject.Register(StackPanel, Panel);
+StackPanel.InheritFrom(Panel);
 
 //#region DEPENDENCY PROPERTIES
 

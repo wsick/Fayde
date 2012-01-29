@@ -8,7 +8,7 @@
 function ContentControl() {
     Control.call(this);
 }
-RefObject.Register(ContentControl, Control);
+ContentControl.InheritFrom(Control);
 
 ContentControl._FallbackTemplate = (function () {
     //TODO: Create fallback template

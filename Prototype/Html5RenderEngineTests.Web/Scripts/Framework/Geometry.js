@@ -5,7 +5,7 @@
 function Geometry() {
     this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 }
-RefObject.Register(Geometry, DependencyObject);
+Geometry.InheritFrom(DependencyObject);
 
 Geometry.prototype.GetBounds = function () {
     var compute = this._LocalBounds.IsEmpty();
@@ -29,7 +29,7 @@ Geometry.prototype.ComputePathBounds = function () {
 
 function RectangleGeometry() {
 }
-RefObject.Register(RectangleGeometry, Geometry);
+RectangleGeometry.InheritFrom(Geometry);
 
 //#region DEPENDENCY PROPERTIES
 

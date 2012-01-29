@@ -26,7 +26,7 @@ function FrameworkElement() {
     this._Providers[_PropertyPrecedence.DynamicValue] = new _FrameworkElementProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 }
-RefObject.Register(FrameworkElement, UIElement);
+FrameworkElement.InheritFrom(UIElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -852,7 +852,7 @@ function _FrameworkElementProvider(obj, propPrecedence) {
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 }
-RefObject.Register(_FrameworkElementProvider, _PropertyValueProvider);
+_FrameworkElementProvider.InheritFrom(_PropertyValueProvider);
 
 _FrameworkElementProvider.prototype.GetPropertyValue = function (propd) {
     if (propd != FrameworkElement.ActualHeightProperty && propd != FrameworkElement.ActualWidthProperty)

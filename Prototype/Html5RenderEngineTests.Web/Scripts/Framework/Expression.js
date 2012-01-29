@@ -15,7 +15,7 @@ var BindingMode = {
 function Expression() {
     RefObject.call(this);
 }
-RefObject.Register(Expression, RefObject);
+Expression.InheritFrom(RefObject);
 
 Expression.prototype.GetValue = function (propd) {
     AbstractMethod("_Expression.GetValue");
@@ -34,7 +34,7 @@ Expression.prototype._OnDetached = function (element) {
 function BindingExpressionBase() {
     Expression.call(this);
 }
-RefObject.Register(BindingExpressionBase, Expression);
+BindingExpressionBase.InheritFrom(Expression);
 
 //#endregion
 
@@ -45,7 +45,7 @@ function TemplateBindingExpression(sourcePropd, targetPropd) {
     this.SourceProperty = sourcePropd;
     this.TargetProperty = targetPropd;
 }
-RefObject.Register(TemplateBindingExpression, Expression);
+TemplateBindingExpression.InheritFrom(Expression);
 
 TemplateBindingExpression.prototype.GetValue = function (propd) {
     var source = this.Target._TemplateOwner;

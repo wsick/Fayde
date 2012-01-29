@@ -15,7 +15,7 @@ function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocr
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
 }
-RefObject.Register(DependencyProperty, RefObject);
+DependencyProperty.InheritFrom(RefObject);
 
 DependencyProperty.prototype.toString = function () {
     var funcNameRegex = /function (.{1,})\(/;
@@ -89,6 +89,6 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
 function UnsetValue() {
     RefObject.call(this);
 }
-RefObject.Register(UnsetValue, RefObject);
+UnsetValue.InheritFrom(RefObject);
 
 //#endregion

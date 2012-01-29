@@ -15,7 +15,7 @@ function DependencyObject() {
     this._TypeName = this._GetTypeName();
     this._Initialize();
 }
-RefObject.Register(DependencyObject, RefObject);
+DependencyObject.InheritFrom(RefObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -815,7 +815,7 @@ function NameScope() {
     this._Names = null;
     this._Temporary = false;
 }
-RefObject.Register(NameScope, DependencyObject);
+NameScope.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

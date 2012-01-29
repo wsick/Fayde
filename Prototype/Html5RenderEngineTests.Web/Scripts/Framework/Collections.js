@@ -12,7 +12,7 @@ function Collection() {
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();
 }
-RefObject.Register(Collection, DependencyObject);
+Collection.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -105,7 +105,7 @@ function CollectionIterator(collection) {
     this._Collection = collection;
     this._Index = -1;
 }
-RefObject.Register(CollectionIterator, RefObject);
+CollectionIterator.InheritFrom(RefObject);
 
 CollectionIterator.prototype.Next = function (error) {
     this._Index++;
@@ -133,7 +133,7 @@ function ItemChangedArgs(item, propd, oldValue, newValue) {
     this.OldValue = oldValue;
     this.NewValue = newValue;
 }
-RefObject.Register(ItemChangedArgs, RefObject);
+ItemChangedArgs.InheritFrom(RefObject);
 
 //#endregion
 
@@ -153,7 +153,7 @@ function CollectionChangedArgs(action, oldValue, newValue, index) {
     this.NewValue = newValue;
     this.Index = index;
 }
-RefObject.Register(CollectionChangedArgs, RefObject);
+CollectionChangedArgs.InheritFrom(RefObject);
 
 //#endregion
 
@@ -164,7 +164,7 @@ function DependencyObjectCollection(setsParent) {
     this._IsSecondaryParent = false;
     this._SetsParent = !setsParent ? true : setsParent;
 }
-RefObject.Register(DependencyObjectCollection, Collection);
+DependencyObjectCollection.InheritFrom(Collection);
 
 DependencyObjectCollection.prototype.IsElementType = function (value) {
     return value instanceof DependencyObject;
@@ -244,7 +244,7 @@ function UIElementCollection() {
     DependencyObjectCollection.call(this);
     this._ZSorted = new Array();
 }
-RefObject.Register(UIElementCollection, DependencyObjectCollection);
+UIElementCollection.InheritFrom(DependencyObjectCollection);
 
 UIElementCollection.prototype.GetValueAtZIndex = function (index) {
     return this._ZSorted[index];
@@ -277,7 +277,7 @@ UIElementCollection.prototype.IsElementType = function (value) {
 function InlineCollection() {
     DependencyObjectCollection.call(this);
 }
-RefObject.Register(InlineCollection, DependencyObjectCollection);
+InlineCollection.InheritFrom(DependencyObjectCollection);
 
 InlineCollection.prototype.AddedToCollection = function (value, error) {
     if (this._ForHyperlink) {
@@ -304,7 +304,7 @@ function ResourceDictionary() {
     Collection.call(this);
     this._KeyIndex = new Array();
 }
-RefObject.Register(ResourceDictionary, Collection);
+ResourceDictionary.InheritFrom(Collection);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -376,7 +376,7 @@ ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
 function ResourceDictionaryCollection() {
     DependencyObjectCollection.call(this);
 }
-RefObject.Register(ResourceDictionaryCollection, DependencyObjectCollection);
+ResourceDictionaryCollection.InheritFrom(DependencyObjectCollection);
 
 ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
     if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
@@ -427,7 +427,7 @@ ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (s
 function GradientStop() {
     DependencyObject.call(this);
 }
-RefObject.Register(GradientStop, DependencyObject);
+GradientStop.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -456,7 +456,7 @@ GradientStop.prototype.SetOffset = function (value) {
 function GradientStopCollection() {
     DependencyObjectCollection.call(this);
 }
-RefObject.Register(GradientStopCollection, DependencyObjectCollection);
+GradientStopCollection.InheritFrom(DependencyObjectCollection);
 
 GradientStopCollection.prototype.IsElementType = function (value) {
     return value instanceof GradientStop;
@@ -490,7 +490,7 @@ function _VisualTreeWalker(/* UIElement */obj, /* _VisualTreeWalkerDirection */d
         }
     }
 }
-RefObject.Register(_VisualTreeWalker, RefObject);
+_VisualTreeWalker.InheritFrom(RefObject);
 
 _VisualTreeWalker.prototype.Step = function () {
     var result = null;
@@ -553,7 +553,7 @@ function _DeepTreeWalker(/* UIElement */top, /* _VisualTreeWalkerDirection */dir
     if (direction)
         this._Direction = direction;
 }
-RefObject.Register(_DeepTreeWalker, RefObject);
+_DeepTreeWalker.InheritFrom(RefObject);
 
 _DeepTreeWalker.prototype.Step = function () {
     if (this._Last) {

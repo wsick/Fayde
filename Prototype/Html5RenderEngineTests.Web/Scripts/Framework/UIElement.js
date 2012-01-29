@@ -81,7 +81,7 @@ function UIElement() {
     this.LostFocus = new MulticastEvent();
     this.LostFocus.Subscribe(this.OnLostFocus, this);
 }
-RefObject.Register(UIElement, DependencyObject);
+UIElement.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

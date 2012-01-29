@@ -10,7 +10,7 @@
 function Border() {
     FrameworkElement.call(this);
 }
-RefObject.Register(Border, FrameworkElement);
+Border.InheritFrom(FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 

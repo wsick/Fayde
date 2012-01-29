@@ -22,7 +22,7 @@ function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroun
     this._SelectionForeground = undefined;
     this._BaselineOffset = undefined;
 }
-RefObject.Register(_TextBoxBaseDynamicPropertyValueProvider, _FrameworkElementProvider);
+_TextBoxBaseDynamicPropertyValueProvider.InheritFrom(_FrameworkElementProvider);
 
 _TextBoxBaseDynamicPropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
     if (propd == this._BackgroundPropd)
@@ -67,7 +67,7 @@ function _TextBoxDynamicPropertyValueProvider(obj, propPrecedence) {
     _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence, 
         TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
 }
-RefObject.Register(_TextBoxDynamicPropertyValueProvider, _TextBoxBaseDynamicPropertyValueProvider);
+_TextBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
 
 //#endregion
 
@@ -77,7 +77,7 @@ function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
     _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence, 
         PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
 }
-RefObject.Register(_PasswordBoxDynamicPropertyValueProvider, _TextBoxBaseDynamicPropertyValueProvider);
+_PasswordBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
 
 //#endregion
 
@@ -96,7 +96,7 @@ function _TextBoxView() {
     this._TextBox = null;
     this._Dirty = false;
 }
-RefObject.Register(_TextBoxView, FrameworkElement);
+_TextBoxView.InheritFrom(FrameworkElement);
 
 _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
     if (this._TextBox == value)
@@ -392,7 +392,7 @@ function _TextBoxModelChangedEventArgs(changed, propArgs) {
     this.Changed = changed;
     this.PropArgs = propArgs;
 }
-RefObject.Register(_TextBoxModelChangedEventArgs, RefObject);
+_TextBoxModelChangedEventArgs.InheritFrom(RefObject);
 
 //#endregion
 
@@ -410,7 +410,7 @@ function TextBoxBase() {
 
     this._Batch = 0;
 }
-RefObject.Register(TextBoxBase, Control);
+TextBoxBase.InheritFrom(Control);
 
 TextBoxBase.prototype.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
@@ -573,7 +573,7 @@ function TextBox() {
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
 }
-RefObject.Register(TextBox, TextBoxBase);
+TextBox.InheritFrom(TextBoxBase);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -1014,6 +1014,6 @@ function PasswordBox() {
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._EventsMask = _TextBoxEmitChanged.TEXT;
 }
-RefObject.Register(PasswordBox, TextBoxBase);
+PasswordBox.InheritFrom(TextBoxBase);
 
 //#endregion

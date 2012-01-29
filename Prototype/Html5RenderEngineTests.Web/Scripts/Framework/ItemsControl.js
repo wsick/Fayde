@@ -7,7 +7,7 @@ var ItemCollection = {};//TODO: Implement
 function ItemsControl() {
     Control.call(this);
 }
-RefObject.Register(ItemsControl, Control);
+ItemsControl.InheritFrom(Control);
 
 //#region DEPENDENCY PROPERTIES
 

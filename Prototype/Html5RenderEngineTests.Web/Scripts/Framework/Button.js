@@ -14,7 +14,7 @@ function Button() {
     this._StateNormal = null;
     this.SetIsTabStop(false);
 }
-RefObject.Register(Button, ButtonBase);
+Button.InheritFrom(ButtonBase);
 
 Button.StateDisabled = "";
 Button.StatePressed = "";

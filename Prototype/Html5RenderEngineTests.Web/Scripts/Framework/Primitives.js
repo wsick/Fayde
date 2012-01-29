@@ -108,7 +108,7 @@ function RefParam(v) {
     RefObject.call(this);
     this.Value = v;
 }
-RefObject.Register(RefParam, RefObject);
+RefParam.InheritFrom(RefObject);
 
 //#endregion
 
@@ -121,7 +121,7 @@ function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
     this.BottomRight = bottomRight == null ? 0 : bottomRight;
     this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
 }
-RefObject.Register(CornerRadius, RefObject);
+CornerRadius.InheritFrom(RefObject);
 
 CornerRadius.prototype.IsZero = function () {
     return this.TopLeft === 0
@@ -141,7 +141,7 @@ function Thickness(left, top, right, bottom) {
     this.Right = right == null ? 0 : right;
     this.Bottom = bottom == null ? 0 : bottom;
 }
-RefObject.Register(Thickness, RefObject);
+Thickness.InheritFrom(RefObject);
 
 Thickness.prototype.Plus = function (thickness2) {
     var t = new Thickness();
@@ -180,7 +180,7 @@ function Point(x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
-RefObject.Register(Point, RefObject);
+Point.InheritFrom(RefObject);
 
 Point.prototype.Apply = function (matrix) {
     return matrix.Multiply(this);
@@ -198,7 +198,7 @@ function Size(width, height) {
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
-RefObject.Register(Size, RefObject);
+Size.InheritFrom(RefObject);
 
 Size.prototype.GrowBy = function (width, height) {
     var h = this.Height;
@@ -236,7 +236,7 @@ function Rect(x, y, width, height) {
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
-RefObject.Register(Rect, RefObject);
+Rect.InheritFrom(RefObject);
 
 Rect.prototype.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;
@@ -299,7 +299,7 @@ function Clip(rect) {
     this.Width = rounded.Width;
     this.Height = rounded.Height;
 }
-RefObject.Register(Clip, Rect);
+Clip.InheritFrom(Rect);
 
 //#endregion
 
@@ -312,7 +312,7 @@ function Color(r, g, b, a) {
     this.B = b == null ? 255 : b;
     this.A = a == null ? 1.0 : a;
 }
-RefObject.Register(Color, RefObject);
+Color.InheritFrom(RefObject);
 
 Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
@@ -353,7 +353,7 @@ function Matrix() {
     RefObject.call(this);
     this._Elements = Matrix.CreateIdentityArray();
 }
-RefObject.Register(Matrix, RefObject);
+Matrix.InheritFrom(RefObject);
 
 Matrix.prototype.GetElements = function () {
     return this._Elements;
@@ -437,7 +437,7 @@ function TranslationMatrix(x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
-RefObject.Register(TranslationMatrix, Matrix);
+TranslationMatrix.InheritFrom(Matrix);
 
 TranslationMatrix.prototype.GetElements = function () {
     return [
@@ -488,7 +488,7 @@ function ScalingMatrix(x, y) {
     this.X = x == null ? 1 : x;
     this.Y = y == null ? 1 : y;
 }
-RefObject.Register(ScalingMatrix, Matrix);
+ScalingMatrix.InheritFrom(Matrix);
 
 ScalingMatrix.prototype.GetElements = function () {
     return [
@@ -513,7 +513,7 @@ function ShearingMatrix(shearX, shearY) {
     this.ShearX = shearX == null ? 0 : shearX;
     this.ShearY = shearY == null ? 0 : shearY;
 }
-RefObject.Register(ShearingMatrix, Matrix);
+ShearingMatrix.InheritFrom(Matrix);
 
 ShearingMatrix.prototype.GetElements = function () {
     return [
@@ -541,7 +541,7 @@ function Font() {
     this._Weight = Font.DEFAULT_WEIGHT;
     this._Size = Font.DEFAULT_SIZE;
 }
-RefObject.Register(Font, RefObject);
+Font.InheritFrom(RefObject);
 
 Font.prototype.GetFamily = function () {
     return this._Family;

@@ -16,7 +16,7 @@ function Grid() {
     this._RowMatrix = null;
     this._ColMatrix = null;
 }
-RefObject.Register(Grid, Panel);
+Grid.InheritFrom(Panel);
 
 //#region ATTACHED DEPENDENCY PROPERTIES
 
@@ -574,7 +574,7 @@ function GridLength(value, type) {
     this.Value = value == null ? 0 : value;
     this.Type = type == null ? GridUnitType.Auto : type;
 }
-RefObject.Register(GridLength, RefObject);
+GridLength.InheritFrom(RefObject);
 
 GridLength.Equals = function (gl1, gl2) {
     return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
@@ -587,7 +587,7 @@ GridLength.Equals = function (gl1, gl2) {
 function RowDefinition() {
     DependencyObject.call(this);
 }
-RefObject.Register(RowDefinition, DependencyObject);
+RowDefinition.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -632,7 +632,7 @@ RowDefinition.prototype.SetActualHeight = function (value) {
 function RowDefinitionCollection() {
     DependencyObjectCollection.call(this);
 }
-RefObject.Register(RowDefinitionCollection, DependencyObjectCollection);
+RowDefinitionCollection.InheritFrom(DependencyObjectCollection);
 
 RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
@@ -649,7 +649,7 @@ RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
 function ColumnDefinition() {
     DependencyObject.call(this);
 }
-RefObject.Register(ColumnDefinition, DependencyObject);
+ColumnDefinition.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -694,7 +694,7 @@ ColumnDefinition.prototype.SetActualWidth = function (value) {
 function ColumnDefinitionCollection() {
     DependencyObjectCollection.call(this);
 }
-RefObject.Register(ColumnDefinitionCollection, DependencyObjectCollection);
+ColumnDefinitionCollection.InheritFrom(DependencyObjectCollection);
 
 ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
@@ -719,7 +719,7 @@ function _Segment(offered, min, max, unitType) {
     this._OfferedSize = this._Clamp(offered);
     this._OriginalSize = this._OfferedSize;
 }
-RefObject.Register(_Segment, RefObject);
+_Segment.InheritFrom(RefObject);
 
 _Segment.prototype._SetOfferedToDesired = function () {
     this._OfferedSize = this._DesiredSize;
@@ -749,7 +749,7 @@ function _GridNode(matrix, row, col, size) {
     this._Size = size;
     this._Cell = this._Matrix == null ? null : this._Matrix[row][col];
 }
-RefObject.Register(_GridNode, Node);
+_GridNode.InheritFrom(Node);
 
 //#endregion
 
@@ -788,6 +788,6 @@ function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
         this._HasAutoStar = this._HasAutoStar || (autoRow && starCol);
     }
 }
-RefObject.Register(_GridWalker, RefObject);
+_GridWalker.InheritFrom(RefObject);
 
 //#endregion

@@ -7,7 +7,7 @@
 function FrameworkTemplate() {
     DependencyObject.call(this);
 }
-RefObject.Register(FrameworkTemplate, DependencyObject);
+FrameworkTemplate.InheritFrom(DependencyObject);
 
 FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
@@ -19,7 +19,7 @@ FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElem
 function ControlTemplate() {
     FrameworkTemplate.call(this);
 }
-RefObject.Register(ControlTemplate, FrameworkTemplate);
+ControlTemplate.InheritFrom(FrameworkTemplate);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -57,7 +57,7 @@ ControlTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElemen
 function DataTemplate() {
     FrameworkTemplate.call(this);
 }
-RefObject.Register(DataTemplate, FrameworkTemplate);
+DataTemplate.InheritFrom(FrameworkTemplate);
 
 DataTemplate.CreateTemplateFromJson = function (json) {
     var template = new DataTemplate();

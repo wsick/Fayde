@@ -11,7 +11,7 @@ function SetterBase() {
     DependencyObject.call(this);
     this._IsAttached = false;
 }
-RefObject.Register(SetterBase, DependencyObject);
+SetterBase.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -41,7 +41,7 @@ SetterBase.prototype._Seal = function () {
 function SetterBaseCollection() {
     DependencyObjectCollection.call(this);
 }
-RefObject.Register(SetterBaseCollection, DependencyObjectCollection);
+SetterBaseCollection.InheritFrom(DependencyObjectCollection);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -99,7 +99,7 @@ SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
 function Setter() {
     SetterBase.call(this);
 }
-RefObject.Register(Setter, SetterBase);
+Setter.InheritFrom(SetterBase);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -130,7 +130,7 @@ Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", fu
 function Style() {
     DependencyObject.call(this);
 }
-RefObject.Register(Style, DependencyObject);
+Style.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -207,7 +207,7 @@ function _DeepStyleWalker(styles) {
     else if (styles instanceof Array)
         this._InitializeStyles(styles);
 }
-RefObject.Register(_DeepStyleWalker, RefObject);
+_DeepStyleWalker.InheritFrom(RefObject);
 
 _DeepStyleWalker.prototype.Step = function () {
     if (this._Offset < this._Setters.length) {

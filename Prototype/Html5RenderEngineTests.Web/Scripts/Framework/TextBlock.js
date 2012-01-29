@@ -22,7 +22,7 @@ function TextBlock() {
 
     this._Font = new Font();
 }
-RefObject.Register(TextBlock, FrameworkElement);
+TextBlock.InheritFrom(FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -476,7 +476,7 @@ function _TextBlockDynamicPropertyValueProvider(obj, propPrecedence) {
     this._BaselineOffsetValue = null;
     this._TextValue = null;
 }
-RefObject.Register(_TextBlockDynamicPropertyValueProvider, _FrameworkElementProvider);
+_TextBlockDynamicPropertyValueProvider.InheritFrom(_FrameworkElementProvider);
 
 _TextBlockDynamicPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (propd == TextBlock.BaselineOffsetProperty) {

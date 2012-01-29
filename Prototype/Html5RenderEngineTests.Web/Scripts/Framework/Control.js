@@ -11,7 +11,7 @@ function Control() {
 
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 }
-RefObject.Register(Control, FrameworkElement);
+Control.InheritFrom(FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 

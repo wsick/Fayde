@@ -19,7 +19,7 @@ function Surface() {
     this._UserInitiatedEvent = false;
     this._Cursor = CursorType.Default;
 }
-RefObject.Register(Surface, RefObject);
+Surface.InheritFrom(RefObject);
 
 Surface.prototype.Init = function (jCanvas) {
     Surface._TestCanvas = document.createElement('canvas');
@@ -628,7 +628,7 @@ function _RenderContext(surface) {
     this._Surface = surface;
     this._Transforms = new Array();
 }
-RefObject.Register(_RenderContext, RefObject);
+_RenderContext.InheritFrom(RefObject);
 
 _RenderContext.prototype.GetSurface = function () {
     return this._Surface;
@@ -706,6 +706,6 @@ function FocusChangedNode(lostFocus, gotFocus) {
     this.LostFocus = lostFocus;
     this.GotFocus = gotFocus;
 }
-RefObject.Register(FocusChangedNode, Node);
+FocusChangedNode.InheritFrom(Node);
 
 //#endregion

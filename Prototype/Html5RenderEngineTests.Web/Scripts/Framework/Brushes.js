@@ -9,7 +9,7 @@
 function Brush() {
     DependencyObject.call(this);
 };
-RefObject.Register(Brush, DependencyObject);
+Brush.InheritFrom(DependencyObject);
 
 Brush.prototype._Translate = function (ctx) {
     AbstractMethod("Brush._Translate()");
@@ -23,7 +23,7 @@ function SolidColorBrush(color) {
     Brush.call(this);
     this._Color = color;
 }
-RefObject.Register(SolidColorBrush, Brush);
+SolidColorBrush.InheritFrom(Brush);
 
 SolidColorBrush.prototype._Translate = function (ctx) {
     return this._Color.toString();
@@ -36,7 +36,7 @@ SolidColorBrush.prototype._Translate = function (ctx) {
 function GradientBrush() {
     Brush.call(this);
 }
-RefObject.Register(GradientBrush, Brush);
+GradientBrush.InheritFrom(Brush);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -57,7 +57,7 @@ GradientBrush.prototype.SetGradientStops = function (value) {
 function LinearGradientBrush() {
     GradientBrush.call(this);
 }
-RefObject.Register(LinearGradientBrush, GradientBrush);
+LinearGradientBrush.InheritFrom(GradientBrush);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -99,7 +99,7 @@ LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
 function RadialGradientBrush() {
     GradientBrush.call(this);
 }
-RefObject.Register(RadialGradientBrush, GradientBrush);
+RadialGradientBrush.InheritFrom(GradientBrush);
 
 //#region DEPENDENCY PROPERTIES
 

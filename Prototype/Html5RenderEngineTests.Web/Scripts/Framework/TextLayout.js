@@ -32,7 +32,7 @@ function TextLayout() {
     this._Length = 0;
     this._Count = 0;
 }
-RefObject.Register(TextLayout, RefObject);
+TextLayout.InheritFrom(RefObject);
 
 TextLayout.prototype.GetSelectionLength = function () {
     return this._SelectionLength;
@@ -530,7 +530,7 @@ function _TextLayoutLine(layout, start, offset) {
     this._Length = 0;
     this._Count = 0;
 }
-RefObject.Register(_TextLayoutLine, RefObject);
+_TextLayoutLine.InheritFrom(RefObject);
 
 _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
     var run;
@@ -559,7 +559,7 @@ function _TextLayoutRun(line, attrs, start) {
     this._Length = 0;
     this._Count = 0;
 }
-RefObject.Register(_TextLayoutRun, RefObject);
+_TextLayoutRun.InheritFrom(RefObject);
 
 _TextLayoutRun.prototype._GenerateCache = function () {
     var selectionLength = this._Line._Layout.GetSelectionLength();
@@ -619,7 +619,7 @@ function _TextLayoutGlyphCluster(text, font, selected) {
     this._Selected = selected == true;
     this._Advance = Surface.MeasureText(text, font).Width;
 }
-RefObject.Register(_TextLayoutGlyphCluster, RefObject);
+_TextLayoutGlyphCluster.InheritFrom(RefObject);
 
 _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) {
     if (this._Text.length == 0 || this._Advance == 0.0)
@@ -658,7 +658,7 @@ function _TextLayoutAttributes(source, start) {
     this._Source = source;
     this._Start = start == null ? 0 : start;
 }
-RefObject.Register(_TextLayoutAttributes, Node);
+_TextLayoutAttributes.InheritFrom(Node);
 
 _TextLayoutAttributes.prototype.GetBackground = function (selected) { return this._Source.GetBackground(selected); };
 _TextLayoutAttributes.prototype.GetForeground = function (selected) { return this._Source.GetForeground(selected); };
@@ -679,6 +679,6 @@ function _LayoutWord() {
     this._BreakOps = null;
     this._Font = new Font();
 }
-RefObject.Register(_LayoutWord, RefObject);
+_LayoutWord.InheritFrom(RefObject);
 
 //#endregion

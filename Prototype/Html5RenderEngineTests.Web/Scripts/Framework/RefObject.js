@@ -1,7 +1,11 @@
-﻿//#region RefObject
+﻿Function.prototype.InheritFrom = function (parentType) {
+    this.prototype = new parentType;
+    this.prototype.constructor = this;
+    this.GetBaseClass = function () { return parentType; };
+};
 
-RefObject.prototype = new Object;
-RefObject.prototype.constructor = RefObject;
+//#region RefObject
+
 function RefObject() {
     Object.call(this);
     var id;
@@ -10,6 +14,8 @@ function RefObject() {
     } while (id === RefObject._LastID);
     RefObject._LastID = this._ID = id;
 }
+RefObject.InheritFrom(Object);
+
 RefObject.prototype.RefEquals = function (robj) {
     if (robj == null)
         return false;
@@ -17,17 +23,10 @@ RefObject.prototype.RefEquals = function (robj) {
         return false;
     return this._ID === robj._ID;
 };
-RefObject.GetBaseClass = function () { return Object; };
 RefObject.As = function (obj, type) {
     if (obj instanceof type)
         return obj;
     return null;
-};
-
-RefObject.Register = function (type, parentType) {
-    type.prototype = new parentType;
-    type.prototype.constructor = type;
-    type.GetBaseClass = function () { return parentType; };
 };
 
 ///#endregion

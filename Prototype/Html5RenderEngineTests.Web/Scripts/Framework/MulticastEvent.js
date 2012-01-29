@@ -8,7 +8,7 @@ function MulticastEvent() {
     RefObject.call(this);
     this._Listeners = new Array();
 }
-RefObject.Register(MulticastEvent, RefObject);
+MulticastEvent.InheritFrom(RefObject);
 
 MulticastEvent.prototype.Subscribe = function (callback, closure) {
     this._Listeners.push({ Callback: callback, Closure: closure });

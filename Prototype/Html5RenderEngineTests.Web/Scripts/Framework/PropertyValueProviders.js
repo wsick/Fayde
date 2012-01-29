@@ -48,7 +48,7 @@ function _PropertyValueProvider(obj, propPrecedence, flags) {
     this._PropertyPrecedence = propPrecedence;
     this._Flags = flags;
 }
-RefObject.Register(_PropertyValueProvider, RefObject);
+_PropertyValueProvider.InheritFrom(RefObject);
 
 _PropertyValueProvider.prototype._HasFlag = function (flag) {
     return (this._Flags & flag) != 0;
@@ -74,7 +74,7 @@ function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
     this._Source = null;
     this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
 }
-RefObject.Register(_InheritedIsEnabledPropertyValueProvider, _PropertyValueProvider);
+_InheritedIsEnabledPropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _InheritedIsEnabledPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (propd == Control.IsEnabledProperty)
@@ -146,7 +146,7 @@ function _LocalPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
-RefObject.Register(_LocalPropertyValueProvider, _PropertyValueProvider);
+_LocalPropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _LocalPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];
@@ -166,7 +166,7 @@ function _StylePropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._ht = new Array();
 }
-RefObject.Register(_StylePropertyValueProvider, _PropertyValueProvider);
+_StylePropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _StylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];
@@ -263,7 +263,7 @@ function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
     this._StyleMask = _StyleMask.None;
     this._ht = new Array();
 }
-RefObject.Register(_ImplicitStylePropertyValueProvider, _PropertyValueProvider);
+_ImplicitStylePropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _ImplicitStylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];
@@ -411,7 +411,7 @@ function _InheritedPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, 0);
     this._ht = new Array();
 }
-RefObject.Register(_InheritedPropertyValueProvider, _PropertyValueProvider);
+_InheritedPropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
@@ -751,7 +751,7 @@ function _InheritedContext() {
         if (!this.FontResourceSource && parentContext) this.FontResourceSource = parentContext.FontResourceSource;
     }
 }
-RefObject.Register(_InheritedContext, RefObject);
+_InheritedContext.InheritFrom(RefObject);
 
 _InheritedContext.prototype.Compare = function (withContext, props) {
     var rv = _Inheritable.None;
@@ -797,7 +797,7 @@ function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence);
     this._Source = null;
 }
-RefObject.Register(_InheritedDataContextPropertyValueProvider, _PropertyValueProvider);
+_InheritedDataContextPropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (!this._Source || propd != FrameworkElement.DataContextProperty)
@@ -853,7 +853,7 @@ _InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
 function _DefaultValuePropertyProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, 0);
 }
-RefObject.Register(_DefaultValuePropertyProvider, _PropertyValueProvider);
+_DefaultValuePropertyProvider.InheritFrom(_PropertyValueProvider);
 
 _DefaultValuePropertyProvider.prototype.GetPropertyValue = function (propd) {
     return propd.DefaultValue;
@@ -872,7 +872,7 @@ function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
-RefObject.Register(_AutoCreatePropertyValueProvider, _PropertyValueProvider);
+_AutoCreatePropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);

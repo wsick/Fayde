@@ -5,7 +5,7 @@
 function EventArgs() {
     RefObject.call(this);
 }
-RefObject.Register(EventArgs, RefObject);
+EventArgs.InheritFrom(RefObject);
 
 //#endregion
 
@@ -15,7 +15,7 @@ function MouseEventArgs(absolutePos) {
     EventArgs.call(this);
     this._AbsolutePosition = absolutePos;
 }
-RefObject.Register(MouseEventArgs, EventArgs);
+MouseEventArgs.InheritFrom(EventArgs);
 
 MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
     if (relativeTo._IsAttached)
@@ -32,6 +32,6 @@ MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
 function MouseButtonEventArgs(absolutePos) {
     MouseEventArgs.call(this, absolutePos);
 }
-RefObject.Register(MouseButtonEventArgs, MouseEventArgs);
+MouseButtonEventArgs.InheritFrom(MouseEventArgs);
 
 //#endregion

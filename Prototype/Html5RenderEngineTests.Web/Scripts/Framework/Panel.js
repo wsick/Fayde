@@ -10,7 +10,7 @@
 function Panel() {
     FrameworkElement.call(this);
 }
-RefObject.Register(Panel, FrameworkElement);
+Panel.InheritFrom(FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 

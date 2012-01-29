@@ -10,7 +10,7 @@
 function LayoutInformation() {
     RefObject.call(this);
 }
-RefObject.Register(LayoutInformation, RefObject);
+LayoutInformation.InheritFrom(RefObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -84,7 +84,7 @@ function LayoutPass() {
     this._Count = 0;
     this._Updated = false;
 }
-RefObject.Register(LayoutPass, RefObject);
+LayoutPass.InheritFrom(RefObject);
 
 LayoutPass.MaxCount = 250;
 

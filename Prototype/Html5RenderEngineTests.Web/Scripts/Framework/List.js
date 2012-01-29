@@ -10,7 +10,7 @@ function List() {
     this._Head = null;
     this._Tail = null;
 }
-RefObject.Register(List, RefObject);
+List.InheritFrom(RefObject);
 
 List.prototype.First = function () {
     return this._Head;
@@ -91,7 +91,7 @@ function Node() {
     this.Previous = null;
     this.Next = null;
 }
-RefObject.Register(Node, RefObject);
+Node.InheritFrom(RefObject);
 
 //#endregion
 
@@ -101,7 +101,7 @@ function UIElementNode(/* UIElement */element) {
     Node.call(this);
     this.UIElement = element;
 }
-RefObject.Register(UIElementNode, Node);
+UIElementNode.InheritFrom(Node);
 
 //#endregion
 
@@ -111,7 +111,7 @@ function DirtyNode(/* UIElement */element) {
     Node.call(this);
     this.Element = element;
 }
-RefObject.Register(DirtyNode, Node);
+DirtyNode.InheritFrom(Node);
 
 //#endregion
 
@@ -121,7 +121,7 @@ function Dictionary() {
     RefObject.call(this);
     this._ht = new Array();
 }
-RefObject.Register(Dictionary, RefObject);
+Dictionary.InheritFrom(RefObject);
 
 Dictionary.prototype.TryGetValue = function (key, refParam) {
     refParam.Value = this._ht[key];

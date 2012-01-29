@@ -7,7 +7,7 @@
 function VisualState() {
     DependencyObject.call(this);
 }
-RefObject.Register(VisualState, DependencyObject);
+VisualState.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -36,7 +36,7 @@ VisualState.Annotations = {
 function VisualStateCollection() {
     DependencyObjectCollection.call(this);
 }
-RefObject.Register(VisualStateCollection, DependencyObjectCollection);
+VisualStateCollection.InheritFrom(DependencyObjectCollection);
 
 VisualStateCollection.prototype.IsElementType = function (value) {
     return value instanceof VisualState;
@@ -50,7 +50,7 @@ function VisualStateGroup() {
     DependencyObject.call(this);
     this._States = new VisualStateCollection();
 }
-RefObject.Register(VisualStateGroup, DependencyObject);
+VisualStateGroup.InheritFrom(DependencyObject);
 
 VisualStateGroup.prototype.GetStates = function () {
     return this._States;
@@ -81,7 +81,7 @@ VisualStateGroup.Annotations = {
 function VisualStateGroupCollection() {
     DependencyObjectCollection.call(this);
 }
-RefObject.Register(VisualStateGroupCollection, DependencyObjectCollection);
+VisualStateGroupCollection.InheritFrom(DependencyObjectCollection);
 
 VisualStateGroupCollection.prototype.IsElementType = function (value) {
     return value instanceof VisualStateGroup;
@@ -94,7 +94,7 @@ VisualStateGroupCollection.prototype.IsElementType = function (value) {
 function VisualStateManager() {
     DependencyObject.call(this);
 }
-RefObject.Register(VisualStateManager, DependencyObject);
+VisualStateManager.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

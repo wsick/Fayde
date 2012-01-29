@@ -9,7 +9,7 @@ function App() {
     DependencyObject.call(this);
     this.MainSurface = new Surface();
 }
-RefObject.Register(App, DependencyObject);
+App.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

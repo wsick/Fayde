@@ -6,7 +6,7 @@
 function UserControl() {
     Control.call(this);
 }
-RefObject.Register(UserControl, Control);
+UserControl.InheritFrom(Control);
 
 //#region DEPENDENCY PROPERTIES
 

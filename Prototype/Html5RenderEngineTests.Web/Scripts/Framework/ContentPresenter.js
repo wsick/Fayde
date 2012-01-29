@@ -8,7 +8,7 @@
 function ContentPresenter() {
     FrameworkElement.call(this);
 }
-RefObject.Register(ContentPresenter, FrameworkElement);
+ContentPresenter.InheritFrom(FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
