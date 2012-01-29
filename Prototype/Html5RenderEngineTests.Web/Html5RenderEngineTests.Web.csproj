@@ -52,11 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Docs\JsonDependencyObjectFormat.txt" />
-    <Content Include="grid-tests\test2.html" />
-    <Content Include="grid-tests\test1.html" />
     <Content Include="index.html" />
     <Content Include="multicastevent-test.html" />
     <Content Include="Docs\Annotations.txt" />
+    <Content Include="tests\grid\test1.html" />
+    <Content Include="tests\grid\test2.html" />
     <Content Include="tests\prototype\arrays.html" />
     <Content Include="tests\prototype\kinetic.html" />
     <Content Include="tests\prototype\parsing.html" />
