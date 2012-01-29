@@ -1,6 +1,6 @@
 ﻿/// <reference path="RefObject.js"/>
-/// CODE
 /// <reference path="Primitives.js"/>
+/// CODE
 /// <reference path="Geometry.js"/>
 /// <reference path="UIElement.js"/>
 /// <reference path="DependencyProperty.js"/>

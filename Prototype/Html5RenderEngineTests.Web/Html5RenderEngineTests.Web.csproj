@@ -52,8 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Docs\JsonDependencyObjectFormat.txt" />
-    <Content Include="Fayde.js" />
     <Content Include="index.html" />
+    <Content Include="Scripts\Fayde.js" />
     <Content Include="Scripts\Framework\VisualStateManager.js" />
     <Content Include="test-includes.txt" />
     <Content Include="tests\jsonparser\test2.html" />
