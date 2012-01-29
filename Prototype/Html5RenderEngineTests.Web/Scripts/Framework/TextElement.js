@@ -17,7 +17,7 @@ TextElement.GetBaseClass = function () { return DependencyObject; };
 
 //#region DEPENDENCY PROPERTIES
 
-TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
+TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
 TextElement.prototype.GetForeground = function () {
     return this.GetValue(TextElement.ForegroundProperty);
 };
@@ -25,7 +25,7 @@ TextElement.prototype.SetForeground = function (value) {
     this.SetValue(TextElement.ForegroundProperty, value);
 };
 
-TextElement.FontFamilyProperty = DependencyProperty.Register("FontFamily", TextElement, Font.DEFAULT_FAMILY);
+TextElement.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY);
 TextElement.prototype.GetFontFamily = function () {
     return this.GetValue(TextElement.FontFamilyProperty);
 };
@@ -33,7 +33,7 @@ TextElement.prototype.SetFontFamily = function (value) {
     this.SetValue(TextElement.FontFamilyProperty, value);
 };
 
-TextElement.FontStretchProperty = DependencyProperty.Register("FontStretch", TextElement, Font.DEFAULT_STRETCH);
+TextElement.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH);
 TextElement.prototype.GetFontStretch = function () {
     return this.GetValue(TextElement.FontStretchProperty);
 };
@@ -41,7 +41,7 @@ TextElement.prototype.SetFontStretch = function (value) {
     this.SetValue(TextElement.FontStretchProperty, value);
 };
 
-TextElement.FontStyleProperty = DependencyProperty.Register("FontStyle", TextElement, Font.DEFAULT_STYLE);
+TextElement.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE);
 TextElement.prototype.GetFontStyle = function () {
     return this.GetValue(TextElement.FontStyleProperty);
 };
@@ -49,7 +49,7 @@ TextElement.prototype.SetFontStyle = function (value) {
     this.SetValue(TextElement.FontStyleProperty, value);
 };
 
-TextElement.FontWeightProperty = DependencyProperty.Register("FontWeight", TextElement, Font.DEFAULT_WEIGHT);
+TextElement.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextElement, Font.DEFAULT_WEIGHT);
 TextElement.prototype.GetFontWeight = function () {
     return this.GetValue(TextElement.FontWeightProperty);
 };
@@ -57,7 +57,7 @@ TextElement.prototype.SetFontWeight = function (value) {
     this.SetValue(TextElement.FontWeightProperty, value);
 };
 
-TextElement.FontSizeProperty = DependencyProperty.Register("FontSize", TextElement, Font.DEFAULT_SIZE);
+TextElement.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextElement, Font.DEFAULT_SIZE);
 TextElement.prototype.GetFontSize = function () {
     return this.GetValue(TextElement.FontSizeProperty);
 };
@@ -65,7 +65,7 @@ TextElement.prototype.SetFontSize = function (value) {
     this.SetValue(TextElement.FontSizeProperty, value);
 };
 
-TextElement.LanguageProperty = DependencyProperty.Register("Language", TextElement);
+TextElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, TextElement);
 TextElement.prototype.GetLanguage = function () {
     return this.GetValue(TextElement.LanguageProperty);
 };
@@ -73,7 +73,7 @@ TextElement.prototype.SetLanguage = function (value) {
     this.SetValue(TextElement.LanguageProperty, value);
 };
 
-TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", TextElement, TextDecorations.None);
+TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return Number; }, TextElement, TextDecorations.None);
 TextElement.prototype.GetTextDecorations = function () {
     return this.GetValue(TextElement.TextDecorationsProperty);
 };
@@ -81,7 +81,7 @@ TextElement.prototype.SetTextDecorations = function (value) {
     this.SetValue(TextElement.TextDecorationsProperty, value);
 };
 
-TextElement.FontResourceProperty = DependencyProperty.Register("FontResource", TextElement);
+TextElement.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextElement);
 TextElement.prototype.GetFontResource = function () {
     return this.GetValue(TextElement.FontResourceProperty);
 };
@@ -177,7 +177,9 @@ function Run() {
 }
 Run.GetBaseClass = function () { return Inline; };
 
-Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", Run, FlowDirection.LeftToRight);
+//#region DEPENDENCY PROPERTIES
+
+Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return Number; }, Run, FlowDirection.LeftToRight);
 Run.prototype.GetFlowDirection = function () {
     return this.GetValue(Run.FlowDirectionProperty);
 };
@@ -185,13 +187,15 @@ Run.prototype.SetFlowDirection = function (value) {
     this.SetValue(Run.FlowDirectionProperty, value);
 };
 
-Run.TextProperty = DependencyProperty.Register("Text", Run);
+Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
 Run.prototype.GetText = function () {
     return this.GetValue(Run.TextProperty);
 };
 Run.prototype.SetText = function (value) {
     this.SetValue(Run.TextProperty, value);
 };
+
+//#endregion
 
 Run.prototype._SerializeText = function (str) {
     var t = this.GetText();
@@ -211,16 +215,20 @@ function Span() {
 }
 Span.GetBaseClass = function () { return Inline; };
 
+//#region DEPENDENCY PROPERTIES
+
 Span._CreateInlineCollection = function (obj) {
     var inlines = new InlineCollection();
     if (obj instanceof Hyperlink)
         inlines._SetIsForHyperlink();
     return inlines;
 };
-Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", Span, null, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
+Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, null, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
 Span.prototype.GetInlines = function () {
     return this.GetValue(Span.InlinesProperty);
 };
+
+//#endregion
 
 Span.prototype._SerializeText = function (str) {
     var inlines = this.GetInlines();
@@ -274,13 +282,17 @@ function Block() {
 }
 Block.GetBaseClass = function () { return TextElement; };
 
-Block.InlinesProperty = DependencyProperty.Register("Inlines", Block);
+//#region DEPENDENCY PROPERTIES
+
+Block.InlinesProperty = DependencyProperty.Register("Inlines", function () { return InlineCollection; }, Block);
 Block.prototype.GetInlines = function () {
     return this.GetValue(Block.InlinesProperty);
 };
 Block.prototype.SetInlines = function (value) {
     this.SetValue(Block.InlinesProperty, value);
 };
+
+//#endregion
 
 //#endregion
 
@@ -304,12 +316,16 @@ function Section() {
 }
 Section.GetBaseClass = function () { return TextElement; };
 
-Section.BlocksProperty = DependencyProperty.Register("Blocks", Section);
+//#region DEPENDENCY PROPERTIES
+
+Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return Object; }, Section);
 Section.prototype.GetBlocks = function () {
     return this.GetValue(Section.BlocksProperty);
 };
 Section.prototype.SetBlocks = function (value) {
     this.SetValue(Section.BlocksProperty, value);
 };
+
+//#endregion
 
 //#endregion

@@ -21,7 +21,7 @@ DependencyObject.GetBaseClass = function () { return RefObject; };
 
 //#region DEPENDENCY PROPERTIES
 
-DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
+DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 DependencyObject.prototype.GetName = function () {
     return this.GetValue(DependencyObject.NameProperty);
 };
@@ -821,13 +821,17 @@ function NameScope() {
 }
 NameScope.GetBaseClass = function () { return DependencyObject; };
 
-NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", NameScope);
+//#region DEPENDENCY PROPERTIES
+
+NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", function () { return NameScope; }, NameScope);
 NameScope.GetNameScope = function (d) {
     return d.GetValue(NameScope.NameScopeProperty);
 };
 NameScope.SetNameScope = function (d, value) {
     d.SetValue(NameScope.NameScopeProperty, value);
 };
+
+//#endregion
 
 NameScope.prototype.GetIsLocked = function () {
     return this._IsLocked;

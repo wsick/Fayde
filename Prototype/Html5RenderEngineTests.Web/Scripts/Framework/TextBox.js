@@ -591,7 +591,7 @@ TextBox.GetBaseClass = function () { return TextBoxBase; };
 
 //#region DEPENDENCY PROPERTIES
 
-TextBox.SelectionForegroundProperty = DependencyProperty.Register("SelectionForeground", TextBox);
+TextBox.SelectionForegroundProperty = DependencyProperty.Register("SelectionForeground", function () { return Brush; }, TextBox);
 TextBox.prototype.GetSelectionForeground = function () {
     return this.GetValue(TextBox.SelectionForegroundProperty);
 };
@@ -599,7 +599,7 @@ TextBox.prototype.SetSelectionForeground = function (value) {
     this.SetValue(TextBox.SelectionForegroundProperty, value);
 };
 
-TextBox.SelectionBackgroundProperty = DependencyProperty.Register("SelectionBackground", TextBox);
+TextBox.SelectionBackgroundProperty = DependencyProperty.Register("SelectionBackground", function () { return Brush; }, TextBox);
 TextBox.prototype.GetSelectionBackground = function () {
     return this.GetValue(TextBox.SelectionBackgroundProperty);
 };
@@ -607,7 +607,7 @@ TextBox.prototype.SetSelectionBackground = function (value) {
     this.SetValue(TextBox.SelectionBackgroundProperty, value);
 };
 
-TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", TextBox);
+TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () { return Number; }, TextBox);
 TextBox.prototype.GetBaselineOffset = function () {
     return this.GetValue(TextBox.BaselineOffsetProperty);
 };
@@ -615,7 +615,7 @@ TextBox.prototype.SetBaselineOffset = function (value) {
     this.SetValue(TextBox.BaselineOffsetProperty, value);
 };
 
-TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", TextBox, "");
+TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", function () { return String; }, TextBox, "");
 TextBox.prototype.GetSelectedText = function () {
     return this.GetValue(TextBox.SelectedTextProperty);
 };
@@ -623,7 +623,7 @@ TextBox.prototype.SetSelectedText = function (value) {
     this.SetValue(TextBox.SelectedTextProperty, value);
 };
 
-TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", TextBox, 0);
+TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", function () { return Number; }, TextBox, 0);
 TextBox.prototype.GetSelectionLength = function () {
     return this.GetValue(TextBox.SelectionLengthProperty);
 };
@@ -631,7 +631,7 @@ TextBox.prototype.SetSelectionLength = function (value) {
     this.SetValue(TextBox.SelectionLengthProperty, value);
 };
 
-TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", TextBox, 0);
+TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", function () { return Number; }, TextBox, 0);
 TextBox.prototype.GetSelectionStart = function () {
     return this.GetValue(TextBox.SelectionStartProperty);
 };
@@ -639,7 +639,7 @@ TextBox.prototype.SetSelectionStart = function (value) {
     this.SetValue(TextBox.SelectionStartProperty, value);
 };
 
-TextBox.TextProperty = DependencyProperty.Register("Text", TextBox);
+TextBox.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBox);
 TextBox.prototype.GetText = function () {
     return this.GetValue(TextBox.TextProperty);
 };
@@ -647,7 +647,7 @@ TextBox.prototype.SetText = function (value) {
     this.SetValue(TextBox.TextProperty, value);
 };
 
-TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", TextBox, TextAlignment.Left);
+TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return Number; }, TextBox, TextAlignment.Left);
 TextBox.prototype.GetTextAlignment = function () {
     return this.GetValue(TextBox.TextAlignmentProperty);
 };
@@ -655,7 +655,7 @@ TextBox.prototype.SetTextAlignment = function (value) {
     this.SetValue(TextBox.TextAlignmentProperty, value);
 };
 
-TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", TextBox, TextWrapping.NoWrap);
+TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return Number; }, TextBox, TextWrapping.NoWrap);
 TextBox.prototype.GetTextWrapping = function () {
     return this.GetValue(TextBox.TextWrappingProperty);
 };
@@ -663,7 +663,7 @@ TextBox.prototype.SetTextWrapping = function (value) {
     this.SetValue(TextBox.TextWrappingProperty, value);
 };
 
-TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", TextBox, ScrollBarVisibility.Hidden);
+TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.prototype.GetHorizontalScrollBarVisibility = function () {
     return this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
 };
@@ -671,7 +671,7 @@ TextBox.prototype.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
 };
 
-TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", TextBox, ScrollBarVisibility.Hidden);
+TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.prototype.GetVerticalScrollBarVisibility = function () {
     return this.GetValue(TextBox.VerticalScrollBarVisibilityProperty);
 };

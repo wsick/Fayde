@@ -25,13 +25,17 @@ function ControlTemplate() {
 }
 ControlTemplate.GetBaseClass = function () { return FrameworkTemplate; };
 
-ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", ControlTemplate);
+//#region DEPENDENCY PROPERTIES
+
+ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, ControlTemplate);
 ControlTemplate.prototype.GetTargetType = function () {
     return this.GetValue(ControlTemplate.TargetTypeProperty);
 };
 ControlTemplate.prototype.SetTargetType = function (value) {
     this.SetValue(ControlTemplate.TargetTypeProperty, value);
 };
+
+//#endregion
 
 ControlTemplate.CreateTemplateFromJson = function (json) {
     var template = new ControlTemplate();

@@ -1,5 +1,7 @@
 ﻿/// <reference path="Control.js"/>
 
+var ItemCollection = {};//TODO: Implement
+
 //#region ItemsControl
 
 ItemsControl.prototype = new Control;
@@ -11,7 +13,7 @@ ItemsControl.GetBaseClass = function () { return Control; };
 
 //#region DEPENDENCY PROPERTIES
 
-ItemsControl.ItemsProperty = DependencyProperty.Register("Items", ItemsControl);
+ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl);
 ItemsControl.prototype.GetItems = function () {
     return this.GetValue(ItemsControl.ItemsProperty);
 };

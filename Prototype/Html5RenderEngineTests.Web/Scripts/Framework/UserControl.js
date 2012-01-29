@@ -1,4 +1,5 @@
 ﻿/// <reference path="Control.js"/>
+/// CODE
 
 //#region UserControl
 
@@ -11,7 +12,7 @@ UserControl.GetBaseClass = function () { return Control; };
 
 //#region DEPENDENCY PROPERTIES
 
-UserControl.ContentProperty = DependencyProperty.Register("Content", UserControl);
+UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, UserControl);
 UserControl.prototype.GetContent = function () {
     return this.GetValue(UserControl.ContentProperty);
 };

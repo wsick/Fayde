@@ -35,13 +35,17 @@ function RectangleGeometry() {
 }
 RectangleGeometry.GetBaseClass = function () { return Geometry; };
 
-RectangleGeometry.RectProperty = DependencyProperty.Register("Rect", RectangleGeometry);
+//#region DEPENDENCY PROPERTIES
+
+RectangleGeometry.RectProperty = DependencyProperty.Register("Rect", function () { return Rect; }, RectangleGeometry);
 RectangleGeometry.prototype.GetRect = function () {
     return this.GetValue(RectangleGeometry.RectProperty);
 };
 RectangleGeometry.prototype.SetRect = function (value) {
     this.SetValue(RectangleGeometry.RectProperty, value);
 };
+
+//#endregion
 
 RectangleGeometry.prototype.ComputePathBounds = function () {
     var rect = this.GetRect();

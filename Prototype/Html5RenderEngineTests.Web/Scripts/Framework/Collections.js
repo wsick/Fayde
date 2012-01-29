@@ -16,10 +16,15 @@ function Collection() {
 }
 Collection.GetBaseClass = function () { return DependencyObject; };
 
-Collection.CountProperty = DependencyProperty.RegisterFull("Count", Collection, 0);
+//#region DEPENDENCY PROPERTIES
+
+Collection.CountProperty = DependencyProperty.RegisterFull("Count", function () { return Number; }, Collection, 0);
 Collection.prototype.GetCount = function () {
     return this._ht.length;
 };
+
+//#endregion
+
 Collection.prototype.GetValueAt = function (index) {
     return this._ht[index];
 };
@@ -317,10 +322,14 @@ function ResourceDictionary() {
 }
 ResourceDictionary.GetBaseClass = function () { return Collection; };
 
-ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+//#region DEPENDENCY PROPERTIES
+
+ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 ResourceDictionary.prototype.GetMergedDictionaries = function () {
     return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
 };
+
+//#endregion
 
 ResourceDictionary.prototype.ContainsKey = function (key) {
     return this._KeyIndex[key] != undefined;
@@ -440,7 +449,9 @@ function GradientStop() {
 }
 GradientStop.GetBaseClass = function () { return DependencyObject; };
 
-GradientStop.ColorProperty = DependencyProperty.Register("Color", GradientStop, new Color());
+//#region DEPENDENCY PROPERTIES
+
+GradientStop.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, GradientStop, new Color());
 GradientStop.prototype.GetColor = function () {
     return this.GetValue(GradientStop.ColorProperty);
 };
@@ -448,13 +459,15 @@ GradientStop.prototype.SetColor = function (value) {
     this.SetValue(GradientStop.ColorProperty, value);
 };
 
-GradientStop.OffsetProperty = DependencyProperty.Register("Offset", GradientStop, 0.0);
+GradientStop.OffsetProperty = DependencyProperty.Register("Offset", function () { return Number; }, GradientStop, 0.0);
 GradientStop.prototype.GetOffset = function () {
     return this.GetValue(GradientStop.OffsetProperty);
 };
 GradientStop.prototype.SetOffset = function (value) {
     this.SetValue(GradientStop.OffsetProperty, value);
 };
+
+//#endregion
 
 //#endregion
 
