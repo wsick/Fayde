@@ -17,6 +17,8 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
     dobj._TemplateOwner = this._TemplateBindingSource;
     if (json.Name)
         dobj.SetNameOnScope(json.Name, namescope);
+
+    var propd;
     if (json.Props) {
         for (var propName in json.Props) {
             var propValue = json.Props[propName];
@@ -24,19 +26,16 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
                 continue;
 
             var propd = dobj.GetDependencyProperty(propName);
-            if (propd) {
-                if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
-                    continue;
-                if (propValue instanceof TemplateBinding) {
-                    var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
-                    propValue = new TemplateBindingExpression(sourcePropd, propd);
-                }
-                dobj.SetValue(propd, propValue);
-            } else {
-                var func = dobj["Set" + propName];
-                if (func && func instanceof Function)
-                    func.call(dobj, propValue);
-            }
+            this.TrySetPropertyValue(dobj, propd, propValue, namescope);
+        }
+    }
+
+    if (json.AttachedProps) {
+        for (var i in json.AttachedProps) {
+            var attachedDef = json.AttachedProps[i];
+            //TODO: Namespace Prefixes?
+            propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
+            this.TrySetPropertyValue(dobj, propd, propValue, namescope);
         }
     }
 
@@ -50,12 +49,22 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
     }
     return dobj;
 };
-JsonParser.prototype.CreateObjectNoNamescope = function (json) {
-    var namescope = new NameScope();
-    return this.CreateObject(json, namescope);
-};
-JsonParser.prototype.CreateStyle = function (json) {
-    NotImplemented("JsonParser.CreateStyle");
+
+JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope) {
+    if (propd) {
+        if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
+            return;
+        if (this.TrySetTemplateBindingProperty(propValue, propd))
+            return;
+        dobj.SetValue(propd, propValue);
+    } else if (!propd._IsAttached) {
+        var func = dobj["Set" + propd.Name];
+        if (func && func instanceof Function)
+            func.call(dobj, propValue);
+    } else {
+        //There is no fallback if we can't find attached property
+        Warn("Could not find attached property: " + attachedDef.Prop);
+    }
 };
 JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
     if (!propd._IsAutoCreated())
@@ -67,6 +76,21 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
         val.Add(this.CreateObject(subJson[i], namescope));
     }
     return true;
+};
+JsonParser.prototype.TrySetTemplateBindingProperty = function (propValue, propd) {
+    if (!(propValue instanceof TemplateBinding))
+        return false;
+    var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
+    propValue = new TemplateBindingExpression(sourcePropd, propd);
+    return true;
+};
+
+JsonParser.prototype.CreateObjectNoNamescope = function (json) {
+    var namescope = new NameScope();
+    return this.CreateObject(json, namescope);
+};
+JsonParser.prototype.CreateStyle = function (json) {
+    NotImplemented("JsonParser.CreateStyle");
 };
 JsonParser.prototype.GetAnnotationMember = function (type, member) {
     if (type === RefObject)
