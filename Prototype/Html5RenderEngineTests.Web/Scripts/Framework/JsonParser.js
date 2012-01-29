@@ -19,13 +19,17 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
         dobj.SetNameOnScope(json.Name, namescope);
 
     var propd;
+    var propValue;
     if (json.Props) {
         for (var propName in json.Props) {
-            var propValue = json.Props[propName];
+            propValue = json.Props[propName];
             if (propValue == undefined)
                 continue;
 
             var propd = dobj.GetDependencyProperty(propName);
+            if (!(propValue instanceof RefObject) && propValue.Type) {
+                propValue = this.CreateObject(propValue, namescope);
+            }
             this.TrySetPropertyValue(dobj, propd, propValue, namescope);
         }
     }
@@ -35,6 +39,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
             var attachedDef = json.AttachedProps[i];
             //TODO: Namespace Prefixes?
             propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
+            propValue = attachedDef.Value;
             this.TrySetPropertyValue(dobj, propd, propValue, namescope);
         }
     }
@@ -85,13 +90,6 @@ JsonParser.prototype.TrySetTemplateBindingProperty = function (propValue, propd)
     return true;
 };
 
-JsonParser.prototype.CreateObjectNoNamescope = function (json) {
-    var namescope = new NameScope();
-    return this.CreateObject(json, namescope);
-};
-JsonParser.prototype.CreateStyle = function (json) {
-    NotImplemented("JsonParser.CreateStyle");
-};
 JsonParser.prototype.GetAnnotationMember = function (type, member) {
     if (type === RefObject)
         return null;
