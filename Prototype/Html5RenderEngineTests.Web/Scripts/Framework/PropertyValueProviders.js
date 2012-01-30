@@ -8,10 +8,10 @@
 /// <reference path="TextBlock.js"/>
 /// <reference path="BError.js"/>
 
-var Control = {};
-var TextBlock = {};
-var TextElement = {};
-var Run = {};
+function Control() { };
+function TextBlock() { };
+function TextElement() { };
+function Run() { };
 function Image() { };
 function MediaElement() { };
 function Popup() { };

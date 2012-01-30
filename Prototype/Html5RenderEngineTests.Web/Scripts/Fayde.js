@@ -1123,7 +1123,7 @@ Color.FromHex = function (hex) {
         r = parseInt(match[2], 16);
         g = parseInt(match[3], 16);
         b = parseInt(match[4], 16);
-    } else if ((match == Color.__NoAlphaRegex.exec(hex)) != null) {
+    } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
         a = 1.0;
         r = parseInt(match[1], 16);
         g = parseInt(match[2], 16);
@@ -1429,10 +1429,10 @@ Font.DEFAULT_SIZE = "12px";
 /// <reference path="TextBlock.js"/>
 /// <reference path="BError.js"/>
 
-var Control = {};
-var TextBlock = {};
-var TextElement = {};
-var Run = {};
+function Control() { };
+function TextBlock() { };
+function TextElement() { };
+function Run() { };
 function Image() { };
 function MediaElement() { };
 function Popup() { };
