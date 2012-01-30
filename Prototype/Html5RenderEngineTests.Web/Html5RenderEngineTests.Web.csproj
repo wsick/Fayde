@@ -54,6 +54,7 @@
     <Content Include="Docs\JsonDependencyObjectFormat.txt" />
     <Content Include="grid-tests\test2.html" />
     <Content Include="grid-tests\test1.html" />
+    <Content Include="grid-tests\test3.htm" />
     <Content Include="index.html" />
     <Content Include="multicastevent-test.html" />
     <Content Include="Docs\Annotations.txt" />
