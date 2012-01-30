@@ -1,0 +1,66 @@
+<<<<<<< HEAD
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>propda</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>propda</Shortcut>
+    <Description>Code snippet for an attached dependency property</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>owner</ID>
+        <ToolTip>Owner Type</ToolTip>
+        <Default>Object</Default>
+      </Literal>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Property Name</ToolTip>
+        <Default>Name</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.RegisterAttached("$name$", $owner$);
+$owner$.Get$name$ = function (d) {
+	return d.GetValue($owner$.$name$Property);
+};
+$owner$.Set$name$ = function (d, value) {
+	d.SetValue($owner$.$name$Property, value);
+};$end$]]></Code>
+  </Snippet>
+=======
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>propda</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>propda</Shortcut>
+    <Description>Code snippet for an attached dependency property</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>owner</ID>
+        <ToolTip>Owner Type</ToolTip>
+        <Default>Object</Default>
+      </Literal>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Property Name</ToolTip>
+        <Default>Name</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.RegisterAttached("$name$", $owner$);
+$owner$.Get$name$ = function (d) {
+	return d.GetValue($owner$.$name$Property);
+};
+$owner$.Set$name$ = function (d, value) {
+	d.SetValue($owner$.$name$Property, value);
+};$end$]]></Code>
+  </Snippet>
+>>>>>>> 3370ce92a521f8ca359bccfb401c9f07dd9a8667
+</CodeSnippet>

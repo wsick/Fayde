@@ -1,0 +1,66 @@
+<<<<<<< HEAD
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>propd</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>propd</Shortcut>
+    <Description>Code snippet for a dependency property</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>owner</ID>
+        <ToolTip>Owner Type</ToolTip>
+        <Default>DependencyObject</Default>
+      </Literal>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Property Name</ToolTip>
+        <Default>Name</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.Register("$name$", $owner$);
+$owner$.prototype.Get$name$ = function () {
+	return this.GetValue($owner$.$name$Property);
+};
+$owner$.prototype.Set$name$ = function (value) {
+	this.SetValue($owner$.$name$Property, value);
+};$end$]]></Code>
+  </Snippet>
+=======
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>propd</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>propd</Shortcut>
+    <Description>Code snippet for a dependency property</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>owner</ID>
+        <ToolTip>Owner Type</ToolTip>
+        <Default>DependencyObject</Default>
+      </Literal>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Property Name</ToolTip>
+        <Default>Name</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.Register("$name$", $owner$);
+$owner$.prototype.Get$name$ = function () {
+	return this.GetValue($owner$.$name$Property);
+};
+$owner$.prototype.Set$name$ = function (value) {
+	this.SetValue($owner$.$name$Property, value);
+};$end$]]></Code>
+  </Snippet>
+>>>>>>> 3370ce92a521f8ca359bccfb401c9f07dd9a8667
+</CodeSnippet>
