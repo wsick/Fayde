@@ -2,11 +2,10 @@
 
 //#region DependencyProperty
 
-DependencyProperty.prototype = new RefObject;
-DependencyProperty.prototype.constructor = DependencyProperty;
-function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
+function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     RefObject.call(this);
     this.Name = name;
+    this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
     this._AutoCreator = autocreator;
@@ -16,7 +15,7 @@ function DependencyProperty(name, ownerType, defaultValue, autocreator, coercer,
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
 }
-DependencyProperty.GetBaseClass = function () { return RefObject; };
+DependencyProperty.InheritFrom(RefObject);
 
 DependencyProperty.prototype.toString = function () {
     var funcNameRegex = /function (.{1,})\(/;
@@ -47,24 +46,24 @@ DependencyProperty.prototype._Validate = function (instance, propd, value, error
     return this._Validator(instance, propd, value, error);
 };
 
-DependencyProperty.Register = function (name, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, ownerType, defaultValue, null, null, null, null, true, changedCallback);
+DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback);
 };
-DependencyProperty.RegisterFull = function (name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
+DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();
     if (!DependencyProperty._Registered[ownerType])
         DependencyProperty._Registered[ownerType] = new Array();
-    var propd = new DependencyProperty(name, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
+    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
     DependencyProperty._Registered[ownerType][name] = propd;
     return propd;
 }
-DependencyProperty.RegisterAttached = function (name, ownerType, defaultValue) {
+DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();
     if (!DependencyProperty._Registered[ownerType])
         DependencyProperty._Registered[ownerType] = new Array();
-    var propd = new DependencyProperty(name, ownerType, defaultValue);
+    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue);
     propd._IsAttached = true;
     DependencyProperty._Registered[ownerType][name] = propd;
     return propd;
@@ -87,11 +86,9 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
 
 //#region UnsetValue
 
-UnsetValue.prototype = new RefObject;
-UnsetValue.prototype.constructor = UnsetValue;
 function UnsetValue() {
     RefObject.call(this);
 }
-UnsetValue.GetBaseClass = function () { return RefObject; };
+UnsetValue.InheritFrom(RefObject);
 
 //#endregion

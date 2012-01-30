@@ -7,8 +7,6 @@
 
 //#region Button
 
-Button.prototype = new ButtonBase;
-Button.prototype.constructor = Button;
 function Button() {
     ButtonBase.call(this);
     this._ElementRoot = null;
@@ -16,10 +14,9 @@ function Button() {
     this._StateNormal = null;
     this.SetIsTabStop(false);
 }
-Button.GetBaseClass = function () { return ButtonBase; };
+Button.InheritFrom(ButtonBase);
 
 Button.StateDisabled = "";
-Button.StatePressed = "";
 Button.StatePressed = "";
 Button.StateMouseOver = "";
 Button.StateNormal = "";
@@ -56,46 +53,99 @@ Button.prototype.OnIsEnabledChanged = function (e) {
 //#region DEFAULT STYLE
 
 Button.prototype.GetDefaultStyle = function () {
-
-    var style = new Style();
-
-    style._AddSetter(this, "Background", new SolidColorBrush(Color.FromHex("#FF1F3B53")));
-    style._AddSetter(this, "Foreground", new SolidColorBrush(Color.FromHex("#FF000000")));
-    style._AddSetter(this, "Padding", new Thickness(3, 3, 3, 3));
-    style._AddSetter(this, "BorderThickness", new Thickness(1, 1, 1, 1));
-
-    style._AddSetterJson(this, "BorderBrush", {
-        Type: LinearGradientBrush,
-        StartPoint: new Point(0.5, 1),
-        EndPoint: new Point(0.5, 1),
-        GradientStops: [
-            {
-                Color: Color.FromHex("#FFA3AEB9"),
-                Offset: 0.0
-            },
-            {
-                Color: Color.FromHex("#FF8399A9"),
-                Offset: 0.375
-            },
-            {
-                Color: Color.FromHex("#FF718597"),
-                Offset: 0.375
-            },
-            {
-                Color: Color.FromHex("#FF617584"),
-                Offset: 1.0
+   var style = {
+       Type: Style,
+       Props: {
+           "Background": new SolidColorBrush(Color.FromHex("#FF1F3B53")),
+           "Foreground": new SolidColorBrush(Color.FromHex("#FF000000")),
+           "Padding": new Thickness(3, 3, 3, 3),
+           "BorderThickness": new Thickness(1, 1, 1, 1),
+           "BorderBrush": {
+               Type: LinearGradientBrush,
+               Props: {
+                   StartPoint: new Point(0.5, 1),
+                   EndPoint: new Point(0.5, 1),
+                   GradientStops: [
+                       {
+                           Color: Color.FromHex("#FFA3AEB9"),
+                           Offset: 0.0
+                       },
+                       {
+                           Color: Color.FromHex("#FF8399A9"),
+                           Offset: 0.375
+                       },
+                       {
+                           Color: Color.FromHex("#FF718597"),
+                           Offset: 0.375
+                       },
+                       {
+                           Color: Color.FromHex("#FF617584"),
+                           Offset: 1.0
+                       }
+                   ]
+               }
             }
-        ]
-    });
-
-    style._AddSetterControlTemplate(this, "Template", {
+        }
+    };
+   /*
+    style._AddSetterControlTemplate(this, "Template": ControlTemplate.CreateTemplateFromJson({
         Type: Grid,
+        AttachedProps: [
+            {
+                Owner: VisualStateManager,
+                Prop: "VisualStateGroups",
+                Value: [
+                    {
+                        Type: VisualStateGroup,
+                        Name: "CommonStates"
+                    }
+                ]
+            }
+        ],
         Children: [
-            
+            {
+                Type: Border,
+                Name: "Background",
+                Props: {
+                    CornerRadius: new CornerRadius(3, 3, 3, 3),
+                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
+                    BorderThickness: new TemplateBinding("BorderThickness"),
+                    BorderBrush: new TemplateBinding("BorderBrush")
+                },
+                Content: {
+                    Type: Grid,
+                    Props: {
+                        Background: new TemplateBinding("Background"),
+                        Margin: new Thickness(1, 1, 1, 1)
+                    },
+                    Children: [
+                        {
+                            Type: Border,
+                            Name: "BackgroundAnimation",
+                            Props: {
+                                Opacity: 0.0,
+                                Background: new SolidColorBrush(Color.FromHex("#FF448DCA"))
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                Type: ContentPresenter,
+                Name: "contentPresenter",
+                Props: {
+                    Content: new TemplateBinding("Content"),
+                    ContentTemplate: new TemplateBinding("ContentTemplate"),
+                    VerticalAlignment: new TemplateBinding("VerticalContentAlignment"),
+                    HorizontalAlignment: new TemplateBinding("HorizontalContentAlignment"),
+                    Margin: new TemplateBinding("Padding")
+                }
+            }
+        //DisabledVisualElement
+        //FocusVisualElement
         ]
-    });
-
-
+    }));
+    */
     return style;
 };
 

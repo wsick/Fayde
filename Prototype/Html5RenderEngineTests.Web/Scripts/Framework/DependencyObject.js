@@ -10,18 +10,16 @@
 
 //#region DependencyObject
 
-DependencyObject.prototype = new RefObject;
-DependencyObject.prototype.constructor = DependencyObject;
 function DependencyObject() {
     RefObject.call(this);
     this._TypeName = this._GetTypeName();
     this._Initialize();
 }
-DependencyObject.GetBaseClass = function () { return RefObject; };
+DependencyObject.InheritFrom(RefObject);
 
 //#region DEPENDENCY PROPERTIES
 
-DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", DependencyObject, "", null, null, false, DependencyObject._NameValidator);
+DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 DependencyObject.prototype.GetName = function () {
     return this.GetValue(DependencyObject.NameProperty);
 };
@@ -811,23 +809,25 @@ DependencyObject._PropagateMentor = function (propd, value, newMentor) {
 
 //#region NameScope
 
-NameScope.prototype = new DependencyObject;
-NameScope.prototype.constructor = NameScope;
 function NameScope() {
     DependencyObject.call(this);
     this._IsLocked = false;
     this._Names = null;
     this._Temporary = false;
 }
-NameScope.GetBaseClass = function () { return DependencyObject; };
+NameScope.InheritFrom(DependencyObject);
 
-NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", NameScope);
+//#region DEPENDENCY PROPERTIES
+
+NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", function () { return NameScope; }, NameScope);
 NameScope.GetNameScope = function (d) {
     return d.GetValue(NameScope.NameScopeProperty);
 };
 NameScope.SetNameScope = function (d, value) {
     d.SetValue(NameScope.NameScopeProperty, value);
 };
+
+//#endregion
 
 NameScope.prototype.GetIsLocked = function () {
     return this._IsLocked;

@@ -1,19 +1,18 @@
 ﻿/// <reference path="FrameworkElement.js"/>
 /// CODE
 /// <reference path="ContentControl.js"/>
+/// <reference path="Templates.js"/>
 
 //#region ContentPresenter
 
-ContentPresenter.prototype = new FrameworkElement;
-ContentPresenter.prototype.constructor = ContentPresenter;
 function ContentPresenter() {
     FrameworkElement.call(this);
 }
-ContentPresenter.GetBaseClass = function () { return FrameworkElement; };
+ContentPresenter.InheritFrom(FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
-ContentPresenter.ContentProperty = DependencyProperty.Register("Content", ContentPresenter);
+ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, ContentPresenter);
 ContentPresenter.prototype.GetContent = function () {
     return this.GetValue(ContentPresenter.ContentProperty);
 };
@@ -21,7 +20,7 @@ ContentPresenter.prototype.SetContent = function (value) {
     this.SetValue(ContentPresenter.ContentProperty, value);
 };
 
-ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", ContentPresenter);
+ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
 ContentPresenter.prototype.GetContentTemplate = function () {
     return this.GetValue(ContentPresenter.ContentTemplateProperty);
 };

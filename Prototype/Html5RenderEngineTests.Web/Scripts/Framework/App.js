@@ -3,15 +3,17 @@
 /// <reference path="Surface.js"/>
 /// <reference path="Collections.js"/>
 
-App.prototype = new DependencyObject;
-App.prototype.constructor = App;
+//#region App
+
 function App() {
     DependencyObject.call(this);
     this.MainSurface = new Surface();
 }
-App.GetBaseClass = function () { return DependencyObject; };
+App.InheritFrom(DependencyObject);
 
-App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", App, null, { GetValue: function () { return new ResourceDictionary(); } });
+//#region DEPENDENCY PROPERTIES
+
+App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
 App.prototype.GetResources = function () {
     return this.GetValue(App.ResourcesProperty);
 };
@@ -19,6 +21,7 @@ App.prototype.SetResources = function (value) {
     this.SetValue(App.ResourcesProperty, value);
 };
 
+//#endregion
 
 App.prototype.Load = function (/* UIElement */element, containerId, width, height) {
     this.MainSurface.Init(containerId, width, height);
@@ -99,3 +102,5 @@ App.prototype._GetGenericXamlStyleFor = function (type) {
     NotImplemented("App._GetGenericXamlStyleFor");
 };
 App.Instance = new App();
+
+//#endregion

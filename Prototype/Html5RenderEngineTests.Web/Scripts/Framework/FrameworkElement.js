@@ -7,11 +7,10 @@
 /// <reference path="List.js"/>
 /// <reference path="Geometry.js"/>
 /// <reference path="Validators.js"/>
+/// <reference path="Style.js"/>
 
 //#region FrameworkElement
 
-FrameworkElement.prototype = new UIElement;
-FrameworkElement.prototype.constructor = FrameworkElement;
 function FrameworkElement() {
     UIElement.call(this);
     
@@ -27,11 +26,11 @@ function FrameworkElement() {
     this._Providers[_PropertyPrecedence.DynamicValue] = new _FrameworkElementProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 }
-FrameworkElement.GetBaseClass = function () { return UIElement; };
+FrameworkElement.InheritFrom(UIElement);
 
 //#region DEPENDENCY PROPERTIES
 
-FrameworkElement.HeightProperty = DependencyProperty.Register("Height", FrameworkElement, NaN);
+FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.prototype.GetHeight = function () {
     return this.GetValue(FrameworkElement.HeightProperty);
 };
@@ -39,7 +38,7 @@ FrameworkElement.prototype.SetHeight = function (value) {
     this.SetValue(FrameworkElement.HeightProperty, value);
 };
 
-FrameworkElement.WidthProperty = DependencyProperty.Register("Width", FrameworkElement, NaN);
+FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.prototype.GetWidth = function () {
     return this.GetValue(FrameworkElement.WidthProperty);
 };
@@ -47,17 +46,17 @@ FrameworkElement.prototype.SetWidth = function (value) {
     this.SetValue(FrameworkElement.WidthProperty, value);
 };
 
-FrameworkElement.ActualHeightProperty = DependencyProperty.Register("ActualHeight", FrameworkElement);
+FrameworkElement.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, FrameworkElement);
 FrameworkElement.prototype.GetActualHeight = function () {
     return this.GetValue(FrameworkElement.ActualHeightProperty);
 };
 
-FrameworkElement.ActualWidthProperty = DependencyProperty.Register("ActualWidth", FrameworkElement);
+FrameworkElement.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, FrameworkElement);
 FrameworkElement.prototype.GetActualWidth = function () {
     return this.GetValue(FrameworkElement.ActualWidthProperty);
 };
 
-FrameworkElement.DataContextProperty = DependencyProperty.Register("DataContext", FrameworkElement);
+FrameworkElement.DataContextProperty = DependencyProperty.Register("DataContext", function () { return Object; }, FrameworkElement);
 FrameworkElement.prototype.GetDataContext = function () {
     return this.GetValue(FrameworkElement.DataContextProperty);
 };
@@ -65,7 +64,7 @@ FrameworkElement.prototype.SetDataContext = function (value) {
     this.SetValue(FrameworkElement.DataContextProperty, value);
 };
 
-FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", FrameworkElement, HorizontalAlignment.Stretch);
+FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return Number; }, FrameworkElement, HorizontalAlignment.Stretch);
 FrameworkElement.prototype.GetHorizontalAlignment = function () {
     return this.GetValue(FrameworkElement.HorizontalAlignmentProperty);
 };
@@ -73,7 +72,7 @@ FrameworkElement.prototype.SetHorizontalAlignment = function (value) {
     this.SetValue(FrameworkElement.HorizontalAlignmentProperty, value);
 };
 
-FrameworkElement.LanguageProperty = DependencyProperty.Register("Language", FrameworkElement);
+FrameworkElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, FrameworkElement);
 FrameworkElement.prototype.GetLanguage = function () {
     return this.GetValue(FrameworkElement.LanguageProperty);
 };
@@ -81,7 +80,7 @@ FrameworkElement.prototype.SetLanguage = function (value) {
     this.SetValue(FrameworkElement.LanguageProperty, value);
 };
 
-FrameworkElement.MarginProperty = DependencyProperty.Register("Margin", FrameworkElement, new Thickness());
+FrameworkElement.MarginProperty = DependencyProperty.Register("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
 FrameworkElement.prototype.GetMargin = function () {
     return this.GetValue(FrameworkElement.MarginProperty);
 };
@@ -89,7 +88,7 @@ FrameworkElement.prototype.SetMargin = function (value) {
     this.SetValue(FrameworkElement.MarginProperty, value);
 };
 
-FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", FrameworkElement, Number.POSITIVE_INFINITY);
+FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
 FrameworkElement.prototype.GetMaxHeight = function () {
     return this.GetValue(FrameworkElement.MaxHeightProperty);
 };
@@ -97,7 +96,7 @@ FrameworkElement.prototype.SetMaxHeight = function (value) {
     this.SetValue(FrameworkElement.MaxHeightProperty, value);
 };
 
-FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", FrameworkElement, Number.POSITIVE_INFINITY);
+FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
 FrameworkElement.prototype.GetMaxWidth = function () {
     return this.GetValue(FrameworkElement.MaxWidthProperty);
 };
@@ -105,7 +104,7 @@ FrameworkElement.prototype.SetMaxWidth = function (value) {
     this.SetValue(FrameworkElement.MaxWidthProperty, value);
 };
 
-FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", FrameworkElement, 0.0);
+FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
 FrameworkElement.prototype.GetMinHeight = function () {
     return this.GetValue(FrameworkElement.MinHeightProperty);
 };
@@ -113,7 +112,7 @@ FrameworkElement.prototype.SetMinHeight = function (value) {
     this.SetValue(FrameworkElement.MinHeightProperty, value);
 };
 
-FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", FrameworkElement, 0.0);
+FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
 FrameworkElement.prototype.GetMinWidth = function () {
     return this.GetValue(FrameworkElement.MinWidthProperty);
 };
@@ -121,7 +120,7 @@ FrameworkElement.prototype.SetMinWidth = function (value) {
     this.SetValue(FrameworkElement.MinWidthProperty, value);
 };
 
-FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", FrameworkElement, VerticalAlignment.Stretch);
+FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return Number; }, FrameworkElement, VerticalAlignment.Stretch);
 FrameworkElement.prototype.GetVerticalAlignment = function () {
     return this.GetValue(FrameworkElement.VerticalAlignmentProperty);
 };
@@ -129,7 +128,7 @@ FrameworkElement.prototype.SetVerticalAlignment = function (value) {
     this.SetValue(FrameworkElement.VerticalAlignmentProperty, value);
 };
 
-FrameworkElement.StyleProperty = DependencyProperty.Register("Style", FrameworkElement);
+FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () { return Style; }, FrameworkElement);
 FrameworkElement.prototype.GetStyle = function () {
     return this.GetValue(FrameworkElement.StyleProperty);
 };
@@ -137,7 +136,7 @@ FrameworkElement.prototype.SetStyle = function (value) {
     this.SetValue(FrameworkElement.StyleProperty, value);
 };
 
-FrameworkElement.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", FrameworkElement);
+FrameworkElement.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return Number; }, FrameworkElement);
 FrameworkElement.prototype.GetFlowDirection = function () {
     return this.GetValue(FrameworkElement.FlowDirectionProperty);
 };
@@ -847,15 +846,13 @@ FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newPar
 
 //#region _FrameworkElementProvider
 
-_FrameworkElementProvider.prototype = new _PropertyValueProvider;
-_FrameworkElementProvider.prototype.constructor = _FrameworkElementProvider;
 function _FrameworkElementProvider(obj, propPrecedence) {
     _PropertyValueProvider.call(this, obj, propPrecedence, 0);
     this._ActualHeight = null;
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 }
-_FrameworkElementProvider.GetBaseClass = function () { return _PropertyValueProvider; };
+_FrameworkElementProvider.InheritFrom(_PropertyValueProvider);
 
 _FrameworkElementProvider.prototype.GetPropertyValue = function (propd) {
     if (propd != FrameworkElement.ActualHeightProperty && propd != FrameworkElement.ActualWidthProperty)

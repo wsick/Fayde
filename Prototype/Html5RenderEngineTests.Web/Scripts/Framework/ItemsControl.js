@@ -1,17 +1,17 @@
 ﻿/// <reference path="Control.js"/>
 
+var ItemCollection = {};//TODO: Implement
+
 //#region ItemsControl
 
-ItemsControl.prototype = new Control;
-ItemsControl.prototype.constructor = ItemsControl;
 function ItemsControl() {
     Control.call(this);
 }
-ItemsControl.GetBaseClass = function () { return Control; };
+ItemsControl.InheritFrom(Control);
 
 //#region DEPENDENCY PROPERTIES
 
-ItemsControl.ItemsProperty = DependencyProperty.Register("Items", ItemsControl);
+ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl);
 ItemsControl.prototype.GetItems = function () {
     return this.GetValue(ItemsControl.ItemsProperty);
 };

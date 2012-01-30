@@ -5,12 +5,10 @@
 
 //#region ContentControl
 
-ContentControl.prototype = new Control;
-ContentControl.prototype.constructor = ContentControl;
 function ContentControl() {
     Control.call(this);
 }
-ContentControl.GetBaseClass = function () { return Control; };
+ContentControl.InheritFrom(Control);
 
 ContentControl._FallbackTemplate = (function () {
     //TODO: Create fallback template
@@ -30,7 +28,7 @@ ContentControl._FallbackTemplate = (function () {
 
 //#region DEPENDENCY PROPERTIES
 
-ContentControl.ContentProperty = DependencyProperty.Register("Content", ContentControl);
+ContentControl.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, ContentControl);
 ContentControl.prototype.GetContent = function () {
     return this.GetValue(ContentControl.ContentProperty);
 };
@@ -38,7 +36,7 @@ ContentControl.prototype.SetContent = function (value) {
     this.SetValue(ContentControl.ContentProperty, value);
 };
 
-ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", ContentControl);
+ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentControl);
 ContentControl.prototype.GetContentTemplate = function () {
     return this.GetValue(ContentControl.ContentTemplateProperty);
 };

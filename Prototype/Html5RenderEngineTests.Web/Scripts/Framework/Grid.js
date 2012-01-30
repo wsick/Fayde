@@ -11,18 +11,16 @@ var GridUnitType = {
 
 //#region Grid
 
-Grid.prototype = new Panel;
-Grid.prototype.constructor = Grid;
 function Grid() {
     Panel.call(this);
     this._RowMatrix = null;
     this._ColMatrix = null;
 }
-Grid.GetBaseClass = function () { return Panel; };
+Grid.InheritFrom(Panel);
 
 //#region ATTACHED DEPENDENCY PROPERTIES
 
-Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", Grid, 0);
+Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0);
 Grid.GetColumn = function (d) {
     return d.GetValue(Grid.ColumnProperty);
 };
@@ -30,7 +28,7 @@ Grid.SetColumn = function (d, value) {
     d.SetValue(Grid.ColumnProperty, value);
 };
 
-Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", Grid, 1);
+Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () { return Number; }, Grid, 1);
 Grid.GetColumnSpan = function (d) {
     return d.GetValue(Grid.ColumnSpanProperty);
 };
@@ -38,7 +36,7 @@ Grid.SetColumnSpan = function (d, value) {
     d.SetValue(Grid.ColumnSpanProperty, value);
 };
 
-Grid.RowProperty = DependencyProperty.RegisterAttached("Row", Grid, 0);
+Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () { return Number; }, Grid, 0);
 Grid.GetRow = function (d) {
     return d.GetValue(Grid.RowProperty);
 };
@@ -46,7 +44,7 @@ Grid.SetRow = function (d, value) {
     d.SetValue(Grid.RowProperty, value);
 };
 
-Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", Grid, 1);
+Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", function () { return Number; }, Grid, 1);
 Grid.GetRowSpan = function (d) {
     return d.GetValue(Grid.RowSpanProperty);
 };
@@ -58,7 +56,7 @@ Grid.SetRowSpan = function (d, value) {
 
 //#region DEPENDENCY PROPERTIES
 
-Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", Grid, false);
+Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
 Grid.prototype.GetShowGridLines = function () {
     return this.GetValue(Grid.ShowGridLinesProperty);
 };
@@ -66,12 +64,12 @@ Grid.prototype.SetShowGridLines = function (value) {
     this.SetValue(Grid.ShowGridLinesProperty, value);
 };
 
-Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
+Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
 Grid.prototype.GetColumnDefinitions = function () {
     return this.GetValue(Grid.ColumnDefinitionsProperty);
 };
 
-Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
+Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
 Grid.prototype.GetRowDefinitions = function () {
     return this.GetValue(Grid.RowDefinitionsProperty);
 };
@@ -571,14 +569,12 @@ Grid.prototype._OnCollectionItemChanged = function (sender, args) {
 
 //#region GridLength
 
-GridLength.prototype = new RefObject;
-GridLength.prototype.constructor = GridLength;
 function GridLength(value, type) {
     RefObject.call(this);
     this.Value = value == null ? 0 : value;
     this.Type = type == null ? GridUnitType.Auto : type;
 }
-GridLength.GetBaseClass = function () { return RefObject; };
+GridLength.InheritFrom(RefObject);
 
 GridLength.Equals = function (gl1, gl2) {
     return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
@@ -588,14 +584,14 @@ GridLength.Equals = function (gl1, gl2) {
 
 //#region RowDefinition
 
-RowDefinition.prototype = new DependencyObject;
-RowDefinition.prototype.constructor = RowDefinition;
 function RowDefinition() {
     DependencyObject.call(this);
 }
-RowDefinition.GetBaseClass = function () { return DependencyObject; };
+RowDefinition.InheritFrom(DependencyObject);
 
-RowDefinition.HeightProperty = DependencyProperty.Register("Height", RowDefinition, new GridLength(1.0, GridUnitType.Star));
+//#region DEPENDENCY PROPERTIES
+
+RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
 RowDefinition.prototype.GetHeight = function () {
     return this.GetValue(RowDefinition.HeightProperty);
 };
@@ -603,7 +599,7 @@ RowDefinition.prototype.SetHeight = function (value) {
     this.SetValue(RowDefinition.HeightProperty, value);
 };
 
-RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", RowDefinition, Number.POSITIVE_INFINITY);
+RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
 RowDefinition.prototype.GetMaxHeight = function () {
     return this.GetValue(RowDefinition.MaxHeightProperty);
 };
@@ -611,7 +607,7 @@ RowDefinition.prototype.SetMaxHeight = function (value) {
     this.SetValue(RowDefinition.MaxHeightProperty, value);
 };
 
-RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", RowDefinition, 0.0);
+RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, RowDefinition, 0.0);
 RowDefinition.prototype.GetMinHeight = function () {
     return this.GetValue(RowDefinition.MinHeightProperty);
 };
@@ -619,7 +615,7 @@ RowDefinition.prototype.SetMinHeight = function (value) {
     this.SetValue(RowDefinition.MinHeightProperty, value);
 };
 
-RowDefinition.ActualHeightProperty = DependencyProperty.Register("ActualHeight", RowDefinition, 0.0);
+RowDefinition.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
 RowDefinition.prototype.GetActualHeight = function () {
     return this.GetValue(RowDefinition.ActualHeightProperty);
 };
@@ -629,14 +625,14 @@ RowDefinition.prototype.SetActualHeight = function (value) {
 
 //#endregion
 
+//#endregion
+
 //#region RowDefinitionCollection
 
-RowDefinitionCollection.prototype = new DependencyObjectCollection;
-RowDefinitionCollection.prototype.constructor = RowDefinitionCollection;
 function RowDefinitionCollection() {
     DependencyObjectCollection.call(this);
 }
-RowDefinitionCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+RowDefinitionCollection.InheritFrom(DependencyObjectCollection);
 
 RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
@@ -650,14 +646,14 @@ RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
 
 //#region ColumnDefinition
 
-ColumnDefinition.prototype = new DependencyObject;
-ColumnDefinition.prototype.constructor = ColumnDefinition;
 function ColumnDefinition() {
     DependencyObject.call(this);
 }
-ColumnDefinition.GetBaseClass = function () { return DependencyObject; };
+ColumnDefinition.InheritFrom(DependencyObject);
 
-ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
+//#region DEPENDENCY PROPERTIES
+
+ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () { return GridLength; }, ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
 ColumnDefinition.prototype.GetWidth = function () {
     return this.GetValue(ColumnDefinition.WidthProperty);
 };
@@ -665,7 +661,7 @@ ColumnDefinition.prototype.SetWidth = function (value) {
     this.SetValue(ColumnDefinition.WidthProperty, value);
 };
 
-ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", ColumnDefinition, Number.POSITIVE_INFINITY);
+ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, ColumnDefinition, Number.POSITIVE_INFINITY);
 ColumnDefinition.prototype.GetMaxWidth = function () {
     return this.GetValue(ColumnDefinition.MaxWidthProperty);
 };
@@ -673,7 +669,7 @@ ColumnDefinition.prototype.SetMaxWidth = function (value) {
     this.SetValue(ColumnDefinition.MaxWidthProperty, value);
 };
 
-ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", ColumnDefinition, 0.0);
+ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, ColumnDefinition, 0.0);
 ColumnDefinition.prototype.GetMinWidth = function () {
     return this.GetValue(ColumnDefinition.MinWidthProperty);
 };
@@ -681,7 +677,7 @@ ColumnDefinition.prototype.SetMinWidth = function (value) {
     this.SetValue(ColumnDefinition.MinWidthProperty, value);
 };
 
-ColumnDefinition.ActualWidthProperty = DependencyProperty.Register("ActualWidth", ColumnDefinition, 0.0);
+ColumnDefinition.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, ColumnDefinition, 0.0);
 ColumnDefinition.prototype.GetActualWidth = function () {
     return this.GetValue(ColumnDefinition.ActualWidthProperty);
 };
@@ -691,14 +687,14 @@ ColumnDefinition.prototype.SetActualWidth = function (value) {
 
 //#endregion
 
+//#endregion
+
 //#region ColumnDefinitionCollection
 
-ColumnDefinitionCollection.prototype = new DependencyObjectCollection;
-ColumnDefinitionCollection.prototype.constructor = ColumnDefinitionCollection;
 function ColumnDefinitionCollection() {
     DependencyObjectCollection.call(this);
 }
-ColumnDefinitionCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+ColumnDefinitionCollection.InheritFrom(DependencyObjectCollection);
 
 ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
@@ -712,8 +708,6 @@ ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error)
 
 //#region _Segment
 
-_Segment.prototype = new RefObject;
-_Segment.prototype.constructor = _Segment;
 function _Segment(offered, min, max, unitType) {
     RefObject.call(this);
     this._DesiredSize = offered == null ? 0 : offered;
@@ -725,7 +719,7 @@ function _Segment(offered, min, max, unitType) {
     this._OfferedSize = this._Clamp(offered);
     this._OriginalSize = this._OfferedSize;
 }
-_Segment.GetBaseClass = function () { return RefObject; };
+_Segment.InheritFrom(RefObject);
 
 _Segment.prototype._SetOfferedToDesired = function () {
     this._OfferedSize = this._DesiredSize;
@@ -747,8 +741,6 @@ _Segment.prototype._Clamp = function (value) {
 
 //#region _GridNode
 
-_GridNode.prototype = new Node;
-_GridNode.prototype.constructor = _GridNode;
 function _GridNode(matrix, row, col, size) {
     Node.call(this);
     this._Matrix = matrix;
@@ -757,14 +749,12 @@ function _GridNode(matrix, row, col, size) {
     this._Size = size;
     this._Cell = this._Matrix == null ? null : this._Matrix[row][col];
 }
-_GridNode.GetBaseClass = function () { return Node; };
+_GridNode.InheritFrom(Node);
 
 //#endregion
 
 //#region _GridWalker
 
-_GridWalker.prototype = new RefObject;
-_GridWalker.prototype.constructor = _GridWalker;
 function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
     RefObject.call(this);
     this._HasAutoAuto = false;
@@ -798,6 +788,6 @@ function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
         this._HasAutoStar = this._HasAutoStar || (autoRow && starCol);
     }
 }
-_GridWalker.GetBaseClass = function () { return RefObject; };
+_GridWalker.InheritFrom(RefObject);
 
 //#endregion

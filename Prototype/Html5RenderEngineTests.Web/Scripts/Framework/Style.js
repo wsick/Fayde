@@ -7,17 +7,15 @@
 
 //#region SetterBase
 
-SetterBase.prototype = new DependencyObject;
-SetterBase.prototype.constructor = SetterBase;
 function SetterBase() {
     DependencyObject.call(this);
     this._IsAttached = false;
 }
-SetterBase.GetBaseClass = function () { return DependencyObject; };
+SetterBase.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
-SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", SetterBase, false);
+SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBase, false);
 SetterBase.prototype.GetIsSealed = function () {
     return this.GetValue(SetterBase.IsSealedProperty);
 };
@@ -40,20 +38,22 @@ SetterBase.prototype._Seal = function () {
 
 //#region SetterBaseCollection
 
-SetterBaseCollection.prototype = new DependencyObjectCollection;
-SetterBaseCollection.prototype.constructor = SetterBaseCollection;
 function SetterBaseCollection() {
     DependencyObjectCollection.call(this);
 }
-SetterBaseCollection.GetBaseClass = function () { return DependencyObjectCollection; };
+SetterBaseCollection.InheritFrom(DependencyObjectCollection);
 
-SetterBaseCollection.IsSealedProperty = DependencyProperty.Register("IsSealed", SetterBaseCollection);
+//#region DEPENDENCY PROPERTIES
+
+SetterBaseCollection.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBaseCollection);
 SetterBaseCollection.prototype.GetIsSealed = function () {
     return this.GetValue(SetterBaseCollection.IsSealedProperty);
 };
 SetterBaseCollection.prototype.SetIsSealed = function (value) {
     this.SetValue(SetterBaseCollection.IsSealedProperty, value);
 };
+
+//#endregion
 
 SetterBaseCollection.prototype._Seal = function () {
     this.SetIsSealed(true);
@@ -96,16 +96,14 @@ SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
 
 //#region Setter
 
-Setter.prototype = new SetterBase;
-Setter.prototype.constructor = Setter;
 function Setter() {
     SetterBase.call(this);
 }
-Setter.GetBaseClass = function () { return SetterBase; };
+Setter.InheritFrom(SetterBase);
 
 //#region DEPENDENCY PROPERTIES
 
-Setter.PropertyProperty = DependencyProperty.Register("Property", Setter);
+Setter.PropertyProperty = DependencyProperty.Register("Property", function () { return DependencyProperty; }, Setter);
 Setter.prototype.GetProperty = function () {
     return this.GetValue(Setter.PropertyProperty);
 };
@@ -113,7 +111,7 @@ Setter.prototype.SetProperty = function (value) {
     this.SetValue(Setter.PropertyProperty, value);
 };
 
-Setter.ValueProperty = DependencyProperty.Register("Value", Setter);
+Setter.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, Setter);
 Setter.prototype.GetValue_Prop = function () {
     return this.GetValue(Setter.ValueProperty);
 };
@@ -121,7 +119,7 @@ Setter.prototype.SetValue_Prop = function (value) {
     this.SetValue(Setter.ValueProperty, value);
 };
 
-Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", Setter);
+Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, Setter);
 
 //#endregion
 
@@ -129,26 +127,24 @@ Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", Se
 
 //#region Style
 
-Style.prototype = new DependencyObject;
-Style.prototype.constructor = Style;
 function Style() {
     DependencyObject.call(this);
 }
-Style.GetBaseClass = function () { return DependencyObject; };
+Style.InheritFrom(DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
-Style.SettersProperty = DependencyProperty.RegisterFull("Setters", Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
+Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
 Style.prototype.GetSetters = function () {
     return this.GetValue(Style.SettersProperty);
 };
 
-Style.IsSealedProperty = DependencyProperty.Register("IsSealed", Style);
+Style.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, Style);
 Style.prototype.GetIsSealed = function () {
     return this.GetValue(Style.IsSealedProperty);
 };
 
-Style.BasedOnProperty = DependencyProperty.Register("BasedOn", Style);
+Style.BasedOnProperty = DependencyProperty.Register("BasedOn", function () { return Function; }, Style);
 Style.prototype.GetBasedOn = function () {
     return this.GetValue(Style.BasedOnProperty);
 };
@@ -156,7 +152,7 @@ Style.prototype.SetBasedOn = function (value) {
     this.SetValue(Style.BasedOnProperty, value);
 };
 
-Style.TargetTypeProperty = DependencyProperty.Register("TargetType", Style);
+Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, Style);
 Style.prototype.GetTargetType = function () {
     return this.GetValue(Style.TargetTypeProperty);
 };
@@ -191,7 +187,7 @@ Style.prototype._AddSetter = function (dobj, propName, value) {
 };
 Style.prototype._AddSetterJson = function (dobj, propName, json) {
     var parser = new JsonParser();
-    this._AddSetter(dobj, propName, parser.CreateObjectNoNamescope(json));
+    this._AddSetter(dobj, propName, parser.CreateObject(json, new NameScope()));
 };
 Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJson) {
     this._AddSetter(dobj, propName, ControlTemplate.CreateTemplateFromJson(templateJson));
@@ -201,8 +197,6 @@ Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJs
 
 //#region _DeepStyleWalker
 
-_DeepStyleWalker.prototype = new RefObject;
-_DeepStyleWalker.prototype.constructor = _DeepStyleWalker;
 function _DeepStyleWalker(styles) {
     RefObject.call(this);
     this._Setters = new Array();
@@ -213,7 +207,7 @@ function _DeepStyleWalker(styles) {
     else if (styles instanceof Array)
         this._InitializeStyles(styles);
 }
-_DeepStyleWalker.GetBaseClass = function () { return RefObject; };
+_DeepStyleWalker.InheritFrom(RefObject);
 
 _DeepStyleWalker.prototype.Step = function () {
     if (this._Offset < this._Setters.length) {

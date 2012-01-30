@@ -5,12 +5,10 @@
 
 //#region JsonParser
 
-JsonParser.prototype = new RefObject;
-JsonParser.prototype.constructor = JsonParser;
 function JsonParser() {
     RefObject.call(this);
 }
-JsonParser.GetBaseClass = function () { return RefObject; };
+JsonParser.InheritFrom(RefObject);
 
 JsonParser.prototype.CreateObject = function (json, namescope) {
     var dobj = new json.Type();
@@ -30,7 +28,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
             if (!(propValue instanceof RefObject) && propValue.Type) {
                 propValue = this.CreateObject(propValue, namescope);
             }
-            this.TrySetPropertyValue(dobj, propd, propValue, namescope);
+            this.TrySetPropertyValue(dobj, propd, propValue, namescope, false);
         }
     }
 
@@ -40,29 +38,34 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
             //TODO: Namespace Prefixes?
             propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
             propValue = attachedDef.Value;
-            this.TrySetPropertyValue(dobj, propd, propValue, namescope);
+            this.TrySetPropertyValue(dobj, propd, propValue, namescope, true);
         }
     }
 
     var contentPropd = this.GetAnnotationMember(json.Type, "ContentProperty");
-    if (contentPropd) {
+    if (contentPropd instanceof DependencyProperty) {
         if (json.Children) {
             this.TrySetCollectionProperty(json.Children, dobj, contentPropd, namescope);
         } else if (json.Content) {
             dobj.SetValue(contentPropd, this.CreateObject(json.Content, namescope));
         }
+    } else if (contentPropd instanceof String) {
+        var setFunc = dobj["Set" + contentPropd];
+        if (setFunc) {
+            setFunc.call(dobj, this.CreateObject(json.Content, namescope));
+        }
     }
     return dobj;
 };
 
-JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope) {
+JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached) {
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
         if (this.TrySetTemplateBindingProperty(propValue, propd))
             return;
         dobj.SetValue(propd, propValue);
-    } else if (!propd._IsAttached) {
+    } else if (!isAttached) {
         var func = dobj["Set" + propd.Name];
         if (func && func instanceof Function)
             func.call(dobj, propValue);
@@ -113,12 +116,10 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
 
 //#region TemplateBinding
 
-TemplateBinding.prototype = new RefObject;
-TemplateBinding.prototype.constructor = TemplateBinding;
 function TemplateBinding(path) {
     RefObject.call(this);
     this.Path = path;
 }
-TemplateBinding.GetBaseClass = function () { return RefObject; };
+TemplateBinding.InheritFrom(RefObject);
 
 //#endregion

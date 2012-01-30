@@ -3,19 +3,18 @@
 /// <reference path="Primitives.js" />
 /// <reference path="DependencyObject.js" />
 /// <reference path="LayoutInformation.js"/>
+/// <reference path="Brushes.js"/>
 
 //#region Panel
 
-Panel.prototype = new FrameworkElement;
-Panel.prototype.constructor = Panel;
 function Panel() {
     FrameworkElement.call(this);
 }
-Panel.GetBaseClass = function () { return FrameworkElement; };
+Panel.InheritFrom(FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
-Panel.BackgroundProperty = DependencyProperty.Register("Background", Panel);
+Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
 Panel.prototype.GetBackground = function () {
     return this.GetValue(Panel.BackgroundProperty);
 };
@@ -32,7 +31,7 @@ Panel._CreateChildren = {
         return col;
     }
 };
-Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", Panel, null, Panel._CreateChildren);
+Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, null, Panel._CreateChildren);
 Panel.prototype.GetChildren = function () {
     return this.GetValue(Panel.ChildrenProperty);
 };
@@ -40,7 +39,7 @@ Panel.prototype.SetChildren = function (value) {
     this.SetValue(Panel.ChildrenProperty, value);
 };
 
-Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", Panel, false);
+Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
 Panel.prototype.GetIsItemsHost = function () {
     return this.GetValue(Panel.IsItemsHostProperty);
 };

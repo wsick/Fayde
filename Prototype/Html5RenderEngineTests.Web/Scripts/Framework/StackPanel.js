@@ -5,16 +5,14 @@
 
 //#region StackPanel
 
-StackPanel.prototype = new Panel;
-StackPanel.prototype.constructor = StackPanel;
 function StackPanel() {
     Panel.call(this);
 }
-StackPanel.GetBaseClass = function () { return Panel; };
+StackPanel.InheritFrom(Panel);
 
 //#region DEPENDENCY PROPERTIES
 
-StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", StackPanel, Orientation.Vertical);
+StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return Number; }, StackPanel, Orientation.Vertical);
 StackPanel.prototype.GetOrientation = function () {
     return this.GetValue(StackPanel.OrientationProperty);
 };

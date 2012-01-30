@@ -4,12 +4,10 @@
 
 //#region FrameworkTemplate
 
-FrameworkTemplate.prototype = new DependencyObject;
-FrameworkTemplate.prototype.constructor = FrameworkTemplate;
 function FrameworkTemplate() {
     DependencyObject.call(this);
 }
-FrameworkTemplate.GetBaseClass = function () { return DependencyObject; };
+FrameworkTemplate.InheritFrom(DependencyObject);
 
 FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
@@ -18,20 +16,22 @@ FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElem
 
 //#region ControlTemplate
 
-ControlTemplate.prototype = new FrameworkTemplate;
-ControlTemplate.prototype.constructor = ControlTemplate;
 function ControlTemplate() {
     FrameworkTemplate.call(this);
 }
-ControlTemplate.GetBaseClass = function () { return FrameworkTemplate; };
+ControlTemplate.InheritFrom(FrameworkTemplate);
 
-ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", ControlTemplate);
+//#region DEPENDENCY PROPERTIES
+
+ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, ControlTemplate);
 ControlTemplate.prototype.GetTargetType = function () {
     return this.GetValue(ControlTemplate.TargetTypeProperty);
 };
 ControlTemplate.prototype.SetTargetType = function (value) {
     this.SetValue(ControlTemplate.TargetTypeProperty, value);
 };
+
+//#endregion
 
 ControlTemplate.CreateTemplateFromJson = function (json) {
     var template = new ControlTemplate();
@@ -54,12 +54,10 @@ ControlTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElemen
 
 //#region DataTemplate
 
-DataTemplate.prototype = new FrameworkTemplate;
-DataTemplate.prototype.constructor = DataTemplate;
 function DataTemplate() {
     FrameworkTemplate.call(this);
 }
-DataTemplate.GetBaseClass = function () { return FrameworkTemplate; };
+DataTemplate.InheritFrom(FrameworkTemplate);
 
 DataTemplate.CreateTemplateFromJson = function (json) {
     var template = new DataTemplate();

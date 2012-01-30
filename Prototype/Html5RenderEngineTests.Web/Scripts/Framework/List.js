@@ -4,15 +4,13 @@
 
 //#region List
 
-List.prototype = new RefObject;
-List.prototype.constructor = List;
 function List() {
     RefObject.call(this);
     this._Count = 0;
     this._Head = null;
     this._Tail = null;
 }
-List.GetBaseClass = function () { return RefObject; };
+List.InheritFrom(RefObject);
 
 List.prototype.First = function () {
     return this._Head;
@@ -88,50 +86,42 @@ List.prototype.Clear = function () {
 
 //#region Node
 
-Node.prototype = new RefObject;
-Node.prototype.constructor = Node;
 function Node() {
     RefObject.call(this);
     this.Previous = null;
     this.Next = null;
 }
-Node.GetBaseClass = function () { return RefObject; };
+Node.InheritFrom(RefObject);
 
 //#endregion
 
 //#region UIElementNode
 
-UIElementNode.prototype = new Node;
-UIElementNode.prototype.constructor = UIElementNode;
 function UIElementNode(/* UIElement */element) {
     Node.call(this);
     this.UIElement = element;
 }
-UIElementNode.GetBaseClass = function () { return Node; };
+UIElementNode.InheritFrom(Node);
 
 //#endregion
 
 //#region DirtyNode
 
-DirtyNode.prototype = new Node;
-DirtyNode.prototype.constructor = DirtyNode;
 function DirtyNode(/* UIElement */element) {
     Node.call(this);
     this.Element = element;
 }
-DirtyNode.GetBaseClass = function () { return Node; };
+DirtyNode.InheritFrom(Node);
 
 //#endregion
 
 //#region Dictionary
 
-Dictionary.prototype = new RefObject;
-Dictionary.prototype.constructor = Dictionary;
 function Dictionary() {
     RefObject.call(this);
     this._ht = new Array();
 }
-Dictionary.GetBaseClass = function () { return RefObject; };
+Dictionary.InheritFrom(RefObject);
 
 Dictionary.prototype.TryGetValue = function (key, refParam) {
     refParam.Value = this._ht[key];

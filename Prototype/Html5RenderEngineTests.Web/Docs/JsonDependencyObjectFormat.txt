@@ -29,6 +29,7 @@
 		- UserControl - ContentProperty
 		- ContentControl - ContentProperty
 		- ContentPresenter - ContentProperty
+	- VisualStateGroup - States Property (not a dependency property)
 
 "Children" is used by:
 	- Panel - ChildrenProperty

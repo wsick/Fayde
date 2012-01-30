@@ -104,20 +104,16 @@ function IsOpacityInvisible(opacity) {
 
 //#region RefParam
 
-RefParam.prototype = new RefObject;
-RefParam.prototype.constructor = RefParam;
 function RefParam(v) {
     RefObject.call(this);
     this.Value = v;
 }
-RefParam.GetBaseClass = function () { return RefObject; };
+RefParam.InheritFrom(RefObject);
 
 //#endregion
 
 //#region CornerRadius
 
-CornerRadius.prototype = new RefObject;
-CornerRadius.prototype.constructor = CornerRadius;
 function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
     RefObject.call(this);
     this.TopLeft = topLeft == null ? 0 : topLeft;
@@ -125,7 +121,7 @@ function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
     this.BottomRight = bottomRight == null ? 0 : bottomRight;
     this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
 }
-CornerRadius.GetBaseClass = function () { return RefObject; };
+CornerRadius.InheritFrom(RefObject);
 
 CornerRadius.prototype.IsZero = function () {
     return this.TopLeft === 0
@@ -138,8 +134,6 @@ CornerRadius.prototype.IsZero = function () {
 
 //#region Thickness
 
-Thickness.prototype = new RefObject;
-Thickness.prototype.constructor = Thickness;
 function Thickness(left, top, right, bottom) {
     RefObject.call(this);
     this.Left = left == null ? 0 : left;
@@ -147,7 +141,7 @@ function Thickness(left, top, right, bottom) {
     this.Right = right == null ? 0 : right;
     this.Bottom = bottom == null ? 0 : bottom;
 }
-Thickness.GetBaseClass = function () { return RefObject; };
+Thickness.InheritFrom(RefObject);
 
 Thickness.prototype.Plus = function (thickness2) {
     var t = new Thickness();
@@ -181,14 +175,12 @@ Thickness.prototype.IsEmpty = function () {
 
 //#region Point
 
-Point.prototype = new RefObject;
-Point.prototype.constructor = Point;
 function Point(x, y) {
     RefObject.call(this);
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
-Point.GetBaseClass = function () { return RefObject; };
+Point.InheritFrom(RefObject);
 
 Point.prototype.Apply = function (matrix) {
     return matrix.Multiply(this);
@@ -201,14 +193,12 @@ Point.prototype.toString = function () {
 
 //#region Size
 
-Size.prototype = new RefObject;
-Size.prototype.constructor = Size;
 function Size(width, height) {
     RefObject.call(this);
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
-Size.GetBaseClass = function () { return RefObject; };
+Size.InheritFrom(RefObject);
 
 Size.prototype.GrowBy = function (width, height) {
     var h = this.Height;
@@ -239,8 +229,6 @@ Size.prototype.toString = function () {
 
 //#region Rect
 
-Rect.prototype = new RefObject;
-Rect.prototype.constructor = Rect;
 function Rect(x, y, width, height) {
     RefObject.call(this);
     this.X = x == null ? 0 : x;
@@ -248,7 +236,7 @@ function Rect(x, y, width, height) {
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
-Rect.GetBaseClass = function () { return RefObject; };
+Rect.InheritFrom(RefObject);
 
 Rect.prototype.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;
@@ -303,8 +291,6 @@ Rect.Equals = function (rect1, rect2) {
 
 //#region Clip
 
-Clip.prototype = new Rect;
-Clip.prototype.constructor = Clip;
 function Clip(rect) {
     Rect.call(this);
     var rounded = rect.RoundOut();
@@ -313,14 +299,12 @@ function Clip(rect) {
     this.Width = rounded.Width;
     this.Height = rounded.Height;
 }
-Clip.GetBaseClass = function () { return Rect; };
+Clip.InheritFrom(Rect);
 
 //#endregion
 
 //#region Color
 
-Color.prototype = new RefObject;
-Color.prototype.constructor = Color;
 function Color(r, g, b, a) {
     RefObject.call(this);
     this.R = r == null ? 255 : r;
@@ -328,7 +312,7 @@ function Color(r, g, b, a) {
     this.B = b == null ? 255 : b;
     this.A = a == null ? 1.0 : a;
 }
-Color.GetBaseClass = function () { return RefObject; };
+Color.InheritFrom(RefObject);
 
 Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
@@ -344,7 +328,7 @@ Color.FromHex = function (hex) {
         r = parseInt(match[2], 16);
         g = parseInt(match[3], 16);
         b = parseInt(match[4], 16);
-    } else if ((match == Color.__NoAlphaRegex.exec(hex)) != null) {
+    } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
         a = 1.0;
         r = parseInt(match[1], 16);
         g = parseInt(match[2], 16);
@@ -365,13 +349,11 @@ Color.prototype.toString = function () {
 
 //#region Matrix
 
-Matrix.prototype = new RefObject;
-Matrix.prototype.constructor = Matrix;
 function Matrix() {
     RefObject.call(this);
     this._Elements = Matrix.CreateIdentityArray();
 }
-Matrix.GetBaseClass = function () { return RefObject; };
+Matrix.InheritFrom(RefObject);
 
 Matrix.prototype.GetElements = function () {
     return this._Elements;
@@ -450,14 +432,12 @@ Matrix.CreateIdentityArray = function () {
 
 //#region TranslationMatrix
 
-TranslationMatrix.prototype = new Matrix;
-TranslationMatrix.prototype.constructor = TranslationMatrix;
 function TranslationMatrix(x, y) {
     Matrix.call(this);
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
-TranslationMatrix.GetBaseClass = function () { return Matrix; };
+TranslationMatrix.InheritFrom(Matrix);
 
 TranslationMatrix.prototype.GetElements = function () {
     return [
@@ -503,14 +483,12 @@ RotationMatrix.prototype.Apply = function (ctx) {
 
 //#region ScalingMatrix
 
-ScalingMatrix.prototype = new Matrix;
-ScalingMatrix.prototype.constructor = ScalingMatrix;
 function ScalingMatrix(x, y) {
     Matrix.call(this);
     this.X = x == null ? 1 : x;
     this.Y = y == null ? 1 : y;
 }
-ScalingMatrix.GetBaseClass = function () { return Matrix; };
+ScalingMatrix.InheritFrom(Matrix);
 
 ScalingMatrix.prototype.GetElements = function () {
     return [
@@ -530,14 +508,12 @@ ScalingMatrix.prototype.Apply = function (ctx) {
 
 //#region ShearingMatrix
 
-ShearingMatrix.prototype = new Matrix;
-ShearingMatrix.prototype.constructor = ShearingMatrix;
 function ShearingMatrix(shearX, shearY) {
     Matrix.call(this);
     this.ShearX = shearX == null ? 0 : shearX;
     this.ShearY = shearY == null ? 0 : shearY;
 }
-ShearingMatrix.GetBaseClass = function () { return Matrix; };
+ShearingMatrix.InheritFrom(Matrix);
 
 ShearingMatrix.prototype.GetElements = function () {
     return [
@@ -557,8 +533,6 @@ ShearingMatrix.prototype.Apply = function () {
 
 //#region Font
 
-Font.prototype = new RefObject;
-Font.prototype.constructor = Font;
 function Font() {
     RefObject.call(this);
     this._Family = Font.DEFAULT_FAMILY;
@@ -567,7 +541,7 @@ function Font() {
     this._Weight = Font.DEFAULT_WEIGHT;
     this._Size = Font.DEFAULT_SIZE;
 }
-Font.GetBaseClass = function () { return RefObject; };
+Font.InheritFrom(RefObject);
 
 Font.prototype.GetFamily = function () {
     return this._Family;

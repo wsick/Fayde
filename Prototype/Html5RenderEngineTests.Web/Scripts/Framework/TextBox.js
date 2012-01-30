@@ -13,8 +13,6 @@
 
 //#region _TextBoxBaseDynamicPropertyValueProvider
 
-_TextBoxBaseDynamicPropertyValueProvider.prototype = new _FrameworkElementProvider;
-_TextBoxBaseDynamicPropertyValueProvider.prototype.constructor = _TextBoxBaseDynamicPropertyValueProvider;
 function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
     _FrameworkElementProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear | _ProviderFlags.RecomputesOnLowerPriorityChange);
     this._ForegroundPropd = foregroundPropd;
@@ -24,7 +22,7 @@ function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroun
     this._SelectionForeground = undefined;
     this._BaselineOffset = undefined;
 }
-_TextBoxBaseDynamicPropertyValueProvider.GetBaseClass = function () { return _FrameworkElementProvider; };
+_TextBoxBaseDynamicPropertyValueProvider.InheritFrom(_FrameworkElementProvider);
 
 _TextBoxBaseDynamicPropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
     if (propd == this._BackgroundPropd)
@@ -65,32 +63,26 @@ _TextBoxBaseDynamicPropertyValueProvider.prototype._InitializeSelectionBrushes =
 
 //#region _TextBoxDynamicPropertyValueProvider
 
-_TextBoxDynamicPropertyValueProvider.prototype = new _TextBoxBaseDynamicPropertyValueProvider;
-_TextBoxDynamicPropertyValueProvider.prototype.constructor = _TextBoxDynamicPropertyValueProvider;
 function _TextBoxDynamicPropertyValueProvider(obj, propPrecedence) {
     _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence, 
         TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
 }
-_TextBoxDynamicPropertyValueProvider.GetBaseClass = function () { return _TextBoxBaseDynamicPropertyValueProvider; };
+_TextBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
 
 //#endregion
 
 //#region _PasswordBoxDynamicPropertyValueProvider
 
-_PasswordBoxDynamicPropertyValueProvider.prototype = new _TextBoxBaseDynamicPropertyValueProvider;
-_PasswordBoxDynamicPropertyValueProvider.prototype.constructor = _PasswordBoxDynamicPropertyValueProvider;
 function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
     _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence, 
         PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
 }
-_PasswordBoxDynamicPropertyValueProvider.GetBaseClass = function () { return _TextBoxBaseDynamicPropertyValueProvider; };
+_PasswordBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
 
 //#endregion
 
 //#region _TextBoxView
 
-_TextBoxView.prototype = new FrameworkElement;
-_TextBoxView.prototype.constructor = _TextBoxView;
 function _TextBoxView() {
     FrameworkElement.call(this);
 
@@ -104,7 +96,7 @@ function _TextBoxView() {
     this._TextBox = null;
     this._Dirty = false;
 }
-_TextBoxView.GetBaseClass = function () { return FrameworkElement; };
+_TextBoxView.InheritFrom(FrameworkElement);
 
 _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
     if (this._TextBox == value)
@@ -395,21 +387,17 @@ var _TextBoxEmitChanged = {
 
 //#region _TextBoxModelChangedEventArgs
 
-_TextBoxModelChangedEventArgs.prototype = new RefObject;
-_TextBoxModelChangedEventArgs.prototype.constructor = _TextBoxModelChangedEventArgs;
 function _TextBoxModelChangedEventArgs(changed, propArgs) {
     RefObject.call(this);
     this.Changed = changed;
     this.PropArgs = propArgs;
 }
-_TextBoxModelChangedEventArgs.GetBaseClass = function () { return RefObject; };
+_TextBoxModelChangedEventArgs.InheritFrom(RefObject);
 
 //#endregion
 
 //#region TextBoxBase
 
-TextBoxBase.prototype = new Control;
-TextBoxBase.prototype.constructor = TextBoxBase;
 function TextBoxBase() {
     Control.call(this);
     this._SelectionAnchor = 0;
@@ -422,7 +410,7 @@ function TextBoxBase() {
 
     this._Batch = 0;
 }
-TextBoxBase.GetBaseClass = function () { return Control; };
+TextBoxBase.InheritFrom(Control);
 
 TextBoxBase.prototype.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
@@ -575,8 +563,6 @@ TextBoxBase.prototype._EmitSelectionChanged = function () { };
 
 //#region TextBox
 
-TextBox.prototype = new TextBoxBase;
-TextBox.prototype.constructor = TextBox;
 function TextBox() {
     TextBoxBase.call(this);
 
@@ -587,11 +573,11 @@ function TextBox() {
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
 }
-TextBox.GetBaseClass = function () { return TextBoxBase; };
+TextBox.InheritFrom(TextBoxBase);
 
 //#region DEPENDENCY PROPERTIES
 
-TextBox.SelectionForegroundProperty = DependencyProperty.Register("SelectionForeground", TextBox);
+TextBox.SelectionForegroundProperty = DependencyProperty.Register("SelectionForeground", function () { return Brush; }, TextBox);
 TextBox.prototype.GetSelectionForeground = function () {
     return this.GetValue(TextBox.SelectionForegroundProperty);
 };
@@ -599,7 +585,7 @@ TextBox.prototype.SetSelectionForeground = function (value) {
     this.SetValue(TextBox.SelectionForegroundProperty, value);
 };
 
-TextBox.SelectionBackgroundProperty = DependencyProperty.Register("SelectionBackground", TextBox);
+TextBox.SelectionBackgroundProperty = DependencyProperty.Register("SelectionBackground", function () { return Brush; }, TextBox);
 TextBox.prototype.GetSelectionBackground = function () {
     return this.GetValue(TextBox.SelectionBackgroundProperty);
 };
@@ -607,7 +593,7 @@ TextBox.prototype.SetSelectionBackground = function (value) {
     this.SetValue(TextBox.SelectionBackgroundProperty, value);
 };
 
-TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", TextBox);
+TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () { return Number; }, TextBox);
 TextBox.prototype.GetBaselineOffset = function () {
     return this.GetValue(TextBox.BaselineOffsetProperty);
 };
@@ -615,7 +601,7 @@ TextBox.prototype.SetBaselineOffset = function (value) {
     this.SetValue(TextBox.BaselineOffsetProperty, value);
 };
 
-TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", TextBox, "");
+TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", function () { return String; }, TextBox, "");
 TextBox.prototype.GetSelectedText = function () {
     return this.GetValue(TextBox.SelectedTextProperty);
 };
@@ -623,7 +609,7 @@ TextBox.prototype.SetSelectedText = function (value) {
     this.SetValue(TextBox.SelectedTextProperty, value);
 };
 
-TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", TextBox, 0);
+TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", function () { return Number; }, TextBox, 0);
 TextBox.prototype.GetSelectionLength = function () {
     return this.GetValue(TextBox.SelectionLengthProperty);
 };
@@ -631,7 +617,7 @@ TextBox.prototype.SetSelectionLength = function (value) {
     this.SetValue(TextBox.SelectionLengthProperty, value);
 };
 
-TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", TextBox, 0);
+TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", function () { return Number; }, TextBox, 0);
 TextBox.prototype.GetSelectionStart = function () {
     return this.GetValue(TextBox.SelectionStartProperty);
 };
@@ -639,7 +625,7 @@ TextBox.prototype.SetSelectionStart = function (value) {
     this.SetValue(TextBox.SelectionStartProperty, value);
 };
 
-TextBox.TextProperty = DependencyProperty.Register("Text", TextBox);
+TextBox.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBox);
 TextBox.prototype.GetText = function () {
     return this.GetValue(TextBox.TextProperty);
 };
@@ -647,7 +633,7 @@ TextBox.prototype.SetText = function (value) {
     this.SetValue(TextBox.TextProperty, value);
 };
 
-TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", TextBox, TextAlignment.Left);
+TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return Number; }, TextBox, TextAlignment.Left);
 TextBox.prototype.GetTextAlignment = function () {
     return this.GetValue(TextBox.TextAlignmentProperty);
 };
@@ -655,7 +641,7 @@ TextBox.prototype.SetTextAlignment = function (value) {
     this.SetValue(TextBox.TextAlignmentProperty, value);
 };
 
-TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", TextBox, TextWrapping.NoWrap);
+TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return Number; }, TextBox, TextWrapping.NoWrap);
 TextBox.prototype.GetTextWrapping = function () {
     return this.GetValue(TextBox.TextWrappingProperty);
 };
@@ -663,7 +649,7 @@ TextBox.prototype.SetTextWrapping = function (value) {
     this.SetValue(TextBox.TextWrappingProperty, value);
 };
 
-TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", TextBox, ScrollBarVisibility.Hidden);
+TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.prototype.GetHorizontalScrollBarVisibility = function () {
     return this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
 };
@@ -671,7 +657,7 @@ TextBox.prototype.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
 };
 
-TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", TextBox, ScrollBarVisibility.Hidden);
+TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.prototype.GetVerticalScrollBarVisibility = function () {
     return this.GetValue(TextBox.VerticalScrollBarVisibilityProperty);
 };
@@ -1022,14 +1008,12 @@ TextBox.prototype.GetDefaultStyle = function () {
 
 //#region PasswordBox
 
-PasswordBox.prototype = new TextBoxBase;
-PasswordBox.prototype.constructor = PasswordBox;
 function PasswordBox() {
     TextBoxBase.call(this);
 
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._EventsMask = _TextBoxEmitChanged.TEXT;
 }
-PasswordBox.GetBaseClass = function () { return TextBoxBase; };
+PasswordBox.InheritFrom(TextBoxBase);
 
 //#endregion
