@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Parser.Elements
 {
-    public abstract class UIElement: Visual
+    public abstract class Visual: DependencyObject
     {
     }
 }

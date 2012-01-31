@@ -19,21 +19,23 @@ namespace Parser
 
             foreach (XmlAttribute a in node.Attributes)
             {
-                PropertyInfo pi = FindProperty(a.Name, t);
-                if (pi == null)
-                    throw new Exception(string.Format("An unexpected attribute was found. {0}", a.Name));
-
-                object value = a.Value;
-                TypeConverterAttribute[] atts = (TypeConverterAttribute[])pi.GetCustomAttributes(typeof(TypeConverterAttribute), false);
-                if (atts.Count() > 1)
-                    throw new Exception("More than one TypeConverterAttribute may not be placed on a property.");
-                if (atts.Count() == 1)
+                if (a.Name.Contains("."))
                 {
-                    value = atts[0].Convert(a.Value);
+                    //inline attached property
+                    string[] parts = a.Name.Split('.');
+                    if (parts.Count() != 2)
+                        throw new Exception(string.Format("An invalid element has been encountered. {0}", a.Name));
+                    AddAttachedProperty(element, parts[0], parts[1], a.Value);
                 }
+                else
+                {
+                    //regular property
+                    PropertyInfo pi = FindProperty(a.Name, t);
+                    if (pi == null)
+                        throw new Exception(string.Format("An unexpected attribute was found. {0}", a.Name));
 
-                MethodInfo mi = pi.GetSetMethod();
-                mi.Invoke(element, new object[] { value });
+                    SetProperty(element, pi, a.Value);
+                }
             }
 
             //if type contains a content property (marked with content attribute), then parse the child nodes
@@ -58,30 +60,79 @@ namespace Parser
                         throw new Exception(string.Format("An invalid element has been encountered. {0}", n.Name));
                     if (n.Attributes.Count > 0)
                         throw new Exception(string.Format("A sub-element used for setting a property can not contain attributes. {0}", n.Name));
+
                     if (!parts[0].Equals(element.GetType().Name))
                     {
-                        //attached property
-
-                    }
-
-                    PropertyInfo subp = FindProperty(parts[1], element.GetType());
-                    ProcessChildNodes(n.ChildNodes, element, subp);
-                }
-                else
-                {
-                    object content = ParseXmlNode(n, element);
-                    if (cp.PropertyType.IsGenericType && cp.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
-                    {
-                        IList list = (IList)cp.GetValue(element, null);
-                        list.Add(content);
+                        //the sub-element is an attached property
+                        AddAttachedProperty(element, parts[0], parts[1], n.InnerText);
                     }
                     else
                     {
-                        MethodInfo mi = cp.GetSetMethod();
-                        mi.Invoke(element, new object[] { content });
+                        //the sub-element is a regular property
+                        PropertyInfo subp = FindProperty(parts[1], element.GetType());
+                        if (subp.PropertyType.IsGenericType && subp.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
+                        {
+                            //this sub-property has children
+                            ProcessChildNodes(n.ChildNodes, element, subp);
+                        }
+                        else
+                        {
+                            //this sub-property is a single value
+                            SetProperty(element, subp, n.InnerText);
+                        }
+                    }
+                }
+                else
+                {
+                    //parsing a child element
+                    if (n.NodeType == XmlNodeType.Text)
+                    {
+                        PropertyInfo subp = GetContentProperty(element.GetType());
+                        SetProperty(element, subp, n.InnerText);
+                    }
+                    else
+                    {
+                        object content = ParseXmlNode(n, element);
+                        if (cp.PropertyType.IsGenericType && cp.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
+                        {
+                            //the content property is a list so add to the list
+                            IList list = (IList)cp.GetValue(element, null);
+                            list.Add(content);
+                        }
+                        else
+                        {
+                            //the content property is a single object, set the value
+                            MethodInfo mi = cp.GetSetMethod();
+                            mi.Invoke(element, new object[] { content });
+                        }
                     }
                 }
             }
+        }
+
+        private static void SetProperty(object element, PropertyInfo pi, object value)
+        {
+            TypeConverterAttribute[] atts = (TypeConverterAttribute[])pi.GetCustomAttributes(typeof(TypeConverterAttribute), false);
+            if (atts.Count() > 1)
+                throw new Exception("More than one TypeConverterAttribute may not be placed on a property.");
+            if (atts.Count() == 1)
+            {
+                value = atts[0].Convert((string)value);
+            }
+
+            MethodInfo mi = pi.GetSetMethod();
+            mi.Invoke(element, new object[] { value });
+        }
+
+        private static void AddAttachedProperty(object element, string owner, string property, string value)
+        {
+            AttachedProperty ap = new AttachedProperty()
+            {
+                Owner = owner,
+                Property = property,
+                Value = value
+            };
+            ((UIElement)element).AttachedProperties.Add(ap);
         }
 
         private static Type GetElementType(string elementName)

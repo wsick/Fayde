@@ -17,28 +17,5 @@ namespace Parser.Elements
         {
             get { return _children; }
         }
-
-        protected override string propsToJson()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append(base.propsToJson());
-            if (Background != null)
-            {
-                sb.Append("Background: ");
-                sb.AppendLine(Background.toJson(0));
-            }
-            return sb.ToString();
-        }
-
-        protected string contentToJson()
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (UIElement e in Children)
-            {
-                sb.Append(e.toJson(0));
-                sb.AppendLine(",");
-            }
-            return sb.ToString();
-        }
     }
 }

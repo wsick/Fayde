@@ -23,7 +23,7 @@ namespace Parser.TypeConverters
 
         public string toJson(int tabIndents)
         {
-            throw new NotImplementedException();
+            return string.Format("{0}.{1}", this.GetType().Name, _wrapping.ToString());
         }
     }
 
@@ -31,7 +31,7 @@ namespace Parser.TypeConverters
     {
         public override object Convert(string from)
         {
-            return (TextWrappingEnum)Enum.Parse(typeof(TextWrappingEnum), from);
+            return new TextWrapping((TextWrappingEnum)Enum.Parse(typeof(TextWrappingEnum), from));
         }
     }
 }

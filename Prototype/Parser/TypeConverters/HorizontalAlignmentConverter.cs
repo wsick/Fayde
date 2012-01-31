@@ -26,7 +26,7 @@ namespace Parser.TypeConverters
 
         public string  toJson(int tabIndents)
         {
- 	        throw new NotImplementedException();
+            return string.Format("{0}.{1}", this.GetType().Name, _alignment.ToString());
         }
     }
 

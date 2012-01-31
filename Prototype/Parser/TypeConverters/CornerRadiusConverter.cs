@@ -6,7 +6,7 @@ using Parser.Elements;
 
 namespace Parser.TypeConverters
 {
-    public class Thickness: IJsonSerializable
+    public class CornerRadius : IJsonSerializable
     {
         public double Left { get; set; }
         public double Top { get; set; }
@@ -15,11 +15,11 @@ namespace Parser.TypeConverters
 
         public string toJson(int tabIndents)
         {
-            return string.Format("new Thickness({0}, {1}, {2}, {3})", Left, Top, Right, Bottom);
+            return string.Format("new CornerRadius({0}, {1}, {2}, {3})", Left, Top, Right, Bottom);
         }
     }
 
-    public class ThicknessConverter: TypeConverterAttribute
+    public class CornerRadiusConverter : TypeConverterAttribute
     {
         public override object Convert(string from)
         {
@@ -27,7 +27,7 @@ namespace Parser.TypeConverters
             if (parts.Count() == 1)
             {
                 double value = double.Parse(from);
-                return new Thickness()
+                return new CornerRadius()
                 {
                     Left = value,
                     Top = value,
@@ -37,7 +37,7 @@ namespace Parser.TypeConverters
             }
             else if (parts.Count() == 4)
             {
-                return new Thickness()
+                return new CornerRadius()
                 {
                     Left = double.Parse(parts[0]),
                     Top = double.Parse(parts[1]),
@@ -46,7 +46,7 @@ namespace Parser.TypeConverters
                 };
             }
             else
-                throw new Exception(string.Format("An invalid value has been set for Thickness. {0}", from));
+                throw new Exception(string.Format("An invalid value has been set for CornerRadius. {0}", from));
         }
     }
 }

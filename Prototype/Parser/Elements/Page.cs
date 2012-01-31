@@ -101,10 +101,5 @@ namespace Parser.Elements
             sb.AppendLine("</html>");
             return sb.ToString();
         }
-
-        public override string toJson(int tabIndents)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -57,11 +57,16 @@
     <Content Include="Scripts\Framework\VisualStateManager.js" />
     <Content Include="Scripts\kinetic-v3.6.0.js" />
     <Content Include="test-includes.txt" />
-    <Content Include="tests\grid\test4.xml" />
-    <Content Include="tests\grid\test3.xml" />
+    <None Include="tests\grid\test4.fayde">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="tests\grid\test3.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="tests\grid\test1.html" />
     <Content Include="tests\grid\test2.html" />
     <Content Include="tests\grid\test3.html" />
+    <Content Include="tests\grid\test4.html" />
     <Content Include="tests\jsonparser\test2.html" />
     <Content Include="tests\prototype\arrays.html" />
     <Content Include="tests\prototype\kinetic1.html" />

@@ -23,7 +23,7 @@ namespace Parser.TypeConverters
 
         public string toJson(int tabIndents)
         {
-            return string.Format("{0}.{1},", this.GetType().Name, _orientation.ToString());
+            return string.Format("{0}.{1}", this.GetType().Name, _orientation.ToString());
         }
     }
 

@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Page Title="Fayde Home">
+﻿<Page Title="Fayde Home">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="150"/>
@@ -16,7 +15,7 @@
       <TextBlock>About</TextBlock>
       <TextBlock>Contact Us</TextBlock>
     </StackPanel>
-    <TextBlock Grid.Column="1" Grid.Row="1" Margin="10" TextWrapping="Wrap">
+    <TextBlock Grid.Column="1" Grid.Row="1" Margin="10">
       Have you ever used Silverlight to develop a web application? Then, once the web
       application was successful, we now have to support Linux and Mac and on every modern browser. Ever been frustrated trying to design a silverlight
       web application where lots of data needed to be shuffled back and forth from the server to the client? Like developing in .NET? Like MVVM?

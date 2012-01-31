@@ -20,7 +20,7 @@ namespace Parser.TypeConverters
 
         public string toJson(int tabIndents)
         {
-            throw new NotImplementedException();
+            return string.Format("new GridLength({0}, {1}.{2})", Value, UnitType.GetType().Name, UnitType.ToString());
         }
     }
 
@@ -30,17 +30,20 @@ namespace Parser.TypeConverters
         {
             if (from.EndsWith("*"))
             {
-                return new GridLength()
-                {
-                    UnitType = GridUnitType.Star,
-                    Value = double.Parse(from.Substring(0, from.Length - 1))
-                };
+                GridLength gl = new GridLength();
+                gl.UnitType = GridUnitType.Star;
+                if (from.Length > 1)
+                    gl.Value = double.Parse(from.Substring(0, from.Length - 1));
+                else
+                    gl.Value = 1;
+                return gl;
             }
             else if (from.Equals("Auto"))
             {
                 return new GridLength()
                 {
-                    UnitType = GridUnitType.Auto
+                    UnitType = GridUnitType.Auto,
+                    Value = 1
                 };
             }
             else

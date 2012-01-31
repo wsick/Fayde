@@ -13,15 +13,13 @@ namespace Parser.Elements
         [TextWrappingConverter]
         public TextWrapping TextWrapping { get; set; }
         [Property]
+        [BrushTypeConverter]
+        public Brush Foreground { get; set; }
+        [Property]
         [Content]
         public string Text { get; set; }
         [Property]
         [DoubleConverter]
-        public double FontSize { get; set; }
-
-        public override string toJson(int tabIndents)
-        {
-            throw new NotImplementedException();
-        }
+        public double? FontSize { get; set; }
     }
 }

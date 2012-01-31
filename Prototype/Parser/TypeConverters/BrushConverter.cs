@@ -25,7 +25,7 @@ namespace Parser.TypeConverters
 
         public override string toJson(int tabIndents)
         {
-            return string.Format("new SolidColorBrush(Color.FromHex(\"{0}\")),", _hexString);
+            return string.Format("new SolidColorBrush(Color.FromHex(\"{0}\"))", _hexString);
         }
     }
 
