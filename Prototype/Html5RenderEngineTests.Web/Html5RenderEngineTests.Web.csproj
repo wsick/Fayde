@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,14 +52,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Docs\JsonDependencyObjectFormat.txt" />
-    <Content Include="grid-tests\test2.html" />
-    <Content Include="grid-tests\test1.html" />
-    <Content Include="grid-tests\test3.htm" />
-    <Content Include="index.html" />
-    <Content Include="multicastevent-test.html" />
     <Content Include="Docs\Annotations.txt" />
+    <Content Include="Scripts\Fayde.js" />
+    <Content Include="Scripts\Framework\VisualStateManager.js" />
+    <Content Include="Scripts\kinetic-v3.6.0.js" />
+    <Content Include="test-includes.txt" />
+    <Content Include="tests\grid\test4.xml" />
+    <Content Include="tests\grid\test3.xml" />
+    <Content Include="tests\grid\test1.html" />
+    <Content Include="tests\grid\test2.html" />
+    <Content Include="tests\grid\test3.html" />
+    <Content Include="tests\jsonparser\test2.html" />
     <Content Include="tests\prototype\arrays.html" />
-    <Content Include="tests\prototype\kinetic.html" />
+    <Content Include="tests\prototype\kinetic1.html" />
+    <Content Include="tests\prototype\kinetic2.html" />
+    <Content Include="tests\prototype\multicastevent.html" />
     <Content Include="tests\prototype\parsing.html" />
     <Content Include="Scripts\Framework\Border.js" />
     <Content Include="Scripts\Framework\Brushes.js" />
@@ -93,25 +100,15 @@
     <Content Include="Scripts\Framework\TextLayout.js" />
     <Content Include="Scripts\Framework\UserControl.js" />
     <Content Include="Scripts\Framework\Validators.js" />
-    <Content Include="Scripts\jquery-1.7.1-vsdoc.js" />
-    <Content Include="Scripts\jquery-1.7.1.js" />
-    <Content Include="Scripts\jquery-1.7.1.min.js" />
     <Content Include="Scripts\jquery-1.7.js" />
     <Content Include="Scripts\Framework\Panel.js" />
     <Content Include="Scripts\Framework\Primitives.js" />
     <Content Include="Scripts\kinetic-v2.3.2.js" />
     <Content Include="Scripts\Framework\App.js" />
-    <Content Include="Scripts\Shape.js" />
     <Content Include="Scripts\Framework\StackPanel.js" />
     <Content Include="Scripts\Framework\Style.js" />
     <Content Include="Scripts\Framework\UIElement.js" />
-    <Content Include="Scripts\UnitTesting.js" />
     <Content Include="tests\stackpanel\test1.html" />
-    <Content Include="test1.html" />
-    <Content Include="test2.html" />
-    <Content Include="test3.html" />
-    <Content Include="test4.html" />
-    <Content Include="tests.html" />
     <Content Include="tests\jsonparser\test1.html" />
     <Content Include="tests\textbox\test1.html" />
     <Content Include="Docs\Todo.txt" />
@@ -132,7 +129,7 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
+    <None Include="UpdateIncludes.bat" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
