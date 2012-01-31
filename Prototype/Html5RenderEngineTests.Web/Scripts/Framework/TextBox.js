@@ -926,7 +926,7 @@ TextBox.prototype.GetDefaultStyle = function () {
         var setter = new Setter();
         setter.SetProperty(Control.TemplateProperty);
         setter.SetValue_Prop((function () {
-            return ControlTemplate.CreateTemplateFromJson({
+            return new ControlTemplate(TextBox, {
                 Type: Grid,
                 Name: "RootElement",
                 Children: [

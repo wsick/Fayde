@@ -16,8 +16,10 @@ FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElem
 
 //#region ControlTemplate
 
-function ControlTemplate() {
+function ControlTemplate(targetType, json) {
     FrameworkTemplate.call(this);
+    this.SetTargetType(targetType);
+    this._TempJson = json;
 }
 ControlTemplate.InheritFrom(FrameworkTemplate);
 
@@ -33,11 +35,6 @@ ControlTemplate.prototype.SetTargetType = function (value) {
 
 //#endregion
 
-ControlTemplate.CreateTemplateFromJson = function (json) {
-    var template = new ControlTemplate();
-    template._TempJson = json;
-    return template;
-};
 ControlTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
     if (this._TempJson) {
         var namescope = new NameScope();
