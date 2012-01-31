@@ -25,9 +25,6 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
                 continue;
 
             var propd = dobj.GetDependencyProperty(propName);
-            if (!(propValue instanceof RefObject) && propValue.Type) {
-                propValue = this.CreateObject(propValue, namescope);
-            }
             this.TrySetPropertyValue(dobj, propd, propValue, namescope, false);
         }
     }
@@ -59,10 +56,16 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
 };
 
 JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached) {
+    //If the object is not a RefObject, let's parse it
+    if (!(propValue instanceof RefObject) && propValue.Type) {
+        propValue = this.CreateObject(propValue, namescope);
+    }
+
+    //Set property value
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
-        if (this.TrySetTemplateBindingProperty(propValue, propd))
+        if (this.TrySetTemplateBindingProperty(dobj, propValue, propd))
             return;
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
@@ -75,21 +78,32 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
     }
 };
 JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
-    if (!propd._IsAutoCreated())
+    var targetType = propd.GetTargetType();
+    if (!targetType.DoesInheritFrom(Collection))
         return false;
-    var val = dobj.GetValue(propd);
-    if (!(val instanceof Collection))
+    if (!(subJson instanceof Array))
         return false;
-    for (var i in subJson) {
-        val.Add(this.CreateObject(subJson[i], namescope));
+
+    var coll;
+    if (propd._IsAutoCreated()) {
+        coll = dobj.GetValue(propd);
+    } else {
+        coll = new targetType();
+        dobj.SetValue(propd, coll);
     }
+
+    for (var i in subJson) {
+        coll.Add(this.CreateObject(subJson[i], namescope));
+    }
+
     return true;
 };
-JsonParser.prototype.TrySetTemplateBindingProperty = function (propValue, propd) {
+JsonParser.prototype.TrySetTemplateBindingProperty = function (dobj, propValue, propd) {
     if (!(propValue instanceof TemplateBinding))
         return false;
     var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
     propValue = new TemplateBindingExpression(sourcePropd, propd);
+    dobj.SetValue(propd, propValue);
     return true;
 };
 

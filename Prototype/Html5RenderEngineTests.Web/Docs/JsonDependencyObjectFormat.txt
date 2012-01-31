@@ -40,3 +40,4 @@
 	- ItemsControl - ItemsProperty
 		- ListBox
 		- ComboBox
+	- Style - SettersProperty

@@ -13,7 +13,7 @@ ContentControl.InheritFrom(Control);
 ContentControl._FallbackTemplate = (function () {
     //TODO: Create fallback template
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-    ControlTemplate.CreateTemplateFromJson({
+    new ControlTemplate(ContentControl, {
         Type: Grid,
         Children: [
             {

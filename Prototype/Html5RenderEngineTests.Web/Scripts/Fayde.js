@@ -131,6 +131,9 @@ Function.prototype.InheritFrom = function (parentType) {
     this.prototype.constructor = this;
     this.GetBaseClass = function () { return parentType; };
 };
+Function.prototype.DoesInheritFrom = function (type) {
+    return (new this()) instanceof type;
+};
 
 //#region RefObject
 
@@ -511,9 +514,6 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
                 continue;
 
             var propd = dobj.GetDependencyProperty(propName);
-            if (!(propValue instanceof RefObject) && propValue.Type) {
-                propValue = this.CreateObject(propValue, namescope);
-            }
             this.TrySetPropertyValue(dobj, propd, propValue, namescope, false);
         }
     }
@@ -545,10 +545,16 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
 };
 
 JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached) {
+    //If the object is not a RefObject, let's parse it
+    if (!(propValue instanceof RefObject) && propValue.Type) {
+        propValue = this.CreateObject(propValue, namescope);
+    }
+
+    //Set property value
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
-        if (this.TrySetTemplateBindingProperty(propValue, propd))
+        if (this.TrySetTemplateBindingProperty(dobj, propValue, propd))
             return;
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
@@ -561,21 +567,32 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
     }
 };
 JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
-    if (!propd._IsAutoCreated())
+    var targetType = propd.GetTargetType();
+    if (!targetType.DoesInheritFrom(Collection))
         return false;
-    var val = dobj.GetValue(propd);
-    if (!(val instanceof Collection))
+    if (!(subJson instanceof Array))
         return false;
-    for (var i in subJson) {
-        val.Add(this.CreateObject(subJson[i], namescope));
+
+    var coll;
+    if (propd._IsAutoCreated()) {
+        coll = dobj.GetValue(propd);
+    } else {
+        coll = new targetType();
+        dobj.SetValue(propd, coll);
     }
+
+    for (var i in subJson) {
+        coll.Add(this.CreateObject(subJson[i], namescope));
+    }
+
     return true;
 };
-JsonParser.prototype.TrySetTemplateBindingProperty = function (propValue, propd) {
+JsonParser.prototype.TrySetTemplateBindingProperty = function (dobj, propValue, propd) {
     if (!(propValue instanceof TemplateBinding))
         return false;
     var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
     propValue = new TemplateBindingExpression(sourcePropd, propd);
+    dobj.SetValue(propd, propValue);
     return true;
 };
 
@@ -1123,7 +1140,7 @@ Color.FromHex = function (hex) {
         r = parseInt(match[2], 16);
         g = parseInt(match[3], 16);
         b = parseInt(match[4], 16);
-    } else if ((match == Color.__NoAlphaRegex.exec(hex)) != null) {
+    } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
         a = 1.0;
         r = parseInt(match[1], 16);
         g = parseInt(match[2], 16);
@@ -1429,10 +1446,10 @@ Font.DEFAULT_SIZE = "12px";
 /// <reference path="TextBlock.js"/>
 /// <reference path="BError.js"/>
 
-var Control = {};
-var TextBlock = {};
-var TextElement = {};
-var Run = {};
+function Control() { };
+function TextBlock() { };
+function TextElement() { };
+function Run() { };
 function Image() { };
 function MediaElement() { };
 function Popup() { };
@@ -2838,7 +2855,7 @@ Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
         return uie.RefEquals(this._Captured) || uie.RefEquals(this._PendingCapture);
     if (!this._EmittingMouseEvent)
         return false;
-    this._PendingCapture = this._Capture;
+    this._PendingCapture = uie;
     return true;
 };
 Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
@@ -3717,6 +3734,53 @@ function _LayoutWord() {
     this._Font = new Font();
 }
 _LayoutWord.InheritFrom(RefObject);
+
+//#endregion
+
+/// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="FrameworkElement.js"/>
+
+//#region VisualTreeHelper
+
+function VisualTreeHelper() {
+    RefObject.call(this);
+}
+VisualTreeHelper.InheritFrom(RefObject);
+
+VisualTreeHelper.GetChild = function (d, childIndex) {
+    var fw = RefObject.As(d, FrameworkElement);
+    if (fw == null)
+        throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+
+    var subtree = fw._GetSubtreeObject();
+    var coll = RefObject.As(subtree, UIElementCollection);
+    if (coll != null)
+        return coll.GetValueAt(childIndex);
+
+    var item = RefObject.As(subtree, UIElement);
+    if (item != null && childIndex === 0)
+        return item;
+
+    throw new ArgumentOutOfRangeException();
+};
+
+VisualTreeHelper.GetChildrenCount = function (d) {
+    var fw = RefObject.As(d, FrameworkElement);
+    if (fw == null)
+        throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+
+    var subtree = fw._GetSubtreeObject();
+    var coll = RefObject.As(subtree, UIElementCollection);
+    if (coll != null)
+        return coll.GetCount();
+
+    var item = RefObject.As(subtree, UIElement);
+    if (item != null)
+        return 1;
+    
+    return 0;
+};
 
 //#endregion
 
@@ -4793,8 +4857,10 @@ FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElem
 
 //#region ControlTemplate
 
-function ControlTemplate() {
+function ControlTemplate(targetType, json) {
     FrameworkTemplate.call(this);
+    this.SetTargetType(targetType);
+    this._TempJson = json;
 }
 ControlTemplate.InheritFrom(FrameworkTemplate);
 
@@ -4810,11 +4876,6 @@ ControlTemplate.prototype.SetTargetType = function (value) {
 
 //#endregion
 
-ControlTemplate.CreateTemplateFromJson = function (json) {
-    var template = new ControlTemplate();
-    template._TempJson = json;
-    return template;
-};
 ControlTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
     if (this._TempJson) {
         var namescope = new NameScope();
@@ -5862,13 +5923,11 @@ UIElement.prototype.OnMouseRightButtonUp = function (sender, args) { };
 
 UIElement.prototype._EmitMouseEnter = function (absolutePos) {
     this.MouseEnter.Raise(this, new MouseEventArgs(absolutePos));
-    Info("MouseEnter: " + this._TypeName);
 };
 UIElement.prototype.OnMouseEnter = function (sender, args) { };
 
 UIElement.prototype._EmitMouseLeave = function (absolutePos) {
     this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
-    Info("MouseLeave: " + this._TypeName);
 };
 UIElement.prototype.OnMouseLeave = function (sender, args) { };
 
@@ -7483,7 +7542,7 @@ FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
 FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
     var d = this._GetDefaultTemplate();
     if (d) {
-        d._AddParent(this, error);
+        d._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
         this._SetSubtreeObject(d);
@@ -8149,6 +8208,14 @@ Style.prototype.SetTargetType = function (value) {
 
 //#endregion
 
+//#region ANNOTATIONS
+
+Style.Annotations = {
+    ContentProperty: Style.SettersProperty
+};
+
+//#endregion
+
 Style.prototype._Seal = function () {
     if (this.GetIsSealed())
         return;
@@ -8177,7 +8244,7 @@ Style.prototype._AddSetterJson = function (dobj, propName, json) {
     this._AddSetter(dobj, propName, parser.CreateObject(json, new NameScope()));
 };
 Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJson) {
-    this._AddSetter(dobj, propName, ControlTemplate.CreateTemplateFromJson(templateJson));
+    this._AddSetter(dobj, propName, new ControlTemplate(dobj.constructor, templateJson));
 };
 
 //#endregion
@@ -8867,6 +8934,10 @@ VisualStateManager.SetVisualStateGroups = function (d, value) {
 
 //#endregion
 
+VisualStateManager.GoToState = function (uie, state, useTransitions) {
+    NotImplemented("VisualStateManager.GoToState");
+};
+
 //#endregion
 
 /// <reference path="FrameworkElement.js"/>
@@ -9195,21 +9266,23 @@ ContentPresenter.prototype.SetContentTemplate = function (value) {
 ContentPresenter.prototype._GetDefaultTemplate = function () {
     var templateOwner = this._GetTemplateOwner();
     if (templateOwner) {
-        if (this._ReadLocalValue(ContentPresenter.ContentProperty) == undefined) {
-            this._SetTemplateBinding(ContentPresenter.ContentProperty, new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+        if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+            this.SetValue(ContentPresenter.ContentProperty, 
+                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
-        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) == undefined) {
-            this._SetTemplateBinding(ContentPresenter.ContentTemplateProperty, new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+            this.SetValue(ContentPresenter.ContentTemplateProperty, 
+                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }
     }
 
     var template = this.GetContentTemplate();
-    if (template) {
-        this._ContentRoot = template.GetVisualTree(this);
+    if (template != null) {
+        this._ContentRoot = RefObject.As(template.GetVisualTree(this), UIElement);
     } else {
         var content = this.GetContent();
-        this._ContentRoot = content;
-        if (!(this._ContentRoot instanceof UIElement) && content != null)
+        this._ContentRoot = RefObject.As(content, UIElement);
+        if (!this._ContentRoot == null && content != null)
             this._ContentRoot = this._GetFallbackRoot();
     }
     return this._ContentRoot;
@@ -9219,7 +9292,7 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
         FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
         return;
     }
-    if (args.Property == ContentPresenter.ContentProperty) {
+    if (args.Property === ContentPresenter.ContentProperty) {
         if ((args.NewValue && args.NewValue instanceof UIElement)
             || (args.OldValue && args.OldValue instanceof UIElement)) {
             this._ClearRoot();
@@ -9229,7 +9302,7 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
         else
             this.ClearValue(FrameworkElement.DataContextProperty);
         this._InvalidateMeasure();
-    } else if (args.Property == ContentPresenter.ContentTemplateProperty) {
+    } else if (args.Property === ContentPresenter.ContentTemplateProperty) {
         this._ClearRoot();
         this._InvalidateMeasure();
     }
@@ -11346,7 +11419,7 @@ TextBox.prototype.GetDefaultStyle = function () {
         var setter = new Setter();
         setter.SetProperty(Control.TemplateProperty);
         setter.SetValue_Prop((function () {
-            return ControlTemplate.CreateTemplateFromJson({
+            return new ControlTemplate(TextBox, {
                 Type: Grid,
                 Name: "RootElement",
                 Children: [
@@ -11551,7 +11624,7 @@ ContentControl.InheritFrom(Control);
 ContentControl._FallbackTemplate = (function () {
     //TODO: Create fallback template
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-    ControlTemplate.CreateTemplateFromJson({
+    new ControlTemplate(ContentControl, {
         Type: Grid,
         Children: [
             {
@@ -11623,7 +11696,7 @@ function ButtonBase() {
 
     this.Click = new MulticastEvent();
 
-    this.Loaded.Subscribe(function () { this._IsLoaded = true; this._UpdateVisualState(); }, this);
+    this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
     this.SetIsTabStop(true);
 }
 ButtonBase.GetBaseClass = function () { return ContentControl; };
@@ -11678,11 +11751,11 @@ ButtonBase.prototype.OnIsEnabledChanged = function (e) {
         }
     } finally {
         this._SuspendStateChanges = false;
-        this._UpdateVisualState();
+        this.UpdateVisualState();
     }
 };
 ButtonBase.prototype.OnIsPressedChanged = function (e) {
-    this._UpdateVisualState();
+    this.UpdateVisualState();
 };
 ButtonBase.prototype._IsValidMousePosition = function () {
     var pos = this._MousePosition;
@@ -11758,7 +11831,7 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
     try {
         this.Focus();
         this._CaptureMouseInternal();
-        if (_IsMouseCaptured)
+        if (this._IsMouseCaptured)
             this.SetIsPressed(true);
     } finally {
         this._SuspendStateChanges = false;
@@ -11779,7 +11852,7 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
         return;
 
     //TODO: args.Handled = true;
-    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === ClickMode.Release)
+    if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
         this._EmitClick();
 
     if (!this._IsSpaceKeyDown) {
@@ -11893,100 +11966,201 @@ Button.prototype.OnIsEnabledChanged = function (e) {
 //#region DEFAULT STYLE
 
 Button.prototype.GetDefaultStyle = function () {
-   var style = {
-       Type: Style,
-       Props: {
-           "Background": new SolidColorBrush(Color.FromHex("#FF1F3B53")),
-           "Foreground": new SolidColorBrush(Color.FromHex("#FF000000")),
-           "Padding": new Thickness(3, 3, 3, 3),
-           "BorderThickness": new Thickness(1, 1, 1, 1),
-           "BorderBrush": {
-               Type: LinearGradientBrush,
-               Props: {
-                   StartPoint: new Point(0.5, 1),
-                   EndPoint: new Point(0.5, 1),
-                   GradientStops: [
-                       {
-                           Color: Color.FromHex("#FFA3AEB9"),
-                           Offset: 0.0
-                       },
-                       {
-                           Color: Color.FromHex("#FF8399A9"),
-                           Offset: 0.375
-                       },
-                       {
-                           Color: Color.FromHex("#FF718597"),
-                           Offset: 0.375
-                       },
-                       {
-                           Color: Color.FromHex("#FF617584"),
-                           Offset: 1.0
-                       }
-                   ]
-               }
-            }
-        }
-    };
-   /*
-    style._AddSetterControlTemplate(this, "Template": ControlTemplate.CreateTemplateFromJson({
-        Type: Grid,
-        AttachedProps: [
-            {
-                Owner: VisualStateManager,
-                Prop: "VisualStateGroups",
-                Value: [
-                    {
-                        Type: VisualStateGroup,
-                        Name: "CommonStates"
-                    }
-                ]
-            }
-        ],
+    var styleJson = {
+        Type: Style,
+        Props: {
+            TargetType: Button
+        },
         Children: [
             {
-                Type: Border,
-                Name: "Background",
+                Type: Setter,
                 Props: {
-                    CornerRadius: new CornerRadius(3, 3, 3, 3),
-                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
-                    BorderThickness: new TemplateBinding("BorderThickness"),
-                    BorderBrush: new TemplateBinding("BorderBrush")
-                },
-                Content: {
-                    Type: Grid,
-                    Props: {
-                        Background: new TemplateBinding("Background"),
-                        Margin: new Thickness(1, 1, 1, 1)
-                    },
-                    Children: [
-                        {
-                            Type: Border,
-                            Name: "BackgroundAnimation",
-                            Props: {
-                                Opacity: 0.0,
-                                Background: new SolidColorBrush(Color.FromHex("#FF448DCA"))
-                            }
-                        }
-                    ]
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Background"),
+                    Value: new SolidColorBrush(Color.FromHex("#FF1F3B53"))
                 }
             },
             {
-                Type: ContentPresenter,
-                Name: "contentPresenter",
+                Type: Setter,
                 Props: {
-                    Content: new TemplateBinding("Content"),
-                    ContentTemplate: new TemplateBinding("ContentTemplate"),
-                    VerticalAlignment: new TemplateBinding("VerticalContentAlignment"),
-                    HorizontalAlignment: new TemplateBinding("HorizontalContentAlignment"),
-                    Margin: new TemplateBinding("Padding")
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Foreground"),
+                    Value: new SolidColorBrush(Color.FromHex("#FF000000"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Padding"),
+                    Value: new Thickness(3, 3, 3, 3)
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "BorderThickness"),
+                    Value: new Thickness(1, 1, 1, 1)
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "BorderBrush"),
+                    Value: {
+                        Type: LinearGradientBrush,
+                        Props: {
+                            StartPoint: new Point(0.5, 1),
+                            EndPoint: new Point(0.5, 1),
+                            GradientStops: [
+                                {
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FFA3AEB9"),
+                                        Offset: 0.0
+                                    }
+                                },
+                                {
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FF8399A9"),
+                                        Offset: 0.375
+                                    }
+                                },
+                                {
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FF718597"),
+                                        Offset: 0.375
+                                    }
+                                },
+                                {   
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FF617584"),
+                                        Offset: 1.0
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Template"),
+                    Value: new ControlTemplate(Button, {
+                        Type: Grid,
+                        Children: [
+                            {
+                                Type: Border,
+                                Name: "Background",
+                                Props: {
+                                    CornerRadius: new CornerRadius(3, 3, 3, 3),
+                                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
+                                    BorderThickness: new TemplateBinding("BorderThickness"),
+                                    BorderBrush: new TemplateBinding("BorderBrush")
+                                },
+                                Content: {
+                                    Type: Grid,
+                                    Props: {
+                                        Background: new TemplateBinding("Background"),
+                                        Margin: new Thickness(1, 1, 1, 1)
+                                    },
+                                    Children: [
+                                        {
+                                            Type: Border,
+                                            Name: "BackgroundAnimation",
+                                            Props: {
+                                                Opacity: 0.0,
+                                                Background: new SolidColorBrush(Color.FromHex("#FF448DCA"))
+                                            }
+                                        },
+                                        {
+                                            Type: Border,
+                                            Name: "BackgroundGradient",
+                                            Props: {
+                                                Background: {
+                                                    Type: LinearGradientBrush,
+                                                    Props: {
+                                                        StartPoint: new Point(0.7, 0.0),
+                                                        EndPoint: new Point(0.7, 1.0),
+                                                        GradientStops: [
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#FFFFFFFF"),
+                                                                    Offset: 0.0
+                                                                }
+                                                            },
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#F9FFFFFF"),
+                                                                    Offset: 0.375
+                                                                }
+                                                            },
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#E5FFFFFF"),
+                                                                    Offset: 0.625
+                                                                }
+                                                            },
+                                                            {   
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#C6FFFFFF"),
+                                                                    Offset: 1.0
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                Type: ContentPresenter,
+                                Name: "contentPresenter",
+                                Props: {
+                                    Content: new TemplateBinding("Content"),
+                                    ContentTemplate: new TemplateBinding("ContentTemplate"),
+                                    VerticalAlignment: new TemplateBinding("VerticalContentAlignment"),
+                                    HorizontalAlignment: new TemplateBinding("HorizontalContentAlignment"),
+                                    Margin: new TemplateBinding("Padding")
+                                }
+                            },
+                            {
+                                Type: Border,
+                                Name: "DisabledVisualElement",
+                                Props: {
+                                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
+                                    Opacity: 0.0,
+                                    CornerRadius: new CornerRadius(3, 3, 3, 3),
+                                    IsHitTestVisible: false
+                                }
+                            },
+                            {
+                                Type: Border,
+                                Name: "FocusVisualElement",
+                                Props: {
+                                    Margin: new Thickness(1, 1, 1, 1),
+                                    BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                                    BorderThickness: new Thickness(1, 1, 1, 1),
+                                    Opacity: 0.0,
+                                    CornerRadius: new CornerRadius(2, 2, 2, 2),
+                                    IsHitTestVisible: false
+                                }
+                            }
+                        ]
+                    })
                 }
             }
-        //DisabledVisualElement
-        //FocusVisualElement
         ]
-    }));
-    */
-    return style;
+    };
+    var parser = new JsonParser();
+    return parser.CreateObject(styleJson, new NameScope());
 };
 
 //#endregion

@@ -730,7 +730,7 @@ FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
 FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
     var d = this._GetDefaultTemplate();
     if (d) {
-        d._AddParent(this, error);
+        d._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
         this._SetSubtreeObject(d);

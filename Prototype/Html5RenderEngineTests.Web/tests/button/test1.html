@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="../../Scripts/jquery-1.7.js" type="text/javascript"></script>
+    
+    <script src="../../Scripts/Fayde.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            _Console.Init("#console");
+            RegisterHUD("mouse", "#hud-mouse");
+            RegisterHUD("els", "#hud-els");
+            RegisterHUD("clicky", "#hud-clicky");
+            var parser = new JsonParser();
+            root = parser.CreateObject(buildTestJson(), new NameScope());
+            App.Instance.Load(root, $("#canvas"));
+
+            root.GetChildren().GetValueAt(0).Click.Subscribe(function () { alert("CLICKED!"); });
+        });
+
+        function buildTestJson() {
+            return {
+                Type: Grid,
+                Children: [
+                    {
+                        Type: Button,
+                        Props: {
+                            Height: 200,
+                            Width: 200
+                        },
+                        Content: {
+                            Type: TextBlock,
+                            Props: {
+                                Text: "PLEASE WORK!"
+                            }
+                        }
+                    }
+                ]
+            };
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <div id="container">
+            <canvas id="canvas" width="600" height="600">
+            </canvas>
+        </div>
+        <div id="hud-mouse" style="height: 25px;">
+        </div>
+        <div id="hud-els" style="height: 25px;">
+        </div>
+        <div id="hud-clicky" style="height: 25px;">
+        </div>
+        <div id="console" style="margin-top: 10px; font-size: 12px; font-family: Consolas; overflow-y: scroll; height: 200px; border: solid 1px black;">
+        </div>
+    </div>
+</body>
+</html>
