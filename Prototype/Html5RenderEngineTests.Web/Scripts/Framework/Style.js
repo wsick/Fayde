@@ -162,6 +162,14 @@ Style.prototype.SetTargetType = function (value) {
 
 //#endregion
 
+//#region ANNOTATIONS
+
+Style.Annotations = {
+    ContentProperty: Style.SettersProperty
+};
+
+//#endregion
+
 Style.prototype._Seal = function () {
     if (this.GetIsSealed())
         return;
@@ -190,7 +198,7 @@ Style.prototype._AddSetterJson = function (dobj, propName, json) {
     this._AddSetter(dobj, propName, parser.CreateObject(json, new NameScope()));
 };
 Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJson) {
-    this._AddSetter(dobj, propName, ControlTemplate.CreateTemplateFromJson(templateJson));
+    this._AddSetter(dobj, propName, new ControlTemplate(dobj.constructor, templateJson));
 };
 
 //#endregion
