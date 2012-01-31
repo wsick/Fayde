@@ -4,7 +4,7 @@
     this.GetBaseClass = function () { return parentType; };
 };
 Function.prototype.DoesInheritFrom = function (type) {
-    return (new type()) instanceof this;
+    return (new this()) instanceof type;
 };
 
 //#region RefObject
