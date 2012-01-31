@@ -5,9 +5,9 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="150"/>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="150"/>
     </Grid.RowDefinitions>
     <TextBlock Margin="10" Grid.ColumnSpan="2" Grid.Row="0" FontSize="30">Welcome to Fayde</TextBlock>
     <StackPanel Grid.Column="0" Grid.Row="1">
