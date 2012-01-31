@@ -60,9 +60,9 @@
     <Content Include="styles\Button.xml" />
     <Content Include="test-includes.txt" />
     <None Include="tests\grid\test4.fayde">
-    <Content Include="tests\button\test1.html" />
       <SubType>Designer</SubType>
     </None>
+    <Content Include="tests\button\test1.html" />
     <None Include="tests\grid\test3.fayde">
       <SubType>Designer</SubType>
     </None>
