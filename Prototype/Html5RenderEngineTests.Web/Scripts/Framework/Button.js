@@ -217,9 +217,29 @@ Button.prototype.GetDefaultStyle = function () {
                                     HorizontalAlignment: new TemplateBinding("HorizontalContentAlignment"),
                                     Margin: new TemplateBinding("Padding")
                                 }
+                            },
+                            {
+                                Type: Border,
+                                Name: "DisabledVisualElement",
+                                Props: {
+                                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
+                                    Opacity: 0.0,
+                                    CornerRadius: new CornerRadius(3, 3, 3, 3),
+                                    IsHitTestVisible: false
+                                }
+                            },
+                            {
+                                Type: Border,
+                                Name: "FocusVisualElement",
+                                Props: {
+                                    Margin: new Thickness(1, 1, 1, 1),
+                                    BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                                    BorderThickness: new Thickness(1, 1, 1, 1),
+                                    Opacity: 0.0,
+                                    CornerRadius: new CornerRadius(2, 2, 2, 2),
+                                    IsHitTestVisible: false
+                                }
                             }
-                            //DisabledVisualElement
-                            //FocusVisualElement
                         ]
                     })
                 }
