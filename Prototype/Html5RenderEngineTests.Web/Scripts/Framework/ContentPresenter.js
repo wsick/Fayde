@@ -35,21 +35,23 @@ ContentPresenter.prototype.SetContentTemplate = function (value) {
 ContentPresenter.prototype._GetDefaultTemplate = function () {
     var templateOwner = this._GetTemplateOwner();
     if (templateOwner) {
-        if (this._ReadLocalValue(ContentPresenter.ContentProperty) == undefined) {
-            this._SetTemplateBinding(ContentPresenter.ContentProperty, new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+        if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+            this.SetValue(ContentPresenter.ContentProperty, 
+                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
-        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) == undefined) {
-            this._SetTemplateBinding(ContentPresenter.ContentTemplateProperty, new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+            this.SetValue(ContentPresenter.ContentTemplateProperty, 
+                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }
     }
 
     var template = this.GetContentTemplate();
-    if (template) {
-        this._ContentRoot = template.GetVisualTree(this);
+    if (template != null) {
+        this._ContentRoot = RefObject.As(template.GetVisualTree(this), UIElement);
     } else {
         var content = this.GetContent();
-        this._ContentRoot = content;
-        if (!(this._ContentRoot instanceof UIElement) && content != null)
+        this._ContentRoot = RefObject.As(content, UIElement);
+        if (!this._ContentRoot == null && content != null)
             this._ContentRoot = this._GetFallbackRoot();
     }
     return this._ContentRoot;
@@ -59,7 +61,7 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
         FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
         return;
     }
-    if (args.Property == ContentPresenter.ContentProperty) {
+    if (args.Property === ContentPresenter.ContentProperty) {
         if ((args.NewValue && args.NewValue instanceof UIElement)
             || (args.OldValue && args.OldValue instanceof UIElement)) {
             this._ClearRoot();
@@ -69,7 +71,7 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
         else
             this.ClearValue(FrameworkElement.DataContextProperty);
         this._InvalidateMeasure();
-    } else if (args.Property == ContentPresenter.ContentTemplateProperty) {
+    } else if (args.Property === ContentPresenter.ContentTemplateProperty) {
         this._ClearRoot();
         this._InvalidateMeasure();
     }

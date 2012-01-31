@@ -513,7 +513,7 @@ Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
         return uie.RefEquals(this._Captured) || uie.RefEquals(this._PendingCapture);
     if (!this._EmittingMouseEvent)
         return false;
-    this._PendingCapture = this._Capture;
+    this._PendingCapture = uie;
     return true;
 };
 Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {

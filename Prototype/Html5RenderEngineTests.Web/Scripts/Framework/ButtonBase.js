@@ -69,11 +69,11 @@ ButtonBase.prototype.OnIsEnabledChanged = function (e) {
         }
     } finally {
         this._SuspendStateChanges = false;
-        this._UpdateVisualState();
+        this.UpdateVisualState();
     }
 };
 ButtonBase.prototype.OnIsPressedChanged = function (e) {
-    this._UpdateVisualState();
+    this.UpdateVisualState();
 };
 ButtonBase.prototype._IsValidMousePosition = function () {
     var pos = this._MousePosition;
@@ -149,7 +149,7 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
     try {
         this.Focus();
         this._CaptureMouseInternal();
-        if (_IsMouseCaptured)
+        if (this._IsMouseCaptured)
             this.SetIsPressed(true);
     } finally {
         this._SuspendStateChanges = false;
@@ -170,7 +170,7 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
         return;
 
     //TODO: args.Handled = true;
-    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === ClickMode.Release)
+    if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
         this._EmitClick();
 
     if (!this._IsSpaceKeyDown) {

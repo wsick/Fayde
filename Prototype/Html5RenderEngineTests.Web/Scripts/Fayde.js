@@ -2854,7 +2854,7 @@ Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
         return uie.RefEquals(this._Captured) || uie.RefEquals(this._PendingCapture);
     if (!this._EmittingMouseEvent)
         return false;
-    this._PendingCapture = this._Capture;
+    this._PendingCapture = uie;
     return true;
 };
 Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
@@ -9220,21 +9220,23 @@ ContentPresenter.prototype.SetContentTemplate = function (value) {
 ContentPresenter.prototype._GetDefaultTemplate = function () {
     var templateOwner = this._GetTemplateOwner();
     if (templateOwner) {
-        if (this._ReadLocalValue(ContentPresenter.ContentProperty) == undefined) {
-            this._SetTemplateBinding(ContentPresenter.ContentProperty, new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+        if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+            this.SetValue(ContentPresenter.ContentProperty, 
+                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
-        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) == undefined) {
-            this._SetTemplateBinding(ContentPresenter.ContentTemplateProperty, new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+            this.SetValue(ContentPresenter.ContentTemplateProperty, 
+                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }
     }
 
     var template = this.GetContentTemplate();
-    if (template) {
-        this._ContentRoot = template.GetVisualTree(this);
+    if (template != null) {
+        this._ContentRoot = RefObject.As(template.GetVisualTree(this), UIElement);
     } else {
         var content = this.GetContent();
-        this._ContentRoot = content;
-        if (!(this._ContentRoot instanceof UIElement) && content != null)
+        this._ContentRoot = RefObject.As(content, UIElement);
+        if (!this._ContentRoot == null && content != null)
             this._ContentRoot = this._GetFallbackRoot();
     }
     return this._ContentRoot;
@@ -9244,7 +9246,7 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
         FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
         return;
     }
-    if (args.Property == ContentPresenter.ContentProperty) {
+    if (args.Property === ContentPresenter.ContentProperty) {
         if ((args.NewValue && args.NewValue instanceof UIElement)
             || (args.OldValue && args.OldValue instanceof UIElement)) {
             this._ClearRoot();
@@ -9254,7 +9256,7 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
         else
             this.ClearValue(FrameworkElement.DataContextProperty);
         this._InvalidateMeasure();
-    } else if (args.Property == ContentPresenter.ContentTemplateProperty) {
+    } else if (args.Property === ContentPresenter.ContentTemplateProperty) {
         this._ClearRoot();
         this._InvalidateMeasure();
     }
@@ -11703,11 +11705,11 @@ ButtonBase.prototype.OnIsEnabledChanged = function (e) {
         }
     } finally {
         this._SuspendStateChanges = false;
-        this._UpdateVisualState();
+        this.UpdateVisualState();
     }
 };
 ButtonBase.prototype.OnIsPressedChanged = function (e) {
-    this._UpdateVisualState();
+    this.UpdateVisualState();
 };
 ButtonBase.prototype._IsValidMousePosition = function () {
     var pos = this._MousePosition;
@@ -11783,7 +11785,7 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
     try {
         this.Focus();
         this._CaptureMouseInternal();
-        if (_IsMouseCaptured)
+        if (this._IsMouseCaptured)
             this.SetIsPressed(true);
     } finally {
         this._SuspendStateChanges = false;
@@ -11804,7 +11806,7 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
         return;
 
     //TODO: args.Handled = true;
-    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === ClickMode.Release)
+    if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
         this._EmitClick();
 
     if (!this._IsSpaceKeyDown) {
