@@ -58,6 +58,7 @@
     <Content Include="Scripts\kinetic-v3.6.0.js" />
     <Content Include="styles\Button.xml" />
     <Content Include="test-includes.txt" />
+    <Content Include="tests\button\test1.html" />
     <Content Include="tests\grid\test4.xml" />
     <Content Include="tests\grid\test3.xml" />
     <Content Include="tests\grid\test1.html" />

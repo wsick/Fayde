@@ -53,7 +53,7 @@ Button.prototype.OnIsEnabledChanged = function (e) {
 //#region DEFAULT STYLE
 
 Button.prototype.GetDefaultStyle = function () {
-    var style = {
+    var styleJson = {
         Type: Style,
         Props: {
             TargetType: Button
@@ -62,35 +62,35 @@ Button.prototype.GetDefaultStyle = function () {
             {
                 Type: Setter,
                 Props: {
-                    Property: "Background",
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Background"),
                     Value: new SolidColorBrush(Color.FromHex("#FF1F3B53"))
                 }
             },
             {
                 Type: Setter,
                 Props: {
-                    Property: "Foreground",
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Foreground"),
                     Value: new SolidColorBrush(Color.FromHex("#FF000000"))
                 }
             },
             {
                 Type: Setter,
                 Props: {
-                    Property: "Padding",
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Padding"),
                     Value: new Thickness(3, 3, 3, 3)
                 }
             },
             {
                 Type: Setter,
                 Props: {
-                    Property: "BorderThickness",
+                    Property: DependencyProperty.GetDependencyProperty(Button, "BorderThickness"),
                     Value: new Thickness(1, 1, 1, 1)
                 }
             },
             {
                 Type: Setter,
                 Props: {
-                    Property: "BorderBrush",
+                    Property: DependencyProperty.GetDependencyProperty(Button, "BorderBrush"),
                     Value: {
                         Type: LinearGradientBrush,
                         Props: {
@@ -133,7 +133,7 @@ Button.prototype.GetDefaultStyle = function () {
             {
                 Type: Setter,
                 Props: {
-                    Property: "Template",
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Template"),
                     Value: new ControlTemplate(Button, {
                         Type: Grid,
                         Children: [
@@ -246,7 +246,8 @@ Button.prototype.GetDefaultStyle = function () {
             }
         ]
     };
-    return style;
+    var parser = new JsonParser();
+    return parser.CreateObject(styleJson, new NameScope());
 };
 
 //#endregion

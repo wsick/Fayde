@@ -14,7 +14,7 @@ function ButtonBase() {
 
     this.Click = new MulticastEvent();
 
-    this.Loaded.Subscribe(function () { this._IsLoaded = true; this._UpdateVisualState(); }, this);
+    this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
     this.SetIsTabStop(true);
 }
 ButtonBase.GetBaseClass = function () { return ContentControl; };
