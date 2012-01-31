@@ -12,15 +12,19 @@ namespace Parser.Elements
         [Property]
         [BrushTypeConverter]
         public Brush Background { get; set; }
+
         [Property]
         [BrushTypeConverter]
         public Brush BorderBrush { get; set; }
+        
         [Property]
         [ThicknessConverter]
         public Thickness BorderThickness { get; set; }
+        
         [Property]
         [CornerRadiusConverter]
         public CornerRadius CornerRadius { get; set; }
+        
         [Content]
         public UIElement Child { get; set; }
     }

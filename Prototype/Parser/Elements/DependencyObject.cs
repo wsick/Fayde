@@ -165,7 +165,7 @@ namespace Parser.Elements
                     sb.Append(": ");
                     if (value is string)
                         sb.Append("\"");
-                    sb.Append(value.ToString().Trim().Replace(Environment.NewLine, string.Empty));
+                    sb.Append(value.ToString().Trim().Replace("\n", string.Empty).Replace("\r", string.Empty));
                     if (value is string)
                         sb.Append("\"");
                     sb.AppendLine(",");

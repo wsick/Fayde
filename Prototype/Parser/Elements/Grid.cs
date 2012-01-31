@@ -16,6 +16,7 @@ namespace Parser.Elements
         {
             get { return _columnDefinitions; }
         }
+
         private IList<RowDefinition> _rowDefinitions = new List<RowDefinition>();
         [Property]
         public IList<RowDefinition> RowDefinitions

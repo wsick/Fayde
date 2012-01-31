@@ -80,7 +80,7 @@ Width: new GridLength(1, GridUnitType.Star),
 Type: RowDefinition,
 Props:
 {
-Height: new GridLength(1, GridUnitType.Auto),
+Height: new GridLength(150, GridUnitType.Pixel),
 },
 }
 ,
@@ -96,19 +96,19 @@ Height: new GridLength(1, GridUnitType.Star),
 Type: RowDefinition,
 Props:
 {
-Height: new GridLength(1, GridUnitType.Auto),
+Height: new GridLength(40, GridUnitType.Pixel),
 },
 }
 ,
 ],},
 Children: [
 {
-Type: TextBlock,
+Type: Border,
 Props:
 {
-Text: "Welcome to Fayde",
-FontSize: 30,
-Margin: new Thickness(10, 10, 10, 10),
+Background: new SolidColorBrush(Color.FromHex("#2C4B63")),
+CornerRadius: new CornerRadius(10, 10, 10, 10),
+Margin: new Thickness(5, 5, 5, 5),
 },
 AttachedProps: [
 {
@@ -122,10 +122,24 @@ Prop: "Row",
 Value: 0
 },
 ],
+Content: {
+Type: TextBlock,
+Props:
+{
+Foreground: new SolidColorBrush(Color.FromHex("#FFFFFF")),
+Text: "Welcome to Fayde",
+Margin: new Thickness(10, 10, 10, 10),
+},
+}
+
 }
 ,
 {
 Type: StackPanel,
+Props:
+{
+Margin: new Thickness(5, 5, 5, 5),
+},
 AttachedProps: [
 {
 Owner: Grid,
@@ -170,6 +184,7 @@ Text: "Contact Us",
 Type: TextBlock,
 Props:
 {
+TextWrapping: TextWrapping.Wrap,
 Text: "Have you ever used Silverlight to develop a web application? Then, once the web      application was successful, we now have to support Linux and Mac and on every modern browser. Ever been frustrated trying to design a silverlight      web application where lots of data needed to be shuffled back and forth from the server to the client? Like developing in .NET? Like MVVM?      If so, this project is especially for you. Fayde is a project that allows you to develop web applications using the same Silverlight and .NET      syntactical sugar that you love but do it across all platforms and all browsers. Best of all, no download or browser plugin is required. How      does it do this? Html5 With the advent of the canvas, web sockets, and other browser technologies; Fayde is now poised to become one of the leading      web application development tools. Interested? Browse around and take a look at why Fayde can solve some of the most frustrating issues with      web application development. Spend your time developing your application and not fighting with web technology.",
 Margin: new Thickness(10, 10, 10, 10),
 },
@@ -188,12 +203,12 @@ Value: 1
 }
 ,
 {
-Type: TextBlock,
+Type: Border,
 Props:
 {
-Text: "Copyright WickedSick 2012",
+Background: new SolidColorBrush(Color.FromHex("#2C4B63")),
+CornerRadius: new CornerRadius(10, 10, 10, 10),
 Margin: new Thickness(5, 5, 5, 5),
-HorizontalAlignment: HorizontalAlignment.Center,
 },
 AttachedProps: [
 {
@@ -207,6 +222,16 @@ Prop: "Row",
 Value: 2
 },
 ],
+Content: {
+Type: TextBlock,
+Props:
+{
+Text: "Copyright WickedSick 2012",
+Padding: new Thickness(5, 5, 5, 5),
+HorizontalAlignment: HorizontalAlignment.Center,
+},
+}
+
 }
 ,
 ],
@@ -217,7 +242,7 @@ Value: 2
 			}
 		</script>
 		</head>
-	<body>
+	<body style="margin: 0">
 		<div>
 			<div id="container">
 				<canvas id="canvas" width="600" height="600"></canvas>

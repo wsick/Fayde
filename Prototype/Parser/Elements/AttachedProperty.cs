@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Parser.Elements
 {
-    public class AttachedProperty
+    public class AttachedProperty: IJsonSerializable
     {
         public string Owner { get; set; }
         public string Property { get; set; }

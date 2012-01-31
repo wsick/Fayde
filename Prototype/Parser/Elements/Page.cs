@@ -12,6 +12,7 @@ namespace Parser.Elements
     {
         [Property]
         public string Title { get; set; }
+
         [Content]
         public UIElement Content { get; set; }
 
@@ -88,7 +89,7 @@ namespace Parser.Elements
             sb.AppendLine("\t\t</script>");
 
             sb.AppendLine("\t\t</head>");
-            sb.AppendLine("\t<body>");
+            sb.AppendLine("\t<body style=\"margin: 0\">");
             sb.AppendLine("\t\t<div>");
             sb.AppendLine("\t\t\t<div id=\"container\">");
             sb.AppendLine("\t\t\t\t<canvas id=\"canvas\" width=\"600\" height=\"600\"></canvas>");

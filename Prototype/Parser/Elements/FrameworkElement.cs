@@ -12,12 +12,23 @@ namespace Parser.Elements
         [Property]
         [ThicknessConverter]
         public Thickness Margin { get; set; }
+
+        [Property]
+        [ThicknessConverter]
+        public Thickness Padding { get; set; }
+        
         [Property]
         [HorizontalAlignmentConverter]
         public HorizontalAlignment HorizontalAlignment { get; set; }
+        
+        [Property]
+        [VerticalAlignmentConverter]
+        public VerticalAlignment VerticalAlignment { get; set; }
+        
         [Property]
         [DoubleConverter]
         public double? MinWidth { get; set; }
+        
         [Property]
         [DoubleConverter]
         public double? MinHeight { get; set; }

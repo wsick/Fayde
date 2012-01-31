@@ -11,6 +11,7 @@ namespace Parser.Elements
         [Property]
         [BrushTypeConverter]
         public Brush Background { get; set; }
+
         private IList<UIElement> _children = new List<UIElement>();
         [Content]
         public IList<UIElement> Children
