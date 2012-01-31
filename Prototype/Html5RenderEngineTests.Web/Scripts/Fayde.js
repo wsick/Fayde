@@ -554,7 +554,7 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
-        if (this.TrySetTemplateBindingProperty(propValue, propd))
+        if (this.TrySetTemplateBindingProperty(dobj, propValue, propd))
             return;
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
@@ -587,11 +587,12 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
 
     return true;
 };
-JsonParser.prototype.TrySetTemplateBindingProperty = function (propValue, propd) {
+JsonParser.prototype.TrySetTemplateBindingProperty = function (dobj, propValue, propd) {
     if (!(propValue instanceof TemplateBinding))
         return false;
     var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
     propValue = new TemplateBindingExpression(sourcePropd, propd);
+    dobj.SetValue(propd, propValue);
     return true;
 };
 
@@ -3737,6 +3738,53 @@ _LayoutWord.InheritFrom(RefObject);
 //#endregion
 
 /// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="FrameworkElement.js"/>
+
+//#region VisualTreeHelper
+
+function VisualTreeHelper() {
+    RefObject.call(this);
+}
+VisualTreeHelper.InheritFrom(RefObject);
+
+VisualTreeHelper.GetChild = function (d, childIndex) {
+    var fw = RefObject.As(d, FrameworkElement);
+    if (fw == null)
+        throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+
+    var subtree = fw._GetSubtreeObject();
+    var coll = RefObject.As(subtree, UIElementCollection);
+    if (coll != null)
+        return coll.GetValueAt(childIndex);
+
+    var item = RefObject.As(subtree, UIElement);
+    if (item != null && childIndex === 0)
+        return item;
+
+    throw new ArgumentOutOfRangeException();
+};
+
+VisualTreeHelper.GetChildrenCount = function (d) {
+    var fw = RefObject.As(d, FrameworkElement);
+    if (fw == null)
+        throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+
+    var subtree = fw._GetSubtreeObject();
+    var coll = RefObject.As(subtree, UIElementCollection);
+    if (coll != null)
+        return coll.GetCount();
+
+    var item = RefObject.As(subtree, UIElement);
+    if (item != null)
+        return 1;
+    
+    return 0;
+};
+
+//#endregion
+
+/// <reference path="RefObject.js"/>
 /// <reference path="DependencyProperty.js" />
 /// <reference path="PropertyValueProviders.js" />
 /// CODE
@@ -5875,13 +5923,11 @@ UIElement.prototype.OnMouseRightButtonUp = function (sender, args) { };
 
 UIElement.prototype._EmitMouseEnter = function (absolutePos) {
     this.MouseEnter.Raise(this, new MouseEventArgs(absolutePos));
-    Info("MouseEnter: " + this._TypeName);
 };
 UIElement.prototype.OnMouseEnter = function (sender, args) { };
 
 UIElement.prototype._EmitMouseLeave = function (absolutePos) {
     this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
-    Info("MouseLeave: " + this._TypeName);
 };
 UIElement.prototype.OnMouseLeave = function (sender, args) { };
 
@@ -7496,7 +7542,7 @@ FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
 FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
     var d = this._GetDefaultTemplate();
     if (d) {
-        d._AddParent(this, error);
+        d._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
         this._SetSubtreeObject(d);

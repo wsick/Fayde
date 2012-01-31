@@ -699,13 +699,11 @@ UIElement.prototype.OnMouseRightButtonUp = function (sender, args) { };
 
 UIElement.prototype._EmitMouseEnter = function (absolutePos) {
     this.MouseEnter.Raise(this, new MouseEventArgs(absolutePos));
-    Info("MouseEnter: " + this._TypeName);
 };
 UIElement.prototype.OnMouseEnter = function (sender, args) { };
 
 UIElement.prototype._EmitMouseLeave = function (absolutePos) {
     this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
-    Info("MouseLeave: " + this._TypeName);
 };
 UIElement.prototype.OnMouseLeave = function (sender, args) { };
 

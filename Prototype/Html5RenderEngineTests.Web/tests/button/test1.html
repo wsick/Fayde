@@ -14,13 +14,10 @@
             RegisterHUD("clicky", "#hud-clicky");
             var parser = new JsonParser();
             root = parser.CreateObject(buildTestJson(), new NameScope());
-            root.GetChildren().GetValueAt(0).Click.Subscribe(heyo);
             App.Instance.Load(root, $("#canvas"));
-        });
 
-        function heyo() {
-            alert("CLICKED!");
-        }
+            root.GetChildren().GetValueAt(0).Click.Subscribe(function () { alert("CLICKED!"); });
+        });
 
         function buildTestJson() {
             return {

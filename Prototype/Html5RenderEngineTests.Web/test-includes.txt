@@ -13,6 +13,7 @@
 <script src="../../Scripts/Framework/PropertyValueProviders.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/Surface.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/TextLayout.js" type="text/javascript"></script>
+<script src="../../Scripts/Framework/VisualTreeHelper.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/DependencyObject.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/Geometry.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/LayoutInformation.js" type="text/javascript"></script>

@@ -65,7 +65,7 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
-        if (this.TrySetTemplateBindingProperty(propValue, propd))
+        if (this.TrySetTemplateBindingProperty(dobj, propValue, propd))
             return;
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
@@ -98,11 +98,12 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
 
     return true;
 };
-JsonParser.prototype.TrySetTemplateBindingProperty = function (propValue, propd) {
+JsonParser.prototype.TrySetTemplateBindingProperty = function (dobj, propValue, propd) {
     if (!(propValue instanceof TemplateBinding))
         return false;
     var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
     propValue = new TemplateBindingExpression(sourcePropd, propd);
+    dobj.SetValue(propd, propValue);
     return true;
 };
 
