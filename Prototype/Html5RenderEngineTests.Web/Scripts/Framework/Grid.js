@@ -86,8 +86,8 @@ Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
     var colCount = cols ? cols.GetCount() : 0;
     var rowCount = rows ? rows.GetCount() : 0;
     var totalStars = new Size(0, 0);
-    var emptyRows = rowCount == 0;
-    var emptyCols = colCount == 0;
+    var emptyRows = rowCount === 0;
+    var emptyCols = colCount === 0;
     var hasChildren = this.GetChildren().GetCount() > 0;
 
     if (emptyRows) rowCount = 1;
@@ -110,13 +110,13 @@ Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
             rowdef.SetActualHeight(Number.POSITIVE_INFINITY);
             cell = new _Segment(0.0, rowdef.GetMinHeight(), rowdef.GetMaxHeight(), height.Type);
 
-            if (height.Type == GridUnitType.Pixel) {
+            if (height.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(height.Value);
                 rowdef.SetActualHeight(cell._SetDesiredToOffered());
-            } else if (height.Type == GridUnitType.Star) {
+            } else if (height.Type === GridUnitType.Star) {
                 cell._Stars = height.Value;
                 totalStars.Height += height.Value;
-            } else if (height.Type == GridUnitType.Auto) {
+            } else if (height.Type === GridUnitType.Auto) {
                 cell._OfferedSize = cell._Clamp(0);
                 cell._SetDesiredToOffered();
             }
@@ -138,13 +138,13 @@ Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
             coldef.SetActualWidth(Number.POSITIVE_INFINITY);
             cell = new _Segment(0.0, coldef.GetMinWidth(), coldef.GetMaxWidth(), width.Type);
 
-            if (width.Type == GridUnitType.Pixel) {
+            if (width.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(width.Value);
                 coldef.SetActualWidth(cell._SetDesiredToOffered());
-            } else if (width.Type == GridUnitType.Star) {
+            } else if (width.Type === GridUnitType.Star) {
                 cell._Stars = width.Value;
                 totalStars.Width += width.Value;
-            } else if (width.Type == GridUnitType.Auto) {
+            } else if (width.Type === GridUnitType.Auto) {
                 cell._OfferedSize = cell._Clamp(0);
                 cell._SetDesiredToOffered();
             }
@@ -334,7 +334,7 @@ Grid.prototype._ExpandStarRows = function (availableSize) {
     var rowsCount = rows ? rows.GetCount() : 0;
 
     for (var i = 0; i < this._RowMatrixDim; i++) {
-        if (this._RowMatrix[i][i]._Type == GridUnitType.Star)
+        if (this._RowMatrix[i][i]._Type === GridUnitType.Star)
             this._RowMatrix[i][i]._OfferedSize = 0;
         else
             availableSize.Height = Math.max(availableSize.Height - this._RowMatrix[i][i]._OfferedSize, 0);
@@ -342,7 +342,7 @@ Grid.prototype._ExpandStarRows = function (availableSize) {
     availableSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availableSize.Height, GridUnitType.Star, false);
     if (rowsCount > 0) {
         for (var j = 0; j < this._RowMatrixDim; j++) {
-            if (this._RowMatrix[j][j]._Type == GridUnitType.Star)
+            if (this._RowMatrix[j][j]._Type === GridUnitType.Star)
                 rows.GetValueAt(j).SetActualHeight(this._RowMatrix[j][j]._OfferedSize);
         }
     }
@@ -352,7 +352,7 @@ Grid.prototype._ExpandStarCols = function (availableSize) {
     var columnsCount = columns ? columns.GetCount() : 0;
 
     for (var i = 0; i < this._ColMatrixDim; i++) {
-        if (this._ColMatrix[i][i]._Type == GridUnitType.Star)
+        if (this._ColMatrix[i][i]._Type === GridUnitType.Star)
             this._ColMatrix[i][i]._OfferedSize = 0;
         else
             availableSize.Width = Math.max(availableSize.Width - this._ColMatrix[i][i]._OfferedSize, 0);
@@ -360,7 +360,7 @@ Grid.prototype._ExpandStarCols = function (availableSize) {
     availableSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availableSize.Width, GridUnitType.Star, false);
     if (columnsCount > 0) {
         for (var j = 0; j < this._ColMatrixDim; j++) {
-            if (this._ColMatrix[j][j]._Type == GridUnitType.Star) {
+            if (this._ColMatrix[j][j]._Type === GridUnitType.Star) {
                 columns.GetValueAt(j).SetActualWidth(this._ColMatrix[j][j]._OfferedSize);
             }
         }
@@ -368,14 +368,14 @@ Grid.prototype._ExpandStarCols = function (availableSize) {
 };
 Grid.prototype._AllocateDesiredSize = function (rowCount, colCount) {
     for (var i = 0; i < 2; i++) {
-        var matrix = i == 0 ? this._RowMatrix : this._ColMatrix;
-        var count = i == 0 ? rowCount : colCount;
+        var matrix = i === 0 ? this._RowMatrix : this._ColMatrix;
+        var count = i === 0 ? rowCount : colCount;
 
         for (var row = count - 1; row >= 0; row--) {
             for (var col = row; col >= 0; col--) {
                 var spansStar = false;
                 for (var j = row; j >= col; j--) {
-                    spansStar = spansStar || (matrix[j][j]._Type == GridUnitType.Star);
+                    spansStar = spansStar || (matrix[j][j]._Type === GridUnitType.Star);
                 }
                 var current = matrix[row][col]._DesiredSize;
                 var totalAllocated = 0;
@@ -411,7 +411,7 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
         cur = matrix[i][i];
         segmentSize = desiredSize ? cur._DesiredSize : cur._OfferedSize;
         if (segmentSize < matrix[i][i]._Max)
-            count += (unitType == GridUnitType.Star) ? cur._Stars : 1;
+            count += (unitType === GridUnitType.Star) ? cur._Stars : 1;
     }
     do {
         assigned = false;
@@ -422,7 +422,7 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
             if (!(matrix[i][i]._Type == unitType && segmentSize < cur._Max))
                 continue;
             var newSize = segmentSize;
-            newSize += contribution * (unitType == GridUnitType.Star ? cur._Stars : 1);
+            newSize += contribution * (unitType === GridUnitType.Star ? cur._Stars : 1);
             newSize = Math.min(newSize, cur._Max);
             assigned = assigned || (newSize > segmentSize);
             size -= newSize - segmentSize;
@@ -436,7 +436,7 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
 };
 
 Grid.prototype._CreateMatrices = function (rowCount, colCount) {
-    if (this._RowMatrix == null || this._ColMatrix == null || this._RowMatrixDim != rowCount || this._ColMatrixDim != colCount) {
+    if (this._RowMatrix == null || this._ColMatrix == null || this._RowMatrixDim !== rowCount || this._ColMatrixDim !== colCount) {
         this._DestroyMatrices();
 
         this._RowMatrixDim = rowCount;
@@ -515,11 +515,11 @@ Grid.prototype._ComputeBounds = function () {
 
 Grid.prototype._GetRowDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.RowDefinitionsProperty);
-    return value == undefined ? null : value;
+    return value === undefined ? null : value;
 }
 Grid.prototype._GetColumnDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.ColumnDefinitionsProperty);
-    return value == undefined ? null : value;
+    return value === undefined ? null : value;
 }
 
 Grid.prototype._OnPropertyChanged = function (args, error) {
@@ -528,7 +528,7 @@ Grid.prototype._OnPropertyChanged = function (args, error) {
         return;
     }
 
-    if (args.Property == Grid.ShowGridLinesProperty) {
+    if (args.Property === Grid.ShowGridLinesProperty) {
         this._Invalidate();
     }
     this._InvalidateMeasure();
@@ -544,18 +544,18 @@ Grid.prototype._OnCollectionChanged = function (sender, args) {
 };
 Grid.prototype._OnCollectionItemChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
-        if (args.Property == Grid.ColumnProperty
-            || args.Property == Grid.RowProperty
-            || args.Property == Grid.ColumnSpanProperty
-            || args.Property == Grid.RowSpanProperty) {
+        if (args.Property === Grid.ColumnProperty
+            || args.Property === Grid.RowProperty
+            || args.Property === Grid.ColumnSpanProperty
+            || args.Property === Grid.RowSpanProperty) {
             this._InvalidateMeasure();
             args.Item._InvalidateMeasure();
             return;
         }
-    } else if (sender == this._GetColumnDefinitionsNoAutoCreate()
-        || sender == this._GetRowDefinitionsNoAutoCreate()) {
-        if (args.Property != ColumnDefinition.ActualWidthProperty
-            && args.Property != RowDefinition.ActualHeightProperty) {
+    } else if (sender.RefEquals(this._GetColumnDefinitionsNoAutoCreate())
+        || sender.RefEquals(this._GetRowDefinitionsNoAutoCreate())) {
+        if (args.Property !== ColumnDefinition.ActualWidthProperty
+            && args.Property !== RowDefinition.ActualHeightProperty) {
             this._InvalidateMeasure();
         }
         return;
