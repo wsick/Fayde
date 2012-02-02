@@ -219,8 +219,13 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
         if (propd._IsAutoCreated())
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
 
-    if (currentValue != null && value != null)
-        equal = !propd._AlwaysChange && currentValue == value;
+    if (currentValue != null && value != null) {
+        if (currentValue instanceof RefObject) {
+            equal = !propd._AlwaysChange && currentValue.RefEquals(value);
+        } else {
+            equal = !propd._AlwaysChange && currentValue === value;
+        }
+    }
     else
         equal = currentValue == null && value == null;
 
@@ -230,7 +235,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
         if (propd._IsAutoCreated())
             this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
 
-        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
+        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject) || RefObject.As(value, DependencyObject) != null))
             newValue = value;
         else
             newValue = null;

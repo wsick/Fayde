@@ -876,11 +876,11 @@ _AutoCreatePropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);
-    if (value)
+    if (value !== undefined)
         return value;
 
     value = propd._IsAutoCreated() ? propd._GetAutoCreatedValue(this._Object) : null;
-    if (!value)
+    if (value == null)
         return null;
 
     this._ht[propd] = value;

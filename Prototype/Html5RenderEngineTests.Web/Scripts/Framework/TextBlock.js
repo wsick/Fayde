@@ -362,19 +362,19 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {
         FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
-        if (args.Property != FrameworkElement.LanguageProperty)
+        if (args.Property !== FrameworkElement.LanguageProperty)
             return;
         if (!this._UpdateFonts(false))
             return;
     }
 
-    if (args.Property == TextBlock.FontFamilyProperty
-        || args.Property == TextBlock.FontSizeProperty
-        || args.Property == TextBlock.FontStretchProperty
-        || args.Property == TextBlock.FontStyleProperty
-        || args.Property == TextBlock.FontWeightProperty) {
+    if (args.Property === TextBlock.FontFamilyProperty
+        || args.Property === TextBlock.FontSizeProperty
+        || args.Property === TextBlock.FontStretchProperty
+        || args.Property === TextBlock.FontStyleProperty
+        || args.Property === TextBlock.FontWeightProperty) {
         this._UpdateFonts(false);
-    } else if (args.Property == TextBlock.TextProperty) {
+    } else if (args.Property === TextBlock.TextProperty) {
         if (this._SetsValue) {
             this._SetTextInternal(args.NewValue)
 
@@ -384,7 +384,7 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
             this._UpdateLayoutAttributes();
             invalidate = false;
         }
-    } else if (args.Property == TextBlock.InlinesProperty) {
+    } else if (args.Property === TextBlock.InlinesProperty) {
         if (this._SetsValue) {
             this._SetsValue = false;
             this.SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
@@ -396,21 +396,21 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
             this._UpdateLayoutAttributes();
             invalidate = false;
         }
-    } else if (args.Property == TextBlock.LineStackingStrategyProperty) {
+    } else if (args.Property === TextBlock.LineStackingStrategyProperty) {
         this._Dirty = this._Layout.SetLineStackingStrategy(args.NewValue);
-    } else if (args.Property == TextBlock.LineHeightProperty) {
+    } else if (args.Property === TextBlock.LineHeightProperty) {
         this._Dirty = this._Layout.SetLineHeight(args.NewValue);
-    } else if (args.Property == TextBlock.TextDecorationsProperty) {
+    } else if (args.Property === TextBlock.TextDecorationsProperty) {
         this._Dirty = true;
-    } else if (args.Property == TextBlock.TextAlignmentProperty) {
+    } else if (args.Property === TextBlock.TextAlignmentProperty) {
         this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
-    } else if (args.Property == TextBlock.TextTrimmingProperty) {
+    } else if (args.Property === TextBlock.TextTrimmingProperty) {
         this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
-    } else if (args.Property == TextBlock.TextWrappingProperty) {
+    } else if (args.Property === TextBlock.TextWrappingProperty) {
         this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
-    } else if (args.Property == TextBlock.PaddingProperty) {
+    } else if (args.Property === TextBlock.PaddingProperty) {
         this._Dirty = true;
-    } else if (args.Property == TextBlock.FontSourceProperty) {
+    } else if (args.Property === TextBlock.FontSourceProperty) {
     }
 
     if (invalidate) {
@@ -424,7 +424,7 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 TextBlock.prototype._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property != null && args.Property == TextBlock.ForegroundProperty) {
+    if (args.Property != null && args.Property === TextBlock.ForegroundProperty) {
         this._Invalidate();
     } else {
         FrameworkElement.prototype._OnSubPropertyChanged.call(this, sender, args);
@@ -437,13 +437,13 @@ TextBlock.prototype._OnCollectionChanged = function (sender, args) {
     }
 
     var inlines = this.GetInlines();
-    if (args.Action == CollectionChangedArgs.Action.Clearing)
+    if (args.Action === CollectionChangedArgs.Action.Clearing)
         return;
 
     if (!this._SetsValue)
         return;
 
-    if (args.Action == CollectionChangedArgs.Add)
+    if (args.Action === CollectionChangedArgs.Add)
         this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
 
     this._SetsValue = false;
