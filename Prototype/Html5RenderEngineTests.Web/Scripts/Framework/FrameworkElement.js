@@ -276,7 +276,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     this._DirtyFlags &= ~_Dirty.Measure;
     this._HiddenDesire = size;
 
-    if (!parent || !parent.IsCanvas) {
+    if (!parent || parent instanceof Canvas) {
         if (this instanceof Canvas || !this.IsLayoutContainer()) {
             this._DesiredSize = new Size(0, 0);
             return;
