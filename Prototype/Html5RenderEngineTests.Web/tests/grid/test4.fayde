@@ -13,7 +13,7 @@
       <TextBlock Margin="10" Foreground="#FFFFFF">Welcome to Fayde</TextBlock>
     </Border>
     <Border Grid.Column="0" Grid.Row="1" Margin="10, 0, 10, 0" Background="#F0F0F0" BorderBrush="#000000" BorderThickness="1">
-      <StackPanel Grid.Column="0" Grid.Row="1" Margin="5">
+      <StackPanel Grid.Column="0" Grid.Row="1" Margin="5" Orientation="Vertical">
         <TextBlock>Home</TextBlock>
         <TextBlock>About</TextBlock>
         <TextBlock>Contact Us</TextBlock>
