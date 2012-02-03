@@ -10,7 +10,7 @@
       <RowDefinition Height="40"/>
     </Grid.RowDefinitions>
     <Border Grid.ColumnSpan="2" Grid.Row="0" Background="#2C4B63" CornerRadius="10" Margin="5">
-      <TextBlock Margin="10" Foreground="#FFFFFF">Welcome to Fayde</TextBlock>
+      <TextBlock Margin="10" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30">Welcome to Fayde</TextBlock>
     </Border>
     <Border Grid.Column="0" Grid.Row="1" Margin="10, 0, 10, 0" Background="#F0F0F0" BorderBrush="#000000" BorderThickness="1">
       <StackPanel Grid.Column="0" Grid.Row="1" Margin="5" Orientation="Vertical">

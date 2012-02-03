@@ -87,6 +87,7 @@
     <Compile Include="TypeConverters\DoubleConverter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TypeConverters\FontSizeConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
     <Compile Include="TypeConverters\HorizontalAlignmentConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />

@@ -22,7 +22,7 @@ namespace Parser.Elements
         public string Text { get; set; }
 
         [Property]
-        [DoubleConverter]
-        public double? FontSize { get; set; }
+        [FontSizeConverter]
+        public FontSize FontSize { get; set; }
     }
 }
