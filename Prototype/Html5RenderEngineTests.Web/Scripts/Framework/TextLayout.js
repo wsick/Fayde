@@ -124,9 +124,9 @@ TextLayout.prototype.GetMaxWidth = function () {
     return this._MaxWidth;
 };
 TextLayout.prototype.SetMaxWidth = function (value) {
-    if (value == 0.0)
+    if (value === 0.0)
         value = Number.POSITIVE_INFINITY;
-    if (this._MaxWidth == value)
+    if (this._MaxWidth === value)
         return false;
     if (!this._IsWrapped && (!isFinite(value) || value > this._ActualWidth)) {
         this._MaxWidth = value;
@@ -351,7 +351,7 @@ TextLayout.prototype.Layout = function () {
                 }
 
                 word._LineAdvance = line._Advance;
-                if (layoutWordFunc(word, this._Text.slice(index, end), font, this._MaxWidth)) {
+                if (layoutWordFunc(word, this._Text.slice(index, end), this.GetMaxWidth())) {
                     this._IsWrapped = true;
                     wrapped = true;
                 }
@@ -494,11 +494,312 @@ TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
     }
     return availWidth;
 };
-TextLayout._LayoutWordWrap = function (word, text, font, maxWidth) {
-    NotImplemented("TextLayout._LayoutWordWrap");
+TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
+    word._Advance = 0.0;
+    var measuredIndex = 0;
+    var measuredText = "";
+    while (true) {
+        var index = text.indexOf(" ", measuredIndex);
+        if (index === -1)
+            break;
+        index += 1; //include " "
+        var tempText = text.slice(measuredIndex, index);
+        var advance = Surface.MeasureText(tempText, word._Font).Width;
+        if (isFinite(maxWidth) && (word._LineAdvance + advance) > maxWidth) {
+            return true;
+        }
+        measuredIndex = index;
+        measuredText = tempText;
+        word._Advance += advance;
+        word._LineAdvance += advance;
+        word._Length = measuredText.length;
+        word._Count = measuredText.length;
+    }
+    word._Length = text.length;
+    return false;
 };
-TextLayout._LayoutWordNoWrap = function (word, text, font) {
-    var advance = Surface.MeasureText(text, font).Width;
+TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
+    return false;
+    var lineStart = word._LineAdvance == 0.0;
+    if (!word._BreakOps)
+        word._BreakOps = new Array();
+    word._BreakOps.splice(0, word._BreakOps.length);
+    word._Type = _LayoutWordType.Unknown;
+    word._Advance = 0.0;
+    word._Count = 0;
+
+    var op = new _WordBreakOp();
+    var ctype;
+    var btype = _BreakType.Unknown;
+    var fixed = false;
+    var newGlyph = false;
+    var glyphs = 0;
+
+    var wrap = false;
+
+    var index = 0;
+    var end = text.length;
+    var start;
+    var c;
+    while (index < end) {
+        start = index;
+        c = text.charAt(index);
+        index++;
+        if (TextLayout._IsLineBreak(text)) {
+            index = start;
+            break;
+        }
+
+        //check previous break-type
+        if (btype === _BreakType.ClosePunctuation) {
+            // if anything comes after close punctuation (except infix separator), the 'word' is done
+            btype = TextLayout._GetBreakType(c);
+            if (btype !== _BreakType.InFixSeparator) {
+                index = start;
+                break;
+            }
+        } else if (btype === _BreakType.InFixSeparator) {
+            btype = TextLayout._GetBreakType(c);
+            if (word._Type === _LayoutWordType.Numeric) {
+                //only accept numbers after the infix
+                if (btype !== _BreakType.Numeric) {
+                    index = start;
+                    break;
+                }
+            } else if (word._Type === _LayoutWordType.Unknown) {
+                //only accept alphanumerics after the infix
+                if (btype !== _BreakType.Alphabetic && btype !== _BreakType.Numeric) {
+                    index = start;
+                    break;
+                }
+                fixed = true;
+            }
+        } else if (btype === _BreakType.WordJoiner) {
+            btype = TextLayout._GetBreakType(c);
+            fixed = true;
+        } else {
+            btype = TextLayout._GetBreakType(c);
+        }
+
+        if (TextLayout._BreakSpace(c, btype)) {
+            index = start;
+            break;
+        }
+
+        ctype = TextLayout._GetCharType(c);
+
+        if (word._Type === _LayoutWordType.Unknown) {
+            word._Type = TextLayout._GetWordType(ctype, btype);
+        } else if (btype === _BreakType.OpenPunctuation) {
+            index = start;
+            break;
+        } else if (TextLayout._WordTypeChanged(word._Type, c, ctype, btype)) {
+            index = start;
+            break;
+        }
+
+        word._Count++;
+
+        //NOTE: Combining glyphs not implemented
+        var newGlyph = true;
+        glyphs++;
+
+        var advance = Surface.MeasureText(c, word._Font).Width;
+        word._LineAdvance += advance;
+        word._Advance += advance;
+
+        if (newGlyph) {
+            op.advance = word._Advance;
+            op.count = word._Count;
+            op.index = index;
+            op.btype = btype;
+            op.c = c;
+        }
+        word._BreakOps.push(op);
+        op = op.Copy();
+
+        if (Number.isFinite(maxWidth) && word._LineAdvance > maxWidth) {
+            wrap = true;
+            break;
+        }
+    }
+
+    if (!wrap) {
+        word._Length = index;
+        return false;
+    }
+
+    if (index === end)
+        btype = _BreakType.Space;
+
+    while (index < end) {
+        start = index;
+        c = text.charAt(index);
+        index++;
+
+        if (TextLayout._IsLineBreak(text)) {
+            btype = _BreakType.Space;
+            index = start;
+            break;
+        }
+
+        btype = TextLayout._GetBreakType(c);
+        if (TextLayout._BreakSpace(c, btype)) {
+            index = start;
+            break;
+        }
+
+        word._Count++;
+
+        var advance = Surface.MeasureText(c, word._Font).Width;
+        word._LineAdvance += advance;
+        word._Advance += advance;
+
+        word._BreakOps.pop();
+        op.advance += advance;
+        op.index = index;
+        op.count++;
+        word._BreakOps.push(op);
+        op = op.Copy();
+    }
+
+    if (lineStart && glyphs === 1) {
+        word._Length = index;
+        return true;
+    }
+
+    var data = {
+        index: index,
+        lineStart: lineStart,
+        fixed: fixed,
+        btype: btype,
+        force: false
+    };
+    while (true) {
+        for (var i = word._BreakOps.Length; i > 0; i--) {
+            data.op = word._BreakOps[i - 1];
+            data.i = i;
+            if (TextLayout._LayoutWordWrapSearch(word, data) == true)
+                return true;
+            btype = data.op._Btype;
+            c = data.op._C;
+            i = data.i;
+            index = data.index;
+        }
+
+        if (lineStart && !data.force) {
+            data.force = true;
+            continue;
+        }
+        break;
+    }
+
+    word._Advance = 0.0;
+    word._Length = 0;
+    word._Count = 0;
+
+    return true;
+};
+TextLayout._LayoutWordWrapSearch = function (word, data) {
+    switch (data.op.btype) {
+        case _BreakType.BeforeAndAfter:
+            if (i > 1 && i === word._BreakOps.length) {
+                data.op = word._BreakOps[data.i - 2];
+                data.op.SetWordBasics(word);
+                return true;
+            } else if (i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+        case _BreakType.NonBreakingGlue:
+        case _BreakType.WordJoiner:
+            if (data.force && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1) {
+                data.op = this._BreakOps[data.i - 2];
+                data.i--;
+            }
+            break;
+        case _BreakType.Inseparable:
+            if (data.lineStart && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Before:
+            if (data.i > 1) {
+                data.op = word._BreakOps[data.i - 2];
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.ClosePunctuation:
+            if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1 && !data.force) {
+                data.op = word._BreakOps[data.i - 2];
+                i--;
+            }
+            break;
+        case _BreakType.InFixSeparator:
+            if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.Numeric)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1 && !data.force) {
+                data.op = word._BreakOps[data.i - 2];
+                if (data.op._Btype === _BreakType.InFixSeparator ||
+                    data.op._Btype === _BreakType.ClosePunctuation) {
+                    data.op = word._BreakOps[data.i - 1];
+                } else {
+                    i--;
+                }
+            }
+            break;
+        case _BreakType.Alphabetic:
+            if ((data.lineStart || data.fixed || data.force) && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Ideographic:
+            if (data.i < word._BreakOps.length && data.btype !== _BreakType.NonStarter) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Numeric:
+            if (data.lineStart && data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.OpenPunctuation:
+        case _BreakType.CombiningMark:
+        case _BreakType.Contingent:
+        case _BreakType.Ambiguous:
+        case _BreakType.Quotation:
+        case _BreakType.Prefix:
+            if (data.force && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        default:
+            if (data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+    }
+    return false;
+};
+TextLayout._LayoutWordNoWrap = function (word, text) {
+    var advance = Surface.MeasureText(text, word._Font).Width;
     word._Advance = advance;
     word._LineAdvance += advance;
     word._Count = text.length;
@@ -511,6 +812,18 @@ TextLayout._LayoutLwsp = function (word, text, font) {
     word._LineAdvance += advance;
     word._Count = text.length;
     word._Length = text.length;
+};
+TextLayout._GetBreakType = function (c) {
+    NotImplemented("TextLayout._GetBreakType");
+};
+TextLayout._GetCharType = function (c) {
+    NotImplemented("TextLayout._GetCharType");
+};
+TextLayout._GetWordType = function (ctype, btype) {
+    NotImplemented("TextLayout._GetWordType");
+};
+TextLayout._BreakSpace = function (c, btype) {
+    NotImplemented("TextLayout._BreakSpace");
 };
 
 //#endregion
@@ -665,6 +978,66 @@ _TextLayoutAttributes.prototype.GetForeground = function (selected) { return thi
 _TextLayoutAttributes.prototype.GetFont = function () { return this._Source.GetFont(); };
 _TextLayoutAttributes.prototype.GetDirection = function () { return this._Source.GetDirection(); };
 _TextLayoutAttributes.prototype.IsUnderlined = function () { return this._Source.GetTextDecorations() & TextDecorations.Underline; };
+
+//#endregion
+
+var _BreakType = {
+    Unknown: 0,
+    Space: 1,
+    OpenPunctuation: 2,
+    ClosePunctuation: 3,
+    InFixSeparator: 4,
+    Numeric: 5,
+    Alphabetic: 6,
+    WordJoiner: 7,
+    ZeroWidthSpace: 8,
+    BeforeAndAfter: 9,
+    NonBreakingGlue: 10,
+    Inseparable: 11,
+    Before: 12,
+    Ideographic: 13,
+    CombiningMark: 14,
+    Contingent: 15,
+    Ambiguous: 16,
+    Quotation: 17,
+    Prefix: 18
+};
+
+var _LayoutWordType = {
+    Unknown: 0,
+    Numeric: 1,
+    Alphabetic: 2,
+    Ideographic: 3,
+    Inseparable: 4
+};
+
+var _CharType = {
+};
+
+//#region _WordBreakOp
+
+function _WordBreakOp() {
+    RefObject.call(this);
+    this._Advance = 0.0;
+    this._Count = 0;
+    this._Index = 0;
+    this._Btype = 0;
+    this._C = '';
+}
+_WordBreakOp.InheritFrom(RefObject);
+_WordBreakOp.prototype.Copy = function () {
+    var newOp = new _WordBreakOp();
+    newOp._Advance = this._Advance;
+    newOp._Btype = this._Btype;
+    newOp._C = this._C;
+    newOp._Count = this._Count;
+    newOp._Index = this._Index;
+};
+_WordBreakOp.prototype.SetWordBasics = function (word) {
+    word._Length = this._Index;
+    word._Advance = this._Advance;
+    word._Count = this._Count;
+};
 
 //#endregion
 

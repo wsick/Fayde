@@ -8,8 +8,8 @@ namespace Parser.TypeConverters
 {
     public enum TextWrappingEnum
     {
+        NoWrap,
         Wrap,
-        NoWrap
     }
 
     public class TextWrapping : IJsonSerializable
