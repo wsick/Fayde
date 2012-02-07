@@ -553,6 +553,7 @@ Font.prototype.SetFamily = function (value) {
     if (this._Family == value)
         return false;
     this._Family = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -563,6 +564,7 @@ Font.prototype.SetStretch = function (value) {
     if (this._Stretch == value)
         return false;
     this._Stretch = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -573,6 +575,7 @@ Font.prototype.SetStyle = function (value) {
     if (this._Style == value)
         return false;
     this._Style = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -583,6 +586,7 @@ Font.prototype.SetWeight = function (value) {
     if (this._Weight == value)
         return false;
     this._Weight = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -593,6 +597,7 @@ Font.prototype.SetSize = function (value) {
     if (this._Size == value)
         return false;
     this._Size = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -603,7 +608,10 @@ Font.prototype.GetActualHeight = function () {
 Font.prototype._Descender = function () { return 0.0; }; //most likely removable
 Font.prototype._Ascender = function () { return 0.0; }; //most likely removable
 Font.prototype._Height = function () {
-    return Surface.MeasureText("M", this).Height;
+    return Surface._MeasureHeight(this);
+};
+Font.prototype._PurgeCache = function () {
+    this._CachedHeight = undefined;
 };
 
 Font.prototype._Translate = function () {

@@ -591,9 +591,12 @@ Surface.MeasureText = function (text, font) {
         Surface._TestCanvas = document.createElement('canvas');
     var ctx = Surface._TestCanvas.getContext('2d');
     ctx.font = font._Translate();
-    return new Size(ctx.measureText(text).width, Surface._MeasureHeight(text, font));
+    return new Size(ctx.measureText(text).width, Surface._MeasureHeight(font));
 };
-Surface._MeasureHeight = function (text, font) {
+Surface._MeasureHeight = function (font) {
+    if (font._CachedHeight)
+        return font._CachedHeight;
+
     var body = document.getElementsByTagName("body")[0];
     var dummy = document.createElement("div");
     var dummyText = document.createTextNode("M");
@@ -602,6 +605,8 @@ Surface._MeasureHeight = function (text, font) {
     body.appendChild(dummy);
     var result = dummy.offsetHeight;
     body.removeChild(dummy);
+
+    font._CachedHeight = result;
     return result;
 };
 Surface.IsLeftButton = function (button) {
