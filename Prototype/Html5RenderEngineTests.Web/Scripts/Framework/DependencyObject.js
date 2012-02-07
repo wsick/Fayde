@@ -2,7 +2,7 @@
 /// <reference path="DependencyProperty.js" />
 /// <reference path="PropertyValueProviders.js" />
 /// CODE
-/// <reference path="../jquery-1.7.js" />
+/// <reference path="Expression.js"/>
 /// <reference path="BError.js" />
 /// <reference path="MulticastEvent.js"/>
 /// <reference path="Collections.js"/>

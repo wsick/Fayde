@@ -139,11 +139,14 @@ Function.prototype.DoesInheritFrom = function (type) {
 
 function RefObject() {
     Object.call(this);
+    if (!RefObject.RegisteredIDs)
+        RefObject.RegisteredIDs = new Array();
     var id;
     do {
-        id = new Date().getTime();
-    } while (id === RefObject._LastID);
-    RefObject._LastID = this._ID = id;
+        id = Math.random() * Number.MAX_VALUE;
+    } while (RefObject.RegisteredIDs[id]);
+    this._ID = id;
+    RefObject.RegisteredIDs[id] = true;
 }
 RefObject.InheritFrom(Object);
 
@@ -199,6 +202,11 @@ BError.UnauthorizedAccess = 1;
 BError.Argument = 2;
 BError.InvalidOperation = 3;
 BError.Exception = 4;
+
+/// <reference path="RefObject.js"/>
+/// CODE
+/// <reference path="Primitives.js"/>
+
 
 /// <reference path="RefObject.js"/>
 
@@ -427,6 +435,76 @@ function BindingExpressionBase() {
     Expression.call(this);
 }
 BindingExpressionBase.InheritFrom(Expression);
+
+BindingExpressionBase.prototype._GetBinding = function () {
+    return this._Binding;
+};
+BindingExpressionBase.prototype._SetBinding = function (/* Binding */binding) {
+    this._Binding = binding;
+};
+
+BindingExpressionBase.prototype._GetTarget = function () {
+    return this._Target;
+};
+BindingExpressionBase.prototype._SetTarget = function (/* DependencyObject */value) {
+    this._Target = value;
+};
+
+BindingExpressionBase.prototype._GetProperty = function () {
+    return this._Property;
+};
+BindingExpressionBase.prototype._SetProperty = function (/* DependencyProperty */value) {
+    this._Property = value;
+};
+
+BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
+    if (value === undefined)
+        value = GetTarget().GetValue(GetProperty());
+    if (force === undefined)
+        force = false;
+    if (this.GetBinding().Mode !== BindingMode.TwoWay)
+        return;
+    NotImplemented("BindingExpressionBase._UpdateSourceObject");
+};
+
+//#endregion
+
+//#region BindingExpression
+
+function BindingExpression() {
+    BindingExpressionBase.call(this);
+}
+BindingExpression.InheritFrom(BindingExpressionBase);
+
+BindingExpression.prototype.GetParentBinding = function () {
+    return this._GetBinding();
+};
+BindingExpression.prototype.GetDataItem = function () {
+    return this._GetDataSource();
+};
+BindingExpression.prototype.UpdateSource = function () {
+    return this._UpdateSourceObject(undefined, true);
+};
+
+//#endregion
+
+//#region BindingOperations
+
+function BindingOperations() {
+    RefObject.call(this);
+}
+BindingOperations.InheritFrom(RefObject);
+
+BindingOperations.SetBinding = function (/* DependencyObject */target, /* DependencyProperty */dp, /* BindingBase */binding) {
+    if (target == null)
+        throw new ArgumentNullException("target");
+    if (dp == null)
+        throw new ArgumentNullException("dp");
+    if (binding == null)
+        throw new ArgumentNullException("binding");
+
+    //var e = new BindingExpression(
+};
 
 //#endregion
 
@@ -910,6 +988,12 @@ var CursorType = {
     //TODO: Add cursor types
 };
 
+var BindingMode = {
+    OneWay: 1,
+    OneTime: 2,
+    TwoWay: 3
+};
+
 function IsOpacityInvisible(opacity) {
     return opacity <= 0.0;
 }
@@ -1035,6 +1119,9 @@ Size.prototype.Equals = function (size2) {
 };
 Size.prototype.toString = function () {
     return "[Width = " + this.Width + "; Height = " + this.Height + "]";
+};
+Size.prototype.Copy = function () {
+    return new Size(this.Width, this.Height);
 };
 
 //#endregion
@@ -1362,6 +1449,7 @@ Font.prototype.SetFamily = function (value) {
     if (this._Family == value)
         return false;
     this._Family = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -1372,6 +1460,7 @@ Font.prototype.SetStretch = function (value) {
     if (this._Stretch == value)
         return false;
     this._Stretch = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -1382,6 +1471,7 @@ Font.prototype.SetStyle = function (value) {
     if (this._Style == value)
         return false;
     this._Style = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -1392,6 +1482,7 @@ Font.prototype.SetWeight = function (value) {
     if (this._Weight == value)
         return false;
     this._Weight = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -1402,6 +1493,7 @@ Font.prototype.SetSize = function (value) {
     if (this._Size == value)
         return false;
     this._Size = value;
+    this._PurgeCache();
     return true;
 };
 
@@ -1412,7 +1504,10 @@ Font.prototype.GetActualHeight = function () {
 Font.prototype._Descender = function () { return 0.0; }; //most likely removable
 Font.prototype._Ascender = function () { return 0.0; }; //most likely removable
 Font.prototype._Height = function () {
-    return Surface.MeasureText("M", this).Height;
+    return Surface._MeasureHeight(this);
+};
+Font.prototype._PurgeCache = function () {
+    this._CachedHeight = undefined;
 };
 
 Font.prototype._Translate = function () {
@@ -2314,11 +2409,11 @@ _AutoCreatePropertyValueProvider.InheritFrom(_PropertyValueProvider);
 
 _AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);
-    if (value)
+    if (value !== undefined)
         return value;
 
     value = propd._IsAutoCreated() ? propd._GetAutoCreatedValue(this._Object) : null;
-    if (!value)
+    if (value == null)
         return null;
 
     this._ht[propd] = value;
@@ -2933,9 +3028,12 @@ Surface.MeasureText = function (text, font) {
         Surface._TestCanvas = document.createElement('canvas');
     var ctx = Surface._TestCanvas.getContext('2d');
     ctx.font = font._Translate();
-    return new Size(ctx.measureText(text).width, Surface._MeasureHeight(text, font));
+    return new Size(ctx.measureText(text).width, Surface._MeasureHeight(font));
 };
-Surface._MeasureHeight = function (text, font) {
+Surface._MeasureHeight = function (font) {
+    if (font._CachedHeight)
+        return font._CachedHeight;
+
     var body = document.getElementsByTagName("body")[0];
     var dummy = document.createElement("div");
     var dummyText = document.createTextNode("M");
@@ -2944,6 +3042,8 @@ Surface._MeasureHeight = function (text, font) {
     body.appendChild(dummy);
     var result = dummy.offsetHeight;
     body.removeChild(dummy);
+
+    font._CachedHeight = result;
     return result;
 };
 Surface.IsLeftButton = function (button) {
@@ -3084,7 +3184,6 @@ function TextLayout() {
     this._IsWrapped = true;
     this._Text = null;
     this._Length = 0;
-    this._Count = 0;
 }
 TextLayout.InheritFrom(RefObject);
 
@@ -3178,9 +3277,9 @@ TextLayout.prototype.GetMaxWidth = function () {
     return this._MaxWidth;
 };
 TextLayout.prototype.SetMaxWidth = function (value) {
-    if (value == 0.0)
+    if (value === 0.0)
         value = Number.POSITIVE_INFINITY;
-    if (this._MaxWidth == value)
+    if (this._MaxWidth === value)
         return false;
     if (!this._IsWrapped && (!isFinite(value) || value > this._ActualWidth)) {
         this._MaxWidth = value;
@@ -3208,7 +3307,6 @@ TextLayout.prototype.SetText = function (value, length) {
         this._Text = null;
         this._Length = 0;
     }
-    this._Count = -1;
     this._ResetState();
     return true;
 };
@@ -3263,7 +3361,7 @@ TextLayout.prototype.GetCursor = function (offset, pos) {
         y1 = y0 + line._Height + line._Descend;
         height = line._Height;
 
-        if (pos >= cursor + line._Count) {
+        if (pos >= cursor + line._Length) {
             if ((i + 1) === this._Lines.length) {
                 if (TextLayout._IsLineBreak(this._Text.substr(line._Start + line._Length - 1, 2))) {
                     //cursor is lonely just below the last line
@@ -3275,7 +3373,7 @@ TextLayout.prototype.GetCursor = function (offset, pos) {
                 }
                 break;
             }
-            cursor += line._Count;
+            cursor += line._Length;
             y0 += line._Height;
             continue;
         }
@@ -3285,8 +3383,8 @@ TextLayout.prototype.GetCursor = function (offset, pos) {
             var run = line._Runs[j];
             end = run._Start + run._Length;
 
-            if (pos >= cursor + run._Count) {
-                cursor += run._Count;
+            if (pos >= cursor + run._Length) {
+                cursor += run._Length;
                 x0 += run._Advance;
                 continue;
             }
@@ -3305,9 +3403,9 @@ TextLayout.prototype._FindLineWithIndex = function (index) {
     var cursor = 0;
     for (var i = 0; i < this._Lines.length; i++) {
         var line = this._Lines[i];
-        if (index < cursor + line._Count)
+        if (index < cursor + line._Length)
             return line;
-        cursor += line._Count;
+        cursor += line._Length;
     }
     return null;
 };
@@ -3338,7 +3436,6 @@ TextLayout.prototype.Layout = function () {
     this._ActualWidth = 0.0;
     this._IsWrapped = false;
     this._ClearLines();
-    this._Count = 0;
 
     if (this._Text == null || !TextLayout._ValidateAttrs(this._Attributes))
         return;
@@ -3395,17 +3492,15 @@ TextLayout.prototype.Layout = function () {
                         line._Height = font._Height();
                     }
 
-                    line._Length += lineBreakLength; //bytes
-                    run._Length += lineBreakLength; //bytes
-                    line._Count += lineBreakLength; //chars
-                    run._Count += lineBreakLength; //chars
+                    line._Length += lineBreakLength;
+                    run._Length += lineBreakLength;
                     index += lineBreakLength;
                     linebreak = true;
                     break;
                 }
 
                 word._LineAdvance = line._Advance;
-                if (layoutWordFunc(word, this._Text.slice(index, end), font, this._MaxWidth)) {
+                if (layoutWordFunc(word, this._Text.slice(index, end), this.GetMaxWidth())) {
                     this._IsWrapped = true;
                     wrapped = true;
                 }
@@ -3422,10 +3517,8 @@ TextLayout.prototype.Layout = function () {
                     line._Width = line._Advance;
                     line._Length += word._Length;
                     run._Length += word._Length;
-                    line._Count += word._Count;
-                    run._Count += word._Count;
 
-                    index += word._Count;
+                    index += word._Length;
                 }
 
                 if (wrapped)
@@ -3445,14 +3538,12 @@ TextLayout.prototype.Layout = function () {
                     line._Width = line._Advance;
                     line._Length += word._Length;
                     run._Length += word._Length;
-                    line._Count += word._Count;
-                    run._Count += word._Count;
 
-                    index += word._Count;
+                    index += word._Length;
                 }
             }
 
-            var atend = this._Text.slice(index, end).length < 1;
+            var atend = index >= end;
             if (linebreak || wrapped || atend) {
                 this._ActualWidth = Math.max(this._ActualWidth, atend ? line._Advance : line._Width);
                 this._ActualHeight += line._Height;
@@ -3484,7 +3575,6 @@ TextLayout.prototype.Layout = function () {
 
         attrs = nattrs;
     } while (end - index > 0);
-    this._Count = index;
 };
 TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
     var deltax = 0.0;
@@ -3517,6 +3607,16 @@ TextLayout.prototype._Render = function (ctx, origin, offset) {
         y += line._Height;
     }
 };
+TextLayout.prototype.__Debug = function () {
+    var allText = this.GetText();
+    var t = "";
+    t += "Lines: " + this._Lines.length.toString() + "\n";
+    for (var i = 0; i < this._Lines.length; i++) {
+        t += "\tLine " + i.toString() + ":\n";
+        t += this._Lines[i].__Debug(allText);
+    }
+    return t;
+};
 
 TextLayout._ValidateAttrs = function (/* List */attributes) {
     var attrs;
@@ -3548,14 +3648,307 @@ TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
     }
     return availWidth;
 };
-TextLayout._LayoutWordWrap = function (word, text, font, maxWidth) {
-    NotImplemented("TextLayout._LayoutWordWrap");
+TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
+    word._Length = 0;
+    word._Advance = 0.0;
+    var measuredIndex = 0;
+    var measuredText = "";
+    while (true) {
+        var index = text.indexOf(" ", measuredIndex);
+        if (index === -1)
+            break;
+        index += 1; //include " "
+        var tempText = text.slice(measuredIndex, index);
+        var advance = Surface.MeasureText(tempText, word._Font).Width;
+        if (isFinite(maxWidth) && (word._LineAdvance + advance) > maxWidth) {
+            return true;
+        }
+        measuredIndex = index;
+        measuredText = tempText;
+        word._Advance += advance;
+        word._LineAdvance += advance;
+        word._Length += measuredText.length;
+    }
+    word._Length = text.length;
+    return false;
 };
-TextLayout._LayoutWordNoWrap = function (word, text, font) {
-    var advance = Surface.MeasureText(text, font).Width;
+TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
+    return false;
+    var lineStart = word._LineAdvance == 0.0;
+    if (!word._BreakOps)
+        word._BreakOps = new Array();
+    word._BreakOps.splice(0, word._BreakOps.length);
+    word._Type = _LayoutWordType.Unknown;
+    word._Advance = 0.0;
+
+    var op = new _WordBreakOp();
+    var ctype;
+    var btype = _BreakType.Unknown;
+    var fixed = false;
+    var newGlyph = false;
+    var glyphs = 0;
+
+    var wrap = false;
+
+    var index = 0;
+    var end = text.length;
+    var start;
+    var c;
+    while (index < end) {
+        start = index;
+        c = text.charAt(index);
+        index++;
+        if (TextLayout._IsLineBreak(text)) {
+            index = start;
+            break;
+        }
+
+        //check previous break-type
+        if (btype === _BreakType.ClosePunctuation) {
+            // if anything comes after close punctuation (except infix separator), the 'word' is done
+            btype = TextLayout._GetBreakType(c);
+            if (btype !== _BreakType.InFixSeparator) {
+                index = start;
+                break;
+            }
+        } else if (btype === _BreakType.InFixSeparator) {
+            btype = TextLayout._GetBreakType(c);
+            if (word._Type === _LayoutWordType.Numeric) {
+                //only accept numbers after the infix
+                if (btype !== _BreakType.Numeric) {
+                    index = start;
+                    break;
+                }
+            } else if (word._Type === _LayoutWordType.Unknown) {
+                //only accept alphanumerics after the infix
+                if (btype !== _BreakType.Alphabetic && btype !== _BreakType.Numeric) {
+                    index = start;
+                    break;
+                }
+                fixed = true;
+            }
+        } else if (btype === _BreakType.WordJoiner) {
+            btype = TextLayout._GetBreakType(c);
+            fixed = true;
+        } else {
+            btype = TextLayout._GetBreakType(c);
+        }
+
+        if (TextLayout._BreakSpace(c, btype)) {
+            index = start;
+            break;
+        }
+
+        ctype = TextLayout._GetCharType(c);
+
+        if (word._Type === _LayoutWordType.Unknown) {
+            word._Type = TextLayout._GetWordType(ctype, btype);
+        } else if (btype === _BreakType.OpenPunctuation) {
+            index = start;
+            break;
+        } else if (TextLayout._WordTypeChanged(word._Type, c, ctype, btype)) {
+            index = start;
+            break;
+        }
+
+        //NOTE: Combining glyphs not implemented
+        var newGlyph = true;
+        glyphs++;
+
+        var advance = Surface.MeasureText(c, word._Font).Width;
+        word._LineAdvance += advance;
+        word._Advance += advance;
+
+        if (newGlyph) {
+            op.advance = word._Advance;
+            op.index = index;
+            op.btype = btype;
+            op.c = c;
+        }
+        word._BreakOps.push(op);
+        op = op.Copy();
+
+        if (Number.isFinite(maxWidth) && word._LineAdvance > maxWidth) {
+            wrap = true;
+            break;
+        }
+    }
+
+    if (!wrap) {
+        word._Length = index;
+        return false;
+    }
+
+    if (index === end)
+        btype = _BreakType.Space;
+
+    while (index < end) {
+        start = index;
+        c = text.charAt(index);
+        index++;
+
+        if (TextLayout._IsLineBreak(text)) {
+            btype = _BreakType.Space;
+            index = start;
+            break;
+        }
+
+        btype = TextLayout._GetBreakType(c);
+        if (TextLayout._BreakSpace(c, btype)) {
+            index = start;
+            break;
+        }
+
+        var advance = Surface.MeasureText(c, word._Font).Width;
+        word._LineAdvance += advance;
+        word._Advance += advance;
+
+        word._BreakOps.pop();
+        op.advance += advance;
+        op.index = index;
+        op.count++;
+        word._BreakOps.push(op);
+        op = op.Copy();
+    }
+
+    if (lineStart && glyphs === 1) {
+        word._Length = index;
+        return true;
+    }
+
+    var data = {
+        index: index,
+        lineStart: lineStart,
+        fixed: fixed,
+        btype: btype,
+        force: false
+    };
+    while (true) {
+        for (var i = word._BreakOps.Length; i > 0; i--) {
+            data.op = word._BreakOps[i - 1];
+            data.i = i;
+            if (TextLayout._LayoutWordWrapSearch(word, data) == true)
+                return true;
+            btype = data.op._Btype;
+            c = data.op._C;
+            i = data.i;
+            index = data.index;
+        }
+
+        if (lineStart && !data.force) {
+            data.force = true;
+            continue;
+        }
+        break;
+    }
+
+    word._Advance = 0.0;
+    word._Length = 0;
+
+    return true;
+};
+TextLayout._LayoutWordWrapSearch = function (word, data) {
+    switch (data.op.btype) {
+        case _BreakType.BeforeAndAfter:
+            if (i > 1 && i === word._BreakOps.length) {
+                data.op = word._BreakOps[data.i - 2];
+                data.op.SetWordBasics(word);
+                return true;
+            } else if (i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+        case _BreakType.NonBreakingGlue:
+        case _BreakType.WordJoiner:
+            if (data.force && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1) {
+                data.op = this._BreakOps[data.i - 2];
+                data.i--;
+            }
+            break;
+        case _BreakType.Inseparable:
+            if (data.lineStart && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Before:
+            if (data.i > 1) {
+                data.op = word._BreakOps[data.i - 2];
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.ClosePunctuation:
+            if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1 && !data.force) {
+                data.op = word._BreakOps[data.i - 2];
+                i--;
+            }
+            break;
+        case _BreakType.InFixSeparator:
+            if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.Numeric)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1 && !data.force) {
+                data.op = word._BreakOps[data.i - 2];
+                if (data.op._Btype === _BreakType.InFixSeparator ||
+                    data.op._Btype === _BreakType.ClosePunctuation) {
+                    data.op = word._BreakOps[data.i - 1];
+                } else {
+                    i--;
+                }
+            }
+            break;
+        case _BreakType.Alphabetic:
+            if ((data.lineStart || data.fixed || data.force) && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Ideographic:
+            if (data.i < word._BreakOps.length && data.btype !== _BreakType.NonStarter) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Numeric:
+            if (data.lineStart && data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.OpenPunctuation:
+        case _BreakType.CombiningMark:
+        case _BreakType.Contingent:
+        case _BreakType.Ambiguous:
+        case _BreakType.Quotation:
+        case _BreakType.Prefix:
+            if (data.force && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        default:
+            if (data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+    }
+    return false;
+};
+TextLayout._LayoutWordNoWrap = function (word, text) {
+    var advance = Surface.MeasureText(text, word._Font).Width;
     word._Advance = advance;
     word._LineAdvance += advance;
-    word._Count = text.length;
     word._Length = text.length;
     return false;
 };
@@ -3563,8 +3956,19 @@ TextLayout._LayoutLwsp = function (word, text, font) {
     var advance = Surface.MeasureText(text, font).Width;
     word._Advance = advance;
     word._LineAdvance += advance;
-    word._Count = text.length;
     word._Length = text.length;
+};
+TextLayout._GetBreakType = function (c) {
+    NotImplemented("TextLayout._GetBreakType");
+};
+TextLayout._GetCharType = function (c) {
+    NotImplemented("TextLayout._GetCharType");
+};
+TextLayout._GetWordType = function (ctype, btype) {
+    NotImplemented("TextLayout._GetWordType");
+};
+TextLayout._BreakSpace = function (c, btype) {
+    NotImplemented("TextLayout._BreakSpace");
 };
 
 //#endregion
@@ -3582,7 +3986,6 @@ function _TextLayoutLine(layout, start, offset) {
     this._Height = 0.0;
     this._Width = 0.0;
     this._Length = 0;
-    this._Count = 0;
 }
 _TextLayoutLine.InheritFrom(RefObject);
 
@@ -3598,6 +4001,16 @@ _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
         x0 += run._Advance;
     }
 };
+_TextLayoutLine.prototype.__Debug = function (allText) {
+    var t = "";
+    t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
+    for (var i = 0; i < this._Runs.length; i++) {
+        t += "\t\t\tRun " + i.toString() + ": ";
+        t += this._Runs[i].__Debug(allText);
+        t += "\n";
+    }
+    return t;
+};
 
 //#endregion
 
@@ -3611,7 +4024,6 @@ function _TextLayoutRun(line, attrs, start) {
     this._Line = line;
     this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
     this._Length = 0;
-    this._Count = 0;
 }
 _TextLayoutRun.InheritFrom(RefObject);
 
@@ -3626,7 +4038,7 @@ _TextLayoutRun.prototype._GenerateCache = function () {
     //glyph before selection
     if (selectionLength == 0 || this._Start < selectionStart) {
         len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(this._Start, this._Length), font));
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, this._Length), font));
         index += len;
     }
 
@@ -3635,14 +4047,14 @@ _TextLayoutRun.prototype._GenerateCache = function () {
     var runEnd = this.Start + this._Length;
     if (index < runEnd && index < selectionEnd) {
         len = Math.min(runEnd - index, selectionEnd - index);
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(index, len), font, true));
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font, true));
         index += len;
     }
 
     //glyph after selection
     if (index < runEnd) {
         len = runEnd - index;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(index, len), font));
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font));
         index += len;
     }
 };
@@ -3661,6 +4073,9 @@ _TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
         ctx.Restore();
         x0 += cluster._Advance;
     }
+};
+_TextLayoutRun.prototype.__Debug = function (allText) {
+    return allText.substr(this._Start, this._Length);
 };
 
 //#endregion
@@ -3722,6 +4137,63 @@ _TextLayoutAttributes.prototype.IsUnderlined = function () { return this._Source
 
 //#endregion
 
+var _BreakType = {
+    Unknown: 0,
+    Space: 1,
+    OpenPunctuation: 2,
+    ClosePunctuation: 3,
+    InFixSeparator: 4,
+    Numeric: 5,
+    Alphabetic: 6,
+    WordJoiner: 7,
+    ZeroWidthSpace: 8,
+    BeforeAndAfter: 9,
+    NonBreakingGlue: 10,
+    Inseparable: 11,
+    Before: 12,
+    Ideographic: 13,
+    CombiningMark: 14,
+    Contingent: 15,
+    Ambiguous: 16,
+    Quotation: 17,
+    Prefix: 18
+};
+
+var _LayoutWordType = {
+    Unknown: 0,
+    Numeric: 1,
+    Alphabetic: 2,
+    Ideographic: 3,
+    Inseparable: 4
+};
+
+var _CharType = {
+};
+
+//#region _WordBreakOp
+
+function _WordBreakOp() {
+    RefObject.call(this);
+    this._Advance = 0.0;
+    this._Index = 0;
+    this._Btype = 0;
+    this._C = '';
+}
+_WordBreakOp.InheritFrom(RefObject);
+_WordBreakOp.prototype.Copy = function () {
+    var newOp = new _WordBreakOp();
+    newOp._Advance = this._Advance;
+    newOp._Btype = this._Btype;
+    newOp._C = this._C;
+    newOp._Index = this._Index;
+};
+_WordBreakOp.prototype.SetWordBasics = function (word) {
+    word._Length = this._Index;
+    word._Advance = this._Advance;
+};
+
+//#endregion
+
 //#region _LayoutWord
 
 function _LayoutWord() {
@@ -3729,7 +4201,6 @@ function _LayoutWord() {
     this._Advance = 0.0;
     this._LineAdvance = 0.0;
     this._Length = 0;
-    this._Count = 0;
     this._BreakOps = null;
     this._Font = new Font();
 }
@@ -3788,7 +4259,7 @@ VisualTreeHelper.GetChildrenCount = function (d) {
 /// <reference path="DependencyProperty.js" />
 /// <reference path="PropertyValueProviders.js" />
 /// CODE
-/// <reference path="../jquery-1.7.js" />
+/// <reference path="Expression.js"/>
 /// <reference path="BError.js" />
 /// <reference path="MulticastEvent.js"/>
 /// <reference path="Collections.js"/>
@@ -4005,8 +4476,13 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
         if (propd._IsAutoCreated())
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
 
-    if (currentValue != null && value != null)
-        equal = !propd._AlwaysChange && currentValue == value;
+    if (currentValue != null && value != null) {
+        if (currentValue instanceof RefObject) {
+            equal = !propd._AlwaysChange && currentValue.RefEquals(value);
+        } else {
+            equal = !propd._AlwaysChange && currentValue === value;
+        }
+    }
     else
         equal = currentValue == null && value == null;
 
@@ -4016,7 +4492,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
         if (propd._IsAutoCreated())
             this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
 
-        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject)))
+        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject) || RefObject.As(value, DependencyObject) != null))
             newValue = value;
         else
             newValue = null;
@@ -7052,9 +7528,9 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     var last = LayoutInformation.GetPreviousConstraint(this);
     var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
-    shouldMeasure = shouldMeasure || (!last || last.Width != availableSize.Width || last.Height != availableSize.Height);
+    shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
 
-    if (this.GetVisibility() != Visibility.Visible) {
+    if (this.GetVisibility() !== Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
         this._DesiredSize = new Size(0, 0);
         return;
@@ -7088,7 +7564,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     this._DirtyFlags &= ~_Dirty.Measure;
     this._HiddenDesire = size;
 
-    if (!parent || !parent.IsCanvas) {
+    if (!parent || parent instanceof Canvas) {
         if (this instanceof Canvas || !this.IsLayoutContainer()) {
             this._DesiredSize = new Size(0, 0);
             return;
@@ -7937,18 +8413,19 @@ StackPanel.InheritFrom(Panel);
 
 //#region DEPENDENCY PROPERTIES
 
-StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return Number; }, StackPanel, Orientation.Vertical);
+StackPanel._OrientationChanged = function (d, args) {
+    var sp = RefObject.As(d, StackPanel);
+    if (sp == null)
+        return;
+    d._InvalidateMeasure();
+    d._InvalidateArrange();
+};
+StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return Number; }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
 StackPanel.prototype.GetOrientation = function () {
     return this.GetValue(StackPanel.OrientationProperty);
 };
 StackPanel.prototype.SetOrientation = function (value) {
     this.SetValue(StackPanel.OrientationProperty, value);
-};
-StackPanel._OrientationChanged = function (d, args) {
-    if (!d)
-        return;
-    d._InvalidateMeasure();
-    d._InvalidateArrange();
 };
 
 //#endregion
@@ -7960,7 +8437,7 @@ StackPanel.prototype.MeasureOverride = function (constraint) {
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
 
-    if (this.GetOrientation() == Orientation.Vertical) {
+    if (this.GetOrientation() === Orientation.Vertical) {
         childAvailable.Width = constraint.Width;
         if (!isNaN(this.GetWidth()))
             childAvailable.Width = this.GetWidth();
@@ -7980,7 +8457,7 @@ StackPanel.prototype.MeasureOverride = function (constraint) {
         child.Measure(childAvailable);
         var size = child._DesiredSize;
 
-        if (this.GetOrientation() == Orientation.Vertical) {
+        if (this.GetOrientation() === Orientation.Vertical) {
             measured.Height += size.Height;
             measured.Width = Math.max(measured.Width, size.Width);
         } else {
@@ -7995,7 +8472,7 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
     Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
     var arranged = arrangeSize;
 
-    if (this.GetOrientation() == Orientation.Vertical)
+    if (this.GetOrientation() === Orientation.Vertical)
         arranged.Height = 0;
     else
         arranged.Width = 0;
@@ -8005,7 +8482,7 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
         var child = children.GetValueAt(i);
         var size = child._DesiredSize;
         var childFinal;
-        if (this.GetOrientation() == Orientation.Vertical) {
+        if (this.GetOrientation() === Orientation.Vertical) {
             size.Width = arrangeSize.Width;
 
             childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
@@ -8031,7 +8508,7 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
         }
     }
 
-    if (this.GetOrientation() == Orientation.Vertical)
+    if (this.GetOrientation() === Orientation.Vertical)
         arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
     else
         arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
@@ -8696,19 +9173,19 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {
         FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
-        if (args.Property != FrameworkElement.LanguageProperty)
+        if (args.Property !== FrameworkElement.LanguageProperty)
             return;
         if (!this._UpdateFonts(false))
             return;
     }
 
-    if (args.Property == TextBlock.FontFamilyProperty
-        || args.Property == TextBlock.FontSizeProperty
-        || args.Property == TextBlock.FontStretchProperty
-        || args.Property == TextBlock.FontStyleProperty
-        || args.Property == TextBlock.FontWeightProperty) {
+    if (args.Property === TextBlock.FontFamilyProperty
+        || args.Property === TextBlock.FontSizeProperty
+        || args.Property === TextBlock.FontStretchProperty
+        || args.Property === TextBlock.FontStyleProperty
+        || args.Property === TextBlock.FontWeightProperty) {
         this._UpdateFonts(false);
-    } else if (args.Property == TextBlock.TextProperty) {
+    } else if (args.Property === TextBlock.TextProperty) {
         if (this._SetsValue) {
             this._SetTextInternal(args.NewValue)
 
@@ -8718,7 +9195,7 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
             this._UpdateLayoutAttributes();
             invalidate = false;
         }
-    } else if (args.Property == TextBlock.InlinesProperty) {
+    } else if (args.Property === TextBlock.InlinesProperty) {
         if (this._SetsValue) {
             this._SetsValue = false;
             this.SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
@@ -8730,21 +9207,21 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
             this._UpdateLayoutAttributes();
             invalidate = false;
         }
-    } else if (args.Property == TextBlock.LineStackingStrategyProperty) {
+    } else if (args.Property === TextBlock.LineStackingStrategyProperty) {
         this._Dirty = this._Layout.SetLineStackingStrategy(args.NewValue);
-    } else if (args.Property == TextBlock.LineHeightProperty) {
+    } else if (args.Property === TextBlock.LineHeightProperty) {
         this._Dirty = this._Layout.SetLineHeight(args.NewValue);
-    } else if (args.Property == TextBlock.TextDecorationsProperty) {
+    } else if (args.Property === TextBlock.TextDecorationsProperty) {
         this._Dirty = true;
-    } else if (args.Property == TextBlock.TextAlignmentProperty) {
+    } else if (args.Property === TextBlock.TextAlignmentProperty) {
         this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
-    } else if (args.Property == TextBlock.TextTrimmingProperty) {
+    } else if (args.Property === TextBlock.TextTrimmingProperty) {
         this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
-    } else if (args.Property == TextBlock.TextWrappingProperty) {
+    } else if (args.Property === TextBlock.TextWrappingProperty) {
         this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
-    } else if (args.Property == TextBlock.PaddingProperty) {
+    } else if (args.Property === TextBlock.PaddingProperty) {
         this._Dirty = true;
-    } else if (args.Property == TextBlock.FontSourceProperty) {
+    } else if (args.Property === TextBlock.FontSourceProperty) {
     }
 
     if (invalidate) {
@@ -8758,7 +9235,7 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 TextBlock.prototype._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property != null && args.Property == TextBlock.ForegroundProperty) {
+    if (args.Property != null && args.Property === TextBlock.ForegroundProperty) {
         this._Invalidate();
     } else {
         FrameworkElement.prototype._OnSubPropertyChanged.call(this, sender, args);
@@ -8771,13 +9248,13 @@ TextBlock.prototype._OnCollectionChanged = function (sender, args) {
     }
 
     var inlines = this.GetInlines();
-    if (args.Action == CollectionChangedArgs.Action.Clearing)
+    if (args.Action === CollectionChangedArgs.Action.Clearing)
         return;
 
     if (!this._SetsValue)
         return;
 
-    if (args.Action == CollectionChangedArgs.Add)
+    if (args.Action === CollectionChangedArgs.Add)
         this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
 
     this._SetsValue = false;
@@ -9746,14 +10223,14 @@ Grid.prototype.GetRowDefinitions = function () {
 
 Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
     Info("Grid._MeasureOverrideWithError [" + this._TypeName + "]");
-    var totalSize = availableSize;
+    var totalSize = availableSize.Copy();
     var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var colCount = cols ? cols.GetCount() : 0;
     var rowCount = rows ? rows.GetCount() : 0;
     var totalStars = new Size(0, 0);
-    var emptyRows = rowCount == 0;
-    var emptyCols = colCount == 0;
+    var emptyRows = rowCount === 0;
+    var emptyCols = colCount === 0;
     var hasChildren = this.GetChildren().GetCount() > 0;
 
     if (emptyRows) rowCount = 1;
@@ -9776,13 +10253,13 @@ Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
             rowdef.SetActualHeight(Number.POSITIVE_INFINITY);
             cell = new _Segment(0.0, rowdef.GetMinHeight(), rowdef.GetMaxHeight(), height.Type);
 
-            if (height.Type == GridUnitType.Pixel) {
+            if (height.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(height.Value);
                 rowdef.SetActualHeight(cell._SetDesiredToOffered());
-            } else if (height.Type == GridUnitType.Star) {
+            } else if (height.Type === GridUnitType.Star) {
                 cell._Stars = height.Value;
                 totalStars.Height += height.Value;
-            } else if (height.Type == GridUnitType.Auto) {
+            } else if (height.Type === GridUnitType.Auto) {
                 cell._OfferedSize = cell._Clamp(0);
                 cell._SetDesiredToOffered();
             }
@@ -9804,13 +10281,13 @@ Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
             coldef.SetActualWidth(Number.POSITIVE_INFINITY);
             cell = new _Segment(0.0, coldef.GetMinWidth(), coldef.GetMaxWidth(), width.Type);
 
-            if (width.Type == GridUnitType.Pixel) {
+            if (width.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(width.Value);
                 coldef.SetActualWidth(cell._SetDesiredToOffered());
-            } else if (width.Type == GridUnitType.Star) {
+            } else if (width.Type === GridUnitType.Star) {
                 cell._Stars = width.Value;
                 totalStars.Width += width.Value;
-            } else if (width.Type == GridUnitType.Auto) {
+            } else if (width.Type === GridUnitType.Auto) {
                 cell._OfferedSize = cell._Clamp(0);
                 cell._SetDesiredToOffered();
             }
@@ -9996,52 +10473,62 @@ Grid.prototype._ArrangeOverrideWithError = function (finalSize, error) {
 };
 
 Grid.prototype._ExpandStarRows = function (availableSize) {
+    var availSize = availableSize.Copy();
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var rowsCount = rows ? rows.GetCount() : 0;
 
-    for (var i = 0; i < this._RowMatrixDim; i++) {
-        if (this._RowMatrix[i][i]._Type == GridUnitType.Star)
-            this._RowMatrix[i][i]._OfferedSize = 0;
+    var i;
+    var cur;
+    for (i = 0; i < this._RowMatrixDim; i++) {
+        cur = this._RowMatrix[i][i];
+        if (cur._Type === GridUnitType.Star)
+            cur._OfferedSize = 0;
         else
-            availableSize.Height = Math.max(availableSize.Height - this._RowMatrix[i][i]._OfferedSize, 0);
+            availSize.Height = Math.max(availSize.Height - cur._OfferedSize, 0);
     }
-    availableSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availableSize.Height, GridUnitType.Star, false);
+    availSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availSize.Height, GridUnitType.Star, false);
     if (rowsCount > 0) {
-        for (var j = 0; j < this._RowMatrixDim; j++) {
-            if (this._RowMatrix[j][j]._Type == GridUnitType.Star)
-                rows.GetValueAt(j).SetActualHeight(this._RowMatrix[j][j]._OfferedSize);
+        for (i = 0; i < this._RowMatrixDim; i++) {
+            cur = this._RowMatrix[i][i];
+            if (cur._Type === GridUnitType.Star)
+                rows.GetValueAt(i).SetActualHeight(cur._OfferedSize);
         }
     }
 };
 Grid.prototype._ExpandStarCols = function (availableSize) {
+    var availSize = availableSize.Copy();
     var columns = this._GetColumnDefinitionsNoAutoCreate();
     var columnsCount = columns ? columns.GetCount() : 0;
 
-    for (var i = 0; i < this._ColMatrixDim; i++) {
-        if (this._ColMatrix[i][i]._Type == GridUnitType.Star)
-            this._ColMatrix[i][i]._OfferedSize = 0;
+    var i;
+    var cur;
+    for (i = 0; i < this._ColMatrixDim; i++) {
+        cur = this._ColMatrix[i][i];
+        if (cur._Type === GridUnitType.Star)
+            cur._OfferedSize = 0;
         else
-            availableSize.Width = Math.max(availableSize.Width - this._ColMatrix[i][i]._OfferedSize, 0);
+            availSize.Width = Math.max(availSize.Width - cur._OfferedSize, 0);
     }
-    availableSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availableSize.Width, GridUnitType.Star, false);
+    availSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availSize.Width, GridUnitType.Star, false);
     if (columnsCount > 0) {
-        for (var j = 0; j < this._ColMatrixDim; j++) {
-            if (this._ColMatrix[j][j]._Type == GridUnitType.Star) {
-                columns.GetValueAt(j).SetActualWidth(this._ColMatrix[j][j]._OfferedSize);
+        for (i = 0; i < this._ColMatrixDim; i++) {
+            cur = this._ColMatrix[i][i];
+            if (cur._Type === GridUnitType.Star) {
+                columns.GetValueAt(i).SetActualWidth(cur._OfferedSize);
             }
         }
     }
 };
 Grid.prototype._AllocateDesiredSize = function (rowCount, colCount) {
     for (var i = 0; i < 2; i++) {
-        var matrix = i == 0 ? this._RowMatrix : this._ColMatrix;
-        var count = i == 0 ? rowCount : colCount;
+        var matrix = i === 0 ? this._RowMatrix : this._ColMatrix;
+        var count = i === 0 ? rowCount : colCount;
 
         for (var row = count - 1; row >= 0; row--) {
             for (var col = row; col >= 0; col--) {
                 var spansStar = false;
                 for (var j = row; j >= col; j--) {
-                    spansStar = spansStar || (matrix[j][j]._Type == GridUnitType.Star);
+                    spansStar = spansStar || (matrix[j][j]._Type === GridUnitType.Star);
                 }
                 var current = matrix[row][col]._DesiredSize;
                 var totalAllocated = 0;
@@ -10076,8 +10563,8 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
     for (i = start; i <= end; i++) {
         cur = matrix[i][i];
         segmentSize = desiredSize ? cur._DesiredSize : cur._OfferedSize;
-        if (segmentSize < matrix[i][i]._Max)
-            count += (unitType == GridUnitType.Star) ? cur._Stars : 1;
+        if (segmentSize < cur._Max)
+            count += (unitType === GridUnitType.Star) ? cur._Stars : 1;
     }
     do {
         assigned = false;
@@ -10085,10 +10572,10 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
         for (i = start; i <= end; i++) {
             cur = matrix[i][i];
             segmentSize = desiredSize ? cur._DesiredSize : cur._OfferedSize;
-            if (!(matrix[i][i]._Type == unitType && segmentSize < cur._Max))
+            if (!(cur._Type === unitType && segmentSize < cur._Max))
                 continue;
             var newSize = segmentSize;
-            newSize += contribution * (unitType == GridUnitType.Star ? cur._Stars : 1);
+            newSize += contribution * (unitType === GridUnitType.Star ? cur._Stars : 1);
             newSize = Math.min(newSize, cur._Max);
             assigned = assigned || (newSize > segmentSize);
             size -= newSize - segmentSize;
@@ -10102,7 +10589,7 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
 };
 
 Grid.prototype._CreateMatrices = function (rowCount, colCount) {
-    if (this._RowMatrix == null || this._ColMatrix == null || this._RowMatrixDim != rowCount || this._ColMatrixDim != colCount) {
+    if (this._RowMatrix == null || this._ColMatrix == null || this._RowMatrixDim !== rowCount || this._ColMatrixDim !== colCount) {
         this._DestroyMatrices();
 
         this._RowMatrixDim = rowCount;
@@ -10181,11 +10668,11 @@ Grid.prototype._ComputeBounds = function () {
 
 Grid.prototype._GetRowDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.RowDefinitionsProperty);
-    return value == undefined ? null : value;
+    return value === undefined ? null : value;
 }
 Grid.prototype._GetColumnDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.ColumnDefinitionsProperty);
-    return value == undefined ? null : value;
+    return value === undefined ? null : value;
 }
 
 Grid.prototype._OnPropertyChanged = function (args, error) {
@@ -10194,7 +10681,7 @@ Grid.prototype._OnPropertyChanged = function (args, error) {
         return;
     }
 
-    if (args.Property == Grid.ShowGridLinesProperty) {
+    if (args.Property === Grid.ShowGridLinesProperty) {
         this._Invalidate();
     }
     this._InvalidateMeasure();
@@ -10210,18 +10697,18 @@ Grid.prototype._OnCollectionChanged = function (sender, args) {
 };
 Grid.prototype._OnCollectionItemChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
-        if (args.Property == Grid.ColumnProperty
-            || args.Property == Grid.RowProperty
-            || args.Property == Grid.ColumnSpanProperty
-            || args.Property == Grid.RowSpanProperty) {
+        if (args.Property === Grid.ColumnProperty
+            || args.Property === Grid.RowProperty
+            || args.Property === Grid.ColumnSpanProperty
+            || args.Property === Grid.RowSpanProperty) {
             this._InvalidateMeasure();
             args.Item._InvalidateMeasure();
             return;
         }
-    } else if (sender == this._GetColumnDefinitionsNoAutoCreate()
-        || sender == this._GetRowDefinitionsNoAutoCreate()) {
-        if (args.Property != ColumnDefinition.ActualWidthProperty
-            && args.Property != RowDefinition.ActualHeightProperty) {
+    } else if (sender.RefEquals(this._GetColumnDefinitionsNoAutoCreate())
+        || sender.RefEquals(this._GetRowDefinitionsNoAutoCreate())) {
+        if (args.Property !== ColumnDefinition.ActualWidthProperty
+            && args.Property !== RowDefinition.ActualHeightProperty) {
             this._InvalidateMeasure();
         }
         return;
@@ -10376,7 +10863,7 @@ ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error)
 
 function _Segment(offered, min, max, unitType) {
     RefObject.call(this);
-    this._DesiredSize = offered == null ? 0 : offered;
+    this._DesiredSize = 0;
     this._Min = min == null ? 0.0 : min;
     this._Max = max == null ? Number.POSITIVE_INFINITY : max;
     this._Stars = 0;

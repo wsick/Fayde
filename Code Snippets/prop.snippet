@@ -1,0 +1,36 @@
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>propd</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>propd</Shortcut>
+    <Description>Code snippet for a dependency property</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>owner</ID>
+        <ToolTip>Owner Type</ToolTip>
+        <Default>DependencyObject</Default>
+      </Literal>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Property Name</ToolTip>
+        <Default>Name</Default>
+      </Literal>
+      <Literal>
+        <ID>type</ID>
+        <ToolTip>Property Type</ToolTip>
+        <Default>RefObject</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[$owner$.prototype.Get$name$ = function () {
+	return this._$name$;
+};
+$owner$.prototype.Set$name$ = function (/* $type$ */value) {
+	this._$name$ = value;
+};$end$]]></Code>
+  </Snippet>
+</CodeSnippet>
