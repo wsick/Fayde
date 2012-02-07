@@ -61,8 +61,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Elements\Button.cs" />
     <Compile Include="Elements\DependencyObject.cs" />
     <Compile Include="Elements\IJsonSerializable.cs" />
+    <Compile Include="Elements\TextBox.cs" />
     <Compile Include="Elements\Visual.cs" />
     <Compile Include="Elements\AttachedProperty.cs" />
     <Compile Include="Elements\Border.cs" />

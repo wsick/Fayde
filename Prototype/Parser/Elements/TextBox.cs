@@ -5,10 +5,11 @@ using System.Text;
 
 namespace Parser.Elements
 {
-    public abstract class ContentControl : Control
+    [Element]
+    public class TextBox: FrameworkElement
     {
         [Property]
         [Content]
-        public object Content { get; set; }
+        public string Text { get; set; }
     }
 }

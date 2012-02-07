@@ -67,6 +67,7 @@ namespace Parser.Elements
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ContentControl.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ButtonBase.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/VisualStateManager.js\" type=\"text/javascript\"></script>");
+            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Button.js\" type=\"text/javascript\"></script>");
 
             sb.AppendLine("\t\t<script type=\"text/javascript\">");
             sb.AppendLine("\t\t\t$(document).ready(function () {");

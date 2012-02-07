@@ -5,10 +5,9 @@ using System.Text;
 
 namespace Parser.Elements
 {
-    public abstract class ContentControl : Control
+    [Element]
+    public class Button: ContentControl
     {
-        [Property]
-        [Content]
-        public object Content { get; set; }
+
     }
 }
