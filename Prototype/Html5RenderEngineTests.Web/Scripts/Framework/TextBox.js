@@ -438,9 +438,9 @@ TextBoxBase.prototype.SetSelectionLength = function (value) {
 };
 
 TextBoxBase.prototype.OnApplyTemplate = function () {
-    var contentElement = this.GetTemplateChild("ContentElement");
+    this._ContentElement = this.GetTemplateChild("ContentElement");
 
-    if (contentElement == null) {
+    if (this._ContentElement == null) {
         Warn("No ContentElement found");
         Control.prototype.OnApplyTemplate.call(this);
         return;
@@ -454,14 +454,14 @@ TextBoxBase.prototype.OnApplyTemplate = function () {
     this._View.SetEnableCursor(!this._IsReadOnly);
     this._View.SetTextBox(this);
 
-    if (contentElement instanceof ContentPresenter) {
-        contentElement.SetContent(this._View);
-    } else if (contentElement instanceof ContentControl) {
-        contentElement.SetContent(this._View);
-    } else if (contentElement instanceof Border) {
-        contentElement.SetChild(this._View);
-    } else if (contentElement instanceof Panel) {
-        contentElement.GetChildren().Add(this._View);
+    if (this._ContentElement instanceof ContentPresenter) {
+        this._ContentElement.SetContent(this._View);
+    } else if (this._ContentElement instanceof ContentControl) {
+        this._ContentElement.SetContent(this._View);
+    } else if (this._ContentElement instanceof Border) {
+        this._ContentElement.SetChild(this._View);
+    } else if (this._ContentElement instanceof Panel) {
+        this._ContentElement.GetChildren().Add(this._View);
     } else {
         Warn("Can't handle ContentElement.");
         this._View.SetTextBox(null);

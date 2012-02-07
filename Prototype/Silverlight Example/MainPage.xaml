@@ -7,6 +7,8 @@
     d:DesignHeight="300" d:DesignWidth="400">
 
     <Grid x:Name="LayoutRoot" Background="White">
-
+        <Rectangle Width="200" Height="200" RadiusX="20" RadiusY="1" Stroke="Black" StrokeThickness="1">
+            
+        </Rectangle>
     </Grid>
 </UserControl>

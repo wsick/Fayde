@@ -29,11 +29,12 @@ namespace Parser.Elements
             sb.AppendLine("\t\t<script src=\"../../Scripts/jquery-1.7.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Debug.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/RefObject.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/EventArgs.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Validators.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/BError.js\" type=\"text/javascript\"></script>");
+            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Binding.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/DependencyProperty.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Dirty.js\" type=\"text/javascript\"></script>");
+            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/EventArgs.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Expression.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/JsonParser.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/List.js\" type=\"text/javascript\"></script>");
@@ -42,6 +43,7 @@ namespace Parser.Elements
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/PropertyValueProviders.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Surface.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/TextLayout.js\" type=\"text/javascript\"></script>");
+            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/VisualTreeHelper.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/DependencyObject.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Geometry.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/LayoutInformation.js\" type=\"text/javascript\"></script>");
@@ -56,6 +58,7 @@ namespace Parser.Elements
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/StackPanel.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Style.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/TextBlock.js\" type=\"text/javascript\"></script>");
+            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/VisualStateManager.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Border.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Canvas.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ContentPresenter.js\" type=\"text/javascript\"></script>");
@@ -66,7 +69,6 @@ namespace Parser.Elements
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/UserControl.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ContentControl.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ButtonBase.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/VisualStateManager.js\" type=\"text/javascript\"></script>");
             sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Button.js\" type=\"text/javascript\"></script>");
 
             sb.AppendLine("\t\t<script type=\"text/javascript\">");
