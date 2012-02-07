@@ -70,15 +70,29 @@ namespace Parser
                     {
                         //the sub-element is a regular property
                         PropertyInfo subp = FindProperty(parts[1], element.GetType());
-                        if (subp.PropertyType.IsGenericType && subp.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
+                        if (n.NodeType == XmlNodeType.Text)
+                        {
+                            //this sub-property is a string
+                            SetProperty(element, subp, n.InnerText);
+                        }
+                        else if (subp.PropertyType.IsGenericType && subp.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
                         {
                             //this sub-property has children
                             ProcessChildNodes(n.ChildNodes, element, subp);
                         }
                         else
                         {
-                            //this sub-property is a single value
-                            SetProperty(element, subp, n.InnerText);
+                            //this sub-property is a single object, set the value
+                            MethodInfo mi = subp.GetSetMethod();
+                            if (n.FirstChild.NodeType == XmlNodeType.Text)
+                            {
+                                mi.Invoke(element, new object[] { n.FirstChild.InnerText });
+                            }
+                            else
+                            {
+                                object prop = ParseXmlNode(n.FirstChild, element);
+                                mi.Invoke(element, new object[] { prop });
+                            }
                         }
                     }
                 }

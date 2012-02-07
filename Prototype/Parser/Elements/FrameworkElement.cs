@@ -32,5 +32,8 @@ namespace Parser.Elements
         [Property]
         [DoubleConverter]
         public double? MinHeight { get; set; }
+
+        [Property]
+        public Style Style { get; set; }
     }
 }
