@@ -11,11 +11,14 @@ Function.prototype.DoesInheritFrom = function (type) {
 
 function RefObject() {
     Object.call(this);
+    if (!RefObject.RegisteredIDs)
+        RefObject.RegisteredIDs = new Array();
     var id;
     do {
-        id = new Date().getTime();
-    } while (id === RefObject._LastID);
-    RefObject._LastID = this._ID = id;
+        id = Math.random() * Number.MAX_VALUE;
+    } while (RefObject.RegisteredIDs[id]);
+    this._ID = id;
+    RefObject.RegisteredIDs[id] = true;
 }
 RefObject.InheritFrom(Object);
 
