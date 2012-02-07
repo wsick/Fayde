@@ -183,6 +183,7 @@ namespace Parser.Elements
             cur = Regex.Replace(cur, "\\r\\n\\s*", " ");
             cur = Regex.Replace(cur, "\\n\\s*", " ");
             cur = Regex.Replace(cur, "\\r\\s*", " ");
+            cur = Regex.Replace(cur, "  ", " ");
             return cur.Trim();
         }
 
