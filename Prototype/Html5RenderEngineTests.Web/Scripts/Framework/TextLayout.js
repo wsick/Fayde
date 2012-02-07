@@ -30,7 +30,6 @@ function TextLayout() {
     this._IsWrapped = true;
     this._Text = null;
     this._Length = 0;
-    this._Count = 0;
 }
 TextLayout.InheritFrom(RefObject);
 
@@ -154,7 +153,6 @@ TextLayout.prototype.SetText = function (value, length) {
         this._Text = null;
         this._Length = 0;
     }
-    this._Count = -1;
     this._ResetState();
     return true;
 };
@@ -209,7 +207,7 @@ TextLayout.prototype.GetCursor = function (offset, pos) {
         y1 = y0 + line._Height + line._Descend;
         height = line._Height;
 
-        if (pos >= cursor + line._Count) {
+        if (pos >= cursor + line._Length) {
             if ((i + 1) === this._Lines.length) {
                 if (TextLayout._IsLineBreak(this._Text.substr(line._Start + line._Length - 1, 2))) {
                     //cursor is lonely just below the last line
@@ -221,7 +219,7 @@ TextLayout.prototype.GetCursor = function (offset, pos) {
                 }
                 break;
             }
-            cursor += line._Count;
+            cursor += line._Length;
             y0 += line._Height;
             continue;
         }
@@ -231,8 +229,8 @@ TextLayout.prototype.GetCursor = function (offset, pos) {
             var run = line._Runs[j];
             end = run._Start + run._Length;
 
-            if (pos >= cursor + run._Count) {
-                cursor += run._Count;
+            if (pos >= cursor + run._Length) {
+                cursor += run._Length;
                 x0 += run._Advance;
                 continue;
             }
@@ -251,9 +249,9 @@ TextLayout.prototype._FindLineWithIndex = function (index) {
     var cursor = 0;
     for (var i = 0; i < this._Lines.length; i++) {
         var line = this._Lines[i];
-        if (index < cursor + line._Count)
+        if (index < cursor + line._Length)
             return line;
-        cursor += line._Count;
+        cursor += line._Length;
     }
     return null;
 };
@@ -284,7 +282,6 @@ TextLayout.prototype.Layout = function () {
     this._ActualWidth = 0.0;
     this._IsWrapped = false;
     this._ClearLines();
-    this._Count = 0;
 
     if (this._Text == null || !TextLayout._ValidateAttrs(this._Attributes))
         return;
@@ -341,10 +338,8 @@ TextLayout.prototype.Layout = function () {
                         line._Height = font._Height();
                     }
 
-                    line._Length += lineBreakLength; //bytes
-                    run._Length += lineBreakLength; //bytes
-                    line._Count += lineBreakLength; //chars
-                    run._Count += lineBreakLength; //chars
+                    line._Length += lineBreakLength;
+                    run._Length += lineBreakLength;
                     index += lineBreakLength;
                     linebreak = true;
                     break;
@@ -368,10 +363,8 @@ TextLayout.prototype.Layout = function () {
                     line._Width = line._Advance;
                     line._Length += word._Length;
                     run._Length += word._Length;
-                    line._Count += word._Count;
-                    run._Count += word._Count;
 
-                    index += word._Count;
+                    index += word._Length;
                 }
 
                 if (wrapped)
@@ -391,14 +384,12 @@ TextLayout.prototype.Layout = function () {
                     line._Width = line._Advance;
                     line._Length += word._Length;
                     run._Length += word._Length;
-                    line._Count += word._Count;
-                    run._Count += word._Count;
 
-                    index += word._Count;
+                    index += word._Length;
                 }
             }
 
-            var atend = this._Text.slice(index, end).length < 1;
+            var atend = index >= end;
             if (linebreak || wrapped || atend) {
                 this._ActualWidth = Math.max(this._ActualWidth, atend ? line._Advance : line._Width);
                 this._ActualHeight += line._Height;
@@ -430,7 +421,6 @@ TextLayout.prototype.Layout = function () {
 
         attrs = nattrs;
     } while (end - index > 0);
-    this._Count = index;
 };
 TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
     var deltax = 0.0;
@@ -462,6 +452,16 @@ TextLayout.prototype._Render = function (ctx, origin, offset) {
         line._Render(ctx, origin, x, y);
         y += line._Height;
     }
+};
+TextLayout.prototype.__Debug = function () {
+    var allText = this.GetText();
+    var t = "";
+    t += "Lines: " + this._Lines.length.toString() + "\n";
+    for (var i = 0; i < this._Lines.length; i++) {
+        t += "\tLine " + i.toString() + ":\n";
+        t += this._Lines[i].__Debug(allText);
+    }
+    return t;
 };
 
 TextLayout._ValidateAttrs = function (/* List */attributes) {
@@ -495,6 +495,7 @@ TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
     return availWidth;
 };
 TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
+    word._Length = 0;
     word._Advance = 0.0;
     var measuredIndex = 0;
     var measuredText = "";
@@ -512,8 +513,7 @@ TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
         measuredText = tempText;
         word._Advance += advance;
         word._LineAdvance += advance;
-        word._Length = measuredText.length;
-        word._Count = measuredText.length;
+        word._Length += measuredText.length;
     }
     word._Length = text.length;
     return false;
@@ -526,7 +526,6 @@ TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
     word._BreakOps.splice(0, word._BreakOps.length);
     word._Type = _LayoutWordType.Unknown;
     word._Advance = 0.0;
-    word._Count = 0;
 
     var op = new _WordBreakOp();
     var ctype;
@@ -598,8 +597,6 @@ TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
             break;
         }
 
-        word._Count++;
-
         //NOTE: Combining glyphs not implemented
         var newGlyph = true;
         glyphs++;
@@ -610,7 +607,6 @@ TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
 
         if (newGlyph) {
             op.advance = word._Advance;
-            op.count = word._Count;
             op.index = index;
             op.btype = btype;
             op.c = c;
@@ -648,8 +644,6 @@ TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
             index = start;
             break;
         }
-
-        word._Count++;
 
         var advance = Surface.MeasureText(c, word._Font).Width;
         word._LineAdvance += advance;
@@ -696,7 +690,6 @@ TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
 
     word._Advance = 0.0;
     word._Length = 0;
-    word._Count = 0;
 
     return true;
 };
@@ -802,7 +795,6 @@ TextLayout._LayoutWordNoWrap = function (word, text) {
     var advance = Surface.MeasureText(text, word._Font).Width;
     word._Advance = advance;
     word._LineAdvance += advance;
-    word._Count = text.length;
     word._Length = text.length;
     return false;
 };
@@ -810,7 +802,6 @@ TextLayout._LayoutLwsp = function (word, text, font) {
     var advance = Surface.MeasureText(text, font).Width;
     word._Advance = advance;
     word._LineAdvance += advance;
-    word._Count = text.length;
     word._Length = text.length;
 };
 TextLayout._GetBreakType = function (c) {
@@ -841,7 +832,6 @@ function _TextLayoutLine(layout, start, offset) {
     this._Height = 0.0;
     this._Width = 0.0;
     this._Length = 0;
-    this._Count = 0;
 }
 _TextLayoutLine.InheritFrom(RefObject);
 
@@ -857,6 +847,16 @@ _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
         x0 += run._Advance;
     }
 };
+_TextLayoutLine.prototype.__Debug = function (allText) {
+    var t = "";
+    t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
+    for (var i = 0; i < this._Runs.length; i++) {
+        t += "\t\t\tRun " + i.toString() + ": ";
+        t += this._Runs[i].__Debug(allText);
+        t += "\n";
+    }
+    return t;
+};
 
 //#endregion
 
@@ -870,7 +870,6 @@ function _TextLayoutRun(line, attrs, start) {
     this._Line = line;
     this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
     this._Length = 0;
-    this._Count = 0;
 }
 _TextLayoutRun.InheritFrom(RefObject);
 
@@ -885,7 +884,7 @@ _TextLayoutRun.prototype._GenerateCache = function () {
     //glyph before selection
     if (selectionLength == 0 || this._Start < selectionStart) {
         len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(this._Start, this._Length), font));
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, this._Length), font));
         index += len;
     }
 
@@ -894,14 +893,14 @@ _TextLayoutRun.prototype._GenerateCache = function () {
     var runEnd = this.Start + this._Length;
     if (index < runEnd && index < selectionEnd) {
         len = Math.min(runEnd - index, selectionEnd - index);
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(index, len), font, true));
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font, true));
         index += len;
     }
 
     //glyph after selection
     if (index < runEnd) {
         len = runEnd - index;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.slice(index, len), font));
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font));
         index += len;
     }
 };
@@ -920,6 +919,9 @@ _TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
         ctx.Restore();
         x0 += cluster._Advance;
     }
+};
+_TextLayoutRun.prototype.__Debug = function (allText) {
+    return allText.substr(this._Start, this._Length);
 };
 
 //#endregion
@@ -1019,7 +1021,6 @@ var _CharType = {
 function _WordBreakOp() {
     RefObject.call(this);
     this._Advance = 0.0;
-    this._Count = 0;
     this._Index = 0;
     this._Btype = 0;
     this._C = '';
@@ -1030,13 +1031,11 @@ _WordBreakOp.prototype.Copy = function () {
     newOp._Advance = this._Advance;
     newOp._Btype = this._Btype;
     newOp._C = this._C;
-    newOp._Count = this._Count;
     newOp._Index = this._Index;
 };
 _WordBreakOp.prototype.SetWordBasics = function (word) {
     word._Length = this._Index;
     word._Advance = this._Advance;
-    word._Count = this._Count;
 };
 
 //#endregion
@@ -1048,7 +1047,6 @@ function _LayoutWord() {
     this._Advance = 0.0;
     this._LineAdvance = 0.0;
     this._Length = 0;
-    this._Count = 0;
     this._BreakOps = null;
     this._Font = new Font();
 }
