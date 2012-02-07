@@ -24,7 +24,8 @@
             <TextBlock>About</TextBlock>
             <TextBlock>Contact Us</TextBlock>
         </StackPanel>
-        <TextBlock Grid.Column="1" Grid.Row="1" Margin="10" TextWrapping="Wrap">Have you ever used Silverlight to develop a web application? Then, once the web
+        <TextBlock Grid.Column="1" Grid.Row="1" Margin="10" TextWrapping="Wrap">
+            Have you ever used Silverlight to develop a web application? Then, once the web
             application was successful, we now have to support Linux and Mac and on every modern browser. Ever been frustrated trying to design a silverlight
             web application where lots of data needed to be shuffled back and forth from the server to the client? Like developing in .NET? Like MVVM?
             If so, this project is especially for you. Fayde is a project that allows you to develop web applications using the same Silverlight and .NET
