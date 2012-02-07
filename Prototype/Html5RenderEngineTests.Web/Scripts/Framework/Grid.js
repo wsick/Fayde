@@ -80,7 +80,7 @@ Grid.prototype.GetRowDefinitions = function () {
 
 Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
     Info("Grid._MeasureOverrideWithError [" + this._TypeName + "]");
-    var totalSize = availableSize;
+    var totalSize = availableSize.Copy();
     var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var colCount = cols ? cols.GetCount() : 0;
@@ -330,38 +330,48 @@ Grid.prototype._ArrangeOverrideWithError = function (finalSize, error) {
 };
 
 Grid.prototype._ExpandStarRows = function (availableSize) {
+    var availSize = availableSize.Copy();
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var rowsCount = rows ? rows.GetCount() : 0;
 
-    for (var i = 0; i < this._RowMatrixDim; i++) {
-        if (this._RowMatrix[i][i]._Type === GridUnitType.Star)
-            this._RowMatrix[i][i]._OfferedSize = 0;
+    var i;
+    var cur;
+    for (i = 0; i < this._RowMatrixDim; i++) {
+        cur = this._RowMatrix[i][i];
+        if (cur._Type === GridUnitType.Star)
+            cur._OfferedSize = 0;
         else
-            availableSize.Height = Math.max(availableSize.Height - this._RowMatrix[i][i]._OfferedSize, 0);
+            availSize.Height = Math.max(availSize.Height - cur._OfferedSize, 0);
     }
-    availableSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availableSize.Height, GridUnitType.Star, false);
+    availSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availSize.Height, GridUnitType.Star, false);
     if (rowsCount > 0) {
-        for (var j = 0; j < this._RowMatrixDim; j++) {
-            if (this._RowMatrix[j][j]._Type === GridUnitType.Star)
-                rows.GetValueAt(j).SetActualHeight(this._RowMatrix[j][j]._OfferedSize);
+        for (i = 0; i < this._RowMatrixDim; i++) {
+            cur = this._RowMatrix[i][i];
+            if (cur._Type === GridUnitType.Star)
+                rows.GetValueAt(i).SetActualHeight(cur._OfferedSize);
         }
     }
 };
 Grid.prototype._ExpandStarCols = function (availableSize) {
+    var availSize = availableSize.Copy();
     var columns = this._GetColumnDefinitionsNoAutoCreate();
     var columnsCount = columns ? columns.GetCount() : 0;
 
-    for (var i = 0; i < this._ColMatrixDim; i++) {
-        if (this._ColMatrix[i][i]._Type === GridUnitType.Star)
-            this._ColMatrix[i][i]._OfferedSize = 0;
+    var i;
+    var cur;
+    for (i = 0; i < this._ColMatrixDim; i++) {
+        cur = this._ColMatrix[i][i];
+        if (cur._Type === GridUnitType.Star)
+            cur._OfferedSize = 0;
         else
-            availableSize.Width = Math.max(availableSize.Width - this._ColMatrix[i][i]._OfferedSize, 0);
+            availSize.Width = Math.max(availSize.Width - cur._OfferedSize, 0);
     }
-    availableSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availableSize.Width, GridUnitType.Star, false);
+    availSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availSize.Width, GridUnitType.Star, false);
     if (columnsCount > 0) {
-        for (var j = 0; j < this._ColMatrixDim; j++) {
-            if (this._ColMatrix[j][j]._Type === GridUnitType.Star) {
-                columns.GetValueAt(j).SetActualWidth(this._ColMatrix[j][j]._OfferedSize);
+        for (i = 0; i < this._ColMatrixDim; i++) {
+            cur = this._ColMatrix[i][i];
+            if (cur._Type === GridUnitType.Star) {
+                columns.GetValueAt(i).SetActualWidth(cur._OfferedSize);
             }
         }
     }
@@ -410,7 +420,7 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
     for (i = start; i <= end; i++) {
         cur = matrix[i][i];
         segmentSize = desiredSize ? cur._DesiredSize : cur._OfferedSize;
-        if (segmentSize < matrix[i][i]._Max)
+        if (segmentSize < cur._Max)
             count += (unitType === GridUnitType.Star) ? cur._Stars : 1;
     }
     do {
@@ -419,7 +429,7 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
         for (i = start; i <= end; i++) {
             cur = matrix[i][i];
             segmentSize = desiredSize ? cur._DesiredSize : cur._OfferedSize;
-            if (!(matrix[i][i]._Type == unitType && segmentSize < cur._Max))
+            if (!(cur._Type === unitType && segmentSize < cur._Max))
                 continue;
             var newSize = segmentSize;
             newSize += contribution * (unitType === GridUnitType.Star ? cur._Stars : 1);
@@ -710,7 +720,7 @@ ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error)
 
 function _Segment(offered, min, max, unitType) {
     RefObject.call(this);
-    this._DesiredSize = offered == null ? 0 : offered;
+    this._DesiredSize = 0;
     this._Min = min == null ? 0.0 : min;
     this._Max = max == null ? Number.POSITIVE_INFINITY : max;
     this._Stars = 0;

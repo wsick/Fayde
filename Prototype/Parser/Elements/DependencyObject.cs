@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Parser.Elements
 {
@@ -165,13 +166,24 @@ namespace Parser.Elements
                     sb.Append(": ");
                     if (value is string)
                         sb.Append("\"");
-                    sb.Append(value.ToString().Trim().Replace("\n", string.Empty).Replace("\r", string.Empty));
+                    sb.Append(CleanseText(value.ToString()));
                     if (value is string)
                         sb.Append("\"");
                     sb.AppendLine(",");
                 }
             }
             return sb.ToString();
+        }
+
+        private static string CleanseText(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s))
+                return s;
+            var cur = s;
+            cur = Regex.Replace(cur, "\\r\\n\\s*", " ");
+            cur = Regex.Replace(cur, "\\n\\s*", " ");
+            cur = Regex.Replace(cur, "\\r\\s*", " ");
+            return cur.Trim();
         }
 
         private string listpropToJson(IList values)

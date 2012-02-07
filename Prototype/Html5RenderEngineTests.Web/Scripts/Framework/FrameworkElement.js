@@ -240,9 +240,9 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     var last = LayoutInformation.GetPreviousConstraint(this);
     var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
-    shouldMeasure = shouldMeasure || (!last || last.Width != availableSize.Width || last.Height != availableSize.Height);
+    shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
 
-    if (this.GetVisibility() != Visibility.Visible) {
+    if (this.GetVisibility() !== Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
         this._DesiredSize = new Size(0, 0);
         return;

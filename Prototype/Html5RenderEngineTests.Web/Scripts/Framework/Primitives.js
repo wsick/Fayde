@@ -224,6 +224,9 @@ Size.prototype.Equals = function (size2) {
 Size.prototype.toString = function () {
     return "[Width = " + this.Width + "; Height = " + this.Height + "]";
 };
+Size.prototype.Copy = function () {
+    return new Size(this.Width, this.Height);
+};
 
 //#endregion
 
