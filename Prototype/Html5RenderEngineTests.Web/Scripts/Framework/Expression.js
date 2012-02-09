@@ -19,7 +19,7 @@ function Expression() {
 Expression.InheritFrom(RefObject);
 
 Expression.prototype.GetValue = function (propd) {
-    AbstractMethod("_Expression.GetValue");
+    AbstractMethod("Expression.GetValue");
 };
 Expression.prototype._OnAttached = function (element) {
     this._Attached = true;
@@ -35,47 +35,58 @@ Expression.prototype._OnDetached = function (element) {
 function BindingExpressionBase(binding, target, propd) {
     Expression.call(this);
 
+    if (!binding)
+        return;
+
     this._SetBinding(binding);
     this._SetTarget(target);
     this._SetProperty(propd);
 
-    //var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() == typeof(IEnumerable) || propd.GetTargetType() == typeof(ICollectionView)
-    //this._SetPropertyPathWalker(new _PropertyPathWalker(this._GetBinding().
-    //if (this._GetBinding().Mode !== BindingMode.OneTime) {
-        // TODO: IsBrokenChanged
-        // TODO: ValueChanged
-    //}
+    var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() == typeof(IEnumerable) || propd.GetTargetType() == typeof(ICollectionView)
+    this._SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
+    if (binding.Mode !== BindingMode.OneTime) {
+        var walker = this.GetPropertyPathWalker();
+        walker.IsBrokenChanged.Subscribe(this, this._PropertyPathValueChanged);
+        walker.ValueChanged.Subscribe(this, this._PropertyPathValueChanged);
+    }
 }
 BindingExpressionBase.InheritFrom(Expression);
 
+BindingExpressionBase.prototype._PropertyPathValueChanged = function () {
+    this.Refresh();
+};
+
 //#region PROPERTIES
 
-BindingExpressionBase.prototype._GetBinding = function () {
+BindingExpressionBase.prototype.GetBinding = function () {
     return this._Binding;
 };
-BindingExpressionBase.prototype._SetBinding = function (/* Binding */binding) {
+BindingExpressionBase.prototype.SetBinding = function (/* Binding */binding) {
     this._Binding = binding;
 };
 
-BindingExpressionBase.prototype._GetTarget = function () {
+BindingExpressionBase.prototype.GetTarget = function () {
     return this._Target;
 };
-BindingExpressionBase.prototype._SetTarget = function (/* DependencyObject */value) {
+BindingExpressionBase.prototype.SetTarget = function (/* DependencyObject */value) {
     this._Target = value;
 };
 
-BindingExpressionBase.prototype._GetProperty = function () {
+BindingExpressionBase.prototype.GetProperty = function () {
     return this._Property;
 };
-BindingExpressionBase.prototype._SetProperty = function (/* DependencyProperty */value) {
+BindingExpressionBase.prototype.SetProperty = function (/* DependencyProperty */value) {
     this._Property = value;
 };
 
-BindingExpressionBase.prototype._GetPropertyPathWalker = function () {
+BindingExpressionBase.prototype.GetPropertyPathWalker = function () {
     return this._PropertyPathWalker;
 };
-BindingExpressionBase.prototype._SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
+BindingExpressionBase.prototype.SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
     this._PropertyPathWalker = value;
+};
+
+BindingExpressionBase.prototype.GetIsBoundToAnyDataContext = function () {
 };
 
 //#endregion
