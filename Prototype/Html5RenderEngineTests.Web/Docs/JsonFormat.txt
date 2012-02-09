@@ -37,6 +37,11 @@ For every specified parameter, add json member.
 NOTE: Only one of the following may exist: Source, RelativeSource, ElementName.
 
 ----------------------------------------------------------------
+STATIC RESOURCE
+----------------------------------------------------------------
+{StaticResource SomeKey} ---> new StaticResourceMarkup("SomeKey")
+
+----------------------------------------------------------------
 NOTES
 ----------------------------------------------------------------
 
