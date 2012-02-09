@@ -1,6 +1,8 @@
 ﻿/// <reference path="RefObject.js"/>
+/// <reference path="NotifyProperty.js"/>
 /// CODE
-/// <reference path="EventArgs.j"/>
+/// <reference path="EventArgs.js"/>
+/// <reference path="DependencyObject.js"/>
 
 var _PropertyNodeType = {
     AttachedProperty: 0,
@@ -8,6 +10,40 @@ var _PropertyNodeType = {
     Indexed: 2,
     None: 3
 };
+
+//#region _PropertyPath
+
+function _PropertyPath() {
+    RefObject.call(this);
+}
+_PropertyPath.InheritFrom(RefObject);
+
+_PropertyPath.prototype.HasDependencyProperty = function () {
+    return this._Propd != null;
+};
+
+//#region PROPERTIES
+
+_PropertyPath.prototype.GetDP = function () {
+    return this._Propd;
+};
+_PropertyPath.prototype.GetPath = function () {
+    return this._Propd == null ? this._Path : "(0)";
+};
+_PropertyPath.prototype.GetExpandedPath = function () {
+    return this._Propd == null ? this._ExpandedPath : "(0)";
+};
+_PropertyPath.prototype.GetParsePath = function () {
+    if (this._Propd != null)
+        return "(0)";
+    if (this._ExpandedPath != null)
+        return this._ExpandedPath;
+    return this._Path;
+};
+
+//#endregion
+
+//#endregion
 
 //#region _PropertyPathWalker
 
@@ -164,13 +200,44 @@ _PropertyPathNode.InheritFrom(RefObject);
 
 _PropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
 };
+_PropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
+};
+
+_PropertyPathNode.prototype.UpdateValue = function () {
+    AbstractMethod("_PropertyPathNode._UpdateValue");
+};
+_PropertyPathNode.prototype.SetValue = function (value) {
+    AbstractMethod("_PropertyPathNode.SetValue");
+};
+_PropertyPathNode.prototype.SetSource = function (/* RefObject */value) {
+    if (value == null || !RefObject.RefEquals(value, this._Source)) {
+        var oldSource = this._Source;
+        var listener = this.GetListener();
+        if (listener != null) {
+            listener.Detach();
+            listener = null;
+            this.SetListener(listener);
+        }
+
+        this._Source = value;
+        if (this._Source && this._Source.DoesImplement(INotifyPropertyChanged)) {
+            listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
+            this.SetListener(listener);
+        }
+
+        this.OnSourceChanged(oldSource, this._Source);
+        this.UpdateValue();
+        if (this.GetNext() != null)
+            this.GetNext().SetSource(this._Value);
+    }
+};
 
 _PropertyPathNode.prototype._UpdateValueAndIsBroken = function (newValue, isBroken) {
     var emitBrokenChanged = this.GetIsBroken() !== isBroken;
     var emitValueChanged = !RefObject.Equals(this.GetValue(), newValue);
 
     this.SetIsBroken(isBroken);
-    this.SetValue(newValue);
+    this._Value = newValue;
 
     if (emitValueChanged) {
         this.ValueChanged.Raise(this, new EventArgs());
@@ -180,9 +247,6 @@ _PropertyPathNode.prototype._UpdateValueAndIsBroken = function (newValue, isBrok
 };
 _PropertyPathNode.prototype._CheckIsBroken = function () {
     return this.GetSource() == null || (this.GetPropertyInfo() == null && this.GetDependencyProperty() == null);
-};
-_PropertyPathNode.prototype._SetValue = function (value) {
-    AbstractMethod("_PropertyPathNode._SetValue");
 };
 
 //#region PROPERTIES
@@ -201,13 +265,6 @@ _PropertyPathNode.prototype.SetDependencyProperty = function (/* DependencyPrope
     this._DependencyProperty = value;
 };
 
-_PropertyPathNode.prototype.GetListener = function () {
-    return this._Listener;
-};
-_PropertyPathNode.prototype.SetListener = function (/* IWeakListener */value) {
-    this._Listener = value;
-};
-
 _PropertyPathNode.prototype.GetNext = function () {
     return this._Next;
 };
@@ -222,33 +279,19 @@ _PropertyPathNode.prototype.SetPropertyInfo = function (/* PropertyInfo */value)
     this._PropertyInfo = value;
 };
 
+_PropertyPathNode.prototype.GetListener = function () {
+    return this._Listener;
+};
+_PropertyPathNode.prototype.SetListener = function (/* NPCListener */value) {
+    this._Listener = value;
+};
+
 _PropertyPathNode.prototype.GetSource = function () {
     return this._Source;
-};
-_PropertyPathNode.prototype.SetSource = function (/* RefObject */value) {
-    if (value == null || !RefObject.RefEquals(value, this._Source)) {
-        var oldSource = this._Source;
-        if (this.GetListener() != null) {
-            this.GetListener().Detach();
-            this.SetListener(null);
-        }
-
-        this._Source = value;
-        //TODO: if (this._Source instanceof INotifyPropertyChanged)
-        //this.SetListener(new WeakINPCListener(this._Source, this));
-
-        this.OnSourceChanged(oldSource, this._Source);
-        this.UpdateValue();
-        if (this.GetNext() != null)
-            this.GetNext().SetSource(value);
-    }
 };
 
 _PropertyPathNode.prototype.GetValue = function () {
     return this._Value;
-};
-_PropertyPathNode.prototype.SetValue = function (/* Object */value) {
-    this._Value = value;
 };
 
 _PropertyPathNode.prototype.GetValueType = function () {
@@ -271,13 +314,13 @@ function _StandardPropertyPathNode(typeName, propertyName) {
 }
 _StandardPropertyPathNode.InheritFrom(_PropertyPathNode);
 
-_StandardPropertyPathNode.prototype._SetValue = function (value) {
+_StandardPropertyPathNode.prototype.SetValue = function (value) {
     if (this.GetDependencyProperty() != null)
         this.GetSource().SetValue(this.GetDependencyProperty(), value);
     else if (this.GetPropertyInfo() != null)
         this.GetPropertyInfo().SetValue(this.GetSource(), value, null);
 };
-_StandardPropertyPathNode.prototype._UpdateValue = function () {
+_StandardPropertyPathNode.prototype.UpdateValue = function () {
     if (this.GetDependencyProperty() != null) {
         this.SetValueType(this.GetDependencyProperty().GetTargetType());
         this._UpdateValueAndIsBroken(this.GetSource().GetValue(this.GetDependencyProperty()), this._CheckIsBroken());
@@ -295,27 +338,61 @@ _StandardPropertyPathNode.prototype._UpdateValue = function () {
     }
 };
 
-//#region PROPERTIES
+_StandardPropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
+    _PropertyPathNode.prototype.OnSourceChanged.call(this, oldSource, newSource);
 
-_StandardPropertyPathNode.prototype.GetListener = function () {
-    return this._Listener;
+    var oldDO = RefObject.As(oldSource, DependencyObject);
+    var newDO = RefObject.As(newSource, DependencyObject);
+    var listener = this.GetListener();
+    if (listener != null) {
+        listener.Detach();
+        this.SetListener(listener);
+    }
+
+    this.SetDependencyProperty(null);
+    this.SetPropertyInfo(null);
+    if (this.GetSource() == null)
+        return;
+
+    if (newDO != null) {
+        propd = DependencyProperty.GetDependencyProperty(this.GetSource().constructor, this.GetPropertyName());
+        if (propd != null) {
+            this.SetDependencyProperty(propd);
+            listener = new PropertyChangedListener(newDO, propd, this, this.OnPropertyChanged);
+            this.SetListener(listener);
+        }
+    }
+
+    if (this.GetDependencyProperty() == null || !this.GetDependencyProperty()._IsAttached) {
+        this.SetPropertyInfo(PropertyInfo.Find(this.GetSource(), this.GetPropertyName()));
+    }
 };
-_StandardPropertyPathNode.prototype.SetListener = function (/* WeakPropertyChangedListener */value) {
-    this._Listener = value;
+_StandardPropertyPathNode.prototype.OnPropertyChanged = function (s, e) {
+    try {
+        this.UpdateValue();
+        if (this.GetNext() != null)
+            this.GetNext().SetSource(this.GetValue());
+    } catch (err) {
+        //Ignore
+    }
 };
+_StandardPropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
+    if (e.PropertyName === this.GetPropertyName() && this.GetPropertyInfo() != null) {
+        this.UpdateValue();
+        var next = this.GetNext();
+        if (next != null)
+            next.SetSource(this.GetValue());
+    }
+};
+
+//#region PROPERTIES
 
 _StandardPropertyPathNode.prototype.GetTypeName = function () {
     return this._STypeName;
 };
-_StandardPropertyPathNode.prototype.SetTypeName = function (/* String */value) {
-    this._STypeName = value;
-};
 
 _StandardPropertyPathNode.prototype.GetPropertyName = function () {
     return this._PropertyName;
-};
-_StandardPropertyPathNode.prototype.SetPropertyName = function (/* String */value) {
-    this._PropertyName = value;
 };
 
 //#endregion
