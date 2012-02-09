@@ -27,9 +27,11 @@
       </Literal>
     </Declarations>
     <Code Language="jscript"><![CDATA[$owner$.prototype.Get$name$ = function () {
+	///<returns type="$type$"></returns>
 	return this._$name$;
 };
-$owner$.prototype.Set$name$ = function (/* $type$ */value) {
+$owner$.prototype.Set$name$ = function (value) {
+	///<param name="value" type="$type$"></param>
 	this._$name$ = value;
 };$end$]]></Code>
   </Snippet>
