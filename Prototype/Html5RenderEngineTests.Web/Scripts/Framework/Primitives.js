@@ -98,6 +98,12 @@ var CursorType = {
     //TODO: Add cursor types
 };
 
+var BindingMode = {
+    OneWay: 1,
+    OneTime: 2,
+    TwoWay: 3
+};
+
 function IsOpacityInvisible(opacity) {
     return opacity <= 0.0;
 }

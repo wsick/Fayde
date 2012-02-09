@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="DependencyProperty.js"/>
 /// <reference path="ContentControl.js"/>
+/// <reference path="PropertyPath.js"/>
 
 var BindingMode = {
     TwoWay: 0,
@@ -31,10 +32,104 @@ Expression.prototype._OnDetached = function (element) {
 
 //#region BindingExpressionBase
 
-function BindingExpressionBase() {
+function BindingExpressionBase(binding, target, propd) {
     Expression.call(this);
+
+    this._SetBinding(binding);
+    this._SetTarget(target);
+    this._SetProperty(propd);
+
+    //var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() == typeof(IEnumerable) || propd.GetTargetType() == typeof(ICollectionView)
+    this._SetPropertyPathWalker(new _PropertyPathWalker(this._GetBinding().
+    //if (this._GetBinding().Mode !== BindingMode.OneTime) {
+        // TODO: IsBrokenChanged
+        // TODO: ValueChanged
+    //}
 }
 BindingExpressionBase.InheritFrom(Expression);
+
+//#region PROPERTIES
+
+BindingExpressionBase.prototype._GetBinding = function () {
+    return this._Binding;
+};
+BindingExpressionBase.prototype._SetBinding = function (/* Binding */binding) {
+    this._Binding = binding;
+};
+
+BindingExpressionBase.prototype._GetTarget = function () {
+    return this._Target;
+};
+BindingExpressionBase.prototype._SetTarget = function (/* DependencyObject */value) {
+    this._Target = value;
+};
+
+BindingExpressionBase.prototype._GetProperty = function () {
+    return this._Property;
+};
+BindingExpressionBase.prototype._SetProperty = function (/* DependencyProperty */value) {
+    this._Property = value;
+};
+
+BindingExpressionBase.prototype._GetPropertyPathWalker = function () {
+    return this._PropertyPathWalker;
+};
+BindingExpressionBase.prototype._SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
+    this._PropertyPathWalker = value;
+};
+
+//#endregion
+
+BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
+    if (value === undefined)
+        value = GetTarget().GetValue(GetProperty());
+    if (force === undefined)
+        force = false;
+    if (this.GetBinding().Mode !== BindingMode.TwoWay)
+        return;
+    NotImplemented("BindingExpressionBase._UpdateSourceObject");
+};
+
+//#endregion
+
+//#region BindingExpression
+
+function BindingExpression(binding, target, propd) {
+    BindingExpressionBase.call(this, binding, target, propd);
+}
+BindingExpression.InheritFrom(BindingExpressionBase);
+
+BindingExpression.prototype.GetParentBinding = function () {
+    return this._GetBinding();
+};
+BindingExpression.prototype.GetDataItem = function () {
+    return this._GetDataSource();
+};
+BindingExpression.prototype.UpdateSource = function () {
+    return this._UpdateSourceObject(undefined, true);
+};
+
+//#endregion
+
+//#region BindingOperations
+
+function BindingOperations() {
+    RefObject.call(this);
+}
+BindingOperations.InheritFrom(RefObject);
+
+BindingOperations.SetBinding = function (/* DependencyObject */target, /* DependencyProperty */dp, /* BindingBase */binding) {
+    if (target == null)
+        throw new ArgumentNullException("target");
+    if (dp == null)
+        throw new ArgumentNullException("dp");
+    if (binding == null)
+        throw new ArgumentNullException("binding");
+
+    var e = new BindingExpression(binding, target, dp);
+    target.SetValue(dp, e);
+    return e;
+};
 
 //#endregion
 

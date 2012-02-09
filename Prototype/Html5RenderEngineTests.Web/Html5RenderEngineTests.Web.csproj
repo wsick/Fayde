@@ -55,6 +55,7 @@
     <Content Include="Docs\Annotations.txt" />
     <Content Include="Scripts\Fayde.js" />
     <Content Include="Scripts\Framework\Binding.js" />
+    <Content Include="Scripts\Framework\PropertyPath.js" />
     <Content Include="Scripts\Framework\VisualStateManager.js" />
     <Content Include="Scripts\Framework\VisualTreeHelper.js" />
     <Content Include="Scripts\kinetic-v3.6.0.js" />
