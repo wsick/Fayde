@@ -218,7 +218,7 @@ DependencyObjectCollection.prototype.RemovedFromCollection = function (value, is
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
-            if (this._SetsParent && value._GetParent().RefEquals(this))
+            if (this._SetsParent && RefObject.RefEquals(value._GetParent(), this))
                 value._RemoveParent(this, null);
             value._SetIsAttached(false);
         }

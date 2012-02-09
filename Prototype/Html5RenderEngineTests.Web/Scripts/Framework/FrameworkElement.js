@@ -529,7 +529,7 @@ FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
     var child;
     while (child = walker.Step()) {
         child._HitTestPoint(ctx, p, uielist);
-        if (!node.RefEquals(uielist.First())) {
+        if (!RefObject.RefEquals(node, uielist.First())) {
             hit = true;
             break;
         }

@@ -562,8 +562,8 @@ Grid.prototype._OnCollectionItemChanged = function (sender, args) {
             args.Item._InvalidateMeasure();
             return;
         }
-    } else if (sender.RefEquals(this._GetColumnDefinitionsNoAutoCreate())
-        || sender.RefEquals(this._GetRowDefinitionsNoAutoCreate())) {
+    } else if (RefObject.RefEquals(sender, this._GetColumnDefinitionsNoAutoCreate())
+        || RefObject.RefEquals(sender, this._GetRowDefinitionsNoAutoCreate())) {
         if (args.Property !== ColumnDefinition.ActualWidthProperty
             && args.Property !== RowDefinition.ActualHeightProperty) {
             this._InvalidateMeasure();

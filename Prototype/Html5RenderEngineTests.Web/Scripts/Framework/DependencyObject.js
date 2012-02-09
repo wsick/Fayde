@@ -12,7 +12,6 @@
 
 function DependencyObject() {
     RefObject.call(this);
-    this._TypeName = this._GetTypeName();
     this._Initialize();
 }
 DependencyObject.InheritFrom(RefObject);
@@ -79,11 +78,6 @@ DependencyObject.prototype._Initialize = function () {
     this._ProviderBitmasks = new Array();
     this._SecondaryParents = new Array();
     this.PropertyChanged = new MulticastEvent();
-};
-DependencyObject.prototype._GetTypeName = function () {
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec(this.constructor.toString());
-    return (results && results.length > 1) ? results[1] : "";
 };
 
 DependencyObject.prototype._GetTemplateOwner = function () {
@@ -153,7 +147,7 @@ DependencyObject.prototype.SetValue = function (propd, value) {
     var addingExpression = false;
     var updateTwoWay = false;
     if (expression != null) {
-        if (!expression.RefEquals(existing)) {
+        if (!RefObject.RefEquals(expression, existing)) {
             if (expression._Attached)
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
 
@@ -221,7 +215,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
 
     if (currentValue != null && value != null) {
         if (currentValue instanceof RefObject) {
-            equal = !propd._AlwaysChange && currentValue.RefEquals(value);
+            equal = !propd._AlwaysChange && RefObject.RefEquals(currentValue, value);
         } else {
             equal = !propd._AlwaysChange && currentValue === value;
         }
