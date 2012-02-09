@@ -8,19 +8,21 @@ Function.prototype.DoesInheritFrom = function (type) {
     return (new this()) instanceof type;
 };
 Function.prototype.Implement = function (interface) {
+    var interfaceName = (new interface())._TypeName;
     for (var i in interface.prototype) {
         if (!this.prototype[i])
             this.prototype[i] = new Function("throw new NotImplementedException();");
     }
     if (this._Interfaces == null)
         this._Interfaces = new Array();
-    this._Interfaces[interface] = true;
+    this._Interfaces[interfaceName] = true;
     return this;
 };
 Function.prototype.DoesImplement = function (interface) {
     if (!this._Interfaces)
         return false;
-    return this._Interfaces[interface] === true;
+    var interfaceName = (new interface())._TypeName;
+    return this._Interfaces[interfaceName] === true;
 };
 
 String.prototype.indexOfAny = function (carr, start) {
@@ -79,30 +81,31 @@ RefObject.Equals = function (val1, val2) {
 
 ///#endregion
 
-//#region WeakRefRepository
-
-function _WeakRefRepository() {
-    RefObject.call(this);
-}
-_WeakRefRepository.InheritFrom(RefObject);
-
-//#endregion
-
 //#region PropertyInfo
 
-function PropertyInfo(type, name) {
+function PropertyInfo() {
     RefObject.call(this);
-    this.Type = type;
-    if (type) {
-        this.GetFunc = type.prototype["Get" + name];
-        this.SetFunc = type.prototype["Set" + name];
-    }
 }
 PropertyInfo.InheritFrom(RefObject);
 
-PropertyInfo.Find = function (type, name) {
+PropertyInfo.Find = function (typeOrObj, name) {
+    var isType = typeOrObj instanceof Function;
+    var type = isType ? typeOrObj : typeOrObj.constructor;
+
+    var setFunc;
+    var getFunc;
     for (var i in type.prototype) {
-        
+        if (i.toString() === ("Set" + name))
+            setFunc = type.prototype[i];
+        if (i.toString() === ("Get" + name))
+            getFunc = type.prototype[i];
+        if (getFunc && setFunc) {
+            var pi = new PropertyInfo();
+            pi.Type = type;
+            pi.SetFunc = setFunc;
+            pi.GetFunc = getFunc;
+            return pi;
+        }
     }
 };
 
