@@ -181,7 +181,7 @@ DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newV
     DependencyObject.prototype._OnMentorChanged.call(this, oldValue, newValue);
     for (var i = 0; i < this._ht.length; i++) {
         if (this._ht[i] instanceof DependencyObject)
-            this._ht[i]._SetMentor(newValue);
+            this._ht[i].SetMentor(newValue);
     }
 };
 
@@ -194,7 +194,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
         if (error.IsErrored())
             return false;
     } else {
-        value._SetMentor(this._GetMentor());
+        value.SetMentor(this.GetMentor());
     }
 
     value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
@@ -204,9 +204,9 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     if (!rv) {
         if (this._SetsParent) {
             value._RemoveParent(this, error);
-            value._SetMentor(this._GetMentor());
+            value.SetMentor(this.GetMentor());
         } else {
-            value._SetMentor(null);
+            value.SetMentor(null);
         }
     }
     return rv;

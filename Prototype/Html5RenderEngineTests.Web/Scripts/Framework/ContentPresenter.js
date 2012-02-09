@@ -33,7 +33,7 @@ ContentPresenter.prototype.SetContentTemplate = function (value) {
 //#region INSTANCE METHODS
 
 ContentPresenter.prototype._GetDefaultTemplate = function () {
-    var templateOwner = this._GetTemplateOwner();
+    var templateOwner = this.GetTemplateOwner();
     if (templateOwner) {
         if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
             this.SetValue(ContentPresenter.ContentProperty, 

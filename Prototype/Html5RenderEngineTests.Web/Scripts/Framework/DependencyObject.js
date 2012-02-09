@@ -28,6 +28,41 @@ DependencyObject.prototype.SetName = function (value) {
 
 //#endregion
 
+//#region PROPERTIES
+
+DependencyObject.prototype.GetTemplateOwner = function () {
+    return this._TemplateOwner;
+};
+DependencyObject.prototype.SetTemplateOwner = function (value) {
+    this._TemplateOwner = value;
+};
+
+DependencyObject.prototype.GetMentor = function () {
+    return this._Mentor;
+};
+DependencyObject.prototype.SetMentor = function (value) {
+    if (this._Mentor == value)
+        return;
+    var oldMentor = this._Mentor;
+    this._Mentor = value;
+    this._OnMentorChanged(oldMentor, value);
+};
+DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
+    if (!(this instanceof FrameworkElement)) {
+        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[_PropertyPrecedence.LocalStyle])
+            this._Providers[_PropertyPrecedence.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[_PropertyPrecedence.ImplicitStyle])
+            this._Providers[_PropertyPrecedence.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+    }
+    if (this._MentorChangedCallback != null) {
+        this._MentorChangedCallback(this, newValue);
+    }
+};
+
+//#endregion
+
 //#region INSTANCE METHODS
 
 DependencyObject.prototype.FindName = function (name, templateItem) {
@@ -78,37 +113,6 @@ DependencyObject.prototype._Initialize = function () {
     this._ProviderBitmasks = new Array();
     this._SecondaryParents = new Array();
     this.PropertyChanged = new MulticastEvent();
-};
-
-DependencyObject.prototype._GetTemplateOwner = function () {
-    return this._TemplateOwner;
-};
-DependencyObject.prototype._SetTemplateOwner = function (value) {
-    this._TemplateOwner = value;
-};
-
-DependencyObject.prototype._GetMentor = function () {
-    return this._Mentor;
-};
-DependencyObject.prototype._SetMentor = function (value) {
-    if (this._Mentor == value)
-        return;
-    var oldMentor = this._Mentor;
-    this._Mentor = value;
-    this._OnMentorChanged(oldMentor, value);
-};
-DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
-    if (!(this instanceof FrameworkElement)) {
-        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.LocalStyle])
-            this._Providers[_PropertyPrecedence.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.ImplicitStyle])
-            this._Providers[_PropertyPrecedence.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
-    }
-    if (this._MentorChangedCallback != null) {
-        this._MentorChangedCallback(this, newValue);
-    }
 };
 
 DependencyObject.prototype.SetValue = function (propd, value) {
@@ -421,7 +425,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
                 oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged, this);
             }
         } else {
-            oldDO._SetMentor(null);
+            oldDO.SetMentor(null);
         }
     }
 
@@ -444,8 +448,8 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
         } else {
             var cur = this;
             while (cur && !(cur instanceof FrameworkElement))
-                cur = cur._GetMentor();
-            newDO._SetMentor(cur);
+                cur = cur.GetMentor();
+            newDO.SetMentor(cur);
         }
     }
 
@@ -586,7 +590,7 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
     if (this._Parent != null || this._HasSecondaryParents()) {
         this._AddSecondaryParent(parent);
         if (this._Parent != null && !(this._Parent instanceof ResourceDictionary))
-            this._SetMentor(null);
+            this.SetMentor(null);
         if (this._SecondaryParents.length > 1 || !(parent instanceof DependencyObjectCollection) || !parent._GetIsSecondaryParent())
             return;
     }
@@ -632,9 +636,9 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
         this._Parent = parent;
         var d = parent;
         while (d != null && !(d instanceof FrameworkElement)) {
-            d = d._GetMentor();
+            d = d.GetMentor();
         }
-        this._SetMentor(d);
+        this.SetMentor(d);
     }
 };
 DependencyObject.prototype._RemoveParent = function (parent, error) {
@@ -656,7 +660,7 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
         var parentScope = parent.FindNameScope();
         if (parentScope)
             this._UnregisterAllNamesRootedAt(parentScope);
-        this._SetMentor(null);
+        this.SetMentor(null);
     }
 
     if (error == null || !error.IsErrored()) {
@@ -798,7 +802,7 @@ DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
 };
 DependencyObject._PropagateMentor = function (propd, value, newMentor) {
     if (value != null && value instanceof DependencyObject) {
-        value._SetMentor(newMentor);
+        value.SetMentor(newMentor);
     }
 };
 

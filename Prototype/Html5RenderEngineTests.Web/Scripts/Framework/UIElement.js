@@ -492,7 +492,7 @@ UIElement.prototype._ElementRemoved = function (item) {
     item.SetVisualParent(null);
     item._SetIsLoaded(false);
     item._SetIsAttached(false);
-    item._SetMentor(null);
+    item.SetMentor(null);
 
     var emptySlot = new Rect();
     LayoutInformation.SetLayoutSlot(item, emptySlot);
@@ -513,8 +513,8 @@ UIElement.prototype._ElementAdded = function (item) {
     item._SetIsLoaded(this._IsLoaded);
     var o = this;
     while (o != null && !(o instanceof FrameworkElement))
-        o = o._GetMentor();
-    item._SetMentor(o);
+        o = o.GetMentor();
+    item.SetMentor(o);
 
     this._UpdateBounds(true);
 
