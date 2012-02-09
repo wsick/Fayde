@@ -40,7 +40,7 @@ function BindingExpressionBase(binding, target, propd) {
     this._SetProperty(propd);
 
     //var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() == typeof(IEnumerable) || propd.GetTargetType() == typeof(ICollectionView)
-    this._SetPropertyPathWalker(new _PropertyPathWalker(this._GetBinding().
+    //this._SetPropertyPathWalker(new _PropertyPathWalker(this._GetBinding().
     //if (this._GetBinding().Mode !== BindingMode.OneTime) {
         // TODO: IsBrokenChanged
         // TODO: ValueChanged
