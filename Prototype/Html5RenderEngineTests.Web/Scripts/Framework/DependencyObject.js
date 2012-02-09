@@ -2,6 +2,7 @@
 /// <reference path="DependencyProperty.js" />
 /// <reference path="PropertyValueProviders.js" />
 /// CODE
+/// <reference path="Binding.js"/>
 /// <reference path="Expression.js"/>
 /// <reference path="BError.js" />
 /// <reference path="MulticastEvent.js"/>
@@ -38,6 +39,7 @@ DependencyObject.prototype.SetTemplateOwner = function (value) {
 };
 
 DependencyObject.prototype.GetMentor = function () {
+    ///<returns type="DependencyObject"></returns>
     return this._Mentor;
 };
 DependencyObject.prototype.SetMentor = function (value) {
@@ -135,24 +137,24 @@ DependencyObject.prototype.SetValue = function (propd, value) {
         bindingExpression = value;
 
     if (bindingExpression != null) {
-        var path = bindingExpression.Binding.Path.Path;
-        if ((!path || path === ".") && bindingExpression.Binding.Mode === BindingMode.TwoWay)
+        var path = bindingExpression.GetBinding().GetPath().GetPath();
+        if ((!path || path === ".") && bindingExpression.GetBinding().GetMode() === BindingMode.TwoWay)
             throw new ArgumentException("TwoWay bindings require a non-empty Path.");
-        bindingExpression.Binding.Seal();
+        bindingExpression.GetBinding().Seal();
     }
 
     var existing = null;
     if (this._Expressions != null) {
-        var refExisting = new RefParam();
-        if (this._Expressions.TryGetValue(propd, refExisting))
-            existing = refExisting.Value
+        var data = {};
+        if (this._Expressions.TryGetValue(propd, data))
+            existing = data.Value
     }
 
     var addingExpression = false;
     var updateTwoWay = false;
     if (expression != null) {
         if (!RefObject.RefEquals(expression, existing)) {
-            if (expression._Attached)
+            if (expression.GetAttached())
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
 
             if (existing != null)
@@ -166,12 +168,12 @@ DependencyObject.prototype.SetValue = function (propd, value) {
         value = expression.GetValue(propd);
     } else if (existing != null) {
         if (existing instanceof BindingExpressionBase) {
-            if (existing.Binding.Mode === BindingMode.TwoWay) {
-                updateTwoWay = !existing._Updating && !propd._IsCustom;
-            } else if (!existing._Updating || existing.Binding.Mode === BindingMode.OneTime) {
+            if (existing.GetBinding().GetMode() === BindingMode.TwoWay) {
+                updateTwoWay = !existing.GetUpdating() && !propd._IsCustom;
+            } else if (!existing.GetUpdating() || existing.GetBinding().GetMode() === BindingMode.OneTime) {
                 this._RemoveExpression(propd);
             }
-        } else if (!existing._Updating) {
+        } else if (!existing.GetUpdating()) {
             this._RemoveExpression(propd);
         }
     }
@@ -547,10 +549,10 @@ DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
     return true;
 };
 DependencyObject.prototype._RemoveExpression = function (propd) {
-    var ref = new RefParam();
-    if (this._Expressions != null && this._Expressions.TryGetValue(propd, ref)) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
         this._Expressions.Remove(propd);
-        ref.Value._OnDetached(this);
+        data.Value._OnDetached(this);
     }
 };
 

@@ -12,7 +12,7 @@ JsonParser.InheritFrom(RefObject);
 
 JsonParser.prototype.CreateObject = function (json, namescope) {
     var dobj = new json.Type();
-    dobj._TemplateOwner = this._TemplateBindingSource;
+    dobj.SetTemplateOwner(this._TemplateBindingSource);
     if (json.Name)
         dobj.SetNameOnScope(json.Name, namescope);
 
@@ -24,7 +24,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
             if (propValue == undefined)
                 continue;
 
-            var propd = dobj.GetDependencyProperty(propName);
+            propd = dobj.GetDependencyProperty(propName);
             this.TrySetPropertyValue(dobj, propd, propValue, namescope, false);
         }
     }
@@ -61,11 +61,11 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
         propValue = this.CreateObject(propValue, namescope);
     }
 
+    if (propValue instanceof Markup)
+        propValue = propValue.Transmute(propd, this._TemplateBindingSource);
     //Set property value
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
-            return;
-        if (this.TrySetTemplateBindingProperty(dobj, propValue, propd))
             return;
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
@@ -98,14 +98,6 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
 
     return true;
 };
-JsonParser.prototype.TrySetTemplateBindingProperty = function (dobj, propValue, propd) {
-    if (!(propValue instanceof TemplateBindingMarkup))
-        return false;
-    var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
-    propValue = new TemplateBindingExpression(sourcePropd, propd);
-    dobj.SetValue(propd, propValue);
-    return true;
-};
 
 JsonParser.prototype.GetAnnotationMember = function (type, member) {
     if (type === RefObject)
@@ -135,6 +127,10 @@ function Markup() {
 }
 Markup.InheritFrom(RefObject);
 
+Markup.prototype.Transmute = function (propd, templateBindingSource) {
+    AbstractMethod("Markup.Transmute");
+};
+
 //#endregion
 
 //#region BindingMarkup
@@ -143,6 +139,10 @@ function BindingMarkup(data) {
     Markup.call(this);
 }
 BindingMarkup.InheritFrom(Markup);
+
+BindingMarkup.prototype.Transmute = function (propd, templateBindingSource) {
+    NotImplemented("BindingMarkup.Transmute");
+};
 
 //#endregion
 
@@ -154,6 +154,13 @@ function TemplateBindingMarkup(path) {
 }
 TemplateBindingMarkup.InheritFrom(Markup);
 
+TemplateBindingMarkup.prototype.Transmute = function (propd, templateBindingSource) {
+    /// <param name="templateBindingSource" type="DependencyObject"></param>
+    /// <param name="propd" type="DependencyProperty"></param>
+    var sourcePropd = DependencyProperty.GetDependencyProperty(templateBindingSource.constructor, this.Path);
+    return new TemplateBindingExpression(sourcePropd, propd);
+};
+
 //#endregion
 
 //#region StaticResourceMarkup
@@ -163,5 +170,9 @@ function StaticResourceMarkup(key) {
     this.Key = key;
 }
 StaticResourceMarkup.InheritFrom(Markup);
+
+StaticResourceMarkup.prototype.Transmute = function (propd, templateBindingSource) {
+    NotImplemented("StaticResourceMarkup.Transmute");
+};
 
 //#endregion

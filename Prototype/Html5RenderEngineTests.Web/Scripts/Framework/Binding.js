@@ -2,6 +2,7 @@
 /// <reference path="PropertyPath.js"/>
 /// CODE
 /// <reference path="Primitives.js"/>
+/// <reference path="RelativeSource.js"/>
 
 //#region BindingBase
 
@@ -13,6 +14,9 @@ BindingBase.InheritFrom(RefObject);
 BindingBase.prototype.CheckSealed = function () {
     if (this.GetSealed())
         throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
+};
+BindingBase.prototype.Seal = function () {
+    this.SetSealed(true);
 };
 
 //#region PROPERTIES
@@ -73,16 +77,16 @@ Binding.prototype.GetBindsDirectlyToSource = function () { return this._BindsDir
 Binding.prototype.SetBindsDirectlyToSource = function (/* Boolean */value) { this.CheckSealed(); this._BindsDirectlyToSource = value; };
 
 Binding.prototype.GetConverter = function () { return this._Converter; };
-Binding.prototype.SetConverter = function (/* Boolean */value) { this.CheckSealed(); this._Converter = value; };
+Binding.prototype.SetConverter = function (/* IValueConverter */value) { this.CheckSealed(); this._Converter = value; };
 
 Binding.prototype.GetConverterCulture = function () { return this._ConverterCulture; };
-Binding.prototype.SetConverterCulture = function (/* Boolean */value) { this.CheckSealed(); this._ConverterCulture = value; };
+Binding.prototype.SetConverterCulture = function (/* Culture */value) { this.CheckSealed(); this._ConverterCulture = value; };
 
 Binding.prototype.GetConverterParameter = function () { return this._ConverterParameter; };
-Binding.prototype.SetConverterParameter = function (/* Boolean */value) { this.CheckSealed(); this._ConverterParameter = value; };
+Binding.prototype.SetConverterParameter = function (/* Object */value) { this.CheckSealed(); this._ConverterParameter = value; };
 
 Binding.prototype.GetElementName = function () { return this._ElementName; };
-Binding.prototype.SetElementName = function (/* Boolean */value) {
+Binding.prototype.SetElementName = function (/* String */value) {
     this.CheckSealed();
     if (this.GetSource() != null || this.GetRelativeSource() != null)
         throw new InvalidOperationException("ElementName cannot be set if either RelativeSource or Source is set");
@@ -90,13 +94,16 @@ Binding.prototype.SetElementName = function (/* Boolean */value) {
 };
 
 Binding.prototype.GetMode = function () { return this._Mode; };
-Binding.prototype.SetMode = function (/* Boolean */value) { this.CheckSealed(); this._Mode = value; };
+Binding.prototype.SetMode = function (/* Number */value) { this.CheckSealed(); this._Mode = value; };
 
 Binding.prototype.GetNotifyOnValidationError = function () { return this._NotifyOnValidationError; };
 Binding.prototype.SetNotifyOnValidationError = function (/* Boolean */value) { this.CheckSealed(); this._NotifyOnValidationError = value; };
 
-Binding.prototype.GetRelativeSource = function () { return this._RelativeSource; };
-Binding.prototype.SetRelativeSource = function (/* Boolean */value) {
+Binding.prototype.GetRelativeSource = function () {
+    ///<returns type="RelativeSource"></returns>
+    return this._RelativeSource; 
+ };
+Binding.prototype.SetRelativeSource = function (/* RelativeSource */value) {
     this.CheckSealed();
     if (this.GetSource() != null || this.GetElementName() != null)
         throw new InvalidOperationException("RelativeSource cannot be set if either ElementName or Source is set");
@@ -105,7 +112,7 @@ Binding.prototype.SetRelativeSource = function (/* Boolean */value) {
 
 Binding.prototype.GetPath = function () { return this._Path; };
 //TODO: TypeConverter(PropertyPathConverter)
-Binding.prototype.SetPath = function (/* Boolean */value) {
+Binding.prototype.SetPath = function (/* PropertyPath */value) {
     this.CheckSealed();
     if (value.HasDependencyProperty())
         throw new ArgumentException("PropertyPaths which are instantiated with a DependencyProperty are not supported");
@@ -113,7 +120,7 @@ Binding.prototype.SetPath = function (/* Boolean */value) {
 };
 
 Binding.prototype.GetSource = function () { return this._Source; };
-Binding.prototype.SetSource = function (/* Boolean */value) {
+Binding.prototype.SetSource = function (/* RefObject */value) {
     this.CheckSealed();
     if (this.GetElementName() != null || this.GetRelativeSource() != null)
         throw new InvalidOperationException("Source cannot be set if either ElementName or RelativeSource is set");
@@ -121,7 +128,7 @@ Binding.prototype.SetSource = function (/* Boolean */value) {
 };
 
 Binding.prototype.GetUpdateSourceTrigger = function () { return this._UpdateSourceTrigger; };
-Binding.prototype.SetUpdateSourceTrigger = function (/* Boolean */value) { this.CheckSealed(); this._UpdateSourceTrigger = value; };
+Binding.prototype.SetUpdateSourceTrigger = function (/* Number */value) { this.CheckSealed(); this._UpdateSourceTrigger = value; };
 
 Binding.prototype.GetValidatesOnExceptions = function () { return this._ValidatesOnExceptions; };
 Binding.prototype.SetValidatesOnExceptions = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnExceptions = value; };

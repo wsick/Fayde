@@ -108,16 +108,6 @@ function IsOpacityInvisible(opacity) {
     return opacity <= 0.0;
 }
 
-//#region RefParam
-
-function RefParam(v) {
-    RefObject.call(this);
-    this.Value = v;
-}
-RefParam.InheritFrom(RefObject);
-
-//#endregion
-
 //#region CornerRadius
 
 function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {

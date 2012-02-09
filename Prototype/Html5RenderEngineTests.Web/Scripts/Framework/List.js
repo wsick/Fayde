@@ -123,9 +123,9 @@ function Dictionary() {
 }
 Dictionary.InheritFrom(RefObject);
 
-Dictionary.prototype.TryGetValue = function (key, refParam) {
-    refParam.Value = this._ht[key];
-    return refParam.Value != null;
+Dictionary.prototype.TryGetValue = function (key, data) {
+    data.Value = this._ht[key];
+    return data.Value != null;
 };
 Dictionary.prototype.Add = function (key, value) {
     this._ht[key] = value;
