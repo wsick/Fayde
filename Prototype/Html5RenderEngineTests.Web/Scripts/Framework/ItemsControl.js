@@ -1,4 +1,7 @@
 ﻿/// <reference path="Control.js"/>
+/// <reference path="FrameworkElement.js"/>
+/// CODE
+/// <reference path="Panel.js"/>
 
 var ItemCollection = {};//TODO: Implement
 
@@ -8,6 +11,16 @@ function ItemsControl() {
     Control.call(this);
 }
 ItemsControl.InheritFrom(Control);
+
+ItemsControl.GetItemsOwner = function (ele) {
+    var panel = RefObject.As(ele, Panel);
+    if (panel == null || !panel.GetIsItemsHost())
+        return null;
+    var owner = RefObject.As(panel.GetTemplateOwner(), ItemsPresenter);
+    if (owner != null)
+        return RefObject.As(owner.GetTemplateOwner(), ItemsControl);
+    return null;
+};
 
 //#region DEPENDENCY PROPERTIES
 
@@ -28,5 +41,14 @@ ItemsControl.Annotations = {
 };
 
 //#endregion
+
+//#endregion
+
+//#region ItemsPresenter
+
+function ItemsPresenter() {
+    FrameworkElement.call(this);
+}
+ItemsPresenter.InheritFrom(FrameworkElement);
 
 //#endregion
