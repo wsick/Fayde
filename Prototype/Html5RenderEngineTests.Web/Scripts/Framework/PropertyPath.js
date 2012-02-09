@@ -18,6 +18,21 @@ function _PropertyPath() {
 }
 _PropertyPath.InheritFrom(RefObject);
 
+_PropertyPath.CreateFromPathAndExpanded = function (path, expandedPath) {
+    var p = new _PropertyPath();
+    p._Path = path;
+    p._ExpandedPath = expandedPath;
+    return p;
+};
+_PropertyPath.CreateFromParameter = function (parameter) {
+    var p = new _PropertyPath();
+    p._Propd = RefObject.As(parameter, DependencyProperty);
+    p._Path = null;
+    if (parameter instanceof String)
+        p._Path = parameter;
+    return p;
+};
+
 _PropertyPath.prototype.HasDependencyProperty = function () {
     return this._Propd != null;
 };
