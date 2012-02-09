@@ -23,6 +23,23 @@
 	<Optional> Content: <Json Object>
 }
 
+----------------------------------------------------------------
+TEMPLATE BINDING
+----------------------------------------------------------------
+{TemplateBinding SomeProperty} ---> new TemplateBindingMarkup("SomeProperty")
+
+----------------------------------------------------------------
+BINDING
+----------------------------------------------------------------
+{Binding} ---> new BindingMarkup()
+{Binding Path=SomeProperty} ---> new BindingMarkup({ Path: "SomeProperty" })
+For every specified parameter, add json member.
+NOTE: Only one of the following may exist: Source, RelativeSource, ElementName.
+
+----------------------------------------------------------------
+NOTES
+----------------------------------------------------------------
+
 "Content" is used by: 
 	- Border - ChildProperty
 	- Control (abstract class)

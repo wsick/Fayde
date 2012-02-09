@@ -128,6 +128,15 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
 
 //#endregion
 
+//#region BindingMarkup
+
+function BindingMarkup(data) {
+    RefObject.call(this);
+}
+BindingMarkup.InheritFrom(RefObject);
+
+//#endregion
+
 //#region TemplateBindingMarkup
 
 function TemplateBindingMarkup(path) {
