@@ -2,7 +2,6 @@
 <script src="../../Scripts/Framework/RefObject.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/Validators.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/BError.js" type="text/javascript"></script>
-<script src="../../Scripts/Framework/Binding.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/DependencyProperty.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/Dirty.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/EventArgs.js" type="text/javascript"></script>
@@ -10,11 +9,14 @@
 <script src="../../Scripts/Framework/JsonParser.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/List.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/MulticastEvent.js" type="text/javascript"></script>
+<script src="../../Scripts/Framework/NotifyProperty.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/Primitives.js" type="text/javascript"></script>
+<script src="../../Scripts/Framework/PropertyPath.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/PropertyValueProviders.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/Surface.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/TextLayout.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/VisualTreeHelper.js" type="text/javascript"></script>
+<script src="../../Scripts/Framework/Binding.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/DependencyObject.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/Geometry.js" type="text/javascript"></script>
 <script src="../../Scripts/Framework/LayoutInformation.js" type="text/javascript"></script>

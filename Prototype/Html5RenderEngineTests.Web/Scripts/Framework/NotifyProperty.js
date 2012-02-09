@@ -40,7 +40,7 @@ function NPCListener(source, closure, func) {
     this._Func = func;
 
     if (this._Source)
-        this._Source.PropertyChanged.Subscribe(this._Closure, this._Func);
+        this._Source.PropertyChanged.Subscribe(this._Func, this._Closure);
 }
 NPCListener.InheritFrom(RefObject);
 
@@ -63,7 +63,7 @@ function PropertyChangedListener(source, propd, closure, func) {
     this._Property = propd;
     this._Closure = closure;
     this._Func = func;
-    this._Source.PropertyChanged.Subscribe(this, this.OnPropertyChangedInternal);
+    this._Source.PropertyChanged.Subscribe(this.OnPropertyChangedInternal, this);
 }
 PropertyChangedListener.InheritFrom(RefObject);
 
