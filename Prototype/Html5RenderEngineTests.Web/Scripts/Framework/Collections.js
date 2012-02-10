@@ -108,6 +108,8 @@ function CollectionIterator(collection) {
 CollectionIterator.InheritFrom(RefObject);
 
 CollectionIterator.prototype.Next = function (error) {
+    /// <param name="error" type="BError"></param>
+    /// <returns type="Boolean" />
     this._Index++;
     return this._Index < this._Collection.GetCount();
 };

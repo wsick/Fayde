@@ -62,7 +62,7 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
     }
 
     if (propValue instanceof Markup)
-        propValue = propValue.Transmute(propd, this._TemplateBindingSource);
+        propValue = propValue.Transmute(dobj, propd, this._TemplateBindingSource);
     //Set property value
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
@@ -137,11 +137,26 @@ Markup.prototype.Transmute = function (propd, templateBindingSource) {
 
 function BindingMarkup(data) {
     Markup.call(this);
+    if (!data)
+        data = {};
+    this._Data = data;
 }
 BindingMarkup.InheritFrom(Markup);
 
-BindingMarkup.prototype.Transmute = function (propd, templateBindingSource) {
-    NotImplemented("BindingMarkup.Transmute");
+BindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+    /// <param name="target" type="DependencyObject"></param>
+    /// <param name="templateBindingSource" type="DependencyObject"></param>
+    /// <param name="propd" type="DependencyProperty"></param>
+    return new BindingExpression(this._BuildBinding(), target, propd);
+};
+BindingMarkup.prototype._BuildBinding = function () {
+    /// <returns type="Binding" />
+    var b = new Binding();
+    if (this._Data.FallbackValue !== undefined)
+        b.SetFallbackValue(this._Data.FallbackValue);
+    if (this._Data.Mode !== undefined)
+        b.SetMode(this._Data.Mode);
+    return b;
 };
 
 //#endregion
@@ -154,7 +169,8 @@ function TemplateBindingMarkup(path) {
 }
 TemplateBindingMarkup.InheritFrom(Markup);
 
-TemplateBindingMarkup.prototype.Transmute = function (propd, templateBindingSource) {
+TemplateBindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+    /// <param name="target" type="DependencyObject"></param>
     /// <param name="templateBindingSource" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
     var sourcePropd = DependencyProperty.GetDependencyProperty(templateBindingSource.constructor, this.Path);

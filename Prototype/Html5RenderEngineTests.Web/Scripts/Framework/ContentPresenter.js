@@ -30,6 +30,17 @@ ContentPresenter.prototype.SetContentTemplate = function (value) {
 
 //#endregion
 
+//#region PROPERTIES
+
+ContentPresenter.prototype.GetFallbackRoot = function () {
+    /// <returns type="UIElement" />
+    if (this._FallbackRoot == null)
+        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
+    return this._FallbackRoot;
+};
+
+//#endregion
+
 //#region INSTANCE METHODS
 
 ContentPresenter.prototype._GetDefaultTemplate = function () {
@@ -51,8 +62,8 @@ ContentPresenter.prototype._GetDefaultTemplate = function () {
     } else {
         var content = this.GetContent();
         this._ContentRoot = RefObject.As(content, UIElement);
-        if (!this._ContentRoot == null && content != null)
-            this._ContentRoot = this._GetFallbackRoot();
+        if (this._ContentRoot == null && content != null)
+            this._ContentRoot = this.GetFallbackRoot();
     }
     return this._ContentRoot;
 };
@@ -78,12 +89,16 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 ContentPresenter.prototype._ClearRoot = function () {
-    //TODO: Raise ContentPresenter.ClearRootEvent
+    if (this._ContentRoot != null)
+        this._ElementRemoved(this._ContentRoot);
+    this._ContentRoot = null;
 };
-ContentPresenter.prototype._GetFallbackRoot = function () {
-    if (this._FallbackRoot == null)
-        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
-    return this._FallbackRoot;
+ContentPresenter.prototype.InvokeLoaded = function () {
+    if (this.GetContent() instanceof UIElement)
+        this.ClearValue(FrameworkElement.DataContextProperty);
+    else
+        this.SetDataContext(this.GetContent());
+    FrameworkElement.prototype.InvokeLoaded.call(this);
 };
 
 //#endregion

@@ -186,11 +186,11 @@ _PropertyPathWalker.prototype.SetFinalNode = function (/* IPropertyPathNode */va
 };
 
 _PropertyPathWalker.prototype.GetIsPathBroken = function () {
-    var path = this._GetPath();
-    if (this._GetIsDataContextBound() && (path == null || path.length < 1))
+    var path = this.GetPath();
+    if (this.GetIsDataContextBound() && (path == null || path.length < 1))
         return false;
 
-    var node = this._GetNode();
+    var node = this.GetNode();
     while (node != null) {
         if (node.GetIsBroken())
             return true;

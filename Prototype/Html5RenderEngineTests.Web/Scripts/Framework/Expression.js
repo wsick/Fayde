@@ -75,8 +75,8 @@ function BindingExpressionBase(binding, target, propd) {
     this.SetProperty(propd);
 
     var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
-    this._SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
-    if (binding.Mode !== BindingMode.OneTime) {
+    this.SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
+    if (binding.GetMode() !== BindingMode.OneTime) {
         var walker = this.GetPropertyPathWalker();
         walker.IsBrokenChanged.Subscribe(this, this._PropertyPathValueChanged);
         walker.ValueChanged.Subscribe(this, this._PropertyPathValueChanged);
@@ -541,7 +541,11 @@ function BindingOperations() {
 }
 BindingOperations.InheritFrom(RefObject);
 
-BindingOperations.SetBinding = function (/* DependencyObject */target, /* DependencyProperty */dp, /* BindingBase */binding) {
+BindingOperations.SetBinding = function (target, dp, binding) {
+    /// <param name="target" type="DependencyObject"></param>
+    /// <param name="dp" type="DependencyProperty"></param>
+    /// <param name="binding" type="BindingBase"></param>
+    /// <returns type="BindingExpressionBase" />
     if (target == null)
         throw new ArgumentNullException("target");
     if (dp == null)
