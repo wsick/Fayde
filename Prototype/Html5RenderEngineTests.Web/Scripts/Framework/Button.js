@@ -94,8 +94,8 @@ Button.prototype.GetDefaultStyle = function () {
                     Value: {
                         Type: LinearGradientBrush,
                         Props: {
-                            StartPoint: new Point(0.5, 1),
-                            EndPoint: new Point(0.5, 1),
+                            StartPoint: new Point(0.5, 0.0),
+                            EndPoint: new Point(0.5, 1.0),
                             GradientStops: [
                                 {
                                     Type: GradientStop,

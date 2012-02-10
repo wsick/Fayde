@@ -23,6 +23,11 @@ var Stretch = {
     UniformToFill: 3
 };
 
+var BrushMappingMode = {
+    Absolute: 0,
+    RelativeToBoundingBox: 1
+};
+
 //#region Brush
 
 function Brush() {
@@ -57,14 +62,30 @@ function GradientBrush() {
 }
 GradientBrush.InheritFrom(Brush);
 
+GradientBrush.prototype._GetMappingModeTransform = function (bounds) {
+    /// <param name="bounds" type="Rect"></param>
+    /// <returns type="Matrix" />
+    if (this.GetMappingMode() === BrushMappingMode.Absolute)
+        return new Matrix();
+    return new ScalingMatrix(bounds.Width, bounds.Height);
+};
+
 //#region DEPENDENCY PROPERTIES
 
 GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.prototype.GetGradientStops = function () {
+    /// <returns type="GradientStopCollection" />
     return this.GetValue(GradientBrush.GradientStopsProperty);
 };
-GradientBrush.prototype.SetGradientStops = function (value) {
-    this.SetValue(GradientBrush.GradientStopsProperty, value);
+
+GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return Number; }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
+GradientBrush.prototype.GetMappingMode = function () {
+    ///<returns type="Number"></returns>
+    return this.GetValue(GradientBrush.MappingModeProperty);
+};
+GradientBrush.prototype.SetMappingMode = function (value) {
+    ///<param name="value" type="Number"></param>
+    this.SetValue(GradientBrush.MappingModeProperty, value);
 };
 
 //#endregion
@@ -82,33 +103,41 @@ LinearGradientBrush.InheritFrom(GradientBrush);
 
 LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
 LinearGradientBrush.prototype.GetStartPoint = function () {
+    /// <returns type="Point" />
     return this.GetValue(LinearGradientBrush.StartPointProperty);
 };
 LinearGradientBrush.prototype.SetStartPoint = function (value) {
+    /// <param name="value" type="Point"></param>
     this.SetValue(LinearGradientBrush.StartPointProperty, value);
 };
 
 LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterFull("EndPoint", function () { return Point; }, LinearGradientBrush, new Point(1, 1));
 LinearGradientBrush.prototype.GetEndPoint = function () {
+    /// <returns type="Point" />
     return this.GetValue(LinearGradientBrush.EndPointProperty);
 };
 LinearGradientBrush.prototype.SetEndPoint = function (value) {
+    /// <param name="value" type="Point"></param>
     this.SetValue(LinearGradientBrush.EndPointProperty, value);
 };
 
 //#endregion
 
 LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
-    var transform = new Matrix();
+    /// <param name="ctx" type="CanvasRenderingContext2D">HTML5 Canvas Context</param>
+    /// <param name="bounds" type="Rect"></param>
+    /// <returns type="CanvasGradient" />
+    var transform = this._GetMappingModeTransform(bounds);
     var start = this.GetStartPoint().Apply(transform);
     var end = this.GetEndPoint().Apply(transform);
+
     var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
     var stops = this.GetGradientStops();
     for (var i = 0; i < stops.GetCount(); i++) {
         var stop = stops.GetValueAt(i);
         grd.addColorStop(stop.GetOffset(), stop.GetColor()._Translate());
     }
-    return grd;     
+    return grd;
 };
 
 //#endregion

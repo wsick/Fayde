@@ -227,7 +227,7 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
     }
     if (borderBrush && !thickness.IsEmpty()) {
         canvasCtx.lineWidth = thickness;
-        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx);
+        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx, pathRect);
         canvasCtx.stroke();
     }
     canvasCtx.closePath();

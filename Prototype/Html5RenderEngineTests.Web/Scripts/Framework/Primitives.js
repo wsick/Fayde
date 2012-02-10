@@ -179,6 +179,7 @@ function Point(x, y) {
 Point.InheritFrom(RefObject);
 
 Point.prototype.Apply = function (matrix) {
+    /// <returns type="Point" />
     return matrix.Multiply(this);
 };
 Point.prototype.toString = function () {
@@ -620,10 +621,10 @@ Font.prototype._Translate = function () {
     return s;
 };
 
-Font.DEFAULT_FAMILY = "Calibri";
+Font.DEFAULT_FAMILY = "'Lucida Sans Unicode'";
 Font.DEFAULT_STRETCH = FontStretches.Normal;
 Font.DEFAULT_STYLE = FontStyles.Normal;
 Font.DEFAULT_WEIGHT = FontWeights.Normal;
-Font.DEFAULT_SIZE = "12px";
+Font.DEFAULT_SIZE = "11px";
 
 //#endregion
