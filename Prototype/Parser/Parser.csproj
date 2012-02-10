@@ -70,6 +70,7 @@
     <Compile Include="Elements\Visual.cs" />
     <Compile Include="Elements\AttachedProperty.cs" />
     <Compile Include="Elements\Border.cs" />
+    <Compile Include="MarkupExpressionParser.cs" />
     <Compile Include="ParserAttributes.cs" />
     <Compile Include="Elements\ColumnDefinition.cs" />
     <Compile Include="Elements\ContentControl.cs" />
