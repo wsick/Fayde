@@ -559,8 +559,8 @@ function BindingExpressionBase(binding, target, propd) {
     this.SetProperty(propd);
 
     var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
-    this._SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
-    if (binding.Mode !== BindingMode.OneTime) {
+    this.SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
+    if (binding.GetMode() !== BindingMode.OneTime) {
         var walker = this.GetPropertyPathWalker();
         walker.IsBrokenChanged.Subscribe(this, this._PropertyPathValueChanged);
         walker.ValueChanged.Subscribe(this, this._PropertyPathValueChanged);
@@ -1025,7 +1025,11 @@ function BindingOperations() {
 }
 BindingOperations.InheritFrom(RefObject);
 
-BindingOperations.SetBinding = function (/* DependencyObject */target, /* DependencyProperty */dp, /* BindingBase */binding) {
+BindingOperations.SetBinding = function (target, dp, binding) {
+    /// <param name="target" type="DependencyObject"></param>
+    /// <param name="dp" type="DependencyProperty"></param>
+    /// <param name="binding" type="BindingBase"></param>
+    /// <returns type="BindingExpressionBase" />
     if (target == null)
         throw new ArgumentNullException("target");
     if (dp == null)
@@ -1184,7 +1188,7 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
     }
 
     if (propValue instanceof Markup)
-        propValue = propValue.Transmute(propd, this._TemplateBindingSource);
+        propValue = propValue.Transmute(dobj, propd, this._TemplateBindingSource);
     //Set property value
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
@@ -1259,11 +1263,26 @@ Markup.prototype.Transmute = function (propd, templateBindingSource) {
 
 function BindingMarkup(data) {
     Markup.call(this);
+    if (!data)
+        data = {};
+    this._Data = data;
 }
 BindingMarkup.InheritFrom(Markup);
 
-BindingMarkup.prototype.Transmute = function (propd, templateBindingSource) {
-    NotImplemented("BindingMarkup.Transmute");
+BindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+    /// <param name="target" type="DependencyObject"></param>
+    /// <param name="templateBindingSource" type="DependencyObject"></param>
+    /// <param name="propd" type="DependencyProperty"></param>
+    return new BindingExpression(this._BuildBinding(), target, propd);
+};
+BindingMarkup.prototype._BuildBinding = function () {
+    /// <returns type="Binding" />
+    var b = new Binding();
+    if (this._Data.FallbackValue !== undefined)
+        b.SetFallbackValue(this._Data.FallbackValue);
+    if (this._Data.Mode !== undefined)
+        b.SetMode(this._Data.Mode);
+    return b;
 };
 
 //#endregion
@@ -1276,7 +1295,8 @@ function TemplateBindingMarkup(path) {
 }
 TemplateBindingMarkup.InheritFrom(Markup);
 
-TemplateBindingMarkup.prototype.Transmute = function (propd, templateBindingSource) {
+TemplateBindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+    /// <param name="target" type="DependencyObject"></param>
     /// <param name="templateBindingSource" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
     var sourcePropd = DependencyProperty.GetDependencyProperty(templateBindingSource.constructor, this.Path);
@@ -2391,11 +2411,11 @@ _PropertyPathWalker.prototype.SetFinalNode = function (/* IPropertyPathNode */va
 };
 
 _PropertyPathWalker.prototype.GetIsPathBroken = function () {
-    var path = this._GetPath();
-    if (this._GetIsDataContextBound() && (path == null || path.length < 1))
+    var path = this.GetPath();
+    if (this.GetIsDataContextBound() && (path == null || path.length < 1))
         return false;
 
-    var node = this._GetNode();
+    var node = this.GetNode();
     while (node != null) {
         if (node.GetIsBroken())
             return true;
@@ -6759,6 +6779,12 @@ function FrameworkTemplate() {
 }
 FrameworkTemplate.InheritFrom(DependencyObject);
 
+FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
+    /// <param name="bindingSource" type="DependencyObject"></param>
+    /// <returns type="DependencyObject" />
+    var error = new BError();
+    return this._GetVisualTreeWithError(bindingSource, error);
+};
 FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
 };
@@ -6785,7 +6811,9 @@ ControlTemplate.prototype.SetTargetType = function (value) {
 
 //#endregion
 
-ControlTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
+ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
+    /// <param name="templateBindingSource" type="FrameworkElement"></param>
+    /// <returns type="DependencyObject" />
     if (this._TempJson) {
         var namescope = new NameScope();
         var parser = new JsonParser();
@@ -7160,6 +7188,7 @@ var UIElementFlags = {
 function UIElement() {
     DependencyObject.call(this);
 
+    this.Unloaded = new MulticastEvent();
     this.Loaded = new MulticastEvent();
     this.Invalidated = new MulticastEvent();
 
@@ -7267,6 +7296,7 @@ UIElement.prototype.SetCursor = function (value) {
 
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.prototype.GetResources = function () {
+    /// <returns type="ResourceDictionary" />
     return this.GetValue(UIElement.ResourcesProperty);
 };
 
@@ -7673,8 +7703,15 @@ UIElement.prototype._SetIsLoaded = function (value) {
 };
 UIElement.prototype._OnIsLoadedChanged = function (loaded) {
     if (!this._IsLoaded) {
-        //TODO: Unloaded Event
-        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
+        //WTF: ClearForeachGeneration(Loaded)
+        this.Unloaded.Raise(this, new EventArgs());
+        var iter = new CollectionIterator(this.GetResources());
+        while (iter.Next()) {
+            var v = iter.GetCurrent();
+            v = RefObject.As(v, FrameworkElement);
+            if (v != null)
+                v._SetIsLoaded(loaded);
+        }
     }
 
     var walker = new _VisualTreeWalker(this);
@@ -7684,8 +7721,15 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
     }
 
     if (this._IsLoaded) {
-        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
-        this.Loaded.Raise(this, null);
+        var iter = new CollectionIterator(this.GetResources());
+        while (iter.Next()) {
+            var v = iter.GetCurrent();
+            v = RefObject.As(v, FrameworkElement);
+            if (v != null)
+                v._SetIsLoaded(loaded);
+        }
+        //WTF: AddAllLoadedHandlers
+        this.Loaded.RaiseAsync(this, new EventArgs());
     }
 };
 UIElement.prototype._OnIsAttachedChanged = function (value) {
@@ -8313,6 +8357,8 @@ function CollectionIterator(collection) {
 CollectionIterator.InheritFrom(RefObject);
 
 CollectionIterator.prototype.Next = function (error) {
+    /// <param name="error" type="BError"></param>
+    /// <returns type="Boolean" />
     this._Index++;
     return this._Index < this._Collection.GetCount();
 };
@@ -8937,6 +8983,21 @@ FrameworkElement.prototype.SetFlowDirection = function (value) {
 //#endregion
 
 //#region INSTANCE METHODS
+
+FrameworkElement.prototype.SetTemplateBinding = function (propd, tb) {
+    /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="tb" type="TemplateBindingExpression"></param>
+    try {
+        this.SetValue(propd, tb);
+    } catch (err) {
+    }
+};
+FrameworkElement.prototype.SetBinding = function (propd, binding) {
+    /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="binding" type="Binding"></param>
+    /// <returns type="BindingExpressionBase" />
+    return BindingOperations.SetBinding(this, propd, binding);
+};
 
 FrameworkElement.prototype._ApplySizeConstraints = function (size) {
     var specified = new Size(this.GetWidth(), this.GetHeight());
@@ -9573,6 +9634,8 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
+FrameworkElement.prototype.InvokeLoaded = function () {
+};
 FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
     if (loaded)
         this._SetImplicitStyles(_StyleMask.All);
@@ -9580,6 +9643,8 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
         this._ClearImplicitStyles(_StyleMask.VisualTree);
 
     UIElement.prototype._OnIsLoadedChanged.call(this, loaded);
+    if (loaded)
+        this.InvokeLoaded();
 
     if (this._Providers[_PropertyPrecedence.InheritedDataContext])
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
@@ -11240,6 +11305,17 @@ ContentPresenter.prototype.SetContentTemplate = function (value) {
 
 //#endregion
 
+//#region PROPERTIES
+
+ContentPresenter.prototype.GetFallbackRoot = function () {
+    /// <returns type="UIElement" />
+    if (this._FallbackRoot == null)
+        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
+    return this._FallbackRoot;
+};
+
+//#endregion
+
 //#region INSTANCE METHODS
 
 ContentPresenter.prototype._GetDefaultTemplate = function () {
@@ -11261,8 +11337,8 @@ ContentPresenter.prototype._GetDefaultTemplate = function () {
     } else {
         var content = this.GetContent();
         this._ContentRoot = RefObject.As(content, UIElement);
-        if (!this._ContentRoot == null && content != null)
-            this._ContentRoot = this._GetFallbackRoot();
+        if (this._ContentRoot == null && content != null)
+            this._ContentRoot = this.GetFallbackRoot();
     }
     return this._ContentRoot;
 };
@@ -11288,12 +11364,16 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 ContentPresenter.prototype._ClearRoot = function () {
-    //TODO: Raise ContentPresenter.ClearRootEvent
+    if (this._ContentRoot != null)
+        this._ElementRemoved(this._ContentRoot);
+    this._ContentRoot = null;
 };
-ContentPresenter.prototype._GetFallbackRoot = function () {
-    if (this._FallbackRoot == null)
-        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
-    return this._FallbackRoot;
+ContentPresenter.prototype.InvokeLoaded = function () {
+    if (this.GetContent() instanceof UIElement)
+        this.ClearValue(FrameworkElement.DataContextProperty);
+    else
+        this.SetDataContext(this.GetContent());
+    FrameworkElement.prototype.InvokeLoaded.call(this);
 };
 
 //#endregion
@@ -13633,19 +13713,18 @@ function ContentControl() {
 ContentControl.InheritFrom(Control);
 
 ContentControl._FallbackTemplate = (function () {
-    //TODO: Create fallback template
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-    new ControlTemplate(ContentControl, {
+    return new ControlTemplate(ContentControl, {
         Type: Grid,
         Children: [
             {
-                Type: TextBlock
-                //TODO: , Text: new Binding()
+                Type: TextBlock,
+                Props: {
+                    Text: new BindingMarkup()
+                }
             }
         ]
     });
-    NotImplemented("ContentControl._FallbackTemplate");
-    return new ControlTemplate();
 })();
 
 //#region DEPENDENCY PROPERTIES
@@ -13668,15 +13747,20 @@ ContentControl.prototype.SetContentTemplate = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region PROPERTIES
 
-ContentControl.prototype._GetFallbackRoot = function () {
+ContentControl.prototype.GetFallbackRoot = function () {
     if (this._FallbackRoot == null)
         this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
     return this._FallbackRoot;
 };
+
+//#endregion
+
+//#region INSTANCE METHODS
+
 ContentControl.prototype._GetDefaultTemplate = function () {
-    return this._FallbackRoot;
+    return this.GetFallbackRoot();
 };
 
 //#endregion
