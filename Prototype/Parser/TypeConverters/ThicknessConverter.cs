@@ -23,7 +23,7 @@ namespace Parser.TypeConverters
     {
         public override object Convert(string from)
         {
-            string[] parts = from.Split(' ');
+            string[] parts = from.Split(',');
             if (parts.Count() == 1)
             {
                 double value = double.Parse(from);
