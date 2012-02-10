@@ -3,12 +3,44 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    d:DesignHeight="300" d:DesignWidth="400">
+             Width="600" Height="600">
 
-    <Grid x:Name="LayoutRoot" Background="White">
-        <Rectangle Width="200" Height="200" RadiusX="20" RadiusY="1" Stroke="Black" StrokeThickness="1">
-            
-        </Rectangle>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Border Grid.ColumnSpan="2" Grid.Row="0" Background="#2C4B63" CornerRadius="10" Margin="5">
+            <TextBlock Margin="10" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30">Welcome to Fayde</TextBlock>
+        </Border>
+        <Border Grid.Column="0" Grid.Row="1" Margin="10,0,10,0" Background="#F0F0F0" CornerRadius="5" BorderBrush="#000000" BorderThickness="1">
+            <StackPanel Grid.Column="0" Grid.Row="1" Margin="5" Orientation="Vertical">
+                <TextBlock>Home</TextBlock>
+                <TextBlock>About</TextBlock>
+                <TextBlock>Contact Us</TextBlock>
+            </StackPanel>
+        </Border>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="10" Orientation="Vertical">
+            <TextBlock TextWrapping="Wrap">
+        Have you ever used Silverlight to develop a web application? Then, once the web
+        application was successful, we now have to support Linux and Mac and on every modern browser. Ever been frustrated trying to design a silverlight
+        web application where lots of data needed to be shuffled back and forth from the server to the client? Like developing in .NET? Like MVVM?
+        If so, this project is especially for you. Fayde is a project that allows you to develop web applications using the same Silverlight and .NET
+        syntactical sugar that you love but do it across all platforms and all browsers. Best of all, no download or browser plugin is required. How
+        does it do this? Html5 With the advent of the canvas, web sockets, and other browser technologies; Fayde is now poised to become one of the leading
+        web application development tools. Interested? Browse around and take a look at why Fayde can solve some of the most frustrating issues with
+        web application development. Spend your time developing your application and not fighting with web technology.
+            </TextBlock>
+            <TextBox Margin="20" Text="This is a sample textbox."></TextBox>
+            <Button Margin="20,0,20,20" Content="This is a sample button."></Button>
+        </StackPanel>
+        <Border Grid.ColumnSpan="2" Grid.Row="2" Margin="5" CornerRadius="10" Background="#2C4B63">
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5" Foreground="#FFFFFF">Copyright WickedSick 2012</TextBlock>
+        </Border>
     </Grid>
 </UserControl>
