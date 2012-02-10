@@ -1,9 +1,9 @@
 <CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
   <Header>
-    <Title>propd</Title>
+    <Title>prop</Title>
     <Author>WickedSick</Author>
-    <Shortcut>propd</Shortcut>
-    <Description>Code snippet for a dependency property</Description>
+    <Shortcut>prop</Shortcut>
+    <Description>Code snippet for a property</Description>
     <SnippetTypes>
       <SnippetType>Expansion</SnippetType>
     </SnippetTypes>
@@ -27,9 +27,11 @@
       </Literal>
     </Declarations>
     <Code Language="jscript"><![CDATA[$owner$.prototype.Get$name$ = function () {
+	///<returns type="$type$"></returns>
 	return this._$name$;
 };
-$owner$.prototype.Set$name$ = function (/* $type$ */value) {
+$owner$.prototype.Set$name$ = function (value) {
+	///<param name="value" type="$type$"></param>
 	this._$name$ = value;
 };$end$]]></Code>
   </Snippet>

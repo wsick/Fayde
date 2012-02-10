@@ -148,6 +148,21 @@ FrameworkElement.prototype.SetFlowDirection = function (value) {
 
 //#region INSTANCE METHODS
 
+FrameworkElement.prototype.SetTemplateBinding = function (propd, tb) {
+    /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="tb" type="TemplateBindingExpression"></param>
+    try {
+        this.SetValue(propd, tb);
+    } catch (err) {
+    }
+};
+FrameworkElement.prototype.SetBinding = function (propd, binding) {
+    /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="binding" type="Binding"></param>
+    /// <returns type="BindingExpressionBase" />
+    return BindingOperations.SetBinding(this, propd, binding);
+};
+
 FrameworkElement.prototype._ApplySizeConstraints = function (size) {
     var specified = new Size(this.GetWidth(), this.GetHeight());
     var constrained = new Size(this.GetMinWidth(), this.GetMinHeight());
@@ -529,7 +544,7 @@ FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
     var child;
     while (child = walker.Step()) {
         child._HitTestPoint(ctx, p, uielist);
-        if (!node.RefEquals(uielist.First())) {
+        if (!RefObject.RefEquals(node, uielist.First())) {
             hit = true;
             break;
         }
@@ -783,6 +798,8 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
+FrameworkElement.prototype.InvokeLoaded = function () {
+};
 FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
     if (loaded)
         this._SetImplicitStyles(_StyleMask.All);
@@ -790,6 +807,8 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
         this._ClearImplicitStyles(_StyleMask.VisualTree);
 
     UIElement.prototype._OnIsLoadedChanged.call(this, loaded);
+    if (loaded)
+        this.InvokeLoaded();
 
     if (this._Providers[_PropertyPrecedence.InheritedDataContext])
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();

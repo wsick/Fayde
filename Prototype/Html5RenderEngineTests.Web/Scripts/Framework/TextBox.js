@@ -936,9 +936,9 @@ TextBox.prototype.GetDefaultStyle = function () {
                         Props: {
                             CornerRadius: new CornerRadius(1, 1, 1, 1),
                             Opacity: 1.0,
-                            BorderThickness: new TemplateBinding("BorderThickness"),
-                            Background: new TemplateBinding("Background"),
-                            BorderBrush: new TemplateBinding("BorderBrush")
+                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                            Background: new TemplateBindingMarkup("Background"),
+                            BorderBrush: new TemplateBindingMarkup("BorderBrush")
                         },
                         Content: {
                             Type: Grid,
@@ -962,7 +962,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                                         Type: Border,
                                         Name: "ContentElement",
                                         Props: {
-                                            Padding: new TemplateBinding("Padding"),
+                                            Padding: new TemplateBindingMarkup("Padding"),
                                             //IsTabStop: false,
                                             BorderThickness: new Thickness(0, 0, 0, 0)
                                         }
@@ -977,7 +977,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                         Props: {
                             Background: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
                             BorderBrush: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
-                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
                             Opacity: 0.0,
                             IsHitTestVisible: false
                         }
@@ -987,7 +987,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                         Name: "FocusVisualElement",
                         Props: {
                             BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
-                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
                             Margin: new Thickness(1, 1, 1, 1),
                             Opacity: 0.0,
                             IsHitTestVisible: false

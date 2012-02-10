@@ -23,6 +23,11 @@ DependencyProperty.prototype.toString = function () {
     var ownerTypeName = (results && results.length > 1) ? results[1] : "";
     return ownerTypeName + "." + this.Name.toString();
 };
+DependencyProperty.prototype.GetDefaultValue = function (obj) {
+    if (this._HasDefaultValue)
+        return this.DefaultValue;
+    return this._GetAutoCreatedValue(obj);
+};
 DependencyProperty.prototype._HasDefaultValue = function () {
     return this.DefaultValue != null;
 };

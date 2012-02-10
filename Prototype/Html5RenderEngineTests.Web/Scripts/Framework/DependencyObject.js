@@ -2,6 +2,7 @@
 /// <reference path="DependencyProperty.js" />
 /// <reference path="PropertyValueProviders.js" />
 /// CODE
+/// <reference path="Binding.js"/>
 /// <reference path="Expression.js"/>
 /// <reference path="BError.js" />
 /// <reference path="MulticastEvent.js"/>
@@ -12,7 +13,6 @@
 
 function DependencyObject() {
     RefObject.call(this);
-    this._TypeName = this._GetTypeName();
     this._Initialize();
 }
 DependencyObject.InheritFrom(RefObject);
@@ -25,6 +25,42 @@ DependencyObject.prototype.GetName = function () {
 };
 DependencyObject.prototype.SetName = function (value) {
     this.SetValue(DependencyObject.NameProperty, value);
+};
+
+//#endregion
+
+//#region PROPERTIES
+
+DependencyObject.prototype.GetTemplateOwner = function () {
+    return this._TemplateOwner;
+};
+DependencyObject.prototype.SetTemplateOwner = function (value) {
+    this._TemplateOwner = value;
+};
+
+DependencyObject.prototype.GetMentor = function () {
+    ///<returns type="DependencyObject"></returns>
+    return this._Mentor;
+};
+DependencyObject.prototype.SetMentor = function (value) {
+    if (this._Mentor == value)
+        return;
+    var oldMentor = this._Mentor;
+    this._Mentor = value;
+    this._OnMentorChanged(oldMentor, value);
+};
+DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
+    if (!(this instanceof FrameworkElement)) {
+        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[_PropertyPrecedence.LocalStyle])
+            this._Providers[_PropertyPrecedence.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[_PropertyPrecedence.ImplicitStyle])
+            this._Providers[_PropertyPrecedence.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+    }
+    if (this._MentorChangedCallback != null) {
+        this._MentorChangedCallback(this, newValue);
+    }
 };
 
 //#endregion
@@ -80,42 +116,6 @@ DependencyObject.prototype._Initialize = function () {
     this._SecondaryParents = new Array();
     this.PropertyChanged = new MulticastEvent();
 };
-DependencyObject.prototype._GetTypeName = function () {
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec(this.constructor.toString());
-    return (results && results.length > 1) ? results[1] : "";
-};
-
-DependencyObject.prototype._GetTemplateOwner = function () {
-    return this._TemplateOwner;
-};
-DependencyObject.prototype._SetTemplateOwner = function (value) {
-    this._TemplateOwner = value;
-};
-
-DependencyObject.prototype._GetMentor = function () {
-    return this._Mentor;
-};
-DependencyObject.prototype._SetMentor = function (value) {
-    if (this._Mentor == value)
-        return;
-    var oldMentor = this._Mentor;
-    this._Mentor = value;
-    this._OnMentorChanged(oldMentor, value);
-};
-DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
-    if (!(this instanceof FrameworkElement)) {
-        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.LocalStyle])
-            this._Providers[_PropertyPrecedence.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.ImplicitStyle])
-            this._Providers[_PropertyPrecedence.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
-    }
-    if (this._MentorChangedCallback != null) {
-        this._MentorChangedCallback(this, newValue);
-    }
-};
 
 DependencyObject.prototype.SetValue = function (propd, value) {
     if (propd == null)
@@ -137,24 +137,24 @@ DependencyObject.prototype.SetValue = function (propd, value) {
         bindingExpression = value;
 
     if (bindingExpression != null) {
-        var path = bindingExpression.Binding.Path.Path;
-        if ((!path || path === ".") && bindingExpression.Binding.Mode === BindingMode.TwoWay)
+        var path = bindingExpression.GetBinding().GetPath().GetPath();
+        if ((!path || path === ".") && bindingExpression.GetBinding().GetMode() === BindingMode.TwoWay)
             throw new ArgumentException("TwoWay bindings require a non-empty Path.");
-        bindingExpression.Binding.Seal();
+        bindingExpression.GetBinding().Seal();
     }
 
     var existing = null;
     if (this._Expressions != null) {
-        var refExisting = new RefParam();
-        if (this._Expressions.TryGetValue(propd, refExisting))
-            existing = refExisting.Value
+        var data = {};
+        if (this._Expressions.TryGetValue(propd, data))
+            existing = data.Value
     }
 
     var addingExpression = false;
     var updateTwoWay = false;
     if (expression != null) {
-        if (!expression.RefEquals(existing)) {
-            if (expression._Attached)
+        if (!RefObject.RefEquals(expression, existing)) {
+            if (expression.GetAttached())
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
 
             if (existing != null)
@@ -168,12 +168,12 @@ DependencyObject.prototype.SetValue = function (propd, value) {
         value = expression.GetValue(propd);
     } else if (existing != null) {
         if (existing instanceof BindingExpressionBase) {
-            if (existing.Binding.Mode === BindingMode.TwoWay) {
-                updateTwoWay = !existing._Updating && !propd._IsCustom;
-            } else if (!existing._Updating || existing.Binding.Mode === BindingMode.OneTime) {
+            if (existing.GetBinding().GetMode() === BindingMode.TwoWay) {
+                updateTwoWay = !existing.GetUpdating() && !propd._IsCustom;
+            } else if (!existing.GetUpdating() || existing.GetBinding().GetMode() === BindingMode.OneTime) {
                 this._RemoveExpression(propd);
             }
-        } else if (!existing._Updating) {
+        } else if (!existing.GetUpdating()) {
             this._RemoveExpression(propd);
         }
     }
@@ -221,7 +221,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
 
     if (currentValue != null && value != null) {
         if (currentValue instanceof RefObject) {
-            equal = !propd._AlwaysChange && currentValue.RefEquals(value);
+            equal = !propd._AlwaysChange && RefObject.RefEquals(currentValue, value);
         } else {
             equal = !propd._AlwaysChange && currentValue === value;
         }
@@ -395,7 +395,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
 
     var equal = oldValue == null && newValue == null;
     if (oldValue != null && newValue != null) {
-        equal = !propd._AlwaysChange && oldValue == newValue;
+        equal = !propd._AlwaysChange && RefObject.Equals(oldValue, newValue);
     }
 
     if (equal)
@@ -427,7 +427,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
                 oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged, this);
             }
         } else {
-            oldDO._SetMentor(null);
+            oldDO.SetMentor(null);
         }
     }
 
@@ -450,8 +450,8 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
         } else {
             var cur = this;
             while (cur && !(cur instanceof FrameworkElement))
-                cur = cur._GetMentor();
-            newDO._SetMentor(cur);
+                cur = cur.GetMentor();
+            newDO.SetMentor(cur);
         }
     }
 
@@ -549,10 +549,10 @@ DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
     return true;
 };
 DependencyObject.prototype._RemoveExpression = function (propd) {
-    var ref = new RefParam();
-    if (this._Expressions != null && this._Expressions.TryGetValue(propd, ref)) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
         this._Expressions.Remove(propd);
-        ref.Value._OnDetached(this);
+        data.Value._OnDetached(this);
     }
 };
 
@@ -592,7 +592,7 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
     if (this._Parent != null || this._HasSecondaryParents()) {
         this._AddSecondaryParent(parent);
         if (this._Parent != null && !(this._Parent instanceof ResourceDictionary))
-            this._SetMentor(null);
+            this.SetMentor(null);
         if (this._SecondaryParents.length > 1 || !(parent instanceof DependencyObjectCollection) || !parent._GetIsSecondaryParent())
             return;
     }
@@ -638,9 +638,9 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
         this._Parent = parent;
         var d = parent;
         while (d != null && !(d instanceof FrameworkElement)) {
-            d = d._GetMentor();
+            d = d.GetMentor();
         }
-        this._SetMentor(d);
+        this.SetMentor(d);
     }
 };
 DependencyObject.prototype._RemoveParent = function (parent, error) {
@@ -662,7 +662,7 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
         var parentScope = parent.FindNameScope();
         if (parentScope)
             this._UnregisterAllNamesRootedAt(parentScope);
-        this._SetMentor(null);
+        this.SetMentor(null);
     }
 
     if (error == null || !error.IsErrored()) {
@@ -804,7 +804,7 @@ DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
 };
 DependencyObject._PropagateMentor = function (propd, value, newMentor) {
     if (value != null && value instanceof DependencyObject) {
-        value._SetMentor(newMentor);
+        value.SetMentor(newMentor);
     }
 };
 

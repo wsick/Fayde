@@ -27,6 +27,7 @@ var UIElementFlags = {
 function UIElement() {
     DependencyObject.call(this);
 
+    this.Unloaded = new MulticastEvent();
     this.Loaded = new MulticastEvent();
     this.Invalidated = new MulticastEvent();
 
@@ -134,6 +135,7 @@ UIElement.prototype.SetCursor = function (value) {
 
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.prototype.GetResources = function () {
+    /// <returns type="ResourceDictionary" />
     return this.GetValue(UIElement.ResourcesProperty);
 };
 
@@ -492,7 +494,7 @@ UIElement.prototype._ElementRemoved = function (item) {
     item.SetVisualParent(null);
     item._SetIsLoaded(false);
     item._SetIsAttached(false);
-    item._SetMentor(null);
+    item.SetMentor(null);
 
     var emptySlot = new Rect();
     LayoutInformation.SetLayoutSlot(item, emptySlot);
@@ -513,8 +515,8 @@ UIElement.prototype._ElementAdded = function (item) {
     item._SetIsLoaded(this._IsLoaded);
     var o = this;
     while (o != null && !(o instanceof FrameworkElement))
-        o = o._GetMentor();
-    item._SetMentor(o);
+        o = o.GetMentor();
+    item.SetMentor(o);
 
     this._UpdateBounds(true);
 
@@ -540,8 +542,15 @@ UIElement.prototype._SetIsLoaded = function (value) {
 };
 UIElement.prototype._OnIsLoadedChanged = function (loaded) {
     if (!this._IsLoaded) {
-        //TODO: Unloaded Event
-        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
+        //WTF: ClearForeachGeneration(Loaded)
+        this.Unloaded.Raise(this, new EventArgs());
+        var iter = new CollectionIterator(this.GetResources());
+        while (iter.Next()) {
+            var v = iter.GetCurrent();
+            v = RefObject.As(v, FrameworkElement);
+            if (v != null)
+                v._SetIsLoaded(loaded);
+        }
     }
 
     var walker = new _VisualTreeWalker(this);
@@ -551,8 +560,15 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
     }
 
     if (this._IsLoaded) {
-        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
-        this.Loaded.Raise(this, null);
+        var iter = new CollectionIterator(this.GetResources());
+        while (iter.Next()) {
+            var v = iter.GetCurrent();
+            v = RefObject.As(v, FrameworkElement);
+            if (v != null)
+                v._SetIsLoaded(loaded);
+        }
+        //WTF: AddAllLoadedHandlers
+        this.Loaded.RaiseAsync(this, new EventArgs());
     }
 };
 UIElement.prototype._OnIsAttachedChanged = function (value) {

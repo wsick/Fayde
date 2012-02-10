@@ -20,12 +20,19 @@
         <ToolTip>Property Name</ToolTip>
         <Default>Name</Default>
       </Literal>
+      <Literal>
+        <ID>type</ID>
+        <ToolTip>Target Type</ToolTip>
+        <Default>Number</Default>
+      </Literal>
     </Declarations>
     <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.RegisterAttached("$name$", $owner$);
 $owner$.Get$name$ = function (d) {
+	///<returns type="$type$"></returns>
 	return d.GetValue($owner$.$name$Property);
 };
 $owner$.Set$name$ = function (d, value) {
+	///<param name="value" type="$type$"></param>
 	d.SetValue($owner$.$name$Property, value);
 };$end$]]></Code>
   </Snippet>

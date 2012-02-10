@@ -4,6 +4,25 @@
 /// <reference path="Collections.js"/>
 /// <reference path="Primitives.js"/>
 
+var AlignmentX = {
+    Left: 0,
+    Center: 1,
+    Right: 2
+};
+
+var AlignmentY = {
+    Top: 0,
+    Center: 1,
+    Bottom: 2
+};
+
+var Stretch = {
+    None: 0,
+    Fill: 1,
+    Uniform: 2,
+    UniformToFill: 3
+};
+
 //#region Brush
 
 function Brush() {
@@ -89,7 +108,7 @@ LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
         var stop = stops.GetValueAt(i);
         grd.addColorStop(stop.GetOffset(), stop.GetColor()._Translate());
     }
-    return grd;
+    return grd;     
 };
 
 //#endregion
@@ -136,5 +155,55 @@ RadialGradientBrush.prototype.SetRadiusY = function (value) {
 };
 
 //#endregion
+
+RadialGradientBrush.prototype._Translate = function (ctx, bounds) {
+    NotImplemented("RadialGradientBrush._Translate");
+};
+
+//#endregion
+
+//#region TileBrush
+
+function TileBrush() {
+    Brush.call(this);
+}
+TileBrush.InheritFrom(Brush);
+
+//#region DEPENDENCY PROPERTIES
+
+TileBrush.AlignmentXProperty = DependencyProperty.Register("AlignmentX", function () { return Number; }, TileBrush, AlignmentX.Center);
+TileBrush.prototype.GetAlignmentX = function () {
+    return this.GetValue(TileBrush.AlignmentXProperty);
+};
+TileBrush.prototype.SetAlignmentX = function (value) {
+    this.SetValue(TileBrush.AlignmentXProperty, value);
+};
+
+TileBrush.AlignmentYProperty = DependencyProperty.Register("AlignmentY", function () { return Number; }, TileBrush, AlignmentY.Center);
+TileBrush.prototype.GetAlignmentY = function () {
+    return this.GetValue(TileBrush.AlignmentYProperty);
+};
+TileBrush.prototype.SetAlignmentY = function (value) {
+    this.SetValue(TileBrush.AlignmentYProperty, value);
+};
+
+TileBrush.StretchProperty = DependencyProperty.Register("Stretch", function () { return Number; }, TileBrush, Stretch.Fill);
+TileBrush.prototype.GetStretch = function () {
+    return this.GetValue(TileBrush.StretchProperty);
+};
+TileBrush.prototype.SetStretch = function (value) {
+    this.SetValue(TileBrush.StretchProperty, value);
+};
+
+//#endregion
+
+//#endregion
+
+//#region ImageBrush
+
+function ImageBrush() {
+    TileBrush.call(this);
+}
+ImageBrush.InheritFrom(TileBrush);
 
 //#endregion

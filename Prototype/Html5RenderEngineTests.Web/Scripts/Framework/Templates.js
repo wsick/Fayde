@@ -9,6 +9,12 @@ function FrameworkTemplate() {
 }
 FrameworkTemplate.InheritFrom(DependencyObject);
 
+FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
+    /// <param name="bindingSource" type="DependencyObject"></param>
+    /// <returns type="DependencyObject" />
+    var error = new BError();
+    return this._GetVisualTreeWithError(bindingSource, error);
+};
 FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
 };
@@ -35,7 +41,9 @@ ControlTemplate.prototype.SetTargetType = function (value) {
 
 //#endregion
 
-ControlTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
+ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
+    /// <param name="templateBindingSource" type="FrameworkElement"></param>
+    /// <returns type="DependencyObject" />
     if (this._TempJson) {
         var namescope = new NameScope();
         var parser = new JsonParser();

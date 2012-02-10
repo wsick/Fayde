@@ -318,7 +318,7 @@ TextLayout.prototype.Layout = function () {
         if (end - index <= 0) {
             if (!this.OverrideLineHeight()) {
                 line._Descend = Math.min(line._Descend, font._Descender());
-                line._Height = Math.max(line._Height, font._Height());
+                line._Height = Math.max(line._Height, font.GetActualHeight());
             }
             this._ActualHeight += line._Height;
             break;
@@ -335,7 +335,7 @@ TextLayout.prototype.Layout = function () {
                 if (lineBreakLength > 0) {
                     if (line._Length == 0 && !this.OverrideLineHeight()) {
                         line._Descend = font._Descender();
-                        line._Height = font._Height();
+                        line._Height = font.GetActualHeight();
                     }
 
                     line._Length += lineBreakLength;
@@ -355,7 +355,7 @@ TextLayout.prototype.Layout = function () {
                     //append the word to the run/line
                     if (!this.OverrideLineHeight()) {
                         line._Descend = Math.min(line._Descend, font._Descender());
-                        line._Height = Math.max(line._Height, font._Height());
+                        line._Height = Math.max(line._Height, font.GetActualHeight());
                     }
 
                     line._Advance += word._Advance;
@@ -376,7 +376,7 @@ TextLayout.prototype.Layout = function () {
                 if (word._Length > 0) {
                     if (!this.OverrideLineHeight()) {
                         line._Descend = Math.min(line._Descend, font._Descender());
-                        line._Height = Math.max(line._Height, font._Height());
+                        line._Height = Math.max(line._Height, font.GetActualHeight());
                     }
 
                     line._Advance += word._Advance;
@@ -399,7 +399,7 @@ TextLayout.prototype.Layout = function () {
                     if (!this.OverrideLineHeight()) {
                         if (end - index < 1) {
                             line._Descend = font._Descender();
-                            line._Height = font._Height();
+                            line._Height = font.GetActualHeight();
                         }
                     } else {
                         line._Descend = this.GetDescendOverride();
@@ -946,7 +946,7 @@ _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) 
     var brush;
     var area;
     if (this._Selected && (brush = attrs.GetBackground(true))) {
-        area = new Rect(origin.X, origin.Y, this._Advance, font._Height());
+        area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
         ctx.Fill(area, brush); //selection background
     }
     if (!(brush = attrs.GetForeground(this._Selected)))

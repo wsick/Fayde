@@ -108,6 +108,8 @@ function CollectionIterator(collection) {
 CollectionIterator.InheritFrom(RefObject);
 
 CollectionIterator.prototype.Next = function (error) {
+    /// <param name="error" type="BError"></param>
+    /// <returns type="Boolean" />
     this._Index++;
     return this._Index < this._Collection.GetCount();
 };
@@ -181,7 +183,7 @@ DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newV
     DependencyObject.prototype._OnMentorChanged.call(this, oldValue, newValue);
     for (var i = 0; i < this._ht.length; i++) {
         if (this._ht[i] instanceof DependencyObject)
-            this._ht[i]._SetMentor(newValue);
+            this._ht[i].SetMentor(newValue);
     }
 };
 
@@ -194,7 +196,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
         if (error.IsErrored())
             return false;
     } else {
-        value._SetMentor(this._GetMentor());
+        value.SetMentor(this.GetMentor());
     }
 
     value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
@@ -204,9 +206,9 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     if (!rv) {
         if (this._SetsParent) {
             value._RemoveParent(this, error);
-            value._SetMentor(this._GetMentor());
+            value.SetMentor(this.GetMentor());
         } else {
-            value._SetMentor(null);
+            value.SetMentor(null);
         }
     }
     return rv;
@@ -218,7 +220,7 @@ DependencyObjectCollection.prototype.RemovedFromCollection = function (value, is
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
-            if (this._SetsParent && value._GetParent().RefEquals(this))
+            if (this._SetsParent && RefObject.RefEquals(value._GetParent(), this))
                 value._RemoveParent(this, null);
             value._SetIsAttached(false);
         }
@@ -461,6 +463,82 @@ GradientStopCollection.InheritFrom(DependencyObjectCollection);
 GradientStopCollection.prototype.IsElementType = function (value) {
     return value instanceof GradientStop;
 };
+
+//#endregion
+
+//#region ICollectionView
+
+function ICollectionView() {
+    RefObject.call(this);
+    this.CurrentChanged = new MulticastEvent();
+}
+ICollectionView.InheritFrom(RefObject);
+
+//#endregion
+
+//#region CurrentChangedListener
+
+function CurrentChangedListener(source, closure, func) {
+    /// <param name="source" type="ICollectionView"></param>
+    /// <param name="closure" type="RefObject"></param>
+    /// <param name="func" type="Function"></param>
+    RefObject.call(this);
+    
+    if (!source)
+        return;
+
+    this._Source = source;
+    this._Closure = closure;
+    this._Func = func;
+    this._Source.CurrentChanged.Subscribe(this, this.OnCurrentChangedInternal);
+}
+CurrentChangedListener.InheritFrom(RefObject);
+
+CurrentChangedListener.prototype.Detach = function () {
+    if (this._Source != null) {
+        this._Source.CurrentChanged.Unsubscribe(this, this.OnCurrentChangedInternal);
+        this._Source = null;
+        this._Closure = null;
+        this._Func = null;
+    }
+};
+CurrentChangedListener.prototype.OnCurrentChangedInternal = function (s, e) {
+    if (this._Closure != null && this._Func != null)
+        this._Func.call(this._Closure, s, e);
+};
+
+//#endregion
+
+//#region CollectionViewSource
+
+function CollectionViewSource() {
+    DependencyObject.call(this);
+}
+CollectionViewSource.InheritFrom(DependencyObject);
+
+//#region DEPENDENCY PROPERTIES
+
+CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return RefObject; }, CollectionViewSource);
+CollectionViewSource.prototype.GetSource = function () {
+    ///<returns type="RefObject"></returns>
+    return this.GetValue(CollectionViewSource.SourceProperty);
+};
+CollectionViewSource.prototype.SetSource = function (value) {
+    ///<param name="value" type="RefObject"></param>
+    this.SetValue(CollectionViewSource.SourceProperty, value);
+};
+
+CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
+CollectionViewSource.prototype.GetView = function () {
+    ///<returns type="ICollectionView"></returns>
+    return this.GetValue(CollectionViewSource.ViewProperty);
+};
+CollectionViewSource.prototype.SetView = function (value) {
+    ///<param name="value" type="ICollectionView"></param>
+    this.SetValue(CollectionViewSource.ViewProperty, value);
+};
+
+//#endregion
 
 //#endregion
 

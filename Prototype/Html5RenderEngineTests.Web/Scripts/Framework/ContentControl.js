@@ -11,19 +11,18 @@ function ContentControl() {
 ContentControl.InheritFrom(Control);
 
 ContentControl._FallbackTemplate = (function () {
-    //TODO: Create fallback template
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-    new ControlTemplate(ContentControl, {
+    return new ControlTemplate(ContentControl, {
         Type: Grid,
         Children: [
             {
-                Type: TextBlock
-                //TODO: , Text: new Binding()
+                Type: TextBlock,
+                Props: {
+                    Text: new BindingMarkup()
+                }
             }
         ]
     });
-    NotImplemented("ContentControl._FallbackTemplate");
-    return new ControlTemplate();
 })();
 
 //#region DEPENDENCY PROPERTIES
@@ -46,15 +45,20 @@ ContentControl.prototype.SetContentTemplate = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region PROPERTIES
 
-ContentControl.prototype._GetFallbackRoot = function () {
+ContentControl.prototype.GetFallbackRoot = function () {
     if (this._FallbackRoot == null)
         this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
     return this._FallbackRoot;
 };
+
+//#endregion
+
+//#region INSTANCE METHODS
+
 ContentControl.prototype._GetDefaultTemplate = function () {
-    return this._FallbackRoot;
+    return this.GetFallbackRoot();
 };
 
 //#endregion

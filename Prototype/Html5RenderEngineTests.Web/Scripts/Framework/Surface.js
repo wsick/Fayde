@@ -91,7 +91,7 @@ Surface.prototype._Attach = function (/* UIElement */element) {
     setTimeout(postAttach, 1);
 };
 Surface.prototype._AttachLayer = function (/* UIElement */layer) {
-    if (layer.RefEquals(this._TopLevel))
+    if (RefObject.RefEquals(layer, this._TopLevel))
         this._Layers.Insert(0, layer);
     else
         this._Layers.Add(layer);
@@ -105,7 +105,7 @@ Surface.prototype._AttachLayer = function (/* UIElement */layer) {
 Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
     this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
-    if (element.RefEquals(this._TopLevel)) {
+    if (RefObject.RefEquals(element, this._TopLevel)) {
         //TODO: this.Resize.Raise(this, null);
 
         element._UpdateTotalRenderVisibility();
@@ -122,7 +122,7 @@ Surface.prototype._IsTopLevel = function (/* UIElement */top) {
     var count = this._Layers.GetCount();
     for (var i = 0; i < count && !ret; i++) {
         var layer = this._Layers.GetValueAt(i);
-        ret = top.RefEquals(layer);
+        ret = RefObject.RefEquals(top, layer);
     }
     return ret;
 };
@@ -485,7 +485,7 @@ Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
     outObj.Index2 = -1;
 
     while (ui1 != null && ui2 != null) {
-        if (ui1.UIElement.RefEquals(ui2.UIElement)) {
+        if (RefObject.RefEquals(ui1.UIElement, ui2.UIElement)) {
             outObj.Index1 = i1;
             outObj.Index2 = i2;
         } else {
@@ -510,14 +510,14 @@ Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) 
 
 Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
     if (this._Captured || this._PendingCapture)
-        return uie.RefEquals(this._Captured) || uie.RefEquals(this._PendingCapture);
+        return RefObject.RefEquals(uie, this._Captured) || RefObject.RefEquals(uie, this._PendingCapture);
     if (!this._EmittingMouseEvent)
         return false;
     this._PendingCapture = uie;
     return true;
 };
 Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
-    if (!uie.RefEquals(this._Captured) && !uie.RefEquals(this._PendingCapture))
+    if (!RefObject.RefEquals(uie, this._Captured) && !RefObject.RefEquals(uie, this._PendingCapture))
         return;
     if (this._EmittingMouseEvent)
         this._PendingReleaseCapture = true;
@@ -548,7 +548,7 @@ Surface.prototype._PerformReleaseCapture = function () {
 //#region FOCUS
 
 Surface.prototype._FocusElement = function (/* UIElement */uie) {
-    if (uie.RefEquals(this._FocusedElement))
+    if (RefObject.RefEquals(uie, this._FocusedElement))
         return true;
 
     if (this._FocusedElement != null)

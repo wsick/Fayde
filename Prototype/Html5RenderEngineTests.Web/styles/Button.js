@@ -88,13 +88,13 @@
                             Props: {
                                 CornerRadius: new CornerRadius(3, 3, 3, 3),
                                 Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
-                                BorderThickness: new TemplateBinding("BorderThickness"),
-                                BorderBrush: new TemplateBinding("BorderBrush")
+                                BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                BorderBrush: new TemplateBindingMarkup("BorderBrush")
                             },
                             Content: {
                                 Type: Grid,
                                 Props: {
-                                    Background: new TemplateBinding("Background"),
+                                    Background: new TemplateBindingMarkup("Background"),
                                     Margin: new Thickness(1, 1, 1, 1)
                                 },
                                 Children: [
@@ -156,11 +156,11 @@
                             Type: ContentPresenter,
                             Name: "contentPresenter",
                             Props: {
-                                Content: new TemplateBinding("Content"),
-                                ContentTemplate: new TemplateBinding("ContentTemplate"),
-                                VerticalAlignment: new TemplateBinding("VerticalContentAlignment"),
-                                HorizontalAlignment: new TemplateBinding("HorizontalContentAlignment"),
-                                Margin: new TemplateBinding("Padding")
+                                Content: new TemplateBindingMarkup("Content"),
+                                ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
+                                VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                Margin: new TemplateBindingMarkup("Padding")
                             }
                         },
                         {

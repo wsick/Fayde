@@ -130,40 +130,126 @@ Function.prototype.InheritFrom = function (parentType) {
     this.prototype = new parentType;
     this.prototype.constructor = this;
     this.GetBaseClass = function () { return parentType; };
+    return this;
 };
 Function.prototype.DoesInheritFrom = function (type) {
     return (new this()) instanceof type;
+};
+Function.prototype.Implement = function (interface) {
+    var interfaceName = (new interface())._TypeName;
+    for (var i in interface.prototype) {
+        if (!this.prototype[i])
+            this.prototype[i] = new Function("throw new NotImplementedException();");
+    }
+    if (this._Interfaces == null)
+        this._Interfaces = new Array();
+    this._Interfaces[interfaceName] = true;
+    return this;
+};
+Function.prototype.DoesImplement = function (interface) {
+    if (!this._Interfaces)
+        return false;
+    var interfaceName = (new interface())._TypeName;
+    return this._Interfaces[interfaceName] === true;
+};
+
+String.prototype.indexOfAny = function (carr, start) {
+    if (!(carr instanceof Array))
+        return -1;
+    if (start == null)
+        start = 0;
+    for (var cur = start; cur < this.length; cur++) {
+        var c = this.charAt(c);
+        for (var i = 0; i < carr.length; i++) {
+            if (c === carr[i])
+                return cur;
+        }
+    }
+    return -1;
 };
 
 //#region RefObject
 
 function RefObject() {
     Object.call(this);
-    if (!RefObject.RegisteredIDs)
-        RefObject.RegisteredIDs = new Array();
-    var id;
-    do {
-        id = Math.random() * Number.MAX_VALUE;
-    } while (RefObject.RegisteredIDs[id]);
-    this._ID = id;
-    RefObject.RegisteredIDs[id] = true;
+    RefObject._LastID = this._ID = RefObject._LastID + 1;
+    this._TypeName = RefObject.GetTypeName.call(this);
 }
 RefObject.InheritFrom(Object);
 
-RefObject.prototype.RefEquals = function (robj) {
-    if (robj == null)
-        return false;
-    if (!(robj instanceof RefObject))
-        return false;
-    return this._ID === robj._ID;
-};
+RefObject._LastID = 0;
 RefObject.As = function (obj, type) {
+    if (obj == null)
+        return null;
     if (obj instanceof type)
+        return obj;
+    if (obj.constructor.DoesImplement(type))
         return obj;
     return null;
 };
+RefObject.GetTypeName = function () {
+    var funcNameRegex = /function (.{1,})\(/;
+    var results = (funcNameRegex).exec(this.constructor.toString());
+    return (results && results.length > 1) ? results[1] : "";
+};
+RefObject.RefEquals = function (robj1, robj2) {
+    if (robj1 == null && robj2 == null)
+        return true;
+    if (robj1 instanceof RefObject && robj2 instanceof RefObject)
+        return robj1._ID === robj2._ID;
+    return false;
+};
+RefObject.Equals = function (val1, val2) {
+    if (val1 == null && val2 == null)
+        return true;
+    if (val1 instanceof RefObject && val2 instanceof RefObject)
+        return RefObject.RefEquals(val1, val2);
+    if (!(val1 instanceof Object) && !(val2 instanceof Object))
+        return val1 === val2;
+    return false;
+};
 
 ///#endregion
+
+//#region PropertyInfo
+
+function PropertyInfo() {
+    RefObject.call(this);
+}
+PropertyInfo.InheritFrom(RefObject);
+
+PropertyInfo.Find = function (typeOrObj, name) {
+    var isType = typeOrObj instanceof Function;
+    var type = isType ? typeOrObj : typeOrObj.constructor;
+
+    var setFunc;
+    var getFunc;
+    for (var i in type.prototype) {
+        if (i.toString() === ("Set" + name))
+            setFunc = type.prototype[i];
+        if (i.toString() === ("Get" + name))
+            getFunc = type.prototype[i];
+        if (getFunc && setFunc) {
+            var pi = new PropertyInfo();
+            pi.Type = type;
+            pi.SetFunc = setFunc;
+            pi.GetFunc = getFunc;
+            return pi;
+        }
+    }
+};
+
+PropertyInfo.prototype.GetValue = function (ro) {
+    if (!this.GetFunc)
+        return undefined;
+    return this.GetFunc.call(ro);
+};
+PropertyInfo.prototype.SetValue = function (ro, value) {
+    if (this.SetFunc)
+        this.SetFunc.call(ro, value);
+};
+
+//#endregion
 
 /// CODE
 /// <reference path="Debug.js"/>
@@ -204,11 +290,6 @@ BError.InvalidOperation = 3;
 BError.Exception = 4;
 
 /// <reference path="RefObject.js"/>
-/// CODE
-/// <reference path="Primitives.js"/>
-
-
-/// <reference path="RefObject.js"/>
 
 //#region DependencyProperty
 
@@ -232,6 +313,11 @@ DependencyProperty.prototype.toString = function () {
     var results = (funcNameRegex).exec(this.OwnerType.toString());
     var ownerTypeName = (results && results.length > 1) ? results[1] : "";
     return ownerTypeName + "." + this.Name.toString();
+};
+DependencyProperty.prototype.GetDefaultValue = function (obj) {
+    if (this._HasDefaultValue)
+        return this.DefaultValue;
+    return this._GetAutoCreatedValue(obj);
 };
 DependencyProperty.prototype._HasDefaultValue = function () {
     return this.DefaultValue != null;
@@ -402,12 +488,23 @@ MouseButtonEventArgs.InheritFrom(MouseEventArgs);
 /// CODE
 /// <reference path="DependencyProperty.js"/>
 /// <reference path="ContentControl.js"/>
+/// <reference path="PropertyPath.js"/>
+/// <reference path="FrameworkElement.js"/>
+/// <reference path="ContentPresenter.js"/>
+/// <reference path="TextBox.js"/>
+/// <reference path="RelativeSource.js"/>
+/// <reference path="Binding.js"/>
 
 var BindingMode = {
     TwoWay: 0,
     OneWay: 1,
     OneTime: 2,
     OneWayToSource: 3
+};
+
+var UpdateSourceTrigger = {
+    Default: 0,
+    Explicit: 3
 };
 
 //#region Expression
@@ -418,45 +515,146 @@ function Expression() {
 Expression.InheritFrom(RefObject);
 
 Expression.prototype.GetValue = function (propd) {
-    AbstractMethod("_Expression.GetValue");
+    AbstractMethod("Expression.GetValue");
 };
 Expression.prototype._OnAttached = function (element) {
-    this._Attached = true;
+    ///<param name="element" type="DependencyObject"></param>
+    this.SetAttached(true);
 };
 Expression.prototype._OnDetached = function (element) {
-    this._Attached = false;
+    this.SetAttached(false);
 };
+
+//#region PROPERTIES
+
+Expression.prototype.GetAttached = function () {
+    return this._Attached;
+};
+Expression.prototype.SetAttached = function (/* Boolean */value) {
+    this._Attached = value;
+};
+
+Expression.prototype.GetUpdating = function () {
+    return this._Updating;
+};
+Expression.prototype.SetUpdating = function (/* Boolean */value) {
+    this._Updating = value;
+};
+
+//#endregion
 
 //#endregion
 
 //#region BindingExpressionBase
 
-function BindingExpressionBase() {
+function BindingExpressionBase(binding, target, propd) {
     Expression.call(this);
+
+    if (!binding)
+        return;
+
+    this._Cached = false;
+    this._CachedValue = null;
+
+    this._Binding = binding;
+    this.SetTarget(target);
+    this.SetProperty(propd);
+
+    var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
+    this.SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
+    if (binding.GetMode() !== BindingMode.OneTime) {
+        var walker = this.GetPropertyPathWalker();
+        walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);
+        walker.ValueChanged.Subscribe(this._PropertyPathValueChanged, this);
+    }
 }
 BindingExpressionBase.InheritFrom(Expression);
 
-BindingExpressionBase.prototype._GetBinding = function () {
-    return this._Binding;
-};
-BindingExpressionBase.prototype._SetBinding = function (/* Binding */binding) {
-    this._Binding = binding;
+BindingExpressionBase.prototype.GetValue = function (propd) {
+    if (this._Cached)
+        return this._CachedValue;
+
+    this._Cached = true;
+    if (this.GetPropertyPathWalker().GetIsPathBroken()) {
+        this._CachedValue = null;
+    } else {
+        this._CachedValue = this.GetPropertyPathWalker().GetValueInternal();
+    }
+
+    try {
+        this._CachedValue = this._ConvertToType(propd, this._CachedValue);
+    } catch (err) {
+        this._CachedValue = propd.GetDefaultValue(this.GetTarget());
+    }
+    return this._CachedValue;
 };
 
-BindingExpressionBase.prototype._GetTarget = function () {
-    return this._Target;
+BindingExpressionBase.prototype._OnAttached = function (element) {
+    ///<param name="element" type="DependencyObject"></param>
+    if (this.GetAttached())
+        return;
+    Expression.prototype._OnAttached.call(this, element);
+    this._CalculateDataSource();
+
+    if (this.GetIsTwoWayTextBoxText())
+        this.GetTarget().LostFocus.Subscribe(this._TextBoxLostFocus, this);
+
+    var targetFE = RefObject.As(element, FrameworkElement);
+    if (this.GetBinding().GetMode() === BindingMode.TwoWay && this.GetProperty()._IsCustom) {
+        var updateDataSourceCallback = function () {
+            try {
+                if (!this.GetUpdating())
+                    this._TryUpdateSourceObject(this.GetTarget().GetValue(this.GetProperty()));
+            } catch (err) {
+                //ignore
+            }
+        };
+        this._PropertyListener = new PropertyChangedListener(this.GetTarget(), this.GetProperty(), this, updateDataSourceCallback);
+    }
 };
-BindingExpressionBase.prototype._SetTarget = function (/* DependencyObject */value) {
-    this._Target = value;
+BindingExpressionBase.prototype._OnDetached = function (element) {
+    ///<param name="element" type="DependencyObject"></param>
+    if (!this.GetAttached())
+        return;
+
+    Expression.prototype._OnDetached.call(this, element);
+    if (this.GetIsTwoWayTextBoxText())
+        this.GetTarget().LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
+
+    var targetFE = RefObject.As(element, FrameworkElement);
+    if (this.GetIsMentorDataContextBound()) {
+        targetFE.MentorChanged.Unsubscribe(this._MentorChanged, this);
+        this.SetDataContextSource(null);
+    } else if (this.GetIsParentDataContextBound()) {
+        targetFE.VisualParentChanged.Subscribe(this._ParentChanged, this);
+        this.SetDataContextSource(null);
+    } else if (this.GetIsSelfDataContextBound()) {
+        this.SetDataContextSource(null);
+    }
+
+    if (targetFE == null)
+        targetFE = this.GetTarget().GetMentor();
+
+    if (targetFE != null && this.GetCurrentError() != null) {
+        //TODO: Validation.RemoveError(targetFE, this.GetCurrentError());
+        this.SetCurrentError(null);
+    }
+
+    if (this._PropertyListener != null) {
+        this._PropertyListener.Detach();
+        this._PropertyListener = null;
+    }
+    this.GetPropertyPathWalker().Update(null);
 };
 
-BindingExpressionBase.prototype._GetProperty = function () {
-    return this._Property;
+BindingExpressionBase.prototype._TextBoxLostFocus = function () {
+    this._UpdateSourceObject();
 };
-BindingExpressionBase.prototype._SetProperty = function (/* DependencyProperty */value) {
-    this._Property = value;
+BindingExpressionBase.prototype._TryUpdateSourceObject = function (value) {
+    if (!this.GetUpdating() && this.GetBinding().GetUpdateSourceTrigger() === UpdateSourceTrigger.Default) {
+        this._UpdateSourceObject(value, false);
+    }
 };
-
 BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
     if (value === undefined)
         value = GetTarget().GetValue(GetProperty());
@@ -464,23 +662,357 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
         force = false;
     if (this.GetBinding().Mode !== BindingMode.TwoWay)
         return;
-    NotImplemented("BindingExpressionBase._UpdateSourceObject");
+
+    var dataError = null;
+    var exception = null;
+    var oldUpdating = this.GetUpdating();
+    var node = this.GetPropertyPathWalker().GetFinalNode();
+
+    try {
+        // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
+        // Otherwise we only update if the textbox is unfocused.
+        //TODO: FocusManager
+        //if (!force && this.GetIsTwoWayTextBoxText() && RefObject.RefEquals(FocusManager.GetFocusedElement(), this.GetTarget()))
+        //return;
+
+        if (this.GetPropertyPathWalker().GetFinalNode().GetIsPathBroken())
+            return;
+
+        if (this.GetBinding().GetTargetNullValue() != null) {
+            try {
+                if (RefObject.RefEquals(this.GetBinding().GetTargetNullValue(), value))
+                    value = null;
+            } catch (err) {
+                //ignore
+            }
+        }
+
+        var converter = this.GetBinding().GetConverter();
+        if (converter != null) {
+            value = converter.ConvertBack(value, node.GetValueType(), this.GetBinding().GetConverterParameter(), /* TODO: Culture */null);
+        }
+
+        if (value instanceof String) {
+            //TODO: attempt to parse string for target type
+        }
+
+        try {
+            if (value != null)
+                value = this._ConvertFromTargetToSource(value);
+        } catch (err) {
+            return;
+        }
+
+        if (this._CachedValue == null && value == null)
+            return;
+        
+        this.SetUpdating(true);
+        node.SetValue(value);
+        this._CachedValue = value;
+    } catch (err) {
+        if (this.GetBinding().GetValidatesOnExceptions()) {
+            if (err instanceof TargetInvocationException)
+                exception = err.InnerException;
+            exception = err;
+        }
+    } finally {
+        this.SetUpdating(oldUpdating);
+        //TODO: IDataErrorInfo
+        //if (this.GetBinding().GetValidatesOnDataErrors() && exception == null && node.GetSource().DoesImplement(IDataErrorInfo) && node.GetPropertyInfo() != null) {
+        //dataError = node.GetSource()[node.GetPropertyInfo().Name];
+        //}
+    }
+    this._MaybeEmitError(dataError, exception);
 };
+BindingExpressionBase.prototype._MaybeEmitError = function (dataError, exception) {
+    NotImplemented("BindingExpressionBase._MaybeEmitError");
+};
+
+BindingExpressionBase.prototype._ConvertFromTargetToSource = function (value) {
+    NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
+    return value;
+};
+BindingExpressionBase.prototype._ConvertFromSourceToTarget = function (value) {
+    NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
+    return value;
+};
+BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
+    NotImplemented("BindingExpressionBase._ConvertToType");
+    return value;
+};
+
+BindingExpressionBase.prototype._AttachToNotifyError = function (element) {
+    ///<param name="element" type="INotifyDataErrorInfo"></param>
+    NotImplemented("BindingExpressionBase._AttachToNotifyError");
+};
+BindingExpressionBase.prototype._NotifyErrorsChanged = function (o, e) {
+    ///<param name="e" type="DataErrorsChangedEventArgs"></param>
+    NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
+};
+
+BindingExpressionBase.prototype._CalculateDataSource = function () {
+    var source = null;
+    if (this.GetBinding().GetSource() != null) {
+        this.GetPropertyPathWalker().Update(this.GetBinding().GetSource());
+    } else if (this.GetBinding().GetElementName() != null) {
+        source = this._FindSourceByElementName();
+        var feTarget = RefObject.As(this.GetTarget(), FrameworkElement);
+        if (feTarget == null)
+            feTarget = this.GetTarget().GetMentor();
+        if (feTarget == null) {
+            this.GetTarget().MentorChanged.Subscribe(this._InvalidateAfterMentorChanged, this);
+        } else {
+            feTarget.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
+        }
+        this.GetPropertyPathWalker().Update(source);
+    } else if (this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.Self) {
+        this.GetPropertyPathWalker().Update(this.GetTarget());
+    } else {
+        var fe = RefObject.As(this.GetTarget(), FrameworkElement);
+        if (fe != null && (this.GetProperty() === FrameworkElement.DataContextProperty || this.GetProperty() === ContentPresenter.ContentProperty)) {
+            fe.VisualParentChanged.Subscribe(this._ParentChanged, this);
+            fe = fe.GetVisualParent();
+            this.SetDataContextSource(fe);
+        } else {
+            if (fe == null) {
+                this.GetTarget().MentorChanged.Subscribe(this._MentorChanged, this);
+                fe = this.GetTarget().GetMentor();
+            }
+
+            if (fe != null && this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
+                this.GetPropertyPathWalker().Update(fe.GetTemplateOwner());
+            } else {
+                this.SetDataContextSource(fe);
+            }
+        }
+    }
+};
+BindingExpressionBase.prototype.SetDataContextSource = function (value) {
+    ///<param name="value" type="FrameworkElement"></param>
+    if (this._DataContextSource != null && this._DataContextPropertyListener != null) {
+        this._DataContextPropertyListener.Detach();
+        this._DataContextPropertyListener = null;
+    }
+    this._DataContextSource = value;
+    if (this._DataContextSource != null) {
+        this._DataContextPropertyListener = new PropertyChangedListener(this._DataContextSource, FrameworkElement.DataContextProperty, this, this._DataContextChanged);
+    }
+
+    if (this._DataContextSource != null || this.GetIsMentorDataContextBound())
+        this.GetPropertyPathWalker().Update(this._DataContextSource == null ? null : this._DataContextSource.GetDataContext());
+};
+BindingExpressionBase.prototype._InvalidateAfterMentorChanged = function (sender, e) {
+    ///<param name="e" type="EventArgs"></param>
+    this.GetTarget().MentorChanged.Unsubscribe(this._InvalidateAfterMentorChanged, this);
+    var source = this._FindSourceByElementName();
+    if (source == null) {
+        this.GetTarget().GetMentor().Loaded.Subscribe(this._HandleFeTargetLoaded, this);
+    } else {
+        this.GetPropertyPathWalker().Update(source);
+    }
+
+    this._Invalidate();
+    this.GetTarget().SetValue(this.GetProperty(), this);
+};
+BindingExpressionBase.prototype._HandleFeTargetLoaded = function (sender, e) {
+    var fe = sender;
+    fe.Loaded.Unsubscribe(this._HandleFeTargetLoaded, this);
+
+    var source = this._FindSourceByElementName();
+    if (source != null)
+        this.GetPropertyPathWalker().Update(source);
+
+    this._Invalidate();
+    this.GetTarget().SetValue(this.GetProperty(), this);
+};
+BindingExpressionBase.prototype._FindSourceByElementName = function () {
+    var source = null;
+    var fe = RefObject.As(this.GetTarget(), FrameworkElement);
+    if (!fe)
+        fe = this.GetTarget().GetMentor();
+    while (fe != null && source == null) {
+        source = fe.FindName(this.GetBinding().GetElementName());
+        if (source == null && fe.GetTemplateOwner() != null)
+            fe = fe.GetTemplateOwner();
+        else if (fe.GetMentor() != null && ItemsControl.GetItemsOwner(fe.GetMentor()) != null)
+            fe = fe.GetMentor();
+        else
+            fe = null;
+    }
+    return source;
+};
+
+BindingExpressionBase.prototype._Invalidate = function () {
+    this._Cached = false;
+    this._CachedValue = null;
+};
+BindingExpressionBase.prototype._MentorChanged = function (sender, e) {
+    /// <param name="e" type="EventArgs"></param>
+    try {
+        var mentor = this.GetTarget().GetMentor();
+        if (this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
+            if (mentor == null)
+                this.GetPropertyPathWalker().Update(null);
+            else
+                this.GetPropertyPathWalker().Update(menotr.GetTemplateOwner());
+            this.Refresh();
+        } else {
+            this.SetDataContextSource(mentor);
+        }
+    } catch (err) {
+        //ignore
+    }
+};
+BindingExpressionBase.prototype._ParentChanged = function (sender, e) {
+    /// <param name="e" type="EventArgs"></param>
+    try {
+        var targetFE = this.GetTarget();
+        this.SetDataContextSource(targetFE.GetVisualParent());
+    } catch (err) {
+        //ignore
+    }
+};
+BindingExpressionBase.prototype._DataContextChanged = function (sender, e) {
+    try {
+        var fe = sender;
+        this.GetPropertyPathWalker().Update(fe.GetDataContext());
+        if (this.GetBinding().GetMode() === BindingMode.OneTime)
+            this.Refresh();
+    } catch (err) {
+        Warn(err.message);
+    }
+};
+BindingExpressionBase.prototype._PropertyPathValueChanged = function () {
+    this.Refresh();
+};
+BindingExpressionBase.prototype.Refresh = function () {
+    var dataError = null;
+    var exception = null;
+
+    if (!this.GetAttached())
+        return;
+
+    //TODO: ERROR/VALIDATION
+    //var node = this.GetPropertyPathWalker().GetFinalNode();
+    //var source = node.GetSource();
+    //source = RefObject.As(source, INotifyDataErrorInfo));
+    //this._AttachToNotifyError(source);
+
+    //source = RefObject.As(node.GetSource(), IDataErrorInfo);
+    //if (!this.GetUpdating() && this.GetBinding().GetValidatesOnDataErrors() && source != null && node.GetPropertyInfo() != null)
+    //dataError = source[node.GetPropertyInfo().Name];
+
+    var oldUpdating = this.GetUpdating();
+    try {
+        this.SetUpdating(true);
+        this._Invalidate();
+        this.GetTarget().SetValue(this.GetProperty(), this);
+    } catch (err) {
+        if (this.GetBinding().GetValidatesOnExceptions()) {
+            exception = err;
+            if (exception instanceof TargetInvocationException)
+                exception = exception.InnerException;
+        }
+    } finally {
+        this.SetUpdating(oldUpdating);
+    }
+    this._MaybeEmitError(dataError, exception);
+};
+
+//#region PROPERTIES
+
+BindingExpressionBase.prototype.GetBinding = function () {
+    /// <returns type="Binding"></returns>
+    return this._Binding;
+};
+
+//NOT USED YET
+BindingExpressionBase.prototype.GetCurrentError = function () {
+    return this._CurrentError;
+};
+BindingExpressionBase.prototype.SetCurrentError = function (/* ValidationError */value) {
+    this._CurrentError = value;
+};
+
+BindingExpressionBase.prototype.GetCurrentNotifyError = function () {
+    return this._CurrentNotifyError;
+};
+BindingExpressionBase.prototype.SetCurrentNotifyError = function (/* INotifyDataErrorInfo */value) {
+    this._CurrentNotifyError = value;
+};
+//NOT USED YET
+
+BindingExpressionBase.prototype.GetDataContextSource = function () {
+    /// <returns type="FrameworkElement"></returns>
+    return this._DataContextSource;
+};
+
+BindingExpressionBase.prototype.GetDataSource = function () {
+    return this.GetPropertyPathWalker().GetSource();
+};
+
+BindingExpressionBase.prototype.GetIsBoundToAnyDataContext = function () {
+    return !this.GetBinding().GetElementName() && this.GetBinding().GetSource() == null;
+};
+BindingExpressionBase.prototype.GetIsSelfDataContextBound = function () {
+    return this.GetIsBoundToAnyDataContext()
+        && this.GetTarget() instanceof FrameworkElement
+        && this.GetProperty() !== FrameworkElement.DataContextProperty;
+};
+BindingExpressionBase.prototype.GetIsParentDataContextBound = function () {
+    return this.GetIsBoundToAnyDataContext()
+        && this.GetTarget() instanceof FrameworkElement
+        && (this.GetProperty() === FrameworkElement.DataContextProperty || this.GetProperty() === ContentPresenter.ContentProperty);
+};
+BindingExpressionBase.prototype.GetIsMentorDataContextBound = function () {
+    return this.GetIsBoundToAnyDataContext()
+        && !(this.GetTarget() instanceof FrameworkElement);
+};
+
+BindingExpressionBase.prototype.GetTarget = function () {
+    /// <returns type="DependencyObject"></returns>
+    return this._Target;
+};
+BindingExpressionBase.prototype.SetTarget = function (/* DependencyObject */value) {
+    this._Target = value;
+};
+
+BindingExpressionBase.prototype.GetProperty = function () {
+    /// <returns type="DependencyProperty"></returns>
+    return this._Property;
+};
+BindingExpressionBase.prototype.SetProperty = function (/* DependencyProperty */value) {
+    this._Property = value;
+};
+
+BindingExpressionBase.prototype.GetPropertyPathWalker = function () {
+    /// <returns type="_PropertyPathWalker"></returns>
+    return this._PropertyPathWalker;
+};
+BindingExpressionBase.prototype.SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
+    this._PropertyPathWalker = value;
+};
+
+BindingExpressionBase.prototype.GetIsTwoWayTextBoxText = function () {
+    return this.GetTarget() instanceof TextBox && this.GetProperty() === TextBox.TextProperty && this.GetBinding().GetMode() === BindingMode.TwoWay;
+};
+
+//#endregion
 
 //#endregion
 
 //#region BindingExpression
 
-function BindingExpression() {
-    BindingExpressionBase.call(this);
+function BindingExpression(binding, target, propd) {
+    BindingExpressionBase.call(this, binding, target, propd);
 }
 BindingExpression.InheritFrom(BindingExpressionBase);
 
 BindingExpression.prototype.GetParentBinding = function () {
-    return this._GetBinding();
+    return this.GetBinding();
 };
 BindingExpression.prototype.GetDataItem = function () {
-    return this._GetDataSource();
+    return this.GetDataSource();
 };
 BindingExpression.prototype.UpdateSource = function () {
     return this._UpdateSourceObject(undefined, true);
@@ -495,7 +1027,11 @@ function BindingOperations() {
 }
 BindingOperations.InheritFrom(RefObject);
 
-BindingOperations.SetBinding = function (/* DependencyObject */target, /* DependencyProperty */dp, /* BindingBase */binding) {
+BindingOperations.SetBinding = function (target, dp, binding) {
+    /// <param name="target" type="DependencyObject"></param>
+    /// <param name="dp" type="DependencyProperty"></param>
+    /// <param name="binding" type="BindingBase"></param>
+    /// <returns type="BindingExpressionBase" />
     if (target == null)
         throw new ArgumentNullException("target");
     if (dp == null)
@@ -503,7 +1039,9 @@ BindingOperations.SetBinding = function (/* DependencyObject */target, /* Depend
     if (binding == null)
         throw new ArgumentNullException("binding");
 
-    //var e = new BindingExpression(
+    var e = new BindingExpression(binding, target, dp);
+    target.SetValue(dp, e);
+    return e;
 };
 
 //#endregion
@@ -518,49 +1056,72 @@ function TemplateBindingExpression(sourcePropd, targetPropd) {
 TemplateBindingExpression.InheritFrom(Expression);
 
 TemplateBindingExpression.prototype.GetValue = function (propd) {
-    var source = this.Target._TemplateOwner;
+    var source = this.Target.GetTemplateOwner();
     var value = null;
     if (source != null)
         value = source.GetValue(this.SourceProperty);
-    return value; //TODO: Send through IValueConverter
+    return value; //TODO: Send through TypeConverter
 };
 TemplateBindingExpression.prototype._OnAttached = function (element) {
     Expression.prototype._OnAttached.call(this, element);
 
     this.Target = element;
-    if (this._Listener != null) {
-        this._Listener.Detach();
-        this._Listener = null;
+    var listener = this.GetListener();
+    if (listener != null) {
+        listener.Detach();
+        listener = null;
+        this.SetListener(listener);
     }
 
-    var c;
-    if (this.Target instanceof ContentControl)
-        c = this.Target;
-
+    var c = RefObject.As(this.Target, ContentControl);
     if (this.TargetProperty === ContentControl.ContentProperty && c != null) {
         this.SetsParent = c._ContentSetsParent;
         c._ContentSetsParent = false;
     }
 
-//    var source = this.Target._TemplateOwner;
-//    if (source != null)
-//        this._Listener = new WeakPropertyChangedListener(source, this.SourceProperty, this);
+    var source = this.Target.GetTemplateOwner();
+    if (source != null) {
+        listener = new PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
+        this.SetListener(listener);
+    }
 };
 TemplateBindingExpression.prototype._OnDetached = function (element) {
     Expression.prototype._OnDetached.call(this, element);
 
-    if (this._Listener == null)
+    var listener = this.GetListener();
+    if (listener == null)
         return;
 
-    var c;
-    if (this.Target instanceof ContentControl)
-        c = this.Target;
+    var c = RefObject.As(this.Target, ContentControl);
     if (c != null)
         c._ContentSetsParent = this.SetsParent;
 
-    this._Listener.Detach();
-    this._Listener = null;
+    listener.Detach();
+    listener = null;
+    this.SetListener(listener);
     this.Target = null;
+};
+TemplateBindingExpression.prototype.OnPropertyChanged = function (sender, args) {
+    try {
+        // Type converting doesn't happen for TemplateBindings
+        this.SetUpdating(true);
+        try {
+            this.Target.SetValue(this.TargetProperty, this.GetValue(null));
+        } catch (err2) {
+            this.Target.SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
+        }
+    } catch (err) {
+
+    } finally {
+        this.SetUpdating(false);
+    }
+};
+
+TemplateBindingExpression.prototype.GetListener = function () {
+    return this._Listener;
+};
+TemplateBindingExpression.prototype.SetListener = function (/* PropertyChangedListener */value) {
+    this._Listener = value;
 };
 
 //#endregion
@@ -579,7 +1140,7 @@ JsonParser.InheritFrom(RefObject);
 
 JsonParser.prototype.CreateObject = function (json, namescope) {
     var dobj = new json.Type();
-    dobj._TemplateOwner = this._TemplateBindingSource;
+    dobj.SetTemplateOwner(this._TemplateBindingSource);
     if (json.Name)
         dobj.SetNameOnScope(json.Name, namescope);
 
@@ -591,7 +1152,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
             if (propValue == undefined)
                 continue;
 
-            var propd = dobj.GetDependencyProperty(propName);
+            propd = dobj.GetDependencyProperty(propName);
             this.TrySetPropertyValue(dobj, propd, propValue, namescope, false);
         }
     }
@@ -628,11 +1189,11 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
         propValue = this.CreateObject(propValue, namescope);
     }
 
+    if (propValue instanceof Markup)
+        propValue = propValue.Transmute(dobj, propd, this._TemplateBindingSource);
     //Set property value
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
-            return;
-        if (this.TrySetTemplateBindingProperty(dobj, propValue, propd))
             return;
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
@@ -665,14 +1226,6 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
 
     return true;
 };
-JsonParser.prototype.TrySetTemplateBindingProperty = function (dobj, propValue, propd) {
-    if (!(propValue instanceof TemplateBinding))
-        return false;
-    var sourcePropd = DependencyProperty.GetDependencyProperty(this._TemplateBindingSource.constructor, propValue.Path);
-    propValue = new TemplateBindingExpression(sourcePropd, propd);
-    dobj.SetValue(propd, propValue);
-    return true;
-};
 
 JsonParser.prototype.GetAnnotationMember = function (type, member) {
     if (type === RefObject)
@@ -695,13 +1248,76 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
 
 //#endregion
 
-//#region TemplateBinding
+//#region Markup
 
-function TemplateBinding(path) {
+function Markup() {
     RefObject.call(this);
+}
+Markup.InheritFrom(RefObject);
+
+Markup.prototype.Transmute = function (propd, templateBindingSource) {
+    AbstractMethod("Markup.Transmute");
+};
+
+//#endregion
+
+//#region BindingMarkup
+
+function BindingMarkup(data) {
+    Markup.call(this);
+    if (!data)
+        data = {};
+    this._Data = data;
+}
+BindingMarkup.InheritFrom(Markup);
+
+BindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+    /// <param name="target" type="DependencyObject"></param>
+    /// <param name="templateBindingSource" type="DependencyObject"></param>
+    /// <param name="propd" type="DependencyProperty"></param>
+    return new BindingExpression(this._BuildBinding(), target, propd);
+};
+BindingMarkup.prototype._BuildBinding = function () {
+    /// <returns type="Binding" />
+    var b = new Binding(this._Data.Path);
+    if (this._Data.FallbackValue !== undefined)
+        b.SetFallbackValue(this._Data.FallbackValue);
+    if (this._Data.Mode !== undefined)
+        b.SetMode(this._Data.Mode);
+    return b;
+};
+
+//#endregion
+
+//#region TemplateBindingMarkup
+
+function TemplateBindingMarkup(path) {
+    Markup.call(this);
     this.Path = path;
 }
-TemplateBinding.InheritFrom(RefObject);
+TemplateBindingMarkup.InheritFrom(Markup);
+
+TemplateBindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+    /// <param name="target" type="DependencyObject"></param>
+    /// <param name="templateBindingSource" type="DependencyObject"></param>
+    /// <param name="propd" type="DependencyProperty"></param>
+    var sourcePropd = DependencyProperty.GetDependencyProperty(templateBindingSource.constructor, this.Path);
+    return new TemplateBindingExpression(sourcePropd, propd);
+};
+
+//#endregion
+
+//#region StaticResourceMarkup
+
+function StaticResourceMarkup(key) {
+    Markup.call(this);
+    this.Key = key;
+}
+StaticResourceMarkup.InheritFrom(Markup);
+
+StaticResourceMarkup.prototype.Transmute = function (propd, templateBindingSource) {
+    NotImplemented("StaticResourceMarkup.Transmute");
+};
 
 //#endregion
 
@@ -830,9 +1446,9 @@ function Dictionary() {
 }
 Dictionary.InheritFrom(RefObject);
 
-Dictionary.prototype.TryGetValue = function (key, refParam) {
-    refParam.Value = this._ht[key];
-    return refParam.Value != null;
+Dictionary.prototype.TryGetValue = function (key, data) {
+    data.Value = this._ht[key];
+    return data.Value != null;
 };
 Dictionary.prototype.Add = function (key, value) {
     this._ht[key] = value;
@@ -856,6 +1472,10 @@ function MulticastEvent() {
 MulticastEvent.InheritFrom(RefObject);
 
 MulticastEvent.prototype.Subscribe = function (callback, closure) {
+    /// <param name="callback" type="Function"></param>
+    /// <param name="closure" type="RefObject"></param>
+    if (!(callback instanceof Function))
+        throw new InvalidOperationException("Callback must be a function!");
     this._Listeners.push({ Callback: callback, Closure: closure });
 };
 MulticastEvent.prototype.SubscribeSpecific = function (callback, closure, matchFunc, matchClosure) {
@@ -865,7 +1485,9 @@ MulticastEvent.prototype.Unsubscribe = function (callback, closure, matchClosure
     for (var i in this._Listeners) {
         var listener = this._Listeners[i];
         if (listener.Callback === callback) {
-            if (listener.MatchClosure && matchClosure && listener.MatchClosure != matchClosure)
+            if (listener.Closure && closure && !RefObject.RefEquals(listener.Closure, closure))
+                continue;
+            if (listener.MatchClosure && matchClosure && !RefObject.RefEquals(listener.MatchClosure, matchClosure))
                 continue;
             this._Listeners.splice(i, 1);
             return;
@@ -884,6 +1506,96 @@ MulticastEvent.prototype.Raise = function (sender, args) {
 MulticastEvent.prototype.RaiseAsync = function (sender, args) {
     var me = this;
     setTimeout(function () { me.Raise(sender, args); }, 1);
+};
+
+//#endregion
+
+/// <reference path="RefObject.js"/>
+/// <reference path="EventArgs.js"/>
+/// <reference path="MulticastEvent.js"/>
+
+//#region PropertyChangedEventArgs
+
+function PropertyChangedEventArgs() {
+    EventArgs.call(this);
+}
+PropertyChangedEventArgs.InheritFrom(EventArgs);
+
+PropertyChangedEventArgs.prototype.GetPropertyName = function () {
+    return this._PropertyName;
+};
+PropertyChangedEventArgs.prototype.SetPropertyName = function (/* String */value) {
+    this._PropertyName = value;
+};
+
+//#endregion
+
+//#region INotifyPropertyChanged
+
+function INotifyPropertyChanged() {
+    RefObject.call(this);
+    this.PropertyChanged = new MulticastEvent();
+}
+INotifyPropertyChanged.InheritFrom(RefObject);
+INotifyPropertyChanged.prototype.RaisePropertyChanged = function (propertyName) {
+    this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
+};
+
+//#endregion
+
+//#region NPCListener
+
+function NPCListener(source, closure, func) {
+    RefObject.call(this);
+    this._Source = source;
+    this._Closure = closure;
+    this._Func = func;
+
+    if (this._Source)
+        this._Source.PropertyChanged.Subscribe(this._Func, this._Closure);
+}
+NPCListener.InheritFrom(RefObject);
+
+NPCListener.prototype.Detach = function () {
+    this._Source.PropertyChanged.Unsubscribe(this._Closure, this._Func);
+};
+
+//#endregion
+
+//#region PropertyChangedListener
+
+//Dependency Property changes only
+function PropertyChangedListener(source, propd, closure, func) {
+    /// <param name="source" type="DependencyObject"></param>
+    /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="closure" type="RefObject"></param>
+    /// <param name="func" type="Function"></param>
+    RefObject.call(this);
+
+    if (!source)
+        return;
+
+    this._Source = source;
+    this._Property = propd;
+    this._Closure = closure;
+    this._Func = func;
+    this._Source.PropertyChanged.Subscribe(this.OnPropertyChangedInternal, this);
+}
+PropertyChangedListener.InheritFrom(RefObject);
+
+PropertyChangedListener.prototype.Detach = function () {
+    if (this._Source != null) {
+        this._Source.PropertyChanged.Unsubscribe(this, this.OnPropertyChangedInternal);
+        this._Source = null;
+        this._Closure = null;
+        this._Func = null;
+    }
+};
+PropertyChangedListener.prototype.OnPropertyChangedInternal = function (s, e) {
+    if (e.Property !== this._Property)
+        return;
+    if (this._Closure != null && this._Func != null)
+        this._Func.call(this._Closure, s, e);
 };
 
 //#endregion
@@ -997,16 +1709,6 @@ var BindingMode = {
 function IsOpacityInvisible(opacity) {
     return opacity <= 0.0;
 }
-
-//#region RefParam
-
-function RefParam(v) {
-    RefObject.call(this);
-    this.Value = v;
-}
-RefParam.InheritFrom(RefObject);
-
-//#endregion
 
 //#region CornerRadius
 
@@ -1498,14 +2200,11 @@ Font.prototype.SetSize = function (value) {
 };
 
 Font.prototype.GetActualHeight = function () {
-    NotImplemented("Font.GetActualHeight");
+    return Surface._MeasureHeight(this);
 };
 
 Font.prototype._Descender = function () { return 0.0; }; //most likely removable
 Font.prototype._Ascender = function () { return 0.0; }; //most likely removable
-Font.prototype._Height = function () {
-    return Surface._MeasureHeight(this);
-};
 Font.prototype._PurgeCache = function () {
     this._CachedHeight = undefined;
 };
@@ -1528,6 +2227,689 @@ Font.DEFAULT_STRETCH = FontStretches.Normal;
 Font.DEFAULT_STYLE = FontStyles.Normal;
 Font.DEFAULT_WEIGHT = FontWeights.Normal;
 Font.DEFAULT_SIZE = "12px";
+
+//#endregion
+
+/// <reference path="RefObject.js"/>
+/// <reference path="NotifyProperty.js"/>
+/// CODE
+/// <reference path="EventArgs.js"/>
+/// <reference path="DependencyObject.js"/>
+/// <reference path="Collections.js"/>
+
+var _PropertyNodeType = {
+    AttachedProperty: 0,
+    Property: 1,
+    Indexed: 2,
+    None: 3
+};
+
+//#region _PropertyPath
+
+function _PropertyPath() {
+    RefObject.call(this);
+}
+_PropertyPath.InheritFrom(RefObject);
+
+_PropertyPath.CreateFromPath = function (path, expandedPath) {
+    var p = new _PropertyPath();
+    p._Path = path;
+    p._ExpandedPath = expandedPath;
+    return p;
+};
+_PropertyPath.CreateFromParameter = function (parameter) {
+    var p = new _PropertyPath();
+    p._Propd = RefObject.As(parameter, DependencyProperty);
+    p._Path = null;
+    if (parameter instanceof String)
+        p._Path = parameter;
+    return p;
+};
+
+_PropertyPath.prototype.HasDependencyProperty = function () {
+    return this._Propd != null;
+};
+
+//#region PROPERTIES
+
+_PropertyPath.prototype.GetDP = function () {
+    return this._Propd;
+};
+_PropertyPath.prototype.GetPath = function () {
+    return this._Propd == null ? this._Path : "(0)";
+};
+_PropertyPath.prototype.GetExpandedPath = function () {
+    return this._Propd == null ? this._ExpandedPath : "(0)";
+};
+_PropertyPath.prototype.GetParsePath = function () {
+    if (this._Propd != null)
+        return "(0)";
+    if (this._ExpandedPath != null)
+        return this._ExpandedPath;
+    return this._Path;
+};
+
+//#endregion
+
+//#endregion
+
+//#region _PropertyPathWalker
+
+function _PropertyPathWalker(path, bindDirectlyToSource, bindsToView, isDataContextBound) {
+    RefObject.call(this);
+    if (bindDirectlyToSource == null)
+        bindDirectlyToSource = true;
+    if (bindsToView == null)
+        bindsToView = false;
+    if (isDataContextBound == null)
+        isDataContextBound = false;
+
+    this.IsBrokenChanged = new MulticastEvent();
+    this.ValueChanged = new MulticastEvent();
+
+    this._Init(path, bindDirectlyToSource, bindsToView, isDataContextBound);
+}
+_PropertyPathWalker.InheritFrom(RefObject);
+
+_PropertyPathWalker.prototype._Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
+    this.SetPath(path);
+    this.SetIsDataContextBound(isDataContextBound);
+
+    var lastCVNode = null;
+
+    if (!path || path === ".") {
+        lastCVNode = new _CollectionViewNode(bindDirectlyToSource, bindsToView);
+        this.SetNode(lastCVNode);
+        this.SetFinalNode(lastCVNode);
+    } else {
+        var data = {
+            typeName: undefined,
+            propertyName: undefined,
+            index: undefined
+        };
+        var type;
+        var parser = new _PropertyPathParser(path);
+        while ((type = parser.Step(data)) !== _PropertyNodeType.None) {
+            var isViewProperty = false;
+            var node = new _CollectionViewNode(bindDirectlyToSource, isViewProperty);
+            lastCVNode = node;
+            switch (type) {
+                case _PropertyNodeType.AttachedProperty:
+                case _PropertyNodeType.Property:
+                    node.SetNext(new _StandardPropertyPathNode(data.typeName, data.propertyName));
+                    break;
+                case _PropertyNodeType.Indexed:
+                    node.SetNext(new _IndexedPropertyPathNode(data.index));
+                    break;
+                default:
+                    break;
+            }
+
+            if (this.GetFinalNode() != null)
+                this.GetFinalNode().SetNext(node);
+            else
+                this.SetNode(node);
+            this.SetFinalNode(node.GetNext());
+        }
+    }
+
+    lastCVNode.SetBindToView(lastCVNode.GetBindToView() || bindsToView);
+    this.GetFinalNode().IsBrokenChanged.Subscribe(function (s, a) {
+        this.SetValueInternal(RefObject.As(s, _PropertyPathNode).GetValue());
+        this.IsBrokenChanged.Raise(this, new EventArgs());
+    },
+    this);
+    this.GetFinalNode().ValueChanged.Subscribe(function (s, a) {
+        this.SetValueInternal(RefObject.As(s, _PropertyPathNode).GetValue());
+        this.ValueChanged.Raise(this, new EventArgs());
+    },
+    this);
+};
+_PropertyPathWalker.prototype.GetValue = function (item) {
+    this.Update(item);
+    var o = this.GetFinalNode().GetValue();
+    this.Update(null);
+    return o;
+};
+_PropertyPathWalker.prototype.Update = function (source) {
+    this.SetSource(source);
+    this.GetNode().SetSource(source);
+};
+
+//#region PROPERTIES
+
+_PropertyPathWalker.prototype.GetSource = function () {
+    /// <returns type="RefObject" />
+    return this._Source;
+};
+_PropertyPathWalker.prototype.SetSource = function (value) {
+    /// <param name="value" type="RefObject"></param>
+    this._Source = value;
+};
+
+_PropertyPathWalker.prototype.GetPath = function () {
+    /// <returns type="String" />
+    return this._Path;
+};
+_PropertyPathWalker.prototype.SetPath = function (value) {
+    /// <param name="value" type="String"></param>
+    this._Path = value;
+};
+
+_PropertyPathWalker.prototype.GetValueInternal = function () {
+    ///<returns type="RefObject"></returns>
+    return this._ValueInternal;
+};
+_PropertyPathWalker.prototype.SetValueInternal = function (value) {
+    ///<param name="value" type="RefObject"></param>
+    this._ValueInternal = value;
+};
+
+_PropertyPathWalker.prototype.GetIsDataContextBound = function () {
+    /// <returns type="Boolean" />
+    return this._IsDataContextBound;
+};
+_PropertyPathWalker.prototype.SetIsDataContextBound = function (value) {
+    /// <param name="value" type="Boolean"></param>
+    this._IsDataContextBound = value;
+};
+
+_PropertyPathWalker.prototype.GetNode = function () {
+    /// <returns type="_PropertyPathNode" />
+    return this._Node;
+};
+_PropertyPathWalker.prototype.SetNode = function (value) {
+    /// <param name="value" type="_PropertyPathNode"></param>
+    this._Node = value;
+};
+
+_PropertyPathWalker.prototype.GetFinalNode = function () {
+    /// <returns type="_PropertyPathNode" />
+    return this._FinalNode;
+};
+_PropertyPathWalker.prototype.SetFinalNode = function (value) {
+    /// <param name="value" type="_PropertyPathNode"></param>
+    this._FinalNode = value;
+};
+
+_PropertyPathWalker.prototype.GetIsPathBroken = function () {
+    /// <returns type="Boolean" />
+    var path = this.GetPath();
+    if (this.GetIsDataContextBound() && (path == null || path.length < 1))
+        return false;
+
+    var node = this.GetNode();
+    while (node != null) {
+        if (node.GetIsBroken())
+            return true;
+        node = node.GetNext();
+    }
+    return false;
+};
+
+//#endregion
+
+//#endregion
+
+//#region _PropertyPathNode
+
+function _PropertyPathNode() {
+    RefObject.call(this);
+    this.SetIsBroken(true);
+    this.IsBrokenChanged = new MulticastEvent();
+    this.ValueChanged = new MulticastEvent();
+}
+_PropertyPathNode.InheritFrom(RefObject);
+
+_PropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
+};
+_PropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
+};
+
+_PropertyPathNode.prototype.UpdateValue = function () {
+    AbstractMethod("_PropertyPathNode.UpdateValue");
+};
+_PropertyPathNode.prototype.SetValue = function (value) {
+    AbstractMethod("_PropertyPathNode.SetValue");
+};
+_PropertyPathNode.prototype.SetSource = function (value) {
+    if (value == null || !RefObject.Equals(value, this._Source)) {
+        var oldSource = this._Source;
+        var listener = this.GetListener();
+        if (listener != null) {
+            listener.Detach();
+            listener = null;
+            this.SetListener(listener);
+        }
+
+        this._Source = value;
+        if (this._Source != null && this._Source instanceof RefObject && this._Source.DoesImplement(INotifyPropertyChanged)) {
+            listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
+            this.SetListener(listener);
+        }
+
+        this.OnSourceChanged(oldSource, this._Source);
+        this.UpdateValue();
+        if (this.GetNext() != null)
+            this.GetNext().SetSource(this._Value);
+    }
+};
+
+_PropertyPathNode.prototype._UpdateValueAndIsBroken = function (newValue, isBroken) {
+    var emitBrokenChanged = this.GetIsBroken() !== isBroken;
+    var emitValueChanged = !RefObject.Equals(this.GetValue(), newValue);
+
+    this.SetIsBroken(isBroken);
+    this._Value = newValue;
+
+    if (emitValueChanged) {
+        this.ValueChanged.Raise(this, new EventArgs());
+    } else if (emitBrokenChanged) {
+        this.IsBrokenChanged.Raise(this, new EventArgs());
+    }
+};
+_PropertyPathNode.prototype._CheckIsBroken = function () {
+    return this.GetSource() == null || (this.GetPropertyInfo() == null && this.GetDependencyProperty() == null);
+};
+
+//#region PROPERTIES
+
+_PropertyPathNode.prototype.GetIsBroken = function () {
+    return this._IsBroken;
+};
+_PropertyPathNode.prototype.SetIsBroken = function (/* Boolean */value) {
+    this._IsBroken = value;
+};
+
+_PropertyPathNode.prototype.GetDependencyProperty = function () {
+    return this._DependencyProperty;
+};
+_PropertyPathNode.prototype.SetDependencyProperty = function (/* DependencyProperty */value) {
+    this._DependencyProperty = value;
+};
+
+_PropertyPathNode.prototype.GetNext = function () {
+    /// <returns type="_PropertyPathNode" />
+    return this._Next;
+};
+_PropertyPathNode.prototype.SetNext = function (value) {
+    /// <param name="value" type="_PropertyPathNode"></param>
+    this._Next = value;
+};
+
+_PropertyPathNode.prototype.GetPropertyInfo = function () {
+    return this._PropertyInfo;
+};
+_PropertyPathNode.prototype.SetPropertyInfo = function (/* PropertyInfo */value) {
+    this._PropertyInfo = value;
+};
+
+_PropertyPathNode.prototype.GetListener = function () {
+    return this._Listener;
+};
+_PropertyPathNode.prototype.SetListener = function (/* NPCListener */value) {
+    this._Listener = value;
+};
+
+_PropertyPathNode.prototype.GetSource = function () {
+    /// <returns type="RefObject" />
+    return this._Source;
+};
+
+_PropertyPathNode.prototype.GetValue = function () {
+    return this._Value;
+};
+
+_PropertyPathNode.prototype.GetValueType = function () {
+    return this._ValueType;
+};
+_PropertyPathNode.prototype.SetValueType = function (value) {
+    this._ValueType = value;
+};
+
+//#endregion
+
+//#endregion
+
+//#region _StandardPropertyPathNode
+
+function _StandardPropertyPathNode(typeName, propertyName) {
+    _PropertyPathNode.call(this);
+    this._STypeName = typeName;
+    this._PropertyName = propertyName;
+}
+_StandardPropertyPathNode.InheritFrom(_PropertyPathNode);
+
+_StandardPropertyPathNode.prototype.SetValue = function (value) {
+    if (this.GetDependencyProperty() != null)
+        this.GetSource().SetValue(this.GetDependencyProperty(), value);
+    else if (this.GetPropertyInfo() != null)
+        this.GetPropertyInfo().SetValue(this.GetSource(), value, null);
+};
+_StandardPropertyPathNode.prototype.UpdateValue = function () {
+    if (this.GetDependencyProperty() != null) {
+        this.SetValueType(this.GetDependencyProperty().GetTargetType());
+        this._UpdateValueAndIsBroken(this.GetSource().GetValue(this.GetDependencyProperty()), this._CheckIsBroken());
+    } else if (this.GetPropertyInfo() != null) {
+        //TODO: this.SetValueType(PropertyInfo.PropertyType);
+        this.SetValueType(null);
+        try {
+            this._UpdateValueAndIsBroken(this.GetPropertyInfo().GetValue(this.GetSource(), null), this._CheckIsBroken());
+        } catch (err) {
+            this._UpdateValueAndIsBroken(null, this._CheckIsBroken());
+        }
+    } else {
+        this.SetValueType(null);
+        this._UpdateValueAndIsBroken(null, this._CheckIsBroken());
+    }
+};
+
+_StandardPropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
+    _PropertyPathNode.prototype.OnSourceChanged.call(this, oldSource, newSource);
+
+    var oldDO = RefObject.As(oldSource, DependencyObject);
+    var newDO = RefObject.As(newSource, DependencyObject);
+    var listener = this.GetListener();
+    if (listener != null) {
+        listener.Detach();
+        this.SetListener(listener);
+    }
+
+    this.SetDependencyProperty(null);
+    this.SetPropertyInfo(null);
+    if (this.GetSource() == null)
+        return;
+
+    if (newDO != null) {
+        propd = DependencyProperty.GetDependencyProperty(this.GetSource().constructor, this.GetPropertyName());
+        if (propd != null) {
+            this.SetDependencyProperty(propd);
+            listener = new PropertyChangedListener(newDO, propd, this, this.OnPropertyChanged);
+            this.SetListener(listener);
+        }
+    }
+
+    if (this.GetDependencyProperty() == null || !this.GetDependencyProperty()._IsAttached) {
+        this.SetPropertyInfo(PropertyInfo.Find(this.GetSource(), this.GetPropertyName()));
+    }
+};
+_StandardPropertyPathNode.prototype.OnPropertyChanged = function (s, e) {
+    try {
+        this.UpdateValue();
+        if (this.GetNext() != null)
+            this.GetNext().SetSource(this.GetValue());
+    } catch (err) {
+        //Ignore
+    }
+};
+_StandardPropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
+    if (e.PropertyName === this.GetPropertyName() && this.GetPropertyInfo() != null) {
+        this.UpdateValue();
+        var next = this.GetNext();
+        if (next != null)
+            next.SetSource(this.GetValue());
+    }
+};
+
+//#region PROPERTIES
+
+_StandardPropertyPathNode.prototype.GetTypeName = function () {
+    return this._STypeName;
+};
+
+_StandardPropertyPathNode.prototype.GetPropertyName = function () {
+    return this._PropertyName;
+};
+
+//#endregion
+
+//#endregion
+
+//#region _IndexedPropertyPathNode
+
+function _IndexedPropertyPathNode(index) {
+    _PropertyPathNode.call(this);
+    this._isBroken = false;
+    var val = parseInt(index, 10);
+    if (isNaN(val))
+        this.SetIndex(index);
+    else
+        this.SetIndex(val);
+}
+_IndexedPropertyPathNode.InheritFrom(_PropertyPathNode);
+
+_IndexedPropertyPathNode.prototype._CheckIsBroken = function () {
+    return this._isBroken || _PropertyPathNode.prototype._CheckIsBroken.call(this);
+};
+_IndexedPropertyPathNode.prototype.UpdateValue = function () {
+    NotImplemented("_IndexedPropertyPathNode.UpdateValue");
+};
+
+_IndexedPropertyPathNode.prototype.GetIndex = function () {
+    return this._Index;
+};
+_IndexedPropertyPathNode.prototype.SetIndex = function (value) {
+    this._Index = value;
+};
+
+//#endregion
+
+//#region _CollectionViewNode
+
+function _CollectionViewNode(bindsDirectlyToSource, bindToView, viewChanged) {
+    _PropertyPathNode.call(this);
+    this.SetBindsDirectlyToSource(bindsDirectlyToSource === true);
+    this.SetBindToView(bindToView === true);
+    this.SetViewChangedHandler(this.ViewChanged);
+}
+_CollectionViewNode.InheritFrom(_PropertyPathNode);
+
+_CollectionViewNode.prototype.OnSourceChanged = function (oldSource, newSource) {
+    _PropertyPathNode.prototype.OnSourceChanged.call(this, oldSource, newSource);
+    this.DisconnectViewHandlers();
+    this.ConnectViewHandlers(RefObject.As(newSource, CollectionViewSource), RefObject.As(newSource, ICollectionView));
+};
+_CollectionViewNode.prototype.ViewChanged = function (sender, e) {
+    this.DisconnectViewHandlers(true);
+    this.ConnectViewHandlers(null, e.NewValue);
+    this.ViewCurrentChanged(this, new EventArgs());
+};
+_CollectionViewNode.prototype.ViewCurrentChanged = function (sender, e) {
+    this.UpdateValue();
+    if (this.GetNext() != null)
+        this.GetNext().SetSource(this.GetValue());
+};
+_CollectionViewNode.prototype.SetValue = function () {
+    throw new NotImplementedException();
+};
+_CollectionViewNode.prototype.UpdateValue = function () {
+    if (this.GetBindsDirectlyToSource()) {
+        this.SetValueType(this.GetSource() == null ? null : this.GetSource().constructor);
+        this._UpdateValueAndIsBroken(this.GetSource(), this._CheckIsBroken());
+    } else {
+        var usableSource = this.GetSource();
+        var view = null;
+        if (this.GetSource() instanceof CollectionViewSource) {
+            usableSource = null;
+            view = this.GetSource().GetView();
+        } else if (this.GetSource().DoesImplement(ICollectionView)) {
+            view = this.GetSource();
+        }
+
+        if (view == null) {
+            this.SetValueType(usableSource == null ? null : usableSource.constructor);
+            this._UpdateValueAndIsBroken(usableSource, this._CheckIsBroken());
+        } else {
+            if (this.GetBindToView()) {
+                this.SetValueType(view.constructor);
+                this._UpdateValueAndIsBroken(view, this._CheckIsBroken());
+            } else {
+                this.SetValueType(view.GetCurrentItem() == null ? null : view.GetCurrentItem().constructor);
+                this._UpdateValueAndIsBroken(view.GetCurrentItem(), this._CheckIsBroken());
+            }
+        }
+    }
+};
+_CollectionViewNode.prototype._CheckIsBroken = function () {
+    return this.GetSource() == null;
+};
+
+_CollectionViewNode.prototype.ConnectViewHandlers = function (source, view) {
+    /// <param name="source" type="CollectionViewSource"></param>
+    /// <param name="view" type="ICollectionView"></param>
+    if (source != null) {
+        this._ViewPropertyListener = new PropertyChangedListener(source, source.constructor.ViewProperty, this, this.ViewChanged);
+        view = source.GetView();
+    }
+    if (view != null)
+        this._ViewListener = new CurrentChangedListener(view, this, this.ViewCurrentChanged);
+
+};
+_CollectionViewNode.prototype.DisconnectViewHandlers = function (onlyView) {
+    /// <param name="onlyView" type="Boolean"></param>
+    if (onlyView == null)
+        onlyView = false;
+    if (this._ViewPropertyListener != null && !onlyView) {
+        this._ViewPropertyListener.Detach();
+        this._ViewPropertyListener = null;
+    }
+    if (this._ViewListener != null) {
+        this._ViewListener.Detach();
+        this._ViewListener = null;
+    }
+};
+
+//#region PROPERTIES
+
+_CollectionViewNode.prototype.GetBindsDirectlyToSource = function () {
+    return this._BindsDirectlyToSource;
+};
+_CollectionViewNode.prototype.SetBindsDirectlyToSource = function (/* Boolean */value) {
+    this._BindsDirectlyToSource = value;
+};
+
+_CollectionViewNode.prototype.GetBindToView = function () {
+    return this._BindToView;
+};
+_CollectionViewNode.prototype.SetBindToView = function (/* Boolean */value) {
+    this._BindToView = value;
+};
+
+_CollectionViewNode.prototype.GetViewChangedHandler = function () {
+    return this._ViewChangedHandler;
+};
+_CollectionViewNode.prototype.SetViewChangedHandler = function (/* Function */value) {
+    this._ViewChangedHandler = value;
+};
+
+//#endregion
+
+//#endregion
+
+//#region _PropertyPathParser
+
+function _PropertyPathParser(path) {
+    RefObject.call(this);
+    this.SetPath(path);
+}
+_PropertyPathParser.InheritFrom(RefObject);
+
+_PropertyPathParser.prototype.Step = function (data) {
+    var type = _PropertyNodeType.None;
+    if (this.GetPath().length === 0) {
+        data.typeName = null;
+        data.propertyName = null;
+        data.index = null;
+        return type;
+    }
+
+    var end;
+    if (this.GetPath().charAt(0) === '(') {
+        type = _PropertyNodeType.AttachedProperty;
+        end = this.GetPath().indexOf(')');
+        if (end === -1)
+            throw new ArgumentException("Invalid property path. Attached property is missing the closing bracket");
+
+        var splitIndex;
+        var tickOpen = this.GetPath().indexOf('\'');
+        var tickClose = 0;
+        var typeOpen;
+        var typeClose;
+        var propOpen;
+        var propClose;
+
+        typeOpen = this.GetPath().indexOf('\'');
+        if (typeOpen > 0) {
+            typeOpen++;
+
+            typeClose = this.GetPath().indexOf('\'', typeOpen + 1);
+            if (typeClose < 0)
+                throw new Exception("Invalid property path, Unclosed type name '" + this.GetPath() + "'.");
+
+            propOpen = this.GetPath().indexOf('.', typeClose);
+            if (propOpen < 0)
+                throw new Exception("Invalid properth path, No property indexer found '" + this.GetPath() + "'.");
+
+            propOpen++;
+        } else {
+            typeOpen = 1;
+            typeClose = this.GetPath().indexOf('.', typeOpen);
+            if (typeClose < 0)
+                throw new Exception("Invalid property path, No property indexer found on '" + this.GetPath() + "'.");
+            propOpen = typeClose + 1;
+        }
+
+        propClose = end;
+
+        data.typeName = this.GetPath().slice(typeOpen, typeClose);
+        data.propertyName = this.GetPath().slice(propOpen, propClose);
+
+        data.index = null;
+        if (this.GetPath().length > (end + 1) && this.GetPath().charAt(end + 1) === '.')
+            end++;
+        this.SetPath(this.GetPath().substr(end + 1));
+    } else if (this.GetPath().charAt(0) === '[') {
+        type = _PropertyNodeType.Indexed;
+        end = this.GetPath().indexOf(']');
+
+        data.typeName = null;
+        data.propertyName = null;
+        data.index = this.GetPath().substr(1, end - 1);
+        this.SetPath(this.GetPath().substr(end + 1));
+        if (this.GetPath().charAt(0) === '.')
+            this.SetPath(this.GetPath().substr(1));
+    } else {
+        type = _PropertyNodeType.Property;
+        end = this.GetPath().indexOfAny(['.', '[']);
+
+        if (end === -1) {
+            data.propertyName = this.GetPath();
+            this.SetPath("");
+        } else {
+            data.propertyName = this.GetPath().substr(0, end);
+            if (this.GetPath().charAt(end) === '.')
+                this.SetPath(this.GetPath().substr(end + 1));
+            else
+                this.SetPath(this.GetPath().substr(end));
+        }
+
+        data.typeName = null;
+        data.index = null;
+    }
+
+    return type;
+};
+
+//#region PROPERTIES
+
+_PropertyPathParser.prototype.GetPath = function () {
+    return this._Path;
+};
+_PropertyPathParser.prototype.SetPath = function (/* String */value) {
+    this._Path = value;
+};
+
+//#endregion
 
 //#endregion
 
@@ -2338,33 +3720,33 @@ _InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function
     return this._Source.GetValue(propd);
 };
 _InheritedDataContextPropertyValueProvider.prototype.SetDataSource = function (source) {
-    if (this._Source == source)
+    if (RefObject.RefEquals(this._Source, source))
         return;
 
-    var oldValue = this._Source ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
-    var newValue = source ? source.GetValue(FrameworkElement.DataContextProperty) : null;
+    var oldValue = this._Source != null ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
+    var newValue = source != null ? source.GetValue(FrameworkElement.DataContextProperty) : null;
 
     this._DetachListener(this._Source);
     this._Source = source;
     this._AttachListener(this._Source);
 
-    if (oldValue != newValue) {
+    if (!RefObject.Equals(oldValue, newValue)) {
         var error = new BError();
         this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
     }
 };
 _InheritedDataContextPropertyValueProvider.prototype._AttachListener = function (source) {
-    if (source) {
-        var matchFunc = function (sender, args) {
-            return this == args.Property; //Closure - FrameworkElement.DataContextProperty
-        };
-        source.PropertyChanged.SubscribeSpecific(this._SourceDataContextChanged, this, matchFunc, FrameworkElement.DataContextProperty);
+    if (source != null) {
+        this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
         //TODO: Add Handler - Destroyed Event
     }
 };
 _InheritedDataContextPropertyValueProvider.prototype._DetachListener = function (source) {
-    if (source) {
-        source.PropertyChanged.Unsubscribe(this._SourceDataContextChanged, this, FrameworkElement.DataContextProperty);
+    if (this._DataContextListener != null) {
+        this._DataContextListener.Detach();
+        this._DataContextListener = null;
+    }
+    if (source != null) {
         //TODO: Remove Handler - Destroyed Event
     }
 };
@@ -2373,7 +3755,7 @@ _InheritedDataContextPropertyValueProvider.prototype._SourceDataContextChanged =
     this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
 };
 _InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
-    if (this._Source) {
+    if (this._Source != null) {
         var error = new BError();
         this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
     }
@@ -2431,6 +3813,34 @@ _AutoCreatePropertyValueProvider.prototype.ReadLocalValue = function (propd) {
 };
 _AutoCreatePropertyValueProvider.prototype.ClearValue = function (propd) {
     delete this._ht[propd];
+};
+
+//#endregion
+
+/// <reference path="RefObject.js"/>
+/// CODE
+
+var RelativeSourceMode = {
+    TemplatedParent: 1,
+    Self: 2
+};
+
+//#region RelativeSource
+
+function RelativeSource(mode) {
+    RefObject.call(this);
+
+    if (mode == null)
+        mode = RelativeSourceMode.TemplatedParent;
+    this.SetMode(mode);
+}
+RelativeSource.InheritFrom(RefObject);
+
+RelativeSource.prototype.GetMode = function () {
+    return this._Mode;
+};
+RelativeSource.prototype.SetMode = function (/* RelativeSourceMode */value) {
+    this._Mode = value;
 };
 
 //#endregion
@@ -2528,7 +3938,7 @@ Surface.prototype._Attach = function (/* UIElement */element) {
     setTimeout(postAttach, 1);
 };
 Surface.prototype._AttachLayer = function (/* UIElement */layer) {
-    if (layer.RefEquals(this._TopLevel))
+    if (RefObject.RefEquals(layer, this._TopLevel))
         this._Layers.Insert(0, layer);
     else
         this._Layers.Add(layer);
@@ -2542,7 +3952,7 @@ Surface.prototype._AttachLayer = function (/* UIElement */layer) {
 Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
     this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
-    if (element.RefEquals(this._TopLevel)) {
+    if (RefObject.RefEquals(element, this._TopLevel)) {
         //TODO: this.Resize.Raise(this, null);
 
         element._UpdateTotalRenderVisibility();
@@ -2559,7 +3969,7 @@ Surface.prototype._IsTopLevel = function (/* UIElement */top) {
     var count = this._Layers.GetCount();
     for (var i = 0; i < count && !ret; i++) {
         var layer = this._Layers.GetValueAt(i);
-        ret = top.RefEquals(layer);
+        ret = RefObject.RefEquals(top, layer);
     }
     return ret;
 };
@@ -2922,7 +4332,7 @@ Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
     outObj.Index2 = -1;
 
     while (ui1 != null && ui2 != null) {
-        if (ui1.UIElement.RefEquals(ui2.UIElement)) {
+        if (RefObject.RefEquals(ui1.UIElement, ui2.UIElement)) {
             outObj.Index1 = i1;
             outObj.Index2 = i2;
         } else {
@@ -2947,14 +4357,14 @@ Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) 
 
 Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
     if (this._Captured || this._PendingCapture)
-        return uie.RefEquals(this._Captured) || uie.RefEquals(this._PendingCapture);
+        return RefObject.RefEquals(uie, this._Captured) || RefObject.RefEquals(uie, this._PendingCapture);
     if (!this._EmittingMouseEvent)
         return false;
     this._PendingCapture = uie;
     return true;
 };
 Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
-    if (!uie.RefEquals(this._Captured) && !uie.RefEquals(this._PendingCapture))
+    if (!RefObject.RefEquals(uie, this._Captured) && !RefObject.RefEquals(uie, this._PendingCapture))
         return;
     if (this._EmittingMouseEvent)
         this._PendingReleaseCapture = true;
@@ -2985,7 +4395,7 @@ Surface.prototype._PerformReleaseCapture = function () {
 //#region FOCUS
 
 Surface.prototype._FocusElement = function (/* UIElement */uie) {
-    if (uie.RefEquals(this._FocusedElement))
+    if (RefObject.RefEquals(uie, this._FocusedElement))
         return true;
 
     if (this._FocusedElement != null)
@@ -3472,7 +4882,7 @@ TextLayout.prototype.Layout = function () {
         if (end - index <= 0) {
             if (!this.OverrideLineHeight()) {
                 line._Descend = Math.min(line._Descend, font._Descender());
-                line._Height = Math.max(line._Height, font._Height());
+                line._Height = Math.max(line._Height, font.GetActualHeight());
             }
             this._ActualHeight += line._Height;
             break;
@@ -3489,7 +4899,7 @@ TextLayout.prototype.Layout = function () {
                 if (lineBreakLength > 0) {
                     if (line._Length == 0 && !this.OverrideLineHeight()) {
                         line._Descend = font._Descender();
-                        line._Height = font._Height();
+                        line._Height = font.GetActualHeight();
                     }
 
                     line._Length += lineBreakLength;
@@ -3509,7 +4919,7 @@ TextLayout.prototype.Layout = function () {
                     //append the word to the run/line
                     if (!this.OverrideLineHeight()) {
                         line._Descend = Math.min(line._Descend, font._Descender());
-                        line._Height = Math.max(line._Height, font._Height());
+                        line._Height = Math.max(line._Height, font.GetActualHeight());
                     }
 
                     line._Advance += word._Advance;
@@ -3530,7 +4940,7 @@ TextLayout.prototype.Layout = function () {
                 if (word._Length > 0) {
                     if (!this.OverrideLineHeight()) {
                         line._Descend = Math.min(line._Descend, font._Descender());
-                        line._Height = Math.max(line._Height, font._Height());
+                        line._Height = Math.max(line._Height, font.GetActualHeight());
                     }
 
                     line._Advance += word._Advance;
@@ -3553,7 +4963,7 @@ TextLayout.prototype.Layout = function () {
                     if (!this.OverrideLineHeight()) {
                         if (end - index < 1) {
                             line._Descend = font._Descender();
-                            line._Height = font._Height();
+                            line._Height = font.GetActualHeight();
                         }
                     } else {
                         line._Descend = this.GetDescendOverride();
@@ -4100,7 +5510,7 @@ _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) 
     var brush;
     var area;
     if (this._Selected && (brush = attrs.GetBackground(true))) {
-        area = new Rect(origin.X, origin.Y, this._Advance, font._Height());
+        area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
         ctx.Fill(area, brush); //selection background
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
@@ -4256,9 +5666,156 @@ VisualTreeHelper.GetChildrenCount = function (d) {
 //#endregion
 
 /// <reference path="RefObject.js"/>
+/// <reference path="PropertyPath.js"/>
+/// CODE
+/// <reference path="Primitives.js"/>
+/// <reference path="RelativeSource.js"/>
+
+//#region BindingBase
+
+function BindingBase() {
+    RefObject.call(this);
+}
+BindingBase.InheritFrom(RefObject);
+
+BindingBase.prototype.CheckSealed = function () {
+    if (this.GetSealed())
+        throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
+};
+BindingBase.prototype.Seal = function () {
+    this.SetSealed(true);
+};
+
+//#region PROPERTIES
+
+BindingBase.prototype.GetFallbackValue = function () {
+    return this._FallbackValue;
+};
+BindingBase.prototype.SetFallbackValue = function (/* Object */value) {
+    this.CheckSealed();
+    this._FallbackValue = value;
+};
+
+BindingBase.prototype.GetSealed = function () {
+    return this._Sealed;
+};
+BindingBase.prototype.SetSealed = function (/* Boolean */value) {
+    this._Sealed = value;
+};
+
+BindingBase.prototype.GetStringFormat = function () {
+    return this._StringFormat;
+};
+BindingBase.prototype.SetStringFormat = function (/* String */value) {
+    this.CheckSealed();
+    this._StringFormat = value;
+};
+
+BindingBase.prototype.GetTargetNullValue = function () {
+    return this._TargetNullValue;
+};
+BindingBase.prototype.SetTargetNullValue = function (/* Object */value) {
+    this.CheckSealed();
+    this._TargetNullValue = value;
+};
+
+//#endregion
+
+//#endregion
+
+//#region Binding
+
+function Binding(path) {
+    BindingBase.call(this);
+
+    if (!path)
+        path = "";
+
+    this.SetMode(BindingMode.OneWay);
+
+    this.SetPath(_PropertyPath.CreateFromPath(path));
+    this.SetValidatesOnNotifyDataErrors(true);
+    this.SetUpdateSourceTrigger(UpdateSourceTrigger.Default);
+}
+Binding.InheritFrom(BindingBase);
+
+//#region PROPERTIES
+
+Binding.prototype.GetBindsDirectlyToSource = function () { return this._BindsDirectlyToSource; };
+Binding.prototype.SetBindsDirectlyToSource = function (/* Boolean */value) { this.CheckSealed(); this._BindsDirectlyToSource = value; };
+
+Binding.prototype.GetConverter = function () { return this._Converter; };
+Binding.prototype.SetConverter = function (/* IValueConverter */value) { this.CheckSealed(); this._Converter = value; };
+
+Binding.prototype.GetConverterCulture = function () { return this._ConverterCulture; };
+Binding.prototype.SetConverterCulture = function (/* Culture */value) { this.CheckSealed(); this._ConverterCulture = value; };
+
+Binding.prototype.GetConverterParameter = function () { return this._ConverterParameter; };
+Binding.prototype.SetConverterParameter = function (/* Object */value) { this.CheckSealed(); this._ConverterParameter = value; };
+
+Binding.prototype.GetElementName = function () { return this._ElementName; };
+Binding.prototype.SetElementName = function (/* String */value) {
+    this.CheckSealed();
+    if (this.GetSource() != null || this.GetRelativeSource() != null)
+        throw new InvalidOperationException("ElementName cannot be set if either RelativeSource or Source is set");
+    this._ElementName = value;
+};
+
+Binding.prototype.GetMode = function () { return this._Mode; };
+Binding.prototype.SetMode = function (/* Number */value) { this.CheckSealed(); this._Mode = value; };
+
+Binding.prototype.GetNotifyOnValidationError = function () { return this._NotifyOnValidationError; };
+Binding.prototype.SetNotifyOnValidationError = function (/* Boolean */value) { this.CheckSealed(); this._NotifyOnValidationError = value; };
+
+Binding.prototype.GetRelativeSource = function () {
+    ///<returns type="RelativeSource"></returns>
+    return this._RelativeSource; 
+ };
+Binding.prototype.SetRelativeSource = function (/* RelativeSource */value) {
+    this.CheckSealed();
+    if (this.GetSource() != null || this.GetElementName() != null)
+        throw new InvalidOperationException("RelativeSource cannot be set if either ElementName or Source is set");
+    this._RelativeSource = value;
+};
+
+Binding.prototype.GetPath = function () { return this._Path; };
+//TODO: TypeConverter(PropertyPathConverter)
+Binding.prototype.SetPath = function (/* PropertyPath */value) {
+    this.CheckSealed();
+    if (value.HasDependencyProperty())
+        throw new ArgumentException("PropertyPaths which are instantiated with a DependencyProperty are not supported");
+    this._Path = value;
+};
+
+Binding.prototype.GetSource = function () { return this._Source; };
+Binding.prototype.SetSource = function (/* RefObject */value) {
+    this.CheckSealed();
+    if (this.GetElementName() != null || this.GetRelativeSource() != null)
+        throw new InvalidOperationException("Source cannot be set if either ElementName or RelativeSource is set");
+    this._Source = value; 
+};
+
+Binding.prototype.GetUpdateSourceTrigger = function () { return this._UpdateSourceTrigger; };
+Binding.prototype.SetUpdateSourceTrigger = function (/* Number */value) { this.CheckSealed(); this._UpdateSourceTrigger = value; };
+
+Binding.prototype.GetValidatesOnExceptions = function () { return this._ValidatesOnExceptions; };
+Binding.prototype.SetValidatesOnExceptions = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnExceptions = value; };
+
+Binding.prototype.GetValidatesOnDataErrors = function () { return this._ValidatesOnDataErrors; };
+Binding.prototype.SetValidatesOnDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnDataErrors = value; };
+
+Binding.prototype.GetValidatesOnNotifyDataErrors = function () { return this._ValidatesOnNotifyDataErrors; };
+Binding.prototype.SetValidatesOnNotifyDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnNotifyDataErrors = value; };
+
+//#endregion
+
+//#endregion
+
+/// <reference path="RefObject.js"/>
 /// <reference path="DependencyProperty.js" />
 /// <reference path="PropertyValueProviders.js" />
 /// CODE
+/// <reference path="Binding.js"/>
 /// <reference path="Expression.js"/>
 /// <reference path="BError.js" />
 /// <reference path="MulticastEvent.js"/>
@@ -4269,7 +5826,6 @@ VisualTreeHelper.GetChildrenCount = function (d) {
 
 function DependencyObject() {
     RefObject.call(this);
-    this._TypeName = this._GetTypeName();
     this._Initialize();
 }
 DependencyObject.InheritFrom(RefObject);
@@ -4282,6 +5838,42 @@ DependencyObject.prototype.GetName = function () {
 };
 DependencyObject.prototype.SetName = function (value) {
     this.SetValue(DependencyObject.NameProperty, value);
+};
+
+//#endregion
+
+//#region PROPERTIES
+
+DependencyObject.prototype.GetTemplateOwner = function () {
+    return this._TemplateOwner;
+};
+DependencyObject.prototype.SetTemplateOwner = function (value) {
+    this._TemplateOwner = value;
+};
+
+DependencyObject.prototype.GetMentor = function () {
+    ///<returns type="DependencyObject"></returns>
+    return this._Mentor;
+};
+DependencyObject.prototype.SetMentor = function (value) {
+    if (this._Mentor == value)
+        return;
+    var oldMentor = this._Mentor;
+    this._Mentor = value;
+    this._OnMentorChanged(oldMentor, value);
+};
+DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
+    if (!(this instanceof FrameworkElement)) {
+        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[_PropertyPrecedence.LocalStyle])
+            this._Providers[_PropertyPrecedence.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[_PropertyPrecedence.ImplicitStyle])
+            this._Providers[_PropertyPrecedence.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+    }
+    if (this._MentorChangedCallback != null) {
+        this._MentorChangedCallback(this, newValue);
+    }
 };
 
 //#endregion
@@ -4337,42 +5929,6 @@ DependencyObject.prototype._Initialize = function () {
     this._SecondaryParents = new Array();
     this.PropertyChanged = new MulticastEvent();
 };
-DependencyObject.prototype._GetTypeName = function () {
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec(this.constructor.toString());
-    return (results && results.length > 1) ? results[1] : "";
-};
-
-DependencyObject.prototype._GetTemplateOwner = function () {
-    return this._TemplateOwner;
-};
-DependencyObject.prototype._SetTemplateOwner = function (value) {
-    this._TemplateOwner = value;
-};
-
-DependencyObject.prototype._GetMentor = function () {
-    return this._Mentor;
-};
-DependencyObject.prototype._SetMentor = function (value) {
-    if (this._Mentor == value)
-        return;
-    var oldMentor = this._Mentor;
-    this._Mentor = value;
-    this._OnMentorChanged(oldMentor, value);
-};
-DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
-    if (!(this instanceof FrameworkElement)) {
-        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.LocalStyle])
-            this._Providers[_PropertyPrecedence.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.ImplicitStyle])
-            this._Providers[_PropertyPrecedence.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
-    }
-    if (this._MentorChangedCallback != null) {
-        this._MentorChangedCallback(this, newValue);
-    }
-};
 
 DependencyObject.prototype.SetValue = function (propd, value) {
     if (propd == null)
@@ -4394,24 +5950,24 @@ DependencyObject.prototype.SetValue = function (propd, value) {
         bindingExpression = value;
 
     if (bindingExpression != null) {
-        var path = bindingExpression.Binding.Path.Path;
-        if ((!path || path === ".") && bindingExpression.Binding.Mode === BindingMode.TwoWay)
+        var path = bindingExpression.GetBinding().GetPath().GetPath();
+        if ((!path || path === ".") && bindingExpression.GetBinding().GetMode() === BindingMode.TwoWay)
             throw new ArgumentException("TwoWay bindings require a non-empty Path.");
-        bindingExpression.Binding.Seal();
+        bindingExpression.GetBinding().Seal();
     }
 
     var existing = null;
     if (this._Expressions != null) {
-        var refExisting = new RefParam();
-        if (this._Expressions.TryGetValue(propd, refExisting))
-            existing = refExisting.Value
+        var data = {};
+        if (this._Expressions.TryGetValue(propd, data))
+            existing = data.Value
     }
 
     var addingExpression = false;
     var updateTwoWay = false;
     if (expression != null) {
-        if (!expression.RefEquals(existing)) {
-            if (expression._Attached)
+        if (!RefObject.RefEquals(expression, existing)) {
+            if (expression.GetAttached())
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
 
             if (existing != null)
@@ -4425,12 +5981,12 @@ DependencyObject.prototype.SetValue = function (propd, value) {
         value = expression.GetValue(propd);
     } else if (existing != null) {
         if (existing instanceof BindingExpressionBase) {
-            if (existing.Binding.Mode === BindingMode.TwoWay) {
-                updateTwoWay = !existing._Updating && !propd._IsCustom;
-            } else if (!existing._Updating || existing.Binding.Mode === BindingMode.OneTime) {
+            if (existing.GetBinding().GetMode() === BindingMode.TwoWay) {
+                updateTwoWay = !existing.GetUpdating() && !propd._IsCustom;
+            } else if (!existing.GetUpdating() || existing.GetBinding().GetMode() === BindingMode.OneTime) {
                 this._RemoveExpression(propd);
             }
-        } else if (!existing._Updating) {
+        } else if (!existing.GetUpdating()) {
             this._RemoveExpression(propd);
         }
     }
@@ -4478,7 +6034,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
 
     if (currentValue != null && value != null) {
         if (currentValue instanceof RefObject) {
-            equal = !propd._AlwaysChange && currentValue.RefEquals(value);
+            equal = !propd._AlwaysChange && RefObject.RefEquals(currentValue, value);
         } else {
             equal = !propd._AlwaysChange && currentValue === value;
         }
@@ -4652,7 +6208,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
 
     var equal = oldValue == null && newValue == null;
     if (oldValue != null && newValue != null) {
-        equal = !propd._AlwaysChange && oldValue == newValue;
+        equal = !propd._AlwaysChange && RefObject.Equals(oldValue, newValue);
     }
 
     if (equal)
@@ -4684,7 +6240,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
                 oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged, this);
             }
         } else {
-            oldDO._SetMentor(null);
+            oldDO.SetMentor(null);
         }
     }
 
@@ -4707,8 +6263,8 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
         } else {
             var cur = this;
             while (cur && !(cur instanceof FrameworkElement))
-                cur = cur._GetMentor();
-            newDO._SetMentor(cur);
+                cur = cur.GetMentor();
+            newDO.SetMentor(cur);
         }
     }
 
@@ -4806,10 +6362,10 @@ DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
     return true;
 };
 DependencyObject.prototype._RemoveExpression = function (propd) {
-    var ref = new RefParam();
-    if (this._Expressions != null && this._Expressions.TryGetValue(propd, ref)) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
         this._Expressions.Remove(propd);
-        ref.Value._OnDetached(this);
+        data.Value._OnDetached(this);
     }
 };
 
@@ -4849,7 +6405,7 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
     if (this._Parent != null || this._HasSecondaryParents()) {
         this._AddSecondaryParent(parent);
         if (this._Parent != null && !(this._Parent instanceof ResourceDictionary))
-            this._SetMentor(null);
+            this.SetMentor(null);
         if (this._SecondaryParents.length > 1 || !(parent instanceof DependencyObjectCollection) || !parent._GetIsSecondaryParent())
             return;
     }
@@ -4895,9 +6451,9 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
         this._Parent = parent;
         var d = parent;
         while (d != null && !(d instanceof FrameworkElement)) {
-            d = d._GetMentor();
+            d = d.GetMentor();
         }
-        this._SetMentor(d);
+        this.SetMentor(d);
     }
 };
 DependencyObject.prototype._RemoveParent = function (parent, error) {
@@ -4919,7 +6475,7 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
         var parentScope = parent.FindNameScope();
         if (parentScope)
             this._UnregisterAllNamesRootedAt(parentScope);
-        this._SetMentor(null);
+        this.SetMentor(null);
     }
 
     if (error == null || !error.IsErrored()) {
@@ -5061,7 +6617,7 @@ DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
 };
 DependencyObject._PropagateMentor = function (propd, value, newMentor) {
     if (value != null && value instanceof DependencyObject) {
-        value._SetMentor(newMentor);
+        value.SetMentor(newMentor);
     }
 };
 
@@ -5326,6 +6882,12 @@ function FrameworkTemplate() {
 }
 FrameworkTemplate.InheritFrom(DependencyObject);
 
+FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
+    /// <param name="bindingSource" type="DependencyObject"></param>
+    /// <returns type="DependencyObject" />
+    var error = new BError();
+    return this._GetVisualTreeWithError(bindingSource, error);
+};
 FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
 };
@@ -5352,7 +6914,9 @@ ControlTemplate.prototype.SetTargetType = function (value) {
 
 //#endregion
 
-ControlTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
+ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
+    /// <param name="templateBindingSource" type="FrameworkElement"></param>
+    /// <returns type="DependencyObject" />
     if (this._TempJson) {
         var namescope = new NameScope();
         var parser = new JsonParser();
@@ -5727,6 +7291,7 @@ var UIElementFlags = {
 function UIElement() {
     DependencyObject.call(this);
 
+    this.Unloaded = new MulticastEvent();
     this.Loaded = new MulticastEvent();
     this.Invalidated = new MulticastEvent();
 
@@ -5834,6 +7399,7 @@ UIElement.prototype.SetCursor = function (value) {
 
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.prototype.GetResources = function () {
+    /// <returns type="ResourceDictionary" />
     return this.GetValue(UIElement.ResourcesProperty);
 };
 
@@ -6192,7 +7758,7 @@ UIElement.prototype._ElementRemoved = function (item) {
     item.SetVisualParent(null);
     item._SetIsLoaded(false);
     item._SetIsAttached(false);
-    item._SetMentor(null);
+    item.SetMentor(null);
 
     var emptySlot = new Rect();
     LayoutInformation.SetLayoutSlot(item, emptySlot);
@@ -6213,8 +7779,8 @@ UIElement.prototype._ElementAdded = function (item) {
     item._SetIsLoaded(this._IsLoaded);
     var o = this;
     while (o != null && !(o instanceof FrameworkElement))
-        o = o._GetMentor();
-    item._SetMentor(o);
+        o = o.GetMentor();
+    item.SetMentor(o);
 
     this._UpdateBounds(true);
 
@@ -6240,8 +7806,15 @@ UIElement.prototype._SetIsLoaded = function (value) {
 };
 UIElement.prototype._OnIsLoadedChanged = function (loaded) {
     if (!this._IsLoaded) {
-        //TODO: Unloaded Event
-        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
+        //WTF: ClearForeachGeneration(Loaded)
+        this.Unloaded.Raise(this, new EventArgs());
+        var iter = new CollectionIterator(this.GetResources());
+        while (iter.Next()) {
+            var v = iter.GetCurrent();
+            v = RefObject.As(v, FrameworkElement);
+            if (v != null)
+                v._SetIsLoaded(loaded);
+        }
     }
 
     var walker = new _VisualTreeWalker(this);
@@ -6251,8 +7824,15 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
     }
 
     if (this._IsLoaded) {
-        //TODO: SetIsLoaded for all FrameworkElements in GetResources()
-        this.Loaded.Raise(this, null);
+        var iter = new CollectionIterator(this.GetResources());
+        while (iter.Next()) {
+            var v = iter.GetCurrent();
+            v = RefObject.As(v, FrameworkElement);
+            if (v != null)
+                v._SetIsLoaded(loaded);
+        }
+        //WTF: AddAllLoadedHandlers
+        this.Loaded.RaiseAsync(this, new EventArgs());
     }
 };
 UIElement.prototype._OnIsAttachedChanged = function (value) {
@@ -6529,11 +8109,11 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
         var isControl = fe instanceof Control;
         var el = fe;
         while (el != null) {
-            if (el._TemplateOwner != null && fe._TemplateOwner == null) {
-                el = el._TemplateOwner;
+            if (el.GetTemplateOwner() != null && fe.GetTemplateOwner() == null) {
+                el = el.GetTemplateOwner();
                 continue;
             }
-            if (!isControl && el == fe._TemplateOwner)
+            if (!isControl && el == fe.GetTemplateOwner())
                 break;
 
             //visualTreeStyle = el.Resources.Get(fe.constructor);
@@ -6565,6 +8145,25 @@ App.Instance = new App();
 /// <reference path="DependencyProperty.js"/>
 /// <reference path="Collections.js"/>
 /// <reference path="Primitives.js"/>
+
+var AlignmentX = {
+    Left: 0,
+    Center: 1,
+    Right: 2
+};
+
+var AlignmentY = {
+    Top: 0,
+    Center: 1,
+    Bottom: 2
+};
+
+var Stretch = {
+    None: 0,
+    Fill: 1,
+    Uniform: 2,
+    UniformToFill: 3
+};
 
 //#region Brush
 
@@ -6651,7 +8250,7 @@ LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
         var stop = stops.GetValueAt(i);
         grd.addColorStop(stop.GetOffset(), stop.GetColor()._Translate());
     }
-    return grd;
+    return grd;     
 };
 
 //#endregion
@@ -6698,6 +8297,56 @@ RadialGradientBrush.prototype.SetRadiusY = function (value) {
 };
 
 //#endregion
+
+RadialGradientBrush.prototype._Translate = function (ctx, bounds) {
+    NotImplemented("RadialGradientBrush._Translate");
+};
+
+//#endregion
+
+//#region TileBrush
+
+function TileBrush() {
+    Brush.call(this);
+}
+TileBrush.InheritFrom(Brush);
+
+//#region DEPENDENCY PROPERTIES
+
+TileBrush.AlignmentXProperty = DependencyProperty.Register("AlignmentX", function () { return Number; }, TileBrush, AlignmentX.Center);
+TileBrush.prototype.GetAlignmentX = function () {
+    return this.GetValue(TileBrush.AlignmentXProperty);
+};
+TileBrush.prototype.SetAlignmentX = function (value) {
+    this.SetValue(TileBrush.AlignmentXProperty, value);
+};
+
+TileBrush.AlignmentYProperty = DependencyProperty.Register("AlignmentY", function () { return Number; }, TileBrush, AlignmentY.Center);
+TileBrush.prototype.GetAlignmentY = function () {
+    return this.GetValue(TileBrush.AlignmentYProperty);
+};
+TileBrush.prototype.SetAlignmentY = function (value) {
+    this.SetValue(TileBrush.AlignmentYProperty, value);
+};
+
+TileBrush.StretchProperty = DependencyProperty.Register("Stretch", function () { return Number; }, TileBrush, Stretch.Fill);
+TileBrush.prototype.GetStretch = function () {
+    return this.GetValue(TileBrush.StretchProperty);
+};
+TileBrush.prototype.SetStretch = function (value) {
+    this.SetValue(TileBrush.StretchProperty, value);
+};
+
+//#endregion
+
+//#endregion
+
+//#region ImageBrush
+
+function ImageBrush() {
+    TileBrush.call(this);
+}
+ImageBrush.InheritFrom(TileBrush);
 
 //#endregion
 
@@ -6811,6 +8460,8 @@ function CollectionIterator(collection) {
 CollectionIterator.InheritFrom(RefObject);
 
 CollectionIterator.prototype.Next = function (error) {
+    /// <param name="error" type="BError"></param>
+    /// <returns type="Boolean" />
     this._Index++;
     return this._Index < this._Collection.GetCount();
 };
@@ -6884,7 +8535,7 @@ DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newV
     DependencyObject.prototype._OnMentorChanged.call(this, oldValue, newValue);
     for (var i = 0; i < this._ht.length; i++) {
         if (this._ht[i] instanceof DependencyObject)
-            this._ht[i]._SetMentor(newValue);
+            this._ht[i].SetMentor(newValue);
     }
 };
 
@@ -6897,7 +8548,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
         if (error.IsErrored())
             return false;
     } else {
-        value._SetMentor(this._GetMentor());
+        value.SetMentor(this.GetMentor());
     }
 
     value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
@@ -6907,9 +8558,9 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     if (!rv) {
         if (this._SetsParent) {
             value._RemoveParent(this, error);
-            value._SetMentor(this._GetMentor());
+            value.SetMentor(this.GetMentor());
         } else {
-            value._SetMentor(null);
+            value.SetMentor(null);
         }
     }
     return rv;
@@ -6921,7 +8572,7 @@ DependencyObjectCollection.prototype.RemovedFromCollection = function (value, is
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
-            if (this._SetsParent && value._GetParent().RefEquals(this))
+            if (this._SetsParent && RefObject.RefEquals(value._GetParent(), this))
                 value._RemoveParent(this, null);
             value._SetIsAttached(false);
         }
@@ -7164,6 +8815,82 @@ GradientStopCollection.InheritFrom(DependencyObjectCollection);
 GradientStopCollection.prototype.IsElementType = function (value) {
     return value instanceof GradientStop;
 };
+
+//#endregion
+
+//#region ICollectionView
+
+function ICollectionView() {
+    RefObject.call(this);
+    this.CurrentChanged = new MulticastEvent();
+}
+ICollectionView.InheritFrom(RefObject);
+
+//#endregion
+
+//#region CurrentChangedListener
+
+function CurrentChangedListener(source, closure, func) {
+    /// <param name="source" type="ICollectionView"></param>
+    /// <param name="closure" type="RefObject"></param>
+    /// <param name="func" type="Function"></param>
+    RefObject.call(this);
+    
+    if (!source)
+        return;
+
+    this._Source = source;
+    this._Closure = closure;
+    this._Func = func;
+    this._Source.CurrentChanged.Subscribe(this, this.OnCurrentChangedInternal);
+}
+CurrentChangedListener.InheritFrom(RefObject);
+
+CurrentChangedListener.prototype.Detach = function () {
+    if (this._Source != null) {
+        this._Source.CurrentChanged.Unsubscribe(this, this.OnCurrentChangedInternal);
+        this._Source = null;
+        this._Closure = null;
+        this._Func = null;
+    }
+};
+CurrentChangedListener.prototype.OnCurrentChangedInternal = function (s, e) {
+    if (this._Closure != null && this._Func != null)
+        this._Func.call(this._Closure, s, e);
+};
+
+//#endregion
+
+//#region CollectionViewSource
+
+function CollectionViewSource() {
+    DependencyObject.call(this);
+}
+CollectionViewSource.InheritFrom(DependencyObject);
+
+//#region DEPENDENCY PROPERTIES
+
+CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return RefObject; }, CollectionViewSource);
+CollectionViewSource.prototype.GetSource = function () {
+    ///<returns type="RefObject"></returns>
+    return this.GetValue(CollectionViewSource.SourceProperty);
+};
+CollectionViewSource.prototype.SetSource = function (value) {
+    ///<param name="value" type="RefObject"></param>
+    this.SetValue(CollectionViewSource.SourceProperty, value);
+};
+
+CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
+CollectionViewSource.prototype.GetView = function () {
+    ///<returns type="ICollectionView"></returns>
+    return this.GetValue(CollectionViewSource.ViewProperty);
+};
+CollectionViewSource.prototype.SetView = function (value) {
+    ///<param name="value" type="ICollectionView"></param>
+    this.SetValue(CollectionViewSource.ViewProperty, value);
+};
+
+//#endregion
 
 //#endregion
 
@@ -7435,6 +9162,21 @@ FrameworkElement.prototype.SetFlowDirection = function (value) {
 //#endregion
 
 //#region INSTANCE METHODS
+
+FrameworkElement.prototype.SetTemplateBinding = function (propd, tb) {
+    /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="tb" type="TemplateBindingExpression"></param>
+    try {
+        this.SetValue(propd, tb);
+    } catch (err) {
+    }
+};
+FrameworkElement.prototype.SetBinding = function (propd, binding) {
+    /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="binding" type="Binding"></param>
+    /// <returns type="BindingExpressionBase" />
+    return BindingOperations.SetBinding(this, propd, binding);
+};
 
 FrameworkElement.prototype._ApplySizeConstraints = function (size) {
     var specified = new Size(this.GetWidth(), this.GetHeight());
@@ -7817,7 +9559,7 @@ FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
     var child;
     while (child = walker.Step()) {
         child._HitTestPoint(ctx, p, uielist);
-        if (!node.RefEquals(uielist.First())) {
+        if (!RefObject.RefEquals(node, uielist.First())) {
             hit = true;
             break;
         }
@@ -8071,6 +9813,8 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
+FrameworkElement.prototype.InvokeLoaded = function () {
+};
 FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
     if (loaded)
         this._SetImplicitStyles(_StyleMask.All);
@@ -8078,6 +9822,8 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
         this._ClearImplicitStyles(_StyleMask.VisualTree);
 
     UIElement.prototype._OnIsLoadedChanged.call(this, loaded);
+    if (loaded)
+        this.InvokeLoaded();
 
     if (this._Providers[_PropertyPrecedence.InheritedDataContext])
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
@@ -9730,6 +11476,7 @@ ContentPresenter.prototype.SetContent = function (value) {
 
 ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
 ContentPresenter.prototype.GetContentTemplate = function () {
+    /// <returns type="ControlTemplate" />
     return this.GetValue(ContentPresenter.ContentTemplateProperty);
 };
 ContentPresenter.prototype.SetContentTemplate = function (value) {
@@ -9738,10 +11485,22 @@ ContentPresenter.prototype.SetContentTemplate = function (value) {
 
 //#endregion
 
+//#region PROPERTIES
+
+ContentPresenter.prototype.GetFallbackRoot = function () {
+    /// <returns type="UIElement" />
+    if (this._FallbackRoot == null)
+        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
+    return this._FallbackRoot;
+};
+
+//#endregion
+
 //#region INSTANCE METHODS
 
 ContentPresenter.prototype._GetDefaultTemplate = function () {
-    var templateOwner = this._GetTemplateOwner();
+    /// <returns type="UIElement" />
+    var templateOwner = this.GetTemplateOwner();
     if (templateOwner) {
         if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
             this.SetValue(ContentPresenter.ContentProperty, 
@@ -9759,8 +11518,8 @@ ContentPresenter.prototype._GetDefaultTemplate = function () {
     } else {
         var content = this.GetContent();
         this._ContentRoot = RefObject.As(content, UIElement);
-        if (!this._ContentRoot == null && content != null)
-            this._ContentRoot = this._GetFallbackRoot();
+        if (this._ContentRoot == null && content != null)
+            this._ContentRoot = this.GetFallbackRoot();
     }
     return this._ContentRoot;
 };
@@ -9786,12 +11545,16 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 ContentPresenter.prototype._ClearRoot = function () {
-    //TODO: Raise ContentPresenter.ClearRootEvent
+    if (this._ContentRoot != null)
+        this._ElementRemoved(this._ContentRoot);
+    this._ContentRoot = null;
 };
-ContentPresenter.prototype._GetFallbackRoot = function () {
-    if (this._FallbackRoot == null)
-        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
-    return this._FallbackRoot;
+ContentPresenter.prototype.InvokeLoaded = function () {
+    if (this.GetContent() instanceof UIElement)
+        this.ClearValue(FrameworkElement.DataContextProperty);
+    else
+        this.SetDataContext(this.GetContent());
+    FrameworkElement.prototype.InvokeLoaded.call(this);
 };
 
 //#endregion
@@ -10705,8 +12468,8 @@ Grid.prototype._OnCollectionItemChanged = function (sender, args) {
             args.Item._InvalidateMeasure();
             return;
         }
-    } else if (sender.RefEquals(this._GetColumnDefinitionsNoAutoCreate())
-        || sender.RefEquals(this._GetRowDefinitionsNoAutoCreate())) {
+    } else if (RefObject.RefEquals(sender, this._GetColumnDefinitionsNoAutoCreate())
+        || RefObject.RefEquals(sender, this._GetRowDefinitionsNoAutoCreate())) {
         if (args.Property !== ColumnDefinition.ActualWidthProperty
             && args.Property !== RowDefinition.ActualHeightProperty) {
             this._InvalidateMeasure();
@@ -10946,6 +12709,9 @@ _GridWalker.InheritFrom(RefObject);
 //#endregion
 
 /// <reference path="Control.js"/>
+/// <reference path="FrameworkElement.js"/>
+/// CODE
+/// <reference path="Panel.js"/>
 
 var ItemCollection = {};//TODO: Implement
 
@@ -10955,6 +12721,16 @@ function ItemsControl() {
     Control.call(this);
 }
 ItemsControl.InheritFrom(Control);
+
+ItemsControl.GetItemsOwner = function (ele) {
+    var panel = RefObject.As(ele, Panel);
+    if (panel == null || !panel.GetIsItemsHost())
+        return null;
+    var owner = RefObject.As(panel.GetTemplateOwner(), ItemsPresenter);
+    if (owner != null)
+        return RefObject.As(owner.GetTemplateOwner(), ItemsControl);
+    return null;
+};
 
 //#region DEPENDENCY PROPERTIES
 
@@ -10975,6 +12751,15 @@ ItemsControl.Annotations = {
 };
 
 //#endregion
+
+//#endregion
+
+//#region ItemsPresenter
+
+function ItemsPresenter() {
+    FrameworkElement.call(this);
+}
+ItemsPresenter.InheritFrom(FrameworkElement);
 
 //#endregion
 
@@ -11418,9 +13203,9 @@ TextBoxBase.prototype.SetSelectionLength = function (value) {
 };
 
 TextBoxBase.prototype.OnApplyTemplate = function () {
-    var contentElement = this.GetTemplateChild("ContentElement");
+    this._ContentElement = this.GetTemplateChild("ContentElement");
 
-    if (contentElement == null) {
+    if (this._ContentElement == null) {
         Warn("No ContentElement found");
         Control.prototype.OnApplyTemplate.call(this);
         return;
@@ -11434,14 +13219,14 @@ TextBoxBase.prototype.OnApplyTemplate = function () {
     this._View.SetEnableCursor(!this._IsReadOnly);
     this._View.SetTextBox(this);
 
-    if (contentElement instanceof ContentPresenter) {
-        contentElement.SetContent(this._View);
-    } else if (contentElement instanceof ContentControl) {
-        contentElement.SetContent(this._View);
-    } else if (contentElement instanceof Border) {
-        contentElement.SetChild(this._View);
-    } else if (contentElement instanceof Panel) {
-        contentElement.GetChildren().Add(this._View);
+    if (this._ContentElement instanceof ContentPresenter) {
+        this._ContentElement.SetContent(this._View);
+    } else if (this._ContentElement instanceof ContentControl) {
+        this._ContentElement.SetContent(this._View);
+    } else if (this._ContentElement instanceof Border) {
+        this._ContentElement.SetChild(this._View);
+    } else if (this._ContentElement instanceof Panel) {
+        this._ContentElement.GetChildren().Add(this._View);
     } else {
         Warn("Can't handle ContentElement.");
         this._View.SetTextBox(null);
@@ -11916,9 +13701,9 @@ TextBox.prototype.GetDefaultStyle = function () {
                         Props: {
                             CornerRadius: new CornerRadius(1, 1, 1, 1),
                             Opacity: 1.0,
-                            BorderThickness: new TemplateBinding("BorderThickness"),
-                            Background: new TemplateBinding("Background"),
-                            BorderBrush: new TemplateBinding("BorderBrush")
+                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                            Background: new TemplateBindingMarkup("Background"),
+                            BorderBrush: new TemplateBindingMarkup("BorderBrush")
                         },
                         Content: {
                             Type: Grid,
@@ -11942,7 +13727,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                                         Type: Border,
                                         Name: "ContentElement",
                                         Props: {
-                                            Padding: new TemplateBinding("Padding"),
+                                            Padding: new TemplateBindingMarkup("Padding"),
                                             //IsTabStop: false,
                                             BorderThickness: new Thickness(0, 0, 0, 0)
                                         }
@@ -11957,7 +13742,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                         Props: {
                             Background: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
                             BorderBrush: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
-                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
                             Opacity: 0.0,
                             IsHitTestVisible: false
                         }
@@ -11967,7 +13752,7 @@ TextBox.prototype.GetDefaultStyle = function () {
                         Name: "FocusVisualElement",
                         Props: {
                             BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
-                            BorderThickness: new TemplateBinding("BorderThickness"),
+                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
                             Margin: new Thickness(1, 1, 1, 1),
                             Opacity: 0.0,
                             IsHitTestVisible: false
@@ -12109,19 +13894,18 @@ function ContentControl() {
 ContentControl.InheritFrom(Control);
 
 ContentControl._FallbackTemplate = (function () {
-    //TODO: Create fallback template
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
-    new ControlTemplate(ContentControl, {
+    return new ControlTemplate(ContentControl, {
         Type: Grid,
         Children: [
             {
-                Type: TextBlock
-                //TODO: , Text: new Binding()
+                Type: TextBlock,
+                Props: {
+                    Text: new BindingMarkup()
+                }
             }
         ]
     });
-    NotImplemented("ContentControl._FallbackTemplate");
-    return new ControlTemplate();
 })();
 
 //#region DEPENDENCY PROPERTIES
@@ -12144,15 +13928,20 @@ ContentControl.prototype.SetContentTemplate = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region PROPERTIES
 
-ContentControl.prototype._GetFallbackRoot = function () {
+ContentControl.prototype.GetFallbackRoot = function () {
     if (this._FallbackRoot == null)
         this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
     return this._FallbackRoot;
 };
+
+//#endregion
+
+//#region INSTANCE METHODS
+
 ContentControl.prototype._GetDefaultTemplate = function () {
-    return this._FallbackRoot;
+    return this.GetFallbackRoot();
 };
 
 //#endregion
@@ -12543,13 +14332,13 @@ Button.prototype.GetDefaultStyle = function () {
                                 Props: {
                                     CornerRadius: new CornerRadius(3, 3, 3, 3),
                                     Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
-                                    BorderThickness: new TemplateBinding("BorderThickness"),
-                                    BorderBrush: new TemplateBinding("BorderBrush")
+                                    BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                    BorderBrush: new TemplateBindingMarkup("BorderBrush")
                                 },
                                 Content: {
                                     Type: Grid,
                                     Props: {
-                                        Background: new TemplateBinding("Background"),
+                                        Background: new TemplateBindingMarkup("Background"),
                                         Margin: new Thickness(1, 1, 1, 1)
                                     },
                                     Children: [
@@ -12611,11 +14400,11 @@ Button.prototype.GetDefaultStyle = function () {
                                 Type: ContentPresenter,
                                 Name: "contentPresenter",
                                 Props: {
-                                    Content: new TemplateBinding("Content"),
-                                    ContentTemplate: new TemplateBinding("ContentTemplate"),
-                                    VerticalAlignment: new TemplateBinding("VerticalContentAlignment"),
-                                    HorizontalAlignment: new TemplateBinding("HorizontalContentAlignment"),
-                                    Margin: new TemplateBinding("Padding")
+                                    Content: new TemplateBindingMarkup("Content"),
+                                    ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
+                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                    Margin: new TemplateBindingMarkup("Padding")
                                 }
                             },
                             {

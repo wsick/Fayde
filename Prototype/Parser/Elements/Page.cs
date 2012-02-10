@@ -27,49 +27,61 @@ namespace Parser.Elements
             sb.AppendLine("</title>");
 
             sb.AppendLine("\t\t<script src=\"../../Scripts/jquery-1.7.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Debug.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/RefObject.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Validators.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/BError.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Binding.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/DependencyProperty.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Dirty.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/EventArgs.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Expression.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/JsonParser.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/List.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/MulticastEvent.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Primitives.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/PropertyValueProviders.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Surface.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/TextLayout.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/VisualTreeHelper.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/DependencyObject.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Geometry.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/LayoutInformation.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Templates.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/TextElement.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/UIElement.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/App.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Brushes.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Collections.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/FrameworkElement.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Panel.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/StackPanel.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Style.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/TextBlock.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/VisualStateManager.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Border.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Canvas.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ContentPresenter.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Control.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Grid.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ItemsControl.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/TextBox.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/UserControl.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ContentControl.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/ButtonBase.js\" type=\"text/javascript\"></script>");
-            sb.AppendLine("\t\t<script src=\"../../Scripts/Framework/Button.js\" type=\"text/javascript\"></script>");
+
+            var scripts = new List<string>
+            {
+                "../../Scripts/Framework/Debug.js",
+                "../../Scripts/Framework/RefObject.js",
+                "../../Scripts/Framework/Validators.js",
+                "../../Scripts/Framework/BError.js",
+                "../../Scripts/Framework/DependencyProperty.js",
+                "../../Scripts/Framework/Dirty.js",
+                "../../Scripts/Framework/EventArgs.js",
+                "../../Scripts/Framework/Expression.js",
+                "../../Scripts/Framework/JsonParser.js",
+                "../../Scripts/Framework/List.js",
+                "../../Scripts/Framework/MulticastEvent.js",
+                "../../Scripts/Framework/NotifyProperty.js",
+                "../../Scripts/Framework/Primitives.js",
+                "../../Scripts/Framework/PropertyPath.js",
+                "../../Scripts/Framework/PropertyValueProviders.js",
+                "../../Scripts/Framework/RelativeSource.js",
+                "../../Scripts/Framework/Surface.js",
+                "../../Scripts/Framework/TextLayout.js",
+                "../../Scripts/Framework/VisualTreeHelper.js",
+                "../../Scripts/Framework/Binding.js",
+                "../../Scripts/Framework/DependencyObject.js",
+                "../../Scripts/Framework/Geometry.js",
+                "../../Scripts/Framework/LayoutInformation.js",
+                "../../Scripts/Framework/Templates.js",
+                "../../Scripts/Framework/TextElement.js",
+                "../../Scripts/Framework/UIElement.js",
+                "../../Scripts/Framework/App.js",
+                "../../Scripts/Framework/Brushes.js",
+                "../../Scripts/Framework/Collections.js",
+                "../../Scripts/Framework/FrameworkElement.js",
+                "../../Scripts/Framework/Panel.js",
+                "../../Scripts/Framework/StackPanel.js",
+                "../../Scripts/Framework/Style.js",
+                "../../Scripts/Framework/TextBlock.js",
+                "../../Scripts/Framework/VisualStateManager.js",
+                "../../Scripts/Framework/Border.js",
+                "../../Scripts/Framework/Canvas.js",
+                "../../Scripts/Framework/ContentPresenter.js",
+                "../../Scripts/Framework/Control.js",
+                "../../Scripts/Framework/Grid.js",
+                "../../Scripts/Framework/ItemsControl.js",
+                "../../Scripts/Framework/TextBox.js",
+                "../../Scripts/Framework/UserControl.js",
+                "../../Scripts/Framework/ContentControl.js",
+                "../../Scripts/Framework/ButtonBase.js",
+                "../../Scripts/Framework/Button.js",
+            };
+            var scriptIncludeFormat = "\t\t<script src=\"{0}\" type=\"text/javascript\"></script>";
+            foreach (var include in scripts)
+            {
+                sb.AppendLine(string.Format(scriptIncludeFormat, include));
+            }
 
             sb.AppendLine("\t\t<script type=\"text/javascript\">");
             sb.AppendLine("\t\t\t$(document).ready(function () {");
