@@ -61,7 +61,9 @@
     <Content Include="Scripts\Framework\VisualStateManager.js" />
     <Content Include="Scripts\Framework\VisualTreeHelper.js" />
     <Content Include="Scripts\kinetic-v3.6.0.js" />
-    <Content Include="styles\Button.xml" />
+    <Content Include="styles\Button.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="test-includes.txt" />
     <None Include="tests\button\test1.fayde" />
     <None Include="tests\grid\test4.fayde">

@@ -58,8 +58,8 @@
           -->
           <Border x:Name="Background" CornerRadius="3" Background="White" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
             <Grid Background="{TemplateBinding Background}"  Margin="1">
-              <Border Opacity="0"  x:Name="BackgroundAnimation" Background="#FF448DCA" />
-              <Rectangle x:Name="BackgroundGradient" >
+              <Border Opacity="0" x:Name="BackgroundAnimation" Background="#FF448DCA" />
+              <Rectangle x:Name="BackgroundGradient">
                 <Rectangle.Fill>
                   <LinearGradientBrush StartPoint=".7,0" EndPoint=".7,1">
                     <GradientStop Color="#FFFFFFFF" Offset="0" />
