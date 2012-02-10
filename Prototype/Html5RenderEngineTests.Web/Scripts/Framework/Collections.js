@@ -466,6 +466,82 @@ GradientStopCollection.prototype.IsElementType = function (value) {
 
 //#endregion
 
+//#region ICollectionView
+
+function ICollectionView() {
+    RefObject.call(this);
+    this.CurrentChanged = new MulticastEvent();
+}
+ICollectionView.InheritFrom(RefObject);
+
+//#endregion
+
+//#region CurrentChangedListener
+
+function CurrentChangedListener(source, closure, func) {
+    /// <param name="source" type="ICollectionView"></param>
+    /// <param name="closure" type="RefObject"></param>
+    /// <param name="func" type="Function"></param>
+    RefObject.call(this);
+    
+    if (!source)
+        return;
+
+    this._Source = source;
+    this._Closure = closure;
+    this._Func = func;
+    this._Source.CurrentChanged.Subscribe(this, this.OnCurrentChangedInternal);
+}
+CurrentChangedListener.InheritFrom(RefObject);
+
+CurrentChangedListener.prototype.Detach = function () {
+    if (this._Source != null) {
+        this._Source.CurrentChanged.Unsubscribe(this, this.OnCurrentChangedInternal);
+        this._Source = null;
+        this._Closure = null;
+        this._Func = null;
+    }
+};
+CurrentChangedListener.prototype.OnCurrentChangedInternal = function (s, e) {
+    if (this._Closure != null && this._Func != null)
+        this._Func.call(this._Closure, s, e);
+};
+
+//#endregion
+
+//#region CollectionViewSource
+
+function CollectionViewSource() {
+    DependencyObject.call(this);
+}
+CollectionViewSource.InheritFrom(DependencyObject);
+
+//#region DEPENDENCY PROPERTIES
+
+CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return RefObject; }, CollectionViewSource);
+CollectionViewSource.prototype.GetSource = function () {
+    ///<returns type="RefObject"></returns>
+    return this.GetValue(CollectionViewSource.SourceProperty);
+};
+CollectionViewSource.prototype.SetSource = function (value) {
+    ///<param name="value" type="RefObject"></param>
+    this.SetValue(CollectionViewSource.SourceProperty, value);
+};
+
+CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
+CollectionViewSource.prototype.GetView = function () {
+    ///<returns type="ICollectionView"></returns>
+    return this.GetValue(CollectionViewSource.ViewProperty);
+};
+CollectionViewSource.prototype.SetView = function (value) {
+    ///<param name="value" type="ICollectionView"></param>
+    this.SetValue(CollectionViewSource.ViewProperty, value);
+};
+
+//#endregion
+
+//#endregion
+
 var _VisualTreeWalkerDirection = {
     Logical: 0,
     LogicalReverse: 1,

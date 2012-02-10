@@ -3,6 +3,7 @@
 /// CODE
 /// <reference path="EventArgs.js"/>
 /// <reference path="DependencyObject.js"/>
+/// <reference path="Collections.js"/>
 
 var _PropertyNodeType = {
     AttachedProperty: 0,
@@ -18,7 +19,7 @@ function _PropertyPath() {
 }
 _PropertyPath.InheritFrom(RefObject);
 
-_PropertyPath.CreateFromPathAndExpanded = function (path, expandedPath) {
+_PropertyPath.CreateFromPath = function (path, expandedPath) {
     var p = new _PropertyPath();
     p._Path = path;
     p._ExpandedPath = expandedPath;
@@ -121,14 +122,16 @@ _PropertyPathWalker.prototype._Init = function (path, bindDirectlyToSource, bind
     }
 
     lastCVNode.SetBindToView(lastCVNode.GetBindToView() || bindsToView);
-    this.GetFinalNode().IsBrokenChanged.Subscribe(this, function (s, a) {
-        this.SetValue(RefObject.As(s, _PropertyPathNode).GetValue());
+    this.GetFinalNode().IsBrokenChanged.Subscribe(function (s, a) {
+        this.SetValueInternal(RefObject.As(s, _PropertyPathNode).GetValue());
         this.IsBrokenChanged.Raise(this, new EventArgs());
-    });
-    this.GetFinalNode().ValueChanged.Subscribe(this, function (s, a) {
-        this.SetValue(RefObject.As(s, _PropertyPathNode).GetValue());
+    },
+    this);
+    this.GetFinalNode().ValueChanged.Subscribe(function (s, a) {
+        this.SetValueInternal(RefObject.As(s, _PropertyPathNode).GetValue());
         this.ValueChanged.Raise(this, new EventArgs());
-    });
+    },
+    this);
 };
 _PropertyPathWalker.prototype.GetValue = function (item) {
     this.Update(item);
@@ -144,48 +147,61 @@ _PropertyPathWalker.prototype.Update = function (source) {
 //#region PROPERTIES
 
 _PropertyPathWalker.prototype.GetSource = function () {
+    /// <returns type="RefObject" />
     return this._Source;
 };
-_PropertyPathWalker.prototype.SetSource = function (/* Object */value) {
+_PropertyPathWalker.prototype.SetSource = function (value) {
+    /// <param name="value" type="RefObject"></param>
     this._Source = value;
 };
 
 _PropertyPathWalker.prototype.GetPath = function () {
+    /// <returns type="String" />
     return this._Path;
 };
-_PropertyPathWalker.prototype.SetPath = function (/* String */value) {
+_PropertyPathWalker.prototype.SetPath = function (value) {
+    /// <param name="value" type="String"></param>
     this._Path = value;
 };
 
-_PropertyPathWalker.prototype.GetValue = function () {
-    return this._Value;
+_PropertyPathWalker.prototype.GetValueInternal = function () {
+    ///<returns type="RefObject"></returns>
+    return this._ValueInternal;
 };
-_PropertyPathWalker.prototype.SetValue = function (/* Object */value) {
-    this._Value = value;
+_PropertyPathWalker.prototype.SetValueInternal = function (value) {
+    ///<param name="value" type="RefObject"></param>
+    this._ValueInternal = value;
 };
 
 _PropertyPathWalker.prototype.GetIsDataContextBound = function () {
+    /// <returns type="Boolean" />
     return this._IsDataContextBound;
 };
-_PropertyPathWalker.prototype.SetIsDataContextBound = function (/* Boolean */value) {
+_PropertyPathWalker.prototype.SetIsDataContextBound = function (value) {
+    /// <param name="value" type="Boolean"></param>
     this._IsDataContextBound = value;
 };
 
 _PropertyPathWalker.prototype.GetNode = function () {
+    /// <returns type="_PropertyPathNode" />
     return this._Node;
 };
-_PropertyPathWalker.prototype.SetNode = function (/* IPropertyPathNode */value) {
+_PropertyPathWalker.prototype.SetNode = function (value) {
+    /// <param name="value" type="_PropertyPathNode"></param>
     this._Node = value;
 };
 
 _PropertyPathWalker.prototype.GetFinalNode = function () {
+    /// <returns type="_PropertyPathNode" />
     return this._FinalNode;
 };
-_PropertyPathWalker.prototype.SetFinalNode = function (/* IPropertyPathNode */value) {
+_PropertyPathWalker.prototype.SetFinalNode = function (value) {
+    /// <param name="value" type="_PropertyPathNode"></param>
     this._FinalNode = value;
 };
 
 _PropertyPathWalker.prototype.GetIsPathBroken = function () {
+    /// <returns type="Boolean" />
     var path = this.GetPath();
     if (this.GetIsDataContextBound() && (path == null || path.length < 1))
         return false;
@@ -219,13 +235,13 @@ _PropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
 };
 
 _PropertyPathNode.prototype.UpdateValue = function () {
-    AbstractMethod("_PropertyPathNode._UpdateValue");
+    AbstractMethod("_PropertyPathNode.UpdateValue");
 };
 _PropertyPathNode.prototype.SetValue = function (value) {
     AbstractMethod("_PropertyPathNode.SetValue");
 };
-_PropertyPathNode.prototype.SetSource = function (/* RefObject */value) {
-    if (value == null || !RefObject.RefEquals(value, this._Source)) {
+_PropertyPathNode.prototype.SetSource = function (value) {
+    if (value == null || !RefObject.Equals(value, this._Source)) {
         var oldSource = this._Source;
         var listener = this.GetListener();
         if (listener != null) {
@@ -235,7 +251,7 @@ _PropertyPathNode.prototype.SetSource = function (/* RefObject */value) {
         }
 
         this._Source = value;
-        if (this._Source && this._Source.DoesImplement(INotifyPropertyChanged)) {
+        if (this._Source != null && this._Source instanceof RefObject && this._Source.DoesImplement(INotifyPropertyChanged)) {
             listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
             this.SetListener(listener);
         }
@@ -281,9 +297,11 @@ _PropertyPathNode.prototype.SetDependencyProperty = function (/* DependencyPrope
 };
 
 _PropertyPathNode.prototype.GetNext = function () {
+    /// <returns type="_PropertyPathNode" />
     return this._Next;
 };
-_PropertyPathNode.prototype.SetNext = function (/* _PropertyPathNode */value) {
+_PropertyPathNode.prototype.SetNext = function (value) {
+    /// <param name="value" type="_PropertyPathNode"></param>
     this._Next = value;
 };
 
@@ -302,6 +320,7 @@ _PropertyPathNode.prototype.SetListener = function (/* NPCListener */value) {
 };
 
 _PropertyPathNode.prototype.GetSource = function () {
+    /// <returns type="RefObject" />
     return this._Source;
 };
 
@@ -445,12 +464,88 @@ _IndexedPropertyPathNode.prototype.SetIndex = function (value) {
 
 //#region _CollectionViewNode
 
-function _CollectionViewNode(bindsDirectlyToSource, bindToView) {
+function _CollectionViewNode(bindsDirectlyToSource, bindToView, viewChanged) {
     _PropertyPathNode.call(this);
     this.SetBindsDirectlyToSource(bindsDirectlyToSource === true);
     this.SetBindToView(bindToView === true);
+    this.SetViewChangedHandler(this.ViewChanged);
 }
 _CollectionViewNode.InheritFrom(_PropertyPathNode);
+
+_CollectionViewNode.prototype.OnSourceChanged = function (oldSource, newSource) {
+    _PropertyPathNode.prototype.OnSourceChanged.call(this, oldSource, newSource);
+    this.DisconnectViewHandlers();
+    this.ConnectViewHandlers(RefObject.As(newSource, CollectionViewSource), RefObject.As(newSource, ICollectionView));
+};
+_CollectionViewNode.prototype.ViewChanged = function (sender, e) {
+    this.DisconnectViewHandlers(true);
+    this.ConnectViewHandlers(null, e.NewValue);
+    this.ViewCurrentChanged(this, new EventArgs());
+};
+_CollectionViewNode.prototype.ViewCurrentChanged = function (sender, e) {
+    this.UpdateValue();
+    if (this.GetNext() != null)
+        this.GetNext().SetSource(this.GetValue());
+};
+_CollectionViewNode.prototype.SetValue = function () {
+    throw new NotImplementedException();
+};
+_CollectionViewNode.prototype.UpdateValue = function () {
+    if (this.GetBindsDirectlyToSource()) {
+        this.SetValueType(this.GetSource() == null ? null : this.GetSource().constructor);
+        this._UpdateValueAndIsBroken(this.GetSource(), this._CheckIsBroken());
+    } else {
+        var usableSource = this.GetSource();
+        var view = null;
+        if (this.GetSource() instanceof CollectionViewSource) {
+            usableSource = null;
+            view = this.GetSource().GetView();
+        } else if (this.GetSource().DoesImplement(ICollectionView)) {
+            view = this.GetSource();
+        }
+
+        if (view == null) {
+            this.SetValueType(usableSource == null ? null : usableSource.constructor);
+            this._UpdateValueAndIsBroken(usableSource, this._CheckIsBroken());
+        } else {
+            if (this.GetBindToView()) {
+                this.SetValueType(view.constructor);
+                this._UpdateValueAndIsBroken(view, this._CheckIsBroken());
+            } else {
+                this.SetValueType(view.GetCurrentItem() == null ? null : view.GetCurrentItem().constructor);
+                this._UpdateValueAndIsBroken(view.GetCurrentItem(), this._CheckIsBroken());
+            }
+        }
+    }
+};
+_CollectionViewNode.prototype._CheckIsBroken = function () {
+    return this.GetSource() == null;
+};
+
+_CollectionViewNode.prototype.ConnectViewHandlers = function (source, view) {
+    /// <param name="source" type="CollectionViewSource"></param>
+    /// <param name="view" type="ICollectionView"></param>
+    if (source != null) {
+        this._ViewPropertyListener = new PropertyChangedListener(source, source.constructor.ViewProperty, this, this.ViewChanged);
+        view = source.GetView();
+    }
+    if (view != null)
+        this._ViewListener = new CurrentChangedListener(view, this, this.ViewCurrentChanged);
+
+};
+_CollectionViewNode.prototype.DisconnectViewHandlers = function (onlyView) {
+    /// <param name="onlyView" type="Boolean"></param>
+    if (onlyView == null)
+        onlyView = false;
+    if (this._ViewPropertyListener != null && !onlyView) {
+        this._ViewPropertyListener.Detach();
+        this._ViewPropertyListener = null;
+    }
+    if (this._ViewListener != null) {
+        this._ViewListener.Detach();
+        this._ViewListener = null;
+    }
+};
 
 //#region PROPERTIES
 

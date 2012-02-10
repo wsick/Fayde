@@ -11,6 +11,10 @@ function MulticastEvent() {
 MulticastEvent.InheritFrom(RefObject);
 
 MulticastEvent.prototype.Subscribe = function (callback, closure) {
+    /// <param name="callback" type="Function"></param>
+    /// <param name="closure" type="RefObject"></param>
+    if (!(callback instanceof Function))
+        throw new InvalidOperationException("Callback must be a function!");
     this._Listeners.push({ Callback: callback, Closure: closure });
 };
 MulticastEvent.prototype.SubscribeSpecific = function (callback, closure, matchFunc, matchClosure) {

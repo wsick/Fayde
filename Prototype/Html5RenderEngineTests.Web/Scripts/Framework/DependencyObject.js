@@ -395,7 +395,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
 
     var equal = oldValue == null && newValue == null;
     if (oldValue != null && newValue != null) {
-        equal = !propd._AlwaysChange && oldValue == newValue;
+        equal = !propd._AlwaysChange && RefObject.Equals(oldValue, newValue);
     }
 
     if (equal)

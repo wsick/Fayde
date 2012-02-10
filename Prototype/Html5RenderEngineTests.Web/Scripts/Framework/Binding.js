@@ -65,7 +65,8 @@ function Binding(path) {
         path = "";
 
     this.SetMode(BindingMode.OneWay);
-    this.SetPath(new _PropertyPath(path));
+
+    this.SetPath(_PropertyPath.CreateFromPath(path));
     this.SetValidatesOnNotifyDataErrors(true);
     this.SetUpdateSourceTrigger(UpdateSourceTrigger.Default);
 }

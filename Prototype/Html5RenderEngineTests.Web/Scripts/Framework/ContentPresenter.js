@@ -22,6 +22,7 @@ ContentPresenter.prototype.SetContent = function (value) {
 
 ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
 ContentPresenter.prototype.GetContentTemplate = function () {
+    /// <returns type="ControlTemplate" />
     return this.GetValue(ContentPresenter.ContentTemplateProperty);
 };
 ContentPresenter.prototype.SetContentTemplate = function (value) {
@@ -44,6 +45,7 @@ ContentPresenter.prototype.GetFallbackRoot = function () {
 //#region INSTANCE METHODS
 
 ContentPresenter.prototype._GetDefaultTemplate = function () {
+    /// <returns type="UIElement" />
     var templateOwner = this.GetTemplateOwner();
     if (templateOwner) {
         if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {

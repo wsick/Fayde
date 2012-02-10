@@ -78,8 +78,8 @@ function BindingExpressionBase(binding, target, propd) {
     this.SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
     if (binding.GetMode() !== BindingMode.OneTime) {
         var walker = this.GetPropertyPathWalker();
-        walker.IsBrokenChanged.Subscribe(this, this._PropertyPathValueChanged);
-        walker.ValueChanged.Subscribe(this, this._PropertyPathValueChanged);
+        walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);
+        walker.ValueChanged.Subscribe(this._PropertyPathValueChanged, this);
     }
 }
 BindingExpressionBase.InheritFrom(Expression);
@@ -92,7 +92,7 @@ BindingExpressionBase.prototype.GetValue = function (propd) {
     if (this.GetPropertyPathWalker().GetIsPathBroken()) {
         this._CachedValue = null;
     } else {
-        this._CachedValue = this.GetPropertyPathWalker().GetValue();
+        this._CachedValue = this.GetPropertyPathWalker().GetValueInternal();
     }
 
     try {
@@ -393,7 +393,7 @@ BindingExpressionBase.prototype._DataContextChanged = function (sender, e) {
         if (this.GetBinding().GetMode() === BindingMode.OneTime)
             this.Refresh();
     } catch (err) {
-        //ignore
+        Warn(err.message);
     }
 };
 BindingExpressionBase.prototype._PropertyPathValueChanged = function () {

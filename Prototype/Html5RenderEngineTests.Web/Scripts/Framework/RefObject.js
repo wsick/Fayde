@@ -51,6 +51,8 @@ RefObject.InheritFrom(Object);
 
 RefObject._LastID = 0;
 RefObject.As = function (obj, type) {
+    if (obj == null)
+        return null;
     if (obj instanceof type)
         return obj;
     if (obj.constructor.DoesImplement(type))
@@ -73,7 +75,7 @@ RefObject.Equals = function (val1, val2) {
     if (val1 == null && val2 == null)
         return true;
     if (val1 instanceof RefObject && val2 instanceof RefObject)
-        return val1.RefEquals(val2);
+        return RefObject.RefEquals(val1, val2);
     if (!(val1 instanceof Object) && !(val2 instanceof Object))
         return val1 === val2;
     return false;

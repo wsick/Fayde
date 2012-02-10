@@ -151,7 +151,7 @@ BindingMarkup.prototype.Transmute = function (target, propd, templateBindingSour
 };
 BindingMarkup.prototype._BuildBinding = function () {
     /// <returns type="Binding" />
-    var b = new Binding();
+    var b = new Binding(this._Data.Path);
     if (this._Data.FallbackValue !== undefined)
         b.SetFallbackValue(this._Data.FallbackValue);
     if (this._Data.Mode !== undefined)

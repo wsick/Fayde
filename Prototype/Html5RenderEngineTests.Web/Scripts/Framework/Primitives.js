@@ -598,14 +598,11 @@ Font.prototype.SetSize = function (value) {
 };
 
 Font.prototype.GetActualHeight = function () {
-    NotImplemented("Font.GetActualHeight");
+    return Surface._MeasureHeight(this);
 };
 
 Font.prototype._Descender = function () { return 0.0; }; //most likely removable
 Font.prototype._Ascender = function () { return 0.0; }; //most likely removable
-Font.prototype._Height = function () {
-    return Surface._MeasureHeight(this);
-};
 Font.prototype._PurgeCache = function () {
     this._CachedHeight = undefined;
 };

@@ -54,6 +54,10 @@ NPCListener.prototype.Detach = function () {
 
 //Dependency Property changes only
 function PropertyChangedListener(source, propd, closure, func) {
+    /// <param name="source" type="DependencyObject"></param>
+    /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="closure" type="RefObject"></param>
+    /// <param name="func" type="Function"></param>
     RefObject.call(this);
 
     if (!source)
