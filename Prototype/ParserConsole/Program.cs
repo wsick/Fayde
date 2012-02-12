@@ -12,15 +12,18 @@ namespace ParserConsole
     {
         static void Main(string[] args)
         {
-            XmlDocument doc = new XmlDocument();
-            doc.Load(@"D:\Development\Home\Fayde\Prototype\Html5RenderEngineTests.Web\tests\grid\test4.fayde");
+            var source = @"D:\Development\Home\Fayde\Prototype\Html5RenderEngineTests.Web\tests\grid\test4.fayde";
+            var destination = @"D:\Development\Home\Fayde\Prototype\Html5RenderEngineTests.Web\tests\grid\test4.html";
+
+            var doc = new XmlDocument();
+            doc.Load(source);
             if (!doc.DocumentElement.Name.ToLower().Equals("page"))
                 throw new Exception("We currently only support the Page element as the document root.");
 
-            Page p = Parser.Parser.ParseXmlNode(doc.DocumentElement, null) as Page;
+            var p = Parser.Parser.ParseXmlNode(doc.DocumentElement, null) as Page;
 
-            using (FileStream fs = new FileStream(@"D:\Development\Home\Fayde\Prototype\Html5RenderEngineTests.Web\tests\grid\test4.html", FileMode.Create))
-            using (StreamWriter sw = new StreamWriter(fs))
+            using (var fs = new FileStream(destination, FileMode.Create))
+            using (var sw = new StreamWriter(fs))
             {
                 sw.Write(p.ToString());
             }

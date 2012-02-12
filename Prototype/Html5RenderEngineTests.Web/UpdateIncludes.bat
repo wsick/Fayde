@@ -1,1 +1,1 @@
-..\..\JsSingularity.exe -DeployPath:%CD%\Scripts\Fayde.js -IncludesFile:test-includes.txt -ScriptsFolder:%CD%\Scripts\Framework -BaseIncludesPath:%CD%\tests\prototype -IncludeSubdirectories:true
+..\..\JsSingularity.exe -DeployPath:%CD%\Scripts\Fayde.js -IncludesFile:test-includes.txt -ScriptsFolder:"%CD%\Scripts\Framework" -BaseIncludesPath:%CD%\tests\prototype -IncludeSubdirectories:true
