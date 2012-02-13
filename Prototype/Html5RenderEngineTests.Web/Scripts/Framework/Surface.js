@@ -552,12 +552,12 @@ Surface.prototype._FocusElement = function (/* UIElement */uie) {
         return true;
 
     if (this._FocusedElement != null)
-        this._FocusedChangedEvents.Append(new FocusChangedNode(Surface._ElementPathToRoot(this._FocusedElement), null));
+        this._FocusChangedEvents.Append(new FocusChangedNode(Surface._ElementPathToRoot(this._FocusedElement), null));
 
     this._FocusedElement = uie;
 
     if (uie)
-        this._FocusedChangedEvents.Append(new FocusChangedNode(null, Surface._ElementPathToRoot(uie)));
+        this._FocusChangedEvents.Append(new FocusChangedNode(null, Surface._ElementPathToRoot(uie)));
 
     if (this._FirstUserInitiatedEvent)
         this._EmitFocusChangeEventsAsync();

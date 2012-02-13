@@ -62,7 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Elements\Button.cs" />
+    <Compile Include="Elements\ButtonBase.cs" />
     <Compile Include="Elements\DependencyObject.cs" />
+    <Compile Include="Elements\HyperlinkButton.cs" />
     <Compile Include="Elements\IJsonSerializable.cs" />
     <Compile Include="Elements\Setter.cs" />
     <Compile Include="Elements\Style.cs" />

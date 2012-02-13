@@ -542,6 +542,15 @@ CollectionViewSource.prototype.SetView = function (value) {
 
 //#endregion
 
+//#region PresentationFrameworkCollection
+
+function PresentationFrameworkCollection() {
+    DependencyObject.call(this);
+}
+PresentationFrameworkCollection.InheritFrom(DependencyObject);
+
+//#endregion
+
 var _VisualTreeWalkerDirection = {
     Logical: 0,
     LogicalReverse: 1,

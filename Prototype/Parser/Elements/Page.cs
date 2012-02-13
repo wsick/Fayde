@@ -64,6 +64,7 @@ namespace Parser.Elements
                 "../../Scripts/Framework/StackPanel.js",
                 "../../Scripts/Framework/Style.js",
                 "../../Scripts/Framework/TextBlock.js",
+                "../../Scripts/Framework/Timeline.js",
                 "../../Scripts/Framework/VisualStateManager.js",
                 "../../Scripts/Framework/Border.js",
                 "../../Scripts/Framework/Canvas.js",
@@ -75,6 +76,7 @@ namespace Parser.Elements
                 "../../Scripts/Framework/UserControl.js",
                 "../../Scripts/Framework/ContentControl.js",
                 "../../Scripts/Framework/ButtonBase.js",
+                "../../Scripts/Framework/HyperlinkButton.js",
                 "../../Scripts/Framework/Button.js",
             };
             var scriptIncludeFormat = "\t\t<script src=\"{0}\" type=\"text/javascript\"></script>";

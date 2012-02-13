@@ -13,7 +13,7 @@
             </Border>
         </Border>
         -->
-    <StackPanel Background="#800000" Orientation="Horizontal">
+    <StackPanel Background="#800000" Orientation="Horizontal" MouseLeftButtonDown="StackPanel_MouseLeftButtonDown">
         <Grid MinWidth="200" MinHeight="200">
             <Grid.RowDefinitions>
                 <RowDefinition Height="2*" />
@@ -32,10 +32,18 @@
             <Border Grid.Row="1" Grid.Column="1" Background="Bisque">
             </Border>
         </Grid>
-        <Border BorderBrush="Black" BorderThickness="1" CornerRadius="5" Margin="5" MinWidth="50" MinHeight="50">
-        </Border>
-        <Border Background="Yellow" MinHeight="200" MinWidth="300">
+        <Border BorderBrush="Black" BorderThickness="1" CornerRadius="5" Margin="5" MinWidth="50" MinHeight="50"
+                Background="Cornsilk"
+                MouseLeftButtonDown="Border_MouseLeftButtonDown">
             
         </Border>
+        <Border Background="Yellow" MinHeight="200" MinWidth="300">
+            <TextBlock>
+                noob
+            </TextBlock>
+        </Border>
     </StackPanel>
+    <!--<Grid>
+        <TextBox Width="100" Height="30" Text="Rawr"></TextBox>
+    </Grid>-->
 </UserControl>

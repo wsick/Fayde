@@ -628,3 +628,12 @@ Font.DEFAULT_WEIGHT = FontWeights.Normal;
 Font.DEFAULT_SIZE = "11px";
 
 //#endregion
+
+//#region Uri
+
+function Uri() {
+    RefObject.call(this);
+}
+Uri.InheritFrom(RefObject);
+
+//#endregion

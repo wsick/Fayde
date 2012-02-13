@@ -1,0 +1,5 @@
+﻿<Page>
+  <Grid>
+    <HyperlinkButton HorizontalAlignment="Center" VerticalAlignment="Center" Content="Some Link"></HyperlinkButton>
+  </Grid>
+</Page>

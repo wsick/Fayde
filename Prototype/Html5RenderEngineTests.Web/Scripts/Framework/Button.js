@@ -28,7 +28,7 @@ Button.prototype.OnApplyTemplate = function () {
 
     this.UpdateVisualState(false);
 };
-Button.prototype.ChangeVisualState = function (useTransitions) {
+Button.prototype._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         this._GoToState(useTransitions, Button.StateDisabled);
     } else if (this.GetIsPressed()) {

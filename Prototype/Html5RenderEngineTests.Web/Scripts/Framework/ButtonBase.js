@@ -84,9 +84,9 @@ ButtonBase.prototype._IsValidMousePosition = function () {
 ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
     if (this._SuspendStateChanges)
         return;
-    this.ChangeVisualState(useTransitions === undefined ? true : useTransitions);
+    this._ChangeVisualState(useTransitions === true);
 };
-ButtonBase.prototype.ChangeVisualState = function (useTransitions) {
+ButtonBase.prototype._ChangeVisualState = function (useTransitions) {
     //Nothing to do in ButtonBase
 };
 ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
@@ -104,7 +104,7 @@ ButtonBase.prototype.OnMouseEnter = function (sender, args) {
     try {
         if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled()) {
             this.SetIsPressed(true);
-            this._EmitClick();
+            this.OnClick();
         }
     } finally {
         this._SuspendStateChanges = false;
@@ -157,7 +157,7 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
     }
 
     if (clickMode === ClickMode.Press)
-        this._EmitClick();
+        this.OnClick();
 };
 ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
     ContentControl.prototype.OnMouseLeftButtonUp.call(this, sender, args);
@@ -171,7 +171,7 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
 
     //TODO: args.Handled = true;
     if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
-        this._EmitClick();
+        this.OnClick();
 
     if (!this._IsSpaceKeyDown) {
         this._ReleaseMouseCaptureInternal();
@@ -202,6 +202,11 @@ ButtonBase.prototype.OnLostFocus = function (sender, args) {
     }
 };
 
+ButtonBase.prototype.OnClick = function () {
+    //TODO: Execute Command
+    this.Click.Raise(this, null);
+};
+
 ButtonBase.prototype._CaptureMouseInternal = function () {
     if (!this._IsMouseCaptured)
         this._IsMouseCaptured = this.CaptureMouse();
@@ -209,11 +214,6 @@ ButtonBase.prototype._CaptureMouseInternal = function () {
 ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
     this.ReleaseMouseCapture();
     this._IsMouseCaptured = false;
-};
-
-ButtonBase.prototype._EmitClick = function () {
-    //TODO: Execute Command
-    this.Click.Raise(this, null);
 };
 
 //#endregion

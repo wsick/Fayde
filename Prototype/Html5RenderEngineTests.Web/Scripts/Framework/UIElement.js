@@ -745,9 +745,9 @@ UIElement.prototype.Focus = function (recurse) {
 
 UIElement.prototype._EmitFocusChange = function (type) {
     if (type === "got")
-        node.UIElement._EmitGotFocus();
+        this._EmitGotFocus();
     else if (type === "lost")
-        node.UIElement._EmitLostFocus();
+        this._EmitLostFocus();
 };
 
 UIElement.prototype._EmitGotFocus = function () {

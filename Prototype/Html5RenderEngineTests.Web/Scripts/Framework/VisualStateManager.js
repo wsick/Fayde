@@ -1,5 +1,6 @@
 ﻿/// <reference path="DependencyObject.js"/>
 /// <reference path="Collections.js"/>
+/// <reference path="Timeline.js"/>
 /// CODE
 
 //#region VisualState
@@ -110,6 +111,21 @@ VisualStateManager.SetVisualStateGroups = function (d, value) {
 
 VisualStateManager.GoToState = function (uie, state, useTransitions) {
     NotImplemented("VisualStateManager.GoToState");
+};
+
+//#endregion
+
+//#region Storyboard
+
+function Storyboard() {
+    Timeline.call(this);
+}
+Storyboard.InheritFrom(Timeline);
+
+Storyboard.ChildrenProperty = DependencyProperty.Register("Children", function () { return TimelineCollection; }, Storyboard);
+Storyboard.prototype.GetChildren = function () {
+    ///<returns type="TimelineCollection"></returns>
+    return this.GetValue(Storyboard.ChildrenProperty);
 };
 
 //#endregion
