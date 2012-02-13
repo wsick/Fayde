@@ -80,7 +80,7 @@ HyperlinkButton.prototype._ChangeVisualState = function (useTransitions) {
     }
 };
 HyperlinkButton.prototype._Navigate = function () {
-    throw new NotImplemented("HyperlinkButton._Navigate");
+    NotImplemented("HyperlinkButton._Navigate (" + this.GetNavigateUri().toString() + ")");
 };
 
 //#region DEFAULT STYLE

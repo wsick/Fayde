@@ -101,6 +101,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TypeConverters\ThicknessConverter.cs" />
+    <Compile Include="TypeConverters\UriTypeConverter.cs" />
     <Compile Include="TypeConverters\VerticalAlignmentConverter.cs" />
   </ItemGroup>
   <ItemGroup />

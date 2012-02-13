@@ -631,9 +631,17 @@ Font.DEFAULT_SIZE = "11px";
 
 //#region Uri
 
-function Uri() {
+function Uri(os) {
     RefObject.call(this);
+
+    if (!os)
+        return;
+    this._OriginalString = os;
 }
 Uri.InheritFrom(RefObject);
+
+Uri.prototype.toString = function () {
+    return this._OriginalString;
+};
 
 //#endregion
