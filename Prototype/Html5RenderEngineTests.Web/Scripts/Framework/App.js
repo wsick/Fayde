@@ -23,7 +23,21 @@ App.prototype.SetResources = function (value) {
 
 //#endregion
 
+//#region PROPERTIES
+
+App.prototype.GetAddress = function () {
+    ///<returns type="Uri"></returns>
+    return this._Address;
+};
+App.prototype.SetAddress = function (value) {
+    ///<param name="value" type="Uri"></param>
+    this._Address = value;
+};
+
+//#endregion
+
 App.prototype.Load = function (/* UIElement */element, containerId, width, height) {
+    this.SetAddress(new Uri(document.URL));
     this.MainSurface.Init(containerId, width, height);
     if (!(element instanceof UIElement))
         return;

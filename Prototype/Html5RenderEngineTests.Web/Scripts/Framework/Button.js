@@ -9,19 +9,15 @@
 
 function Button() {
     ButtonBase.call(this);
-    this._ElementRoot = null;
-    this._ElementFocusVisual = null;
-    this._StateNormal = null;
-    this.SetIsTabStop(false);
 }
 Button.InheritFrom(ButtonBase);
 
-Button.StateDisabled = "";
-Button.StatePressed = "";
-Button.StateMouseOver = "";
-Button.StateNormal = "";
-Button.StateFocused = "";
-Button.StateUnfocused = "";
+Button.StateDisabled = "Disabled";
+Button.StatePressed = "Pressed";
+Button.StateMouseOver = "MouseOver";
+Button.StateNormal = "Normal";
+Button.StateFocused = "Focused";
+Button.StateUnfocused = "Unfocused";
 
 Button.prototype.OnApplyTemplate = function () {
     ButtonBase.prototype.OnApplyTemplate.call(this);

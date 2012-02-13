@@ -300,9 +300,7 @@ Control.prototype.Focus = function (recurse) {
             continue;
         }
 
-        var c;
-        if (uie instanceof Control)
-            c = uie;
+        var c = RefObject.As(uie, Control);
         if (c == null)
             continue;
 

@@ -110,7 +110,7 @@ VisualStateManager.SetVisualStateGroups = function (d, value) {
 //#endregion
 
 VisualStateManager.GoToState = function (uie, state, useTransitions) {
-    NotImplemented("VisualStateManager.GoToState");
+    NotImplemented("VisualStateManager.GoToState (" + state + ")");
 };
 
 //#endregion
