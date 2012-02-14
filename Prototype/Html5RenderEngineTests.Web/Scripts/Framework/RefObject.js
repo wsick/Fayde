@@ -25,9 +25,13 @@ Function.prototype.DoesImplement = function (interface) {
     return this._Interfaces[interfaceName] === true;
 };
 Function.prototype.GetName = function () {
+    if (this.___FunctionName___ != null)
+        return this.___FunctionName___;
     var funcNameRegex = /function (.{1,})\(/;
     var results = (funcNameRegex).exec(this.toString());
-    return (results && results.length > 1) ? results[1] : "";
+    var name = (results && results.length > 1) ? results[1] : "";
+    this.___FunctionName___ = name;
+    return name;
 };
 
 String.prototype.indexOfAny = function (carr, start) {

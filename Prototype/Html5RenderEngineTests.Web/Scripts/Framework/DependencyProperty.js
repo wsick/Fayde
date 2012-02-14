@@ -18,9 +18,7 @@ function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocr
 DependencyProperty.InheritFrom(RefObject);
 
 DependencyProperty.prototype.toString = function () {
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec(this.OwnerType.toString());
-    var ownerTypeName = (results && results.length > 1) ? results[1] : "";
+    var ownerTypeName = this.OwnerType.GetName();
     return ownerTypeName + "." + this.Name.toString();
 };
 DependencyProperty.prototype.GetDefaultValue = function (obj) {
