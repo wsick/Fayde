@@ -158,7 +158,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: 1.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundAnimation" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("Opacity") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
                                                             ]
                                                         },
                                                         {
@@ -166,7 +166,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#F2FFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -174,7 +174,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#CCFFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -182,7 +182,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#7FFFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
                                                             ]
                                                         }
                                                     ]
@@ -199,7 +199,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#FF6DBDD1") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "Background" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(SolidColorBrush.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(SolidColorBrush.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -207,7 +207,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: 1.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundAnimation" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("Opacity") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
                                                             ]
                                                         },
                                                         {
@@ -215,7 +215,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#D8FFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[0].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[0].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -223,7 +223,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#C6FFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -231,7 +231,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#8CFFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -239,7 +239,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#3FFFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
                                                             ]
                                                         }
                                                     ]

@@ -14,17 +14,13 @@ var _PropertyNodeType = {
 
 //#region _PropertyPath
 
-function _PropertyPath() {
+function _PropertyPath(path, expandedPath) {
     RefObject.call(this);
+    this._Path = path;
+    this._ExpandedPath = expandedPath;
 }
 _PropertyPath.InheritFrom(RefObject);
 
-_PropertyPath.CreateFromPath = function (path, expandedPath) {
-    var p = new _PropertyPath();
-    p._Path = path;
-    p._ExpandedPath = expandedPath;
-    return p;
-};
 _PropertyPath.CreateFromParameter = function (parameter) {
     var p = new _PropertyPath();
     p._Propd = RefObject.As(parameter, DependencyProperty);
