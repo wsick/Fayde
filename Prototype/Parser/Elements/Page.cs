@@ -66,6 +66,7 @@ namespace Parser.Elements
                 "../../Scripts/Framework/TextBlock.js",
                 "../../Scripts/Framework/Timeline.js",
                 "../../Scripts/Framework/VisualStateManager.js",
+                "../../Scripts/Framework/Animation.js",
                 "../../Scripts/Framework/Border.js",
                 "../../Scripts/Framework/Canvas.js",
                 "../../Scripts/Framework/ContentPresenter.js",

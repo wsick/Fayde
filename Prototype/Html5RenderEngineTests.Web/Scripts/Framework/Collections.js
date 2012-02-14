@@ -545,9 +545,9 @@ CollectionViewSource.prototype.SetView = function (value) {
 //#region PresentationFrameworkCollection
 
 function PresentationFrameworkCollection() {
-    DependencyObject.call(this);
+    Collection.call(this);
 }
-PresentationFrameworkCollection.InheritFrom(DependencyObject);
+PresentationFrameworkCollection.InheritFrom(Collection);
 
 //#endregion
 

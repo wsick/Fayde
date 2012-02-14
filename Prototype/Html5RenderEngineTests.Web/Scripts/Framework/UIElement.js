@@ -444,7 +444,7 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
     if (IsOpacityInvisible(this._TotalOpacity)) {
-        Info("No opacity. [" + this._TypeName + ":" + this.GetName() + "]");
+        // Info("No opacity. [" + this._TypeName + ":" + this.GetName() + "]");
         return;
     }
     if (!this._GetRenderVisible()) {

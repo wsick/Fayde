@@ -836,7 +836,7 @@ _InheritedDataContextPropertyValueProvider.prototype._DetachListener = function 
     }
 };
 _InheritedDataContextPropertyValueProvider.prototype._SourceDataContextChanged = function (sender, args) {
-    var error = BError();
+    var error = new BError();
     this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
 };
 _InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {

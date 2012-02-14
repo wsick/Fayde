@@ -25,7 +25,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
                 continue;
 
             propd = dobj.GetDependencyProperty(propName);
-            this.TrySetPropertyValue(dobj, propd, propValue, namescope, false);
+            this.TrySetPropertyValue(dobj, propd, propValue, namescope, false, dobj.constructor, propName);
         }
     }
 
@@ -35,7 +35,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
             //TODO: Namespace Prefixes?
             propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
             propValue = attachedDef.Value;
-            this.TrySetPropertyValue(dobj, propd, propValue, namescope, true);
+            this.TrySetPropertyValue(dobj, propd, propValue, namescope, true, attachedDef.Owner, attachedDef.Prop);
         }
     }
 
@@ -46,16 +46,22 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
         } else if (json.Content) {
             dobj.SetValue(contentPropd, this.CreateObject(json.Content, namescope));
         }
-    } else if (contentPropd instanceof String) {
+    } else if (contentPropd != null && contentPropd.constructor === String) {
         var setFunc = dobj["Set" + contentPropd];
+        var getFunc = dobj["Get" + contentPropd];
         if (setFunc) {
             setFunc.call(dobj, this.CreateObject(json.Content, namescope));
+        } else if (getFunc) {
+            var coll = getFunc.call(dobj);
+            for (var j in json.Children) {
+                coll.Add(this.CreateObject(json.Children[j], namescope));
+            }
         }
     }
     return dobj;
 };
 
-JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached) {
+JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
     //If the object is not a RefObject, let's parse it
     if (!(propValue instanceof RefObject) && propValue.Type) {
         propValue = this.CreateObject(propValue, namescope);
@@ -69,12 +75,12 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
             return;
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
-        var func = dobj["Set" + propd.Name];
+        var func = dobj["Set" + propName];
         if (func && func instanceof Function)
             func.call(dobj, propValue);
     } else {
         //There is no fallback if we can't find attached property
-        Warn("Could not find attached property: " + attachedDef.Prop);
+        Warn("Could not find attached property: " + ownerType.GetName() + "." + propName);
     }
 };
 JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {

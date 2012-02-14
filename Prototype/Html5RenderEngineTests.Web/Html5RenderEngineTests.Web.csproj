@@ -54,6 +54,7 @@
     <Content Include="Docs\JsonFormat.txt" />
     <Content Include="Docs\Annotations.txt" />
     <Content Include="Scripts\Fayde.js" />
+    <Content Include="Scripts\Framework\Animation.js" />
     <Content Include="Scripts\Framework\Binding.js" />
     <Content Include="Scripts\Framework\HyperlinkButton.js" />
     <Content Include="Scripts\Framework\NotifyProperty.js" />

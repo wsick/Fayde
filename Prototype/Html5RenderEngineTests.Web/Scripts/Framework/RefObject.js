@@ -24,6 +24,11 @@ Function.prototype.DoesImplement = function (interface) {
     var interfaceName = (new interface())._TypeName;
     return this._Interfaces[interfaceName] === true;
 };
+Function.prototype.GetName = function () {
+    var funcNameRegex = /function (.{1,})\(/;
+    var results = (funcNameRegex).exec(this.toString());
+    return (results && results.length > 1) ? results[1] : "";
+};
 
 String.prototype.indexOfAny = function (carr, start) {
     if (!(carr instanceof Array))
@@ -60,9 +65,11 @@ RefObject.As = function (obj, type) {
     return null;
 };
 RefObject.GetTypeName = function () {
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec(this.constructor.toString());
-    return (results && results.length > 1) ? results[1] : "";
+    try {
+        return this.constructor.GetName();
+    } catch (err) {
+        err.toString();
+    }
 };
 RefObject.RefEquals = function (robj1, robj2) {
     if (robj1 == null && robj2 == null)

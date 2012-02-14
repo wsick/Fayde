@@ -75,13 +75,11 @@ ButtonBase.prototype.OnIsEnabledChanged = function (e) {
 ButtonBase.prototype.OnIsPressedChanged = function (e) {
     this.UpdateVisualState();
 };
-ButtonBase.prototype._IsValidMousePosition = function () {
-    var pos = this._MousePosition;
-    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
-        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
-};
+
+//#region VISUAL STATE
 
 ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
+    /// <param name="useTransitions" type="Boolean"></param>
     if (this._SuspendStateChanges)
         return;
     this._ChangeVisualState(useTransitions === true);
@@ -90,8 +88,13 @@ ButtonBase.prototype._ChangeVisualState = function (useTransitions) {
     //Nothing to do in ButtonBase
 };
 ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
+    /// <param name="useTransitions" type="Boolean"></param>
+    /// <param name="stateName" type="String"></param>
+    /// <returns type="Boolean" />
     return VisualStateManager.GoToState(this, stateName, useTransitions);
 };
+
+//#endregion
 
 //#region MOUSE
 
@@ -178,6 +181,31 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
         this.SetIsPressed(false);
     }
 };
+
+ButtonBase.prototype.OnClick = function () {
+    //TODO: Execute Command
+    this.Click.Raise(this, null);
+};
+
+ButtonBase.prototype._CaptureMouseInternal = function () {
+    if (!this._IsMouseCaptured)
+        this._IsMouseCaptured = this.CaptureMouse();
+};
+ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
+    this.ReleaseMouseCapture();
+    this._IsMouseCaptured = false;
+};
+ButtonBase.prototype._IsValidMousePosition = function () {
+    /// <returns type="Boolean" />
+    var pos = this._MousePosition;
+    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
+        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
+};
+
+//#endregion
+
+//#region FOCUS
+
 ButtonBase.prototype.OnGotFocus = function (sender, args) {
     ContentControl.prototype.OnGotFocus.call(this, sender, args);
 
@@ -200,20 +228,6 @@ ButtonBase.prototype.OnLostFocus = function (sender, args) {
         this._SuspendStateChanges = false;
         this.UpdateVisualState();
     }
-};
-
-ButtonBase.prototype.OnClick = function () {
-    //TODO: Execute Command
-    this.Click.Raise(this, null);
-};
-
-ButtonBase.prototype._CaptureMouseInternal = function () {
-    if (!this._IsMouseCaptured)
-        this._IsMouseCaptured = this.CaptureMouse();
-};
-ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
-    this.ReleaseMouseCapture();
-    this._IsMouseCaptured = false;
 };
 
 //#endregion

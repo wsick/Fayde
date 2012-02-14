@@ -18,7 +18,6 @@
     <Setter.Value>
       <ControlTemplate TargetType="Button">
         <Grid>
-          <!--
           <vsm:VisualStateManager.VisualStateGroups>
             <vsm:VisualStateGroup x:Name="CommonStates">
               <vsm:VisualState x:Name="Normal"/>
@@ -55,7 +54,6 @@
               <vsm:VisualState x:Name="Unfocused" />
             </vsm:VisualStateGroup>
           </vsm:VisualStateManager.VisualStateGroups>
-          -->
           <Border x:Name="Background" CornerRadius="3" Background="White" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
             <Grid Background="{TemplateBinding Background}"  Margin="1">
               <Border Opacity="0" x:Name="BackgroundAnimation" Background="#FF448DCA" />

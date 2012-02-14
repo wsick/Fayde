@@ -152,6 +152,11 @@ Function.prototype.DoesImplement = function (interface) {
     var interfaceName = (new interface())._TypeName;
     return this._Interfaces[interfaceName] === true;
 };
+Function.prototype.GetName = function () {
+    var funcNameRegex = /function (.{1,})\(/;
+    var results = (funcNameRegex).exec(this.toString());
+    return (results && results.length > 1) ? results[1] : "";
+};
 
 String.prototype.indexOfAny = function (carr, start) {
     if (!(carr instanceof Array))
@@ -188,9 +193,11 @@ RefObject.As = function (obj, type) {
     return null;
 };
 RefObject.GetTypeName = function () {
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec(this.constructor.toString());
-    return (results && results.length > 1) ? results[1] : "";
+    try {
+        return this.constructor.GetName();
+    } catch (err) {
+        err.toString();
+    }
 };
 RefObject.RefEquals = function (robj1, robj2) {
     if (robj1 == null && robj2 == null)
@@ -1153,7 +1160,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
                 continue;
 
             propd = dobj.GetDependencyProperty(propName);
-            this.TrySetPropertyValue(dobj, propd, propValue, namescope, false);
+            this.TrySetPropertyValue(dobj, propd, propValue, namescope, false, dobj.constructor, propName);
         }
     }
 
@@ -1163,7 +1170,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
             //TODO: Namespace Prefixes?
             propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
             propValue = attachedDef.Value;
-            this.TrySetPropertyValue(dobj, propd, propValue, namescope, true);
+            this.TrySetPropertyValue(dobj, propd, propValue, namescope, true, attachedDef.Owner, attachedDef.Prop);
         }
     }
 
@@ -1174,16 +1181,22 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
         } else if (json.Content) {
             dobj.SetValue(contentPropd, this.CreateObject(json.Content, namescope));
         }
-    } else if (contentPropd instanceof String) {
+    } else if (contentPropd != null && contentPropd.constructor === String) {
         var setFunc = dobj["Set" + contentPropd];
+        var getFunc = dobj["Get" + contentPropd];
         if (setFunc) {
             setFunc.call(dobj, this.CreateObject(json.Content, namescope));
+        } else if (getFunc) {
+            var coll = getFunc.call(dobj);
+            for (var j in json.Children) {
+                coll.Add(this.CreateObject(json.Children[j], namescope));
+            }
         }
     }
     return dobj;
 };
 
-JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached) {
+JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
     //If the object is not a RefObject, let's parse it
     if (!(propValue instanceof RefObject) && propValue.Type) {
         propValue = this.CreateObject(propValue, namescope);
@@ -1197,12 +1210,12 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
             return;
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
-        var func = dobj["Set" + propd.Name];
+        var func = dobj["Set" + propName];
         if (func && func instanceof Function)
             func.call(dobj, propValue);
     } else {
         //There is no fallback if we can't find attached property
-        Warn("Could not find attached property: " + attachedDef.Prop);
+        Warn("Could not find attached property: " + ownerType.GetName() + "." + propName);
     }
 };
 JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
@@ -1781,6 +1794,7 @@ function Point(x, y) {
 Point.InheritFrom(RefObject);
 
 Point.prototype.Apply = function (matrix) {
+    /// <returns type="Point" />
     return matrix.Multiply(this);
 };
 Point.prototype.toString = function () {
@@ -2222,11 +2236,47 @@ Font.prototype._Translate = function () {
     return s;
 };
 
-Font.DEFAULT_FAMILY = "Calibri";
+Font.DEFAULT_FAMILY = "'Lucida Sans Unicode'";
 Font.DEFAULT_STRETCH = FontStretches.Normal;
 Font.DEFAULT_STYLE = FontStyles.Normal;
 Font.DEFAULT_WEIGHT = FontWeights.Normal;
-Font.DEFAULT_SIZE = "12px";
+Font.DEFAULT_SIZE = "11px";
+
+//#endregion
+
+//#region Uri
+
+function Uri(os) {
+    RefObject.call(this);
+
+    if (!os)
+        return;
+    this._OriginalString = os;
+}
+Uri.InheritFrom(RefObject);
+
+Uri.prototype.GetFragment = function () {
+    ///<returns type="String"></returns>
+
+    //this._OriginalString.lastIndexOf("");
+};
+
+Uri.prototype.toString = function () {
+    return this._OriginalString;
+};
+
+//#endregion
+
+//#region Duration
+
+function Duration() {
+    RefObject.call(this);
+}
+Duration.InheritFrom(RefObject);
+
+Duration.IsZero = function () {
+
+};
 
 //#endregion
 
@@ -3751,7 +3801,7 @@ _InheritedDataContextPropertyValueProvider.prototype._DetachListener = function 
     }
 };
 _InheritedDataContextPropertyValueProvider.prototype._SourceDataContextChanged = function (sender, args) {
-    var error = BError();
+    var error = new BError();
     this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
 };
 _InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
@@ -4399,12 +4449,12 @@ Surface.prototype._FocusElement = function (/* UIElement */uie) {
         return true;
 
     if (this._FocusedElement != null)
-        this._FocusedChangedEvents.Append(new FocusChangedNode(Surface._ElementPathToRoot(this._FocusedElement), null));
+        this._FocusChangedEvents.Append(new FocusChangedNode(Surface._ElementPathToRoot(this._FocusedElement), null));
 
     this._FocusedElement = uie;
 
     if (uie)
-        this._FocusedChangedEvents.Append(new FocusChangedNode(null, Surface._ElementPathToRoot(uie)));
+        this._FocusChangedEvents.Append(new FocusChangedNode(null, Surface._ElementPathToRoot(uie)));
 
     if (this._FirstUserInitiatedEvent)
         this._EmitFocusChangeEventsAsync();
@@ -7707,7 +7757,15 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     //region = region.Transform(this._RenderTransform);
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
-    if (!this._GetRenderVisible() || IsOpacityInvisible(this._TotalOpacity) || region.IsEmpty()) {
+    if (IsOpacityInvisible(this._TotalOpacity)) {
+        // Info("No opacity. [" + this._TypeName + ":" + this.GetName() + "]");
+        return;
+    }
+    if (!this._GetRenderVisible()) {
+        Info("Render invisible. [" + this._TypeName + ":" + this.GetName() + "]");
+        return;
+    }
+    if (region.IsEmpty()) {
         Info("Nothing to render. [" + this._TypeName + "]");
         return;
     }
@@ -8001,9 +8059,9 @@ UIElement.prototype.Focus = function (recurse) {
 
 UIElement.prototype._EmitFocusChange = function (type) {
     if (type === "got")
-        node.UIElement._EmitGotFocus();
+        this._EmitGotFocus();
     else if (type === "lost")
-        node.UIElement._EmitLostFocus();
+        this._EmitLostFocus();
 };
 
 UIElement.prototype._EmitGotFocus = function () {
@@ -8058,7 +8116,21 @@ App.prototype.SetResources = function (value) {
 
 //#endregion
 
+//#region PROPERTIES
+
+App.prototype.GetAddress = function () {
+    ///<returns type="Uri"></returns>
+    return this._Address;
+};
+App.prototype.SetAddress = function (value) {
+    ///<param name="value" type="Uri"></param>
+    this._Address = value;
+};
+
+//#endregion
+
 App.prototype.Load = function (/* UIElement */element, containerId, width, height) {
+    this.SetAddress(new Uri(document.URL));
     this.MainSurface.Init(containerId, width, height);
     if (!(element instanceof UIElement))
         return;
@@ -8165,6 +8237,11 @@ var Stretch = {
     UniformToFill: 3
 };
 
+var BrushMappingMode = {
+    Absolute: 0,
+    RelativeToBoundingBox: 1
+};
+
 //#region Brush
 
 function Brush() {
@@ -8199,14 +8276,30 @@ function GradientBrush() {
 }
 GradientBrush.InheritFrom(Brush);
 
+GradientBrush.prototype._GetMappingModeTransform = function (bounds) {
+    /// <param name="bounds" type="Rect"></param>
+    /// <returns type="Matrix" />
+    if (this.GetMappingMode() === BrushMappingMode.Absolute)
+        return new Matrix();
+    return new ScalingMatrix(bounds.Width, bounds.Height);
+};
+
 //#region DEPENDENCY PROPERTIES
 
 GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.prototype.GetGradientStops = function () {
+    /// <returns type="GradientStopCollection" />
     return this.GetValue(GradientBrush.GradientStopsProperty);
 };
-GradientBrush.prototype.SetGradientStops = function (value) {
-    this.SetValue(GradientBrush.GradientStopsProperty, value);
+
+GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return Number; }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
+GradientBrush.prototype.GetMappingMode = function () {
+    ///<returns type="Number"></returns>
+    return this.GetValue(GradientBrush.MappingModeProperty);
+};
+GradientBrush.prototype.SetMappingMode = function (value) {
+    ///<param name="value" type="Number"></param>
+    this.SetValue(GradientBrush.MappingModeProperty, value);
 };
 
 //#endregion
@@ -8224,33 +8317,41 @@ LinearGradientBrush.InheritFrom(GradientBrush);
 
 LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
 LinearGradientBrush.prototype.GetStartPoint = function () {
+    /// <returns type="Point" />
     return this.GetValue(LinearGradientBrush.StartPointProperty);
 };
 LinearGradientBrush.prototype.SetStartPoint = function (value) {
+    /// <param name="value" type="Point"></param>
     this.SetValue(LinearGradientBrush.StartPointProperty, value);
 };
 
 LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterFull("EndPoint", function () { return Point; }, LinearGradientBrush, new Point(1, 1));
 LinearGradientBrush.prototype.GetEndPoint = function () {
+    /// <returns type="Point" />
     return this.GetValue(LinearGradientBrush.EndPointProperty);
 };
 LinearGradientBrush.prototype.SetEndPoint = function (value) {
+    /// <param name="value" type="Point"></param>
     this.SetValue(LinearGradientBrush.EndPointProperty, value);
 };
 
 //#endregion
 
 LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
-    var transform = new Matrix();
+    /// <param name="ctx" type="CanvasRenderingContext2D">HTML5 Canvas Context</param>
+    /// <param name="bounds" type="Rect"></param>
+    /// <returns type="CanvasGradient" />
+    var transform = this._GetMappingModeTransform(bounds);
     var start = this.GetStartPoint().Apply(transform);
     var end = this.GetEndPoint().Apply(transform);
+
     var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
     var stops = this.GetGradientStops();
     for (var i = 0; i < stops.GetCount(); i++) {
         var stop = stops.GetValueAt(i);
         grd.addColorStop(stop.GetOffset(), stop.GetColor()._Translate());
     }
-    return grd;     
+    return grd;
 };
 
 //#endregion
@@ -8891,6 +8992,15 @@ CollectionViewSource.prototype.SetView = function (value) {
 };
 
 //#endregion
+
+//#endregion
+
+//#region PresentationFrameworkCollection
+
+function PresentationFrameworkCollection() {
+    Collection.call(this);
+}
+PresentationFrameworkCollection.InheritFrom(Collection);
 
 //#endregion
 
@@ -11051,6 +11161,141 @@ _TextBlockDynamicPropertyValueProvider.prototype.GetPropertyValue = function (pr
 /// <reference path="Collections.js"/>
 /// CODE
 
+//#region Timeline
+
+function Timeline() {
+    DependencyObject.call(this);
+    this.Completed = new MulticastEvent();
+}
+Timeline.InheritFrom(DependencyObject);
+
+//#region DEPENDENCY PROPERTIES
+
+Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
+Timeline.prototype.GetDuration = function () {
+    ///<returns type="Duration"></returns>
+    return this.GetValue(Timeline.DurationProperty);
+};
+Timeline.prototype.SetDuration = function (value) {
+    ///<param name="value" type="Duration"></param>
+    this.SetValue(Timeline.DurationProperty, value);
+};
+
+//#endregion
+
+//#endregion
+
+//#region TimelineCollection
+
+function TimelineCollection() {
+    PresentationFrameworkCollection.call(this);
+}
+TimelineCollection.InheritFrom(PresentationFrameworkCollection);
+
+//#endregion
+
+/// <reference path="DependencyObject.js"/>
+/// <reference path="Collections.js"/>
+/// <reference path="Timeline.js"/>
+/// <reference path="Primitives.js"/>
+/// CODE
+/// <reference path="UserControl.js"/>
+/// <reference path="VisualTreeHelper.js"/>
+/// <reference path="Control.js"/>
+
+//#region VisualTransition
+
+function VisualTransition() {
+    DependencyObject.call(this);
+    this.SetDynamicStoryboardCompleted(true);
+    this.SetExplicitStoryboardCompleted(true);
+    this._GeneratedDuration = new Duration();
+}
+VisualTransition.InheritFrom(DependencyObject);
+
+//#region PROPERTIES
+
+VisualTransition.prototype.GetFrom = function () {
+    ///<returns type="String"></returns>
+    return this._From;
+};
+VisualTransition.prototype.SetFrom = function (value) {
+    ///<param name="value" type="String"></param>
+    this._From = value;
+};
+
+VisualTransition.prototype.GetTo = function () {
+    ///<returns type="String"></returns>
+    return this._To;
+};
+VisualTransition.prototype.SetTo = function (value) {
+    ///<param name="value" type="String"></param>
+    this._To = value;
+};
+
+VisualTransition.prototype.GetStoryboard = function () {
+    ///<returns type="Storyboard"></returns>
+    return this._Storyboard;
+};
+VisualTransition.prototype.SetStoryboard = function (value) {
+    ///<param name="value" type="Storyboard"></param>
+    this._Storyboard = value;
+};
+
+VisualTransition.prototype.GetGeneratedDuration = function () {
+    ///<returns type="Duration"></returns>
+    return this._GeneratedDuration;
+};
+VisualTransition.prototype.SetGeneratedDuration = function (value) {
+    ///<param name="value" type="Duration"></param>
+    this._GeneratedDuration = value;
+};
+
+VisualTransition.prototype.GetDynamicStoryboardCompleted = function () {
+    ///<returns type="Boolean"></returns>
+    return this._DynamicStoryboardCompleted;
+};
+VisualTransition.prototype.SetDynamicStoryboardCompleted = function (value) {
+    ///<param name="value" type="Boolean"></param>
+    this._DynamicStoryboardCompleted = value;
+};
+
+VisualTransition.prototype.GetExplicitStoryboardCompleted = function () {
+    ///<returns type="Boolean"></returns>
+    return this._ExplicitStoryboardCompleted;
+};
+VisualTransition.prototype.SetExplicitStoryboardCompleted = function (value) {
+    ///<param name="value" type="Boolean"></param>
+    this._ExplicitStoryboardCompleted = value;
+};
+
+VisualTransition.prototype.GetGeneratedEasingFunction = function () {
+    ///<returns type="IEasingFunction"></returns>
+    return this._GeneratedEasingFunction;
+};
+VisualTransition.prototype.SetGeneratedEasingFunction = function (value) {
+    ///<param name="value" type="IEasingFunction"></param>
+    this._GeneratedEasingFunction = value;
+};
+
+//#endregion
+
+//#endregion
+
+//#region VisualTransitionCollection
+
+function VisualTransitionCollection() {
+    DependencyObjectCollection.call(this);
+}
+VisualTransitionCollection.InheritFrom(DependencyObjectCollection);
+
+VisualTransitionCollection.prototype.IsElementType = function (obj) {
+    return obj instanceof VisualTransition;
+};
+
+//#endregion
+
+
 //#region VisualState
 
 function VisualState() {
@@ -11093,19 +11338,50 @@ VisualStateCollection.prototype.IsElementType = function (value) {
 
 //#endregion
 
+
 //#region VisualStateGroup
 
 function VisualStateGroup() {
     DependencyObject.call(this);
-    this._States = new VisualStateCollection();
+
+    this.CurrentStateChanging = new MulticastEvent();
+    this.CurrentStateChanged = new MulticastEvent();
 }
 VisualStateGroup.InheritFrom(DependencyObject);
 
+//#region PROPERTIES
+
 VisualStateGroup.prototype.GetStates = function () {
+    /// <returns type="VisualStateCollection" />
+    if (this._States == null)
+        this._States = new VisualStateCollection();
     return this._States;
 };
+VisualStateGroup.prototype.GetCurrentStoryboards = function () {
+    ///<returns type="StoryboardCollection"></returns>
+    if (this._CurrentStoryboards == null)
+        this._CurrentStoryboards = new StoryboardCollection();
+    return this._CurrentStoryboards;
+};
+VisualStateGroup.prototype.GetTransitions = function () {
+    ///<returns type="VisualTransitionCollection"></returns>
+    if (this._Transitions == null)
+        this._Transitions = new VisualTransitionCollection();
+    return this._Transitions;
+};
 
-VisualStateGroup.prototype._GetState = function (stateName) {
+VisualStateGroup.prototype.GetCurrentState = function () {
+    ///<returns type="VisualState"></returns>
+    return this._CurrentState;
+};
+VisualStateGroup.prototype.SetCurrentState = function (value) {
+    ///<param name="value" type="VisualState"></param>
+    this._CurrentState = value;
+};
+
+//#endregion
+
+VisualStateGroup.prototype.GetState = function (stateName) {
     var states = this.GetStates();
     for (var i = 0; i < states.GetCount(); i++) {
         var state = states.GetValueAt(i);
@@ -11113,6 +11389,64 @@ VisualStateGroup.prototype._GetState = function (stateName) {
             return state;
     }
     return null;
+};
+
+VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboards) {
+    /// <param name="element" type="FrameworkElement"></param>
+    /// <param name="newStoryboards" type="Array"></param>
+
+    var storyboardResColl = element.GetResources().Get("^^__CurrentStoryboards__^^");
+    if (storyboardResColl == null) {
+        storyboardResColl = new StoryboardCollection();
+        element.GetResources().Set("^^__CurrentStoryboards__^^", storyboardResColl);
+    }
+
+    var i;
+    var storyboard;
+    for (i = 0; i < newStoryboards.length; i++) {
+        storyboard = newStoryboards[i];
+        if (storyboard == null)
+            continue;
+        storyboardResColl.Add(storyboard);
+        try {
+            storyboard.Begin();
+        } catch (err) {
+            //clear storyboards on error
+            for (var j = 0; j <= i; j++) {
+                if (newStoryboards[i] != null)
+                    storyboardResColl.Remove(newStoryboards[i]);
+            }
+            throw err;
+        }
+    }
+
+    var currentStoryboards = this.GetCurrentStoryboards();
+    for (i = 0; i < currentStoryboards.GetCount(); i++) {
+        storyboard = currentStoryboards.GetValueAt(i);
+        if (storyboard == null)
+            continue;
+        storyboardResColl.Remove(storyboard);
+        storyboard.Stop();
+    }
+
+    currentStoryboards.Clear();
+    for (i = 0; i < newStoryboards.length; i++) {
+        currentStoryboards.Add(newStoryboards[i]);
+    }
+};
+VisualStateGroup.prototype.RaiseCurrentStateChanging = function (element, oldState, newState, control) {
+    /// <param name="element" type="FrameworkElement"></param>
+    /// <param name="oldState" type="VisualState"></param>
+    /// <param name="newState" type="VisualState"></param>
+    /// <param name="control" type="Control">Description</param>
+    this.CurrentStateChanging.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
+};
+VisualStateGroup.prototype.RaiseCurrentStateChanged = function (element, oldState, newState, control) {
+    /// <param name="element" type="FrameworkElement"></param>
+    /// <param name="oldState" type="VisualState"></param>
+    /// <param name="newState" type="VisualState"></param>
+    /// <param name="control" type="Control">Description</param>
+    this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
 };
 
 //#region ANNOTATIONS
@@ -11138,6 +11472,75 @@ VisualStateGroupCollection.prototype.IsElementType = function (value) {
 
 //#endregion
 
+
+//#region Storyboard
+
+function Storyboard() {
+    Timeline.call(this);
+}
+Storyboard.InheritFrom(Timeline);
+
+//#region DEPENDENCY PROPERTIES
+
+Storyboard.ChildrenProperty = DependencyProperty.Register("Children", function () { return TimelineCollection; }, Storyboard);
+Storyboard.prototype.GetChildren = function () {
+    ///<returns type="TimelineCollection"></returns>
+    return this.GetValue(Storyboard.ChildrenProperty);
+};
+
+Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () { return String }, Storyboard);
+Storyboard.GetTargetName = function (d) {
+    ///<returns type="String"></returns>
+    return d.GetValue(Storyboard.TargetNameProperty);
+};
+Storyboard.SetTargetName = function (d, value) {
+    ///<param name="value" type="String"></param>
+    d.SetValue(Storyboard.TargetNameProperty, value);
+};
+
+Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return _PropertyPath }, Storyboard);
+Storyboard.GetTargetProperty = function (d) {
+    ///<returns type="PropertyPath"></returns>
+    return d.GetValue(Storyboard.TargetPropertyProperty);
+};
+Storyboard.SetTargetProperty = function (d, value) {
+    ///<param name="value" type="PropertyPath"></param>
+    d.SetValue(Storyboard.TargetPropertyProperty, value);
+};
+
+//#endregion
+
+//#region ANNOTATIONS
+
+Storyboard.Annotations = {
+    ContentProperty: Storyboard.ChildrenProperty
+};
+
+//#endregion
+
+Storyboard.prototype.Begin = function () {
+    NotImplemented("Storyboard.Begin");
+};
+Storyboard.prototype.Stop = function () {
+    NotImplemented("Storyboard.Stop");
+};
+
+//#endregion
+
+//#region StoryboardCollection
+
+function StoryboardCollection() {
+    DependencyObjectCollection.call(this);
+}
+StoryboardCollection.InheritFrom(DependencyObjectCollection);
+
+StoryboardCollection.prototype.IsElementType = function (obj) {
+    return obj instanceof Storyboard;
+};
+
+//#endregion
+
+
 //#region VisualStateManager
 
 function VisualStateManager() {
@@ -11149,17 +11552,274 @@ VisualStateManager.InheritFrom(DependencyObject);
 
 VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttached("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
 VisualStateManager.GetVisualStateGroups = function (d) {
+    /// <param name="d" type="DependencyObject"></param>
+    /// <returns type="VisualStateGroupCollection" />
     return d.GetValue(VisualStateManager.VisualStateGroupsProperty);
 };
 VisualStateManager.SetVisualStateGroups = function (d, value) {
+    /// <param name="d" type="DependencyObject"></param>
+    /// <param name="value" type="VisualStateGroupCollection"></param>
     d.SetValue(VisualStateManager.VisualStateGroupsProperty, value);
+};
+VisualStateManager._GetVisualStateGroupsInternal = function (d) {
+    /// <param name="d" type="DependencyObject"></param>
+    var groups = this.GetVisualStateGroups(d);
+    if (groups == null) {
+        groups = new VisualStateGroupCollection();
+        VisualStateManager.SetVisualStateGroups(d, groups);
+    }
+    return groups;
+};
+
+VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttached("CustomVisualStateManager", function () { return VisualStateManager }, VisualStateManager, null);
+VisualStateManager.GetCustomVisualStateManager = function (d) {
+    ///<returns type="VisualStateManager"></returns>
+    return d.GetValue(VisualStateManager.CustomVisualStateManagerProperty);
+};
+VisualStateManager.SetCustomVisualStateManager = function (d, value) {
+    ///<param name="value" type="VisualStateManager"></param>
+    d.SetValue(VisualStateManager.CustomVisualStateManagerProperty, value);
 };
 
 //#endregion
 
-VisualStateManager.GoToState = function (uie, state, useTransitions) {
-    NotImplemented("VisualStateManager.GoToState");
+VisualStateManager.prototype.GoToStateCore = function (control, element, stateName, group, state, useTransitions) {
+    /// <param name="control" type="Control"></param>
+    /// <param name="element" type="FrameworkElement"></param>
+    /// <param name="stateName" type="String"></param>
+    /// <param name="group" type="VisualStateGroup"></param>
+    /// <param name="state" type="VisualState"></param>
+    /// <param name="useTransitions" type="Boolean"></param>
+    /// <returns type="Boolean" />
+    return VisualStateManager.GoToStateInternal(control, element, group, state, useTransitions);
 };
+
+VisualStateManager.GoToState = function (control, stateName, useTransitions) {
+    /// <param name="control" type="Control"></param>
+    /// <param name="stateName" type="String"></param>
+    /// <param name="useTransitions" type="Boolean"></param>
+    /// <returns type="Boolean" />
+
+    var root = VisualStateManager._GetTemplateRoot(control);
+    if (root == null)
+        return false;
+
+    var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
+    if (groups == null)
+        return false;
+
+    var data = {};
+    if (!VisualStateManager._TryGetState(groups, stateName, data))
+        return false;
+
+    var customVsm = VisualStateManager._GetCustomVisualStateManager(root);
+    if (customVsm != null) {
+        return customVsm.GoToStateCore(control, root, stateName, data.group, data.state, useTransitions);
+    } else if (state != null) {
+        return VisualStateManager.GoToStateInternal(control, root, data.group, data.state, useTransitions);
+    }
+
+    return false;
+};
+VisualStateManager.GoToStateInternal = function (control, element, group, state, useTransitions) {
+    /// <param name="control" type="Control"></param>
+    /// <param name="element" type="FrameworkElement"></param>
+    /// <param name="group" type="VisualStateGroup"></param>
+    /// <param name="state" type="VisualState"></param>
+    /// <param name="useTransitions" type="Boolean"></param>
+    /// <returns type="Boolean" />
+
+    var lastState = group.GetCurrentState();
+    if (RefObject.RefEquals(lastState, state))
+        return true;
+
+    var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
+
+    var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
+    dynamicTransition.SetValue(Control.IsTemplateItemProperty, true);
+
+    if (transition == null || (transition.GetGeneratedDuration().IsZero() && (transition.GetStoryboard() == null || transition.GetStoryboard().GetDuration().IsZero()))) {
+        if (transition != null && transition.GetStoryboard() != null) {
+            group.StartNewThenStopOld(element, [transition.GetStoryboard(), state.GetStoryboard()]);
+        } else {
+            group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+        }
+        group.RaiseCurrentStateChanging(element, lastState, state, control);
+        group.RaiseCurrentStateChanged(element, lastState, state, control);
+    } else {
+        var eventClosure = new RefObject();
+        transition.SetDynamicStoryboardCompleted(false);
+        var dynamicCompleted = function (sender, e) {
+            if (transition.GetStoryboard() == null || transition.GetExplicitStoryboardCompleted() === true) {
+                group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+                group.RaiseCurrentStateChanged(element, lastState, state, control);
+            }
+            transition.SetDynamicStoryboardCompleted(true);
+        };
+        dynamicTransition.Completed.Subscribe(dynamicCompleted, eventClosure);
+
+        if (transition.GetStoryboard() != null && transition.GetExplicitStoryboardCompleted() === true) {
+            var transitionCompleted = function (sender, e) {
+                if (transition.GetDynamicStoryboardCompleted() === true) {
+                    group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+                    group.RaiseCurrentStateChanged(element, lastState, state, control);
+                }
+                transition.GetStoryboard().Completed.Unsubscribe(transitionCompleted, eventClosure);
+                transition.SetExplicitStoryboardCompleted(true);
+            };
+            transition.SetExplicitStoryboardCompleted(false);
+            transition.GetStoryboard().Completed.Subscribe(transitionCompleted, eventClosure);
+        }
+        group.StartNewThenStopOld(element, [transition.GetStoryboard(), dynamicTransition]);
+        group.RaiseCurrentStateChanging(element, lastState, state, control);
+    }
+
+    group.SetCurrentState(state);
+    return true;
+};
+
+VisualStateManager._GetTemplateRoot = function (control) {
+    /// <param name="control" type="Control"></param>
+    /// <returns type="FrameworkElement" />
+    var userControl = RefObject.As(control, UserControl);
+    if (userControl != null)
+        return RefObject.As(userControl.GetContent(), FrameworkElement);
+    if (VisualTreeHelper.GetChildrenCount(control) > 0)
+        return RefObject.As(VisualTreeHelper.GetChild(control, 0), FrameworkElement);
+    return null;
+};
+VisualStateManager._TryGetState = function (groups, stateName, data) {
+    /// <param name="groups" type="VisualStateGroupCollection"></param>
+    /// <param name="stateName" type="String"></param>
+    /// <returns type="Boolean" />
+    for (var i = 0; i < groups.GetCount(); i++) {
+        data.group = groups.GetValueAt(i);
+        data.state = data.group.GetState(stateName);
+        if (data.state != null)
+            return true;
+    }
+    data.group = null;
+    data.state = null;
+    return false;
+};
+
+VisualStateManager._GetTransition = function (element, group, from, to) {
+    /// <param name="element" type="FrameworkElement"></param>
+    /// <param name="group" type="VisualStateGroup"></param>
+    /// <param name="from" type="VisualState"></param>
+    /// <param name="to" type="VisualState"></param>
+    /// <returns type="VisualTransition" />
+    NotImplemented("VisualStateManager._GetTransition");
+    return new VisualTransition();
+};
+VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group, state, transition) {
+    /// <param name="root" type="FrameworkElement"></param>
+    /// <param name="group" type="VisualStateGroup"></param>
+    /// <param name="state" type="VisualState"></param>
+    /// <param name="transition" type="VisualTransition"></param>
+    /// <returns type="Storyboard" />
+    NotImplemented("VisualStateManager._GenerateDynamicTransitionAnimations");
+    return new Storyboard();
+};
+
+//#endregion
+
+/// <reference path="Timeline.js"/>
+/// CODE
+/// <reference path="Color.js"/>
+
+//#region Animation
+
+function Animation() {
+    Timeline.call(this);
+}
+Animation.InheritFrom(Timeline);
+
+//#endregion
+
+//#region DoubleAnimation
+
+function DoubleAnimation() {
+    Animation.call(this);
+}
+DoubleAnimation.InheritFrom(Animation);
+
+//#region DEPENDENCY PROPERTIES
+
+DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
+DoubleAnimation.prototype.GetBy = function () {
+    ///<returns type="Number"></returns>
+    return this.GetValue(DoubleAnimation.ByProperty);
+};
+DoubleAnimation.prototype.SetBy = function (value) {
+    ///<param name="value" type="Number"></param>
+    this.SetValue(DoubleAnimation.ByProperty, value);
+};
+
+DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
+DoubleAnimation.prototype.GetFrom = function () {
+    ///<returns type="Number"></returns>
+    return this.GetValue(DoubleAnimation.FromProperty);
+};
+DoubleAnimation.prototype.SetFrom = function (value) {
+    ///<param name="value" type="Number"></param>
+    this.SetValue(DoubleAnimation.FromProperty, value);
+};
+
+DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
+DoubleAnimation.prototype.GetTo = function () {
+    ///<returns type="Number"></returns>
+    return this.GetValue(DoubleAnimation.ToProperty);
+};
+DoubleAnimation.prototype.SetTo = function (value) {
+    ///<param name="value" type="Number"></param>
+    this.SetValue(DoubleAnimation.ToProperty, value);
+};
+
+//#endregion
+
+//#endregion
+
+//#region ColorAnimation
+
+function ColorAnimation() {
+    Animation.call(this);
+}
+ColorAnimation.InheritFrom(Animation);
+
+//#region DEPENDENCY PROPERTIES
+
+ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
+ColorAnimation.prototype.GetBy = function () {
+    ///<returns type="Color"></returns>
+    return this.GetValue(ColorAnimation.ByProperty);
+};
+ColorAnimation.prototype.SetBy = function (value) {
+    ///<param name="value" type="Color"></param>
+    this.SetValue(ColorAnimation.ByProperty, value);
+};
+
+ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
+ColorAnimation.prototype.GetFrom = function () {
+    ///<returns type="Color"></returns>
+    return this.GetValue(ColorAnimation.FromProperty);
+};
+ColorAnimation.prototype.SetFrom = function (value) {
+    ///<param name="value" type="Color"></param>
+    this.SetValue(ColorAnimation.FromProperty, value);
+};
+
+ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
+ColorAnimation.prototype.GetTo = function () {
+    ///<returns type="Color"></returns>
+    return this.GetValue(ColorAnimation.ToProperty);
+};
+ColorAnimation.prototype.SetTo = function (value) {
+    ///<param name="value" type="Color"></param>
+    this.SetValue(ColorAnimation.ToProperty, value);
+};
+
+//#endregion
 
 //#endregion
 
@@ -11392,7 +12052,7 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
     }
     if (borderBrush && !thickness.IsEmpty()) {
         canvasCtx.lineWidth = thickness;
-        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx);
+        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx, pathRect);
         canvasCtx.stroke();
     }
     canvasCtx.closePath();
@@ -11871,9 +12531,7 @@ Control.prototype.Focus = function (recurse) {
             continue;
         }
 
-        var c;
-        if (uie instanceof Control)
-            c = uie;
+        var c = RefObject.As(uie, Control);
         if (c == null)
             continue;
 
@@ -14033,23 +14691,26 @@ ButtonBase.prototype.OnIsEnabledChanged = function (e) {
 ButtonBase.prototype.OnIsPressedChanged = function (e) {
     this.UpdateVisualState();
 };
-ButtonBase.prototype._IsValidMousePosition = function () {
-    var pos = this._MousePosition;
-    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
-        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
-};
+
+//#region VISUAL STATE
 
 ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
+    /// <param name="useTransitions" type="Boolean"></param>
     if (this._SuspendStateChanges)
         return;
-    this.ChangeVisualState(useTransitions === undefined ? true : useTransitions);
+    this._ChangeVisualState(useTransitions === true);
 };
-ButtonBase.prototype.ChangeVisualState = function (useTransitions) {
+ButtonBase.prototype._ChangeVisualState = function (useTransitions) {
     //Nothing to do in ButtonBase
 };
 ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
+    /// <param name="useTransitions" type="Boolean"></param>
+    /// <param name="stateName" type="String"></param>
+    /// <returns type="Boolean" />
     return VisualStateManager.GoToState(this, stateName, useTransitions);
 };
+
+//#endregion
 
 //#region MOUSE
 
@@ -14062,7 +14723,7 @@ ButtonBase.prototype.OnMouseEnter = function (sender, args) {
     try {
         if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled()) {
             this.SetIsPressed(true);
-            this._EmitClick();
+            this.OnClick();
         }
     } finally {
         this._SuspendStateChanges = false;
@@ -14115,7 +14776,7 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
     }
 
     if (clickMode === ClickMode.Press)
-        this._EmitClick();
+        this.OnClick();
 };
 ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
     ContentControl.prototype.OnMouseLeftButtonUp.call(this, sender, args);
@@ -14129,13 +14790,38 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
 
     //TODO: args.Handled = true;
     if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
-        this._EmitClick();
+        this.OnClick();
 
     if (!this._IsSpaceKeyDown) {
         this._ReleaseMouseCaptureInternal();
         this.SetIsPressed(false);
     }
 };
+
+ButtonBase.prototype.OnClick = function () {
+    //TODO: Execute Command
+    this.Click.Raise(this, null);
+};
+
+ButtonBase.prototype._CaptureMouseInternal = function () {
+    if (!this._IsMouseCaptured)
+        this._IsMouseCaptured = this.CaptureMouse();
+};
+ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
+    this.ReleaseMouseCapture();
+    this._IsMouseCaptured = false;
+};
+ButtonBase.prototype._IsValidMousePosition = function () {
+    /// <returns type="Boolean" />
+    var pos = this._MousePosition;
+    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
+        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
+};
+
+//#endregion
+
+//#region FOCUS
+
 ButtonBase.prototype.OnGotFocus = function (sender, args) {
     ContentControl.prototype.OnGotFocus.call(this, sender, args);
 
@@ -14160,20 +14846,6 @@ ButtonBase.prototype.OnLostFocus = function (sender, args) {
     }
 };
 
-ButtonBase.prototype._CaptureMouseInternal = function () {
-    if (!this._IsMouseCaptured)
-        this._IsMouseCaptured = this.CaptureMouse();
-};
-ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
-    this.ReleaseMouseCapture();
-    this._IsMouseCaptured = false;
-};
-
-ButtonBase.prototype._EmitClick = function () {
-    //TODO: Execute Command
-    this.Click.Raise(this, null);
-};
-
 //#endregion
 
 ButtonBase._GetVisualRoot = function (d) {
@@ -14189,35 +14861,234 @@ ButtonBase._GetVisualRoot = function (d) {
 
 /// <reference path="ButtonBase.js"/>
 /// CODE
+
+//#region HyperlinkButton
+
+function HyperlinkButton() {
+    ButtonBase.call(this);
+}
+HyperlinkButton.InheritFrom(ButtonBase);
+
+HyperlinkButton.StateDisabled = "Disabled";
+HyperlinkButton.StatePressed = "Pressed";
+HyperlinkButton.StateMouseOver = "MouseOver";
+HyperlinkButton.StateNormal = "Normal";
+HyperlinkButton.StateFocused = "Focused";
+HyperlinkButton.StateUnfocused = "Unfocused";
+
+//#region DEPENDENCY PROPERTIES
+
+HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function() { return Uri; }, HyperlinkButton, null);
+HyperlinkButton.prototype.GetNavigateUri = function () {
+	///<returns type="Uri"></returns>
+	return this.GetValue(HyperlinkButton.NavigateUriProperty);
+};
+HyperlinkButton.prototype.SetNavigateUri = function (value) {
+	///<param name="value" type="Uri"></param>
+	this.SetValue(HyperlinkButton.NavigateUriProperty, value);
+};
+
+HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function() { return String; }, HyperlinkButton, null);
+HyperlinkButton.prototype.GetTargetName = function () {
+	///<returns type="String"></returns>
+	return this.GetValue(HyperlinkButton.TargetNameProperty);
+};
+HyperlinkButton.prototype.SetTargetName = function (value) {
+	///<param name="value" type="String"></param>
+	this.SetValue(HyperlinkButton.TargetNameProperty, value);
+};
+
+//#endregion
+
+HyperlinkButton.prototype.OnApplyTemplate = function () {
+    ButtonBase.prototype.OnApplyTemplate.call(this);
+    this.UpdateVisualState(false);
+};
+
+HyperlinkButton.prototype.OnClick = function () {
+    ButtonBase.prototype.OnClick.call(this);
+    if (this.GetNavigateUri() != null) {
+        this._Navigate();
+    }
+};
+
+HyperlinkButton.prototype._GetAbsoluteUri = function () {
+    /// <returns type="Uri" />
+    var destination = this.GetNavigateUri();
+    if (!destination.IsAbsoluteUri) {
+        var original = destination.OriginalString;
+        if (original && original.charAt(0) !== '/')
+            throw new NotSupportedException();
+        destination = new Uri(App.Instance.GetHost().GetSource(), destination);
+    }
+    return destination;
+};
+HyperlinkButton.prototype._ChangeVisualState = function (useTransitions) {
+    if (!this.GetIsEnabled()) {
+        this._GoToState(useTransitions, HyperlinkButton.StateDisabled);
+    } else if (this.GetIsPressed()) {
+        this._GoToState(useTransitions, HyperlinkButton.StatePressed);
+    } else if (this.GetIsMouseOver()) {
+        this._GoToState(useTransitions, HyperlinkButton.StateMouseOver);
+    } else {
+        this._GoToState(useTransitions, HyperlinkButton.StateNormal);
+    }
+
+    if (this.GetIsFocused() && this.GetIsEnabled()) {
+        this._GoToState(useTransitions, HyperlinkButton.StateFocused);
+    } else {
+        this._GoToState(useTransitions, HyperlinkButton.StateUnfocused);
+    }
+};
+HyperlinkButton.prototype._Navigate = function () {
+    window.location.href = this.GetNavigateUri().toString();
+    //NotImplemented("HyperlinkButton._Navigate (" + this.GetNavigateUri().toString() + ")");
+};
+
+//#region DEFAULT STYLE
+
+HyperlinkButton.prototype.GetDefaultStyle = function () {
+    var styleJson = {
+        Type: Style,
+        Props: {
+            TargetType: HyperlinkButton
+        },
+        Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Foreground"),
+                    Value: new SolidColorBrush(Color.FromHex("#FF73A9D8"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Padding"),
+                    Value: new Thickness(2, 0, 2, 0)
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "HorizontalContentAlignment"),
+                    Value: HorizontalAlignment.Left
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "VerticalContentAlignment"),
+                    Value: VerticalAlignment.Top
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Background"),
+                    Value: new SolidColorBrush(Color.FromHex("#00FFFFFF"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Template"),
+                    Value: new ControlTemplate(HyperlinkButton, {
+                        Type: Grid,
+                        Name: "RootElement",
+                        Props: {
+                            Cursor: new TemplateBindingMarkup("Cursor"),
+                            Background: new TemplateBindingMarkup("Background")
+                        },
+                        Children: [
+                            {
+                                Type: TextBlock,
+                                Name: "UnderlineTextBlock",
+                                Props: {
+                                    Text: new TemplateBindingMarkup("Content"),
+                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                    Margin: new TemplateBindingMarkup("Padding"),
+                                    TextDecorations: TextDecorations.Underline,
+                                    Visibility: Visibility.Collapsed
+                                }
+                            },
+                            {
+                                Type: TextBlock,
+                                Name: "DisabledOverlay",
+                                Props: {
+                                    Text: new TemplateBindingMarkup("Content"),
+                                    Foreground: new SolidColorBrush(Color.FromHex("#FFAAAAAA")),
+                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                    Margin: new TemplateBindingMarkup("Padding"),
+                                    Visibility: Visibility.Collapsed
+                                }
+                            },
+                            {
+                                Type: ContentPresenter,
+                                Name: "Normal",
+                                Props: {
+                                    Content: new TemplateBindingMarkup("Content"),
+                                    ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
+                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                    Margin: new TemplateBindingMarkup("Padding")
+                                }
+                            },
+                            {
+                                Type: Border,
+                                Name: "FocusVisualElement",
+                                Props: {
+                                    BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                                    BorderThickness: new Thickness(1, 1, 1, 1),
+                                    Opacity: 0.0,
+                                    IsHitTestVisible: false
+                                }
+                            }
+                        ]
+                    })
+                }
+            }
+        ]
+    };
+    var parser = new JsonParser();
+    return parser.CreateObject(styleJson, new NameScope());
+};
+
+//#endregion
+
+//#endregion
+
+/// <reference path="ButtonBase.js"/>
+/// CODE
 /// <reference path="Style.js"/>
 /// <reference path="JsonParser.js"/>
 /// <reference path="Brushes.js"/>
 /// <reference path="Primitives.js"/>
+/// <reference path="VisualStateManager.js"/>
+/// <reference path="Animation.js"/>
 
 //#region Button
 
 function Button() {
     ButtonBase.call(this);
-    this._ElementRoot = null;
-    this._ElementFocusVisual = null;
-    this._StateNormal = null;
-    this.SetIsTabStop(false);
 }
 Button.InheritFrom(ButtonBase);
 
-Button.StateDisabled = "";
-Button.StatePressed = "";
-Button.StateMouseOver = "";
-Button.StateNormal = "";
-Button.StateFocused = "";
-Button.StateUnfocused = "";
+Button.StateDisabled = "Disabled";
+Button.StatePressed = "Pressed";
+Button.StateMouseOver = "MouseOver";
+Button.StateNormal = "Normal";
+Button.StateFocused = "Focused";
+Button.StateUnfocused = "Unfocused";
 
 Button.prototype.OnApplyTemplate = function () {
     ButtonBase.prototype.OnApplyTemplate.call(this);
 
     this.UpdateVisualState(false);
 };
-Button.prototype.ChangeVisualState = function (useTransitions) {
+Button.prototype._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         this._GoToState(useTransitions, Button.StateDisabled);
     } else if (this.GetIsPressed()) {
@@ -14283,8 +15154,8 @@ Button.prototype.GetDefaultStyle = function () {
                     Value: {
                         Type: LinearGradientBrush,
                         Props: {
-                            StartPoint: new Point(0.5, 1),
-                            EndPoint: new Point(0.5, 1),
+                            StartPoint: new Point(0.5, 0.0),
+                            EndPoint: new Point(0.5, 1.0),
                             GradientStops: [
                                 {
                                     Type: GradientStop,
@@ -14325,6 +15196,166 @@ Button.prototype.GetDefaultStyle = function () {
                     Property: DependencyProperty.GetDependencyProperty(Button, "Template"),
                     Value: new ControlTemplate(Button, {
                         Type: Grid,
+                        AttachedProps: [
+                            {
+                                Owner: VisualStateManager,
+                                Prop: "VisualStateGroups",
+                                Value: [
+                                    {
+                                        Type: VisualStateGroup,
+                                        Name: "CommonStates",
+                                        Children: [
+                                            {
+                                                Type: VisualState,
+                                                Name: "Normal"
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "MouseOver",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundAnimation" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("Opacity") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#F2FFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#CCFFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#7FFFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "Pressed",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#FF6DBDD1") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "Background" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(SolidColorBrush.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundAnimation" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("Opacity") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#D8FFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[0].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#C6FFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#8CFFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#3FFFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: _PropertyPath.CreateFromPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "Disabled",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 0.55 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "DisabledVisualElement" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: "Opacity" }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        Type: VisualStateGroup,
+                                        Name: "FocusStates",
+                                        Children: [
+                                            {
+                                                Type: VisualState,
+                                                Name: "Focused",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: 0.0, To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: "Opacity" }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "Unfocused"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
                         Children: [
                             {
                                 Type: Border,
