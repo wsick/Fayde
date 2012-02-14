@@ -26,7 +26,7 @@
         <Default>Number</Default>
       </Literal>
     </Declarations>
-    <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.RegisterAttached("$name$", $owner$);
+    <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.RegisterAttached("$name$", function () { return $type$ }, $owner$);
 $owner$.Get$name$ = function (d) {
 	///<returns type="$type$"></returns>
 	return d.GetValue($owner$.$name$Property);
