@@ -34,7 +34,9 @@ namespace JsSingularity
             {
                 while (!sr.EndOfStream)
                 {
-                    sw.WriteLine(sr.ReadLine());
+                    var line = sr.ReadLine();
+                    if (ShouldWriteLine(line))
+                    sw.WriteLine(line);
                 }
             }
         }
@@ -74,6 +76,16 @@ namespace JsSingularity
         public bool Matches(JsRef jref)
         {
             return string.Equals(this.FullPath, jref.ResolvedPath, System.StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        private bool ShouldWriteLine(string line)
+        {
+            if (string.IsNullOrWhiteSpace(line))
+                return false;
+            line = line.Trim();
+            if (line.StartsWith("//"))
+                return false;
+            return true;
         }
     }
 }

@@ -117,7 +117,15 @@ namespace JsSingularity
                         sw.WriteLine();
                     }
                 }
-                File.Copy(tempfi.FullName, DeployPath, true);
+                var fi = new FileInfo(DeployPath);
+                if (!fi.Directory.Exists)
+                    fi.Directory.Create();
+                File.Copy(tempfi.FullName, fi.FullName, true);
+            }
+            catch (Exception )
+            {
+                Console.WriteLine(string.Format("Error in WriteCombinedJavascript [DeployPath={0}]", DeployPath));
+                throw;
             }
             finally
             {
