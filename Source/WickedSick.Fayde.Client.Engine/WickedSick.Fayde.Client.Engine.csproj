@@ -220,6 +220,16 @@
     <Content Include="Javascript\Core\Validators.js" />
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
+    <Content Include="Packages\Fayde.Controls.js" />
+    <Content Include="Packages\Fayde.Core.js" />
+    <Content Include="Packages\Fayde.Data.js" />
+    <Content Include="Packages\Fayde.Documents.js" />
+    <Content Include="Packages\Fayde.Engine.js" />
+    <Content Include="Packages\Fayde.Markup.js" />
+    <Content Include="Packages\Fayde.Media.js" />
+    <Content Include="Packages\Fayde.Primitives.js" />
+    <Content Include="Packages\Fayde.Runtime.js" />
+    <Content Include="Packages\Fayde.TextLayout.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -234,9 +244,7 @@
   <ItemGroup>
     <None Include="PackageAssemblies.bat" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Packages\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>
