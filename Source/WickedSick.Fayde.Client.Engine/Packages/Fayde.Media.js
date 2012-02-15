@@ -1,3 +1,11 @@
+function Brush() {
+    DependencyObject.call(this);
+};
+Brush.InheritFrom(DependencyObject);
+Brush.prototype._Translate = function (ctx) {
+    AbstractMethod("Brush._Translate()");
+};
+
 var AlignmentX = {
     Left: 0,
     Center: 1,
@@ -17,6 +25,20 @@ var Stretch = {
 var BrushMappingMode = {
     Absolute: 0,
     RelativeToBoundingBox: 1
+};
+
+function Geometry() {
+    this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+}
+Geometry.InheritFrom(DependencyObject);
+Geometry.prototype.GetBounds = function () {
+    var compute = this._LocalBounds.IsEmpty();
+    if (compute)
+        this._LocalBounds = this.ComputePathBounds();
+    var bounds = this._LocalBounds;
+    return bounds;
+};
+Geometry.prototype.ComputePathBounds = function () {
 };
 
 function GradientStop() {
@@ -84,6 +106,24 @@ StoryboardCollection.InheritFrom(DependencyObjectCollection);
 StoryboardCollection.prototype.IsElementType = function (obj) {
     return obj instanceof Storyboard;
 };
+
+function Timeline() {
+    DependencyObject.call(this);
+    this.Completed = new MulticastEvent();
+}
+Timeline.InheritFrom(DependencyObject);
+Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
+Timeline.prototype.GetDuration = function () {
+    return this.GetValue(Timeline.DurationProperty);
+};
+Timeline.prototype.SetDuration = function (value) {
+    this.SetValue(Timeline.DurationProperty, value);
+};
+
+function TimelineCollection() {
+    PresentationFrameworkCollection.call(this);
+}
+TimelineCollection.InheritFrom(PresentationFrameworkCollection);
 
 function VisualState() {
     DependencyObject.call(this);
@@ -196,26 +236,61 @@ VisualStateGroupCollection.prototype.IsElementType = function (value) {
     return value instanceof VisualStateGroup;
 }
 
-function Brush() {
+function VisualTransition() {
     DependencyObject.call(this);
-};
-Brush.InheritFrom(DependencyObject);
-Brush.prototype._Translate = function (ctx) {
-    AbstractMethod("Brush._Translate()");
-};
-
-function Geometry() {
-    this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+    this.SetDynamicStoryboardCompleted(true);
+    this.SetExplicitStoryboardCompleted(true);
+    this._GeneratedDuration = new Duration();
 }
-Geometry.InheritFrom(DependencyObject);
-Geometry.prototype.GetBounds = function () {
-    var compute = this._LocalBounds.IsEmpty();
-    if (compute)
-        this._LocalBounds = this.ComputePathBounds();
-    var bounds = this._LocalBounds;
-    return bounds;
+VisualTransition.InheritFrom(DependencyObject);
+VisualTransition.prototype.GetFrom = function () {
+    return this._From;
 };
-Geometry.prototype.ComputePathBounds = function () {
+VisualTransition.prototype.SetFrom = function (value) {
+    this._From = value;
+};
+VisualTransition.prototype.GetTo = function () {
+    return this._To;
+};
+VisualTransition.prototype.SetTo = function (value) {
+    this._To = value;
+};
+VisualTransition.prototype.GetStoryboard = function () {
+    return this._Storyboard;
+};
+VisualTransition.prototype.SetStoryboard = function (value) {
+    this._Storyboard = value;
+};
+VisualTransition.prototype.GetGeneratedDuration = function () {
+    return this._GeneratedDuration;
+};
+VisualTransition.prototype.SetGeneratedDuration = function (value) {
+    this._GeneratedDuration = value;
+};
+VisualTransition.prototype.GetDynamicStoryboardCompleted = function () {
+    return this._DynamicStoryboardCompleted;
+};
+VisualTransition.prototype.SetDynamicStoryboardCompleted = function (value) {
+    this._DynamicStoryboardCompleted = value;
+};
+VisualTransition.prototype.GetExplicitStoryboardCompleted = function () {
+    return this._ExplicitStoryboardCompleted;
+};
+VisualTransition.prototype.SetExplicitStoryboardCompleted = function (value) {
+    this._ExplicitStoryboardCompleted = value;
+};
+VisualTransition.prototype.GetGeneratedEasingFunction = function () {
+    return this._GeneratedEasingFunction;
+};
+VisualTransition.prototype.SetGeneratedEasingFunction = function (value) {
+    this._GeneratedEasingFunction = value;
+};
+function VisualTransitionCollection() {
+    DependencyObjectCollection.call(this);
+}
+VisualTransitionCollection.InheritFrom(DependencyObjectCollection);
+VisualTransitionCollection.prototype.IsElementType = function (obj) {
+    return obj instanceof VisualTransition;
 };
 
 function GradientBrush() {
@@ -364,23 +439,62 @@ TileBrush.prototype.SetStretch = function (value) {
     this.SetValue(TileBrush.StretchProperty, value);
 };
 
-function Timeline() {
-    DependencyObject.call(this);
-    this.Completed = new MulticastEvent();
+function Animation() {
+    Timeline.call(this);
 }
-Timeline.InheritFrom(DependencyObject);
-Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
-Timeline.prototype.GetDuration = function () {
-    return this.GetValue(Timeline.DurationProperty);
+Animation.InheritFrom(Timeline);
+
+function ColorAnimation() {
+    Animation.call(this);
+}
+ColorAnimation.InheritFrom(Animation);
+ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
+ColorAnimation.prototype.GetBy = function () {
+    return this.GetValue(ColorAnimation.ByProperty);
 };
-Timeline.prototype.SetDuration = function (value) {
-    this.SetValue(Timeline.DurationProperty, value);
+ColorAnimation.prototype.SetBy = function (value) {
+    this.SetValue(ColorAnimation.ByProperty, value);
+};
+ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
+ColorAnimation.prototype.GetFrom = function () {
+    return this.GetValue(ColorAnimation.FromProperty);
+};
+ColorAnimation.prototype.SetFrom = function (value) {
+    this.SetValue(ColorAnimation.FromProperty, value);
+};
+ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
+ColorAnimation.prototype.GetTo = function () {
+    return this.GetValue(ColorAnimation.ToProperty);
+};
+ColorAnimation.prototype.SetTo = function (value) {
+    this.SetValue(ColorAnimation.ToProperty, value);
 };
 
-function TimelineCollection() {
-    PresentationFrameworkCollection.call(this);
+function DoubleAnimation() {
+    Animation.call(this);
 }
-TimelineCollection.InheritFrom(PresentationFrameworkCollection);
+DoubleAnimation.InheritFrom(Animation);
+DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
+DoubleAnimation.prototype.GetBy = function () {
+    return this.GetValue(DoubleAnimation.ByProperty);
+};
+DoubleAnimation.prototype.SetBy = function (value) {
+    this.SetValue(DoubleAnimation.ByProperty, value);
+};
+DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
+DoubleAnimation.prototype.GetFrom = function () {
+    return this.GetValue(DoubleAnimation.FromProperty);
+};
+DoubleAnimation.prototype.SetFrom = function (value) {
+    this.SetValue(DoubleAnimation.FromProperty, value);
+};
+DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
+DoubleAnimation.prototype.GetTo = function () {
+    return this.GetValue(DoubleAnimation.ToProperty);
+};
+DoubleAnimation.prototype.SetTo = function (value) {
+    this.SetValue(DoubleAnimation.ToProperty, value);
+};
 
 function VisualStateManager() {
     DependencyObject.call(this);
@@ -501,122 +615,8 @@ VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group,
     return new Storyboard();
 };
 
-function VisualTransition() {
-    DependencyObject.call(this);
-    this.SetDynamicStoryboardCompleted(true);
-    this.SetExplicitStoryboardCompleted(true);
-    this._GeneratedDuration = new Duration();
-}
-VisualTransition.InheritFrom(DependencyObject);
-VisualTransition.prototype.GetFrom = function () {
-    return this._From;
-};
-VisualTransition.prototype.SetFrom = function (value) {
-    this._From = value;
-};
-VisualTransition.prototype.GetTo = function () {
-    return this._To;
-};
-VisualTransition.prototype.SetTo = function (value) {
-    this._To = value;
-};
-VisualTransition.prototype.GetStoryboard = function () {
-    return this._Storyboard;
-};
-VisualTransition.prototype.SetStoryboard = function (value) {
-    this._Storyboard = value;
-};
-VisualTransition.prototype.GetGeneratedDuration = function () {
-    return this._GeneratedDuration;
-};
-VisualTransition.prototype.SetGeneratedDuration = function (value) {
-    this._GeneratedDuration = value;
-};
-VisualTransition.prototype.GetDynamicStoryboardCompleted = function () {
-    return this._DynamicStoryboardCompleted;
-};
-VisualTransition.prototype.SetDynamicStoryboardCompleted = function (value) {
-    this._DynamicStoryboardCompleted = value;
-};
-VisualTransition.prototype.GetExplicitStoryboardCompleted = function () {
-    return this._ExplicitStoryboardCompleted;
-};
-VisualTransition.prototype.SetExplicitStoryboardCompleted = function (value) {
-    this._ExplicitStoryboardCompleted = value;
-};
-VisualTransition.prototype.GetGeneratedEasingFunction = function () {
-    return this._GeneratedEasingFunction;
-};
-VisualTransition.prototype.SetGeneratedEasingFunction = function (value) {
-    this._GeneratedEasingFunction = value;
-};
-function VisualTransitionCollection() {
-    DependencyObjectCollection.call(this);
-}
-VisualTransitionCollection.InheritFrom(DependencyObjectCollection);
-VisualTransitionCollection.prototype.IsElementType = function (obj) {
-    return obj instanceof VisualTransition;
-};
-
 function ImageBrush() {
     TileBrush.call(this);
 }
 ImageBrush.InheritFrom(TileBrush);
-
-function Animation() {
-    Timeline.call(this);
-}
-Animation.InheritFrom(Timeline);
-
-function ColorAnimation() {
-    Animation.call(this);
-}
-ColorAnimation.InheritFrom(Animation);
-ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetBy = function () {
-    return this.GetValue(ColorAnimation.ByProperty);
-};
-ColorAnimation.prototype.SetBy = function (value) {
-    this.SetValue(ColorAnimation.ByProperty, value);
-};
-ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetFrom = function () {
-    return this.GetValue(ColorAnimation.FromProperty);
-};
-ColorAnimation.prototype.SetFrom = function (value) {
-    this.SetValue(ColorAnimation.FromProperty, value);
-};
-ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetTo = function () {
-    return this.GetValue(ColorAnimation.ToProperty);
-};
-ColorAnimation.prototype.SetTo = function (value) {
-    this.SetValue(ColorAnimation.ToProperty, value);
-};
-
-function DoubleAnimation() {
-    Animation.call(this);
-}
-DoubleAnimation.InheritFrom(Animation);
-DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetBy = function () {
-    return this.GetValue(DoubleAnimation.ByProperty);
-};
-DoubleAnimation.prototype.SetBy = function (value) {
-    this.SetValue(DoubleAnimation.ByProperty, value);
-};
-DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetFrom = function () {
-    return this.GetValue(DoubleAnimation.FromProperty);
-};
-DoubleAnimation.prototype.SetFrom = function (value) {
-    this.SetValue(DoubleAnimation.FromProperty, value);
-};
-DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetTo = function () {
-    return this.GetValue(DoubleAnimation.ToProperty);
-};
-DoubleAnimation.prototype.SetTo = function (value) {
-    this.SetValue(DoubleAnimation.ToProperty, value);
-};
 

@@ -1,3 +1,187 @@
+function Border() {
+    FrameworkElement.call(this);
+}
+Border.InheritFrom(FrameworkElement);
+Border.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Border);
+Border.prototype.GetBackground = function () {
+    return this.GetValue(Border.BackgroundProperty);
+};
+Border.prototype.SetBackground = function (value) {
+    this.SetValue(Border.BackgroundProperty, value);
+};
+Border.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Border);
+Border.prototype.GetBorderBrush = function () {
+    return this.GetValue(Border.BorderBrushProperty);
+};
+Border.prototype.SetBorderBrush = function (value) {
+    this.SetValue(Border.BorderBrushProperty, value);
+};
+Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
+Border.prototype.GetBorderThickness = function () {
+    return this.GetValue(Border.BorderThicknessProperty);
+};
+Border.prototype.SetBorderThickness = function (value) {
+    this.SetValue(Border.BorderThicknessProperty, value);
+};
+Border.ChildProperty = DependencyProperty.Register("Child", function () { return UIElement; }, Border);
+Border.prototype.GetChild = function () {
+    return this.GetValue(Border.ChildProperty);
+};
+Border.prototype.SetChild = function (value) {
+    this.SetValue(Border.ChildProperty, value);
+};
+Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
+Border.prototype.GetCornerRadius = function () {
+    return this.GetValue(Border.CornerRadiusProperty);
+};
+Border.prototype.SetCornerRadius = function (value) {
+    this.SetValue(Border.CornerRadiusProperty, value);
+};
+Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
+Border.prototype.GetPadding = function () {
+    return this.GetValue(Border.PaddingProperty);
+};
+Border.prototype.SetPadding = function (value) {
+    this.SetValue(Border.PaddingProperty, value);
+};
+Border.prototype.IsLayoutContainer = function () { return true; };
+Border.prototype._MeasureOverrideWithError = function (availableSize, error) {
+    var desired = new Size(0, 0);
+    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var walker = new _VisualTreeWalker(this);
+    var child;
+    while (child = walker.Step()) {
+        child._MeasureWithError(availableSize.GrowByThickness(border.Negate()), error);
+        desired = child._DesiredSize;
+    }
+    desired = desired.GrowByThickness(border);
+    desired = desired.Min(availableSize);
+    return desired;
+};
+Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var arranged = finalSize;
+    var walker = new _VisualTreeWalker(this);
+    var child;
+    while (child = walker.Step()) {
+        var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
+        childRect = childRect.GrowByThickness(border.Negate());
+        child._ArrangeWithError(childRect, error);
+        arranged = new Size(childRect.Width, childRect.Height).GrowBy(border);
+        arranged = arranged.Max(finalSize);
+    }
+    return finalSize;
+};
+Border.prototype._Render = function (ctx, region) {
+    var borderBrush = this.GetBorderBrush();
+    var paintBorder = this._Extents;
+    if (!this.GetBackground() && !borderBrush)
+        return;
+    if (paintBorder.IsEmpty())
+        return;
+    if (borderBrush || !this.GetCornerRadius().IsZero()) {
+        ctx.Save();
+        this._RenderImpl(ctx, region);
+        ctx.Restore();
+        return;
+    }
+    if (!this._HasLayoutClip() && false /* TODO: IsIntegerTranslation  */) {
+    } else {
+        ctx.Save();
+        this._RenderImpl(ctx, region);
+        ctx.Restore();
+    }
+};
+Border.prototype._RenderImpl = function (ctx, region) {
+    ctx.Save();
+    this._RenderLayoutClip(ctx);
+    ctx.CustomRender(Border._Painter, this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius());
+    ctx.Restore();
+};
+Border.prototype._CanFindElement = function () {
+    return this.GetBackground() != null || this.GetBorderBrush() != null;
+};
+Border.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Border) {
+        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    if (args.Property == Border.ChildProperty) {
+        if (args.OldValue && args.OldValue instanceof UIElement) {
+            this._ElementRemoved(args.OldValue);
+            this._SetSubtreeObject(null);
+            if (args.OldValue instanceof FrameworkElement) {
+                args.OldValue._SetLogicalParent(null, error);
+                if (error.IsErrored())
+                    return;
+            }
+        }
+        if (args.NewValue && args.NewValue instanceof UIElement) {
+            this._SetSubtreeObject(args.NewValue);
+            this._ElementAdded(args.NewValue);
+            if (args.NewValue instanceof FrameworkElement) {
+                var logicalParent = args.NewValue._GetLogicalParent();
+                if (logicalParent && logicalParent !== this) {
+                    error.SetErrored(BError.Argument, "Content is already a child of another element.");
+                    return;
+                }
+                args.NewValue._SetLogicalParent(this, error);
+                if (error.IsErrored())
+                    return;
+            }
+        }
+        this._UpdateBounds();
+        this._InvalidateMeasure();
+    } else if (args.Property == Border.PaddingProperty || args.Property == Border.BorderThicknessProperty) {
+        this._InvalidateMeasure();
+    } else if (args.Property == Border.BackgroundProperty) {
+        this._Invalidate();
+    } else if (args.Property == Border.BorderBrushProperty) {
+        this._Invalidate();
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+Border.Annotations = {
+    ContentProperty: Border.ChildProperty
+};
+Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRect, thickness, cornerRadius, pathOnly) {
+    var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
+    canvasCtx.beginPath();
+    if (cornerRadius.IsZero()) {
+        canvasCtx.rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
+    } else {
+        var left = pathRect.X;
+        var top = pathRect.Y;
+        var right = pathRect.X + pathRect.Width;
+        var bottom = pathRect.Y + pathRect.Height;
+        canvasCtx.moveTo(left + cornerRadius.TopLeft, top);
+        canvasCtx.lineTo(right - cornerRadius.TopRight, top);
+        if (cornerRadius.TopRight > 0)
+            canvasCtx.quadraticCurveTo(right, top, right, top + cornerRadius.TopRight);
+        canvasCtx.lineTo(right, bottom - cornerRadius.BottomRight);
+        if (cornerRadius.BottomRight > 0)
+            canvasCtx.quadraticCurveTo(right, bottom, right - cornerRadius.BottomRight, bottom);
+        canvasCtx.lineTo(left + cornerRadius.BottomLeft, bottom);
+        if (cornerRadius.BottomLeft > 0)
+            canvasCtx.quadraticCurveTo(left, bottom, left, bottom - cornerRadius.BottomLeft);
+        canvasCtx.lineTo(left, top + cornerRadius.TopLeft);
+        if (cornerRadius.TopLeft > 0)
+            canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
+    }
+    if (backgroundBrush) {
+        canvasCtx.fillStyle = backgroundBrush._Translate(canvasCtx, pathRect);
+        canvasCtx.fill();
+    }
+    if (borderBrush && !thickness.IsEmpty()) {
+        canvasCtx.lineWidth = thickness;
+        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx, pathRect);
+        canvasCtx.stroke();
+    }
+    canvasCtx.closePath();
+};
+Border._ThicknessValidator = function () {
+};
+
 function ColumnDefinitionCollection() {
     DependencyObjectCollection.call(this);
 }
@@ -12,6 +196,353 @@ ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error)
 ColumnDefinitionCollection.prototype.IsElementType = function (value) {
     return value instanceof ColumnDefinition;
 };
+
+function ContentPresenter() {
+    FrameworkElement.call(this);
+}
+ContentPresenter.InheritFrom(FrameworkElement);
+ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, ContentPresenter);
+ContentPresenter.prototype.GetContent = function () {
+    return this.GetValue(ContentPresenter.ContentProperty);
+};
+ContentPresenter.prototype.SetContent = function (value) {
+    this.SetValue(ContentPresenter.ContentProperty, value);
+};
+ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
+ContentPresenter.prototype.GetContentTemplate = function () {
+    return this.GetValue(ContentPresenter.ContentTemplateProperty);
+};
+ContentPresenter.prototype.SetContentTemplate = function (value) {
+    this.SetValue(ContentPresenter.ContentTemplateProperty, value);
+};
+ContentPresenter.prototype.GetFallbackRoot = function () {
+    if (this._FallbackRoot == null)
+        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
+    return this._FallbackRoot;
+};
+ContentPresenter.prototype._GetDefaultTemplate = function () {
+    var templateOwner = this.GetTemplateOwner();
+    if (templateOwner) {
+        if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+            this.SetValue(ContentPresenter.ContentProperty, 
+                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+        }
+        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+            this.SetValue(ContentPresenter.ContentTemplateProperty, 
+                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+        }
+    }
+    var template = this.GetContentTemplate();
+    if (template != null) {
+        this._ContentRoot = RefObject.As(template.GetVisualTree(this), UIElement);
+    } else {
+        var content = this.GetContent();
+        this._ContentRoot = RefObject.As(content, UIElement);
+        if (this._ContentRoot == null && content != null)
+            this._ContentRoot = this.GetFallbackRoot();
+    }
+    return this._ContentRoot;
+};
+ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== ContentPresenter) {
+        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    if (args.Property === ContentPresenter.ContentProperty) {
+        if ((args.NewValue && args.NewValue instanceof UIElement)
+            || (args.OldValue && args.OldValue instanceof UIElement)) {
+            this._ClearRoot();
+        }
+        if (args.NewValue && !(args.NewValue instanceof UIElement))
+            this.SetValue(FrameworkElement.DataContextProperty, args.NewValue);
+        else
+            this.ClearValue(FrameworkElement.DataContextProperty);
+        this._InvalidateMeasure();
+    } else if (args.Property === ContentPresenter.ContentTemplateProperty) {
+        this._ClearRoot();
+        this._InvalidateMeasure();
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+ContentPresenter.prototype._ClearRoot = function () {
+    if (this._ContentRoot != null)
+        this._ElementRemoved(this._ContentRoot);
+    this._ContentRoot = null;
+};
+ContentPresenter.prototype.InvokeLoaded = function () {
+    if (this.GetContent() instanceof UIElement)
+        this.ClearValue(FrameworkElement.DataContextProperty);
+    else
+        this.SetDataContext(this.GetContent());
+    FrameworkElement.prototype.InvokeLoaded.call(this);
+};
+ContentPresenter.Annotations = {
+    ContentProperty: ContentPresenter.ContentProperty
+};
+
+function Control() {
+    FrameworkElement.call(this);
+    this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
+}
+Control.InheritFrom(FrameworkElement);
+Control.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Control);
+Control.prototype.GetBackground = function () {
+    return this.GetValue(Control.BackgroundProperty);
+};
+Control.prototype.SetBackground = function (value) {
+    this.SetValue(Control.BackgroundProperty, value);
+};
+Control.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Control);
+Control.prototype.GetBorderBrush = function () {
+    return this.GetValue(Control.BorderBrushProperty);
+};
+Control.prototype.SetBorderBrush = function (value) {
+    this.SetValue(Control.BorderBrushProperty, value);
+};
+Control.BorderThicknessProperty = DependencyProperty.Register("BorderThickness", function () { return Thickness; }, Control, new Thickness());
+Control.prototype.GetBorderThickness = function () {
+    return this.GetValue(Control.BorderThicknessProperty);
+};
+Control.prototype.SetBorderThickness = function (value) {
+    this.SetValue(Control.BorderThicknessProperty, value);
+};
+Control.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
+Control.prototype.GetFontFamily = function () {
+    return this.GetValue(Control.FontFamilyProperty);
+};
+Control.prototype.SetFontFamily = function (value) {
+    this.SetValue(Control.FontFamilyProperty, value);
+};
+Control.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, Control, Font.DEFAULT_SIZE);
+Control.prototype.GetFontSize = function () {
+    return this.GetValue(Control.FontSizeProperty);
+};
+Control.prototype.SetFontSize = function (value) {
+    this.SetValue(Control.FontSizeProperty, value);
+};
+Control.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
+Control.prototype.GetFontStretch = function () {
+    return this.GetValue(Control.FontStretchProperty);
+};
+Control.prototype.SetFontStretch = function (value) {
+    this.SetValue(Control.FontStretchProperty, value);
+};
+Control.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
+Control.prototype.GetFontStyle = function () {
+    return this.GetValue(Control.FontStyleProperty);
+};
+Control.prototype.SetFontStyle = function (value) {
+    this.SetValue(Control.FontStyleProperty, value);
+};
+Control.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, Control, Font.DEFAULT_WEIGHT);
+Control.prototype.GetFontWeight = function () {
+    return this.GetValue(Control.FontWeightProperty);
+};
+Control.prototype.SetFontWeight = function (value) {
+    this.SetValue(Control.FontWeightProperty, value);
+};
+Control.ForegroundProperty = DependencyProperty.Register("Foreground", function () { return Brush; }, Control);
+Control.prototype.GetForeground = function () {
+    return this.GetValue(Control.ForegroundProperty);
+};
+Control.prototype.SetForeground = function (value) {
+    this.SetValue(Control.ForegroundProperty, value);
+};
+Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return Number; }, Control, HorizontalAlignment.Center);
+Control.prototype.GetHorizontalContentAlignment = function () {
+    return this.GetValue(Control.HorizontalContentAlignmentProperty);
+};
+Control.prototype.SetHorizontalContentAlignment = function (value) {
+    this.SetValue(Control.HorizontalContentAlignmentProperty, value);
+};
+Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
+Control.prototype.GetIsEnabled = function () {
+    return this.GetValue(Control.IsEnabledProperty);
+};
+Control.prototype.SetIsEnabled = function (value) {
+    this.SetValue(Control.IsEnabledProperty, value);
+};
+Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () { return Boolean; }, Control, true);
+Control.prototype.GetIsTabStop = function () {
+    return this.GetValue(Control.IsTabStopProperty);
+};
+Control.prototype.SetIsTabStop = function (value) {
+    this.SetValue(Control.IsTabStopProperty, value);
+};
+Control.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, Control, new Thickness());
+Control.prototype.GetPadding = function () {
+    return this.GetValue(Control.PaddingProperty);
+};
+Control.prototype.SetPadding = function (value) {
+    this.SetValue(Control.PaddingProperty, value);
+};
+Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
+Control.prototype.GetTabIndex = function () {
+    return this.GetValue(Control.TabIndexProperty);
+};
+Control.prototype.SetTabIndex = function (value) {
+    this.SetValue(Control.TabIndexProperty, value);
+};
+Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () { return Number; }, Control);
+Control.prototype.GetTabNavigation = function () {
+    return this.GetValue(Control.TabNavigationProperty);
+};
+Control.prototype.SetTabNavigation = function (value) {
+    this.SetValue(Control.TabNavigationProperty, value);
+};
+Control.TemplateProperty = DependencyProperty.Register("Template", function () { return ControlTemplate; }, Control);
+Control.prototype.GetTemplate = function () {
+    return this.GetValue(Control.TemplateProperty);
+};
+Control.prototype.SetTemplate = function (value) {
+    this.SetValue(Control.TemplateProperty, value);
+};
+Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return Number; }, Control, VerticalAlignment.Center);
+Control.prototype.GetVerticalContentAlignment = function () {
+    return this.GetValue(Control.VerticalContentAlignmentProperty);
+};
+Control.prototype.SetVerticalContentAlignment = function (value) {
+    this.SetValue(Control.VerticalContentAlignmentProperty, value);
+};
+Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () { return Function; }, Control);
+Control.prototype.GetDefaultStyleKey = function () {
+    return this.GetValue(Control.DefaultStyleKeyProperty);
+};
+Control.prototype.SetDefaultStyleKey = function (value) {
+    this.SetValue(Control.DefaultStyleKeyProperty, value);
+};
+Control.IsTemplateItemProperty = DependencyProperty.RegisterAttached("IsTemplateItem", function () { return Boolean; }, Control, false);
+Control.GetIsTemplateItem = function (d) {
+    return d.GetValue(Control.IsTemplateItemProperty);
+};
+Control.SetIsTemplateItem = function (d, value) {
+    d.SetValue(Control.IsTemplateItemProperty, value);
+};
+Control.prototype.GetDefaultStyle = function () {
+    return null;
+};
+Control.prototype.GetTemplateChild = function (name) {
+    if (this._TemplateRoot)
+        return this._TemplateRoot.FindName(name);
+    return null;
+};
+Control.prototype.SetVisualParent = function (visualParent) {
+    if (this.GetVisualParent() != visualParent) {
+        FrameworkElement.prototype.SetVisualParent.call(this, visualParent);
+        this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
+    }
+};
+Control.prototype._ElementAdded = function (item) {
+    var error;
+    item._AddParent(this, error);
+    this._SetSubtreeObject(item);
+    FrameworkElement.prototype._ElementAdded.call(this, item);
+};
+Control.prototype._ElementRemoved = function (item) {
+    var error;
+    if (this._TemplateRoot) {
+        this._TemplateRoot._RemoveParent(this, error);
+        this._TemplateRoot = null;
+    }
+    item._RemoveParent(this, error);
+    FrameworkElement.prototype._ElementRemoved.call(this, item);
+};
+Control.prototype.CanCaptureMouse = function () {
+    return this.GetIsEnabled();
+};
+Control.prototype._CanFindElement = function () {
+    return this.GetIsEnabled();
+};
+Control.prototype._InsideObject = function (x, y) {
+    return false;
+};
+Control.prototype._HitTestPoint = function (ctx, p, uielist) {
+    if (this.GetIsEnabled())
+        FrameworkElement.prototype._HitTestPoint.call(this, ctx, p, uielist);
+};
+Control.prototype._UpdateIsEnabledSource = function (control) {
+    this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(control);
+};
+Control.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Control) {
+        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    if (args.Property == Control.TemplateProperty) {
+    } else if (args.Property == Control.PaddingProperty
+        || args.Property == Control.BorderThicknessProperty) {
+        this._InvalidateMeasure();
+    } else if (args.Property == Control.IsEnabledProperty) {
+        if (!args.NewValue) {
+        }
+    } else if (args.Property == Control.HorizontalContentAlignmentProperty
+        || args.Property == Control.VerticalContentAlignmentProperty) {
+        this._InvalidateArrange();
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+Control.prototype._OnLogicalParentChanged = function (oldParent, newParent) {
+    FrameworkElement.prototype._OnLogicalParentChanged.call(this, oldParent, newParent);
+    this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(newParent);
+};
+Control.prototype._OnIsAttachedChanged = function (value) {
+    FrameworkElement.prototype._OnIsAttachedChanged.call(this, value);
+    this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
+};
+Control.prototype._DoApplyTemplateWithError = function (error) {
+    var t = this.GetTemplate();
+    if (!t)
+        return FrameworkElement.prototype._DoApplyTemplateWithError.call(this, error);
+    var root = t._GetVisualTreeWithError(this, error);
+    if (root && !(root instanceof UIElement)) {
+        Warn("Root element in template was not a UIElement.");
+        root = null;
+    }
+    if (!root)
+        return FrameworkElement.prototype._DoApplyTemplateWithError.call(this, error);
+    if (this._TemplateRoot != root && this._TemplateRoot != null) {
+        this._TemplateRoot._RemoveParent(this, null);
+        this._TemplateRoot = null;
+    }
+    this._TemplateRoot = root;
+    this._ElementAdded(this._TemplateRoot);
+    if (this._IsLoaded) {
+    }
+    return true;
+};
+Control.prototype.Focus = function (recurse) {
+    recurse = recurse === undefined || recurse === true;
+    if (!this._IsAttached)
+        return false;
+    var surface = App.Instance.MainSurface;
+    var walker = new _DeepTreeWalker(this);
+    var uie;
+    while (uie = walker.Step()) {
+        if (uie.GetVisibility() !== Visibility.Visible) {
+            walker.SkipBranch();
+            continue;
+        }
+        var c = RefObject.As(uie, Control);
+        if (c == null)
+            continue;
+        if (!c.GetIsEnabled()) {
+            if (!recurse)
+                return false;
+            walker.SkipBranch();
+            continue;
+        }
+        var loaded = false;
+        for (var check = this; !loaded && check != null; check = check.GetVisualParent())
+            loaded = loaded || check._IsLoaded;
+        if (loaded && c._GetRenderVisible() && c.GetIsTabStop())
+            return surface._FocusElement(c);
+        if (!recurse)
+            return false;
+    }
+    return false;
+};
+Control.prototype.OnIsEnabledChanged = function (args) {
+}
 
 function ControlTemplate(targetType, json) {
     FrameworkTemplate.call(this);
@@ -56,6 +587,203 @@ var _TextBoxEmitChanged = {
     NOTHING: 0,
     SELECTION: 1 << 0,
     TEXT: 1 << 1
+};
+
+function Panel() {
+    FrameworkElement.call(this);
+}
+Panel.InheritFrom(FrameworkElement);
+Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
+Panel.prototype.GetBackground = function () {
+    return this.GetValue(Panel.BackgroundProperty);
+};
+Panel.prototype.SetBackground = function (value) {
+    this.SetValue(Panel.BackgroundProperty, value);
+};
+Panel._CreateChildren = {
+    GetValue: function (propd, obj) {
+        var col = new UIElementCollection();
+        col._SetIsSecondaryParent(true);
+        if (obj)
+            obj._SetSubtreeObject(col);
+        return col;
+    }
+};
+Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, null, Panel._CreateChildren);
+Panel.prototype.GetChildren = function () {
+    return this.GetValue(Panel.ChildrenProperty);
+};
+Panel.prototype.SetChildren = function (value) {
+    this.SetValue(Panel.ChildrenProperty, value);
+};
+Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
+Panel.prototype.GetIsItemsHost = function () {
+    return this.GetValue(Panel.IsItemsHostProperty);
+};
+Panel.prototype.SetIsItemsHost = function (value) {
+    this.SetValue(Panel.IsItemsHostProperty, value);
+};
+Panel.prototype.IsLayoutContainer = function () { return true; };
+Panel.prototype.IsContainer = function () { return true; };
+Panel.prototype._ComputeBounds = function () {
+    this._Extents = this._ExtentsWithChildren = this._Bounds = this._BoundsWithChildren = new Rect();
+    var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.Logical);
+    var item;
+    while (item = walker.Step()) {
+        if (!item._GetRenderVisible())
+            continue;
+        this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
+    }
+    if (this.GetBackground()) {
+        this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+        this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
+    }
+    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
+    this._BoundsWithChildren = this._IntersectBoundsWithClipPath(this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
+    this._ComputeGlobalBounds();
+    this._ComputeSurfaceBounds();
+};
+Panel.prototype._GetCoverageBounds = function () {
+    var background = this.GetBackground();
+    if (background && background.IsOpaque())
+        return this._Bounds;
+    return new Rect();
+};
+Panel.prototype._ShiftPosition = function (point) {
+    var dx = point.X - this._Bounds.X;
+    var dy = point.Y - this._Bounds.Y;
+    FrameworkElement.prototype._ShiftPosition.call(this, point);
+    this._BoundsWithChildren.X += dx;
+    this._BoundsWithChildren.Y += dy;
+};
+Panel.prototype._EmptyBackground = function () {
+    return this.GetBackground() == null;
+};
+Panel.prototype._MeasureOverrideWithError = function (availableSize, error) {
+    Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
+    var result = new Size(0, 0);
+    return result;
+};
+Panel.prototype._Render = function (ctx, region) {
+    var background = this.GetBackground();
+    if (!background)
+        return;
+    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
+    framework = this._ApplySizeConstraints(framework);
+    if (framework.Width <= 0 || framework.Height <= 0)
+        return;
+    var area = new Rect(0, 0, framework.Width, framework.Height);
+    if (!this._HasLayoutClip() && false/* TODO: IsIntegerTranslation */) {
+    } else {
+        ctx.Save();
+        this._RenderLayoutClip(ctx);
+        ctx.Fill(area, background);
+        ctx.Restore();
+    }
+};
+Panel.prototype._CanFindElement = function () { return this.GetBackground() != null; }
+Panel.prototype._InsideObject = function (ctx, x, y) {
+    if (this.GetBackground())
+        return FrameworkElement.prototype._InsideObject.call(this, ctx, x, y);
+    return false;
+};
+Panel.prototype._ElementAdded = function (item) {
+    FrameworkElement.prototype._ElementAdded.call(this, item);
+    if (this._IsAttached) {
+        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
+    }
+};
+Panel.prototype._ElementRemoved = function (item) {
+    FrameworkElement.prototype._ElementRemoved.call(this, item);
+    if (this._IsAttached) {
+        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
+    }
+};
+Panel.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Panel) {
+        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    if (args.Property == Panel.BackgroundProperty) {
+        this._UpdateBounds();
+        this._Invalidate();
+    } else if (args.Property == Panel.ChildrenProperty) {
+        var collection;
+        var count;
+        var i;
+        this._SetSubtreeObject(args.NewValue ? args.NewValue : null);
+        if (args.OldValue) {
+            collection = args.OldValue;
+            count = collection.GetCount();
+            for (i = 0; i < count; i++) {
+                this._ElementRemoved(collection.GetValueAt(i));
+            }
+        }
+        if (args.NewValue) {
+            collection = args.NewValue;
+            count = collection.GetCount();
+            for (i = 0; i < count; i++) {
+                this._ElementAdded(collection.GetValueAt(i));
+            }
+        }
+        this._UpdateBounds();
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+Panel.prototype._OnSubPropertyChanged = function (sender, args) {
+    if (args.Property && args.Property == Panel.BackgroundProperty) {
+        this._Invalidate();
+    } else {
+        FrameworkElement.prototype._OnSubPropertyChanged.call(this, sender, args);
+    }
+};
+Panel.prototype._OnCollectionChanged = function (sender, args) {
+    if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
+        var error = new BError();
+        switch (args.Action) {
+            case CollectionChangedArgs.Action.Replace:
+                if (args.OldValue instanceof FrameworkElement)
+                    args.OldValue._SetLogicalParent(null, error);
+                this._ElementRemoved(args.OldValue);
+            case CollectionChangedArgs.Action.Add:
+                if (args.NewValue instanceof FrameworkElement)
+                    args.NewValue._SetLogicalParent(this, error);
+                this._ElementAdded(args.NewValue);
+                break;
+            case CollectionChangedArgs.Action.Remove:
+                if (args.OldValue instanceof FrameworkElement)
+                    args.OldValue._SetLogicalParent(null, error);
+                this._ElementRemoved(args.OldValue);
+                break;
+            case CollectionChangedArgs.Action.Clearing:
+                break;
+            case CollectionChangedArgs.Action.Cleared:
+                break;
+        }
+    } else {
+        FrameworkElement.prototype._OnCollectionChanged.call(this, sender, args);
+    }
+};
+Panel.prototype._OnCollectionItemChanged = function (sender, args) {
+    if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
+        if (args.Property == Canvas.ZIndexProperty || args.Property == Canvas.ZProperty) {
+            args.Item._Invalidate();
+            if (this._IsAttached) {
+                App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
+            }
+            return;
+        }
+    }
+    FrameworkElement.prototype._OnCollectionItemChanged.call(this, sender, args);
+};
+Panel.prototype._OnIsAttachedChanged = function (value) {
+    FrameworkElement.prototype._OnIsAttachedChanged.call(this, value);
+    if (value) {
+        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
+    }
+};
+Panel.Annotations = {
+    ContentProperty: Panel.ChildrenProperty
 };
 
 function RowDefinitionCollection() {
@@ -794,1118 +1522,6 @@ _TextBoxBaseDynamicPropertyValueProvider.prototype._InitializeSelectionBrushes =
         this._SelectionForeground = new SolidColorBrush(new Color(255, 255, 255));
 };
 
-function Border() {
-    FrameworkElement.call(this);
-}
-Border.InheritFrom(FrameworkElement);
-Border.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Border);
-Border.prototype.GetBackground = function () {
-    return this.GetValue(Border.BackgroundProperty);
-};
-Border.prototype.SetBackground = function (value) {
-    this.SetValue(Border.BackgroundProperty, value);
-};
-Border.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Border);
-Border.prototype.GetBorderBrush = function () {
-    return this.GetValue(Border.BorderBrushProperty);
-};
-Border.prototype.SetBorderBrush = function (value) {
-    this.SetValue(Border.BorderBrushProperty, value);
-};
-Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
-Border.prototype.GetBorderThickness = function () {
-    return this.GetValue(Border.BorderThicknessProperty);
-};
-Border.prototype.SetBorderThickness = function (value) {
-    this.SetValue(Border.BorderThicknessProperty, value);
-};
-Border.ChildProperty = DependencyProperty.Register("Child", function () { return UIElement; }, Border);
-Border.prototype.GetChild = function () {
-    return this.GetValue(Border.ChildProperty);
-};
-Border.prototype.SetChild = function (value) {
-    this.SetValue(Border.ChildProperty, value);
-};
-Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
-Border.prototype.GetCornerRadius = function () {
-    return this.GetValue(Border.CornerRadiusProperty);
-};
-Border.prototype.SetCornerRadius = function (value) {
-    this.SetValue(Border.CornerRadiusProperty, value);
-};
-Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
-Border.prototype.GetPadding = function () {
-    return this.GetValue(Border.PaddingProperty);
-};
-Border.prototype.SetPadding = function (value) {
-    this.SetValue(Border.PaddingProperty, value);
-};
-Border.prototype.IsLayoutContainer = function () { return true; };
-Border.prototype._MeasureOverrideWithError = function (availableSize, error) {
-    var desired = new Size(0, 0);
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
-    var walker = new _VisualTreeWalker(this);
-    var child;
-    while (child = walker.Step()) {
-        child._MeasureWithError(availableSize.GrowByThickness(border.Negate()), error);
-        desired = child._DesiredSize;
-    }
-    desired = desired.GrowByThickness(border);
-    desired = desired.Min(availableSize);
-    return desired;
-};
-Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
-    var arranged = finalSize;
-    var walker = new _VisualTreeWalker(this);
-    var child;
-    while (child = walker.Step()) {
-        var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
-        childRect = childRect.GrowByThickness(border.Negate());
-        child._ArrangeWithError(childRect, error);
-        arranged = new Size(childRect.Width, childRect.Height).GrowBy(border);
-        arranged = arranged.Max(finalSize);
-    }
-    return finalSize;
-};
-Border.prototype._Render = function (ctx, region) {
-    var borderBrush = this.GetBorderBrush();
-    var paintBorder = this._Extents;
-    if (!this.GetBackground() && !borderBrush)
-        return;
-    if (paintBorder.IsEmpty())
-        return;
-    if (borderBrush || !this.GetCornerRadius().IsZero()) {
-        ctx.Save();
-        this._RenderImpl(ctx, region);
-        ctx.Restore();
-        return;
-    }
-    if (!this._HasLayoutClip() && false /* TODO: IsIntegerTranslation  */) {
-    } else {
-        ctx.Save();
-        this._RenderImpl(ctx, region);
-        ctx.Restore();
-    }
-};
-Border.prototype._RenderImpl = function (ctx, region) {
-    ctx.Save();
-    this._RenderLayoutClip(ctx);
-    ctx.CustomRender(Border._Painter, this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius());
-    ctx.Restore();
-};
-Border.prototype._CanFindElement = function () {
-    return this.GetBackground() != null || this.GetBorderBrush() != null;
-};
-Border.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== Border) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-    if (args.Property == Border.ChildProperty) {
-        if (args.OldValue && args.OldValue instanceof UIElement) {
-            this._ElementRemoved(args.OldValue);
-            this._SetSubtreeObject(null);
-            if (args.OldValue instanceof FrameworkElement) {
-                args.OldValue._SetLogicalParent(null, error);
-                if (error.IsErrored())
-                    return;
-            }
-        }
-        if (args.NewValue && args.NewValue instanceof UIElement) {
-            this._SetSubtreeObject(args.NewValue);
-            this._ElementAdded(args.NewValue);
-            if (args.NewValue instanceof FrameworkElement) {
-                var logicalParent = args.NewValue._GetLogicalParent();
-                if (logicalParent && logicalParent !== this) {
-                    error.SetErrored(BError.Argument, "Content is already a child of another element.");
-                    return;
-                }
-                args.NewValue._SetLogicalParent(this, error);
-                if (error.IsErrored())
-                    return;
-            }
-        }
-        this._UpdateBounds();
-        this._InvalidateMeasure();
-    } else if (args.Property == Border.PaddingProperty || args.Property == Border.BorderThicknessProperty) {
-        this._InvalidateMeasure();
-    } else if (args.Property == Border.BackgroundProperty) {
-        this._Invalidate();
-    } else if (args.Property == Border.BorderBrushProperty) {
-        this._Invalidate();
-    }
-    this.PropertyChanged.Raise(this, args);
-};
-Border.Annotations = {
-    ContentProperty: Border.ChildProperty
-};
-Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRect, thickness, cornerRadius, pathOnly) {
-    var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
-    canvasCtx.beginPath();
-    if (cornerRadius.IsZero()) {
-        canvasCtx.rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
-    } else {
-        var left = pathRect.X;
-        var top = pathRect.Y;
-        var right = pathRect.X + pathRect.Width;
-        var bottom = pathRect.Y + pathRect.Height;
-        canvasCtx.moveTo(left + cornerRadius.TopLeft, top);
-        canvasCtx.lineTo(right - cornerRadius.TopRight, top);
-        if (cornerRadius.TopRight > 0)
-            canvasCtx.quadraticCurveTo(right, top, right, top + cornerRadius.TopRight);
-        canvasCtx.lineTo(right, bottom - cornerRadius.BottomRight);
-        if (cornerRadius.BottomRight > 0)
-            canvasCtx.quadraticCurveTo(right, bottom, right - cornerRadius.BottomRight, bottom);
-        canvasCtx.lineTo(left + cornerRadius.BottomLeft, bottom);
-        if (cornerRadius.BottomLeft > 0)
-            canvasCtx.quadraticCurveTo(left, bottom, left, bottom - cornerRadius.BottomLeft);
-        canvasCtx.lineTo(left, top + cornerRadius.TopLeft);
-        if (cornerRadius.TopLeft > 0)
-            canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
-    }
-    if (backgroundBrush) {
-        canvasCtx.fillStyle = backgroundBrush._Translate(canvasCtx, pathRect);
-        canvasCtx.fill();
-    }
-    if (borderBrush && !thickness.IsEmpty()) {
-        canvasCtx.lineWidth = thickness;
-        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx, pathRect);
-        canvasCtx.stroke();
-    }
-    canvasCtx.closePath();
-};
-Border._ThicknessValidator = function () {
-};
-
-function ContentPresenter() {
-    FrameworkElement.call(this);
-}
-ContentPresenter.InheritFrom(FrameworkElement);
-ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, ContentPresenter);
-ContentPresenter.prototype.GetContent = function () {
-    return this.GetValue(ContentPresenter.ContentProperty);
-};
-ContentPresenter.prototype.SetContent = function (value) {
-    this.SetValue(ContentPresenter.ContentProperty, value);
-};
-ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
-ContentPresenter.prototype.GetContentTemplate = function () {
-    return this.GetValue(ContentPresenter.ContentTemplateProperty);
-};
-ContentPresenter.prototype.SetContentTemplate = function (value) {
-    this.SetValue(ContentPresenter.ContentTemplateProperty, value);
-};
-ContentPresenter.prototype.GetFallbackRoot = function () {
-    if (this._FallbackRoot == null)
-        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
-    return this._FallbackRoot;
-};
-ContentPresenter.prototype._GetDefaultTemplate = function () {
-    var templateOwner = this.GetTemplateOwner();
-    if (templateOwner) {
-        if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
-            this.SetValue(ContentPresenter.ContentProperty, 
-                new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
-        }
-        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
-            this.SetValue(ContentPresenter.ContentTemplateProperty, 
-                new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
-        }
-    }
-    var template = this.GetContentTemplate();
-    if (template != null) {
-        this._ContentRoot = RefObject.As(template.GetVisualTree(this), UIElement);
-    } else {
-        var content = this.GetContent();
-        this._ContentRoot = RefObject.As(content, UIElement);
-        if (this._ContentRoot == null && content != null)
-            this._ContentRoot = this.GetFallbackRoot();
-    }
-    return this._ContentRoot;
-};
-ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== ContentPresenter) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-    if (args.Property === ContentPresenter.ContentProperty) {
-        if ((args.NewValue && args.NewValue instanceof UIElement)
-            || (args.OldValue && args.OldValue instanceof UIElement)) {
-            this._ClearRoot();
-        }
-        if (args.NewValue && !(args.NewValue instanceof UIElement))
-            this.SetValue(FrameworkElement.DataContextProperty, args.NewValue);
-        else
-            this.ClearValue(FrameworkElement.DataContextProperty);
-        this._InvalidateMeasure();
-    } else if (args.Property === ContentPresenter.ContentTemplateProperty) {
-        this._ClearRoot();
-        this._InvalidateMeasure();
-    }
-    this.PropertyChanged.Raise(this, args);
-};
-ContentPresenter.prototype._ClearRoot = function () {
-    if (this._ContentRoot != null)
-        this._ElementRemoved(this._ContentRoot);
-    this._ContentRoot = null;
-};
-ContentPresenter.prototype.InvokeLoaded = function () {
-    if (this.GetContent() instanceof UIElement)
-        this.ClearValue(FrameworkElement.DataContextProperty);
-    else
-        this.SetDataContext(this.GetContent());
-    FrameworkElement.prototype.InvokeLoaded.call(this);
-};
-ContentPresenter.Annotations = {
-    ContentProperty: ContentPresenter.ContentProperty
-};
-
-function Control() {
-    FrameworkElement.call(this);
-    this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
-}
-Control.InheritFrom(FrameworkElement);
-Control.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Control);
-Control.prototype.GetBackground = function () {
-    return this.GetValue(Control.BackgroundProperty);
-};
-Control.prototype.SetBackground = function (value) {
-    this.SetValue(Control.BackgroundProperty, value);
-};
-Control.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Control);
-Control.prototype.GetBorderBrush = function () {
-    return this.GetValue(Control.BorderBrushProperty);
-};
-Control.prototype.SetBorderBrush = function (value) {
-    this.SetValue(Control.BorderBrushProperty, value);
-};
-Control.BorderThicknessProperty = DependencyProperty.Register("BorderThickness", function () { return Thickness; }, Control, new Thickness());
-Control.prototype.GetBorderThickness = function () {
-    return this.GetValue(Control.BorderThicknessProperty);
-};
-Control.prototype.SetBorderThickness = function (value) {
-    this.SetValue(Control.BorderThicknessProperty, value);
-};
-Control.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
-Control.prototype.GetFontFamily = function () {
-    return this.GetValue(Control.FontFamilyProperty);
-};
-Control.prototype.SetFontFamily = function (value) {
-    this.SetValue(Control.FontFamilyProperty, value);
-};
-Control.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, Control, Font.DEFAULT_SIZE);
-Control.prototype.GetFontSize = function () {
-    return this.GetValue(Control.FontSizeProperty);
-};
-Control.prototype.SetFontSize = function (value) {
-    this.SetValue(Control.FontSizeProperty, value);
-};
-Control.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
-Control.prototype.GetFontStretch = function () {
-    return this.GetValue(Control.FontStretchProperty);
-};
-Control.prototype.SetFontStretch = function (value) {
-    this.SetValue(Control.FontStretchProperty, value);
-};
-Control.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
-Control.prototype.GetFontStyle = function () {
-    return this.GetValue(Control.FontStyleProperty);
-};
-Control.prototype.SetFontStyle = function (value) {
-    this.SetValue(Control.FontStyleProperty, value);
-};
-Control.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, Control, Font.DEFAULT_WEIGHT);
-Control.prototype.GetFontWeight = function () {
-    return this.GetValue(Control.FontWeightProperty);
-};
-Control.prototype.SetFontWeight = function (value) {
-    this.SetValue(Control.FontWeightProperty, value);
-};
-Control.ForegroundProperty = DependencyProperty.Register("Foreground", function () { return Brush; }, Control);
-Control.prototype.GetForeground = function () {
-    return this.GetValue(Control.ForegroundProperty);
-};
-Control.prototype.SetForeground = function (value) {
-    this.SetValue(Control.ForegroundProperty, value);
-};
-Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return Number; }, Control, HorizontalAlignment.Center);
-Control.prototype.GetHorizontalContentAlignment = function () {
-    return this.GetValue(Control.HorizontalContentAlignmentProperty);
-};
-Control.prototype.SetHorizontalContentAlignment = function (value) {
-    this.SetValue(Control.HorizontalContentAlignmentProperty, value);
-};
-Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
-Control.prototype.GetIsEnabled = function () {
-    return this.GetValue(Control.IsEnabledProperty);
-};
-Control.prototype.SetIsEnabled = function (value) {
-    this.SetValue(Control.IsEnabledProperty, value);
-};
-Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () { return Boolean; }, Control, true);
-Control.prototype.GetIsTabStop = function () {
-    return this.GetValue(Control.IsTabStopProperty);
-};
-Control.prototype.SetIsTabStop = function (value) {
-    this.SetValue(Control.IsTabStopProperty, value);
-};
-Control.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, Control, new Thickness());
-Control.prototype.GetPadding = function () {
-    return this.GetValue(Control.PaddingProperty);
-};
-Control.prototype.SetPadding = function (value) {
-    this.SetValue(Control.PaddingProperty, value);
-};
-Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
-Control.prototype.GetTabIndex = function () {
-    return this.GetValue(Control.TabIndexProperty);
-};
-Control.prototype.SetTabIndex = function (value) {
-    this.SetValue(Control.TabIndexProperty, value);
-};
-Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () { return Number; }, Control);
-Control.prototype.GetTabNavigation = function () {
-    return this.GetValue(Control.TabNavigationProperty);
-};
-Control.prototype.SetTabNavigation = function (value) {
-    this.SetValue(Control.TabNavigationProperty, value);
-};
-Control.TemplateProperty = DependencyProperty.Register("Template", function () { return ControlTemplate; }, Control);
-Control.prototype.GetTemplate = function () {
-    return this.GetValue(Control.TemplateProperty);
-};
-Control.prototype.SetTemplate = function (value) {
-    this.SetValue(Control.TemplateProperty, value);
-};
-Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return Number; }, Control, VerticalAlignment.Center);
-Control.prototype.GetVerticalContentAlignment = function () {
-    return this.GetValue(Control.VerticalContentAlignmentProperty);
-};
-Control.prototype.SetVerticalContentAlignment = function (value) {
-    this.SetValue(Control.VerticalContentAlignmentProperty, value);
-};
-Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () { return Function; }, Control);
-Control.prototype.GetDefaultStyleKey = function () {
-    return this.GetValue(Control.DefaultStyleKeyProperty);
-};
-Control.prototype.SetDefaultStyleKey = function (value) {
-    this.SetValue(Control.DefaultStyleKeyProperty, value);
-};
-Control.IsTemplateItemProperty = DependencyProperty.RegisterAttached("IsTemplateItem", function () { return Boolean; }, Control, false);
-Control.GetIsTemplateItem = function (d) {
-    return d.GetValue(Control.IsTemplateItemProperty);
-};
-Control.SetIsTemplateItem = function (d, value) {
-    d.SetValue(Control.IsTemplateItemProperty, value);
-};
-Control.prototype.GetDefaultStyle = function () {
-    return null;
-};
-Control.prototype.GetTemplateChild = function (name) {
-    if (this._TemplateRoot)
-        return this._TemplateRoot.FindName(name);
-    return null;
-};
-Control.prototype.SetVisualParent = function (visualParent) {
-    if (this.GetVisualParent() != visualParent) {
-        FrameworkElement.prototype.SetVisualParent.call(this, visualParent);
-        this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
-    }
-};
-Control.prototype._ElementAdded = function (item) {
-    var error;
-    item._AddParent(this, error);
-    this._SetSubtreeObject(item);
-    FrameworkElement.prototype._ElementAdded.call(this, item);
-};
-Control.prototype._ElementRemoved = function (item) {
-    var error;
-    if (this._TemplateRoot) {
-        this._TemplateRoot._RemoveParent(this, error);
-        this._TemplateRoot = null;
-    }
-    item._RemoveParent(this, error);
-    FrameworkElement.prototype._ElementRemoved.call(this, item);
-};
-Control.prototype.CanCaptureMouse = function () {
-    return this.GetIsEnabled();
-};
-Control.prototype._CanFindElement = function () {
-    return this.GetIsEnabled();
-};
-Control.prototype._InsideObject = function (x, y) {
-    return false;
-};
-Control.prototype._HitTestPoint = function (ctx, p, uielist) {
-    if (this.GetIsEnabled())
-        FrameworkElement.prototype._HitTestPoint.call(this, ctx, p, uielist);
-};
-Control.prototype._UpdateIsEnabledSource = function (control) {
-    this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(control);
-};
-Control.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== Control) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-    if (args.Property == Control.TemplateProperty) {
-    } else if (args.Property == Control.PaddingProperty
-        || args.Property == Control.BorderThicknessProperty) {
-        this._InvalidateMeasure();
-    } else if (args.Property == Control.IsEnabledProperty) {
-        if (!args.NewValue) {
-        }
-    } else if (args.Property == Control.HorizontalContentAlignmentProperty
-        || args.Property == Control.VerticalContentAlignmentProperty) {
-        this._InvalidateArrange();
-    }
-    this.PropertyChanged.Raise(this, args);
-};
-Control.prototype._OnLogicalParentChanged = function (oldParent, newParent) {
-    FrameworkElement.prototype._OnLogicalParentChanged.call(this, oldParent, newParent);
-    this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(newParent);
-};
-Control.prototype._OnIsAttachedChanged = function (value) {
-    FrameworkElement.prototype._OnIsAttachedChanged.call(this, value);
-    this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
-};
-Control.prototype._DoApplyTemplateWithError = function (error) {
-    var t = this.GetTemplate();
-    if (!t)
-        return FrameworkElement.prototype._DoApplyTemplateWithError.call(this, error);
-    var root = t._GetVisualTreeWithError(this, error);
-    if (root && !(root instanceof UIElement)) {
-        Warn("Root element in template was not a UIElement.");
-        root = null;
-    }
-    if (!root)
-        return FrameworkElement.prototype._DoApplyTemplateWithError.call(this, error);
-    if (this._TemplateRoot != root && this._TemplateRoot != null) {
-        this._TemplateRoot._RemoveParent(this, null);
-        this._TemplateRoot = null;
-    }
-    this._TemplateRoot = root;
-    this._ElementAdded(this._TemplateRoot);
-    if (this._IsLoaded) {
-    }
-    return true;
-};
-Control.prototype.Focus = function (recurse) {
-    recurse = recurse === undefined || recurse === true;
-    if (!this._IsAttached)
-        return false;
-    var surface = App.Instance.MainSurface;
-    var walker = new _DeepTreeWalker(this);
-    var uie;
-    while (uie = walker.Step()) {
-        if (uie.GetVisibility() !== Visibility.Visible) {
-            walker.SkipBranch();
-            continue;
-        }
-        var c = RefObject.As(uie, Control);
-        if (c == null)
-            continue;
-        if (!c.GetIsEnabled()) {
-            if (!recurse)
-                return false;
-            walker.SkipBranch();
-            continue;
-        }
-        var loaded = false;
-        for (var check = this; !loaded && check != null; check = check.GetVisualParent())
-            loaded = loaded || check._IsLoaded;
-        if (loaded && c._GetRenderVisible() && c.GetIsTabStop())
-            return surface._FocusElement(c);
-        if (!recurse)
-            return false;
-    }
-    return false;
-};
-Control.prototype.OnIsEnabledChanged = function (args) {
-}
-
-function GridLength(value, type) {
-    RefObject.call(this);
-    this.Value = value == null ? 0 : value;
-    this.Type = type == null ? GridUnitType.Auto : type;
-}
-GridLength.InheritFrom(RefObject);
-GridLength.Equals = function (gl1, gl2) {
-    return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
-};
-
-var ItemCollection = {};//TODO: Implement
-function ItemsControl() {
-    Control.call(this);
-}
-ItemsControl.InheritFrom(Control);
-ItemsControl.GetItemsOwner = function (ele) {
-    var panel = RefObject.As(ele, Panel);
-    if (panel == null || !panel.GetIsItemsHost())
-        return null;
-    var owner = RefObject.As(panel.GetTemplateOwner(), ItemsPresenter);
-    if (owner != null)
-        return RefObject.As(owner.GetTemplateOwner(), ItemsControl);
-    return null;
-};
-ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl);
-ItemsControl.prototype.GetItems = function () {
-    return this.GetValue(ItemsControl.ItemsProperty);
-};
-ItemsControl.prototype.SetItems = function (value) {
-    this.SetValue(ItemsControl.ItemsProperty, value);
-};
-ItemsControl.Annotations = {
-    ContentProperty: ItemsControl.ItemsProperty
-};
-function ItemsPresenter() {
-    FrameworkElement.call(this);
-}
-ItemsPresenter.InheritFrom(FrameworkElement);
-
-function Panel() {
-    FrameworkElement.call(this);
-}
-Panel.InheritFrom(FrameworkElement);
-Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
-Panel.prototype.GetBackground = function () {
-    return this.GetValue(Panel.BackgroundProperty);
-};
-Panel.prototype.SetBackground = function (value) {
-    this.SetValue(Panel.BackgroundProperty, value);
-};
-Panel._CreateChildren = {
-    GetValue: function (propd, obj) {
-        var col = new UIElementCollection();
-        col._SetIsSecondaryParent(true);
-        if (obj)
-            obj._SetSubtreeObject(col);
-        return col;
-    }
-};
-Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, null, Panel._CreateChildren);
-Panel.prototype.GetChildren = function () {
-    return this.GetValue(Panel.ChildrenProperty);
-};
-Panel.prototype.SetChildren = function (value) {
-    this.SetValue(Panel.ChildrenProperty, value);
-};
-Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
-Panel.prototype.GetIsItemsHost = function () {
-    return this.GetValue(Panel.IsItemsHostProperty);
-};
-Panel.prototype.SetIsItemsHost = function (value) {
-    this.SetValue(Panel.IsItemsHostProperty, value);
-};
-Panel.prototype.IsLayoutContainer = function () { return true; };
-Panel.prototype.IsContainer = function () { return true; };
-Panel.prototype._ComputeBounds = function () {
-    this._Extents = this._ExtentsWithChildren = this._Bounds = this._BoundsWithChildren = new Rect();
-    var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.Logical);
-    var item;
-    while (item = walker.Step()) {
-        if (!item._GetRenderVisible())
-            continue;
-        this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
-    }
-    if (this.GetBackground()) {
-        this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
-        this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
-    }
-    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
-    this._BoundsWithChildren = this._IntersectBoundsWithClipPath(this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
-    this._ComputeGlobalBounds();
-    this._ComputeSurfaceBounds();
-};
-Panel.prototype._GetCoverageBounds = function () {
-    var background = this.GetBackground();
-    if (background && background.IsOpaque())
-        return this._Bounds;
-    return new Rect();
-};
-Panel.prototype._ShiftPosition = function (point) {
-    var dx = point.X - this._Bounds.X;
-    var dy = point.Y - this._Bounds.Y;
-    FrameworkElement.prototype._ShiftPosition.call(this, point);
-    this._BoundsWithChildren.X += dx;
-    this._BoundsWithChildren.Y += dy;
-};
-Panel.prototype._EmptyBackground = function () {
-    return this.GetBackground() == null;
-};
-Panel.prototype._MeasureOverrideWithError = function (availableSize, error) {
-    Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
-    var result = new Size(0, 0);
-    return result;
-};
-Panel.prototype._Render = function (ctx, region) {
-    var background = this.GetBackground();
-    if (!background)
-        return;
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
-    framework = this._ApplySizeConstraints(framework);
-    if (framework.Width <= 0 || framework.Height <= 0)
-        return;
-    var area = new Rect(0, 0, framework.Width, framework.Height);
-    if (!this._HasLayoutClip() && false/* TODO: IsIntegerTranslation */) {
-    } else {
-        ctx.Save();
-        this._RenderLayoutClip(ctx);
-        ctx.Fill(area, background);
-        ctx.Restore();
-    }
-};
-Panel.prototype._CanFindElement = function () { return this.GetBackground() != null; }
-Panel.prototype._InsideObject = function (ctx, x, y) {
-    if (this.GetBackground())
-        return FrameworkElement.prototype._InsideObject.call(this, ctx, x, y);
-    return false;
-};
-Panel.prototype._ElementAdded = function (item) {
-    FrameworkElement.prototype._ElementAdded.call(this, item);
-    if (this._IsAttached) {
-        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
-    }
-};
-Panel.prototype._ElementRemoved = function (item) {
-    FrameworkElement.prototype._ElementRemoved.call(this, item);
-    if (this._IsAttached) {
-        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
-    }
-};
-Panel.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== Panel) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-    if (args.Property == Panel.BackgroundProperty) {
-        this._UpdateBounds();
-        this._Invalidate();
-    } else if (args.Property == Panel.ChildrenProperty) {
-        var collection;
-        var count;
-        var i;
-        this._SetSubtreeObject(args.NewValue ? args.NewValue : null);
-        if (args.OldValue) {
-            collection = args.OldValue;
-            count = collection.GetCount();
-            for (i = 0; i < count; i++) {
-                this._ElementRemoved(collection.GetValueAt(i));
-            }
-        }
-        if (args.NewValue) {
-            collection = args.NewValue;
-            count = collection.GetCount();
-            for (i = 0; i < count; i++) {
-                this._ElementAdded(collection.GetValueAt(i));
-            }
-        }
-        this._UpdateBounds();
-    }
-    this.PropertyChanged.Raise(this, args);
-};
-Panel.prototype._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property && args.Property == Panel.BackgroundProperty) {
-        this._Invalidate();
-    } else {
-        FrameworkElement.prototype._OnSubPropertyChanged.call(this, sender, args);
-    }
-};
-Panel.prototype._OnCollectionChanged = function (sender, args) {
-    if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
-        var error = new BError();
-        switch (args.Action) {
-            case CollectionChangedArgs.Action.Replace:
-                if (args.OldValue instanceof FrameworkElement)
-                    args.OldValue._SetLogicalParent(null, error);
-                this._ElementRemoved(args.OldValue);
-            case CollectionChangedArgs.Action.Add:
-                if (args.NewValue instanceof FrameworkElement)
-                    args.NewValue._SetLogicalParent(this, error);
-                this._ElementAdded(args.NewValue);
-                break;
-            case CollectionChangedArgs.Action.Remove:
-                if (args.OldValue instanceof FrameworkElement)
-                    args.OldValue._SetLogicalParent(null, error);
-                this._ElementRemoved(args.OldValue);
-                break;
-            case CollectionChangedArgs.Action.Clearing:
-                break;
-            case CollectionChangedArgs.Action.Cleared:
-                break;
-        }
-    } else {
-        FrameworkElement.prototype._OnCollectionChanged.call(this, sender, args);
-    }
-};
-Panel.prototype._OnCollectionItemChanged = function (sender, args) {
-    if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
-        if (args.Property == Canvas.ZIndexProperty || args.Property == Canvas.ZProperty) {
-            args.Item._Invalidate();
-            if (this._IsAttached) {
-                App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
-            }
-            return;
-        }
-    }
-    FrameworkElement.prototype._OnCollectionItemChanged.call(this, sender, args);
-};
-Panel.prototype._OnIsAttachedChanged = function (value) {
-    FrameworkElement.prototype._OnIsAttachedChanged.call(this, value);
-    if (value) {
-        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
-    }
-};
-Panel.Annotations = {
-    ContentProperty: Panel.ChildrenProperty
-};
-
-function RowDefinition() {
-    DependencyObject.call(this);
-}
-RowDefinition.InheritFrom(DependencyObject);
-RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
-RowDefinition.prototype.GetHeight = function () {
-    return this.GetValue(RowDefinition.HeightProperty);
-};
-RowDefinition.prototype.SetHeight = function (value) {
-    this.SetValue(RowDefinition.HeightProperty, value);
-};
-RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
-RowDefinition.prototype.GetMaxHeight = function () {
-    return this.GetValue(RowDefinition.MaxHeightProperty);
-};
-RowDefinition.prototype.SetMaxHeight = function (value) {
-    this.SetValue(RowDefinition.MaxHeightProperty, value);
-};
-RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, RowDefinition, 0.0);
-RowDefinition.prototype.GetMinHeight = function () {
-    return this.GetValue(RowDefinition.MinHeightProperty);
-};
-RowDefinition.prototype.SetMinHeight = function (value) {
-    this.SetValue(RowDefinition.MinHeightProperty, value);
-};
-RowDefinition.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
-RowDefinition.prototype.GetActualHeight = function () {
-    return this.GetValue(RowDefinition.ActualHeightProperty);
-};
-RowDefinition.prototype.SetActualHeight = function (value) {
-    this.SetValue(RowDefinition.ActualHeightProperty, value);
-};
-
-function StackPanel() {
-    Panel.call(this);
-}
-StackPanel.InheritFrom(Panel);
-StackPanel._OrientationChanged = function (d, args) {
-    var sp = RefObject.As(d, StackPanel);
-    if (sp == null)
-        return;
-    d._InvalidateMeasure();
-    d._InvalidateArrange();
-};
-StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return Number; }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
-StackPanel.prototype.GetOrientation = function () {
-    return this.GetValue(StackPanel.OrientationProperty);
-};
-StackPanel.prototype.SetOrientation = function (value) {
-    this.SetValue(StackPanel.OrientationProperty, value);
-};
-StackPanel.prototype.MeasureOverride = function (constraint) {
-    Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
-    var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-    var measured = new Size(0, 0);
-    if (this.GetOrientation() === Orientation.Vertical) {
-        childAvailable.Width = constraint.Width;
-        if (!isNaN(this.GetWidth()))
-            childAvailable.Width = this.GetWidth();
-        childAvailable.Width = Math.min(childAvailable.Width, this.GetMaxWidth());
-        childAvailable.Width = Math.max(childAvailable.Width, this.GetMinWidth());
-    } else {
-        childAvailable.Height = constraint.Height;
-        if (!isNaN(this.GetHeight()))
-            childAvailable.Height = this.GetHeight();
-        childAvailable.Height = Math.min(childAvailable.Height, this.GetMaxHeight());
-        childAvailable.Height = Math.max(childAvailable.Height, this.GetMinHeight());
-    }
-    var children = this.GetChildren();
-    for (var i = 0; i < children.GetCount(); i++) {
-        var child = children.GetValueAt(i);
-        child.Measure(childAvailable);
-        var size = child._DesiredSize;
-        if (this.GetOrientation() === Orientation.Vertical) {
-            measured.Height += size.Height;
-            measured.Width = Math.max(measured.Width, size.Width);
-        } else {
-            measured.Width += size.Width;
-            measured.Height = Math.max(measured.Height, size.Height);
-        }
-    }
-    return measured;
-};
-StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
-    Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
-    var arranged = arrangeSize;
-    if (this.GetOrientation() === Orientation.Vertical)
-        arranged.Height = 0;
-    else
-        arranged.Width = 0;
-    var children = this.GetChildren();
-    for (var i = 0; i < children.GetCount(); i++) {
-        var child = children.GetValueAt(i);
-        var size = child._DesiredSize;
-        var childFinal;
-        if (this.GetOrientation() === Orientation.Vertical) {
-            size.Width = arrangeSize.Width;
-            childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
-            if (childFinal.IsEmpty())
-                child.Arrange(new Rect());
-            else
-                child.Arrange(childFinal);
-            arranged.Width = Math.max(arranged.Width, size.Width);
-            arranged.Height += size.Height;
-        } else {
-            size.Height = arrangeSize.Height;
-            childFinal = new Rect(arranged.Width, 0, size.Width, size.Height);
-            if (childFinal.IsEmpty())
-                child.Arrange(new Rect());
-            else
-                child.Arrange(childFinal);
-            arranged.Width += size.Width;
-            arranged.Height = Math.max(arranged.Height, size.Height);
-        }
-    }
-    if (this.GetOrientation() === Orientation.Vertical)
-        arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
-    else
-        arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
-    return arranged;
-};
-
-function TextBoxBase() {
-    Control.call(this);
-    this._SelectionAnchor = 0;
-    this._SelectionCursor = 0;
-    this._Buffer = new String();
-    this._Font = new Font();
-    this.ModelChanged = new MulticastEvent();
-    this._Batch = 0;
-}
-TextBoxBase.InheritFrom(Control);
-TextBoxBase.prototype.HasSelectedText = function () {
-    return this._SelectionCursor !== this._SelectionAnchor;
-};
-TextBoxBase.prototype.GetFont = function () {
-    return this._Font;
-};
-TextBoxBase.prototype.GetTextDecorations = function () {
-    return TextDecorations.None;
-};
-TextBoxBase.prototype.GetCursor = function () {
-    return this._SelectionCursor;
-};
-TextBoxBase.prototype.GetSelectionStart = function () {
-    AbstractMethod("TextBoxBase.GetSelectionStart");
-};
-TextBoxBase.prototype.SetSelectionStart = function (value) {
-    AbstractMethod("TextBoxBase.SetSelectionStart");
-};
-TextBoxBase.prototype.GetSelectionLength = function () {
-    AbstractMethod("TextBoxBase.GetSelectionLength");
-};
-TextBoxBase.prototype.SetSelectionLength = function (value) {
-    AbstractMethod("TextBoxBase.SetSelectionLength");
-};
-TextBoxBase.prototype.OnApplyTemplate = function () {
-    this._ContentElement = this.GetTemplateChild("ContentElement");
-    if (this._ContentElement == null) {
-        Warn("No ContentElement found");
-        Control.prototype.OnApplyTemplate.call(this);
-        return;
-    }
-    if (this._View != null) {
-        this._View.SetTextBox(null);
-    }
-    this._View = new _TextBoxView();
-    this._View.SetEnableCursor(!this._IsReadOnly);
-    this._View.SetTextBox(this);
-    if (this._ContentElement instanceof ContentPresenter) {
-        this._ContentElement.SetContent(this._View);
-    } else if (this._ContentElement instanceof ContentControl) {
-        this._ContentElement.SetContent(this._View);
-    } else if (this._ContentElement instanceof Border) {
-        this._ContentElement.SetChild(this._View);
-    } else if (this._ContentElement instanceof Panel) {
-        this._ContentElement.GetChildren().Add(this._View);
-    } else {
-        Warn("Can't handle ContentElement.");
-        this._View.SetTextBox(null);
-        this._View = null;
-    }
-    Control.prototype.OnApplyTemplate.call(this);
-};
-TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
-    var changed = _TextBoxModelChanged.Nothing;
-    if (args.Property === Control.FontFamilyProperty) {
-        this._Font.SetFamily(args.NewValue);
-        changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontSizeProperty) {
-        this._Font.SetSize(args.NewValue);
-        changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontStretchProperty) {
-        this._Font.SetStretch(args.NewValue);
-        changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontStyleProperty) {
-        this._Font.SetStyle(args.NewValue);
-        changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontWeightProperty) {
-        this._Font.SetWeight(args.NewValue);
-        changed = _TextBoxModelChanged.Font;
-    }
-    if (changed !== _TextBoxModelChanged.Nothing)
-        this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
-    if (args.Property.OwnerType !== TextBoxBase) {
-        Control.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-    this.PropertyChanged.Raise(this, args);
-};
-TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property === Control.BackgroundProperty
-        || args.Property === Control.ForegroundProperty) {
-        this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
-        this._Invalidate();
-    }
-    if (args.Property.OwnerType !== TextBoxBase)
-        Control.prototype._OnSubPropertyChanged.call(this, sender, args);
-};
-TextBoxBase.prototype._BatchPush = function () {
-    this._Batch++;
-};
-TextBoxBase.prototype._BatchPop = function () {
-    if (this._Batch == 0) {
-        Warn("TextBoxBase._Batch underflow");
-        return;
-    }
-    this._Batch--;
-};
-TextBoxBase.prototype._SyncAndEmit = function (syncText) {
-    if (syncText == undefined)
-        syncText = true;
-    if (this._Batch != 0 || this._Emit == _TextBoxEmitChanged.NOTHING)
-        return;
-    if (syncText && (this._Emit & _TextBoxEmitChanged.TEXT))
-        this._SyncText();
-    if (this._Emit & _TextBoxEmitChanged.SELECTION)
-        this._SyncSelectedText();
-    if (this._IsLoaded) {
-        this._Emit &= this._EventsMask;
-        if (this._Emit & _TextBoxEmitChanged.TEXT)
-            this._EmitTextChanged();
-        if (this._Emit & _TextBoxEmitChanged.SELECTION)
-            this._EmitSelectionChanged();
-    }
-    this._Emit = _TextBoxEmitChanged.NOTHING;
-};
-TextBoxBase.prototype._SyncText = function () {
-    AbstractMethod("TextBoxBase._SyncText");
-};
-TextBoxBase.prototype._SyncSelectedText = function () {
-    AbstractMethod("TextBoxBase._SyncSelectedText");
-};
-TextBoxBase.prototype.ClearSelection = function (start) {
-    this._BatchPush();
-    this.SetSelectionStart(start);
-    this.SetSelectionLength(0);
-    this._BatchPop();
-};
-TextBoxBase.prototype._EmitTextChanged = function () { };
-TextBoxBase.prototype._EmitSelectionChanged = function () { };
-
-function UserControl() {
-    Control.call(this);
-}
-UserControl.InheritFrom(Control);
-UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, UserControl);
-UserControl.prototype.GetContent = function () {
-    return this.GetValue(UserControl.ContentProperty);
-};
-UserControl.prototype.SetContent = function (value) {
-    this.SetValue(UserControl.ContentProperty, value);
-};
-UserControl.prototype.IsLayoutContainer = function () { return true; };
-UserControl.prototype._MeasureOverrideWithError = function (availableSize, error) {
-    var desired = new Size(0, 0);
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
-    var walker = new _VisualTreeWalker(this);
-    var child;
-    while (child = walker.Step()) {
-        child._MeasureWithError(availableSize.GrowByThickness(border.Negate()), error);
-        desired = child._DesiredSize;
-    }
-    desired = desired.GrowByThickness(border);
-    return desired;
-};
-UserControl.prototype._ArrangeOverrideWithError = function (finalSize, error) {
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
-    var arranged = finalSize;
-    var walker = new _VisualTreeWalker(this);
-    var child;
-    while (child = walker.Step()) {
-        var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
-        childRect = childRect.GrowByThickness(border.Negate());
-        child._ArrangeWithError(childRect, error);
-        arranged = new Size(childRect.Width, childRect.Height).GrowByThickness(border);
-    }
-    return arranged;
-};
-UserControl.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType != UserControl) {
-        Control.prototype._OnPropertyChanged.call(this, args, error);
-        return;
-    }
-    if (args.Property == UserControl.ContentProperty) {
-        if (args.OldValue && args.OldValue instanceof UIElement) {
-            if (args.OldValue instanceof FrameworkElement) {
-                args.OldValue._SetLogicalParent(null, error);
-                if (error.IsErrored())
-                    return;
-            }
-            this._ElementRemoved(args.OldValue);
-        }
-        if (args.NewValue && args.NewValue instanceof UIElement) {
-            if (args.NewValue instanceof FrameworkElement) {
-                args.NewValue._SetLogicalParent(this, error);
-                if (error.IsErrored())
-                    return;
-            }
-            this._ElementAdded(args.NewValue);
-        }
-        this._UpdateBounds();
-    }
-    this.PropertyChanged.Raise(this, args);
-};
-UserControl.Annotations = {
-    ContentProperty: UserControl.ContentProperty
-};
-
-function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
-    if (!obj)
-        return;
-    _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence,
-        PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
-}
-_PasswordBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
-
-function _TextBoxDynamicPropertyValueProvider(obj, propPrecedence) {
-    if (!obj)
-        return;
-    _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence,
-        TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
-}
-_TextBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
-
 function Canvas() {
     Panel.call(this);
 }
@@ -1937,39 +1553,6 @@ Canvas.GetZ = function (d) {
 };
 Canvas.SetZ = function (d, value) {
     d.SetValue(Canvas.ZProperty, value);
-};
-
-function ColumnDefinition() {
-    DependencyObject.call(this);
-}
-ColumnDefinition.InheritFrom(DependencyObject);
-ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () { return GridLength; }, ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
-ColumnDefinition.prototype.GetWidth = function () {
-    return this.GetValue(ColumnDefinition.WidthProperty);
-};
-ColumnDefinition.prototype.SetWidth = function (value) {
-    this.SetValue(ColumnDefinition.WidthProperty, value);
-};
-ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, ColumnDefinition, Number.POSITIVE_INFINITY);
-ColumnDefinition.prototype.GetMaxWidth = function () {
-    return this.GetValue(ColumnDefinition.MaxWidthProperty);
-};
-ColumnDefinition.prototype.SetMaxWidth = function (value) {
-    this.SetValue(ColumnDefinition.MaxWidthProperty, value);
-};
-ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, ColumnDefinition, 0.0);
-ColumnDefinition.prototype.GetMinWidth = function () {
-    return this.GetValue(ColumnDefinition.MinWidthProperty);
-};
-ColumnDefinition.prototype.SetMinWidth = function (value) {
-    this.SetValue(ColumnDefinition.MinWidthProperty, value);
-};
-ColumnDefinition.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, ColumnDefinition, 0.0);
-ColumnDefinition.prototype.GetActualWidth = function () {
-    return this.GetValue(ColumnDefinition.ActualWidthProperty);
-};
-ColumnDefinition.prototype.SetActualWidth = function (value) {
-    this.SetValue(ColumnDefinition.ActualWidthProperty, value);
 };
 
 function ContentControl() {
@@ -2572,6 +2155,780 @@ function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
 }
 _GridWalker.InheritFrom(RefObject);
 
+function GridLength(value, type) {
+    RefObject.call(this);
+    this.Value = value == null ? 0 : value;
+    this.Type = type == null ? GridUnitType.Auto : type;
+}
+GridLength.InheritFrom(RefObject);
+GridLength.Equals = function (gl1, gl2) {
+    return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
+};
+
+var ItemCollection = {};//TODO: Implement
+function ItemsControl() {
+    Control.call(this);
+}
+ItemsControl.InheritFrom(Control);
+ItemsControl.GetItemsOwner = function (ele) {
+    var panel = RefObject.As(ele, Panel);
+    if (panel == null || !panel.GetIsItemsHost())
+        return null;
+    var owner = RefObject.As(panel.GetTemplateOwner(), ItemsPresenter);
+    if (owner != null)
+        return RefObject.As(owner.GetTemplateOwner(), ItemsControl);
+    return null;
+};
+ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl);
+ItemsControl.prototype.GetItems = function () {
+    return this.GetValue(ItemsControl.ItemsProperty);
+};
+ItemsControl.prototype.SetItems = function (value) {
+    this.SetValue(ItemsControl.ItemsProperty, value);
+};
+ItemsControl.Annotations = {
+    ContentProperty: ItemsControl.ItemsProperty
+};
+function ItemsPresenter() {
+    FrameworkElement.call(this);
+}
+ItemsPresenter.InheritFrom(FrameworkElement);
+
+function RowDefinition() {
+    DependencyObject.call(this);
+}
+RowDefinition.InheritFrom(DependencyObject);
+RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
+RowDefinition.prototype.GetHeight = function () {
+    return this.GetValue(RowDefinition.HeightProperty);
+};
+RowDefinition.prototype.SetHeight = function (value) {
+    this.SetValue(RowDefinition.HeightProperty, value);
+};
+RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
+RowDefinition.prototype.GetMaxHeight = function () {
+    return this.GetValue(RowDefinition.MaxHeightProperty);
+};
+RowDefinition.prototype.SetMaxHeight = function (value) {
+    this.SetValue(RowDefinition.MaxHeightProperty, value);
+};
+RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, RowDefinition, 0.0);
+RowDefinition.prototype.GetMinHeight = function () {
+    return this.GetValue(RowDefinition.MinHeightProperty);
+};
+RowDefinition.prototype.SetMinHeight = function (value) {
+    this.SetValue(RowDefinition.MinHeightProperty, value);
+};
+RowDefinition.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
+RowDefinition.prototype.GetActualHeight = function () {
+    return this.GetValue(RowDefinition.ActualHeightProperty);
+};
+RowDefinition.prototype.SetActualHeight = function (value) {
+    this.SetValue(RowDefinition.ActualHeightProperty, value);
+};
+
+function StackPanel() {
+    Panel.call(this);
+}
+StackPanel.InheritFrom(Panel);
+StackPanel._OrientationChanged = function (d, args) {
+    var sp = RefObject.As(d, StackPanel);
+    if (sp == null)
+        return;
+    d._InvalidateMeasure();
+    d._InvalidateArrange();
+};
+StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return Number; }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
+StackPanel.prototype.GetOrientation = function () {
+    return this.GetValue(StackPanel.OrientationProperty);
+};
+StackPanel.prototype.SetOrientation = function (value) {
+    this.SetValue(StackPanel.OrientationProperty, value);
+};
+StackPanel.prototype.MeasureOverride = function (constraint) {
+    Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
+    var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+    var measured = new Size(0, 0);
+    if (this.GetOrientation() === Orientation.Vertical) {
+        childAvailable.Width = constraint.Width;
+        if (!isNaN(this.GetWidth()))
+            childAvailable.Width = this.GetWidth();
+        childAvailable.Width = Math.min(childAvailable.Width, this.GetMaxWidth());
+        childAvailable.Width = Math.max(childAvailable.Width, this.GetMinWidth());
+    } else {
+        childAvailable.Height = constraint.Height;
+        if (!isNaN(this.GetHeight()))
+            childAvailable.Height = this.GetHeight();
+        childAvailable.Height = Math.min(childAvailable.Height, this.GetMaxHeight());
+        childAvailable.Height = Math.max(childAvailable.Height, this.GetMinHeight());
+    }
+    var children = this.GetChildren();
+    for (var i = 0; i < children.GetCount(); i++) {
+        var child = children.GetValueAt(i);
+        child.Measure(childAvailable);
+        var size = child._DesiredSize;
+        if (this.GetOrientation() === Orientation.Vertical) {
+            measured.Height += size.Height;
+            measured.Width = Math.max(measured.Width, size.Width);
+        } else {
+            measured.Width += size.Width;
+            measured.Height = Math.max(measured.Height, size.Height);
+        }
+    }
+    return measured;
+};
+StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
+    Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
+    var arranged = arrangeSize;
+    if (this.GetOrientation() === Orientation.Vertical)
+        arranged.Height = 0;
+    else
+        arranged.Width = 0;
+    var children = this.GetChildren();
+    for (var i = 0; i < children.GetCount(); i++) {
+        var child = children.GetValueAt(i);
+        var size = child._DesiredSize;
+        var childFinal;
+        if (this.GetOrientation() === Orientation.Vertical) {
+            size.Width = arrangeSize.Width;
+            childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
+            if (childFinal.IsEmpty())
+                child.Arrange(new Rect());
+            else
+                child.Arrange(childFinal);
+            arranged.Width = Math.max(arranged.Width, size.Width);
+            arranged.Height += size.Height;
+        } else {
+            size.Height = arrangeSize.Height;
+            childFinal = new Rect(arranged.Width, 0, size.Width, size.Height);
+            if (childFinal.IsEmpty())
+                child.Arrange(new Rect());
+            else
+                child.Arrange(childFinal);
+            arranged.Width += size.Width;
+            arranged.Height = Math.max(arranged.Height, size.Height);
+        }
+    }
+    if (this.GetOrientation() === Orientation.Vertical)
+        arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
+    else
+        arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
+    return arranged;
+};
+
+function TextBoxBase() {
+    Control.call(this);
+    this._SelectionAnchor = 0;
+    this._SelectionCursor = 0;
+    this._Buffer = new String();
+    this._Font = new Font();
+    this.ModelChanged = new MulticastEvent();
+    this._Batch = 0;
+}
+TextBoxBase.InheritFrom(Control);
+TextBoxBase.prototype.HasSelectedText = function () {
+    return this._SelectionCursor !== this._SelectionAnchor;
+};
+TextBoxBase.prototype.GetFont = function () {
+    return this._Font;
+};
+TextBoxBase.prototype.GetTextDecorations = function () {
+    return TextDecorations.None;
+};
+TextBoxBase.prototype.GetCursor = function () {
+    return this._SelectionCursor;
+};
+TextBoxBase.prototype.GetSelectionStart = function () {
+    AbstractMethod("TextBoxBase.GetSelectionStart");
+};
+TextBoxBase.prototype.SetSelectionStart = function (value) {
+    AbstractMethod("TextBoxBase.SetSelectionStart");
+};
+TextBoxBase.prototype.GetSelectionLength = function () {
+    AbstractMethod("TextBoxBase.GetSelectionLength");
+};
+TextBoxBase.prototype.SetSelectionLength = function (value) {
+    AbstractMethod("TextBoxBase.SetSelectionLength");
+};
+TextBoxBase.prototype.OnApplyTemplate = function () {
+    this._ContentElement = this.GetTemplateChild("ContentElement");
+    if (this._ContentElement == null) {
+        Warn("No ContentElement found");
+        Control.prototype.OnApplyTemplate.call(this);
+        return;
+    }
+    if (this._View != null) {
+        this._View.SetTextBox(null);
+    }
+    this._View = new _TextBoxView();
+    this._View.SetEnableCursor(!this._IsReadOnly);
+    this._View.SetTextBox(this);
+    if (this._ContentElement instanceof ContentPresenter) {
+        this._ContentElement.SetContent(this._View);
+    } else if (this._ContentElement instanceof ContentControl) {
+        this._ContentElement.SetContent(this._View);
+    } else if (this._ContentElement instanceof Border) {
+        this._ContentElement.SetChild(this._View);
+    } else if (this._ContentElement instanceof Panel) {
+        this._ContentElement.GetChildren().Add(this._View);
+    } else {
+        Warn("Can't handle ContentElement.");
+        this._View.SetTextBox(null);
+        this._View = null;
+    }
+    Control.prototype.OnApplyTemplate.call(this);
+};
+TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
+    var changed = _TextBoxModelChanged.Nothing;
+    if (args.Property === Control.FontFamilyProperty) {
+        this._Font.SetFamily(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    } else if (args.Property === Control.FontSizeProperty) {
+        this._Font.SetSize(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    } else if (args.Property === Control.FontStretchProperty) {
+        this._Font.SetStretch(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    } else if (args.Property === Control.FontStyleProperty) {
+        this._Font.SetStyle(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    } else if (args.Property === Control.FontWeightProperty) {
+        this._Font.SetWeight(args.NewValue);
+        changed = _TextBoxModelChanged.Font;
+    }
+    if (changed !== _TextBoxModelChanged.Nothing)
+        this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
+    if (args.Property.OwnerType !== TextBoxBase) {
+        Control.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
+    if (args.Property === Control.BackgroundProperty
+        || args.Property === Control.ForegroundProperty) {
+        this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
+        this._Invalidate();
+    }
+    if (args.Property.OwnerType !== TextBoxBase)
+        Control.prototype._OnSubPropertyChanged.call(this, sender, args);
+};
+TextBoxBase.prototype._BatchPush = function () {
+    this._Batch++;
+};
+TextBoxBase.prototype._BatchPop = function () {
+    if (this._Batch == 0) {
+        Warn("TextBoxBase._Batch underflow");
+        return;
+    }
+    this._Batch--;
+};
+TextBoxBase.prototype._SyncAndEmit = function (syncText) {
+    if (syncText == undefined)
+        syncText = true;
+    if (this._Batch != 0 || this._Emit == _TextBoxEmitChanged.NOTHING)
+        return;
+    if (syncText && (this._Emit & _TextBoxEmitChanged.TEXT))
+        this._SyncText();
+    if (this._Emit & _TextBoxEmitChanged.SELECTION)
+        this._SyncSelectedText();
+    if (this._IsLoaded) {
+        this._Emit &= this._EventsMask;
+        if (this._Emit & _TextBoxEmitChanged.TEXT)
+            this._EmitTextChanged();
+        if (this._Emit & _TextBoxEmitChanged.SELECTION)
+            this._EmitSelectionChanged();
+    }
+    this._Emit = _TextBoxEmitChanged.NOTHING;
+};
+TextBoxBase.prototype._SyncText = function () {
+    AbstractMethod("TextBoxBase._SyncText");
+};
+TextBoxBase.prototype._SyncSelectedText = function () {
+    AbstractMethod("TextBoxBase._SyncSelectedText");
+};
+TextBoxBase.prototype.ClearSelection = function (start) {
+    this._BatchPush();
+    this.SetSelectionStart(start);
+    this.SetSelectionLength(0);
+    this._BatchPop();
+};
+TextBoxBase.prototype._EmitTextChanged = function () { };
+TextBoxBase.prototype._EmitSelectionChanged = function () { };
+
+function UserControl() {
+    Control.call(this);
+}
+UserControl.InheritFrom(Control);
+UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, UserControl);
+UserControl.prototype.GetContent = function () {
+    return this.GetValue(UserControl.ContentProperty);
+};
+UserControl.prototype.SetContent = function (value) {
+    this.SetValue(UserControl.ContentProperty, value);
+};
+UserControl.prototype.IsLayoutContainer = function () { return true; };
+UserControl.prototype._MeasureOverrideWithError = function (availableSize, error) {
+    var desired = new Size(0, 0);
+    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var walker = new _VisualTreeWalker(this);
+    var child;
+    while (child = walker.Step()) {
+        child._MeasureWithError(availableSize.GrowByThickness(border.Negate()), error);
+        desired = child._DesiredSize;
+    }
+    desired = desired.GrowByThickness(border);
+    return desired;
+};
+UserControl.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var arranged = finalSize;
+    var walker = new _VisualTreeWalker(this);
+    var child;
+    while (child = walker.Step()) {
+        var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
+        childRect = childRect.GrowByThickness(border.Negate());
+        child._ArrangeWithError(childRect, error);
+        arranged = new Size(childRect.Width, childRect.Height).GrowByThickness(border);
+    }
+    return arranged;
+};
+UserControl.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType != UserControl) {
+        Control.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    if (args.Property == UserControl.ContentProperty) {
+        if (args.OldValue && args.OldValue instanceof UIElement) {
+            if (args.OldValue instanceof FrameworkElement) {
+                args.OldValue._SetLogicalParent(null, error);
+                if (error.IsErrored())
+                    return;
+            }
+            this._ElementRemoved(args.OldValue);
+        }
+        if (args.NewValue && args.NewValue instanceof UIElement) {
+            if (args.NewValue instanceof FrameworkElement) {
+                args.NewValue._SetLogicalParent(this, error);
+                if (error.IsErrored())
+                    return;
+            }
+            this._ElementAdded(args.NewValue);
+        }
+        this._UpdateBounds();
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+UserControl.Annotations = {
+    ContentProperty: UserControl.ContentProperty
+};
+
+function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
+    if (!obj)
+        return;
+    _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence,
+        PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
+}
+_PasswordBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
+
+function _TextBoxDynamicPropertyValueProvider(obj, propPrecedence) {
+    if (!obj)
+        return;
+    _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence,
+        TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
+}
+_TextBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
+
+ButtonBase.prototype = new ContentControl;
+ButtonBase.prototype.constructor = ButtonBase;
+function ButtonBase() {
+    ContentControl.call(this);
+    this._IsMouseCaptured = false;
+    this._IsMouseLeftButtonDown = false;
+    this._IsSpaceKeyDown = false;
+    this._MousePosition = new Point();
+    this.Click = new MulticastEvent();
+    this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
+    this.SetIsTabStop(true);
+}
+ButtonBase.GetBaseClass = function () { return ContentControl; };
+ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return Number; }, ButtonBase, ClickMode.Release);
+ButtonBase.prototype.GetClickMode = function () {
+    return this.GetValue(ButtonBase.ClickModeProperty);
+};
+ButtonBase.prototype.SetClickMode = function (value) {
+    this.SetValue(ButtonBase.ClickModeProperty, value);
+};
+ButtonBase.IsPressedProperty = DependencyProperty.Register("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
+ButtonBase.prototype.GetIsPressed = function () {
+	return this.GetValue(ButtonBase.IsPressedProperty);
+};
+ButtonBase.prototype.SetIsPressed = function (value) {
+	this.SetValue(ButtonBase.IsPressedProperty, value);
+};
+ButtonBase.IsFocusedProperty = DependencyProperty.Register("IsFocused", function () { return Boolean; }, ButtonBase, false);
+ButtonBase.prototype.GetIsFocused = function () {
+    return this.GetValue(ButtonBase.IsFocusedProperty);
+};
+ButtonBase.prototype.SetIsFocused = function (value) {
+    this.SetValue(ButtonBase.IsFocusedProperty, value);
+};
+ButtonBase.IsMouseOverProperty = DependencyProperty.Register("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
+ButtonBase.prototype.GetIsMouseOver = function () {
+    return this.GetValue(ButtonBase.IsMouseOverProperty);
+};
+ButtonBase.prototype.SetIsMouseOver = function (value) {
+    this.SetValue(ButtonBase.IsMouseOverProperty, value);
+};
+ButtonBase.prototype.OnIsEnabledChanged = function (e) {
+    ContentControl.prototype.OnIsEnabledChanged.call(this, e);
+    var isEnabled = e.NewValue;
+    this._SuspendStateChanges = true;
+    try {
+        if (!isEnabled) {
+            this.SetIsFocused(false);
+            this.SetIsPressed(false);
+            this._IsMouseCaptured = false;
+            this._IsSpaceKeyDown = false;
+            this._IsMouseLeftButtonDown = false;
+        }
+    } finally {
+        this._SuspendStateChanges = false;
+        this.UpdateVisualState();
+    }
+};
+ButtonBase.prototype.OnIsPressedChanged = function (e) {
+    this.UpdateVisualState();
+};
+ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
+    if (this._SuspendStateChanges)
+        return;
+    this._ChangeVisualState(useTransitions === true);
+};
+ButtonBase.prototype._ChangeVisualState = function (useTransitions) {
+};
+ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
+    return VisualStateManager.GoToState(this, stateName, useTransitions);
+};
+ButtonBase.prototype.OnMouseEnter = function (sender, args) {
+    ContentControl.prototype.OnMouseEnter.call(this, sender, args);
+    this.SetIsMouseOver(true);
+    this._SuspendStateChanges = true;
+    try {
+        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled()) {
+            this.SetIsPressed(true);
+            this.OnClick();
+        }
+    } finally {
+        this._SuspendStateChanges = false;
+        this.UpdateVisualState();
+    }
+};
+ButtonBase.prototype.OnMouseLeave = function (sender, args) {
+    ContentControl.prototype.OnMouseLeave.call(this, sender, args);
+    this.SetIsMouseOver(false);
+    this._SuspendStateChanges = true;
+    try {
+        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled())
+            this.SetIsPressed(false);
+    } finally {
+        this._SuspendStateChanges = false;
+        this.UpdateVisualState();
+    }
+};
+ButtonBase.prototype.OnMouseMove = function (sender, args) {
+    ContentControl.prototype.OnMouseMove.call(this, sender, args);
+    this._MousePosition = args.GetPosition(this);
+    if (this._IsMouseLeftButtonDown && this.GetIsEnabled() && this.GetClickMode() !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
+        this.SetIsPressed(this._IsValidMousePosition());
+    }
+};
+ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
+    ContentControl.prototype.OnMouseLeftButtonDown.call(this, sender, args);
+    this._IsMouseLeftButtonDown = true;
+    if (!this.GetIsEnabled())
+        return;
+    var clickMode = this.GetClickMode();
+    if (clickMode === ClickMode.Hover)
+        return;
+    this._SuspendStateChanges = true;
+    try {
+        this.Focus();
+        this._CaptureMouseInternal();
+        if (this._IsMouseCaptured)
+            this.SetIsPressed(true);
+    } finally {
+        this._SuspendStateChanges = false;
+        this.UpdateVisualState();
+    }
+    if (clickMode === ClickMode.Press)
+        this.OnClick();
+};
+ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
+    ContentControl.prototype.OnMouseLeftButtonUp.call(this, sender, args);
+    this._IsMouseLeftButtonDown = false;
+    if (!this.GetIsEnabled())
+        return;
+    var clickMode = this.GetClickMode();
+    if (clickMode === ClickMode.Hover)
+        return;
+    if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
+        this.OnClick();
+    if (!this._IsSpaceKeyDown) {
+        this._ReleaseMouseCaptureInternal();
+        this.SetIsPressed(false);
+    }
+};
+ButtonBase.prototype.OnClick = function () {
+    this.Click.Raise(this, null);
+};
+ButtonBase.prototype._CaptureMouseInternal = function () {
+    if (!this._IsMouseCaptured)
+        this._IsMouseCaptured = this.CaptureMouse();
+};
+ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
+    this.ReleaseMouseCapture();
+    this._IsMouseCaptured = false;
+};
+ButtonBase.prototype._IsValidMousePosition = function () {
+    var pos = this._MousePosition;
+    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
+        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
+};
+ButtonBase.prototype.OnGotFocus = function (sender, args) {
+    ContentControl.prototype.OnGotFocus.call(this, sender, args);
+    this.SetIsFocused(true);
+    this.UpdateVisualState();
+};
+ButtonBase.prototype.OnLostFocus = function (sender, args) {
+    ContentControl.prototype.OnLostFocus.call(this, sender, args);
+    this.SetIsFocused(false);
+    this._SuspendStateChanges = true;
+    try {
+        if (this.GetClickMode() !== ClickMode.Hover) {
+            this.SetIsPressed(false);
+            this._ReleaseMouseCaptureInternal();
+            this._IsSpaceKeyDown = false;
+        }
+    } finally {
+        this._SuspendStateChanges = false;
+        this.UpdateVisualState();
+    }
+};
+ButtonBase._GetVisualRoot = function (d) {
+    var parent = d;
+    while (parent != null) {
+        d = parent;
+        parent = VisualTreeHelper.GetParent(parent);
+    }
+    return d;
+};
+
+function ColumnDefinition() {
+    DependencyObject.call(this);
+}
+ColumnDefinition.InheritFrom(DependencyObject);
+ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () { return GridLength; }, ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
+ColumnDefinition.prototype.GetWidth = function () {
+    return this.GetValue(ColumnDefinition.WidthProperty);
+};
+ColumnDefinition.prototype.SetWidth = function (value) {
+    this.SetValue(ColumnDefinition.WidthProperty, value);
+};
+ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, ColumnDefinition, Number.POSITIVE_INFINITY);
+ColumnDefinition.prototype.GetMaxWidth = function () {
+    return this.GetValue(ColumnDefinition.MaxWidthProperty);
+};
+ColumnDefinition.prototype.SetMaxWidth = function (value) {
+    this.SetValue(ColumnDefinition.MaxWidthProperty, value);
+};
+ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, ColumnDefinition, 0.0);
+ColumnDefinition.prototype.GetMinWidth = function () {
+    return this.GetValue(ColumnDefinition.MinWidthProperty);
+};
+ColumnDefinition.prototype.SetMinWidth = function (value) {
+    this.SetValue(ColumnDefinition.MinWidthProperty, value);
+};
+ColumnDefinition.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, ColumnDefinition, 0.0);
+ColumnDefinition.prototype.GetActualWidth = function () {
+    return this.GetValue(ColumnDefinition.ActualWidthProperty);
+};
+ColumnDefinition.prototype.SetActualWidth = function (value) {
+    this.SetValue(ColumnDefinition.ActualWidthProperty, value);
+};
+
+function HyperlinkButton() {
+    ButtonBase.call(this);
+}
+HyperlinkButton.InheritFrom(ButtonBase);
+HyperlinkButton.StateDisabled = "Disabled";
+HyperlinkButton.StatePressed = "Pressed";
+HyperlinkButton.StateMouseOver = "MouseOver";
+HyperlinkButton.StateNormal = "Normal";
+HyperlinkButton.StateFocused = "Focused";
+HyperlinkButton.StateUnfocused = "Unfocused";
+HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function() { return Uri; }, HyperlinkButton, null);
+HyperlinkButton.prototype.GetNavigateUri = function () {
+	return this.GetValue(HyperlinkButton.NavigateUriProperty);
+};
+HyperlinkButton.prototype.SetNavigateUri = function (value) {
+	this.SetValue(HyperlinkButton.NavigateUriProperty, value);
+};
+HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function() { return String; }, HyperlinkButton, null);
+HyperlinkButton.prototype.GetTargetName = function () {
+	return this.GetValue(HyperlinkButton.TargetNameProperty);
+};
+HyperlinkButton.prototype.SetTargetName = function (value) {
+	this.SetValue(HyperlinkButton.TargetNameProperty, value);
+};
+HyperlinkButton.prototype.OnApplyTemplate = function () {
+    ButtonBase.prototype.OnApplyTemplate.call(this);
+    this.UpdateVisualState(false);
+};
+HyperlinkButton.prototype.OnClick = function () {
+    ButtonBase.prototype.OnClick.call(this);
+    if (this.GetNavigateUri() != null) {
+        this._Navigate();
+    }
+};
+HyperlinkButton.prototype._GetAbsoluteUri = function () {
+    var destination = this.GetNavigateUri();
+    if (!destination.IsAbsoluteUri) {
+        var original = destination.OriginalString;
+        if (original && original.charAt(0) !== '/')
+            throw new NotSupportedException();
+        destination = new Uri(App.Instance.GetHost().GetSource(), destination);
+    }
+    return destination;
+};
+HyperlinkButton.prototype._ChangeVisualState = function (useTransitions) {
+    if (!this.GetIsEnabled()) {
+        this._GoToState(useTransitions, HyperlinkButton.StateDisabled);
+    } else if (this.GetIsPressed()) {
+        this._GoToState(useTransitions, HyperlinkButton.StatePressed);
+    } else if (this.GetIsMouseOver()) {
+        this._GoToState(useTransitions, HyperlinkButton.StateMouseOver);
+    } else {
+        this._GoToState(useTransitions, HyperlinkButton.StateNormal);
+    }
+    if (this.GetIsFocused() && this.GetIsEnabled()) {
+        this._GoToState(useTransitions, HyperlinkButton.StateFocused);
+    } else {
+        this._GoToState(useTransitions, HyperlinkButton.StateUnfocused);
+    }
+};
+HyperlinkButton.prototype._Navigate = function () {
+    window.location.href = this.GetNavigateUri().toString();
+};
+HyperlinkButton.prototype.GetDefaultStyle = function () {
+    var styleJson = {
+        Type: Style,
+        Props: {
+            TargetType: HyperlinkButton
+        },
+        Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Foreground"),
+                    Value: new SolidColorBrush(Color.FromHex("#FF73A9D8"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Padding"),
+                    Value: new Thickness(2, 0, 2, 0)
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "HorizontalContentAlignment"),
+                    Value: HorizontalAlignment.Left
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "VerticalContentAlignment"),
+                    Value: VerticalAlignment.Top
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Background"),
+                    Value: new SolidColorBrush(Color.FromHex("#00FFFFFF"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Template"),
+                    Value: new ControlTemplate(HyperlinkButton, {
+                        Type: Grid,
+                        Name: "RootElement",
+                        Props: {
+                            Cursor: new TemplateBindingMarkup("Cursor"),
+                            Background: new TemplateBindingMarkup("Background")
+                        },
+                        Children: [
+                            {
+                                Type: TextBlock,
+                                Name: "UnderlineTextBlock",
+                                Props: {
+                                    Text: new TemplateBindingMarkup("Content"),
+                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                    Margin: new TemplateBindingMarkup("Padding"),
+                                    TextDecorations: TextDecorations.Underline,
+                                    Visibility: Visibility.Collapsed
+                                }
+                            },
+                            {
+                                Type: TextBlock,
+                                Name: "DisabledOverlay",
+                                Props: {
+                                    Text: new TemplateBindingMarkup("Content"),
+                                    Foreground: new SolidColorBrush(Color.FromHex("#FFAAAAAA")),
+                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                    Margin: new TemplateBindingMarkup("Padding"),
+                                    Visibility: Visibility.Collapsed
+                                }
+                            },
+                            {
+                                Type: ContentPresenter,
+                                Name: "Normal",
+                                Props: {
+                                    Content: new TemplateBindingMarkup("Content"),
+                                    ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
+                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                    Margin: new TemplateBindingMarkup("Padding")
+                                }
+                            },
+                            {
+                                Type: Border,
+                                Name: "FocusVisualElement",
+                                Props: {
+                                    BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                                    BorderThickness: new Thickness(1, 1, 1, 1),
+                                    Opacity: 0.0,
+                                    IsHitTestVisible: false
+                                }
+                            }
+                        ]
+                    })
+                }
+            }
+        ]
+    };
+    var parser = new JsonParser();
+    return parser.CreateObject(styleJson, new NameScope());
+};
+
 function PasswordBox() {
     TextBoxBase.call(this);
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
@@ -2958,363 +3315,6 @@ TextBox.prototype.GetDefaultStyle = function () {
         return setter;
     })());
     return style;
-};
-
-ButtonBase.prototype = new ContentControl;
-ButtonBase.prototype.constructor = ButtonBase;
-function ButtonBase() {
-    ContentControl.call(this);
-    this._IsMouseCaptured = false;
-    this._IsMouseLeftButtonDown = false;
-    this._IsSpaceKeyDown = false;
-    this._MousePosition = new Point();
-    this.Click = new MulticastEvent();
-    this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
-    this.SetIsTabStop(true);
-}
-ButtonBase.GetBaseClass = function () { return ContentControl; };
-ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return Number; }, ButtonBase, ClickMode.Release);
-ButtonBase.prototype.GetClickMode = function () {
-    return this.GetValue(ButtonBase.ClickModeProperty);
-};
-ButtonBase.prototype.SetClickMode = function (value) {
-    this.SetValue(ButtonBase.ClickModeProperty, value);
-};
-ButtonBase.IsPressedProperty = DependencyProperty.Register("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
-ButtonBase.prototype.GetIsPressed = function () {
-	return this.GetValue(ButtonBase.IsPressedProperty);
-};
-ButtonBase.prototype.SetIsPressed = function (value) {
-	this.SetValue(ButtonBase.IsPressedProperty, value);
-};
-ButtonBase.IsFocusedProperty = DependencyProperty.Register("IsFocused", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.prototype.GetIsFocused = function () {
-    return this.GetValue(ButtonBase.IsFocusedProperty);
-};
-ButtonBase.prototype.SetIsFocused = function (value) {
-    this.SetValue(ButtonBase.IsFocusedProperty, value);
-};
-ButtonBase.IsMouseOverProperty = DependencyProperty.Register("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.prototype.GetIsMouseOver = function () {
-    return this.GetValue(ButtonBase.IsMouseOverProperty);
-};
-ButtonBase.prototype.SetIsMouseOver = function (value) {
-    this.SetValue(ButtonBase.IsMouseOverProperty, value);
-};
-ButtonBase.prototype.OnIsEnabledChanged = function (e) {
-    ContentControl.prototype.OnIsEnabledChanged.call(this, e);
-    var isEnabled = e.NewValue;
-    this._SuspendStateChanges = true;
-    try {
-        if (!isEnabled) {
-            this.SetIsFocused(false);
-            this.SetIsPressed(false);
-            this._IsMouseCaptured = false;
-            this._IsSpaceKeyDown = false;
-            this._IsMouseLeftButtonDown = false;
-        }
-    } finally {
-        this._SuspendStateChanges = false;
-        this.UpdateVisualState();
-    }
-};
-ButtonBase.prototype.OnIsPressedChanged = function (e) {
-    this.UpdateVisualState();
-};
-ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
-    if (this._SuspendStateChanges)
-        return;
-    this._ChangeVisualState(useTransitions === true);
-};
-ButtonBase.prototype._ChangeVisualState = function (useTransitions) {
-};
-ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
-    return VisualStateManager.GoToState(this, stateName, useTransitions);
-};
-ButtonBase.prototype.OnMouseEnter = function (sender, args) {
-    ContentControl.prototype.OnMouseEnter.call(this, sender, args);
-    this.SetIsMouseOver(true);
-    this._SuspendStateChanges = true;
-    try {
-        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled()) {
-            this.SetIsPressed(true);
-            this.OnClick();
-        }
-    } finally {
-        this._SuspendStateChanges = false;
-        this.UpdateVisualState();
-    }
-};
-ButtonBase.prototype.OnMouseLeave = function (sender, args) {
-    ContentControl.prototype.OnMouseLeave.call(this, sender, args);
-    this.SetIsMouseOver(false);
-    this._SuspendStateChanges = true;
-    try {
-        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled())
-            this.SetIsPressed(false);
-    } finally {
-        this._SuspendStateChanges = false;
-        this.UpdateVisualState();
-    }
-};
-ButtonBase.prototype.OnMouseMove = function (sender, args) {
-    ContentControl.prototype.OnMouseMove.call(this, sender, args);
-    this._MousePosition = args.GetPosition(this);
-    if (this._IsMouseLeftButtonDown && this.GetIsEnabled() && this.GetClickMode() !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
-        this.SetIsPressed(this._IsValidMousePosition());
-    }
-};
-ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
-    ContentControl.prototype.OnMouseLeftButtonDown.call(this, sender, args);
-    this._IsMouseLeftButtonDown = true;
-    if (!this.GetIsEnabled())
-        return;
-    var clickMode = this.GetClickMode();
-    if (clickMode === ClickMode.Hover)
-        return;
-    this._SuspendStateChanges = true;
-    try {
-        this.Focus();
-        this._CaptureMouseInternal();
-        if (this._IsMouseCaptured)
-            this.SetIsPressed(true);
-    } finally {
-        this._SuspendStateChanges = false;
-        this.UpdateVisualState();
-    }
-    if (clickMode === ClickMode.Press)
-        this.OnClick();
-};
-ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
-    ContentControl.prototype.OnMouseLeftButtonUp.call(this, sender, args);
-    this._IsMouseLeftButtonDown = false;
-    if (!this.GetIsEnabled())
-        return;
-    var clickMode = this.GetClickMode();
-    if (clickMode === ClickMode.Hover)
-        return;
-    if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
-        this.OnClick();
-    if (!this._IsSpaceKeyDown) {
-        this._ReleaseMouseCaptureInternal();
-        this.SetIsPressed(false);
-    }
-};
-ButtonBase.prototype.OnClick = function () {
-    this.Click.Raise(this, null);
-};
-ButtonBase.prototype._CaptureMouseInternal = function () {
-    if (!this._IsMouseCaptured)
-        this._IsMouseCaptured = this.CaptureMouse();
-};
-ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
-    this.ReleaseMouseCapture();
-    this._IsMouseCaptured = false;
-};
-ButtonBase.prototype._IsValidMousePosition = function () {
-    var pos = this._MousePosition;
-    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
-        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
-};
-ButtonBase.prototype.OnGotFocus = function (sender, args) {
-    ContentControl.prototype.OnGotFocus.call(this, sender, args);
-    this.SetIsFocused(true);
-    this.UpdateVisualState();
-};
-ButtonBase.prototype.OnLostFocus = function (sender, args) {
-    ContentControl.prototype.OnLostFocus.call(this, sender, args);
-    this.SetIsFocused(false);
-    this._SuspendStateChanges = true;
-    try {
-        if (this.GetClickMode() !== ClickMode.Hover) {
-            this.SetIsPressed(false);
-            this._ReleaseMouseCaptureInternal();
-            this._IsSpaceKeyDown = false;
-        }
-    } finally {
-        this._SuspendStateChanges = false;
-        this.UpdateVisualState();
-    }
-};
-ButtonBase._GetVisualRoot = function (d) {
-    var parent = d;
-    while (parent != null) {
-        d = parent;
-        parent = VisualTreeHelper.GetParent(parent);
-    }
-    return d;
-};
-
-function HyperlinkButton() {
-    ButtonBase.call(this);
-}
-HyperlinkButton.InheritFrom(ButtonBase);
-HyperlinkButton.StateDisabled = "Disabled";
-HyperlinkButton.StatePressed = "Pressed";
-HyperlinkButton.StateMouseOver = "MouseOver";
-HyperlinkButton.StateNormal = "Normal";
-HyperlinkButton.StateFocused = "Focused";
-HyperlinkButton.StateUnfocused = "Unfocused";
-HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function() { return Uri; }, HyperlinkButton, null);
-HyperlinkButton.prototype.GetNavigateUri = function () {
-	return this.GetValue(HyperlinkButton.NavigateUriProperty);
-};
-HyperlinkButton.prototype.SetNavigateUri = function (value) {
-	this.SetValue(HyperlinkButton.NavigateUriProperty, value);
-};
-HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function() { return String; }, HyperlinkButton, null);
-HyperlinkButton.prototype.GetTargetName = function () {
-	return this.GetValue(HyperlinkButton.TargetNameProperty);
-};
-HyperlinkButton.prototype.SetTargetName = function (value) {
-	this.SetValue(HyperlinkButton.TargetNameProperty, value);
-};
-HyperlinkButton.prototype.OnApplyTemplate = function () {
-    ButtonBase.prototype.OnApplyTemplate.call(this);
-    this.UpdateVisualState(false);
-};
-HyperlinkButton.prototype.OnClick = function () {
-    ButtonBase.prototype.OnClick.call(this);
-    if (this.GetNavigateUri() != null) {
-        this._Navigate();
-    }
-};
-HyperlinkButton.prototype._GetAbsoluteUri = function () {
-    var destination = this.GetNavigateUri();
-    if (!destination.IsAbsoluteUri) {
-        var original = destination.OriginalString;
-        if (original && original.charAt(0) !== '/')
-            throw new NotSupportedException();
-        destination = new Uri(App.Instance.GetHost().GetSource(), destination);
-    }
-    return destination;
-};
-HyperlinkButton.prototype._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateDisabled);
-    } else if (this.GetIsPressed()) {
-        this._GoToState(useTransitions, HyperlinkButton.StatePressed);
-    } else if (this.GetIsMouseOver()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateMouseOver);
-    } else {
-        this._GoToState(useTransitions, HyperlinkButton.StateNormal);
-    }
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateFocused);
-    } else {
-        this._GoToState(useTransitions, HyperlinkButton.StateUnfocused);
-    }
-};
-HyperlinkButton.prototype._Navigate = function () {
-    window.location.href = this.GetNavigateUri().toString();
-};
-HyperlinkButton.prototype.GetDefaultStyle = function () {
-    var styleJson = {
-        Type: Style,
-        Props: {
-            TargetType: HyperlinkButton
-        },
-        Children: [
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Foreground"),
-                    Value: new SolidColorBrush(Color.FromHex("#FF73A9D8"))
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Padding"),
-                    Value: new Thickness(2, 0, 2, 0)
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "HorizontalContentAlignment"),
-                    Value: HorizontalAlignment.Left
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "VerticalContentAlignment"),
-                    Value: VerticalAlignment.Top
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Background"),
-                    Value: new SolidColorBrush(Color.FromHex("#00FFFFFF"))
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Template"),
-                    Value: new ControlTemplate(HyperlinkButton, {
-                        Type: Grid,
-                        Name: "RootElement",
-                        Props: {
-                            Cursor: new TemplateBindingMarkup("Cursor"),
-                            Background: new TemplateBindingMarkup("Background")
-                        },
-                        Children: [
-                            {
-                                Type: TextBlock,
-                                Name: "UnderlineTextBlock",
-                                Props: {
-                                    Text: new TemplateBindingMarkup("Content"),
-                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
-                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
-                                    Margin: new TemplateBindingMarkup("Padding"),
-                                    TextDecorations: TextDecorations.Underline,
-                                    Visibility: Visibility.Collapsed
-                                }
-                            },
-                            {
-                                Type: TextBlock,
-                                Name: "DisabledOverlay",
-                                Props: {
-                                    Text: new TemplateBindingMarkup("Content"),
-                                    Foreground: new SolidColorBrush(Color.FromHex("#FFAAAAAA")),
-                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
-                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
-                                    Margin: new TemplateBindingMarkup("Padding"),
-                                    Visibility: Visibility.Collapsed
-                                }
-                            },
-                            {
-                                Type: ContentPresenter,
-                                Name: "Normal",
-                                Props: {
-                                    Content: new TemplateBindingMarkup("Content"),
-                                    ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
-                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
-                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
-                                    Margin: new TemplateBindingMarkup("Padding")
-                                }
-                            },
-                            {
-                                Type: Border,
-                                Name: "FocusVisualElement",
-                                Props: {
-                                    BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
-                                    BorderThickness: new Thickness(1, 1, 1, 1),
-                                    Opacity: 0.0,
-                                    IsHitTestVisible: false
-                                }
-                            }
-                        ]
-                    })
-                }
-            }
-        ]
-    };
-    var parser = new JsonParser();
-    return parser.CreateObject(styleJson, new NameScope());
 };
 
 function Button() {

@@ -1,4 +1,4 @@
-﻿/// <reference path="Collections.js"/>
+﻿/// <reference path="../../Core/Collections/PresentationFrameworkCollection.js"/>
 /// CODE
 
 //#region TimelineCollection

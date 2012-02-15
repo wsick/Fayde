@@ -1,6 +1,6 @@
 ﻿/// <reference path="Collection.js"/>
-/// CODE
 /// <reference path="../DependencyObject.js"/>
+/// CODE
 
 //#region DependencyObjectCollection
 

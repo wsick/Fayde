@@ -1,5 +1,5 @@
-﻿/// <reference path="Control.js"/>
-/// <reference path="FrameworkElement.js"/>
+﻿/// <reference path="../Core/FrameworkElement.js"/>
+/// <reference path="Control.js"/>
 /// CODE
 /// <reference path="Panel.js"/>
 

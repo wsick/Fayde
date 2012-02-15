@@ -1,5 +1,4 @@
-﻿/// <reference path="RefObject.js"/>
-/// CODE
+﻿/// CODE
 
 //#region Font
 

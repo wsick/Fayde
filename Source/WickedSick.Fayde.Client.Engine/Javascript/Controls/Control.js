@@ -1,8 +1,5 @@
-﻿/// <reference path="FrameworkElement.js" />
+﻿/// <reference path="../Core/FrameworkElement.js" />
 /// CODE
-/// <reference path="Primitives.js"/>
-/// <reference path="PropertyValueProviders.js"/>
-/// <reference path="Templates.js"/>
 
 //#region Control
 

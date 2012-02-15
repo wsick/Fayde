@@ -1,5 +1,4 @@
-﻿/// <reference path="RefObject.js"/>
-/// CODE
+﻿/// CODE
 /// <reference path="DependencyProperty.js"/>
 /// <reference path="ContentControl.js"/>
 /// <reference path="PropertyPath.js"/>

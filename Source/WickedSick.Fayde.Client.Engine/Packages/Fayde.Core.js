@@ -122,11 +122,122 @@ _DeepTreeWalker.prototype.SkipBranch = function () {
     this._Last = null;
 };
 
+function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
+    RefObject.call(this);
+    this.Name = name;
+    this.GetTargetType = getTargetType;
+    this.OwnerType = ownerType;
+    this.DefaultValue = defaultValue;
+    this._AutoCreator = autocreator;
+    this._Coercer = coercer;
+    this._AlwaysChange = alwaysChange;
+    this._Validator = validator;
+    this._IsCustom = isCustom;
+    this._ChangedCallback = changedCallback;
+}
+DependencyProperty.InheritFrom(RefObject);
+DependencyProperty.prototype.toString = function () {
+    var ownerTypeName = this.OwnerType.GetName();
+    return ownerTypeName + "." + this.Name.toString();
+};
+DependencyProperty.prototype.GetDefaultValue = function (obj) {
+    if (this._HasDefaultValue)
+        return this.DefaultValue;
+    return this._GetAutoCreatedValue(obj);
+};
+DependencyProperty.prototype._HasDefaultValue = function () {
+    return this.DefaultValue != null;
+};
+DependencyProperty.prototype._IsAutoCreated = function () {
+    return this._AutoCreator != undefined && this._AutoCreator != null;
+};
+DependencyProperty.prototype._GetAutoCreatedValue = function (obj) {
+    return this._AutoCreator.GetValue(this, obj);
+};
+DependencyProperty.prototype._HasCoercer = function () {
+    return this._Coercer != null;
+};
+DependencyProperty.prototype._Coerce = function (instance, value, error) {
+    if (!this._Coercer)
+        return value;
+    return this._Coercer.GetValue(instance, this, value, error);
+};
+DependencyProperty.prototype._Validate = function (instance, propd, value, error) {
+    if (!this._Validator)
+        return true;
+    return this._Validator(instance, propd, value, error);
+};
+DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback);
+};
+DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
+    if (!DependencyProperty._Registered)
+        DependencyProperty._Registered = new Array();
+    if (!DependencyProperty._Registered[ownerType])
+        DependencyProperty._Registered[ownerType] = new Array();
+    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
+    DependencyProperty._Registered[ownerType][name] = propd;
+    return propd;
+}
+DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue) {
+    if (!DependencyProperty._Registered)
+        DependencyProperty._Registered = new Array();
+    if (!DependencyProperty._Registered[ownerType])
+        DependencyProperty._Registered[ownerType] = new Array();
+    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue);
+    propd._IsAttached = true;
+    DependencyProperty._Registered[ownerType][name] = propd;
+    return propd;
+}
+DependencyProperty.GetDependencyProperty = function (ownerType, name) {
+    var reg = DependencyProperty._Registered;
+    if (!reg)
+        return null;
+    var reg = reg[ownerType];
+    var propd;
+    if (reg)
+        propd = reg[name];
+    if (!propd && ownerType !== RefObject) {
+        propd = DependencyProperty.GetDependencyProperty(ownerType.GetBaseClass(), name);
+    }
+    return propd;
+};
+function UnsetValue() {
+    RefObject.call(this);
+}
+UnsetValue.InheritFrom(RefObject);
+
  var _VisualTreeWalkerDirection = {
     Logical: 0,
     LogicalReverse: 1,
     ZForward: 2,
     ZReverse: 3
+};
+
+function Expression() {
+    RefObject.call(this);
+}
+Expression.InheritFrom(RefObject);
+Expression.prototype.GetValue = function (propd) {
+    AbstractMethod("Expression.GetValue");
+};
+Expression.prototype._OnAttached = function (element) {
+    this.SetAttached(true);
+};
+Expression.prototype._OnDetached = function (element) {
+    this.SetAttached(false);
+};
+Expression.prototype.GetAttached = function () {
+    return this._Attached;
+};
+Expression.prototype.SetAttached = function (value) {
+    this._Attached = value;
+};
+Expression.prototype.GetUpdating = function () {
+    return this._Updating;
+};
+Expression.prototype.SetUpdating = function (value) {
+    this._Updating = value;
 };
 
 function FrameworkElementPropertyValueProvider(obj, propPrecedence) {
@@ -371,6 +482,88 @@ _VisualTreeWalker.prototype.GetCount = function () {
     return this._Collection.GetCount();
 };
 
+function Collection() {
+    DependencyObject.call(this);
+    this._ht = new Array();
+    this.Changed = new MulticastEvent();
+    this.ItemChanged = new MulticastEvent();
+}
+Collection.InheritFrom(DependencyObject);
+Collection.CountProperty = DependencyProperty.RegisterFull("Count", function () { return Number; }, Collection, 0);
+Collection.prototype.GetCount = function () {
+    return this._ht.length;
+};
+Collection.prototype.GetValueAt = function (index) {
+    return this._ht[index];
+};
+Collection.prototype.Add = function (value) {
+    var rv = this.Insert(this._ht.length, value);
+    return rv ? this._ht.length - 1 : -1;
+};
+Collection.prototype.Insert = function (index, value) {
+    if (!this.CanAdd(value))
+        return false;
+    if (index < 0)
+        return false;
+    var count = this.GetCount();
+    if (index > count)
+        index = count;
+    var error = new BError();
+    if (this.AddedToCollection(value, error)) {
+        this._ht.splice(index, 0, value);
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, value, index);
+        return true;
+    }
+    return false;
+};
+Collection.prototype.Remove = function (value) {
+    var index = this.IndexOf(value);
+    if (index == -1)
+        return false;
+    return this.RemoveAt(index);
+};
+Collection.prototype.RemoveAt = function (index) {
+    if (index < 0 || index >= this._ht.length)
+        return false;
+    var value = this._ht[index];
+    this._ht.splice(index, 1);
+    this.RemovedFromCollection(value, true);
+    this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, null, index);
+    return true;
+};
+Collection.prototype.Clear = function () {
+    this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
+    var old = this._ht;
+    this._ht = new Array();
+    for (var i = 0; i < old.length; i++) {
+        this.RemovedFromCollection(old[i], true);
+    }
+    this._RaiseChanged(CollectionChangedArgs.Action.Cleared, null, null, -1);
+    return true;
+};
+Collection.prototype.IndexOf = function (value) {
+    for (var i = 0; i < this.GetCount(); i++) {
+        if (value == this._ht[i])
+            return i;
+    }
+    return -1;
+};
+Collection.prototype.Contains = function (value) {
+    return this.IndexOf(value) > -1;
+};
+Collection.prototype.CanAdd = function (value) { return true; };
+Collection.prototype.AddedToCollection = function (value, error) { return true; };
+Collection.prototype.RemovedFromCollection = function (value, isValueSafe) { };
+Collection.prototype.GetIterator = function () {
+    return new CollectionIterator(this);
+};
+Collection.prototype._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
+    this.ItemChanged.Raise(this, new ItemChangedArgs(obj, propd, oldValue, newValue));
+};
+Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index) {
+    this.Changed.Raise(this, new CollectionChangedArgs(action, oldValue, newValue, index));
+};
+
 function CollectionChangedArgs(action, oldValue, newValue, index) {
     RefObject.call(this);
     this.Action = action;
@@ -568,1075 +761,6 @@ _PropertyValueProvider.prototype.ForeachValue = function (func, data) {
 _PropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
 };
 
-function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
-    RefObject.call(this);
-    this.Name = name;
-    this.GetTargetType = getTargetType;
-    this.OwnerType = ownerType;
-    this.DefaultValue = defaultValue;
-    this._AutoCreator = autocreator;
-    this._Coercer = coercer;
-    this._AlwaysChange = alwaysChange;
-    this._Validator = validator;
-    this._IsCustom = isCustom;
-    this._ChangedCallback = changedCallback;
-}
-DependencyProperty.InheritFrom(RefObject);
-DependencyProperty.prototype.toString = function () {
-    var ownerTypeName = this.OwnerType.GetName();
-    return ownerTypeName + "." + this.Name.toString();
-};
-DependencyProperty.prototype.GetDefaultValue = function (obj) {
-    if (this._HasDefaultValue)
-        return this.DefaultValue;
-    return this._GetAutoCreatedValue(obj);
-};
-DependencyProperty.prototype._HasDefaultValue = function () {
-    return this.DefaultValue != null;
-};
-DependencyProperty.prototype._IsAutoCreated = function () {
-    return this._AutoCreator != undefined && this._AutoCreator != null;
-};
-DependencyProperty.prototype._GetAutoCreatedValue = function (obj) {
-    return this._AutoCreator.GetValue(this, obj);
-};
-DependencyProperty.prototype._HasCoercer = function () {
-    return this._Coercer != null;
-};
-DependencyProperty.prototype._Coerce = function (instance, value, error) {
-    if (!this._Coercer)
-        return value;
-    return this._Coercer.GetValue(instance, this, value, error);
-};
-DependencyProperty.prototype._Validate = function (instance, propd, value, error) {
-    if (!this._Validator)
-        return true;
-    return this._Validator(instance, propd, value, error);
-};
-DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback);
-};
-DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
-    if (!DependencyProperty._Registered)
-        DependencyProperty._Registered = new Array();
-    if (!DependencyProperty._Registered[ownerType])
-        DependencyProperty._Registered[ownerType] = new Array();
-    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
-    DependencyProperty._Registered[ownerType][name] = propd;
-    return propd;
-}
-DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue) {
-    if (!DependencyProperty._Registered)
-        DependencyProperty._Registered = new Array();
-    if (!DependencyProperty._Registered[ownerType])
-        DependencyProperty._Registered[ownerType] = new Array();
-    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue);
-    propd._IsAttached = true;
-    DependencyProperty._Registered[ownerType][name] = propd;
-    return propd;
-}
-DependencyProperty.GetDependencyProperty = function (ownerType, name) {
-    var reg = DependencyProperty._Registered;
-    if (!reg)
-        return null;
-    var reg = reg[ownerType];
-    var propd;
-    if (reg)
-        propd = reg[name];
-    if (!propd && ownerType !== RefObject) {
-        propd = DependencyProperty.GetDependencyProperty(ownerType.GetBaseClass(), name);
-    }
-    return propd;
-};
-function UnsetValue() {
-    RefObject.call(this);
-}
-UnsetValue.InheritFrom(RefObject);
-
-function Expression() {
-    RefObject.call(this);
-}
-Expression.InheritFrom(RefObject);
-Expression.prototype.GetValue = function (propd) {
-    AbstractMethod("Expression.GetValue");
-};
-Expression.prototype._OnAttached = function (element) {
-    this.SetAttached(true);
-};
-Expression.prototype._OnDetached = function (element) {
-    this.SetAttached(false);
-};
-Expression.prototype.GetAttached = function () {
-    return this._Attached;
-};
-Expression.prototype.SetAttached = function (value) {
-    this._Attached = value;
-};
-Expression.prototype.GetUpdating = function () {
-    return this._Updating;
-};
-Expression.prototype.SetUpdating = function (value) {
-    this._Updating = value;
-};
-
-function TemplateBindingExpression(sourcePropd, targetPropd) {
-    Expression.call(this);
-    this.SourceProperty = sourcePropd;
-    this.TargetProperty = targetPropd;
-}
-TemplateBindingExpression.InheritFrom(Expression);
-TemplateBindingExpression.prototype.GetValue = function (propd) {
-    var source = this.Target.GetTemplateOwner();
-    var value = null;
-    if (source != null)
-        value = source.GetValue(this.SourceProperty);
-    return value; //TODO: Send through TypeConverter
-};
-TemplateBindingExpression.prototype._OnAttached = function (element) {
-    Expression.prototype._OnAttached.call(this, element);
-    this.Target = element;
-    var listener = this.GetListener();
-    if (listener != null) {
-        listener.Detach();
-        listener = null;
-        this.SetListener(listener);
-    }
-    var c = RefObject.As(this.Target, ContentControl);
-    if (this.TargetProperty === ContentControl.ContentProperty && c != null) {
-        this.SetsParent = c._ContentSetsParent;
-        c._ContentSetsParent = false;
-    }
-    var source = this.Target.GetTemplateOwner();
-    if (source != null) {
-        listener = new PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
-        this.SetListener(listener);
-    }
-};
-TemplateBindingExpression.prototype._OnDetached = function (element) {
-    Expression.prototype._OnDetached.call(this, element);
-    var listener = this.GetListener();
-    if (listener == null)
-        return;
-    var c = RefObject.As(this.Target, ContentControl);
-    if (c != null)
-        c._ContentSetsParent = this.SetsParent;
-    listener.Detach();
-    listener = null;
-    this.SetListener(listener);
-    this.Target = null;
-};
-TemplateBindingExpression.prototype.OnPropertyChanged = function (sender, args) {
-    try {
-        this.SetUpdating(true);
-        try {
-            this.Target.SetValue(this.TargetProperty, this.GetValue(null));
-        } catch (err2) {
-            this.Target.SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
-        }
-    } catch (err) {
-    } finally {
-        this.SetUpdating(false);
-    }
-};
-TemplateBindingExpression.prototype.GetListener = function () {
-    return this._Listener;
-};
-TemplateBindingExpression.prototype.SetListener = function (value) {
-    this._Listener = value;
-};
-
-function Collection() {
-    DependencyObject.call(this);
-    this._ht = new Array();
-    this.Changed = new MulticastEvent();
-    this.ItemChanged = new MulticastEvent();
-}
-Collection.InheritFrom(DependencyObject);
-Collection.CountProperty = DependencyProperty.RegisterFull("Count", function () { return Number; }, Collection, 0);
-Collection.prototype.GetCount = function () {
-    return this._ht.length;
-};
-Collection.prototype.GetValueAt = function (index) {
-    return this._ht[index];
-};
-Collection.prototype.Add = function (value) {
-    var rv = this.Insert(this._ht.length, value);
-    return rv ? this._ht.length - 1 : -1;
-};
-Collection.prototype.Insert = function (index, value) {
-    if (!this.CanAdd(value))
-        return false;
-    if (index < 0)
-        return false;
-    var count = this.GetCount();
-    if (index > count)
-        index = count;
-    var error = new BError();
-    if (this.AddedToCollection(value, error)) {
-        this._ht.splice(index, 0, value);
-        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, value, index);
-        return true;
-    }
-    return false;
-};
-Collection.prototype.Remove = function (value) {
-    var index = this.IndexOf(value);
-    if (index == -1)
-        return false;
-    return this.RemoveAt(index);
-};
-Collection.prototype.RemoveAt = function (index) {
-    if (index < 0 || index >= this._ht.length)
-        return false;
-    var value = this._ht[index];
-    this._ht.splice(index, 1);
-    this.RemovedFromCollection(value, true);
-    this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, null, index);
-    return true;
-};
-Collection.prototype.Clear = function () {
-    this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
-    var old = this._ht;
-    this._ht = new Array();
-    for (var i = 0; i < old.length; i++) {
-        this.RemovedFromCollection(old[i], true);
-    }
-    this._RaiseChanged(CollectionChangedArgs.Action.Cleared, null, null, -1);
-    return true;
-};
-Collection.prototype.IndexOf = function (value) {
-    for (var i = 0; i < this.GetCount(); i++) {
-        if (value == this._ht[i])
-            return i;
-    }
-    return -1;
-};
-Collection.prototype.Contains = function (value) {
-    return this.IndexOf(value) > -1;
-};
-Collection.prototype.CanAdd = function (value) { return true; };
-Collection.prototype.AddedToCollection = function (value, error) { return true; };
-Collection.prototype.RemovedFromCollection = function (value, isValueSafe) { };
-Collection.prototype.GetIterator = function () {
-    return new CollectionIterator(this);
-};
-Collection.prototype._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
-    this.ItemChanged.Raise(this, new ItemChangedArgs(obj, propd, oldValue, newValue));
-};
-Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index) {
-    this.Changed.Raise(this, new CollectionChangedArgs(action, oldValue, newValue, index));
-};
-
-function DependencyObjectCollection(setsParent) {
-    Collection.call(this);
-    this._IsSecondaryParent = false;
-    this._SetsParent = !setsParent ? true : setsParent;
-}
-DependencyObjectCollection.InheritFrom(Collection);
-DependencyObjectCollection.prototype.IsElementType = function (value) {
-    return value instanceof DependencyObject;
-};
-DependencyObjectCollection.prototype._GetIsSecondaryParent = function () {
-    return this._IsSecondaryParent;
-};
-DependencyObjectCollection.prototype._SetIsSecondaryParent = function (value) {
-    this._IsSecondaryParent = value;
-};
-DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newValue) {
-    DependencyObject.prototype._OnMentorChanged.call(this, oldValue, newValue);
-    for (var i = 0; i < this._ht.length; i++) {
-        if (this._ht[i] instanceof DependencyObject)
-            this._ht[i].SetMentor(newValue);
-    }
-};
-DependencyObjectCollection.prototype.AddedToCollection = function (value, error) {
-    if (this._SetsParent) {
-        var existingParent = value._GetParent();
-        value._AddParent(this, true, error);
-        if (!error.IsErrored() && !existingParent && this._GetIsSecondaryParent())
-            value._AddParent(this, true, error);
-        if (error.IsErrored())
-            return false;
-    } else {
-        value.SetMentor(this.GetMentor());
-    }
-    value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
-    var rv = Collection.prototype.AddedToCollection.call(this, value, error);
-    value._IsAttached = rv && this._IsAttached;
-    if (!rv) {
-        if (this._SetsParent) {
-            value._RemoveParent(this, error);
-            value.SetMentor(this.GetMentor());
-        } else {
-            value.SetMentor(null);
-        }
-    }
-    return rv;
-};
-DependencyObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-    if (isValueSafe) {
-        if (value instanceof DependencyObject) {
-            value.Unsubscribe(this._OnSubPropertyChanged, this);
-            if (this._GetIsSecondaryParent())
-                value._RemoveSecondaryParent(this);
-            if (this._SetsParent && RefObject.RefEquals(value._GetParent(), this))
-                value._RemoveParent(this, null);
-            value._SetIsAttached(false);
-        }
-    }
-};
-DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
-    Collection.prototype._OnIsAttachedChanged.call(this, value);
-    for (var i = 0; i < this.GetCount(); i++) {
-        var val = this.GetValueAt(i);
-        if (val instanceof DependencyObject)
-            val._SetIsAttached(value);
-    }
-};
-DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
-    this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
-};
-
-function PresentationFrameworkCollection() {
-    Collection.call(this);
-}
-PresentationFrameworkCollection.InheritFrom(Collection);
-
-function ResourceDictionary() {
-    Collection.call(this);
-    this._KeyIndex = new Array();
-}
-ResourceDictionary.InheritFrom(Collection);
-ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
-ResourceDictionary.prototype.GetMergedDictionaries = function () {
-    return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
-};
-ResourceDictionary.prototype.ContainsKey = function (key) {
-    return this._KeyIndex[key] != undefined;
-};
-ResourceDictionary.prototype._GetIndexFromKey = function (key) {
-    return this.KeyIndex[key];
-};
-ResourceDictionary.prototype.Get = function (key) {
-    if (this.ContainsKey(key))
-        return this.GetValueAt(this._GetIndexFromKey(key));
-    return this._GetFromMergedDictionaries(key);
-};
-ResourceDictionary.prototype._GetFromMergedDictionaries = function (key) {
-    var merged = this.GetMergedDictionaries();
-    if (!merged)
-        return undefined;
-    for (var i = 0; i < merged.GetCount(); i++) {
-        var dict = merged.GetValueAt(i);
-        var value = dict.Get(key);
-        if (value != undefined)
-            return value;
-    }
-    return undefined;
-};
-ResourceDictionary.prototype.Set = function (key, value) {
-    var oldValue;
-    if (this.ContainsKey(key)) {
-        oldValue = this.Get(key);
-        this.Remove(oldValue);
-    }
-    var index = this.Add(value);
-    this._KeyIndex[key] = index;
-    this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
-    return true;
-};
-ResourceDictionary.prototype.AddedToCollection = function (value, error) {
-    NotImplemented("ResourceDictionary.AddedToCollection");
-};
-ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
-    NotImplemented("ResourceDictionary.RemovedFromCollection");
-};
-ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
-    Collection.prototype._OnIsAttachedChanged.call(this, value);
-    for (var i = 0; i < this._ht.length; i++) {
-        var obj = this._ht[i];
-        if (obj instanceof DependencyObject)
-            obj._SetIsAttached(value);
-    }
-};
-
-function ResourceDictionaryCollection() {
-    DependencyObjectCollection.call(this);
-}
-ResourceDictionaryCollection.InheritFrom(DependencyObjectCollection);
-ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
-    if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
-        return false;
-    var parent = this._GetParent();
-    if (!parent)
-        return true;
-    return this._WalkSubtreeLookingForCycle(value, parent, error);
-};
-ResourceDictionaryCollection.prototype.IsElementType = function (value) {
-    return value instanceof ResourceDictionary;
-};
-ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
-    var source = subtreeRoot._GetInternalSource();
-    var p = firstAncestor;
-    while (p) {
-        if (p instanceof ResourceDictionary) {
-            var cycleFound = false;
-            var rdSource = p._GetInternalSource();
-            if (p == subtreeRoot)
-                cycleFound = true;
-            else if (source && rdSource && !source.localeCompare(rdSource))
-                cycleFound = true;
-            if (cycleFound) {
-                error.SetErrored(BError.InvalidOperation, "Cycle found in resource dictionaries.");
-                return false;
-            }
-        }
-        p = p._GetParent();
-    }
-    var children = subtreeRoot.GetMergedDictionaries();
-    for (var i = 0; i < children.GetCount(); i++) {
-        if (!this._WalkSubtreeLookingForCycle(children.GetValueAt(i), firstAncestor, error))
-            return false;
-    }
-    return true;
-};
-
-function UIElementCollection() {
-    DependencyObjectCollection.call(this);
-    this._ZSorted = new Array();
-}
-UIElementCollection.InheritFrom(DependencyObjectCollection);
-UIElementCollection.prototype.GetValueAtZIndex = function (index) {
-    return this._ZSorted[index];
-};
-UIElementCollection.prototype.GetZSortedCount = function () {
-    return this._ZSorted.length;
-};
-UIElementCollection.prototype.ResortByZIndex = function () {
-    var count = this.GetCount();
-    this._ZSorted = new Array(count);
-    if (count < 1)
-        return;
-    for (var i = 0; i < count; i++) {
-        this._ZSorted[i] = this._ht[i];
-    }
-    if (count > 1) {
-        this._ZSorted.sort(UIElement.ZIndexComparer);
-    }
-};
-UIElementCollection.prototype.IsElementType = function (value) {
-    return value instanceof UIElement;
-};
-
-function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
-    this._ht = new Array();
-}
-_AutoCreatePropertyValueProvider.InheritFrom(_PropertyValueProvider);
-_AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    var value = this.ReadLocalValue(propd);
-    if (value !== undefined)
-        return value;
-    value = propd._IsAutoCreated() ? propd._GetAutoCreatedValue(this._Object) : null;
-    if (value == null)
-        return null;
-    this._ht[propd] = value;
-    var error = new BError();
-    this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
-    return value;
-};
-_AutoCreatePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
-    if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
-        return;
-    this.ClearValue(propd);
-};
-_AutoCreatePropertyValueProvider.prototype.ReadLocalValue = function (propd) {
-    return this._ht[propd];
-};
-_AutoCreatePropertyValueProvider.prototype.ClearValue = function (propd) {
-    delete this._ht[propd];
-};
-
-function _DefaultValuePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, 0);
-}
-_DefaultValuePropertyValueProvider.InheritFrom(_PropertyValueProvider);
-_DefaultValuePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    return propd.DefaultValue;
-};
-
-function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
-    this._Styles = null;
-    this._StyleMask = _StyleMask.None;
-    this._ht = new Array();
-}
-_ImplicitStylePropertyValueProvider.InheritFrom(_PropertyValueProvider);
-_ImplicitStylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    return this._ht[propd];
-};
-_ImplicitStylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
-    if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
-        return;
-    if (!this._Styles)
-        return;
-    var oldValue = undefined;
-    var newValue = null;
-    var propd = null;
-    var walker = new _DeepStyleWalker(this._Styles);
-    var setter;
-    while (setter = walker.Step()) {
-        propd = setter.GetValue(Setter.PropertyProperty);
-        if (propd != propd)
-            continue;
-        newValue = setter.GetValue(Setter.ValueProperty); //DIV: ConvertedValueProperty
-        oldValue = this._ht[propd];
-        this._ht[propd] = newValue;
-        this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
-        if (error.IsErrored())
-            return;
-    }
-};
-_ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask, styles, error) {
-    var isChanged = !this._Styles || styleMask != this._StyleMask;
-    if (!isChanged) {
-        for (var i = 0; i < _StyleIndex.Count; i++) {
-            if (styles[i] != this._Styles[i]) {
-                isChanged = true;
-                break;
-            }
-        }
-    }
-    if (!isChanged)
-        return;
-    var oldValue = undefined;
-    var newValue = undefined;
-    var oldWalker = new _DeepStyleWalker(this._Styles);
-    var newWalker = new _DeepStyleWalker(styles);
-    var oldSetter = oldWalker.Step();
-    var newSetter = newWalker.Step();
-    while (oldSetter || newSetter) {
-        var oldProp;
-        var newProp;
-        if (oldSetter)
-            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
-        if (newSetter)
-            newProp = newSetter.GetValue(Setter.PropertyProperty);
-        if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-            oldValue = oldSetter.GetValue(Setter.ValueProperty);
-            newValue = null;
-            delete this._ht[oldProp];
-            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
-            oldSetter = oldWalker.Step();
-        }
-        else if (oldProp == newProp) {
-            oldValue = oldSetter.GetValue(Setter.ValueProperty);
-            newValue = newSetter.GetValue(Setter.ValueProperty);
-            this._ht[oldProp] = newValue;
-            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
-            oldSetter = oldWalker.Step();
-            newSetter = newWalker.Step();
-        } else {
-            oldValue = null;
-            newValue = newSetter.GetValue(Setter.ValueProperty);
-            this._ht[newProp] = newValue;
-            this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
-            newSetter = newWalker.Step();
-        }
-    }
-    this._Styles = styles;
-    this._StyleMask = styleMask;
-};
-_ImplicitStylePropertyValueProvider.prototype.SetStyles = function (styleMask, styles, error) {
-    if (!styles)
-        return;
-    var newStyles = new Array();
-    if (this._Styles) {
-        newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
-        newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
-        newStyles[_StyleIndex.VisualTree] = this._Styles[_StyleIndex.VisualTree];
-    }
-    if (styleMask & _StyleMask.GenericXaml)
-        newStyles[_StyleIndex.GenericXaml] = styles[_StyleIndex.GenericXaml];
-    if (styleMask & _StyleMask.ApplicationResources)
-        newStyles[_StyleIndex.ApplicationResources] = styles[_StyleIndex.ApplicationResources];
-    if (styleMask & _StyleMask.VisualTree)
-        newStyles[_StyleIndex.VisualTree] = styles[_StyleIndex.VisualTree];
-    this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
-};
-_ImplicitStylePropertyValueProvider.prototype.ClearStyles = function (styleMask, error) {
-    if (!this._Styles)
-        return;
-    var newStyles = $.clone(this._Styles); //WTF: Does $.clone fully work for us?
-    if (styleMask & _StyleMask.GenericXaml)
-        newStyles[_StyleIndex.GenericXaml] = null;
-    if (styleMask & _StyleMask.ApplicationResources)
-        newStyles[_StyleIndex.ApplicationResources] = null;
-    if (styleMask & _StyleMask.VisualTree)
-        newStyles[_StyleIndex.VisualTree] = null;
-    this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
-};
-
-function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence);
-    this._Source = null;
-}
-_InheritedDataContextPropertyValueProvider.InheritFrom(_PropertyValueProvider);
-_InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    if (!this._Source || propd != FrameworkElement.DataContextProperty)
-        return null;
-    return this._Source.GetValue(propd);
-};
-_InheritedDataContextPropertyValueProvider.prototype.SetDataSource = function (source) {
-    if (RefObject.RefEquals(this._Source, source))
-        return;
-    var oldValue = this._Source != null ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
-    var newValue = source != null ? source.GetValue(FrameworkElement.DataContextProperty) : null;
-    this._DetachListener(this._Source);
-    this._Source = source;
-    this._AttachListener(this._Source);
-    if (!RefObject.Equals(oldValue, newValue)) {
-        var error = new BError();
-        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
-    }
-};
-_InheritedDataContextPropertyValueProvider.prototype._AttachListener = function (source) {
-    if (source != null) {
-        this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
-    }
-};
-_InheritedDataContextPropertyValueProvider.prototype._DetachListener = function (source) {
-    if (this._DataContextListener != null) {
-        this._DataContextListener.Detach();
-        this._DataContextListener = null;
-    }
-    if (source != null) {
-    }
-};
-_InheritedDataContextPropertyValueProvider.prototype._SourceDataContextChanged = function (sender, args) {
-    var error = new BError();
-    this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
-};
-_InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
-    if (this._Source != null) {
-        var error = new BError();
-        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
-    }
-};
-
-function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
-    this._Source = null;
-    this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-}
-_InheritedIsEnabledPropertyValueProvider.InheritFrom(_PropertyValueProvider);
-_InheritedIsEnabledPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    if (propd === Control.IsEnabledProperty)
-        return this._CurrentValue;
-    return null;
-};
-_InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (source) {
-    if (source) {
-        while (source) {
-            if (source instanceof Control)
-                break;
-            else if (source instanceof FrameworkElement)
-                source = source._GetLogicalParent();
-            else
-                source = null;
-        }
-    }
-    if (this._Source != source) {
-        this._DetachListener(this._Source);
-        this._Source = source;
-        this._AttachListener(this._Source);
-    }
-    if (!source || this._Object.IsAttached())
-        this.LocalValueChanged(null);
-};
-_InheritedIsEnabledPropertyValueProvider.prototype._AttachListener = function (obj) {
-    if (source) {
-        var matchFunc = function (sender, args) {
-            return this === args.Property; //Closure - Control.IsEnabledProperty
-        };
-        source.PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Control.IsEnabledProperty);
-    }
-};
-_InheritedIsEnabledPropertyValueProvider.prototype._DetachListener = function (source) {
-    if (source) {
-        source.PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Control.IsEnabledProperty);
-    }
-};
-_InheritedIsEnabledPropertyValueProvider.prototype._IsEnabledChanged = function (sender, args) {
-    this.LocalValueChanged(args.Property);
-};
-_InheritedIsEnabledPropertyValueProvider.prototype.LocalValueChanged = function (propd) {
-    if (propd && propd !== Control.IsEnabledProperty)
-        return false;
-    var localEnabled = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source.GetValue(Control.IsEnabledProperty) : null;
-    var newValue = localEnabled == true && (parentEnabled == null || parentEnabled == true);
-    if (newValue != this._CurrentValue) {
-        var oldValue = this._CurrentValue;
-        this._CurrentValue = newValue;
-        var error = new BError();
-        this._Object._ProviderValueChanged(this._PropertyPrecedence, Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
-        return true;
-    }
-    return false;
-};
-
-function _InheritedPropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, 0);
-    this._ht = new Array();
-}
-_InheritedPropertyValueProvider.InheritFrom(_PropertyValueProvider);
-_InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
-        return undefined;
-    var inheritable = _InheritedPropertyValueProvider.GetInheritable(this._Object, propd);
-    var ancestor = this._GetPropertySource(inheritable);
-    if (!ancestor)
-        return undefined;
-    var ancestorPropd = _InheritedPropertyValueProvider.GetProperty(inheritable, ancestor);
-    if (!ancestorPropd)
-        return undefined;
-    var v = ancestor.GetValue(ancestorPropd);
-    if (v)
-        return v;
-    return undefined;
-};
-_InheritedPropertyValueProvider.prototype.WalkSubtree = function (rootParent, element, context, props, adding) {
-    if (element instanceof TextElement || element instanceof TextBlock) {
-        var childProp;
-        if (element instanceof TextBlock)
-            childProp = TextBlock.InlinesProperty;
-        else if (element instanceof Paragraph)
-            childProp = Paragraph.InlinesProperty;
-        else if (element instanceof Span)
-            childProp = Span.InlinesProperty;
-        else if (element instanceof Section)
-            childProp = Section.BlocksProperty;
-        if (childProp) {
-            var col = element._GetValueNoAutoCreate(childProp);
-            if (col) {
-                var count = col.GetCount();
-                for (var i = 0; i < count; i++) {
-                    this.WalkTree(rootParent, col.GetValueAt(i), context, props, adding);
-                }
-            }
-        }
-    }
-    if (element instanceof Popup) {
-        var child = element.GetChild();
-        if (child)
-            this.WalkTree(rootParent, element, conte, props, adding);
-    }
-    if (element instanceof UIElement) {
-        var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical, true);
-        var child2;
-        while (child2 = walker.Step()) {
-            this.WalkTree(rootParent, child2, context, props, adding);
-        }
-    }
-};
-_InheritedPropertyValueProvider.prototype.WalkTree = function (rootParent, element, context, props, adding) {
-    if (props == _Inheritable.None)
-        return;
-    if (adding) {
-        this.MaybePropagateInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
-        this.MaybePropagateInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
-        this.MaybePropagateInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
-        this.MaybePropagateInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
-        this.MaybePropagateInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
-        this.MaybePropagateInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
-        this.MaybePropagateInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
-        this.MaybePropagateInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
-        this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
-        this.MaybePropagateInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
-        this.MaybePropagateInheritedValue(context.FontResourceSource, _Inheritable.FontResource, props, element);
-        var eleContext = new _InheritedContext(element, context);
-        props = eleContext.Compare(context, props);
-        if (props == _Inheritable.None)
-            return;
-        this.WalkSubtree(rootParent, element, eleContext, props, adding);
-    } else {
-        var eleContext2 = new _InheritedContext(element, context);
-        this.MaybeRemoveInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
-        this.MaybeRemoveInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
-        this.MaybeRemoveInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
-        this.MaybeRemoveInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
-        this.MaybeRemoveInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
-        this.MaybeRemoveInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
-        this.MaybeRemoveInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
-        this.MaybeRemoveInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
-        this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
-        this.MaybeRemoveInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
-        this.MaybeRemoveInheritedValue(context.FontResourceSource, _Inheritable.FontResource, props, element);
-        props = eleContext2.Compare(context, props);
-        if (props == _Inheritable.None)
-            return;
-        this.WalkSubtree(rootParent, element, context, props, adding);
-    }
-};
-_InheritedPropertyValueProvider.prototype.MaybePropagateInheritedValue = function (source, prop, props, element) {
-    if (!source) return;
-    if ((props & prop) == 0) return;
-    var sourceProperty = _InheritedPropertyValueProvider.GetProperty(prop, source);
-    var value = source.GetValue(sourceProperty);
-    if (value)
-        element._PropagateInheritedValue(prop, source, value);
-};
-_InheritedPropertyValueProvider.prototype.MaybeRemoveInheritedValue = function (source, prop, props, element) {
-    if (!source) return;
-    if ((props & prop) == 0) return;
-    if (source == element._GetInheritedValueSource(prop))
-        element._PropagateInheritedValue(prop, null, null);
-};
-_InheritedPropertyValueProvider.prototype.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
-    var baseContext = new _InheritedContext(
-            this._GetPropertySource(_Inheritable.Foreground),
-            this._GetPropertySource(_Inheritable.FontFamily),
-            this._GetPropertySource(_Inheritable.FontStretch),
-            this._GetPropertySource(_Inheritable.FontStyle),
-            this._GetPropertySource(_Inheritable.FontWeight),
-            this._GetPropertySource(_Inheritable.FontSize),
-            this._GetPropertySource(_Inheritable.Language),
-            this._GetPropertySource(_Inheritable.FlowDirection),
-            this._GetPropertySource(_Inheritable.UseLayoutRounding),
-            this._GetPropertySource(_Inheritable.TextDecorations),
-            this._GetPropertySource(_Inheritable.FontResource));
-    var objContext = new _InheritedContext(this._Object, baseContext);
-    this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, true);
-};
-_InheritedPropertyValueProvider.prototype.PropagateInheritedProperty = function (propd, source, subtree) {
-    var inheritable = _InheritedPropertyValueProvider.GetInheritable(source, propd);
-    var objContext = new _InheritedContext(this._Object, null);
-    this.WalkSubtree(source, subtree, objContext, inheritable, true);
-};
-_InheritedPropertyValueProvider.prototype.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
-    var baseContext = new _InheritedContext(
-            this._GetPropertySource(_Inheritable.Foreground),
-            this._GetPropertySource(_Inheritable.FontFamily),
-            this._GetPropertySource(_Inheritable.FontStretch),
-            this._GetPropertySource(_Inheritable.FontStyle),
-            this._GetPropertySource(_Inheritable.FontWeight),
-            this._GetPropertySource(_Inheritable.FontSize),
-            this._GetPropertySource(_Inheritable.Language),
-            this._GetPropertySource(_Inheritable.FlowDirection),
-            this._GetPropertySource(_Inheritable.UseLayoutRounding),
-            this._GetPropertySource(_Inheritable.TextDecorations),
-            this._GetPropertySource(_Inheritable.FontResource));
-    var objContext = new _InheritedContext(this._Object, baseContext);
-    this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, false);
-};
-_InheritedPropertyValueProvider.prototype._GetPropertySource = function (inheritableOrProp) {
-    if (inheritableOrProp instanceof DependencyProperty)
-        return this._ht[GetInheritableFromProperty(inheritableOrProp)];
-    return this._ht[inheritableOrProp];
-};
-_InheritedPropertyValueProvider.prototype._SetPropertySource = function (inheritable, source) {
-    if (source)
-        this._ht[inheritable] = source;
-    else
-        delete this._ht[inheritable];
-};
-_InheritedPropertyValueProvider.IsInherited = function (obj, propd) {
-    var inheritable = _InheritedPropertyValueProvider.GetInheritable(obj, propd);
-    return inheritable != _Inheritable.None;
-};
-_InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
-    if (propd == Control.ForegroundProperty || propd == TextBlock.ForegroundProperty || propd == TextElement.ForegroundProperty)
-        return _Inheritable.Foreground;
-    if (propd == Control.FontFamilyProperty || propd == TextBlock.FontFamilyProperty || propd == TextElement.FontFamilyProperty)
-        return _Inheritable.FontFamily;
-    if (propd == Control.FontStretchProperty || propd == TextBlock.FontStretchProperty || propd == TextElement.FontStretchProperty)
-        return _Inheritable.FontStretch;
-    if (propd == Control.FontStyleProperty || propd == TextBlock.FontStyleProperty || propd == TextElement.FontStyleProperty)
-        return _Inheritable.FontStyle;
-    if (propd == Control.FontWeightProperty || propd == TextBlock.FontWeightProperty || propd == TextElement.FontWeightProperty)
-        return _Inheritable.FontWeight;
-    if (propd == Control.FontSizeProperty || propd == TextBlock.FontSizeProperty || propd == TextElement.FontSizeProperty)
-        return _Inheritable.FontSize;
-    if (propd == FrameworkElement.LanguageProperty || propd == TextElement.LanguageProperty)
-        return _Inheritable.Language;
-    if (propd == FrameworkElement.FlowDirectionProperty && !(obj instanceof Image) && !(obj instanceof MediaElement))
-        return _Inheritable.FlowDirection;
-    if (propd == Run.FlowDirectionProperty)
-        return _Inheritable.FlowDirection;
-    if (propd == UIElement.UseLayoutRoundingProperty)
-        return _Inheritable.UseLayoutRounding;
-    if (propd == TextElement.TextDecorationsProperty || propd == TextBlock.TextDecorationsProperty)
-        return _Inheritable.TextDecorations;
-    if (propd == TextElement.FontResourceProperty || propd == TextBlock.FontResourceProperty)
-        return _Inheritable.FontResource;
-    return _Inheritable.None;
-};
-_InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
-    switch (inheritable) {
-        case _Inheritable.Foreground:
-            if (ancestor instanceof Control)
-                return Control.ForegroundProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.ForegroundProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.ForegroundProperty;
-            break;
-        case _Inheritable.FontFamily:
-            if (ancestor instanceof Control)
-                return Control.FontFamilyProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontFamilyProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontFamilyProperty;
-            break;
-        case _Inheritable.FontStretch:
-            if (ancestor instanceof Control)
-                return Control.FontStretchProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontStretchProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontStretchProperty;
-            break;
-        case _Inheritable.FontStyle:
-            if (ancestor instanceof Control)
-                return Control.FontStyleProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontStyleProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontStyleProperty;
-            break;
-        case _Inheritable.FontWeight:
-            if (ancestor instanceof Control)
-                return Control.FontWeightProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontWeightProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontWeightProperty;
-            break;
-        case _Inheritable.FontSize:
-            if (ancestor instanceof Control)
-                return Control.FontSizeProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontSizeProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontSizeProperty;
-            break;
-        case _Inheritable.Language:
-            if (ancestor instanceof FrameworkElement)
-                return FrameworkElement.LanguageProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.LanguageProperty;
-            break;
-        case _Inheritable.FlowDirection:
-            if (ancestor instanceof FrameworkElement) {
-                if (ancestor instanceof Image || ancestor instanceof MediaElement)
-                    return null;
-                return FrameworkElement.FlowDirectionProperty;
-            } else if (ancestor instanceof Run)
-                return Run.FlowDirectionProperty;
-            break;
-        case _Inheritable.UseLayoutRounding:
-            if (ancestor instanceof UIElement)
-                return UIElement.UseLayoutRoundingProperty;
-            break;
-        case _Inheritable.TextDecorations:
-            if (ancestor instanceof TextElement)
-                return TextElement.TextDecorationsProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.TextDecorationsProperty;
-            break;
-        case _Inheritable.FontResource:
-            if (ancestor instanceof TextElement)
-                return TextElement.FontResourceProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontResourceProperty;
-            break;
-    }
-    return null;
-};
-
-function _LocalPropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
-    this._ht = new Array();
-}
-_LocalPropertyValueProvider.InheritFrom(_PropertyValueProvider);
-_LocalPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    return this._ht[propd];
-};
-_LocalPropertyValueProvider.prototype.SetValue = function (propd, value) {
-    this._ht[propd] = value;
-};
-_LocalPropertyValueProvider.prototype.ClearValue = function (propd) {
-    delete this._ht[propd];
-};
-
-function _StylePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
-    this._ht = new Array();
-}
-_StylePropertyValueProvider.InheritFrom(_PropertyValueProvider);
-_StylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
-    return this._ht[propd];
-};
-_StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, reason, error) {
-    if ((reason & _ProviderFlags.RecomputesOnClear) == 0)
-        return;
-    var oldValue = undefined;
-    var newValue = undefined;
-    var propd = null;
-    var walker = new _DeepStyleWalker(this._Style);
-    var setter;
-    while (setter = walker.Step()) {
-        propd = setter.GetValue(Setter.PropertyProperty);
-        if (propd != prop)
-            continue;
-        newValue = setter.GetValue(Setter.ConvertedValueProperty);
-        oldValue = this._ht[propd];
-        this._ht[propd] = newValue;
-        this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
-        if (error.IsErrored())
-            return;
-    }
-};
-_StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
-    var oldValue = undefined;
-    var newValue = undefined;
-    var oldWalker = new _DeepStyleWalker(this._Style);
-    var newWalker = new _DeepStyleWalker(style);
-    var oldSetter = oldWalker.Step();
-    var newSetter = newWalker.Step();
-    var oldProp;
-    var newProp;
-    while (oldSetter || newSetter) {
-        if (oldSetter)
-            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
-        if (newSetter)
-            newProp = newSetter.GetValue(Setter.PropertyProperty);
-        if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
-            newValue = null;
-            delete this._ht[oldProp];
-            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
-            oldSetter = oldWalker.Step();
-        } else if (oldProp == newProp) {
-            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
-            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
-            this._ht[oldProp] = newValue;
-            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
-            oldSetter = oldWalker.Step();
-            newSetter = newWalker.Step();
-        } else {
-            oldValue = null;
-            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
-            this._ht[newProp] = newValue;
-            this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
-            newSetter = newWalker.Step();
-        }
-    }
-    this._Style = style;
-};
-
 function DependencyObject() {
     RefObject.call(this);
     this._Initialize();
@@ -1712,7 +836,7 @@ DependencyObject.prototype.GetDependencyProperty = function (propName) {
 DependencyObject.prototype._Initialize = function () {
     this._IsAttached = false;
     this._Providers = new Array();
-    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalPropertyValueProvider(this, _PropertyPrecedence.LocalValue);
+    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
     this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
     this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
     this._ProviderBitmasks = new Array();
@@ -2484,6 +1608,72 @@ Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJs
     this._AddSetter(dobj, propName, new ControlTemplate(dobj.constructor, templateJson));
 };
 
+function TemplateBindingExpression(sourcePropd, targetPropd) {
+    Expression.call(this);
+    this.SourceProperty = sourcePropd;
+    this.TargetProperty = targetPropd;
+}
+TemplateBindingExpression.InheritFrom(Expression);
+TemplateBindingExpression.prototype.GetValue = function (propd) {
+    var source = this.Target.GetTemplateOwner();
+    var value = null;
+    if (source != null)
+        value = source.GetValue(this.SourceProperty);
+    return value; //TODO: Send through TypeConverter
+};
+TemplateBindingExpression.prototype._OnAttached = function (element) {
+    Expression.prototype._OnAttached.call(this, element);
+    this.Target = element;
+    var listener = this.GetListener();
+    if (listener != null) {
+        listener.Detach();
+        listener = null;
+        this.SetListener(listener);
+    }
+    var c = RefObject.As(this.Target, ContentControl);
+    if (this.TargetProperty === ContentControl.ContentProperty && c != null) {
+        this.SetsParent = c._ContentSetsParent;
+        c._ContentSetsParent = false;
+    }
+    var source = this.Target.GetTemplateOwner();
+    if (source != null) {
+        listener = new PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
+        this.SetListener(listener);
+    }
+};
+TemplateBindingExpression.prototype._OnDetached = function (element) {
+    Expression.prototype._OnDetached.call(this, element);
+    var listener = this.GetListener();
+    if (listener == null)
+        return;
+    var c = RefObject.As(this.Target, ContentControl);
+    if (c != null)
+        c._ContentSetsParent = this.SetsParent;
+    listener.Detach();
+    listener = null;
+    this.SetListener(listener);
+    this.Target = null;
+};
+TemplateBindingExpression.prototype.OnPropertyChanged = function (sender, args) {
+    try {
+        this.SetUpdating(true);
+        try {
+            this.Target.SetValue(this.TargetProperty, this.GetValue(null));
+        } catch (err2) {
+            this.Target.SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
+        }
+    } catch (err) {
+    } finally {
+        this.SetUpdating(false);
+    }
+};
+TemplateBindingExpression.prototype.GetListener = function () {
+    return this._Listener;
+};
+TemplateBindingExpression.prototype.SetListener = function (value) {
+    this._Listener = value;
+};
+
 var UIElementFlags = {
     None: 0,
     RenderVisible: 0x02,
@@ -3115,6 +2305,816 @@ UIElement.ZIndexComparer = function (uie1, uie2) {
         return z1 > z2 ? 1 : (z1 < z2 ? -1 : 0);
     }
     return zi1 - zi2;
+};
+
+function DependencyObjectCollection(setsParent) {
+    Collection.call(this);
+    this._IsSecondaryParent = false;
+    this._SetsParent = !setsParent ? true : setsParent;
+}
+DependencyObjectCollection.InheritFrom(Collection);
+DependencyObjectCollection.prototype.IsElementType = function (value) {
+    return value instanceof DependencyObject;
+};
+DependencyObjectCollection.prototype._GetIsSecondaryParent = function () {
+    return this._IsSecondaryParent;
+};
+DependencyObjectCollection.prototype._SetIsSecondaryParent = function (value) {
+    this._IsSecondaryParent = value;
+};
+DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newValue) {
+    DependencyObject.prototype._OnMentorChanged.call(this, oldValue, newValue);
+    for (var i = 0; i < this._ht.length; i++) {
+        if (this._ht[i] instanceof DependencyObject)
+            this._ht[i].SetMentor(newValue);
+    }
+};
+DependencyObjectCollection.prototype.AddedToCollection = function (value, error) {
+    if (this._SetsParent) {
+        var existingParent = value._GetParent();
+        value._AddParent(this, true, error);
+        if (!error.IsErrored() && !existingParent && this._GetIsSecondaryParent())
+            value._AddParent(this, true, error);
+        if (error.IsErrored())
+            return false;
+    } else {
+        value.SetMentor(this.GetMentor());
+    }
+    value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+    var rv = Collection.prototype.AddedToCollection.call(this, value, error);
+    value._IsAttached = rv && this._IsAttached;
+    if (!rv) {
+        if (this._SetsParent) {
+            value._RemoveParent(this, error);
+            value.SetMentor(this.GetMentor());
+        } else {
+            value.SetMentor(null);
+        }
+    }
+    return rv;
+};
+DependencyObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+    if (isValueSafe) {
+        if (value instanceof DependencyObject) {
+            value.Unsubscribe(this._OnSubPropertyChanged, this);
+            if (this._GetIsSecondaryParent())
+                value._RemoveSecondaryParent(this);
+            if (this._SetsParent && RefObject.RefEquals(value._GetParent(), this))
+                value._RemoveParent(this, null);
+            value._SetIsAttached(false);
+        }
+    }
+};
+DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
+    Collection.prototype._OnIsAttachedChanged.call(this, value);
+    for (var i = 0; i < this.GetCount(); i++) {
+        var val = this.GetValueAt(i);
+        if (val instanceof DependencyObject)
+            val._SetIsAttached(value);
+    }
+};
+DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
+    this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
+};
+
+function PresentationFrameworkCollection() {
+    Collection.call(this);
+}
+PresentationFrameworkCollection.InheritFrom(Collection);
+
+function ResourceDictionary() {
+    Collection.call(this);
+    this._KeyIndex = new Array();
+}
+ResourceDictionary.InheritFrom(Collection);
+ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+ResourceDictionary.prototype.GetMergedDictionaries = function () {
+    return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
+};
+ResourceDictionary.prototype.ContainsKey = function (key) {
+    return this._KeyIndex[key] != undefined;
+};
+ResourceDictionary.prototype._GetIndexFromKey = function (key) {
+    return this.KeyIndex[key];
+};
+ResourceDictionary.prototype.Get = function (key) {
+    if (this.ContainsKey(key))
+        return this.GetValueAt(this._GetIndexFromKey(key));
+    return this._GetFromMergedDictionaries(key);
+};
+ResourceDictionary.prototype._GetFromMergedDictionaries = function (key) {
+    var merged = this.GetMergedDictionaries();
+    if (!merged)
+        return undefined;
+    for (var i = 0; i < merged.GetCount(); i++) {
+        var dict = merged.GetValueAt(i);
+        var value = dict.Get(key);
+        if (value != undefined)
+            return value;
+    }
+    return undefined;
+};
+ResourceDictionary.prototype.Set = function (key, value) {
+    var oldValue;
+    if (this.ContainsKey(key)) {
+        oldValue = this.Get(key);
+        this.Remove(oldValue);
+    }
+    var index = this.Add(value);
+    this._KeyIndex[key] = index;
+    this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
+    return true;
+};
+ResourceDictionary.prototype.AddedToCollection = function (value, error) {
+    NotImplemented("ResourceDictionary.AddedToCollection");
+};
+ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
+    NotImplemented("ResourceDictionary.RemovedFromCollection");
+};
+ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
+    Collection.prototype._OnIsAttachedChanged.call(this, value);
+    for (var i = 0; i < this._ht.length; i++) {
+        var obj = this._ht[i];
+        if (obj instanceof DependencyObject)
+            obj._SetIsAttached(value);
+    }
+};
+
+function ResourceDictionaryCollection() {
+    DependencyObjectCollection.call(this);
+}
+ResourceDictionaryCollection.InheritFrom(DependencyObjectCollection);
+ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
+    if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
+        return false;
+    var parent = this._GetParent();
+    if (!parent)
+        return true;
+    return this._WalkSubtreeLookingForCycle(value, parent, error);
+};
+ResourceDictionaryCollection.prototype.IsElementType = function (value) {
+    return value instanceof ResourceDictionary;
+};
+ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
+    var source = subtreeRoot._GetInternalSource();
+    var p = firstAncestor;
+    while (p) {
+        if (p instanceof ResourceDictionary) {
+            var cycleFound = false;
+            var rdSource = p._GetInternalSource();
+            if (p == subtreeRoot)
+                cycleFound = true;
+            else if (source && rdSource && !source.localeCompare(rdSource))
+                cycleFound = true;
+            if (cycleFound) {
+                error.SetErrored(BError.InvalidOperation, "Cycle found in resource dictionaries.");
+                return false;
+            }
+        }
+        p = p._GetParent();
+    }
+    var children = subtreeRoot.GetMergedDictionaries();
+    for (var i = 0; i < children.GetCount(); i++) {
+        if (!this._WalkSubtreeLookingForCycle(children.GetValueAt(i), firstAncestor, error))
+            return false;
+    }
+    return true;
+};
+
+function UIElementCollection() {
+    DependencyObjectCollection.call(this);
+    this._ZSorted = new Array();
+}
+UIElementCollection.InheritFrom(DependencyObjectCollection);
+UIElementCollection.prototype.GetValueAtZIndex = function (index) {
+    return this._ZSorted[index];
+};
+UIElementCollection.prototype.GetZSortedCount = function () {
+    return this._ZSorted.length;
+};
+UIElementCollection.prototype.ResortByZIndex = function () {
+    var count = this.GetCount();
+    this._ZSorted = new Array(count);
+    if (count < 1)
+        return;
+    for (var i = 0; i < count; i++) {
+        this._ZSorted[i] = this._ht[i];
+    }
+    if (count > 1) {
+        this._ZSorted.sort(UIElement.ZIndexComparer);
+    }
+};
+UIElementCollection.prototype.IsElementType = function (value) {
+    return value instanceof UIElement;
+};
+
+function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    this._ht = new Array();
+}
+_AutoCreatePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+_AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    var value = this.ReadLocalValue(propd);
+    if (value !== undefined)
+        return value;
+    value = propd._IsAutoCreated() ? propd._GetAutoCreatedValue(this._Object) : null;
+    if (value == null)
+        return null;
+    this._ht[propd] = value;
+    var error = new BError();
+    this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
+    return value;
+};
+_AutoCreatePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+    if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
+        return;
+    this.ClearValue(propd);
+};
+_AutoCreatePropertyValueProvider.prototype.ReadLocalValue = function (propd) {
+    return this._ht[propd];
+};
+_AutoCreatePropertyValueProvider.prototype.ClearValue = function (propd) {
+    delete this._ht[propd];
+};
+
+function _DefaultValuePropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, 0);
+}
+_DefaultValuePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+_DefaultValuePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    return propd.DefaultValue;
+};
+
+function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    this._Styles = null;
+    this._StyleMask = _StyleMask.None;
+    this._ht = new Array();
+}
+_ImplicitStylePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+_ImplicitStylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    return this._ht[propd];
+};
+_ImplicitStylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+    if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
+        return;
+    if (!this._Styles)
+        return;
+    var oldValue = undefined;
+    var newValue = null;
+    var propd = null;
+    var walker = new _DeepStyleWalker(this._Styles);
+    var setter;
+    while (setter = walker.Step()) {
+        propd = setter.GetValue(Setter.PropertyProperty);
+        if (propd != propd)
+            continue;
+        newValue = setter.GetValue(Setter.ValueProperty); //DIV: ConvertedValueProperty
+        oldValue = this._ht[propd];
+        this._ht[propd] = newValue;
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
+        if (error.IsErrored())
+            return;
+    }
+};
+_ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask, styles, error) {
+    var isChanged = !this._Styles || styleMask != this._StyleMask;
+    if (!isChanged) {
+        for (var i = 0; i < _StyleIndex.Count; i++) {
+            if (styles[i] != this._Styles[i]) {
+                isChanged = true;
+                break;
+            }
+        }
+    }
+    if (!isChanged)
+        return;
+    var oldValue = undefined;
+    var newValue = undefined;
+    var oldWalker = new _DeepStyleWalker(this._Styles);
+    var newWalker = new _DeepStyleWalker(styles);
+    var oldSetter = oldWalker.Step();
+    var newSetter = newWalker.Step();
+    while (oldSetter || newSetter) {
+        var oldProp;
+        var newProp;
+        if (oldSetter)
+            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
+        if (newSetter)
+            newProp = newSetter.GetValue(Setter.PropertyProperty);
+        if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
+            oldValue = oldSetter.GetValue(Setter.ValueProperty);
+            newValue = null;
+            delete this._ht[oldProp];
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
+            oldSetter = oldWalker.Step();
+        }
+        else if (oldProp == newProp) {
+            oldValue = oldSetter.GetValue(Setter.ValueProperty);
+            newValue = newSetter.GetValue(Setter.ValueProperty);
+            this._ht[oldProp] = newValue;
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
+            oldSetter = oldWalker.Step();
+            newSetter = newWalker.Step();
+        } else {
+            oldValue = null;
+            newValue = newSetter.GetValue(Setter.ValueProperty);
+            this._ht[newProp] = newValue;
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
+            newSetter = newWalker.Step();
+        }
+    }
+    this._Styles = styles;
+    this._StyleMask = styleMask;
+};
+_ImplicitStylePropertyValueProvider.prototype.SetStyles = function (styleMask, styles, error) {
+    if (!styles)
+        return;
+    var newStyles = new Array();
+    if (this._Styles) {
+        newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
+        newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
+        newStyles[_StyleIndex.VisualTree] = this._Styles[_StyleIndex.VisualTree];
+    }
+    if (styleMask & _StyleMask.GenericXaml)
+        newStyles[_StyleIndex.GenericXaml] = styles[_StyleIndex.GenericXaml];
+    if (styleMask & _StyleMask.ApplicationResources)
+        newStyles[_StyleIndex.ApplicationResources] = styles[_StyleIndex.ApplicationResources];
+    if (styleMask & _StyleMask.VisualTree)
+        newStyles[_StyleIndex.VisualTree] = styles[_StyleIndex.VisualTree];
+    this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
+};
+_ImplicitStylePropertyValueProvider.prototype.ClearStyles = function (styleMask, error) {
+    if (!this._Styles)
+        return;
+    var newStyles = $.clone(this._Styles); //WTF: Does $.clone fully work for us?
+    if (styleMask & _StyleMask.GenericXaml)
+        newStyles[_StyleIndex.GenericXaml] = null;
+    if (styleMask & _StyleMask.ApplicationResources)
+        newStyles[_StyleIndex.ApplicationResources] = null;
+    if (styleMask & _StyleMask.VisualTree)
+        newStyles[_StyleIndex.VisualTree] = null;
+    this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
+};
+
+function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence);
+    this._Source = null;
+}
+_InheritedDataContextPropertyValueProvider.InheritFrom(_PropertyValueProvider);
+_InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    if (!this._Source || propd != FrameworkElement.DataContextProperty)
+        return null;
+    return this._Source.GetValue(propd);
+};
+_InheritedDataContextPropertyValueProvider.prototype.SetDataSource = function (source) {
+    if (RefObject.RefEquals(this._Source, source))
+        return;
+    var oldValue = this._Source != null ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
+    var newValue = source != null ? source.GetValue(FrameworkElement.DataContextProperty) : null;
+    this._DetachListener(this._Source);
+    this._Source = source;
+    this._AttachListener(this._Source);
+    if (!RefObject.Equals(oldValue, newValue)) {
+        var error = new BError();
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
+    }
+};
+_InheritedDataContextPropertyValueProvider.prototype._AttachListener = function (source) {
+    if (source != null) {
+        this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
+    }
+};
+_InheritedDataContextPropertyValueProvider.prototype._DetachListener = function (source) {
+    if (this._DataContextListener != null) {
+        this._DataContextListener.Detach();
+        this._DataContextListener = null;
+    }
+    if (source != null) {
+    }
+};
+_InheritedDataContextPropertyValueProvider.prototype._SourceDataContextChanged = function (sender, args) {
+    var error = new BError();
+    this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
+};
+_InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
+    if (this._Source != null) {
+        var error = new BError();
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
+    }
+};
+
+function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
+    this._Source = null;
+    this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+}
+_InheritedIsEnabledPropertyValueProvider.InheritFrom(_PropertyValueProvider);
+_InheritedIsEnabledPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    if (propd === Control.IsEnabledProperty)
+        return this._CurrentValue;
+    return null;
+};
+_InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (source) {
+    if (source) {
+        while (source) {
+            if (source instanceof Control)
+                break;
+            else if (source instanceof FrameworkElement)
+                source = source._GetLogicalParent();
+            else
+                source = null;
+        }
+    }
+    if (this._Source != source) {
+        this._DetachListener(this._Source);
+        this._Source = source;
+        this._AttachListener(this._Source);
+    }
+    if (!source || this._Object.IsAttached())
+        this.LocalValueChanged(null);
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._AttachListener = function (obj) {
+    if (source) {
+        var matchFunc = function (sender, args) {
+            return this === args.Property; //Closure - Control.IsEnabledProperty
+        };
+        source.PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Control.IsEnabledProperty);
+    }
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._DetachListener = function (source) {
+    if (source) {
+        source.PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Control.IsEnabledProperty);
+    }
+};
+_InheritedIsEnabledPropertyValueProvider.prototype._IsEnabledChanged = function (sender, args) {
+    this.LocalValueChanged(args.Property);
+};
+_InheritedIsEnabledPropertyValueProvider.prototype.LocalValueChanged = function (propd) {
+    if (propd && propd !== Control.IsEnabledProperty)
+        return false;
+    var localEnabled = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source.GetValue(Control.IsEnabledProperty) : null;
+    var newValue = localEnabled == true && (parentEnabled == null || parentEnabled == true);
+    if (newValue != this._CurrentValue) {
+        var oldValue = this._CurrentValue;
+        this._CurrentValue = newValue;
+        var error = new BError();
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, Control.IsEnabledProperty, oldValue, newValue, true, false, false, error);
+        return true;
+    }
+    return false;
+};
+
+function _InheritedPropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, 0);
+    this._ht = new Array();
+}
+_InheritedPropertyValueProvider.InheritFrom(_PropertyValueProvider);
+_InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
+        return undefined;
+    var inheritable = _InheritedPropertyValueProvider.GetInheritable(this._Object, propd);
+    var ancestor = this._GetPropertySource(inheritable);
+    if (!ancestor)
+        return undefined;
+    var ancestorPropd = _InheritedPropertyValueProvider.GetProperty(inheritable, ancestor);
+    if (!ancestorPropd)
+        return undefined;
+    var v = ancestor.GetValue(ancestorPropd);
+    if (v)
+        return v;
+    return undefined;
+};
+_InheritedPropertyValueProvider.prototype.WalkSubtree = function (rootParent, element, context, props, adding) {
+    if (element instanceof TextElement || element instanceof TextBlock) {
+        var childProp;
+        if (element instanceof TextBlock)
+            childProp = TextBlock.InlinesProperty;
+        else if (element instanceof Paragraph)
+            childProp = Paragraph.InlinesProperty;
+        else if (element instanceof Span)
+            childProp = Span.InlinesProperty;
+        else if (element instanceof Section)
+            childProp = Section.BlocksProperty;
+        if (childProp) {
+            var col = element._GetValueNoAutoCreate(childProp);
+            if (col) {
+                var count = col.GetCount();
+                for (var i = 0; i < count; i++) {
+                    this.WalkTree(rootParent, col.GetValueAt(i), context, props, adding);
+                }
+            }
+        }
+    }
+    if (element instanceof Popup) {
+        var child = element.GetChild();
+        if (child)
+            this.WalkTree(rootParent, element, conte, props, adding);
+    }
+    if (element instanceof UIElement) {
+        var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical, true);
+        var child2;
+        while (child2 = walker.Step()) {
+            this.WalkTree(rootParent, child2, context, props, adding);
+        }
+    }
+};
+_InheritedPropertyValueProvider.prototype.WalkTree = function (rootParent, element, context, props, adding) {
+    if (props == _Inheritable.None)
+        return;
+    if (adding) {
+        this.MaybePropagateInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
+        this.MaybePropagateInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
+        this.MaybePropagateInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
+        this.MaybePropagateInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
+        this.MaybePropagateInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
+        this.MaybePropagateInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
+        this.MaybePropagateInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
+        this.MaybePropagateInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
+        this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
+        this.MaybePropagateInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
+        this.MaybePropagateInheritedValue(context.FontResourceSource, _Inheritable.FontResource, props, element);
+        var eleContext = new _InheritedContext(element, context);
+        props = eleContext.Compare(context, props);
+        if (props == _Inheritable.None)
+            return;
+        this.WalkSubtree(rootParent, element, eleContext, props, adding);
+    } else {
+        var eleContext2 = new _InheritedContext(element, context);
+        this.MaybeRemoveInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
+        this.MaybeRemoveInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
+        this.MaybeRemoveInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
+        this.MaybeRemoveInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
+        this.MaybeRemoveInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
+        this.MaybeRemoveInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
+        this.MaybeRemoveInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
+        this.MaybeRemoveInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
+        this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
+        this.MaybeRemoveInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
+        this.MaybeRemoveInheritedValue(context.FontResourceSource, _Inheritable.FontResource, props, element);
+        props = eleContext2.Compare(context, props);
+        if (props == _Inheritable.None)
+            return;
+        this.WalkSubtree(rootParent, element, context, props, adding);
+    }
+};
+_InheritedPropertyValueProvider.prototype.MaybePropagateInheritedValue = function (source, prop, props, element) {
+    if (!source) return;
+    if ((props & prop) == 0) return;
+    var sourceProperty = _InheritedPropertyValueProvider.GetProperty(prop, source);
+    var value = source.GetValue(sourceProperty);
+    if (value)
+        element._PropagateInheritedValue(prop, source, value);
+};
+_InheritedPropertyValueProvider.prototype.MaybeRemoveInheritedValue = function (source, prop, props, element) {
+    if (!source) return;
+    if ((props & prop) == 0) return;
+    if (source == element._GetInheritedValueSource(prop))
+        element._PropagateInheritedValue(prop, null, null);
+};
+_InheritedPropertyValueProvider.prototype.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
+    var baseContext = new _InheritedContext(
+            this._GetPropertySource(_Inheritable.Foreground),
+            this._GetPropertySource(_Inheritable.FontFamily),
+            this._GetPropertySource(_Inheritable.FontStretch),
+            this._GetPropertySource(_Inheritable.FontStyle),
+            this._GetPropertySource(_Inheritable.FontWeight),
+            this._GetPropertySource(_Inheritable.FontSize),
+            this._GetPropertySource(_Inheritable.Language),
+            this._GetPropertySource(_Inheritable.FlowDirection),
+            this._GetPropertySource(_Inheritable.UseLayoutRounding),
+            this._GetPropertySource(_Inheritable.TextDecorations),
+            this._GetPropertySource(_Inheritable.FontResource));
+    var objContext = new _InheritedContext(this._Object, baseContext);
+    this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, true);
+};
+_InheritedPropertyValueProvider.prototype.PropagateInheritedProperty = function (propd, source, subtree) {
+    var inheritable = _InheritedPropertyValueProvider.GetInheritable(source, propd);
+    var objContext = new _InheritedContext(this._Object, null);
+    this.WalkSubtree(source, subtree, objContext, inheritable, true);
+};
+_InheritedPropertyValueProvider.prototype.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
+    var baseContext = new _InheritedContext(
+            this._GetPropertySource(_Inheritable.Foreground),
+            this._GetPropertySource(_Inheritable.FontFamily),
+            this._GetPropertySource(_Inheritable.FontStretch),
+            this._GetPropertySource(_Inheritable.FontStyle),
+            this._GetPropertySource(_Inheritable.FontWeight),
+            this._GetPropertySource(_Inheritable.FontSize),
+            this._GetPropertySource(_Inheritable.Language),
+            this._GetPropertySource(_Inheritable.FlowDirection),
+            this._GetPropertySource(_Inheritable.UseLayoutRounding),
+            this._GetPropertySource(_Inheritable.TextDecorations),
+            this._GetPropertySource(_Inheritable.FontResource));
+    var objContext = new _InheritedContext(this._Object, baseContext);
+    this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, false);
+};
+_InheritedPropertyValueProvider.prototype._GetPropertySource = function (inheritableOrProp) {
+    if (inheritableOrProp instanceof DependencyProperty)
+        return this._ht[GetInheritableFromProperty(inheritableOrProp)];
+    return this._ht[inheritableOrProp];
+};
+_InheritedPropertyValueProvider.prototype._SetPropertySource = function (inheritable, source) {
+    if (source)
+        this._ht[inheritable] = source;
+    else
+        delete this._ht[inheritable];
+};
+_InheritedPropertyValueProvider.IsInherited = function (obj, propd) {
+    var inheritable = _InheritedPropertyValueProvider.GetInheritable(obj, propd);
+    return inheritable != _Inheritable.None;
+};
+_InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
+    if (propd == Control.ForegroundProperty || propd == TextBlock.ForegroundProperty || propd == TextElement.ForegroundProperty)
+        return _Inheritable.Foreground;
+    if (propd == Control.FontFamilyProperty || propd == TextBlock.FontFamilyProperty || propd == TextElement.FontFamilyProperty)
+        return _Inheritable.FontFamily;
+    if (propd == Control.FontStretchProperty || propd == TextBlock.FontStretchProperty || propd == TextElement.FontStretchProperty)
+        return _Inheritable.FontStretch;
+    if (propd == Control.FontStyleProperty || propd == TextBlock.FontStyleProperty || propd == TextElement.FontStyleProperty)
+        return _Inheritable.FontStyle;
+    if (propd == Control.FontWeightProperty || propd == TextBlock.FontWeightProperty || propd == TextElement.FontWeightProperty)
+        return _Inheritable.FontWeight;
+    if (propd == Control.FontSizeProperty || propd == TextBlock.FontSizeProperty || propd == TextElement.FontSizeProperty)
+        return _Inheritable.FontSize;
+    if (propd == FrameworkElement.LanguageProperty || propd == TextElement.LanguageProperty)
+        return _Inheritable.Language;
+    if (propd == FrameworkElement.FlowDirectionProperty && !(obj instanceof Image) && !(obj instanceof MediaElement))
+        return _Inheritable.FlowDirection;
+    if (propd == Run.FlowDirectionProperty)
+        return _Inheritable.FlowDirection;
+    if (propd == UIElement.UseLayoutRoundingProperty)
+        return _Inheritable.UseLayoutRounding;
+    if (propd == TextElement.TextDecorationsProperty || propd == TextBlock.TextDecorationsProperty)
+        return _Inheritable.TextDecorations;
+    if (propd == TextElement.FontResourceProperty || propd == TextBlock.FontResourceProperty)
+        return _Inheritable.FontResource;
+    return _Inheritable.None;
+};
+_InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
+    switch (inheritable) {
+        case _Inheritable.Foreground:
+            if (ancestor instanceof Control)
+                return Control.ForegroundProperty;
+            else if (ancestor instanceof TextBlock)
+                return TextBlock.ForegroundProperty;
+            else if (ancestor instanceof TextElement)
+                return TextElement.ForegroundProperty;
+            break;
+        case _Inheritable.FontFamily:
+            if (ancestor instanceof Control)
+                return Control.FontFamilyProperty;
+            else if (ancestor instanceof TextBlock)
+                return TextBlock.FontFamilyProperty;
+            else if (ancestor instanceof TextElement)
+                return TextElement.FontFamilyProperty;
+            break;
+        case _Inheritable.FontStretch:
+            if (ancestor instanceof Control)
+                return Control.FontStretchProperty;
+            else if (ancestor instanceof TextBlock)
+                return TextBlock.FontStretchProperty;
+            else if (ancestor instanceof TextElement)
+                return TextElement.FontStretchProperty;
+            break;
+        case _Inheritable.FontStyle:
+            if (ancestor instanceof Control)
+                return Control.FontStyleProperty;
+            else if (ancestor instanceof TextBlock)
+                return TextBlock.FontStyleProperty;
+            else if (ancestor instanceof TextElement)
+                return TextElement.FontStyleProperty;
+            break;
+        case _Inheritable.FontWeight:
+            if (ancestor instanceof Control)
+                return Control.FontWeightProperty;
+            else if (ancestor instanceof TextBlock)
+                return TextBlock.FontWeightProperty;
+            else if (ancestor instanceof TextElement)
+                return TextElement.FontWeightProperty;
+            break;
+        case _Inheritable.FontSize:
+            if (ancestor instanceof Control)
+                return Control.FontSizeProperty;
+            else if (ancestor instanceof TextBlock)
+                return TextBlock.FontSizeProperty;
+            else if (ancestor instanceof TextElement)
+                return TextElement.FontSizeProperty;
+            break;
+        case _Inheritable.Language:
+            if (ancestor instanceof FrameworkElement)
+                return FrameworkElement.LanguageProperty;
+            else if (ancestor instanceof TextElement)
+                return TextElement.LanguageProperty;
+            break;
+        case _Inheritable.FlowDirection:
+            if (ancestor instanceof FrameworkElement) {
+                if (ancestor instanceof Image || ancestor instanceof MediaElement)
+                    return null;
+                return FrameworkElement.FlowDirectionProperty;
+            } else if (ancestor instanceof Run)
+                return Run.FlowDirectionProperty;
+            break;
+        case _Inheritable.UseLayoutRounding:
+            if (ancestor instanceof UIElement)
+                return UIElement.UseLayoutRoundingProperty;
+            break;
+        case _Inheritable.TextDecorations:
+            if (ancestor instanceof TextElement)
+                return TextElement.TextDecorationsProperty;
+            else if (ancestor instanceof TextBlock)
+                return TextBlock.TextDecorationsProperty;
+            break;
+        case _Inheritable.FontResource:
+            if (ancestor instanceof TextElement)
+                return TextElement.FontResourceProperty;
+            else if (ancestor instanceof TextBlock)
+                return TextBlock.FontResourceProperty;
+            break;
+    }
+    return null;
+};
+
+function _LocalValuePropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    this._ht = new Array();
+}
+_LocalValuePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+_LocalValuePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    return this._ht[propd];
+};
+_LocalValuePropertyValueProvider.prototype.SetValue = function (propd, value) {
+    this._ht[propd] = value;
+};
+_LocalValuePropertyValueProvider.prototype.ClearValue = function (propd) {
+    delete this._ht[propd];
+};
+
+function _StylePropertyValueProvider(obj, propPrecedence) {
+    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    this._ht = new Array();
+}
+_StylePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+_StylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+    return this._ht[propd];
+};
+_StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, reason, error) {
+    if ((reason & _ProviderFlags.RecomputesOnClear) == 0)
+        return;
+    var oldValue = undefined;
+    var newValue = undefined;
+    var propd = null;
+    var walker = new _DeepStyleWalker(this._Style);
+    var setter;
+    while (setter = walker.Step()) {
+        propd = setter.GetValue(Setter.PropertyProperty);
+        if (propd != prop)
+            continue;
+        newValue = setter.GetValue(Setter.ConvertedValueProperty);
+        oldValue = this._ht[propd];
+        this._ht[propd] = newValue;
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
+        if (error.IsErrored())
+            return;
+    }
+};
+_StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
+    var oldValue = undefined;
+    var newValue = undefined;
+    var oldWalker = new _DeepStyleWalker(this._Style);
+    var newWalker = new _DeepStyleWalker(style);
+    var oldSetter = oldWalker.Step();
+    var newSetter = newWalker.Step();
+    var oldProp;
+    var newProp;
+    while (oldSetter || newSetter) {
+        if (oldSetter)
+            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
+        if (newSetter)
+            newProp = newSetter.GetValue(Setter.PropertyProperty);
+        if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
+            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = null;
+            delete this._ht[oldProp];
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
+            oldSetter = oldWalker.Step();
+        } else if (oldProp == newProp) {
+            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            this._ht[oldProp] = newValue;
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
+            oldSetter = oldWalker.Step();
+            newSetter = newWalker.Step();
+        } else {
+            oldValue = null;
+            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            this._ht[newProp] = newValue;
+            this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
+            newSetter = newWalker.Step();
+        }
+    }
+    this._Style = style;
 };
 
 function DataTemplate() {

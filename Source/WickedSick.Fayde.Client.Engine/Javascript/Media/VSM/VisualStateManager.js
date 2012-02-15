@@ -1,4 +1,4 @@
-﻿/// <reference path="DependencyObject.js"/>
+﻿/// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="VisualStateGroup.js"/>
 /// CODE
 /// <reference path="UserControl.js"/>

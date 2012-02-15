@@ -1,3 +1,71 @@
+function Clip(rect) {
+    Rect.call(this);
+    var rounded = rect.RoundOut();
+    this.X = rounded.X;
+    this.Y = rounded.Y;
+    this.Width = rounded.Width;
+    this.Height = rounded.Height;
+}
+Clip.InheritFrom(Rect);
+
+function Color(r, g, b, a) {
+    RefObject.call(this);
+    this.R = r == null ? 255 : r;
+    this.G = g == null ? 255 : g;
+    this.B = b == null ? 255 : b;
+    this.A = a == null ? 1.0 : a;
+}
+Color.InheritFrom(RefObject);
+Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
+Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
+Color.FromHex = function (hex) {
+    var match;
+    var r;
+    var g;
+    var b;
+    var a;
+    if ((match = Color.__AlphaRegex.exec(hex)) != null) {
+        a = parseInt(match[1], 16) / 255.0;
+        r = parseInt(match[2], 16);
+        g = parseInt(match[3], 16);
+        b = parseInt(match[4], 16);
+    } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
+        a = 1.0;
+        r = parseInt(match[1], 16);
+        g = parseInt(match[2], 16);
+        b = parseInt(match[3], 16);
+    }
+    return new Color(r, g, b, a);
+};
+Color.prototype._Translate = function () {
+    return this.toString();
+};
+Color.prototype.toString = function () {
+    return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
+};
+
+function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
+    RefObject.call(this);
+    this.TopLeft = topLeft == null ? 0 : topLeft;
+    this.TopRight = topRight == null ? 0 : topRight;
+    this.BottomRight = bottomRight == null ? 0 : bottomRight;
+    this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
+}
+CornerRadius.InheritFrom(RefObject);
+CornerRadius.prototype.IsZero = function () {
+    return this.TopLeft === 0
+        && this.TopRight === 0
+        && this.BottomRight === 0
+        && this.BottomLeft === 0;
+};
+
+function Duration() {
+    RefObject.call(this);
+}
+Duration.InheritFrom(RefObject);
+Duration.IsZero = function () {
+};
+
 var Visibility = {
     Visible: 0,
     Collapsed: 1
@@ -78,110 +146,6 @@ var ClickMode = {
 };
 var CursorType = {
     Default: ""
-};
-
-function Thickness(left, top, right, bottom) {
-    RefObject.call(this);
-    this.Left = left == null ? 0 : left;
-    this.Top = top == null ? 0 : top;
-    this.Right = right == null ? 0 : right;
-    this.Bottom = bottom == null ? 0 : bottom;
-}
-Thickness.InheritFrom(RefObject);
-Thickness.prototype.Plus = function (thickness2) {
-    var t = new Thickness();
-    t.Left = this.Left + thickness2.Left;
-    t.Right = this.Right + thickness2.Right;
-    t.Top = this.Top + thickness2.Top;
-    t.Bottom = this.Bottom + thickness2.Bottom;
-    return t;
-};
-Thickness.prototype.Half = function () {
-    var t = new Thickness();
-    t.Left = this.Left / 2;
-    t.Top = this.Top / 2;
-    t.Right = this.Right / 2;
-    t.Bottom = this.Bottom / 2;
-    return t;
-};
-Thickness.prototype.Negate = function () {
-    var t = new Thickness();
-    t.Left = -this.Left;
-    t.Right = -this.Right;
-    t.Top = -this.Top;
-    t.Bottom = -this.Bottom;
-    return t;
-};
-Thickness.prototype.IsEmpty = function () {
-    return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
-};
-
-function Clip(rect) {
-    Rect.call(this);
-    var rounded = rect.RoundOut();
-    this.X = rounded.X;
-    this.Y = rounded.Y;
-    this.Width = rounded.Width;
-    this.Height = rounded.Height;
-}
-Clip.InheritFrom(Rect);
-
-function Color(r, g, b, a) {
-    RefObject.call(this);
-    this.R = r == null ? 255 : r;
-    this.G = g == null ? 255 : g;
-    this.B = b == null ? 255 : b;
-    this.A = a == null ? 1.0 : a;
-}
-Color.InheritFrom(RefObject);
-Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
-Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
-Color.FromHex = function (hex) {
-    var match;
-    var r;
-    var g;
-    var b;
-    var a;
-    if ((match = Color.__AlphaRegex.exec(hex)) != null) {
-        a = parseInt(match[1], 16) / 255.0;
-        r = parseInt(match[2], 16);
-        g = parseInt(match[3], 16);
-        b = parseInt(match[4], 16);
-    } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
-        a = 1.0;
-        r = parseInt(match[1], 16);
-        g = parseInt(match[2], 16);
-        b = parseInt(match[3], 16);
-    }
-    return new Color(r, g, b, a);
-};
-Color.prototype._Translate = function () {
-    return this.toString();
-};
-Color.prototype.toString = function () {
-    return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
-};
-
-function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
-    RefObject.call(this);
-    this.TopLeft = topLeft == null ? 0 : topLeft;
-    this.TopRight = topRight == null ? 0 : topRight;
-    this.BottomRight = bottomRight == null ? 0 : bottomRight;
-    this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
-}
-CornerRadius.InheritFrom(RefObject);
-CornerRadius.prototype.IsZero = function () {
-    return this.TopLeft === 0
-        && this.TopRight === 0
-        && this.BottomRight === 0
-        && this.BottomLeft === 0;
-};
-
-function Duration() {
-    RefObject.call(this);
-}
-Duration.InheritFrom(RefObject);
-Duration.IsZero = function () {
 };
 
 function Font() {
@@ -525,6 +489,42 @@ Size.prototype.toString = function () {
 };
 Size.prototype.Copy = function () {
     return new Size(this.Width, this.Height);
+};
+
+function Thickness(left, top, right, bottom) {
+    RefObject.call(this);
+    this.Left = left == null ? 0 : left;
+    this.Top = top == null ? 0 : top;
+    this.Right = right == null ? 0 : right;
+    this.Bottom = bottom == null ? 0 : bottom;
+}
+Thickness.InheritFrom(RefObject);
+Thickness.prototype.Plus = function (thickness2) {
+    var t = new Thickness();
+    t.Left = this.Left + thickness2.Left;
+    t.Right = this.Right + thickness2.Right;
+    t.Top = this.Top + thickness2.Top;
+    t.Bottom = this.Bottom + thickness2.Bottom;
+    return t;
+};
+Thickness.prototype.Half = function () {
+    var t = new Thickness();
+    t.Left = this.Left / 2;
+    t.Top = this.Top / 2;
+    t.Right = this.Right / 2;
+    t.Bottom = this.Bottom / 2;
+    return t;
+};
+Thickness.prototype.Negate = function () {
+    var t = new Thickness();
+    t.Left = -this.Left;
+    t.Right = -this.Right;
+    t.Top = -this.Top;
+    t.Bottom = -this.Bottom;
+    return t;
+};
+Thickness.prototype.IsEmpty = function () {
+    return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
 };
 
 function Uri(os) {

@@ -1,9 +1,9 @@
-﻿/// <reference path="FrameworkElement.js"/>
+﻿/// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
-/// <reference path="Primitives.js" />
-/// <reference path="DependencyObject.js" />
-/// <reference path="Surface.js"/>
-/// <reference path="Brushes.js"/>
+/// <reference path="../Core/DependencyObject.js" />
+/// <reference path="../Primitives/CornerRadius.js"/>
+/// <reference path="../Primitives/Thickness.js"/>
+/// <reference path="../Primitives/Brush.js"/>
 
 //#region Border
 

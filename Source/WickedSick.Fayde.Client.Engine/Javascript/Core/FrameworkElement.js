@@ -1,5 +1,5 @@
 ﻿/// <reference path="UIElement.js"/>
-/// <reference path="MulticastEvent.js"/>
+/// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="PropertyValueProviders/StylePropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/ImplicitStylePropertyValueProvider.js"/>
@@ -862,4 +862,3 @@ FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newPar
 //#endregion
 
 //#endregion
-

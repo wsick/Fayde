@@ -1,7 +1,6 @@
-﻿/// <reference path="FrameworkElement.js"/>
+﻿/// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="ContentControl.js"/>
-/// <reference path="Templates.js"/>
 
 //#region ContentPresenter
 

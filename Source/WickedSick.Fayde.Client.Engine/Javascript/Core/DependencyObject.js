@@ -1,14 +1,15 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="../Runtime/RefObject.js"/>
 /// <reference path="DependencyProperty.js" />
-/// <reference path="PropertyValueProviders.js" />
+/// <reference path="PropertyValueProviders/PropertyValueProvider.js" />
+/// <reference path="PropertyValueProviders/AutoCreatePropertyValueProvider.js" />
+/// <reference path="PropertyValueProviders/DefaultValuePropertyValueProvider.js" />
+/// <reference path="PropertyValueProviders/LocalValueStylePropertyValueProvider.js" />
+/// <reference path="../Runtime/MulticastEvent.js" />
 /// CODE
-/// <reference path="NameScope.js"/>
-/// <reference path="Binding.js"/>
 /// <reference path="Expression.js"/>
-/// <reference path="BError.js" />
-/// <reference path="MulticastEvent.js"/>
-/// <reference path="Collections.js"/>
-/// <reference path="List.js"/>
+/// <reference path="NameScope.js"/>
+/// <reference path="../Data/Binding.js"/>
+/// <reference path="../Runtime/BError.js" />
 
 //#region DependencyObject
 
@@ -110,7 +111,7 @@ DependencyObject.prototype.GetDependencyProperty = function (propName) {
 DependencyObject.prototype._Initialize = function () {
     this._IsAttached = false;
     this._Providers = new Array();
-    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalPropertyValueProvider(this, _PropertyPrecedence.LocalValue);
+    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
     this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
     this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
     this._ProviderBitmasks = new Array();

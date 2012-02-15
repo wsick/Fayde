@@ -1,4 +1,4 @@
-﻿/// <reference path="DependencyObject.js"/>
+﻿/// <reference path="../DependencyObject.js"/>
 /// <reference path="../../Runtime/MulticastEvent.js"/>
 /// CODE
 /// <reference path="ItemChangedArgs.js"/>

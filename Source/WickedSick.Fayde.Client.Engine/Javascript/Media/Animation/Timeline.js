@@ -1,4 +1,4 @@
-﻿/// <reference path="DependencyObject.js"/>
+﻿/// <reference path="../../Core/DependencyObject.js"/>
 /// CODE
 
 //#region Timeline

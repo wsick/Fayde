@@ -1,9 +1,6 @@
-﻿/// <reference path="FrameworkElement.js" />
+﻿/// <reference path="../Core/FrameworkElement.js" />
 /// CODE
-/// <reference path="Primitives.js" />
-/// <reference path="DependencyObject.js" />
-/// <reference path="LayoutInformation.js"/>
-/// <reference path="Brushes.js"/>
+/// <reference path="../Primitives/Brush.js"/>
 
 //#region Panel
 
