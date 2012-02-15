@@ -1,0 +1,1 @@
+..\..\ParserConsole\bin\Debug\ParserConsole.exe -source:HyperlinkButton.xml -destination:HyperlinkButton.js

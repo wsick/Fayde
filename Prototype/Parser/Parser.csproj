@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Elements\Button.cs" />
     <Compile Include="Elements\ButtonBase.cs" />
+    <Compile Include="Elements\ControlTemplate.cs" />
     <Compile Include="Elements\DependencyObject.cs" />
     <Compile Include="Elements\HyperlinkButton.cs" />
     <Compile Include="Elements\IJsonSerializable.cs" />

@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Parser.Elements
 {
-    public abstract class DependencyObject: IJsonSerializable
+    public abstract class DependencyObject : IJsonSerializable
     {
         private IList<AttachedProperty> _attachedProperties = new List<AttachedProperty>();
         public IList<AttachedProperty> AttachedProperties
@@ -197,5 +197,8 @@ namespace Parser.Elements
             }
             return sb.ToString();
         }
+
+        [Property]
+        public string Name { get; set; }
     }
 }

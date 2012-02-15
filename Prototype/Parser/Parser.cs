@@ -15,10 +15,14 @@ namespace Parser
         public static object ParseXmlNode(XmlNode node, object parent)
         {
             Type t = GetElementType(node.Name);
+            if (t == null)
+                throw new Exception("Unknown element: " + node.Name);
             object element = Activator.CreateInstance(t);
 
             foreach (XmlAttribute a in node.Attributes)
             {
+                if (a.Name.StartsWith("xmlns:"))
+                    continue;
                 if (a.Name.Contains("."))
                 {
                     //inline attached property
@@ -41,8 +45,8 @@ namespace Parser
             //if type contains a content property (marked with content attribute), then parse the child nodes
             //if no content property but child nodes exist, throw error
             PropertyInfo cp = GetContentProperty(t);
-            if (cp == null && node.ChildNodes.Count > 0)
-                throw new Exception("Child nodes exist, however, the element has not been marked to contain content.");
+            //if (cp == null && node.ChildNodes.Count > 0)
+                //throw new Exception(string.Format("Child nodes exist, however, the element [{0}] has not been marked to contain content.", t.Name));
             ProcessChildNodes(node.ChildNodes, element, cp);
 
             return element;
