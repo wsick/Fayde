@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Style TargetType="Button">
+<Style TargetType="Button"
+       xmlns:x="http://wsick.com/fayde/"
+       xmlns:vsm="http://wsick.com/fayde/VisualStateManager">
   <Setter Property="Background" Value="#FF1F3B53"/>
   <Setter Property="Foreground" Value="#FF000000"/>
   <Setter Property="Padding" Value="3"/>

@@ -1,6 +1,6 @@
 ﻿<Style TargetType="HyperlinkButton"
-       xmlns:x="http://fayde/"
-       xmlns:vsm="http://fayde/VisualStateManager">
+       xmlns:x="http://wsick.com/fayde/"
+       xmlns:vsm="http://wsick.com/fayde/VisualStateManager">
   <Setter Property="Foreground" Value="#FF73A9D8" />
   <Setter Property="Padding" Value="2,0,2,0"/>
   <Setter Property="Cursor" Value="Hand"/>

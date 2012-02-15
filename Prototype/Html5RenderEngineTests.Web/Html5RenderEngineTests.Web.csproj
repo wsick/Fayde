@@ -67,10 +67,12 @@
     <Content Include="styles\Button.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="styles\HyperlinkButton.js" />
     <Content Include="styles\HyperlinkButton.xml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="test-includes.txt" />
+    <None Include="styles\UpdateStyle.bat" />
     <None Include="tests\button\test1.fayde" />
     <None Include="tests\grid\test4.fayde">
       <SubType>Designer</SubType>
