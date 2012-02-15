@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Fayde.Client.Engine", "WickedSick.Fayde.Client.Engine\WickedSick.Fayde.Client.Engine.csproj", "{8734C581-3114-488D-8A53-7BC942232787}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Server.Framework.Fayde", "WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj", "{40645861-EE77-480A-B389-0F2857DA682D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Server.XamlParser", "WickedSick.Server.XamlParser\WickedSick.Server.XamlParser.csproj", "{8853F726-F37C-47C6-B153-33F1000E748E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +17,14 @@ Global
 		{8734C581-3114-488D-8A53-7BC942232787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8734C581-3114-488D-8A53-7BC942232787}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8734C581-3114-488D-8A53-7BC942232787}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40645861-EE77-480A-B389-0F2857DA682D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40645861-EE77-480A-B389-0F2857DA682D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40645861-EE77-480A-B389-0F2857DA682D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40645861-EE77-480A-B389-0F2857DA682D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8853F726-F37C-47C6-B153-33F1000E748E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8853F726-F37C-47C6-B153-33F1000E748E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8853F726-F37C-47C6-B153-33F1000E748E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8853F726-F37C-47C6-B153-33F1000E748E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
