@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System;
 
 namespace JsSingularity
 {
@@ -15,7 +16,11 @@ namespace JsSingularity
         public void ResolveRefs()
         {
             var fs = new FolderStack(new FileInfo(FullPath).Directory);
-            JsRefs.ForEach(jr => jr.Resolve(ref fs));
+            var unresolved = JsRefs.Where(jr => !jr.Resolve(ref fs)).ToList();
+            foreach (var jr in unresolved)
+            {
+                Console.WriteLine(string.Format("Could not resolve reference: {0} in file: {1}", jr.RefPath, new FileInfo(FullPath).Name));
+            }
         }
 
         public void FindRefs(List<JsFile> files)

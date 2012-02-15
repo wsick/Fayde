@@ -11,7 +11,8 @@ namespace JsSingularity
         private static readonly Regex JS_REF_REGEX = new Regex(@"///\s?<reference\spath=""(?<filename>[^\\/:*?""<>|\r\n]+\.js)""\s?/>", RegexOptions.Compiled);
         private static readonly Regex CANCEL_REF_REGEX = new Regex(@"///\s*CODE", RegexOptions.Compiled);
 
-        private static readonly string JS_INCLUDE_FORMAT = "<script src=\"{0}\" type=\"text/javascript\"></script>";
+        //private static readonly string JS_INCLUDE_FORMAT = "<script src=\"{0}\" type=\"text/javascript\"></script>";
+        private static readonly string JS_INCLUDE_FORMAT = "{0}";
         
         public Combiner()
         {
