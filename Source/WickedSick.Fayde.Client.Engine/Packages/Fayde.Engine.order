@@ -1,7 +1,7 @@
 Engine/Debug.js
-Engine/DirtyNode.js
-Engine/FocusChangedNode.js
 Engine/RenderContext.js
-Engine/Surface.js
 Engine/App.js
 Engine/Dirty.js
+Engine/DirtyNode.js
+Engine/FocusChangedNode.js
+Engine/Surface.js

@@ -107,19 +107,6 @@ function HUDUpdate(id, message) {
     hud.SetMessage(message);
 }
 
-function DirtyNode(element) {
-    LinkedListNode.call(this);
-    this.Element = element;
-}
-DirtyNode.InheritFrom(LinkedListNode);
-
-function FocusChangedNode(lostFocus, gotFocus) {
-    LinkedListNode.call(this);
-    this.LostFocus = lostFocus;
-    this.GotFocus = gotFocus;
-}
-FocusChangedNode.InheritFrom(LinkedListNode);
-
 function _RenderContext(surface) {
     RefObject.call(this);
     this._Surface = surface;
@@ -192,6 +179,161 @@ function toArray() {
         arr.push(this[i]);
     return arr;
 };
+
+function App() {
+    DependencyObject.call(this);
+    this.MainSurface = new Surface();
+}
+App.InheritFrom(DependencyObject);
+App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
+App.prototype.GetResources = function () {
+    return this.GetValue(App.ResourcesProperty);
+};
+App.prototype.SetResources = function (value) {
+    this.SetValue(App.ResourcesProperty, value);
+};
+App.prototype.GetAddress = function () {
+    return this._Address;
+};
+App.prototype.SetAddress = function (value) {
+    this._Address = value;
+};
+App.prototype.Load = function (element, containerId, width, height) {
+    this.SetAddress(new Uri(document.URL));
+    this.MainSurface.Init(containerId, width, height);
+    if (!(element instanceof UIElement))
+        return;
+    this.MainSurface._Attach(element);
+    this.Start();
+};
+App.prototype.Start = function () {
+    var fps = 30.0;
+    var app = this;
+    this._TickID = setInterval(function () { app._Tick(); }, (1.0 / fps) * 1000.0);
+};
+App.prototype._Tick = function () {
+    if (this._IsRunning)
+        return;
+    this._IsRunning = true;
+    var extents = this.MainSurface.GetExtents();
+    var region = new Rect(0, 0, extents.Width, extents.Height);
+    try {
+        this.MainSurface.ProcessDirtyElements(region);
+    } catch (err) {
+        Fatal("An error occurred processing dirty elements: " + err.toString());
+    }
+    this._IsRunning = false;
+};
+App.prototype._Stop = function () {
+    clearInterval(this._TickID);
+};
+App.prototype._GetImplicitStyles = function (fe, styleMask) {
+    var genericXamlStyle = undefined;
+    var appResourcesStyle = undefined;
+    var visualTreeStyle = undefined;
+    if ((styleMask & _StyleMask.GenericXaml) != 0) {
+        if (fe instanceof Control) {
+            genericXamlStyle = fe.GetDefaultStyle();
+            if (!genericXamlStyle) {
+                var styleKey = fe.GetDefaultStyleKey();
+                if (styleKey != null)
+                    genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
+            }
+        }
+    }
+    if ((styleMask & _StyleMask.ApplicationResources) != 0) {
+        appResourcesStyle = this.GetResources().Get(fe._TypeName);
+    }
+    if ((styleMask & _StyleMask.VisualTree) != 0) {
+        var isControl = fe instanceof Control;
+        var el = fe;
+        while (el != null) {
+            if (el.GetTemplateOwner() != null && fe.GetTemplateOwner() == null) {
+                el = el.GetTemplateOwner();
+                continue;
+            }
+            if (!isControl && el == fe.GetTemplateOwner())
+                break;
+            visualTreeStyle = el.GetResources().Get(fe._TypeName);
+            if (visualTreeStyle != null)
+                break;
+            el = el.GetVisualParent();
+        }
+    }
+    var styles = new Array();
+    styles[_StyleIndex.GenericXaml] = genericXamlStyle;
+    styles[_StyleIndex.ApplicationResources] = appResourcesStyle;
+    styles[_StyleIndex.VisualTree] = visualTreeStyle;
+    return styles;
+};
+App.prototype._GetGenericXamlStyleFor = function (type) {
+    NotImplemented("App._GetGenericXamlStyleFor");
+};
+App.Instance = new App();
+
+function _DirtyList() {
+    RefObject.call(this);
+    this._DirtyNodes = new LinkedList();
+}
+_DirtyList.InheritFrom(RefObject);
+_DirtyList.prototype.AddDirtyNode = function (node) {
+    this._DirtyNodes.Append(node);
+};
+_DirtyList.prototype.RemoveDirtyNode = function (node) {
+    if (!this._DirtyNodes)
+        return;
+    this._DirtyNodes.Remove(node);
+};
+_DirtyList.prototype.GetFirst = function () {
+    return this._DirtyNodes.First();
+};
+_DirtyList.prototype.IsEmpty = function () {
+    return this._DirtyNodes.IsEmpty();
+};
+_DirtyList.prototype.Clear = function () {
+    this._DirtyNodes.Clear();
+};
+var _Dirty = {
+    Transform: 1 << 0,
+    LocalTransform: 1 << 1,
+    LocalProjection: 1 << 2,
+    Clip: 1 << 3,
+    LocalClip: 1 << 4,
+    RenderVisibility: 1 << 5,
+    HitTestVisibility: 1 << 6,
+    Measure: 1 << 7,
+    Arrange: 1 << 8,
+    ChildrenZIndices: 1 << 9,
+    Bounds: 1 << 20,
+    NewBounds: 1 << 21,
+    Invalidate: 1 << 22,
+    InUpDirtyList: 1 << 30,
+    InUpDirtyList: 1 << 31
+};
+_Dirty.DownDirtyState =
+    _Dirty.Transform |
+    _Dirty.LocalTransform |
+    _Dirty.LocalProjection |
+    _Dirty.Clip |
+    _Dirty.LocalClip |
+    _Dirty.RenderVisibility |
+    _Dirty.HitTestVisibility |
+    _Dirty.ChildrenZIndices;
+_Dirty.UpDirtyState = _Dirty.Bounds | _Dirty.Invalidate;
+_Dirty.State = _Dirty.DownDirtyState | _Dirty.UpDirtyState;
+
+function DirtyNode(element) {
+    LinkedListNode.call(this);
+    this.Element = element;
+}
+DirtyNode.InheritFrom(LinkedListNode);
+
+function FocusChangedNode(lostFocus, gotFocus) {
+    LinkedListNode.call(this);
+    this.LostFocus = lostFocus;
+    this.GotFocus = gotFocus;
+}
+FocusChangedNode.InheritFrom(LinkedListNode);
 
 function Surface() {
     RefObject.call(this);
@@ -717,146 +859,4 @@ Surface._ElementPathToRoot = function (source) {
     }
     return list;
 };
-
-function App() {
-    DependencyObject.call(this);
-    this.MainSurface = new Surface();
-}
-App.InheritFrom(DependencyObject);
-App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
-App.prototype.GetResources = function () {
-    return this.GetValue(App.ResourcesProperty);
-};
-App.prototype.SetResources = function (value) {
-    this.SetValue(App.ResourcesProperty, value);
-};
-App.prototype.GetAddress = function () {
-    return this._Address;
-};
-App.prototype.SetAddress = function (value) {
-    this._Address = value;
-};
-App.prototype.Load = function (element, containerId, width, height) {
-    this.SetAddress(new Uri(document.URL));
-    this.MainSurface.Init(containerId, width, height);
-    if (!(element instanceof UIElement))
-        return;
-    this.MainSurface._Attach(element);
-    this.Start();
-};
-App.prototype.Start = function () {
-    var fps = 30.0;
-    var app = this;
-    this._TickID = setInterval(function () { app._Tick(); }, (1.0 / fps) * 1000.0);
-};
-App.prototype._Tick = function () {
-    if (this._IsRunning)
-        return;
-    this._IsRunning = true;
-    var extents = this.MainSurface.GetExtents();
-    var region = new Rect(0, 0, extents.Width, extents.Height);
-    try {
-        this.MainSurface.ProcessDirtyElements(region);
-    } catch (err) {
-        Fatal("An error occurred processing dirty elements: " + err.toString());
-    }
-    this._IsRunning = false;
-};
-App.prototype._Stop = function () {
-    clearInterval(this._TickID);
-};
-App.prototype._GetImplicitStyles = function (fe, styleMask) {
-    var genericXamlStyle = undefined;
-    var appResourcesStyle = undefined;
-    var visualTreeStyle = undefined;
-    if ((styleMask & _StyleMask.GenericXaml) != 0) {
-        if (fe instanceof Control) {
-            genericXamlStyle = fe.GetDefaultStyle();
-            if (!genericXamlStyle) {
-                var styleKey = fe.GetDefaultStyleKey();
-                if (styleKey != null)
-                    genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
-            }
-        }
-    }
-    if ((styleMask & _StyleMask.ApplicationResources) != 0) {
-        appResourcesStyle = this.GetResources().Get(fe._TypeName);
-    }
-    if ((styleMask & _StyleMask.VisualTree) != 0) {
-        var isControl = fe instanceof Control;
-        var el = fe;
-        while (el != null) {
-            if (el.GetTemplateOwner() != null && fe.GetTemplateOwner() == null) {
-                el = el.GetTemplateOwner();
-                continue;
-            }
-            if (!isControl && el == fe.GetTemplateOwner())
-                break;
-            visualTreeStyle = el.GetResources().Get(fe._TypeName);
-            if (visualTreeStyle != null)
-                break;
-            el = el.GetVisualParent();
-        }
-    }
-    var styles = new Array();
-    styles[_StyleIndex.GenericXaml] = genericXamlStyle;
-    styles[_StyleIndex.ApplicationResources] = appResourcesStyle;
-    styles[_StyleIndex.VisualTree] = visualTreeStyle;
-    return styles;
-};
-App.prototype._GetGenericXamlStyleFor = function (type) {
-    NotImplemented("App._GetGenericXamlStyleFor");
-};
-App.Instance = new App();
-
-function _DirtyList() {
-    RefObject.call(this);
-    this._DirtyNodes = new LinkedList();
-}
-_DirtyList.InheritFrom(RefObject);
-_DirtyList.prototype.AddDirtyNode = function (node) {
-    this._DirtyNodes.Append(node);
-};
-_DirtyList.prototype.RemoveDirtyNode = function (node) {
-    if (!this._DirtyNodes)
-        return;
-    this._DirtyNodes.Remove(node);
-};
-_DirtyList.prototype.GetFirst = function () {
-    return this._DirtyNodes.First();
-};
-_DirtyList.prototype.IsEmpty = function () {
-    return this._DirtyNodes.IsEmpty();
-};
-_DirtyList.prototype.Clear = function () {
-    this._DirtyNodes.Clear();
-};
-var _Dirty = {
-    Transform: 1 << 0,
-    LocalTransform: 1 << 1,
-    LocalProjection: 1 << 2,
-    Clip: 1 << 3,
-    LocalClip: 1 << 4,
-    RenderVisibility: 1 << 5,
-    HitTestVisibility: 1 << 6,
-    Measure: 1 << 7,
-    Arrange: 1 << 8,
-    ChildrenZIndices: 1 << 9,
-    Bounds: 1 << 20,
-    NewBounds: 1 << 21,
-    Invalidate: 1 << 22,
-    InUpDirtyList: 1 << 30,
-    InUpDirtyList: 1 << 31
-};
-_Dirty.DownDirtyState =
-    _Dirty.Transform |
-    _Dirty.LocalTransform |
-    _Dirty.LocalProjection |
-    _Dirty.Clip |
-    _Dirty.LocalClip |
-    _Dirty.RenderVisibility |
-    _Dirty.HitTestVisibility |
-    _Dirty.ChildrenZIndices;
-_Dirty.UpDirtyState = _Dirty.Bounds | _Dirty.Invalidate;
-_Dirty.State = _Dirty.DownDirtyState | _Dirty.UpDirtyState;
 

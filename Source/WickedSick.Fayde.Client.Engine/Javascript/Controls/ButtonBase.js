@@ -1,11 +1,12 @@
 ﻿/// <reference path="ContentControl.js"/>
+/// CODE
 
 //#region ButtonBase
 
-ButtonBase.prototype = new ContentControl;
-ButtonBase.prototype.constructor = ButtonBase;
 function ButtonBase() {
     ContentControl.call(this);
+    if (!IsDocumentReady())
+        return;
 
     this._IsMouseCaptured = false;
     this._IsMouseLeftButtonDown = false;
@@ -17,7 +18,7 @@ function ButtonBase() {
     this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
     this.SetIsTabStop(true);
 }
-ButtonBase.GetBaseClass = function () { return ContentControl; };
+ButtonBase.InheritFrom(ContentControl);
 
 //#region DEPENDENCY PROPERTIES
 

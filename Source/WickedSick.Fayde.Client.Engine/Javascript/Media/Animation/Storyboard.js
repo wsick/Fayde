@@ -1,5 +1,5 @@
 ﻿/// <reference path="../Animation/Timeline.js"/>
-/// <reference path="../../Collections.js"/>
+/// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
 
 //#region Storyboard

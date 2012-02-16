@@ -1,6 +1,4 @@
-﻿/// <reference path="/Scripts/jquery-1.7.js"/>
-
-var DebugLevel = {
+﻿var DebugLevel = {
     Info: 0,
     Debug: 1,
     Warn: 2,

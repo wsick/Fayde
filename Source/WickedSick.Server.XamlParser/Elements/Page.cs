@@ -49,6 +49,8 @@ namespace WickedSick.Server.XamlParser.Elements
 
             sb.AppendLine("\t\t<script type=\"text/javascript\">");
             sb.AppendLine("\t\t\t$(document).ready(function () {");
+            sb.AppendLine("\t\t\t\twindow.IsDocumentReady = function () { return true; }");
+            sb.AppendLine("\t\t\t\tApp.Instance = new App();");
             sb.AppendLine("\t\t\t\t_Console.Init(\"#console\");");
             sb.AppendLine("\t\t\t\tRegisterHUD(\"mouse\", \"#hud-mouse\");");
             sb.AppendLine("\t\t\t\tRegisterHUD(\"els\", \"#hud-els\");");

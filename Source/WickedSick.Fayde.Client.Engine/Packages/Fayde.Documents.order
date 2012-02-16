@@ -1,9 +1,9 @@
-Documents/TextElementCollection.js
-Documents/BlockCollection.js
-Documents/InlineCollection.js
 Documents/TextElement.js
+Documents/TextElementCollection.js
 Documents/Block.js
+Documents/BlockCollection.js
 Documents/Inline.js
+Documents/InlineCollection.js
 Documents/LineBreak.js
 Documents/Paragraph.js
 Documents/Run.js

@@ -1,4 +1,4 @@
-﻿/// <reference path="../EventArgs.js"/>
+﻿/// <reference path="../Runtime/EventArgs.js"/>
 /// CODE
 
 //#region PropertyChangedEventArgs

@@ -1,4 +1,4 @@
-﻿/// <reference path="DependencyObject.js"/>
+﻿/// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="PropertyValueProviders.js"/>
 
@@ -6,6 +6,8 @@
 
 function TextElement() {
     DependencyObject.call(this);
+    if (!IsDocumentReady())
+        return;
 
     this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
     this._Font = new Font();

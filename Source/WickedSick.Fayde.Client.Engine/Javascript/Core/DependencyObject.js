@@ -3,7 +3,7 @@
 /// <reference path="PropertyValueProviders/PropertyValueProvider.js" />
 /// <reference path="PropertyValueProviders/AutoCreatePropertyValueProvider.js" />
 /// <reference path="PropertyValueProviders/DefaultValuePropertyValueProvider.js" />
-/// <reference path="PropertyValueProviders/LocalValueStylePropertyValueProvider.js" />
+/// <reference path="PropertyValueProviders/LocalValuePropertyValueProvider.js" />
 /// <reference path="../Runtime/MulticastEvent.js" />
 /// CODE
 /// <reference path="Expression.js"/>

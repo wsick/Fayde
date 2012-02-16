@@ -1,4 +1,4 @@
-﻿/// <reference path="../MulticastEvent.js"/>
+﻿/// <reference path="../Runtime/MulticastEvent.js"/>
 /// CODE
 
 //#region _PropertyPathWalker

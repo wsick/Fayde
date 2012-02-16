@@ -1,4 +1,4 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="../Runtime/RefObject.js"/>
 /// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
 

@@ -1,7 +1,7 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="../Runtime/RefObject.js"/>
 /// CODE
 /// <reference path="Markup.js"/>
-/// <reference path="Collection.js"/>
+/// <reference path="../Core/Collections/Collection.js"/>
 
 //#region JsonParser
 

@@ -7,7 +7,7 @@
 function _DeepStyleWalker(styles) {
     RefObject.call(this);
     
-    if (!styles)
+    if (!IsDocumentReady())
         return;
 
     this._Setters = new Array();

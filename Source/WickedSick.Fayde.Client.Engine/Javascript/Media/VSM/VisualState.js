@@ -1,4 +1,4 @@
-﻿/// <reference path="../../DependencyObject.js"/>
+﻿/// <reference path="../../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="../Animation/Storyboard.js"/>
 

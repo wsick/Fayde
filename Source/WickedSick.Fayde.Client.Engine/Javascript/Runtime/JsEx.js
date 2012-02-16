@@ -48,3 +48,8 @@ String.prototype.indexOfAny = function (carr, start) {
     }
     return -1;
 };
+
+function IsDocumentReady() {
+    /// <returns type="Boolean" />
+    return false;
+}

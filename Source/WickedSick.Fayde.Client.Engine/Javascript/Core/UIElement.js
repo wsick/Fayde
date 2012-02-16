@@ -1,31 +1,19 @@
 ﻿/// <reference path="DependencyObject.js" />
 /// CODE
-/// <reference path="Primitives.js" />
-/// <reference path="DependencyProperty.js" />
+/// <reference path="../Core/DependencyProperty.js" />
 /// <reference path="Canvas.js" />
-/// <reference path="Dirty.js"/>
-/// <reference path="App.js"/>
-/// <reference path="Collections.js"/>
-/// <reference path="Geometry.js"/>
-/// <reference path="Brushes.js"/>
-
-var UIElementFlags = {
-    None: 0,
-
-    RenderVisible: 0x02,
-    HitTestVisible: 0x04,
-    TotalRenderVisible: 0x08,
-    TotalHitTestVisible: 0x10,
-
-    DirtyArrangeHint: 0x800,
-    DirtyMeasureHint: 0x1000,
-    DirtySizeHint: 0x2000
-};
+/// <reference path="../Engine/Dirty.js"/>
+/// <reference path="../Engine/App.js"/>
+/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Media/Geometry.js"/>
+/// <reference path="../Media/Brush.js"/>
 
 //#region UIElement
 
 function UIElement() {
     DependencyObject.call(this);
+    if (!IsDocumentReady())
+        return;
 
     this.Unloaded = new MulticastEvent();
     this.Loaded = new MulticastEvent();
@@ -762,9 +750,9 @@ UIElement.prototype.OnLostFocus = function (sender, args) { };
 
 //#endregion
 
-UIElement._IsOpacityInvisible(opacity) {
+UIElement._IsOpacityInvisible = function (opacity) {
     return opacity <= 0.0;
-}
+};
 UIElement.ZIndexComparer = function (uie1, uie2) {
     var zi1 = Canvas.GetZIndex(uie1);
     var zi2 = Canvas.GetZIndex(uie2);

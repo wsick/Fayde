@@ -47,6 +47,9 @@ String.prototype.indexOfAny = function (carr, start) {
     }
     return -1;
 };
+function IsDocumentReady() {
+    return false;
+}
 
 function RefObject() {
     Object.call(this);

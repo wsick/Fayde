@@ -1,6 +1,6 @@
-﻿/// <reference path="../../DependencyObject.js"/>
-/// <reference path="../../MulticastEvent.js"/>
-/// <reference path="../../Collections.js"/>
+﻿/// <reference path="../../Core/DependencyObject.js"/>
+/// <reference path="../../Runtime/MulticastEvent.js"/>
+/// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
 /// <reference path="VisualTransition.js"/>
 /// <reference path="VisualState.js"/>

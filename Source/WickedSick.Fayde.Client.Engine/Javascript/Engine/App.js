@@ -1,4 +1,4 @@
-/// <reference path="DependencyObject.js"/>
+/// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="Surface.js"/>
 /// <reference path="../Runtime/Collections.js"/>
@@ -117,6 +117,5 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
 App.prototype._GetGenericXamlStyleFor = function (type) {
     NotImplemented("App._GetGenericXamlStyleFor");
 };
-App.Instance = new App();
 
 //#endregion

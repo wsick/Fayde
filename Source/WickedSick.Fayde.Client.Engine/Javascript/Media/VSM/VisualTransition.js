@@ -1,5 +1,5 @@
 ﻿/// <reference path="../../Core/DependencyObject.js"/>
-/// <reference path="../../Collections.js"/>
+/// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
 /// <reference path="../Animation/Storyboard.js"/>
 

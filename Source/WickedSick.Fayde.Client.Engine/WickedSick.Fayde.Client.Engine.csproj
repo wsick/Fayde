@@ -56,7 +56,9 @@
     <Content Include="Javascript\Controls\ControlTemplate.js" />
     <Content Include="Javascript\Controls\Enums.js" />
     <Content Include="Javascript\Controls\GridLength.js" />
+    <Content Include="Javascript\Controls\MediaElement.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />
+    <Content Include="Javascript\Controls\Popup.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\PasswordBoxDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxBaseDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxDynamicPropertyValueProvider.js" />
@@ -90,7 +92,7 @@
     <Content Include="Javascript\Core\PropertyValueProviders\InheritedDataContextPropertyValueProvider.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\InheritedIsEnabledPropertyValueProvider.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\InheritedPropertyValueProvider.js" />
-    <Content Include="Javascript\Core\PropertyValueProviders\LocalPropertyValueProvider.js" />
+    <Content Include="Javascript\Core\PropertyValueProviders\LocalValuePropertyValueProvider.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\PropertyValueProvider.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\StylePropertyValueProvider.js" />
     <Content Include="Javascript\Core\Setter.js" />
@@ -244,6 +246,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PackageAssemblies.bat" />
+    <None Include="Packages\Fayde.Controls.order" />
+    <None Include="Packages\Fayde.Core.order" />
+    <None Include="Packages\Fayde.Data.order" />
+    <None Include="Packages\Fayde.Documents.order" />
+    <None Include="Packages\Fayde.Engine.order" />
+    <None Include="Packages\Fayde.Markup.order" />
+    <None Include="Packages\Fayde.Media.order" />
+    <None Include="Packages\Fayde.Primitives.order" />
+    <None Include="Packages\Fayde.Runtime.order" />
+    <None Include="Packages\Fayde.TextLayout.order" />
     <None Include="Tests\smoke.fayde" />
   </ItemGroup>
   <ItemGroup>
