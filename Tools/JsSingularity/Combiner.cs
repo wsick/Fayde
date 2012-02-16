@@ -8,7 +8,7 @@ namespace JsSingularity
 {
     public class Combiner
     {
-        private static readonly Regex JS_REF_REGEX = new Regex(@"///\s?<reference\spath=""(?<filename>[^\\/:*?""<>|\r\n]+\.js)""\s?/>", RegexOptions.Compiled);
+        private static readonly Regex JS_REF_REGEX = new Regex(@"///\s?<reference\spath=""(?<filename>[^\\:*?""<>|\r\n]+\.js)""\s?/>", RegexOptions.Compiled);
         private static readonly Regex CANCEL_REF_REGEX = new Regex(@"///\s*CODE", RegexOptions.Compiled);
 
         //private static readonly string JS_INCLUDE_FORMAT = "<script src=\"{0}\" type=\"text/javascript\"></script>";
@@ -74,7 +74,11 @@ namespace JsSingularity
                     var match = JS_REF_REGEX.Match(line);
                     if (match.Success)
                     {
-                        jf.JsRefs.Add(new JsRef { RefPath = match.Groups["filename"].Value });
+                        var relativeFilename = match.Groups["filename"].Value;
+                        if (string.IsNullOrWhiteSpace(relativeFilename))
+                            continue;
+                        relativeFilename = relativeFilename.Replace("/", "\\");
+                        jf.JsRefs.Add(new JsRef { RefPath = relativeFilename });
                     }
                 }
             }
