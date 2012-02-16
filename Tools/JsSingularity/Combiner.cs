@@ -23,6 +23,7 @@ namespace JsSingularity
         public string DeployPath { get; set; }
         public string IncludesFilePath { get; set; }
         public string BaseIncludesPath { get; set; }
+        public bool IsDebug { get; set; }
 
         protected DirectoryInfo ScriptsDirectory { get; set; }
 
@@ -40,6 +41,7 @@ namespace JsSingularity
             var db = new DependencyBroker
             {
                 AllJsFiles = Peak().ToList(),
+                IsDebug = IsDebug,
             };
             db.ConnectDependencies();
             db.SortDependencies();
