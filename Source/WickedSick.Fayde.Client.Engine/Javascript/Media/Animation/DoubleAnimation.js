@@ -1,4 +1,5 @@
-﻿/// <reference path="Animation.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="Animation.js"/>
 /// CODE
 
 //#region DoubleAnimation

@@ -1,4 +1,5 @@
-﻿/// <reference path="Collection.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="Collection.js"/>
 /// CODE
 
 //#region PresentationFrameworkCollection

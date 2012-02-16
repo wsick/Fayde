@@ -1,4 +1,5 @@
-﻿/// <reference path="../Core/DependencyObject.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Core/DependencyObject.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// CODE
 

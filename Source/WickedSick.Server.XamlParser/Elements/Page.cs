@@ -19,7 +19,7 @@ namespace WickedSick.Server.XamlParser.Elements
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+            sb.AppendLine("<!DOCTYPE html>");
             sb.AppendLine("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
             sb.AppendLine("\t<head>");
             sb.Append("\t\t<title>");

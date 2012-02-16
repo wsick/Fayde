@@ -1,4 +1,5 @@
-﻿/// <reference path="TextElement.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="TextElement.js"/>
 /// CODE
 /// <reference path="BlockCollection.js"/>
 

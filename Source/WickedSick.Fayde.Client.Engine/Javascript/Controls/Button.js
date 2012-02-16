@@ -1,4 +1,5 @@
-﻿/// <reference path="ButtonBase.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="ButtonBase.js"/>
 /// CODE
 /// <reference path="Style.js"/>
 /// <reference path="JsonParser.js"/>

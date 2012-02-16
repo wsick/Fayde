@@ -1,4 +1,5 @@
-﻿/// CODE
+/// <reference path="../Runtime/RefObject.js" />
+/// CODE
 /// <reference path="../Engine/Surface.js"/>
 
 //#region TextLayout

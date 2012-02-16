@@ -1,4 +1,5 @@
-﻿/// <reference path="Collection.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="DependencyObjectCollection.js"/>
 /// CODE
 
 //#region ResourceDictionary
@@ -22,7 +23,7 @@ ResourceDictionary.prototype.ContainsKey = function (key) {
     return this._KeyIndex[key] != undefined;
 };
 ResourceDictionary.prototype._GetIndexFromKey = function (key) {
-    return this.KeyIndex[key];
+    return this._KeyIndex[key];
 };
 ResourceDictionary.prototype.Get = function (key) {
     if (this.ContainsKey(key))
@@ -57,9 +58,19 @@ ResourceDictionary.prototype.Set = function (key, value) {
 
 ResourceDictionary.prototype.AddedToCollection = function (value, error) {
     NotImplemented("ResourceDictionary.AddedToCollection");
+    if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
+        return false;
+    var parent = this._Parent;
+    if (!parent)
+        return true;
+    var parentRd = parent;
+    var rd = RefObject.As(value, ResourceDictionary);
+    return this._WalkSubtreeLookingForCycle(rd, parentRd, error);
 };
-ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
-    NotImplemented("ResourceDictionary.RemovedFromCollection");
+
+ResourceDictionary.prototype._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
+    NotImplemented("ResourceDictionary._WalkSubtreeLookingForCycle");
+    return true;
 };
 
 ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {

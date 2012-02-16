@@ -1,4 +1,5 @@
-﻿/// <reference path="FrameworkTemplate.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="FrameworkTemplate.js"/>
 /// CODE
 /// <reference path="NameScope.js"/>
 /// <reference path="../Markup/JsonParser.js"/>

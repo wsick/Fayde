@@ -1,4 +1,5 @@
-﻿/// <reference path="TileBrush.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="TileBrush.js"/>
 /// CODE
 
 //#region ImageBrush

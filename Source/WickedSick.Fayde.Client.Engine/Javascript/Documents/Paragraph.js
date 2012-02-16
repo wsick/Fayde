@@ -1,4 +1,5 @@
-﻿/// <reference path="Block.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Block.js"/>
 /// CODE
 
 //#region Paragraph

@@ -1,4 +1,5 @@
-﻿/// <reference path="SetterBase.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="SetterBase.js"/>
 /// CODE
 
 //#region Setter

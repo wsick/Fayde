@@ -1,4 +1,5 @@
-﻿/// <reference path="UIElement.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="UIElement.js"/>
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="PropertyValueProviders/StylePropertyValueProvider.js"/>

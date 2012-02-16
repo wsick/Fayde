@@ -1,4 +1,5 @@
-﻿/// CODE
+/// <reference path="../../Runtime/RefObject.js" />
+/// CODE
 /// <reference path="Collection.js"/>
 
 //#region CollectionIterator

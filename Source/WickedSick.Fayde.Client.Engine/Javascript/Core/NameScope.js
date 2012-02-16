@@ -1,4 +1,5 @@
-﻿/// <reference path="DependencyObject.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="DependencyObject.js"/>
 /// CODE
 
 //#region NameScope

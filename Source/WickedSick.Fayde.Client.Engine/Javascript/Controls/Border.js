@@ -1,4 +1,5 @@
-﻿/// <reference path="../Core/FrameworkElement.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="../Core/DependencyObject.js" />
 /// <reference path="../Primitives/CornerRadius.js"/>

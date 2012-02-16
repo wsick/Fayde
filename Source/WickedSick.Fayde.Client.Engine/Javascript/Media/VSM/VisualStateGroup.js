@@ -1,4 +1,5 @@
-﻿/// <reference path="../../Core/DependencyObject.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="../../Runtime/MulticastEvent.js"/>
 /// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
@@ -52,7 +53,7 @@ VisualStateGroup.prototype.GetState = function (stateName) {
     var states = this.GetStates();
     for (var i = 0; i < states.GetCount(); i++) {
         var state = states.GetValueAt(i);
-        if (state.Name === stateName)
+        if (state.GetName() === stateName)
             return state;
     }
     return null;
@@ -98,6 +99,8 @@ VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboar
 
     currentStoryboards.Clear();
     for (i = 0; i < newStoryboards.length; i++) {
+        if (newStoryboards[i] == null)
+            continue;
         currentStoryboards.Add(newStoryboards[i]);
     }
 };

@@ -1,4 +1,5 @@
-﻿/// <reference path="GradientBrush.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="GradientBrush.js"/>
 /// CODE
 /// <reference path="Enums.js"/>
 

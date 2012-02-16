@@ -1,4 +1,4 @@
-﻿var DebugLevel = {
+var DebugLevel = {
     Info: 0,
     Debug: 1,
     Warn: 2,
@@ -8,13 +8,10 @@
 
 //#region Console
 
-Console.prototype = new Object;
-Console.prototype.constructor = Console;
 function Console(level) {
     this._Queue = new Array();
     this._Level = level;
 }
-Console.GetBaseClass = function () { return Object; };
 
 Console.prototype.Init = function (selector) {
     this._TextBox = $(selector);

@@ -1,4 +1,5 @@
-﻿/// <reference path="Collections/DependencyObjectCollection.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Collections/DependencyObjectCollection.js"/>
 /// CODE
 /// <reference path="SetterBase.js"/>
 

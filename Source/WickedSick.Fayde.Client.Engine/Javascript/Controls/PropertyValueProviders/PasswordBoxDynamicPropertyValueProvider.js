@@ -1,4 +1,5 @@
-﻿/// <reference path="TextBoxBaseDynamicPropertyValueProvider.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="TextBoxBaseDynamicPropertyValueProvider.js"/>
 /// CODE
 /// <reference path="PasswordBox.js"/>
 

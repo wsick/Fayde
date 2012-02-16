@@ -1,4 +1,5 @@
-﻿/// <reference path="Span.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Span.js"/>
 /// CODE
 
 //#region Hyperlink

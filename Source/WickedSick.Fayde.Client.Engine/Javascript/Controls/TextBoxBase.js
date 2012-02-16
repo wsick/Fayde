@@ -1,4 +1,5 @@
-﻿/// <reference path="Control.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Control.js"/>
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Primitives/Font.js"/>
 /// CODE

@@ -1,4 +1,5 @@
-﻿/// <reference path="TextBoxBase.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="TextBoxBase.js"/>
 /// <reference path="../Core/PropertyValueProviders/Enums.js"/>
 /// <reference path="PropertyValueProviders/TextBoxDynamicPropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>

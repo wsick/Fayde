@@ -1,4 +1,5 @@
-﻿/// <reference path="../../Core/DependencyObject.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="VisualStateGroup.js"/>
 /// CODE
 /// <reference path="UserControl.js"/>
@@ -79,10 +80,10 @@ VisualStateManager.GoToState = function (control, stateName, useTransitions) {
     if (!VisualStateManager._TryGetState(groups, stateName, data))
         return false;
 
-    var customVsm = VisualStateManager._GetCustomVisualStateManager(root);
+    var customVsm = VisualStateManager.GetCustomVisualStateManager(root);
     if (customVsm != null) {
         return customVsm.GoToStateCore(control, root, stateName, data.group, data.state, useTransitions);
-    } else if (state != null) {
+    } else if (data.state != null) {
         return VisualStateManager.GoToStateInternal(control, root, data.group, data.state, useTransitions);
     }
 

@@ -1,4 +1,5 @@
-﻿/// CODE
+/// <reference path="../Runtime/RefObject.js" />
+/// CODE
 /// <reference path="Surface.js"/>
 
 //#region _RenderContext

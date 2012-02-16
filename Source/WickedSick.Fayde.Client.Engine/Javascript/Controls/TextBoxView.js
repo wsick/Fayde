@@ -1,4 +1,5 @@
-﻿/// <reference path="../Core/FrameworkElement.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Core/FrameworkElement.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../TextLayout/TextLayout.js"/>
 /// CODE

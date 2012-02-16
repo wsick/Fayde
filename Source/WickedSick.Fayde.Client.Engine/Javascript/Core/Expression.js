@@ -1,4 +1,5 @@
-﻿/// CODE
+/// <reference path="../Runtime/RefObject.js" />
+/// CODE
 /// <reference path="DependencyProperty.js"/>
 /// <reference path="ContentControl.js"/>
 /// <reference path="PropertyPath.js"/>

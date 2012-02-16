@@ -1,4 +1,5 @@
-﻿/// <reference path="../../Core/PropertyValueProviders/Enums.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Core/PropertyValueProviders/Enums.js"/>
 /// <reference path="../../Core/FrameworkElementPropertyValueProvider.js"/>
 /// CODE
 

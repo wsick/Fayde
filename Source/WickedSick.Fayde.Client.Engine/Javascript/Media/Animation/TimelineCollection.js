@@ -1,4 +1,5 @@
-﻿/// <reference path="../../Core/Collections/PresentationFrameworkCollection.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Core/Collections/PresentationFrameworkCollection.js"/>
 /// CODE
 
 //#region TimelineCollection

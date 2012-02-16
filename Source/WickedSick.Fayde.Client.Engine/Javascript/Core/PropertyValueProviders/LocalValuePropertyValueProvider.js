@@ -1,4 +1,5 @@
-﻿/// <reference path="Enums.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="Enums.js"/>
 /// <reference path="PropertyValueProvider.js"/>
 /// CODE
 

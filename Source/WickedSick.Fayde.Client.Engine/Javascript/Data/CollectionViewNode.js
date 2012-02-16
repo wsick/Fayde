@@ -1,4 +1,5 @@
-﻿/// <reference path="PropertyPathNode.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="PropertyPathNode.js"/>
 /// CODE
 /// <reference path="CurrentChangedListener.js"/>
 

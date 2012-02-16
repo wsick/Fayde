@@ -1,4 +1,5 @@
-﻿/// <reference path="BindingBase.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="BindingBase.js"/>
 /// <reference path="PropertyPath.js"/>
 /// CODE
 /// <reference path="RelativeSource.js"/>

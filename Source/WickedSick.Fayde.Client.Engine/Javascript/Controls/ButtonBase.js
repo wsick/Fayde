@@ -1,4 +1,5 @@
-﻿/// <reference path="ContentControl.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="ContentControl.js"/>
 /// CODE
 
 //#region ButtonBase

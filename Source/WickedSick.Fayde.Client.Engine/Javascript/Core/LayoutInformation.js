@@ -1,5 +1,6 @@
-﻿/// CODE
+/// <reference path="../Runtime/RefObject.js" />
 /// <reference path="../Primitives/Rect.js"/>
+/// CODE
 /// <reference path="../Primitives/Size.js"/>
 /// <reference path="../Primitives/Point.js"/>
 /// <reference path="../Media/Geometry.js"/>

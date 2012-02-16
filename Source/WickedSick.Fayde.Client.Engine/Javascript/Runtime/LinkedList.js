@@ -5,6 +5,7 @@
 
 function LinkedList() {
     RefObject.call(this);
+    this.Clear();
 }
 LinkedList.InheritFrom(RefObject);
 

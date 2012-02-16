@@ -1,4 +1,5 @@
-﻿/// <reference path="Brush.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Brush.js"/>
 /// CODE
 /// <reference path="Enums.js"/>
 

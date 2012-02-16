@@ -1,4 +1,5 @@
-﻿/// <reference path="TextElementCollection.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="TextElementCollection.js"/>
 /// CODE
 
 //#region BlockCollection

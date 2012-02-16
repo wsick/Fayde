@@ -1,4 +1,5 @@
-﻿/// <reference path="Timeline.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="Timeline.js"/>
 /// CODE
 
 //#region Animation

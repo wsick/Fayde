@@ -1,4 +1,5 @@
-﻿/// <reference path="PropertyValueProviders/PropertyValueProvider.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="PropertyValueProviders/PropertyValueProvider.js"/>
 /// <reference path="../Primitives/Size.js"/>
 /// CODE
 /// <reference path="FrameworkElement.js"/>

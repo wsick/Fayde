@@ -1,7 +1,7 @@
-﻿/// <reference path="Control.js"/>
-/// CODE
-/// <reference path="Templates.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Control.js"/>
 /// <reference path="Grid.js"/>
+/// CODE
 
 //#region ContentControl
 

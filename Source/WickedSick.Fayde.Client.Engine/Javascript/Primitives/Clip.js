@@ -1,4 +1,6 @@
-﻿/// CODE
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Rect.js"/>
+/// CODE
 
 //#region Clip
 

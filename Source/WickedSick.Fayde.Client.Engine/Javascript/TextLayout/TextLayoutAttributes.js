@@ -1,4 +1,5 @@
-﻿/// <reference path="../Runtime/LinkedListNode.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/LinkedListNode.js"/>
 /// CODE
 
 //#region _TextLayoutAttributes

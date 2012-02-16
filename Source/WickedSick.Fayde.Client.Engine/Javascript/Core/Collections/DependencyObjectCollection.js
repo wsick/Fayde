@@ -1,4 +1,5 @@
-﻿/// <reference path="Collection.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="Collection.js"/>
 /// <reference path="../DependencyObject.js"/>
 /// CODE
 
@@ -59,7 +60,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
 DependencyObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof DependencyObject) {
-            value.Unsubscribe(this._OnSubPropertyChanged, this);
+            value.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 

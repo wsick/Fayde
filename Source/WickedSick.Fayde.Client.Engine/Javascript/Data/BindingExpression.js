@@ -1,4 +1,5 @@
-﻿/// <reference path="BindingExpressionBase.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="BindingExpressionBase.js"/>
 /// CODE
 
 //#region BindingExpression

@@ -1,4 +1,5 @@
-﻿/// CODE
+/// <reference path="../Runtime/RefObject.js" />
+/// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="UIElementNode.js"/>

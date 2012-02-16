@@ -1,4 +1,5 @@
-﻿/// <reference path="Inline.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Inline.js"/>
 /// CODE
 
 //#region LineBreak

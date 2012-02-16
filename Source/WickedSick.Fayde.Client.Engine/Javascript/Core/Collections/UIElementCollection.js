@@ -1,4 +1,5 @@
-﻿/// <reference path="DependencyObjectCollection.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="DependencyObjectCollection.js"/>
 /// CODE
 
 //#region UIElementCollection

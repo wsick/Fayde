@@ -1,4 +1,5 @@
-﻿/// <reference path="Markup.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Markup.js"/>
 /// CODE
 
 //#region StaticResourceMarkup

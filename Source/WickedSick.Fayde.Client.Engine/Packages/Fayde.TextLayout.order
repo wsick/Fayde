@@ -1,8 +1,0 @@
-TextLayout/Enums.js
-TextLayout/LayoutWord.js
-TextLayout/TextLayout.js
-TextLayout/TextLayoutGlyphCluster.js
-TextLayout/TextLayoutLine.js
-TextLayout/TextLayoutRun.js
-TextLayout/WordBreakOp.js
-TextLayout/TextLayoutAttributes.js

@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/RefObject.js" />
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="Surface.js"/>

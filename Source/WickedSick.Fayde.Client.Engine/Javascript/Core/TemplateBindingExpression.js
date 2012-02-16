@@ -1,4 +1,5 @@
-﻿/// <reference path="Expression.js"/>
+/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="Expression.js"/>
 /// CODE
 
 //#region TemplateBindingExpression

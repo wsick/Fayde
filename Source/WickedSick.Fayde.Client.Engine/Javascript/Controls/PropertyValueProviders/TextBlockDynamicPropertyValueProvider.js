@@ -1,4 +1,5 @@
-﻿/// <reference path="../../Core/FrameworkElementPropertyValueProvider.js"/>
+/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Core/FrameworkElementPropertyValueProvider.js"/>
 
 //#region _TextBlockDynamicPropertyValueProvider
 

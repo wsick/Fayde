@@ -51,6 +51,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Fayde.js" />
     <Content Include="Javascript\Controls\ColumnDefinition.js" />
     <Content Include="Javascript\Controls\ColumnDefinitionCollection.js" />
     <Content Include="Javascript\Controls\ControlTemplate.js" />
@@ -222,17 +223,7 @@
     <Content Include="Javascript\Core\Validators.js" />
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
-    <Content Include="Packages\Fayde.Controls.js" />
-    <Content Include="Packages\Fayde.Core.js" />
-    <Content Include="Packages\Fayde.Data.js" />
-    <Content Include="Packages\Fayde.Documents.js" />
-    <Content Include="Packages\Fayde.Engine.js" />
-    <Content Include="Packages\Fayde.Markup.js" />
-    <Content Include="Packages\Fayde.Media.js" />
-    <Content Include="Packages\Fayde.Primitives.js" />
-    <Content Include="Packages\Fayde.Runtime.js" />
-    <Content Include="Packages\Fayde.TextLayout.js" />
-    <Content Include="Packages\jquery-1.7.js" />
+    <Content Include="jquery-1.7.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -242,20 +233,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Javascript\Media\VSM\VisualStateChangedEventArgs.js" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
-    <None Include="Packages\Fayde.Controls.order" />
-    <None Include="Packages\Fayde.Core.order" />
-    <None Include="Packages\Fayde.Data.order" />
-    <None Include="Packages\Fayde.Documents.order" />
-    <None Include="Packages\Fayde.Engine.order" />
-    <None Include="Packages\Fayde.Markup.order" />
-    <None Include="Packages\Fayde.Media.order" />
-    <None Include="Packages\Fayde.Primitives.order" />
-    <None Include="Packages\Fayde.Runtime.order" />
-    <None Include="Packages\Fayde.TextLayout.order" />
     <None Include="Tests\smoke.fayde" />
   </ItemGroup>
   <ItemGroup>
@@ -275,6 +258,9 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup>
+    <PreBuildEvent>$(ProjectDir)PackageAssemblies.bat $(ProjectDir)</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
