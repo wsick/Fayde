@@ -30,11 +30,11 @@ Storyboard.SetTargetName = function (d, value) {
 
 Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return _PropertyPath }, Storyboard);
 Storyboard.GetTargetProperty = function (d) {
-    ///<returns type="PropertyPath"></returns>
+    ///<returns type="_PropertyPath"></returns>
     return d.GetValue(Storyboard.TargetPropertyProperty);
 };
 Storyboard.SetTargetProperty = function (d, value) {
-    ///<param name="value" type="PropertyPath"></param>
+    ///<param name="value" type="_PropertyPath"></param>
     d.SetValue(Storyboard.TargetPropertyProperty, value);
 };
 
