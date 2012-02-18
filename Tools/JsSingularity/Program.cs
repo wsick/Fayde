@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define TESTING
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,7 +25,15 @@ namespace JsSingularity
                 ShouldSearchSubDirectories = cmdLine.Value("IncludeSubdirectories").EqualsIgnoreCase("true"),
                 IncludesFilePath = cmdLine.Value("IncludesFile"),
                 BaseIncludesPath = cmdLine.Value("BaseIncludesPath"),
+                IsDebug = cmdLine.Value("Debug").EqualsIgnoreCase("true"),
             };
+#if TESTING
+            combiner.DeployPath = System.IO.Directory.GetCurrentDirectory();
+            combiner.ScriptsFolder = @"D:\Source\Fayde\Source\WickedSick.Fayde.Client.Engine\Javascript\Core";
+            combiner.ShouldSearchSubDirectories = true;
+            combiner.IncludesFilePath = @"Fayde.Core.order";
+            combiner.BaseIncludesPath = @"D:\Source\Fayde\Source\WickedSick.Fayde.Client.Engine\Javascript";
+#endif
             combiner.Combine();
         }
 
