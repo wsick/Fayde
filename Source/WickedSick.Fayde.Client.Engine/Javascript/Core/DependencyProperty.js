@@ -1,5 +1,8 @@
 /// <reference path="../Runtime/RefObject.js" />
 /// CODE
+/// <reference path="../Data/PropertyPath.js"/>
+/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Controls/TextBlock.js"/>
 
 //#region DependencyProperty
 
@@ -84,6 +87,210 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
         propd = DependencyProperty.GetDependencyProperty(ownerType.GetBaseClass(), name);
     }
     return propd;
+};
+
+DependencyProperty.ResolvePropertyPath = function (refobj, propertyPath, promotedValues) {
+    /// <param name="refobj" type="Object"></param>
+    /// <param name="propertyPath" type="_PropertyPath"></param>
+    /// <returns type="DependencyProperty" />
+
+    if (propertyPath.HasDependencyProperty())
+        return propertyPath.GetDependencyProperty();
+
+    var path = propertyPath.GetPath();
+    if (propertyPath.GetExpandedPath() != null)
+        path = propertyPath.GetExpandedPath();
+
+    var data = {
+        index: 0,
+        end: path.length,
+        path: path,
+        parenOpen: false,
+        tickOpen: false,
+        start: path,
+        prop: path,
+        res: null,
+        cloned: false,
+        expressionFound: false,
+        lu: refobj.Value,
+        collection: null,
+        promotedValues: promotedValues
+    };
+
+    var success;
+    while (data.index < data.end) {
+        success = true;
+        var c = data.path.charAt(data.index);
+        data.index++;
+        if (c === '(') {
+            data.parenOpen = true;
+        } else if (c === ')') {
+            data.parenOpen = false;
+        } else if (c === '\'') {//Ticks only legal in expanded path
+            if (propertyPath.GetExpandedPath() == null)
+                Warn("The ' character is not legal in property paths.");
+            else
+                data.tickOpen = !data.tickOpen;
+        } else if (c === '.') {
+            success = DependencyProperty._HandlePeriod(data);
+        } else if (c === '[') {
+            success = DependencyProperty._HandleLeftBracket(data);
+        } else {
+            success = DependencyProperty._HandleDefault(data);
+        }
+        if (!success) {
+            refobj.Value = null;
+            return null;
+        }
+    }
+    refobj.Value = data.lu;
+    return data.res;
+};
+
+DependencyProperty._HandlePeriod = function (data) {
+    if (data.tickOpen)
+        return true;
+    if (data.res != null) {
+        var value = null;
+        var newLu = null;
+        if ((value = data.lu.GetValue(data.res)) == null)
+            return false;
+        if ((newLu = RefObject.As(value, DependencyObject)) == null)
+            return false;
+
+        if (data.promotedValues != null && !cloned && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
+            var clonedValue = value.Clone();
+            var clonedDo = RefObject.As(clonedValue, DependencyObject);
+            if (clonedDo != null) {
+                newLu = clonedDo;
+                data.lu.SetValue(data.res, clonedValue);
+                clonedValue = data.lu.GetValue(data.res);
+                data.promotedValues[clonedValue._ID] = clonedValue;
+            }
+        }
+
+        data.lu = newLu;
+    }
+    data.expressionFound = false;
+    data.prop = data.path.substr(data.index);
+    return true;
+};
+DependencyProperty._HandleLeftBracket = function (data) {
+    if (data.index >= data.end)
+        return;
+
+    var hasLeadingZeroes = false;
+    while (data.path.charAt(data.index) === '0') {
+        hasLeadingZeroes = true;
+        data.index++;
+    }
+    data.i = parseInt(data.path.substr(data.index), 10);
+    if (!isNaN(data.i))
+        data.index += data.i.toString().length;
+    if (isNaN(data.i) && hasLeadingZeroes)
+        data.i = 0;
+
+    if (data.path.charAt(data.index) !== ']' || data.path.charAt(data.index + 1) !== '.')
+        return true;
+
+    data.prop = data.path = data.path.substr(data.index + 2);
+
+    var value = null;
+    if (data.expressionFound) {
+        data.expressionFound = false;
+        if ((value = data.lu.GetValue(data.res)) == null)
+            return false;
+    }
+
+    if ((data.collection = RefObject.As(value, Collection)) == null)
+        return false;
+    if ((value = data.collection.GetValueAt(data.i)) == null)
+        return false;
+    if ((data.lu = RefObject.As(value, DependencyObject)) == null)
+        return false;
+    return true;
+};
+DependencyProperty._HandleDefault = function (data) {
+    var explicitType = false;
+    data.expressionFound = true;
+    var start = data.index - 1;
+
+    var c;
+    while (data.index < data.end) {
+        c = data.path.charAt(data.index);
+        if (!((c !== '.' || data.tickOpen) && (!data.parenOpen || c !== ')') && c !== '['))
+            break;
+        data.index++;
+        if (c === '\'') {
+            data.tickOpen = !data.tickOpen;
+            if (!data.tickOpen)
+                break;
+        }
+    }
+
+    if (data.index === data.end)
+        return false;
+
+    c = data.path.charAt(data.index);
+    if (c === '.') {
+        // we found a type name, now find the property name
+        if ((data.index - start) === 11 && data.path.substr(start, 11).toLowerCase() === "textelement") { //bug workaround from Blend
+            data.type = TextBlock;
+            data.explicitType = true;
+        } else {
+            var s = data.index;
+            if (data.path.charAt(data.index - 1) === '\'' && !data.tickOpen) {
+                s = data.index - 1;
+            }
+            var name = data.path.slice(start, s);
+            data.type = DependencyProperty._LookupType(name);
+            data.explicitType = true;
+            if (data.type == null)
+                data.type = lu.constructor;
+        }
+        data.index++;
+        start = data.index;
+        while (data.index < data.end) {
+            c = data.path.charAt(data.index);
+            if (!((!data.parenOpen || c !== ')') && (c !== '.' || data.tickOpen)))
+                break;
+            data.index++;
+            if (c === '\'') {
+                data.tickOpen = !data.tickOpen;
+                if (!data.tickOpen)
+                    break;
+            }
+        }
+        if (data.index === start)
+            return false;
+    } else {
+        data.type = lu.constructor;
+        data.explicitType = false;
+    }
+
+    c = data.path.charAt(data.index);
+    if ((c !== ')' && data.parenOpen) || data.type == null)
+        return false;
+
+    name = data.path.substr(start, data.index);
+    if ((res = DependencyProperty.GetDependencyProperty(data.type, name)) == null && data.lu)
+        res = DependencyProperty.GetDependencyProperty(lu.constructor, name);
+
+    if (res == null)
+        return false;
+
+    if (!res._IsAttached && !data.lu.constructor.DoesInheritFrom(data.type)) {
+        if ((res = DependencyProperty.GetDependencyProperty(lu.constructor, name)) == null)
+            return false;
+    }
+
+    if (res._IsAttached && data.explicitType && !data.parenOpen)
+        return false;
+
+    return true;
+};
+DependencyProperty._LookupType = function (name) {
+    return eval(name);
 };
 
 //#endregion
