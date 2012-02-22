@@ -7,7 +7,10 @@
 
 function Timeline() {
     DependencyObject.call(this);
+    if (!IsDocumentReady())
+        return;
     this.Completed = new MulticastEvent();
+    this.Reset();
 }
 Timeline.InheritFrom(DependencyObject);
 
@@ -35,6 +38,38 @@ Timeline.prototype.SetDuration = function (value) {
 
 //#endregion
 
+Timeline.prototype.HasManualTarget = function () {
+    return this._ManualTarget != null;
+};
+Timeline.prototype.GetManualTarget = function () {
+    return this._ManualTarget;
+};
+
+Timeline.prototype.Reset = function () {
+    this._IsFirstUpdate = true;
+    this._BeginStep = null;
+    this._HasReachedBeg = false;
+};
+Timeline.prototype.IsAfterBeginTime = function (nowTime) {
+    var beginTime = this.GetBeginTime();
+    if (beginTime == null || beginTime.IsZero())
+        return true;
+    var ts = new TimeSpan();
+    ts.AddMilliseconds(nowTime - this._InitialStep);
+    if (ts.CompareTo(beginTime) < 0)
+        return false;
+    return true;
+};
+Timeline.prototype.HasDurationElapsed = function (nowTime) {
+    var duration = this.GetDuration();
+    if (duration == null)
+        return true;
+    if (!duration.HasTimeSpan())
+        return false;
+    if (this.GetCurrentProgress(nowTime) < 1.0)
+        return false;
+    return true;
+};
 Timeline.prototype.GetCurrentProgress = function (nowTime) {
     if (nowTime === Number.POSITIVE_INFINITY)
         return 1.0;
@@ -45,66 +80,32 @@ Timeline.prototype.GetCurrentProgress = function (nowTime) {
     return progress;
 };
 
-Timeline.prototype.HasManualTarget = function () {
-    return this._ManualTarget != null;
-};
-Timeline.prototype.GetManualTarget = function () {
-    return this._ManualTarget;
-};
-
-Timeline.prototype.HookupStorage = function (targetObj, targetProp) {
-    /// <param name="targetObj" type="DependencyObject"></param>
-    /// <param name="targetProp" type="DependencyProperty"></param>
-    /// <returns type="AnimationStorage" />
-    this._Storage = new AnimationStorage(this, targetObj, targetProp);
-    return this._Storage;
-};
-
-Timeline.prototype.InitializeTimes = function (now) {
-    this._InitialStep = now;
-    var beginTime = this.GetBeginTime();
-    this._ReachedBeginTime = beginTime == null || beginTime.IsZero();
-    if (this._ReachedBeginTime)
-        this._BeginStep = now;
-};
-Timeline.prototype.HasReachedBeginTime = function (nowTime) {
-    if (this._ReachedBeginTime)
-        return true;
-
-    var beginTime = this.GetBeginTime();
-    if (beginTime != null) {
-        var ts = new TimeSpan();
-        ts.AddMilliseconds(nowTime - this._InitialStep);
-        if (ts.CompareTo(beginTime) < 0)
-            return false;
-    }
-
-    this._BeginStep = new Date().getTime();
-    this._ReachedBeginTime = true;
-    return true;
-};
-Timeline.prototype.HasNoDuration = function () {
-    return this.GetDuration() == null;
-};
-Timeline.prototype.HasReachedDuration = function (nowTime) {
-    var duration = this.GetDuration();
-    if (!duration.HasTimeSpan())
-        return false;
-    if (this.GetCurrentProgress() < 1.0)
-        return false;
-    return true;
-};
-Timeline.prototype.OnDurationReached = function () { };
 Timeline.prototype.Update = function (nowTime) {
-    if (this._Storage == null)
-        return;
-    var progress = 1.0;
-    if (nowTime === Number.POSITIVE_INFINITY)
-        progress = this.GetCurrentProgress(nowTime);
-    this._Storage.UpdateCurrentValueAndApply(progress);
+    try {
+        if (this._IsFirstUpdate) {
+            this._InitialStep = nowTime;
+            this._HasReachedBeg = false;
+            this._IsFirstUpdate = false;
+        }
+        if (!this._HasReachedBeg) {
+            if (!this.IsAfterBeginTime(nowTime))
+                return;
+            this._BeginStep = nowTime;
+            this._HasReachedBeg = true;
+        }
+        if (this.HasDurationElapsed(nowTime)) {
+            this.UpdateInternal(Number.POSITIVE_INFINITY);
+            this.OnDurationReached();
+            return;
+        }
+        this.UpdateInternal(nowTime);
+    } finally {
+        this._LastStep = nowTime;
+    }
 };
-
-Timeline.prototype._GetTargetValue = function (defaultOriginValue) { };
-Timeline.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) { };
+Timeline.prototype.UpdateInternal = function (nowTime) { };
+Timeline.prototype.OnDurationReached = function () {
+    this.Completed.Raise(this, {});
+};
 
 //#endregion

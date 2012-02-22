@@ -1,5 +1,5 @@
 /// <reference path="../../Runtime/RefObject.js" />
-/// <reference path="Timeline.js"/>
+/// <reference path="Animation.js"/>
 /// CODE
 /// <reference path="Storyboard.js"/>
 /// <reference path="../../Core/DependencyObject.js"/>
@@ -7,9 +7,9 @@
 //#region DoubleAnimation
 
 function DoubleAnimation() {
-    Timeline.call(this);
+    Animation.call(this);
 }
-DoubleAnimation.InheritFrom(Timeline);
+DoubleAnimation.InheritFrom(Animation);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -108,7 +108,7 @@ DoubleAnimation.prototype._EnsureCache = function () {
 
 DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== DoubleAnimation) {
-        Timeline.prototype._OnPropertyChanged.call(this, args, error);
+        Animation.prototype._OnPropertyChanged.call(this, args, error);
         return;
     }
 
