@@ -74,12 +74,13 @@ Storyboard.prototype.Stop = function () {
 
 Storyboard.prototype._HookupAnimations = function () {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        this._HookupAnimation(this.GetChildren(i).GetValueAt(i));
+        var animation = this.GetChildren(i).GetValueAt(i);
+        animation.Reset();
+        this._HookupAnimation(animation);
     }
 };
 Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath) {
     /// <param name="animation" type="Animation"></param>
-    animation.Reset();
     var localTargetObject = null;
     var localTargetPropertyPath = null;
     if (animation.HasManualTarget()) {
@@ -118,6 +119,10 @@ Storyboard.prototype.UpdateInternal = function (nowTime) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         this.GetChildren().GetValueAt(i).Update(nowTime);
     }
+};
+Storyboard.prototype.OnDurationReached = function () {
+    this.Stop();
+    Timeline.prototype.OnDurationReached.call(this);
 };
 
 //#endregion
