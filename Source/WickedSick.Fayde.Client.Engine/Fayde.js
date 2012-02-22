@@ -376,7 +376,7 @@ String.prototype.indexOfAny = function (carr, start) {
 };
 Array.indexOfRefObject = function (arr, ro) {
     for (var i = 0; i < arr.length; i++) {
-        if (RefObject.RefEquals(arr, ro))
+        if (RefObject.RefEquals(arr[i], ro))
             return i;
     }
     return -1;
@@ -394,6 +394,9 @@ Array.removeRefObject = function (arr, ro) {
     var index = Array.indexOfRefObject(arr, ro);
     if (index > -1)
         arr.splice(index, 1);
+};
+Number.isNumber = function (o) {
+    return typeof o == "number";
 };
 function IsDocumentReady() {
     return false;
@@ -3156,6 +3159,15 @@ Color.FromHex = function (hex) {
         b = parseInt(match[3], 16);
     }
     return new Color(r, g, b, a);
+};
+Color.prototype.Add = function (color2) {
+    return new Color(this.R + color2.R, this.G + color2.G, this.B + color2.B, this.A + color2.A);
+};
+Color.prototype.Subtract = function (color2) {
+    return new Color(this.R - color2.R, this.G - color2.G, this.B - color2.B, this.A - color2.A);
+};
+Color.prototype.Multiply = function (factor) {
+    return new Color(this.R * factor, this.G * factor, this.B * factor, this.A * factor);
 };
 Color.prototype._Translate = function () {
     return this.toString();
@@ -9491,6 +9503,45 @@ ColorAnimation.prototype.GetTo = function () {
 ColorAnimation.prototype.SetTo = function (value) {
     this.SetValue(ColorAnimation.ToProperty, value);
 };
+ColorAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
+    this._EnsureCache();
+    var start = new Color();
+    if (this._FromCached != null)
+        start = this._FromCached;
+    else if (defaultOriginValue != null && defaultOriginValue instanceof Color)
+        start = defaultOriginValue;
+    if (this._ToCached != null)
+        return this._ToCached;
+    else if (this._ByCached != null)
+        return start.Add(this._ByCached);
+    return start;
+};
+ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
+    this._EnsureCache();
+    if (progress > 1.0)
+        progress = 1.0;
+    var start = new Color();
+    if (this._FromCached != null)
+        start = this._FromCached;
+    else if (defaultOriginValue != null && defaultOriginValue instanceof Color)
+        start = defaultOriginValue;
+    var end = start;
+    if (this._ToCached != null)
+        end = this._ToCached;
+    else if (this._ByCached != null)
+        end = start.Add(this._ByCached);
+    else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
+        end = defaultDestinationValue;
+    return start.Add(end.Subtract(start).Multiply(progress));
+};
+ColorAnimation.prototype._EnsureCache = function () {
+    if (this._HasCached)
+        return;
+    this._FromCached = this.GetFrom();
+    this._ToCached = this.GetTo();
+    this._ByCached = this.GetBy();
+    this._HasCached = true;
+};
 
 function DoubleAnimation() {
     Timeline.call(this);
@@ -9528,40 +9579,33 @@ DoubleAnimation.prototype.SetTo = function (value) {
 };
 DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
-    var start;
+    var start = 0.0;
     if (this._FromCached != null)
         start = this._FromCached;
-    else if (defaultOriginValue != null && defaultOriginValue instanceof Number)
+    else if (defaultOriginValue != null && Number.isNumber(defaultOriginValue))
         start = defaultOriginValue;
-    else
-        start = 0.0;
     if (this._ToCached != null)
         return this._ToCached;
     else if (this._ByCached != null)
         return start + this._ByCached;
-    else
-        return start;
+    return start;
 };
 DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
     this._EnsureCache();
     if (progress > 1.0)
         progress = 1.0;
-    var start;
+    var start = 0.0;
     if (this._FromCached != null)
         start = this._FromCached;
-    else if (defaultOriginValue != null && defaultOriginValue instanceof Number)
+    else if (defaultOriginValue != null && Number.isNumber(defaultOriginValue))
         start = defaultOriginValue;
-    else
-        start = 0.0;
-    var end;
+    var end = start;
     if (this._ToCached != null)
         end = this._ToCached;
     else if (this._ByCached != null)
         end = start + this._ByCached;
-    else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
+    else if (defaultDestinationValue != null && Number.isNumber(defaultDestinationValue))
         end = defaultDestinationValue;
-    else
-        end = start;
     return start + ((end - start) * progress);
 };
 DoubleAnimation.prototype._EnsureCache = function () {

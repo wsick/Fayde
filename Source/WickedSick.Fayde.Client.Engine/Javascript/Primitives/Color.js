@@ -35,6 +35,16 @@ Color.FromHex = function (hex) {
     return new Color(r, g, b, a);
 };
 
+Color.prototype.Add = function (color2) {
+    return new Color(this.R + color2.R, this.G + color2.G, this.B + color2.B, this.A + color2.A);
+};
+Color.prototype.Subtract = function (color2) {
+    return new Color(this.R - color2.R, this.G - color2.G, this.B - color2.B, this.A - color2.A);
+};
+Color.prototype.Multiply = function (factor) {
+    return new Color(this.R * factor, this.G * factor, this.B * factor, this.A * factor);
+};
+
 Color.prototype._Translate = function () {
     return this.toString();
 };

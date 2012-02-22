@@ -60,47 +60,40 @@ DoubleAnimation.prototype.SetTo = function (value) {
 DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
 
-    var start;
+    var start = 0.0;
     if (this._FromCached != null)
         start = this._FromCached;
-    else if (defaultOriginValue != null && defaultOriginValue instanceof Number)
+    else if (defaultOriginValue != null && Number.isNumber(defaultOriginValue))
         start = defaultOriginValue;
-    else
-        start = 0.0;
 
     if (this._ToCached != null)
         return this._ToCached;
     else if (this._ByCached != null)
         return start + this._ByCached;
-    else
-        return start;
+    return start;
 };
 DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
     this._EnsureCache();
     if (progress > 1.0)
         progress = 1.0;
 
-    var start;
+    var start = 0.0;
     if (this._FromCached != null)
         start = this._FromCached;
-    else if (defaultOriginValue != null && defaultOriginValue instanceof Number)
+    else if (defaultOriginValue != null && Number.isNumber(defaultOriginValue))
         start = defaultOriginValue;
-    else
-        start = 0.0;
 
-    var end;
+    var end = start;
     if (this._ToCached != null)
         end = this._ToCached;
     else if (this._ByCached != null)
         end = start + this._ByCached;
-    else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
+    else if (defaultDestinationValue != null && Number.isNumber(defaultDestinationValue))
         end = defaultDestinationValue;
-    else
-        end = start;
 
     //var easingFunc = this.GetEasingFunction();
     //if (easingFunc != null)
-        //progress = easingFunc.Ease(progress);
+    //progress = easingFunc.Ease(progress);
 
     return start + ((end - start) * progress);
 };

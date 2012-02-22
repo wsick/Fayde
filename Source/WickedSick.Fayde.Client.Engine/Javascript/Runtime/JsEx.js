@@ -60,7 +60,7 @@ Array.indexOfRefObject = function (arr, ro) {
     /// <param name="ro" type="RefObject"></param>
     /// <returns type="Number" />
     for (var i = 0; i < arr.length; i++) {
-        if (RefObject.RefEquals(arr, ro))
+        if (RefObject.RefEquals(arr[i], ro))
             return i;
     }
     return -1;
@@ -83,6 +83,10 @@ Array.removeRefObject = function (arr, ro) {
     var index = Array.indexOfRefObject(arr, ro);
     if (index > -1)
         arr.splice(index, 1);
+};
+
+Number.isNumber = function (o) {
+    return typeof o == "number";
 };
 
 function IsDocumentReady() {

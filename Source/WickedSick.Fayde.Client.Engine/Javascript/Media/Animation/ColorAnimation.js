@@ -1,6 +1,7 @@
 /// <reference path="../../Runtime/RefObject.js" />
 /// <reference path="Timeline.js"/>
 /// CODE
+/// <reference path="../../Primitives/Color.js"/>
 
 //#region ColorAnimation
 
@@ -54,5 +55,54 @@ ColorAnimation.prototype.SetTo = function (value) {
 };
 
 //#endregion
+
+ColorAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
+    this._EnsureCache();
+
+    var start = new Color();
+    if (this._FromCached != null)
+        start = this._FromCached;
+    else if (defaultOriginValue != null && defaultOriginValue instanceof Color)
+        start = defaultOriginValue;
+
+    if (this._ToCached != null)
+        return this._ToCached;
+    else if (this._ByCached != null)
+        return start.Add(this._ByCached);
+    return start;
+};
+ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
+    this._EnsureCache();
+    if (progress > 1.0)
+        progress = 1.0;
+
+    var start = new Color();
+    if (this._FromCached != null)
+        start = this._FromCached;
+    else if (defaultOriginValue != null && defaultOriginValue instanceof Color)
+        start = defaultOriginValue;
+
+    var end = start;
+    if (this._ToCached != null)
+        end = this._ToCached;
+    else if (this._ByCached != null)
+        end = start.Add(this._ByCached);
+    else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
+        end = defaultDestinationValue;
+
+    //var easingFunc = this.GetEasingFunction();
+    //if (easingFunc != null)
+        //progress = easingFunc.Ease(progress);
+
+    return start.Add(end.Subtract(start).Multiply(progress));
+};
+ColorAnimation.prototype._EnsureCache = function () {
+    if (this._HasCached)
+        return;
+    this._FromCached = this.GetFrom();
+    this._ToCached = this.GetTo();
+    this._ByCached = this.GetBy();
+    this._HasCached = true;
+};
 
 //#endregion
