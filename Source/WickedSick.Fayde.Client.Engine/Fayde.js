@@ -7999,13 +7999,28 @@ RectangleGeometry.prototype.Draw = function (canvasCtx) {
     canvasCtx.rect(rect.X, rect.Y, rect.Width, rect.Height);
 };
 
-function SolidColorBrush(color) {
+function SolidColorBrush() {
     Brush.call(this);
-    this._Color = color;
+    if (!IsDocumentReady())
+        return;
+    if (arguments.length === 1) {
+        if (arguments[0] instanceof Color)
+            this.SetColor(arguments[0]);
+    }
 }
 SolidColorBrush.InheritFrom(Brush);
+SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush);
+SolidColorBrush.prototype.GetColor = function () {
+    return this.GetValue(SolidColorBrush.ColorProperty);
+};
+SolidColorBrush.prototype.SetColor = function (value) {
+    this.SetValue(SolidColorBrush.ColorProperty, value);
+};
 SolidColorBrush.prototype._Translate = function (ctx) {
-    return this._Color.toString();
+    var color = this.GetColor();
+    if (color == null)
+        return "#000000";
+    return color.toString();
 };
 
 function TileBrush() {
@@ -9571,9 +9586,9 @@ ColorAnimation.prototype._EnsureCache = function () {
 };
 
 function DoubleAnimation() {
-    Timeline.call(this);
+    Animation.call(this);
 }
-DoubleAnimation.InheritFrom(Timeline);
+DoubleAnimation.InheritFrom(Animation);
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
 DoubleAnimation.prototype.GetBy = function () {
     return this.GetValue(DoubleAnimation.ByProperty);
@@ -9645,7 +9660,7 @@ DoubleAnimation.prototype._EnsureCache = function () {
 };
 DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== DoubleAnimation) {
-        Timeline.prototype._OnPropertyChanged.call(this, args, error);
+        Animation.prototype._OnPropertyChanged.call(this, args, error);
         return;
     }
     this._FromCached = null;
@@ -9701,11 +9716,12 @@ Storyboard.prototype.Stop = function () {
 };
 Storyboard.prototype._HookupAnimations = function () {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        this._HookupAnimation(this.GetChildren(i).GetValueAt(i));
+        var animation = this.GetChildren(i).GetValueAt(i);
+        animation.Reset();
+        this._HookupAnimation(animation);
     }
 };
 Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath) {
-    animation.Reset();
     var localTargetObject = null;
     var localTargetPropertyPath = null;
     if (animation.HasManualTarget()) {
@@ -9741,6 +9757,10 @@ Storyboard.prototype.UpdateInternal = function (nowTime) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         this.GetChildren().GetValueAt(i).Update(nowTime);
     }
+};
+Storyboard.prototype.OnDurationReached = function () {
+    this.Stop();
+    Timeline.prototype.OnDurationReached.call(this);
 };
 function StoryboardCollection() {
     DependencyObjectCollection.call(this);
