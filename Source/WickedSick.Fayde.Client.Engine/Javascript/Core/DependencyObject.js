@@ -69,41 +69,6 @@ DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
 
 //#region INSTANCE METHODS
 
-DependencyObject.prototype.FindName = function (name, templateItem) {
-    if (templateItem === undefined)
-        templateItem = Control.GetIsTemplateItem(this);
-
-    var scope = NameScope.GetNameScope(this);
-    if (scope && (templateItem === scope.GetIsLocked()))
-        return scope.FindName(name);
-
-    if (this._Parent)
-        return this._Parent.FindName(name, templateItem);
-
-    return undefined;
-};
-DependencyObject.prototype.FindNameScope = function (templateNamescope) {
-    if (templateNamescope === undefined)
-        templateNamescope = Control.GetIsTemplateItem(this);
-
-    var scope = NameScope.GetNameScope(this);
-    if (scope && (templateNamescope === scope.GetIsLocked()))
-        return scope;
-
-    if (this._Parent) {
-        return this._Parent.FindNameScope(templateNamescope);
-    }
-    return undefined;
-};
-DependencyObject.prototype.SetNameOnScope = function (name, scope) {
-    if (scope.FindName(name))
-        return false;
-
-    this.SetValue(DependencyObject.NameProperty, name);
-    scope.RegisterName(name, this);
-    return true;
-};
-
 DependencyObject.prototype.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);
 };
@@ -217,7 +182,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
     var currentValue;
     var equal = false;
 
-    if ((currentValue = this._ReadLocalValue(propd)) == null)
+    if ((currentValue = this.ReadLocalValue(propd)) == null)
         if (propd._IsAutoCreated())
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
 
@@ -285,10 +250,12 @@ DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error)
     if (error == undefined)
         error = new BError();
 
-    //WTF: GetAnimationStorageFor
+    if (this._GetAnimationStorageFor(propd) != null) {
+        return;
+    }
 
     var oldLocalValue;
-    if ((oldLocalValue = this._ReadLocalValue(propd)) == null) {
+    if ((oldLocalValue = this.ReadLocalValue(propd)) == null) {
         if (propd._IsAutoCreated())
             oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     }
@@ -321,7 +288,7 @@ DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error)
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
     }
 };
-DependencyObject.prototype._ReadLocalValue = function (propd) {
+DependencyObject.prototype.ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
 DependencyObject.prototype._GetValueNoAutoCreate = function (propd) {
@@ -563,6 +530,163 @@ DependencyObject.prototype._AddTarget = function (obj) {
 DependencyObject.prototype._RemoveTarget = function (obj) {
 };
 
+DependencyObject.prototype._GetResourceBase = function () {
+    var rb = this._ResourceBase;
+    if (rb)
+        rb = rb.replace(/^\s+/, ''); //trim if not null
+    if (rb != null && rb.length > 0)
+        return this._ResourceBase;
+    if (this._Parent != null)
+        return this._Parent._GetResourceBase();
+    return this._ResourceBase;
+};
+DependencyObject.prototype._SetResourceBase = function (value) {
+    this._ResourceBase = value;
+};
+
+DependencyObject.prototype._SetIsAttached = function (value) {
+    if (this._IsAttached == value)
+        return;
+    this._IsAttached = value;
+    this._OnIsAttachedChanged(value);
+};
+DependencyObject.prototype._OnIsAttachedChanged = function (value) {
+    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
+    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
+};
+
+DependencyObject.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property === DependencyObject.NameProperty) {
+        var scope = this.FindNameScope();
+        if (scope && args.NewValue) {
+            if (args.OldValue)
+                scope.UnregisterName(args.OldValue);
+            scope.RegisterName(args.NewValue, this);
+            if (/* TODO: this.IsHydratedFromXaml() && */this._Parent) {
+                scope = this._Parent.FindNameScope();
+                if (scope) {
+                    if (args.OldValue)
+                        scope.UnregisterName(args.OldValue);
+                    scope.RegisterName(args.NewValue, this);
+                }
+            }
+        }
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+DependencyObject.prototype._OnSubPropertyChanged = function (sender, args) { };
+
+DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
+};
+DependencyObject.prototype._OnCollectionItemChanged = function (sender, args) {
+};
+
+DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
+    if (propd._IsCustom)
+        return;
+
+    if (value != null && value instanceof DependencyObject) {
+        value._SetIsAttached(newIsAttached);
+    }
+};
+DependencyObject._PropagateMentor = function (propd, value, newMentor) {
+    if (value != null && value instanceof DependencyObject) {
+        value.SetMentor(newMentor);
+    }
+};
+
+//#region NAME
+
+DependencyObject.prototype.FindName = function (name, isTemplateItem) {
+    /// <param name="name" type="String"></param>
+    /// <param name="isTemplateItem" type="Boolean"></param>
+    /// <returns type="DependencyObject" />
+    if (isTemplateItem === undefined)
+        isTemplateItem = Control.GetIsTemplateItem(this);
+
+    var scope = NameScope.GetNameScope(this);
+    if (scope && (isTemplateItem === scope.GetIsLocked()))
+        return scope.FindName(name);
+
+    if (this._Parent)
+        return this._Parent.FindName(name, isTemplateItem);
+
+    return undefined;
+};
+DependencyObject.prototype.FindNameScope = function (templateNamescope) {
+    if (templateNamescope === undefined)
+        templateNamescope = Control.GetIsTemplateItem(this);
+
+    var scope = NameScope.GetNameScope(this);
+    if (scope && (templateNamescope === scope.GetIsLocked()))
+        return scope;
+
+    if (this._Parent) {
+        return this._Parent.FindNameScope(templateNamescope);
+    }
+    return undefined;
+};
+DependencyObject.prototype.SetNameOnScope = function (name, scope) {
+    if (scope.FindName(name))
+        return false;
+
+    this.SetValue(DependencyObject.NameProperty, name);
+    scope.RegisterName(name, this);
+    return true;
+};
+
+DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+    if (error.IsErrored())
+        return;
+    if (this._RegisteringNames)
+        return;
+    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
+        return;
+
+    this._RegisteringNames = true;
+
+    var mergeNamescope = false;
+    var registerName = false;
+    var recurse = false;
+
+    var thisNs = NameScope.GetNameScope(this);
+
+    this._RegisteringNames = false;
+};
+DependencyObject.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+    if (this._RegisteringNames)
+        return;
+    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
+        return;
+    this._RegisteringNames = true;
+
+    var thisNs = NameScope.GetNameScope(this);
+    if (/* TODO: this._IsHydratedFromXaml() || */thisNs == null || thisNs._GetTemporary()) {
+        var name = this.GetName();
+        if (name && name.length > 0)
+            fromNs.UnregisterName(name);
+    }
+
+    if (thisNs && !thisNs._GetTemporary()) {
+        this._RegisteringNames = false;
+        return;
+    }
+
+    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
+    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
+
+    this._RegisteringNames = false;
+}
+DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
+    if (!propd._IsCustom && value != null && value instanceof DependencyObject) {
+        value._UnregisterAllNamesRootedAt(fromNs);
+    }
+};
+
+//#endregion
+
+//#region PARENT USAGE
+
 DependencyObject.prototype._GetParent = function () {
     return this._Parent;
 };
@@ -576,8 +700,8 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
     }
 
     var current = parent;
-    while (current) {
-        if (current == this) {
+    while (current != null) {
+        if (RefObject.RefEquals(current, this)) {
             //Warn: cycle found
             return;
         }
@@ -651,7 +775,7 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
             return;
     } else {
         //WTF: Hack?
-        if (this._Parent != parent)
+        if (!RefObject.RefEquals(this._Parent, parent))
             return;
     }
 
@@ -668,7 +792,7 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
     }
 
     if (error == null || !error.IsErrored()) {
-        if (this._Parent == parent)
+        if (RefObject.RefEquals(this._Parent, parent))
             this._Parent = null;
     }
 };
@@ -697,118 +821,69 @@ DependencyObject.prototype._HasSecondaryParents = function () {
     return this._SecondaryParents.length > 0;
 };
 
-DependencyObject.prototype._GetResourceBase = function () {
-    var rb = this._ResourceBase;
-    if (rb)
-        rb = rb.replace(/^\s+/, ''); //trim if not null
-    if (rb != null && rb.length > 0)
-        return this._ResourceBase;
-    if (this._Parent != null)
-        return this._Parent._GetResourceBase();
-    return this._ResourceBase;
-};
-DependencyObject.prototype._SetResourceBase = function (value) {
-    this._ResourceBase = value;
-};
+//#endregion
 
-DependencyObject.prototype._SetIsAttached = function (value) {
-    if (this._IsAttached == value)
+//#region ANIMATION STORAGE
+
+DependencyObject.prototype._GetAnimationStorageFor = function (propd) {
+    if (this._StorageRepo == null)
+        return null;
+
+    var list = this._StorageRepo[propd];
+    if (!list || list.IsEmpty())
+        return null;
+
+    return list.Last().Storage;
+};
+DependencyObject.prototype._AttachAnimationStorage = function (propd, storage) {
+    var attachedStorage = null;
+    if (this._StorageRepo == null)
+        this._StorageRepo = new Array();
+
+    var list = this._StorageRepo[propd];
+    if (list == null) {
+        list = new LinkedList();
+
+        this._StorageRepo[propd] = list;
+    } else if (!list.IsEmpty()) {
+        attachedStorage = list.Last().Storage;
+        attachedStorage.Disable();
+    }
+
+    var node = new LinkedListNode();
+    node.Storage = storage;
+    list.Append(node);
+    return attachedStorage;
+};
+DependencyObject.prototype._DetachAnimationStorage = function (propd, storage) {
+    if (this._StorageRepo == null)
         return;
-    this._IsAttached = value;
-    this._OnIsAttachedChanged(value);
-};
-DependencyObject.prototype._OnIsAttachedChanged = function (value) {
-    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
-    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
-};
 
-DependencyObject.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property === DependencyObject.NameProperty) {
-        var scope = this.FindNameScope();
-        if (scope && args.NewValue) {
-            if (args.OldValue)
-                scope.UnregisterName(args.OldValue);
-            scope.RegisterName(args.NewValue, this);
-            if (/* TODO: this.IsHydratedFromXaml() && */this._Parent) {
-                scope = this._Parent.FindNameScope();
-                if (scope) {
-                    if (args.OldValue)
-                        scope.UnregisterName(args.OldValue);
-                    scope.RegisterName(args.NewValue, this);
-                }
+    var list = this._StorageRepo[propd];
+    if (!list || list.IsEmpty())
+        return;
+
+    var last = list.Last();
+    if (RefObject.RefEquals(last.Storage, storage)) {
+        list.Remove(last);
+        if (!list.IsEmpty())
+            list.Last().Storage.Enable();
+    } else {
+        var node = list.First();
+        while (node) {
+            if (RefObject.RefEquals(node.Storage, storage)) {
+                var remove = node;
+                node = node.Next;
+                node.Storage.SetStopValue(storage.GetStopValue());
+                list.Remove(remove);
+                break;
             }
+            node = node.Next;
         }
     }
-    this.PropertyChanged.Raise(this, args);
-};
-DependencyObject.prototype._OnSubPropertyChanged = function (sender, args) { };
-
-DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
-};
-DependencyObject.prototype._OnCollectionItemChanged = function (sender, args) {
 };
 
-DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
-    if (error.IsErrored())
-        return;
-    if (this._RegisteringNames)
-        return;
-    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
-        return;
-
-    this._RegisteringNames = true;
-
-    var mergeNamescope = false;
-    var registerName = false;
-    var recurse = false;
-
-    var thisNs = NameScope.GetNameScope(this);
-
-    this._RegisteringNames = false;
-};
-DependencyObject.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
-    if (this._RegisteringNames)
-        return;
-    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
-        return;
-    this._RegisteringNames = true;
-
-    var thisNs = NameScope.GetNameScope(this);
-    if (/* TODO: this._IsHydratedFromXaml() || */thisNs == null || thisNs._GetTemporary()) {
-        var name = this.GetName();
-        if (name && name.length > 0)
-            fromNs.UnregisterName(name);
-    }
-
-    if (thisNs && !thisNs._GetTemporary()) {
-        this._RegisteringNames = false;
-        return;
-    }
-
-    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
-    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
-
-    this._RegisteringNames = false;
-}
-
-DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
-    if (!propd._IsCustom && value != null && value instanceof DependencyObject) {
-        value._UnregisterAllNamesRootedAt(fromNs);
-    }
-};
-DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
-    if (propd._IsCustom)
-        return;
-
-    if (value != null && value instanceof DependencyObject) {
-        value._SetIsAttached(newIsAttached);
-    }
-};
-DependencyObject._PropagateMentor = function (propd, value, newMentor) {
-    if (value != null && value instanceof DependencyObject) {
-        value.SetMentor(newMentor);
-    }
-};
+//#endregion
 
 //#endregion
 

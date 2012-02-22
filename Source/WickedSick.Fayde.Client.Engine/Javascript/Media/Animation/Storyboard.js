@@ -2,6 +2,9 @@
 /// <reference path="../Animation/Timeline.js"/>
 /// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
+/// <reference path="../Animation/TimelineCollection.js"/>
+/// <reference path="../../Primitives/TimeSpan.js"/>
+/// <reference path="../../Primitives/Duration.js"/>
 
 //#region Storyboard
 
@@ -49,10 +52,74 @@ Storyboard.Annotations = {
 //#endregion
 
 Storyboard.prototype.Begin = function () {
-    NotImplemented("Storyboard.Begin");
+    App.Instance.RegisterStoryboard(this);
+    this._LastStep = new Date().getTime();
+    this._HookupAnimations();
+    this.InitializeTimes(this._LastStep);
+};
+Storyboard.prototype.Pause = function () {
+    this._IsPaused = true;
+};
+Storyboard.prototype.Resume = function () {
+    this._IsPaused = false;
+    this._LastStep = new Date().getTime();
 };
 Storyboard.prototype.Stop = function () {
-    NotImplemented("Storyboard.Stop");
+    App.Instance.UnregisterStoryboard(this);
+};
+
+Storyboard.prototype._HookupAnimations = function () {
+    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
+        this._HookupAnimation(this.GetChildren(i).GetValueAt(i));
+    }
+};
+Storyboard.prototype._HookupAnimation = function (timeline, targetObject, targetPropertyPath) {
+    var localTargetObject = null;
+    var localTargetPropertyPath = null;
+    if (timeline.HasManualTarget()) {
+        localTargetObject = timeline.GetManualTarget();
+    } else {
+        var name = Storyboard.GetTargetName(timeline);
+        if (name)
+            localTargetObject = timeline.FindName(name);
+    }
+    localTargetPropertyPath = Storyboard.GetTargetProperty(timeline);
+
+    if (localTargetObject != null)
+        targetObject = localTargetObject;
+    if (localTargetPropertyPath != null)
+        targetPropertyPath = localTargetPropertyPath;
+
+    var refobj = {
+        Value: targetObject
+    };
+    targetPropertyPath.TryResolveDependencyProperty(targetObject);
+    var targetProperty = DependencyProperty.ResolvePropertyPath(refobj, targetPropertyPath);
+    if (targetProperty == null) {
+        Warn("Could not resolve property for storyboard. [" + localTargetPropertyPath.GetPath().toString() + "]");
+        return false;
+    }
+    timeline.HookupStorage(refobj.Value, targetProperty);
+    return true;
+};
+
+Storyboard.prototype._Tick = function (lastTime, nowTime) {
+    if (this._IsPaused)
+        return;
+    if (!this.HasReachedBeginTime(nowTime))
+        return;
+    if (this.HasNoDuration() || this.HasReachedDuration(nowTime)) {
+        for (var i = 0; i < this.GetChildren().GetCount(); i++) {
+            this.GetChildren().GetValueAt(i).Update(Number.POSITIVE_INFINITY);
+        }
+        this.OnDurationReached();
+        return;
+    }
+
+    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
+        this.GetChildren().GetValueAt(i).Update(nowTime);
+    }
+    this._LastStep = nowTime;
 };
 
 //#endregion

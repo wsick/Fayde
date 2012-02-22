@@ -66,6 +66,8 @@ NameScope.prototype.UnregisterName = function (name) {
     }
 };
 NameScope.prototype.FindName = function (name) {
+    /// <param name="name" type="String"></param>
+    /// <returns type="DependencyObject" />
     if (!this._Names)
         return undefined;
     if (name == null) {

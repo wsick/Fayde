@@ -95,3 +95,9 @@ var CursorType = {
     Default: ""
     //TODO: Add cursor types
 };
+
+var DurationType = {
+    Automatic: 0,
+    Forever: 1,
+    TimeSpan: 2
+};

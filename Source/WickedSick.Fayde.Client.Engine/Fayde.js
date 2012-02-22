@@ -313,7 +313,15 @@ var ClickMode = {
 var CursorType = {
     Default: ""
 };
+var DurationType = {
+    Automatic: 0,
+    Forever: 1,
+    TimeSpan: 2
+};
 
+Object.Clone = function (o) {
+    return eval(uneval(o));
+};
 Function.prototype.InheritFrom = function (parentType) {
     this.prototype = new parentType;
     this.prototype.constructor = this;
@@ -349,6 +357,9 @@ Function.prototype.GetName = function () {
     this.___FunctionName___ = name;
     return name;
 };
+Function.prototype.Clone = function () {
+    return eval(uneval(this));
+};
 String.prototype.indexOfAny = function (carr, start) {
     if (!(carr instanceof Array))
         return -1;
@@ -362,6 +373,27 @@ String.prototype.indexOfAny = function (carr, start) {
         }
     }
     return -1;
+};
+Array.indexOfRefObject = function (arr, ro) {
+    for (var i = 0; i < arr.length; i++) {
+        if (RefObject.RefEquals(arr, ro))
+            return i;
+    }
+    return -1;
+};
+Array.containsRefObject = function (arr, ro) {
+    return Array.indexOfRefObject(arr, ro) > -1;
+};
+Array.addDistinctRefObject = function (arr, ro) {
+    if (Array.containsRefObject(arr, ro))
+        return false;
+    arr.push(ro);
+    return true;
+};
+Array.removeRefObject = function (arr, ro) {
+    var index = Array.indexOfRefObject(arr, ro);
+    if (index > -1)
+        arr.splice(index, 1);
 };
 function IsDocumentReady() {
     return false;
@@ -1536,6 +1568,186 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
     }
     return propd;
 };
+DependencyProperty.ResolvePropertyPath = function (refobj, propertyPath, promotedValues) {
+    if (propertyPath.HasDependencyProperty())
+        return propertyPath.GetDependencyProperty();
+    var path = propertyPath.GetPath();
+    if (propertyPath.GetExpandedPath() != null)
+        path = propertyPath.GetExpandedPath();
+    var data = {
+        index: 0,
+        end: path.length,
+        path: path,
+        parenOpen: false,
+        tickOpen: false,
+        start: path,
+        prop: path,
+        res: null,
+        cloned: false,
+        expressionFound: false,
+        lu: refobj.Value,
+        collection: null,
+        promotedValues: promotedValues
+    };
+    var success;
+    while (data.index < data.end) {
+        success = true;
+        var c = data.path.charAt(data.index);
+        data.index++;
+        if (c === '(') {
+            data.parenOpen = true;
+        } else if (c === ')') {
+            data.parenOpen = false;
+        } else if (c === '\'') {//Ticks only legal in expanded path
+            if (propertyPath.GetExpandedPath() == null)
+                Warn("The ' character is not legal in property paths.");
+            else
+                data.tickOpen = !data.tickOpen;
+        } else if (c === '.') {
+            success = DependencyProperty._HandlePeriod(data);
+        } else if (c === '[') {
+            success = DependencyProperty._HandleLeftBracket(data);
+        } else {
+            success = DependencyProperty._HandleDefault(data);
+        }
+        if (!success) {
+            refobj.Value = null;
+            return null;
+        }
+    }
+    refobj.Value = data.lu;
+    return data.res;
+};
+DependencyProperty._HandlePeriod = function (data) {
+    if (data.tickOpen)
+        return true;
+    if (data.res != null) {
+        var value = null;
+        var newLu = null;
+        if ((value = data.lu.GetValue(data.res)) == null)
+            return false;
+        if ((newLu = RefObject.As(value, DependencyObject)) == null)
+            return false;
+        if (data.promotedValues != null && !cloned && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
+            var clonedValue = Object.Clone(value);
+            var clonedDo = RefObject.As(clonedValue, DependencyObject);
+            if (clonedDo != null) {
+                newLu = clonedDo;
+                data.lu.SetValue(data.res, clonedValue);
+                clonedValue = data.lu.GetValue(data.res);
+                data.promotedValues[clonedValue._ID] = clonedValue;
+            }
+        }
+        data.lu = newLu;
+    }
+    data.expressionFound = false;
+    data.prop = data.path.substr(data.index);
+    return true;
+};
+DependencyProperty._HandleLeftBracket = function (data) {
+    if (data.index >= data.end)
+        return;
+    var hasLeadingZeroes = false;
+    while (data.path.charAt(data.index) === '0') {
+        hasLeadingZeroes = true;
+        data.index++;
+    }
+    data.i = parseInt(data.path.substr(data.index), 10);
+    if (!isNaN(data.i))
+        data.index += data.i.toString().length;
+    if (isNaN(data.i) && hasLeadingZeroes)
+        data.i = 0;
+    if (data.path.charAt(data.index) !== ']' || data.path.charAt(data.index + 1) !== '.')
+        return true;
+    data.prop = data.path = data.path.substr(data.index + 2);
+    data.index = 0;
+    data.end = data.path.length;
+    var value = null;
+    if (data.expressionFound) {
+        data.expressionFound = false;
+        if ((value = data.lu.GetValue(data.res)) == null)
+            return false;
+    }
+    if ((data.collection = RefObject.As(value, Collection)) == null)
+        return false;
+    if ((value = data.collection.GetValueAt(data.i)) == null)
+        return false;
+    if ((data.lu = RefObject.As(value, DependencyObject)) == null)
+        return false;
+    return true;
+};
+DependencyProperty._HandleDefault = function (data) {
+    var explicitType = false;
+    data.expressionFound = true;
+    var start = data.index - 1;
+    var c;
+    while (data.index < data.end) {
+        c = data.path.charAt(data.index);
+        if (!((c !== '.' || data.tickOpen) && (!data.parenOpen || c !== ')') && c !== '['))
+            break;
+        data.index++;
+        if (c === '\'') {
+            data.tickOpen = !data.tickOpen;
+            if (!data.tickOpen)
+                break;
+        }
+    }
+    if (data.index === data.end)
+        return false;
+    c = data.path.charAt(data.index);
+    if (c === '.') {
+        if ((data.index - start) === 11 && data.path.substr(start, 11).toLowerCase() === "textelement") { //bug workaround from Blend
+            data.type = TextBlock;
+            data.explicitType = true;
+        } else {
+            var s = data.index;
+            if (data.path.charAt(data.index - 1) === '\'' && !data.tickOpen) {
+                s = data.index - 1;
+            }
+            var name = data.path.slice(start, s);
+            data.type = DependencyProperty._LookupType(name);
+            data.explicitType = true;
+            if (data.type == null)
+                data.type = data.lu.constructor;
+        }
+        data.index++;
+        start = data.index;
+        while (data.index < data.end) {
+            c = data.path.charAt(data.index);
+            if (!((!data.parenOpen || c !== ')') && (c !== '.' || data.tickOpen)))
+                break;
+            data.index++;
+            if (c === '\'') {
+                data.tickOpen = !data.tickOpen;
+                if (!data.tickOpen)
+                    break;
+            }
+        }
+        if (data.index === start)
+            return false;
+    } else {
+        data.type = data.lu.constructor;
+        data.explicitType = false;
+    }
+    c = data.path.charAt(data.index);
+    if ((c !== ')' && data.parenOpen) || data.type == null)
+        return false;
+    name = data.path.slice(start, data.index);
+    if ((data.res = DependencyProperty.GetDependencyProperty(data.type, name)) == null && data.lu)
+        data.res = DependencyProperty.GetDependencyProperty(data.lu.constructor, name);
+    if (data.res == null)
+        return false;
+    if (!data.res._IsAttached && !data.lu.constructor.DoesInheritFrom(data.type)) {
+        if ((data.res = DependencyProperty.GetDependencyProperty(data.lu.constructor, name)) == null)
+            return false;
+    }
+    if (data.res._IsAttached && data.explicitType && !data.parenOpen)
+        return false;
+    return true;
+};
+DependencyProperty._LookupType = function (name) {
+    return eval(name);
+};
 function UnsetValue() {
     RefObject.call(this);
 }
@@ -2431,7 +2643,14 @@ _PropertyPath.CreateFromParameter = function (parameter) {
 _PropertyPath.prototype.HasDependencyProperty = function () {
     return this._Propd != null;
 };
-_PropertyPath.prototype.GetDP = function () {
+_PropertyPath.prototype.TryResolveDependencyProperty = function (dobj) {
+    if (this.HasDependencyProperty())
+        return;
+    if (dobj == null)
+        return;
+    this._Propd = dobj.GetDependencyProperty(this.GetPath());
+};
+_PropertyPath.prototype.GetDependencyProperty  = function () {
     return this._Propd;
 };
 _PropertyPath.prototype.GetPath = function () {
@@ -2545,6 +2764,54 @@ RelativeSource.prototype.GetMode = function () {
 RelativeSource.prototype.SetMode = function (/* RelativeSourceMode */value) {
     this._Mode = value;
 };
+
+function Clock() {
+    RefObject.call(this);
+    if (!IsDocumentReady())
+        return;
+    this._Timers = new Array();
+}
+Clock.InheritFrom(RefObject);
+Clock.prototype.RegisterTimer = function (timer) {
+    if (!Array.addDistinctRefObject(this._Timers, timer))
+        return;
+    if (this._Timers.length === 1)
+        this.RequestAnimationTick();
+};
+Clock.prototype.UnregisterTimer = function (timer) {
+    Array.removeRefObject(this._Timers, timer);
+};
+Clock.prototype.DoTick = function () {
+    var nowTime = new Date().getTime();
+    if (!this._RunTimers(this._LastTime, nowTime)) {
+        return;
+    }
+    this._LastTime = nowTime;
+    this.RequestAnimationTick();
+};
+Clock.prototype._RunTimers = function (lastTime, nowTime) {
+    if (this._Timers.length === 0)
+        return false;
+    for (var i = 0; i < this._Timers.length; i++) {
+        var timer = this._Timers[i];
+        timer._Tick(this._LastTime, nowTime);
+    }
+    return true;
+};
+Clock.prototype.RequestAnimationTick = function () {
+    var clock = this;
+    Clock._RequestAnimationFrame(function () { clock.DoTick(); });
+};
+Clock._RequestAnimationFrame = (function () {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback) {
+            window.setTimeout(callback, 1000 / 60);
+        };
+})();
 
 function _DirtyList() {
     RefObject.call(this);
@@ -2713,7 +2980,10 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
         } else if (getFunc) {
             var coll = getFunc.call(dobj);
             for (var j in json.Children) {
-                coll.Add(this.CreateObject(json.Children[j], namescope));
+                var fobj = this.CreateObject(json.Children[j], namescope);
+                if (fobj instanceof DependencyObject)
+                    fobj._AddParent(coll, true);
+                coll.Add(fobj);
             }
         }
     }
@@ -2748,10 +3018,15 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
         coll = dobj.GetValue(propd);
     } else {
         coll = new targetType();
+        if (coll instanceof DependencyObject)
+            coll._AddParent(dobj, true);
         dobj.SetValue(propd, coll);
     }
     for (var i in subJson) {
-        coll.Add(this.CreateObject(subJson[i], namescope));
+        var fobj = this.CreateObject(subJson[i], namescope);
+        if (fobj instanceof DependencyObject)
+            fobj._AddParent(coll, true);
+        coll.Add(fobj);
     }
     return true;
 };
@@ -2798,6 +3073,54 @@ TemplateBindingMarkup.InheritFrom(Markup);
 TemplateBindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
     var sourcePropd = DependencyProperty.GetDependencyProperty(templateBindingSource.constructor, this.Path);
     return new TemplateBindingExpression(sourcePropd, propd);
+};
+
+function AnimationStorage(timeline, targetobj, targetprop) {
+    RefObject.call(this);
+    if (!IsDocumentReady())
+        return;
+    this._Timeline = timeline;
+    this._TargetObj = targetobj;
+    this._TargetProp = targetprop;
+    var prevStorage = targetobj._AttachAnimationStorage(targetprop, this);
+    this._BaseValue = this._TargetObj.GetValue(this._TargetProp);
+    if (this._BaseValue === undefined) {
+        var targetType = this._TargetProp.GetTargetType();
+        if (targetType === Number)
+            this._BaseValue = 0;
+        else if (targetType === RefObject)
+            this._BaseValue = new targetType();
+        else if (targetType === String)
+            this._BaseValue = "";
+    }
+    if (prevStorage != null)
+        this._StopValue = prevStorage.GetStopValue();
+    else
+        this._StopValue = targetobj.ReadLocalValue(targetprop);
+}
+AnimationStorage.InheritFrom(RefObject);
+AnimationStorage.prototype.GetStopValue = function () {
+    return this._StopValue;
+};
+AnimationStorage.prototype.SetStopValue = function (value) {
+    this._StopValue = value;
+};
+AnimationStorage.prototype.Enable = function () {
+    NotImplemented("AnimationStorage.Enable");
+};
+AnimationStorage.prototype.Disable = function () {
+    NotImplemented("AnimationStorage.Disable");
+};
+AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {
+    if (this._TargetObj == null)
+        return;
+    this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this._StopValue !== undefined ? this._StopValue : this._BaseValue, progress);
+    this.ApplyCurrentValue();
+};
+AnimationStorage.prototype.ApplyCurrentValue = function () {
+    if (this._CurrentValue == null)
+        return;
+    this._TargetObj.SetValue(this._TargetProp, this._CurrentValue);
 };
 
 function VisualStateChangedEventArgs() {
@@ -2856,11 +3179,47 @@ CornerRadius.prototype.IsZero = function () {
         && this.BottomLeft === 0;
 };
 
-function Duration() {
+function Duration(value) {
     RefObject.call(this);
+    if (!IsDocumentReady())
+        return;
+    if (typeof value == "number") {
+        this._Type = DurationType.TimeSpan;
+        this._TimeSpan = new TimeSpan(value);
+    } else if (typeof value == "string") {
+        if (value === "Automatic")
+            this._Type = DurationType.Automatic;
+        if (value === "Forever")
+            this._Type = DurationType.Forever;
+    }
 }
 Duration.InheritFrom(RefObject);
-Duration.IsZero = function () {
+Duration.CreateAutomatic = function () {
+    var d = new Duration();
+    d._Type = DurationType.Automatic;
+    return d;
+};
+Duration.CreateForever = function () {
+    var d = new Duration();
+    d._Type = DurationType.Forever;
+    return d;
+};
+Duration.CreateTimeSpan = function (timespan) {
+    var d = new Duration();
+    d._Type = DurationType.TimeSpan;
+    d._TimeSpan = timespan;
+    return d;
+};
+Duration.prototype.GetType = function () {
+    return this._Type;
+};
+Duration.prototype.GetTimeSpan = function () {
+    if (this.HasTimeSpan())
+        return this._TimeSpan;
+    throw new InvalidOperationException();
+};
+Duration.prototype.HasTimeSpan = function () {
+    return this.GetType() === DurationType.TimeSpan;
 };
 
 function Font() {
@@ -3241,6 +3600,119 @@ Thickness.prototype.Negate = function () {
 Thickness.prototype.IsEmpty = function () {
     return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
 };
+
+function TimeSpan() {
+    RefObject.call(this);
+    if (!IsDocumentReady())
+        return;
+    this._Initialize.apply(this, arguments);
+}
+TimeSpan.InheritFrom(RefObject);
+TimeSpan.prototype._Initialize = function () {
+    if (arguments.length === 0) {
+        this._Ticks = 0;
+        return;
+    }
+    if (arguments.length === 1) { //ticks
+        this._Ticks = arguments[0];
+        return;
+    }
+    var days = 0;
+    var hours = 0;
+    var minutes = 0;
+    var seconds = 0;
+    var milliseconds = 0;
+    if (arguments.length === 3) { //hours, minutes, seconds
+        hours = arguments[0];
+        minutes = arguments[1];
+        seconds = arguments[2];
+    } else if (arguments.length === 4) { //days, hours, minutes, seconds
+        days = arguments[0];
+        hours = arguments[1];
+        minutes = arguments[2];
+        seconds = arguments[3];
+    } else if (arguments.length === 5) { //days, hours, minutes, seconds, milliseconds
+        days = arguments[0];
+        hours = arguments[1];
+        minutes = arguments[2];
+        seconds = arguments[3];
+        milliseconds = arguments[4];
+    }
+    this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute)
+        + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
+};
+TimeSpan.prototype.GetDays = function () {
+    return Math.floor(this._Ticks / TimeSpan._TicksPerDay);
+};
+TimeSpan.prototype.GetHours = function () {
+    var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+    return Math.floor(remTicks / TimeSpan._TicksPerHour);
+};
+TimeSpan.prototype.GetMinutes = function () {
+    var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+    remTicks = remTicks % TimeSpan._TicksPerHour;
+    return Math.floor(remTicks / TimeSpan._TicksPerMinute);
+};
+TimeSpan.prototype.GetSeconds = function () {
+    var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+    remTicks = remTicks % TimeSpan._TicksPerHour;
+    remTicks = remTicks % TimeSpan._TicksPerMinute;
+    return Math.floor(remTicks / TimeSpan._TicksPerSecond);
+};
+TimeSpan.prototype.GetMilliseconds = function () {
+    var remTicks = this._Ticks % TimeSpan._TicksPerDay;
+    remTicks = remTicks % TimeSpan._TicksPerHour;
+    remTicks = remTicks % TimeSpan._TicksPerMinute;
+    remTicks = remTicks % TimeSpan._TicksPerSecond;
+    return Math.floor(remTicks / TimeSpan._TicksPerMillisecond);
+};
+TimeSpan.prototype.GetTicks = function () {
+    return this._Ticks;
+};
+TimeSpan.prototype.GetTotalDays = function () {
+    return this._Ticks / TimeSpan._TicksPerDay;
+};
+TimeSpan.prototype.GetTotalHours = function () {
+    return this._Ticks / TimeSpan._TicksPerHour;
+};
+TimeSpan.prototype.GetTotalMinutes = function () {
+    return this._Ticks / TimeSpan._TicksPerMinute;
+};
+TimeSpan.prototype.GetTotalSeconds = function () {
+    return this._Ticks / TimeSpan._TicksPerSecond;
+};
+TimeSpan.prototype.GetTotalMilliseconds = function () {
+    return this._Ticks / TimeSpan._TicksPerMillisecond;
+};
+TimeSpan.prototype.AddTicks = function (ticks) {
+    if (ticks == null)
+        return;
+    if (isNaN(ticks))
+        return;
+    this._Ticks += ticks;
+};
+TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
+    this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
+};
+TimeSpan.prototype.Add = function (ts2) {
+    return new TimeSpan(this._Ticks + ts2._Ticks);
+};
+TimeSpan.prototype.Subtract = function (ts2) {
+    return new TimeSpan(this._Ticks - ts2._Ticks);
+};
+TimeSpan.prototype.CompareTo = function (ts2) {
+    if (this._Ticks === ts2)
+        return 0;
+    return (this._Ticks > ts2) ? 1 : -1;
+};
+TimeSpan.prototype.IsZero = function () {
+    return this._Ticks === 0;
+};
+TimeSpan._TicksPerMillisecond = 1;
+TimeSpan._TicksPerSecond = 1000;
+TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
+TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
+TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
 
 function Uri(os) {
     RefObject.call(this);
@@ -4521,8 +4993,12 @@ function FocusChangedNode(lostFocus, gotFocus) {
 }
 FocusChangedNode.InheritFrom(LinkedListNode);
 
-function Surface() {
+function Surface(app) {
     RefObject.call(this);
+    if (!IsDocumentReady())
+        return;
+    this._App = app;
+    this._Clock = new Clock();
     this._InputList = new LinkedList();
     this._FocusChangedEvents = new LinkedList();
     this._FirstUserInitiatedEvent = false;
@@ -4561,7 +5037,7 @@ Surface.prototype.Render = function (region) {
         layer._DoRender(ctx, region);
     }
 };
-Surface.prototype._Attach = function (/* UIElement */element) {
+Surface.prototype._Attach = function (element) {
     if (this._TopLevel) {
     }
     if (!element) {
@@ -4585,7 +5061,7 @@ Surface.prototype._Attach = function (/* UIElement */element) {
     };
     setTimeout(postAttach, 1);
 };
-Surface.prototype._AttachLayer = function (/* UIElement */layer) {
+Surface.prototype._AttachLayer = function (layer) {
     if (RefObject.RefEquals(layer, this._TopLevel))
         this._Layers.Insert(0, layer);
     else
@@ -4605,7 +5081,7 @@ Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
         element._InvalidateMeasure();
     }
 };
-Surface.prototype._IsTopLevel = function (/* UIElement */top) {
+Surface.prototype._IsTopLevel = function (top) {
     if (!top || !this._Layers)
         return false;
     var ret = false; //TODO: full-screen message
@@ -4627,8 +5103,23 @@ Surface.prototype.ProcessDirtyElements = function () {
 Surface.prototype._Invalidate = function (rect) {
     if (!rect)
         rect = new Rect(0, 0, this.GetWidth(), this.GetHeight());
+    if (!this._InvalidatedRect)
+        this._InvalidatedRect = rect;
+    else
+        this._InvalidatedRect = this._InvalidatedRect.Union(rect);
+    this._QueueRender();
+};
+Surface.prototype._QueueRender = function () {
+    if (this._IsRenderQueued)
+        return;
     var surface = this;
-    setTimeout(function () { surface.Render(rect); }, 1);
+    this._IsRenderQueued = true;
+    setTimeout(function () {
+        surface._IsRenderQueued = false;
+        var rect2 = surface._InvalidatedRect;
+        surface._InvalidatedRect = null;
+        surface.Render(rect2);
+    }, 1);
 };
 Surface.prototype._UpdateLayout = function (error) {
     if (!this._Layers)
@@ -4798,7 +5289,7 @@ Surface.prototype._PropagateDirtyFlagToChildren = function (element, dirt) {
         this._AddDirtyElement(child, dirt);
     }
 };
-Surface.prototype._AddDirtyElement = function (/* UIElement */element, dirt) {
+Surface.prototype._AddDirtyElement = function (element, dirt) {
     if (element.GetVisualParent() == null && !this._IsTopLevel(element))
         return;
     element._DirtyFlags |= dirt;
@@ -4815,7 +5306,7 @@ Surface.prototype._AddDirtyElement = function (/* UIElement */element, dirt) {
         this._UpDirty.AddDirtyNode(element._UpDirtyNode);
     }
 };
-Surface.prototype._RemoveDirtyElement = function (/* UIElement */element) {
+Surface.prototype._RemoveDirtyElement = function (element) {
     if (element._UpDirtyNode)
         this._UpDirty.RemoveDirtyNode(element._UpDirtyNode);
     if (element._DownDirtyNode)
@@ -4946,7 +5437,7 @@ Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) 
         node.UIElement._EmitMouseEvent(type, button, pos);
     }
 };
-Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
+Surface.prototype.SetMouseCapture = function (uie) {
     if (this._Captured || this._PendingCapture)
         return RefObject.RefEquals(uie, this._Captured) || RefObject.RefEquals(uie, this._PendingCapture);
     if (!this._EmittingMouseEvent)
@@ -4954,7 +5445,7 @@ Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
     this._PendingCapture = uie;
     return true;
 };
-Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
+Surface.prototype.ReleaseMouseCapture = function (uie) {
     if (!RefObject.RefEquals(uie, this._Captured) && !RefObject.RefEquals(uie, this._PendingCapture))
         return;
     if (this._EmittingMouseEvent)
@@ -4962,7 +5453,7 @@ Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
     else
         this._PerformReleaseCapture();
 };
-Surface.prototype._PerformCapture = function (/* UIElement */uie) {
+Surface.prototype._PerformCapture = function (uie) {
     this._Captured = uie;
     var newInputList = new LinkedList();
     while (uie != null) {
@@ -4979,7 +5470,7 @@ Surface.prototype._PerformReleaseCapture = function () {
     oldCaptured._EmitLostMouseCapture(this._CurrentPos);
     this._HandleMouseEvent("noop", null, this._CurrentPos, false, true);
 };
-Surface.prototype._FocusElement = function (/* UIElement */uie) {
+Surface.prototype._FocusElement = function (uie) {
     if (RefObject.RefEquals(uie, this._FocusedElement))
         return true;
     if (this._FocusedElement != null)
@@ -5183,34 +5674,6 @@ DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
         this._MentorChangedCallback(this, newValue);
     }
 };
-DependencyObject.prototype.FindName = function (name, templateItem) {
-    if (templateItem === undefined)
-        templateItem = Control.GetIsTemplateItem(this);
-    var scope = NameScope.GetNameScope(this);
-    if (scope && (templateItem === scope.GetIsLocked()))
-        return scope.FindName(name);
-    if (this._Parent)
-        return this._Parent.FindName(name, templateItem);
-    return undefined;
-};
-DependencyObject.prototype.FindNameScope = function (templateNamescope) {
-    if (templateNamescope === undefined)
-        templateNamescope = Control.GetIsTemplateItem(this);
-    var scope = NameScope.GetNameScope(this);
-    if (scope && (templateNamescope === scope.GetIsLocked()))
-        return scope;
-    if (this._Parent) {
-        return this._Parent.FindNameScope(templateNamescope);
-    }
-    return undefined;
-};
-DependencyObject.prototype.SetNameOnScope = function (name, scope) {
-    if (scope.FindName(name))
-        return false;
-    this.SetValue(DependencyObject.NameProperty, name);
-    scope.RegisterName(name, this);
-    return true;
-};
 DependencyObject.prototype.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);
 };
@@ -5314,7 +5777,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
     }
     var currentValue;
     var equal = false;
-    if ((currentValue = this._ReadLocalValue(propd)) == null)
+    if ((currentValue = this.ReadLocalValue(propd)) == null)
         if (propd._IsAutoCreated())
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     if (currentValue != null && value != null) {
@@ -5371,8 +5834,11 @@ DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error)
         notifyListeners = true;
     if (error == undefined)
         error = new BError();
+    if (this._GetAnimationStorageFor(propd) != null) {
+        return;
+    }
     var oldLocalValue;
-    if ((oldLocalValue = this._ReadLocalValue(propd)) == null) {
+    if ((oldLocalValue = this.ReadLocalValue(propd)) == null) {
         if (propd._IsAutoCreated())
             oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     }
@@ -5398,7 +5864,7 @@ DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error)
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
     }
 };
-DependencyObject.prototype._ReadLocalValue = function (propd) {
+DependencyObject.prototype.ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
 DependencyObject.prototype._GetValueNoAutoCreate = function (propd) {
@@ -5610,6 +6076,132 @@ DependencyObject.prototype._AddTarget = function (obj) {
 };
 DependencyObject.prototype._RemoveTarget = function (obj) {
 };
+DependencyObject.prototype._GetResourceBase = function () {
+    var rb = this._ResourceBase;
+    if (rb)
+        rb = rb.replace(/^\s+/, ''); //trim if not null
+    if (rb != null && rb.length > 0)
+        return this._ResourceBase;
+    if (this._Parent != null)
+        return this._Parent._GetResourceBase();
+    return this._ResourceBase;
+};
+DependencyObject.prototype._SetResourceBase = function (value) {
+    this._ResourceBase = value;
+};
+DependencyObject.prototype._SetIsAttached = function (value) {
+    if (this._IsAttached == value)
+        return;
+    this._IsAttached = value;
+    this._OnIsAttachedChanged(value);
+};
+DependencyObject.prototype._OnIsAttachedChanged = function (value) {
+    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
+    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
+};
+DependencyObject.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property === DependencyObject.NameProperty) {
+        var scope = this.FindNameScope();
+        if (scope && args.NewValue) {
+            if (args.OldValue)
+                scope.UnregisterName(args.OldValue);
+            scope.RegisterName(args.NewValue, this);
+            if (/* TODO: this.IsHydratedFromXaml() && */this._Parent) {
+                scope = this._Parent.FindNameScope();
+                if (scope) {
+                    if (args.OldValue)
+                        scope.UnregisterName(args.OldValue);
+                    scope.RegisterName(args.NewValue, this);
+                }
+            }
+        }
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+DependencyObject.prototype._OnSubPropertyChanged = function (sender, args) { };
+DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
+};
+DependencyObject.prototype._OnCollectionItemChanged = function (sender, args) {
+};
+DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
+    if (propd._IsCustom)
+        return;
+    if (value != null && value instanceof DependencyObject) {
+        value._SetIsAttached(newIsAttached);
+    }
+};
+DependencyObject._PropagateMentor = function (propd, value, newMentor) {
+    if (value != null && value instanceof DependencyObject) {
+        value.SetMentor(newMentor);
+    }
+};
+DependencyObject.prototype.FindName = function (name, isTemplateItem) {
+    if (isTemplateItem === undefined)
+        isTemplateItem = Control.GetIsTemplateItem(this);
+    var scope = NameScope.GetNameScope(this);
+    if (scope && (isTemplateItem === scope.GetIsLocked()))
+        return scope.FindName(name);
+    if (this._Parent)
+        return this._Parent.FindName(name, isTemplateItem);
+    return undefined;
+};
+DependencyObject.prototype.FindNameScope = function (templateNamescope) {
+    if (templateNamescope === undefined)
+        templateNamescope = Control.GetIsTemplateItem(this);
+    var scope = NameScope.GetNameScope(this);
+    if (scope && (templateNamescope === scope.GetIsLocked()))
+        return scope;
+    if (this._Parent) {
+        return this._Parent.FindNameScope(templateNamescope);
+    }
+    return undefined;
+};
+DependencyObject.prototype.SetNameOnScope = function (name, scope) {
+    if (scope.FindName(name))
+        return false;
+    this.SetValue(DependencyObject.NameProperty, name);
+    scope.RegisterName(name, this);
+    return true;
+};
+DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+    if (error.IsErrored())
+        return;
+    if (this._RegisteringNames)
+        return;
+    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
+        return;
+    this._RegisteringNames = true;
+    var mergeNamescope = false;
+    var registerName = false;
+    var recurse = false;
+    var thisNs = NameScope.GetNameScope(this);
+    this._RegisteringNames = false;
+};
+DependencyObject.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+    if (this._RegisteringNames)
+        return;
+    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
+        return;
+    this._RegisteringNames = true;
+    var thisNs = NameScope.GetNameScope(this);
+    if (/* TODO: this._IsHydratedFromXaml() || */thisNs == null || thisNs._GetTemporary()) {
+        var name = this.GetName();
+        if (name && name.length > 0)
+            fromNs.UnregisterName(name);
+    }
+    if (thisNs && !thisNs._GetTemporary()) {
+        this._RegisteringNames = false;
+        return;
+    }
+    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
+    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
+    this._RegisteringNames = false;
+}
+DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
+    if (!propd._IsCustom && value != null && value instanceof DependencyObject) {
+        value._UnregisterAllNamesRootedAt(fromNs);
+    }
+};
 DependencyObject.prototype._GetParent = function () {
     return this._Parent;
 };
@@ -5622,8 +6214,8 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
         return;
     }
     var current = parent;
-    while (current) {
-        if (current == this) {
+    while (current != null) {
+        if (RefObject.RefEquals(current, this)) {
             return;
         }
         current = current._GetParent();
@@ -5688,7 +6280,7 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
         if (this._HasSecondaryParents() || !(parent instanceof DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
             return;
     } else {
-        if (this._Parent != parent)
+        if (!RefObject.RefEquals(this._Parent, parent))
             return;
     }
     if (false/* TODO:IsShuttingDown */) {
@@ -5702,7 +6294,7 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
         this.SetMentor(null);
     }
     if (error == null || !error.IsErrored()) {
-        if (this._Parent == parent)
+        if (RefObject.RefEquals(this._Parent, parent))
             this._Parent = null;
     }
 };
@@ -5728,102 +6320,54 @@ DependencyObject.prototype._GetSecondaryParents = function () {
 DependencyObject.prototype._HasSecondaryParents = function () {
     return this._SecondaryParents.length > 0;
 };
-DependencyObject.prototype._GetResourceBase = function () {
-    var rb = this._ResourceBase;
-    if (rb)
-        rb = rb.replace(/^\s+/, ''); //trim if not null
-    if (rb != null && rb.length > 0)
-        return this._ResourceBase;
-    if (this._Parent != null)
-        return this._Parent._GetResourceBase();
-    return this._ResourceBase;
+DependencyObject.prototype._GetAnimationStorageFor = function (propd) {
+    if (this._StorageRepo == null)
+        return null;
+    var list = this._StorageRepo[propd];
+    if (!list || list.IsEmpty())
+        return null;
+    return list.Last().Storage;
 };
-DependencyObject.prototype._SetResourceBase = function (value) {
-    this._ResourceBase = value;
+DependencyObject.prototype._AttachAnimationStorage = function (propd, storage) {
+    var attachedStorage = null;
+    if (this._StorageRepo == null)
+        this._StorageRepo = new Array();
+    var list = this._StorageRepo[propd];
+    if (list == null) {
+        list = new LinkedList();
+        this._StorageRepo[propd] = list;
+    } else if (!list.IsEmpty()) {
+        attachedStorage = list.Last().Storage;
+        attachedStorage.Disable();
+    }
+    var node = new LinkedListNode();
+    node.Storage = storage;
+    list.Append(node);
+    return attachedStorage;
 };
-DependencyObject.prototype._SetIsAttached = function (value) {
-    if (this._IsAttached == value)
+DependencyObject.prototype._DetachAnimationStorage = function (propd, storage) {
+    if (this._StorageRepo == null)
         return;
-    this._IsAttached = value;
-    this._OnIsAttachedChanged(value);
-};
-DependencyObject.prototype._OnIsAttachedChanged = function (value) {
-    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
-    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
-};
-DependencyObject.prototype._OnPropertyChanged = function (args, error) {
-    if (args.Property === DependencyObject.NameProperty) {
-        var scope = this.FindNameScope();
-        if (scope && args.NewValue) {
-            if (args.OldValue)
-                scope.UnregisterName(args.OldValue);
-            scope.RegisterName(args.NewValue, this);
-            if (/* TODO: this.IsHydratedFromXaml() && */this._Parent) {
-                scope = this._Parent.FindNameScope();
-                if (scope) {
-                    if (args.OldValue)
-                        scope.UnregisterName(args.OldValue);
-                    scope.RegisterName(args.NewValue, this);
-                }
+    var list = this._StorageRepo[propd];
+    if (!list || list.IsEmpty())
+        return;
+    var last = list.Last();
+    if (RefObject.RefEquals(last.Storage, storage)) {
+        list.Remove(last);
+        if (!list.IsEmpty())
+            list.Last().Storage.Enable();
+    } else {
+        var node = list.First();
+        while (node) {
+            if (RefObject.RefEquals(node.Storage, storage)) {
+                var remove = node;
+                node = node.Next;
+                node.Storage.SetStopValue(storage.GetStopValue());
+                list.Remove(remove);
+                break;
             }
+            node = node.Next;
         }
-    }
-    this.PropertyChanged.Raise(this, args);
-};
-DependencyObject.prototype._OnSubPropertyChanged = function (sender, args) { };
-DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
-};
-DependencyObject.prototype._OnCollectionItemChanged = function (sender, args) {
-};
-DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
-    if (error.IsErrored())
-        return;
-    if (this._RegisteringNames)
-        return;
-    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
-        return;
-    this._RegisteringNames = true;
-    var mergeNamescope = false;
-    var registerName = false;
-    var recurse = false;
-    var thisNs = NameScope.GetNameScope(this);
-    this._RegisteringNames = false;
-};
-DependencyObject.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
-    if (this._RegisteringNames)
-        return;
-    if (this._PermitsMultipleParents() && this._HasSecondaryParents())
-        return;
-    this._RegisteringNames = true;
-    var thisNs = NameScope.GetNameScope(this);
-    if (/* TODO: this._IsHydratedFromXaml() || */thisNs == null || thisNs._GetTemporary()) {
-        var name = this.GetName();
-        if (name && name.length > 0)
-            fromNs.UnregisterName(name);
-    }
-    if (thisNs && !thisNs._GetTemporary()) {
-        this._RegisteringNames = false;
-        return;
-    }
-    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
-    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._UnregisterDONames, fromNs);
-    this._RegisteringNames = false;
-}
-DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
-    if (!propd._IsCustom && value != null && value instanceof DependencyObject) {
-        value._UnregisterAllNamesRootedAt(fromNs);
-    }
-};
-DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
-    if (propd._IsCustom)
-        return;
-    if (value != null && value instanceof DependencyObject) {
-        value._SetIsAttached(newIsAttached);
-    }
-};
-DependencyObject._PropagateMentor = function (propd, value, newMentor) {
-    if (value != null && value instanceof DependencyObject) {
-        value.SetMentor(newMentor);
     }
 };
 
@@ -6293,7 +6837,7 @@ UIElement.prototype.Measure = function (availableSize) {
 };
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
-    var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var parent = this.GetVisualParent();
     if (!parent) {
         var desired = new Size();
@@ -6414,7 +6958,7 @@ UIElement.prototype._ElementAdded = function (item) {
     item._UpdateProjection();
     item._InvalidateMeasure();
     item._InvalidateArrange();
-    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 UIElement.prototype._UpdateLayer = function (pass, error) {
@@ -6722,7 +7266,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     if (this._SetsParent) {
         var existingParent = value._GetParent();
         value._AddParent(this, true, error);
-        if (!error.IsErrored() && !existingParent && this._GetIsSecondaryParent())
+        if (!error.IsErrored() && existingParent == null && this._GetIsSecondaryParent() != null)
             value._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
@@ -6731,7 +7275,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     }
     value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
     var rv = Collection.prototype.AddedToCollection.call(this, value, error);
-    value._IsAttached = rv && this._IsAttached;
+    value._SetIsAttached(rv && this._IsAttached);
     if (!rv) {
         if (this._SetsParent) {
             value._RemoveParent(this, error);
@@ -6765,11 +7309,6 @@ DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
 DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
     this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
 };
-
-function PresentationFrameworkCollection() {
-    Collection.call(this);
-}
-PresentationFrameworkCollection.InheritFrom(Collection);
 
 function ResourceDictionary() {
     Collection.call(this);
@@ -6809,25 +7348,50 @@ ResourceDictionary.prototype.Set = function (key, value) {
         oldValue = this.Get(key);
         this.Remove(oldValue);
     }
-    var index = this.Add(value);
+    var index = Collection.prototype.Add.call(this, value);
     this._KeyIndex[key] = index;
     this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
     return true;
 };
-ResourceDictionary.prototype.AddedToCollection = function (value, error) {
-    NotImplemented("ResourceDictionary.AddedToCollection");
-    if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
-        return false;
-    var parent = this._Parent;
-    if (!parent)
-        return true;
-    var parentRd = parent;
-    var rd = RefObject.As(value, ResourceDictionary);
-    return this._WalkSubtreeLookingForCycle(rd, parentRd, error);
+ResourceDictionary.prototype.Add = function (key, value) {
+    this.Set(key, value);
 };
-ResourceDictionary.prototype._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
-    NotImplemented("ResourceDictionary._WalkSubtreeLookingForCycle");
-    return true;
+ResourceDictionary.prototype.Remove = function (key) {
+    var index = this._GetIndexFromKey(key);
+    if (index > -1)
+        return this.RemoveAt(index);
+};
+ResourceDictionary.prototype.AddedToCollection = function (value, error) {
+    var obj = null;
+    var rv = false;
+    if (value instanceof DependencyObject) {
+        obj = RefObject.As(value, DependencyObject);
+        if (obj._GetParent() != null && !ResourceDictionary._CanBeAddedTwice(value)) {
+            error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
+            return false;
+        }
+        obj._AddParent(this, true, error);
+        if (error.IsErrored())
+            return false;
+        obj._SetIsAttached(this._IsAttached);
+        obj.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+    }
+    rv = Collection.prototype.AddedToCollection.call(this, value, error);
+    if (rv /* && !from_resource_dictionary_api */ && obj != null) {
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, obj, obj.GetName());
+    }
+    return rv;
+};
+ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
+    if (isValueSafe && value instanceof DependencyObject) {
+        var obj = RefObject.As(value, DependencyObject);
+        if (obj != null) {
+            obj.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
+            obj._RemoveParent(this, null);
+            obj._SetIsAttached(false);
+        }
+    }
+    Collection.prototype.RemovedFromCollection.call(this, value, isValueSafe);
 };
 ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
     Collection.prototype._OnIsAttachedChanged.call(this, value);
@@ -6836,6 +7400,10 @@ ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
         if (obj instanceof DependencyObject)
             obj._SetIsAttached(value);
     }
+};
+ResourceDictionary._CanBeAddedTwice = function (value) {
+    NotImplemented("ResourceDictionary._CanBeAddedTwice");
+    return true;
 };
 
 function ResourceDictionaryCollection() {
@@ -7149,7 +7717,11 @@ TextElementCollection.InheritFrom(DependencyObjectCollection);
 
 function App() {
     DependencyObject.call(this);
-    this.MainSurface = new Surface();
+    if (!IsDocumentReady())
+        return;
+    this.MainSurface = new Surface(this);
+    this._Clock = new Clock();
+    this._Storyboards = new Array();
 }
 App.InheritFrom(DependencyObject);
 App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
@@ -7174,11 +7746,21 @@ App.prototype.Load = function (element, containerId, width, height) {
     this.Start();
 };
 App.prototype.Start = function () {
-    var fps = 30.0;
-    var app = this;
-    this._TickID = setInterval(function () { app._Tick(); }, (1.0 / fps) * 1000.0);
+    this._Clock.RegisterTimer(this);
 };
-App.prototype._Tick = function () {
+App.prototype._Tick = function (lastTime, nowTime) {
+    this.ProcessStoryboards(lastTime, nowTime);
+    this.ProcessDirty();
+};
+App.prototype._Stop = function () {
+    this._Clock.UnregisterTimer(this);
+};
+App.prototype.ProcessStoryboards = function (lastTime, nowTime) {
+    for (var i = 0; i < this._Storyboards.length; i++) {
+        this._Storyboards[i]._Tick(lastTime, nowTime);
+    }
+};
+App.prototype.ProcessDirty = function () {
     if (this._IsRunning)
         return;
     this._IsRunning = true;
@@ -7191,8 +7773,11 @@ App.prototype._Tick = function () {
     }
     this._IsRunning = false;
 };
-App.prototype._Stop = function () {
-    clearInterval(this._TickID);
+App.prototype.RegisterStoryboard = function (storyboard) {
+    Array.addDistinctRefObject(this._Storyboards, storyboard);
+};
+App.prototype.UnregisterStoryboard = function (storyboard) {
+    Array.removeRefObject(this._Storyboards, storyboard);
 };
 App.prototype._GetImplicitStyles = function (fe, styleMask) {
     var genericXamlStyle = undefined;
@@ -7209,7 +7794,9 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
         }
     }
     if ((styleMask & _StyleMask.ApplicationResources) != 0) {
-        appResourcesStyle = this.GetResources().Get(fe._TypeName);
+        appResourcesStyle = this.GetResources().Get(fe.constructor);
+        if (appResourcesStyle == null)
+            appResourcesStyle = this.GetResources().Get(fe._TypeName);
     }
     if ((styleMask & _StyleMask.VisualTree) != 0) {
         var isControl = fe instanceof Control;
@@ -7220,6 +7807,9 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
                 continue;
             }
             if (!isControl && el == fe.GetTemplateOwner())
+                break;
+            visualTreeStyle = el.GetResources().Get(fe.constructor);
+            if (visualTreeStyle != null)
                 break;
             visualTreeStyle = el.GetResources().Get(fe._TypeName);
             if (visualTreeStyle != null)
@@ -7437,6 +8027,13 @@ function Timeline() {
     this.Completed = new MulticastEvent();
 }
 Timeline.InheritFrom(DependencyObject);
+Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
+Timeline.prototype.GetBeginTime = function () {
+    return this.GetValue(Timeline.BeginTimeProperty);
+};
+Timeline.prototype.SetBeginTime = function (value) {
+    this.SetValue(Timeline.BeginTimeProperty, value);
+};
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
 Timeline.prototype.GetDuration = function () {
     return this.GetValue(Timeline.DurationProperty);
@@ -7444,11 +8041,73 @@ Timeline.prototype.GetDuration = function () {
 Timeline.prototype.SetDuration = function (value) {
     this.SetValue(Timeline.DurationProperty, value);
 };
+Timeline.prototype.GetCurrentProgress = function (nowTime) {
+    if (nowTime === Number.POSITIVE_INFINITY)
+        return 1.0;
+    var elapsedMs = nowTime - this._BeginStep;
+    var progress = elapsedMs / this.GetDuration().GetTimeSpan().GetMilliseconds();
+    if (progress > 1.0)
+        progress = 1.0;
+    return progress;
+};
+Timeline.prototype.HasManualTarget = function () {
+    return this._ManualTarget != null;
+};
+Timeline.prototype.GetManualTarget = function () {
+    return this._ManualTarget;
+};
+Timeline.prototype.HookupStorage = function (targetObj, targetProp) {
+    this._Storage = new AnimationStorage(this, targetObj, targetProp);
+    return this._Storage;
+};
+Timeline.prototype.InitializeTimes = function (now) {
+    this._InitialStep = now;
+    var beginTime = this.GetBeginTime();
+    this._ReachedBeginTime = beginTime == null || beginTime.IsZero();
+    if (this._ReachedBeginTime)
+        this._BeginStep = now;
+};
+Timeline.prototype.HasReachedBeginTime = function (nowTime) {
+    if (this._ReachedBeginTime)
+        return true;
+    var beginTime = this.GetBeginTime();
+    if (beginTime != null) {
+        var ts = new TimeSpan();
+        ts.AddMilliseconds(nowTime - this._InitialStep);
+        if (ts.CompareTo(beginTime) < 0)
+            return false;
+    }
+    this._BeginStep = new Date().getTime();
+    this._ReachedBeginTime = true;
+    return true;
+};
+Timeline.prototype.HasNoDuration = function () {
+    return this.GetDuration() == null;
+};
+Timeline.prototype.HasReachedDuration = function (nowTime) {
+    var duration = this.GetDuration();
+    if (!duration.HasTimeSpan())
+        return false;
+    if (this.GetCurrentProgress() < 1.0)
+        return false;
+    return true;
+};
+Timeline.prototype.OnDurationReached = function () { };
+Timeline.prototype.Update = function (nowTime) {
+    if (this._Storage == null)
+        return;
+    var progress = 1.0;
+    if (nowTime === Number.POSITIVE_INFINITY)
+        progress = this.GetCurrentProgress(nowTime);
+    this._Storage.UpdateCurrentValueAndApply(progress);
+};
+Timeline.prototype._GetTargetValue = function (defaultOriginValue) { };
+Timeline.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) { };
 
 function TimelineCollection() {
-    PresentationFrameworkCollection.call(this);
+    Collection.call(this);
 }
-TimelineCollection.InheritFrom(PresentationFrameworkCollection);
+TimelineCollection.InheritFrom(Collection);
 
 function VisualState() {
     DependencyObject.call(this);
@@ -7509,24 +8168,19 @@ VisualStateGroup.prototype.GetState = function (stateName) {
     return null;
 };
 VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboards) {
-    var storyboardResColl = element.GetResources().Get("^^__CurrentStoryboards__^^");
-    if (storyboardResColl == null) {
-        storyboardResColl = new StoryboardCollection();
-        element.GetResources().Set("^^__CurrentStoryboards__^^", storyboardResColl);
-    }
     var i;
     var storyboard;
     for (i = 0; i < newStoryboards.length; i++) {
         storyboard = newStoryboards[i];
         if (storyboard == null)
             continue;
-        storyboardResColl.Add(storyboard);
+        element.GetResources().Add(storyboard._ID, storyboard);
         try {
             storyboard.Begin();
         } catch (err) {
             for (var j = 0; j <= i; j++) {
                 if (newStoryboards[i] != null)
-                    storyboardResColl.Remove(newStoryboards[i]);
+                    element.GetResources().Remove(newStoryboards[i]._ID);
             }
             throw err;
         }
@@ -7536,7 +8190,7 @@ VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboar
         storyboard = currentStoryboards.GetValueAt(i);
         if (storyboard == null)
             continue;
-        storyboardResColl.Remove(storyboard);
+        element.GetResources().Remove(storyboard._ID);
         storyboard.Stop();
     }
     currentStoryboards.Clear();
@@ -8130,7 +8784,7 @@ FrameworkElement.prototype._MeasureOverrideWithError = function (availableSize, 
 FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
-    var slot = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var slot = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
     if (this.GetUseLayoutRounding()) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
@@ -8406,7 +9060,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
                             pass._ArrangeList.Append(new UIElementNode(child));
                         break;
                     case UIElementFlags.DirtySizeHint:
-                        if (child._ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+                        if (child.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
                             pass._SizeList.Append(new UIElementNode(child));
                         break;
                     default:
@@ -8803,15 +9457,10 @@ function ImageBrush() {
 }
 ImageBrush.InheritFrom(TileBrush);
 
-function Animation() {
+function ColorAnimation() {
     Timeline.call(this);
 }
-Animation.InheritFrom(Timeline);
-
-function ColorAnimation() {
-    Animation.call(this);
-}
-ColorAnimation.InheritFrom(Animation);
+ColorAnimation.InheritFrom(Timeline);
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
 ColorAnimation.prototype.GetBy = function () {
     return this.GetValue(ColorAnimation.ByProperty);
@@ -8819,6 +9468,15 @@ ColorAnimation.prototype.GetBy = function () {
 ColorAnimation.prototype.SetBy = function (value) {
     this.SetValue(ColorAnimation.ByProperty, value);
 };
+/*
+ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
+ColorAnimation.prototype.GetEasingFunction = function () {
+    return this.GetValue(ColorAnimation.EasingFunctionProperty);
+};
+ColorAnimation.prototype.SetEasingFunction = function (value) {
+    this.SetValue(ColorAnimation.EasingFunctionProperty, value);
+};
+*/
 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
 ColorAnimation.prototype.GetFrom = function () {
     return this.GetValue(ColorAnimation.FromProperty);
@@ -8835,9 +9493,9 @@ ColorAnimation.prototype.SetTo = function (value) {
 };
 
 function DoubleAnimation() {
-    Animation.call(this);
+    Timeline.call(this);
 }
-DoubleAnimation.InheritFrom(Animation);
+DoubleAnimation.InheritFrom(Timeline);
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
 DoubleAnimation.prototype.GetBy = function () {
     return this.GetValue(DoubleAnimation.ByProperty);
@@ -8845,6 +9503,15 @@ DoubleAnimation.prototype.GetBy = function () {
 DoubleAnimation.prototype.SetBy = function (value) {
     this.SetValue(DoubleAnimation.ByProperty, value);
 };
+/*
+DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, DoubleAnimation);
+DoubleAnimation.prototype.GetEasingFunction = function () {
+    return this.GetValue(DoubleAnimation.EasingFunctionProperty);
+};
+DoubleAnimation.prototype.SetEasingFunction = function (value) {
+    this.SetValue(DoubleAnimation.EasingFunctionProperty, value);
+};
+*/
 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
 DoubleAnimation.prototype.GetFrom = function () {
     return this.GetValue(DoubleAnimation.FromProperty);
@@ -8858,6 +9525,63 @@ DoubleAnimation.prototype.GetTo = function () {
 };
 DoubleAnimation.prototype.SetTo = function (value) {
     this.SetValue(DoubleAnimation.ToProperty, value);
+};
+DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
+    this._EnsureCache();
+    var start;
+    if (this._FromCached != null)
+        start = this._FromCached;
+    else if (defaultOriginValue != null && defaultOriginValue instanceof Number)
+        start = defaultOriginValue;
+    else
+        start = 0.0;
+    if (this._ToCached != null)
+        return this._ToCached;
+    else if (this._ByCached != null)
+        return start + this._ByCached;
+    else
+        return start;
+};
+DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
+    this._EnsureCache();
+    if (progress > 1.0)
+        progress = 1.0;
+    var start;
+    if (this._FromCached != null)
+        start = this._FromCached;
+    else if (defaultOriginValue != null && defaultOriginValue instanceof Number)
+        start = defaultOriginValue;
+    else
+        start = 0.0;
+    var end;
+    if (this._ToCached != null)
+        end = this._ToCached;
+    else if (this._ByCached != null)
+        end = start + this._ByCached;
+    else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
+        end = defaultDestinationValue;
+    else
+        end = start;
+    return start + ((end - start) * progress);
+};
+DoubleAnimation.prototype._EnsureCache = function () {
+    if (this._HasCached)
+        return;
+    this._FromCached = this.GetFrom();
+    this._ToCached = this.GetTo();
+    this._ByCached = this.GetBy();
+    this._HasCached = true;
+};
+DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== DoubleAnimation) {
+        Timeline.prototype._OnPropertyChanged.call(this, args, error);
+        return;
+    }
+    this._FromCached = null;
+    this._ToCached = null;
+    this._ByCached = null;
+    this._HasCached = false;
+    this.PropertyChanged.Raise(this, args);
 };
 
 function Storyboard() {
@@ -8886,10 +9610,69 @@ Storyboard.Annotations = {
     ContentProperty: Storyboard.ChildrenProperty
 };
 Storyboard.prototype.Begin = function () {
-    NotImplemented("Storyboard.Begin");
+    App.Instance.RegisterStoryboard(this);
+    this._LastStep = new Date().getTime();
+    this._HookupAnimations();
+    this.InitializeTimes(this._LastStep);
+};
+Storyboard.prototype.Pause = function () {
+    this._IsPaused = true;
+};
+Storyboard.prototype.Resume = function () {
+    this._IsPaused = false;
+    this._LastStep = new Date().getTime();
 };
 Storyboard.prototype.Stop = function () {
-    NotImplemented("Storyboard.Stop");
+    App.Instance.UnregisterStoryboard(this);
+};
+Storyboard.prototype._HookupAnimations = function () {
+    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
+        this._HookupAnimation(this.GetChildren(i).GetValueAt(i));
+    }
+};
+Storyboard.prototype._HookupAnimation = function (timeline, targetObject, targetPropertyPath) {
+    var localTargetObject = null;
+    var localTargetPropertyPath = null;
+    if (timeline.HasManualTarget()) {
+        localTargetObject = timeline.GetManualTarget();
+    } else {
+        var name = Storyboard.GetTargetName(timeline);
+        if (name)
+            localTargetObject = timeline.FindName(name);
+    }
+    localTargetPropertyPath = Storyboard.GetTargetProperty(timeline);
+    if (localTargetObject != null)
+        targetObject = localTargetObject;
+    if (localTargetPropertyPath != null)
+        targetPropertyPath = localTargetPropertyPath;
+    var refobj = {
+        Value: targetObject
+    };
+    targetPropertyPath.TryResolveDependencyProperty(targetObject);
+    var targetProperty = DependencyProperty.ResolvePropertyPath(refobj, targetPropertyPath);
+    if (targetProperty == null) {
+        Warn("Could not resolve property for storyboard. [" + localTargetPropertyPath.GetPath().toString() + "]");
+        return false;
+    }
+    timeline.HookupStorage(refobj.Value, targetProperty);
+    return true;
+};
+Storyboard.prototype._Tick = function (lastTime, nowTime) {
+    if (this._IsPaused)
+        return;
+    if (!this.HasReachedBeginTime(nowTime))
+        return;
+    if (this.HasNoDuration() || this.HasReachedDuration(nowTime)) {
+        for (var i = 0; i < this.GetChildren().GetCount(); i++) {
+            this.GetChildren().GetValueAt(i).Update(Number.POSITIVE_INFINITY);
+        }
+        this.OnDurationReached();
+        return;
+    }
+    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
+        this.GetChildren().GetValueAt(i).Update(nowTime);
+    }
+    this._LastStep = nowTime;
 };
 function StoryboardCollection() {
     DependencyObjectCollection.call(this);
@@ -9109,11 +9892,11 @@ ContentPresenter.prototype.GetFallbackRoot = function () {
 ContentPresenter.prototype._GetDefaultTemplate = function () {
     var templateOwner = this.GetTemplateOwner();
     if (templateOwner) {
-        if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+        if (this.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
             this.SetValue(ContentPresenter.ContentProperty, 
                 new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
-        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+        if (this.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
             this.SetValue(ContentPresenter.ContentTemplateProperty, 
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }
@@ -9320,7 +10103,7 @@ Control.prototype.SetVisualParent = function (visualParent) {
 };
 Control.prototype._ElementAdded = function (item) {
     var error;
-    item._AddParent(this, error);
+    item._AddParent(this, true, error);
     this._SetSubtreeObject(item);
     FrameworkElement.prototype._ElementAdded.call(this, item);
 };
@@ -9898,7 +10681,7 @@ TextBlock.prototype._ComputeActualSize = function () {
     var padding = this.GetPadding();
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
-    if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
+    if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
         this._Layout.Layout();
         var actuals = this._Layout.GetActualExtents();
         this._ActualWidth = actuals.Width;
@@ -10432,7 +11215,7 @@ _TextBoxView.prototype._UpdateText = function () {
     this._Layout.SetText(text ? text : "", -1);
 };
 _TextBoxView.prototype._ComputeActualSize = function () {
-    if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty))
+    if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty))
         return FrameworkElement.prototype._ComputeActualSize.call(this);
     this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     return this._Layout.GetActualExtents();

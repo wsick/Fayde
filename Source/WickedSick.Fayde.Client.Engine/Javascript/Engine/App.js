@@ -4,12 +4,18 @@
 /// <reference path="Surface.js"/>
 /// <reference path="../Runtime/Collections.js"/>
 /// <reference path="../Core/UIElement.js"/>
+/// <reference path="Clock.js"/>
 
 //#region App
 
 function App() {
     DependencyObject.call(this);
-    this.MainSurface = new Surface();
+    if (!IsDocumentReady())
+        return;
+
+    this.MainSurface = new Surface(this);
+    this._Clock = new Clock();
+    this._Storyboards = new Array();
 }
 App.InheritFrom(DependencyObject);
 
@@ -47,12 +53,24 @@ App.prototype.Load = function (element, containerId, width, height) {
     this.MainSurface._Attach(element);
     this.Start();
 };
+
 App.prototype.Start = function () {
-    var fps = 30.0;
-    var app = this;
-    this._TickID = setInterval(function () { app._Tick(); }, (1.0 / fps) * 1000.0);
+    this._Clock.RegisterTimer(this);
 };
-App.prototype._Tick = function () {
+App.prototype._Tick = function (lastTime, nowTime) {
+    this.ProcessStoryboards(lastTime, nowTime);
+    this.ProcessDirty();
+};
+App.prototype._Stop = function () {
+    this._Clock.UnregisterTimer(this);
+};
+
+App.prototype.ProcessStoryboards = function (lastTime, nowTime) {
+    for (var i = 0; i < this._Storyboards.length; i++) {
+        this._Storyboards[i]._Tick(lastTime, nowTime);
+    }
+};
+App.prototype.ProcessDirty = function () {
     if (this._IsRunning)
         return;
     this._IsRunning = true;
@@ -65,9 +83,14 @@ App.prototype._Tick = function () {
     }
     this._IsRunning = false;
 };
-App.prototype._Stop = function () {
-    clearInterval(this._TickID);
+
+App.prototype.RegisterStoryboard = function (storyboard) {
+    Array.addDistinctRefObject(this._Storyboards, storyboard);
 };
+App.prototype.UnregisterStoryboard = function (storyboard) {
+    Array.removeRefObject(this._Storyboards, storyboard);
+};
+
 App.prototype._GetImplicitStyles = function (fe, styleMask) {
     var genericXamlStyle = undefined;
     var appResourcesStyle = undefined;
@@ -83,9 +106,9 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
         }
     }
     if ((styleMask & _StyleMask.ApplicationResources) != 0) {
-        //appResourcesStyle = this.Resources.Get(fe.constructor);
-        //if (appResourcesStyle == null)
-        appResourcesStyle = this.GetResources().Get(fe._TypeName);
+        appResourcesStyle = this.GetResources().Get(fe.constructor);
+        if (appResourcesStyle == null)
+            appResourcesStyle = this.GetResources().Get(fe._TypeName);
     }
     if ((styleMask & _StyleMask.VisualTree) != 0) {
         var isControl = fe instanceof Control;
@@ -98,9 +121,9 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
             if (!isControl && el == fe.GetTemplateOwner())
                 break;
 
-            //visualTreeStyle = el.Resources.Get(fe.constructor);
-            //if (visualTreeStyle != null)
-            //break;
+            visualTreeStyle = el.GetResources().Get(fe.constructor);
+            if (visualTreeStyle != null)
+                break;
             visualTreeStyle = el.GetResources().Get(fe._TypeName);
             if (visualTreeStyle != null)
                 break;

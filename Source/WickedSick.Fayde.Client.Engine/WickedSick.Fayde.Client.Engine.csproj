@@ -72,7 +72,6 @@
     <Content Include="Javascript\Core\BindingOperations.js" />
     <Content Include="Javascript\Core\Collections\CollectionChangedArgs.js" />
     <Content Include="Javascript\Core\Collections\ItemChangedArgs.js" />
-    <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
     <Content Include="Javascript\Core\Collections\ResourceDictionary.js" />
     <Content Include="Javascript\Core\Collections\ResourceDictionaryCollection.js" />
     <Content Include="Javascript\Core\Collections\UIElementCollection.js" />
@@ -128,6 +127,7 @@
     <Content Include="Javascript\Documents\Section.js" />
     <Content Include="Javascript\Documents\Span.js" />
     <Content Include="Javascript\Documents\TextElementCollection.js" />
+    <Content Include="Javascript\Engine\Clock.js" />
     <Content Include="Javascript\Engine\DirtyNode.js" />
     <Content Include="Javascript\Engine\FocusChangedNode.js" />
     <Content Include="Javascript\Engine\RenderContext.js" />
@@ -135,12 +135,13 @@
     <Content Include="Javascript\Markup\Markup.js" />
     <Content Include="Javascript\Markup\StaticResourceMarkup.js" />
     <Content Include="Javascript\Markup\TemplateBindingMarkup.js" />
-    <Content Include="Javascript\Media\Animation\Animation.js" />
+    <Content Include="Javascript\Media\Animation\AnimationStorage.js" />
     <Content Include="Javascript\Media\Animation\ColorAnimation.js" />
     <Content Include="Javascript\Media\Animation\DoubleAnimation.js" />
     <Content Include="Javascript\Engine\App.js" />
     <Content Include="Javascript\Media\GradientStop.js" />
     <Content Include="Javascript\Media\GradientStopCollection.js" />
+    <Content Include="Javascript\Primitives\TimeSpan.js" />
     <Content Include="Javascript\Runtime\BError.js" />
     <Content Include="Javascript\Data\Binding.js" />
     <Content Include="Javascript\Controls\Border.js" />

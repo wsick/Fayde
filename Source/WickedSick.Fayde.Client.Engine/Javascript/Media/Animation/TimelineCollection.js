@@ -1,12 +1,12 @@
 /// <reference path="../../Runtime/RefObject.js" />
-/// <reference path="../../Core/Collections/PresentationFrameworkCollection.js"/>
+/// <reference path="../../Core/Collections/Collection.js"/>
 /// CODE
 
 //#region TimelineCollection
 
 function TimelineCollection() {
-    PresentationFrameworkCollection.call(this);
+    Collection.call(this);
 }
-TimelineCollection.InheritFrom(PresentationFrameworkCollection);
+TimelineCollection.InheritFrom(Collection);
 
 //#endregion

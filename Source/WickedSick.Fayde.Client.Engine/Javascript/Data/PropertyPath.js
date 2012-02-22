@@ -23,9 +23,18 @@ _PropertyPath.prototype.HasDependencyProperty = function () {
     return this._Propd != null;
 };
 
+_PropertyPath.prototype.TryResolveDependencyProperty = function (dobj) {
+    /// <param name="dobj" type="DependencyObject"></param>
+    if (this.HasDependencyProperty())
+        return;
+    if (dobj == null)
+        return;
+    this._Propd = dobj.GetDependencyProperty(this.GetPath());
+};
+
 //#region PROPERTIES
 
-_PropertyPath.prototype.GetDP = function () {
+_PropertyPath.prototype.GetDependencyProperty  = function () {
     return this._Propd;
 };
 _PropertyPath.prototype.GetPath = function () {

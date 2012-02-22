@@ -328,7 +328,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
 
-    var slot = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var slot = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
 
     var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
 
@@ -659,7 +659,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
                             pass._ArrangeList.Append(new UIElementNode(child));
                         break;
                     case UIElementFlags.DirtySizeHint:
-                        if (child._ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+                        if (child.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
                             pass._SizeList.Append(new UIElementNode(child));
                         break;
                     default:

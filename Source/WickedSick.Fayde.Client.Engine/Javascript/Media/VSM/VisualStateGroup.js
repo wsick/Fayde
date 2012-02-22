@@ -63,26 +63,20 @@ VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboar
     /// <param name="element" type="FrameworkElement"></param>
     /// <param name="newStoryboards" type="Array"></param>
 
-    var storyboardResColl = element.GetResources().Get("^^__CurrentStoryboards__^^");
-    if (storyboardResColl == null) {
-        storyboardResColl = new StoryboardCollection();
-        element.GetResources().Set("^^__CurrentStoryboards__^^", storyboardResColl);
-    }
-
     var i;
     var storyboard;
     for (i = 0; i < newStoryboards.length; i++) {
         storyboard = newStoryboards[i];
         if (storyboard == null)
             continue;
-        storyboardResColl.Add(storyboard);
+        element.GetResources().Add(storyboard._ID, storyboard);
         try {
             storyboard.Begin();
         } catch (err) {
             //clear storyboards on error
             for (var j = 0; j <= i; j++) {
                 if (newStoryboards[i] != null)
-                    storyboardResColl.Remove(newStoryboards[i]);
+                    element.GetResources().Remove(newStoryboards[i]._ID);
             }
             throw err;
         }
@@ -93,7 +87,7 @@ VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboar
         storyboard = currentStoryboards.GetValueAt(i);
         if (storyboard == null)
             continue;
-        storyboardResColl.Remove(storyboard);
+        element.GetResources().Remove(storyboard._ID);
         storyboard.Stop();
     }
 

@@ -159,7 +159,7 @@ DependencyProperty._HandlePeriod = function (data) {
             return false;
 
         if (data.promotedValues != null && !cloned && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
-            var clonedValue = value.Clone();
+            var clonedValue = Object.Clone(value);
             var clonedDo = RefObject.As(clonedValue, DependencyObject);
             if (clonedDo != null) {
                 newLu = clonedDo;
@@ -194,6 +194,8 @@ DependencyProperty._HandleLeftBracket = function (data) {
         return true;
 
     data.prop = data.path = data.path.substr(data.index + 2);
+    data.index = 0;
+    data.end = data.path.length;
 
     var value = null;
     if (data.expressionFound) {
@@ -246,7 +248,7 @@ DependencyProperty._HandleDefault = function (data) {
             data.type = DependencyProperty._LookupType(name);
             data.explicitType = true;
             if (data.type == null)
-                data.type = lu.constructor;
+                data.type = data.lu.constructor;
         }
         data.index++;
         start = data.index;
@@ -264,7 +266,7 @@ DependencyProperty._HandleDefault = function (data) {
         if (data.index === start)
             return false;
     } else {
-        data.type = lu.constructor;
+        data.type = data.lu.constructor;
         data.explicitType = false;
     }
 
@@ -272,19 +274,19 @@ DependencyProperty._HandleDefault = function (data) {
     if ((c !== ')' && data.parenOpen) || data.type == null)
         return false;
 
-    name = data.path.substr(start, data.index);
-    if ((res = DependencyProperty.GetDependencyProperty(data.type, name)) == null && data.lu)
-        res = DependencyProperty.GetDependencyProperty(lu.constructor, name);
+    name = data.path.slice(start, data.index);
+    if ((data.res = DependencyProperty.GetDependencyProperty(data.type, name)) == null && data.lu)
+        data.res = DependencyProperty.GetDependencyProperty(data.lu.constructor, name);
 
-    if (res == null)
+    if (data.res == null)
         return false;
 
-    if (!res._IsAttached && !data.lu.constructor.DoesInheritFrom(data.type)) {
-        if ((res = DependencyProperty.GetDependencyProperty(lu.constructor, name)) == null)
+    if (!data.res._IsAttached && !data.lu.constructor.DoesInheritFrom(data.type)) {
+        if ((data.res = DependencyProperty.GetDependencyProperty(data.lu.constructor, name)) == null)
             return false;
     }
 
-    if (res._IsAttached && data.explicitType && !data.parenOpen)
+    if (data.res._IsAttached && data.explicitType && !data.parenOpen)
         return false;
 
     return true;

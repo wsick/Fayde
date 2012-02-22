@@ -381,7 +381,7 @@ UIElement.prototype.Measure = function (availableSize) {
 };
 UIElement.prototype._MeasureWithError = function (availableSize, error) { };
 UIElement.prototype._DoArrangeWithError = function (error) {
-    var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var parent = this.GetVisualParent();
 
     if (!parent) {
@@ -525,7 +525,7 @@ UIElement.prototype._ElementAdded = function (item) {
     item._UpdateProjection();
     item._InvalidateMeasure();
     item._InvalidateArrange();
-    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 UIElement.prototype._UpdateLayer = function (pass, error) {

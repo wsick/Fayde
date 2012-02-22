@@ -48,11 +48,11 @@ ContentPresenter.prototype._GetDefaultTemplate = function () {
     /// <returns type="UIElement" />
     var templateOwner = this.GetTemplateOwner();
     if (templateOwner) {
-        if (this._ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+        if (this.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
             this.SetValue(ContentPresenter.ContentProperty, 
                 new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
-        if (this._ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+        if (this.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
             this.SetValue(ContentPresenter.ContentTemplateProperty, 
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }

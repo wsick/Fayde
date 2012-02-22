@@ -54,7 +54,10 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
         } else if (getFunc) {
             var coll = getFunc.call(dobj);
             for (var j in json.Children) {
-                coll.Add(this.CreateObject(json.Children[j], namescope));
+                var fobj = this.CreateObject(json.Children[j], namescope);
+                if (fobj instanceof DependencyObject)
+                    fobj._AddParent(coll, true);
+                coll.Add(fobj);
             }
         }
     }
@@ -95,11 +98,16 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
         coll = dobj.GetValue(propd);
     } else {
         coll = new targetType();
+        if (coll instanceof DependencyObject)
+            coll._AddParent(dobj, true);
         dobj.SetValue(propd, coll);
     }
 
     for (var i in subJson) {
-        coll.Add(this.CreateObject(subJson[i], namescope));
+        var fobj = this.CreateObject(subJson[i], namescope);
+        if (fobj instanceof DependencyObject)
+            fobj._AddParent(coll, true);
+        coll.Add(fobj);
     }
 
     return true;

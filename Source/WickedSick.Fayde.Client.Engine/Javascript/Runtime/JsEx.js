@@ -1,5 +1,5 @@
-﻿Object.prototype.Clone = function () {
-    return eval(uneval(this));
+﻿Object.Clone = function (o) {
+    return eval(uneval(o));
 };
 
 Function.prototype.InheritFrom = function (parentType) {
@@ -56,33 +56,33 @@ String.prototype.indexOfAny = function (carr, start) {
     return -1;
 };
 
-Array.prototype.indexOfRefObject = function (ro) {
+Array.indexOfRefObject = function (arr, ro) {
     /// <param name="ro" type="RefObject"></param>
     /// <returns type="Number" />
-    for (var i = 0; i < this.length; i++) {
-        if (RefObject.RefEquals(this, ro))
+    for (var i = 0; i < arr.length; i++) {
+        if (RefObject.RefEquals(arr, ro))
             return i;
     }
     return -1;
 };
-Array.prototype.containsRefObject = function (ro) {
+Array.containsRefObject = function (arr, ro) {
     /// <param name="ro" type="RefObject"></param>
     /// <returns type="Boolean" />
-    return this.indexOfRefObject(ro) > -1;
+    return Array.indexOfRefObject(arr, ro) > -1;
 };
-Array.prototype.addDistinctRefObject = function (ro) {
+Array.addDistinctRefObject = function (arr, ro) {
     /// <param name="ro" type="RefObject"></param>
     /// <returns type="Boolean" />
-    if (this.containsRefObject(ro))
+    if (Array.containsRefObject(arr, ro))
         return false;
-    this.push(ro);
+    arr.push(ro);
     return true;
 };
-Array.prototype.removeRefObject = function (ro) {
+Array.removeRefObject = function (arr, ro) {
     /// <param name="ro" type="RefObject"></param>
-    var index = this.indexOfRefObject(ro);
+    var index = Array.indexOfRefObject(arr, ro);
     if (index > -1)
-        this.splice(index, 1);
+        arr.splice(index, 1);
 };
 
 function IsDocumentReady() {

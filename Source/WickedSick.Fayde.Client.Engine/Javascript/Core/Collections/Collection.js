@@ -55,6 +55,8 @@ Collection.prototype.Remove = function (value) {
     return this.RemoveAt(index);
 };
 Collection.prototype.RemoveAt = function (index) {
+    /// <param name="index" type="Number"></param>
+    /// <returns type="Boolean" />
     if (index < 0 || index >= this._ht.length)
         return false;
     var value = this._ht[index];

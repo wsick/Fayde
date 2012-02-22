@@ -50,27 +50,57 @@ ResourceDictionary.prototype.Set = function (key, value) {
         oldValue = this.Get(key);
         this.Remove(oldValue);
     }
-    var index = this.Add(value);
+    var index = Collection.prototype.Add.call(this, value);
     this._KeyIndex[key] = index;
     this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
     return true;
 };
-
-ResourceDictionary.prototype.AddedToCollection = function (value, error) {
-    NotImplemented("ResourceDictionary.AddedToCollection");
-    if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
-        return false;
-    var parent = this._Parent;
-    if (!parent)
-        return true;
-    var parentRd = parent;
-    var rd = RefObject.As(value, ResourceDictionary);
-    return this._WalkSubtreeLookingForCycle(rd, parentRd, error);
+ResourceDictionary.prototype.Add = function (key, value) {
+    this.Set(key, value);
+};
+ResourceDictionary.prototype.Remove = function (key) {
+    var index = this._GetIndexFromKey(key);
+    if (index > -1)
+        return this.RemoveAt(index);
 };
 
-ResourceDictionary.prototype._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
-    NotImplemented("ResourceDictionary._WalkSubtreeLookingForCycle");
-    return true;
+ResourceDictionary.prototype.AddedToCollection = function (value, error) {
+    var obj = null;
+    var rv = false;
+
+    if (value instanceof DependencyObject) {
+        obj = RefObject.As(value, DependencyObject);
+        if (obj._GetParent() != null && !ResourceDictionary._CanBeAddedTwice(value)) {
+            error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
+            return false;
+        }
+        obj._AddParent(this, true, error);
+        if (error.IsErrored())
+            return false;
+        obj._SetIsAttached(this._IsAttached);
+        obj.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+
+        //WTF: if (!from_resource_dictionary_api)...
+    }
+
+    rv = Collection.prototype.AddedToCollection.call(this, value, error);
+
+    if (rv /* && !from_resource_dictionary_api */ && obj != null) {
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, obj, obj.GetName());
+    }
+
+    return rv;
+};
+ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
+    if (isValueSafe && value instanceof DependencyObject) {
+        var obj = RefObject.As(value, DependencyObject);
+        if (obj != null) {
+            obj.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
+            obj._RemoveParent(this, null);
+            obj._SetIsAttached(false);
+        }
+    }
+    Collection.prototype.RemovedFromCollection.call(this, value, isValueSafe);
 };
 
 ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
@@ -81,6 +111,11 @@ ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
         if (obj instanceof DependencyObject)
             obj._SetIsAttached(value);
     }
+};
+
+ResourceDictionary._CanBeAddedTwice = function (value) {
+    NotImplemented("ResourceDictionary._CanBeAddedTwice");
+    return true;
 };
 
 //#endregion

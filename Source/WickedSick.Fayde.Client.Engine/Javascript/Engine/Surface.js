@@ -7,11 +7,16 @@
 /// <reference path="../Runtime/Collection.js"/>
 /// <reference path="../Runtime/EventArgs.js"/>
 /// <reference path="DirtyNode.js"/>
+/// <reference path="Clock.js"/>
 
 //#region Surface
 
-function Surface() {
+function Surface(app) {
     RefObject.call(this);
+    if (!IsDocumentReady())
+        return;
+    this._App = app;
+    this._Clock = new Clock();
     this._InputList = new LinkedList();
     this._FocusChangedEvents = new LinkedList();
     this._FirstUserInitiatedEvent = false;
@@ -54,7 +59,8 @@ Surface.prototype.Render = function (region) {
         layer._DoRender(ctx, region);
     }
 };
-Surface.prototype._Attach = function (/* UIElement */element) {
+Surface.prototype._Attach = function (element) {
+    /// <param name="element" type="UIElement"></param>
     if (this._TopLevel) {
         //TODO: Detach previous layer
     }
@@ -89,7 +95,8 @@ Surface.prototype._Attach = function (/* UIElement */element) {
     };
     setTimeout(postAttach, 1);
 };
-Surface.prototype._AttachLayer = function (/* UIElement */layer) {
+Surface.prototype._AttachLayer = function (layer) {
+    /// <param name="layer" type="UIElement"></param>
     if (RefObject.RefEquals(layer, this._TopLevel))
         this._Layers.Insert(0, layer);
     else
@@ -114,7 +121,8 @@ Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
         element._InvalidateMeasure();
     }
 };
-Surface.prototype._IsTopLevel = function (/* UIElement */top) {
+Surface.prototype._IsTopLevel = function (top) {
+    /// <param name="top" type="UIElement"></param>
     if (!top || !this._Layers)
         return false;
     var ret = false; //TODO: full-screen message
@@ -136,8 +144,23 @@ Surface.prototype.ProcessDirtyElements = function () {
 Surface.prototype._Invalidate = function (rect) {
     if (!rect)
         rect = new Rect(0, 0, this.GetWidth(), this.GetHeight());
+    if (!this._InvalidatedRect)
+        this._InvalidatedRect = rect;
+    else
+        this._InvalidatedRect = this._InvalidatedRect.Union(rect);
+    this._QueueRender();
+};
+Surface.prototype._QueueRender = function () {
+    if (this._IsRenderQueued)
+        return;
     var surface = this;
-    setTimeout(function () { surface.Render(rect); }, 1);
+    this._IsRenderQueued = true;
+    setTimeout(function () {
+        surface._IsRenderQueued = false;
+        var rect2 = surface._InvalidatedRect;
+        surface._InvalidatedRect = null;
+        surface.Render(rect2);
+    }, 1);
 };
 
 Surface.prototype._UpdateLayout = function (error) {
@@ -342,7 +365,8 @@ Surface.prototype._PropagateDirtyFlagToChildren = function (element, dirt) {
         this._AddDirtyElement(child, dirt);
     }
 };
-Surface.prototype._AddDirtyElement = function (/* UIElement */element, dirt) {
+Surface.prototype._AddDirtyElement = function (element, dirt) {
+    /// <param name="element" type="UIElement"></param>
     if (element.GetVisualParent() == null && !this._IsTopLevel(element))
         return;
 
@@ -362,7 +386,8 @@ Surface.prototype._AddDirtyElement = function (/* UIElement */element, dirt) {
     }
     //TODO: Alert redraw needed
 };
-Surface.prototype._RemoveDirtyElement = function (/* UIElement */element) {
+Surface.prototype._RemoveDirtyElement = function (element) {
+    /// <param name="element" type="UIElement"></param>
     if (element._UpDirtyNode)
         this._UpDirty.RemoveDirtyNode(element._UpDirtyNode);
     if (element._DownDirtyNode)
@@ -507,7 +532,8 @@ Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) 
     }
 };
 
-Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
+Surface.prototype.SetMouseCapture = function (uie) {
+    /// <param name="uie" type="UIElement"></param>
     if (this._Captured || this._PendingCapture)
         return RefObject.RefEquals(uie, this._Captured) || RefObject.RefEquals(uie, this._PendingCapture);
     if (!this._EmittingMouseEvent)
@@ -515,7 +541,8 @@ Surface.prototype.SetMouseCapture = function (/* UIElement */uie) {
     this._PendingCapture = uie;
     return true;
 };
-Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
+Surface.prototype.ReleaseMouseCapture = function (uie) {
+    /// <param name="uie" type="UIElement"></param>
     if (!RefObject.RefEquals(uie, this._Captured) && !RefObject.RefEquals(uie, this._PendingCapture))
         return;
     if (this._EmittingMouseEvent)
@@ -523,7 +550,8 @@ Surface.prototype.ReleaseMouseCapture = function (/* UIElement */uie) {
     else
         this._PerformReleaseCapture();
 };
-Surface.prototype._PerformCapture = function (/* UIElement */uie) {
+Surface.prototype._PerformCapture = function (uie) {
+    /// <param name="uie" type="UIElement"></param>
     this._Captured = uie;
     var newInputList = new LinkedList();
     while (uie != null) {
@@ -546,7 +574,8 @@ Surface.prototype._PerformReleaseCapture = function () {
 
 //#region FOCUS
 
-Surface.prototype._FocusElement = function (/* UIElement */uie) {
+Surface.prototype._FocusElement = function (uie) {
+    /// <param name="uie" type="UIElement"></param>
     if (RefObject.RefEquals(uie, this._FocusedElement))
         return true;
 

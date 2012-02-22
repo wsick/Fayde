@@ -35,7 +35,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     if (this._SetsParent) {
         var existingParent = value._GetParent();
         value._AddParent(this, true, error);
-        if (!error.IsErrored() && !existingParent && this._GetIsSecondaryParent())
+        if (!error.IsErrored() && existingParent == null && this._GetIsSecondaryParent() != null)
             value._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
@@ -46,7 +46,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
 
     var rv = Collection.prototype.AddedToCollection.call(this, value, error);
-    value._IsAttached = rv && this._IsAttached;
+    value._SetIsAttached(rv && this._IsAttached);
     if (!rv) {
         if (this._SetsParent) {
             value._RemoveParent(this, error);

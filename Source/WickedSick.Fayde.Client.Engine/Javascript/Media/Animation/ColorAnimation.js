@@ -1,13 +1,13 @@
 /// <reference path="../../Runtime/RefObject.js" />
-/// <reference path="Animation.js"/>
+/// <reference path="Timeline.js"/>
 /// CODE
 
 //#region ColorAnimation
 
 function ColorAnimation() {
-    Animation.call(this);
+    Timeline.call(this);
 }
-ColorAnimation.InheritFrom(Animation);
+ColorAnimation.InheritFrom(Timeline);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -20,6 +20,18 @@ ColorAnimation.prototype.SetBy = function (value) {
     ///<param name="value" type="Color"></param>
     this.SetValue(ColorAnimation.ByProperty, value);
 };
+
+/*
+ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
+ColorAnimation.prototype.GetEasingFunction = function () {
+    ///<returns type="EasingFunction"></returns>
+    return this.GetValue(ColorAnimation.EasingFunctionProperty);
+};
+ColorAnimation.prototype.SetEasingFunction = function (value) {
+    ///<param name="value" type="EasingFunction"></param>
+    this.SetValue(ColorAnimation.EasingFunctionProperty, value);
+};
+*/
 
 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
 ColorAnimation.prototype.GetFrom = function () {

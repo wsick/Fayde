@@ -39,12 +39,14 @@ Data/PropertyChangedListener.js
 Data/PropertyPath.js
 Data/PropertyPathParser.js
 Data/RelativeSource.js
+Engine/Clock.js
 Engine/Dirty.js
 Engine/RenderContext.js
 Markup/JsonParser.js
 Markup/Markup.js
 Markup/StaticResourceMarkup.js
 Markup/TemplateBindingMarkup.js
+Media/Animation/AnimationStorage.js
 Media/VSM/VisualStateChangedEventArgs.js
 Primitives/Color.js
 Primitives/CornerRadius.js
@@ -55,6 +57,7 @@ Primitives/Point.js
 Primitives/Rect.js
 Primitives/Size.js
 Primitives/Thickness.js
+Primitives/TimeSpan.js
 Primitives/Uri.js
 Runtime/BError.js
 Runtime/Dictionary.js
@@ -99,7 +102,6 @@ Core/Style.js
 Core/UIElement.js
 Core/Collections/Collection.js
 Core/Collections/DependencyObjectCollection.js
-Core/Collections/PresentationFrameworkCollection.js
 Core/Collections/ResourceDictionary.js
 Core/Collections/ResourceDictionaryCollection.js
 Core/Collections/UIElementCollection.js
@@ -145,7 +147,6 @@ Documents/Run.js
 Documents/Section.js
 Documents/Span.js
 Media/ImageBrush.js
-Media/Animation/Animation.js
 Media/Animation/ColorAnimation.js
 Media/Animation/DoubleAnimation.js
 Media/Animation/Storyboard.js
