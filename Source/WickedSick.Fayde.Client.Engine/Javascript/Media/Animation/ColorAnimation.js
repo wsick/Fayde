@@ -1,14 +1,14 @@
 /// <reference path="../../Runtime/RefObject.js" />
-/// <reference path="Timeline.js"/>
+/// <reference path="Animation.js"/>
 /// CODE
 /// <reference path="../../Primitives/Color.js"/>
 
 //#region ColorAnimation
 
 function ColorAnimation() {
-    Timeline.call(this);
+    Animation.call(this);
 }
-ColorAnimation.InheritFrom(Timeline);
+ColorAnimation.InheritFrom(Animation);
 
 //#region DEPENDENCY PROPERTIES
 

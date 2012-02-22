@@ -135,6 +135,7 @@
     <Content Include="Javascript\Markup\Markup.js" />
     <Content Include="Javascript\Markup\StaticResourceMarkup.js" />
     <Content Include="Javascript\Markup\TemplateBindingMarkup.js" />
+    <Content Include="Javascript\Media\Animation\Animation.js" />
     <Content Include="Javascript\Media\Animation\AnimationStorage.js" />
     <Content Include="Javascript\Media\Animation\ColorAnimation.js" />
     <Content Include="Javascript\Media\Animation\DoubleAnimation.js" />

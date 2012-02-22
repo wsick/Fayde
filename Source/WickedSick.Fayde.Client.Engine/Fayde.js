@@ -8036,7 +8036,10 @@ TileBrush.prototype.SetStretch = function (value) {
 
 function Timeline() {
     DependencyObject.call(this);
+    if (!IsDocumentReady())
+        return;
     this.Completed = new MulticastEvent();
+    this.Reset();
 }
 Timeline.InheritFrom(DependencyObject);
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
@@ -8053,6 +8056,37 @@ Timeline.prototype.GetDuration = function () {
 Timeline.prototype.SetDuration = function (value) {
     this.SetValue(Timeline.DurationProperty, value);
 };
+Timeline.prototype.HasManualTarget = function () {
+    return this._ManualTarget != null;
+};
+Timeline.prototype.GetManualTarget = function () {
+    return this._ManualTarget;
+};
+Timeline.prototype.Reset = function () {
+    this._IsFirstUpdate = true;
+    this._BeginStep = null;
+    this._HasReachedBeg = false;
+};
+Timeline.prototype.IsAfterBeginTime = function (nowTime) {
+    var beginTime = this.GetBeginTime();
+    if (beginTime == null || beginTime.IsZero())
+        return true;
+    var ts = new TimeSpan();
+    ts.AddMilliseconds(nowTime - this._InitialStep);
+    if (ts.CompareTo(beginTime) < 0)
+        return false;
+    return true;
+};
+Timeline.prototype.HasDurationElapsed = function (nowTime) {
+    var duration = this.GetDuration();
+    if (duration == null)
+        return true;
+    if (!duration.HasTimeSpan())
+        return false;
+    if (this.GetCurrentProgress(nowTime) < 1.0)
+        return false;
+    return true;
+};
 Timeline.prototype.GetCurrentProgress = function (nowTime) {
     if (nowTime === Number.POSITIVE_INFINITY)
         return 1.0;
@@ -8062,59 +8096,33 @@ Timeline.prototype.GetCurrentProgress = function (nowTime) {
         progress = 1.0;
     return progress;
 };
-Timeline.prototype.HasManualTarget = function () {
-    return this._ManualTarget != null;
-};
-Timeline.prototype.GetManualTarget = function () {
-    return this._ManualTarget;
-};
-Timeline.prototype.HookupStorage = function (targetObj, targetProp) {
-    this._Storage = new AnimationStorage(this, targetObj, targetProp);
-    return this._Storage;
-};
-Timeline.prototype.InitializeTimes = function (now) {
-    this._InitialStep = now;
-    var beginTime = this.GetBeginTime();
-    this._ReachedBeginTime = beginTime == null || beginTime.IsZero();
-    if (this._ReachedBeginTime)
-        this._BeginStep = now;
-};
-Timeline.prototype.HasReachedBeginTime = function (nowTime) {
-    if (this._ReachedBeginTime)
-        return true;
-    var beginTime = this.GetBeginTime();
-    if (beginTime != null) {
-        var ts = new TimeSpan();
-        ts.AddMilliseconds(nowTime - this._InitialStep);
-        if (ts.CompareTo(beginTime) < 0)
-            return false;
-    }
-    this._BeginStep = new Date().getTime();
-    this._ReachedBeginTime = true;
-    return true;
-};
-Timeline.prototype.HasNoDuration = function () {
-    return this.GetDuration() == null;
-};
-Timeline.prototype.HasReachedDuration = function (nowTime) {
-    var duration = this.GetDuration();
-    if (!duration.HasTimeSpan())
-        return false;
-    if (this.GetCurrentProgress() < 1.0)
-        return false;
-    return true;
-};
-Timeline.prototype.OnDurationReached = function () { };
 Timeline.prototype.Update = function (nowTime) {
-    if (this._Storage == null)
-        return;
-    var progress = 1.0;
-    if (nowTime === Number.POSITIVE_INFINITY)
-        progress = this.GetCurrentProgress(nowTime);
-    this._Storage.UpdateCurrentValueAndApply(progress);
+    try {
+        if (this._IsFirstUpdate) {
+            this._InitialStep = nowTime;
+            this._HasReachedBeg = false;
+            this._IsFirstUpdate = false;
+        }
+        if (!this._HasReachedBeg) {
+            if (!this.IsAfterBeginTime(nowTime))
+                return;
+            this._BeginStep = nowTime;
+            this._HasReachedBeg = true;
+        }
+        if (this.HasDurationElapsed(nowTime)) {
+            this.UpdateInternal(Number.POSITIVE_INFINITY);
+            this.OnDurationReached();
+            return;
+        }
+        this.UpdateInternal(nowTime);
+    } finally {
+        this._LastStep = nowTime;
+    }
 };
-Timeline.prototype._GetTargetValue = function (defaultOriginValue) { };
-Timeline.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) { };
+Timeline.prototype.UpdateInternal = function (nowTime) { };
+Timeline.prototype.OnDurationReached = function () {
+    this.Completed.Raise(this, {});
+};
 
 function TimelineCollection() {
     Collection.call(this);
@@ -9469,10 +9477,29 @@ function ImageBrush() {
 }
 ImageBrush.InheritFrom(TileBrush);
 
-function ColorAnimation() {
+function Animation() {
     Timeline.call(this);
 }
-ColorAnimation.InheritFrom(Timeline);
+Animation.InheritFrom(Timeline);
+Animation.prototype.HookupStorage = function (targetObj, targetProp) {
+    this._Storage = new AnimationStorage(this, targetObj, targetProp);
+    return this._Storage;
+};
+Animation.prototype.UpdateInternal = function (nowTime) {
+    if (this._Storage == null)
+        return;
+    var progress = 1.0;
+    if (nowTime === Number.POSITIVE_INFINITY)
+        progress = this.GetCurrentProgress(nowTime);
+    this._Storage.UpdateCurrentValueAndApply(progress);
+};
+Animation.prototype._GetTargetValue = function (defaultOriginValue) { return null; };
+Animation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) { return null; };
+
+function ColorAnimation() {
+    Animation.call(this);
+}
+ColorAnimation.InheritFrom(Animation);
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
 ColorAnimation.prototype.GetBy = function () {
     return this.GetValue(ColorAnimation.ByProperty);
@@ -9654,17 +9681,20 @@ Storyboard.Annotations = {
     ContentProperty: Storyboard.ChildrenProperty
 };
 Storyboard.prototype.Begin = function () {
-    App.Instance.RegisterStoryboard(this);
-    this._LastStep = new Date().getTime();
+    this.Reset();
     this._HookupAnimations();
-    this.InitializeTimes(this._LastStep);
+    App.Instance.RegisterStoryboard(this);
 };
 Storyboard.prototype.Pause = function () {
     this._IsPaused = true;
 };
 Storyboard.prototype.Resume = function () {
+    var nowTime = new Date().getTime();
+    this._LastStep = nowTime;
+    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
+        this.GetChildren(i).GetValueAt(i)._LastStep = nowTime;
+    }
     this._IsPaused = false;
-    this._LastStep = new Date().getTime();
 };
 Storyboard.prototype.Stop = function () {
     App.Instance.UnregisterStoryboard(this);
@@ -9674,17 +9704,18 @@ Storyboard.prototype._HookupAnimations = function () {
         this._HookupAnimation(this.GetChildren(i).GetValueAt(i));
     }
 };
-Storyboard.prototype._HookupAnimation = function (timeline, targetObject, targetPropertyPath) {
+Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath) {
+    animation.Reset();
     var localTargetObject = null;
     var localTargetPropertyPath = null;
-    if (timeline.HasManualTarget()) {
-        localTargetObject = timeline.GetManualTarget();
+    if (animation.HasManualTarget()) {
+        localTargetObject = animation.GetManualTarget();
     } else {
-        var name = Storyboard.GetTargetName(timeline);
+        var name = Storyboard.GetTargetName(animation);
         if (name)
-            localTargetObject = timeline.FindName(name);
+            localTargetObject = animation.FindName(name);
     }
-    localTargetPropertyPath = Storyboard.GetTargetProperty(timeline);
+    localTargetPropertyPath = Storyboard.GetTargetProperty(animation);
     if (localTargetObject != null)
         targetObject = localTargetObject;
     if (localTargetPropertyPath != null)
@@ -9698,25 +9729,18 @@ Storyboard.prototype._HookupAnimation = function (timeline, targetObject, target
         Warn("Could not resolve property for storyboard. [" + localTargetPropertyPath.GetPath().toString() + "]");
         return false;
     }
-    timeline.HookupStorage(refobj.Value, targetProperty);
+    animation.HookupStorage(refobj.Value, targetProperty);
     return true;
 };
 Storyboard.prototype._Tick = function (lastTime, nowTime) {
     if (this._IsPaused)
         return;
-    if (!this.HasReachedBeginTime(nowTime))
-        return;
-    if (this.HasNoDuration() || this.HasReachedDuration(nowTime)) {
-        for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-            this.GetChildren().GetValueAt(i).Update(Number.POSITIVE_INFINITY);
-        }
-        this.OnDurationReached();
-        return;
-    }
+    this.Update(nowTime);
+};
+Storyboard.prototype.UpdateInternal = function (nowTime) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         this.GetChildren().GetValueAt(i).Update(nowTime);
     }
-    this._LastStep = nowTime;
 };
 function StoryboardCollection() {
     DependencyObjectCollection.call(this);

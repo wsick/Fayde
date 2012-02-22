@@ -147,6 +147,7 @@ Documents/Run.js
 Documents/Section.js
 Documents/Span.js
 Media/ImageBrush.js
+Media/Animation/Animation.js
 Media/Animation/ColorAnimation.js
 Media/Animation/DoubleAnimation.js
 Media/Animation/Storyboard.js
