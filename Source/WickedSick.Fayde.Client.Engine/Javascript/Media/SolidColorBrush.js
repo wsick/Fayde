@@ -5,12 +5,14 @@
 
 //#region SolidColorBrush
 
-function SolidColorBrush(color) {
+function SolidColorBrush() {
     Brush.call(this);
     if (!IsDocumentReady())
         return;
-    if (color != null)
-        this.SetColor(color);
+    if (arguments.length === 1) {
+        if (arguments[0] instanceof Color)
+            this.SetColor(arguments[0]);
+    }
 }
 SolidColorBrush.InheritFrom(Brush);
 
