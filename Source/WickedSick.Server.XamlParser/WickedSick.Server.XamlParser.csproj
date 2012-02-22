@@ -61,18 +61,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Elements\Brush.cs" />
     <Compile Include="Elements\Button.cs" />
     <Compile Include="Elements\ButtonBase.cs" />
     <Compile Include="Elements\ControlTemplate.cs" />
     <Compile Include="Elements\DependencyObject.cs" />
+    <Compile Include="Elements\GradientStop.cs" />
     <Compile Include="Elements\HyperlinkButton.cs" />
     <Compile Include="Elements\IJsonSerializable.cs" />
     <Compile Include="Elements\Setter.cs" />
+    <Compile Include="Elements\SolidColorBrush.cs" />
     <Compile Include="Elements\Style.cs" />
     <Compile Include="Elements\TextBox.cs" />
     <Compile Include="Elements\Visual.cs" />
     <Compile Include="Elements\AttachedProperty.cs" />
     <Compile Include="Elements\Border.cs" />
+    <Compile Include="Elements\LinearGradientBrush.cs" />
     <Compile Include="ParserAttributes.cs" />
     <Compile Include="Elements\ColumnDefinition.cs" />
     <Compile Include="Elements\ContentControl.cs" />
@@ -90,6 +94,7 @@
     <Compile Include="TypeConverters\BrushConverter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TypeConverters\ColorConverter.cs" />
     <Compile Include="TypeConverters\CornerRadiusConverter.cs" />
     <Compile Include="TypeConverters\DoubleConverter.cs">
       <SubType>Code</SubType>
@@ -98,6 +103,7 @@
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
     <Compile Include="TypeConverters\HorizontalAlignmentConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />
+    <Compile Include="TypeConverters\PointConverter.cs" />
     <Compile Include="TypeConverters\TextWrappingConverter.cs">
       <SubType>Code</SubType>
     </Compile>

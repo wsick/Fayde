@@ -6,29 +6,6 @@ using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class Brush: IJsonSerializable
-    {
-        public virtual string toJson(int tabIndents)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class SolidColorBrush : Brush
-    {
-        private string _hexString;
-
-        public SolidColorBrush(string hexString)
-        {
-            _hexString = hexString;
-        }
-
-        public override string toJson(int tabIndents)
-        {
-            return string.Format("new SolidColorBrush(Color.FromHex(\"{0}\"))", _hexString);
-        }
-    }
-
     public class BrushTypeConverterAttribute : TypeConverterAttribute
     {
         internal string MatchColor(string colorString, out bool isKnownColor, out bool isNumericColor, out bool isContextColor, out bool isScRgbColor)
@@ -79,7 +56,9 @@ namespace WickedSick.Server.XamlParser.TypeConverters
             }
             if (flag3)
             {
-                return new SolidColorBrush(from);
+                SolidColorBrush result = new SolidColorBrush();
+                result.Color = Color.FromHex(from);
+                return result;
             }
             if (flag2)
             {
