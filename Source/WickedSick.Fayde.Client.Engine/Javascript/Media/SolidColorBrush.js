@@ -31,7 +31,10 @@ SolidColorBrush.prototype.SetColor = function (value) {
 //#endregion
 
 SolidColorBrush.prototype._Translate = function (ctx) {
-    return this._Color.toString();
+    var color = this.GetColor();
+    if (color == null)
+        return "#000000";
+    return color.toString();
 };
 
 //#endregion
