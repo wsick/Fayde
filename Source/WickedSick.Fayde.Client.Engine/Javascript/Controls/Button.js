@@ -257,7 +257,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: 0.55 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "DisabledVisualElement" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: "Opacity" }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
                                                             ]
                                                         }
                                                     ]
@@ -280,7 +280,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: 1.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: "Opacity" }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
                                                             ]
                                                         }
                                                     ]
