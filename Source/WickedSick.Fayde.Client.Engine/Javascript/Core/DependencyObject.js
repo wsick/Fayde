@@ -727,7 +727,7 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
     var parentScope = parent.FindNameScope();
     if (thisScope) {
         if (thisScope._GetTemporary()) {
-            if (parentScope) {
+            if (parentScope != null) {
                 parentScope._MergeTemporaryScope(thisScope, error);
                 this.ClearValue(NameScope.NameScopeProperty, false);
             }
@@ -747,7 +747,7 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
             }
         }
     } else {
-        if (parentScope && mergeNamesFromSubtree) {
+        if (parentScope != null && mergeNamesFromSubtree) {
             var tempScope = new NameScope();
             tempScope._SetTemporary(true);
 
@@ -803,7 +803,7 @@ DependencyObject.prototype._AddSecondaryParent = function (obj) {
 DependencyObject.prototype._RemoveSecondaryParent = function (obj) {
     var index = -1;
     for (var i = 0; i < this._SecondaryParents.length; i++) {
-        if (this._SecondaryParents[i] == obj) {
+        if (RefObject.RefEquals(this._SecondaryParents[i], obj)) {
             index = i;
             break;
         }

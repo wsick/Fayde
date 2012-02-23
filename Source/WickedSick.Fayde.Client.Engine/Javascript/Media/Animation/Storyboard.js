@@ -70,6 +70,10 @@ Storyboard.prototype.Resume = function () {
 };
 Storyboard.prototype.Stop = function () {
     App.Instance.UnregisterStoryboard(this);
+    var children = this.GetChildren();
+    for (var i = 0; i < children.GetCount(); i++) {
+        children.GetValueAt(i).Stop();
+    }
 };
 
 Storyboard.prototype._HookupAnimations = function () {
@@ -121,7 +125,7 @@ Storyboard.prototype.UpdateInternal = function (nowTime) {
     }
 };
 Storyboard.prototype.OnDurationReached = function () {
-    this.Stop();
+    App.Instance.UnregisterStoryboard(this);
     Timeline.prototype.OnDurationReached.call(this);
 };
 
@@ -130,9 +134,9 @@ Storyboard.prototype.OnDurationReached = function () {
 //#region StoryboardCollection
 
 function StoryboardCollection() {
-    DependencyObjectCollection.call(this);
+    Collection.call(this);
 }
-StoryboardCollection.InheritFrom(DependencyObjectCollection);
+StoryboardCollection.InheritFrom(Collection);
 
 StoryboardCollection.prototype.IsElementType = function (obj) {
     return obj instanceof Storyboard;

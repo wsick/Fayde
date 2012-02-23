@@ -112,6 +112,32 @@ ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
             obj._SetIsAttached(value);
     }
 };
+ResourceDictionary.prototype._OnMentorChanged = function (oldValue, newValue) {
+    Collection.prototype._OnMentorChanged.call(this, oldValue, newValue);
+    for (var i = 0; i < this._KeyIndex.length; i++) {
+        DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
+    }
+};
+
+ResourceDictionary.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+    /// <param name="namescope" type="NameScope"></param>
+    /// <param name="error" type="BError"></param>
+    for (var i = 0; i < this.GetCount(); i++) {
+        var obj = this.GetValueAt(i);
+        if (obj != null && obj instanceof DependencyObject)
+            obj._RegisterAllNamesRootedAt(namescope, error);
+    }
+    Collection.prototype._RegisterAllNamesRootedAt.call(this, namescope, error);
+};
+ResourceDictionary.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+    /// <param name="fromNs" type="NameScope"></param>
+    for (var i = 0; i < this.GetCount(); i++) {
+        var obj = this.GetValueAt(i);
+        if (obj != null && obj instanceof DependencyObject)
+            obj._UnregisterAllNamesRootedAt(fromNs);
+    }
+    Collection.prototype._UnregisterAllNamesRootedAt.call(this, fromNs);
+};
 
 ResourceDictionary._CanBeAddedTwice = function (value) {
     NotImplemented("ResourceDictionary._CanBeAddedTwice");

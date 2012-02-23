@@ -28,9 +28,9 @@ function AnimationStorage(timeline, targetobj, targetprop) {
     }
 
     if (prevStorage != null)
-        this._StopValue = prevStorage.GetStopValue();
+        this.SetStopValue(prevStorage.GetStopValue());
     else
-        this._StopValue = targetobj.ReadLocalValue(targetprop);
+        this.SetStopValue(targetobj.ReadLocalValue(targetprop));
 }
 AnimationStorage.InheritFrom(RefObject);
 
@@ -46,6 +46,21 @@ AnimationStorage.prototype.Enable = function () {
 };
 AnimationStorage.prototype.Disable = function () {
     NotImplemented("AnimationStorage.Disable");
+};
+
+AnimationStorage.prototype.Stop = function () {
+    this.DetachFromObject();
+    this.ResetPropertyValue();
+};
+AnimationStorage.prototype.DetachFromObject = function () {
+    if (this._TargetObj == null || this._TargetProp == null)
+        return;
+    this._TargetObj._DetachAnimationStorage(this._TargetProp, this);
+};
+AnimationStorage.prototype.ResetPropertyValue = function () {
+    if (this._TargetObj == null || this._TargetProp == null)
+        return;
+    this._TargetObj.SetValue(this._TargetProp, this.GetStopValue());
 };
 
 AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {

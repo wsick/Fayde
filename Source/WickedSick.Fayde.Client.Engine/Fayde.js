@@ -3097,9 +3097,9 @@ function AnimationStorage(timeline, targetobj, targetprop) {
             this._BaseValue = "";
     }
     if (prevStorage != null)
-        this._StopValue = prevStorage.GetStopValue();
+        this.SetStopValue(prevStorage.GetStopValue());
     else
-        this._StopValue = targetobj.ReadLocalValue(targetprop);
+        this.SetStopValue(targetobj.ReadLocalValue(targetprop));
 }
 AnimationStorage.InheritFrom(RefObject);
 AnimationStorage.prototype.GetStopValue = function () {
@@ -3113,6 +3113,20 @@ AnimationStorage.prototype.Enable = function () {
 };
 AnimationStorage.prototype.Disable = function () {
     NotImplemented("AnimationStorage.Disable");
+};
+AnimationStorage.prototype.Stop = function () {
+    this.DetachFromObject();
+    this.ResetPropertyValue();
+};
+AnimationStorage.prototype.DetachFromObject = function () {
+    if (this._TargetObj == null || this._TargetProp == null)
+        return;
+    this._TargetObj._DetachAnimationStorage(this._TargetProp, this);
+};
+AnimationStorage.prototype.ResetPropertyValue = function () {
+    if (this._TargetObj == null || this._TargetProp == null)
+        return;
+    this._TargetObj.SetValue(this._TargetProp, this.GetStopValue());
 };
 AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {
     if (this._TargetObj == null)
@@ -6249,7 +6263,7 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
     var parentScope = parent.FindNameScope();
     if (thisScope) {
         if (thisScope._GetTemporary()) {
-            if (parentScope) {
+            if (parentScope != null) {
                 parentScope._MergeTemporaryScope(thisScope, error);
                 this.ClearValue(NameScope.NameScopeProperty, false);
             }
@@ -6269,7 +6283,7 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
             }
         }
     } else {
-        if (parentScope && mergeNamesFromSubtree) {
+        if (parentScope != null && mergeNamesFromSubtree) {
             var tempScope = new NameScope();
             tempScope._SetTemporary(true);
             this._RegisterAllNamesRootedAt(tempScope, error);
@@ -6316,7 +6330,7 @@ DependencyObject.prototype._AddSecondaryParent = function (obj) {
 DependencyObject.prototype._RemoveSecondaryParent = function (obj) {
     var index = -1;
     for (var i = 0; i < this._SecondaryParents.length; i++) {
-        if (this._SecondaryParents[i] == obj) {
+        if (RefObject.RefEquals(this._SecondaryParents[i], obj)) {
             index = i;
             break;
         }
@@ -7412,6 +7426,28 @@ ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
         if (obj instanceof DependencyObject)
             obj._SetIsAttached(value);
     }
+};
+ResourceDictionary.prototype._OnMentorChanged = function (oldValue, newValue) {
+    Collection.prototype._OnMentorChanged.call(this, oldValue, newValue);
+    for (var i = 0; i < this._KeyIndex.length; i++) {
+        DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
+    }
+};
+ResourceDictionary.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+    for (var i = 0; i < this.GetCount(); i++) {
+        var obj = this.GetValueAt(i);
+        if (obj != null && obj instanceof DependencyObject)
+            obj._RegisterAllNamesRootedAt(namescope, error);
+    }
+    Collection.prototype._RegisterAllNamesRootedAt.call(this, namescope, error);
+};
+ResourceDictionary.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+    for (var i = 0; i < this.GetCount(); i++) {
+        var obj = this.GetValueAt(i);
+        if (obj != null && obj instanceof DependencyObject)
+            obj._UnregisterAllNamesRootedAt(fromNs);
+    }
+    Collection.prototype._UnregisterAllNamesRootedAt.call(this, fromNs);
 };
 ResourceDictionary._CanBeAddedTwice = function (value) {
     NotImplemented("ResourceDictionary._CanBeAddedTwice");
@@ -9500,6 +9536,11 @@ Animation.prototype.HookupStorage = function (targetObj, targetProp) {
     this._Storage = new AnimationStorage(this, targetObj, targetProp);
     return this._Storage;
 };
+Animation.prototype.Stop = function () {
+    if (this._Storage == null)
+        return;
+    this._Storage.Stop();
+};
 Animation.prototype.UpdateInternal = function (nowTime) {
     if (this._Storage == null)
         return;
@@ -9713,6 +9754,10 @@ Storyboard.prototype.Resume = function () {
 };
 Storyboard.prototype.Stop = function () {
     App.Instance.UnregisterStoryboard(this);
+    var children = this.GetChildren();
+    for (var i = 0; i < children.GetCount(); i++) {
+        children.GetValueAt(i).Stop();
+    }
 };
 Storyboard.prototype._HookupAnimations = function () {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
@@ -9759,13 +9804,13 @@ Storyboard.prototype.UpdateInternal = function (nowTime) {
     }
 };
 Storyboard.prototype.OnDurationReached = function () {
-    this.Stop();
+    App.Instance.UnregisterStoryboard(this);
     Timeline.prototype.OnDurationReached.call(this);
 };
 function StoryboardCollection() {
-    DependencyObjectCollection.call(this);
+    Collection.call(this);
 }
-StoryboardCollection.InheritFrom(DependencyObjectCollection);
+StoryboardCollection.InheritFrom(Collection);
 StoryboardCollection.prototype.IsElementType = function (obj) {
     return obj instanceof Storyboard;
 };

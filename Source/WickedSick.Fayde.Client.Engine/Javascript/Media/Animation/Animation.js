@@ -18,6 +18,11 @@ Animation.prototype.HookupStorage = function (targetObj, targetProp) {
     this._Storage = new AnimationStorage(this, targetObj, targetProp);
     return this._Storage;
 };
+Animation.prototype.Stop = function () {
+    if (this._Storage == null)
+        return;
+    this._Storage.Stop();
+};
 
 Animation.prototype.UpdateInternal = function (nowTime) {
     if (this._Storage == null)
