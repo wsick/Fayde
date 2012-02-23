@@ -766,14 +766,14 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
         return;
     }
 
-    if (args.Property == FrameworkElement.WidthProperty
-        || args.Property == FrameworkElement.MaxWidthProperty
-        || args.Property == FrameworkElement.MinWidthProperty
-        || args.Property == FrameworkElement.HeightProperty
-        || args.Property == FrameworkElement.MaxHeightProperty
-        || args.Property == FrameworkElement.MinHeightProperty
-        || args.Property == FrameworkElement.MarginProperty
-        || args.Property == FrameworkElement.FlowDirectionProperty) {
+    if (args.Property === FrameworkElement.WidthProperty
+        || args.Property === FrameworkElement.MaxWidthProperty
+        || args.Property === FrameworkElement.MinWidthProperty
+        || args.Property === FrameworkElement.HeightProperty
+        || args.Property === FrameworkElement.MaxHeightProperty
+        || args.Property === FrameworkElement.MinHeightProperty
+        || args.Property === FrameworkElement.MarginProperty
+        || args.Property === FrameworkElement.FlowDirectionProperty) {
         //var p = this._GetRenderTransformOrigin();
         //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
         this._FullInvalidate(false);
@@ -785,13 +785,13 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
         this._InvalidateMeasure();
         this._InvalidateArrange();
         this._UpdateBounds();
-    } else if (args.Property == FrameworkElement.StyleProperty) {
+    } else if (args.Property === FrameworkElement.StyleProperty) {
         var newStyle = args.NewValue;
         if (!error.IsErrored())
             this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
         if (error.IsErrored())
             return;
-    } else if (args.Property == FrameworkElement.HorizontalAlignmentProperty
+    } else if (args.Property === FrameworkElement.HorizontalAlignmentProperty
         || args.Property == FrameworkElement.VerticalAlignmentProperty) {
         this._InvalidateArrange();
         this._FullInvalidate(true);

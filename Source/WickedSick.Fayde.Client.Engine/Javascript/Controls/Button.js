@@ -359,7 +359,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                                 }
                                                             }
                                                         ]
-                                                    },
+                                                    }
                                                 }
                                             }
                                         }

@@ -23,16 +23,16 @@ _StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, 
 
     var oldValue = undefined;
     var newValue = undefined;
-    var propd = null;
+    var walkPropd = null;
 
     var walker = new _DeepStyleWalker(this._Style);
     var setter;
     while (setter = walker.Step()) {
-        propd = setter.GetValue(Setter.PropertyProperty);
-        if (propd != prop)
+        walkPropd = setter.GetValue_Prop();
+        if (walkPropd != propd)
             continue;
 
-        newValue = setter.GetValue(Setter.ConvertedValueProperty);
+        newValue = setter.GetValue_Prop();
         oldValue = this._ht[propd];
         this._ht[propd] = newValue;
         this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
@@ -54,20 +54,20 @@ _StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
 
     while (oldSetter || newSetter) {
         if (oldSetter)
-            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
+            oldProp = oldSetter.GetProperty();
         if (newSetter)
-            newProp = newSetter.GetValue(Setter.PropertyProperty);
+            newProp = newSetter.GetProperty();
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
             //Property in old style, not in new style
-            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            oldValue = oldSetter.GetValue_Prop();
             newValue = null;
             delete this._ht[oldProp];
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
-        } else if (oldProp == newProp) {
+        } else if (oldProp === newProp) {
             //Property in both styles
-            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
-            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            oldValue = oldSetter.GetValue_Prop();
+            newValue = newSetter.GetValue_Prop();
             this._ht[oldProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
@@ -75,7 +75,7 @@ _StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
         } else {
             //Property in new style, not in old style
             oldValue = null;
-            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter.GetValue_Prop();
             this._ht[newProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
             newSetter = newWalker.Step();
