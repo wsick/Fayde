@@ -178,7 +178,7 @@ VisualStateManager._GetTransition = function (element, group, from, to) {
     /// <param name="to" type="VisualState"></param>
     /// <returns type="VisualTransition" />
     NotImplemented("VisualStateManager._GetTransition");
-    return new VisualTransition();
+    return null;
 };
 VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group, state, transition) {
     /// <param name="root" type="FrameworkElement"></param>

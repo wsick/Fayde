@@ -8400,7 +8400,7 @@ VisualStateManager._TryGetState = function (groups, stateName, data) {
 };
 VisualStateManager._GetTransition = function (element, group, from, to) {
     NotImplemented("VisualStateManager._GetTransition");
-    return new VisualTransition();
+    return null;
 };
 VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group, state, transition) {
     NotImplemented("VisualStateManager._GenerateDynamicTransitionAnimations");
@@ -10220,6 +10220,9 @@ Control.GetIsTemplateItem = function (d) {
 Control.SetIsTemplateItem = function (d, value) {
     d.SetValue(Control.IsTemplateItemProperty, value);
 };
+Control.prototype.GetIsFocused = function () {
+    return this._IsFocused;
+};
 Control.prototype.GetDefaultStyle = function () {
     return null;
 };
@@ -10342,6 +10345,14 @@ Control.prototype.Focus = function (recurse) {
             return false;
     }
     return false;
+};
+Control.prototype.OnGotFocus = function (sender, args) {
+    this._IsFocused = true;
+    FrameworkElement.prototype.OnGotFocus.call(this, sender, args);
+};
+Control.prototype.OnLostFocus = function (sender, args) {
+    this._IsFocused = false;
+    FrameworkElement.prototype.OnLostFocus.call(this, sender, args);
 };
 Control.prototype.OnIsEnabledChanged = function (args) {
 }
@@ -11073,6 +11084,8 @@ TextBlock.Annotations = {
 
 function TextBoxBase() {
     Control.call(this);
+    if (!IsDocumentReady())
+        return;
     this._SelectionAnchor = 0;
     this._SelectionCursor = 0;
     this._Buffer = new String();
@@ -12143,6 +12156,13 @@ function TextBox() {
     this.TextChanged = new MulticastEvent();
 }
 TextBox.InheritFrom(TextBoxBase);
+TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () { return Boolean; }, TextBox);
+TextBox.prototype.GetIsReadOnly = function () {
+    return this.GetValue(TextBox.IsReadOnlyProperty);
+};
+TextBox.prototype.SetIsReadOnly = function (value) {
+    this.SetValue(TextBox.IsReadOnlyProperty, value);
+};
 TextBox.SelectionForegroundProperty = DependencyProperty.Register("SelectionForeground", function () { return Brush; }, TextBox);
 TextBox.prototype.GetSelectionForeground = function () {
     return this.GetValue(TextBox.SelectionForegroundProperty);
@@ -12219,6 +12239,9 @@ TextBox.prototype.GetVerticalScrollBarVisibility = function () {
 };
 TextBox.prototype.SetVerticalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.VerticalScrollBarVisibilityProperty, value);
+};
+TextBox.prototype.GetIsMouseOver = function () {
+    return this._IsMouseOver;
 };
 TextBox.prototype.OnApplyTemplate = function () {
     TextBoxBase.prototype.OnApplyTemplate.call(this);
@@ -12379,141 +12402,305 @@ TextBox.prototype._EmitTextChanged = function () {
 TextBox.prototype._EmitSelectionChanged = function () {
     this.TextChanged.RaiseAsync(this, {});
 };
+TextBox.prototype.OnMouseEnter = function (sender, args) {
+    this._IsMouseOver = true;
+    this._ChangeVisualState(true);
+    TextBoxBase.prototype.OnMouseEnter.call(this, sender, args);
+};
+TextBox.prototype.OnMouseLeave = function (sender, args) {
+    this._IsMouseOver = false;
+    this._ChangeVisualState(true);
+    TextBoxBase.prototype.OnMouseLeave.call(this, sender, args);
+};
+TextBox.prototype.OnGotFocus = function (sender, args) {
+    TextBoxBase.prototype.OnGotFocus.call(this, sender, args);
+    this._ChangeVisualState(true);
+};
+TextBox.prototype.OnLostFocus = function (sender, args) {
+    TextBoxBase.prototype.OnLostFocus.call(this, sender, args);
+    this._ChangeVisualState(true);
+};
+TextBox.prototype._ChangeVisualState = function (useTransitions) {
+    if (!this.GetIsEnabled()) {
+        VisualStateManager.GoToState(this, "Disabled", useTransitions);
+    } else if (this.GetIsReadOnly()) {
+        VisualStateManager.GoToState(this, "ReadOnly", useTransitions);
+    } else if (this.GetIsMouseOver()) {
+        VisualStateManager.GoToState(this, "MouseOver", useTransitions);
+    } else {
+        VisualStateManager.GoToState(this, "Normal", useTransitions);
+    }
+    if (this.GetIsFocused()) {
+        VisualStateManager.GoToState(this, "Focused", useTransitions);
+    } else {
+        VisualStateManager.GoToState(this, "Unfocused", useTransitions);
+    }
+};
 TextBox.prototype.GetDefaultStyle = function () {
-    var style = new Style();
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.BorderThicknessProperty);
-        setter.SetValue_Prop(new Thickness(1, 1, 1, 1));
-        return setter;
-    })());
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.BackgroundProperty);
-        setter.SetValue_Prop(new SolidColorBrush(new Color(255, 255, 255, 1.0)));
-        return setter;
-    })());
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.ForegroundProperty);
-        setter.SetValue_Prop(new SolidColorBrush(new Color(0, 0, 0, 1.0)));
-        return setter;
-    })());
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.PaddingProperty);
-        setter.SetValue_Prop(new Thickness(2, 2, 2, 2));
-        return setter;
-    })());
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.BorderBrushProperty);
-        setter.SetValue_Prop((function () {
-            var brush = new LinearGradientBrush();
-            brush.GetGradientStops().Add((function () {
-                var stop = new GradientStop();
-                stop.SetColor(new Color(163, 174, 185));
-                stop.SetOffset(0.0);
-                return stop;
-            })());
-            brush.GetGradientStops().Add((function () {
-                var stop = new GradientStop();
-                stop.SetColor(new Color(131, 153, 169));
-                stop.SetOffset(0.375);
-                return stop;
-            })());
-            brush.GetGradientStops().Add((function () {
-                var stop = new GradientStop();
-                stop.SetColor(new Color(113, 133, 151));
-                stop.SetOffset(0.375);
-                return stop;
-            })());
-            brush.GetGradientStops().Add((function () {
-                var stop = new GradientStop();
-                stop.SetColor(new Color(97, 117, 132));
-                stop.SetOffset(1.0);
-                return stop;
-            })());
-            return brush;
-        })());
-        return setter;
-    })());
-    style.GetSetters().Add((function () {
-        var setter = new Setter();
-        setter.SetProperty(Control.TemplateProperty);
-        setter.SetValue_Prop((function () {
-            return new ControlTemplate(TextBox, {
-                Type: Grid,
-                Name: "RootElement",
-                Children: [
-                    {
-                        Type: Border,
-                        Name: "Border",
+    var styleJson = {
+        Type: Style,
+        Props: {
+            TargetType: Button
+        },
+        Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(TextBox, "BorderThickness"),
+                    Value: new Thickness(1, 1, 1, 1)
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(TextBox, "Background"),
+                    Value: new SolidColorBrush(Color.FromHex("#FFFFFFFF"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(TextBox, "Foreground"),
+                    Value: new SolidColorBrush(Color.FromHex("#FF000000"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(TextBox, "Padding"),
+                    Value: new Thickness(2, 2, 2, 2)
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(TextBox, "BorderBrush"),
+                    Value: {
+                        Type: LinearGradientBrush,
                         Props: {
-                            CornerRadius: new CornerRadius(1, 1, 1, 1),
-                            Opacity: 1.0,
-                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
-                            Background: new TemplateBindingMarkup("Background"),
-                            BorderBrush: new TemplateBindingMarkup("BorderBrush")
-                        },
-                        Content: {
-                            Type: Grid,
-                            Children: [
+                            StartPoint: new Point(0.5, 0),
+                            EndPoint: new Point(0.5, 1),
+                            GradientStops: [
                                 {
-                                    Type: Border,
-                                    Name: "ReadOnlyVisualElement",
+                                    Type: GradientStop,
                                     Props: {
-                                        Opacity: 0.0,
-                                        Background: new SolidColorBrush(Color.FromHex("#5EC9C9C9"))
+                                        Color: Color.FromHex("#FFA3AEB9"),
+                                        Offset: 0.0
                                     }
                                 },
                                 {
-                                    Type: Border,
-                                    Name: "MouseOverBorder",
+                                    Type: GradientStop,
                                     Props: {
-                                        BorderThickness: new Thickness(1, 1, 1, 1),
-                                        BorderBrush: new SolidColorBrush(Color.FromHex("#00000000"))
-                                    },
-                                    Content: {
-                                        Type: Border,
-                                        Name: "ContentElement",
-                                        Props: {
-                                            Padding: new TemplateBindingMarkup("Padding"),
-                                            BorderThickness: new Thickness(0, 0, 0, 0)
-                                        }
+                                        Color: Color.FromHex("#FF8399A9"),
+                                        Offset: 0.375
+                                    }
+                                },
+                                {
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FF718597"),
+                                        Offset: 0.375
+                                    }
+                                },
+                                {
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FF617584"),
+                                        Offset: 1.0
                                     }
                                 }
                             ]
                         }
-                    },
-                    {
-                        Type: Border,
-                        Name: "DisabledVisualElement",
-                        Props: {
-                            Background: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
-                            BorderBrush: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
-                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
-                            Opacity: 0.0,
-                            IsHitTestVisible: false
-                        }
-                    },
-                    {
-                        Type: Border,
-                        Name: "FocusVisualElement",
-                        Props: {
-                            BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
-                            BorderThickness: new TemplateBindingMarkup("BorderThickness"),
-                            Margin: new Thickness(1, 1, 1, 1),
-                            Opacity: 0.0,
-                            IsHitTestVisible: false
-                        }
                     }
-                ]
-            });
-        })());
-        return setter;
-    })());
-    return style;
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(TextBox, "Template"),
+                    Value: new ControlTemplate(TextBox, {
+                        Type: Grid,
+                        Name: "RootElement",
+                        AttachedProps: [
+                            {
+                                Owner: VisualStateManager,
+                                Prop: "VisualStateGroups",
+                                Value: [
+                                    {
+                                        Type: VisualStateGroup,
+                                        Name: "CommonStates",
+                                        Children: [
+                                            {
+                                                Type: VisualState,
+                                                Name: "Normal"
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "MouseOver",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#FF99C1E2") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "MouseOverBorder" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.BorderBrush).(SolidColorBrush.Color)") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "Disabled",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "DisabledVisualElement" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "ReadOnly",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "ReadOnlyVisualElement" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        Type: VisualStateGroup,
+                                        Name: "FocusStates",
+                                        Children: [
+                                            {
+                                                Type: VisualState,
+                                                Name: "Focused",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 0.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "Unfocused",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        Children: [
+                            {
+                                Type: Border,
+                                Name: "Border",
+                                Props: {
+                                    CornerRadius: new CornerRadius(1, 1, 1, 1),
+                                    Opacity: 1.0,
+                                    BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                    Background: new TemplateBindingMarkup("Background"),
+                                    BorderBrush: new TemplateBindingMarkup("BorderBrush")
+                                },
+                                Content: {
+                                    Type: Grid,
+                                    Children: [
+                                        {
+                                            Type: Border,
+                                            Name: "ReadOnlyVisualElement",
+                                            Props: {
+                                                Opacity: 0.0,
+                                                Background: new SolidColorBrush(Color.FromHex("#5EC9C9C9"))
+                                            }
+                                        },
+                                        {
+                                            Type: Border,
+                                            Name: "MouseOverBorder",
+                                            Props: {
+                                                BorderThickness: new Thickness(1, 1, 1, 1),
+                                                BorderBrush: new SolidColorBrush(Color.FromHex("#00000000"))
+                                            },
+                                            Content: {
+                                                Type: Border,
+                                                Name: "ContentElement",
+                                                Props: {
+                                                    Padding: new TemplateBindingMarkup("Padding"),
+                                                    BorderThickness: new Thickness(0, 0, 0, 0)
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                Type: Border,
+                                Name: "DisabledVisualElement",
+                                Props: {
+                                    Background: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
+                                    BorderBrush: new SolidColorBrush(Color.FromHex("#A5F7F7F7")),
+                                    BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                    Opacity: 0.0,
+                                    IsHitTestVisible: false
+                                }
+                            },
+                            {
+                                Type: Border,
+                                Name: "FocusVisualElement",
+                                Props: {
+                                    BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                                    BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                    Margin: new Thickness(1, 1, 1, 1),
+                                    Opacity: 0.0,
+                                    IsHitTestVisible: false
+                                }
+                            }
+                        ]
+                    })
+                }
+            }
+        ]
+    };
+    var parser = new JsonParser();
+    return parser.CreateObject(styleJson, new NameScope());
 };
 
 function ContentControl() {
@@ -13176,7 +13363,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                     Children: [
                                                         {
                                                             Type: DoubleAnimation,
-                                                            Props: { Duration: 0.0, To: 1.0 },
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
                                                                 { Owner: Storyboard, Prop: "TargetProperty", Value: "Opacity" }

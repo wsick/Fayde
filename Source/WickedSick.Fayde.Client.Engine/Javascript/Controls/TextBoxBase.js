@@ -1,13 +1,16 @@
 /// <reference path="../Runtime/RefObject.js" />
 /// <reference path="Control.js"/>
+/// CODE
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Primitives/Font.js"/>
-/// CODE
 
 //#region TextBoxBase
 
 function TextBoxBase() {
     Control.call(this);
+    if (!IsDocumentReady())
+        return;
+
     this._SelectionAnchor = 0;
     this._SelectionCursor = 0;
     this._Buffer = new String();

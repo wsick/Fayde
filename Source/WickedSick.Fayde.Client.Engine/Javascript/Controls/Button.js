@@ -277,7 +277,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                     Children: [
                                                         {
                                                             Type: DoubleAnimation,
-                                                            Props: { Duration: 0.0, To: 1.0 },
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
                                                                 { Owner: Storyboard, Prop: "TargetProperty", Value: "Opacity" }

@@ -167,6 +167,15 @@ Control.SetIsTemplateItem = function (d, value) {
 
 //#endregion
 
+//#region PROPERTIES
+
+Control.prototype.GetIsFocused = function () {
+    ///<returns type="Boolean"></returns>
+    return this._IsFocused;
+};
+
+//#endregion
+
 //#region INSTANCE METHODS
 
 Control.prototype.GetDefaultStyle = function () {
@@ -320,6 +329,14 @@ Control.prototype.Focus = function (recurse) {
             return false;
     }
     return false;
+};
+Control.prototype.OnGotFocus = function (sender, args) {
+    this._IsFocused = true;
+    FrameworkElement.prototype.OnGotFocus.call(this, sender, args);
+};
+Control.prototype.OnLostFocus = function (sender, args) {
+    this._IsFocused = false;
+    FrameworkElement.prototype.OnLostFocus.call(this, sender, args);
 };
 
 //#endregion
