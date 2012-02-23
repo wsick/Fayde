@@ -34,8 +34,8 @@ _DeepStyleWalker.prototype._InitializeStyle = function (style) {
     var cur = style;
     while (cur) {
         var setters = cur.GetSetters();
-        for (var i = setters.length; i >= 0; i--) {
-            var setter = setters[i];
+        for (var i = setters.GetCount() - 1; i >= 0; i--) {
+            var setter = setters.GetValueAt(i);
             var propd = setter.GetProperty();
             if (!dps[propd]) {
                 dps[propd] = true;
@@ -82,10 +82,12 @@ _DeepStyleWalker.prototype._InitializeStyles = function (styles) {
     this._Setters.sort(_DeepStyleWalker.SetterSort);
 };
 
-_DeepStyleWalker.SetterSort = function (a, b) {
-    var as = a.toString();
-    var bs = a.toString();
-    return (as == bs) ? 0 : ((as > bs) ? 1 : -1);
+_DeepStyleWalker.SetterSort = function (setter1, setter2) {
+    /// <param name="setter1" type="Setter"></param>
+    /// <param name="setter2" type="Setter"></param>
+    var a = setter1.GetProperty();
+    var b = setter2.GetProperty();
+    return (a === b) ? 0 : ((a > b) ? 1 : -1);
 };
 
 //#endregion
