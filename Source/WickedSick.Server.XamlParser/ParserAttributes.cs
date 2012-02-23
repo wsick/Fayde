@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WickedSick.Server.XamlParser.Elements;
+using System.Reflection;
 
 namespace WickedSick.Server.XamlParser
 {
@@ -57,6 +59,6 @@ namespace WickedSick.Server.XamlParser
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public abstract class TypeConverterAttribute : Attribute
     {
-        public abstract object Convert(string from);
+        public abstract object Convert(DependencyObject element, PropertyInfo pi, string from);
     }
 }

@@ -15,6 +15,8 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             get { return _attachedProperties; }
         }
+        public string NameProperty { get; set; }
+        public DependencyObject Parent { get; set; }
 
         private IDictionary<string, object> GetProperties()
         {
@@ -86,9 +88,12 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.Append(string.Format("Type: {0}", GetType().Name));
-            sb.AppendLine(",");
-            
+            sb.AppendLine(string.Format("Type: {0},", GetType().Name));
+            if (NameProperty != null && NameProperty.Length > 0)
+            {
+                sb.Append(string.Format("Name: {0},", NameProperty));
+            }
+
             IDictionary<string, object> properties = GetProperties();
             string propJson = propsToJson();
             if (propJson.Length > 0)
@@ -142,14 +147,26 @@ namespace WickedSick.Server.XamlParser.Elements
                 object value = properties[propName];
                 if (value == null) continue;
 
+                if (this is Setter && propName.Equals("Property"))
+                {
+                    string typeName = ((Style)this.Parent).TargetType;
+                    sb.Append(propName);
+                    sb.Append(": ");
+                    sb.Append(string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, value));
+                    sb.AppendLine(",");
+                    continue;
+                }
+                
                 if (value is IJsonSerializable)
                 {
                     sb.Append(propName);
                     sb.Append(": ");
                     sb.Append(((IJsonSerializable)value).toJson(0));
                     sb.AppendLine(",");
+                    continue;
                 }
-                else if (typeof(IList).IsAssignableFrom(value.GetType()))
+                
+                if (typeof(IList).IsAssignableFrom(value.GetType()))
                 {
                     string json = listpropToJson((IList)value);
                     if (json.Length > 0)
@@ -159,18 +176,17 @@ namespace WickedSick.Server.XamlParser.Elements
                         sb.Append(json);
                         sb.Append("],");
                     }
+                    continue;
                 }
-                else
-                {
-                    sb.Append(propName);
-                    sb.Append(": ");
-                    if (value is string)
-                        sb.Append("\"");
-                    sb.Append(CleanseText(value.ToString()));
-                    if (value is string)
-                        sb.Append("\"");
-                    sb.AppendLine(",");
-                }
+
+                sb.Append(propName);
+                sb.Append(": ");
+                if (value is string)
+                    sb.Append("\"");
+                sb.Append(CleanseText(value.ToString()));
+                if (value is string)
+                    sb.Append("\"");
+                sb.AppendLine(",");
             }
             return sb.ToString();
         }

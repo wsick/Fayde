@@ -3212,6 +3212,9 @@ function Duration(value) {
     if (typeof value == "number") {
         this._Type = DurationType.TimeSpan;
         this._TimeSpan = new TimeSpan(value);
+    } else if (value instanceof TimeSpan) {
+        this._Type = DurationType.TimeSpan;
+        this._TimeSpan = value;
     } else if (typeof value == "string") {
         if (value === "Automatic")
             this._Type = DurationType.Automatic;
@@ -13343,7 +13346,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: 0.55 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "DisabledVisualElement" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: "Opacity" }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
                                                             ]
                                                         }
                                                     ]
@@ -13366,7 +13369,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: 1.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: "Opacity" }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
                                                             ]
                                                         }
                                                     ]

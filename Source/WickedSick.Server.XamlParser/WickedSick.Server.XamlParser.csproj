@@ -69,14 +69,20 @@
     <Compile Include="Elements\GradientStop.cs" />
     <Compile Include="Elements\HyperlinkButton.cs" />
     <Compile Include="Elements\IJsonSerializable.cs" />
+    <Compile Include="Elements\Media\Animation\ColorAnimation.cs" />
+    <Compile Include="Elements\Media\Animation\DoubleAnimation.cs" />
     <Compile Include="Elements\Setter.cs" />
     <Compile Include="Elements\SolidColorBrush.cs" />
+    <Compile Include="Elements\Media\Animation\Storyboard.cs" />
     <Compile Include="Elements\Style.cs" />
     <Compile Include="Elements\TextBox.cs" />
+    <Compile Include="Elements\Media\Animation\Timeline.cs" />
     <Compile Include="Elements\Visual.cs" />
     <Compile Include="Elements\AttachedProperty.cs" />
     <Compile Include="Elements\Border.cs" />
     <Compile Include="Elements\LinearGradientBrush.cs" />
+    <Compile Include="Elements\Media\VSM\VisualState.cs" />
+    <Compile Include="Elements\Media\VSM\VisualStateGroup.cs" />
     <Compile Include="ParserAttributes.cs" />
     <Compile Include="Elements\ColumnDefinition.cs" />
     <Compile Include="Elements\ContentControl.cs" />
@@ -99,11 +105,13 @@
     <Compile Include="TypeConverters\DoubleConverter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TypeConverters\DurationConverter.cs" />
     <Compile Include="TypeConverters\FontSizeConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
     <Compile Include="TypeConverters\HorizontalAlignmentConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
+    <Compile Include="TypeConverters\SetterValueConverter.cs" />
     <Compile Include="TypeConverters\TextWrappingConverter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -111,7 +119,9 @@
     <Compile Include="TypeConverters\UriTypeConverter.cs" />
     <Compile Include="TypeConverters\VerticalAlignmentConverter.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Elements\Storyboards\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

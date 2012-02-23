@@ -12,6 +12,9 @@ function Duration(value) {
     if (typeof value == "number") {
         this._Type = DurationType.TimeSpan;
         this._TimeSpan = new TimeSpan(value);
+    } else if (value instanceof TimeSpan) {
+        this._Type = DurationType.TimeSpan;
+        this._TimeSpan = value;
     } else if (typeof value == "string") {
         if (value === "Automatic")
             this._Type = DurationType.Automatic;

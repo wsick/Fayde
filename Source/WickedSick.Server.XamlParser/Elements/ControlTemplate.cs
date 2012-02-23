@@ -2,17 +2,12 @@
 namespace WickedSick.Server.XamlParser.Elements
 {
     [Element]
-    public class ControlTemplate : IJsonSerializable
+    public class ControlTemplate: DependencyObject
     {
         [Property]
         public string TargetType { get; set; }
 
         [Content]
         public UIElement Content { get; set; }
-
-        public string toJson(int tabIndents)
-        {
-            return string.Format("new ControlTemplate({0}, {1})", TargetType, Content.toJson(tabIndents));
-        }
     }
 }

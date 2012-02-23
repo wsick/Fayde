@@ -12,16 +12,17 @@ namespace WickedSick.Server.XamlParser
 {
     public static class Parser
     {
-        public static object ParseXmlNode(XmlNode node, object parent)
+        public static DependencyObject ParseXmlNode(XmlNode node, DependencyObject parent)
         {
             Type t = GetElementType(node.Name);
             if (t == null)
                 throw new Exception("Unknown element: " + node.Name);
-            object element = Activator.CreateInstance(t);
+            DependencyObject element = (DependencyObject)Activator.CreateInstance(t);
+            element.Parent = parent;
 
             foreach (XmlAttribute a in node.Attributes)
             {
-                if (a.Name.StartsWith("xmlns:"))
+                if (a.Name.Contains(":"))
                     continue;
                 if (a.Name.Contains("."))
                 {
@@ -30,16 +31,15 @@ namespace WickedSick.Server.XamlParser
                     if (parts.Count() != 2)
                         throw new Exception(string.Format("An invalid element has been encountered. {0}", a.Name));
                     AddAttachedProperty(element, parts[0], parts[1], a.Value);
+                    continue;
                 }
-                else
-                {
-                    //regular property
-                    PropertyInfo pi = FindProperty(a.Name, t);
-                    if (pi == null)
-                        throw new Exception(string.Format("An unexpected attribute was found. {0}", a.Name));
 
-                    SetProperty(element, pi, a.Value);
-                }
+                //regular property
+                PropertyInfo pi = FindProperty(a.Name, t);
+                if (pi == null)
+                    throw new Exception(string.Format("An unexpected attribute was found. {0}", a.Name));
+
+                SetProperty(element, pi, a.Value);
             }
 
             //if type contains a content property (marked with content attribute), then parse the child nodes
@@ -52,7 +52,7 @@ namespace WickedSick.Server.XamlParser
             return element;
         }
 
-        private static void ProcessChildNodes(XmlNodeList children, object element, PropertyInfo cp)
+        private static void ProcessChildNodes(XmlNodeList children, DependencyObject element, PropertyInfo cp)
         {
             foreach (XmlNode n in children)
             {
@@ -94,7 +94,7 @@ namespace WickedSick.Server.XamlParser
                             }
                             else
                             {
-                                object prop = ParseXmlNode(n.FirstChild, element);
+                                DependencyObject prop = ParseXmlNode(n.FirstChild, element);
                                 mi.Invoke(element, new object[] { prop });
                             }
                         }
@@ -110,7 +110,7 @@ namespace WickedSick.Server.XamlParser
                     }
                     else
                     {
-                        object content = ParseXmlNode(n, element);
+                        DependencyObject content = ParseXmlNode(n, element);
                         if (cp.PropertyType.IsGenericType && cp.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
                         {
                             //the content property is a list so add to the list
@@ -128,21 +128,24 @@ namespace WickedSick.Server.XamlParser
             }
         }
 
-        private static void SetProperty(object element, PropertyInfo pi, object value)
+        private static void SetProperty(DependencyObject element, PropertyInfo pi, object value)
         {
+            TypeConverterAttribute converter = null;
             TypeConverterAttribute[] atts = (TypeConverterAttribute[])pi.GetCustomAttributes(typeof(TypeConverterAttribute), false);
             if (atts.Count() > 1)
                 throw new Exception("More than one TypeConverterAttribute may not be placed on a property.");
             if (atts.Count() == 1)
             {
-                value = atts[0].Convert((string)value);
+                converter = atts[0];
             }
 
+            if (converter != null)
+                value = converter.Convert(element, pi, (string)value);
             MethodInfo mi = pi.GetSetMethod();
             mi.Invoke(element, new object[] { value });
         }
 
-        private static void AddAttachedProperty(object element, string owner, string property, string value)
+        private static void AddAttachedProperty(DependencyObject element, string owner, string property, string value)
         {
             AttachedProperty ap = new AttachedProperty()
             {
@@ -153,7 +156,7 @@ namespace WickedSick.Server.XamlParser
             ((UIElement)element).AttachedProperties.Add(ap);
         }
 
-        private static Type GetElementType(string elementName)
+        internal static Type GetElementType(string elementName)
         {
             var types = from t in Assembly.GetAssembly(typeof(Parser)).GetTypes()
                         where t.IsClass && !t.IsAbstract
@@ -175,7 +178,7 @@ namespace WickedSick.Server.XamlParser
             return null;
         }
 
-        private static PropertyInfo FindProperty(string attributeName, Type t)
+        internal static PropertyInfo FindProperty(string attributeName, Type t)
         {
             foreach (PropertyInfo pi in t.GetProperties())
             {
@@ -194,7 +197,7 @@ namespace WickedSick.Server.XamlParser
             return null;
         }
 
-        private static PropertyInfo GetContentProperty(Type t)
+        internal static PropertyInfo GetContentProperty(Type t)
         {
             foreach (PropertyInfo pi in t.GetProperties())
             {

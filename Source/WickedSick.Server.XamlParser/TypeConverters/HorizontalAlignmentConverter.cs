@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.Elements;
 using WickedSick.Server.XamlParser;
+using System.Reflection;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
@@ -32,7 +33,7 @@ namespace WickedSick.Server.XamlParser.TypeConverters
 
     public class HorizontalAlignmentConverter : TypeConverterAttribute
     {
-        public override object Convert(string from)
+        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
         {
             return new HorizontalAlignment((HorizontalAlignmentEnum)Enum.Parse(typeof(HorizontalAlignmentEnum), from));
         }

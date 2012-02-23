@@ -1,5 +1,6 @@
 ﻿using System;
 using WickedSick.Server.XamlParser.Elements;
+using System.Reflection;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
@@ -20,7 +21,7 @@ namespace WickedSick.Server.XamlParser.TypeConverters
 
     public class UriTypeConverterAttribute : TypeConverterAttribute
     {
-        public override object Convert(string from)
+        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
         {
             Uri result;
             if (Uri.TryCreate(from, UriKind.RelativeOrAbsolute, out result))
