@@ -30,6 +30,8 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
     }
 
     if (json.AttachedProps) {
+        if (!(json.AttachedProps instanceof Array))
+            throw new Error("json.AttachedProps is not an array");
         for (var i in json.AttachedProps) {
             var attachedDef = json.AttachedProps[i];
             //TODO: Namespace Prefixes?
