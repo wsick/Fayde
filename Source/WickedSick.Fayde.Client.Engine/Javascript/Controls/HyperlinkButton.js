@@ -140,6 +140,132 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                             Cursor: new TemplateBindingMarkup("Cursor"),
                             Background: new TemplateBindingMarkup("Background")
                         },
+                        AttachedProps: [
+                            {
+                                Owner: VisualStateManager,
+                                Prop: "VisualStateGroups",
+                                Value: [
+                                {
+                                    Type: VisualStateGroup,
+                                    Name: "CommonStates",
+                                    Children: [
+                                        {
+                                            Type: VisualState,
+                                            Name: "Normal"
+                                        },
+                                        {
+                                            Type: VisualState,
+                                            Name: "MouseOver",
+                                            Content: {
+                                                Type: Storyboard,
+                                                Children: [
+                                                    {
+                                                        Type: ObjectAnimationUsingKeyFrames,
+                                                        Props: { Duration: new Duration(0.0) },
+                                                        AttachedProps: [
+                                                            { Owner: Storyboard, Prop: "TargetName", Value: "UnderlineTextBlock" },
+                                                            { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Visibility") }
+                                                        ],
+                                                        Children: [
+                                                            {
+                                                                Type: DiscreteObjectKeyFrame,
+                                                                Props: 
+                                                                {
+                                                                    KeyTime: new KeyTime(0.0),
+                                                                    Value: Visibility.Visible
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            Type: VisualState,
+                                            Name: "Pressed",
+                                            Content: {
+                                                Type: Storyboard,
+                                                Children: [
+                                                    {
+                                                        Type: ObjectAnimationUsingKeyFrames,
+                                                        Props: { Duration: new Duration(0.0) },
+                                                        AttachedProps: [
+                                                            { Owner: Storyboard, Prop: "TargetName", Value: "UnderlineTextBlock" },
+                                                            { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Visibility") }
+                                                        ],
+                                                        Children: [
+                                                            {
+                                                                Type: DiscreteObjectKeyFrame,
+                                                                Props: 
+                                                                {
+                                                                    KeyTime: new KeyTime(0.0),
+                                                                    Value: Visibility.Visible
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            Type: VisualState,
+                                            Name: "Disabled",
+                                            Content: {
+                                                Type: Storyboard,
+                                                Children: [
+                                                    {
+                                                        Type: ObjectAnimationUsingKeyFrames,
+                                                        Props: { Duration: new Duration(0.0) },
+                                                        AttachedProps: [
+                                                            { Owner: Storyboard, Prop: "TargetName", Value: "DisabledOverlay" },
+                                                            { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Visibility") }
+                                                        ],
+                                                        Children: [
+                                                            {
+                                                                Type: DiscreteObjectKeyFrame,
+                                                                Props: 
+                                                                {
+                                                                    KeyTime: new KeyTime(0.0),
+                                                                    Value: Visibility.Visible
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    Type: VisualStateGroup,
+                                    Name: "FocusStates",
+                                    Children: [
+                                        {
+                                            Type: VisualState,
+                                            Name: "Unfocused"
+                                        },
+                                        {
+                                            Type: VisualState,
+                                            Name: "Focused",
+                                            Content: {
+                                                Type: Storyboard,
+                                                Children: [
+                                                    {
+                                                        Type: DoubleAnimation,
+                                                        Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                        AttachedProps: [
+                                                            { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
+                                                            { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                            }
+                        ],
                         Children: [
                             {
                                 Type: TextBlock,

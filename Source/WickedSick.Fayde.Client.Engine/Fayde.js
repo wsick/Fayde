@@ -2961,6 +2961,8 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
         }
     }
     if (json.AttachedProps) {
+        if (!(json.AttachedProps instanceof Array))
+            throw new Error("json.AttachedProps is not an array");
         for (var i in json.AttachedProps) {
             var attachedDef = json.AttachedProps[i];
             propd = DependencyProperty.GetDependencyProperty(attachedDef.Owner, attachedDef.Prop);
@@ -10077,9 +10079,10 @@ Storyboard.prototype._HookupAnimations = function (error) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         var animation = this.GetChildren(i).GetValueAt(i);
         animation.Reset();
-        if (!this._HookupAnimation(animation))
+        if (!this._HookupAnimation(animation, error))
             return false;
     }
+    return true;
 };
 Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
     var localTargetObject = null;
@@ -10557,7 +10560,7 @@ Control.prototype.SetVisualParent = function (visualParent) {
     }
 };
 Control.prototype._ElementAdded = function (item) {
-    var error;
+    var error = new BError();
     item._AddParent(this, true, error);
     this._SetSubtreeObject(item);
     FrameworkElement.prototype._ElementAdded.call(this, item);
@@ -13366,10 +13369,11 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                             Cursor: new TemplateBindingMarkup("Cursor"),
                             Background: new TemplateBindingMarkup("Background")
                         },
-                        AttachedProps: {
-                            Owner: VisualStateManager,
-                            Prop: "VisualStateGroups",
-                            Value: [
+                        AttachedProps: [
+                            {
+                                Owner: VisualStateManager,
+                                Prop: "VisualStateGroups",
+                                Value: [
                                 {
                                     Type: VisualStateGroup,
                                     Name: "CommonStates",
@@ -13489,7 +13493,8 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                                     ]
                                 }
                             ]
-                        },
+                            }
+                        ],
                         Children: [
                             {
                                 Type: TextBlock,
