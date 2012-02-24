@@ -138,10 +138,17 @@
     <Content Include="Javascript\Media\Animation\Animation.js" />
     <Content Include="Javascript\Media\Animation\AnimationStorage.js" />
     <Content Include="Javascript\Media\Animation\ColorAnimation.js" />
+    <Content Include="Javascript\Media\Animation\DiscreteObjectKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\DoubleAnimation.js" />
     <Content Include="Javascript\Engine\App.js" />
+    <Content Include="Javascript\Media\Animation\KeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\KeyFrameCollection.js" />
+    <Content Include="Javascript\Media\Animation\ObjectAnimationUsingKeyFrames.js" />
+    <Content Include="Javascript\Media\Animation\ObjectKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\ObjectKeyFrameCollection.js" />
     <Content Include="Javascript\Media\GradientStop.js" />
     <Content Include="Javascript\Media\GradientStopCollection.js" />
+    <Content Include="Javascript\Primitives\KeyTime.js" />
     <Content Include="Javascript\Primitives\TimeSpan.js" />
     <Content Include="Javascript\Runtime\BError.js" />
     <Content Include="Javascript\Data\Binding.js" />

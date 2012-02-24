@@ -126,6 +126,15 @@ TimeSpan.prototype.Subtract = function (ts2) {
     /// <returns type="TimeSpan" />
     return new TimeSpan(this._Ticks - ts2._Ticks);
 };
+TimeSpan.prototype.Multiply = function (v) {
+    if (v instanceof TimeSpan) {
+    } else if (typeof v == "number") {
+        return new TimeSpan(Math.round(this._Ticks * v));
+    }
+}
+TimeSpan.prototype.Divide = function (ts2) {
+    return new TimeSpan(this._Ticks / ts2._Ticks);
+};
 TimeSpan.prototype.CompareTo = function (ts2) {
     /// <param name="ts2" type="TimeSpan"></param>
     /// <returns type="Number" />
