@@ -24,14 +24,10 @@ Animation.prototype.Stop = function () {
     this._Storage.Stop();
 };
 
-Animation.prototype.UpdateInternal = function (nowTime) {
-    if (this._Storage == null)
-        return;
-    var progress = 1.0;
-    if (nowTime === Number.POSITIVE_INFINITY)
-        progress = this.GetCurrentProgress(nowTime);
-    this._Storage.UpdateCurrentValueAndApply(progress);
+Animation.prototype.UpdateInternal = function (clockData) {
+    if (this._Storage != null)
+        this._Storage.UpdateCurrentValueAndApply(clockData);
 };
 
 Animation.prototype._GetTargetValue = function (defaultOriginValue) { return null; };
-Animation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) { return null; };
+Animation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) { return null; };

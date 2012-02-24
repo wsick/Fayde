@@ -72,10 +72,8 @@ DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
         return start + this._ByCached;
     return start;
 };
-DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
+DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
-    if (progress > 1.0)
-        progress = 1.0;
 
     var start = 0.0;
     if (this._FromCached != null)
@@ -93,9 +91,9 @@ DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defau
 
     //var easingFunc = this.GetEasingFunction();
     //if (easingFunc != null)
-    //progress = easingFunc.Ease(progress);
+    //clockData.Progress = easingFunc.Ease(clockData.Progress);
 
-    return start + ((end - start) * progress);
+    return start + ((end - start) * clockData.Progress);
 };
 DoubleAnimation.prototype._EnsureCache = function () {
     if (this._HasCached)

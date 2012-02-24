@@ -119,9 +119,9 @@ Storyboard.prototype._Tick = function (lastTime, nowTime) {
         return;
     this.Update(nowTime);
 };
-Storyboard.prototype.UpdateInternal = function (nowTime) {
+Storyboard.prototype.UpdateInternal = function (clockData) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        this.GetChildren().GetValueAt(i).Update(nowTime);
+        this.GetChildren().GetValueAt(i).Update(clockData.RealTicks);
     }
 };
 Storyboard.prototype.OnDurationReached = function () {

@@ -60,24 +60,29 @@ Timeline.prototype.IsAfterBeginTime = function (nowTime) {
         return false;
     return true;
 };
-Timeline.prototype.HasDurationElapsed = function (nowTime) {
+Timeline.prototype.CreateClockData = function (nowTime) {
+    var clockData = {
+        BeginTicks: this._BeginStep,
+        RealTicks: nowTime,
+        CurrentTime: new TimeSpan(nowTime - this._BeginStep),
+        Progress: 1.0
+    };
+
     var duration = this.GetDuration();
-    if (duration == null)
-        return true;
-    if (!duration.HasTimeSpan())
-        return false;
-    if (this.GetCurrentProgress(nowTime) < 1.0)
-        return false;
-    return true;
+    if (duration != null && duration.HasTimeSpan()) {
+        var elapsedMs = nowTime - this._BeginStep;
+        var durMs = duration.GetTimeSpan().GetMilliseconds();
+        if (durMs > 0) {
+            clockData.Progress = elapsedMs / durMs;
+            if (clockData.Progress > 1.0)
+                clockData.Progress = 1.0;
+        }
+    }
+
+    return clockData;
 };
-Timeline.prototype.GetCurrentProgress = function (nowTime) {
-    if (nowTime === Number.POSITIVE_INFINITY)
-        return 1.0;
-    var elapsedMs = nowTime - this._BeginStep;
-    var progress = elapsedMs / this.GetDuration().GetTimeSpan().GetMilliseconds();
-    if (progress > 1.0)
-        progress = 1.0;
-    return progress;
+Timeline.prototype.OnDurationReached = function () {
+    this.Completed.Raise(this, {});
 };
 
 Timeline.prototype.Update = function (nowTime) {
@@ -93,19 +98,17 @@ Timeline.prototype.Update = function (nowTime) {
             this._BeginStep = nowTime;
             this._HasReachedBeg = true;
         }
-        if (this.HasDurationElapsed(nowTime)) {
-            this.UpdateInternal(Number.POSITIVE_INFINITY);
+        var clockData = this.CreateClockData(nowTime);
+        if (clockData.Progress === 1.0) {
+            this.UpdateInternal(clockData);
             this.OnDurationReached();
             return;
         }
-        this.UpdateInternal(nowTime);
+        this.UpdateInternal(clockData);
     } finally {
         this._LastStep = nowTime;
     }
 };
 Timeline.prototype.UpdateInternal = function (nowTime) { };
-Timeline.prototype.OnDurationReached = function () {
-    this.Completed.Raise(this, {});
-};
 
 //#endregion

@@ -71,11 +71,9 @@ ColorAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
         return start.Add(this._ByCached);
     return start;
 };
-ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
+ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
-    if (progress > 1.0)
-        progress = 1.0;
-
+    
     var start = new Color();
     if (this._FromCached != null)
         start = this._FromCached;
@@ -92,9 +90,9 @@ ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaul
 
     //var easingFunc = this.GetEasingFunction();
     //if (easingFunc != null)
-        //progress = easingFunc.Ease(progress);
+        //clockData.Progress = easingFunc.Ease(clockData.Progress);
 
-    return start.Add(end.Subtract(start).Multiply(progress));
+    return start.Add(end.Subtract(start).Multiply(clockData.Progress));
 };
 ColorAnimation.prototype._EnsureCache = function () {
     if (this._HasCached)
