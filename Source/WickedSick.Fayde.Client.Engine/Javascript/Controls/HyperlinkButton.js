@@ -97,6 +97,13 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
             {
                 Type: Setter,
                 Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Cursor"),
+                    Value: CursorType.Hand
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
                     Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Foreground"),
                     Value: new SolidColorBrush(Color.FromHex("#FF73A9D8"))
                 }

@@ -92,7 +92,14 @@ var ClickMode = {
 };
 
 var CursorType = {
-    Default: ""
+    Default: "",
+    Hand: "pointer",
+    IBeam: "text",
+    Wait: "wait",
+    SizeNESW: "ne-resize",
+    SizeNWSE: "nw-resize",
+    SizeNS: "n-resize",
+    SizeWE: "w-resize"
     //TODO: Add cursor types
 };
 
