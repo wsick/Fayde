@@ -23,6 +23,29 @@ ObjectAnimationUsingKeyFrames.prototype.SetKeyFrames = function (value) {
 
 //#endregion
 
+ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
+    /// <param name="target" type="DependencyObject"></param>
+    /// <param name="propd" type="DependencyProperty"></param>
+    var frames = this.GetKeyFrames();
+    var count = frames.GetCount();
+    for (var i = 0; i < count; i++) {
+        var frame = RefObject.As(frames.GetValueAt(i), ObjectKeyFrame);
+        var value = frame.GetValue_Prop();
+        if (value == null) {
+            frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
+        } else {
+            var converted = value;
+            //TODO: Convert - return false if error converting
+            frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
+        }
+    }
+    KeyFrameCollection.ResolveKeyFrames(this, frames);
+
+    //TODO: Validate Key Times
+
+    return true;
+};
+
 ObjectAnimationUsingKeyFrames.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     var keyFrames = this.GetKeyFrames();
 
@@ -41,7 +64,7 @@ ObjectAnimationUsingKeyFrames.prototype._GetCurrentValue = function (defaultOrig
         keyStartTime = 0;
     } else {
         // start at the previous keyframe's target value
-        baseValue = prevFrame.GetValue_Prop();
+        baseValue = prevFrame.GetConvertedValue();
         keyStartTime = prevFrame._ResolvedKeyTime;
     }
 

@@ -21,6 +21,9 @@ BError.prototype.IsErrored = function () {
 BError.prototype.toString = function () {
     return "[" + this._Number + "] " + this.Message;
 };
+BError.prototype.CreateException = function () {
+    return new Exception();
+};
 BError.UnauthorizedAccess = 1;
 BError.Argument = 2;
 BError.InvalidOperation = 3;

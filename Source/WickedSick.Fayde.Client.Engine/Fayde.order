@@ -52,6 +52,7 @@ Primitives/Color.js
 Primitives/CornerRadius.js
 Primitives/Duration.js
 Primitives/Font.js
+Primitives/KeyTime.js
 Primitives/Matrix.js
 Primitives/Point.js
 Primitives/Rect.js
@@ -121,6 +122,10 @@ Media/RadialGradientBrush.js
 Media/RectangleGeometry.js
 Media/SolidColorBrush.js
 Media/TileBrush.js
+Media/Animation/KeyFrame.js
+Media/Animation/KeyFrameCollection.js
+Media/Animation/ObjectKeyFrame.js
+Media/Animation/ObjectKeyFrameCollection.js
 Media/Animation/Timeline.js
 Media/Animation/TimelineCollection.js
 Media/VSM/VisualState.js
@@ -149,7 +154,9 @@ Documents/Span.js
 Media/ImageBrush.js
 Media/Animation/Animation.js
 Media/Animation/ColorAnimation.js
+Media/Animation/DiscreteObjectKeyFrame.js
 Media/Animation/DoubleAnimation.js
+Media/Animation/ObjectAnimationUsingKeyFrames.js
 Media/Animation/Storyboard.js
 Controls/Border.js
 Controls/ContentPresenter.js

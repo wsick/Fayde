@@ -53,8 +53,15 @@ Storyboard.Annotations = {
 //#endregion
 
 Storyboard.prototype.Begin = function () {
+    var error = new BError();
+    this.BeginWithError(error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
+Storyboard.prototype.BeginWithError = function (error) {
     this.Reset();
-    this._HookupAnimations();
+    if (!this._HookupAnimations(error))
+        return false;
     App.Instance.RegisterStoryboard(this);
 };
 Storyboard.prototype.Pause = function () {
@@ -76,15 +83,20 @@ Storyboard.prototype.Stop = function () {
     }
 };
 
-Storyboard.prototype._HookupAnimations = function () {
+Storyboard.prototype._HookupAnimations = function (error) {
+    /// <param name="error" type="BError"></param>
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         var animation = this.GetChildren(i).GetValueAt(i);
         animation.Reset();
-        this._HookupAnimation(animation);
+        if (!this._HookupAnimation(animation))
+            return false;
     }
 };
-Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath) {
+Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
     /// <param name="animation" type="Animation"></param>
+    /// <param name="targetObject" type="DependencyObject"></param>
+    /// <param name="targetPropertyPath" type="DependencyProperty"></param>
+    /// <param name="error" type="BError">Description</param>
     var localTargetObject = null;
     var localTargetPropertyPath = null;
     if (animation.HasManualTarget()) {
@@ -108,6 +120,10 @@ Storyboard.prototype._HookupAnimation = function (animation, targetObject, targe
     var targetProperty = DependencyProperty.ResolvePropertyPath(refobj, targetPropertyPath);
     if (targetProperty == null) {
         Warn("Could not resolve property for storyboard. [" + localTargetPropertyPath.GetPath().toString() + "]");
+        return false;
+    }
+    if (!animation.Resolve(refobj.Value, targetProperty)) {
+        error.SetErrored(BError.InvalidOperation, "Storyboard value could not be converted to the correct type");
         return false;
     }
     animation.HookupStorage(refobj.Value, targetProperty);

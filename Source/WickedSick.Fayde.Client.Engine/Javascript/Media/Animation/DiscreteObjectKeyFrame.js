@@ -10,7 +10,7 @@ DiscreteObjectKeyFrame.InheritFrom(ObjectKeyFrame);
 
 DiscreteObjectKeyFrame.prototype.InterpolateValue = function (baseValue, keyFrameProgress) {
     if (keyFrameProgress >= 1.0) {
-        return this.GetValue_Prop();
+        return this.GetConvertedValue();
     }
     return baseValue;
 };

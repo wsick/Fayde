@@ -11,6 +11,8 @@ Animation.InheritFrom(Timeline);
 
 //#endregion
 
+Animation.prototype.Resolve = function () { return true; };
+
 Animation.prototype.HookupStorage = function (targetObj, targetProp) {
     /// <param name="targetObj" type="DependencyObject"></param>
     /// <param name="targetProp" type="DependencyProperty"></param>

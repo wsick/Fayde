@@ -1408,8 +1408,8 @@ _DeepStyleWalker.prototype._InitializeStyle = function (style) {
     var cur = style;
     while (cur) {
         var setters = cur.GetSetters();
-        for (var i = setters.length; i >= 0; i--) {
-            var setter = setters[i];
+        for (var i = setters.GetCount() - 1; i >= 0; i--) {
+            var setter = setters.GetValueAt(i);
             var propd = setter.GetProperty();
             if (!dps[propd]) {
                 dps[propd] = true;
@@ -1450,10 +1450,10 @@ _DeepStyleWalker.prototype._InitializeStyles = function (styles) {
     }
     this._Setters.sort(_DeepStyleWalker.SetterSort);
 };
-_DeepStyleWalker.SetterSort = function (a, b) {
-    var as = a.toString();
-    var bs = a.toString();
-    return (as == bs) ? 0 : ((as > bs) ? 1 : -1);
+_DeepStyleWalker.SetterSort = function (setter1, setter2) {
+    var a = setter1.GetProperty();
+    var b = setter2.GetProperty();
+    return (a === b) ? 0 : ((a > b) ? 1 : -1);
 };
 
 function _DeepTreeWalker(top, direction) {
@@ -2113,14 +2113,14 @@ _StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, 
         return;
     var oldValue = undefined;
     var newValue = undefined;
-    var propd = null;
+    var walkPropd = null;
     var walker = new _DeepStyleWalker(this._Style);
     var setter;
     while (setter = walker.Step()) {
-        propd = setter.GetValue(Setter.PropertyProperty);
-        if (propd != prop)
+        walkPropd = setter.GetValue_Prop();
+        if (walkPropd != propd)
             continue;
-        newValue = setter.GetValue(Setter.ConvertedValueProperty);
+        newValue = setter.GetValue_Prop();
         oldValue = this._ht[propd];
         this._ht[propd] = newValue;
         this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
@@ -2139,25 +2139,25 @@ _StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
     var newProp;
     while (oldSetter || newSetter) {
         if (oldSetter)
-            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
+            oldProp = oldSetter.GetProperty();
         if (newSetter)
-            newProp = newSetter.GetValue(Setter.PropertyProperty);
+            newProp = newSetter.GetProperty();
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            oldValue = oldSetter.GetValue_Prop();
             newValue = null;
             delete this._ht[oldProp];
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
-        } else if (oldProp == newProp) {
-            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
-            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+        } else if (oldProp === newProp) {
+            oldValue = oldSetter.GetValue_Prop();
+            newValue = newSetter.GetValue_Prop();
             this._ht[oldProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
             newSetter = newWalker.Step();
         } else {
             oldValue = null;
-            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter.GetValue_Prop();
             this._ht[newProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
             newSetter = newWalker.Step();
@@ -3336,6 +3336,22 @@ Font.DEFAULT_STYLE = FontStyles.Normal;
 Font.DEFAULT_WEIGHT = FontWeights.Normal;
 Font.DEFAULT_SIZE = "11px";
 
+function KeyTime() {
+    RefObject.call(this);
+}
+KeyTime.InheritFrom(RefObject);
+KeyTime.CreateUniform = function () {
+    var kt = new KeyTime();
+    kt._IsUniform = true;
+    return kt;
+};
+KeyTime.prototype.IsPaced = function () {
+    return this._IsPaced == true;
+};
+KeyTime.prototype.IsUniform = function () {
+    return this._IsUniform == true;
+};
+
 function Matrix() {
     RefObject.call(this);
     this._Elements = Matrix.CreateIdentityArray();
@@ -3729,6 +3745,15 @@ TimeSpan.prototype.Add = function (ts2) {
 TimeSpan.prototype.Subtract = function (ts2) {
     return new TimeSpan(this._Ticks - ts2._Ticks);
 };
+TimeSpan.prototype.Multiply = function (v) {
+    if (v instanceof TimeSpan) {
+    } else if (typeof v == "number") {
+        return new TimeSpan(Math.round(this._Ticks * v));
+    }
+}
+TimeSpan.prototype.Divide = function (ts2) {
+    return new TimeSpan(this._Ticks / ts2._Ticks);
+};
 TimeSpan.prototype.CompareTo = function (ts2) {
     if (this._Ticks === ts2)
         return 0;
@@ -3775,6 +3800,9 @@ BError.prototype.IsErrored = function () {
 };
 BError.prototype.toString = function () {
     return "[" + this._Number + "] " + this.Message;
+};
+BError.prototype.CreateException = function () {
+    return new Exception();
 };
 BError.UnauthorizedAccess = 1;
 BError.Argument = 2;
@@ -8088,6 +8116,214 @@ TileBrush.prototype.SetStretch = function (value) {
     this.SetValue(TileBrush.StretchProperty, value);
 };
 
+function KeyFrame() {
+    DependencyObject.call(this);
+    if (!IsDocumentReady())
+        return;
+    this._ResolvedKeyTime = null;
+    this._Resolved = false;
+}
+KeyFrame.InheritFrom(DependencyObject);
+KeyFrame.prototype.GetKeyTime = function () {
+    throw new AbstractMethodException();
+};
+KeyFrame.prototype.SetKeyTime = function (value) {
+    throw new AbstractMethodException();
+};
+KeyFrame.prototype.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
+    if (value == null)
+        coerced.Value = this.GetKeyTime();
+    else
+        coerced.Value = value;
+    return true;
+};
+KeyFrame.prototype.InterpolateValue = function () {
+    throw new AbstractMethodException();
+};
+KeyFrame.Comparer = function (kf1, kf2) {
+    var ts1 = kf1._ResolvedKeyTime;
+    var ts2 = kf2._ResolvedKeyTime;
+    return ts1.CompareTo(ts2);
+};
+
+function KeyFrameCollection() {
+    DependencyObjectCollection.call(this);
+    if (!IsDocumentReady())
+        return;
+    this._Resolved = false;
+    this._SortedList = new Array();
+}
+KeyFrameCollection.InheritFrom(DependencyObjectCollection);
+KeyFrameCollection.prototype.GetKeyFrameForTime = function (t, prevFrameRef) {
+    var currentKeyFrame = null;
+    var previousKeyFrame = null;
+    var i;
+    if (this._SortedList.length == 0) {
+        prevFrameRef.Value = null;
+        return null;
+    }
+    var keyFrame;
+    var valuePropd;
+    for (i = 0; i < this._SortedList.length; i++) {
+        keyFrame = this._SortedList[i];
+        var keyEndTime = keyFrame._ResolvedKeyTime;
+        if (keyEndTime.CompareTo(t) >= 0 || (i + 1) >= this._SortedList.length)
+            break;
+    }
+    for (; i >= 0; i--) {
+        keyFrame = this._SortedList[i];
+        valuePropd = keyFrame.GetDependencyProperty("Value");
+        if (keyFrame.GetValue(valuePropd) != null) {
+            currentKeyFrame = keyFrame;
+            break;
+        }
+    }
+    for (i--; i >= 0; i--) {
+        keyFrame = this._SortedList[i];
+        valuePropd = keyFrame.GetDependencyProperty("Value");
+        if (keyFrame.GetValue(valuePropd) != null) {
+            previousKeyFrame = keyFrame;
+            break;
+        }
+    }
+    prevFrameRef.Value = previousKeyFrame;
+    return currentKeyFrame;
+};
+KeyFrameCollection.prototype.Clear = function () {
+    this._Resolved = false;
+    DependencyObjectCollection.prototype.Clear.call(this);
+};
+KeyFrameCollection.prototype.AddedToCollection = function (value, error) {
+    if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
+        return false;
+    this._Resolved = false;
+    return true;
+};
+KeyFrameCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+    DependencyObjectCollection.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+    this._Resolved = false;
+};
+KeyFrameCollection.prototype._OnSubPropertyChanged = function (sender, args) {
+    if (args.Property.Name === "KeyTime")
+        this._Resolved = false;
+    Collection.prototype._OnSubPropertyChanged.call(this, sender, args);
+};
+KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
+    if (coll._Resolved)
+        return;
+    coll._Resolved = true;
+    var totalInterpolationTime;
+    var hasTimeSpanKeyFrame = false;
+    var highestKeyTimeTimeSpan = 0;
+    var keyFrame;
+    var value;
+    var count = coll.GetCount();
+    var i;
+    for (i = 0; i < count; i++) {
+        value = coll.GetValueAt(i);
+        keyFrame = RefObject.As(value, KeyFrame);
+        keyFrame._ResolvedTime = 0;
+        keyFrame._Resolved = false;
+    }
+    var keyTime;
+    for (i = 0; i < count; i++) {
+        value = coll.GetValueAt(i);
+        keyFrame = RefObject.As(value, KeyFrame);
+        keyTime = keyFrame.GetKeyTime();
+        if (keyTime.HasTimeSpan()) {
+            hasTimeSpanKeyFrame = true;
+            var ts = keyTime.GetTimeSpan();
+            if (ts.CompareTo(highestKeyTimeTimeSpan) > 0)
+                highestKeyTimeTimeSpan = ts;
+            keyFrame._ResolvedKeyTime = ts;
+            keyFrame._Resolved = true;
+        }
+    }
+    var d = animation.GetDuration();
+    if (d.HasTimeSpan()) {
+        totalInterpolationTime = d.GetTimeSpan();
+    } else if (hasTimeSpanKeyFrame) {
+        totalInterpolationTime = highestKeyTimeTimeSpan;
+    } else {
+        totalInterpolationTime = new TimeSpan(TimeSpan._TicksPerSecond);
+    }
+    for (i = 0; i < count; i++) {
+        value = coll.GetValueAt(i);
+        keyFrame = RefObject.As(value, KeyFrame);
+        keyTime = keyFrame.GetKeyTime();
+        if (keyTime.HasPercent()) {
+            keyFrame._ResolvedTime = totalInterpolationTime.Multiply(keyTime.GetPercent())
+            keyFrame._Resolved = true;
+        }
+    }
+    if (count > 0) {
+        value = coll.GetValueAt(count - 1);
+        keyFrame = RefObject.As(value, KeyFrame);
+        keyTime = keyFrame.GetKeyTime();
+        if (keyTime.IsPaced() || keyTime.IsUniform()) {
+            keyFrame._ResolvedKeyTime = totalInterpolationTime;
+            keyFrame._Resolved = true;
+        }
+    }
+    /* if the first frame is KeyTime Paced:
+    **   1. if there is only 1 frame, its KeyTime is the total interpolation time.
+    **   2. if there is more than 1 frame, its KeyTime is 0.
+    **
+    ** note 1 is handled in the above block so we only have to
+    ** handle 2 here.
+    */
+    if (count > 0) {
+        value = coll.GetValueAt(count - 1);
+        keyFrame = RefObject.As(value, KeyFrame);
+        keyTime = keyFrame.GetKeyTime();
+        if (!keyFrame._Resolved && keyTime.IsPaced()) {
+            keyFrame._ResolvedKeyTime = new TimeSpan(0);
+            keyFrame._Resolved = true;
+        }
+    }
+    this._SortedList = new Array();
+    for (i = 0; i < count; i++) {
+        value = coll.GetValueAt(i);
+        keyFrame = RefObject.As(value, KeyFrame);
+        this._SortedList.push(keyFrame);
+    }
+    this._SortedList.sort(KeyFrame.Comparer);
+};
+
+function ObjectKeyFrame() {
+    KeyFrame.call(this);
+}
+ObjectKeyFrame.InheritFrom(KeyFrame);
+ObjectKeyFrame.KeyTimeProperty = DependencyProperty.RegisterFull("KeyTime", function () { return KeyTime; }, ObjectKeyFrame, KeyTime.CreateUniform(), null, { GetValue: function () { NotImplemented("KeyTime Coercer"); } });
+ObjectKeyFrame.prototype.GetKeyTime = function () {
+    return this.GetValue(ObjectKeyFrame.KeyTimeProperty);
+};
+ObjectKeyFrame.prototype.SetKeyTime = function (value) {
+    this.SetValue(ObjectKeyFrame.KeyTimeProperty, value);
+};
+ObjectKeyFrame.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, ObjectKeyFrame);
+ObjectKeyFrame.prototype.GetValue_Prop = function () {
+    return this.GetValue(ObjectKeyFrame.ValueProperty);
+};
+ObjectKeyFrame.prototype.SetValue_Prop = function (value) {
+    this.SetValue(ObjectKeyFrame.ValueProperty, value);
+};
+ObjectKeyFrame.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, ObjectKeyFrame);
+ObjectKeyFrame.prototype.GetConvertedValue = function () {
+    return this.GetValue(ObjectKeyFrame.ConvertedValueProperty);
+};
+ObjectKeyFrame.prototype.SetConvertedValue = function (value) {
+    this.SetValue(ObjectKeyFrame.ConvertedValueProperty, value);
+};
+
+function ObjectKeyFrameCollection() {
+    KeyFrameCollection.call(this);
+}
+ObjectKeyFrameCollection.InheritFrom(KeyFrameCollection);
+ObjectKeyFrameCollection.prototype.IsElementType = function (value) {
+    return value instanceof ObjectKeyFrame;
+};
+
 function Timeline() {
     DependencyObject.call(this);
     if (!IsDocumentReady())
@@ -8131,24 +8367,27 @@ Timeline.prototype.IsAfterBeginTime = function (nowTime) {
         return false;
     return true;
 };
-Timeline.prototype.HasDurationElapsed = function (nowTime) {
+Timeline.prototype.CreateClockData = function (nowTime) {
+    var clockData = {
+        BeginTicks: this._BeginStep,
+        RealTicks: nowTime,
+        CurrentTime: new TimeSpan(nowTime - this._BeginStep),
+        Progress: 1.0
+    };
     var duration = this.GetDuration();
-    if (duration == null)
-        return true;
-    if (!duration.HasTimeSpan())
-        return false;
-    if (this.GetCurrentProgress(nowTime) < 1.0)
-        return false;
-    return true;
+    if (duration != null && duration.HasTimeSpan()) {
+        var elapsedMs = nowTime - this._BeginStep;
+        var durMs = duration.GetTimeSpan().GetMilliseconds();
+        if (durMs > 0) {
+            clockData.Progress = elapsedMs / durMs;
+            if (clockData.Progress > 1.0)
+                clockData.Progress = 1.0;
+        }
+    }
+    return clockData;
 };
-Timeline.prototype.GetCurrentProgress = function (nowTime) {
-    if (nowTime === Number.POSITIVE_INFINITY)
-        return 1.0;
-    var elapsedMs = nowTime - this._BeginStep;
-    var progress = elapsedMs / this.GetDuration().GetTimeSpan().GetMilliseconds();
-    if (progress > 1.0)
-        progress = 1.0;
-    return progress;
+Timeline.prototype.OnDurationReached = function () {
+    this.Completed.Raise(this, {});
 };
 Timeline.prototype.Update = function (nowTime) {
     try {
@@ -8163,20 +8402,18 @@ Timeline.prototype.Update = function (nowTime) {
             this._BeginStep = nowTime;
             this._HasReachedBeg = true;
         }
-        if (this.HasDurationElapsed(nowTime)) {
-            this.UpdateInternal(Number.POSITIVE_INFINITY);
+        var clockData = this.CreateClockData(nowTime);
+        if (clockData.Progress === 1.0) {
+            this.UpdateInternal(clockData);
             this.OnDurationReached();
             return;
         }
-        this.UpdateInternal(nowTime);
+        this.UpdateInternal(clockData);
     } finally {
         this._LastStep = nowTime;
     }
 };
 Timeline.prototype.UpdateInternal = function (nowTime) { };
-Timeline.prototype.OnDurationReached = function () {
-    this.Completed.Raise(this, {});
-};
 
 function TimelineCollection() {
     Collection.call(this);
@@ -9230,14 +9467,14 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
         UIElement.prototype._OnPropertyChanged.call(this, args, error);
         return;
     }
-    if (args.Property == FrameworkElement.WidthProperty
-        || args.Property == FrameworkElement.MaxWidthProperty
-        || args.Property == FrameworkElement.MinWidthProperty
-        || args.Property == FrameworkElement.HeightProperty
-        || args.Property == FrameworkElement.MaxHeightProperty
-        || args.Property == FrameworkElement.MinHeightProperty
-        || args.Property == FrameworkElement.MarginProperty
-        || args.Property == FrameworkElement.FlowDirectionProperty) {
+    if (args.Property === FrameworkElement.WidthProperty
+        || args.Property === FrameworkElement.MaxWidthProperty
+        || args.Property === FrameworkElement.MinWidthProperty
+        || args.Property === FrameworkElement.HeightProperty
+        || args.Property === FrameworkElement.MaxHeightProperty
+        || args.Property === FrameworkElement.MinHeightProperty
+        || args.Property === FrameworkElement.MarginProperty
+        || args.Property === FrameworkElement.FlowDirectionProperty) {
         this._FullInvalidate(false);
         var visualParent = this.GetVisualParent();
         if (visualParent)
@@ -9245,13 +9482,13 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
         this._InvalidateMeasure();
         this._InvalidateArrange();
         this._UpdateBounds();
-    } else if (args.Property == FrameworkElement.StyleProperty) {
+    } else if (args.Property === FrameworkElement.StyleProperty) {
         var newStyle = args.NewValue;
         if (!error.IsErrored())
             this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
         if (error.IsErrored())
             return;
-    } else if (args.Property == FrameworkElement.HorizontalAlignmentProperty
+    } else if (args.Property === FrameworkElement.HorizontalAlignmentProperty
         || args.Property == FrameworkElement.VerticalAlignmentProperty) {
         this._InvalidateArrange();
         this._FullInvalidate(true);
@@ -9535,6 +9772,7 @@ function Animation() {
     Timeline.call(this);
 }
 Animation.InheritFrom(Timeline);
+Animation.prototype.Resolve = function () { return true; };
 Animation.prototype.HookupStorage = function (targetObj, targetProp) {
     this._Storage = new AnimationStorage(this, targetObj, targetProp);
     return this._Storage;
@@ -9544,16 +9782,12 @@ Animation.prototype.Stop = function () {
         return;
     this._Storage.Stop();
 };
-Animation.prototype.UpdateInternal = function (nowTime) {
-    if (this._Storage == null)
-        return;
-    var progress = 1.0;
-    if (nowTime === Number.POSITIVE_INFINITY)
-        progress = this.GetCurrentProgress(nowTime);
-    this._Storage.UpdateCurrentValueAndApply(progress);
+Animation.prototype.UpdateInternal = function (clockData) {
+    if (this._Storage != null)
+        this._Storage.UpdateCurrentValueAndApply(clockData);
 };
 Animation.prototype._GetTargetValue = function (defaultOriginValue) { return null; };
-Animation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) { return null; };
+Animation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) { return null; };
 
 function ColorAnimation() {
     Animation.call(this);
@@ -9602,10 +9836,8 @@ ColorAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
         return start.Add(this._ByCached);
     return start;
 };
-ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
+ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
-    if (progress > 1.0)
-        progress = 1.0;
     var start = new Color();
     if (this._FromCached != null)
         start = this._FromCached;
@@ -9618,7 +9850,7 @@ ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaul
         end = start.Add(this._ByCached);
     else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
         end = defaultDestinationValue;
-    return start.Add(end.Subtract(start).Multiply(progress));
+    return start.Add(end.Subtract(start).Multiply(clockData.Progress));
 };
 ColorAnimation.prototype._EnsureCache = function () {
     if (this._HasCached)
@@ -9627,6 +9859,17 @@ ColorAnimation.prototype._EnsureCache = function () {
     this._ToCached = this.GetTo();
     this._ByCached = this.GetBy();
     this._HasCached = true;
+};
+
+function DiscreteObjectKeyFrame() {
+    ObjectKeyFrame.call(this);
+}
+DiscreteObjectKeyFrame.InheritFrom(ObjectKeyFrame);
+DiscreteObjectKeyFrame.prototype.InterpolateValue = function (baseValue, keyFrameProgress) {
+    if (keyFrameProgress >= 1.0) {
+        return this.GetConvertedValue();
+    }
+    return baseValue;
 };
 
 function DoubleAnimation() {
@@ -9676,10 +9919,8 @@ DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
         return start + this._ByCached;
     return start;
 };
-DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, progress) {
+DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
-    if (progress > 1.0)
-        progress = 1.0;
     var start = 0.0;
     if (this._FromCached != null)
         start = this._FromCached;
@@ -9692,7 +9933,7 @@ DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defau
         end = start + this._ByCached;
     else if (defaultDestinationValue != null && Number.isNumber(defaultDestinationValue))
         end = defaultDestinationValue;
-    return start + ((end - start) * progress);
+    return start + ((end - start) * clockData.Progress);
 };
 DoubleAnimation.prototype._EnsureCache = function () {
     if (this._HasCached)
@@ -9712,6 +9953,69 @@ DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
     this._ByCached = null;
     this._HasCached = false;
     this.PropertyChanged.Raise(this, args);
+};
+
+function ObjectAnimationUsingKeyFrames() {
+    Animation.call(this);
+}
+ObjectAnimationUsingKeyFrames.InheritFrom(Animation);
+ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, null, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
+ObjectAnimationUsingKeyFrames.prototype.GetKeyFrames = function () {
+    return this.GetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty);
+};
+ObjectAnimationUsingKeyFrames.prototype.SetKeyFrames = function (value) {
+    this.SetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty, value);
+};
+ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
+    var frames = this.GetKeyFrames();
+    var count = frames.GetCount();
+    for (var i = 0; i < count; i++) {
+        var frame = RefObject.As(frames.GetValueAt(i), ObjectKeyFrame);
+        var value = frame.GetValue_Prop();
+        if (value == null) {
+            frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
+        } else {
+            var converted = value;
+            frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
+        }
+    }
+    KeyFrameCollection.ResolveKeyFrames(this, frames);
+    return true;
+};
+ObjectAnimationUsingKeyFrames.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+    var keyFrames = this.GetKeyFrames();
+    var prevFrameRef = {};
+    var currentKeyFrame = keyFrames.GetKeyFrameForTime(clockData.CurrentTime, prevFrameRef);
+    var prevFrame = prevFrameRef.Value;
+    if (currentKeyFrame == null)
+        return null;
+    var baseValue;
+    var keyStartTime;
+    var keyEndTime = currentKeyFrame._ResolvedKeyTime;
+    if (prevFrame == null) {
+        baseValue = defaultOriginValue;
+        keyStartTime = 0;
+    } else {
+        baseValue = prevFrame.GetConvertedValue();
+        keyStartTime = prevFrame._ResolvedKeyTime;
+    }
+    var progress;
+    if (clockData.CurrentTime.CompareTo(keyEndTime) >= 0) {
+        progress = 1.0;
+    } else {
+        var keyDuration = keyEndTime.Subtract(keyStartTime);
+        if (keyDuration <= 0)
+            progress = 1.0;
+        else
+            progress = (clockData.CurrentTime.Subtract(keyStartTime)).Divide(keyDuration);
+    }
+    return currentKeyFrame.InterpolateValue(baseValue, progress);
+};
+ObjectAnimationUsingKeyFrames.prototype.AddKeyFrame = function (frame) {
+    this.GetKeyFrames().Add(frame);
+};
+ObjectAnimationUsingKeyFrames.prototype.RemoveKeyFrame = function (frame) {
+    this.GetKeyFrames().Remove(frame);
 };
 
 function Storyboard() {
@@ -9740,8 +10044,15 @@ Storyboard.Annotations = {
     ContentProperty: Storyboard.ChildrenProperty
 };
 Storyboard.prototype.Begin = function () {
+    var error = new BError();
+    this.BeginWithError(error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
+Storyboard.prototype.BeginWithError = function (error) {
     this.Reset();
-    this._HookupAnimations();
+    if (!this._HookupAnimations(error))
+        return false;
     App.Instance.RegisterStoryboard(this);
 };
 Storyboard.prototype.Pause = function () {
@@ -9762,14 +10073,15 @@ Storyboard.prototype.Stop = function () {
         children.GetValueAt(i).Stop();
     }
 };
-Storyboard.prototype._HookupAnimations = function () {
+Storyboard.prototype._HookupAnimations = function (error) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         var animation = this.GetChildren(i).GetValueAt(i);
         animation.Reset();
-        this._HookupAnimation(animation);
+        if (!this._HookupAnimation(animation))
+            return false;
     }
 };
-Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath) {
+Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
     var localTargetObject = null;
     var localTargetPropertyPath = null;
     if (animation.HasManualTarget()) {
@@ -9793,6 +10105,10 @@ Storyboard.prototype._HookupAnimation = function (animation, targetObject, targe
         Warn("Could not resolve property for storyboard. [" + localTargetPropertyPath.GetPath().toString() + "]");
         return false;
     }
+    if (!animation.Resolve(refobj.Value, targetProperty)) {
+        error.SetErrored(BError.InvalidOperation, "Storyboard value could not be converted to the correct type");
+        return false;
+    }
     animation.HookupStorage(refobj.Value, targetProperty);
     return true;
 };
@@ -9801,9 +10117,9 @@ Storyboard.prototype._Tick = function (lastTime, nowTime) {
         return;
     this.Update(nowTime);
 };
-Storyboard.prototype.UpdateInternal = function (nowTime) {
+Storyboard.prototype.UpdateInternal = function (clockData) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        this.GetChildren().GetValueAt(i).Update(nowTime);
+        this.GetChildren().GetValueAt(i).Update(clockData.RealTicks);
     }
 };
 Storyboard.prototype.OnDurationReached = function () {
@@ -13050,6 +13366,130 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                             Cursor: new TemplateBindingMarkup("Cursor"),
                             Background: new TemplateBindingMarkup("Background")
                         },
+                        AttachedProps: {
+                            Owner: VisualStateManager,
+                            Prop: "VisualStateGroups",
+                            Value: [
+                                {
+                                    Type: VisualStateGroup,
+                                    Name: "CommonStates",
+                                    Children: [
+                                        {
+                                            Type: VisualState,
+                                            Name: "Normal"
+                                        },
+                                        {
+                                            Type: VisualState,
+                                            Name: "MouseOver",
+                                            Content: {
+                                                Type: Storyboard,
+                                                Children: [
+                                                    {
+                                                        Type: ObjectAnimationUsingKeyFrames,
+                                                        Props: { Duration: new Duration(0.0) },
+                                                        AttachedProps: [
+                                                            { Owner: Storyboard, Prop: "TargetName", Value: "UnderlineTextBlock" },
+                                                            { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Visibility") }
+                                                        ],
+                                                        Children: [
+                                                            {
+                                                                Type: DiscreteObjectKeyFrame,
+                                                                Props: 
+                                                                {
+                                                                    KeyTime: new KeyTime(0.0),
+                                                                    Value: Visibility.Visible
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            Type: VisualState,
+                                            Name: "Pressed",
+                                            Content: {
+                                                Type: Storyboard,
+                                                Children: [
+                                                    {
+                                                        Type: ObjectAnimationUsingKeyFrames,
+                                                        Props: { Duration: new Duration(0.0) },
+                                                        AttachedProps: [
+                                                            { Owner: Storyboard, Prop: "TargetName", Value: "UnderlineTextBlock" },
+                                                            { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Visibility") }
+                                                        ],
+                                                        Children: [
+                                                            {
+                                                                Type: DiscreteObjectKeyFrame,
+                                                                Props: 
+                                                                {
+                                                                    KeyTime: new KeyTime(0.0),
+                                                                    Value: Visibility.Visible
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            Type: VisualState,
+                                            Name: "Disabled",
+                                            Content: {
+                                                Type: Storyboard,
+                                                Children: [
+                                                    {
+                                                        Type: ObjectAnimationUsingKeyFrames,
+                                                        Props: { Duration: new Duration(0.0) },
+                                                        AttachedProps: [
+                                                            { Owner: Storyboard, Prop: "TargetName", Value: "DisabledOverlay" },
+                                                            { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Visibility") }
+                                                        ],
+                                                        Children: [
+                                                            {
+                                                                Type: DiscreteObjectKeyFrame,
+                                                                Props: 
+                                                                {
+                                                                    KeyTime: new KeyTime(0.0),
+                                                                    Value: Visibility.Visible
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    Type: VisualStateGroup,
+                                    Name: "FocusStates",
+                                    Children: [
+                                        {
+                                            Type: VisualState,
+                                            Name: "Unfocused"
+                                        },
+                                        {
+                                            Type: VisualState,
+                                            Name: "Focused",
+                                            Content: {
+                                                Type: Storyboard,
+                                                Children: [
+                                                    {
+                                                        Type: DoubleAnimation,
+                                                        Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                        AttachedProps: [
+                                                            { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
+                                                            { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
                         Children: [
                             {
                                 Type: TextBlock,
@@ -13448,7 +13888,7 @@ Button.prototype.GetDefaultStyle = function () {
                                                                 }
                                                             }
                                                         ]
-                                                    },
+                                                    }
                                                 }
                                             }
                                         }
