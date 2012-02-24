@@ -88,7 +88,7 @@ Storyboard.prototype._HookupAnimations = function (error) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         var animation = this.GetChildren(i).GetValueAt(i);
         animation.Reset();
-        if (!this._HookupAnimation(animation))
+        if (!this._HookupAnimation(animation, error))
             return false;
     }
     return true;
