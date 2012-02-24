@@ -311,7 +311,14 @@ var ClickMode = {
     Hover: 2
 };
 var CursorType = {
-    Default: ""
+    Default: "",
+    Hand: "pointer",
+    IBeam: "text",
+    Wait: "wait",
+    SizeNESW: "ne-resize",
+    SizeNWSE: "nw-resize",
+    SizeNS: "n-resize",
+    SizeWE: "w-resize"
 };
 var DurationType = {
     Automatic: 0,
@@ -13322,6 +13329,13 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
             TargetType: HyperlinkButton
         },
         Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(HyperlinkButton, "Cursor"),
+                    Value: CursorType.Hand
+                }
+            },
             {
                 Type: Setter,
                 Props: {

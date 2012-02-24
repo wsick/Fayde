@@ -235,7 +235,7 @@
     <Content Include="jquery-1.7.js" />
     <Content Include="Styles\HyperlinkButton.xml" />
     <Content Include="Styles\TextBox.xml" />
-	<Content Include="Styles\Button.xml" />
+    <Content Include="Styles\Button.xml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -251,7 +251,9 @@
   <ItemGroup>
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
-    <None Include="Tests\smoke.fayde" />
+    <None Include="Tests\smoke.fayde">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">
