@@ -194,7 +194,7 @@ Control.prototype.SetVisualParent = function (visualParent) {
 };
 
 Control.prototype._ElementAdded = function (item) {
-    var error;
+    var error = new BError();
     item._AddParent(this, true, error);
     this._SetSubtreeObject(item);
     FrameworkElement.prototype._ElementAdded.call(this, item);
