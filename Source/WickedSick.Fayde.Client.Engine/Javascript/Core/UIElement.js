@@ -437,7 +437,7 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
         return;
     }
     if (!this._GetRenderVisible()) {
-        Info("Render invisible. [" + this._TypeName + ":" + this.GetName() + "]");
+        //Info("Render invisible. [" + this._TypeName + ":" + this.GetName() + "]");
         return;
     }
     if (region.IsEmpty()) {
