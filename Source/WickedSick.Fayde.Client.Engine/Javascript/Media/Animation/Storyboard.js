@@ -91,6 +91,7 @@ Storyboard.prototype._HookupAnimations = function (error) {
         if (!this._HookupAnimation(animation))
             return false;
     }
+    return true;
 };
 Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
     /// <param name="animation" type="Animation"></param>
