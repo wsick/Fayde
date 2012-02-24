@@ -233,6 +233,9 @@
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
+    <Content Include="Styles\HyperlinkButton.xml" />
+    <Content Include="Styles\TextBox.xml" />
+	<Content Include="Styles\Button.xml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
