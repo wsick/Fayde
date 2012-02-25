@@ -59,9 +59,13 @@ Binding.prototype.SetRelativeSource = function (/* RelativeSource */value) {
     this._RelativeSource = value;
 };
 
-Binding.prototype.GetPath = function () { return this._Path; };
+Binding.prototype.GetPath = function () {
+    /// <returns type="_PropertyPath" />
+    return this._Path; 
+};
 //TODO: TypeConverter(PropertyPathConverter)
-Binding.prototype.SetPath = function (/* PropertyPath */value) {
+Binding.prototype.SetPath = function (value) {
+    /// <param name="value" type="_PropertyPath"></param>
     this.CheckSealed();
     if (value.HasDependencyProperty())
         throw new ArgumentException("PropertyPaths which are instantiated with a DependencyProperty are not supported");

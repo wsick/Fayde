@@ -35,7 +35,6 @@ var UIElementFlags = {
     DirtySizeHint: 0x2000
 };
 
-
 var _PropertyPrecedence = {
     IsEnabled: 0,
     LocalValue: 1,
@@ -408,6 +407,23 @@ Number.isNumber = function (o) {
 };
 String.isString = function (o) {
     return typeof o == "string";
+};
+String.contains = function (str, match) {
+    if (!str)
+        return false;
+    if (!match)
+        return false;
+    var j = 0;
+    for (var i = 0; i < str.length && j < match.length; i++) {
+        if (str.charAt(i) === match.charAt(j))
+            j++;
+        else
+            j = 0;
+    }
+    return j >= match.length;
+};
+String.format = function (culture, format, str) {
+    return str;
 };
 function IsDocumentReady() {
     return false;
@@ -2426,7 +2442,29 @@ BindingExpressionBase.prototype._ConvertFromSourceToTarget = function (value) {
     return value;
 };
 BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
-    NotImplemented("BindingExpressionBase._ConvertToType");
+    try {
+        if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter() != null) {
+            value = this.GetBinding().GetConverter().Convert(value, this.GetProperty().GetTargetType(), this.GetBinding().GetConverterParameter(), {});
+        }
+        if (value === DependencyProperty.UnsetValue || this.GetPropertyPathWalker().GetIsPathBroken()) {
+            value = this.GetBinding().GetFallbackValue();
+            if (value == null)
+                value = propd.GetDefaultValue(this.GetTarget());
+        } else if (value == null) {
+            value = this.GetBinding().GetTargetNullValue();
+            if (value == null && this.GetIsBoundToAnyDataContext() && !this.GetBinding().GetPath().GetPath())
+                value = propd.GetDefaultValue(this.GetTarget());
+        } else {
+            var format = this.GetBinding().GetStringFormat();
+            if (format) {
+                if (!String.contains(format, "{0"))
+                    format = "{0:" + format + "}";
+                value = String.format({}, format, value);
+            }
+        }
+    } catch (err) {
+        return Fayde.TypeConverter.ConvertObject(propd, this.GetBinding().GetFallbackValue(), this.GetTarget().constructor, true);
+    }
     return value;
 };
 BindingExpressionBase.prototype._AttachToNotifyError = function (element) {
@@ -2725,7 +2763,7 @@ _PropertyPath.prototype.TryResolveDependencyProperty = function (dobj) {
         return;
     this._Propd = dobj.GetDependencyProperty(this.GetPath());
 };
-_PropertyPath.prototype.GetDependencyProperty  = function () {
+_PropertyPath.prototype.GetDependencyProperty = function () {
     return this._Propd;
 };
 _PropertyPath.prototype.GetPath = function () {
@@ -4757,8 +4795,10 @@ Binding.prototype.SetRelativeSource = function (/* RelativeSource */value) {
         throw new InvalidOperationException("RelativeSource cannot be set if either ElementName or Source is set");
     this._RelativeSource = value;
 };
-Binding.prototype.GetPath = function () { return this._Path; };
-Binding.prototype.SetPath = function (/* PropertyPath */value) {
+Binding.prototype.GetPath = function () {
+    return this._Path; 
+};
+Binding.prototype.SetPath = function (value) {
     this.CheckSealed();
     if (value.HasDependencyProperty())
         throw new ArgumentException("PropertyPaths which are instantiated with a DependencyProperty are not supported");

@@ -1,6 +1,5 @@
 Controls/Enums.js
 Core/Enums.js
-Core/TypeConverter.js
 Core/PropertyValueProviders/Enums.js
 Data/Enums.js
 Engine/Debug.js

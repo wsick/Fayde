@@ -34,10 +34,12 @@ _PropertyPath.prototype.TryResolveDependencyProperty = function (dobj) {
 
 //#region PROPERTIES
 
-_PropertyPath.prototype.GetDependencyProperty  = function () {
+_PropertyPath.prototype.GetDependencyProperty = function () {
+    /// <returns type="DependencyProperty" />
     return this._Propd;
 };
 _PropertyPath.prototype.GetPath = function () {
+    /// <returns type="String" />
     return this._Propd == null ? this._Path : "(0)";
 };
 _PropertyPath.prototype.GetExpandedPath = function () {

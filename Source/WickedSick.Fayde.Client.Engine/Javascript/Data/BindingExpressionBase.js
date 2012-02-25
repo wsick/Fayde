@@ -3,7 +3,6 @@
 /// <reference path="../Core/Expression.js"/>
 /// CODE
 
-
 //#region BindingExpressionBase
 
 function BindingExpressionBase(binding, target, propd) {
@@ -183,8 +182,42 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
     }
     this._MaybeEmitError(dataError, exception);
 };
-BindingExpressionBase.prototype._MaybeEmitError = function (dataError, exception) {
-    NotImplemented("BindingExpressionBase._MaybeEmitError");
+BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) {
+    /// <param name="message" type="String"></param>
+    /// <param name="exception" type="Exception"></param>
+    var fe = RefObject.As(this.GetTarget(), FrameworkElement);
+    if (fe == null)
+        fe = this.GetTarget().GetMentor();
+    if (fe == null)
+        return;
+
+    if (String.isString(message) && message === "")
+        message = null;
+
+    var oldError = this.GetCurrentError();
+    if (message != null)
+        this.SetCurrentError(new ValidationError(message, null));
+    else if (exception != null)
+        this.SetCurrentError(new ValidationError(null, exception));
+    else
+        this.SetCurrentError(null);
+
+    if (oldError != null && this.GetCurrentError() != null) {
+        Validation.AddError(fe, this.GetCurrentError());
+        Validation.RemoveError(fe, oldError);
+        if (this.GetBinding().GetNotifyOnValidationError()) {
+            fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
+            fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
+        }
+    } else if (oldError != null) {
+        Validation.RemoveError(fe, oldError);
+        if (this.GetBinding().GetNotifyOnValidationError())
+            fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
+    } else if (this.GetCurrentError() != null) {
+        Validation.AddError(fe, this.GetCurrentError());
+        if (this.GetBinding().GetNotifyOnValidationError())
+            fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
+    }
 };
 
 BindingExpressionBase.prototype._ConvertFromTargetToSource = function (value) {
@@ -196,7 +229,29 @@ BindingExpressionBase.prototype._ConvertFromSourceToTarget = function (value) {
     return value;
 };
 BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
-    NotImplemented("BindingExpressionBase._ConvertToType");
+    try {
+        if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter() != null) {
+            value = this.GetBinding().GetConverter().Convert(value, this.GetProperty().GetTargetType(), this.GetBinding().GetConverterParameter(), {});
+        }
+        if (value === DependencyProperty.UnsetValue || this.GetPropertyPathWalker().GetIsPathBroken()) {
+            value = this.GetBinding().GetFallbackValue();
+            if (value == null)
+                value = propd.GetDefaultValue(this.GetTarget());
+        } else if (value == null) {
+            value = this.GetBinding().GetTargetNullValue();
+            if (value == null && this.GetIsBoundToAnyDataContext() && !this.GetBinding().GetPath().GetPath())
+                value = propd.GetDefaultValue(this.GetTarget());
+        } else {
+            var format = this.GetBinding().GetStringFormat();
+            if (format) {
+                if (!String.contains(format, "{0"))
+                    format = "{0:" + format + "}";
+                value = String.format({}, format, value);
+            }
+        }
+    } catch (err) {
+        return Fayde.TypeConverter.ConvertObject(propd, this.GetBinding().GetFallbackValue(), this.GetTarget().constructor, true);
+    }
     return value;
 };
 

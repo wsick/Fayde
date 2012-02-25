@@ -92,6 +92,24 @@ Number.isNumber = function (o) {
 String.isString = function (o) {
     return typeof o == "string";
 };
+String.contains = function (str, match) {
+    if (!str)
+        return false;
+    if (!match)
+        return false;
+    var j = 0;
+    for (var i = 0; i < str.length && j < match.length; i++) {
+        if (str.charAt(i) === match.charAt(j))
+            j++;
+        else
+            j = 0;
+    }
+    return j >= match.length;
+};
+String.format = function (culture, format, str) {
+    //TODO: Implement
+    return str;
+};
 
 function IsDocumentReady() {
     /// <returns type="Boolean" />
