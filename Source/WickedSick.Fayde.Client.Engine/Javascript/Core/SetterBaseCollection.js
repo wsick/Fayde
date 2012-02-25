@@ -57,7 +57,32 @@ SetterBaseCollection.prototype.IsElementType = function (value) {
 };
 
 SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
-    NotImplemented("SetterBaseCollection._ValidateSetter");
+    var s;
+    if (value instanceof Setter) {
+        s = RefObject.As(value, Setter);
+        if (s.GetValue(Setter.PropertyProperty) == null) {
+            error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
+            return false;
+        }
+        if (s.ReadLocalValue(Setter.ValueProperty) == null) {
+            error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
+            return false;
+        }
+    }
+
+    if (value instanceof SetterBase) {
+        s = RefObject.As(value, SetterBase);
+        if (s.GetAttached()) {
+            error.SetErrored(BError.InvalidOperation, "Setter is currently attached to another style");
+            return false;
+        }
+    }
+
+    if (this.GetIsSealed()) {
+        error.SetErrored(BError.Exception, "Cannot add a setter to a sealed style");
+        return false;
+    }
+
     return true;
 };
 

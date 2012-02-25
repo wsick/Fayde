@@ -22,6 +22,7 @@ function _DeepStyleWalker(styles) {
 _DeepStyleWalker.InheritFrom(RefObject);
 
 _DeepStyleWalker.prototype.Step = function () {
+    /// <returns type="Setter" />
     if (this._Offset < this._Setters.length) {
         var s = this._Setters[this._Offset];
         this._Offset++;
@@ -85,8 +86,8 @@ _DeepStyleWalker.prototype._InitializeStyles = function (styles) {
 _DeepStyleWalker.SetterSort = function (setter1, setter2) {
     /// <param name="setter1" type="Setter"></param>
     /// <param name="setter2" type="Setter"></param>
-    var a = setter1.GetProperty();
-    var b = setter2.GetProperty();
+    var a = setter1.GetValue(Setter.PropertyProperty);
+    var b = setter2.GetValue(Setter.PropertyProperty);
     return (a === b) ? 0 : ((a > b) ? 1 : -1);
 };
 

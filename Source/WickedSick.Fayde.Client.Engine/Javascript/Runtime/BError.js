@@ -28,3 +28,4 @@ BError.UnauthorizedAccess = 1;
 BError.Argument = 2;
 BError.InvalidOperation = 3;
 BError.Exception = 4;
+BError.XamlParseException = 5;

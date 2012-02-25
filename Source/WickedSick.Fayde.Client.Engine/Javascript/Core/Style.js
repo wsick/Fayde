@@ -2,6 +2,7 @@
 /// <reference path="DependencyObject.js"/>
 /// CODE
 /// <reference path="SetterBaseCollection.js"/>
+/// <reference path="Core.js"/>
 
 //#region Style
 
@@ -52,20 +53,37 @@ Style.prototype._Seal = function () {
     if (this.GetIsSealed())
         return;
 
-    var app = App.Instance;
-    if (!app)
-        return;
-
-    app.ConvertSetterValues(this);
+    this._ConvertSetterValues();
     this.SetValue(Style.IsSealedProperty, true);
-    var setters = this.GetSetters();
-    for (var i = 0; i < setters.length; i++) {
-        setters[i]._Seal();
-    }
+    this.GetSetters()._Seal();
 
     var base = this.GetBasedOn();
-    if (base)
+    if (base != null)
         base._Seal();
+};
+Style.prototype._ConvertSetterValues = function () {
+    var setters = this.GetSetters();
+    for (var i = 0; i < setters.GetCount(); i++) {
+        this._ConvertSetterValue(setters.GetValueAt(i));
+    }
+};
+Style.prototype._ConvertSetterValue = function (setter) {
+    /// <param name="setter" type="Setter"></param>
+    var propd = setter.GetValue(Setter.PropertyProperty);
+    var val = setter.GetValue(Setter.ValueProperty);
+
+    if (propd.GetTargetType() === String) {
+        //if (val == null)
+        //throw new ArgumentException("Empty value in setter.");
+        if (!String.isString(val))
+            throw new XamlParseException("Setter value does not match property type.");
+    }
+
+    try {
+        setter.SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.GetTargetType(), true));
+    } catch (err) {
+        throw new XamlParseException(err.message);
+    }
 };
 
 Style.prototype._AddSetter = function (dobj, propName, value) {

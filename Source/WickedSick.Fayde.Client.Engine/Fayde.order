@@ -1,5 +1,6 @@
 Controls/Enums.js
 Core/Enums.js
+Core/TypeConverter.js
 Core/PropertyValueProviders/Enums.js
 Data/Enums.js
 Engine/Debug.js
@@ -17,6 +18,7 @@ TextLayout/WordBreakOp.js
 Controls/GridLength.js
 Controls/TextBoxModelChangedEventArgs.js
 Core/BindingOperations.js
+Core/Core.js
 Core/DeepStyleWalker.js
 Core/DeepTreeWalker.js
 Core/DependencyProperty.js

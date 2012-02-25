@@ -35,6 +35,7 @@ var UIElementFlags = {
     DirtySizeHint: 0x2000
 };
 
+
 var _PropertyPrecedence = {
     IsEnabled: 0,
     LocalValue: 1,
@@ -404,6 +405,9 @@ Array.removeRefObject = function (arr, ro) {
 };
 Number.isNumber = function (o) {
     return typeof o == "number";
+};
+String.isString = function (o) {
+    return typeof o == "string";
 };
 function IsDocumentReady() {
     return false;
@@ -1390,6 +1394,25 @@ BindingOperations.SetBinding = function (target, dp, binding) {
     return e;
 };
 
+function Fayde() {
+    RefObject.call(this);
+}
+Fayde.InheritFrom(RefObject);
+Fayde.TypeConverter = {};
+Fayde.TypeConverter.ConvertObject = function (propd, val, objectType, doStringConversion) {
+    if (val == null)
+        return val;
+    if (val instanceof propd.GetTargetType())
+        return val;
+    if (propd.GetTargetType() === String)
+        return doStringConversion ? val.toString() : "";
+    var tc;
+    if (propd._IsAttached) {
+    } else {
+    }
+    return val;
+};
+
 function _DeepStyleWalker(styles) {
     RefObject.call(this);
     if (!IsDocumentReady())
@@ -1458,8 +1481,8 @@ _DeepStyleWalker.prototype._InitializeStyles = function (styles) {
     this._Setters.sort(_DeepStyleWalker.SetterSort);
 };
 _DeepStyleWalker.SetterSort = function (setter1, setter2) {
-    var a = setter1.GetProperty();
-    var b = setter2.GetProperty();
+    var a = setter1.GetValue(Setter.PropertyProperty);
+    var b = setter2.GetValue(Setter.PropertyProperty);
     return (a === b) ? 0 : ((a > b) ? 1 : -1);
 };
 
@@ -1858,7 +1881,49 @@ TemplateBindingExpression.prototype.SetListener = function (value) {
 function Validators() {
 }
 Validators.StyleValidator = function (instance, propd, value, error) {
-    NotImplemented("Validators.StyleValidator");
+    var parentType = instance.constructor;
+    var errorMessage = null;
+    if (value != null) {
+        var root = null;
+        var style = RefObject.As(value, Style);
+        if (style.GetIsSealed()) {
+            if (parentType.DoesInheritFrom(style.GetTargetType())) {
+                error.SetErrored(BError.XamlParseException, "Style.TargetType (" + style.GetTargetType().GetName() + ") is not a subclass of (" + parentType.GetName() + ")");
+                return false;
+            }
+            return true;
+        }
+        var cycles = new Array();
+        root = style;
+        while (root != null) {
+            if (cycles[root._ID]) {
+                error.SetErrored(BError.InvalidOperation, "Circular reference in Style.BasedOn");
+                return false;
+            }
+            cycles[root._ID] = true;
+            root = root.GetBasedOn();
+        }
+        cycles = null;
+        root = style;
+        while (root != null) {
+            var targetType = root.GetTargetType();
+            if (RefObject.RefEquals(root, style)) {
+                if (targetType == null) {
+                    error.SetErrored(BError.InvalidOperation, "TargetType cannot be null");
+                    return false;
+                } else if (!(parentType.DoesInheritFrom(targetType))) {
+                    error.SetErrored(BError.XamlParseException, "Style.TargetType (" + targetType.GetName() + ") is not a subclass of (" + parentType.GetName() + ")");
+                    return false;
+                }
+            } else if (targetType == null || !(parentType.DoesInheritFrom(targetType))) {
+                error.SetErrored(BError.InvalidOperation, "Style.TargetType (" + (targetType ? targetType.GetName() : "<Not Specified>") + ") is not a subclass of (" + parentType.GetName() + ")");
+                return false;
+            }
+            parentType = targetType;
+            root = root.GetBasedOn();
+        }
+        style._Seal();
+    }
     return true;
 };
 
@@ -2124,10 +2189,10 @@ _StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, 
     var walker = new _DeepStyleWalker(this._Style);
     var setter;
     while (setter = walker.Step()) {
-        walkPropd = setter.GetValue_Prop();
+        walkPropd = setter.GetValue(Setter.PropertyProperty);
         if (walkPropd != propd)
             continue;
-        newValue = setter.GetValue_Prop();
+        newValue = setter.GetValue(Setter.ConvertedValueProperty);
         oldValue = this._ht[propd];
         this._ht[propd] = newValue;
         this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
@@ -2150,21 +2215,21 @@ _StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
         if (newSetter)
             newProp = newSetter.GetProperty();
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-            oldValue = oldSetter.GetValue_Prop();
+            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
             newValue = null;
             delete this._ht[oldProp];
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
         } else if (oldProp === newProp) {
-            oldValue = oldSetter.GetValue_Prop();
-            newValue = newSetter.GetValue_Prop();
+            oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
             this._ht[oldProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
             newSetter = newWalker.Step();
         } else {
             oldValue = null;
-            newValue = newSetter.GetValue_Prop();
+            newValue = newSetter.GetValue(Setter.ConvertedValueProperty);
             this._ht[newProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
             newSetter = newWalker.Step();
@@ -3817,6 +3882,7 @@ BError.UnauthorizedAccess = 1;
 BError.Argument = 2;
 BError.InvalidOperation = 3;
 BError.Exception = 4;
+BError.XamlParseException = 5;
 
 function Dictionary() {
     RefObject.call(this);
@@ -6575,18 +6641,31 @@ Style.Annotations = {
 Style.prototype._Seal = function () {
     if (this.GetIsSealed())
         return;
-    var app = App.Instance;
-    if (!app)
-        return;
-    app.ConvertSetterValues(this);
+    this._ConvertSetterValues();
     this.SetValue(Style.IsSealedProperty, true);
-    var setters = this.GetSetters();
-    for (var i = 0; i < setters.length; i++) {
-        setters[i]._Seal();
-    }
+    this.GetSetters()._Seal();
     var base = this.GetBasedOn();
-    if (base)
+    if (base != null)
         base._Seal();
+};
+Style.prototype._ConvertSetterValues = function () {
+    var setters = this.GetSetters();
+    for (var i = 0; i < setters.GetCount(); i++) {
+        this._ConvertSetterValue(setters.GetValueAt(i));
+    }
+};
+Style.prototype._ConvertSetterValue = function (setter) {
+    var propd = setter.GetValue(Setter.PropertyProperty);
+    var val = setter.GetValue(Setter.ValueProperty);
+    if (propd.GetTargetType() === String) {
+        if (!String.isString(val))
+            throw new XamlParseException("Setter value does not match property type.");
+    }
+    try {
+        setter.SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.GetTargetType(), true));
+    } catch (err) {
+        throw new XamlParseException(err.message);
+    }
 };
 Style.prototype._AddSetter = function (dobj, propName, value) {
     this.GetSetters().Add(JsonParser.CreateSetter(dobj, propName, value));
@@ -8303,26 +8382,8 @@ function ObjectKeyFrame() {
 }
 ObjectKeyFrame.InheritFrom(KeyFrame);
 ObjectKeyFrame.KeyTimeProperty = DependencyProperty.RegisterFull("KeyTime", function () { return KeyTime; }, ObjectKeyFrame, KeyTime.CreateUniform(), null, { GetValue: function () { NotImplemented("KeyTime Coercer"); } });
-ObjectKeyFrame.prototype.GetKeyTime = function () {
-    return this.GetValue(ObjectKeyFrame.KeyTimeProperty);
-};
-ObjectKeyFrame.prototype.SetKeyTime = function (value) {
-    this.SetValue(ObjectKeyFrame.KeyTimeProperty, value);
-};
 ObjectKeyFrame.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, ObjectKeyFrame);
-ObjectKeyFrame.prototype.GetValue_Prop = function () {
-    return this.GetValue(ObjectKeyFrame.ValueProperty);
-};
-ObjectKeyFrame.prototype.SetValue_Prop = function (value) {
-    this.SetValue(ObjectKeyFrame.ValueProperty, value);
-};
 ObjectKeyFrame.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, ObjectKeyFrame);
-ObjectKeyFrame.prototype.GetConvertedValue = function () {
-    return this.GetValue(ObjectKeyFrame.ConvertedValueProperty);
-};
-ObjectKeyFrame.prototype.SetConvertedValue = function (value) {
-    this.SetValue(ObjectKeyFrame.ConvertedValueProperty, value);
-};
 
 function ObjectKeyFrameCollection() {
     KeyFrameCollection.call(this);
@@ -9562,19 +9623,7 @@ function Setter() {
 }
 Setter.InheritFrom(SetterBase);
 Setter.PropertyProperty = DependencyProperty.Register("Property", function () { return DependencyProperty; }, Setter);
-Setter.prototype.GetProperty = function () {
-    return this.GetValue(Setter.PropertyProperty);
-};
-Setter.prototype.SetProperty = function (value) {
-    this.SetValue(Setter.PropertyProperty, value);
-};
 Setter.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, Setter);
-Setter.prototype.GetValue_Prop = function () {
-    return this.GetValue(Setter.ValueProperty);
-};
-Setter.prototype.SetValue_Prop = function (value) {
-    this.SetValue(Setter.ValueProperty, value);
-};
 Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, Setter);
 
 function SetterBaseCollection() {
@@ -9617,7 +9666,29 @@ SetterBaseCollection.prototype.IsElementType = function (value) {
     return value instanceof SetterBase;
 };
 SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
-    NotImplemented("SetterBaseCollection._ValidateSetter");
+    var s;
+    if (value instanceof Setter) {
+        s = RefObject.As(value, Setter);
+        if (s.GetValue(Setter.PropertyProperty) == null) {
+            error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
+            return false;
+        }
+        if (s.ReadLocalValue(Setter.ValueProperty) == null) {
+            error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
+            return false;
+        }
+    }
+    if (value instanceof SetterBase) {
+        s = RefObject.As(value, SetterBase);
+        if (s.GetAttached()) {
+            error.SetErrored(BError.InvalidOperation, "Setter is currently attached to another style");
+            return false;
+        }
+    }
+    if (this.GetIsSealed()) {
+        error.SetErrored(BError.Exception, "Cannot add a setter to a sealed style");
+        return false;
+    }
     return true;
 };
 
@@ -9979,7 +10050,7 @@ ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
     var count = frames.GetCount();
     for (var i = 0; i < count; i++) {
         var frame = RefObject.As(frames.GetValueAt(i), ObjectKeyFrame);
-        var value = frame.GetValue_Prop();
+        var value = frame.GetValue(ObjectKeyFrame.ValueProperty);
         if (value == null) {
             frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
         } else {
@@ -10940,7 +11011,6 @@ StackPanel.prototype.SetOrientation = function (value) {
     this.SetValue(StackPanel.OrientationProperty, value);
 };
 StackPanel.prototype.MeasureOverride = function (constraint) {
-    Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
     if (this.GetOrientation() === Orientation.Vertical) {
@@ -10972,7 +11042,6 @@ StackPanel.prototype.MeasureOverride = function (constraint) {
     return measured;
 };
 StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
-    Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
     var arranged = arrangeSize;
     if (this.GetOrientation() === Orientation.Vertical)
         arranged.Height = 0;
@@ -11962,7 +12031,6 @@ Grid.prototype.GetRowDefinitions = function () {
     return this.GetValue(Grid.RowDefinitionsProperty);
 };
 Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
-    Info("Grid._MeasureOverrideWithError [" + this._TypeName + "]");
     var totalSize = availableSize.Copy();
     var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
@@ -12127,7 +12195,6 @@ Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
     return gridSize;
 };
 Grid.prototype._ArrangeOverrideWithError = function (finalSize, error) {
-    Info("Grid._ArrangeOverrideWithError [" + this._TypeName + "]");
     var columns = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var colCount = columns ? columns.GetCount() : 0;
@@ -12768,7 +12835,7 @@ TextBox.prototype.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,
         Props: {
-            TargetType: Button
+            TargetType: TextBox
         },
         Children: [
             {

@@ -75,6 +75,7 @@
     <Content Include="Javascript\Core\Collections\ResourceDictionary.js" />
     <Content Include="Javascript\Core\Collections\ResourceDictionaryCollection.js" />
     <Content Include="Javascript\Core\Collections\UIElementCollection.js" />
+    <Content Include="Javascript\Core\Core.js" />
     <Content Include="Javascript\Core\DataTemplate.js" />
     <Content Include="Javascript\Core\Collections\DependencyObjectCollection.js" />
     <Content Include="Javascript\Core\DeepStyleWalker.js" />

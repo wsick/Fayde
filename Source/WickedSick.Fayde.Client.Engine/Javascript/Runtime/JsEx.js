@@ -89,6 +89,10 @@ Number.isNumber = function (o) {
     return typeof o == "number";
 };
 
+String.isString = function (o) {
+    return typeof o == "string";
+};
+
 function IsDocumentReady() {
     /// <returns type="Boolean" />
     return false;

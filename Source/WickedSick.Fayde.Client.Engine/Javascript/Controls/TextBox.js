@@ -368,7 +368,7 @@ TextBox.prototype.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,
         Props: {
-            TargetType: Button
+            TargetType: TextBox
         },
         Children: [
             {

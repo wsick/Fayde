@@ -30,7 +30,7 @@ ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
     var count = frames.GetCount();
     for (var i = 0; i < count; i++) {
         var frame = RefObject.As(frames.GetValueAt(i), ObjectKeyFrame);
-        var value = frame.GetValue_Prop();
+        var value = frame.GetValue(ObjectKeyFrame.ValueProperty);
         if (value == null) {
             frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
         } else {

@@ -81,7 +81,7 @@ Grid.prototype.GetRowDefinitions = function () {
 //#region INSTANCE METHODS
 
 Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
-    Info("Grid._MeasureOverrideWithError [" + this._TypeName + "]");
+    //Info("Grid._MeasureOverrideWithError [" + this._TypeName + "]");
     var totalSize = availableSize.Copy();
     var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
@@ -271,7 +271,7 @@ Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
     return gridSize;
 };
 Grid.prototype._ArrangeOverrideWithError = function (finalSize, error) {
-    Info("Grid._ArrangeOverrideWithError [" + this._TypeName + "]");
+    //Info("Grid._ArrangeOverrideWithError [" + this._TypeName + "]");
     var columns = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
 
