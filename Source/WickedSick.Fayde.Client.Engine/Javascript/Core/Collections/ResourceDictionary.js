@@ -140,7 +140,24 @@ ResourceDictionary.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
 };
 
 ResourceDictionary._CanBeAddedTwice = function (value) {
-    NotImplemented("ResourceDictionary._CanBeAddedTwice");
+    //TODO: Uncomment when implemented
+    var twices = [
+        FrameworkTemplate,
+        Style,
+        //StrokeCollection,
+        //DrawingAttributes,
+        //Transform,
+        Brush,
+        //StylusPointCollection,
+        //BitmapImage,
+        //Stroke,
+        //Invalid
+    ];
+
+    for (var i = 0; i < twices.length; i++) {
+        if (value instanceof twices[i])
+            return true;
+    }
     return true;
 };
 

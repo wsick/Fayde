@@ -42,10 +42,13 @@ AnimationStorage.prototype.SetStopValue = function (value) {
 };
 
 AnimationStorage.prototype.Enable = function () {
-    NotImplemented("AnimationStorage.Enable");
+    //Attach target handler
+    this._Disabled = false;
+    this.ApplyCurrentValue();
 };
 AnimationStorage.prototype.Disable = function () {
-    NotImplemented("AnimationStorage.Disable");
+    //Detach target handler
+    this._Disabled = true;
 };
 
 AnimationStorage.prototype.Stop = function () {
@@ -64,6 +67,8 @@ AnimationStorage.prototype.ResetPropertyValue = function () {
 };
 
 AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {
+    if (this._Disabled)
+        return;
     if (this._TargetObj == null)
         return;
     this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this._StopValue !== undefined ? this._StopValue : this._BaseValue, progress);

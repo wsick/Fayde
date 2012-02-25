@@ -2430,8 +2430,37 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
     }
     this._MaybeEmitError(dataError, exception);
 };
-BindingExpressionBase.prototype._MaybeEmitError = function (dataError, exception) {
-    NotImplemented("BindingExpressionBase._MaybeEmitError");
+BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) {
+    var fe = RefObject.As(this.GetTarget(), FrameworkElement);
+    if (fe == null)
+        fe = this.GetTarget().GetMentor();
+    if (fe == null)
+        return;
+    if (String.isString(message) && message === "")
+        message = null;
+    var oldError = this.GetCurrentError();
+    if (message != null)
+        this.SetCurrentError(new ValidationError(message, null));
+    else if (exception != null)
+        this.SetCurrentError(new ValidationError(null, exception));
+    else
+        this.SetCurrentError(null);
+    if (oldError != null && this.GetCurrentError() != null) {
+        Validation.AddError(fe, this.GetCurrentError());
+        Validation.RemoveError(fe, oldError);
+        if (this.GetBinding().GetNotifyOnValidationError()) {
+            fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
+            fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
+        }
+    } else if (oldError != null) {
+        Validation.RemoveError(fe, oldError);
+        if (this.GetBinding().GetNotifyOnValidationError())
+            fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
+    } else if (this.GetCurrentError() != null) {
+        Validation.AddError(fe, this.GetCurrentError());
+        if (this.GetBinding().GetNotifyOnValidationError())
+            fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
+    }
 };
 BindingExpressionBase.prototype._ConvertFromTargetToSource = function (value) {
     NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
@@ -3221,10 +3250,11 @@ AnimationStorage.prototype.SetStopValue = function (value) {
     this._StopValue = value;
 };
 AnimationStorage.prototype.Enable = function () {
-    NotImplemented("AnimationStorage.Enable");
+    this._Disabled = false;
+    this.ApplyCurrentValue();
 };
 AnimationStorage.prototype.Disable = function () {
-    NotImplemented("AnimationStorage.Disable");
+    this._Disabled = true;
 };
 AnimationStorage.prototype.Stop = function () {
     this.DetachFromObject();
@@ -3241,6 +3271,8 @@ AnimationStorage.prototype.ResetPropertyValue = function () {
     this._TargetObj.SetValue(this._TargetProp, this.GetStopValue());
 };
 AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {
+    if (this._Disabled)
+        return;
     if (this._TargetObj == null)
         return;
     this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this._StopValue !== undefined ? this._StopValue : this._BaseValue, progress);
@@ -7608,7 +7640,15 @@ ResourceDictionary.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
     Collection.prototype._UnregisterAllNamesRootedAt.call(this, fromNs);
 };
 ResourceDictionary._CanBeAddedTwice = function (value) {
-    NotImplemented("ResourceDictionary._CanBeAddedTwice");
+    var twices = [
+        FrameworkTemplate,
+        Style,
+        Brush,
+    ];
+    for (var i = 0; i < twices.length; i++) {
+        if (value instanceof twices[i])
+            return true;
+    }
     return true;
 };
 
@@ -8689,8 +8729,6 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
     if (RefObject.RefEquals(lastState, state))
         return true;
     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
-    var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
-    dynamicTransition.SetValue(Control.IsTemplateItemProperty, true);
     if (transition == null || (transition.GetGeneratedDuration().IsZero() && (transition.GetStoryboard() == null || transition.GetStoryboard().GetDuration().IsZero()))) {
         if (transition != null && transition.GetStoryboard() != null) {
             group.StartNewThenStopOld(element, [transition.GetStoryboard(), state.GetStoryboard()]);
@@ -8700,6 +8738,8 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
         group.RaiseCurrentStateChanging(element, lastState, state, control);
         group.RaiseCurrentStateChanged(element, lastState, state, control);
     } else {
+        var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
+        dynamicTransition.SetValue(Control.IsTemplateItemProperty, true);
         var eventClosure = new RefObject();
         transition.SetDynamicStoryboardCompleted(false);
         var dynamicCompleted = function (sender, e) {
@@ -8748,12 +8788,57 @@ VisualStateManager._TryGetState = function (groups, stateName, data) {
     return false;
 };
 VisualStateManager._GetTransition = function (element, group, from, to) {
-    NotImplemented("VisualStateManager._GetTransition");
-    return null;
+    if (element == null)
+        throw new ArgumentException("element");
+    if (group == null)
+        throw new ArgumentException("group");
+    if (to == null)
+        throw new ArgumentException("to");
+    var best = null;
+    var defaultTransition = null;
+    var bestScore = -1;
+    var transitions = group.GetTransitions();
+    if (transitions != null) {
+        var transition;
+        for (var i = 0; i < transitions.GetCount(); i++) {
+            transition = transitions.GetValueAt(i);
+            if (defaultTransition == null && transition.GetIsDefault()) {
+                defaultTransition = transition;
+                continue;
+            }
+            var score = -1;
+            var transFromState = group.GetState(transition.GetFrom());
+            var transToState = group.GetState(transition.GetTo());
+            if (RefObject.RefEquals(from, transFromState))
+                score += 1;
+            else if (transFromState != null)
+                continue;
+            if (RefObject.RefEquals(to, transToState))
+                score += 2;
+            else if (transToState != null)
+                continue;
+            if (score > bestScore) {
+                bestScore = score;
+                best = transition;
+            }
+        }
+    }
+    if (best != null)
+        return best;
+    return defaultTransition;
 };
 VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group, state, transition) {
+    var dynamic = new Storyboard();
+    if (transition != null) {
+        dynamic.SetDuration(transition.GetGeneratedDuration());
+    } else {
+        dynamic.SetDuration(new Duration(0));
+    }
+    var currentAnimations; //FlattenTimelines
+    var transitionAnimations; //FlattenTimelines
+    var newStateAnimations; //FlattenTimelines
     NotImplemented("VisualStateManager._GenerateDynamicTransitionAnimations");
-    return new Storyboard();
+    return dynamic;
 };
 
 function VisualTransition() {

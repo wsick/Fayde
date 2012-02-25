@@ -102,10 +102,6 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
         return true;
 
     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
-
-    var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
-    dynamicTransition.SetValue(Control.IsTemplateItemProperty, true);
-
     if (transition == null || (transition.GetGeneratedDuration().IsZero() && (transition.GetStoryboard() == null || transition.GetStoryboard().GetDuration().IsZero()))) {
         if (transition != null && transition.GetStoryboard() != null) {
             group.StartNewThenStopOld(element, [transition.GetStoryboard(), state.GetStoryboard()]);
@@ -115,6 +111,9 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
         group.RaiseCurrentStateChanging(element, lastState, state, control);
         group.RaiseCurrentStateChanged(element, lastState, state, control);
     } else {
+        var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
+        dynamicTransition.SetValue(Control.IsTemplateItemProperty, true);
+
         var eventClosure = new RefObject();
         transition.SetDynamicStoryboardCompleted(false);
         var dynamicCompleted = function (sender, e) {
@@ -177,8 +176,48 @@ VisualStateManager._GetTransition = function (element, group, from, to) {
     /// <param name="from" type="VisualState"></param>
     /// <param name="to" type="VisualState"></param>
     /// <returns type="VisualTransition" />
-    NotImplemented("VisualStateManager._GetTransition");
-    return null;
+    if (element == null)
+        throw new ArgumentException("element");
+    if (group == null)
+        throw new ArgumentException("group");
+    if (to == null)
+        throw new ArgumentException("to");
+
+    var best = null;
+    var defaultTransition = null;
+    var bestScore = -1;
+
+    var transitions = group.GetTransitions();
+    if (transitions != null) {
+        var transition;
+        for (var i = 0; i < transitions.GetCount(); i++) {
+            transition = transitions.GetValueAt(i);
+            if (defaultTransition == null && transition.GetIsDefault()) {
+                defaultTransition = transition;
+                continue;
+            }
+            var score = -1;
+            var transFromState = group.GetState(transition.GetFrom());
+            var transToState = group.GetState(transition.GetTo());
+            if (RefObject.RefEquals(from, transFromState))
+                score += 1;
+            else if (transFromState != null)
+                continue;
+
+            if (RefObject.RefEquals(to, transToState))
+                score += 2;
+            else if (transToState != null)
+                continue;
+
+            if (score > bestScore) {
+                bestScore = score;
+                best = transition;
+            }
+        }
+    }
+    if (best != null)
+        return best;
+    return defaultTransition;
 };
 VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group, state, transition) {
     /// <param name="root" type="FrameworkElement"></param>
@@ -186,8 +225,22 @@ VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group,
     /// <param name="state" type="VisualState"></param>
     /// <param name="transition" type="VisualTransition"></param>
     /// <returns type="Storyboard" />
+
+    var dynamic = new Storyboard();
+    if (transition != null) {
+        dynamic.SetDuration(transition.GetGeneratedDuration());
+    } else {
+        dynamic.SetDuration(new Duration(0));
+    }
+
+    var currentAnimations; //FlattenTimelines
+    var transitionAnimations; //FlattenTimelines
+    var newStateAnimations; //FlattenTimelines
+
+
+
     NotImplemented("VisualStateManager._GenerateDynamicTransitionAnimations");
-    return new Storyboard();
+    return dynamic;
 };
 
 //#endregion

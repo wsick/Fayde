@@ -235,7 +235,9 @@
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
     <Content Include="Styles\HyperlinkButton.xml" />
-    <Content Include="Styles\TextBox.xml" />
+    <Content Include="Styles\TextBox.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\Button.xml" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
