@@ -46,7 +46,7 @@ _RenderContext.prototype.Save = function () {
     this._Transforms.push({ Current: this._CurrentTransform, Inverse: this._InverseTransform });
     this._CurrentTransform = this._CurrentTransform == null ? new Matrix() : this._CurrentTransform.Copy();
     this._InverseTransform = this._InverseTransform == null ? new Matrix() : this._InverseTransform.Copy();
-}
+};
 _RenderContext.prototype.Restore = function () {
     var temp = this._Transforms.pop();
     this._CurrentTransform = temp.Current;
