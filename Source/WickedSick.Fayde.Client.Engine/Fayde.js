@@ -461,11 +461,8 @@ var _CharType = {
 };
 
 function RefObject() {
-    Object.call(this);
     RefObject._LastID = this._ID = RefObject._LastID + 1;
-    this._TypeName = RefObject.GetTypeName.call(this);
 }
-RefObject.InheritFrom(Object);
 RefObject._LastID = 0;
 RefObject.As = function (obj, type) {
     if (obj == null)
@@ -2951,7 +2948,7 @@ Clock._RequestAnimationFrame = (function () {
         window.oRequestAnimationFrame ||
         window.msRequestAnimationFrame ||
         function (callback) {
-            window.setTimeout(callback, 1000 / 60);
+            window.setTimeout(callback, 1000 / 200);
         };
 })();
 
@@ -3033,8 +3030,8 @@ _RenderContext.prototype._DrawClip = function (clip) {
 };
 _RenderContext.prototype.Transform = function (matrix) {
     matrix.Apply(this._Surface._Ctx);
-    this._CurrentTransform = matrix.Multiply(this._CurrentTransform);
-    this._InverseTransform = this._InverseTransform.Multiply(matrix.GetInverse());
+    this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
+    this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
 };
 _RenderContext.prototype.GetCurrentTransform = function () {
     return this._CurrentTransform;
@@ -3064,7 +3061,7 @@ _RenderContext.prototype.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
 };
 _RenderContext.prototype.CustomRender = function (painterFunc) {
-    var args = toArray.call(arguments);
+    var args = _RenderContext.ToArray(arguments);
     args.shift(); //remove painterFunc
     args.unshift(this._Surface._Ctx); //prepend canvas context
     painterFunc.apply(this, args);
@@ -3072,10 +3069,10 @@ _RenderContext.prototype.CustomRender = function (painterFunc) {
 _RenderContext.prototype.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;
 };
-function toArray() {
+_RenderContext.ToArray = function(args) {
     var arr = new Array();
-    for (var i in this)
-        arr.push(this[i]);
+    for (var i in args)
+        arr.push(args[i]);
     return arr;
 };
 
@@ -3511,40 +3508,37 @@ Matrix.prototype.Apply = function (ctx) {
     var elements = this.GetElements();
     ctx.transform(elements[0][0], elements[1][0], elements[0][1], elements[1][1], elements[0][2], elements[1][2]);
 };
-Matrix.prototype.Multiply = function (val) {
+Matrix.prototype.MultiplyMatrix = function (val) {
     var arr1 = this.GetElements();
-    if (val instanceof Point) {
-        var result = new Point();
-        val = [[val.X], [val.Y], [1]];
-        for (var i = 0; i < 3; i++) {
-            result.X += arr1[0][i] * val[i][0];
-            result.Y += arr1[1][i] * val[i][0];
-        }
-        return result;
-    }
-    if (val instanceof Matrix) {
-        var result = new Matrix();
-        var arr2 = val.GetElements();
-        for (var i = 0; i < arr1.length; i++) {
-            result[i] = new Array();
-            for (var j = 0; j < arr2.length; j++) {
-                var temp = 0;
-                for (var k = 0; k < arr2[j].length; k++) {
-                    temp += arr1[i][k] * arr2[k][j];
-                }
-                result.SetElement(i, j, temp);
+    var result = new Matrix();
+    var arr2 = val.GetElements();
+    for (var i = 0; i < arr1.length; i++) {
+        for (var j = 0; j < arr2.length; j++) {
+            var temp = 0;
+            for (var k = 0; k < arr2[j].length; k++) {
+                temp += arr1[i][k] * arr2[k][j];
             }
+            result._Elements[i][j] = temp;
         }
-        return result;
     }
-    NotImplemented("Matrix.Multiply");
+    return result;
+};
+Matrix.prototype.MultiplyPoint = function (val) {
+    var arr1 = this.GetElements();
+    var result = new Point();
+    val = [[val.X], [val.Y], [1]];
+    for (var i = 0; i < 3; i++) {
+        result.X += arr1[0][i] * val[i][0];
+        result.Y += arr1[1][i] * val[i][0];
+    }
+    return result;
 };
 Matrix.prototype.Copy = function () {
     var m = new Matrix();
     var els = this.GetElements();
     for (var i = 0; i < 3; i++) {
         for (var j = 0; j < 3; j++) {
-            m.SetElement(i, j, els[i][j]);
+            m._Elements[i][j] = els[i][j];
         }
     }
     return m;
@@ -3658,7 +3652,7 @@ function Point(x, y) {
 }
 Point.InheritFrom(RefObject);
 Point.prototype.Apply = function (matrix) {
-    return matrix.Multiply(this);
+    return matrix.MultiplyPoint(this);
 };
 Point.prototype.toString = function () {
     return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
@@ -7003,7 +6997,7 @@ UIElement.prototype._TransformPoint = function (p) {
     var inverse;
     if (!this._CachedTransform || !(inverse = this._CachedTransform.Inverse))
         return;
-    var np = inverse.Multiply(p);
+    var np = inverse.MultiplyPoint(p);
     p.X = np.X;
     p.Y = np.Y;
 };
@@ -8077,8 +8071,24 @@ function Brush() {
     DependencyObject.call(this);
 };
 Brush.InheritFrom(DependencyObject);
+Brush.ChangedProperty = DependencyProperty.Register("Changed", function () { return Boolean; }, Brush);
+Brush.prototype.GetChanged = function () {
+    return this.GetValue(Brush.ChangedProperty);
+};
+Brush.prototype.SetChanged = function (value) {
+    this.SetValue(Brush.ChangedProperty, value);
+};
 Brush.prototype._Translate = function (ctx) {
     AbstractMethod("Brush._Translate()");
+};
+Brush.prototype._OnSubPropertyChanged = function (sender, args) {
+    var newArgs = {
+        Property: Brush.ChangedProperty,
+        OldValue: false,
+        NewValue: true
+    };
+    this.PropertyChanged.Raise(this, newArgs);
+    DependencyObject.prototype._OnSubPropertyChanged.call(this, sender, args);
 };
 
 function Geometry() {

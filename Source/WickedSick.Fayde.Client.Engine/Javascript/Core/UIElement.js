@@ -321,10 +321,11 @@ UIElement.prototype._CanFindElement = function () {
     return false;
 };
 UIElement.prototype._TransformPoint = function (p) {
+    /// <param name="p" type="Point"></param>
     var inverse;
     if (!this._CachedTransform || !(inverse = this._CachedTransform.Inverse))
         return;
-    var np = inverse.Multiply(p);
+    var np = inverse.MultiplyPoint(p);
     p.X = np.X;
     p.Y = np.Y;
 };

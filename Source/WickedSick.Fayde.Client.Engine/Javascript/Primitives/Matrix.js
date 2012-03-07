@@ -19,40 +19,37 @@ Matrix.prototype.Apply = function (ctx) {
     var elements = this.GetElements();
     ctx.transform(elements[0][0], elements[1][0], elements[0][1], elements[1][1], elements[0][2], elements[1][2]);
 };
-Matrix.prototype.Multiply = function (val) {
+Matrix.prototype.MultiplyMatrix = function (val) {
     var arr1 = this.GetElements();
-    if (val instanceof Point) {
-        var result = new Point();
-        val = [[val.X], [val.Y], [1]];
-        for (var i = 0; i < 3; i++) {
-            result.X += arr1[0][i] * val[i][0];
-            result.Y += arr1[1][i] * val[i][0];
-        }
-        return result;
-    }
-    if (val instanceof Matrix) {
-        var result = new Matrix();
-        var arr2 = val.GetElements();
-        for (var i = 0; i < arr1.length; i++) {
-            result[i] = new Array();
-            for (var j = 0; j < arr2.length; j++) {
-                var temp = 0;
-                for (var k = 0; k < arr2[j].length; k++) {
-                    temp += arr1[i][k] * arr2[k][j];
-                }
-                result.SetElement(i, j, temp);
+    var result = new Matrix();
+    var arr2 = val.GetElements();
+    for (var i = 0; i < arr1.length; i++) {
+        for (var j = 0; j < arr2.length; j++) {
+            var temp = 0;
+            for (var k = 0; k < arr2[j].length; k++) {
+                temp += arr1[i][k] * arr2[k][j];
             }
+            result._Elements[i][j] = temp;
         }
-        return result;
     }
-    NotImplemented("Matrix.Multiply");
+    return result;
+};
+Matrix.prototype.MultiplyPoint = function (val) {
+    var arr1 = this.GetElements();
+    var result = new Point();
+    val = [[val.X], [val.Y], [1]];
+    for (var i = 0; i < 3; i++) {
+        result.X += arr1[0][i] * val[i][0];
+        result.Y += arr1[1][i] * val[i][0];
+    }
+    return result;
 };
 Matrix.prototype.Copy = function () {
     var m = new Matrix();
     var els = this.GetElements();
     for (var i = 0; i < 3; i++) {
         for (var j = 0; j < 3; j++) {
-            m.SetElement(i, j, els[i][j]);
+            m._Elements[i][j] = els[i][j];
         }
     }
     return m;

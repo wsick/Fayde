@@ -11,8 +11,9 @@ function Point(x, y) {
 Point.InheritFrom(RefObject);
 
 Point.prototype.Apply = function (matrix) {
+    /// <param name="matrix" type="Matrix"></param>
     /// <returns type="Point" />
-    return matrix.Multiply(this);
+    return matrix.MultiplyPoint(this);
 };
 Point.prototype.toString = function () {
     return "X=" + this.X.toString() + ";Y=" + this.Y.toString();

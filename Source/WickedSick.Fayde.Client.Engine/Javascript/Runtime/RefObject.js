@@ -3,11 +3,9 @@
 //#region RefObject
 
 function RefObject() {
-    Object.call(this);
     RefObject._LastID = this._ID = RefObject._LastID + 1;
-    this._TypeName = RefObject.GetTypeName.call(this);
+    //this._TypeName = RefObject.GetTypeName.call(this);
 }
-RefObject.InheritFrom(Object);
 
 RefObject._LastID = 0;
 RefObject.As = function (obj, type) {

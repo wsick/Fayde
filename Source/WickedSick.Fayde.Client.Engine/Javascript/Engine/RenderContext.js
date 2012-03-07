@@ -32,8 +32,8 @@ _RenderContext.prototype._DrawClip = function (clip) {
 };
 _RenderContext.prototype.Transform = function (matrix) {
     matrix.Apply(this._Surface._Ctx);
-    this._CurrentTransform = matrix.Multiply(this._CurrentTransform);
-    this._InverseTransform = this._InverseTransform.Multiply(matrix.GetInverse());
+    this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
+    this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
 };
 _RenderContext.prototype.GetCurrentTransform = function () {
     return this._CurrentTransform;
@@ -63,7 +63,7 @@ _RenderContext.prototype.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
 };
 _RenderContext.prototype.CustomRender = function (painterFunc) {
-    var args = toArray.call(arguments);
+    var args = _RenderContext.ToArray(arguments);
     args.shift(); //remove painterFunc
     args.unshift(this._Surface._Ctx); //prepend canvas context
     painterFunc.apply(this, args);
@@ -71,10 +71,11 @@ _RenderContext.prototype.CustomRender = function (painterFunc) {
 _RenderContext.prototype.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;
 };
-function toArray() {
+
+_RenderContext.ToArray = function(args) {
     var arr = new Array();
-    for (var i in this)
-        arr.push(this[i]);
+    for (var i in args)
+        arr.push(args[i]);
     return arr;
 };
 
