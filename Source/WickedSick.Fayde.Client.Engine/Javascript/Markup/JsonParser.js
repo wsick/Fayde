@@ -112,7 +112,7 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
 };
 
 JsonParser.Instance.GetAnnotationMember = function (type, member) {
-    if (type === RefObject)
+    if (type == null || !type._IsNullstone)
         return null;
     if (type.Annotations == null)
         return this.GetAnnotationMember(type._BaseClass, member);

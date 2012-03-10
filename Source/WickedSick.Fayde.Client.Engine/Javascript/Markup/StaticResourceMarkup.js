@@ -6,7 +6,6 @@
 var StaticResourceMarkup = Nullstone.Create("StaticResourceMarkup", Markup, 1);
 
 StaticResourceMarkup.Instance.Init = function (key) {
-    this.Init$Markup();
     this.Key = key;
 };
 

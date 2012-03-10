@@ -7,6 +7,7 @@
 var SolidColorBrush = Nullstone.Create("SolidColorBrush", Brush);
 
 SolidColorBrush.Instance.Init = function (args) {
+    this.Init$Brush();
     if (args.length === 1) {
         if (args[0] instanceof Color)
             this.SetColor(args[0]);

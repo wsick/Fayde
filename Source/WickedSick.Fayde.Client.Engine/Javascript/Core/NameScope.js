@@ -5,7 +5,8 @@
 //#region NameScope
 var NameScope = Nullstone.Create("NameScope", DependencyObject);
 
-NameScope.prototype.Init = function () {
+NameScope.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._IsLocked = false;
     this._Names = null;
     this._Temporary = false;
@@ -27,15 +28,15 @@ NameScope.SetNameScope = function (d, value) {
 
 //#endregion
 
-NameScope.prototype.GetIsLocked = function () {
+NameScope.Instance.GetIsLocked = function () {
     /// <returns type="Boolean" />
     return this._IsLocked;
 };
-NameScope.prototype.Lock = function () {
+NameScope.Instance.Lock = function () {
     this._IsLocked = true;
 };
 
-NameScope.prototype.RegisterName = function (name, obj) {
+NameScope.Instance.RegisterName = function (name, obj) {
     if (this.GetIsLocked())
         return;
     if (!this._Names)
@@ -52,7 +53,7 @@ NameScope.prototype.RegisterName = function (name, obj) {
     //TODO: Add Handler - Destroyed Event (obj)
     this._Names[name] = obj;
 };
-NameScope.prototype.UnregisterName = function (name) {
+NameScope.Instance.UnregisterName = function (name) {
     if (this.GetIsLocked())
         return;
     if (!this._Names)
@@ -64,7 +65,7 @@ NameScope.prototype.UnregisterName = function (name) {
         delete this._Names[name];
     }
 };
-NameScope.prototype.FindName = function (name) {
+NameScope.Instance.FindName = function (name) {
     /// <param name="name" type="String"></param>
     /// <returns type="DependencyObject" />
     if (!this._Names)
@@ -76,7 +77,7 @@ NameScope.prototype.FindName = function (name) {
     return this._Names[name];
 };
 
-NameScope.prototype._MergeTemporaryScope = function (temp, error) {
+NameScope.Instance._MergeTemporaryScope = function (temp, error) {
     if (!temp || !temp._Names)
         return;
 
@@ -93,10 +94,10 @@ NameScope.prototype._MergeTemporaryScope = function (temp, error) {
         this.RegisterName(name, temp._Names[name]);
     }
 };
-NameScope.prototype._GetTemporary = function () {
+NameScope.Instance._GetTemporary = function () {
     return this._Temporary;
 };
-NameScope.prototype._SetTemporary = function (value) {
+NameScope.Instance._SetTemporary = function (value) {
     this._Temporary = value;
 };
 

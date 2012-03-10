@@ -5,6 +5,10 @@
 //#region Brush
 var Brush = Nullstone.Create("Brush", DependencyObject);
 
+Brush.Instance.Init = function () {
+    this.Init$DependencyObject();
+};
+
 //#region Dependency Properties
 
 Brush.ChangedProperty = DependencyProperty.Register("Changed", function () { return Boolean; }, Brush);

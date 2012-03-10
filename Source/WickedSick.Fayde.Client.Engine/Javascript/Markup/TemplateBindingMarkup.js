@@ -6,7 +6,6 @@
 var TemplateBindingMarkup = Nullstone.Create("TemplateBindingMarkup", Markup, 1);
 
 TemplateBindingMarkup.Instance.Init = function (path) {
-    this.Init$Markup();
     this.Path = path;
 };
 
