@@ -64,7 +64,7 @@ DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isV
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
-            if (this._SetsParent && RefObject.RefEquals(value._GetParent(), this))
+            if (this._SetsParent && Nullstone.RefEquals(value._GetParent(), this))
                 value._RemoveParent(this, null);
             value._SetIsAttached(false);
         }

@@ -129,7 +129,7 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
         // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
         // Otherwise we only update if the textbox is unfocused.
         //TODO: FocusManager
-        //if (!force && this.GetIsTwoWayTextBoxText() && RefObject.RefEquals(FocusManager.GetFocusedElement(), this.GetTarget()))
+        //if (!force && this.GetIsTwoWayTextBoxText() && Nullstone.RefEquals(FocusManager.GetFocusedElement(), this.GetTarget()))
         //return;
 
         if (this.GetPropertyPathWalker().GetFinalNode().GetIsPathBroken())
@@ -137,7 +137,7 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
 
         if (this.GetBinding().GetTargetNullValue() != null) {
             try {
-                if (RefObject.RefEquals(this.GetBinding().GetTargetNullValue(), value))
+                if (Nullstone.RefEquals(this.GetBinding().GetTargetNullValue(), value))
                     value = null;
             } catch (err) {
                 //ignore

@@ -7,7 +7,7 @@ var UserControl = Nullstone.Create("UserControl", Control);
 
 //#region DEPENDENCY PROPERTIES
 
-UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, UserControl);
+UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
 UserControl.Instance.GetContent = function () {
     return this.GetValue(UserControl.ContentProperty);
 };

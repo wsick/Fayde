@@ -94,7 +94,7 @@ Surface.Instance._Attach = function (element) {
 };
 Surface.Instance._AttachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
-    if (RefObject.RefEquals(layer, this._TopLevel))
+    if (Nullstone.RefEquals(layer, this._TopLevel))
         this._Layers.Insert(0, layer);
     else
         this._Layers.Add(layer);
@@ -108,7 +108,7 @@ Surface.Instance._AttachLayer = function (layer) {
 Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
     this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
-    if (RefObject.RefEquals(element, this._TopLevel)) {
+    if (Nullstone.RefEquals(element, this._TopLevel)) {
         //TODO: this.Resize.Raise(this, null);
 
         element._UpdateTotalRenderVisibility();
@@ -126,7 +126,7 @@ Surface.Instance._IsTopLevel = function (top) {
     var count = this._Layers.GetCount();
     for (var i = 0; i < count && !ret; i++) {
         var layer = this._Layers.GetValueAt(i);
-        ret = RefObject.RefEquals(top, layer);
+        ret = Nullstone.RefEquals(top, layer);
     }
     return ret;
 };
@@ -506,7 +506,7 @@ Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
     outObj.Index2 = -1;
 
     while (ui1 != null && ui2 != null) {
-        if (RefObject.RefEquals(ui1.UIElement, ui2.UIElement)) {
+        if (Nullstone.RefEquals(ui1.UIElement, ui2.UIElement)) {
             outObj.Index1 = i1;
             outObj.Index2 = i2;
         } else {
@@ -532,7 +532,7 @@ Surface.Instance._EmitMouseList = function (type, button, pos, list, endIndex) {
 Surface.Instance.SetMouseCapture = function (uie) {
     /// <param name="uie" type="UIElement"></param>
     if (this._Captured || this._PendingCapture)
-        return RefObject.RefEquals(uie, this._Captured) || RefObject.RefEquals(uie, this._PendingCapture);
+        return Nullstone.RefEquals(uie, this._Captured) || Nullstone.RefEquals(uie, this._PendingCapture);
     if (!this._EmittingMouseEvent)
         return false;
     this._PendingCapture = uie;
@@ -540,7 +540,7 @@ Surface.Instance.SetMouseCapture = function (uie) {
 };
 Surface.Instance.ReleaseMouseCapture = function (uie) {
     /// <param name="uie" type="UIElement"></param>
-    if (!RefObject.RefEquals(uie, this._Captured) && !RefObject.RefEquals(uie, this._PendingCapture))
+    if (!Nullstone.RefEquals(uie, this._Captured) && !Nullstone.RefEquals(uie, this._PendingCapture))
         return;
     if (this._EmittingMouseEvent)
         this._PendingReleaseCapture = true;
@@ -573,7 +573,7 @@ Surface.Instance._PerformReleaseCapture = function () {
 
 Surface.Instance._FocusElement = function (uie) {
     /// <param name="uie" type="UIElement"></param>
-    if (RefObject.RefEquals(uie, this._FocusedElement))
+    if (Nullstone.RefEquals(uie, this._FocusedElement))
         return true;
 
     if (this._FocusedElement != null)

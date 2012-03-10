@@ -8,7 +8,7 @@ var PropertyChangedListener = Nullstone.Create("PropertyChangedListener", null, 
 PropertyChangedListener.Instance.Init = function (source, propd, closure, func) {
     /// <param name="source" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
-    /// <param name="closure" type="RefObject"></param>
+    /// <param name="closure" type="Object"></param>
     /// <param name="func" type="Function"></param>
     this._Source = source;
     this._Property = propd;

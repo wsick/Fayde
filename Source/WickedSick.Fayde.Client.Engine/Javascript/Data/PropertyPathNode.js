@@ -23,7 +23,7 @@ _PropertyPathNode.Instance.SetValue = function (value) {
     AbstractMethod("_PropertyPathNode.SetValue");
 };
 _PropertyPathNode.Instance.SetSource = function (value) {
-    if (value == null || !RefObject.Equals(value, this._Source)) {
+    if (value == null || !Nullstone.Equals(value, this._Source)) {
         var oldSource = this._Source;
         var listener = this.GetListener();
         if (listener != null) {
@@ -33,7 +33,7 @@ _PropertyPathNode.Instance.SetSource = function (value) {
         }
 
         this._Source = value;
-        if (this._Source != null && this._Source instanceof RefObject && this._Source.DoesImplement(INotifyPropertyChanged)) {
+        if (this._Source != null && this._Source.constructor._IsNullstone && this._Source.DoesImplement(INotifyPropertyChanged)) {
             listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
             this.SetListener(listener);
         }
@@ -47,7 +47,7 @@ _PropertyPathNode.Instance.SetSource = function (value) {
 
 _PropertyPathNode.Instance._UpdateValueAndIsBroken = function (newValue, isBroken) {
     var emitBrokenChanged = this.GetIsBroken() !== isBroken;
-    var emitValueChanged = !RefObject.Equals(this.GetValue(), newValue);
+    var emitValueChanged = !Nullstone.Equals(this.GetValue(), newValue);
 
     this.SetIsBroken(isBroken);
     this._Value = newValue;
@@ -110,7 +110,6 @@ _PropertyPathNode.Instance.SetListener = function (value) {
 };
 
 _PropertyPathNode.Instance.GetSource = function () {
-    /// <returns type="RefObject" />
     return this._Source;
 };
 

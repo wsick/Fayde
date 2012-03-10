@@ -45,7 +45,6 @@ Duration.CreateTimeSpan = function (timespan) {
 //#region PROPERTIES
 
 Duration.Instance.GetType = function () {
-    ///<returns type="RefObject"></returns>
     return this._Type;
 };
 Duration.Instance.GetTimeSpan = function () {

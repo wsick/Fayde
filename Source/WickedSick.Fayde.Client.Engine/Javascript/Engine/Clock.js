@@ -1,6 +1,6 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
-/// <reference path="JsEx.js"/>
+/// <reference path="../Runtime/JsEx.js"/>
 
 //#region Clock
 var Clock = Nullstone.Create("Clock");
@@ -10,13 +10,13 @@ Clock.Instance.Init = function () {
 };
 
 Clock.Instance.RegisterTimer = function (timer) {
-    if (!Array.addDistinctRefObject(this._Timers, timer))
+    if (!Array.addDistinctNullstone(this._Timers, timer))
         return;
     if (this._Timers.length === 1)
         this.RequestAnimationTick();
 };
 Clock.Instance.UnregisterTimer = function (timer) {
-    Array.removeRefObject(this._Timers, timer);
+    Array.removeNullstone(this._Timers, timer);
 };
 Clock.Instance.DoTick = function () {
     var nowTime = new Date().getTime();

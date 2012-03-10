@@ -194,7 +194,7 @@ FrameworkElement.Instance._GetSubtreeExtents = function () {
 
 FrameworkElement.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
-    if (this.GetVisibility() != Visibility.Visible)
+    if (this.GetVisibility() !== Visibility.Visible)
         return new Size(0.0, 0.0);
 
     if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
@@ -348,7 +348,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     var parent = this.GetVisualParent();
 
-    if (this.GetVisibility() != Visibility.Visible) {
+    if (this.GetVisibility() !== Visibility.Visible) {
         LayoutInformation.SetLayoutSlot(this, finalRect);
         return;
     }
@@ -545,7 +545,7 @@ FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     var child;
     while (child = walker.Step()) {
         child._HitTestPoint(ctx, p, uielist);
-        if (!RefObject.RefEquals(node, uielist.First())) {
+        if (!Nullstone.RefEquals(node, uielist.First())) {
             hit = true;
             break;
         }
@@ -631,7 +631,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         pass._Count = pass._Count + 1;
 
         var flag = UIElementFlags.None;
-        if (element.GetVisibility() == Visibility.Visible) {
+        if (element.GetVisibility() === Visibility.Visible) {
             if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                 flag = UIElementFlags.DirtyMeasureHint;
             else if (element._HasFlag(UIElementFlags.DirtyArrangeHint))
@@ -644,7 +644,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
             var measureWalker = new _DeepTreeWalker(element);
             var child;
             while (child = measureWalker.Step()) {
-                if (child.GetVisibility() != Visibility.Visible || !child._HasFlag(flag)) {
+                if (child.GetVisibility() !== Visibility.Visible || !child._HasFlag(flag)) {
                     measureWalker.SkipBranch();
                     continue;
                 }

@@ -63,8 +63,8 @@ JsonParser.Instance.CreateObject = function (json, namescope) {
 };
 
 JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
-    //If the object is not a RefObject, let's parse it
-    if (!(propValue instanceof RefObject) && propValue.Type) {
+    //If the object is not a Nullstone, let's parse it
+    if (!propValue.constructor._IsNullstone && propValue.Type) {
         propValue = this.CreateObject(propValue, namescope);
     }
 

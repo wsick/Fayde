@@ -15,11 +15,9 @@ BindingBase.Instance.Seal = function () {
 //#region PROPERTIES
 
 BindingBase.Instance.GetFallbackValue = function () {
-    ///<returns type="RefObject"></returns>
     return this._FallbackValue;
 };
 BindingBase.Instance.SetFallbackValue = function (value) {
-    ///<param name="value" type="RefObject"></param>
     this.CheckSealed();
     this._FallbackValue = value;
 };
@@ -44,11 +42,9 @@ BindingBase.Instance.SetStringFormat = function (value) {
 };
 
 BindingBase.Instance.GetTargetNullValue = function () {
-    ///<returns type="RefObject"></returns>
     return this._TargetNullValue;
 };
 BindingBase.Instance.SetTargetNullValue = function (value) {
-    ///<param name="value" type="RefObject"></param>
     this.CheckSealed();
     this._TargetNullValue = value;
 };

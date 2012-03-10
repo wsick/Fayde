@@ -4,7 +4,7 @@
 /// <reference path="UIElement.js"/>
 
 //#region UIElementNode
-var UIElementNode = Nullstone.Create("UIElementNode", LinkedListNode);
+var UIElementNode = Nullstone.Create("UIElementNode", LinkedListNode, 1);
 
 UIElementNode.Instance.Init = function (element) {
     /// <param name="element" type="UIElement"></param>

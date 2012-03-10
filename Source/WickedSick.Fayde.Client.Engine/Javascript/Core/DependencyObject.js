@@ -115,7 +115,7 @@ DependencyObject.Instance.SetValue = function (propd, value) {
     var addingExpression = false;
     var updateTwoWay = false;
     if (expression != null) {
-        if (!RefObject.RefEquals(expression, existing)) {
+        if (!Nullstone.RefEquals(expression, existing)) {
             if (expression.GetAttached())
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
 
@@ -182,8 +182,8 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
 
     if (currentValue != null && value != null) {
-        if (currentValue instanceof RefObject) {
-            equal = !propd._AlwaysChange && RefObject.RefEquals(currentValue, value);
+        if (currentValue.constructor._IsNullstone) {
+            equal = !propd._AlwaysChange && Nullstone.RefEquals(currentValue, value);
         } else {
             equal = !propd._AlwaysChange && currentValue === value;
         }
@@ -359,7 +359,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
 
     var equal = oldValue == null && newValue == null;
     if (oldValue != null && newValue != null) {
-        equal = !propd._AlwaysChange && RefObject.Equals(oldValue, newValue);
+        equal = !propd._AlwaysChange && Nullstone.Equals(oldValue, newValue);
     }
 
     if (equal)
@@ -696,7 +696,7 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
 
     var current = parent;
     while (current != null) {
-        if (RefObject.RefEquals(current, this)) {
+        if (Nullstone.RefEquals(current, this)) {
             //Warn: cycle found
             return;
         }
@@ -770,7 +770,7 @@ DependencyObject.Instance._RemoveParent = function (parent, error) {
             return;
     } else {
         //WTF: Hack?
-        if (!RefObject.RefEquals(this._Parent, parent))
+        if (!Nullstone.RefEquals(this._Parent, parent))
             return;
     }
 
@@ -787,7 +787,7 @@ DependencyObject.Instance._RemoveParent = function (parent, error) {
     }
 
     if (error == null || !error.IsErrored()) {
-        if (RefObject.RefEquals(this._Parent, parent))
+        if (Nullstone.RefEquals(this._Parent, parent))
             this._Parent = null;
     }
 };
@@ -798,7 +798,7 @@ DependencyObject.Instance._AddSecondaryParent = function (obj) {
 DependencyObject.Instance._RemoveSecondaryParent = function (obj) {
     var index = -1;
     for (var i = 0; i < this._SecondaryParents.length; i++) {
-        if (RefObject.RefEquals(this._SecondaryParents[i], obj)) {
+        if (Nullstone.RefEquals(this._SecondaryParents[i], obj)) {
             index = i;
             break;
         }
@@ -859,14 +859,14 @@ DependencyObject.Instance._DetachAnimationStorage = function (propd, storage) {
         return;
 
     var last = list.Last();
-    if (RefObject.RefEquals(last.Storage, storage)) {
+    if (Nullstone.RefEquals(last.Storage, storage)) {
         list.Remove(last);
         if (!list.IsEmpty())
             list.Last().Storage.Enable();
     } else {
         var node = list.First();
         while (node) {
-            if (RefObject.RefEquals(node.Storage, storage)) {
+            if (Nullstone.RefEquals(node.Storage, storage)) {
                 var remove = node;
                 node = node.Next;
                 node.Storage.SetStopValue(storage.GetStopValue());

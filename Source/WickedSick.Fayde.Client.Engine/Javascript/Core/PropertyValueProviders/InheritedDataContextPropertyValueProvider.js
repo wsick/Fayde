@@ -18,7 +18,7 @@ _InheritedDataContextPropertyValueProvider.Instance.GetPropertyValue = function 
     return this._Source.GetValue(propd);
 };
 _InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (source) {
-    if (RefObject.RefEquals(this._Source, source))
+    if (Nullstone.RefEquals(this._Source, source))
         return;
 
     var oldValue = this._Source != null ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
@@ -28,7 +28,7 @@ _InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (so
     this._Source = source;
     this._AttachListener(this._Source);
 
-    if (!RefObject.Equals(oldValue, newValue)) {
+    if (!Nullstone.Equals(oldValue, newValue)) {
         var error = new BError();
         this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
     }

@@ -41,7 +41,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
         root = style;
         while (root != null) {
             var targetType = root.GetTargetType();
-            if (RefObject.RefEquals(root, style)) {
+            if (Nullstone.RefEquals(root, style)) {
                 if (targetType == null) {
                     error.SetErrored(BError.InvalidOperation, "TargetType cannot be null");
                     return false;

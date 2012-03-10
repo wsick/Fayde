@@ -5,6 +5,7 @@
 /// <reference path="../Runtime/Collections.js"/>
 /// <reference path="../Core/UIElement.js"/>
 /// <reference path="Clock.js"/>
+/// <reference path="../Runtime/JsEx.js"/>
 
 //#region App
 var App = Nullstone.Create("App", DependencyObject);
@@ -82,10 +83,10 @@ App.Instance.ProcessDirty = function () {
 };
 
 App.Instance.RegisterStoryboard = function (storyboard) {
-    Array.addDistinctRefObject(this._Storyboards, storyboard);
+    Array.addDistinctNullstone(this._Storyboards, storyboard);
 };
 App.Instance.UnregisterStoryboard = function (storyboard) {
-    Array.removeRefObject(this._Storyboards, storyboard);
+    Array.removeNullstone(this._Storyboards, storyboard);
 };
 
 App.Instance._GetImplicitStyles = function (fe, styleMask) {

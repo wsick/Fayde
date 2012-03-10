@@ -86,11 +86,9 @@ _PropertyPathWalker.Instance.Update = function (source) {
 //#region PROPERTIES
 
 _PropertyPathWalker.Instance.GetSource = function () {
-    /// <returns type="RefObject" />
     return this._Source;
 };
 _PropertyPathWalker.Instance.SetSource = function (value) {
-    /// <param name="value" type="RefObject"></param>
     this._Source = value;
 };
 
@@ -104,11 +102,9 @@ _PropertyPathWalker.Instance.SetPath = function (value) {
 };
 
 _PropertyPathWalker.Instance.GetValueInternal = function () {
-    ///<returns type="RefObject"></returns>
     return this._ValueInternal;
 };
 _PropertyPathWalker.Instance.SetValueInternal = function (value) {
-    ///<param name="value" type="RefObject"></param>
     this._ValueInternal = value;
 };
 

@@ -19,10 +19,10 @@ AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
         var targetType = this._TargetProp.GetTargetType();
         if (targetType === Number)
             this._BaseValue = 0;
-        else if (targetType === RefObject)
-            this._BaseValue = new targetType();
         else if (targetType === String)
             this._BaseValue = "";
+        else
+            this._BaseValue = new targetType();
     }
 
     if (prevStorage != null)

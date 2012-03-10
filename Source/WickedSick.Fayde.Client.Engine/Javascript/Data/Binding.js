@@ -73,7 +73,7 @@ Binding.Instance.SetPath = function (value) {
 };
 
 Binding.Instance.GetSource = function () { return this._Source; };
-Binding.Instance.SetSource = function (/* RefObject */value) {
+Binding.Instance.SetSource = function (/* Object */value) {
     this.CheckSealed();
     if (this.GetElementName() != null || this.GetRelativeSource() != null)
         throw new InvalidOperationException("Source cannot be set if either ElementName or RelativeSource is set");

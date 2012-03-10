@@ -21,6 +21,7 @@ Nullstone.Create = function (typeName, parent, argCount) {
     if (!parent) parent = Object;
     Nullstone.IsReady = false;
     f.prototype = new parent;
+    f.prototype.constructor = f;
     Nullstone.IsReady = true;
     f.Instance = {};
     return f;
@@ -38,6 +39,8 @@ Nullstone.FinishCreate = function (f) {
 Nullstone.RefEquals = function (obj1, obj2) {
     if (obj1 == null && obj2 == null)
         return true;
+    if (obj1 == null || obj2 == null)
+        return false;
     if (obj1._IsNullstone && obj2._IsNullstone)
         return obj1._ID === obj2._ID;
     return false;
@@ -47,7 +50,7 @@ Nullstone.Equals = function (val1, val2) {
         return true;
     if (val1 == null || val2 == null)
         return false;
-    if (obj1._IsNullstone && obj2._IsNullstone)
+    if (val1._IsNullstone && val2._IsNullstone)
         return Nullstone.RefEquals(val1, val2);
     if (!(val1 instanceof Object) && !(val2 instanceof Object))
         return val1 === val2;

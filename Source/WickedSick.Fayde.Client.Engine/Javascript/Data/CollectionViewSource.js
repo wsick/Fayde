@@ -8,13 +8,13 @@ var CollectionViewSource = Nullstone.Create("CollectionViewSource", DependencyOb
 
 //#region DEPENDENCY PROPERTIES
 
-CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return RefObject; }, CollectionViewSource);
+CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
 CollectionViewSource.Instance.GetSource = function () {
-    ///<returns type="RefObject"></returns>
+    ///<returns type="Object"></returns>
     return this.GetValue(CollectionViewSource.SourceProperty);
 };
 CollectionViewSource.Instance.SetSource = function (value) {
-    ///<param name="value" type="RefObject"></param>
+    ///<param name="value" type="Object"></param>
     this.SetValue(CollectionViewSource.SourceProperty, value);
 };
 

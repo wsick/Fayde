@@ -6,6 +6,7 @@
 var SetterBase = Nullstone.Create("SetterBase", DependencyObject);
 
 SetterBase.Instance.Init = function () {
+    this.Init$DependencyObject();
     this.SetAttached(false);
 };
 

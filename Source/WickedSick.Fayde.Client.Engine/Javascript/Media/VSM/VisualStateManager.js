@@ -8,6 +8,7 @@
 /// <reference path="VisualState.js"/>
 /// <reference path="VisualStateGroup.js"/>
 /// <reference path="VisualTransition.js"/>
+/// <reference path="../../Runtime/Closure.js"/>
 
 //#region VisualStateManager
 var VisualStateManager = Nullstone.Create("VisualStateManager", DependencyObject);
@@ -94,7 +95,7 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
     /// <returns type="Boolean" />
 
     var lastState = group.GetCurrentState();
-    if (RefObject.RefEquals(lastState, state))
+    if (Nullstone.RefEquals(lastState, state))
         return true;
 
     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
@@ -110,7 +111,7 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
         var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
         dynamicTransition.SetValue(Control.IsTemplateItemProperty, true);
 
-        var eventClosure = new RefObject();
+        var eventClosure = new Closure();
         transition.SetDynamicStoryboardCompleted(false);
         var dynamicCompleted = function (sender, e) {
             if (transition.GetStoryboard() == null || transition.GetExplicitStoryboardCompleted() === true) {
@@ -195,12 +196,12 @@ VisualStateManager._GetTransition = function (element, group, from, to) {
             var score = -1;
             var transFromState = group.GetState(transition.GetFrom());
             var transToState = group.GetState(transition.GetTo());
-            if (RefObject.RefEquals(from, transFromState))
+            if (Nullstone.RefEquals(from, transFromState))
                 score += 1;
             else if (transFromState != null)
                 continue;
 
-            if (RefObject.RefEquals(to, transToState))
+            if (Nullstone.RefEquals(to, transToState))
                 score += 2;
             else if (transToState != null)
                 continue;
