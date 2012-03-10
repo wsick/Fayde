@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Control.js"/>
 /// CODE
 /// <reference path="../Runtime/MulticastEvent.js"/>
@@ -7,9 +7,9 @@
 //#region TextBoxBase
 
 function TextBoxBase() {
-    Control.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
 
     this._SelectionAnchor = 0;
     this._SelectionCursor = 0;
@@ -21,7 +21,7 @@ function TextBoxBase() {
 
     this._Batch = 0;
 }
-TextBoxBase.InheritFrom(Control);
+Nullstone.Extend(TextBoxBase, "TextBoxBase", Control);
 
 TextBoxBase.prototype.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
@@ -53,7 +53,7 @@ TextBoxBase.prototype.OnApplyTemplate = function () {
 
     if (this._ContentElement == null) {
         Warn("No ContentElement found");
-        Control.prototype.OnApplyTemplate.call(this);
+        this.OnApplyTemplate$super();
         return;
     }
 
@@ -78,7 +78,7 @@ TextBoxBase.prototype.OnApplyTemplate = function () {
         this._View.SetTextBox(null);
         this._View = null;
     }
-    Control.prototype.OnApplyTemplate.call(this);
+    this.OnApplyTemplate$super();
 };
 
 TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
@@ -104,7 +104,7 @@ TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
 
     if (args.Property.OwnerType !== TextBoxBase) {
-        Control.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
 
@@ -118,7 +118,7 @@ TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
     }
 
     if (args.Property.OwnerType !== TextBoxBase)
-        Control.prototype._OnSubPropertyChanged.call(this, sender, args);
+        this._OnSubPropertyChanged$super(sender, args);
 };
 
 TextBoxBase.prototype._BatchPush = function () {

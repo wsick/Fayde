@@ -1,15 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/LinkedListNode.js"/>
 /// CODE
 
 //#region _TextLayoutAttributes
 
 function _TextLayoutAttributes(source, start) {
-    LinkedListNode.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._Source = source;
     this._Start = start == null ? 0 : start;
 }
-_TextLayoutAttributes.InheritFrom(LinkedListNode);
+Nullstone.Extend(_TextLayoutAttributes, "_TextLayoutAttributes", LinkedListNode);
 
 _TextLayoutAttributes.prototype.GetBackground = function (selected) { return this._Source.GetBackground(selected); };
 _TextLayoutAttributes.prototype.GetForeground = function (selected) { return this._Source.GetForeground(selected); };

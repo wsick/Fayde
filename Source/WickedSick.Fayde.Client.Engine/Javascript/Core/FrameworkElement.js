@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="UIElement.js"/>
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Primitives/Rect.js"/>
@@ -13,7 +13,9 @@
 //#region FrameworkElement
 
 function FrameworkElement() {
-    UIElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     
     this.TemplatedApplied = new MulticastEvent();
 
@@ -27,7 +29,7 @@ function FrameworkElement() {
     this._Providers[_PropertyPrecedence.DynamicValue] = new FrameworkElementPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 }
-FrameworkElement.InheritFrom(UIElement);
+Nullstone.Extend(FrameworkElement, "FrameworkElement", UIElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -225,11 +227,11 @@ FrameworkElement.prototype._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 FrameworkElement.prototype._ComputeGlobalBounds = function () {
-    UIElement.prototype._ComputeGlobalBounds.call(this);
+    this._ComputeGlobalBounds$super();
     this._GlobalBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._LocalProjection);
 };
 FrameworkElement.prototype._ComputeSurfaceBounds = function () {
-    UIElement.prototype._ComputeSurfaceBounds.call(this);
+    this._ComputeSurfaceBounds$super();
     this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
 };
 
@@ -564,7 +566,7 @@ FrameworkElement.prototype._InsideObject = function (ctx, x, y) {
     if (!this._InsideLayoutClip(x, y))
         return false;
 
-    return UIElement.prototype._InsideObject.call(this, ctx, x, y);
+    return this._InsideObject$super(ctx, x, y);
 };
 
 FrameworkElement.prototype._InsideLayoutClip = function (x, y) {
@@ -606,7 +608,7 @@ FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
 };
 
 FrameworkElement.prototype._ElementRemoved = function (value) {
-    UIElement.prototype._ElementRemoved.call(this, value);
+    this._ElementRemoved$super(value);
     if (this._GetSubtreeObject() == value)
         this._SetSubtreeObject(null);
 };
@@ -762,7 +764,7 @@ FrameworkElement.prototype._GetDefaultTemplate = function () {
 
 FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== FrameworkElement) {
-        UIElement.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
 
@@ -807,7 +809,7 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
     else
         this._ClearImplicitStyles(_StyleMask.VisualTree);
 
-    UIElement.prototype._OnIsLoadedChanged.call(this, loaded);
+    this._OnIsLoadedChanged$super(loaded);
     if (loaded)
         this.InvokeLoaded();
 
@@ -816,7 +818,7 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
 };
 
 FrameworkElement.prototype.SetVisualParent = function (/* UIElement */value) {
-    UIElement.prototype.SetVisualParent.call(this, value);
+    this.SetVisualParent$super(value);
 
     if (!this._LogicalParent && (this._VisualParent == null || this._VisualParent instanceof FrameworkElement)) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(this._VisualParent);

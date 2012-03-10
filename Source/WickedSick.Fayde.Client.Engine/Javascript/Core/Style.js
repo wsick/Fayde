@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="DependencyObject.js"/>
 /// CODE
 /// <reference path="SetterBaseCollection.js"/>
@@ -7,9 +7,11 @@
 //#region Style
 
 function Style() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Style.InheritFrom(DependencyObject);
+Nullstone.Extend(Style, "Style", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

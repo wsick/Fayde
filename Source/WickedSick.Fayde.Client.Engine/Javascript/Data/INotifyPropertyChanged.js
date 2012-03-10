@@ -1,14 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// CODE
 
 //#region INotifyPropertyChanged
 
 function INotifyPropertyChanged() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.PropertyChanged = new MulticastEvent();
 }
-INotifyPropertyChanged.InheritFrom(RefObject);
+Nullstone.Create(INotifyPropertyChanged, "INotifyPropertyChanged");
 INotifyPropertyChanged.prototype.RaisePropertyChanged = function (propertyName) {
     this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
 };

@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="PropertyValueProviders.js"/>
@@ -6,15 +6,15 @@
 //#region TextElement
 
 function TextElement() {
-    DependencyObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
 
     this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
     this._Font = new Font();
     this._UpdateFont(true);
 }
-TextElement.InheritFrom(DependencyObject);
+Nullstone.Extend(TextElement, "TextElement", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -116,7 +116,7 @@ TextElement.prototype._UpdateFont = function (force) {
 };
 TextElement.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextElement) {
-        DependencyObject.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
 

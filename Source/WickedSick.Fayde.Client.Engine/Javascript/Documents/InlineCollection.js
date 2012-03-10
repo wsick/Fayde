@@ -1,22 +1,26 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextElementCollection.js"/>
 /// CODE
 
 //#region InlineCollection
 
 function InlineCollection() {
-    TextElementCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-InlineCollection.InheritFrom(TextElementCollection);
+Nullstone.Extend(InlineCollection, "InlineCollection", TextElementCollection);
 
 //#endregion
 
 //#region InlineCollection
 
 function InlineCollection() {
-    TextElementCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-InlineCollection.InheritFrom(TextElementCollection);
+Nullstone.Extend(InlineCollection, "InlineCollection", TextElementCollection);
 
 InlineCollection.prototype.AddedToCollection = function (value, error) {
     if (this._ForHyperlink) {
@@ -25,7 +29,7 @@ InlineCollection.prototype.AddedToCollection = function (value, error) {
             return false;
         }
     }
-    return TextElementCollection.prototype.AddedToCollection.call(this, value, error);
+    return this.AddedToCollection$super(value, error);
 };
 InlineCollection.prototype.Equals = function (inlines) {
     NotImplemented("InlineCollection.Equals");

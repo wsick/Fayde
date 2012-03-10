@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="GradientBrush.js"/>
 /// CODE
 /// <reference path="Enums.js"/>
@@ -6,9 +6,11 @@
 //#region RadialGradientBrush
 
 function RadialGradientBrush() {
-    GradientBrush.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-RadialGradientBrush.InheritFrom(GradientBrush);
+Nullstone.Extend(RadialGradientBrush, "RadialGradientBrush", GradientBrush);
 
 //#region DEPENDENCY PROPERTIES
 

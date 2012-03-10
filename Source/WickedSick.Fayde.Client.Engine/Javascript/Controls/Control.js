@@ -1,15 +1,16 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js" />
 /// CODE
 
 //#region Control
 
 function Control() {
-    FrameworkElement.call(this);
-
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 }
-Control.InheritFrom(FrameworkElement);
+Nullstone.Extend(Control, "Control", FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -188,7 +189,7 @@ Control.prototype.GetTemplateChild = function (name) {
 };
 Control.prototype.SetVisualParent = function (visualParent) {
     if (this.GetVisualParent() != visualParent) {
-        FrameworkElement.prototype.SetVisualParent.call(this, visualParent);
+        this.SetVisualParent$super(visualParent);
         this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
     }
 };
@@ -197,7 +198,7 @@ Control.prototype._ElementAdded = function (item) {
     var error = new BError();
     item._AddParent(this, true, error);
     this._SetSubtreeObject(item);
-    FrameworkElement.prototype._ElementAdded.call(this, item);
+    this._ElementAdded$super(item);
 };
 Control.prototype._ElementRemoved = function (item) {
     var error;
@@ -206,7 +207,7 @@ Control.prototype._ElementRemoved = function (item) {
         this._TemplateRoot = null;
     }
     item._RemoveParent(this, error);
-    FrameworkElement.prototype._ElementRemoved.call(this, item);
+    this._ElementRemoved$super(item);
 };
 
 Control.prototype.CanCaptureMouse = function () {
@@ -221,7 +222,7 @@ Control.prototype._InsideObject = function (x, y) {
 };
 Control.prototype._HitTestPoint = function (ctx, p, uielist) {
     if (this.GetIsEnabled())
-        FrameworkElement.prototype._HitTestPoint.call(this, ctx, p, uielist);
+        this._HitTestPoint$super(ctx, p, uielist);
 };
 
 Control.prototype._UpdateIsEnabledSource = function (control) {
@@ -230,7 +231,7 @@ Control.prototype._UpdateIsEnabledSource = function (control) {
 
 Control.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Control) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
 
@@ -251,18 +252,18 @@ Control.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 Control.prototype._OnLogicalParentChanged = function (oldParent, newParent) {
-    FrameworkElement.prototype._OnLogicalParentChanged.call(this, oldParent, newParent);
+    this._OnLogicalParentChanged$super(oldParent, newParent);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(newParent);
 };
 Control.prototype._OnIsAttachedChanged = function (value) {
-    FrameworkElement.prototype._OnIsAttachedChanged.call(this, value);
+    this._OnIsAttachedChanged$super(value);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
 };
 
 Control.prototype._DoApplyTemplateWithError = function (error) {
     var t = this.GetTemplate();
     if (!t)
-        return FrameworkElement.prototype._DoApplyTemplateWithError.call(this, error);
+        return this._DoApplyTemplateWithError$super(error);
 
     var root = t._GetVisualTreeWithError(this, error);
     if (root && !(root instanceof UIElement)) {
@@ -271,7 +272,7 @@ Control.prototype._DoApplyTemplateWithError = function (error) {
     }
 
     if (!root)
-        return FrameworkElement.prototype._DoApplyTemplateWithError.call(this, error);
+        return this._DoApplyTemplateWithError$super(error);
 
     if (this._TemplateRoot != root && this._TemplateRoot != null) {
         this._TemplateRoot._RemoveParent(this, null);
@@ -307,7 +308,7 @@ Control.prototype.Focus = function (recurse) {
             continue;
         }
 
-        var c = RefObject.As(uie, Control);
+        var c = Nullstone.As(uie, Control);
         if (c == null)
             continue;
 
@@ -332,11 +333,11 @@ Control.prototype.Focus = function (recurse) {
 };
 Control.prototype.OnGotFocus = function (sender, args) {
     this._IsFocused = true;
-    FrameworkElement.prototype.OnGotFocus.call(this, sender, args);
+    this.OnGotFocus$super(sender, args);
 };
 Control.prototype.OnLostFocus = function (sender, args) {
     this._IsFocused = false;
-    FrameworkElement.prototype.OnLostFocus.call(this, sender, args);
+    this.OnLostFocus$super(sender, args);
 };
 
 //#endregion

@@ -1,12 +1,13 @@
-﻿/// <reference path="../Runtime/RefObject.js"/>
+﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
 
 function _DirtyList() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._DirtyNodes = new LinkedList();
 }
-_DirtyList.InheritFrom(RefObject);
+Nullstone.Create(_DirtyList, "_DirtyList");
 
 _DirtyList.prototype.AddDirtyNode = function (node) {
     this._DirtyNodes.Append(node);

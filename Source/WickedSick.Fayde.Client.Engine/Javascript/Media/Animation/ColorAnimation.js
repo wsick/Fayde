@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="Animation.js"/>
 /// CODE
 /// <reference path="../../Primitives/Color.js"/>
@@ -6,9 +6,11 @@
 //#region ColorAnimation
 
 function ColorAnimation() {
-    Animation.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-ColorAnimation.InheritFrom(Animation);
+Nullstone.Extend(ColorAnimation, "ColorAnimation", Animation);
 
 //#region DEPENDENCY PROPERTIES
 

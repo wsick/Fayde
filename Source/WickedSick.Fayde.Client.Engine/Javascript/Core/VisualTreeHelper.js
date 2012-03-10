@@ -1,41 +1,42 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="FrameworkElement.js"/>
 
 //#region VisualTreeHelper
 
 function VisualTreeHelper() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-VisualTreeHelper.InheritFrom(RefObject);
+Nullstone.Create(VisualTreeHelper, "VisualTreeHelper");
 
 VisualTreeHelper.GetChild = function (d, childIndex) {
-    var fw = RefObject.As(d, FrameworkElement);
+    var fw = Nullstone.As(d, FrameworkElement);
     if (fw == null)
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
     var subtree = fw._GetSubtreeObject();
-    var coll = RefObject.As(subtree, UIElementCollection);
+    var coll = Nullstone.As(subtree, UIElementCollection);
     if (coll != null)
         return coll.GetValueAt(childIndex);
 
-    var item = RefObject.As(subtree, UIElement);
+    var item = Nullstone.As(subtree, UIElement);
     if (item != null && childIndex === 0)
         return item;
 
     throw new ArgumentOutOfRangeException();
 };
 VisualTreeHelper.GetChildrenCount = function (d) {
-    var fw = RefObject.As(d, FrameworkElement);
+    var fw = Nullstone.As(d, FrameworkElement);
     if (fw == null)
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
     var subtree = fw._GetSubtreeObject();
-    var coll = RefObject.As(subtree, UIElementCollection);
+    var coll = Nullstone.As(subtree, UIElementCollection);
     if (coll != null)
         return coll.GetCount();
 
-    var item = RefObject.As(subtree, UIElement);
+    var item = Nullstone.As(subtree, UIElement);
     if (item != null)
         return 1;
     

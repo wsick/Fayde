@@ -1,16 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Rect
 
 function Rect(x, y, width, height) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
-Rect.InheritFrom(RefObject);
+Nullstone.Create(Rect, "Rect");
 
 Rect.prototype.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;

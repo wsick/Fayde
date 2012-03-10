@@ -1,13 +1,14 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="Nullstone.js"/>
 /// CODE
 
 //#region Dictionary
 
 function Dictionary() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._ht = new Array();
 }
-Dictionary.InheritFrom(RefObject);
+Nullstone.Create(Dictionary, "Dictionary");
 
 Dictionary.prototype.TryGetValue = function (key, data) {
     data.Value = this._ht[key];

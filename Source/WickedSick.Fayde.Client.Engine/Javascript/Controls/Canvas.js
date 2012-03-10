@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Panel.js" />
 /// CODE
 /// <reference path="Primitives.js" />
@@ -7,9 +7,11 @@
 //#region Canvas
 
 function Canvas() {
-    Panel.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Canvas.InheritFrom(Panel);
+Nullstone.Extend(Canvas, "Canvas", Panel);
 
 //#region DEPENDENCY PROPERTIES
 

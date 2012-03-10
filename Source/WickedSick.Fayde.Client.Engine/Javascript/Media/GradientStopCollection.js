@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
 /// <reference path="GradientStop.js"/>
@@ -6,9 +6,11 @@
 //#region GradientStopCollection
 
 function GradientStopCollection() {
-    DependencyObjectCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-GradientStopCollection.InheritFrom(DependencyObjectCollection);
+Nullstone.Extend(GradientStopCollection, "GradientStopCollection", DependencyObjectCollection);
 
 GradientStopCollection.prototype.IsElementType = function (value) {
     return value instanceof GradientStop;

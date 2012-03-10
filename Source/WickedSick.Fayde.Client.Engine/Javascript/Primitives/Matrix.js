@@ -1,13 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Matrix
 
 function Matrix() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Elements = Matrix.CreateIdentityArray();
 }
-Matrix.InheritFrom(RefObject);
+Nullstone.Create(Matrix, "Matrix");
 
 Matrix.prototype.GetElements = function () {
     return this._Elements;
@@ -84,11 +85,13 @@ Matrix.CreateIdentityArray = function () {
 //#region TranslationMatrix
 
 function TranslationMatrix(x, y) {
-    Matrix.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
-TranslationMatrix.InheritFrom(Matrix);
+Nullstone.Extend(TranslationMatrix, "TranslationMatrix", Matrix);
 
 TranslationMatrix.prototype.GetElements = function () {
     return [
@@ -111,7 +114,9 @@ TranslationMatrix.prototype.Apply = function (ctx) {
 RotationMatrix.prototype = new Matrix;
 RotationMatrix.prototype.constructor = RotationMatrix;
 function RotationMatrix(angleRad) {
-    Matrix.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.Angle = angleRad == null ? 0 : angleRad;
 }
 RotationMatrix.GetBaseClass = function () { return Matrix; };
@@ -135,11 +140,13 @@ RotationMatrix.prototype.Apply = function (ctx) {
 //#region ScalingMatrix
 
 function ScalingMatrix(x, y) {
-    Matrix.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.X = x == null ? 1 : x;
     this.Y = y == null ? 1 : y;
 }
-ScalingMatrix.InheritFrom(Matrix);
+Nullstone.Extend(ScalingMatrix, "ScalingMatrix", Matrix);
 
 ScalingMatrix.prototype.GetElements = function () {
     return [
@@ -160,11 +167,13 @@ ScalingMatrix.prototype.Apply = function (ctx) {
 //#region ShearingMatrix
 
 function ShearingMatrix(shearX, shearY) {
-    Matrix.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.ShearX = shearX == null ? 0 : shearX;
     this.ShearY = shearY == null ? 0 : shearY;
 }
-ShearingMatrix.InheritFrom(Matrix);
+Nullstone.Extend(ShearingMatrix, "ShearingMatrix", Matrix);
 
 ShearingMatrix.prototype.GetElements = function () {
     return [

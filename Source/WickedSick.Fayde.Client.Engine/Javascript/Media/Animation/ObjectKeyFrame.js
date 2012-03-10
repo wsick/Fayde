@@ -5,9 +5,11 @@
 //#region ObjectKeyFrame
 
 function ObjectKeyFrame() {
-    KeyFrame.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-ObjectKeyFrame.InheritFrom(KeyFrame);
+Nullstone.Extend(ObjectKeyFrame, "ObjectKeyFrame", KeyFrame);
 
 //#region DEPENDENCY PROPERTIES
 

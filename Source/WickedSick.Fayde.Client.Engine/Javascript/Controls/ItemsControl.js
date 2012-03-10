@@ -1,25 +1,27 @@
-/// <reference path="../Runtime/RefObject.js" />
-/// <reference path="../Core/FrameworkElement.js"/>
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Control.js"/>
 /// CODE
 /// <reference path="Panel.js"/>
+/// <reference path="ItemsPresenter.js"/>
 
 var ItemCollection = {};//TODO: Implement
 
 //#region ItemsControl
 
 function ItemsControl() {
-    Control.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-ItemsControl.InheritFrom(Control);
+Nullstone.Extend(ItemsControl, "ItemsControl", Control);
 
 ItemsControl.GetItemsOwner = function (ele) {
-    var panel = RefObject.As(ele, Panel);
+    var panel = Nullstone.As(ele, Panel);
     if (panel == null || !panel.GetIsItemsHost())
         return null;
-    var owner = RefObject.As(panel.GetTemplateOwner(), ItemsPresenter);
+    var owner = Nullstone.As(panel.GetTemplateOwner(), ItemsPresenter);
     if (owner != null)
-        return RefObject.As(owner.GetTemplateOwner(), ItemsControl);
+        return Nullstone.As(owner.GetTemplateOwner(), ItemsControl);
     return null;
 };
 
@@ -42,14 +44,5 @@ ItemsControl.Annotations = {
 };
 
 //#endregion
-
-//#endregion
-
-//#region ItemsPresenter
-
-function ItemsPresenter() {
-    FrameworkElement.call(this);
-}
-ItemsPresenter.InheritFrom(FrameworkElement);
 
 //#endregion

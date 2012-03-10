@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
 /// <reference path="GridLength.js"/>
 /// CODE
@@ -6,9 +6,11 @@
 //#region RowDefinition
 
 function RowDefinition() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-RowDefinition.InheritFrom(DependencyObject);
+Nullstone.Extend(RowDefinition, "RowDefinition", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

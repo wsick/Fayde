@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Primitives/Rect.js"/>
 /// CODE
 /// <reference path="../Primitives/Size.js"/>
@@ -10,9 +10,10 @@
 //#region LayoutInformation
 
 function LayoutInformation() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-LayoutInformation.InheritFrom(RefObject);
+Nullstone.Create(LayoutInformation, "LayoutInformation");
 
 //#region DEPENDENCY PROPERTIES
 

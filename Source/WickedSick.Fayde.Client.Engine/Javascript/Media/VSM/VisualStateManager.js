@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="VisualStateGroup.js"/>
 /// CODE
@@ -12,9 +12,11 @@
 //#region VisualStateManager
 
 function VisualStateManager() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-VisualStateManager.InheritFrom(DependencyObject);
+Nullstone.Extend(VisualStateManager, "VisualStateManager", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -148,11 +150,11 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
 VisualStateManager._GetTemplateRoot = function (control) {
     /// <param name="control" type="Control"></param>
     /// <returns type="FrameworkElement" />
-    var userControl = RefObject.As(control, UserControl);
+    var userControl = Nullstone.As(control, UserControl);
     if (userControl != null)
-        return RefObject.As(userControl.GetContent(), FrameworkElement);
+        return Nullstone.As(userControl.GetContent(), FrameworkElement);
     if (VisualTreeHelper.GetChildrenCount(control) > 0)
-        return RefObject.As(VisualTreeHelper.GetChild(control, 0), FrameworkElement);
+        return Nullstone.As(VisualTreeHelper.GetChild(control, 0), FrameworkElement);
     return null;
 };
 VisualStateManager._TryGetState = function (groups, stateName, data) {

@@ -1,15 +1,16 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="Collection.js"/>
 
 //#region CollectionIterator
 
 function CollectionIterator(collection) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Collection = collection;
     this._Index = -1;
 }
-CollectionIterator.InheritFrom(RefObject);
+Nullstone.Create(CollectionIterator, "CollectionIterator");
 
 CollectionIterator.prototype.Next = function (error) {
     /// <param name="error" type="BError"></param>

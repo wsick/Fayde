@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 
 //#region Brush
 
 function Brush() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 };
-Brush.InheritFrom(DependencyObject);
+Nullstone.Extend(Brush, "Brush", DependencyObject);
 
 //#region Dependency Properties
 
@@ -34,7 +36,7 @@ Brush.prototype._OnSubPropertyChanged = function (sender, args) {
         NewValue: true
     };
     this.PropertyChanged.Raise(this, newArgs);
-    DependencyObject.prototype._OnSubPropertyChanged.call(this, sender, args);
+    this._OnSubPropertyChanged$super(sender, args);
 };
 
 //#endregion

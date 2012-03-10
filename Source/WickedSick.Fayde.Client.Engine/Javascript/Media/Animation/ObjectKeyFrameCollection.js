@@ -5,9 +5,11 @@
 //#region ObjectKeyFrameCollection
 
 function ObjectKeyFrameCollection() {
-    KeyFrameCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-ObjectKeyFrameCollection.InheritFrom(KeyFrameCollection);
+Nullstone.Extend(ObjectKeyFrameCollection, "ObjectKeyFrameCollection", KeyFrameCollection);
 
 ObjectKeyFrameCollection.prototype.IsElementType = function (value) {
     return value instanceof ObjectKeyFrame;

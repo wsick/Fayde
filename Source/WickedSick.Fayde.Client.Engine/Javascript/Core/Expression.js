@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="DependencyProperty.js"/>
 /// <reference path="ContentControl.js"/>
@@ -12,9 +12,10 @@
 //#region Expression
 
 function Expression() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-Expression.InheritFrom(RefObject);
+Nullstone.Create(Expression, "Expression");
 
 Expression.prototype.GetValue = function (propd) {
     AbstractMethod("Expression.GetValue");

@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="ButtonBase.js"/>
 /// CODE
 
 //#region HyperlinkButton
 
 function HyperlinkButton() {
-    ButtonBase.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-HyperlinkButton.InheritFrom(ButtonBase);
+Nullstone.Extend(HyperlinkButton, "HyperlinkButton", ButtonBase);
 
 HyperlinkButton.StateDisabled = "Disabled";
 HyperlinkButton.StatePressed = "Pressed";
@@ -41,12 +43,12 @@ HyperlinkButton.prototype.SetTargetName = function (value) {
 //#endregion
 
 HyperlinkButton.prototype.OnApplyTemplate = function () {
-    ButtonBase.prototype.OnApplyTemplate.call(this);
+    this.OnApplyTemplate$super();
     this.UpdateVisualState(false);
 };
 
 HyperlinkButton.prototype.OnClick = function () {
-    ButtonBase.prototype.OnClick.call(this);
+    this.OnClick$super();
     if (this.GetNavigateUri() != null) {
         this._Navigate();
     }

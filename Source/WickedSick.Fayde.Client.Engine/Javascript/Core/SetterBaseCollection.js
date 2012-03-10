@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Collections/DependencyObjectCollection.js"/>
 /// CODE
 /// <reference path="SetterBase.js"/>
@@ -6,9 +6,11 @@
 //#region SetterBaseCollection
 
 function SetterBaseCollection() {
-    DependencyObjectCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-SetterBaseCollection.InheritFrom(DependencyObjectCollection);
+Nullstone.Extend(SetterBaseCollection, "SetterBaseCollection", DependencyObjectCollection);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -42,14 +44,14 @@ SetterBaseCollection.prototype.AddedToCollection = function (value, error) {
         value.SetAttached(true);
         value._Seal();
     }
-    return DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error);
+    return this.AddedToCollection$super(value, error);
 };
 SetterBaseCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof SetterBase)
             value.SetAttached(false);
     }
-    DependencyObjectCollection.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+    this.RemovedFromCollection$super(value, isValueSafe);
 };
 
 SetterBaseCollection.prototype.IsElementType = function (value) {
@@ -59,7 +61,7 @@ SetterBaseCollection.prototype.IsElementType = function (value) {
 SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
     var s;
     if (value instanceof Setter) {
-        s = RefObject.As(value, Setter);
+        s = Nullstone.As(value, Setter);
         if (s.GetValue(Setter.PropertyProperty) == null) {
             error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
             return false;
@@ -71,7 +73,7 @@ SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
     }
 
     if (value instanceof SetterBase) {
-        s = RefObject.As(value, SetterBase);
+        s = Nullstone.As(value, SetterBase);
         if (s.GetAttached()) {
             error.SetErrored(BError.InvalidOperation, "Setter is currently attached to another style");
             return false;

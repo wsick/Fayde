@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="ContentControl.js"/>
@@ -6,13 +6,15 @@
 //#region ContentPresenter
 
 function ContentPresenter() {
-    FrameworkElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-ContentPresenter.InheritFrom(FrameworkElement);
+Nullstone.Extend(ContentPresenter, "ContentPresenter", FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
-ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, ContentPresenter);
+ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter);
 ContentPresenter.prototype.GetContent = function () {
     return this.GetValue(ContentPresenter.ContentProperty);
 };
@@ -60,10 +62,10 @@ ContentPresenter.prototype._GetDefaultTemplate = function () {
 
     var template = this.GetContentTemplate();
     if (template != null) {
-        this._ContentRoot = RefObject.As(template.GetVisualTree(this), UIElement);
+        this._ContentRoot = Nullstone.As(template.GetVisualTree(this), UIElement);
     } else {
         var content = this.GetContent();
-        this._ContentRoot = RefObject.As(content, UIElement);
+        this._ContentRoot = Nullstone.As(content, UIElement);
         if (this._ContentRoot == null && content != null)
             this._ContentRoot = this.GetFallbackRoot();
     }
@@ -71,7 +73,7 @@ ContentPresenter.prototype._GetDefaultTemplate = function () {
 };
 ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== ContentPresenter) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
     if (args.Property === ContentPresenter.ContentProperty) {
@@ -100,7 +102,7 @@ ContentPresenter.prototype.InvokeLoaded = function () {
         this.ClearValue(FrameworkElement.DataContextProperty);
     else
         this.SetDataContext(this.GetContent());
-    FrameworkElement.prototype.InvokeLoaded.call(this);
+    this.InvokeLoaded$super();
 };
 
 //#endregion

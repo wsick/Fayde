@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="../Core/DependencyObject.js" />
@@ -9,9 +9,11 @@
 //#region Border
 
 function Border() {
-    FrameworkElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Border.InheritFrom(FrameworkElement);
+Nullstone.Extend(Border, "Border", FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -138,7 +140,7 @@ Border.prototype._CanFindElement = function () {
 
 Border.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Border) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error)
         return;
     }
     if (args.Property == Border.ChildProperty) {

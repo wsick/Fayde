@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="Timeline.js"/>
 /// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
@@ -10,9 +10,11 @@
 //#region Storyboard
 
 function Storyboard() {
-    Timeline.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Storyboard.InheritFrom(Timeline);
+Nullstone.Extend(Storyboard, "Storyboard", Timeline);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -143,7 +145,7 @@ Storyboard.prototype.UpdateInternal = function (clockData) {
 };
 Storyboard.prototype.OnDurationReached = function () {
     App.Instance.UnregisterStoryboard(this);
-    Timeline.prototype.OnDurationReached.call(this);
+    this.OnDurationReached$super();
 };
 
 //#endregion
@@ -151,9 +153,11 @@ Storyboard.prototype.OnDurationReached = function () {
 //#region StoryboardCollection
 
 function StoryboardCollection() {
-    Collection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-StoryboardCollection.InheritFrom(Collection);
+Nullstone.Extend(StoryboardCollection, "StoryboardCollection", Collection);
 
 StoryboardCollection.prototype.IsElementType = function (obj) {
     return obj instanceof Storyboard;

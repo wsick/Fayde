@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Control.js"/>
 /// <reference path="Grid.js"/>
 /// CODE
@@ -6,9 +6,11 @@
 //#region ContentControl
 
 function ContentControl() {
-    Control.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-ContentControl.InheritFrom(Control);
+Nullstone.Extend(ContentControl, "ContentControl", Control);
 
 ContentControl._FallbackTemplate = (function () {
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
@@ -27,7 +29,7 @@ ContentControl._FallbackTemplate = (function () {
 
 //#region DEPENDENCY PROPERTIES
 
-ContentControl.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, ContentControl);
+ContentControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentControl);
 ContentControl.prototype.GetContent = function () {
     return this.GetValue(ContentControl.ContentProperty);
 };

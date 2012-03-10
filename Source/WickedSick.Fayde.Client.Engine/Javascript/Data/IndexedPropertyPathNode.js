@@ -1,11 +1,13 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="PropertyPathNode.js"/>
 /// CODE
 
 //#region _IndexedPropertyPathNode
 
 function _IndexedPropertyPathNode(index) {
-    _PropertyPathNode.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._isBroken = false;
     var val = parseInt(index, 10);
     if (isNaN(val))
@@ -13,10 +15,10 @@ function _IndexedPropertyPathNode(index) {
     else
         this.SetIndex(val);
 }
-_IndexedPropertyPathNode.InheritFrom(_PropertyPathNode);
+Nullstone.Extend(_IndexedPropertyPathNode, "_IndexedPropertyPathNode", _PropertyPathNode);
 
 _IndexedPropertyPathNode.prototype._CheckIsBroken = function () {
-    return this._isBroken || _PropertyPathNode.prototype._CheckIsBroken.call(this);
+    return this._isBroken || this._CheckIsBroken$super();
 };
 _IndexedPropertyPathNode.prototype.UpdateValue = function () {
     NotImplemented("_IndexedPropertyPathNode.UpdateValue");

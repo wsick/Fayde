@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../DependencyObject.js"/>
 /// <reference path="../../Runtime/MulticastEvent.js"/>
 /// CODE
@@ -8,12 +8,14 @@
 //#region Collection
 
 function Collection() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._ht = new Array();
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();
 }
-Collection.InheritFrom(DependencyObject);
+Nullstone.Extend(Collection, "Collection", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

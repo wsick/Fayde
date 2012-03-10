@@ -1,15 +1,16 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _PropertyValueProvider
 
 function _PropertyValueProvider(obj, propPrecedence, flags) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Object = obj;
     this._PropertyPrecedence = propPrecedence;
     this._Flags = flags;
 }
-_PropertyValueProvider.InheritFrom(RefObject);
+Nullstone.Create(_PropertyValueProvider, "_PropertyValueProvider");
 
 _PropertyValueProvider.prototype._HasFlag = function (flag) {
     return (this._Flags & flag) != 0;

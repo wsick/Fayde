@@ -1,18 +1,19 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _PropertyPath
 
 function _PropertyPath(path, expandedPath) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Path = path;
     this._ExpandedPath = expandedPath;
 }
-_PropertyPath.InheritFrom(RefObject);
+Nullstone.Create(_PropertyPath, "_PropertyPath");
 
 _PropertyPath.CreateFromParameter = function (parameter) {
     var p = new _PropertyPath();
-    p._Propd = RefObject.As(parameter, DependencyProperty);
+    p._Propd = Nullstone.As(parameter, DependencyProperty);
     p._Path = null;
     if (parameter instanceof String)
         p._Path = parameter;

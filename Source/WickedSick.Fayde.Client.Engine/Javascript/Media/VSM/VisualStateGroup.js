@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="../../Runtime/MulticastEvent.js"/>
 /// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
@@ -10,12 +10,14 @@
 //#region VisualStateGroup
 
 function VisualStateGroup() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 
     this.CurrentStateChanging = new MulticastEvent();
     this.CurrentStateChanged = new MulticastEvent();
 }
-VisualStateGroup.InheritFrom(DependencyObject);
+Nullstone.Extend(VisualStateGroup, "VisualStateGroup", DependencyObject);
 
 //#region PROPERTIES
 
@@ -126,9 +128,11 @@ VisualStateGroup.Annotations = {
 //#region VisualStateGroupCollection
 
 function VisualStateGroupCollection() {
-    DependencyObjectCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-VisualStateGroupCollection.InheritFrom(DependencyObjectCollection);
+Nullstone.Extend(VisualStateGroupCollection, "VisualStateGroupCollection", DependencyObjectCollection);
 
 VisualStateGroupCollection.prototype.IsElementType = function (value) {
     return value instanceof VisualStateGroup;

@@ -1,15 +1,16 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _TextLayoutGlyphCluster
 
 function _TextLayoutGlyphCluster(text, font, selected) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Text = text;
     this._Selected = selected == true;
     this._Advance = Surface.MeasureText(text, font).Width;
 }
-_TextLayoutGlyphCluster.InheritFrom(RefObject);
+Nullstone.Create(_TextLayoutGlyphCluster, "_TextLayoutGlyphCluster");
 
 _TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) {
     if (this._Text.length == 0 || this._Advance == 0.0)

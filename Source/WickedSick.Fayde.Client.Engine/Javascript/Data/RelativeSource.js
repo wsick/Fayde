@@ -1,18 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Enums.js"/>
 /// CODE
-
 
 //#region RelativeSource
 
 function RelativeSource(mode) {
-    RefObject.call(this);
-
+    if (!Nullstone.IsReady)
+        return;
     if (mode == null)
         mode = RelativeSourceMode.TemplatedParent;
     this.SetMode(mode);
 }
-RelativeSource.InheritFrom(RefObject);
+Nullstone.Create(RelativeSource, "RelativeSource");
 
 RelativeSource.prototype.GetMode = function () {
     return this._Mode;

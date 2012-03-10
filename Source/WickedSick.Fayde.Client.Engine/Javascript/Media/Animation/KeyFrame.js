@@ -4,13 +4,13 @@
 //#region KeyFrame
 
 function KeyFrame() {
-    DependencyObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
     this._ResolvedKeyTime = null;
     this._Resolved = false;
 }
-KeyFrame.InheritFrom(DependencyObject);
+Nullstone.Extend(KeyFrame, "KeyFrame", DependencyObject);
 
 KeyFrame.prototype.GetKeyTime = function () {
     /// <returns type="KeyTime" />

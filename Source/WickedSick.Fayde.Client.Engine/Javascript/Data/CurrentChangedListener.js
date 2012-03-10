@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region CurrentChangedListener
@@ -7,17 +7,14 @@ function CurrentChangedListener(source, closure, func) {
     /// <param name="source" type="ICollectionView"></param>
     /// <param name="closure" type="RefObject"></param>
     /// <param name="func" type="Function"></param>
-    RefObject.call(this);
-
-    if (!source)
+    if (!Nullstone.IsReady)
         return;
-
     this._Source = source;
     this._Closure = closure;
     this._Func = func;
     this._Source.CurrentChanged.Subscribe(this, this.OnCurrentChangedInternal);
 }
-CurrentChangedListener.InheritFrom(RefObject);
+Nullstone.Create(CurrentChangedListener, "CurrentChangedListener");
 
 CurrentChangedListener.prototype.Detach = function () {
     if (this._Source != null) {

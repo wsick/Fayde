@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="../../Primitives/Duration.js"/>
@@ -6,13 +6,13 @@
 //#region Timeline
 
 function Timeline() {
-    DependencyObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
     this.Completed = new MulticastEvent();
     this.Reset();
 }
-Timeline.InheritFrom(DependencyObject);
+Nullstone.Extend(Timeline, "Timeline", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

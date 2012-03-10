@@ -1,12 +1,11 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="Nullstone.js"/>
 /// CODE
 
 //#region PropertyInfo
 
 function PropertyInfo() {
-    RefObject.call(this);
 }
-PropertyInfo.InheritFrom(RefObject);
+Nullstone.Create(PropertyInfo, "PropertyInfo");
 
 PropertyInfo.Find = function (typeOrObj, name) {
     var isType = typeOrObj instanceof Function;

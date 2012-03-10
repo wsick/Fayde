@@ -1,16 +1,15 @@
-﻿/// <reference path="../Runtime/RefObject.js"/>
+﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 /// <reference path="JsEx.js"/>
 
 //#region Clock
 
 function Clock() {
-    RefObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
     this._Timers = new Array();
 }
-Clock.InheritFrom(RefObject);
+Nullstone.Create(Clock, "Clock");
 
 Clock.prototype.RegisterTimer = function (timer) {
     if (!Array.addDistinctRefObject(this._Timers, timer))

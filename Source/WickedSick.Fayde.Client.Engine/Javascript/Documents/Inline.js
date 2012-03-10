@@ -1,14 +1,16 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextElement.js"/>
 /// CODE
 
 //#region Inline
 
 function Inline() {
-    TextElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._Autogen = false;
 }
-Inline.InheritFrom(TextElement);
+Nullstone.Extend(Inline, "Inline", TextElement);
 
 Inline.prototype.Equals = function (inline) {
     /// <returns type="Boolean" />

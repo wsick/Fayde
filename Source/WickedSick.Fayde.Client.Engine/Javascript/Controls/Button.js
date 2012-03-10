@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="ButtonBase.js"/>
 /// CODE
 /// <reference path="Style.js"/>
@@ -11,9 +11,11 @@
 //#region Button
 
 function Button() {
-    ButtonBase.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Button.InheritFrom(ButtonBase);
+Nullstone.Extend(Button, "Button", ButtonBase);
 
 Button.StateDisabled = "Disabled";
 Button.StatePressed = "Pressed";
@@ -23,7 +25,7 @@ Button.StateFocused = "Focused";
 Button.StateUnfocused = "Unfocused";
 
 Button.prototype.OnApplyTemplate = function () {
-    ButtonBase.prototype.OnApplyTemplate.call(this);
+    this.OnApplyTemplate$super();
 
     this.UpdateVisualState(false);
 };
@@ -45,7 +47,7 @@ Button.prototype._ChangeVisualState = function (useTransitions) {
     }
 };
 Button.prototype.OnIsEnabledChanged = function (e) {
-    ButtonBase.prototype.OnIsEnabledChanged.call(this, e);
+    this.OnIsEnabledChanged$super(e);
     this.SetIsTabStop(e.NewValue);
 };
 

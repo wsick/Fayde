@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="PropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
 /// CODE
@@ -7,10 +7,12 @@
 //#region _InheritedDataContextPropertyValueProvider
 
 function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence);
     this._Source = null;
 }
-_InheritedDataContextPropertyValueProvider.InheritFrom(_PropertyValueProvider);
+Nullstone.Extend(_InheritedDataContextPropertyValueProvider, "_InheritedDataContextPropertyValueProvider", _PropertyValueProvider);
 
 _InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (!this._Source || propd != FrameworkElement.DataContextProperty)

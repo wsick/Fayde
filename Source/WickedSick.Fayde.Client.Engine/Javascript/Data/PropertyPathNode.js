@@ -1,16 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// CODE
 
 //#region _PropertyPathNode
 
 function _PropertyPathNode() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.SetIsBroken(true);
     this.IsBrokenChanged = new MulticastEvent();
     this.ValueChanged = new MulticastEvent();
 }
-_PropertyPathNode.InheritFrom(RefObject);
+Nullstone.Create(_PropertyPathNode, "_PropertyPathNode");
 
 _PropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
 };

@@ -1,14 +1,16 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="DependencyObjectCollection.js"/>
 /// CODE
 
 //#region ResourceDictionary
 
 function ResourceDictionary() {
-    Collection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._KeyIndex = new Array();
 }
-ResourceDictionary.InheritFrom(Collection);
+Nullstone.Extend(ResourceDictionary, "ResourceDictionary", Collection);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -50,7 +52,7 @@ ResourceDictionary.prototype.Set = function (key, value) {
         oldValue = this.Get(key);
         this.Remove(oldValue);
     }
-    var index = Collection.prototype.Add.call(this, value);
+    var index = this.Add$super(value);
     this._KeyIndex[key] = index;
     this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
     return true;
@@ -69,7 +71,7 @@ ResourceDictionary.prototype.AddedToCollection = function (value, error) {
     var rv = false;
 
     if (value instanceof DependencyObject) {
-        obj = RefObject.As(value, DependencyObject);
+        obj = Nullstone.As(value, DependencyObject);
         if (obj._GetParent() != null && !ResourceDictionary._CanBeAddedTwice(value)) {
             error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
             return false;
@@ -83,7 +85,7 @@ ResourceDictionary.prototype.AddedToCollection = function (value, error) {
         //WTF: if (!from_resource_dictionary_api)...
     }
 
-    rv = Collection.prototype.AddedToCollection.call(this, value, error);
+    rv = this.AddedToCollection$super(value, error);
 
     if (rv /* && !from_resource_dictionary_api */ && obj != null) {
         this._RaiseChanged(CollectionChangedArgs.Action.Add, null, obj, obj.GetName());
@@ -93,18 +95,18 @@ ResourceDictionary.prototype.AddedToCollection = function (value, error) {
 };
 ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe && value instanceof DependencyObject) {
-        var obj = RefObject.As(value, DependencyObject);
+        var obj = Nullstone.As(value, DependencyObject);
         if (obj != null) {
             obj.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
             obj._RemoveParent(this, null);
             obj._SetIsAttached(false);
         }
     }
-    Collection.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+    this.RemovedFromCollection$super(value, isValueSafe);
 };
 
 ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
-    Collection.prototype._OnIsAttachedChanged.call(this, value);
+    this._OnIsAttachedChanged$super(value);
 
     for (var i = 0; i < this._ht.length; i++) {
         var obj = this._ht[i];
@@ -113,7 +115,7 @@ ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
     }
 };
 ResourceDictionary.prototype._OnMentorChanged = function (oldValue, newValue) {
-    Collection.prototype._OnMentorChanged.call(this, oldValue, newValue);
+    this._OnMentorChanged$super(oldValue, newValue);
     for (var i = 0; i < this._KeyIndex.length; i++) {
         DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
     }
@@ -127,7 +129,7 @@ ResourceDictionary.prototype._RegisterAllNamesRootedAt = function (namescope, er
         if (obj != null && obj instanceof DependencyObject)
             obj._RegisterAllNamesRootedAt(namescope, error);
     }
-    Collection.prototype._RegisterAllNamesRootedAt.call(this, namescope, error);
+    this._RegisterAllNamesRootedAt$super(namescope, error);
 };
 ResourceDictionary.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
     /// <param name="fromNs" type="NameScope"></param>
@@ -136,7 +138,7 @@ ResourceDictionary.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
         if (obj != null && obj instanceof DependencyObject)
             obj._UnregisterAllNamesRootedAt(fromNs);
     }
-    Collection.prototype._UnregisterAllNamesRootedAt.call(this, fromNs);
+    this._UnregisterAllNamesRootedAt$super(fromNs);
 };
 
 ResourceDictionary._CanBeAddedTwice = function (value) {

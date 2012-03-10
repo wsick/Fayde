@@ -1,13 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// CODE
 
 //#region ICollectionView
 
 function ICollectionView() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.CurrentChanged = new MulticastEvent();
 }
-ICollectionView.InheritFrom(RefObject);
+Nullstone.Create(ICollectionView, "ICollectionView");
 
 //#endregion

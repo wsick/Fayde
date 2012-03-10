@@ -1,11 +1,12 @@
-﻿/// <reference path="../../Runtime/RefObject.js"/>
+﻿/// <reference path="../../Runtime/Nullstone.js"/>
 /// CODE
 
 //#region VisualStateChangedEventArgs
 
 function VisualStateChangedEventArgs() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-VisualStateChangedEventArgs.InheritFrom(RefObject);
+Nullstone.Create(VisualStateChangedEventArgs, "VisualStateChangedEventArgs");
 
 //#endregion

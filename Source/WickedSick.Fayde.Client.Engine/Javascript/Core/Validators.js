@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 function Validators() {
@@ -14,11 +14,11 @@ Validators.StyleValidator = function (instance, propd, value, error) {
     var errorMessage = null;
     if (value != null) {
         var root = null;
-        var style = RefObject.As(value, Style);
+        var style = Nullstone.As(value, Style);
 
         if (style.GetIsSealed()) {
-            if (parentType.DoesInheritFrom(style.GetTargetType())) {
-                error.SetErrored(BError.XamlParseException, "Style.TargetType (" + style.GetTargetType().GetName() + ") is not a subclass of (" + parentType.GetName() + ")");
+            if (Nullstone.DoesInheritFrom(parentType, style.GetTargetType())) {
+                error.SetErrored(BError.XamlParseException, "Style.TargetType (" + style.GetTargetType()._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
                 return false;
             }
             return true;
@@ -46,12 +46,12 @@ Validators.StyleValidator = function (instance, propd, value, error) {
                 if (targetType == null) {
                     error.SetErrored(BError.InvalidOperation, "TargetType cannot be null");
                     return false;
-                } else if (!(parentType.DoesInheritFrom(targetType))) {
-                    error.SetErrored(BError.XamlParseException, "Style.TargetType (" + targetType.GetName() + ") is not a subclass of (" + parentType.GetName() + ")");
+                } else if (!Nullstone.DoesInheritFrom(parentType, targetType)) {
+                    error.SetErrored(BError.XamlParseException, "Style.TargetType (" + targetType._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
                     return false;
                 }
-            } else if (targetType == null || !(parentType.DoesInheritFrom(targetType))) {
-                error.SetErrored(BError.InvalidOperation, "Style.TargetType (" + (targetType ? targetType.GetName() : "<Not Specified>") + ") is not a subclass of (" + parentType.GetName() + ")");
+            } else if (targetType == null || !Nullstone.DoesInheritFrom(parentType, targetType)) {
+                error.SetErrored(BError.InvalidOperation, "Style.TargetType (" + (targetType ? targetType._TypeName : "<Not Specified>") + ") is not a subclass of (" + parentType._TypeName + ")");
                 return false;
             }
             parentType = targetType;

@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Inline.js"/>
 /// CODE
 
 //#region Run
 
 function Run() {
-    Inline.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Run.InheritFrom(Inline);
+Nullstone.Extend(Run, "Run", Inline);
 
 //#region DEPENDENCY PROPERTIES
 

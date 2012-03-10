@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="Style.js"/>
 /// <reference path="Setter.js"/>
@@ -6,9 +6,7 @@
 //#region _DeepStyleWalker
 
 function _DeepStyleWalker(styles) {
-    RefObject.call(this);
-    
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
 
     this._Setters = new Array();
@@ -19,7 +17,7 @@ function _DeepStyleWalker(styles) {
     else if (styles instanceof Array)
         this._InitializeStyles(styles);
 }
-_DeepStyleWalker.InheritFrom(RefObject);
+Nullstone.Create(_DeepStyleWalker, "_DeepStyleWalker");
 
 _DeepStyleWalker.prototype.Step = function () {
     /// <returns type="Setter" />

@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="InheritedPropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
@@ -6,27 +6,28 @@
 //#region _InheritedContext
 
 function _InheritedContext() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     if (arguments.length > 2) {
-        this._InitFull.apply(this, arguments);
+        this._InitFull(arguments);
     } else if (arguments.length == 2) {
         this._InitFromObj(arguments[0], arguments[1]);
     }
 }
-_InheritedContext.InheritFrom(RefObject);
+Nullstone.Create(_InheritedContext, "_InheritedContext");
 
-_InheritedContext.prototype._InitFull = function () {
-    this.ForegroundSource = arguments[0];
-    this.FontFamilySource = arguments[1];
-    this.FontStretchSource = arguments[2];
-    this.FontStyleSource = arguments[3];
-    this.FontWeightSource = arguments[4];
-    this.FontSizeSource = arguments[5];
-    this.LanguageSource = arguments[6];
-    this.FlowDirectionSource = arguments[7];
-    this.UseLayoutRoundingSource = arguments[8];
-    this.TextDecorationsSource = arguments[9];
-    this.FontResourceSource = arguments[10];
+_InheritedContext.prototype._InitFull = function (args) {
+    this.ForegroundSource = args[0];
+    this.FontFamilySource = args[1];
+    this.FontStretchSource = args[2];
+    this.FontStyleSource = args[3];
+    this.FontWeightSource = args[4];
+    this.FontSizeSource = args[5];
+    this.LanguageSource = args[6];
+    this.FlowDirectionSource = args[7];
+    this.UseLayoutRoundingSource = args[8];
+    this.TextDecorationsSource = args[9];
+    this.FontResourceSource = args[10];
 };
 _InheritedContext.prototype._InitFromObj = function (obj, parentContext) {
     this.ForegroundSource = this.GetLocalSource(obj, _Inheritable.Foreground);

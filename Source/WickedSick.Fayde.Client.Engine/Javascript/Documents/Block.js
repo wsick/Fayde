@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextElement.js"/>
 /// CODE
 /// <reference path="InlineCollection.js"/>
@@ -6,9 +6,11 @@
 //#region Block
 
 function Block() {
-    TextElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Block.InheritFrom(TextElement);
+Nullstone.Extend(Block, "Block", TextElement);
 
 //#region DEPENDENCY PROPERTIES
 

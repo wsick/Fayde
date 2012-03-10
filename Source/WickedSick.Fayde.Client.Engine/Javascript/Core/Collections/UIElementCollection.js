@@ -1,14 +1,16 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="DependencyObjectCollection.js"/>
 /// CODE
 
 //#region UIElementCollection
 
 function UIElementCollection() {
-    DependencyObjectCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._ZSorted = new Array();
 }
-UIElementCollection.InheritFrom(DependencyObjectCollection);
+Nullstone.Extend(UIElementCollection, "UIElementCollection", DependencyObjectCollection);
 
 UIElementCollection.prototype.GetValueAtZIndex = function (index) {
     return this._ZSorted[index];

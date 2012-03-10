@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="FrameworkTemplate.js"/>
 /// CODE
 /// <reference path="NameScope.js"/>
@@ -7,9 +7,11 @@
 //#region DataTemplate
 
 function DataTemplate() {
-    FrameworkTemplate.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-DataTemplate.InheritFrom(FrameworkTemplate);
+Nullstone.Extend(DataTemplate, "DataTemplate", FrameworkTemplate);
 
 DataTemplate.CreateTemplateFromJson = function (json) {
     var template = new DataTemplate();

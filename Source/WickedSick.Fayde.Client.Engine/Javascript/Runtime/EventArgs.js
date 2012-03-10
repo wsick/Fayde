@@ -1,21 +1,22 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="Nullstone.js"/>
 
 //#region EventArgs
 
 function EventArgs() {
-    RefObject.call(this);
 }
-EventArgs.InheritFrom(RefObject);
+Nullstone.Create(EventArgs, "EventArgs");
 
 //#endregion
 
 //#region MouseEventArgs
 
 function MouseEventArgs(absolutePos) {
-    EventArgs.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._AbsolutePosition = absolutePos;
 }
-MouseEventArgs.InheritFrom(EventArgs);
+Nullstone.Extend(MouseEventArgs, "MouseEventArgs", EventArgs);
 
 MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
     if (relativeTo._IsAttached)
@@ -30,8 +31,10 @@ MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
 //#region MouseButtonEventArgs
 
 function MouseButtonEventArgs(absolutePos) {
-    MouseEventArgs.call(this, absolutePos);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(absolutePos);
 }
-MouseButtonEventArgs.InheritFrom(MouseEventArgs);
+Nullstone.Extend(MouseButtonEventArgs, "MouseButtonEventArgs", MouseEventArgs);
 
 //#endregion

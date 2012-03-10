@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="PropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
 /// CODE
@@ -6,12 +6,15 @@
 //#region _ImplicitStylePropertyValueProvider
 
 function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+
     this._Styles = null;
     this._StyleMask = _StyleMask.None;
     this._ht = new Array();
 }
-_ImplicitStylePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+Nullstone.Extend(_ImplicitStylePropertyValueProvider, "_ImplicitStylePropertyValueProvider", _PropertyValueProvider);
 
 _ImplicitStylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];

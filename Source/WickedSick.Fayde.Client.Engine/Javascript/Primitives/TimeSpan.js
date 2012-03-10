@@ -1,23 +1,22 @@
-﻿/// <reference path="../Runtime/RefObject.js" />
+﻿/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region TimeSpan
 
 function TimeSpan() {
-    RefObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
-    this._Initialize.apply(this, arguments);
+    this._Initialize(arguments);
 }
-TimeSpan.InheritFrom(RefObject);
+Nullstone.Create(TimeSpan, "TimeSpan");
 
-TimeSpan.prototype._Initialize = function () {
-    if (arguments.length === 0) {
+TimeSpan.prototype._Initialize = function (args) {
+    if (args.length === 0) {
         this._Ticks = 0;
         return;
     }
-    if (arguments.length === 1) { //ticks
-        this._Ticks = arguments[0];
+    if (args.length === 1) { //ticks
+        this._Ticks = args[0];
         return;
     }
 
@@ -26,21 +25,21 @@ TimeSpan.prototype._Initialize = function () {
     var minutes = 0;
     var seconds = 0;
     var milliseconds = 0;
-    if (arguments.length === 3) { //hours, minutes, seconds
-        hours = arguments[0];
-        minutes = arguments[1];
-        seconds = arguments[2];
-    } else if (arguments.length === 4) { //days, hours, minutes, seconds
-        days = arguments[0];
-        hours = arguments[1];
-        minutes = arguments[2];
-        seconds = arguments[3];
-    } else if (arguments.length === 5) { //days, hours, minutes, seconds, milliseconds
-        days = arguments[0];
-        hours = arguments[1];
-        minutes = arguments[2];
-        seconds = arguments[3];
-        milliseconds = arguments[4];
+    if (args.length === 3) { //hours, minutes, seconds
+        hours = args[0];
+        minutes = args[1];
+        seconds = args[2];
+    } else if (args.length === 4) { //days, hours, minutes, seconds
+        days = args[0];
+        hours = args[1];
+        minutes = args[2];
+        seconds = args[3];
+    } else if (args.length === 5) { //days, hours, minutes, seconds, milliseconds
+        days = args[0];
+        hours = args[1];
+        minutes = args[2];
+        seconds = args[3];
+        milliseconds = args[4];
     }
     this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute)
         + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);

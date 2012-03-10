@@ -1,12 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Inline.js"/>
 /// CODE
 
 //#region LineBreak
 
 function LineBreak() {
-    Inline.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-LineBreak.InheritFrom(Inline);
+Nullstone.Extend(LineBreak, "LineBreak", Inline);
 
 //#endregion

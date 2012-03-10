@@ -1,16 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Uri
 
 function Uri(os) {
-    RefObject.call(this);
-
-    if (!os)
+    if (!Nullstone.IsReady)
         return;
     this._OriginalString = os;
 }
-Uri.InheritFrom(RefObject);
+Nullstone.Create(Uri, "Uri");
 
 Uri.prototype.GetFragment = function () {
     ///<returns type="String"></returns>

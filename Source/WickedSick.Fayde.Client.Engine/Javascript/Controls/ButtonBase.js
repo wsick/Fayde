@@ -1,13 +1,13 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="ContentControl.js"/>
 /// CODE
 
 //#region ButtonBase
 
 function ButtonBase() {
-    ContentControl.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
 
     this._IsMouseCaptured = false;
     this._IsMouseLeftButtonDown = false;
@@ -19,7 +19,7 @@ function ButtonBase() {
     this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
     this.SetIsTabStop(true);
 }
-ButtonBase.InheritFrom(ContentControl);
+Nullstone.Extend(ButtonBase, "ButtonBase", ContentControl);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -58,7 +58,7 @@ ButtonBase.prototype.SetIsMouseOver = function (value) {
 //#endregion
 
 ButtonBase.prototype.OnIsEnabledChanged = function (e) {
-    ContentControl.prototype.OnIsEnabledChanged.call(this, e);
+    this.OnIsEnabledChanged$super(e);
     var isEnabled = e.NewValue;
     this._SuspendStateChanges = true;
     try {
@@ -101,7 +101,7 @@ ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
 //#region MOUSE
 
 ButtonBase.prototype.OnMouseEnter = function (sender, args) {
-    ContentControl.prototype.OnMouseEnter.call(this, sender, args);
+    this.OnMouseEnter$super(sender, args);
 
     this.SetIsMouseOver(true);
 
@@ -117,7 +117,7 @@ ButtonBase.prototype.OnMouseEnter = function (sender, args) {
     }
 };
 ButtonBase.prototype.OnMouseLeave = function (sender, args) {
-    ContentControl.prototype.OnMouseLeave.call(this, sender, args);
+    this.OnMouseLeave$super(sender, args);
 
     this.SetIsMouseOver(false);
 
@@ -131,7 +131,7 @@ ButtonBase.prototype.OnMouseLeave = function (sender, args) {
     }
 };
 ButtonBase.prototype.OnMouseMove = function (sender, args) {
-    ContentControl.prototype.OnMouseMove.call(this, sender, args);
+    this.OnMouseMove$super(sender, args);
 
     this._MousePosition = args.GetPosition(this);
 
@@ -140,7 +140,7 @@ ButtonBase.prototype.OnMouseMove = function (sender, args) {
     }
 };
 ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
-    ContentControl.prototype.OnMouseLeftButtonDown.call(this, sender, args);
+    this.OnMouseLeftButtonDown$super(sender, args);
 
     this._IsMouseLeftButtonDown = true;
     if (!this.GetIsEnabled())
@@ -165,7 +165,7 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
         this.OnClick();
 };
 ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
-    ContentControl.prototype.OnMouseLeftButtonUp.call(this, sender, args);
+    this.OnMouseLeftButtonDown$super(sender, args);
 
     this._IsMouseLeftButtonDown = false;
     if (!this.GetIsEnabled())
@@ -209,13 +209,13 @@ ButtonBase.prototype._IsValidMousePosition = function () {
 //#region FOCUS
 
 ButtonBase.prototype.OnGotFocus = function (sender, args) {
-    ContentControl.prototype.OnGotFocus.call(this, sender, args);
+    this.OnGotFocus$super(sender, args);
 
     this.SetIsFocused(true);
     this.UpdateVisualState();
 };
 ButtonBase.prototype.OnLostFocus = function (sender, args) {
-    ContentControl.prototype.OnLostFocus.call(this, sender, args);
+    this.OnLostFocus$super(sender, args);
 
     this.SetIsFocused(false);
 

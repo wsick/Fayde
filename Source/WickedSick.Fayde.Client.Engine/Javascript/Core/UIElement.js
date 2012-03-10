@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="DependencyObject.js" />
 /// CODE
 /// <reference path="../Core/DependencyProperty.js" />
@@ -12,9 +12,9 @@
 //#region UIElement
 
 function UIElement() {
-    DependencyObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
 
     this.Unloaded = new MulticastEvent();
     this.Loaded = new MulticastEvent();
@@ -71,7 +71,7 @@ function UIElement() {
     this.LostFocus = new MulticastEvent();
     this.LostFocus.Subscribe(this.OnLostFocus, this);
 }
-UIElement.InheritFrom(DependencyObject);
+Nullstone.Extend(UIElement, "UIElement", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -545,7 +545,7 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
         var iter = new CollectionIterator(this.GetResources());
         while (iter.Next()) {
             var v = iter.GetCurrent();
-            v = RefObject.As(v, FrameworkElement);
+            v = Nullstone.As(v, FrameworkElement);
             if (v != null)
                 v._SetIsLoaded(loaded);
         }
@@ -561,7 +561,7 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
         var iter = new CollectionIterator(this.GetResources());
         while (iter.Next()) {
             var v = iter.GetCurrent();
-            v = RefObject.As(v, FrameworkElement);
+            v = Nullstone.As(v, FrameworkElement);
             if (v != null)
                 v._SetIsLoaded(loaded);
         }
@@ -575,7 +575,7 @@ UIElement.prototype._OnIsAttachedChanged = function (value) {
 
     //HACK:
     this._InvalidateVisibility();
-    DependencyObject.prototype._OnIsAttachedChanged.call(this, value);
+    this._OnIsAttachedChanged$super(value);
 
     if (!value) {
         this._CacheInvalidateHint();
@@ -595,7 +595,7 @@ UIElement.prototype._OnInvalidated = function () {
 
 UIElement.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== UIElement) {
-        DependencyObject.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
     if (args.Property === UIElement.OpacityProperty) {

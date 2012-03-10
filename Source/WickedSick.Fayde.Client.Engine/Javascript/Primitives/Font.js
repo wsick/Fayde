@@ -1,17 +1,18 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Font
 
 function Font() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Family = Font.DEFAULT_FAMILY;
     this._Stretch = Font.DEFAULT_STRETCH;
     this._Style = Font.DEFAULT_STYLE;
     this._Weight = Font.DEFAULT_WEIGHT;
     this._Size = Font.DEFAULT_SIZE;
 }
-Font.InheritFrom(RefObject);
+Nullstone.Create(Font, "Font");
 
 Font.prototype.GetFamily = function () {
     return this._Family;

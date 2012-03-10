@@ -1,13 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _PropertyPathParser
 
 function _PropertyPathParser(path) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.SetPath(path);
 }
-_PropertyPathParser.InheritFrom(RefObject);
+Nullstone.Create(_PropertyPathParser, "_PropertyPathParser");
 
 _PropertyPathParser.prototype.Step = function (data) {
     var type = _PropertyNodeType.None;

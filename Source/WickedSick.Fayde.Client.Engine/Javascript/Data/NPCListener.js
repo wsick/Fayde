@@ -1,10 +1,11 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region NPCListener
 
 function NPCListener(source, closure, func) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Source = source;
     this._Closure = closure;
     this._Func = func;
@@ -12,7 +13,7 @@ function NPCListener(source, closure, func) {
     if (this._Source)
         this._Source.PropertyChanged.Subscribe(this._Func, this._Closure);
 }
-NPCListener.InheritFrom(RefObject);
+Nullstone.Create(NPCListener, "NPCListener");
 
 NPCListener.prototype.Detach = function () {
     this._Source.PropertyChanged.Unsubscribe(this._Closure, this._Func);

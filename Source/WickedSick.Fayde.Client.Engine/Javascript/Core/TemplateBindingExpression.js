@@ -1,15 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Expression.js"/>
 /// CODE
 
 //#region TemplateBindingExpression
 
 function TemplateBindingExpression(sourcePropd, targetPropd) {
-    Expression.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.SourceProperty = sourcePropd;
     this.TargetProperty = targetPropd;
 }
-TemplateBindingExpression.InheritFrom(Expression);
+Nullstone.Extend(TemplateBindingExpression, "TemplateBindingExpression", Expression);
 
 TemplateBindingExpression.prototype.GetValue = function (propd) {
     var source = this.Target.GetTemplateOwner();
@@ -19,7 +21,7 @@ TemplateBindingExpression.prototype.GetValue = function (propd) {
     return value; //TODO: Send through TypeConverter
 };
 TemplateBindingExpression.prototype._OnAttached = function (element) {
-    Expression.prototype._OnAttached.call(this, element);
+    this._OnAttached$super(element);
 
     this.Target = element;
     var listener = this.GetListener();
@@ -29,7 +31,7 @@ TemplateBindingExpression.prototype._OnAttached = function (element) {
         this.SetListener(listener);
     }
 
-    var c = RefObject.As(this.Target, ContentControl);
+    var c = Nullstone.As(this.Target, ContentControl);
     if (this.TargetProperty === ContentControl.ContentProperty && c != null) {
         this.SetsParent = c._ContentSetsParent;
         c._ContentSetsParent = false;
@@ -42,13 +44,13 @@ TemplateBindingExpression.prototype._OnAttached = function (element) {
     }
 };
 TemplateBindingExpression.prototype._OnDetached = function (element) {
-    Expression.prototype._OnDetached.call(this, element);
+    this._OnDetached$super(element);
 
     var listener = this.GetListener();
     if (listener == null)
         return;
 
-    var c = RefObject.As(this.Target, ContentControl);
+    var c = Nullstone.As(this.Target, ContentControl);
     if (c != null)
         c._ContentSetsParent = this.SetsParent;
 

@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Enums.js"/>
 /// <reference path="../Core/Expression.js"/>
 /// CODE
@@ -6,7 +6,9 @@
 //#region BindingExpressionBase
 
 function BindingExpressionBase(binding, target, propd) {
-    Expression.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 
     if (!binding)
         return;
@@ -26,7 +28,7 @@ function BindingExpressionBase(binding, target, propd) {
         walker.ValueChanged.Subscribe(this._PropertyPathValueChanged, this);
     }
 }
-BindingExpressionBase.InheritFrom(Expression);
+Nullstone.Extend(BindingExpressionBase, "BindingExpressionBase", Expression);
 
 BindingExpressionBase.prototype.GetValue = function (propd) {
     if (this._Cached)
@@ -51,13 +53,13 @@ BindingExpressionBase.prototype._OnAttached = function (element) {
     ///<param name="element" type="DependencyObject"></param>
     if (this.GetAttached())
         return;
-    Expression.prototype._OnAttached.call(this, element);
+    this._OnAttached$super(element);
     this._CalculateDataSource();
 
     if (this.GetIsTwoWayTextBoxText())
         this.GetTarget().LostFocus.Subscribe(this._TextBoxLostFocus, this);
 
-    var targetFE = RefObject.As(element, FrameworkElement);
+    var targetFE = Nullstone.As(element, FrameworkElement);
     if (this.GetBinding().GetMode() === BindingMode.TwoWay && this.GetProperty()._IsCustom) {
         var updateDataSourceCallback = function () {
             try {
@@ -75,11 +77,11 @@ BindingExpressionBase.prototype._OnDetached = function (element) {
     if (!this.GetAttached())
         return;
 
-    Expression.prototype._OnDetached.call(this, element);
+    this._OnDetached$super(element);
     if (this.GetIsTwoWayTextBoxText())
         this.GetTarget().LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
 
-    var targetFE = RefObject.As(element, FrameworkElement);
+    var targetFE = Nullstone.As(element, FrameworkElement);
     if (this.GetIsMentorDataContextBound()) {
         targetFE.MentorChanged.Unsubscribe(this._MentorChanged, this);
         this.SetDataContextSource(null);
@@ -185,7 +187,7 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
 BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) {
     /// <param name="message" type="String"></param>
     /// <param name="exception" type="Exception"></param>
-    var fe = RefObject.As(this.GetTarget(), FrameworkElement);
+    var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
     if (fe == null)
         fe = this.GetTarget().GetMentor();
     if (fe == null)
@@ -270,7 +272,7 @@ BindingExpressionBase.prototype._CalculateDataSource = function () {
         this.GetPropertyPathWalker().Update(this.GetBinding().GetSource());
     } else if (this.GetBinding().GetElementName() != null) {
         source = this._FindSourceByElementName();
-        var feTarget = RefObject.As(this.GetTarget(), FrameworkElement);
+        var feTarget = Nullstone.As(this.GetTarget(), FrameworkElement);
         if (feTarget == null)
             feTarget = this.GetTarget().GetMentor();
         if (feTarget == null) {
@@ -282,7 +284,7 @@ BindingExpressionBase.prototype._CalculateDataSource = function () {
     } else if (this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.Self) {
         this.GetPropertyPathWalker().Update(this.GetTarget());
     } else {
-        var fe = RefObject.As(this.GetTarget(), FrameworkElement);
+        var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
         if (fe != null && (this.GetProperty() === FrameworkElement.DataContextProperty || this.GetProperty() === ContentPresenter.ContentProperty)) {
             fe.VisualParentChanged.Subscribe(this._ParentChanged, this);
             fe = fe.GetVisualParent();
@@ -341,7 +343,7 @@ BindingExpressionBase.prototype._HandleFeTargetLoaded = function (sender, e) {
 };
 BindingExpressionBase.prototype._FindSourceByElementName = function () {
     var source = null;
-    var fe = RefObject.As(this.GetTarget(), FrameworkElement);
+    var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
     if (!fe)
         fe = this.GetTarget().GetMentor();
     while (fe != null && source == null) {
@@ -409,10 +411,10 @@ BindingExpressionBase.prototype.Refresh = function () {
     //TODO: ERROR/VALIDATION
     //var node = this.GetPropertyPathWalker().GetFinalNode();
     //var source = node.GetSource();
-    //source = RefObject.As(source, INotifyDataErrorInfo));
+    //source = Nullstone.As(source, INotifyDataErrorInfo));
     //this._AttachToNotifyError(source);
 
-    //source = RefObject.As(node.GetSource(), IDataErrorInfo);
+    //source = Nullstone.As(node.GetSource(), IDataErrorInfo);
     //if (!this.GetUpdating() && this.GetBinding().GetValidatesOnDataErrors() && source != null && node.GetPropertyInfo() != null)
     //dataError = source[node.GetPropertyInfo().Name];
 

@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="Animation.js"/>
 /// CODE
 /// <reference path="Storyboard.js"/>
@@ -7,9 +7,11 @@
 //#region DoubleAnimation
 
 function DoubleAnimation() {
-    Animation.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-DoubleAnimation.InheritFrom(Animation);
+Nullstone.Extend(DoubleAnimation, "DoubleAnimation", Animation);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -106,7 +108,7 @@ DoubleAnimation.prototype._EnsureCache = function () {
 
 DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== DoubleAnimation) {
-        Animation.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
 

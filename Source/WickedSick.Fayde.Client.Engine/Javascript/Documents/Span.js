@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Inline.js"/>
 /// CODE
 
 //#region Span
 
 function Span() {
-    Inline.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Span.InheritFrom(Inline);
+Nullstone.Extend(Span, "Span", Inline);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -39,7 +41,7 @@ Span.prototype._OnCollectionChanged = function (sender, args) {
             this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
         this._NotifyLayoutContainerOnCollectionChanged(sender, args);
     } else {
-        Inline.prototype._OnCollectionChanged.call(this, sender, args);
+        this._OnCollectionChanged$super(sender, args);
     }
 };
 

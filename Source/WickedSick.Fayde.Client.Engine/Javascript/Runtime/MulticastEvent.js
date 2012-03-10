@@ -1,13 +1,12 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="Nullstone.js"/>
 /// CODE
 
 //#region MulticastEvent
 
 function MulticastEvent() {
-    RefObject.call(this);
     this._Listeners = new Array();
 }
-MulticastEvent.InheritFrom(RefObject);
+Nullstone.Create(MulticastEvent, "MulticastEvent");
 
 MulticastEvent.prototype.Subscribe = function (callback, closure) {
     /// <param name="callback" type="Function"></param>

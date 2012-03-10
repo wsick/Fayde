@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="PropertyValueProviders/PropertyValueProvider.js"/>
 /// <reference path="../Primitives/Size.js"/>
 /// CODE
@@ -7,12 +7,15 @@
 //#region FrameworkElementPropertyValueProvider
 
 function FrameworkElementPropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, 0);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence, 0);
+
     this._ActualHeight = null;
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 }
-FrameworkElementPropertyValueProvider.InheritFrom(_PropertyValueProvider);
+Nullstone.Extend(FrameworkElementPropertyValueProvider, "FrameworkElementPropertyValueProvider", _PropertyValueProvider);
 
 FrameworkElementPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (propd !== FrameworkElement.ActualHeightProperty && propd !== FrameworkElement.ActualWidthProperty)

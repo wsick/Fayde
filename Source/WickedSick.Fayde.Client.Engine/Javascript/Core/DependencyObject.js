@@ -1,4 +1,4 @@
-﻿/// <reference path="../Runtime/RefObject.js"/>
+﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// <reference path="DependencyProperty.js" />
 /// <reference path="PropertyValueProviders/PropertyValueProvider.js" />
 /// <reference path="PropertyValueProviders/AutoCreatePropertyValueProvider.js" />
@@ -14,10 +14,11 @@
 //#region DependencyObject
 
 function DependencyObject() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Initialize();
 }
-DependencyObject.InheritFrom(RefObject);
+Nullstone.Create(DependencyObject, "DependencyObject");
 
 //#region DEPENDENCY PROPERTIES
 
@@ -202,7 +203,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
         if (propd._IsAutoCreated())
             this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
 
-        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject) || RefObject.As(value, DependencyObject) != null))
+        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject) || Nullstone.As(value, DependencyObject) != null))
             newValue = value;
         else
             newValue = null;

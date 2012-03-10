@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
 /// <reference path="Enums.js"/>
@@ -9,11 +9,10 @@
 function _DeepTreeWalker(top, direction) {
     /// <param name="top" type="UIElement"></param>
     /// <param name="direction" type="Number">_VisualTreeWalkerDirection</param>
-    RefObject.call(this);
-
+    if (!Nullstone.IsReady)
+        return;
     if (!top)
         return;
-
     this._WalkList = new LinkedList();
     this._WalkList.Append(new UIElementNode(top));
     this._Last = null;
@@ -21,7 +20,7 @@ function _DeepTreeWalker(top, direction) {
     if (direction)
         this._Direction = direction;
 }
-_DeepTreeWalker.InheritFrom(RefObject);
+Nullstone.Create(_DeepTreeWalker, "_DeepTreeWalker");
 
 _DeepTreeWalker.prototype.Step = function () {
     if (this._Last) {

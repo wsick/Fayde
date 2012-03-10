@@ -6,13 +6,13 @@
 //#region KeyFrameCollection
 
 function KeyFrameCollection() {
-    DependencyObjectCollection.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
     this._Resolved = false;
     this._SortedList = new Array();
 }
-KeyFrameCollection.InheritFrom(DependencyObjectCollection);
+Nullstone.Extend(KeyFrameCollection, "KeyFrameCollection", DependencyObjectCollection);
 
 KeyFrameCollection.prototype.GetKeyFrameForTime = function (t, prevFrameRef) {
     /// <param name="t" type="TimeSpan"></param>
@@ -63,24 +63,24 @@ KeyFrameCollection.prototype.GetKeyFrameForTime = function (t, prevFrameRef) {
 KeyFrameCollection.prototype.Clear = function () {
     this._Resolved = false;
     //Clear sorted
-    DependencyObjectCollection.prototype.Clear.call(this);
+    this.Clear$super();
 };
 
 KeyFrameCollection.prototype.AddedToCollection = function (value, error) {
-    if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
+    if (!this.AddedToCollection$super(value, error))
         return false;
     this._Resolved = false;
     return true;
 };
 KeyFrameCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-    DependencyObjectCollection.prototype.RemovedFromCollection.call(this, value, isValueSafe);
+    this.RemovedFromCollection$super(value, isValueSafe);
     this._Resolved = false;
 };
 
 KeyFrameCollection.prototype._OnSubPropertyChanged = function (sender, args) {
     if (args.Property.Name === "KeyTime")
         this._Resolved = false;
-    Collection.prototype._OnSubPropertyChanged.call(this, sender, args);
+    this._OnSubPropertyChanged$super(sender, args);
 };
 
 /// http://msdn2.microsoft.com/en-us/library/ms742524.aspx (Bottom of page)
@@ -101,7 +101,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     var i;
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
-        keyFrame = RefObject.As(value, KeyFrame);
+        keyFrame = Nullstone.As(value, KeyFrame);
         keyFrame._ResolvedTime = 0;
         keyFrame._Resolved = false;
     }
@@ -110,7 +110,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     // resolve TimeSpan keyframes
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
-        keyFrame = RefObject.As(value, KeyFrame);
+        keyFrame = Nullstone.As(value, KeyFrame);
         keyTime = keyFrame.GetKeyTime();
         if (keyTime.HasTimeSpan()) {
             hasTimeSpanKeyFrame = true;
@@ -135,7 +135,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     // use the total interpolation time to resolve percent keytime keyframes
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
-        keyFrame = RefObject.As(value, KeyFrame);
+        keyFrame = Nullstone.As(value, KeyFrame);
         keyTime = keyFrame.GetKeyTime();
         if (keyTime.HasPercent()) {
             keyFrame._ResolvedTime = totalInterpolationTime.Multiply(keyTime.GetPercent())
@@ -146,7 +146,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     // if the last frame is KeyTime Uniform or Paced, resolve it to be equal to the total interpolation time
     if (count > 0) {
         value = coll.GetValueAt(count - 1);
-        keyFrame = RefObject.As(value, KeyFrame);
+        keyFrame = Nullstone.As(value, KeyFrame);
         keyTime = keyFrame.GetKeyTime();
         if (keyTime.IsPaced() || keyTime.IsUniform()) {
             keyFrame._ResolvedKeyTime = totalInterpolationTime;
@@ -163,7 +163,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     */
     if (count > 0) {
         value = coll.GetValueAt(count - 1);
-        keyFrame = RefObject.As(value, KeyFrame);
+        keyFrame = Nullstone.As(value, KeyFrame);
         keyTime = keyFrame.GetKeyTime();
         if (!keyFrame._Resolved && keyTime.IsPaced()) {
             keyFrame._ResolvedKeyTime = new TimeSpan(0);
@@ -180,7 +180,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     this._SortedList = new Array();
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
-        keyFrame = RefObject.As(value, KeyFrame);
+        keyFrame = Nullstone.As(value, KeyFrame);
         this._SortedList.push(keyFrame);
     }
     this._SortedList.sort(KeyFrame.Comparer);

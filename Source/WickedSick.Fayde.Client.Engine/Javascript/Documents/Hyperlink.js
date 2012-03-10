@@ -1,12 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Span.js"/>
 /// CODE
 
 //#region Hyperlink
 
 function Hyperlink() {
-    Span.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Hyperlink.InheritFrom(Span);
+Nullstone.Extend(Hyperlink, "Hyperlink", Span);
 
 //#endregion

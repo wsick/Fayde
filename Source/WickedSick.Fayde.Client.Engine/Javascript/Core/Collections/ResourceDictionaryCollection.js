@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="DependencyObjectCollection.js"/>
 /// CODE
 /// <reference path="ResourceDictionary.js"/>
@@ -6,12 +6,14 @@
 //#region ResourceDictionaryCollection
 
 function ResourceDictionaryCollection() {
-    DependencyObjectCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-ResourceDictionaryCollection.InheritFrom(DependencyObjectCollection);
+Nullstone.Extend(ResourceDictionaryCollection, "ResourceDictionaryCollection", DependencyObjectCollection);
 
 ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
-    if (!DependencyObjectCollection.prototype.AddedToCollection.call(this, value, error))
+    if (!this.AddedToCollection$super(value, error))
         return false;
     var parent = this._GetParent();
     if (!parent)

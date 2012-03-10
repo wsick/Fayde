@@ -1,15 +1,16 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="Surface.js"/>
 
 //#region _RenderContext
 
 function _RenderContext(surface) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Surface = surface;
     this._Transforms = new Array();
 }
-_RenderContext.InheritFrom(RefObject);
+Nullstone.Create(_RenderContext, "_RenderContext");
 
 _RenderContext.prototype.GetSurface = function () {
     return this._Surface;

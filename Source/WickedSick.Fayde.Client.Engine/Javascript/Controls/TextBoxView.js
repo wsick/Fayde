@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../TextLayout/TextLayout.js"/>
@@ -8,7 +8,9 @@
 //#region _TextBoxView
 
 function _TextBoxView() {
-    FrameworkElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 
     this._Cursor = new Rect();
     this._Layout = new TextLayout();
@@ -20,7 +22,7 @@ function _TextBoxView() {
     this._TextBox = null;
     this._Dirty = false;
 }
-_TextBoxView.InheritFrom(FrameworkElement);
+Nullstone.Extend(_TextBoxView, "_TextBoxView", FrameworkElement);
 
 _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
     if (this._TextBox == value)
@@ -164,7 +166,7 @@ _TextBoxView.prototype._UpdateText = function () {
 
 _TextBoxView.prototype._ComputeActualSize = function () {
     if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty))
-        return FrameworkElement.prototype._ComputeActualSize.call(this);
+        return this._ComputeActualSize$super();
 
     this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     return this._Layout.GetActualExtents();

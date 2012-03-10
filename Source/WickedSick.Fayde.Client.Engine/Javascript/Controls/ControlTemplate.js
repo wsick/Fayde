@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkTemplate.js"/>
 /// CODE
 /// <reference path="../Core/NameScope.js"/>
@@ -7,11 +7,13 @@
 //#region ControlTemplate
 
 function ControlTemplate(targetType, json) {
-    FrameworkTemplate.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.SetTargetType(targetType);
     this._TempJson = json;
 }
-ControlTemplate.InheritFrom(FrameworkTemplate);
+Nullstone.Extend(ControlTemplate, "ControlTemplate", FrameworkTemplate);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -36,7 +38,7 @@ ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSou
         NameScope.SetNameScope(root, namescope);
         return root;
     }
-    FrameworkTemplate.prototype._GetVisualTreeWithError.call(this, templateBindingSource, error);
+    this._GetVisualTreeWithError$super(templateBindingSource, error);
 };
 
 //#endregion

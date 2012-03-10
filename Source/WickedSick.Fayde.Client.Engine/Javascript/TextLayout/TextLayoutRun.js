@@ -1,10 +1,9 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _TextLayoutRun
 
 function _TextLayoutRun(line, attrs, start) {
-    RefObject.call(this);
     this._Clusters = new Array();
     this._Attrs = attrs;
     this._Start = start;
@@ -12,7 +11,7 @@ function _TextLayoutRun(line, attrs, start) {
     this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
     this._Length = 0;
 }
-_TextLayoutRun.InheritFrom(RefObject);
+Nullstone.Create(_TextLayoutRun, "_TextLayoutRun");
 
 _TextLayoutRun.prototype._GenerateCache = function () {
     var selectionLength = this._Line._Layout.GetSelectionLength();

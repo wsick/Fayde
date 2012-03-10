@@ -1,12 +1,13 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region BindingOperations
 
 function BindingOperations() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-BindingOperations.InheritFrom(RefObject);
+Nullstone.Create(BindingOperations, "BindingOperations");
 
 BindingOperations.SetBinding = function (target, dp, binding) {
     /// <param name="target" type="DependencyObject"></param>

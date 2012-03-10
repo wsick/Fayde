@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
 /// <reference path="PropertyValueProviders/TextBlockDynamicPropertyValueProvider.js"/>
 /// <reference path="../Primitives/Font.js"/>
@@ -8,7 +8,9 @@
 //#region TextBlock
 
 function TextBlock() {
-    FrameworkElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 
     this._Layout = new TextLayout();
 
@@ -22,7 +24,7 @@ function TextBlock() {
 
     this._Font = new Font();
 }
-TextBlock.InheritFrom(FrameworkElement);
+Nullstone.Extend(TextBlock, "TextBlock", FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -361,7 +363,7 @@ TextBlock.prototype._CanFindElement = function () {
 TextBlock.prototype._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         if (args.Property !== FrameworkElement.LanguageProperty)
             return;
         if (!this._UpdateFonts(false))
@@ -427,12 +429,12 @@ TextBlock.prototype._OnSubPropertyChanged = function (sender, args) {
     if (args.Property != null && args.Property === TextBlock.ForegroundProperty) {
         this._Invalidate();
     } else {
-        FrameworkElement.prototype._OnSubPropertyChanged.call(this, sender, args);
+        this._OnSubPropertyChanged$super(sender, args);
     }
 };
 TextBlock.prototype._OnCollectionChanged = function (sender, args) {
     if (!this._PropertyHasValueNoAutoCreate(TextBlock.InlinesProperty, sender)) {
-        FrameworkElement.prototype._OnCollectionChanged.call(this, sender, args);
+        this._OnCollectionChanged$super(sender, args);
         return;
     }
 

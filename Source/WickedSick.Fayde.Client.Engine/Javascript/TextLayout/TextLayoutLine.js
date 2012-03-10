@@ -1,10 +1,9 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _TextLayoutLine
 
 function _TextLayoutLine(layout, start, offset) {
-    RefObject.call(this);
     this._Runs = new Array();
     this._Layout = layout;
     this._Start = start;
@@ -15,7 +14,7 @@ function _TextLayoutLine(layout, start, offset) {
     this._Width = 0.0;
     this._Length = 0;
 }
-_TextLayoutLine.InheritFrom(RefObject);
+Nullstone.Create(_TextLayoutLine, "_TextLayoutLine");
 
 _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
     var run;

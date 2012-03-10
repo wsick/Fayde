@@ -1,12 +1,13 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Markup
 
 function Markup() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-Markup.InheritFrom(RefObject);
+Nullstone.Create(Markup, "Markup");
 
 Markup.prototype.Transmute = function (propd, templateBindingSource) {
     AbstractMethod("Markup.Transmute");

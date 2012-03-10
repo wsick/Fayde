@@ -1,15 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="PropertyPathNode.js"/>
 /// CODE
 
 //#region _StandardPropertyPathNode
 
 function _StandardPropertyPathNode(typeName, propertyName) {
-    _PropertyPathNode.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._STypeName = typeName;
     this._PropertyName = propertyName;
 }
-_StandardPropertyPathNode.InheritFrom(_PropertyPathNode);
+Nullstone.Extend(_StandardPropertyPathNode, "_StandardPropertyPathNode", _PropertyPathNode);
 
 _StandardPropertyPathNode.prototype.SetValue = function (value) {
     if (this.GetDependencyProperty() != null)
@@ -36,10 +38,10 @@ _StandardPropertyPathNode.prototype.UpdateValue = function () {
 };
 
 _StandardPropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
-    _PropertyPathNode.prototype.OnSourceChanged.call(this, oldSource, newSource);
+    this.OnSourceChanged$super(oldSource, newSource);
 
-    var oldDO = RefObject.As(oldSource, DependencyObject);
-    var newDO = RefObject.As(newSource, DependencyObject);
+    var oldDO = Nullstone.As(oldSource, DependencyObject);
+    var newDO = Nullstone.As(newSource, DependencyObject);
     var listener = this.GetListener();
     if (listener != null) {
         listener.Detach();

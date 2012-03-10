@@ -57,6 +57,7 @@
     <Content Include="Javascript\Controls\ControlTemplate.js" />
     <Content Include="Javascript\Controls\Enums.js" />
     <Content Include="Javascript\Controls\GridLength.js" />
+    <Content Include="Javascript\Controls\ItemsPresenter.js" />
     <Content Include="Javascript\Controls\MediaElement.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />
     <Content Include="Javascript\Controls\Popup.js" />
@@ -210,6 +211,7 @@
     <Content Include="Javascript\Primitives\Uri.js" />
     <Content Include="Javascript\Data\PropertyPath.js" />
     <Content Include="Javascript\Runtime\LinkedListNode.js" />
+    <Content Include="Javascript\Runtime\Nullstone.js" />
     <Content Include="Javascript\Runtime\PropertyInfo.js" />
     <Content Include="Javascript\Runtime\RefObject.js" />
     <Content Include="Javascript\Data\RelativeSource.js" />

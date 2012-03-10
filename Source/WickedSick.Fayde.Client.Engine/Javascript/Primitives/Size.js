@@ -1,14 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Size
 
 function Size(width, height) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
-Size.InheritFrom(RefObject);
+Nullstone.Create(Size, "Size");
 
 Size.prototype.GrowBy = function (width, height) {
     var h = this.Height;

@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/EventArgs.js"/>
 /// CODE
 
 //#region PropertyChangedEventArgs
 
 function PropertyChangedEventArgs() {
-    EventArgs.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-PropertyChangedEventArgs.InheritFrom(EventArgs);
+Nullstone.Extend(PropertyChangedEventArgs, "PropertyChangedEventArgs", EventArgs);
 
 PropertyChangedEventArgs.prototype.GetPropertyName = function () {
     /// <returns type="String" />

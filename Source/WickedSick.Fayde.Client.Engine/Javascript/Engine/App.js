@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="Surface.js"/>
@@ -9,15 +9,15 @@
 //#region App
 
 function App() {
-    DependencyObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
 
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
     this._Storyboards = new Array();
 }
-App.InheritFrom(DependencyObject);
+Nullstone.Extend(App, "App", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

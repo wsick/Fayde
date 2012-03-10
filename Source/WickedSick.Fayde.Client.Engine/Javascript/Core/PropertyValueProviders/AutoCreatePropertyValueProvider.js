@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="PropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
 /// CODE
@@ -6,10 +6,12 @@
 //#region _AutoCreatePropertyValueProvider
 
 function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
-_AutoCreatePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+Nullstone.Extend(_AutoCreatePropertyValueProvider, "_AutoCreatePropertyValueProvider", _PropertyValueProvider);
 
 _AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);

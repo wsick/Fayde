@@ -1,14 +1,15 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="Nullstone.js"/>
 
 function BError() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Number = 0;
     this.Code = 0;
     this.CharPosition = 0;
     this.LineNumber = 0;
     this.Message = "";
 }
-BError.InheritFrom(RefObject);
+Nullstone.Create(BError, "BError");
 
 BError.prototype.SetErrored = function (number, message, code) {
     this._Number = number;

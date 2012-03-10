@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Panel.js"/>
 /// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
@@ -14,11 +14,13 @@
 //#region Grid
 
 function Grid() {
-    Panel.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._RowMatrix = null;
     this._ColMatrix = null;
 }
-Grid.InheritFrom(Panel);
+Nullstone.Extend(Grid, "Grid", Panel);
 
 //#region ATTACHED DEPENDENCY PROPERTIES
 
@@ -512,7 +514,7 @@ Grid.prototype._RestoreMeasureResults = function () {
 };
 
 Grid.prototype._ComputeBounds = function () {
-    Panel.prototype._ComputeBounds.call(this);
+    this._ComputeBounds$super();
 
     if (this.GetShowGridLines()) {
         this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
@@ -536,7 +538,7 @@ Grid.prototype._GetColumnDefinitionsNoAutoCreate = function () {
 
 Grid.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Grid) {
-        Panel.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
 
@@ -551,7 +553,7 @@ Grid.prototype._OnCollectionChanged = function (sender, args) {
         || this._PropertyHasValueNoAutoCreate(Grid.RowDefinitionsProperty, sender)) {
         this._InvalidateMeasure();
     } else {
-        Panel.prototype._OnCollectionChanged.call(this, sender, args);
+        this._OnCollectionChanged$super(sender, args);
     }
 };
 Grid.prototype._OnCollectionItemChanged = function (sender, args) {
@@ -572,7 +574,7 @@ Grid.prototype._OnCollectionItemChanged = function (sender, args) {
         }
         return;
     }
-    Panel.prototype._OnCollectionChanged.call(this, sender, args);
+    this._OnCollectionChanged$super(sender, args);
 };
 
 //#endregion
@@ -582,7 +584,8 @@ Grid.prototype._OnCollectionItemChanged = function (sender, args) {
 //#region _Segment
 
 function _Segment(offered, min, max, unitType) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._DesiredSize = 0;
     this._Min = min == null ? 0.0 : min;
     this._Max = max == null ? Number.POSITIVE_INFINITY : max;
@@ -592,7 +595,7 @@ function _Segment(offered, min, max, unitType) {
     this._OfferedSize = this._Clamp(offered);
     this._OriginalSize = this._OfferedSize;
 }
-_Segment.InheritFrom(RefObject);
+Nullstone.Create(_Segment, "_Segment");
 
 _Segment.prototype._SetOfferedToDesired = function () {
     this._OfferedSize = this._DesiredSize;
@@ -615,21 +618,25 @@ _Segment.prototype._Clamp = function (value) {
 //#region _GridNode
 
 function _GridNode(matrix, row, col, size) {
-    LinkedListNode.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._Matrix = matrix;
     this._Row = row;
     this._Col = col;
     this._Size = size;
     this._Cell = this._Matrix == null ? null : this._Matrix[row][col];
 }
-_GridNode.InheritFrom(LinkedListNode);
+Nullstone.Extend(_GridNode, "_GridNode", LinkedListNode);
 
 //#endregion
 
 //#region _GridWalker
 
 function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this._HasAutoAuto = false;
     this._HasStarAuto = false;
     this._HasAutoStar = false;
@@ -661,6 +668,6 @@ function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
         this._HasAutoStar = this._HasAutoStar || (autoRow && starCol);
     }
 }
-_GridWalker.InheritFrom(RefObject);
+Nullstone.Create(_GridWalker, "_GridWalker");
 
 //#endregion

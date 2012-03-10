@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="PropertyPathNode.js"/>
 /// CODE
 /// <reference path="CurrentChangedListener.js"/>
@@ -6,17 +6,19 @@
 //#region _CollectionViewNode
 
 function _CollectionViewNode(bindsDirectlyToSource, bindToView, viewChanged) {
-    _PropertyPathNode.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.SetBindsDirectlyToSource(bindsDirectlyToSource === true);
     this.SetBindToView(bindToView === true);
     this.SetViewChangedHandler(this.ViewChanged);
 }
-_CollectionViewNode.InheritFrom(_PropertyPathNode);
+Nullstone.Extend(_CollectionViewNode, "_CollectionViewNode", _PropertyPathNode);
 
 _CollectionViewNode.prototype.OnSourceChanged = function (oldSource, newSource) {
-    _PropertyPathNode.prototype.OnSourceChanged.call(this, oldSource, newSource);
+    this.OnSourceChanged$super(oldSource, newSource);
     this.DisconnectViewHandlers();
-    this.ConnectViewHandlers(RefObject.As(newSource, CollectionViewSource), RefObject.As(newSource, ICollectionView));
+    this.ConnectViewHandlers(Nullstone.As(newSource, CollectionViewSource), Nullstone.As(newSource, ICollectionView));
 };
 _CollectionViewNode.prototype.ViewChanged = function (sender, e) {
     this.DisconnectViewHandlers(true);

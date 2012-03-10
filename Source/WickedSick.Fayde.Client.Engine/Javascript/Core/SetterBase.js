@@ -1,14 +1,16 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="DependencyObject.js"/>
 /// CODE
 
 //#region SetterBase
 
 function SetterBase() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.SetAttached(false);
 }
-SetterBase.InheritFrom(DependencyObject);
+Nullstone.Extend(SetterBase, "SetterBase", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

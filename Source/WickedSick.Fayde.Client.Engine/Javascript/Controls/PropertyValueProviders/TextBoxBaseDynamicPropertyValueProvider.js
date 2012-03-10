@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/PropertyValueProviders/Enums.js"/>
 /// <reference path="../../Core/FrameworkElementPropertyValueProvider.js"/>
 /// CODE
@@ -6,7 +6,9 @@
 //#region _TextBoxBaseDynamicPropertyValueProvider
 
 function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
-    FrameworkElementPropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear | _ProviderFlags.RecomputesOnLowerPriorityChange);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear | _ProviderFlags.RecomputesOnLowerPriorityChange);
     this._ForegroundPropd = foregroundPropd;
     this._BackgroundPropd = backgroundPropd;
     this._BaselineOffsetPropd = baselineOffsetPropd;
@@ -14,7 +16,7 @@ function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroun
     this._SelectionForeground = undefined;
     this._BaselineOffset = undefined;
 }
-_TextBoxBaseDynamicPropertyValueProvider.InheritFrom(FrameworkElementPropertyValueProvider);
+Nullstone.Extend(_TextBoxBaseDynamicPropertyValueProvider, "_TextBoxBaseDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider);
 
 _TextBoxBaseDynamicPropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
     if (propd == this._BackgroundPropd)
@@ -22,7 +24,7 @@ _TextBoxBaseDynamicPropertyValueProvider.prototype.RecomputePropertyValue = func
     else if (propd == this._ForegroundPropd)
         this._SelectionForeground = undefined;
 
-    FrameworkElementPropertyValueProvider.prototype.RecomputePropertyValue.call(this, propd, providerFlags, error);
+    this.RecomputePropertyValue$super(propd, providerFlags, error);
 };
 _TextBoxBaseDynamicPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     var v;
@@ -41,7 +43,7 @@ _TextBoxBaseDynamicPropertyValueProvider.prototype.GetPropertyValue = function (
     }
     if (v != undefined)
         return v;
-    return FrameworkElementPropertyValueProvider.prototype.GetPropertyValue.call(this, propd);
+    return this.GetPropertyValue$super(propd);
 };
 
 _TextBoxBaseDynamicPropertyValueProvider.prototype._InitializeSelectionBrushes = function () {

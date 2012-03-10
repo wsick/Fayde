@@ -1,12 +1,13 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region BindingBase
 
 function BindingBase() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-BindingBase.InheritFrom(RefObject);
+Nullstone.Create(BindingBase, "BindingBase");
 
 BindingBase.prototype.CheckSealed = function () {
     if (this.GetSealed())

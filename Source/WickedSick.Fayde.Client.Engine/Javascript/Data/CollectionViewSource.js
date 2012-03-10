@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="ICollectionView.js"/>
@@ -6,9 +6,11 @@
 //#region CollectionViewSource
 
 function CollectionViewSource() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-CollectionViewSource.InheritFrom(DependencyObject);
+Nullstone.Extend(CollectionViewSource, "CollectionViewSource", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

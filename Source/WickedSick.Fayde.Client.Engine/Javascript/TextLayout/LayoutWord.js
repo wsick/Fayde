@@ -1,16 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _LayoutWord
 
 function _LayoutWord() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._Advance = 0.0;
     this._LineAdvance = 0.0;
     this._Length = 0;
     this._BreakOps = null;
     this._Font = new Font();
 }
-_LayoutWord.InheritFrom(RefObject);
+Nullstone.Create(_LayoutWord, "_LayoutWord");
 
 //#endregion

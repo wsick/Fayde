@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/LinkedListNode.js"/>
 /// CODE
 
@@ -6,9 +6,11 @@
 
 function DirtyNode(element) {
     /// <param name="element" type="UIElement"></param>
-    LinkedListNode.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.Element = element;
 }
-DirtyNode.InheritFrom(LinkedListNode);
+Nullstone.Extend(DirtyNode, "DirtyNode", LinkedListNode);
 
 //#endregion

@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="BindingBase.js"/>
 /// <reference path="PropertyPath.js"/>
 /// CODE
@@ -7,7 +7,9 @@
 //#region Binding
 
 function Binding(path) {
-    BindingBase.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 
     if (!path)
         path = "";
@@ -18,7 +20,7 @@ function Binding(path) {
     this.SetValidatesOnNotifyDataErrors(true);
     this.SetUpdateSourceTrigger(UpdateSourceTrigger.Default);
 }
-Binding.InheritFrom(BindingBase);
+Nullstone.Extend(Binding, "Binding", BindingBase);
 
 //#region PROPERTIES
 

@@ -1,12 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 
 //#region Popup
 
 function Popup() {
-    FrameworkElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Popup.InheritFrom(FrameworkElement);
+Nullstone.Extend(Popup, "Popup", FrameworkElement);
 
 //#endregion

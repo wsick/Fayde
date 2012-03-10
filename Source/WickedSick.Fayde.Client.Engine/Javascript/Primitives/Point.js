@@ -1,14 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Point
 
 function Point(x, y) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
 }
-Point.InheritFrom(RefObject);
+Nullstone.Create(Point, "Point");
 
 Point.prototype.Apply = function (matrix) {
     /// <param name="matrix" type="Matrix"></param>

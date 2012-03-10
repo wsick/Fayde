@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="DependencyObject.js"/>
 /// CODE
 
 //#region FrameworkTemplate
 
 function FrameworkTemplate() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-FrameworkTemplate.InheritFrom(DependencyObject);
+Nullstone.Extend(FrameworkTemplate, "FrameworkTemplate", DependencyObject);
 
 FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
     /// <param name="bindingSource" type="DependencyObject"></param>

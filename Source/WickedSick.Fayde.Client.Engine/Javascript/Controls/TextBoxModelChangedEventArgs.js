@@ -1,13 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _TextBoxModelChangedEventArgs
 
 function _TextBoxModelChangedEventArgs(changed, propArgs) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.Changed = changed;
     this.PropArgs = propArgs;
 }
-_TextBoxModelChangedEventArgs.InheritFrom(RefObject);
+Nullstone.Create(_TextBoxModelChangedEventArgs, "_TextBoxModelChangedEventArgs");
 
 //#endregion

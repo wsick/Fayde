@@ -1,14 +1,16 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Markup.js"/>
 /// CODE
 
 //#region StaticResourceMarkup
 
 function StaticResourceMarkup(key) {
-    Markup.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.Key = key;
 }
-StaticResourceMarkup.InheritFrom(Markup);
+Nullstone.Extend(StaticResourceMarkup, "StaticResourceMarkup", Markup);
 
 StaticResourceMarkup.prototype.Transmute = function (propd, templateBindingSource) {
     NotImplemented("StaticResourceMarkup.Transmute");

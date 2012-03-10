@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
@@ -7,12 +7,14 @@
 //#region VisualTransition
 
 function VisualTransition() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.SetDynamicStoryboardCompleted(true);
     this.SetExplicitStoryboardCompleted(true);
     this._GeneratedDuration = new Duration();
 }
-VisualTransition.InheritFrom(DependencyObject);
+Nullstone.Extend(VisualTransition, "VisualTransition", DependencyObject);
 
 //#region PROPERTIES
 
@@ -86,9 +88,11 @@ VisualTransition.prototype.SetGeneratedEasingFunction = function (value) {
 //#region VisualTransitionCollection
 
 function VisualTransitionCollection() {
-    DependencyObjectCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-VisualTransitionCollection.InheritFrom(DependencyObjectCollection);
+Nullstone.Extend(VisualTransitionCollection, "VisualTransitionCollection", DependencyObjectCollection);
 
 VisualTransitionCollection.prototype.IsElementType = function (obj) {
     return obj instanceof VisualTransition;

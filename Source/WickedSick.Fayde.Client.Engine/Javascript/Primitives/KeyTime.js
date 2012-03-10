@@ -1,12 +1,13 @@
-﻿/// <reference path="../Runtime/RefObject.js"/>
+﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 
 //#region KeyTime
 
 function KeyTime() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-KeyTime.InheritFrom(RefObject);
+Nullstone.Create(KeyTime, "KeyTime");
 
 KeyTime.CreateUniform = function () {
     var kt = new KeyTime();

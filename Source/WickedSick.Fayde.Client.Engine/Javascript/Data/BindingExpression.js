@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="BindingExpressionBase.js"/>
 /// CODE
 
 //#region BindingExpression
 
 function BindingExpression(binding, target, propd) {
-    BindingExpressionBase.call(this, binding, target, propd);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(binding, target, propd);
 }
-BindingExpression.InheritFrom(BindingExpressionBase);
+Nullstone.Extend(BindingExpression, "BindingExpression", BindingExpressionBase);
 
 BindingExpression.prototype.GetParentBinding = function () {
     return this.GetBinding();

@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="SetterBase.js"/>
 /// CODE
 
 //#region Setter
 
 function Setter() {
-    SetterBase.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Setter.InheritFrom(SetterBase);
+Nullstone.Extend(Setter, "Setter", SetterBase);
 
 //#region DEPENDENCY PROPERTIES
 

@@ -1,12 +1,14 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/Collections/Collection.js"/>
 /// CODE
 
 //#region TimelineCollection
 
 function TimelineCollection() {
-    Collection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-TimelineCollection.InheritFrom(Collection);
+Nullstone.Extend(TimelineCollection, "TimelineCollection", Collection);
 
 //#endregion

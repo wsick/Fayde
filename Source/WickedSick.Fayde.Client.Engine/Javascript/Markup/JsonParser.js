@@ -1,4 +1,4 @@
-﻿/// <reference path="../Runtime/RefObject.js"/>
+﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 /// <reference path="Markup.js"/>
 /// <reference path="../Core/Collections/Collection.js"/>
@@ -6,9 +6,10 @@
 //#region JsonParser
 
 function JsonParser() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-JsonParser.InheritFrom(RefObject);
+Nullstone.Create(JsonParser, "JsonParser");
 
 JsonParser.prototype.CreateObject = function (json, namescope) {
     var dobj = new json.Type();
@@ -85,12 +86,12 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
             func.call(dobj, propValue);
     } else {
         //There is no fallback if we can't find attached property
-        Warn("Could not find attached property: " + ownerType.GetName() + "." + propName);
+        Warn("Could not find attached property: " + ownerType._TypeName + "." + propName);
     }
 };
 JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
     var targetType = propd.GetTargetType();
-    if (!targetType.DoesInheritFrom(Collection))
+    if (!Nullstone.DoesInheritFrom(targetType, Collection))
         return false;
     if (!(subJson instanceof Array))
         return false;

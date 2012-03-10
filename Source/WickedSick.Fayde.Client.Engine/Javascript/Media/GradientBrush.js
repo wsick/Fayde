@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Brush.js"/>
 /// CODE
 /// <reference path="Enums.js"/>
@@ -6,9 +6,11 @@
 //#region GradientBrush
 
 function GradientBrush() {
-    Brush.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-GradientBrush.InheritFrom(Brush);
+Nullstone.Extend(GradientBrush, "GradientBrush", Brush);
 
 GradientBrush.prototype._GetMappingModeTransform = function (bounds) {
     /// <param name="bounds" type="Rect"></param>

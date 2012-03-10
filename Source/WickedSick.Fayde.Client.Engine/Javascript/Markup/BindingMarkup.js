@@ -1,16 +1,18 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Markup.js"/>
 /// CODE
 
 //#region BindingMarkup
 
 function BindingMarkup(data) {
-    Markup.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     if (!data)
         data = {};
     this._Data = data;
 }
-BindingMarkup.InheritFrom(Markup);
+Nullstone.Extend(BindingMarkup, "BindingMarkup", Markup);
 
 BindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
     /// <param name="target" type="DependencyObject"></param>

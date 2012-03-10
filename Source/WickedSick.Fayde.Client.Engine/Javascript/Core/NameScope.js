@@ -1,16 +1,19 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="DependencyObject.js"/>
 /// CODE
 
 //#region NameScope
 
 function NameScope() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
+
     this._IsLocked = false;
     this._Names = null;
     this._Temporary = false;
 }
-NameScope.InheritFrom(DependencyObject);
+Nullstone.Extend(NameScope, "NameScope", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

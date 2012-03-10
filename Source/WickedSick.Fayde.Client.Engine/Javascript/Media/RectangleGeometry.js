@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Geometry.js"/>
 /// CODE
 /// <reference path="../Primitives/Rect.js"/>
@@ -6,9 +6,11 @@
 //#region RectangleGeometry
 
 function RectangleGeometry() {
-    Geometry.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-RectangleGeometry.InheritFrom(Geometry);
+Nullstone.Extend(RectangleGeometry, "RectangleGeometry", Geometry);
 
 //#region DEPENDENCY PROPERTIES
 

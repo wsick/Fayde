@@ -4,9 +4,11 @@
 //#region DiscreteObjectKeyFrame
 
 function DiscreteObjectKeyFrame() {
-    ObjectKeyFrame.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-DiscreteObjectKeyFrame.InheritFrom(ObjectKeyFrame);
+Nullstone.Extend(DiscreteObjectKeyFrame, "DiscreteObjectKeyFrame", ObjectKeyFrame);
 
 DiscreteObjectKeyFrame.prototype.InterpolateValue = function (baseValue, keyFrameProgress) {
     if (keyFrameProgress >= 1.0) {

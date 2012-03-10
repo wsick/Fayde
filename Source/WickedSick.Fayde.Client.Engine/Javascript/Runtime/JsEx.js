@@ -2,15 +2,7 @@
     return eval(uneval(o));
 };
 
-Function.prototype.InheritFrom = function (parentType) {
-    this.prototype = new parentType;
-    this.prototype.constructor = this;
-    this.GetBaseClass = function () { return parentType; };
-    return this;
-};
-Function.prototype.DoesInheritFrom = function (type) {
-    return (new this()) instanceof type;
-};
+/*
 Function.prototype.Implement = function (interface) {
     var interfaceName = (new interface())._TypeName;
     for (var i in interface.prototype) {
@@ -28,15 +20,7 @@ Function.prototype.DoesImplement = function (interface) {
     var interfaceName = (new interface())._TypeName;
     return this._Interfaces[interfaceName] === true;
 };
-Function.prototype.GetName = function () {
-    if (this.___FunctionName___ != null)
-        return this.___FunctionName___;
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec(this.toString());
-    var name = (results && results.length > 1) ? results[1] : "";
-    this.___FunctionName___ = name;
-    return name;
-};
+*/
 Function.prototype.Clone = function () {
     return eval(uneval(this));
 };
@@ -110,8 +94,3 @@ String.format = function (culture, format, str) {
     //TODO: Implement
     return str;
 };
-
-function IsDocumentReady() {
-    /// <returns type="Boolean" />
-    return false;
-}

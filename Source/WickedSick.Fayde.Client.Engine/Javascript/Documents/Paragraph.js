@@ -1,12 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Block.js"/>
 /// CODE
 
 //#region Paragraph
 
 function Paragraph() {
-    Block.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Paragraph.InheritFrom(Block);
+Nullstone.Extend(Paragraph, "Paragraph", Block);
 
 //#endregion

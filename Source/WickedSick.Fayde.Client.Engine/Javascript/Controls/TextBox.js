@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextBoxBase.js"/>
 /// <reference path="../Core/PropertyValueProviders/Enums.js"/>
 /// <reference path="PropertyValueProviders/TextBoxDynamicPropertyValueProvider.js"/>
@@ -14,7 +14,9 @@
 //#region TextBox
 
 function TextBox() {
-    TextBoxBase.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
 
@@ -23,7 +25,7 @@ function TextBox() {
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
 }
-TextBox.InheritFrom(TextBoxBase);
+Nullstone.Extend(TextBox, "TextBox", TextBoxBase);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -139,7 +141,7 @@ TextBox.prototype.GetIsMouseOver = function () {
 //#region INSTANCE METHODS
 
 TextBox.prototype.OnApplyTemplate = function () {
-    TextBoxBase.prototype.OnApplyTemplate.call(this);
+    this.OnApplyTemplate$super();
 
     if (!this._ContentElement)
         return;
@@ -182,7 +184,7 @@ TextBox.prototype._SyncText = function () {
 
 TextBox.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextBox) {
-        TextBoxBase.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
 
@@ -312,7 +314,7 @@ TextBox.prototype._OnSubPropertyChanged = function (sender, args) {
     }
 
     if (args.Property.OwnerType !== TextBox)
-        TextBoxBase.prototype._OnSubPropertyChanged.call(this, sender, args);
+        this._OnSubPropertyChanged$super(sender, args);
 };
 
 TextBox.prototype._EmitTextChanged = function () {
@@ -327,19 +329,19 @@ TextBox.prototype._EmitSelectionChanged = function () {
 TextBox.prototype.OnMouseEnter = function (sender, args) {
     this._IsMouseOver = true;
     this._ChangeVisualState(true);
-    TextBoxBase.prototype.OnMouseEnter.call(this, sender, args);
+    this.OnMouseEnter$super(sender, args);
 };
 TextBox.prototype.OnMouseLeave = function (sender, args) {
     this._IsMouseOver = false;
     this._ChangeVisualState(true);
-    TextBoxBase.prototype.OnMouseLeave.call(this, sender, args);
+    this.OnMouseLeave$super(sender, args);
 };
 TextBox.prototype.OnGotFocus = function (sender, args) {
-    TextBoxBase.prototype.OnGotFocus.call(this, sender, args);
+    this.OnGotFocus$super(sender, args);
     this._ChangeVisualState(true);
 };
 TextBox.prototype.OnLostFocus = function (sender, args) {
-    TextBoxBase.prototype.OnLostFocus.call(this, sender, args);
+    this.OnLostFocus$super(sender, args);
     this._ChangeVisualState(true);
 };
 

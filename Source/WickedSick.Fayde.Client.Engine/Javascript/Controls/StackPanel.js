@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Panel.js" />
 /// CODE
 /// <reference path="Primitives.js" />
@@ -7,14 +7,16 @@
 //#region StackPanel
 
 function StackPanel() {
-    Panel.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-StackPanel.InheritFrom(Panel);
+Nullstone.Extend(StackPanel, "StackPanel", Panel);
 
 //#region DEPENDENCY PROPERTIES
 
 StackPanel._OrientationChanged = function (d, args) {
-    var sp = RefObject.As(d, StackPanel);
+    var sp = Nullstone.As(d, StackPanel);
     if (sp == null)
         return;
     d._InvalidateMeasure();

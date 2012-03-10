@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Brush.js"/>
 /// CODE
 /// <reference path="../Primitives/Color.js"/>
@@ -6,15 +6,15 @@
 //#region SolidColorBrush
 
 function SolidColorBrush() {
-    Brush.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
+    this.$super();
     if (arguments.length === 1) {
         if (arguments[0] instanceof Color)
             this.SetColor(arguments[0]);
     }
 }
-SolidColorBrush.InheritFrom(Brush);
+Nullstone.Extend(SolidColorBrush, "SolidColorBrush", Brush);
 
 //#region DEPENDENCY PROPERTIES
 

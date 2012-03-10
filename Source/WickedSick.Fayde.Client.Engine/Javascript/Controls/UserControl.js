@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Control.js"/>
 /// CODE
 
 //#region UserControl
 
 function UserControl() {
-    Control.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-UserControl.InheritFrom(Control);
+Nullstone.Extend(UserControl, "UserControl", Control);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -59,7 +61,7 @@ UserControl.prototype._ArrangeOverrideWithError = function (finalSize, error) {
 
 UserControl.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType != UserControl) {
-        Control.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
 

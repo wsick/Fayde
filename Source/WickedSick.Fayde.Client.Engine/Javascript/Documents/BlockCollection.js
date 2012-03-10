@@ -1,12 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextElementCollection.js"/>
 /// CODE
 
 //#region BlockCollection
 
 function BlockCollection() {
-    TextElementCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-BlockCollection.InheritFrom(TextElementCollection);
+Nullstone.Extend(BlockCollection, "BlockCollection", TextElementCollection);
 
 //#endregion

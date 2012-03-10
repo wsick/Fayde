@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="../Animation/Storyboard.js"/>
@@ -6,9 +6,11 @@
 //#region VisualState
 
 function VisualState() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-VisualState.InheritFrom(DependencyObject);
+Nullstone.Extend(VisualState, "VisualState", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -35,9 +37,11 @@ VisualState.Annotations = {
 //#region VisualStateCollection
 
 function VisualStateCollection() {
-    DependencyObjectCollection.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-VisualStateCollection.InheritFrom(DependencyObjectCollection);
+Nullstone.Extend(VisualStateCollection, "VisualStateCollection", DependencyObjectCollection);
 
 VisualStateCollection.prototype.IsElementType = function (value) {
     return value instanceof VisualState;

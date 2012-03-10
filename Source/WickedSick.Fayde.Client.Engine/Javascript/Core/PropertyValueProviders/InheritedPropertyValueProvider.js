@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="PropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
 /// CODE
@@ -7,10 +7,12 @@
 //#region _InheritedPropertyValueProvider
 
 function _InheritedPropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, 0);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence, 0);
     this._ht = new Array();
 }
-_InheritedPropertyValueProvider.InheritFrom(_PropertyValueProvider);
+Nullstone.Extend(_InheritedPropertyValueProvider, "_InheritedPropertyValueProvider", _PropertyValueProvider);
 
 _InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))

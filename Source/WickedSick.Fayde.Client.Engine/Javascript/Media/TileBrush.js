@@ -1,13 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Brush.js"/>
 /// CODE
 
 //#region TileBrush
 
 function TileBrush() {
-    Brush.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-TileBrush.InheritFrom(Brush);
+Nullstone.Extend(TileBrush, "TileBrush", Brush);
 
 //#region DEPENDENCY PROPERTIES
 

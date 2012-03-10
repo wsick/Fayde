@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="../Data/PropertyPath.js"/>
 /// <reference path="../Core/Collections/Collection.js"/>
@@ -7,7 +7,8 @@
 //#region DependencyProperty
 
 function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.Name = name;
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
@@ -19,10 +20,10 @@ function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocr
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
 }
-DependencyProperty.InheritFrom(RefObject);
+Nullstone.Create(DependencyProperty, "DependencyProperty");
 
 DependencyProperty.prototype.toString = function () {
-    var ownerTypeName = this.OwnerType.GetName();
+    var ownerTypeName = this.OwnerType._TypeName;
     return ownerTypeName + "." + this.Name.toString();
 };
 DependencyProperty.prototype.GetDefaultValue = function (obj) {
@@ -83,7 +84,7 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
     var propd;
     if (reg)
         propd = reg[name];
-    if (!propd && ownerType !== RefObject) {
+    if (!propd && ownerType != null && ownerType._IsNullstone) {
         propd = DependencyProperty.GetDependencyProperty(ownerType.GetBaseClass(), name);
     }
     return propd;
@@ -155,12 +156,12 @@ DependencyProperty._HandlePeriod = function (data) {
         var newLu = null;
         if ((value = data.lu.GetValue(data.res)) == null)
             return false;
-        if ((newLu = RefObject.As(value, DependencyObject)) == null)
+        if ((newLu = Nullstone.As(value, DependencyObject)) == null)
             return false;
 
         if (data.promotedValues != null && !cloned && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
             var clonedValue = Object.Clone(value);
-            var clonedDo = RefObject.As(clonedValue, DependencyObject);
+            var clonedDo = Nullstone.As(clonedValue, DependencyObject);
             if (clonedDo != null) {
                 newLu = clonedDo;
                 data.lu.SetValue(data.res, clonedValue);
@@ -204,11 +205,11 @@ DependencyProperty._HandleLeftBracket = function (data) {
             return false;
     }
 
-    if ((data.collection = RefObject.As(value, Collection)) == null)
+    if ((data.collection = Nullstone.As(value, Collection)) == null)
         return false;
     if ((value = data.collection.GetValueAt(data.i)) == null)
         return false;
-    if ((data.lu = RefObject.As(value, DependencyObject)) == null)
+    if ((data.lu = Nullstone.As(value, DependencyObject)) == null)
         return false;
     return true;
 };
@@ -281,7 +282,7 @@ DependencyProperty._HandleDefault = function (data) {
     if (data.res == null)
         return false;
 
-    if (!data.res._IsAttached && !data.lu.constructor.DoesInheritFrom(data.type)) {
+    if (!data.res._IsAttached && !(data.lu instanceof data.type)) {
         if ((data.res = DependencyProperty.GetDependencyProperty(data.lu.constructor, name)) == null)
             return false;
     }
@@ -300,8 +301,9 @@ DependencyProperty._LookupType = function (name) {
 //#region UnsetValue
 
 function UnsetValue() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-UnsetValue.InheritFrom(RefObject);
+Nullstone.Create(UnsetValue, "UnsetValue");
 
 //#endregion

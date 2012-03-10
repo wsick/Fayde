@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="Enums.js"/>
 /// <reference path="TimeSpan.js"/>
@@ -6,8 +6,7 @@
 //#region Duration
 
 function Duration(value) {
-    RefObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
     if (typeof value == "number") {
         this._Type = DurationType.TimeSpan;
@@ -22,7 +21,7 @@ function Duration(value) {
             this._Type = DurationType.Forever;
     }
 }
-Duration.InheritFrom(RefObject);
+Nullstone.Create(Duration, "Duration");
 
 Duration.CreateAutomatic = function () {
     /// <returns type="Duration" />

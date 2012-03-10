@@ -1,14 +1,16 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/FrameworkElementPropertyValueProvider.js"/>
 
 //#region _TextBlockDynamicPropertyValueProvider
 
 function _TextBlockDynamicPropertyValueProvider(obj, propPrecedence) {
-    FrameworkElementPropertyValueProvider.call(this, obj, propPrecedence);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence);
     this._BaselineOffsetValue = null;
     this._TextValue = null;
 }
-_TextBlockDynamicPropertyValueProvider.InheritFrom(FrameworkElementPropertyValueProvider);
+Nullstone.Extend(_TextBlockDynamicPropertyValueProvider, "_TextBlockDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider);
 
 _TextBlockDynamicPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (propd == TextBlock.BaselineOffsetProperty) {
@@ -17,7 +19,7 @@ _TextBlockDynamicPropertyValueProvider.prototype.GetPropertyValue = function (pr
             return 0;
         return layout.GetBaselineOffset();
     }
-    return FrameworkElementPropertyValueProvider.prototype.GetPropertyValue.call(this, propd);
+    return this.GetPropertyValue$super(propd);
 };
 
 //#endregion

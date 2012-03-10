@@ -1,11 +1,12 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// CODE
 
 //#region _PropertyPathWalker
 
 function _PropertyPathWalker(path, bindDirectlyToSource, bindsToView, isDataContextBound) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     if (bindDirectlyToSource == null)
         bindDirectlyToSource = true;
     if (bindsToView == null)
@@ -18,7 +19,7 @@ function _PropertyPathWalker(path, bindDirectlyToSource, bindsToView, isDataCont
 
     this._Init(path, bindDirectlyToSource, bindsToView, isDataContextBound);
 }
-_PropertyPathWalker.InheritFrom(RefObject);
+Nullstone.Create(_PropertyPathWalker, "_PropertyPathWalker");
 
 _PropertyPathWalker.prototype._Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
     this.SetPath(path);
@@ -64,12 +65,12 @@ _PropertyPathWalker.prototype._Init = function (path, bindDirectlyToSource, bind
 
     lastCVNode.SetBindToView(lastCVNode.GetBindToView() || bindsToView);
     this.GetFinalNode().IsBrokenChanged.Subscribe(function (s, a) {
-        this.SetValueInternal(RefObject.As(s, _PropertyPathNode).GetValue());
+        this.SetValueInternal(Nullstone.As(s, _PropertyPathNode).GetValue());
         this.IsBrokenChanged.Raise(this, new EventArgs());
     },
     this);
     this.GetFinalNode().ValueChanged.Subscribe(function (s, a) {
-        this.SetValueInternal(RefObject.As(s, _PropertyPathNode).GetValue());
+        this.SetValueInternal(Nullstone.As(s, _PropertyPathNode).GetValue());
         this.ValueChanged.Raise(this, new EventArgs());
     },
     this);

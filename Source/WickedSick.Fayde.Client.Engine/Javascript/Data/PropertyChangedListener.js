@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region PropertyChangedListener
@@ -9,18 +9,15 @@ function PropertyChangedListener(source, propd, closure, func) {
     /// <param name="propd" type="DependencyProperty"></param>
     /// <param name="closure" type="RefObject"></param>
     /// <param name="func" type="Function"></param>
-    RefObject.call(this);
-
-    if (!source)
+    if (!Nullstone.IsReady)
         return;
-
     this._Source = source;
     this._Property = propd;
     this._Closure = closure;
     this._Func = func;
     this._Source.PropertyChanged.Subscribe(this.OnPropertyChangedInternal, this);
 }
-PropertyChangedListener.InheritFrom(RefObject);
+Nullstone.Create(PropertyChangedListener, "PropertyChangedListener");
 
 PropertyChangedListener.prototype.Detach = function () {
     if (this._Source != null) {

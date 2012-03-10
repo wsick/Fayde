@@ -5,9 +5,11 @@
 //#region ObjectAnimationUsingKeyFrames
 
 function ObjectAnimationUsingKeyFrames() {
-    Animation.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-ObjectAnimationUsingKeyFrames.InheritFrom(Animation);
+Nullstone.Extend(ObjectAnimationUsingKeyFrames, "ObjectAnimationUsingKeyFrames", Animation);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -29,7 +31,7 @@ ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
     var frames = this.GetKeyFrames();
     var count = frames.GetCount();
     for (var i = 0; i < count; i++) {
-        var frame = RefObject.As(frames.GetValueAt(i), ObjectKeyFrame);
+        var frame = Nullstone.As(frames.GetValueAt(i), ObjectKeyFrame);
         var value = frame.GetValue(ObjectKeyFrame.ValueProperty);
         if (value == null) {
             frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, null);

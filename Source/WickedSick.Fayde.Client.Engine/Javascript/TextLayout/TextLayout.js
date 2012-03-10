@@ -1,11 +1,12 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="../Engine/Surface.js"/>
 
 //#region TextLayout
 
 function TextLayout() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this._SelectionStart = 0;
     this._SelectionLength = 0;
     
@@ -28,7 +29,7 @@ function TextLayout() {
     this._Text = null;
     this._Length = 0;
 }
-TextLayout.InheritFrom(RefObject);
+Nullstone.Create(TextLayout, "TextLayout");
 
 TextLayout.prototype.GetSelectionLength = function () {
     return this._SelectionLength;

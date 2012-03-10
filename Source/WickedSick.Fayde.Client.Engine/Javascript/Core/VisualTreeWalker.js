@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="Enums.js"/>
 /// <reference path="Collections/Collection.js"/>
@@ -9,11 +9,10 @@
 function _VisualTreeWalker(obj, direction) {
     /// <param name="obj" type="UIElement"></param>
     /// <param name="direction" type="Number">_VisualTreeWalkerDirection</param>
-    RefObject.call(this);
-
-    if (!obj)
+    if (!Nullstone.IsReady)
         return;
-
+    if (obj == null)
+        return;
     this._Offset = 0;
     this._Collection = null;
     this._Content = obj._GetSubtreeObject();
@@ -29,7 +28,7 @@ function _VisualTreeWalker(obj, direction) {
         }
     }
 }
-_VisualTreeWalker.InheritFrom(RefObject);
+Nullstone.Create(_VisualTreeWalker, "_VisualTreeWalker");
 
 _VisualTreeWalker.prototype.Step = function () {
     var result = null;

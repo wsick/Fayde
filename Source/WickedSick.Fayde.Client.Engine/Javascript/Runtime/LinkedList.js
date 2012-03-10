@@ -1,13 +1,12 @@
-﻿/// <reference path="RefObject.js"/>
+﻿/// <reference path="Nullstone.js"/>
 /// CODE
 
 //#region LinkedList
 
 function LinkedList() {
-    RefObject.call(this);
     this.Clear();
 }
-LinkedList.InheritFrom(RefObject);
+Nullstone.Create(LinkedList, "LinkedList");
 
 LinkedList.prototype.First = function () {
     return this._Head;

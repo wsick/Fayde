@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/LinkedList.js"/>
 /// CODE
 /// <reference path="Dirty.js"/>
@@ -12,8 +12,7 @@
 //#region Surface
 
 function Surface(app) {
-    RefObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
     this._App = app;
     this._Clock = new Clock();
@@ -23,7 +22,7 @@ function Surface(app) {
     this._UserInitiatedEvent = false;
     this._Cursor = CursorType.Default;
 }
-Surface.InheritFrom(RefObject);
+Nullstone.Create(Surface, "Surface");
 
 Surface.prototype.Init = function (jCanvas) {
     Surface._TestCanvas = document.createElement('canvas');

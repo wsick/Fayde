@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="PropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
 /// CODE
@@ -6,11 +6,14 @@
 //#region _InheritedIsEnabledPropertyValueProvider
 
 function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
+
     this._Source = null;
     this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
 }
-_InheritedIsEnabledPropertyValueProvider.InheritFrom(_PropertyValueProvider);
+Nullstone.Extend(_InheritedIsEnabledPropertyValueProvider, "_InheritedIsEnabledPropertyValueProvider", _PropertyValueProvider);
 
 _InheritedIsEnabledPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     if (propd === Control.IsEnabledProperty)

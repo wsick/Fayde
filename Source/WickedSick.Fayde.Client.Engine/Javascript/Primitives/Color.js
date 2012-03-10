@@ -1,16 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Color
 
 function Color(r, g, b, a) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.R = r == null ? 255 : r;
     this.G = g == null ? 255 : g;
     this.B = b == null ? 255 : b;
     this.A = a == null ? 1.0 : a;
 }
-Color.InheritFrom(RefObject);
+Nullstone.Create(Color, "Color");
 
 Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;

@@ -1,13 +1,15 @@
-﻿/// <reference path="../../Runtime/RefObject.js"/>
+﻿/// <reference path="../../Runtime/Nullstone.js"/>
 /// <reference path="Timeline.js"/>
 /// CODE
 
 //#region Animation
 
 function Animation() {
-    Timeline.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Animation.InheritFrom(Timeline);
+Nullstone.Extend(Animation, "Animation", Timeline);
 
 //#endregion
 

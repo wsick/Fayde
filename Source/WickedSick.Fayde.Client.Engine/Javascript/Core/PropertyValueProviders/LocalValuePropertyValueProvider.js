@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="Enums.js"/>
 /// <reference path="PropertyValueProvider.js"/>
 /// CODE
@@ -6,10 +6,12 @@
 //#region _LocalValuePropertyValueProvider
 
 function _LocalValuePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
-_LocalValuePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+Nullstone.Extend(_LocalValuePropertyValueProvider, "_LocalValuePropertyValueProvider", _PropertyValueProvider);
 
 _LocalValuePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];

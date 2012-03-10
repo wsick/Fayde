@@ -1,16 +1,17 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// CODE
 
 //#region CollectionChangedArgs
 
 function CollectionChangedArgs(action, oldValue, newValue, index) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.Action = action;
     this.OldValue = oldValue;
     this.NewValue = newValue;
     this.Index = index;
 }
-CollectionChangedArgs.InheritFrom(RefObject);
+Nullstone.Create(CollectionChangedArgs, "CollectionChangedArgs");
 
 CollectionChangedArgs.Action = {
     Clearing: 0,

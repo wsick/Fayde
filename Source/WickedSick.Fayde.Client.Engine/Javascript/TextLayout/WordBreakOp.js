@@ -1,16 +1,15 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _WordBreakOp
 
 function _WordBreakOp() {
-    RefObject.call(this);
     this._Advance = 0.0;
     this._Index = 0;
     this._Btype = 0;
     this._C = '';
 }
-_WordBreakOp.InheritFrom(RefObject);
+Nullstone.Create(_WordBreakOp, "_WordBreakOp");
 _WordBreakOp.prototype.Copy = function () {
     var newOp = new _WordBreakOp();
     newOp._Advance = this._Advance;

@@ -1,4 +1,4 @@
-﻿/// <reference path="../../Runtime/RefObject.js"/>
+﻿/// <reference path="../../Runtime/Nullstone.js"/>
 /// CODE
 
 //#region AnimationStorage
@@ -7,8 +7,7 @@ function AnimationStorage(timeline, targetobj, targetprop) {
     /// <param name="timeline" type="Timeline"></param>
     /// <param name="targetobj" type="DependencyObject"></param>
     /// <param name="targetprop" type="DependencyProperty"></param>
-    RefObject.call(this);
-    if (!IsDocumentReady())
+    if (!Nullstone.IsReady)
         return;
     this._Timeline = timeline;
     this._TargetObj = targetobj;
@@ -32,7 +31,7 @@ function AnimationStorage(timeline, targetobj, targetprop) {
     else
         this.SetStopValue(targetobj.ReadLocalValue(targetprop));
 }
-AnimationStorage.InheritFrom(RefObject);
+Nullstone.Create(AnimationStorage, "AnimationStorage");
 
 AnimationStorage.prototype.GetStopValue = function () {
     return this._StopValue;

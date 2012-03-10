@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Runtime/LinkedListNode.js"/>
 /// CODE
 /// <reference path="UIElement.js"/>
@@ -7,9 +7,11 @@
 
 function UIElementNode(element) {
     /// <param name="element" type="UIElement"></param>
-    LinkedListNode.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
     this.UIElement = element;
 }
-UIElementNode.InheritFrom(LinkedListNode);
+Nullstone.Extend(UIElementNode, "UIElementNode", LinkedListNode);
 
 //#endregion

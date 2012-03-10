@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="../Primitives/Color.js"/>
@@ -6,9 +6,11 @@
 //#region GradientStop
 
 function GradientStop() {
-    DependencyObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-GradientStop.InheritFrom(DependencyObject);
+Nullstone.Extend(GradientStop, "GradientStop", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 

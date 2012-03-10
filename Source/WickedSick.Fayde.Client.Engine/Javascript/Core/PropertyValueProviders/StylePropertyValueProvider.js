@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="PropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
 /// CODE
@@ -9,10 +9,12 @@
 //#region _StylePropertyValueProvider
 
 function _StylePropertyValueProvider(obj, propPrecedence) {
-    _PropertyValueProvider.call(this, obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._ht = new Array();
 }
-_StylePropertyValueProvider.InheritFrom(_PropertyValueProvider);
+Nullstone.Extend(_StylePropertyValueProvider, "_StylePropertyValueProvider", _PropertyValueProvider);
 
 _StylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     return this._ht[propd];

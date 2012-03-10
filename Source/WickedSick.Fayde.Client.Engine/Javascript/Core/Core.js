@@ -1,12 +1,13 @@
-﻿/// <reference path="../Runtime/RefObject.js"/>
+﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 
 //#region Fayde
 
 function Fayde() {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
 }
-Fayde.InheritFrom(RefObject);
+Nullstone.Create(Fayde, "Fayde");
 
 Fayde.TypeConverter = {};
 Fayde.TypeConverter.ConvertObject = function (propd, val, objectType, doStringConversion) {

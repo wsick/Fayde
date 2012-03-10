@@ -1,12 +1,14 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 
 //#region MediaElement
 
 function MediaElement() {
-    FrameworkElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-MediaElement.InheritFrom(FrameworkElement);
+Nullstone.Extend(MediaElement, "MediaElement", FrameworkElement);
 
 //#endregion

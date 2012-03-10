@@ -1,4 +1,4 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js" />
 /// CODE
 /// <reference path="../Primitives/Brush.js"/>
@@ -6,9 +6,11 @@
 //#region Panel
 
 function Panel() {
-    FrameworkElement.call(this);
+    if (!Nullstone.IsReady)
+        return;
+    this.$super();
 }
-Panel.InheritFrom(FrameworkElement);
+Nullstone.Extend(Panel, "Panel", FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -83,7 +85,7 @@ Panel.prototype._ShiftPosition = function (point) {
     var dx = point.X - this._Bounds.X;
     var dy = point.Y - this._Bounds.Y;
 
-    FrameworkElement.prototype._ShiftPosition.call(this, point);
+    this._ShiftPosition$super(point);
 
     this._BoundsWithChildren.X += dx;
     this._BoundsWithChildren.Y += dy;
@@ -119,18 +121,18 @@ Panel.prototype._Render = function (ctx, region) {
 Panel.prototype._CanFindElement = function () { return this.GetBackground() != null; }
 Panel.prototype._InsideObject = function (ctx, x, y) {
     if (this.GetBackground())
-        return FrameworkElement.prototype._InsideObject.call(this, ctx, x, y);
+        return this._InsideObject$super(ctx, x, y);
     return false;
 };
 
 Panel.prototype._ElementAdded = function (item) {
-    FrameworkElement.prototype._ElementAdded.call(this, item);
+    this._ElementAdded$super(item);
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
 };
 Panel.prototype._ElementRemoved = function (item) {
-    FrameworkElement.prototype._ElementRemoved.call(this, item);
+    this._ElementRemoved$super(item);
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
@@ -138,7 +140,7 @@ Panel.prototype._ElementRemoved = function (item) {
 
 Panel.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Panel) {
-        FrameworkElement.prototype._OnPropertyChanged.call(this, args, error);
+        this._OnPropertyChanged$super(args, error);
         return;
     }
     if (args.Property == Panel.BackgroundProperty) {
@@ -171,7 +173,7 @@ Panel.prototype._OnSubPropertyChanged = function (sender, args) {
     if (args.Property && args.Property == Panel.BackgroundProperty) {
         this._Invalidate();
     } else {
-        FrameworkElement.prototype._OnSubPropertyChanged.call(this, sender, args);
+        this._OnSubPropertyChanged$super(sender, args);
     }
 };
 Panel.prototype._OnCollectionChanged = function (sender, args) {
@@ -199,7 +201,7 @@ Panel.prototype._OnCollectionChanged = function (sender, args) {
                 break;
         }
     } else {
-        FrameworkElement.prototype._OnCollectionChanged.call(this, sender, args);
+        this._OnCollectionChanged$super(sender, args);
     }
 };
 Panel.prototype._OnCollectionItemChanged = function (sender, args) {
@@ -212,10 +214,10 @@ Panel.prototype._OnCollectionItemChanged = function (sender, args) {
             return;
         }
     }
-    FrameworkElement.prototype._OnCollectionItemChanged.call(this, sender, args);
+    this._OnCollectionItemChanged$super(sender, args);
 };
 Panel.prototype._OnIsAttachedChanged = function (value) {
-    FrameworkElement.prototype._OnIsAttachedChanged.call(this, value);
+    this._OnIsAttachedChanged$super(value);
     if (value) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }

@@ -1,15 +1,16 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// CODE
 
 //#region ItemChangedArgs
 
 function ItemChangedArgs(item, propd, oldValue, newValue) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.Item = item;
     this.Property = propd;
     this.OldValue = oldValue;
     this.NewValue = newValue;
 }
-ItemChangedArgs.InheritFrom(RefObject);
+Nullstone.Create(ItemChangedArgs, "ItemChangedArgs");
 
 //#endregion

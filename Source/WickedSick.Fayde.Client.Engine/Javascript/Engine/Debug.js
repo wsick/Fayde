@@ -70,7 +70,6 @@ var _Console = new Console(DebugLevel.Info);
 HUD.prototype = new Object;
 HUD.prototype.constructor = HUD;
 function HUD(jSelector) {
-    Object.call(this);
     this._Selector = jSelector;
 };
 HUD.prototype.SetMessage = function (message) {

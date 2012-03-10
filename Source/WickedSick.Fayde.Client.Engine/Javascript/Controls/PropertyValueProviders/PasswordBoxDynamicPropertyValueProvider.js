@@ -1,4 +1,4 @@
-/// <reference path="../../Runtime/RefObject.js" />
+/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="TextBoxBaseDynamicPropertyValueProvider.js"/>
 /// CODE
 /// <reference path="PasswordBox.js"/>
@@ -6,11 +6,11 @@
 //#region _PasswordBoxDynamicPropertyValueProvider
 
 function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
-    if (!obj)
+    if (!Nullstone.IsReady)
         return;
-    _TextBoxBaseDynamicPropertyValueProvider.call(this, obj, propPrecedence,
+    this.$super(obj, propPrecedence,
         PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
 }
-_PasswordBoxDynamicPropertyValueProvider.InheritFrom(_TextBoxBaseDynamicPropertyValueProvider);
+Nullstone.Extend(_PasswordBoxDynamicPropertyValueProvider, "_PasswordBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider);
 
 //#endregion

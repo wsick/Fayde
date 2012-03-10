@@ -1,16 +1,17 @@
-/// <reference path="../Runtime/RefObject.js" />
+/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region Thickness
 
 function Thickness(left, top, right, bottom) {
-    RefObject.call(this);
+    if (!Nullstone.IsReady)
+        return;
     this.Left = left == null ? 0 : left;
     this.Top = top == null ? 0 : top;
     this.Right = right == null ? 0 : right;
     this.Bottom = bottom == null ? 0 : bottom;
 }
-Thickness.InheritFrom(RefObject);
+Nullstone.Create(Thickness, "Thickness");
 
 Thickness.prototype.Plus = function (thickness2) {
     var t = new Thickness();
