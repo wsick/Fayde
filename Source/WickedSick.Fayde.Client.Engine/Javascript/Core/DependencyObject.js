@@ -12,21 +12,26 @@
 /// <reference path="../Runtime/BError.js" />
 
 //#region DependencyObject
+var DependencyObject = Nullstone.Create("DependencyObject");
 
-function DependencyObject() {
-    if (!Nullstone.IsReady)
-        return;
-    this._Initialize();
-}
-Nullstone.Create(DependencyObject, "DependencyObject");
+DependencyObject.Instance.Init = function () {
+    this._IsAttached = false;
+    this._Providers = new Array();
+    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
+    this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
+    this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
+    this._ProviderBitmasks = new Array();
+    this._SecondaryParents = new Array();
+    this.PropertyChanged = new MulticastEvent();
+};
 
 //#region DEPENDENCY PROPERTIES
 
 DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", null, null, false, DependencyObject._NameValidator);
-DependencyObject.prototype.GetName = function () {
+DependencyObject.Instance.GetName = function () {
     return this.GetValue(DependencyObject.NameProperty);
 };
-DependencyObject.prototype.SetName = function (value) {
+DependencyObject.Instance.SetName = function (value) {
     this.SetValue(DependencyObject.NameProperty, value);
 };
 
@@ -34,25 +39,25 @@ DependencyObject.prototype.SetName = function (value) {
 
 //#region PROPERTIES
 
-DependencyObject.prototype.GetTemplateOwner = function () {
+DependencyObject.Instance.GetTemplateOwner = function () {
     return this._TemplateOwner;
 };
-DependencyObject.prototype.SetTemplateOwner = function (value) {
+DependencyObject.Instance.SetTemplateOwner = function (value) {
     this._TemplateOwner = value;
 };
 
-DependencyObject.prototype.GetMentor = function () {
+DependencyObject.Instance.GetMentor = function () {
     ///<returns type="DependencyObject"></returns>
     return this._Mentor;
 };
-DependencyObject.prototype.SetMentor = function (value) {
+DependencyObject.Instance.SetMentor = function (value) {
     if (this._Mentor == value)
         return;
     var oldMentor = this._Mentor;
     this._Mentor = value;
     this._OnMentorChanged(oldMentor, value);
 };
-DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
+DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
     if (!(this instanceof FrameworkElement)) {
         this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
         this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
@@ -70,22 +75,11 @@ DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
 
 //#region INSTANCE METHODS
 
-DependencyObject.prototype.GetDependencyProperty = function (propName) {
+DependencyObject.Instance.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);
 };
 
-DependencyObject.prototype._Initialize = function () {
-    this._IsAttached = false;
-    this._Providers = new Array();
-    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
-    this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
-    this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
-    this._ProviderBitmasks = new Array();
-    this._SecondaryParents = new Array();
-    this.PropertyChanged = new MulticastEvent();
-};
-
-DependencyObject.prototype.SetValue = function (propd, value) {
+DependencyObject.Instance.SetValue = function (propd, value) {
     if (propd == null)
         throw new ArgumentException("No property specified.");
     if (propd.IsReadOnly) {
@@ -158,7 +152,7 @@ DependencyObject.prototype.SetValue = function (propd, value) {
             existing._TryUpdateSourceObject(value);
     }
 };
-DependencyObject.prototype._SetValue = function (propd, value, error) {
+DependencyObject.Instance._SetValue = function (propd, value, error) {
     if (error == null)
         error = new BError();
     var hasCoercer = propd._HasCoercer();
@@ -175,7 +169,7 @@ DependencyObject.prototype._SetValue = function (propd, value, error) {
         throw new error.CreateException();
     return retVal;
 };
-DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
+DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
     if (this._IsFrozen) {
         error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
         return false;
@@ -217,7 +211,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
     return true;
 };
 
-DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endingPrecedence) {
+DependencyObject.Instance.GetValue = function (propd, startingPrecedence, endingPrecedence) {
     if (startingPrecedence === undefined)
         startingPrecedence = _PropertyPrecedence.Highest;
     if (endingPrecedence === undefined)
@@ -245,7 +239,7 @@ DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endin
     }
     return null;
 };
-DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error) {
+DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) {
     if (notifyListeners == undefined)
         notifyListeners = true;
     if (error == undefined)
@@ -289,16 +283,16 @@ DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error)
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
     }
 };
-DependencyObject.prototype.ReadLocalValue = function (propd) {
+DependencyObject.Instance.ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
-DependencyObject.prototype._GetValueNoAutoCreate = function (propd) {
+DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
     var v = this.GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
     if (v == null && propd._IsAutoCreated())
         v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     return v;
 };
-DependencyObject.prototype._GetValueNoDefault = function (propd) {
+DependencyObject.Instance._GetValueNoDefault = function (propd) {
     var value = null;
     for (var i = 0; i < _PropertyPrecedence.DefaultValue; i++) {
         var provider = this._Providers[i];
@@ -311,11 +305,11 @@ DependencyObject.prototype._GetValueNoDefault = function (propd) {
     }
     return null;
 };
-DependencyObject.prototype._PropertyHasValueNoAutoCreate = function (propd, obj) {
+DependencyObject.Instance._PropertyHasValueNoAutoCreate = function (propd, obj) {
     var v = this._GetValueNoAutoCreate(propd);
     return v == null ? obj == null : v == obj;
 };
-DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
+DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
     var bitmask = this._ProviderBitmasks[propd] || 0;
     if (newProviderValue != null)
         bitmask |= 1 << providerPrecedence;
@@ -452,7 +446,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
     //if ([this property has an active animation])
     //Needs clock tick..
 };
-DependencyObject.prototype._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
+DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
     for (var i = 0; i < _PropertyPrecedence.Count; i++) {
         var provider = this._Providers[i];
         if (provider == null)
@@ -466,7 +460,7 @@ DependencyObject.prototype._CallRecomputePropertyValueForProviders = function (p
             provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnHigherPriorityChange, error);
     }
 };
-DependencyObject.prototype._PropagateInheritedValue = function (inheritable, source, newValue) {
+DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
     if (inheritedProvider == null)
         return true;
@@ -480,13 +474,13 @@ DependencyObject.prototype._PropagateInheritedValue = function (inheritable, sou
     this._ProviderValueChanged(_PropertyPrecedence.Inherited, propd, null, newValue, true, false, false, error);
     return this._GetPropertyValueProvider(propd) == _PropertyPrecedence.Inherited;
 };
-DependencyObject.prototype._GetInheritedValueSource = function (inheritable) {
+DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
     if (inheritedProvider == null)
         return null;
     return inheritedProvider._GetPropertySource(inheritable);
 };
-DependencyObject.prototype._SetInheritedValueSource = function (inheritable, source) {
+DependencyObject.Instance._SetInheritedValueSource = function (inheritable, source) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
     if (inheritedProvider == null)
         return;
@@ -501,7 +495,7 @@ DependencyObject.prototype._SetInheritedValueSource = function (inheritable, sou
     }
     inheritedProvider._SetPropertySource(inheritable, source);
 };
-DependencyObject.prototype._GetPropertyValueProvider = function (propd) {
+DependencyObject.Instance._GetPropertyValueProvider = function (propd) {
     var bitmask = this._ProviderBitmasks[propd];
     for (var i = 0; i < _PropertyPrecedence.Lowest; i++) {
         var p = 1 << i;
@@ -514,11 +508,11 @@ DependencyObject.prototype._GetPropertyValueProvider = function (propd) {
     }
     return -1;
 };
-DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
+DependencyObject.Instance._IsValueValid = function (propd, coerced, error) {
     //TODO: Handle type problems
     return true;
 };
-DependencyObject.prototype._RemoveExpression = function (propd) {
+DependencyObject.Instance._RemoveExpression = function (propd) {
     var data = {};
     if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
         this._Expressions.Remove(propd);
@@ -526,12 +520,12 @@ DependencyObject.prototype._RemoveExpression = function (propd) {
     }
 };
 
-DependencyObject.prototype._AddTarget = function (obj) {
+DependencyObject.Instance._AddTarget = function (obj) {
 };
-DependencyObject.prototype._RemoveTarget = function (obj) {
+DependencyObject.Instance._RemoveTarget = function (obj) {
 };
 
-DependencyObject.prototype._GetResourceBase = function () {
+DependencyObject.Instance._GetResourceBase = function () {
     var rb = this._ResourceBase;
     if (rb)
         rb = rb.replace(/^\s+/, ''); //trim if not null
@@ -541,22 +535,22 @@ DependencyObject.prototype._GetResourceBase = function () {
         return this._Parent._GetResourceBase();
     return this._ResourceBase;
 };
-DependencyObject.prototype._SetResourceBase = function (value) {
+DependencyObject.Instance._SetResourceBase = function (value) {
     this._ResourceBase = value;
 };
 
-DependencyObject.prototype._SetIsAttached = function (value) {
+DependencyObject.Instance._SetIsAttached = function (value) {
     if (this._IsAttached == value)
         return;
     this._IsAttached = value;
     this._OnIsAttachedChanged(value);
 };
-DependencyObject.prototype._OnIsAttachedChanged = function (value) {
+DependencyObject.Instance._OnIsAttachedChanged = function (value) {
     this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
     this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
 };
 
-DependencyObject.prototype._OnPropertyChanged = function (args, error) {
+DependencyObject.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property === DependencyObject.NameProperty) {
         var scope = this.FindNameScope();
         if (scope && args.NewValue) {
@@ -575,11 +569,11 @@ DependencyObject.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-DependencyObject.prototype._OnSubPropertyChanged = function (sender, args) { };
+DependencyObject.Instance._OnSubPropertyChanged = function (sender, args) { };
 
-DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
+DependencyObject.Instance._OnCollectionChanged = function (sender, args) {
 };
-DependencyObject.prototype._OnCollectionItemChanged = function (sender, args) {
+DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) {
 };
 
 DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
@@ -598,7 +592,7 @@ DependencyObject._PropagateMentor = function (propd, value, newMentor) {
 
 //#region NAME
 
-DependencyObject.prototype.FindName = function (name, isTemplateItem) {
+DependencyObject.Instance.FindName = function (name, isTemplateItem) {
     /// <param name="name" type="String"></param>
     /// <param name="isTemplateItem" type="Boolean"></param>
     /// <returns type="DependencyObject" />
@@ -614,7 +608,7 @@ DependencyObject.prototype.FindName = function (name, isTemplateItem) {
 
     return undefined;
 };
-DependencyObject.prototype.FindNameScope = function (templateNamescope) {
+DependencyObject.Instance.FindNameScope = function (templateNamescope) {
     if (templateNamescope === undefined)
         templateNamescope = Control.GetIsTemplateItem(this);
 
@@ -627,7 +621,7 @@ DependencyObject.prototype.FindNameScope = function (templateNamescope) {
     }
     return undefined;
 };
-DependencyObject.prototype.SetNameOnScope = function (name, scope) {
+DependencyObject.Instance.SetNameOnScope = function (name, scope) {
     if (scope.FindName(name))
         return false;
 
@@ -636,7 +630,7 @@ DependencyObject.prototype.SetNameOnScope = function (name, scope) {
     return true;
 };
 
-DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+DependencyObject.Instance._RegisterAllNamesRootedAt = function (namescope, error) {
     if (error.IsErrored())
         return;
     if (this._RegisteringNames)
@@ -654,7 +648,7 @@ DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, erro
 
     this._RegisteringNames = false;
 };
-DependencyObject.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+DependencyObject.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
     if (this._RegisteringNames)
         return;
     if (this._PermitsMultipleParents() && this._HasSecondaryParents())
@@ -688,13 +682,13 @@ DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
 
 //#region PARENT USAGE
 
-DependencyObject.prototype._GetParent = function () {
+DependencyObject.Instance._GetParent = function () {
     return this._Parent;
 };
-DependencyObject.prototype._PermitsMultipleParents = function () {
+DependencyObject.Instance._PermitsMultipleParents = function () {
     return true;
 };
-DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree, error) {
+DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, error) {
     if (false/* TODO: IsShuttingDown */) {
         this._Parent = null;
         return;
@@ -770,7 +764,7 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
         this.SetMentor(d);
     }
 };
-DependencyObject.prototype._RemoveParent = function (parent, error) {
+DependencyObject.Instance._RemoveParent = function (parent, error) {
     if (this._RemoveSecondaryParent(parent)) {
         if (this._HasSecondaryParents() || !(parent instanceof DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
             return;
@@ -797,11 +791,11 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
             this._Parent = null;
     }
 };
-DependencyObject.prototype._AddSecondaryParent = function (obj) {
+DependencyObject.Instance._AddSecondaryParent = function (obj) {
     //TODO: Subscribe to obj.Destroyed --> When destroyed, RemoveSecondaryParent(obj)
     this._SecondaryParents.push(obj);
 };
-DependencyObject.prototype._RemoveSecondaryParent = function (obj) {
+DependencyObject.Instance._RemoveSecondaryParent = function (obj) {
     var index = -1;
     for (var i = 0; i < this._SecondaryParents.length; i++) {
         if (RefObject.RefEquals(this._SecondaryParents[i], obj)) {
@@ -815,10 +809,10 @@ DependencyObject.prototype._RemoveSecondaryParent = function (obj) {
     //TODO: Unsubscribe to obj.Destroyed
     return true;
 };
-DependencyObject.prototype._GetSecondaryParents = function () {
+DependencyObject.Instance._GetSecondaryParents = function () {
     return this._SecondaryParents;
 };
-DependencyObject.prototype._HasSecondaryParents = function () {
+DependencyObject.Instance._HasSecondaryParents = function () {
     return this._SecondaryParents.length > 0;
 };
 
@@ -826,7 +820,7 @@ DependencyObject.prototype._HasSecondaryParents = function () {
 
 //#region ANIMATION STORAGE
 
-DependencyObject.prototype._GetAnimationStorageFor = function (propd) {
+DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
     if (this._StorageRepo == null)
         return null;
 
@@ -836,7 +830,7 @@ DependencyObject.prototype._GetAnimationStorageFor = function (propd) {
 
     return list.Last().Storage;
 };
-DependencyObject.prototype._AttachAnimationStorage = function (propd, storage) {
+DependencyObject.Instance._AttachAnimationStorage = function (propd, storage) {
     var attachedStorage = null;
     if (this._StorageRepo == null)
         this._StorageRepo = new Array();
@@ -856,7 +850,7 @@ DependencyObject.prototype._AttachAnimationStorage = function (propd, storage) {
     list.Append(node);
     return attachedStorage;
 };
-DependencyObject.prototype._DetachAnimationStorage = function (propd, storage) {
+DependencyObject.Instance._DetachAnimationStorage = function (propd, storage) {
     if (this._StorageRepo == null)
         return;
 
@@ -888,4 +882,5 @@ DependencyObject.prototype._DetachAnimationStorage = function (propd, storage) {
 
 //#endregion
 
+Nullstone.FinishCreate(DependencyObject);
 //#endregion

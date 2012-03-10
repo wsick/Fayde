@@ -3,21 +3,16 @@
 /// CODE
 
 //#region PropertyChangedEventArgs
+var PropertyChangedEventArgs = Nullstone.Create("PropertyChangedEventArgs", EventArgs);
 
-function PropertyChangedEventArgs() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(PropertyChangedEventArgs, "PropertyChangedEventArgs", EventArgs);
-
-PropertyChangedEventArgs.prototype.GetPropertyName = function () {
+PropertyChangedEventArgs.Instance.GetPropertyName = function () {
     /// <returns type="String" />
     return this._PropertyName;
 };
-PropertyChangedEventArgs.prototype.SetPropertyName = function (value) {
+PropertyChangedEventArgs.Instance.SetPropertyName = function (value) {
     /// <param name="value" type="String"></param>
     this._PropertyName = value;
 };
 
+Nullstone.FinishCreate(PropertyChangedEventArgs);
 //#endregion

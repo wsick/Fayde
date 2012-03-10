@@ -3,21 +3,15 @@
 /// CODE
 
 //#region UserControl
-
-function UserControl() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(UserControl, "UserControl", Control);
+var UserControl = Nullstone.Create("UserControl", Control);
 
 //#region DEPENDENCY PROPERTIES
 
 UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, UserControl);
-UserControl.prototype.GetContent = function () {
+UserControl.Instance.GetContent = function () {
     return this.GetValue(UserControl.ContentProperty);
 };
-UserControl.prototype.SetContent = function (value) {
+UserControl.Instance.SetContent = function (value) {
     this.SetValue(UserControl.ContentProperty, value);
 };
 
@@ -25,9 +19,9 @@ UserControl.prototype.SetContent = function (value) {
 
 //#region INSTANCE METHODS
 
-UserControl.prototype.IsLayoutContainer = function () { return true; };
+UserControl.Instance.IsLayoutContainer = function () { return true; };
 
-UserControl.prototype._MeasureOverrideWithError = function (availableSize, error) {
+UserControl.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
 
     var border = this.GetPadding().Plus(this.GetBorderThickness());
@@ -43,7 +37,7 @@ UserControl.prototype._MeasureOverrideWithError = function (availableSize, error
 
     return desired;
 };
-UserControl.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+UserControl.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var border = this.GetPadding().Plus(this.GetBorderThickness());
 
     var arranged = finalSize;
@@ -59,7 +53,7 @@ UserControl.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     return arranged;
 };
 
-UserControl.prototype._OnPropertyChanged = function (args, error) {
+UserControl.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType != UserControl) {
         this._OnPropertyChanged$super(args, error);
         return;
@@ -97,4 +91,5 @@ UserControl.Annotations = {
 
 //#endregion
 
+Nullstone.FinishCreate(UserControl);
 //#endregion

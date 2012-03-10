@@ -10,12 +10,9 @@
 /// <reference path="../Media/Brush.js"/>
 
 //#region UIElement
+var UIElement = Nullstone.Create("UIElement", DependencyObject);
 
-function UIElement() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-
+UIElement.Instance.Init = function () {
     this.Unloaded = new MulticastEvent();
     this.Loaded = new MulticastEvent();
     this.Invalidated = new MulticastEvent();
@@ -44,7 +41,7 @@ function UIElement() {
 
     this.MouseMove = new MulticastEvent();
     this.MouseMove.Subscribe(this.OnMouseMove, this);
-    
+
     this.MouseLeftButtonDown = new MulticastEvent();
     this.MouseLeftButtonDown.Subscribe(this.OnMouseLeftButtonDown, this);
 
@@ -70,16 +67,15 @@ function UIElement() {
 
     this.LostFocus = new MulticastEvent();
     this.LostFocus.Subscribe(this.OnLostFocus, this);
-}
-Nullstone.Extend(UIElement, "UIElement", DependencyObject);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 UIElement.ClipProperty = DependencyProperty.Register("Clip", function () { return Geometry; }, UIElement);
-UIElement.prototype.GetClip = function () {
+UIElement.Instance.GetClip = function () {
     return this.GetValue(UIElement.ClipProperty);
 };
-UIElement.prototype.SetClip = function (value) {
+UIElement.Instance.SetClip = function (value) {
     this.SetValue(UIElement.ClipProperty, value);
 };
 
@@ -88,26 +84,26 @@ UIElement.prototype.SetClip = function (value) {
 //UIElement.ProjectionProperty;
 
 UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement);
-UIElement.prototype.GetIsHitTestVisible = function () {
+UIElement.Instance.GetIsHitTestVisible = function () {
     return this.GetValue(UIElement.IsHitTestVisibleProperty);
 };
-UIElement.prototype.SetIsHitTestVisible = function (value) {
+UIElement.Instance.SetIsHitTestVisible = function (value) {
     this.SetValue(UIElement.IsHitTestVisibleProperty, value);
 };
 
 UIElement.OpacityMaskProperty = DependencyProperty.Register("OpacityMask", function () { return Brush; }, UIElement);
-UIElement.prototype.GetOpacityMask = function () {
+UIElement.Instance.GetOpacityMask = function () {
     return this.GetValue(UIElement.OpacityMaskProperty);
 };
-UIElement.prototype.SetOpacityMask = function (value) {
+UIElement.Instance.SetOpacityMask = function (value) {
     this.SetValue(UIElement.OpacityMaskProperty, value);
 };
 
 UIElement.OpacityProperty = DependencyProperty.Register("Opacity", function () { return Number; }, UIElement, 1.0);
-UIElement.prototype.GetOpacity = function () {
+UIElement.Instance.GetOpacity = function () {
     return this.GetValue(UIElement.OpacityProperty);
 };
-UIElement.prototype.SetOpacity = function (value) {
+UIElement.Instance.SetOpacity = function (value) {
     this.SetValue(UIElement.OpacityProperty, value);
 };
 
@@ -115,45 +111,45 @@ UIElement.prototype.SetOpacity = function (value) {
 //UIElement.AllowDropProperty;
 
 UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return Number; }, UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
-UIElement.prototype.GetCursor = function () {
+UIElement.Instance.GetCursor = function () {
     return this.GetValue(UIElement.CursorProperty);
 };
-UIElement.prototype.SetCursor = function (value) {
+UIElement.Instance.SetCursor = function (value) {
     this.SetValue(UIElement.CursorProperty, value);
 };
 
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
-UIElement.prototype.GetResources = function () {
+UIElement.Instance.GetResources = function () {
     /// <returns type="ResourceDictionary" />
     return this.GetValue(UIElement.ResourcesProperty);
 };
 
 UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, null, { GetValue: function () { } }*/);
-UIElement.prototype.GetTriggers = function () {
+UIElement.Instance.GetTriggers = function () {
     return this.GetValue(UIElement.TriggersProperty);
 };
 
 UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", function () { return Boolean; }, UIElement);
-UIElement.prototype.GetUseLayoutRounding = function () {
+UIElement.Instance.GetUseLayoutRounding = function () {
     return this.GetValue(UIElement.UseLayoutRoundingProperty);
 };
-UIElement.prototype.SetUseLayoutRounding = function (value) {
+UIElement.Instance.SetUseLayoutRounding = function (value) {
     this.SetValue(UIElement.UseLayoutRoundingProperty, value);
 };
 
 UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", function () { return Number; }, UIElement, Visibility.Visible);
-UIElement.prototype.GetVisibility = function () {
+UIElement.Instance.GetVisibility = function () {
     return this.GetValue(UIElement.VisibilityProperty);
 };
-UIElement.prototype.SetVisibility = function (value) {
+UIElement.Instance.SetVisibility = function (value) {
     this.SetValue(UIElement.VisibilityProperty, value);
 };
 
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-UIElement.prototype.GetTag = function () {
+UIElement.Instance.GetTag = function () {
     return this.GetValue(UIElement.TagProperty);
 };
-UIElement.prototype.SetTag = function (value) {
+UIElement.Instance.SetTag = function (value) {
     this.SetValue(UIElement.TagProperty, value);
 };
 
@@ -161,18 +157,18 @@ UIElement.prototype.SetTag = function (value) {
 
 //#region INSTANCE METHODS
 
-UIElement.prototype.SetVisualParent = function (/* UIElement */value) {
+UIElement.Instance.SetVisualParent = function (/* UIElement */value) {
     this._VisualParent = value;
 };
-UIElement.prototype.GetVisualParent = function () {
+UIElement.Instance.GetVisualParent = function () {
     return this._VisualParent; //UIElement
 };
-UIElement.prototype.IsLayoutContainer = function () { return false; };
-UIElement.prototype.IsContainer = function () { return this.IsLayoutContainer(); };
-UIElement.prototype._CacheInvalidateHint = function () {
+UIElement.Instance.IsLayoutContainer = function () { return false; };
+UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
+UIElement.Instance._CacheInvalidateHint = function () {
 };
 
-UIElement.prototype._FullInvalidate = function (renderTransform) {
+UIElement.Instance._FullInvalidate = function (renderTransform) {
     this._Invalidate();
     if (renderTransform) {
         this._UpdateTransform();
@@ -180,7 +176,7 @@ UIElement.prototype._FullInvalidate = function (renderTransform) {
     }
     this._UpdateBounds(true);
 };
-UIElement.prototype._Invalidate = function (rect) {
+UIElement.Instance._Invalidate = function (rect) {
     if (!rect)
         rect = this._SurfaceBounds;
     if (!this._GetRenderVisible() || UIElement._IsOpacityInvisible(this._TotalOpacity))
@@ -195,24 +191,24 @@ UIElement.prototype._Invalidate = function (rect) {
         this._OnInvalidated();
     }
 };
-UIElement.prototype._InvalidateMeasure = function () {
+UIElement.Instance._InvalidateMeasure = function () {
     this._DirtyFlags |= _Dirty.Measure;
     this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
     //TODO: Alert redraw necessary
 };
-UIElement.prototype._InvalidateArrange = function () {
+UIElement.Instance._InvalidateArrange = function () {
     this._DirtyFlags |= _Dirty.Arrange;
     this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
     //TODO: Alert redraw necessary
 };
-UIElement.prototype._InvalidateVisibility = function () {
+UIElement.Instance._InvalidateVisibility = function () {
     this._UpdateTotalRenderVisibility();
     this._InvalidateParent(this._GetSubtreeBounds());
 };
-UIElement.prototype._InvalidateSubtreePaint = function () {
+UIElement.Instance._InvalidateSubtreePaint = function () {
     this._Invalidate(this._GetSubtreeBounds());
 };
-UIElement.prototype._InvalidateParent = function (r) {
+UIElement.Instance._InvalidateParent = function (r) {
     var visualParent = this.GetVisualParent();
     if (visualParent)
         visualParent._Invalidate(r);
@@ -220,44 +216,44 @@ UIElement.prototype._InvalidateParent = function (r) {
         App.Instance.MainSurface._Invalidate(r);
 };
 
-UIElement.prototype._UpdateBounds = function (forceRedraw) {
+UIElement.Instance._UpdateBounds = function (forceRedraw) {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
     this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
 };
-UIElement.prototype._UpdateTransform = function () {
+UIElement.Instance._UpdateTransform = function () {
     //NotImplemented("UIElement._UpdateTransform()");
 };
-UIElement.prototype._UpdateProjection = function () {
+UIElement.Instance._UpdateProjection = function () {
     //NotImplemented("UIElement._UpdateProjection()");
 };
-UIElement.prototype._ComputeBounds = function () {
+UIElement.Instance._ComputeBounds = function () {
     AbstractMethod("UIElement._ComputeBounds()");
 };
-UIElement.prototype._ComputeGlobalBounds = function () {
+UIElement.Instance._ComputeGlobalBounds = function () {
     this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._LocalProjection);
 };
-UIElement.prototype._ComputeSurfaceBounds = function () {
+UIElement.Instance._ComputeSurfaceBounds = function () {
     this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteProjection);
 };
-UIElement.prototype._ComputeLocalTransform = function () {
+UIElement.Instance._ComputeLocalTransform = function () {
     //NotImplemented("UIElement._ComputeLocalTransform");
 };
-UIElement.prototype._ComputeLocalProjection = function () {
+UIElement.Instance._ComputeLocalProjection = function () {
     //NotImplemented("UIElement._ComputeLocalProjection");
 };
 
-UIElement.prototype._ComputeTotalRenderVisibility = function () {
+UIElement.Instance._ComputeTotalRenderVisibility = function () {
     if (this._GetActualTotalRenderVisibility())
         this._Flags |= UIElementFlags.TotalRenderVisible;
     else
         this._Flags &= ~UIElementFlags.TotalRenderVisible;
 };
-UIElement.prototype._UpdateTotalRenderVisibility = function () {
+UIElement.Instance._UpdateTotalRenderVisibility = function () {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.RenderVisibility);
 };
-UIElement.prototype._GetActualTotalRenderVisibility = function () {
+UIElement.Instance._GetActualTotalRenderVisibility = function () {
     var visible = (this._Flags & UIElementFlags.RenderVisible) != 0;
     var parentVisible = true;
     this._TotalOpacity = this.GetOpacity();
@@ -271,21 +267,21 @@ UIElement.prototype._GetActualTotalRenderVisibility = function () {
     visible = visible && parentVisible;
     return visible;
 };
-UIElement.prototype._GetRenderVisible = function () {
+UIElement.Instance._GetRenderVisible = function () {
     return (this._Flags & UIElementFlags.TotalRenderVisible) != 0;
 };
 
-UIElement.prototype._ComputeTotalHitTestVisibility = function () {
+UIElement.Instance._ComputeTotalHitTestVisibility = function () {
     if (this._GetActualTotalHitTestVisibility())
         this._Flags |= UIElementFlags.TotalHitTestVisible;
     else
         this._Flags &= ~UIElementFlags.TotalHitTestVisible;
 };
-UIElement.prototype._UpdateTotalHitTestVisibility = function () {
+UIElement.Instance._UpdateTotalHitTestVisibility = function () {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.HitTestVisibility);
 };
-UIElement.prototype._GetActualTotalHitTestVisibility = function () {
+UIElement.Instance._GetActualTotalHitTestVisibility = function () {
     var visible = (this._Flags & UIElementFlags.HitTestVisible) != 0;
     var visualParent;
     if (visible && (visualParent = this.GetVisualParent())) {
@@ -294,17 +290,17 @@ UIElement.prototype._GetActualTotalHitTestVisibility = function () {
     }
     return visible;
 };
-UIElement.prototype._GetIsHitTestVisible = function () {
+UIElement.Instance._GetIsHitTestVisible = function () {
     return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
 };
 
-UIElement.prototype._HitTestPoint = function (ctx, p, uielist) {
+UIElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     uielist.Prepend(new UIElementNode(this));
 };
-UIElement.prototype._InsideObject = function (ctx, x, y) {
+UIElement.Instance._InsideObject = function (ctx, x, y) {
     return this._InsideClip(ctx, x, y);
 };
-UIElement.prototype._InsideClip = function (ctx, x, y) {
+UIElement.Instance._InsideClip = function (ctx, x, y) {
     var clip = this.GetClip();
     if (!clip)
         return true;
@@ -317,10 +313,10 @@ UIElement.prototype._InsideClip = function (ctx, x, y) {
 
     return ctx.IsPointInClipPath(clip, np);
 };
-UIElement.prototype._CanFindElement = function () {
+UIElement.Instance._CanFindElement = function () {
     return false;
 };
-UIElement.prototype._TransformPoint = function (p) {
+UIElement.Instance._TransformPoint = function (p) {
     /// <param name="p" type="Point"></param>
     var inverse;
     if (!this._CachedTransform || !(inverse = this._CachedTransform.Inverse))
@@ -330,32 +326,32 @@ UIElement.prototype._TransformPoint = function (p) {
     p.Y = np.Y;
 };
 
-UIElement.prototype._GetGlobalBounds = function () {
+UIElement.Instance._GetGlobalBounds = function () {
     return this._GlobalBounds;
 };
-UIElement.prototype._GetSubtreeObject = function () {
+UIElement.Instance._GetSubtreeObject = function () {
     return this._SubtreeObject;
 };
-UIElement.prototype._SetSubtreeObject = function (value) {
+UIElement.Instance._SetSubtreeObject = function (value) {
     this._SubtreeObject = value;
 };
-UIElement.prototype._GetSubtreeExtents = function () {
+UIElement.Instance._GetSubtreeExtents = function () {
     AbstractMethod("UIElement._GetSubtreeExtents()");
 };
-UIElement.prototype._GetSubtreeBounds = function () {
+UIElement.Instance._GetSubtreeBounds = function () {
     return this._SurfaceBounds;
 };
-UIElement.prototype._SetRenderSize = function (value) {
+UIElement.Instance._SetRenderSize = function (value) {
     this._RenderSize = value;
 };
-UIElement.prototype._GetRenderSize = function () {
+UIElement.Instance._GetRenderSize = function () {
     return this._RenderSize;
 };
-UIElement.prototype._GetOriginPoint = function () {
+UIElement.Instance._GetOriginPoint = function () {
     return new Point(0.0, 0.0);
 };
 
-UIElement.prototype._DoMeasureWithError = function (error) {
+UIElement.Instance._DoMeasureWithError = function (error) {
     var last = LayoutInformation.GetPreviousConstraint(this);
     var parent = this.GetVisualParent();
     var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
@@ -376,12 +372,12 @@ UIElement.prototype._DoMeasureWithError = function (error) {
 
     this._DirtyFlags &= ~_Dirty.Measure;
 };
-UIElement.prototype.Measure = function (availableSize) {
+UIElement.Instance.Measure = function (availableSize) {
     var error = new BError();
     this._MeasureWithError(availableSize, error);
 };
-UIElement.prototype._MeasureWithError = function (availableSize, error) { };
-UIElement.prototype._DoArrangeWithError = function (error) {
+UIElement.Instance._MeasureWithError = function (availableSize, error) { };
+UIElement.Instance._DoArrangeWithError = function (error) {
     var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var parent = this.GetVisualParent();
 
@@ -414,17 +410,17 @@ UIElement.prototype._DoArrangeWithError = function (error) {
             parent._InvalidateArrange();
     }
 };
-UIElement.prototype.Arrange = function (finalRect) {
+UIElement.Instance.Arrange = function (finalRect) {
     var error = new BError();
     this._ArrangeWithError(finalRect, error);
 };
-UIElement.prototype._ArrangeWithError = function (finalRect, error) { };
+UIElement.Instance._ArrangeWithError = function (finalRect, error) { };
 
-UIElement.prototype._ShiftPosition = function (point) {
+UIElement.Instance._ShiftPosition = function (point) {
     this._Bounds.X = point.X;
     this._Bounds.Y = point.Y;
 };
-UIElement.prototype._DoRender = function (ctx, parentRegion) {
+UIElement.Instance._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
     if (!region) {
         Warn("Render Extents are empty. [" + this._TypeName + "]");
@@ -456,15 +452,15 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     this._PostRender(ctx, region);
     ctx.Restore();
 };
-UIElement.prototype._Render = function (ctx, region) { };
-UIElement.prototype._PostRender = function (ctx, region) {
+UIElement.Instance._Render = function (ctx, region) { };
+UIElement.Instance._PostRender = function (ctx, region) {
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
     var child;
     while (child = walker.Step()) {
         child._DoRender(ctx, region);
     }
 };
-UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transform) {
+UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
     var clip = this.GetClip();
     var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);
     var box;
@@ -487,7 +483,7 @@ UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transfor
 
     return box.Intersection(unclipped);
 };
-UIElement.prototype._ElementRemoved = function (item) {
+UIElement.Instance._ElementRemoved = function (item) {
     this._Invalidate(item._GetSubtreeBounds());
     item.SetVisualParent(null);
     item._SetIsLoaded(false);
@@ -502,7 +498,7 @@ UIElement.prototype._ElementRemoved = function (item) {
 
     this._Providers[_PropertyPrecedence.Inherited].ClearInheritedPropertiesOnRemovingFromTree(item);
 }
-UIElement.prototype._ElementAdded = function (item) {
+UIElement.Instance._ElementAdded = function (item) {
     item.SetVisualParent(this);
     item._UpdateTotalRenderVisibility();
     item._UpdateTotalHitTestVisibility();
@@ -529,16 +525,16 @@ UIElement.prototype._ElementAdded = function (item) {
     if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
-UIElement.prototype._UpdateLayer = function (pass, error) {
+UIElement.Instance._UpdateLayer = function (pass, error) {
 };
 
-UIElement.prototype._SetIsLoaded = function (value) {
+UIElement.Instance._SetIsLoaded = function (value) {
     if (this._IsLoaded != value) {
         this._IsLoaded = value;
         this._OnIsLoadedChanged(value);
     }
 };
-UIElement.prototype._OnIsLoadedChanged = function (loaded) {
+UIElement.Instance._OnIsLoadedChanged = function (loaded) {
     if (!this._IsLoaded) {
         //WTF: ClearForeachGeneration(Loaded)
         this.Unloaded.Raise(this, new EventArgs());
@@ -569,7 +565,7 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
         this.Loaded.RaiseAsync(this, new EventArgs());
     }
 };
-UIElement.prototype._OnIsAttachedChanged = function (value) {
+UIElement.Instance._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
 
@@ -589,11 +585,11 @@ UIElement.prototype._OnIsAttachedChanged = function (value) {
         }
     }
 };
-UIElement.prototype._OnInvalidated = function () {
+UIElement.Instance._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
 };
 
-UIElement.prototype._OnPropertyChanged = function (args, error) {
+UIElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== UIElement) {
         this._OnPropertyChanged$super(args, error);
         return;
@@ -616,10 +612,10 @@ UIElement.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
-UIElement.prototype._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
-UIElement.prototype._ClearFlag = function (flag) { this._Flags &= ~flag; };
-UIElement.prototype._SetFlag = function (flag) { this._Flags |= flag; };
-UIElement.prototype._PropagateFlagUp = function (flag) {
+UIElement.Instance._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
+UIElement.Instance._ClearFlag = function (flag) { this._Flags &= ~flag; };
+UIElement.Instance._SetFlag = function (flag) { this._Flags |= flag; };
+UIElement.Instance._PropagateFlagUp = function (flag) {
     this._SetFlag(flag);
     var el = this.GetVisualParent();
     while (el && !el._HasFlag(flag)) {
@@ -628,7 +624,7 @@ UIElement.prototype._PropagateFlagUp = function (flag) {
     }
 };
 
-UIElement.prototype.__DebugDirtyFlags = function () {
+UIElement.Instance.__DebugDirtyFlags = function () {
     var t = new String();
     if (this._DirtyFlags & _Dirty.Measure)
         t = t.concat("[Measure]");
@@ -649,19 +645,19 @@ UIElement.prototype.__DebugDirtyFlags = function () {
 
 //#region MOUSE
 
-UIElement.prototype.CanCaptureMouse = function () { return true; };
-UIElement.prototype.CaptureMouse = function () {
+UIElement.Instance.CanCaptureMouse = function () { return true; };
+UIElement.Instance.CaptureMouse = function () {
     if (!this._IsAttached)
         return false;
     return App.Instance.MainSurface.SetMouseCapture(this);
 };
-UIElement.prototype.ReleaseMouseCapture = function () {
+UIElement.Instance.ReleaseMouseCapture = function () {
     if (!this._IsAttached)
         return;
     App.Instance.MainSurface.ReleaseMouseCapture(this);
 };
 
-UIElement.prototype._EmitMouseEvent = function (type, button, absolutePos) {
+UIElement.Instance._EmitMouseEvent = function (type, button, absolutePos) {
     var func;
     if (type === "up") {
         if (Surface.IsLeftButton(button))
@@ -682,46 +678,46 @@ UIElement.prototype._EmitMouseEvent = function (type, button, absolutePos) {
         func.call(this, absolutePos);
 };
 
-UIElement.prototype._EmitMouseMoveEvent = function (absolutePos) {
+UIElement.Instance._EmitMouseMoveEvent = function (absolutePos) {
     this.MouseMove.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseMove = function (sender, args) { };
+UIElement.Instance.OnMouseMove = function (sender, args) { };
 
-UIElement.prototype._EmitMouseLeftButtonDown = function (absolutePos) {
+UIElement.Instance._EmitMouseLeftButtonDown = function (absolutePos) {
     HUDUpdate("clicky", "MouseLeftButtonDown " + absolutePos.toString());
     this.MouseLeftButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseLeftButtonDown = function (sender, args) { };
+UIElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
 
-UIElement.prototype._EmitMouseLeftButtonUp = function (absolutePos) {
+UIElement.Instance._EmitMouseLeftButtonUp = function (absolutePos) {
     HUDUpdate("clicky", "MouseLeftButtonUp " + absolutePos.toString());
     this.MouseLeftButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseLeftButtonUp = function (sender, args) { };
+UIElement.Instance.OnMouseLeftButtonUp = function (sender, args) { };
 
-UIElement.prototype._EmitMouseRightButtonDown = function (absolutePos) {
+UIElement.Instance._EmitMouseRightButtonDown = function (absolutePos) {
     HUDUpdate("clicky", "MouseRightButtonDown " + absolutePos.toString());
     this.MouseRightButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseRightButtonDown = function (sender, args) { };
+UIElement.Instance.OnMouseRightButtonDown = function (sender, args) { };
 
-UIElement.prototype._EmitMouseRightButtonUp = function (absolutePos) {
+UIElement.Instance._EmitMouseRightButtonUp = function (absolutePos) {
     HUDUpdate("clicky", "MouseRightButtonUp " + absolutePos.toString());
     this.MouseRightButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseRightButtonUp = function (sender, args) { };
+UIElement.Instance.OnMouseRightButtonUp = function (sender, args) { };
 
-UIElement.prototype._EmitMouseEnter = function (absolutePos) {
+UIElement.Instance._EmitMouseEnter = function (absolutePos) {
     this.MouseEnter.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseEnter = function (sender, args) { };
+UIElement.Instance.OnMouseEnter = function (sender, args) { };
 
-UIElement.prototype._EmitMouseLeave = function (absolutePos) {
+UIElement.Instance._EmitMouseLeave = function (absolutePos) {
     this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseLeave = function (sender, args) { };
+UIElement.Instance.OnMouseLeave = function (sender, args) { };
 
-UIElement.prototype._EmitLostMouseCapture = function (absolutePos) {
+UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
     this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
 };
 
@@ -729,26 +725,26 @@ UIElement.prototype._EmitLostMouseCapture = function (absolutePos) {
 
 //#region FOCUS
 
-UIElement.prototype.Focus = function (recurse) {
+UIElement.Instance.Focus = function (recurse) {
     return false;
 };
 
-UIElement.prototype._EmitFocusChange = function (type) {
+UIElement.Instance._EmitFocusChange = function (type) {
     if (type === "got")
         this._EmitGotFocus();
     else if (type === "lost")
         this._EmitLostFocus();
 };
 
-UIElement.prototype._EmitGotFocus = function () {
+UIElement.Instance._EmitGotFocus = function () {
     this.GotFocus.Raise(this, new EventArgs());
 };
-UIElement.prototype.OnGotFocus = function (sender, args) { };
+UIElement.Instance.OnGotFocus = function (sender, args) { };
 
-UIElement.prototype._EmitLostFocus = function () {
+UIElement.Instance._EmitLostFocus = function () {
     this.LostFocus.Raise(this, new EventArgs());
 };
-UIElement.prototype.OnLostFocus = function (sender, args) { };
+UIElement.Instance.OnLostFocus = function (sender, args) { };
 
 //#endregion
 
@@ -768,4 +764,5 @@ UIElement.ZIndexComparer = function (uie1, uie2) {
     return zi1 - zi2;
 };
 
+Nullstone.FinishCreate(UIElement);
 //#endregion

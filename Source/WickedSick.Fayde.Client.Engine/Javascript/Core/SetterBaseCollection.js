@@ -4,29 +4,23 @@
 /// <reference path="SetterBase.js"/>
 
 //#region SetterBaseCollection
-
-function SetterBaseCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(SetterBaseCollection, "SetterBaseCollection", DependencyObjectCollection);
+var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", DependencyObjectCollection);
 
 //#region DEPENDENCY PROPERTIES
 
 SetterBaseCollection.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBaseCollection);
-SetterBaseCollection.prototype.GetIsSealed = function () {
+SetterBaseCollection.Instance.GetIsSealed = function () {
     /// <returns type="Boolean" />
     return this.GetValue(SetterBaseCollection.IsSealedProperty);
 };
-SetterBaseCollection.prototype.SetIsSealed = function (value) {
+SetterBaseCollection.Instance.SetIsSealed = function (value) {
     /// <param name="value" type="Boolean"></param>
     this.SetValue(SetterBaseCollection.IsSealedProperty, value);
 };
 
 //#endregion
 
-SetterBaseCollection.prototype._Seal = function () {
+SetterBaseCollection.Instance._Seal = function () {
     this.SetIsSealed(true);
 
     var error = new BError();
@@ -37,7 +31,7 @@ SetterBaseCollection.prototype._Seal = function () {
     }
 };
 
-SetterBaseCollection.prototype.AddedToCollection = function (value, error) {
+SetterBaseCollection.Instance.AddedToCollection = function (value, error) {
     if (!value || !this._ValidateSetter(value, error))
         return false;
     if (value instanceof SetterBase) {
@@ -46,7 +40,7 @@ SetterBaseCollection.prototype.AddedToCollection = function (value, error) {
     }
     return this.AddedToCollection$super(value, error);
 };
-SetterBaseCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+SetterBaseCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof SetterBase)
             value.SetAttached(false);
@@ -54,11 +48,11 @@ SetterBaseCollection.prototype.RemovedFromCollection = function (value, isValueS
     this.RemovedFromCollection$super(value, isValueSafe);
 };
 
-SetterBaseCollection.prototype.IsElementType = function (value) {
+SetterBaseCollection.Instance.IsElementType = function (value) {
     return value instanceof SetterBase;
 };
 
-SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
+SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
     var s;
     if (value instanceof Setter) {
         s = Nullstone.As(value, Setter);
@@ -88,4 +82,5 @@ SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
     return true;
 };
 
+Nullstone.FinishCreate(SetterBaseCollection);
 //#endregion

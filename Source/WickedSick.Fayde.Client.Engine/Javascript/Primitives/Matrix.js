@@ -2,25 +2,23 @@
 /// CODE
 
 //#region Matrix
+var Matrix = Nullstone.Create("Matrix");
 
-function Matrix() {
-    if (!Nullstone.IsReady)
-        return;
+Matrix.Instance.Init = function () {
     this._Elements = Matrix.CreateIdentityArray();
-}
-Nullstone.Create(Matrix, "Matrix");
+};
 
-Matrix.prototype.GetElements = function () {
+Matrix.Instance.GetElements = function () {
     return this._Elements;
 };
-Matrix.prototype.SetElement = function (i, j, value) {
+Matrix.Instance.SetElement = function (i, j, value) {
     this._Elements[i][j] = value;
 };
-Matrix.prototype.Apply = function (ctx) {
+Matrix.Instance.Apply = function (ctx) {
     var elements = this.GetElements();
     ctx.transform(elements[0][0], elements[1][0], elements[0][1], elements[1][1], elements[0][2], elements[1][2]);
 };
-Matrix.prototype.MultiplyMatrix = function (val) {
+Matrix.Instance.MultiplyMatrix = function (val) {
     var arr1 = this.GetElements();
     var result = new Matrix();
     var arr2 = val.GetElements();
@@ -35,7 +33,7 @@ Matrix.prototype.MultiplyMatrix = function (val) {
     }
     return result;
 };
-Matrix.prototype.MultiplyPoint = function (val) {
+Matrix.Instance.MultiplyPoint = function (val) {
     var arr1 = this.GetElements();
     var result = new Point();
     val = [[val.X], [val.Y], [1]];
@@ -45,7 +43,7 @@ Matrix.prototype.MultiplyPoint = function (val) {
     }
     return result;
 };
-Matrix.prototype.Copy = function () {
+Matrix.Instance.Copy = function () {
     var m = new Matrix();
     var els = this.GetElements();
     for (var i = 0; i < 3; i++) {
@@ -55,7 +53,7 @@ Matrix.prototype.Copy = function () {
     }
     return m;
 };
-Matrix.prototype.toString = function () {
+Matrix.Instance.toString = function () {
     var t = new String();
     t += "[\n";
     var arr = this.GetElements();
@@ -80,113 +78,104 @@ Matrix.CreateIdentityArray = function () {
     ];
 };
 
+Nullstone.FinishCreate(Matrix);
 //#endregion
 
 //#region TranslationMatrix
+var TranslationMatrix = Nullstone.Create("TranslationMatrix", Matrix, 2);
 
-function TranslationMatrix(x, y) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+TranslationMatrix.Instance.Init = function (x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
-}
-Nullstone.Extend(TranslationMatrix, "TranslationMatrix", Matrix);
+};
 
-TranslationMatrix.prototype.GetElements = function () {
+TranslationMatrix.Instance.GetElements = function () {
     return [
         [1, 0, this.X],
         [0, 1, this.Y],
         [0, 0, 1]
     ];
 };
-TranslationMatrix.prototype.GetInverse = function () {
+TranslationMatrix.Instance.GetInverse = function () {
     return new TranslationMatrix(-this.X, -this.Y);
 };
-TranslationMatrix.prototype.Apply = function (ctx) {
+TranslationMatrix.Instance.Apply = function (ctx) {
     ctx.translate(this.X, this.Y);
 };
 
+Nullstone.FinishCreate(TranslationMatrix);
 //#endregion
 
 //#region RotationMatrix
+var RotationMatrix = Nullstone.Create("RotationMatrix", Matrix, 1);
 
-RotationMatrix.prototype = new Matrix;
-RotationMatrix.prototype.constructor = RotationMatrix;
-function RotationMatrix(angleRad) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+RotationMatrix.Instance.Init = function (angleRad) {
     this.Angle = angleRad == null ? 0 : angleRad;
-}
-RotationMatrix.GetBaseClass = function () { return Matrix; };
+};
 
-RotationMatrix.prototype.GetElements = function () {
+RotationMatrix.Instance.GetElements = function () {
     return [
         [Math.cos(this.Angle), -1 * Math.sin(this.Angle), 0],
         [Math.sin(this.Angle), Math.cos(this.Angle), 0],
         [0, 0, 1]
     ];
 };
-RotationMatrix.prototype.GetInverse = function () {
+RotationMatrix.Instance.GetInverse = function () {
     return new RotationMatrix(-this.Angle);
 };
-RotationMatrix.prototype.Apply = function (ctx) {
+RotationMatrix.Instance.Apply = function (ctx) {
     ctx.rotate(this.Angle);
 };
 
+Nullstone.FinishCreate(RotationMatrix);
 //#endregion
 
 //#region ScalingMatrix
+var ScalingMatrix = Nullstone.Create("ScalingMatrix", Matrix, 2);
 
-function ScalingMatrix(x, y) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+ScalingMatrix.Instance.Init = function (x, y) {
     this.X = x == null ? 1 : x;
     this.Y = y == null ? 1 : y;
-}
-Nullstone.Extend(ScalingMatrix, "ScalingMatrix", Matrix);
+};
 
-ScalingMatrix.prototype.GetElements = function () {
+ScalingMatrix.Instance.GetElements = function () {
     return [
         [this.X, 0, 0],
         [0, this.Y, 0],
         [0, 0, 1]
     ];
 };
-ScalingMatrix.prototype.GetInverse = function () {
+ScalingMatrix.Instance.GetInverse = function () {
     return new ScalingMatrix(-this.X, -this.Y);
 };
-ScalingMatrix.prototype.Apply = function (ctx) {
+ScalingMatrix.Instance.Apply = function (ctx) {
     ctx.scale(this.X, this.Y);
 };
 
+Nullstone.FinishCreate(ScalingMatrix);
 //#endregion
 
 //#region ShearingMatrix
+var ShearingMatrix = Nullstone.Create("ShearingMatrix", Matrix, 2);
 
-function ShearingMatrix(shearX, shearY) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+ShearingMatrix.Instance.Init = function (shearX, shearY) {
     this.ShearX = shearX == null ? 0 : shearX;
     this.ShearY = shearY == null ? 0 : shearY;
-}
-Nullstone.Extend(ShearingMatrix, "ShearingMatrix", Matrix);
+};
 
-ShearingMatrix.prototype.GetElements = function () {
+ShearingMatrix.Instance.GetElements = function () {
     return [
         [1, this.ShearX, 0],
         [this.ShearY, 1, 0],
         [0, 0, 1]
     ];
 };
-ShearingMatrix.prototype.GetInverse = function () {
+ShearingMatrix.Instance.GetInverse = function () {
     return new ShearingMatrix(-this.ShearX, -this.ShearY);
 };
-ShearingMatrix.prototype.Apply = function () {
+ShearingMatrix.Instance.Apply = function () {
     NotImplemented("ShearingMatrix.Apply");
 };
 
+Nullstone.FinishCreate(ShearingMatrix);
 //#endregion

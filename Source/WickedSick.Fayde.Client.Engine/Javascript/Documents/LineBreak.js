@@ -3,12 +3,7 @@
 /// CODE
 
 //#region LineBreak
+var LineBreak = Nullstone.Create("LineBreak", Inline);
 
-function LineBreak() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(LineBreak, "LineBreak", Inline);
-
+Nullstone.FinishCreate(LineBreak);
 //#endregion

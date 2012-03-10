@@ -4,36 +4,34 @@
 /// <reference path="CurrentChangedListener.js"/>
 
 //#region _CollectionViewNode
+var _CollectionViewNode = Nullstone.Create("_CollectionViewNode", _PropertyPathNode, 3);
 
-function _CollectionViewNode(bindsDirectlyToSource, bindToView, viewChanged) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+_CollectionViewNode.Instance.Init = function (bindsDirectlyToSource, bindToView, viewChanged) {
+    this.Init$super();
     this.SetBindsDirectlyToSource(bindsDirectlyToSource === true);
     this.SetBindToView(bindToView === true);
     this.SetViewChangedHandler(this.ViewChanged);
-}
-Nullstone.Extend(_CollectionViewNode, "_CollectionViewNode", _PropertyPathNode);
+};
 
-_CollectionViewNode.prototype.OnSourceChanged = function (oldSource, newSource) {
+_CollectionViewNode.Instance.OnSourceChanged = function (oldSource, newSource) {
     this.OnSourceChanged$super(oldSource, newSource);
     this.DisconnectViewHandlers();
     this.ConnectViewHandlers(Nullstone.As(newSource, CollectionViewSource), Nullstone.As(newSource, ICollectionView));
 };
-_CollectionViewNode.prototype.ViewChanged = function (sender, e) {
+_CollectionViewNode.Instance.ViewChanged = function (sender, e) {
     this.DisconnectViewHandlers(true);
     this.ConnectViewHandlers(null, e.NewValue);
     this.ViewCurrentChanged(this, new EventArgs());
 };
-_CollectionViewNode.prototype.ViewCurrentChanged = function (sender, e) {
+_CollectionViewNode.Instance.ViewCurrentChanged = function (sender, e) {
     this.UpdateValue();
     if (this.GetNext() != null)
         this.GetNext().SetSource(this.GetValue());
 };
-_CollectionViewNode.prototype.SetValue = function () {
+_CollectionViewNode.Instance.SetValue = function () {
     throw new NotImplementedException();
 };
-_CollectionViewNode.prototype.UpdateValue = function () {
+_CollectionViewNode.Instance.UpdateValue = function () {
     if (this.GetBindsDirectlyToSource()) {
         this.SetValueType(this.GetSource() == null ? null : this.GetSource().constructor);
         this._UpdateValueAndIsBroken(this.GetSource(), this._CheckIsBroken());
@@ -61,11 +59,11 @@ _CollectionViewNode.prototype.UpdateValue = function () {
         }
     }
 };
-_CollectionViewNode.prototype._CheckIsBroken = function () {
+_CollectionViewNode.Instance._CheckIsBroken = function () {
     return this.GetSource() == null;
 };
 
-_CollectionViewNode.prototype.ConnectViewHandlers = function (source, view) {
+_CollectionViewNode.Instance.ConnectViewHandlers = function (source, view) {
     /// <param name="source" type="CollectionViewSource"></param>
     /// <param name="view" type="ICollectionView"></param>
     if (source != null) {
@@ -76,7 +74,7 @@ _CollectionViewNode.prototype.ConnectViewHandlers = function (source, view) {
         this._ViewListener = new CurrentChangedListener(view, this, this.ViewCurrentChanged);
 
 };
-_CollectionViewNode.prototype.DisconnectViewHandlers = function (onlyView) {
+_CollectionViewNode.Instance.DisconnectViewHandlers = function (onlyView) {
     /// <param name="onlyView" type="Boolean"></param>
     if (onlyView == null)
         onlyView = false;
@@ -92,33 +90,34 @@ _CollectionViewNode.prototype.DisconnectViewHandlers = function (onlyView) {
 
 //#region PROPERTIES
 
-_CollectionViewNode.prototype.GetBindsDirectlyToSource = function () {
+_CollectionViewNode.Instance.GetBindsDirectlyToSource = function () {
     /// <returns type="Boolean" />
     return this._BindsDirectlyToSource;
 };
-_CollectionViewNode.prototype.SetBindsDirectlyToSource = function (value) {
+_CollectionViewNode.Instance.SetBindsDirectlyToSource = function (value) {
     /// <param name="value" type="Boolean"></param>
     this._BindsDirectlyToSource = value;
 };
 
-_CollectionViewNode.prototype.GetBindToView = function () {
+_CollectionViewNode.Instance.GetBindToView = function () {
     /// <returns type="Boolean" />
     return this._BindToView;
 };
-_CollectionViewNode.prototype.SetBindToView = function (value) {
+_CollectionViewNode.Instance.SetBindToView = function (value) {
     /// <param name="value" type="Boolean"></param>
     this._BindToView = value;
 };
 
-_CollectionViewNode.prototype.GetViewChangedHandler = function () {
+_CollectionViewNode.Instance.GetViewChangedHandler = function () {
     /// <returns type="Function" />
     return this._ViewChangedHandler;
 };
-_CollectionViewNode.prototype.SetViewChangedHandler = function (value) {
+_CollectionViewNode.Instance.SetViewChangedHandler = function (value) {
     /// <param name="value" type="Function"></param>
     this._ViewChangedHandler = value;
 };
 
 //#endregion
 
+Nullstone.FinishCreate(_CollectionViewNode);
 //#endregion

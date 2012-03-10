@@ -3,37 +3,31 @@
 /// CODE
 
 //#region Run
-
-function Run() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Run, "Run", Inline);
+var Run = Nullstone.Create("Run", Inline);
 
 //#region DEPENDENCY PROPERTIES
 
 Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return Number; }, Run, FlowDirection.LeftToRight);
-Run.prototype.GetFlowDirection = function () {
+Run.Instance.GetFlowDirection = function () {
     return this.GetValue(Run.FlowDirectionProperty);
 };
-Run.prototype.SetFlowDirection = function (value) {
+Run.Instance.SetFlowDirection = function (value) {
     this.SetValue(Run.FlowDirectionProperty, value);
 };
 
 Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
-Run.prototype.GetText = function () {
+Run.Instance.GetText = function () {
     /// <returns type="String" />
     return this.GetValue(Run.TextProperty);
 };
-Run.prototype.SetText = function (value) {
+Run.Instance.SetText = function (value) {
     /// <param name="value" type="String"></param>
     this.SetValue(Run.TextProperty, value);
 };
 
 //#endregion
 
-Run.prototype._SerializeText = function (str) {
+Run.Instance._SerializeText = function (str) {
     /// <returns type="String" />
     var t = this.GetText();
     if (t != null)
@@ -41,4 +35,5 @@ Run.prototype._SerializeText = function (str) {
     return str;
 };
 
+Nullstone.FinishCreate(Run);
 //#endregion

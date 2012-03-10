@@ -3,13 +3,7 @@
 /// CODE
 
 //#region Span
-
-function Span() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Span, "Span", Inline);
+var Span = Nullstone.Create("Span", Inline);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -20,14 +14,14 @@ Span._CreateInlineCollection = function (obj) {
     return inlines;
 };
 Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, null, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
-Span.prototype.GetInlines = function () {
+Span.Instance.GetInlines = function () {
     /// <returns type="InlineCollection" />
     return this.GetValue(Span.InlinesProperty);
 };
 
 //#endregion
 
-Span.prototype._SerializeText = function (str) {
+Span.Instance._SerializeText = function (str) {
     var inlines = this.GetInlines();
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
@@ -35,7 +29,7 @@ Span.prototype._SerializeText = function (str) {
     }
     return str;
 };
-Span.prototype._OnCollectionChanged = function (sender, args) {
+Span.Instance._OnCollectionChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Span.InlinesProperty, sender)) {
         if (args.Action === CollectionChangedArgs.Action.Add)
             this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
@@ -45,4 +39,5 @@ Span.prototype._OnCollectionChanged = function (sender, args) {
     }
 };
 
+Nullstone.FinishCreate(Span);
 //#endregion

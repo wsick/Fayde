@@ -5,97 +5,91 @@
 /// <reference path="../Animation/Storyboard.js"/>
 
 //#region VisualTransition
+var VisualTransition = Nullstone.Create("VisualTransition", DependencyObject);
 
-function VisualTransition() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+VisualTransition.Instance.Init = function () {
+    this.Init$super();
     this.SetDynamicStoryboardCompleted(true);
     this.SetExplicitStoryboardCompleted(true);
     this._GeneratedDuration = new Duration();
-}
-Nullstone.Extend(VisualTransition, "VisualTransition", DependencyObject);
+};
 
 //#region PROPERTIES
 
-VisualTransition.prototype.GetFrom = function () {
+VisualTransition.Instance.GetFrom = function () {
     ///<returns type="String"></returns>
     return this._From;
 };
-VisualTransition.prototype.SetFrom = function (value) {
+VisualTransition.Instance.SetFrom = function (value) {
     ///<param name="value" type="String"></param>
     this._From = value;
 };
 
-VisualTransition.prototype.GetTo = function () {
+VisualTransition.Instance.GetTo = function () {
     ///<returns type="String"></returns>
     return this._To;
 };
-VisualTransition.prototype.SetTo = function (value) {
+VisualTransition.Instance.SetTo = function (value) {
     ///<param name="value" type="String"></param>
     this._To = value;
 };
 
-VisualTransition.prototype.GetStoryboard = function () {
+VisualTransition.Instance.GetStoryboard = function () {
     ///<returns type="Storyboard"></returns>
     return this._Storyboard;
 };
-VisualTransition.prototype.SetStoryboard = function (value) {
+VisualTransition.Instance.SetStoryboard = function (value) {
     ///<param name="value" type="Storyboard"></param>
     this._Storyboard = value;
 };
 
-VisualTransition.prototype.GetGeneratedDuration = function () {
+VisualTransition.Instance.GetGeneratedDuration = function () {
     ///<returns type="Duration"></returns>
     return this._GeneratedDuration;
 };
-VisualTransition.prototype.SetGeneratedDuration = function (value) {
+VisualTransition.Instance.SetGeneratedDuration = function (value) {
     ///<param name="value" type="Duration"></param>
     this._GeneratedDuration = value;
 };
 
-VisualTransition.prototype.GetDynamicStoryboardCompleted = function () {
+VisualTransition.Instance.GetDynamicStoryboardCompleted = function () {
     ///<returns type="Boolean"></returns>
     return this._DynamicStoryboardCompleted;
 };
-VisualTransition.prototype.SetDynamicStoryboardCompleted = function (value) {
+VisualTransition.Instance.SetDynamicStoryboardCompleted = function (value) {
     ///<param name="value" type="Boolean"></param>
     this._DynamicStoryboardCompleted = value;
 };
 
-VisualTransition.prototype.GetExplicitStoryboardCompleted = function () {
+VisualTransition.Instance.GetExplicitStoryboardCompleted = function () {
     ///<returns type="Boolean"></returns>
     return this._ExplicitStoryboardCompleted;
 };
-VisualTransition.prototype.SetExplicitStoryboardCompleted = function (value) {
+VisualTransition.Instance.SetExplicitStoryboardCompleted = function (value) {
     ///<param name="value" type="Boolean"></param>
     this._ExplicitStoryboardCompleted = value;
 };
 
-VisualTransition.prototype.GetGeneratedEasingFunction = function () {
+VisualTransition.Instance.GetGeneratedEasingFunction = function () {
     ///<returns type="IEasingFunction"></returns>
     return this._GeneratedEasingFunction;
 };
-VisualTransition.prototype.SetGeneratedEasingFunction = function (value) {
+VisualTransition.Instance.SetGeneratedEasingFunction = function (value) {
     ///<param name="value" type="IEasingFunction"></param>
     this._GeneratedEasingFunction = value;
 };
 
 //#endregion
 
+Nullstone.FinishCreate(VisualTransition);
 //#endregion
 
 //#region VisualTransitionCollection
+var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", DependencyObjectCollection);
 
-function VisualTransitionCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualTransitionCollection, "VisualTransitionCollection", DependencyObjectCollection);
-
-VisualTransitionCollection.prototype.IsElementType = function (obj) {
+VisualTransitionCollection.Instance.IsElementType = function (obj) {
     return obj instanceof VisualTransition;
 };
 
+Nullstone.FinishCreate(VisualTransitionCollection);
 //#endregion

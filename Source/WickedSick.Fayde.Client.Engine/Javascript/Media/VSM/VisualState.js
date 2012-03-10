@@ -4,21 +4,15 @@
 /// <reference path="../Animation/Storyboard.js"/>
 
 //#region VisualState
-
-function VisualState() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualState, "VisualState", DependencyObject);
+var VisualState = Nullstone.Create("VisualState", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
 VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
-VisualState.prototype.GetStoryboard = function () {
+VisualState.Instance.GetStoryboard = function () {
     return this.GetValue(VisualState.StoryboardProperty);
 };
-VisualState.prototype.SetStoryboard = function (value) {
+VisualState.Instance.SetStoryboard = function (value) {
     this.SetValue(VisualState.StoryboardProperty, value);
 };
 
@@ -32,19 +26,15 @@ VisualState.Annotations = {
 
 //#endregion
 
+Nullstone.FinishCreate(VisualState);
 //#endregion
 
 //#region VisualStateCollection
+var VisualStateCollection = Nullstone.Create("VisualStateCollection", DependencyObjectCollection);
 
-function VisualStateCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualStateCollection, "VisualStateCollection", DependencyObjectCollection);
-
-VisualStateCollection.prototype.IsElementType = function (value) {
+VisualStateCollection.Instance.IsElementType = function (value) {
     return value instanceof VisualState;
 };
 
+Nullstone.FinishCreate(VisualStateCollection);
 //#endregion

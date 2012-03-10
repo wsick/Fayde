@@ -5,12 +5,11 @@
 /// <reference path="UIElementNode.js"/>
 
 //#region _DeepTreeWalker
+var _DeepTreeWalker = Nullstone.Create("_DeepTreeWalker", null, 2);
 
-function _DeepTreeWalker(top, direction) {
+_DeepTreeWalker.Instance.Init = function (top, direction) {
     /// <param name="top" type="UIElement"></param>
     /// <param name="direction" type="Number">_VisualTreeWalkerDirection</param>
-    if (!Nullstone.IsReady)
-        return;
     if (!top)
         return;
     this._WalkList = new LinkedList();
@@ -19,10 +18,9 @@ function _DeepTreeWalker(top, direction) {
     this._Direction = _VisualTreeWalkerDirection.Logical;
     if (direction)
         this._Direction = direction;
-}
-Nullstone.Create(_DeepTreeWalker, "_DeepTreeWalker");
+};
 
-_DeepTreeWalker.prototype.Step = function () {
+_DeepTreeWalker.Instance.Step = function () {
     if (this._Last) {
         var walker = new _VisualTreeWalker(this._Last, this._Direction);
         var prepend = this._WalkList.First();
@@ -44,8 +42,9 @@ _DeepTreeWalker.prototype.Step = function () {
 
     return current;
 };
-_DeepTreeWalker.prototype.SkipBranch = function () {
+_DeepTreeWalker.Instance.SkipBranch = function () {
     this._Last = null;
 };
 
+Nullstone.FinishCreate(_DeepTreeWalker);
 //#endregion

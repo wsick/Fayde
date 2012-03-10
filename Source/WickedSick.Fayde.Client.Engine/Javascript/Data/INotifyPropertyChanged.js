@@ -3,15 +3,15 @@
 /// CODE
 
 //#region INotifyPropertyChanged
+var INotifyPropertyChanged = Nullstone.Create("INotifyPropertyChanged", null);
 
-function INotifyPropertyChanged() {
-    if (!Nullstone.IsReady)
-        return;
+INotifyPropertyChanged.Instance.Init = function () {
     this.PropertyChanged = new MulticastEvent();
-}
-Nullstone.Create(INotifyPropertyChanged, "INotifyPropertyChanged");
-INotifyPropertyChanged.prototype.RaisePropertyChanged = function (propertyName) {
+};
+
+INotifyPropertyChanged.Instance.RaisePropertyChanged = function (propertyName) {
     this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
 };
 
+Nullstone.FinishCreate(INotifyPropertyChanged);
 //#endregion

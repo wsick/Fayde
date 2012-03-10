@@ -3,17 +3,16 @@
 /// CODE
 
 //#region StaticResourceMarkup
+var StaticResourceMarkup = Nullstone.Create("StaticResourceMarkup", Markup, 1);
 
-function StaticResourceMarkup(key) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+StaticResourceMarkup.Instance.Init = function (key) {
+    this.Init$super();
     this.Key = key;
-}
-Nullstone.Extend(StaticResourceMarkup, "StaticResourceMarkup", Markup);
+};
 
-StaticResourceMarkup.prototype.Transmute = function (propd, templateBindingSource) {
+StaticResourceMarkup.Instance.Transmute = function (propd, templateBindingSource) {
     NotImplemented("StaticResourceMarkup.Transmute");
 };
 
+Nullstone.FinishCreate(StaticResourceMarkup);
 //#endregion

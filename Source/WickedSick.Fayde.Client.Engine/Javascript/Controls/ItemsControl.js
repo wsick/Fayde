@@ -7,13 +7,7 @@
 var ItemCollection = {};//TODO: Implement
 
 //#region ItemsControl
-
-function ItemsControl() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ItemsControl, "ItemsControl", Control);
+var ItemsControl = Nullstone.Create("ItemsControl", Control);
 
 ItemsControl.GetItemsOwner = function (ele) {
     var panel = Nullstone.As(ele, Panel);
@@ -28,10 +22,10 @@ ItemsControl.GetItemsOwner = function (ele) {
 //#region DEPENDENCY PROPERTIES
 
 ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl);
-ItemsControl.prototype.GetItems = function () {
+ItemsControl.Instance.GetItems = function () {
     return this.GetValue(ItemsControl.ItemsProperty);
 };
-ItemsControl.prototype.SetItems = function (value) {
+ItemsControl.Instance.SetItems = function (value) {
     this.SetValue(ItemsControl.ItemsProperty, value);
 };
 
@@ -45,4 +39,5 @@ ItemsControl.Annotations = {
 
 //#endregion
 
+Nullstone.FinishCreate(ItemsControl);
 //#endregion

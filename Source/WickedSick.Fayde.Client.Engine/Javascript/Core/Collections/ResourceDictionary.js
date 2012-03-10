@@ -3,36 +3,34 @@
 /// CODE
 
 //#region ResourceDictionary
+var ResourceDictionary = Nullstone.Create("ResourceDictionary", Collection);
 
-function ResourceDictionary() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+ResourceDictionary.Instance.Init = function () {
+    this.Init$super();
     this._KeyIndex = new Array();
-}
-Nullstone.Extend(ResourceDictionary, "ResourceDictionary", Collection);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
-ResourceDictionary.prototype.GetMergedDictionaries = function () {
+ResourceDictionary.Instance.GetMergedDictionaries = function () {
     return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
 };
 
 //#endregion
 
-ResourceDictionary.prototype.ContainsKey = function (key) {
+ResourceDictionary.Instance.ContainsKey = function (key) {
     return this._KeyIndex[key] != undefined;
 };
-ResourceDictionary.prototype._GetIndexFromKey = function (key) {
+ResourceDictionary.Instance._GetIndexFromKey = function (key) {
     return this._KeyIndex[key];
 };
-ResourceDictionary.prototype.Get = function (key) {
+ResourceDictionary.Instance.Get = function (key) {
     if (this.ContainsKey(key))
         return this.GetValueAt(this._GetIndexFromKey(key));
     return this._GetFromMergedDictionaries(key);
 };
-ResourceDictionary.prototype._GetFromMergedDictionaries = function (key) {
+ResourceDictionary.Instance._GetFromMergedDictionaries = function (key) {
     var merged = this.GetMergedDictionaries();
 
     if (!merged)
@@ -46,7 +44,7 @@ ResourceDictionary.prototype._GetFromMergedDictionaries = function (key) {
     }
     return undefined;
 };
-ResourceDictionary.prototype.Set = function (key, value) {
+ResourceDictionary.Instance.Set = function (key, value) {
     var oldValue;
     if (this.ContainsKey(key)) {
         oldValue = this.Get(key);
@@ -57,16 +55,16 @@ ResourceDictionary.prototype.Set = function (key, value) {
     this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
     return true;
 };
-ResourceDictionary.prototype.Add = function (key, value) {
+ResourceDictionary.Instance.Add = function (key, value) {
     this.Set(key, value);
 };
-ResourceDictionary.prototype.Remove = function (key) {
+ResourceDictionary.Instance.Remove = function (key) {
     var index = this._GetIndexFromKey(key);
     if (index > -1)
         return this.RemoveAt(index);
 };
 
-ResourceDictionary.prototype.AddedToCollection = function (value, error) {
+ResourceDictionary.Instance.AddedToCollection = function (value, error) {
     var obj = null;
     var rv = false;
 
@@ -93,7 +91,7 @@ ResourceDictionary.prototype.AddedToCollection = function (value, error) {
 
     return rv;
 };
-ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
+ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe && value instanceof DependencyObject) {
         var obj = Nullstone.As(value, DependencyObject);
         if (obj != null) {
@@ -105,7 +103,7 @@ ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSaf
     this.RemovedFromCollection$super(value, isValueSafe);
 };
 
-ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
+ResourceDictionary.Instance._OnIsAttachedChanged = function (value) {
     this._OnIsAttachedChanged$super(value);
 
     for (var i = 0; i < this._ht.length; i++) {
@@ -114,14 +112,14 @@ ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
             obj._SetIsAttached(value);
     }
 };
-ResourceDictionary.prototype._OnMentorChanged = function (oldValue, newValue) {
+ResourceDictionary.Instance._OnMentorChanged = function (oldValue, newValue) {
     this._OnMentorChanged$super(oldValue, newValue);
     for (var i = 0; i < this._KeyIndex.length; i++) {
         DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
     }
 };
 
-ResourceDictionary.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+ResourceDictionary.Instance._RegisterAllNamesRootedAt = function (namescope, error) {
     /// <param name="namescope" type="NameScope"></param>
     /// <param name="error" type="BError"></param>
     for (var i = 0; i < this.GetCount(); i++) {
@@ -131,7 +129,7 @@ ResourceDictionary.prototype._RegisterAllNamesRootedAt = function (namescope, er
     }
     this._RegisterAllNamesRootedAt$super(namescope, error);
 };
-ResourceDictionary.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
     /// <param name="fromNs" type="NameScope"></param>
     for (var i = 0; i < this.GetCount(); i++) {
         var obj = this.GetValueAt(i);
@@ -146,14 +144,14 @@ ResourceDictionary._CanBeAddedTwice = function (value) {
     var twices = [
         FrameworkTemplate,
         Style,
-        //StrokeCollection,
-        //DrawingAttributes,
-        //Transform,
+    //StrokeCollection,
+    //DrawingAttributes,
+    //Transform,
         Brush,
-        //StylusPointCollection,
-        //BitmapImage,
-        //Stroke,
-        //Invalid
+    //StylusPointCollection,
+    //BitmapImage,
+    //Stroke,
+    //Invalid
     ];
 
     for (var i = 0; i < twices.length; i++) {
@@ -163,4 +161,5 @@ ResourceDictionary._CanBeAddedTwice = function (value) {
     return true;
 };
 
+Nullstone.FinishCreate(ResourceDictionary);
 //#endregion

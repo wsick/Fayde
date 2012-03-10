@@ -6,12 +6,10 @@
 /// <reference path="TextBoxBase.js"/>
 
 //#region _TextBoxView
+var _TextBoxView = Nullstone.Create("_TextBoxView", FrameworkElement);
 
-function _TextBoxView() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-
+_TextBoxView.Instance.Init = function () {
+    this.Init$super();
     this._Cursor = new Rect();
     this._Layout = new TextLayout();
     this._SelectionChanged = false;
@@ -21,10 +19,10 @@ function _TextBoxView() {
     this._BlinkTimeout = 0;
     this._TextBox = null;
     this._Dirty = false;
-}
-Nullstone.Extend(_TextBoxView, "_TextBoxView", FrameworkElement);
+};
 
-_TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
+_TextBoxView.Instance.SetTextBox = function (value) {
+    /// <param name="value" type="TextBoxBase"></param>
     if (this._TextBox == value)
         return;
 
@@ -57,7 +55,7 @@ _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
     this._Invalidate();
     this._Dirty = true;
 };
-_TextBoxView.prototype.SetEnableCursor = function (value) {
+_TextBoxView.Instance.SetEnableCursor = function (value) {
     if (this._EnableCursor == value)
         return;
     this._EnableCursor = value;
@@ -67,7 +65,7 @@ _TextBoxView.prototype.SetEnableCursor = function (value) {
         this._EndCursorBlink();
 };
 
-_TextBoxView.prototype._Blink = function () {
+_TextBoxView.Instance._Blink = function () {
     var multiplier;
     if (this._CursorVisible) {
         multiplier = _TextBoxView.CURSOR_BLINK_OFF_MULTIPLIER;
@@ -79,14 +77,14 @@ _TextBoxView.prototype._Blink = function () {
     this._ConnectBlinkTimeout(multiplier);
     return false;
 };
-_TextBoxView.prototype._ConnectBlinkTimeout = function (multiplier) {
+_TextBoxView.Instance._ConnectBlinkTimeout = function (multiplier) {
     if (!this._IsAttached)
         return;
     var func = NotImplemented;
     var timeout = this._GetCursorBlinkTimeout() * multiplier / _TextBoxView.CURSOR_BLINK_DIVIDER;
     this._BlinkTimeout = setTimeout(func, timeout);
 };
-_TextBoxView.prototype._DisconnectBlinkTimeout = function () {
+_TextBoxView.Instance._DisconnectBlinkTimeout = function () {
     if (this._BlinkTimeout != 0) {
         if (!this._IsAttached)
             return;
@@ -94,10 +92,10 @@ _TextBoxView.prototype._DisconnectBlinkTimeout = function () {
         this._BlinkTimeout = 0;
     }
 };
-_TextBoxView.prototype._GetCursorBlinkTimeout = function () {
+_TextBoxView.Instance._GetCursorBlinkTimeout = function () {
     return _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT;
 };
-_TextBoxView.prototype._ResetCursorBlink = function (delay) {
+_TextBoxView.Instance._ResetCursorBlink = function (delay) {
     if (this._TextBox.IsFocused() && !this._TextBox.HasSelectedText()) {
         if (this._EnableCursor) {
             if (this._Delay)
@@ -111,36 +109,36 @@ _TextBoxView.prototype._ResetCursorBlink = function (delay) {
         this._EndCursorBlink();
     }
 };
-_TextBoxView.prototype._DelayCursorBlink = function () {
+_TextBoxView.Instance._DelayCursorBlink = function () {
     this._DisconnectBlinkTimeout();
     this._ConnectBlinkTimeout(_TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER);
     this._UpdateCursor(true);
     this._ShowCursor();
 };
-_TextBoxView.prototype._BeginCursorBlink = function () {
+_TextBoxView.Instance._BeginCursorBlink = function () {
     if (this._BlinkTimeout == 0) {
         this._ConnectBlinkTimeout(_TextBoxView.CURSOR_BLINK_ON_MULTIPLIER);
         this._UpdateCursor(true);
         this._ShowCursor();
     }
 };
-_TextBoxView.prototype._EndCursorBlink = function () {
+_TextBoxView.Instance._EndCursorBlink = function () {
     this._DisconnectBlinkTimeout();
     if (this._CursorVisible)
         this._HideCursor();
 };
-_TextBoxView.prototype._InvalidateCursor = function () {
+_TextBoxView.Instance._InvalidateCursor = function () {
     this._Invalidate(this._Cursor/*.Transform(this._AbsoluteTransform)*/);
 };
-_TextBoxView.prototype._ShowCursor = function () {
+_TextBoxView.Instance._ShowCursor = function () {
     this._CursorVisible = true;
     this._InvalidateCursor();
 };
-_TextBoxView.prototype._HideCursor = function () {
+_TextBoxView.Instance._HideCursor = function () {
     this._CursorVisible = false;
     this._InvalidateCursor();
 };
-_TextBoxView.prototype._UpdateCursor = function (invalidate) {
+_TextBoxView.Instance._UpdateCursor = function (invalidate) {
     var cur = this._TextBox.GetCursor();
     var current = this._Cursor;
     var rect;
@@ -159,52 +157,52 @@ _TextBoxView.prototype._UpdateCursor = function (invalidate) {
     if (invalidate && this._CursorVisible)
         this._InvalidateCursor();
 };
-_TextBoxView.prototype._UpdateText = function () {
+_TextBoxView.Instance._UpdateText = function () {
     var text = this._TextBox.GetDisplayText();
     this._Layout.SetText(text ? text : "", -1);
 };
 
-_TextBoxView.prototype._ComputeActualSize = function () {
+_TextBoxView.Instance._ComputeActualSize = function () {
     if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty))
         return this._ComputeActualSize$super();
 
     this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     return this._Layout.GetActualExtents();
 };
-_TextBoxView.prototype._MeasureOverrideWithError = function (availableSize, error) {
+_TextBoxView.Instance._MeasureOverrideWithError = function (availableSize, error) {
     this.Layout(availableSize);
     var desired = this._Layout.GetActualExtents();
     if (!isFinite(availableSize.Width))
         desired.Width = Math.max(desired.Width, 11);
     return desired.Min(availableSize);
 };
-_TextBoxView.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+_TextBoxView.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     this.Layout(finalSize);
     var arranged = this._Layout.GetActualExtents();
     arranged = arranged.Max(finalSize);
     return arranged;
 };
-_TextBoxView.prototype.Layout = function (constraint) {
+_TextBoxView.Instance.Layout = function (constraint) {
     this._Layout.SetMaxWidth(constraint.Width);
     this._Layout.Layout();
     this._Dirty = false;
 };
 
-_TextBoxView.prototype.GetBaselineOffset = function () {
+_TextBoxView.Instance.GetBaselineOffset = function () {
     //TODO: GetTransformToUIElementWithError
     return this._Layout.GetBaselineOffset();
 };
-_TextBoxView.prototype.GetLineFromY = function (y) {
+_TextBoxView.Instance.GetLineFromY = function (y) {
     return this._Layout.GetLineFromY(new Point(), y);
 };
-_TextBoxView.prototype.GetLineFromIndex = function (index) {
+_TextBoxView.Instance.GetLineFromIndex = function (index) {
     return this._Layout.GetLineFromIndex(index);
 };
-_TextBoxView.prototype.GetCursorFromXY = function (x, y) {
+_TextBoxView.Instance.GetCursorFromXY = function (x, y) {
     return this._Layout.GetCursorFromXY(new Point(), x, y);
 };
 
-_TextBoxView.prototype._Render = function (ctx, region) {
+_TextBoxView.Instance._Render = function (ctx, region) {
     var renderSize = this._RenderSize;
     this._TextBox._Providers[_PropertyPrecedence.DynamicValue]._InitializeSelectionBrushes();
 
@@ -220,7 +218,7 @@ _TextBoxView.prototype._Render = function (ctx, region) {
     this._RenderImpl(ctx, region);
     ctx.Restore();
 };
-_TextBoxView.prototype._RenderImpl = function (ctx, region) {
+_TextBoxView.Instance._RenderImpl = function (ctx, region) {
     ctx.Save();
     if (this.GetFlowDirection() === FlowDirection.RightToLeft) {
         //TODO: Invert
@@ -235,20 +233,20 @@ _TextBoxView.prototype._RenderImpl = function (ctx, region) {
     ctx.Restore();
 };
 
-_TextBoxView.prototype.OnLostFocus = function () {
+_TextBoxView.Instance.OnLostFocus = function () {
     this._EndCursorBlink();
 };
-_TextBoxView.prototype.OnGotFocus = function () {
+_TextBoxView.Instance.OnGotFocus = function () {
     this._ResetCursorBlink(false);
 };
-_TextBoxView.prototype.OnMouseLeftButtonDown = function (args) {
+_TextBoxView.Instance.OnMouseLeftButtonDown = function (args) {
     this._TextBox.OnMouseLeftButtonDown(args);
 };
-_TextBoxView.prototype.OnMouseLeftButtonUp = function (args) {
+_TextBoxView.Instance.OnMouseLeftButtonUp = function (args) {
     this._TextBox.OnMouseLeftButtonUp(args);
 };
 
-_TextBoxView.prototype._OnModelChanged = function (sender, args) {
+_TextBoxView.Instance._OnModelChanged = function (sender, args) {
     switch (args.Changed) {
         case _TextBoxModelChanged.TextAlignment:
             if (this._Layout.SetTextAlignment(args.NewValue))
@@ -294,4 +292,5 @@ _TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER = 3;
 _TextBoxView.CURSOR_BLINK_ON_MULTIPLIER = 4;
 _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
 
+Nullstone.FinishCreate(_TextBoxView);
 //#endregion

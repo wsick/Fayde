@@ -4,23 +4,22 @@
 /// CODE
 
 //#region _LocalValuePropertyValueProvider
+var _LocalValuePropertyValueProvider = Nullstone.Create("_LocalValuePropertyValueProvider", _PropertyValueProvider, 2);
 
-function _LocalValuePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+_LocalValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
-}
-Nullstone.Extend(_LocalValuePropertyValueProvider, "_LocalValuePropertyValueProvider", _PropertyValueProvider);
+};
 
-_LocalValuePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_LocalValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
-_LocalValuePropertyValueProvider.prototype.SetValue = function (propd, value) {
+_LocalValuePropertyValueProvider.Instance.SetValue = function (propd, value) {
     this._ht[propd] = value;
 };
-_LocalValuePropertyValueProvider.prototype.ClearValue = function (propd) {
+_LocalValuePropertyValueProvider.Instance.ClearValue = function (propd) {
     delete this._ht[propd];
 };
 
+Nullstone.FinishCreate(_LocalValuePropertyValueProvider);
 //#endregion

@@ -2,15 +2,9 @@
 /// CODE
 
 //#region TimeSpan
+var TimeSpan = Nullstone.Create("TimeSpan");
 
-function TimeSpan() {
-    if (!Nullstone.IsReady)
-        return;
-    this._Initialize(arguments);
-}
-Nullstone.Create(TimeSpan, "TimeSpan");
-
-TimeSpan.prototype._Initialize = function (args) {
+TimeSpan.Instance.Init = function (args) {
     if (args.length === 0) {
         this._Ticks = 0;
         return;
@@ -47,29 +41,29 @@ TimeSpan.prototype._Initialize = function (args) {
 
 //#region PROPERTIES
 
-TimeSpan.prototype.GetDays = function () {
+TimeSpan.Instance.GetDays = function () {
     ///<returns type="Number"></returns>
     return Math.floor(this._Ticks / TimeSpan._TicksPerDay);
 };
-TimeSpan.prototype.GetHours = function () {
+TimeSpan.Instance.GetHours = function () {
     ///<returns type="Number"></returns>
     var remTicks = this._Ticks % TimeSpan._TicksPerDay;
     return Math.floor(remTicks / TimeSpan._TicksPerHour);
 };
-TimeSpan.prototype.GetMinutes = function () {
+TimeSpan.Instance.GetMinutes = function () {
     ///<returns type="Number"></returns>
     var remTicks = this._Ticks % TimeSpan._TicksPerDay;
     remTicks = remTicks % TimeSpan._TicksPerHour;
     return Math.floor(remTicks / TimeSpan._TicksPerMinute);
 };
-TimeSpan.prototype.GetSeconds = function () {
+TimeSpan.Instance.GetSeconds = function () {
     ///<returns type="Number"></returns>
     var remTicks = this._Ticks % TimeSpan._TicksPerDay;
     remTicks = remTicks % TimeSpan._TicksPerHour;
     remTicks = remTicks % TimeSpan._TicksPerMinute;
     return Math.floor(remTicks / TimeSpan._TicksPerSecond);
 };
-TimeSpan.prototype.GetMilliseconds = function () {
+TimeSpan.Instance.GetMilliseconds = function () {
     ///<returns type="Number"></returns>
     var remTicks = this._Ticks % TimeSpan._TicksPerDay;
     remTicks = remTicks % TimeSpan._TicksPerHour;
@@ -77,71 +71,71 @@ TimeSpan.prototype.GetMilliseconds = function () {
     remTicks = remTicks % TimeSpan._TicksPerSecond;
     return Math.floor(remTicks / TimeSpan._TicksPerMillisecond);
 };
-TimeSpan.prototype.GetTicks = function () {
+TimeSpan.Instance.GetTicks = function () {
     return this._Ticks;
 };
 
-TimeSpan.prototype.GetTotalDays = function () {
+TimeSpan.Instance.GetTotalDays = function () {
     ///<returns type="Number"></returns>
     return this._Ticks / TimeSpan._TicksPerDay;
 };
-TimeSpan.prototype.GetTotalHours = function () {
+TimeSpan.Instance.GetTotalHours = function () {
     ///<returns type="Number"></returns>
     return this._Ticks / TimeSpan._TicksPerHour;
 };
-TimeSpan.prototype.GetTotalMinutes = function () {
+TimeSpan.Instance.GetTotalMinutes = function () {
     ///<returns type="Number"></returns>
     return this._Ticks / TimeSpan._TicksPerMinute;
 };
-TimeSpan.prototype.GetTotalSeconds = function () {
+TimeSpan.Instance.GetTotalSeconds = function () {
     ///<returns type="Number"></returns>
     return this._Ticks / TimeSpan._TicksPerSecond;
 };
-TimeSpan.prototype.GetTotalMilliseconds = function () {
+TimeSpan.Instance.GetTotalMilliseconds = function () {
     ///<returns type="Number"></returns>
     return this._Ticks / TimeSpan._TicksPerMillisecond;
 };
 
 //#endregion
 
-TimeSpan.prototype.AddTicks = function (ticks) {
+TimeSpan.Instance.AddTicks = function (ticks) {
     if (ticks == null)
         return;
     if (isNaN(ticks))
         return;
     this._Ticks += ticks;
 };
-TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
+TimeSpan.Instance.AddMilliseconds = function (milliseconds) {
     this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
 };
 
-TimeSpan.prototype.Add = function (ts2) {
+TimeSpan.Instance.Add = function (ts2) {
     /// <param name="ts2" type="TimeSpan"></param>
     /// <returns type="TimeSpan" />
     return new TimeSpan(this._Ticks + ts2._Ticks);
 };
-TimeSpan.prototype.Subtract = function (ts2) {
+TimeSpan.Instance.Subtract = function (ts2) {
     /// <param name="ts2" type="TimeSpan"></param>
     /// <returns type="TimeSpan" />
     return new TimeSpan(this._Ticks - ts2._Ticks);
 };
-TimeSpan.prototype.Multiply = function (v) {
+TimeSpan.Instance.Multiply = function (v) {
     if (v instanceof TimeSpan) {
     } else if (typeof v == "number") {
         return new TimeSpan(Math.round(this._Ticks * v));
     }
 }
-TimeSpan.prototype.Divide = function (ts2) {
+TimeSpan.Instance.Divide = function (ts2) {
     return new TimeSpan(this._Ticks / ts2._Ticks);
 };
-TimeSpan.prototype.CompareTo = function (ts2) {
+TimeSpan.Instance.CompareTo = function (ts2) {
     /// <param name="ts2" type="TimeSpan"></param>
     /// <returns type="Number" />
     if (this._Ticks === ts2)
         return 0;
     return (this._Ticks > ts2) ? 1 : -1;
 };
-TimeSpan.prototype.IsZero = function () {
+TimeSpan.Instance.IsZero = function () {
     /// <returns type="Boolean" />
     return this._Ticks === 0;
 };
@@ -152,4 +146,5 @@ TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
 TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
 TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
 
+Nullstone.FinishCreate(TimeSpan);
 //#endregion

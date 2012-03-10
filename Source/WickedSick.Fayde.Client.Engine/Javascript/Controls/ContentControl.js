@@ -4,13 +4,7 @@
 /// CODE
 
 //#region ContentControl
-
-function ContentControl() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ContentControl, "ContentControl", Control);
+var ContentControl = Nullstone.Create("ContentControl", Control);
 
 ContentControl._FallbackTemplate = (function () {
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
@@ -30,18 +24,18 @@ ContentControl._FallbackTemplate = (function () {
 //#region DEPENDENCY PROPERTIES
 
 ContentControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentControl);
-ContentControl.prototype.GetContent = function () {
+ContentControl.Instance.GetContent = function () {
     return this.GetValue(ContentControl.ContentProperty);
 };
-ContentControl.prototype.SetContent = function (value) {
+ContentControl.Instance.SetContent = function (value) {
     this.SetValue(ContentControl.ContentProperty, value);
 };
 
 ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentControl);
-ContentControl.prototype.GetContentTemplate = function () {
+ContentControl.Instance.GetContentTemplate = function () {
     return this.GetValue(ContentControl.ContentTemplateProperty);
 };
-ContentControl.prototype.SetContentTemplate = function (value) {
+ContentControl.Instance.SetContentTemplate = function (value) {
     this.SetValue(ContentControl.ContentTemplateProperty, value);
 };
 
@@ -49,7 +43,7 @@ ContentControl.prototype.SetContentTemplate = function (value) {
 
 //#region PROPERTIES
 
-ContentControl.prototype.GetFallbackRoot = function () {
+ContentControl.Instance.GetFallbackRoot = function () {
     if (this._FallbackRoot == null)
         this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
     return this._FallbackRoot;
@@ -59,7 +53,7 @@ ContentControl.prototype.GetFallbackRoot = function () {
 
 //#region INSTANCE METHODS
 
-ContentControl.prototype._GetDefaultTemplate = function () {
+ContentControl.Instance._GetDefaultTemplate = function () {
     return this.GetFallbackRoot();
 };
 
@@ -73,4 +67,5 @@ ContentControl.Annotations = {
 
 //#endregion
 
+Nullstone.FinishCreate(ContentControl);
 //#endregion

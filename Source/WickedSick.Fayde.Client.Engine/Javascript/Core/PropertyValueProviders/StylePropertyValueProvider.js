@@ -7,19 +7,17 @@
 /// <reference path="../DeepStyleWalker.js"/>
 
 //#region _StylePropertyValueProvider
+var _StylePropertyValueProvider = Nullstone.Create("_StylePropertyValueProvider", _PropertyValueProvider, 2);
 
-function _StylePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+_StylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._ht = new Array();
-}
-Nullstone.Extend(_StylePropertyValueProvider, "_StylePropertyValueProvider", _PropertyValueProvider);
+};
 
-_StylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_StylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
-_StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, reason, error) {
+_StylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, reason, error) {
     if ((reason & _ProviderFlags.RecomputesOnClear) == 0)
         return;
 
@@ -42,7 +40,7 @@ _StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, 
             return;
     }
 };
-_StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
+_StylePropertyValueProvider.Instance._UpdateStyle = function (style, error) {
     var oldValue = undefined;
     var newValue = undefined;
 
@@ -87,4 +85,5 @@ _StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
     this._Style = style;
 };
 
+Nullstone.FinishCreate(_StylePropertyValueProvider);
 //#endregion

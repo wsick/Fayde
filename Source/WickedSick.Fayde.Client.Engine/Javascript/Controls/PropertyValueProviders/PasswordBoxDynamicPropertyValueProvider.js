@@ -4,13 +4,11 @@
 /// <reference path="PasswordBox.js"/>
 
 //#region _PasswordBoxDynamicPropertyValueProvider
+var _PasswordBoxDynamicPropertyValueProvider = Nullstone.Create("_PasswordBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider, 2);
 
-function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence,
-        PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
-}
-Nullstone.Extend(_PasswordBoxDynamicPropertyValueProvider, "_PasswordBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider);
+_PasswordBoxDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
+};
 
+Nullstone.FinishCreate(_PasswordBoxDynamicPropertyValueProvider);
 //#endregion

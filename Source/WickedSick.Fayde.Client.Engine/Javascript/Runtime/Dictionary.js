@@ -2,23 +2,22 @@
 /// CODE
 
 //#region Dictionary
+var Dictionary = Nullstone.Create("Dictionary");
 
-function Dictionary() {
-    if (!Nullstone.IsReady)
-        return;
+Dictionary.Instance.Init = function () {
     this._ht = new Array();
-}
-Nullstone.Create(Dictionary, "Dictionary");
+};
 
-Dictionary.prototype.TryGetValue = function (key, data) {
+Dictionary.Instance.TryGetValue = function (key, data) {
     data.Value = this._ht[key];
     return data.Value != null;
 };
-Dictionary.prototype.Add = function (key, value) {
+Dictionary.Instance.Add = function (key, value) {
     this._ht[key] = value;
 };
-Dictionary.prototype.Remove = function (key) {
+Dictionary.Instance.Remove = function (key) {
     delete this._ht[key];
 };
 
+Nullstone.FinishCreate(Dictionary);
 //#endregion

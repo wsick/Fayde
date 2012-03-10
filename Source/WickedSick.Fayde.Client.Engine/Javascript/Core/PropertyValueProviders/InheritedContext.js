@@ -4,19 +4,17 @@
 /// <reference path="Enums.js"/>
 
 //#region _InheritedContext
+var _InheritedContext = Nullstone.Create("_InheritedContext", null);
 
-function _InheritedContext() {
-    if (!Nullstone.IsReady)
-        return;
-    if (arguments.length > 2) {
-        this._InitFull(arguments);
-    } else if (arguments.length == 2) {
-        this._InitFromObj(arguments[0], arguments[1]);
+_InheritedContext.Instance.Init = function (args) {
+    if (args.length > 2) {
+        this._InitFull(args);
+    } else if (args.length == 2) {
+        this._InitFromObj(args[0], args[1]);
     }
-}
-Nullstone.Create(_InheritedContext, "_InheritedContext");
+};
 
-_InheritedContext.prototype._InitFull = function (args) {
+_InheritedContext.Instance._InitFull = function (args) {
     this.ForegroundSource = args[0];
     this.FontFamilySource = args[1];
     this.FontStretchSource = args[2];
@@ -29,7 +27,7 @@ _InheritedContext.prototype._InitFull = function (args) {
     this.TextDecorationsSource = args[9];
     this.FontResourceSource = args[10];
 };
-_InheritedContext.prototype._InitFromObj = function (obj, parentContext) {
+_InheritedContext.Instance._InitFromObj = function (obj, parentContext) {
     this.ForegroundSource = this.GetLocalSource(obj, _Inheritable.Foreground);
     if (!this.ForegroundSource && parentContext) this.ForegroundSource = parentContext.ForegroundSource;
 
@@ -64,7 +62,7 @@ _InheritedContext.prototype._InitFromObj = function (obj, parentContext) {
     if (!this.FontResourceSource && parentContext) this.FontResourceSource = parentContext.FontResourceSource;
 };
 
-_InheritedContext.prototype.Compare = function (withContext, props) {
+_InheritedContext.Instance.Compare = function (withContext, props) {
     var rv = _Inheritable.None;
 
     if (props & _Inheritable.Foreground && withContext.ForegroundSource == this.ForegroundSource)
@@ -92,7 +90,7 @@ _InheritedContext.prototype.Compare = function (withContext, props) {
 
     return rv;
 };
-_InheritedContext.prototype.GetLocalSource = function (obj, prop) {
+_InheritedContext.Instance.GetLocalSource = function (obj, prop) {
     var source = null;
     var propd = _InheritedPropertyValueProvider.GetProperty(prop, obj);
     if (propd && obj._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited)
@@ -100,4 +98,5 @@ _InheritedContext.prototype.GetLocalSource = function (obj, prop) {
     return source;
 };
 
+Nullstone.FinishCreate(_InheritedContext);
 //#endregion

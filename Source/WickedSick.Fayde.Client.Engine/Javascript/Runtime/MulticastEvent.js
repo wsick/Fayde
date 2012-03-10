@@ -2,23 +2,23 @@
 /// CODE
 
 //#region MulticastEvent
+var MulticastEvent = Nullstone.Create("MulticastEvent");
 
-function MulticastEvent() {
+MulticastEvent.Instance.Init = function () {
     this._Listeners = new Array();
-}
-Nullstone.Create(MulticastEvent, "MulticastEvent");
+};
 
-MulticastEvent.prototype.Subscribe = function (callback, closure) {
+MulticastEvent.Instance.Subscribe = function (callback, closure) {
     /// <param name="callback" type="Function"></param>
     /// <param name="closure" type="RefObject"></param>
     if (!(callback instanceof Function))
         throw new InvalidOperationException("Callback must be a function!");
     this._Listeners.push({ Callback: callback, Closure: closure });
 };
-MulticastEvent.prototype.SubscribeSpecific = function (callback, closure, matchFunc, matchClosure) {
+MulticastEvent.Instance.SubscribeSpecific = function (callback, closure, matchFunc, matchClosure) {
     this._Listeners.push({ Callback: callback, Closure: closure, MatchFunc: matchFunc, MatchClosure: matchClosure });
 };
-MulticastEvent.prototype.Unsubscribe = function (callback, closure, matchClosure) {
+MulticastEvent.Instance.Unsubscribe = function (callback, closure, matchClosure) {
     for (var i in this._Listeners) {
         var listener = this._Listeners[i];
         if (listener.Callback === callback) {
@@ -31,7 +31,7 @@ MulticastEvent.prototype.Unsubscribe = function (callback, closure, matchClosure
         }
     }
 };
-MulticastEvent.prototype.Raise = function (sender, args) {
+MulticastEvent.Instance.Raise = function (sender, args) {
     var listeners = this._Listeners;
     for (var i in listeners) {
         var listener = listeners[i];
@@ -40,9 +40,10 @@ MulticastEvent.prototype.Raise = function (sender, args) {
         listener.Callback.call(listener.Closure, sender, args);
     }
 };
-MulticastEvent.prototype.RaiseAsync = function (sender, args) {
+MulticastEvent.Instance.RaiseAsync = function (sender, args) {
     var me = this;
     setTimeout(function () { me.Raise(sender, args); }, 1);
 };
 
+Nullstone.FinishCreate(MulticastEvent);
 //#endregion

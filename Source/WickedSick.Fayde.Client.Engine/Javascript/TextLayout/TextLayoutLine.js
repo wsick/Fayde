@@ -2,8 +2,9 @@
 /// CODE
 
 //#region _TextLayoutLine
+var _TextLayoutLine = Nullstone.Create("_TextLayoutLine", null, 3);
 
-function _TextLayoutLine(layout, start, offset) {
+_TextLayoutLine.Instance.Init = function (layout, start, offset) {
     this._Runs = new Array();
     this._Layout = layout;
     this._Start = start;
@@ -13,10 +14,9 @@ function _TextLayoutLine(layout, start, offset) {
     this._Height = 0.0;
     this._Width = 0.0;
     this._Length = 0;
-}
-Nullstone.Create(_TextLayoutLine, "_TextLayoutLine");
+};
 
-_TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
+_TextLayoutLine.Instance._Render = function (ctx, origin, left, top) {
     var run;
     var x0 = left;
     //var y0 = top + this._Height + this._Descend; //not using this: we set html5 canvas to render top-left corner of text at x,y
@@ -28,7 +28,7 @@ _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
         x0 += run._Advance;
     }
 };
-_TextLayoutLine.prototype.__Debug = function (allText) {
+_TextLayoutLine.Instance.__Debug = function (allText) {
     var t = "";
     t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
     for (var i = 0; i < this._Runs.length; i++) {
@@ -39,4 +39,5 @@ _TextLayoutLine.prototype.__Debug = function (allText) {
     return t;
 };
 
+Nullstone.FinishCreate(_TextLayoutLine);
 //#endregion

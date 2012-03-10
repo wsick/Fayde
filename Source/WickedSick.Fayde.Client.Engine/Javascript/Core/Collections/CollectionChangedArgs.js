@@ -2,16 +2,14 @@
 /// CODE
 
 //#region CollectionChangedArgs
+var CollectionChangedArgs = Nullstone.Create("CollectionChangedArgs", null, 4);
 
-function CollectionChangedArgs(action, oldValue, newValue, index) {
-    if (!Nullstone.IsReady)
-        return;
+CollectionChangedArgs.prototype.Init = function (action, oldValue, newValue, index) {
     this.Action = action;
     this.OldValue = oldValue;
     this.NewValue = newValue;
     this.Index = index;
-}
-Nullstone.Create(CollectionChangedArgs, "CollectionChangedArgs");
+};
 
 CollectionChangedArgs.Action = {
     Clearing: 0,
@@ -21,4 +19,5 @@ CollectionChangedArgs.Action = {
     Replace: 4
 };
 
+Nullstone.FinishCreate(CollectionChangedArgs);
 //#endregion

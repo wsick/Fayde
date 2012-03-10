@@ -3,12 +3,7 @@
 /// CODE
 
 //#region ImageBrush
+var ImageBrush = Nullstone.Create("ImageBrush", TileBrush);
 
-function ImageBrush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ImageBrush, "ImageBrush", TileBrush);
-
+Nullstone.FinishCreate(ImageBrush);
 //#endregion

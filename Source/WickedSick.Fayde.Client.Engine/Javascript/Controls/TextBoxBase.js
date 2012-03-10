@@ -5,11 +5,10 @@
 /// <reference path="../Primitives/Font.js"/>
 
 //#region TextBoxBase
+var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
 
-function TextBoxBase() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+TextBoxBase.Instance.Init = function () {
+    this.Init$super();
 
     this._SelectionAnchor = 0;
     this._SelectionCursor = 0;
@@ -20,35 +19,34 @@ function TextBoxBase() {
     this.ModelChanged = new MulticastEvent();
 
     this._Batch = 0;
-}
-Nullstone.Extend(TextBoxBase, "TextBoxBase", Control);
+};
 
-TextBoxBase.prototype.HasSelectedText = function () {
+TextBoxBase.Instance.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
 };
-TextBoxBase.prototype.GetFont = function () {
+TextBoxBase.Instance.GetFont = function () {
     return this._Font;
 };
-TextBoxBase.prototype.GetTextDecorations = function () {
+TextBoxBase.Instance.GetTextDecorations = function () {
     return TextDecorations.None;
 };
-TextBoxBase.prototype.GetCursor = function () {
+TextBoxBase.Instance.GetCursor = function () {
     return this._SelectionCursor;
 };
-TextBoxBase.prototype.GetSelectionStart = function () {
+TextBoxBase.Instance.GetSelectionStart = function () {
     AbstractMethod("TextBoxBase.GetSelectionStart");
 };
-TextBoxBase.prototype.SetSelectionStart = function (value) {
+TextBoxBase.Instance.SetSelectionStart = function (value) {
     AbstractMethod("TextBoxBase.SetSelectionStart");
 };
-TextBoxBase.prototype.GetSelectionLength = function () {
+TextBoxBase.Instance.GetSelectionLength = function () {
     AbstractMethod("TextBoxBase.GetSelectionLength");
 };
-TextBoxBase.prototype.SetSelectionLength = function (value) {
+TextBoxBase.Instance.SetSelectionLength = function (value) {
     AbstractMethod("TextBoxBase.SetSelectionLength");
 };
 
-TextBoxBase.prototype.OnApplyTemplate = function () {
+TextBoxBase.Instance.OnApplyTemplate = function () {
     this._ContentElement = this.GetTemplateChild("ContentElement");
 
     if (this._ContentElement == null) {
@@ -81,7 +79,7 @@ TextBoxBase.prototype.OnApplyTemplate = function () {
     this.OnApplyTemplate$super();
 };
 
-TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
+TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     var changed = _TextBoxModelChanged.Nothing;
     if (args.Property === Control.FontFamilyProperty) {
         this._Font.SetFamily(args.NewValue);
@@ -110,7 +108,7 @@ TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
 
     this.PropertyChanged.Raise(this, args);
 };
-TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
+TextBoxBase.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property === Control.BackgroundProperty
         || args.Property === Control.ForegroundProperty) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
@@ -121,17 +119,17 @@ TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
         this._OnSubPropertyChanged$super(sender, args);
 };
 
-TextBoxBase.prototype._BatchPush = function () {
+TextBoxBase.Instance._BatchPush = function () {
     this._Batch++;
 };
-TextBoxBase.prototype._BatchPop = function () {
+TextBoxBase.Instance._BatchPop = function () {
     if (this._Batch == 0) {
         Warn("TextBoxBase._Batch underflow");
         return;
     }
     this._Batch--;
 };
-TextBoxBase.prototype._SyncAndEmit = function (syncText) {
+TextBoxBase.Instance._SyncAndEmit = function (syncText) {
     if (syncText == undefined)
         syncText = true;
 
@@ -154,20 +152,21 @@ TextBoxBase.prototype._SyncAndEmit = function (syncText) {
 
     this._Emit = _TextBoxEmitChanged.NOTHING;
 };
-TextBoxBase.prototype._SyncText = function () {
+TextBoxBase.Instance._SyncText = function () {
     AbstractMethod("TextBoxBase._SyncText");
 };
-TextBoxBase.prototype._SyncSelectedText = function () {
+TextBoxBase.Instance._SyncSelectedText = function () {
     AbstractMethod("TextBoxBase._SyncSelectedText");
 };
-TextBoxBase.prototype.ClearSelection = function (start) {
+TextBoxBase.Instance.ClearSelection = function (start) {
     this._BatchPush();
     this.SetSelectionStart(start);
     this.SetSelectionLength(0);
     this._BatchPop();
 };
 
-TextBoxBase.prototype._EmitTextChanged = function () { };
-TextBoxBase.prototype._EmitSelectionChanged = function () { };
+TextBoxBase.Instance._EmitTextChanged = function () { };
+TextBoxBase.Instance._EmitSelectionChanged = function () { };
 
+Nullstone.FinishCreate(TextBoxBase);
 //#endregion

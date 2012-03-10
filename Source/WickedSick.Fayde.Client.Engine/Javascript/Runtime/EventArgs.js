@@ -1,24 +1,20 @@
 ﻿/// <reference path="Nullstone.js"/>
 
 //#region EventArgs
+var EventArgs = Nullstone.Create("EventArgs");
 
-function EventArgs() {
-}
-Nullstone.Create(EventArgs, "EventArgs");
-
+Nullstone.FinishCreate(EventArgs);
 //#endregion
 
 //#region MouseEventArgs
+var MouseEventArgs = Nullstone.Create("MouseEventArgs", EventArgs, 1);
 
-function MouseEventArgs(absolutePos) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+MouseEventArgs.Instance.Init = function (absolutePos) {
     this._AbsolutePosition = absolutePos;
-}
-Nullstone.Extend(MouseEventArgs, "MouseEventArgs", EventArgs);
+};
 
-MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
+MouseEventArgs.Instance.GetPosition = function (relativeTo) {
+    /// <param name="relativeTo" type="UIElement"></param>
     if (relativeTo._IsAttached)
         "".toString(); //TODO: ProcessDirtyElements on surface
     var p = new Point(this._AbsolutePosition.X, this._AbsolutePosition.Y);
@@ -26,15 +22,15 @@ MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
     return p;
 };
 
+Nullstone.FinishCreate(MouseEventArgs);
 //#endregion
 
 //#region MouseButtonEventArgs
+var MouseButtonEventArgs = Nullstone.Create("MouseButtonEventArgs", MouseEventArgs, 1);
 
-function MouseButtonEventArgs(absolutePos) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(absolutePos);
-}
-Nullstone.Extend(MouseButtonEventArgs, "MouseButtonEventArgs", MouseEventArgs);
+MouseButtonEventArgs.Instance.Init = function (absolutePos) {
+    this.Init$super(absolutePos);
+};
 
+Nullstone.FinishCreate(MouseButtonEventArgs);
 //#endregion

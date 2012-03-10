@@ -5,39 +5,33 @@
 /// <reference path="Core.js"/>
 
 //#region Style
-
-function Style() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Style, "Style", DependencyObject);
+var Style = Nullstone.Create("Style", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
 Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
-Style.prototype.GetSetters = function () {
+Style.Instance.GetSetters = function () {
     return this.GetValue(Style.SettersProperty);
 };
 
 Style.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, Style);
-Style.prototype.GetIsSealed = function () {
+Style.Instance.GetIsSealed = function () {
     return this.GetValue(Style.IsSealedProperty);
 };
 
 Style.BasedOnProperty = DependencyProperty.Register("BasedOn", function () { return Function; }, Style);
-Style.prototype.GetBasedOn = function () {
+Style.Instance.GetBasedOn = function () {
     return this.GetValue(Style.BasedOnProperty);
 };
-Style.prototype.SetBasedOn = function (value) {
+Style.Instance.SetBasedOn = function (value) {
     this.SetValue(Style.BasedOnProperty, value);
 };
 
 Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, Style);
-Style.prototype.GetTargetType = function () {
+Style.Instance.GetTargetType = function () {
     return this.GetValue(Style.TargetTypeProperty);
 };
-Style.prototype.SetTargetType = function (value) {
+Style.Instance.SetTargetType = function (value) {
     this.SetValue(Style.TargetTypeProperty, value);
 };
 
@@ -51,7 +45,7 @@ Style.Annotations = {
 
 //#endregion
 
-Style.prototype._Seal = function () {
+Style.Instance._Seal = function () {
     if (this.GetIsSealed())
         return;
 
@@ -63,13 +57,13 @@ Style.prototype._Seal = function () {
     if (base != null)
         base._Seal();
 };
-Style.prototype._ConvertSetterValues = function () {
+Style.Instance._ConvertSetterValues = function () {
     var setters = this.GetSetters();
     for (var i = 0; i < setters.GetCount(); i++) {
         this._ConvertSetterValue(setters.GetValueAt(i));
     }
 };
-Style.prototype._ConvertSetterValue = function (setter) {
+Style.Instance._ConvertSetterValue = function (setter) {
     /// <param name="setter" type="Setter"></param>
     var propd = setter.GetValue(Setter.PropertyProperty);
     var val = setter.GetValue(Setter.ValueProperty);
@@ -88,15 +82,16 @@ Style.prototype._ConvertSetterValue = function (setter) {
     }
 };
 
-Style.prototype._AddSetter = function (dobj, propName, value) {
+Style.Instance._AddSetter = function (dobj, propName, value) {
     this.GetSetters().Add(JsonParser.CreateSetter(dobj, propName, value));
 };
-Style.prototype._AddSetterJson = function (dobj, propName, json) {
+Style.Instance._AddSetterJson = function (dobj, propName, json) {
     var parser = new JsonParser();
     this._AddSetter(dobj, propName, parser.CreateObject(json, new NameScope()));
 };
-Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJson) {
+Style.Instance._AddSetterControlTemplate = function (dobj, propName, templateJson) {
     this._AddSetter(dobj, propName, new ControlTemplate(dobj.constructor, templateJson));
 };
 
+Nullstone.FinishCreate(Style);
 //#endregion

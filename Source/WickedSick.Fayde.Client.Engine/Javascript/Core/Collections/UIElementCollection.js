@@ -3,22 +3,20 @@
 /// CODE
 
 //#region UIElementCollection
+var UIElementCollection = Nullstone.Create("UIElementCollection", DependencyObjectCollection);
 
-function UIElementCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+UIElementCollection.Instance.Init = function () {
+    this.Init$super();
     this._ZSorted = new Array();
-}
-Nullstone.Extend(UIElementCollection, "UIElementCollection", DependencyObjectCollection);
+};
 
-UIElementCollection.prototype.GetValueAtZIndex = function (index) {
+UIElementCollection.Instance.GetValueAtZIndex = function (index) {
     return this._ZSorted[index];
 };
-UIElementCollection.prototype.GetZSortedCount = function () {
+UIElementCollection.Instance.GetZSortedCount = function () {
     return this._ZSorted.length;
 };
-UIElementCollection.prototype.ResortByZIndex = function () {
+UIElementCollection.Instance.ResortByZIndex = function () {
     var count = this.GetCount();
     this._ZSorted = new Array(count);
     if (count < 1)
@@ -32,8 +30,9 @@ UIElementCollection.prototype.ResortByZIndex = function () {
         this._ZSorted.sort(UIElement.ZIndexComparer);
     }
 };
-UIElementCollection.prototype.IsElementType = function (value) {
+UIElementCollection.Instance.IsElementType = function (value) {
     return value instanceof UIElement;
 };
 
+Nullstone.FinishCreate(UIElementCollection);
 //#endregion

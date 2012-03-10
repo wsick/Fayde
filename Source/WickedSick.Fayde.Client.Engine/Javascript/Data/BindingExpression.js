@@ -3,22 +3,21 @@
 /// CODE
 
 //#region BindingExpression
+var BindingExpression = Nullstone.Create("BindingExpression", BindingExpressionBase, 3);
 
-function BindingExpression(binding, target, propd) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(binding, target, propd);
-}
-Nullstone.Extend(BindingExpression, "BindingExpression", BindingExpressionBase);
+BindingExpression.Instance.Init = function (binding, target, propd) {
+    this.Init$super(binding, target, propd);
+};
 
-BindingExpression.prototype.GetParentBinding = function () {
+BindingExpression.Instance.GetParentBinding = function () {
     return this.GetBinding();
 };
-BindingExpression.prototype.GetDataItem = function () {
+BindingExpression.Instance.GetDataItem = function () {
     return this.GetDataSource();
 };
-BindingExpression.prototype.UpdateSource = function () {
+BindingExpression.Instance.UpdateSource = function () {
     return this._UpdateSourceObject(undefined, true);
 };
 
+Nullstone.FinishCreate(BindingExpression);
 //#endregion

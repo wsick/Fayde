@@ -2,15 +2,11 @@
 /// CODE
 
 //#region Markup
+var Markup = Nullstone.Create("Markup");
 
-function Markup() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(Markup, "Markup");
-
-Markup.prototype.Transmute = function (propd, templateBindingSource) {
+Markup.Instance.Transmute = function (propd, templateBindingSource) {
     AbstractMethod("Markup.Transmute");
 };
 
+Nullstone.FinishCreate(Markup);
 //#endregion

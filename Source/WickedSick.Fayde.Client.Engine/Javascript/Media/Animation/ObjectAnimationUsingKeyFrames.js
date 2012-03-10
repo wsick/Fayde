@@ -3,29 +3,23 @@
 /// CODE
 
 //#region ObjectAnimationUsingKeyFrames
-
-function ObjectAnimationUsingKeyFrames() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ObjectAnimationUsingKeyFrames, "ObjectAnimationUsingKeyFrames", Animation);
+var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFrames", Animation);
 
 //#region DEPENDENCY PROPERTIES
 
 ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, null, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
-ObjectAnimationUsingKeyFrames.prototype.GetKeyFrames = function () {
+ObjectAnimationUsingKeyFrames.Instance.GetKeyFrames = function () {
     ///<returns type="ObjectKeyFrameCollection"></returns>
     return this.GetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty);
 };
-ObjectAnimationUsingKeyFrames.prototype.SetKeyFrames = function (value) {
+ObjectAnimationUsingKeyFrames.Instance.SetKeyFrames = function (value) {
     ///<param name="value" type="ObjectKeyFrameCollection"></param>
     this.SetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty, value);
 };
 
 //#endregion
 
-ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
+ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
     /// <param name="target" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
     var frames = this.GetKeyFrames();
@@ -48,7 +42,7 @@ ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
     return true;
 };
 
-ObjectAnimationUsingKeyFrames.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     var keyFrames = this.GetKeyFrames();
 
     var prevFrameRef = {};
@@ -84,13 +78,14 @@ ObjectAnimationUsingKeyFrames.prototype._GetCurrentValue = function (defaultOrig
     return currentKeyFrame.InterpolateValue(baseValue, progress);
 };
 
-ObjectAnimationUsingKeyFrames.prototype.AddKeyFrame = function (frame) {
+ObjectAnimationUsingKeyFrames.Instance.AddKeyFrame = function (frame) {
     /// <param name="frame" type="ObjectKeyFrame"></param>
     this.GetKeyFrames().Add(frame);
 };
-ObjectAnimationUsingKeyFrames.prototype.RemoveKeyFrame = function (frame) {
+ObjectAnimationUsingKeyFrames.Instance.RemoveKeyFrame = function (frame) {
     /// <param name="frame" type="ObjectKeyFrame"></param>
     this.GetKeyFrames().Remove(frame);
 };
 
+Nullstone.FinishCreate(ObjectAnimationUsingKeyFrames);
 //#endregion

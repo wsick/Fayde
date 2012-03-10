@@ -3,13 +3,7 @@
 /// CODE
 
 //#region Setter
-
-function Setter() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Setter, "Setter", SetterBase);
+var Setter = Nullstone.Create("Setter", SetterBase);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -21,4 +15,5 @@ Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", fu
 
 //#endregion
 
+Nullstone.FinishCreate(Setter);
 //#endregion

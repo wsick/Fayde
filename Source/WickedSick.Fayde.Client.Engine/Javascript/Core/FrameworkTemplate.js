@@ -3,22 +3,18 @@
 /// CODE
 
 //#region FrameworkTemplate
+var FrameworkTemplate = Nullstone.Create("FrameworkTemplate", DependencyObject);
 
-function FrameworkTemplate() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(FrameworkTemplate, "FrameworkTemplate", DependencyObject);
-
-FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
+FrameworkTemplate.Instance.GetVisualTree = function (bindingSource) {
     /// <param name="bindingSource" type="DependencyObject"></param>
     /// <returns type="DependencyObject" />
     var error = new BError();
     return this._GetVisualTreeWithError(bindingSource, error);
 };
-FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
+FrameworkTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
     /// <param name="templateBindingSource" type="FrameworkElement"></param>
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
 };
+
+Nullstone.FinishCreate(FrameworkTemplate);
 //#endregion

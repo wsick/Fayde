@@ -3,17 +3,15 @@
 /// CODE
 
 //#region Clip
+var Clip = Nullstone.Create("Clip", null, 1);
 
-function Clip(rect) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Clip.Instance.Init = function (rect) {
     var rounded = rect.RoundOut();
     this.X = rounded.X;
     this.Y = rounded.Y;
     this.Width = rounded.Width;
     this.Height = rounded.Height;
-}
-Nullstone.Extend(Clip, "Clip", Rect);
+};
 
+Nullstone.FinishCreate(Clip);
 //#endregion

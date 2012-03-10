@@ -4,12 +4,7 @@
 
 //#region VisualTreeHelper
 
-function VisualTreeHelper() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(VisualTreeHelper, "VisualTreeHelper");
-
+var VisualTreeHelper = {};
 VisualTreeHelper.GetChild = function (d, childIndex) {
     var fw = Nullstone.As(d, FrameworkElement);
     if (fw == null)
@@ -39,7 +34,7 @@ VisualTreeHelper.GetChildrenCount = function (d) {
     var item = Nullstone.As(subtree, UIElement);
     if (item != null)
         return 1;
-    
+
     return 0;
 };
 

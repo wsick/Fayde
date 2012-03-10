@@ -2,13 +2,12 @@
 /// CODE
 
 //#region AnimationStorage
+var AnimationStorage = Nullstone.Create("AnimationStorage", null, 3);
 
-function AnimationStorage(timeline, targetobj, targetprop) {
+AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
     /// <param name="timeline" type="Timeline"></param>
     /// <param name="targetobj" type="DependencyObject"></param>
     /// <param name="targetprop" type="DependencyProperty"></param>
-    if (!Nullstone.IsReady)
-        return;
     this._Timeline = timeline;
     this._TargetObj = targetobj;
     this._TargetProp = targetprop;
@@ -30,42 +29,41 @@ function AnimationStorage(timeline, targetobj, targetprop) {
         this.SetStopValue(prevStorage.GetStopValue());
     else
         this.SetStopValue(targetobj.ReadLocalValue(targetprop));
-}
-Nullstone.Create(AnimationStorage, "AnimationStorage");
+};
 
-AnimationStorage.prototype.GetStopValue = function () {
+AnimationStorage.Instance.GetStopValue = function () {
     return this._StopValue;
 };
-AnimationStorage.prototype.SetStopValue = function (value) {
+AnimationStorage.Instance.SetStopValue = function (value) {
     this._StopValue = value;
 };
 
-AnimationStorage.prototype.Enable = function () {
+AnimationStorage.Instance.Enable = function () {
     //Attach target handler
     this._Disabled = false;
     this.ApplyCurrentValue();
 };
-AnimationStorage.prototype.Disable = function () {
+AnimationStorage.Instance.Disable = function () {
     //Detach target handler
     this._Disabled = true;
 };
 
-AnimationStorage.prototype.Stop = function () {
+AnimationStorage.Instance.Stop = function () {
     this.DetachFromObject();
     this.ResetPropertyValue();
 };
-AnimationStorage.prototype.DetachFromObject = function () {
+AnimationStorage.Instance.DetachFromObject = function () {
     if (this._TargetObj == null || this._TargetProp == null)
         return;
     this._TargetObj._DetachAnimationStorage(this._TargetProp, this);
 };
-AnimationStorage.prototype.ResetPropertyValue = function () {
+AnimationStorage.Instance.ResetPropertyValue = function () {
     if (this._TargetObj == null || this._TargetProp == null)
         return;
     this._TargetObj.SetValue(this._TargetProp, this.GetStopValue());
 };
 
-AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {
+AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
     if (this._Disabled)
         return;
     if (this._TargetObj == null)
@@ -73,10 +71,11 @@ AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {
     this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this._StopValue !== undefined ? this._StopValue : this._BaseValue, progress);
     this.ApplyCurrentValue();
 };
-AnimationStorage.prototype.ApplyCurrentValue = function () {
+AnimationStorage.Instance.ApplyCurrentValue = function () {
     if (this._CurrentValue == null)
         return;
     this._TargetObj.SetValue(this._TargetProp, this._CurrentValue);
 };
 
+Nullstone.FinishCreate(AnimationStorage);
 //#endregion

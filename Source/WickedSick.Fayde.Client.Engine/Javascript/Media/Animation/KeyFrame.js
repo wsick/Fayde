@@ -2,33 +2,31 @@
 /// CODE
 
 //#region KeyFrame
+var KeyFrame = Nullstone.Create("KeyFrame", DependencyObject);
 
-function KeyFrame() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+KeyFrame.Instance.Init = function () {
+    this.Init$super();
     this._ResolvedKeyTime = null;
     this._Resolved = false;
-}
-Nullstone.Extend(KeyFrame, "KeyFrame", DependencyObject);
+};
 
-KeyFrame.prototype.GetKeyTime = function () {
+KeyFrame.Instance.GetKeyTime = function () {
     /// <returns type="KeyTime" />
     throw new AbstractMethodException();
 };
-KeyFrame.prototype.SetKeyTime = function (value) {
+KeyFrame.Instance.SetKeyTime = function (value) {
     /// <param name="value" type="KeyTime"></param>
     throw new AbstractMethodException();
 };
 
-KeyFrame.prototype.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
+KeyFrame.Instance.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
     if (value == null)
         coerced.Value = this.GetKeyTime();
     else
         coerced.Value = value;
     return true;
 };
-KeyFrame.prototype.InterpolateValue = function () {
+KeyFrame.Instance.InterpolateValue = function () {
     throw new AbstractMethodException();
 };
 
@@ -40,4 +38,5 @@ KeyFrame.Comparer = function (kf1, kf2) {
     return ts1.CompareTo(ts2);
 };
 
+Nullstone.FinishCreate(KeyFrame);
 //#endregion

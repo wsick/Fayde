@@ -4,50 +4,45 @@
 /// CODE
 
 //#region ColumnDefinition
-
-function ColumnDefinition() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ColumnDefinition, "ColumnDefinition", DependencyObject);
+var ColumnDefinition = Nullstone.Create("ColumnDefinition", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
 ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () { return GridLength; }, ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
-ColumnDefinition.prototype.GetWidth = function () {
+ColumnDefinition.Instance.GetWidth = function () {
     /// <returns type="GridLength" />
     return this.GetValue(ColumnDefinition.WidthProperty);
 };
-ColumnDefinition.prototype.SetWidth = function (value) {
+ColumnDefinition.Instance.SetWidth = function (value) {
     /// <param name="value" type="GridLength"></param>
     this.SetValue(ColumnDefinition.WidthProperty, value);
 };
 
 ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, ColumnDefinition, Number.POSITIVE_INFINITY);
-ColumnDefinition.prototype.GetMaxWidth = function () {
+ColumnDefinition.Instance.GetMaxWidth = function () {
     return this.GetValue(ColumnDefinition.MaxWidthProperty);
 };
-ColumnDefinition.prototype.SetMaxWidth = function (value) {
+ColumnDefinition.Instance.SetMaxWidth = function (value) {
     this.SetValue(ColumnDefinition.MaxWidthProperty, value);
 };
 
 ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, ColumnDefinition, 0.0);
-ColumnDefinition.prototype.GetMinWidth = function () {
+ColumnDefinition.Instance.GetMinWidth = function () {
     return this.GetValue(ColumnDefinition.MinWidthProperty);
 };
-ColumnDefinition.prototype.SetMinWidth = function (value) {
+ColumnDefinition.Instance.SetMinWidth = function (value) {
     this.SetValue(ColumnDefinition.MinWidthProperty, value);
 };
 
 ColumnDefinition.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, ColumnDefinition, 0.0);
-ColumnDefinition.prototype.GetActualWidth = function () {
+ColumnDefinition.Instance.GetActualWidth = function () {
     return this.GetValue(ColumnDefinition.ActualWidthProperty);
 };
-ColumnDefinition.prototype.SetActualWidth = function (value) {
+ColumnDefinition.Instance.SetActualWidth = function (value) {
     this.SetValue(ColumnDefinition.ActualWidthProperty, value);
 };
 
 //#endregion
 
+Nullstone.FinishCreate(ColumnDefinition);
 //#endregion

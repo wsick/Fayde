@@ -3,16 +3,11 @@
 /// <reference path="ObjectKeyFrame.js"/>
 
 //#region ObjectKeyFrameCollection
+var ObjectKeyFrameCollection = Nullstone.Create("ObjectKeyFrameCollection", KeyFrameCollection);
 
-function ObjectKeyFrameCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ObjectKeyFrameCollection, "ObjectKeyFrameCollection", KeyFrameCollection);
-
-ObjectKeyFrameCollection.prototype.IsElementType = function (value) {
+ObjectKeyFrameCollection.Instance.IsElementType = function (value) {
     return value instanceof ObjectKeyFrame;
 };
 
+Nullstone.FinishCreate(ObjectKeyFrameCollection);
 //#endregion

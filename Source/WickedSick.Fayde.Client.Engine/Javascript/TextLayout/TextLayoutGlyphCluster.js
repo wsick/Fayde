@@ -2,17 +2,15 @@
 /// CODE
 
 //#region _TextLayoutGlyphCluster
+var _TextLayoutGlyphCluster = Nullstone.Create("_TextLayoutGlyphCluster", null, 3);
 
-function _TextLayoutGlyphCluster(text, font, selected) {
-    if (!Nullstone.IsReady)
-        return;
+_TextLayoutGlyphCluster.Instance.Init = function (text, font, selected) {
     this._Text = text;
     this._Selected = selected == true;
     this._Advance = Surface.MeasureText(text, font).Width;
-}
-Nullstone.Create(_TextLayoutGlyphCluster, "_TextLayoutGlyphCluster");
+};
 
-_TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) {
+_TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     if (this._Text.length == 0 || this._Advance == 0.0)
         return;
     var font = attrs.GetFont();
@@ -40,4 +38,5 @@ _TextLayoutGlyphCluster.Painter = function (canvasCtx, text, foreground, font) {
     canvasCtx.fillText(text, 0, 0);
 };
 
+Nullstone.FinishCreate(_TextLayoutGlyphCluster);
 //#endregion

@@ -3,12 +3,7 @@
 /// CODE
 
 //#region Paragraph
+var Paragraph = Nullstone.Create("Paragraph", Block);
 
-function Paragraph() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Paragraph, "Paragraph", Block);
-
+Nullstone.FinishCreate(Paragraph);
 //#endregion

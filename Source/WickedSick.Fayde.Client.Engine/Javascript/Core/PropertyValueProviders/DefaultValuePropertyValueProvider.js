@@ -4,16 +4,15 @@
 /// CODE
 
 //#region _DefaultValuePropertyValueProvider
+var _DefaultValuePropertyValueProvider = Nullstone.Create("_DefaultValuePropertyValueProvider", _PropertyValueProvider, 2);
 
-function _DefaultValuePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, 0);
+_DefaultValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, 0);
 }
-Nullstone.Extend(_DefaultValuePropertyValueProvider, "_DefaultValuePropertyValueProvider", _PropertyValueProvider);
 
-_DefaultValuePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_DefaultValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return propd.DefaultValue;
 };
 
+Nullstone.FinishCreate(_DefaultValuePropertyValueProvider);
 //#endregion

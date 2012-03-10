@@ -5,21 +5,19 @@
 /// <reference path="../Data/PropertyChangedListener.js"/>
 
 //#region _InheritedDataContextPropertyValueProvider
+var _InheritedDataContextPropertyValueProvider = Nullstone.Create("_InheritedDataContextPropertyValueProvider", _PropertyValueProvider, 2);
 
-function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence);
+_InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence);
     this._Source = null;
-}
-Nullstone.Extend(_InheritedDataContextPropertyValueProvider, "_InheritedDataContextPropertyValueProvider", _PropertyValueProvider);
+};
 
-_InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_InheritedDataContextPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (!this._Source || propd != FrameworkElement.DataContextProperty)
         return null;
     return this._Source.GetValue(propd);
 };
-_InheritedDataContextPropertyValueProvider.prototype.SetDataSource = function (source) {
+_InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (source) {
     if (RefObject.RefEquals(this._Source, source))
         return;
 
@@ -35,13 +33,13 @@ _InheritedDataContextPropertyValueProvider.prototype.SetDataSource = function (s
         this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
     }
 };
-_InheritedDataContextPropertyValueProvider.prototype._AttachListener = function (source) {
+_InheritedDataContextPropertyValueProvider.Instance._AttachListener = function (source) {
     if (source != null) {
         this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
         //TODO: Add Handler - Destroyed Event
     }
 };
-_InheritedDataContextPropertyValueProvider.prototype._DetachListener = function (source) {
+_InheritedDataContextPropertyValueProvider.Instance._DetachListener = function (source) {
     if (this._DataContextListener != null) {
         this._DataContextListener.Detach();
         this._DataContextListener = null;
@@ -50,15 +48,16 @@ _InheritedDataContextPropertyValueProvider.prototype._DetachListener = function 
         //TODO: Remove Handler - Destroyed Event
     }
 };
-_InheritedDataContextPropertyValueProvider.prototype._SourceDataContextChanged = function (sender, args) {
+_InheritedDataContextPropertyValueProvider.Instance._SourceDataContextChanged = function (sender, args) {
     var error = new BError();
     this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
 };
-_InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
+_InheritedDataContextPropertyValueProvider.Instance.EmitChanged = function () {
     if (this._Source != null) {
         var error = new BError();
         this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
     }
 };
 
+Nullstone.FinishCreate(_InheritedDataContextPropertyValueProvider);
 //#endregion

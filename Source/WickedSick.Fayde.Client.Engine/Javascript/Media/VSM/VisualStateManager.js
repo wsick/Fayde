@@ -10,13 +10,7 @@
 /// <reference path="VisualTransition.js"/>
 
 //#region VisualStateManager
-
-function VisualStateManager() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualStateManager, "VisualStateManager", DependencyObject);
+var VisualStateManager = Nullstone.Create("VisualStateManager", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -53,7 +47,7 @@ VisualStateManager.SetCustomVisualStateManager = function (d, value) {
 
 //#endregion
 
-VisualStateManager.prototype.GoToStateCore = function (control, element, stateName, group, state, useTransitions) {
+VisualStateManager.Instance.GoToStateCore = function (control, element, stateName, group, state, useTransitions) {
     /// <param name="control" type="Control"></param>
     /// <param name="element" type="FrameworkElement"></param>
     /// <param name="stateName" type="String"></param>
@@ -245,4 +239,5 @@ VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group,
     return dynamic;
 };
 
+Nullstone.FinishCreate(VisualStateManager);
 //#endregion

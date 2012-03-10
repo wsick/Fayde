@@ -3,23 +3,21 @@
 /// CODE
 
 //#region _StandardPropertyPathNode
+var _StandardPropertyPathNode = Nullstone.Create("_StandardPropertyPathNode", _PropertyPathNode, 2);
 
-function _StandardPropertyPathNode(typeName, propertyName) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+_StandardPropertyPathNode.Instance.Init = function (typeName, propertyName) {
+    this.Init$super();
     this._STypeName = typeName;
     this._PropertyName = propertyName;
-}
-Nullstone.Extend(_StandardPropertyPathNode, "_StandardPropertyPathNode", _PropertyPathNode);
+};
 
-_StandardPropertyPathNode.prototype.SetValue = function (value) {
+_StandardPropertyPathNode.Instance.SetValue = function (value) {
     if (this.GetDependencyProperty() != null)
         this.GetSource().SetValue(this.GetDependencyProperty(), value);
     else if (this.GetPropertyInfo() != null)
         this.GetPropertyInfo().SetValue(this.GetSource(), value, null);
 };
-_StandardPropertyPathNode.prototype.UpdateValue = function () {
+_StandardPropertyPathNode.Instance.UpdateValue = function () {
     if (this.GetDependencyProperty() != null) {
         this.SetValueType(this.GetDependencyProperty().GetTargetType());
         this._UpdateValueAndIsBroken(this.GetSource().GetValue(this.GetDependencyProperty()), this._CheckIsBroken());
@@ -37,7 +35,7 @@ _StandardPropertyPathNode.prototype.UpdateValue = function () {
     }
 };
 
-_StandardPropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
+_StandardPropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSource) {
     this.OnSourceChanged$super(oldSource, newSource);
 
     var oldDO = Nullstone.As(oldSource, DependencyObject);
@@ -66,7 +64,7 @@ _StandardPropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSo
         this.SetPropertyInfo(PropertyInfo.Find(this.GetSource(), this.GetPropertyName()));
     }
 };
-_StandardPropertyPathNode.prototype.OnPropertyChanged = function (s, e) {
+_StandardPropertyPathNode.Instance.OnPropertyChanged = function (s, e) {
     try {
         this.UpdateValue();
         if (this.GetNext() != null)
@@ -75,7 +73,7 @@ _StandardPropertyPathNode.prototype.OnPropertyChanged = function (s, e) {
         //Ignore
     }
 };
-_StandardPropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
+_StandardPropertyPathNode.Instance.OnSourcePropertyChanged = function (o, e) {
     if (e.PropertyName === this.GetPropertyName() && this.GetPropertyInfo() != null) {
         this.UpdateValue();
         var next = this.GetNext();
@@ -86,14 +84,15 @@ _StandardPropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
 
 //#region PROPERTIES
 
-_StandardPropertyPathNode.prototype.GetTypeName = function () {
+_StandardPropertyPathNode.Instance.GetTypeName = function () {
     return this._STypeName;
 };
 
-_StandardPropertyPathNode.prototype.GetPropertyName = function () {
+_StandardPropertyPathNode.Instance.GetPropertyName = function () {
     return this._PropertyName;
 };
 
 //#endregion
 
+Nullstone.FinishCreate(_StandardPropertyPathNode);
 //#endregion

@@ -3,13 +3,12 @@
 /// <reference path="../Engine/Surface.js"/>
 
 //#region TextLayout
+var TextLayout = Nullstone.Create("TextLayout");
 
-function TextLayout() {
-    if (!Nullstone.IsReady)
-        return;
+TextLayout.Instance.Init = function () {
     this._SelectionStart = 0;
     this._SelectionLength = 0;
-    
+
     this._Strategy = LineStackingStrategy.MaxHeight;
     this._Alignment = TextAlignment.Left;
     this._Trimming = TextTrimming.None;
@@ -28,29 +27,28 @@ function TextLayout() {
     this._IsWrapped = true;
     this._Text = null;
     this._Length = 0;
-}
-Nullstone.Create(TextLayout, "TextLayout");
+};
 
-TextLayout.prototype.GetSelectionLength = function () {
+TextLayout.Instance.GetSelectionLength = function () {
     return this._SelectionLength;
 };
-TextLayout.prototype.GetSelectionStart = function () {
+TextLayout.Instance.GetSelectionStart = function () {
     return this._SelectionStart;
 };
-TextLayout.prototype.GetLineStackingStrategy = function () {
+TextLayout.Instance.GetLineStackingStrategy = function () {
     return this._Strategy;
 };
-TextLayout.prototype.SetLineStackingStrategy = function (value) {
+TextLayout.Instance.SetLineStackingStrategy = function (value) {
     if (this._Strategy == value)
         return false;
     this._Strategy = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetTextAttributes = function () {
+TextLayout.Instance.GetTextAttributes = function () {
     return this._Attributes;
 };
-TextLayout.prototype.SetTextAttributes = function (value) {
+TextLayout.Instance.SetTextAttributes = function (value) {
     if (this._Attributes) {
         this._Attributes._Clear(true);
     }
@@ -58,30 +56,30 @@ TextLayout.prototype.SetTextAttributes = function (value) {
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetTextAlignment = function () {
+TextLayout.Instance.GetTextAlignment = function () {
     return this._Alignment;
 };
-TextLayout.prototype.SetTextAlignment = function (value) {
+TextLayout.Instance.SetTextAlignment = function (value) {
     if (this._Alignment == value)
         return false;
     this._Alignment = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetTextTrimming = function () {
+TextLayout.Instance.GetTextTrimming = function () {
     return this._Trimming;
 };
-TextLayout.prototype.SetTextTrimming = function (value) {
+TextLayout.Instance.SetTextTrimming = function (value) {
     if (this._Trimming == value)
         return false;
     this._Trimming = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetTextWrapping = function () {
+TextLayout.Instance.GetTextWrapping = function () {
     return this._Wrapping;
 };
-TextLayout.prototype.SetTextWrapping = function (value) {
+TextLayout.Instance.SetTextWrapping = function (value) {
     switch (value) {
         case TextWrapping.NoWrap:
         case TextWrapping.Wrap:
@@ -97,30 +95,30 @@ TextLayout.prototype.SetTextWrapping = function (value) {
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetLineHeight = function () {
+TextLayout.Instance.GetLineHeight = function () {
     return this._LineHeight;
 };
-TextLayout.prototype.SetLineHeight = function (value) {
+TextLayout.Instance.SetLineHeight = function (value) {
     if (this._LineHeight == value)
         return false;
     this._LineHeight = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetMaxHeight = function () {
+TextLayout.Instance.GetMaxHeight = function () {
     return this._MaxHeight;
 };
-TextLayout.prototype.SetMaxHeight = function (value) {
+TextLayout.Instance.SetMaxHeight = function (value) {
     if (this._MaxHeight == value)
         return false;
-    this._MaxHeight  = value;
+    this._MaxHeight = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetMaxWidth = function () {
+TextLayout.Instance.GetMaxWidth = function () {
     return this._MaxWidth;
 };
-TextLayout.prototype.SetMaxWidth = function (value) {
+TextLayout.Instance.SetMaxWidth = function (value) {
     if (value === 0.0)
         value = Number.POSITIVE_INFINITY;
     if (this._MaxWidth === value)
@@ -133,17 +131,17 @@ TextLayout.prototype.SetMaxWidth = function (value) {
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetAvailableWidth = function () {
+TextLayout.Instance.GetAvailableWidth = function () {
     return this._AvailableWidth;
 };
-TextLayout.prototype.SetAvailableWidth = function (value) {
+TextLayout.Instance.SetAvailableWidth = function (value) {
     this._AvailableWidth = value;
     return false;
 };
-TextLayout.prototype.GetText = function () {
+TextLayout.Instance.GetText = function () {
     return this._Text;
 };
-TextLayout.prototype.SetText = function (value, length) {
+TextLayout.Instance.SetText = function (value, length) {
     if (value) {
         this._Text = value;
         this._Length = length == -1 ? value.length : length;
@@ -155,21 +153,21 @@ TextLayout.prototype.SetText = function (value, length) {
     return true;
 };
 
-TextLayout.prototype.GetBaselineOffset = function () {
+TextLayout.Instance.GetBaselineOffset = function () {
     if (this._Lines.length === 0)
         return 0;
     var line = this._Lines[0];
     return line._Height + line._Descend;
 };
-TextLayout.prototype.OverrideLineHeight = function () {
+TextLayout.Instance.OverrideLineHeight = function () {
     return this.GetLineStackingStrategy() === LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
 };
-TextLayout.prototype.GetLineHeightOverride = function () {
+TextLayout.Instance.GetLineHeightOverride = function () {
     if (isNaN(this.GetLineHeight()))
         return this._BaseHeight;
     return this.GetLineHeight();
 };
-TextLayout.prototype.GetDescendOverride = function () {
+TextLayout.Instance.GetDescendOverride = function () {
     if (isNaN(this.GetLineHeight()))
         return this._BaseDescent;
 
@@ -179,16 +177,16 @@ TextLayout.prototype.GetDescendOverride = function () {
     return this.GetLineHeight() * (this._BaseDescent / this._BaseHeight);
 }
 
-TextLayout.prototype.GetLineFromY = function (offset, y) {
+TextLayout.Instance.GetLineFromY = function (offset, y) {
     NotImplemented("TextLayout.GetLineFromY");
 };
-TextLayout.prototype.GetLineFromIndex = function (index) {
+TextLayout.Instance.GetLineFromIndex = function (index) {
     NotImplemented("TextLayout.GetLineFromIndex");
 };
-TextLayout.prototype.GetCursorFromXY = function (offset, x, y) {
+TextLayout.Instance.GetCursorFromXY = function (offset, x, y) {
     NotImplemented("TextLayout.GetCursorFromXY");
 };
-TextLayout.prototype.GetCursor = function (offset, pos) {
+TextLayout.Instance.GetCursor = function (offset, pos) {
     var x0 = offset.X;
     var y0 = offset.Y;
     var height = 0.0;
@@ -243,7 +241,7 @@ TextLayout.prototype.GetCursor = function (offset, pos) {
     }
     return new Rect(x0, y0, 1.0, height);
 };
-TextLayout.prototype._FindLineWithIndex = function (index) {
+TextLayout.Instance._FindLineWithIndex = function (index) {
     var cursor = 0;
     for (var i = 0; i < this._Lines.length; i++) {
         var line = this._Lines[i];
@@ -254,25 +252,25 @@ TextLayout.prototype._FindLineWithIndex = function (index) {
     return null;
 };
 
-TextLayout.prototype.Select = function (start, length) {
+TextLayout.Instance.Select = function (start, length) {
     NotImplemented("TextLayout.Select");
 };
 
-TextLayout.prototype._ClearLines = function () {
+TextLayout.Instance._ClearLines = function () {
     this._Lines = new Array();
 };
-TextLayout.prototype._ResetState = function () {
+TextLayout.Instance._ResetState = function () {
     this._ActualHeight = NaN;
     this._ActualWidth = NaN;
 };
-TextLayout.prototype.GetRenderExtents = function () {
+TextLayout.Instance.GetRenderExtents = function () {
     this.Layout();
     return new Rect(this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
 };
-TextLayout.prototype.GetActualExtents = function () {
+TextLayout.Instance.GetActualExtents = function () {
     return new Size(this._ActualWidth, this._ActualHeight);
 };
-TextLayout.prototype.Layout = function () {
+TextLayout.Instance.Layout = function () {
     if (!isNaN(this._ActualWidth))
         return;
 
@@ -420,7 +418,7 @@ TextLayout.prototype.Layout = function () {
         attrs = nattrs;
     } while (end - index > 0);
 };
-TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
+TextLayout.Instance._HorizontalAlignment = function (lineWidth) {
     var deltax = 0.0;
     var width;
     switch (this._Alignment) {
@@ -437,7 +435,7 @@ TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
     }
     return deltax;
 };
-TextLayout.prototype._Render = function (ctx, origin, offset) {
+TextLayout.Instance._Render = function (ctx, origin, offset) {
     var line;
     var x;
     var y = offset.Y;
@@ -451,7 +449,7 @@ TextLayout.prototype._Render = function (ctx, origin, offset) {
         y += line._Height;
     }
 };
-TextLayout.prototype.__Debug = function () {
+TextLayout.Instance.__Debug = function () {
     var allText = this.GetText();
     var t = "";
     t += "Lines: " + this._Lines.length.toString() + "\n";
@@ -816,4 +814,5 @@ TextLayout._BreakSpace = function (c, btype) {
     NotImplemented("TextLayout._BreakSpace");
 };
 
+Nullstone.FinishCreate(TextLayout);
 //#endregion

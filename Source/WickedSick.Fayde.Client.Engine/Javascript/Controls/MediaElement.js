@@ -3,12 +3,7 @@
 /// CODE
 
 //#region MediaElement
+var MediaElement = Nullstone.Create("MediaElement", FrameworkElement);
 
-function MediaElement() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(MediaElement, "MediaElement", FrameworkElement);
-
+Nullstone.FinishCreate(MediaElement);
 //#endregion

@@ -11,12 +11,9 @@
 /// <reference path="Style.js"/>
 
 //#region FrameworkElement
+var FrameworkElement = Nullstone.Create("FrameworkElement", UIElement);
 
-function FrameworkElement() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-    
+FrameworkElement.Instance.Init = function () {
     this.TemplatedApplied = new MulticastEvent();
 
     this._BoundsWithChildren = new Rect();
@@ -28,122 +25,121 @@ function FrameworkElement() {
     this._Providers[_PropertyPrecedence.ImplicitStyle] = new _ImplicitStylePropertyValueProvider(this, _PropertyPrecedence.ImplicitStyle);
     this._Providers[_PropertyPrecedence.DynamicValue] = new FrameworkElementPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
-}
-Nullstone.Extend(FrameworkElement, "FrameworkElement", UIElement);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () { return Number; }, FrameworkElement, NaN);
-FrameworkElement.prototype.GetHeight = function () {
+FrameworkElement.Instance.GetHeight = function () {
     return this.GetValue(FrameworkElement.HeightProperty);
 };
-FrameworkElement.prototype.SetHeight = function (value) {
+FrameworkElement.Instance.SetHeight = function (value) {
     this.SetValue(FrameworkElement.HeightProperty, value);
 };
 
 FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () { return Number; }, FrameworkElement, NaN);
-FrameworkElement.prototype.GetWidth = function () {
+FrameworkElement.Instance.GetWidth = function () {
     return this.GetValue(FrameworkElement.WidthProperty);
 };
-FrameworkElement.prototype.SetWidth = function (value) {
+FrameworkElement.Instance.SetWidth = function (value) {
     this.SetValue(FrameworkElement.WidthProperty, value);
 };
 
 FrameworkElement.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, FrameworkElement);
-FrameworkElement.prototype.GetActualHeight = function () {
+FrameworkElement.Instance.GetActualHeight = function () {
     return this.GetValue(FrameworkElement.ActualHeightProperty);
 };
 
 FrameworkElement.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, FrameworkElement);
-FrameworkElement.prototype.GetActualWidth = function () {
+FrameworkElement.Instance.GetActualWidth = function () {
     return this.GetValue(FrameworkElement.ActualWidthProperty);
 };
 
 FrameworkElement.DataContextProperty = DependencyProperty.Register("DataContext", function () { return Object; }, FrameworkElement);
-FrameworkElement.prototype.GetDataContext = function () {
+FrameworkElement.Instance.GetDataContext = function () {
     return this.GetValue(FrameworkElement.DataContextProperty);
 };
-FrameworkElement.prototype.SetDataContext = function (value) {
+FrameworkElement.Instance.SetDataContext = function (value) {
     this.SetValue(FrameworkElement.DataContextProperty, value);
 };
 
 FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return Number; }, FrameworkElement, HorizontalAlignment.Stretch);
-FrameworkElement.prototype.GetHorizontalAlignment = function () {
+FrameworkElement.Instance.GetHorizontalAlignment = function () {
     return this.GetValue(FrameworkElement.HorizontalAlignmentProperty);
 };
-FrameworkElement.prototype.SetHorizontalAlignment = function (value) {
+FrameworkElement.Instance.SetHorizontalAlignment = function (value) {
     this.SetValue(FrameworkElement.HorizontalAlignmentProperty, value);
 };
 
 FrameworkElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, FrameworkElement);
-FrameworkElement.prototype.GetLanguage = function () {
+FrameworkElement.Instance.GetLanguage = function () {
     return this.GetValue(FrameworkElement.LanguageProperty);
 };
-FrameworkElement.prototype.SetLanguage = function (value) {
+FrameworkElement.Instance.SetLanguage = function (value) {
     this.SetValue(FrameworkElement.LanguageProperty, value);
 };
 
 FrameworkElement.MarginProperty = DependencyProperty.Register("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
-FrameworkElement.prototype.GetMargin = function () {
+FrameworkElement.Instance.GetMargin = function () {
     return this.GetValue(FrameworkElement.MarginProperty);
 };
-FrameworkElement.prototype.SetMargin = function (value) {
+FrameworkElement.Instance.SetMargin = function (value) {
     this.SetValue(FrameworkElement.MarginProperty, value);
 };
 
 FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-FrameworkElement.prototype.GetMaxHeight = function () {
+FrameworkElement.Instance.GetMaxHeight = function () {
     return this.GetValue(FrameworkElement.MaxHeightProperty);
 };
-FrameworkElement.prototype.SetMaxHeight = function (value) {
+FrameworkElement.Instance.SetMaxHeight = function (value) {
     this.SetValue(FrameworkElement.MaxHeightProperty, value);
 };
 
 FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-FrameworkElement.prototype.GetMaxWidth = function () {
+FrameworkElement.Instance.GetMaxWidth = function () {
     return this.GetValue(FrameworkElement.MaxWidthProperty);
 };
-FrameworkElement.prototype.SetMaxWidth = function (value) {
+FrameworkElement.Instance.SetMaxWidth = function (value) {
     this.SetValue(FrameworkElement.MaxWidthProperty, value);
 };
 
 FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
-FrameworkElement.prototype.GetMinHeight = function () {
+FrameworkElement.Instance.GetMinHeight = function () {
     return this.GetValue(FrameworkElement.MinHeightProperty);
 };
-FrameworkElement.prototype.SetMinHeight = function (value) {
+FrameworkElement.Instance.SetMinHeight = function (value) {
     this.SetValue(FrameworkElement.MinHeightProperty, value);
 };
 
 FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
-FrameworkElement.prototype.GetMinWidth = function () {
+FrameworkElement.Instance.GetMinWidth = function () {
     return this.GetValue(FrameworkElement.MinWidthProperty);
 };
-FrameworkElement.prototype.SetMinWidth = function (value) {
+FrameworkElement.Instance.SetMinWidth = function (value) {
     this.SetValue(FrameworkElement.MinWidthProperty, value);
 };
 
 FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return Number; }, FrameworkElement, VerticalAlignment.Stretch);
-FrameworkElement.prototype.GetVerticalAlignment = function () {
+FrameworkElement.Instance.GetVerticalAlignment = function () {
     return this.GetValue(FrameworkElement.VerticalAlignmentProperty);
 };
-FrameworkElement.prototype.SetVerticalAlignment = function (value) {
+FrameworkElement.Instance.SetVerticalAlignment = function (value) {
     this.SetValue(FrameworkElement.VerticalAlignmentProperty, value);
 };
 
 FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () { return Style; }, FrameworkElement);
-FrameworkElement.prototype.GetStyle = function () {
+FrameworkElement.Instance.GetStyle = function () {
     return this.GetValue(FrameworkElement.StyleProperty);
 };
-FrameworkElement.prototype.SetStyle = function (value) {
+FrameworkElement.Instance.SetStyle = function (value) {
     this.SetValue(FrameworkElement.StyleProperty, value);
 };
 
 FrameworkElement.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return Number; }, FrameworkElement);
-FrameworkElement.prototype.GetFlowDirection = function () {
+FrameworkElement.Instance.GetFlowDirection = function () {
     return this.GetValue(FrameworkElement.FlowDirectionProperty);
 };
-FrameworkElement.prototype.SetFlowDirection = function (value) {
+FrameworkElement.Instance.SetFlowDirection = function (value) {
     this.SetValue(FrameworkElement.FlowDirectionProperty, value);
 };
 
@@ -151,7 +147,7 @@ FrameworkElement.prototype.SetFlowDirection = function (value) {
 
 //#region INSTANCE METHODS
 
-FrameworkElement.prototype.SetTemplateBinding = function (propd, tb) {
+FrameworkElement.Instance.SetTemplateBinding = function (propd, tb) {
     /// <param name="propd" type="DependencyProperty"></param>
     /// <param name="tb" type="TemplateBindingExpression"></param>
     try {
@@ -159,14 +155,14 @@ FrameworkElement.prototype.SetTemplateBinding = function (propd, tb) {
     } catch (err) {
     }
 };
-FrameworkElement.prototype.SetBinding = function (propd, binding) {
+FrameworkElement.Instance.SetBinding = function (propd, binding) {
     /// <param name="propd" type="DependencyProperty"></param>
     /// <param name="binding" type="Binding"></param>
     /// <returns type="BindingExpressionBase" />
     return BindingOperations.SetBinding(this, propd, binding);
 };
 
-FrameworkElement.prototype._ApplySizeConstraints = function (size) {
+FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     var specified = new Size(this.GetWidth(), this.GetHeight());
     var constrained = new Size(this.GetMinWidth(), this.GetMinHeight());
 
@@ -188,13 +184,13 @@ FrameworkElement.prototype._ApplySizeConstraints = function (size) {
 
     return constrained;
 };
-FrameworkElement.prototype._GetSubtreeExtents = function () {
+FrameworkElement.Instance._GetSubtreeExtents = function () {
     if (this._GetSubtreeObject())
         return this._ExtentsWithChildren;
     return this._Extents;
 };
 
-FrameworkElement.prototype._ComputeActualSize = function () {
+FrameworkElement.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
     if (this.GetVisibility() != Visibility.Visible)
         return new Size(0.0, 0.0);
@@ -206,7 +202,7 @@ FrameworkElement.prototype._ComputeActualSize = function () {
     actual = this._ApplySizeConstraints(actual);
     return actual;
 };
-FrameworkElement.prototype._ComputeBounds = function () {
+FrameworkElement.Instance._ComputeBounds = function () {
     var size = new Size(this.GetActualWidth(), this.GetActualHeight());
     size = this._ApplySizeConstraints(size);
 
@@ -226,27 +222,27 @@ FrameworkElement.prototype._ComputeBounds = function () {
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
-FrameworkElement.prototype._ComputeGlobalBounds = function () {
+FrameworkElement.Instance._ComputeGlobalBounds = function () {
     this._ComputeGlobalBounds$super();
     this._GlobalBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._LocalProjection);
 };
-FrameworkElement.prototype._ComputeSurfaceBounds = function () {
+FrameworkElement.Instance._ComputeSurfaceBounds = function () {
     this._ComputeSurfaceBounds$super();
     this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
 };
 
-FrameworkElement.prototype._GetGlobalBounds = function () {
+FrameworkElement.Instance._GetGlobalBounds = function () {
     if (this._GetSubtreeObject())
         return this._GlobalBoundsWithChildren;
     return this._GlobalBounds;
 };
-FrameworkElement.prototype._GetSubtreeBounds = function () {
+FrameworkElement.Instance._GetSubtreeBounds = function () {
     if (this._GetSubtreeObject())
         return this._SurfaceBoundsWithChildren;
     return this._SurfaceBounds;
 };
 
-FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
+FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
         return;
 
@@ -313,7 +309,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
 
     this._DesiredSize = size;
 };
-FrameworkElement.prototype._MeasureOverrideWithError = function (availableSize, error) {
+FrameworkElement.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
     availableSize = availableSize.Max(desired);
 
@@ -326,7 +322,7 @@ FrameworkElement.prototype._MeasureOverrideWithError = function (availableSize, 
 
     return desired.Min(availableSize);
 };
-FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
+FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
 
@@ -518,7 +514,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         }
     }
 };
-FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var arranged = finalSize;
 
     var walker = new _VisualTreeWalker(this);
@@ -532,7 +528,7 @@ FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, erro
     return arranged;
 };
 
-FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
+FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (!this._GetRenderVisible())
         return;
     if (!this._GetIsHitTestVisible())
@@ -556,7 +552,7 @@ FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
     if (!hit && !(this._CanFindElement() && this._InsideObject(ctx, p.X, p.Y)))
         uielist.Remove(node);
 };
-FrameworkElement.prototype._InsideObject = function (ctx, x, y) {
+FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
     var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
     var np = new Point(x, y);
     this._TransformPoint(np);
@@ -569,11 +565,11 @@ FrameworkElement.prototype._InsideObject = function (ctx, x, y) {
     return this._InsideObject$super(ctx, x, y);
 };
 
-FrameworkElement.prototype._InsideLayoutClip = function (x, y) {
+FrameworkElement.Instance._InsideLayoutClip = function (x, y) {
     //NotImplemented("FrameworkElement._InsideLayoutClip(x, y)");
     return true;
 };
-FrameworkElement.prototype._HasLayoutClip = function () {
+FrameworkElement.Instance._HasLayoutClip = function () {
     var element = this;
     while (element) {
         if (LayoutInformation.GetLayoutClip(element))
@@ -584,7 +580,7 @@ FrameworkElement.prototype._HasLayoutClip = function () {
     }
     return false;
 };
-FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
+FrameworkElement.Instance._RenderLayoutClip = function (ctx) {
     var element = this;
     var inverse = new TranslationMatrix(0, 0);
 
@@ -607,12 +603,12 @@ FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
     ctx.Transform(inverse);
 };
 
-FrameworkElement.prototype._ElementRemoved = function (value) {
+FrameworkElement.Instance._ElementRemoved = function (value) {
     this._ElementRemoved$super(value);
     if (this._GetSubtreeObject() == value)
         this._SetSubtreeObject(null);
 };
-FrameworkElement.prototype._UpdateLayer = function (pass, error) {
+FrameworkElement.Instance._UpdateLayer = function (pass, error) {
     var element = this;
     var parent;
     while (parent = element.GetVisualParent())
@@ -704,7 +700,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
     }
 };
 
-FrameworkElement.prototype._SetImplicitStyles = function (styleMask, styles) {
+FrameworkElement.Instance._SetImplicitStyles = function (styleMask, styles) {
     var app = App.Instance;
     if (!app)
         return;
@@ -728,15 +724,15 @@ FrameworkElement.prototype._SetImplicitStyles = function (styleMask, styles) {
 
     this._Providers[_PropertyPrecedence.ImplicitStyle].SetStyles(styleMask, styles, error);
 };
-FrameworkElement.prototype._ClearImplicitStyles = function (styleMask) {
+FrameworkElement.Instance._ClearImplicitStyles = function (styleMask) {
     var error = new BError();
     this._Providers[_PropertyPrecedence.ImplicitStyle].ClearStyles(styleMask, error);
 };
 
-FrameworkElement.prototype.OnApplyTemplate = function () {
+FrameworkElement.Instance.OnApplyTemplate = function () {
     this.TemplatedApplied.Raise(this, null);
 };
-FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
+FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
     if (this._GetSubtreeObject())
         return false;
 
@@ -745,7 +741,7 @@ FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
         this.OnApplyTemplate();
     return result;
 };
-FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
+FrameworkElement.Instance._DoApplyTemplateWithError = function (error) {
     var d = this._GetDefaultTemplate();
     if (d) {
         d._AddParent(this, true, error);
@@ -756,13 +752,13 @@ FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
     }
     return d != null;
 };
-FrameworkElement.prototype._GetDefaultTemplate = function () {
+FrameworkElement.Instance._GetDefaultTemplate = function () {
     if (this._GetDefaultTemplateCallback)
         return this._GetDefaultTemplateCallback(this);
     return null;
 };
 
-FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
+FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== FrameworkElement) {
         this._OnPropertyChanged$super(args, error);
         return;
@@ -801,9 +797,9 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
-FrameworkElement.prototype.InvokeLoaded = function () {
+FrameworkElement.Instance.InvokeLoaded = function () {
 };
-FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
+FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
     if (loaded)
         this._SetImplicitStyles(_StyleMask.All);
     else
@@ -817,7 +813,7 @@ FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
 
-FrameworkElement.prototype.SetVisualParent = function (/* UIElement */value) {
+FrameworkElement.Instance.SetVisualParent = function (/* UIElement */value) {
     this.SetVisualParent$super(value);
 
     if (!this._LogicalParent && (this._VisualParent == null || this._VisualParent instanceof FrameworkElement)) {
@@ -826,7 +822,7 @@ FrameworkElement.prototype.SetVisualParent = function (/* UIElement */value) {
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
     }
 };
-FrameworkElement.prototype._SetLogicalParent = function (value, error) {
+FrameworkElement.Instance._SetLogicalParent = function (value, error) {
     if (this._LogicalParent == value)
         return;
 
@@ -844,10 +840,10 @@ FrameworkElement.prototype._SetLogicalParent = function (value, error) {
     this._LogicalParent = value;
     this._OnLogicalParentChanged(oldParent, value);
 };
-FrameworkElement.prototype._GetLogicalParent = function () {
+FrameworkElement.Instance._GetLogicalParent = function () {
     return this._LogicalParent;
 };
-FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newParent) {
+FrameworkElement.Instance._OnLogicalParentChanged = function (oldParent, newParent) {
     if (false/* TODO: this._IsDisposing() */) {
     } else {
         var visualParent;
@@ -864,4 +860,5 @@ FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newPar
 
 //#endregion
 
+Nullstone.FinishCreate(FrameworkElement);
 //#endregion

@@ -4,17 +4,15 @@
 /// <reference path="Animation.js"/>
 
 //#region KeyFrameCollection
+var KeyFrameCollection = Nullstone.Create("KeyFrameCollection", DependencyObjectCollection);
 
-function KeyFrameCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+KeyFrameCollection.Instance.Init = function () {
+    this.Init$super();
     this._Resolved = false;
     this._SortedList = new Array();
-}
-Nullstone.Extend(KeyFrameCollection, "KeyFrameCollection", DependencyObjectCollection);
+};
 
-KeyFrameCollection.prototype.GetKeyFrameForTime = function (t, prevFrameRef) {
+KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
     /// <param name="t" type="TimeSpan"></param>
     /// <param name="prevFrameRef" type="Object"></param>
     var currentKeyFrame = null;
@@ -60,24 +58,24 @@ KeyFrameCollection.prototype.GetKeyFrameForTime = function (t, prevFrameRef) {
     return currentKeyFrame;
 };
 
-KeyFrameCollection.prototype.Clear = function () {
+KeyFrameCollection.Instance.Clear = function () {
     this._Resolved = false;
     //Clear sorted
     this.Clear$super();
 };
 
-KeyFrameCollection.prototype.AddedToCollection = function (value, error) {
+KeyFrameCollection.Instance.AddedToCollection = function (value, error) {
     if (!this.AddedToCollection$super(value, error))
         return false;
     this._Resolved = false;
     return true;
 };
-KeyFrameCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+KeyFrameCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     this.RemovedFromCollection$super(value, isValueSafe);
     this._Resolved = false;
 };
 
-KeyFrameCollection.prototype._OnSubPropertyChanged = function (sender, args) {
+KeyFrameCollection.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property.Name === "KeyTime")
         this._Resolved = false;
     this._OnSubPropertyChanged$super(sender, args);
@@ -186,4 +184,5 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     this._SortedList.sort(KeyFrame.Comparer);
 };
 
+Nullstone.FinishCreate(KeyFrameCollection);
 //#endregion

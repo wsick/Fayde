@@ -3,12 +3,11 @@
 /// CODE
 
 //#region ICollectionView
+var ICollectionView = Nullstone.Create("ICollectionView");
 
-function ICollectionView() {
-    if (!Nullstone.IsReady)
-        return;
+ICollectionView.Instance.Init = function () {
     this.CurrentChanged = new MulticastEvent();
-}
-Nullstone.Create(ICollectionView, "ICollectionView");
+};
 
+Nullstone.FinishCreate(ICollectionView);
 //#endregion

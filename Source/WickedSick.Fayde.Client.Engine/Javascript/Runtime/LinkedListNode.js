@@ -2,11 +2,12 @@
 /// CODE
 
 //#region LinkedListNode
+var LinkedListNode = Nullstone.Create("LinkedListNode");
 
-function LinkedListNode() {
+LinkedListNode.Instance.Init = function (args) 
     this.Previous = null;
     this.Next = null;
-}
-Nullstone.Create(LinkedListNode, "LinkedListNode");
+};
 
+Nullstone.FinishCreate(LinkedListNode);
 //#endregion

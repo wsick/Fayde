@@ -3,24 +3,22 @@
 /// CODE
 
 //#region BindingMarkup
+var BindingMarkup = Nullstone.Create("BindingMarkup", Markup, 1);
 
-function BindingMarkup(data) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+BindingMarkup.Instance.Init = function (data) {
+    this.Init$super();
     if (!data)
         data = {};
     this._Data = data;
-}
-Nullstone.Extend(BindingMarkup, "BindingMarkup", Markup);
+};
 
-BindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+BindingMarkup.Instance.Transmute = function (target, propd, templateBindingSource) {
     /// <param name="target" type="DependencyObject"></param>
     /// <param name="templateBindingSource" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
     return new BindingExpression(this._BuildBinding(), target, propd);
 };
-BindingMarkup.prototype._BuildBinding = function () {
+BindingMarkup.Instance._BuildBinding = function () {
     /// <returns type="Binding" />
     var b = new Binding(this._Data.Path);
     if (this._Data.FallbackValue !== undefined)
@@ -30,4 +28,5 @@ BindingMarkup.prototype._BuildBinding = function () {
     return b;
 };
 
+Nullstone.FinishCreate(BindingMarkup);
 //#endregion

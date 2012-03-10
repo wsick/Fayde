@@ -3,12 +3,10 @@
 /// CODE
 
 //#region ButtonBase
+var ButtonBase = Nullstone.Create(ButtonBase, ContentControl);
 
-function ButtonBase() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-
+ButtonBase.Instance.Init = function () {
+    this.Init$super();
     this._IsMouseCaptured = false;
     this._IsMouseLeftButtonDown = false;
     this._IsSpaceKeyDown = false;
@@ -19,45 +17,44 @@ function ButtonBase() {
     this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
     this.SetIsTabStop(true);
 }
-Nullstone.Extend(ButtonBase, "ButtonBase", ContentControl);
 
 //#region DEPENDENCY PROPERTIES
 
 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return Number; }, ButtonBase, ClickMode.Release);
-ButtonBase.prototype.GetClickMode = function () {
+ButtonBase.Instance.GetClickMode = function () {
     return this.GetValue(ButtonBase.ClickModeProperty);
 };
-ButtonBase.prototype.SetClickMode = function (value) {
+ButtonBase.Instance.SetClickMode = function (value) {
     this.SetValue(ButtonBase.ClickModeProperty, value);
 };
 
 ButtonBase.IsPressedProperty = DependencyProperty.Register("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
-ButtonBase.prototype.GetIsPressed = function () {
+ButtonBase.Instance.GetIsPressed = function () {
 	return this.GetValue(ButtonBase.IsPressedProperty);
 };
-ButtonBase.prototype.SetIsPressed = function (value) {
+ButtonBase.Instance.SetIsPressed = function (value) {
 	this.SetValue(ButtonBase.IsPressedProperty, value);
 };
 
 ButtonBase.IsFocusedProperty = DependencyProperty.Register("IsFocused", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.prototype.GetIsFocused = function () {
+ButtonBase.Instance.GetIsFocused = function () {
     return this.GetValue(ButtonBase.IsFocusedProperty);
 };
-ButtonBase.prototype.SetIsFocused = function (value) {
+ButtonBase.Instance.SetIsFocused = function (value) {
     this.SetValue(ButtonBase.IsFocusedProperty, value);
 };
 
 ButtonBase.IsMouseOverProperty = DependencyProperty.Register("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.prototype.GetIsMouseOver = function () {
+ButtonBase.Instance.GetIsMouseOver = function () {
     return this.GetValue(ButtonBase.IsMouseOverProperty);
 };
-ButtonBase.prototype.SetIsMouseOver = function (value) {
+ButtonBase.Instance.SetIsMouseOver = function (value) {
     this.SetValue(ButtonBase.IsMouseOverProperty, value);
 };
 
 //#endregion
 
-ButtonBase.prototype.OnIsEnabledChanged = function (e) {
+ButtonBase.Instance.OnIsEnabledChanged = function (e) {
     this.OnIsEnabledChanged$super(e);
     var isEnabled = e.NewValue;
     this._SuspendStateChanges = true;
@@ -74,22 +71,22 @@ ButtonBase.prototype.OnIsEnabledChanged = function (e) {
         this.UpdateVisualState();
     }
 };
-ButtonBase.prototype.OnIsPressedChanged = function (e) {
+ButtonBase.Instance.OnIsPressedChanged = function (e) {
     this.UpdateVisualState();
 };
 
 //#region VISUAL STATE
 
-ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
+ButtonBase.Instance.UpdateVisualState = function (useTransitions) {
     /// <param name="useTransitions" type="Boolean"></param>
     if (this._SuspendStateChanges)
         return;
     this._ChangeVisualState(useTransitions === true);
 };
-ButtonBase.prototype._ChangeVisualState = function (useTransitions) {
+ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
     //Nothing to do in ButtonBase
 };
-ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
+ButtonBase.Instance._GoToState = function (useTransitions, stateName) {
     /// <param name="useTransitions" type="Boolean"></param>
     /// <param name="stateName" type="String"></param>
     /// <returns type="Boolean" />
@@ -100,7 +97,7 @@ ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
 
 //#region MOUSE
 
-ButtonBase.prototype.OnMouseEnter = function (sender, args) {
+ButtonBase.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$super(sender, args);
 
     this.SetIsMouseOver(true);
@@ -116,7 +113,7 @@ ButtonBase.prototype.OnMouseEnter = function (sender, args) {
         this.UpdateVisualState();
     }
 };
-ButtonBase.prototype.OnMouseLeave = function (sender, args) {
+ButtonBase.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$super(sender, args);
 
     this.SetIsMouseOver(false);
@@ -130,7 +127,7 @@ ButtonBase.prototype.OnMouseLeave = function (sender, args) {
         this.UpdateVisualState();
     }
 };
-ButtonBase.prototype.OnMouseMove = function (sender, args) {
+ButtonBase.Instance.OnMouseMove = function (sender, args) {
     this.OnMouseMove$super(sender, args);
 
     this._MousePosition = args.GetPosition(this);
@@ -139,7 +136,7 @@ ButtonBase.prototype.OnMouseMove = function (sender, args) {
         this.SetIsPressed(this._IsValidMousePosition());
     }
 };
-ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
+ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this.OnMouseLeftButtonDown$super(sender, args);
 
     this._IsMouseLeftButtonDown = true;
@@ -164,7 +161,7 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
     if (clickMode === ClickMode.Press)
         this.OnClick();
 };
-ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
+ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
     this.OnMouseLeftButtonDown$super(sender, args);
 
     this._IsMouseLeftButtonDown = false;
@@ -184,20 +181,20 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
     }
 };
 
-ButtonBase.prototype.OnClick = function () {
+ButtonBase.Instance.OnClick = function () {
     //TODO: Execute Command
     this.Click.Raise(this, null);
 };
 
-ButtonBase.prototype._CaptureMouseInternal = function () {
+ButtonBase.Instance._CaptureMouseInternal = function () {
     if (!this._IsMouseCaptured)
         this._IsMouseCaptured = this.CaptureMouse();
 };
-ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
+ButtonBase.Instance._ReleaseMouseCaptureInternal = function () {
     this.ReleaseMouseCapture();
     this._IsMouseCaptured = false;
 };
-ButtonBase.prototype._IsValidMousePosition = function () {
+ButtonBase.Instance._IsValidMousePosition = function () {
     /// <returns type="Boolean" />
     var pos = this._MousePosition;
     return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
@@ -208,13 +205,13 @@ ButtonBase.prototype._IsValidMousePosition = function () {
 
 //#region FOCUS
 
-ButtonBase.prototype.OnGotFocus = function (sender, args) {
+ButtonBase.Instance.OnGotFocus = function (sender, args) {
     this.OnGotFocus$super(sender, args);
 
     this.SetIsFocused(true);
     this.UpdateVisualState();
 };
-ButtonBase.prototype.OnLostFocus = function (sender, args) {
+ButtonBase.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$super(sender, args);
 
     this.SetIsFocused(false);
@@ -243,4 +240,5 @@ ButtonBase._GetVisualRoot = function (d) {
     return d;
 };
 
+Nullstone.FinishCreate(ButtonBase);
 //#endregion

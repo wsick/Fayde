@@ -3,28 +3,26 @@
 /// CODE
 
 //#region _PropertyPathNode
+var _PropertyPathNode = Nullstone.Create("_PropertyPathNode");
 
-function _PropertyPathNode() {
-    if (!Nullstone.IsReady)
-        return;
+_PropertyPathNode.Instance.Init = function () {
     this.SetIsBroken(true);
     this.IsBrokenChanged = new MulticastEvent();
     this.ValueChanged = new MulticastEvent();
-}
-Nullstone.Create(_PropertyPathNode, "_PropertyPathNode");
-
-_PropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
-};
-_PropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
 };
 
-_PropertyPathNode.prototype.UpdateValue = function () {
+_PropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSource) {
+};
+_PropertyPathNode.Instance.OnSourcePropertyChanged = function (o, e) {
+};
+
+_PropertyPathNode.Instance.UpdateValue = function () {
     AbstractMethod("_PropertyPathNode.UpdateValue");
 };
-_PropertyPathNode.prototype.SetValue = function (value) {
+_PropertyPathNode.Instance.SetValue = function (value) {
     AbstractMethod("_PropertyPathNode.SetValue");
 };
-_PropertyPathNode.prototype.SetSource = function (value) {
+_PropertyPathNode.Instance.SetSource = function (value) {
     if (value == null || !RefObject.Equals(value, this._Source)) {
         var oldSource = this._Source;
         var listener = this.GetListener();
@@ -47,7 +45,7 @@ _PropertyPathNode.prototype.SetSource = function (value) {
     }
 };
 
-_PropertyPathNode.prototype._UpdateValueAndIsBroken = function (newValue, isBroken) {
+_PropertyPathNode.Instance._UpdateValueAndIsBroken = function (newValue, isBroken) {
     var emitBrokenChanged = this.GetIsBroken() !== isBroken;
     var emitValueChanged = !RefObject.Equals(this.GetValue(), newValue);
 
@@ -60,73 +58,74 @@ _PropertyPathNode.prototype._UpdateValueAndIsBroken = function (newValue, isBrok
         this.IsBrokenChanged.Raise(this, new EventArgs());
     }
 };
-_PropertyPathNode.prototype._CheckIsBroken = function () {
+_PropertyPathNode.Instance._CheckIsBroken = function () {
     return this.GetSource() == null || (this.GetPropertyInfo() == null && this.GetDependencyProperty() == null);
 };
 
 //#region PROPERTIES
 
-_PropertyPathNode.prototype.GetIsBroken = function () {
+_PropertyPathNode.Instance.GetIsBroken = function () {
     /// <returns type="Boolean" />
     return this._IsBroken;
 };
-_PropertyPathNode.prototype.SetIsBroken = function (value) {
+_PropertyPathNode.Instance.SetIsBroken = function (value) {
     /// <param name="value" type="Boolean"></param>
     this._IsBroken = value;
 };
 
-_PropertyPathNode.prototype.GetDependencyProperty = function () {
+_PropertyPathNode.Instance.GetDependencyProperty = function () {
     /// <returns type="DependencyProperty" />
     return this._DependencyProperty;
 };
-_PropertyPathNode.prototype.SetDependencyProperty = function (value) {
+_PropertyPathNode.Instance.SetDependencyProperty = function (value) {
     /// <param name="value" type="DependencyProperty"></param>
     this._DependencyProperty = value;
 };
 
-_PropertyPathNode.prototype.GetNext = function () {
+_PropertyPathNode.Instance.GetNext = function () {
     /// <returns type="_PropertyPathNode" />
     return this._Next;
 };
-_PropertyPathNode.prototype.SetNext = function (value) {
+_PropertyPathNode.Instance.SetNext = function (value) {
     /// <param name="value" type="_PropertyPathNode"></param>
     this._Next = value;
 };
 
-_PropertyPathNode.prototype.GetPropertyInfo = function () {
+_PropertyPathNode.Instance.GetPropertyInfo = function () {
     /// <returns type="PropertyInfo" />
     return this._PropertyInfo;
 };
-_PropertyPathNode.prototype.SetPropertyInfo = function (value) {
+_PropertyPathNode.Instance.SetPropertyInfo = function (value) {
     /// <param name="value" type="PropertyInfo"></param>
     this._PropertyInfo = value;
 };
 
-_PropertyPathNode.prototype.GetListener = function () {
+_PropertyPathNode.Instance.GetListener = function () {
     /// <returns type="NPCListener" />
     return this._Listener;
 };
-_PropertyPathNode.prototype.SetListener = function (value) {
+_PropertyPathNode.Instance.SetListener = function (value) {
     /// <param name="value" type="NPCListener"></param>
     this._Listener = value;
 };
 
-_PropertyPathNode.prototype.GetSource = function () {
+_PropertyPathNode.Instance.GetSource = function () {
     /// <returns type="RefObject" />
     return this._Source;
 };
 
-_PropertyPathNode.prototype.GetValue = function () {
+_PropertyPathNode.Instance.GetValue = function () {
     return this._Value;
 };
 
-_PropertyPathNode.prototype.GetValueType = function () {
+_PropertyPathNode.Instance.GetValueType = function () {
     return this._ValueType;
 };
-_PropertyPathNode.prototype.SetValueType = function (value) {
+_PropertyPathNode.Instance.SetValueType = function (value) {
     this._ValueType = value;
 };
 
 //#endregion
 
+Nullstone.FinishCreate(_PropertyPathNode);
 //#endregion

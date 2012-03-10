@@ -3,12 +3,7 @@
 /// CODE
 
 //#region BlockCollection
+var BlockCollection = Nullstone.Create("BlockCollection", TextElementCollection);
 
-function BlockCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(BlockCollection, "BlockCollection", TextElementCollection);
-
+Nullstone.FinishCreate(BlockCollection);
 //#endregion

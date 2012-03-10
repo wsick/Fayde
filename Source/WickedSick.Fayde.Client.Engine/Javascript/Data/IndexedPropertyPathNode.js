@@ -3,32 +3,31 @@
 /// CODE
 
 //#region _IndexedPropertyPathNode
+var _IndexedPropertyPathNode = Nullstone.Create("_IndexedPropertyPathNode", _PropertyPathNode, 1);
 
-function _IndexedPropertyPathNode(index) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+_IndexedPropertyPathNode.Instance.Init = function (index) {
+    this.Init$super();
     this._isBroken = false;
     var val = parseInt(index, 10);
     if (isNaN(val))
         this.SetIndex(index);
     else
         this.SetIndex(val);
-}
-Nullstone.Extend(_IndexedPropertyPathNode, "_IndexedPropertyPathNode", _PropertyPathNode);
+};
 
-_IndexedPropertyPathNode.prototype._CheckIsBroken = function () {
+_IndexedPropertyPathNode.Instance._CheckIsBroken = function () {
     return this._isBroken || this._CheckIsBroken$super();
 };
-_IndexedPropertyPathNode.prototype.UpdateValue = function () {
+_IndexedPropertyPathNode.Instance.UpdateValue = function () {
     NotImplemented("_IndexedPropertyPathNode.UpdateValue");
 };
 
-_IndexedPropertyPathNode.prototype.GetIndex = function () {
+_IndexedPropertyPathNode.Instance.GetIndex = function () {
     return this._Index;
 };
-_IndexedPropertyPathNode.prototype.SetIndex = function (value) {
+_IndexedPropertyPathNode.Instance.SetIndex = function (value) {
     this._Index = value;
 };
 
+Nullstone.FinishCreate(_IndexedPropertyPathNode);
 //#endregion

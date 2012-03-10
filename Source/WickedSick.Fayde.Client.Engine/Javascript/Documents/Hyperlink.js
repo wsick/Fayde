@@ -3,12 +3,7 @@
 /// CODE
 
 //#region Hyperlink
+var Hyperlink = Nullstone.Create("Hyperlink", Span);
 
-function Hyperlink() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Hyperlink, "Hyperlink", Span);
-
+Nullstone.FinishCreate(Hyperlink);
 //#endregion

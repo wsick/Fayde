@@ -1,15 +1,15 @@
 ﻿/// <reference path="Nullstone.js"/>
 
-function BError() {
-    if (!Nullstone.IsReady)
-        return;
+//#region BError
+var BError = Nullstone.Create("BError");
+
+BError.Instance.Init = function () {
     this._Number = 0;
     this.Code = 0;
     this.CharPosition = 0;
     this.LineNumber = 0;
     this.Message = "";
-}
-Nullstone.Create(BError, "BError");
+};
 
 BError.prototype.SetErrored = function (number, message, code) {
     this._Number = number;
@@ -30,3 +30,6 @@ BError.Argument = 2;
 BError.InvalidOperation = 3;
 BError.Exception = 4;
 BError.XamlParseException = 5;
+
+Nullstone.FinishCreate(BError);
+//#endregion

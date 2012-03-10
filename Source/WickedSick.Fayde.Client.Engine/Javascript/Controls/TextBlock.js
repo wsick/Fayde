@@ -6,11 +6,10 @@
 /// <reference path="../Runtime/LinkedList.js"/>
 
 //#region TextBlock
+var TextBlock = Nullstone.Create("TextBlock", FrameworkElement);
 
-function TextBlock() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+TextBlock.Instance.Init = function () {
+    this.Init$super();
 
     this._Layout = new TextLayout();
 
@@ -23,141 +22,140 @@ function TextBlock() {
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
 
     this._Font = new Font();
-}
-Nullstone.Extend(TextBlock, "TextBlock", FrameworkElement);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 TextBlock.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, TextBlock, new Thickness());
-TextBlock.prototype.GetPadding = function () {
+TextBlock.Instance.GetPadding = function () {
     return this.GetValue(TextBlock.PaddingProperty);
 };
-TextBlock.prototype.SetPadding = function (value) {
+TextBlock.Instance.SetPadding = function (value) {
     this.SetValue(TextBlock.PaddingProperty, value);
 };
 
 TextBlock.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextBlock, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextBlock.prototype.GetForeground = function () {
+TextBlock.Instance.GetForeground = function () {
     return this.GetValue(TextBlock.ForegroundProperty);
 };
-TextBlock.prototype.SetForeground = function (value) {
+TextBlock.Instance.SetForeground = function (value) {
     this.SetValue(TextBlock.ForegroundProperty, value);
 };
 
 TextBlock.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY);
-TextBlock.prototype.GetFontFamily = function () {
+TextBlock.Instance.GetFontFamily = function () {
     return this.GetValue(TextBlock.FontFamilyProperty);
 };
-TextBlock.prototype.SetFontFamily = function (value) {
+TextBlock.Instance.SetFontFamily = function (value) {
     this.SetValue(TextBlock.FontFamilyProperty, value);
 };
 
 TextBlock.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH);
-TextBlock.prototype.GetFontStretch = function () {
+TextBlock.Instance.GetFontStretch = function () {
     return this.GetValue(TextBlock.FontStretchProperty);
 };
-TextBlock.prototype.SetFontStretch = function (value) {
+TextBlock.Instance.SetFontStretch = function (value) {
     this.SetValue(TextBlock.FontStretchProperty, value);
 };
 
 TextBlock.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE);
-TextBlock.prototype.GetFontStyle = function () {
+TextBlock.Instance.GetFontStyle = function () {
     return this.GetValue(TextBlock.FontStyleProperty);
 };
-TextBlock.prototype.SetFontStyle = function (value) {
+TextBlock.Instance.SetFontStyle = function (value) {
     this.SetValue(TextBlock.FontStyleProperty, value);
 };
 
 TextBlock.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextBlock, Font.DEFAULT_WEIGHT);
-TextBlock.prototype.GetFontWeight = function () {
+TextBlock.Instance.GetFontWeight = function () {
     return this.GetValue(TextBlock.FontWeightProperty);
 };
-TextBlock.prototype.SetFontWeight = function (value) {
+TextBlock.Instance.SetFontWeight = function (value) {
     this.SetValue(TextBlock.FontWeightProperty, value);
 };
 
 TextBlock.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextBlock, Font.DEFAULT_SIZE);
-TextBlock.prototype.GetFontSize = function () {
+TextBlock.Instance.GetFontSize = function () {
     return this.GetValue(TextBlock.FontSizeProperty);
 };
-TextBlock.prototype.SetFontSize = function (value) {
+TextBlock.Instance.SetFontSize = function (value) {
     this.SetValue(TextBlock.FontSizeProperty, value);
 };
 
 TextBlock.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return Number; }, TextBlock, TextDecorations.None);
-TextBlock.prototype.GetTextDecorations = function () {
+TextBlock.Instance.GetTextDecorations = function () {
     return this.GetValue(TextBlock.TextDecorationsProperty);
 };
-TextBlock.prototype.SetTextDecorations = function (value) {
+TextBlock.Instance.SetTextDecorations = function (value) {
     this.SetValue(TextBlock.TextDecorationsProperty, value);
 };
 
 TextBlock.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextBlock);
-TextBlock.prototype.GetFontResource = function () {
+TextBlock.Instance.GetFontResource = function () {
     return this.GetValue(TextBlock.FontResourceProperty);
 };
-TextBlock.prototype.SetFontResource = function (value) {
+TextBlock.Instance.SetFontResource = function (value) {
     this.SetValue(TextBlock.FontResourceProperty, value);
 };
 
 TextBlock.FontSourceProperty = DependencyProperty.Register("FontSource", function () { return Object; }, TextBlock);
-TextBlock.prototype.GetFontSource = function () {
+TextBlock.Instance.GetFontSource = function () {
     return this.GetValue(TextBlock.FontSourceProperty);
 };
-TextBlock.prototype.SetFontSource = function (value) {
+TextBlock.Instance.SetFontSource = function (value) {
     this.SetValue(TextBlock.FontSourceProperty, value);
 };
 
 TextBlock.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBlock, "");
-TextBlock.prototype.GetText = function () {
+TextBlock.Instance.GetText = function () {
     return this.GetValue(TextBlock.TextProperty);
 };
-TextBlock.prototype.SetText = function (value) {
+TextBlock.Instance.SetText = function (value) {
     this.SetValue(TextBlock.TextProperty, value);
 };
 
 TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, null, { GetValue: function () { return new InlineCollection(); } });
-TextBlock.prototype.GetInlines = function () {
+TextBlock.Instance.GetInlines = function () {
     return this.GetValue(TextBlock.InlinesProperty);
 };
 
 TextBlock.LineStackingStrategyProperty = DependencyProperty.Register("LineStackingStrategy", function () { return Number; }, TextBlock);
-TextBlock.prototype.GetLineStackingStrategy = function () {
+TextBlock.Instance.GetLineStackingStrategy = function () {
     return this.GetValue(TextBlock.LineStackingStrategyProperty);
 };
-TextBlock.prototype.SetLineStackingStrategy = function (value) {
+TextBlock.Instance.SetLineStackingStrategy = function (value) {
     this.SetValue(TextBlock.LineStackingStrategyProperty, value);
 };
 
 TextBlock.LineHeightProperty = DependencyProperty.Register("LineHeight", function () { return Number; }, TextBlock, 0.0);
-TextBlock.prototype.GetLineHeight = function () {
+TextBlock.Instance.GetLineHeight = function () {
     return this.GetValue(TextBlock.LineHeightProperty);
 };
-TextBlock.prototype.SetLineHeight = function (value) {
+TextBlock.Instance.SetLineHeight = function (value) {
     this.SetValue(TextBlock.LineHeightProperty, value);
 };
 
 TextBlock.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return Number; }, TextBlock, TextAlignment.Left);
-TextBlock.prototype.GetTextAlignment = function () {
+TextBlock.Instance.GetTextAlignment = function () {
     return this.GetValue(TextBlock.TextAlignmentProperty);
 };
-TextBlock.prototype.SetTextAlignment = function (value) {
+TextBlock.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBlock.TextAlignmentProperty, value);
 };
 
 TextBlock.TextTrimmingProperty = DependencyProperty.Register("TextTrimming", function () { return Number; }, TextBlock, TextTrimming.None);
-TextBlock.prototype.GetTextTrimming = function () {
+TextBlock.Instance.GetTextTrimming = function () {
     return this.GetValue(TextBlock.TextTrimmingProperty);
 };
-TextBlock.prototype.SetTextTrimming = function (value) {
+TextBlock.Instance.SetTextTrimming = function (value) {
     this.SetValue(TextBlock.TextTrimmingProperty, value);
 };
 
 TextBlock.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return Number; }, TextBlock, TextWrapping.NoWrap);
-TextBlock.prototype.GetTextWrapping = function () {
+TextBlock.Instance.GetTextWrapping = function () {
     return this.GetValue(TextBlock.TextWrappingProperty);
 };
-TextBlock.prototype.SetTextWrapping = function (value) {
+TextBlock.Instance.SetTextWrapping = function (value) {
     this.SetValue(TextBlock.TextWrappingProperty, value);
 };
 
@@ -165,7 +163,7 @@ TextBlock.prototype.SetTextWrapping = function (value) {
 
 //#region INSTANCE METHODS
 
-TextBlock.prototype._ComputeBounds = function () {
+TextBlock.Instance._ComputeBounds = function () {
     this._Extents = this._Layout.GetRenderExtents();
     var padding = this.GetPadding();
 
@@ -180,7 +178,7 @@ TextBlock.prototype._ComputeBounds = function () {
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
-TextBlock.prototype._ComputeActualSize = function () {
+TextBlock.Instance._ComputeActualSize = function () {
     var padding = this.GetPadding();
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
@@ -198,14 +196,14 @@ TextBlock.prototype._ComputeActualSize = function () {
     result = result.GrowByThickness(padding);
     return result;
 };
-TextBlock.prototype._MeasureOverrideWithError = function (availableSize, error) {
+TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var padding = this.GetPadding();
     var constraint = availableSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);
     desired = new Size(this._ActualWidth, this._ActualHeight).GrowByThickness(padding);
     return desired;
 };
-TextBlock.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var padding = this.GetPadding();
     var constraint = finalSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);
@@ -216,7 +214,7 @@ TextBlock.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     return finalSize;
 };
 
-TextBlock.prototype._Render = function (ctx, region) {
+TextBlock.Instance._Render = function (ctx, region) {
     ctx.Save();
     this._RenderLayoutClip(ctx);
     var padding = this.GetPadding();
@@ -228,7 +226,7 @@ TextBlock.prototype._Render = function (ctx, region) {
     ctx.Restore();
 };
 
-TextBlock.prototype.Layout = function (/* Size */constraint) {
+TextBlock.Instance.Layout = function (/* Size */constraint) {
     if (this._WasSet && this._GetValueNoDefault(TextBlock.TextProperty) == null) {
         this._ActualHeight = this._Font.GetActualHeight();
         this._ActualWidth = 0.0;
@@ -244,7 +242,7 @@ TextBlock.prototype.Layout = function (/* Size */constraint) {
     }
     this._Dirty = false;
 };
-TextBlock.prototype._UpdateFont = function (force) {
+TextBlock.Instance._UpdateFont = function (force) {
     var changed = false;
 
     changed = changed || this._Font.SetFamily(this.GetFontFamily());
@@ -256,7 +254,7 @@ TextBlock.prototype._UpdateFont = function (force) {
     changed = changed || force;
     return changed;
 };
-TextBlock.prototype._UpdateFonts = function (force) {
+TextBlock.Instance._UpdateFonts = function (force) {
     if (!this._UpdateFont(force))
         return false;
     this._InvalidateMeasure();
@@ -265,7 +263,7 @@ TextBlock.prototype._UpdateFonts = function (force) {
     this._Dirty = true;
     return true;
 };
-TextBlock.prototype._UpdateLayoutAttributes = function () {
+TextBlock.Instance._UpdateLayoutAttributes = function () {
     var inlines = this.GetInlines();
 
     this._InvalidateMeasure();
@@ -284,7 +282,7 @@ TextBlock.prototype._UpdateLayoutAttributes = function () {
     this._Layout.SetText(this.GetText(), length);
     this._Layout.SetTextAttributes(runs);
 };
-TextBlock.prototype._UpdateLayoutAttributesForInline = function (item, length, runs) {
+TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, runs) {
     if (item instanceof Run) {
         var text = item.GetText();
         if (text && text.length) {
@@ -303,7 +301,7 @@ TextBlock.prototype._UpdateLayoutAttributesForInline = function (item, length, r
     }
     return length;
 };
-TextBlock.prototype._SerializeText = function (str) {
+TextBlock.Instance._SerializeText = function (str) {
     var inlines = this.GetInlines();
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
@@ -311,7 +309,7 @@ TextBlock.prototype._SerializeText = function (str) {
     }
     return str;
 };
-TextBlock.prototype._GetTextInternal = function (inlines) {
+TextBlock.Instance._GetTextInternal = function (inlines) {
     if (!inlines)
         return "";
     var block = "";
@@ -321,7 +319,7 @@ TextBlock.prototype._GetTextInternal = function (inlines) {
     }
     return block;
 };
-TextBlock.prototype._SetTextInternal = function (text) {
+TextBlock.Instance._SetTextInternal = function (text) {
     this._SetsValue = false;
 
     var value;
@@ -356,11 +354,11 @@ TextBlock.prototype._SetTextInternal = function (text) {
     this._SetsValue = true;
 };
 
-TextBlock.prototype._CanFindElement = function () {
+TextBlock.Instance._CanFindElement = function () {
     return true;
 };
 
-TextBlock.prototype._OnPropertyChanged = function (args, error) {
+TextBlock.Instance._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {
         this._OnPropertyChanged$super(args, error);
@@ -425,14 +423,14 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-TextBlock.prototype._OnSubPropertyChanged = function (sender, args) {
+TextBlock.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property != null && args.Property === TextBlock.ForegroundProperty) {
         this._Invalidate();
     } else {
         this._OnSubPropertyChanged$super(sender, args);
     }
 };
-TextBlock.prototype._OnCollectionChanged = function (sender, args) {
+TextBlock.Instance._OnCollectionChanged = function (sender, args) {
     if (!this._PropertyHasValueNoAutoCreate(TextBlock.InlinesProperty, sender)) {
         this._OnCollectionChanged$super(sender, args);
         return;
@@ -469,4 +467,5 @@ TextBlock.Annotations = {
 
 //#endregion
 
+Nullstone.FinishCreate(TextBlock);
 //#endregion

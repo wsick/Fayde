@@ -3,16 +3,14 @@
 /// CODE
 
 //#region TemplateBindingMarkup
+var TemplateBindingMarkup = Nullstone.Create("TemplateBindingMarkup", Markup, 1);
 
-function TemplateBindingMarkup(path) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+TemplateBindingMarkup.Instance.Init = function (path) {
+    this.Init$super();
     this.Path = path;
-}
-Nullstone.Extend(TemplateBindingMarkup, "TemplateBindingMarkup", Markup);
+};
 
-TemplateBindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+TemplateBindingMarkup.Instance.Transmute = function (target, propd, templateBindingSource) {
     /// <param name="target" type="DependencyObject"></param>
     /// <param name="templateBindingSource" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
@@ -20,4 +18,5 @@ TemplateBindingMarkup.prototype.Transmute = function (target, propd, templateBin
     return new TemplateBindingExpression(sourcePropd, propd);
 };
 
+Nullstone.FinishCreate(TemplateBindingMarkup);
 //#endregion

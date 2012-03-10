@@ -3,17 +3,13 @@
 /// CODE
 
 //#region NameScope
+var NameScope = Nullstone.Create("NameScope", DependencyObject);
 
-function NameScope() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-
+NameScope.prototype.Init = function () {
     this._IsLocked = false;
     this._Names = null;
     this._Temporary = false;
-}
-Nullstone.Extend(NameScope, "NameScope", DependencyObject);
+};
 
 //#region DEPENDENCY PROPERTIES
 
@@ -104,4 +100,5 @@ NameScope.prototype._SetTemporary = function (value) {
     this._Temporary = value;
 };
 
+Nullstone.FinishCreate(NameScope);
 //#endregion

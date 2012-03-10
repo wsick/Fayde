@@ -2,15 +2,13 @@
 /// CODE
 
 //#region _PropertyPathParser
+var _PropertyPathParser = Nullstone.Create("_PropertyPathParser", null, 1);
 
-function _PropertyPathParser(path) {
-    if (!Nullstone.IsReady)
-        return;
+_PropertyPathParser.Instance.Init = function (path) {
     this.SetPath(path);
-}
-Nullstone.Create(_PropertyPathParser, "_PropertyPathParser");
+};
 
-_PropertyPathParser.prototype.Step = function (data) {
+_PropertyPathParser.Instance.Step = function (data) {
     var type = _PropertyNodeType.None;
     if (this.GetPath().length === 0) {
         data.typeName = null;
@@ -98,15 +96,16 @@ _PropertyPathParser.prototype.Step = function (data) {
 
 //#region PROPERTIES
 
-_PropertyPathParser.prototype.GetPath = function () {
+_PropertyPathParser.Instance.GetPath = function () {
     /// <returns type="String" />
     return this._Path;
 };
-_PropertyPathParser.prototype.SetPath = function (value) {
+_PropertyPathParser.Instance.SetPath = function (value) {
     /// <param name="value" type="String"></param>
     this._Path = value;
 };
 
 //#endregion
 
+Nullstone.FinishCreate(_PropertyPathParser);
 //#endregion

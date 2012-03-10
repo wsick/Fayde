@@ -3,12 +3,7 @@
 /// CODE
 
 //#region TextElementCollection
+var TextElementCollection = Nullstone.Create("TextElementCollection", DependencyObjectCollection);
 
-function TextElementCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(TextElementCollection, "TextElementCollection", DependencyObjectCollection);
-
+Nullstone.FinishCreate(TextElementCollection);
 //#endregion

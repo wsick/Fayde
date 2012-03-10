@@ -2,22 +2,20 @@
 /// CODE
 
 //#region Font
+var Font = Nullstone.Create("Font");
 
-function Font() {
-    if (!Nullstone.IsReady)
-        return;
+Font.Instance.Init = function () {
     this._Family = Font.DEFAULT_FAMILY;
     this._Stretch = Font.DEFAULT_STRETCH;
     this._Style = Font.DEFAULT_STYLE;
     this._Weight = Font.DEFAULT_WEIGHT;
     this._Size = Font.DEFAULT_SIZE;
-}
-Nullstone.Create(Font, "Font");
+};
 
-Font.prototype.GetFamily = function () {
+Font.Instance.GetFamily = function () {
     return this._Family;
 };
-Font.prototype.SetFamily = function (value) {
+Font.Instance.SetFamily = function (value) {
     if (this._Family == value)
         return false;
     this._Family = value;
@@ -25,10 +23,10 @@ Font.prototype.SetFamily = function (value) {
     return true;
 };
 
-Font.prototype.GetStretch = function () {
+Font.Instance.GetStretch = function () {
     return this._Stretch;
 };
-Font.prototype.SetStretch = function (value) {
+Font.Instance.SetStretch = function (value) {
     if (this._Stretch == value)
         return false;
     this._Stretch = value;
@@ -36,10 +34,10 @@ Font.prototype.SetStretch = function (value) {
     return true;
 };
 
-Font.prototype.GetStyle = function () {
+Font.Instance.GetStyle = function () {
     return this._Style;
 };
-Font.prototype.SetStyle = function (value) {
+Font.Instance.SetStyle = function (value) {
     if (this._Style == value)
         return false;
     this._Style = value;
@@ -47,10 +45,10 @@ Font.prototype.SetStyle = function (value) {
     return true;
 };
 
-Font.prototype.GetWeight = function () {
+Font.Instance.GetWeight = function () {
     return this._Weight;
 };
-Font.prototype.SetWeight = function (value) {
+Font.Instance.SetWeight = function (value) {
     if (this._Weight == value)
         return false;
     this._Weight = value;
@@ -58,10 +56,10 @@ Font.prototype.SetWeight = function (value) {
     return true;
 };
 
-Font.prototype.GetSize = function () {
+Font.Instance.GetSize = function () {
     return this._Size;
 };
-Font.prototype.SetSize = function (value) {
+Font.Instance.SetSize = function (value) {
     if (this._Size == value)
         return false;
     this._Size = value;
@@ -69,17 +67,17 @@ Font.prototype.SetSize = function (value) {
     return true;
 };
 
-Font.prototype.GetActualHeight = function () {
+Font.Instance.GetActualHeight = function () {
     return Surface._MeasureHeight(this);
 };
 
-Font.prototype._Descender = function () { return 0.0; }; //most likely removable
-Font.prototype._Ascender = function () { return 0.0; }; //most likely removable
-Font.prototype._PurgeCache = function () {
+Font.Instance._Descender = function () { return 0.0; }; //most likely removable
+Font.Instance._Ascender = function () { return 0.0; }; //most likely removable
+Font.Instance._PurgeCache = function () {
     this._CachedHeight = undefined;
 };
 
-Font.prototype._Translate = function () {
+Font.Instance._Translate = function () {
     var s = "";
     var style = this.GetStyle();
     var weight = this.GetWeight();
@@ -98,4 +96,5 @@ Font.DEFAULT_STYLE = FontStyles.Normal;
 Font.DEFAULT_WEIGHT = FontWeights.Normal;
 Font.DEFAULT_SIZE = "11px";
 
+Nullstone.FinishCreate(Font);
 //#endregion

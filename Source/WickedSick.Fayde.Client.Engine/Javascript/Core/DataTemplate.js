@@ -5,13 +5,7 @@
 /// <reference path="../Markup/JsonParser.js"/>
 
 //#region DataTemplate
-
-function DataTemplate() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(DataTemplate, "DataTemplate", FrameworkTemplate);
+var DataTemplate = Nullstone.Create("DataTemplate", FrameworkTemplate);
 
 DataTemplate.CreateTemplateFromJson = function (json) {
     var template = new DataTemplate();
@@ -23,4 +17,5 @@ DataTemplate.CreateTemplateFromJson = function (json) {
     return template;
 };
 
+Nullstone.FinishCreate(DataTemplate);
 //#endregion

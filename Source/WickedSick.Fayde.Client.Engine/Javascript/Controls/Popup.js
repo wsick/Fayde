@@ -3,12 +3,7 @@
 /// CODE
 
 //#region Popup
+var Popup = Nullstone.Create("Popup", FrameworkElement);
 
-function Popup() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Popup, "Popup", FrameworkElement);
-
+Nullstone.FinishCreate(Popup);
 //#endregion

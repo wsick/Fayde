@@ -2,29 +2,28 @@
 /// CODE
 
 //#region _PropertyValueProvider
+var _PropertyValueProvider = Nullstone.Create("_PropertyValueProvider", null, 3);
 
-function _PropertyValueProvider(obj, propPrecedence, flags) {
-    if (!Nullstone.IsReady)
-        return;
+_PropertyValueProvider.Instance.Init = function (obj, propPrecedence, flags) {
     this._Object = obj;
     this._PropertyPrecedence = propPrecedence;
     this._Flags = flags;
-}
-Nullstone.Create(_PropertyValueProvider, "_PropertyValueProvider");
+};
 
-_PropertyValueProvider.prototype._HasFlag = function (flag) {
+_PropertyValueProvider.Instance._HasFlag = function (flag) {
     return (this._Flags & flag) != 0;
 };
-_PropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_PropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     AbstractMethod("_PropertyValueProvider.GetPropertyValue(propd)");
 };
-_PropertyValueProvider.prototype.ForeachValue = function (func, data) {
+_PropertyValueProvider.Instance.ForeachValue = function (func, data) {
     if (!func)
         return;
     for (var value in this._ht)
         func(value, this._ht[value], data);
 };
-_PropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+_PropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
 };
 
+Nullstone.FinishCreate(_PropertyValueProvider);
 //#endregion

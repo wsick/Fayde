@@ -3,14 +3,13 @@
 /// CODE
 
 //#region FocusChangedNode
+var FocusChangedNode = Nullstone.Create("FocusChangedNode", LinkedListNode, 2);
 
-function FocusChangedNode(lostFocus, gotFocus) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+FocusChangedNode.Instance.Init = function (lostFocus, gotFocus) {
+    this.Init$super();
     this.LostFocus = lostFocus;
     this.GotFocus = gotFocus;
-}
-Nullstone.Extend(FocusChangedNode, "FocusChangedNode", LinkedListNode);
+};
 
+Nullstone.FinishCreate(FocusChangedNode);
 //#endregion

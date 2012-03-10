@@ -2,22 +2,22 @@
 /// CODE
 
 //#region LinkedList
+var LinkedList = Nullstone.Create("LinkedList");
 
-function LinkedList() {
+LinkedList.Instance.Init = function () {
     this.Clear();
-}
-Nullstone.Create(LinkedList, "LinkedList");
+};
 
-LinkedList.prototype.First = function () {
+LinkedList.Instance.First = function () {
     return this._Head;
 };
-LinkedList.prototype.Last = function () {
+LinkedList.Instance.Last = function () {
     return this._Tail;
 };
-LinkedList.prototype.IsEmpty = function () {
+LinkedList.Instance.IsEmpty = function () {
     return !this._Head;
 };
-LinkedList.prototype.Prepend = function (node) {
+LinkedList.Instance.Prepend = function (node) {
     node.Next = this._Head;
     node.Previous = null;
     if (this._Head)
@@ -28,7 +28,7 @@ LinkedList.prototype.Prepend = function (node) {
     this._Count++;
     return node;
 };
-LinkedList.prototype.Append = function (node) {
+LinkedList.Instance.Append = function (node) {
     node.Previous = this._Tail;
     node.Next = null;
     if (this._Tail)
@@ -39,7 +39,7 @@ LinkedList.prototype.Append = function (node) {
     this._Count++;
     return node;
 };
-LinkedList.prototype.Remove = function (node) {
+LinkedList.Instance.Remove = function (node) {
     if (node.Previous)
         node.Previous.Next = node.Next;
     else
@@ -55,7 +55,7 @@ LinkedList.prototype.Remove = function (node) {
 
     this._Count--;
 };
-LinkedList.prototype.InsertBefore = function (node, before) {
+LinkedList.Instance.InsertBefore = function (node, before) {
     if (before == null) {
         this.Append(node);
         return;
@@ -72,10 +72,11 @@ LinkedList.prototype.InsertBefore = function (node, before) {
     before.Previous = node;
     this._Count++;
 };
-LinkedList.prototype.Clear = function () {
+LinkedList.Instance.Clear = function () {
     this._Count = 0;
     this._Head = null;
     this._Tail = null;
 };
 
+Nullstone.FinishCreate(LinkedList);
 //#endregion

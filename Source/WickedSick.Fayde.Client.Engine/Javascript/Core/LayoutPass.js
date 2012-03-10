@@ -3,18 +3,17 @@
 /// CODE
 
 //#region LayoutPass
+var LayoutPass = Nullstone.Create("DependencyObject");
 
-function LayoutPass() {
-    if (!Nullstone.IsReady)
-        return;
+LayoutPass.Instance.Init = function () {
     this._MeasureList = new LinkedList();
     this._ArrangeList = new LinkedList();
     this._SizeList = new LinkedList();
     this._Count = 0;
     this._Updated = false;
-}
-Nullstone.Create(LayoutPass, "LayoutPass");
+};
 
 LayoutPass.MaxCount = 250;
 
+Nullstone.FinishCreate(DependencyObject);
 //#endregion

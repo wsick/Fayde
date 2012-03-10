@@ -6,34 +6,32 @@
 /// <reference path="CollectionChangedArgs.js"/>
 
 //#region Collection
+var Collection = Nullstone.Create("Collection", DependencyObject);
 
-function Collection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Collection.Instance.Init = function () {
+    this.Init$super();
     this._ht = new Array();
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();
-}
-Nullstone.Extend(Collection, "Collection", DependencyObject);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 Collection.CountProperty = DependencyProperty.RegisterFull("Count", function () { return Number; }, Collection, 0);
-Collection.prototype.GetCount = function () {
+Collection.Instance.GetCount = function () {
     return this._ht.length;
 };
 
 //#endregion
 
-Collection.prototype.GetValueAt = function (index) {
+Collection.Instance.GetValueAt = function (index) {
     return this._ht[index];
 };
-Collection.prototype.Add = function (value) {
+Collection.Instance.Add = function (value) {
     var rv = this.Insert(this._ht.length, value);
     return rv ? this._ht.length - 1 : -1;
 };
-Collection.prototype.Insert = function (index, value) {
+Collection.Instance.Insert = function (index, value) {
     if (!this.CanAdd(value))
         return false;
     if (index < 0)
@@ -50,13 +48,13 @@ Collection.prototype.Insert = function (index, value) {
     }
     return false;
 };
-Collection.prototype.Remove = function (value) {
+Collection.Instance.Remove = function (value) {
     var index = this.IndexOf(value);
     if (index == -1)
         return false;
     return this.RemoveAt(index);
 };
-Collection.prototype.RemoveAt = function (index) {
+Collection.Instance.RemoveAt = function (index) {
     /// <param name="index" type="Number"></param>
     /// <returns type="Boolean" />
     if (index < 0 || index >= this._ht.length)
@@ -67,7 +65,7 @@ Collection.prototype.RemoveAt = function (index) {
     this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, null, index);
     return true;
 };
-Collection.prototype.Clear = function () {
+Collection.Instance.Clear = function () {
     this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
     var old = this._ht;
     this._ht = new Array();
@@ -77,28 +75,29 @@ Collection.prototype.Clear = function () {
     this._RaiseChanged(CollectionChangedArgs.Action.Cleared, null, null, -1);
     return true;
 };
-Collection.prototype.IndexOf = function (value) {
+Collection.Instance.IndexOf = function (value) {
     for (var i = 0; i < this.GetCount(); i++) {
         if (value == this._ht[i])
             return i;
     }
     return -1;
 };
-Collection.prototype.Contains = function (value) {
+Collection.Instance.Contains = function (value) {
     return this.IndexOf(value) > -1;
 };
-Collection.prototype.CanAdd = function (value) { return true; };
-Collection.prototype.AddedToCollection = function (value, error) { return true; };
-Collection.prototype.RemovedFromCollection = function (value, isValueSafe) { };
-Collection.prototype.GetIterator = function () {
+Collection.Instance.CanAdd = function (value) { return true; };
+Collection.Instance.AddedToCollection = function (value, error) { return true; };
+Collection.Instance.RemovedFromCollection = function (value, isValueSafe) { };
+Collection.Instance.GetIterator = function () {
     return new CollectionIterator(this);
 };
 
-Collection.prototype._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
+Collection.Instance._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
     this.ItemChanged.Raise(this, new ItemChangedArgs(obj, propd, oldValue, newValue));
 };
-Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index) {
+Collection.Instance._RaiseChanged = function (action, oldValue, newValue, index) {
     this.Changed.Raise(this, new CollectionChangedArgs(action, oldValue, newValue, index));
 };
 
+Nullstone.FinishCreate(Collection);
 //#endregion

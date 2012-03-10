@@ -4,14 +4,9 @@
 /// <reference path="../Core/Collections/Collection.js"/>
 
 //#region JsonParser
+var JsonParser = Nullstone.Create("JsonParser");
 
-function JsonParser() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(JsonParser, "JsonParser");
-
-JsonParser.prototype.CreateObject = function (json, namescope) {
+JsonParser.Instance.CreateObject = function (json, namescope) {
     var dobj = new json.Type();
     dobj.SetTemplateOwner(this._TemplateBindingSource);
     if (json.Name)
@@ -67,7 +62,7 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
     return dobj;
 };
 
-JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
+JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
     //If the object is not a RefObject, let's parse it
     if (!(propValue instanceof RefObject) && propValue.Type) {
         propValue = this.CreateObject(propValue, namescope);
@@ -89,7 +84,7 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
         Warn("Could not find attached property: " + ownerType._TypeName + "." + propName);
     }
 };
-JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
+JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
     var targetType = propd.GetTargetType();
     if (!Nullstone.DoesInheritFrom(targetType, Collection))
         return false;
@@ -116,7 +111,7 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
     return true;
 };
 
-JsonParser.prototype.GetAnnotationMember = function (type, member) {
+JsonParser.Instance.GetAnnotationMember = function (type, member) {
     if (type === RefObject)
         return null;
     if (type.Annotations == null)
@@ -135,4 +130,5 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
     return setter;
 };
 
+Nullstone.FinishCreate(JsonParser);
 //#endregion

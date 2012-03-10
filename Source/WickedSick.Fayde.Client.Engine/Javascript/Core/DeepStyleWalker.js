@@ -4,11 +4,9 @@
 /// <reference path="Setter.js"/>
 
 //#region _DeepStyleWalker
+var _DeepStyleWalker = Nullstone.Create("_DeepStyleWalker", null, 1);
 
-function _DeepStyleWalker(styles) {
-    if (!Nullstone.IsReady)
-        return;
-
+_DeepStyleWalker.Instance.Init = function (styles) {
     this._Setters = new Array();
     this._Offset = 0;
 
@@ -16,10 +14,9 @@ function _DeepStyleWalker(styles) {
         this._InitializeStyle(styles);
     else if (styles instanceof Array)
         this._InitializeStyles(styles);
-}
-Nullstone.Create(_DeepStyleWalker, "_DeepStyleWalker");
+};
 
-_DeepStyleWalker.prototype.Step = function () {
+_DeepStyleWalker.Instance.Step = function () {
     /// <returns type="Setter" />
     if (this._Offset < this._Setters.length) {
         var s = this._Setters[this._Offset];
@@ -28,7 +25,7 @@ _DeepStyleWalker.prototype.Step = function () {
     }
     return undefined;
 };
-_DeepStyleWalker.prototype._InitializeStyle = function (style) {
+_DeepStyleWalker.Instance._InitializeStyle = function (style) {
     var dps = new Array();
     var cur = style;
     while (cur) {
@@ -45,7 +42,7 @@ _DeepStyleWalker.prototype._InitializeStyle = function (style) {
     }
     this._Setters.sort(_DeepStyleWalker.SetterSort);
 };
-_DeepStyleWalker.prototype._InitializeStyles = function (styles) {
+_DeepStyleWalker.Instance._InitializeStyles = function (styles) {
     if (!styles)
         return;
 
@@ -89,4 +86,5 @@ _DeepStyleWalker.SetterSort = function (setter1, setter2) {
     return (a === b) ? 0 : ((a > b) ? 1 : -1);
 };
 
+Nullstone.FinishCreate(_DeepStyleWalker);
 //#endregion

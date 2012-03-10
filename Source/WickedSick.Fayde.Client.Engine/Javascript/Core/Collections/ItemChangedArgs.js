@@ -2,15 +2,14 @@
 /// CODE
 
 //#region ItemChangedArgs
+var ItemChangedArgs = Nullstone.Create("ItemChangedArgs", null, 4);
 
-function ItemChangedArgs(item, propd, oldValue, newValue) {
-    if (!Nullstone.IsReady)
-        return;
+ItemChangedArgs.Instance.Init = function (item, propd, oldValue, newValue) {
     this.Item = item;
     this.Property = propd;
     this.OldValue = oldValue;
     this.NewValue = newValue;
-}
-Nullstone.Create(ItemChangedArgs, "ItemChangedArgs");
+};
 
+Nullstone.FinishCreate(ItemChangedArgs);
 //#endregion

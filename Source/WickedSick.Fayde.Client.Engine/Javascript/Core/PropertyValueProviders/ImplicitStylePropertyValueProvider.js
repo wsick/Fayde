@@ -4,22 +4,19 @@
 /// CODE
 
 //#region _ImplicitStylePropertyValueProvider
+var _ImplicitStylePropertyValueProvider = Nullstone.Create("_ImplicitStylePropertyValueProvider", _PropertyValueProvider, 2);
 
-function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
-
+_ImplicitStylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._Styles = null;
     this._StyleMask = _StyleMask.None;
     this._ht = new Array();
 }
-Nullstone.Extend(_ImplicitStylePropertyValueProvider, "_ImplicitStylePropertyValueProvider", _PropertyValueProvider);
 
-_ImplicitStylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_ImplicitStylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
-_ImplicitStylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+_ImplicitStylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
     if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
         return;
 
@@ -45,7 +42,7 @@ _ImplicitStylePropertyValueProvider.prototype.RecomputePropertyValue = function 
             return;
     }
 };
-_ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask, styles, error) {
+_ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask, styles, error) {
     var isChanged = !this._Styles || styleMask != this._StyleMask;
     if (!isChanged) {
         for (var i = 0; i < _StyleIndex.Count; i++) {
@@ -104,7 +101,7 @@ _ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask
     this._Styles = styles;
     this._StyleMask = styleMask;
 };
-_ImplicitStylePropertyValueProvider.prototype.SetStyles = function (styleMask, styles, error) {
+_ImplicitStylePropertyValueProvider.Instance.SetStyles = function (styleMask, styles, error) {
     if (!styles)
         return;
 
@@ -123,7 +120,7 @@ _ImplicitStylePropertyValueProvider.prototype.SetStyles = function (styleMask, s
 
     this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
 };
-_ImplicitStylePropertyValueProvider.prototype.ClearStyles = function (styleMask, error) {
+_ImplicitStylePropertyValueProvider.Instance.ClearStyles = function (styleMask, error) {
     if (!this._Styles)
         return;
 
@@ -138,4 +135,5 @@ _ImplicitStylePropertyValueProvider.prototype.ClearStyles = function (styleMask,
     this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
 };
 
+Nullstone.FinishCreate(_ImplicitStylePropertyValueProvider);
 //#endregion

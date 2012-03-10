@@ -4,89 +4,86 @@
 /// <reference path="PropertyValueProviders.js"/>
 
 //#region TextElement
+var TextElement = Nullstone.Create("TextElement", DependencyObject);
 
-function TextElement() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-
+TextElement.Instance.Init = function () {
+    this.Init$super();
     this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
     this._Font = new Font();
     this._UpdateFont(true);
-}
-Nullstone.Extend(TextElement, "TextElement", DependencyObject);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextElement.prototype.GetForeground = function () {
+TextElement.Instance.GetForeground = function () {
     return this.GetValue(TextElement.ForegroundProperty);
 };
-TextElement.prototype.SetForeground = function (value) {
+TextElement.Instance.SetForeground = function (value) {
     this.SetValue(TextElement.ForegroundProperty, value);
 };
 
 TextElement.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY);
-TextElement.prototype.GetFontFamily = function () {
+TextElement.Instance.GetFontFamily = function () {
     return this.GetValue(TextElement.FontFamilyProperty);
 };
-TextElement.prototype.SetFontFamily = function (value) {
+TextElement.Instance.SetFontFamily = function (value) {
     this.SetValue(TextElement.FontFamilyProperty, value);
 };
 
 TextElement.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH);
-TextElement.prototype.GetFontStretch = function () {
+TextElement.Instance.GetFontStretch = function () {
     return this.GetValue(TextElement.FontStretchProperty);
 };
-TextElement.prototype.SetFontStretch = function (value) {
+TextElement.Instance.SetFontStretch = function (value) {
     this.SetValue(TextElement.FontStretchProperty, value);
 };
 
 TextElement.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE);
-TextElement.prototype.GetFontStyle = function () {
+TextElement.Instance.GetFontStyle = function () {
     return this.GetValue(TextElement.FontStyleProperty);
 };
-TextElement.prototype.SetFontStyle = function (value) {
+TextElement.Instance.SetFontStyle = function (value) {
     this.SetValue(TextElement.FontStyleProperty, value);
 };
 
 TextElement.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextElement, Font.DEFAULT_WEIGHT);
-TextElement.prototype.GetFontWeight = function () {
+TextElement.Instance.GetFontWeight = function () {
     return this.GetValue(TextElement.FontWeightProperty);
 };
-TextElement.prototype.SetFontWeight = function (value) {
+TextElement.Instance.SetFontWeight = function (value) {
     this.SetValue(TextElement.FontWeightProperty, value);
 };
 
 TextElement.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextElement, Font.DEFAULT_SIZE);
-TextElement.prototype.GetFontSize = function () {
+TextElement.Instance.GetFontSize = function () {
     return this.GetValue(TextElement.FontSizeProperty);
 };
-TextElement.prototype.SetFontSize = function (value) {
+TextElement.Instance.SetFontSize = function (value) {
     this.SetValue(TextElement.FontSizeProperty, value);
 };
 
 TextElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, TextElement);
-TextElement.prototype.GetLanguage = function () {
+TextElement.Instance.GetLanguage = function () {
     return this.GetValue(TextElement.LanguageProperty);
 };
-TextElement.prototype.SetLanguage = function (value) {
+TextElement.Instance.SetLanguage = function (value) {
     this.SetValue(TextElement.LanguageProperty, value);
 };
 
 TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return Number; }, TextElement, TextDecorations.None);
-TextElement.prototype.GetTextDecorations = function () {
+TextElement.Instance.GetTextDecorations = function () {
     return this.GetValue(TextElement.TextDecorationsProperty);
 };
-TextElement.prototype.SetTextDecorations = function (value) {
+TextElement.Instance.SetTextDecorations = function (value) {
     this.SetValue(TextElement.TextDecorationsProperty, value);
 };
 
 TextElement.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextElement);
-TextElement.prototype.GetFontResource = function () {
+TextElement.Instance.GetFontResource = function () {
     return this.GetValue(TextElement.FontResourceProperty);
 };
-TextElement.prototype.SetFontResource = function (value) {
+TextElement.Instance.SetFontResource = function (value) {
     this.SetValue(TextElement.FontResourceProperty, value);
 };
 
@@ -94,16 +91,16 @@ TextElement.prototype.SetFontResource = function (value) {
 
 //#region TextAttributes Methods
 
-TextElement.prototype.GetBackground = function (selected) { return null; }
-//TextElement.prototype.GetForeground (DP)
-TextElement.prototype.GetFont = function () { return this._Font; };
-TextElement.prototype.GetDirection = function () { return FlowDirection.LeftToRight; };
-//TextElement.prototype.GetTextDecorations (DP)
+TextElement.Instance.GetBackground = function (selected) { return null; }
+//TextElement.Instance.GetForeground (DP)
+TextElement.Instance.GetFont = function () { return this._Font; };
+TextElement.Instance.GetDirection = function () { return FlowDirection.LeftToRight; };
+//TextElement.Instance.GetTextDecorations (DP)
 
 //#endregion
 
-TextElement.prototype._SerializeText = function (str) { return str; };
-TextElement.prototype._UpdateFont = function (force) {
+TextElement.Instance._SerializeText = function (str) { return str; };
+TextElement.Instance._UpdateFont = function (force) {
     var changed = false;
 
     changed = changed || this._Font.SetFamily(this.GetFontFamily());
@@ -114,7 +111,7 @@ TextElement.prototype._UpdateFont = function (force) {
 
     return changed || force;
 };
-TextElement.prototype._OnPropertyChanged = function (args, error) {
+TextElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextElement) {
         this._OnPropertyChanged$super(args, error);
         return;
@@ -130,4 +127,5 @@ TextElement.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
+Nullstone.FinishCreate(TextElement);
 //#endregion

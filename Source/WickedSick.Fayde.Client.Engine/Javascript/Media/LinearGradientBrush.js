@@ -4,39 +4,33 @@
 /// <reference path="Enums.js"/>
 
 //#region LinearGradientBrush
-
-function LinearGradientBrush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(LinearGradientBrush, "LinearGradientBrush", GradientBrush);
+var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", GradientBrush);
 
 //#region DEPENDENCY PROPERTIES
 
 LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
-LinearGradientBrush.prototype.GetStartPoint = function () {
+LinearGradientBrush.Instance.GetStartPoint = function () {
     /// <returns type="Point" />
     return this.GetValue(LinearGradientBrush.StartPointProperty);
 };
-LinearGradientBrush.prototype.SetStartPoint = function (value) {
+LinearGradientBrush.Instance.SetStartPoint = function (value) {
     /// <param name="value" type="Point"></param>
     this.SetValue(LinearGradientBrush.StartPointProperty, value);
 };
 
 LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterFull("EndPoint", function () { return Point; }, LinearGradientBrush, new Point(1, 1));
-LinearGradientBrush.prototype.GetEndPoint = function () {
+LinearGradientBrush.Instance.GetEndPoint = function () {
     /// <returns type="Point" />
     return this.GetValue(LinearGradientBrush.EndPointProperty);
 };
-LinearGradientBrush.prototype.SetEndPoint = function (value) {
+LinearGradientBrush.Instance.SetEndPoint = function (value) {
     /// <param name="value" type="Point"></param>
     this.SetValue(LinearGradientBrush.EndPointProperty, value);
 };
 
 //#endregion
 
-LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
+LinearGradientBrush.Instance._Translate = function (ctx, bounds) {
     /// <param name="ctx" type="CanvasRenderingContext2D">HTML5 Canvas Context</param>
     /// <param name="bounds" type="Rect"></param>
     /// <returns type="CanvasGradient" />
@@ -53,4 +47,5 @@ LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
     return grd;
 };
 
+Nullstone.FinishCreate(LinearGradientBrush);
 //#endregion

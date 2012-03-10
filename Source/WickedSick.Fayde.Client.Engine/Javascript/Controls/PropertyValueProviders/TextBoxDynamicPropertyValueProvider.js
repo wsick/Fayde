@@ -4,13 +4,11 @@
 /// <reference path="TextBox.js"/>
 
 //#region _TextBoxDynamicPropertyValueProvider
+var _TextBoxDynamicPropertyValueProvider = Nullstone.Create("_TextBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider, 2);
 
-function _TextBoxDynamicPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence,
-        TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
-}
-Nullstone.Extend(_TextBoxDynamicPropertyValueProvider, "_TextBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider);
+_TextBoxDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
+};
 
+Nullstone.FinishCreate(_TextBoxDynamicPropertyValueProvider);
 //#endregion

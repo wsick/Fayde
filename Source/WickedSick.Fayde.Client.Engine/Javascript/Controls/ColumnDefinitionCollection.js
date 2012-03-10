@@ -4,23 +4,18 @@
 /// <reference path="ColumnDefinition.js"/>
 
 //#region ColumnDefinitionCollection
+var ColumnDefinitionCollection = Nullstone.Create("ColumnDefinitionCollection", DependencyObjectCollection);
 
-function ColumnDefinitionCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ColumnDefinitionCollection, "ColumnDefinitionCollection", DependencyObjectCollection);
-
-ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error) {
+ColumnDefinitionCollection.Instance.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
         error.SetErrored(BError.Argument, "ColumnDefinition is already a member of this collection.");
         return false;
     }
     return this.AddedToCollection$super(value, error);
 };
-ColumnDefinitionCollection.prototype.IsElementType = function (value) {
+ColumnDefinitionCollection.Instance.IsElementType = function (value) {
     return value instanceof ColumnDefinition;
 };
 
+Nullstone.FinishCreate(ColumnDefinitionCollection);
 //#endregion

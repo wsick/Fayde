@@ -2,16 +2,14 @@
 /// CODE
 
 //#region Color
+var Color = Nullstone.Create("Color", null, 4);
 
-function Color(r, g, b, a) {
-    if (!Nullstone.IsReady)
-        return;
+Color.Instance.Init = function (r, g, b, a) {
     this.R = r == null ? 255 : r;
     this.G = g == null ? 255 : g;
     this.B = b == null ? 255 : b;
     this.A = a == null ? 1.0 : a;
-}
-Nullstone.Create(Color, "Color");
+};
 
 Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
@@ -36,22 +34,23 @@ Color.FromHex = function (hex) {
     return new Color(r, g, b, a);
 };
 
-Color.prototype.Add = function (color2) {
+Color.Instance.Add = function (color2) {
     return new Color(this.R + color2.R, this.G + color2.G, this.B + color2.B, this.A + color2.A);
 };
-Color.prototype.Subtract = function (color2) {
+Color.Instance.Subtract = function (color2) {
     return new Color(this.R - color2.R, this.G - color2.G, this.B - color2.B, this.A - color2.A);
 };
-Color.prototype.Multiply = function (factor) {
+Color.Instance.Multiply = function (factor) {
     return new Color(this.R * factor, this.G * factor, this.B * factor, this.A * factor);
 };
 
-Color.prototype._Translate = function () {
+Color.Instance._Translate = function () {
     return this.toString();
 };
 
-Color.prototype.toString = function () {
+Color.Instance.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
 };
 
+Nullstone.FinishCreate(Color);
 //#endregion

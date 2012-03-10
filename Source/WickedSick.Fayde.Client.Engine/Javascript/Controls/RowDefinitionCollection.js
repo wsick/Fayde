@@ -4,15 +4,9 @@
 /// <reference path="RowDefinition.js"/>
 
 //#region RowDefinitionCollection
+var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", DependencyObjectCollection);
 
-function RowDefinitionCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(RowDefinitionCollection, "RowDefinitionCollection", DependencyObjectCollection);
-
-RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
+RowDefinitionCollection.Instance.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
         error.SetErrored(BError.Argument, "RowDefinition is already a member of this collection.");
         return false;
@@ -20,8 +14,9 @@ RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
     return this.AddedToCollection$super(value, error);
 };
 
-RowDefinitionCollection.prototype.IsElementType = function (value) {
+RowDefinitionCollection.Instance.IsElementType = function (value) {
     return value instanceof RowDefinition;
 };
 
+Nullstone.FinishCreate(RowDefinitionCollection);
 //#endregion

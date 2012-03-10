@@ -4,21 +4,15 @@
 /// <reference path="../Primitives/Brush.js"/>
 
 //#region Panel
-
-function Panel() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Panel, "Panel", FrameworkElement);
+var Panel = Nullstone.Create("Panel", FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
 Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
-Panel.prototype.GetBackground = function () {
+Panel.Instance.GetBackground = function () {
     return this.GetValue(Panel.BackgroundProperty);
 };
-Panel.prototype.SetBackground = function (value) {
+Panel.Instance.SetBackground = function (value) {
     this.SetValue(Panel.BackgroundProperty, value);
 };
 
@@ -32,18 +26,18 @@ Panel._CreateChildren = {
     }
 };
 Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, null, Panel._CreateChildren);
-Panel.prototype.GetChildren = function () {
+Panel.Instance.GetChildren = function () {
     return this.GetValue(Panel.ChildrenProperty);
 };
-Panel.prototype.SetChildren = function (value) {
+Panel.Instance.SetChildren = function (value) {
     this.SetValue(Panel.ChildrenProperty, value);
 };
 
 Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
-Panel.prototype.GetIsItemsHost = function () {
+Panel.Instance.GetIsItemsHost = function () {
     return this.GetValue(Panel.IsItemsHostProperty);
 };
-Panel.prototype.SetIsItemsHost = function (value) {
+Panel.Instance.SetIsItemsHost = function (value) {
     this.SetValue(Panel.IsItemsHostProperty, value);
 };
 
@@ -51,9 +45,9 @@ Panel.prototype.SetIsItemsHost = function (value) {
 
 //#region INSTANCE METHODS
 
-Panel.prototype.IsLayoutContainer = function () { return true; };
-Panel.prototype.IsContainer = function () { return true; };
-Panel.prototype._ComputeBounds = function () {
+Panel.Instance.IsLayoutContainer = function () { return true; };
+Panel.Instance.IsContainer = function () { return true; };
+Panel.Instance._ComputeBounds = function () {
     this._Extents = this._ExtentsWithChildren = this._Bounds = this._BoundsWithChildren = new Rect();
 
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.Logical);
@@ -75,13 +69,13 @@ Panel.prototype._ComputeBounds = function () {
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
-Panel.prototype._GetCoverageBounds = function () {
+Panel.Instance._GetCoverageBounds = function () {
     var background = this.GetBackground();
     if (background && background.IsOpaque())
         return this._Bounds;
     return new Rect();
 };
-Panel.prototype._ShiftPosition = function (point) {
+Panel.Instance._ShiftPosition = function (point) {
     var dx = point.X - this._Bounds.X;
     var dy = point.Y - this._Bounds.Y;
 
@@ -90,15 +84,15 @@ Panel.prototype._ShiftPosition = function (point) {
     this._BoundsWithChildren.X += dx;
     this._BoundsWithChildren.Y += dy;
 };
-Panel.prototype._EmptyBackground = function () {
+Panel.Instance._EmptyBackground = function () {
     return this.GetBackground() == null;
 };
-Panel.prototype._MeasureOverrideWithError = function (availableSize, error) {
+Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
     Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
     var result = new Size(0, 0);
     return result;
 };
-Panel.prototype._Render = function (ctx, region) {
+Panel.Instance._Render = function (ctx, region) {
     var background = this.GetBackground();
     if (!background)
         return;
@@ -118,27 +112,27 @@ Panel.prototype._Render = function (ctx, region) {
     }
 };
 
-Panel.prototype._CanFindElement = function () { return this.GetBackground() != null; }
-Panel.prototype._InsideObject = function (ctx, x, y) {
+Panel.Instance._CanFindElement = function () { return this.GetBackground() != null; }
+Panel.Instance._InsideObject = function (ctx, x, y) {
     if (this.GetBackground())
         return this._InsideObject$super(ctx, x, y);
     return false;
 };
 
-Panel.prototype._ElementAdded = function (item) {
+Panel.Instance._ElementAdded = function (item) {
     this._ElementAdded$super(item);
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
 };
-Panel.prototype._ElementRemoved = function (item) {
+Panel.Instance._ElementRemoved = function (item) {
     this._ElementRemoved$super(item);
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
 };
 
-Panel.prototype._OnPropertyChanged = function (args, error) {
+Panel.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Panel) {
         this._OnPropertyChanged$super(args, error);
         return;
@@ -169,14 +163,14 @@ Panel.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-Panel.prototype._OnSubPropertyChanged = function (sender, args) {
+Panel.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property && args.Property == Panel.BackgroundProperty) {
         this._Invalidate();
     } else {
         this._OnSubPropertyChanged$super(sender, args);
     }
 };
-Panel.prototype._OnCollectionChanged = function (sender, args) {
+Panel.Instance._OnCollectionChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
         var error = new BError();
         switch (args.Action) {
@@ -204,7 +198,7 @@ Panel.prototype._OnCollectionChanged = function (sender, args) {
         this._OnCollectionChanged$super(sender, args);
     }
 };
-Panel.prototype._OnCollectionItemChanged = function (sender, args) {
+Panel.Instance._OnCollectionItemChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
         if (args.Property == Canvas.ZIndexProperty || args.Property == Canvas.ZProperty) {
             args.Item._Invalidate();
@@ -216,7 +210,7 @@ Panel.prototype._OnCollectionItemChanged = function (sender, args) {
     }
     this._OnCollectionItemChanged$super(sender, args);
 };
-Panel.prototype._OnIsAttachedChanged = function (value) {
+Panel.Instance._OnIsAttachedChanged = function (value) {
     this._OnIsAttachedChanged$super(value);
     if (value) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
@@ -233,4 +227,5 @@ Panel.Annotations = {
 
 //#endregion
 
+Nullstone.FinishCreate(Panel);
 //#endregion

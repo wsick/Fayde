@@ -2,57 +2,52 @@
 /// CODE
 
 //#region BindingBase
+var BindingBase = Nullstone.Create("BindingBase");
 
-function BindingBase() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(BindingBase, "BindingBase");
-
-BindingBase.prototype.CheckSealed = function () {
+BindingBase.Instance.CheckSealed = function () {
     if (this.GetSealed())
         throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
 };
-BindingBase.prototype.Seal = function () {
+BindingBase.Instance.Seal = function () {
     this.SetSealed(true);
 };
 
 //#region PROPERTIES
 
-BindingBase.prototype.GetFallbackValue = function () {
+BindingBase.Instance.GetFallbackValue = function () {
     ///<returns type="RefObject"></returns>
     return this._FallbackValue;
 };
-BindingBase.prototype.SetFallbackValue = function (value) {
+BindingBase.Instance.SetFallbackValue = function (value) {
     ///<param name="value" type="RefObject"></param>
     this.CheckSealed();
     this._FallbackValue = value;
 };
 
-BindingBase.prototype.GetSealed = function () {
+BindingBase.Instance.GetSealed = function () {
     ///<returns type="Boolean"></returns>
     return this._Sealed;
 };
-BindingBase.prototype.SetSealed = function (value) {
+BindingBase.Instance.SetSealed = function (value) {
     ///<param name="value" type="Boolean"></param>
     this._Sealed = value;
 };
 
-BindingBase.prototype.GetStringFormat = function () {
+BindingBase.Instance.GetStringFormat = function () {
     ///<returns type="String"></returns>
     return this._StringFormat;
 };
-BindingBase.prototype.SetStringFormat = function (value) {
+BindingBase.Instance.SetStringFormat = function (value) {
     ///<param name="value" type="String"></param>
     this.CheckSealed();
     this._StringFormat = value;
 };
 
-BindingBase.prototype.GetTargetNullValue = function () {
+BindingBase.Instance.GetTargetNullValue = function () {
     ///<returns type="RefObject"></returns>
     return this._TargetNullValue;
 };
-BindingBase.prototype.SetTargetNullValue = function (value) {
+BindingBase.Instance.SetTargetNullValue = function (value) {
     ///<param name="value" type="RefObject"></param>
     this.CheckSealed();
     this._TargetNullValue = value;
@@ -60,4 +55,5 @@ BindingBase.prototype.SetTargetNullValue = function (value) {
 
 //#endregion
 
+Nullstone.FinishCreate(BindingBase);
 //#endregion

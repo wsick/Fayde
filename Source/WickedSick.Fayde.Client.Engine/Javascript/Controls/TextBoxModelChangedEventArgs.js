@@ -2,13 +2,12 @@
 /// CODE
 
 //#region _TextBoxModelChangedEventArgs
+var _TextBoxModelChangedEventArgs = Nullstone.Create("_TextBoxModelChangedEventArgs", null, 2);
 
-function _TextBoxModelChangedEventArgs(changed, propArgs) {
-    if (!Nullstone.IsReady)
-        return;
+_TextBoxModelChangedEventArgs.Instance.Init = function (changed, propArgs) {
     this.Changed = changed;
     this.PropArgs = propArgs;
-}
-Nullstone.Create(_TextBoxModelChangedEventArgs, "_TextBoxModelChangedEventArgs");
+};
 
+Nullstone.FinishCreate(_TextBoxModelChangedEventArgs);
 //#endregion

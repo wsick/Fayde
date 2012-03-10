@@ -4,26 +4,21 @@
 /// <reference path="BlockCollection.js"/>
 
 //#region Section
-
-function Section() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Section, "Section", TextElement);
+var Section = Nullstone.Create("Section", TextElement);
 
 //#region DEPENDENCY PROPERTIES
 
 Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return BlockCollection; }, Section);
-Section.prototype.GetBlocks = function () {
+Section.Instance.GetBlocks = function () {
     /// <returns type="BlockCollection" />
     return this.GetValue(Section.BlocksProperty);
 };
-Section.prototype.SetBlocks = function (value) {
+Section.Instance.SetBlocks = function (value) {
     /// <param name="value" type="BlockCollection"></param>
     this.SetValue(Section.BlocksProperty, value);
 };
 
 //#endregion
 
+Nullstone.FinishCreate(Section);
 //#endregion

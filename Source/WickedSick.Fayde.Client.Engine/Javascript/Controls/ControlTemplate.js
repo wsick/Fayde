@@ -5,29 +5,27 @@
 /// <reference path="../Markup/JsonParser.js"/>
 
 //#region ControlTemplate
+var ControlTemplate = Nullstone.Create("ControlTemplate", FrameworkTemplate, 2);
 
-function ControlTemplate(targetType, json) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+ControlTemplate.Instance.Init = function (targetType, json) {
+    this.Init$super();
     this.SetTargetType(targetType);
     this._TempJson = json;
-}
-Nullstone.Extend(ControlTemplate, "ControlTemplate", FrameworkTemplate);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, ControlTemplate);
-ControlTemplate.prototype.GetTargetType = function () {
+ControlTemplate.Instance.GetTargetType = function () {
     return this.GetValue(ControlTemplate.TargetTypeProperty);
 };
-ControlTemplate.prototype.SetTargetType = function (value) {
+ControlTemplate.Instance.SetTargetType = function (value) {
     this.SetValue(ControlTemplate.TargetTypeProperty, value);
 };
 
 //#endregion
 
-ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
+ControlTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
     /// <param name="templateBindingSource" type="FrameworkElement"></param>
     /// <returns type="DependencyObject" />
     if (this._TempJson) {
@@ -41,4 +39,5 @@ ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSou
     this._GetVisualTreeWithError$super(templateBindingSource, error);
 };
 
+Nullstone.FinishCreate(ControlTemplate);
 //#endregion

@@ -4,15 +4,13 @@
 /// <reference path="../../Primitives/Duration.js"/>
 
 //#region Timeline
+var Timeline = Nullstone.Create("Timeline", DependencyObject);
 
-function Timeline() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Timeline.Instance.Init = function () {
+    this.Init$super();
     this.Completed = new MulticastEvent();
     this.Reset();
-}
-Nullstone.Extend(Timeline, "Timeline", DependencyObject);
+};
 
 //#region DEPENDENCY PROPERTIES
 
@@ -111,4 +109,5 @@ Timeline.prototype.Update = function (nowTime) {
 };
 Timeline.prototype.UpdateInternal = function (nowTime) { };
 
+Nullstone.FinishCreate(Timeline);
 //#endregion

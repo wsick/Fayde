@@ -2,12 +2,7 @@
 /// <reference path="../Core/FrameworkElement.js" />
 
 //#region ItemsPresenter
+var ItemsPresenter = Nullstone.Create("ItemsPresenter", FrameworkElement);
 
-function ItemsPresenter() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ItemsPresenter, "ItemsPresenter", FrameworkElement);
-
+Nullstone.FinishCreate(ItemsPresenter);
 //#endregion

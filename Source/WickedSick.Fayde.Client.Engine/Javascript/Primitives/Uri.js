@@ -2,22 +2,21 @@
 /// CODE
 
 //#region Uri
+var Uri = Nullstone.Create("Uri", null, 1);
 
-function Uri(os) {
-    if (!Nullstone.IsReady)
-        return;
+Uri.Instance.Init = function (os) {
     this._OriginalString = os;
-}
-Nullstone.Create(Uri, "Uri");
+};
 
-Uri.prototype.GetFragment = function () {
+Uri.Instance.GetFragment = function () {
     ///<returns type="String"></returns>
 
     //this._OriginalString.lastIndexOf("");
 };
 
-Uri.prototype.toString = function () {
+Uri.Instance.toString = function () {
     return this._OriginalString;
 };
 
+Nullstone.FinishCreate(Uri);
 //#endregion

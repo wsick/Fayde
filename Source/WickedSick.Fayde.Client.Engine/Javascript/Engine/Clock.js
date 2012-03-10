@@ -3,24 +3,22 @@
 /// <reference path="JsEx.js"/>
 
 //#region Clock
+var Clock = Nullstone.Create("Clock");
 
-function Clock() {
-    if (!Nullstone.IsReady)
-        return;
+Clock.Instance.Init = function () {
     this._Timers = new Array();
-}
-Nullstone.Create(Clock, "Clock");
+};
 
-Clock.prototype.RegisterTimer = function (timer) {
+Clock.Instance.RegisterTimer = function (timer) {
     if (!Array.addDistinctRefObject(this._Timers, timer))
         return;
     if (this._Timers.length === 1)
         this.RequestAnimationTick();
 };
-Clock.prototype.UnregisterTimer = function (timer) {
+Clock.Instance.UnregisterTimer = function (timer) {
     Array.removeRefObject(this._Timers, timer);
 };
-Clock.prototype.DoTick = function () {
+Clock.Instance.DoTick = function () {
     var nowTime = new Date().getTime();
     if (!this._RunTimers(this._LastTime, nowTime)) {
         return;
@@ -28,7 +26,7 @@ Clock.prototype.DoTick = function () {
     this._LastTime = nowTime;
     this.RequestAnimationTick();
 };
-Clock.prototype._RunTimers = function (lastTime, nowTime) {
+Clock.Instance._RunTimers = function (lastTime, nowTime) {
     if (this._Timers.length === 0)
         return false;
     for (var i = 0; i < this._Timers.length; i++) {
@@ -38,7 +36,7 @@ Clock.prototype._RunTimers = function (lastTime, nowTime) {
     return true;
 };
 
-Clock.prototype.RequestAnimationTick = function () {
+Clock.Instance.RequestAnimationTick = function () {
     var clock = this;
     Clock._RequestAnimationFrame(function () { clock.DoTick(); });
 };
@@ -53,4 +51,5 @@ Clock._RequestAnimationFrame = (function () {
         };
 })();
 
+Nullstone.FinishCreate(Clock);
 //#endregion

@@ -7,61 +7,55 @@
 /// <reference path="../Primitives/Brush.js"/>
 
 //#region Border
-
-function Border() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Border, "Border", FrameworkElement);
+var Border = Nullstone.Create("Border", FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
 Border.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Border);
-Border.prototype.GetBackground = function () {
+Border.Instance.GetBackground = function () {
     return this.GetValue(Border.BackgroundProperty);
 };
-Border.prototype.SetBackground = function (value) {
+Border.Instance.SetBackground = function (value) {
     this.SetValue(Border.BackgroundProperty, value);
 };
 
 Border.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Border);
-Border.prototype.GetBorderBrush = function () {
+Border.Instance.GetBorderBrush = function () {
     return this.GetValue(Border.BorderBrushProperty);
 };
-Border.prototype.SetBorderBrush = function (value) {
+Border.Instance.SetBorderBrush = function (value) {
     this.SetValue(Border.BorderBrushProperty, value);
 };
 
 Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
-Border.prototype.GetBorderThickness = function () {
+Border.Instance.GetBorderThickness = function () {
     return this.GetValue(Border.BorderThicknessProperty);
 };
-Border.prototype.SetBorderThickness = function (value) {
+Border.Instance.SetBorderThickness = function (value) {
     this.SetValue(Border.BorderThicknessProperty, value);
 };
 
 Border.ChildProperty = DependencyProperty.Register("Child", function () { return UIElement; }, Border);
-Border.prototype.GetChild = function () {
+Border.Instance.GetChild = function () {
     return this.GetValue(Border.ChildProperty);
 };
-Border.prototype.SetChild = function (value) {
+Border.Instance.SetChild = function (value) {
     this.SetValue(Border.ChildProperty, value);
 };
 
 Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
-Border.prototype.GetCornerRadius = function () {
+Border.Instance.GetCornerRadius = function () {
     return this.GetValue(Border.CornerRadiusProperty);
 };
-Border.prototype.SetCornerRadius = function (value) {
+Border.Instance.SetCornerRadius = function (value) {
     this.SetValue(Border.CornerRadiusProperty, value);
 };
 
 Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
-Border.prototype.GetPadding = function () {
+Border.Instance.GetPadding = function () {
     return this.GetValue(Border.PaddingProperty);
 };
-Border.prototype.SetPadding = function (value) {
+Border.Instance.SetPadding = function (value) {
     this.SetValue(Border.PaddingProperty, value);
 };
 
@@ -69,8 +63,8 @@ Border.prototype.SetPadding = function (value) {
 
 //#region INSTANCE METHODS
 
-Border.prototype.IsLayoutContainer = function () { return true; };
-Border.prototype._MeasureOverrideWithError = function (availableSize, error) {
+Border.Instance.IsLayoutContainer = function () { return true; };
+Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
     var border = this.GetPadding().Plus(this.GetBorderThickness());
 
@@ -84,7 +78,7 @@ Border.prototype._MeasureOverrideWithError = function (availableSize, error) {
     desired = desired.Min(availableSize);
     return desired;
 };
-Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var border = this.GetPadding().Plus(this.GetBorderThickness());
     var arranged = finalSize;
 
@@ -99,7 +93,7 @@ Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     }
     return finalSize;
 };
-Border.prototype._Render = function (ctx, region) {
+Border.Instance._Render = function (ctx, region) {
     var borderBrush = this.GetBorderBrush();
     var paintBorder = this._Extents;
 
@@ -127,18 +121,18 @@ Border.prototype._Render = function (ctx, region) {
         ctx.Restore();
     }
 };
-Border.prototype._RenderImpl = function (ctx, region) {
+Border.Instance._RenderImpl = function (ctx, region) {
     ctx.Save();
     this._RenderLayoutClip(ctx);
     ctx.CustomRender(Border._Painter, this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius());
     ctx.Restore();
 };
 
-Border.prototype._CanFindElement = function () {
+Border.Instance._CanFindElement = function () {
     return this.GetBackground() != null || this.GetBorderBrush() != null;
 };
 
-Border.prototype._OnPropertyChanged = function (args, error) {
+Border.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Border) {
         this._OnPropertyChanged$super(args, error)
         return;
@@ -238,4 +232,5 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
 Border._ThicknessValidator = function () {
 };
 
+Nullstone.FinishCreate(Border);
 //#endregion

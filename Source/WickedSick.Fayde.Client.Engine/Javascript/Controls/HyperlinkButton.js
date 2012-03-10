@@ -3,13 +3,7 @@
 /// CODE
 
 //#region HyperlinkButton
-
-function HyperlinkButton() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(HyperlinkButton, "HyperlinkButton", ButtonBase);
+var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
 
 HyperlinkButton.StateDisabled = "Disabled";
 HyperlinkButton.StatePressed = "Pressed";
@@ -20,41 +14,41 @@ HyperlinkButton.StateUnfocused = "Unfocused";
 
 //#region DEPENDENCY PROPERTIES
 
-HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function() { return Uri; }, HyperlinkButton, null);
-HyperlinkButton.prototype.GetNavigateUri = function () {
-	///<returns type="Uri"></returns>
-	return this.GetValue(HyperlinkButton.NavigateUriProperty);
+HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton, null);
+HyperlinkButton.Instance.GetNavigateUri = function () {
+    ///<returns type="Uri"></returns>
+    return this.GetValue(HyperlinkButton.NavigateUriProperty);
 };
-HyperlinkButton.prototype.SetNavigateUri = function (value) {
-	///<param name="value" type="Uri"></param>
-	this.SetValue(HyperlinkButton.NavigateUriProperty, value);
+HyperlinkButton.Instance.SetNavigateUri = function (value) {
+    ///<param name="value" type="Uri"></param>
+    this.SetValue(HyperlinkButton.NavigateUriProperty, value);
 };
 
-HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function() { return String; }, HyperlinkButton, null);
-HyperlinkButton.prototype.GetTargetName = function () {
-	///<returns type="String"></returns>
-	return this.GetValue(HyperlinkButton.TargetNameProperty);
+HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, null);
+HyperlinkButton.Instance.GetTargetName = function () {
+    ///<returns type="String"></returns>
+    return this.GetValue(HyperlinkButton.TargetNameProperty);
 };
-HyperlinkButton.prototype.SetTargetName = function (value) {
-	///<param name="value" type="String"></param>
-	this.SetValue(HyperlinkButton.TargetNameProperty, value);
+HyperlinkButton.Instance.SetTargetName = function (value) {
+    ///<param name="value" type="String"></param>
+    this.SetValue(HyperlinkButton.TargetNameProperty, value);
 };
 
 //#endregion
 
-HyperlinkButton.prototype.OnApplyTemplate = function () {
+HyperlinkButton.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$super();
     this.UpdateVisualState(false);
 };
 
-HyperlinkButton.prototype.OnClick = function () {
+HyperlinkButton.Instance.OnClick = function () {
     this.OnClick$super();
     if (this.GetNavigateUri() != null) {
         this._Navigate();
     }
 };
 
-HyperlinkButton.prototype._GetAbsoluteUri = function () {
+HyperlinkButton.Instance._GetAbsoluteUri = function () {
     /// <returns type="Uri" />
     var destination = this.GetNavigateUri();
     if (!destination.IsAbsoluteUri) {
@@ -65,7 +59,7 @@ HyperlinkButton.prototype._GetAbsoluteUri = function () {
     }
     return destination;
 };
-HyperlinkButton.prototype._ChangeVisualState = function (useTransitions) {
+HyperlinkButton.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         this._GoToState(useTransitions, HyperlinkButton.StateDisabled);
     } else if (this.GetIsPressed()) {
@@ -82,14 +76,14 @@ HyperlinkButton.prototype._ChangeVisualState = function (useTransitions) {
         this._GoToState(useTransitions, HyperlinkButton.StateUnfocused);
     }
 };
-HyperlinkButton.prototype._Navigate = function () {
+HyperlinkButton.Instance._Navigate = function () {
     window.location.href = this.GetNavigateUri().toString();
     //NotImplemented("HyperlinkButton._Navigate (" + this.GetNavigateUri().toString() + ")");
 };
 
 //#region DEFAULT STYLE
 
-HyperlinkButton.prototype.GetDefaultStyle = function () {
+HyperlinkButton.Instance.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,
         Props: {
@@ -178,7 +172,7 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                                                         Children: [
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
-                                                                Props: 
+                                                                Props:
                                                                 {
                                                                     KeyTime: new KeyTime(0.0),
                                                                     Value: Visibility.Visible
@@ -205,7 +199,7 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                                                         Children: [
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
-                                                                Props: 
+                                                                Props:
                                                                 {
                                                                     KeyTime: new KeyTime(0.0),
                                                                     Value: Visibility.Visible
@@ -232,7 +226,7 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                                                         Children: [
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
-                                                                Props: 
+                                                                Props:
                                                                 {
                                                                     KeyTime: new KeyTime(0.0),
                                                                     Value: Visibility.Visible
@@ -333,4 +327,5 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
 
 //#endregion
 
+Nullstone.FinishCreate(HyperlinkButton);
 //#endregion

@@ -3,52 +3,51 @@
 /// <reference path="../Data/PropertyPath.js"/>
 /// <reference path="../Core/Collections/Collection.js"/>
 /// <reference path="../Controls/TextBlock.js"/>
+/// <reference path="UnsetValue.js"/>
 
 //#region DependencyProperty
+var DependencyProperty = Nullstone.Create("DependencyProperty", null, 10);
 
-function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
-    if (!Nullstone.IsReady)
-        return;
+DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     this.Name = name;
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
-    this._AutoCreator = autocreator;
+    this._AutoCreator = autoCreator;
     this._Coercer = coercer;
     this._AlwaysChange = alwaysChange;
     this._Validator = validator;
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
-}
-Nullstone.Create(DependencyProperty, "DependencyProperty");
+};
 
-DependencyProperty.prototype.toString = function () {
+DependencyProperty.Instance.toString = function () {
     var ownerTypeName = this.OwnerType._TypeName;
     return ownerTypeName + "." + this.Name.toString();
 };
-DependencyProperty.prototype.GetDefaultValue = function (obj) {
+DependencyProperty.Instance.GetDefaultValue = function (obj) {
     if (this._HasDefaultValue)
         return this.DefaultValue;
     return this._GetAutoCreatedValue(obj);
 };
-DependencyProperty.prototype._HasDefaultValue = function () {
+DependencyProperty.Instance._HasDefaultValue = function () {
     return this.DefaultValue != null;
 };
-DependencyProperty.prototype._IsAutoCreated = function () {
+DependencyProperty.Instance._IsAutoCreated = function () {
     return this._AutoCreator != undefined && this._AutoCreator != null;
 };
-DependencyProperty.prototype._GetAutoCreatedValue = function (obj) {
+DependencyProperty.Instance._GetAutoCreatedValue = function (obj) {
     return this._AutoCreator.GetValue(this, obj);
 };
-DependencyProperty.prototype._HasCoercer = function () {
+DependencyProperty.Instance._HasCoercer = function () {
     return this._Coercer != null;
 };
-DependencyProperty.prototype._Coerce = function (instance, value, error) {
+DependencyProperty.Instance._Coerce = function (instance, value, error) {
     if (!this._Coercer)
         return value;
     return this._Coercer.GetValue(instance, this, value, error);
 };
-DependencyProperty.prototype._Validate = function (instance, propd, value, error) {
+DependencyProperty.Instance._Validate = function (instance, propd, value, error) {
     if (!this._Validator)
         return true;
     return this._Validator(instance, propd, value, error);
@@ -296,14 +295,5 @@ DependencyProperty._LookupType = function (name) {
     return eval(name);
 };
 
-//#endregion
-
-//#region UnsetValue
-
-function UnsetValue() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(UnsetValue, "UnsetValue");
-
+Nullstone.FinishCreate(DependencyProperty);
 //#endregion

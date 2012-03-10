@@ -9,13 +9,7 @@
 /// <reference path="Animation.js"/>
 
 //#region Button
-
-function Button() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Button, "Button", ButtonBase);
+var Button = Nullstone.Create("Button", ButtonBase);
 
 Button.StateDisabled = "Disabled";
 Button.StatePressed = "Pressed";
@@ -24,12 +18,11 @@ Button.StateNormal = "Normal";
 Button.StateFocused = "Focused";
 Button.StateUnfocused = "Unfocused";
 
-Button.prototype.OnApplyTemplate = function () {
+Button.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$super();
-
     this.UpdateVisualState(false);
 };
-Button.prototype._ChangeVisualState = function (useTransitions) {
+Button.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         this._GoToState(useTransitions, Button.StateDisabled);
     } else if (this.GetIsPressed()) {
@@ -46,14 +39,14 @@ Button.prototype._ChangeVisualState = function (useTransitions) {
         this._GoToState(useTransitions, Button.StateUnfocused);
     }
 };
-Button.prototype.OnIsEnabledChanged = function (e) {
+Button.Instance.OnIsEnabledChanged = function (e) {
     this.OnIsEnabledChanged$super(e);
     this.SetIsTabStop(e.NewValue);
 };
 
 //#region DEFAULT STYLE
 
-Button.prototype.GetDefaultStyle = function () {
+Button.Instance.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,
         Props: {
@@ -413,4 +406,5 @@ Button.prototype.GetDefaultStyle = function () {
 
 //#endregion
 
+Nullstone.FinishCreate(Button);
 //#endregion

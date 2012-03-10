@@ -4,61 +4,55 @@
 /// <reference path="../../Primitives/Color.js"/>
 
 //#region ColorAnimation
-
-function ColorAnimation() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ColorAnimation, "ColorAnimation", Animation);
+var ColorAnimation = Nullstone.Create("ColorAnimation", Animation);
 
 //#region DEPENDENCY PROPERTIES
 
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetBy = function () {
+ColorAnimation.Instance.GetBy = function () {
     ///<returns type="Color"></returns>
     return this.GetValue(ColorAnimation.ByProperty);
 };
-ColorAnimation.prototype.SetBy = function (value) {
+ColorAnimation.Instance.SetBy = function (value) {
     ///<param name="value" type="Color"></param>
     this.SetValue(ColorAnimation.ByProperty, value);
 };
 
 /*
 ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
-ColorAnimation.prototype.GetEasingFunction = function () {
-    ///<returns type="EasingFunction"></returns>
-    return this.GetValue(ColorAnimation.EasingFunctionProperty);
+ColorAnimation.Instance.GetEasingFunction = function () {
+///<returns type="EasingFunction"></returns>
+return this.GetValue(ColorAnimation.EasingFunctionProperty);
 };
-ColorAnimation.prototype.SetEasingFunction = function (value) {
-    ///<param name="value" type="EasingFunction"></param>
-    this.SetValue(ColorAnimation.EasingFunctionProperty, value);
+ColorAnimation.Instance.SetEasingFunction = function (value) {
+///<param name="value" type="EasingFunction"></param>
+this.SetValue(ColorAnimation.EasingFunctionProperty, value);
 };
 */
 
 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetFrom = function () {
+ColorAnimation.Instance.GetFrom = function () {
     ///<returns type="Color"></returns>
     return this.GetValue(ColorAnimation.FromProperty);
 };
-ColorAnimation.prototype.SetFrom = function (value) {
+ColorAnimation.Instance.SetFrom = function (value) {
     ///<param name="value" type="Color"></param>
     this.SetValue(ColorAnimation.FromProperty, value);
 };
 
 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetTo = function () {
+ColorAnimation.Instance.GetTo = function () {
     ///<returns type="Color"></returns>
     return this.GetValue(ColorAnimation.ToProperty);
 };
-ColorAnimation.prototype.SetTo = function (value) {
+ColorAnimation.Instance.SetTo = function (value) {
     ///<param name="value" type="Color"></param>
     this.SetValue(ColorAnimation.ToProperty, value);
 };
 
 //#endregion
 
-ColorAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
+ColorAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
 
     var start = new Color();
@@ -73,9 +67,9 @@ ColorAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
         return start.Add(this._ByCached);
     return start;
 };
-ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+ColorAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
-    
+
     var start = new Color();
     if (this._FromCached != null)
         start = this._FromCached;
@@ -92,11 +86,11 @@ ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaul
 
     //var easingFunc = this.GetEasingFunction();
     //if (easingFunc != null)
-        //clockData.Progress = easingFunc.Ease(clockData.Progress);
+    //clockData.Progress = easingFunc.Ease(clockData.Progress);
 
     return start.Add(end.Subtract(start).Multiply(clockData.Progress));
 };
-ColorAnimation.prototype._EnsureCache = function () {
+ColorAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
         return;
     this._FromCached = this.GetFrom();
@@ -105,4 +99,5 @@ ColorAnimation.prototype._EnsureCache = function () {
     this._HasCached = true;
 };
 
+Nullstone.FinishCreate(ColorAnimation);
 //#endregion

@@ -12,11 +12,10 @@
 /// <reference path="Border.js"/>
 
 //#region TextBox
+var TextBox = Nullstone.Create("TextBox", TextBoxBase);
 
-function TextBox() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+TextBox.Instance.Init = function () {
+    this.Init$super();
 
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
 
@@ -24,106 +23,105 @@ function TextBox() {
 
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
-}
-Nullstone.Extend(TextBox, "TextBox", TextBoxBase);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () { return Boolean; }, TextBox);
-TextBox.prototype.GetIsReadOnly = function () {
+TextBox.Instance.GetIsReadOnly = function () {
     ///<returns type="Boolean"></returns>
     return this.GetValue(TextBox.IsReadOnlyProperty);
 };
-TextBox.prototype.SetIsReadOnly = function (value) {
+TextBox.Instance.SetIsReadOnly = function (value) {
     ///<param name="value" type="Boolean"></param>
     this.SetValue(TextBox.IsReadOnlyProperty, value);
 };
 
 TextBox.SelectionForegroundProperty = DependencyProperty.Register("SelectionForeground", function () { return Brush; }, TextBox);
-TextBox.prototype.GetSelectionForeground = function () {
+TextBox.Instance.GetSelectionForeground = function () {
     return this.GetValue(TextBox.SelectionForegroundProperty);
 };
-TextBox.prototype.SetSelectionForeground = function (value) {
+TextBox.Instance.SetSelectionForeground = function (value) {
     this.SetValue(TextBox.SelectionForegroundProperty, value);
 };
 
 TextBox.SelectionBackgroundProperty = DependencyProperty.Register("SelectionBackground", function () { return Brush; }, TextBox);
-TextBox.prototype.GetSelectionBackground = function () {
+TextBox.Instance.GetSelectionBackground = function () {
     return this.GetValue(TextBox.SelectionBackgroundProperty);
 };
-TextBox.prototype.SetSelectionBackground = function (value) {
+TextBox.Instance.SetSelectionBackground = function (value) {
     this.SetValue(TextBox.SelectionBackgroundProperty, value);
 };
 
 TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () { return Number; }, TextBox);
-TextBox.prototype.GetBaselineOffset = function () {
+TextBox.Instance.GetBaselineOffset = function () {
     return this.GetValue(TextBox.BaselineOffsetProperty);
 };
-TextBox.prototype.SetBaselineOffset = function (value) {
+TextBox.Instance.SetBaselineOffset = function (value) {
     this.SetValue(TextBox.BaselineOffsetProperty, value);
 };
 
 TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", function () { return String; }, TextBox, "");
-TextBox.prototype.GetSelectedText = function () {
+TextBox.Instance.GetSelectedText = function () {
     return this.GetValue(TextBox.SelectedTextProperty);
 };
-TextBox.prototype.SetSelectedText = function (value) {
+TextBox.Instance.SetSelectedText = function (value) {
     this.SetValue(TextBox.SelectedTextProperty, value);
 };
 
 TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", function () { return Number; }, TextBox, 0);
-TextBox.prototype.GetSelectionLength = function () {
+TextBox.Instance.GetSelectionLength = function () {
     return this.GetValue(TextBox.SelectionLengthProperty);
 };
-TextBox.prototype.SetSelectionLength = function (value) {
+TextBox.Instance.SetSelectionLength = function (value) {
     this.SetValue(TextBox.SelectionLengthProperty, value);
 };
 
 TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", function () { return Number; }, TextBox, 0);
-TextBox.prototype.GetSelectionStart = function () {
+TextBox.Instance.GetSelectionStart = function () {
     return this.GetValue(TextBox.SelectionStartProperty);
 };
-TextBox.prototype.SetSelectionStart = function (value) {
+TextBox.Instance.SetSelectionStart = function (value) {
     this.SetValue(TextBox.SelectionStartProperty, value);
 };
 
 TextBox.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBox);
-TextBox.prototype.GetText = function () {
+TextBox.Instance.GetText = function () {
     return this.GetValue(TextBox.TextProperty);
 };
-TextBox.prototype.SetText = function (value) {
+TextBox.Instance.SetText = function (value) {
     this.SetValue(TextBox.TextProperty, value);
 };
 
 TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return Number; }, TextBox, TextAlignment.Left);
-TextBox.prototype.GetTextAlignment = function () {
+TextBox.Instance.GetTextAlignment = function () {
     return this.GetValue(TextBox.TextAlignmentProperty);
 };
-TextBox.prototype.SetTextAlignment = function (value) {
+TextBox.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBox.TextAlignmentProperty, value);
 };
 
 TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return Number; }, TextBox, TextWrapping.NoWrap);
-TextBox.prototype.GetTextWrapping = function () {
+TextBox.Instance.GetTextWrapping = function () {
     return this.GetValue(TextBox.TextWrappingProperty);
 };
-TextBox.prototype.SetTextWrapping = function (value) {
+TextBox.Instance.SetTextWrapping = function (value) {
     this.SetValue(TextBox.TextWrappingProperty, value);
 };
 
 TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
-TextBox.prototype.GetHorizontalScrollBarVisibility = function () {
+TextBox.Instance.GetHorizontalScrollBarVisibility = function () {
     return this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
 };
-TextBox.prototype.SetHorizontalScrollBarVisibility = function (value) {
+TextBox.Instance.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
 };
 
 TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
-TextBox.prototype.GetVerticalScrollBarVisibility = function () {
+TextBox.Instance.GetVerticalScrollBarVisibility = function () {
     return this.GetValue(TextBox.VerticalScrollBarVisibilityProperty);
 };
-TextBox.prototype.SetVerticalScrollBarVisibility = function (value) {
+TextBox.Instance.SetVerticalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.VerticalScrollBarVisibilityProperty, value);
 };
 
@@ -131,7 +129,7 @@ TextBox.prototype.SetVerticalScrollBarVisibility = function (value) {
 
 //#region PROPERTIES
 
-TextBox.prototype.GetIsMouseOver = function () {
+TextBox.Instance.GetIsMouseOver = function () {
     ///<returns type="Boolean"></returns>
     return this._IsMouseOver;
 };
@@ -140,7 +138,7 @@ TextBox.prototype.GetIsMouseOver = function () {
 
 //#region INSTANCE METHODS
 
-TextBox.prototype.OnApplyTemplate = function () {
+TextBox.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$super();
 
     if (!this._ContentElement)
@@ -157,11 +155,11 @@ TextBox.prototype.OnApplyTemplate = function () {
     }
 };
 
-TextBox.prototype.GetDisplayText = function () {
+TextBox.Instance.GetDisplayText = function () {
     return this.GetText();
 };
 
-TextBox.prototype._SyncSelectedText = function () {
+TextBox.Instance._SyncSelectedText = function () {
     if (this._SelectionCursor != this._SelectionAnchor) {
         var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
         var end = Math.max(this._SelectionAnchor, this._SelectionCursor);
@@ -176,13 +174,13 @@ TextBox.prototype._SyncSelectedText = function () {
         this._SetValue = true;
     }
 };
-TextBox.prototype._SyncText = function () {
+TextBox.Instance._SyncText = function () {
     this._SetValue = false;
     this.SetValue(TextBox.TextProperty, this._Buffer);
     this._SetValue = true;
 };
 
-TextBox.prototype._OnPropertyChanged = function (args, error) {
+TextBox.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextBox) {
         this._OnPropertyChanged$super(args, error);
         return;
@@ -306,7 +304,7 @@ TextBox.prototype._OnPropertyChanged = function (args, error) {
 
     this.PropertyChanged.Raise(this, args);
 };
-TextBox.prototype._OnSubPropertyChanged = function (sender, args) {
+TextBox.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property && (args.Property === TextBox.SelectionBackgroundProperty
         || args.Property === TextBox.SelectionForegroundProperty)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
@@ -317,35 +315,35 @@ TextBox.prototype._OnSubPropertyChanged = function (sender, args) {
         this._OnSubPropertyChanged$super(sender, args);
 };
 
-TextBox.prototype._EmitTextChanged = function () {
+TextBox.Instance._EmitTextChanged = function () {
     this.SelectionChanged.RaiseAsync(this, {});
 };
-TextBox.prototype._EmitSelectionChanged = function () {
+TextBox.Instance._EmitSelectionChanged = function () {
     this.TextChanged.RaiseAsync(this, {});
 };
 
 //#endregion
 
-TextBox.prototype.OnMouseEnter = function (sender, args) {
+TextBox.Instance.OnMouseEnter = function (sender, args) {
     this._IsMouseOver = true;
     this._ChangeVisualState(true);
     this.OnMouseEnter$super(sender, args);
 };
-TextBox.prototype.OnMouseLeave = function (sender, args) {
+TextBox.Instance.OnMouseLeave = function (sender, args) {
     this._IsMouseOver = false;
     this._ChangeVisualState(true);
     this.OnMouseLeave$super(sender, args);
 };
-TextBox.prototype.OnGotFocus = function (sender, args) {
+TextBox.Instance.OnGotFocus = function (sender, args) {
     this.OnGotFocus$super(sender, args);
     this._ChangeVisualState(true);
 };
-TextBox.prototype.OnLostFocus = function (sender, args) {
+TextBox.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$super(sender, args);
     this._ChangeVisualState(true);
 };
 
-TextBox.prototype._ChangeVisualState = function (useTransitions) {
+TextBox.Instance._ChangeVisualState = function (useTransitions) {
     /// <param name="useTransitions" type="Boolean"></param>
     if (!this.GetIsEnabled()) {
         VisualStateManager.GoToState(this, "Disabled", useTransitions);
@@ -366,7 +364,7 @@ TextBox.prototype._ChangeVisualState = function (useTransitions) {
 
 //#region DEFAULT STYLE
 
-TextBox.prototype.GetDefaultStyle = function () {
+TextBox.Instance.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,
         Props: {
@@ -636,4 +634,5 @@ TextBox.prototype.GetDefaultStyle = function () {
 
 //#endregion
 
+Nullstone.FinishCreate(TextBox);
 //#endregion

@@ -2,14 +2,12 @@
 /// CODE
 
 //#region _PropertyPath
+var _PropertyPath = Nullstone.Create("_PropertyPath", null, 2);
 
-function _PropertyPath(path, expandedPath) {
-    if (!Nullstone.IsReady)
-        return;
+_PropertyPath.Instance.Init = function (path, expandedPath) {
     this._Path = path;
     this._ExpandedPath = expandedPath;
-}
-Nullstone.Create(_PropertyPath, "_PropertyPath");
+};
 
 _PropertyPath.CreateFromParameter = function (parameter) {
     var p = new _PropertyPath();
@@ -20,11 +18,11 @@ _PropertyPath.CreateFromParameter = function (parameter) {
     return p;
 };
 
-_PropertyPath.prototype.HasDependencyProperty = function () {
+_PropertyPath.Instance.HasDependencyProperty = function () {
     return this._Propd != null;
 };
 
-_PropertyPath.prototype.TryResolveDependencyProperty = function (dobj) {
+_PropertyPath.Instance.TryResolveDependencyProperty = function (dobj) {
     /// <param name="dobj" type="DependencyObject"></param>
     if (this.HasDependencyProperty())
         return;
@@ -35,18 +33,18 @@ _PropertyPath.prototype.TryResolveDependencyProperty = function (dobj) {
 
 //#region PROPERTIES
 
-_PropertyPath.prototype.GetDependencyProperty = function () {
+_PropertyPath.Instance.GetDependencyProperty = function () {
     /// <returns type="DependencyProperty" />
     return this._Propd;
 };
-_PropertyPath.prototype.GetPath = function () {
+_PropertyPath.Instance.GetPath = function () {
     /// <returns type="String" />
     return this._Propd == null ? this._Path : "(0)";
 };
-_PropertyPath.prototype.GetExpandedPath = function () {
+_PropertyPath.Instance.GetExpandedPath = function () {
     return this._Propd == null ? this._ExpandedPath : "(0)";
 };
-_PropertyPath.prototype.GetParsePath = function () {
+_PropertyPath.Instance.GetParsePath = function () {
     if (this._Propd != null)
         return "(0)";
     if (this._ExpandedPath != null)
@@ -56,4 +54,5 @@ _PropertyPath.prototype.GetParsePath = function () {
 
 //#endregion
 
+Nullstone.FinishCreate(_PropertyPath);
 //#endregion

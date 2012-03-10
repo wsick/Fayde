@@ -4,10 +4,9 @@
 /// <reference path="TimeSpan.js"/>
 
 //#region Duration
+var Duration = Nullstone.Create("Duration", null, 1);
 
-function Duration(value) {
-    if (!Nullstone.IsReady)
-        return;
+Duration.Instance.Init = function (value) {
     if (typeof value == "number") {
         this._Type = DurationType.TimeSpan;
         this._TimeSpan = new TimeSpan(value);
@@ -20,8 +19,7 @@ function Duration(value) {
         if (value === "Forever")
             this._Type = DurationType.Forever;
     }
-}
-Nullstone.Create(Duration, "Duration");
+};
 
 Duration.CreateAutomatic = function () {
     /// <returns type="Duration" />
@@ -46,21 +44,22 @@ Duration.CreateTimeSpan = function (timespan) {
 
 //#region PROPERTIES
 
-Duration.prototype.GetType = function () {
+Duration.Instance.GetType = function () {
     ///<returns type="RefObject"></returns>
     return this._Type;
 };
-Duration.prototype.GetTimeSpan = function () {
+Duration.Instance.GetTimeSpan = function () {
     ///<returns type="TimeSpan"></returns>
     if (this.HasTimeSpan())
         return this._TimeSpan;
     throw new InvalidOperationException();
 };
-Duration.prototype.HasTimeSpan = function () {
+Duration.Instance.HasTimeSpan = function () {
     /// <returns type="Boolean" />
     return this.GetType() === DurationType.TimeSpan;
 };
 
 //#endregion
 
+Nullstone.FinishCreate(Duration);
 //#endregion

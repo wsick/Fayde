@@ -3,24 +3,21 @@
 /// CODE
 
 //#region TemplateBindingExpression
+var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", Expression);
 
-function TemplateBindingExpression(sourcePropd, targetPropd) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+TemplateBindingExpression.Instance.Init = function (sourcePropd, targetPropd) {
     this.SourceProperty = sourcePropd;
     this.TargetProperty = targetPropd;
-}
-Nullstone.Extend(TemplateBindingExpression, "TemplateBindingExpression", Expression);
+};
 
-TemplateBindingExpression.prototype.GetValue = function (propd) {
+TemplateBindingExpression.Instance.GetValue = function (propd) {
     var source = this.Target.GetTemplateOwner();
     var value = null;
     if (source != null)
         value = source.GetValue(this.SourceProperty);
     return value; //TODO: Send through TypeConverter
 };
-TemplateBindingExpression.prototype._OnAttached = function (element) {
+TemplateBindingExpression.Instance._OnAttached = function (element) {
     this._OnAttached$super(element);
 
     this.Target = element;
@@ -43,7 +40,7 @@ TemplateBindingExpression.prototype._OnAttached = function (element) {
         this.SetListener(listener);
     }
 };
-TemplateBindingExpression.prototype._OnDetached = function (element) {
+TemplateBindingExpression.Instance._OnDetached = function (element) {
     this._OnDetached$super(element);
 
     var listener = this.GetListener();
@@ -59,7 +56,7 @@ TemplateBindingExpression.prototype._OnDetached = function (element) {
     this.SetListener(listener);
     this.Target = null;
 };
-TemplateBindingExpression.prototype.OnPropertyChanged = function (sender, args) {
+TemplateBindingExpression.Instance.OnPropertyChanged = function (sender, args) {
     try {
         // Type converting doesn't happen for TemplateBindings
         this.SetUpdating(true);
@@ -75,13 +72,14 @@ TemplateBindingExpression.prototype.OnPropertyChanged = function (sender, args) 
     }
 };
 
-TemplateBindingExpression.prototype.GetListener = function () {
+TemplateBindingExpression.Instance.GetListener = function () {
     /// <returns type="PropertyChangedListener" />
     return this._Listener;
 };
-TemplateBindingExpression.prototype.SetListener = function (value) {
+TemplateBindingExpression.Instance.SetListener = function (value) {
     /// <param name="value" type="PropertyChangedListener"></param>
     this._Listener = value;
 };
 
+Nullstone.FinishCreate(TemplateBindingExpression);
 //#endregion

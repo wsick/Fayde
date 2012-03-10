@@ -3,37 +3,35 @@
 /// CODE
 
 //#region SetterBase
+var SetterBase = Nullstone.Create("SetterBase", DependencyObject);
 
-function SetterBase() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+SetterBase.Instance.Init = function () {
     this.SetAttached(false);
-}
-Nullstone.Extend(SetterBase, "SetterBase", DependencyObject);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBase, false);
-SetterBase.prototype.GetIsSealed = function () {
+SetterBase.Instance.GetIsSealed = function () {
     /// <returns type="Boolean" />
     return this.GetValue(SetterBase.IsSealedProperty);
 };
 
 //#endregion
 
-SetterBase.prototype.GetAttached = function () {
+SetterBase.Instance.GetAttached = function () {
     /// <returns type="Boolean" />
     return this._Attached;
 };
-SetterBase.prototype.SetAttached = function (value) {
+SetterBase.Instance.SetAttached = function (value) {
     /// <param name="value" type="Boolean"></param>
     this._Attached = value;
 };
-SetterBase.prototype._Seal = function () {
+SetterBase.Instance._Seal = function () {
     if (this.GetIsSealed())
         return;
     this.SetValue(SetterBase.IsSealedProperty, true);
 };
 
+Nullstone.FinishCreate(SetterBase);
 //#endregion

@@ -1,4 +1,6 @@
-﻿Object.Clone = function (o) {
+﻿/// <reference path="Nullstone.js"/>
+
+Object.Clone = function (o) {
     return eval(uneval(o));
 };
 
@@ -40,31 +42,31 @@ String.prototype.indexOfAny = function (carr, start) {
     return -1;
 };
 
-Array.indexOfRefObject = function (arr, ro) {
-    /// <param name="ro" type="RefObject"></param>
+Array.indexOfNullstone = function (arr, ns) {
+    /// <param name="ns" type="Object"></param>
     /// <returns type="Number" />
     for (var i = 0; i < arr.length; i++) {
-        if (RefObject.RefEquals(arr[i], ro))
+        if (Nullstone.RefEquals(arr[i], ns))
             return i;
     }
     return -1;
 };
-Array.containsRefObject = function (arr, ro) {
-    /// <param name="ro" type="RefObject"></param>
+Array.containsNullstone = function (arr, ns) {
+    /// <param name="ns" type="Object"></param>
     /// <returns type="Boolean" />
-    return Array.indexOfRefObject(arr, ro) > -1;
+    return Array.indexOfNullstone(arr, ns) > -1;
 };
-Array.addDistinctRefObject = function (arr, ro) {
-    /// <param name="ro" type="RefObject"></param>
+Array.addDistinctNullstone = function (arr, ns) {
+    /// <param name="ns" type="Object"></param>
     /// <returns type="Boolean" />
-    if (Array.containsRefObject(arr, ro))
+    if (Array.containsNullstone(arr, ns))
         return false;
-    arr.push(ro);
+    arr.push(ns);
     return true;
 };
-Array.removeRefObject = function (arr, ro) {
-    /// <param name="ro" type="RefObject"></param>
-    var index = Array.indexOfRefObject(arr, ro);
+Array.removeNullstone = function (arr, ns) {
+    /// <param name="ns" type="Object"></param>
+    var index = Array.indexOfNullstone(arr, ns);
     if (index > -1)
         arr.splice(index, 1);
 };

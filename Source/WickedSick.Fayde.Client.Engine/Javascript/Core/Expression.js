@@ -10,44 +10,40 @@
 /// <reference path="Binding.js"/>
 
 //#region Expression
+var Expression = Nullstone.Create("Expression");
 
-function Expression() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(Expression, "Expression");
-
-Expression.prototype.GetValue = function (propd) {
+Expression.Instance.GetValue = function (propd) {
     AbstractMethod("Expression.GetValue");
 };
-Expression.prototype._OnAttached = function (element) {
+Expression.Instance._OnAttached = function (element) {
     ///<param name="element" type="DependencyObject"></param>
     this.SetAttached(true);
 };
-Expression.prototype._OnDetached = function (element) {
+Expression.Instance._OnDetached = function (element) {
     this.SetAttached(false);
 };
 
 //#region PROPERTIES
 
-Expression.prototype.GetAttached = function () {
+Expression.Instance.GetAttached = function () {
     /// <returns type="Boolean" />
     return this._Attached;
 };
-Expression.prototype.SetAttached = function (value) {
+Expression.Instance.SetAttached = function (value) {
     /// <param name="value" type="Boolean"></param>
     this._Attached = value;
 };
 
-Expression.prototype.GetUpdating = function () {
+Expression.Instance.GetUpdating = function () {
     /// <returns type="Boolean" />
     return this._Updating;
 };
-Expression.prototype.SetUpdating = function (value) {
+Expression.Instance.SetUpdating = function (value) {
     /// <param name="value" type="Boolean"></param>
     this._Updating = value;
 };
 
 //#endregion
 
+Nullstone.FinishCreate(Expression);
 //#endregion

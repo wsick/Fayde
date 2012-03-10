@@ -2,18 +2,18 @@
 /// CODE
 
 //#region _TextLayoutRun
+var _TextLayoutRun = Nullstone.Create("_TextLayoutRun", null, 3);
 
-function _TextLayoutRun(line, attrs, start) {
+_TextLayoutRun.Instance.Init = function (line, attrs, start) {
     this._Clusters = new Array();
     this._Attrs = attrs;
     this._Start = start;
     this._Line = line;
     this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
     this._Length = 0;
-}
-Nullstone.Create(_TextLayoutRun, "_TextLayoutRun");
+};
 
-_TextLayoutRun.prototype._GenerateCache = function () {
+_TextLayoutRun.Instance._GenerateCache = function () {
     var selectionLength = this._Line._Layout.GetSelectionLength();
     var selectionStart = this._Line._Layout.GetSelectionStart();
     var text = this._Line._Layout.GetText();
@@ -44,10 +44,10 @@ _TextLayoutRun.prototype._GenerateCache = function () {
         index += len;
     }
 };
-_TextLayoutRun.prototype._ClearCache = function () {
+_TextLayoutRun.Instance._ClearCache = function () {
     this._Clusters = new Array();
 };
-_TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
+_TextLayoutRun.Instance._Render = function (ctx, origin, x, y) {
     var x0 = x;
     if (this._Clusters.length == 0)
         this._GenerateCache();
@@ -60,8 +60,9 @@ _TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
         x0 += cluster._Advance;
     }
 };
-_TextLayoutRun.prototype.__Debug = function (allText) {
+_TextLayoutRun.Instance.__Debug = function (allText) {
     return allText.substr(this._Start, this._Length);
 };
 
+Nullstone.FinishCreate(_TextLayoutRun);
 //#endregion

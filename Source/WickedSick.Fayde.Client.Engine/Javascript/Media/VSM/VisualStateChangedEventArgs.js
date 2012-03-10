@@ -2,11 +2,7 @@
 /// CODE
 
 //#region VisualStateChangedEventArgs
+var VisualStateChangedEventArgs = Nullstone.Create("VisualStateChangedEventArgs");
 
-function VisualStateChangedEventArgs() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(VisualStateChangedEventArgs, "VisualStateChangedEventArgs");
-
+Nullstone.FinishCreate(VisualStateChangedEventArgs);
 //#endregion

@@ -4,16 +4,14 @@
 /// CODE
 
 //#region Geometry
+var Geometry = Nullstone.Create("Geometry", DependencyObject);
 
-function Geometry() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Geometry.Instance.Init = function () {
+    this.Init$super();
     this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-}
-Nullstone.Extend(Geometry, "Geometry", DependencyObject);
+};
 
-Geometry.prototype.GetBounds = function () {
+Geometry.Instance.GetBounds = function () {
     var compute = this._LocalBounds.IsEmpty();
 
     //TODO: Path build
@@ -26,7 +24,8 @@ Geometry.prototype.GetBounds = function () {
 
     return bounds;
 };
-Geometry.prototype.ComputePathBounds = function () {
+Geometry.Instance.ComputePathBounds = function () {
 };
 
+Nullstone.FinishCreate(Geometry);
 //#endregion

@@ -4,16 +4,14 @@
 /// CODE
 
 //#region _AutoCreatePropertyValueProvider
+var _AutoCreatePropertyValueProvider = Nullstone.Create("_AutoCreatePropertyValueProvider", _PropertyValueProvider, 2);
 
-function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+_AutoCreatePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
-Nullstone.Extend(_AutoCreatePropertyValueProvider, "_AutoCreatePropertyValueProvider", _PropertyValueProvider);
 
-_AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);
     if (value !== undefined)
         return value;
@@ -27,16 +25,17 @@ _AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
     return value;
 };
-_AutoCreatePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+_AutoCreatePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
     if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
         return;
     this.ClearValue(propd);
 };
-_AutoCreatePropertyValueProvider.prototype.ReadLocalValue = function (propd) {
+_AutoCreatePropertyValueProvider.Instance.ReadLocalValue = function (propd) {
     return this._ht[propd];
 };
-_AutoCreatePropertyValueProvider.prototype.ClearValue = function (propd) {
+_AutoCreatePropertyValueProvider.Instance.ClearValue = function (propd) {
     delete this._ht[propd];
 };
 
-//#endregion
+Nullstone.FinishCreate(_AutoCreatePropertyValueProvider);
+//#endregio

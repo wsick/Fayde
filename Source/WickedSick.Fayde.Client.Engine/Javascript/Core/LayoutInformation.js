@@ -8,12 +8,7 @@
 /// <reference path="DependencyProperty.js"/>
 
 //#region LayoutInformation
-
-function LayoutInformation() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(LayoutInformation, "LayoutInformation");
+var LayoutInformation = Nullstone.Create("LayoutInformation");
 
 //#region DEPENDENCY PROPERTIES
 
@@ -75,4 +70,5 @@ LayoutInformation.SetVisualOffset = function (d, value) {
 
 //#endregion
 
+Nullstone.FinishCreate(LayoutInformation);
 //#endregion

@@ -3,13 +3,7 @@
 /// CODE
 
 //#region ObjectKeyFrame
-
-function ObjectKeyFrame() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ObjectKeyFrame, "ObjectKeyFrame", KeyFrame);
+var ObjectKeyFrame = Nullstone.Create("ObjectKeyFrame", KeyFrame);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -21,4 +15,5 @@ ObjectKeyFrame.ConvertedValueProperty = DependencyProperty.Register("ConvertedVa
 
 //#endregion
 
+Nullstone.FinishCreate(ObjectKeyFrame);
 //#endregion

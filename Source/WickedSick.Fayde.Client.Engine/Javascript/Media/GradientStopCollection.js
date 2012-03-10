@@ -4,16 +4,11 @@
 /// <reference path="GradientStop.js"/>
 
 //#region GradientStopCollection
+var GradientStopCollection = Nullstone.Create("GradientStopCollection", DependencyObjectCollection);
 
-function GradientStopCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(GradientStopCollection, "GradientStopCollection", DependencyObjectCollection);
-
-GradientStopCollection.prototype.IsElementType = function (value) {
+GradientStopCollection.Instance.IsElementType = function (value) {
     return value instanceof GradientStop;
 };
 
+Nullstone.FinishCreate(GradientStopCollection);
 //#endregion

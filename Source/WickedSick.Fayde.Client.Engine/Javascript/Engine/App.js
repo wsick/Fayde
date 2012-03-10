@@ -7,25 +7,22 @@
 /// <reference path="Clock.js"/>
 
 //#region App
+var App = Nullstone.Create("App", DependencyObject);
 
-function App() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-
+App.Instance.Init = function () {
+    this.Init$super();
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
     this._Storyboards = new Array();
-}
-Nullstone.Extend(App, "App", DependencyObject);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
-App.prototype.GetResources = function () {
+App.Instance.GetResources = function () {
     return this.GetValue(App.ResourcesProperty);
 };
-App.prototype.SetResources = function (value) {
+App.Instance.SetResources = function (value) {
     this.SetValue(App.ResourcesProperty, value);
 };
 
@@ -33,44 +30,44 @@ App.prototype.SetResources = function (value) {
 
 //#region PROPERTIES
 
-App.prototype.GetAddress = function () {
+App.Instance.GetAddress = function () {
     ///<returns type="Uri"></returns>
     return this._Address;
 };
-App.prototype.SetAddress = function (value) {
+App.Instance.SetAddress = function (value) {
     ///<param name="value" type="Uri"></param>
     this._Address = value;
 };
 
 //#endregion
 
-App.prototype.Load = function (element, containerId, width, height) {
+App.Instance.Load = function (element, containerId, width, height) {
     /// <param name="element" type="UIElement"></param>
     this.SetAddress(new Uri(document.URL));
-    this.MainSurface.Init(containerId, width, height);
+    this.MainSurface.Register(containerId, width, height);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);
     this.Start();
 };
 
-App.prototype.Start = function () {
+App.Instance.Start = function () {
     this._Clock.RegisterTimer(this);
 };
-App.prototype._Tick = function (lastTime, nowTime) {
+App.Instance._Tick = function (lastTime, nowTime) {
     this.ProcessStoryboards(lastTime, nowTime);
     this.ProcessDirty();
 };
-App.prototype._Stop = function () {
+App.Instance._Stop = function () {
     this._Clock.UnregisterTimer(this);
 };
 
-App.prototype.ProcessStoryboards = function (lastTime, nowTime) {
+App.Instance.ProcessStoryboards = function (lastTime, nowTime) {
     for (var i = 0; i < this._Storyboards.length; i++) {
         this._Storyboards[i]._Tick(lastTime, nowTime);
     }
 };
-App.prototype.ProcessDirty = function () {
+App.Instance.ProcessDirty = function () {
     if (this._IsRunning)
         return;
     this._IsRunning = true;
@@ -84,14 +81,14 @@ App.prototype.ProcessDirty = function () {
     this._IsRunning = false;
 };
 
-App.prototype.RegisterStoryboard = function (storyboard) {
+App.Instance.RegisterStoryboard = function (storyboard) {
     Array.addDistinctRefObject(this._Storyboards, storyboard);
 };
-App.prototype.UnregisterStoryboard = function (storyboard) {
+App.Instance.UnregisterStoryboard = function (storyboard) {
     Array.removeRefObject(this._Storyboards, storyboard);
 };
 
-App.prototype._GetImplicitStyles = function (fe, styleMask) {
+App.Instance._GetImplicitStyles = function (fe, styleMask) {
     var genericXamlStyle = undefined;
     var appResourcesStyle = undefined;
     var visualTreeStyle = undefined;
@@ -138,8 +135,9 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
     styles[_StyleIndex.VisualTree] = visualTreeStyle;
     return styles;
 };
-App.prototype._GetGenericXamlStyleFor = function (type) {
+App.Instance._GetGenericXamlStyleFor = function (type) {
     NotImplemented("App._GetGenericXamlStyleFor");
 };
 
+Nullstone.FinishCreate(App);
 //#endregion

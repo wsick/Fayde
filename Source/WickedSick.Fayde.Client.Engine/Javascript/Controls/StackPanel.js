@@ -5,13 +5,7 @@
 /// <reference path="DependencyObject.js" />
 
 //#region StackPanel
-
-function StackPanel() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(StackPanel, "StackPanel", Panel);
+var StackPanel = Nullstone.Create("StackPanel", Panel);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -23,10 +17,10 @@ StackPanel._OrientationChanged = function (d, args) {
     d._InvalidateArrange();
 };
 StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return Number; }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
-StackPanel.prototype.GetOrientation = function () {
+StackPanel.Instance.GetOrientation = function () {
     return this.GetValue(StackPanel.OrientationProperty);
 };
-StackPanel.prototype.SetOrientation = function (value) {
+StackPanel.Instance.SetOrientation = function (value) {
     this.SetValue(StackPanel.OrientationProperty, value);
 };
 
@@ -34,7 +28,7 @@ StackPanel.prototype.SetOrientation = function (value) {
 
 //#region INSTANCE METHODS
 
-StackPanel.prototype.MeasureOverride = function (constraint) {
+StackPanel.Instance.MeasureOverride = function (constraint) {
     //Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
@@ -70,7 +64,7 @@ StackPanel.prototype.MeasureOverride = function (constraint) {
 
     return measured;
 };
-StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
+StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     //Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
     var arranged = arrangeSize;
 
@@ -121,4 +115,5 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
 
 //#endregion
 
+Nullstone.FinishCreate(StackPanel);
 //#endregion

@@ -4,15 +4,9 @@
 /// <reference path="ResourceDictionary.js"/>
 
 //#region ResourceDictionaryCollection
+var ResourceDictionaryCollection = Nullstone.Create("ResourceDictionaryCollection", DependencyObjectCollection);
 
-function ResourceDictionaryCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ResourceDictionaryCollection, "ResourceDictionaryCollection", DependencyObjectCollection);
-
-ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
+ResourceDictionaryCollection.Instance.AddedToCollection = function (value, error) {
     if (!this.AddedToCollection$super(value, error))
         return false;
     var parent = this._GetParent();
@@ -21,10 +15,10 @@ ResourceDictionaryCollection.prototype.AddedToCollection = function (value, erro
 
     return this._WalkSubtreeLookingForCycle(value, parent, error);
 };
-ResourceDictionaryCollection.prototype.IsElementType = function (value) {
+ResourceDictionaryCollection.Instance.IsElementType = function (value) {
     return value instanceof ResourceDictionary;
 };
-ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
+ResourceDictionaryCollection.Instance._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
     var source = subtreeRoot._GetInternalSource();
 
     var p = firstAncestor;
@@ -54,4 +48,5 @@ ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (s
     return true;
 };
 
+Nullstone.FinishCreate(ResourceDictionaryCollection);
 //#endregion

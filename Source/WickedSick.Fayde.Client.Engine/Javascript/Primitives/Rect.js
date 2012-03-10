@@ -2,21 +2,19 @@
 /// CODE
 
 //#region Rect
+var Rect = Nullstone.Create("Rect", null, 4);
 
-function Rect(x, y, width, height) {
-    if (!Nullstone.IsReady)
-        return;
+Rect.Instance.Init = function (x, y, width, height) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
-}
-Nullstone.Create(Rect, "Rect");
+};
 
-Rect.prototype.IsEmpty = function () {
+Rect.Instance.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;
 };
-Rect.prototype.GrowBy = function (left, top, right, bottom) {
+Rect.Instance.GrowBy = function (left, top, right, bottom) {
     var result = new Rect(this.X - left, this.Y - top, this.Width + left + right, this.Height + top + bottom);
     if (result.Width < 0)
         result.Width = 0;
@@ -24,10 +22,10 @@ Rect.prototype.GrowBy = function (left, top, right, bottom) {
         result.Height = 0;
     return result;
 };
-Rect.prototype.GrowByThickness = function (thickness) {
+Rect.Instance.GrowByThickness = function (thickness) {
     return this.GrowBy(thickness.Left, thickness.Top, thickness.Right, thickness.Bottom);
 };
-Rect.prototype.Union = function (rect2) {
+Rect.Instance.Union = function (rect2) {
     if (this.IsEmpty())
         return new Rect(rect2.X, rect2.Y, rect2.Width, rect2.Height);
     if (rect2.Width <= 0 || rect2.Height <= 0)
@@ -40,7 +38,7 @@ Rect.prototype.Union = function (rect2) {
     result.Height = Math.max(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y;
     return result;
 };
-Rect.prototype.Intersection = function (rect2) {
+Rect.Instance.Intersection = function (rect2) {
     var result = new Rect(0, 0, 0, 0);
     result.X = Math.max(this.X, rect2.X);
     result.Y = Math.max(this.Y, rect2.Y);
@@ -48,10 +46,10 @@ Rect.prototype.Intersection = function (rect2) {
     result.Height = Math.max(0, Math.min(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y);
     return result;
 };
-Rect.prototype.RoundOut = function () {
+Rect.Instance.RoundOut = function () {
     return new Rect(Math.floor(this.X), Math.floor(this.Y), Math.ceil(this.X + this.Width) - Math.floor(this.X), Math.ceil(this.Y + this.Height) - Math.floor(this.Y));
 }
-Rect.prototype.RoundIn = function () {
+Rect.Instance.RoundIn = function () {
     return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
 }
 Rect.Equals = function (rect1, rect2) {
@@ -62,4 +60,5 @@ Rect.Equals = function (rect1, rect2) {
     return rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
 };
 
+Nullstone.FinishCreate(Rect);
 //#endregion

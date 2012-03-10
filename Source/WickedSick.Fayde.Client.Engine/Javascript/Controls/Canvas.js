@@ -5,13 +5,7 @@
 /// <reference path="DependencyObject.js" />
 
 //#region Canvas
-
-function Canvas() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Canvas, "Canvas", Panel);
+var Canvas = Nullstone.Create("Canvas", Panel);
 
 //#region DEPENDENCY PROPERTIES
 
@@ -49,4 +43,5 @@ Canvas.SetZ = function (d, value) {
 
 //#endregion
 
+Nullstone.FinishCreate(Canvas);
 //#endregion

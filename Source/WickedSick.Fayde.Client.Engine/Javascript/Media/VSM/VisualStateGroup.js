@@ -8,50 +8,47 @@
 /// <reference path="../Animation/Storyboard.js"/>
 
 //#region VisualStateGroup
+var VisualStateGroup = Nullstone.Create("VisualStateGroup", DependencyObject);
 
-function VisualStateGroup() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-
+VisualStateGroup.Instance.Init = function () {
+    this.Init$super();
     this.CurrentStateChanging = new MulticastEvent();
     this.CurrentStateChanged = new MulticastEvent();
-}
-Nullstone.Extend(VisualStateGroup, "VisualStateGroup", DependencyObject);
+};
 
 //#region PROPERTIES
 
-VisualStateGroup.prototype.GetStates = function () {
+VisualStateGroup.Instance.GetStates = function () {
     /// <returns type="VisualStateCollection" />
     if (this._States == null)
         this._States = new VisualStateCollection();
     return this._States;
 };
-VisualStateGroup.prototype.GetCurrentStoryboards = function () {
+VisualStateGroup.Instance.GetCurrentStoryboards = function () {
     ///<returns type="StoryboardCollection"></returns>
     if (this._CurrentStoryboards == null)
         this._CurrentStoryboards = new StoryboardCollection();
     return this._CurrentStoryboards;
 };
-VisualStateGroup.prototype.GetTransitions = function () {
+VisualStateGroup.Instance.GetTransitions = function () {
     ///<returns type="VisualTransitionCollection"></returns>
     if (this._Transitions == null)
         this._Transitions = new VisualTransitionCollection();
     return this._Transitions;
 };
 
-VisualStateGroup.prototype.GetCurrentState = function () {
+VisualStateGroup.Instance.GetCurrentState = function () {
     ///<returns type="VisualState"></returns>
     return this._CurrentState;
 };
-VisualStateGroup.prototype.SetCurrentState = function (value) {
+VisualStateGroup.Instance.SetCurrentState = function (value) {
     ///<param name="value" type="VisualState"></param>
     this._CurrentState = value;
 };
 
 //#endregion
 
-VisualStateGroup.prototype.GetState = function (stateName) {
+VisualStateGroup.Instance.GetState = function (stateName) {
     var states = this.GetStates();
     for (var i = 0; i < states.GetCount(); i++) {
         var state = states.GetValueAt(i);
@@ -61,7 +58,7 @@ VisualStateGroup.prototype.GetState = function (stateName) {
     return null;
 };
 
-VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboards) {
+VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboards) {
     /// <param name="element" type="FrameworkElement"></param>
     /// <param name="newStoryboards" type="Array"></param>
 
@@ -100,14 +97,14 @@ VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboar
         currentStoryboards.Add(newStoryboards[i]);
     }
 };
-VisualStateGroup.prototype.RaiseCurrentStateChanging = function (element, oldState, newState, control) {
+VisualStateGroup.Instance.RaiseCurrentStateChanging = function (element, oldState, newState, control) {
     /// <param name="element" type="FrameworkElement"></param>
     /// <param name="oldState" type="VisualState"></param>
     /// <param name="newState" type="VisualState"></param>
     /// <param name="control" type="Control">Description</param>
     this.CurrentStateChanging.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
 };
-VisualStateGroup.prototype.RaiseCurrentStateChanged = function (element, oldState, newState, control) {
+VisualStateGroup.Instance.RaiseCurrentStateChanged = function (element, oldState, newState, control) {
     /// <param name="element" type="FrameworkElement"></param>
     /// <param name="oldState" type="VisualState"></param>
     /// <param name="newState" type="VisualState"></param>
@@ -123,19 +120,15 @@ VisualStateGroup.Annotations = {
 
 //#endregion
 
+Nullstone.FinishCreate(VisualStateGroup);
 //#endregion
 
 //#region VisualStateGroupCollection
+var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", DependencyObjectCollection);
 
-function VisualStateGroupCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualStateGroupCollection, "VisualStateGroupCollection", DependencyObjectCollection);
-
-VisualStateGroupCollection.prototype.IsElementType = function (value) {
+VisualStateGroupCollection.Instance.IsElementType = function (value) {
     return value instanceof VisualStateGroup;
 }
 
+Nullstone.FinishCreate(VisualStateGroupCollection);
 //#endregion

@@ -2,31 +2,6 @@
 /// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
 
-function _DirtyList() {
-    if (!Nullstone.IsReady)
-        return;
-    this._DirtyNodes = new LinkedList();
-}
-Nullstone.Create(_DirtyList, "_DirtyList");
-
-_DirtyList.prototype.AddDirtyNode = function (node) {
-    this._DirtyNodes.Append(node);
-};
-_DirtyList.prototype.RemoveDirtyNode = function (node) {
-    if (!this._DirtyNodes)
-        return;
-    this._DirtyNodes.Remove(node);
-};
-_DirtyList.prototype.GetFirst = function () {
-    return this._DirtyNodes.First();
-};
-_DirtyList.prototype.IsEmpty = function () {
-    return this._DirtyNodes.IsEmpty();
-};
-_DirtyList.prototype.Clear = function () {
-    this._DirtyNodes.Clear();
-};
-
 var _Dirty = {
     Transform: 1 << 0,
     LocalTransform: 1 << 1,
@@ -55,3 +30,31 @@ _Dirty.DownDirtyState =
     _Dirty.ChildrenZIndices;
 _Dirty.UpDirtyState = _Dirty.Bounds | _Dirty.Invalidate;
 _Dirty.State = _Dirty.DownDirtyState | _Dirty.UpDirtyState;
+
+//#region _DirtyList
+var _DirtyList = Nullstone.Create("_DirtyList");
+
+_DirtyList.Instance.Init = function () {
+    this._DirtyNodes = new LinkedList();
+};
+
+_DirtyList.Instance.AddDirtyNode = function (node) {
+    this._DirtyNodes.Append(node);
+};
+_DirtyList.Instance.RemoveDirtyNode = function (node) {
+    if (!this._DirtyNodes)
+        return;
+    this._DirtyNodes.Remove(node);
+};
+_DirtyList.Instance.GetFirst = function () {
+    return this._DirtyNodes.First();
+};
+_DirtyList.Instance.IsEmpty = function () {
+    return this._DirtyNodes.IsEmpty();
+};
+_DirtyList.Instance.Clear = function () {
+    this._DirtyNodes.Clear();
+};
+
+Nullstone.FinishCreate(_DirtyList);
+//#endregion

@@ -3,10 +3,9 @@
 /// CODE
 
 //#region _PropertyPathWalker
+var _PropertyPathWalker = Nullstone.Create("_PropertyPathWalker", null, 4);
 
-function _PropertyPathWalker(path, bindDirectlyToSource, bindsToView, isDataContextBound) {
-    if (!Nullstone.IsReady)
-        return;
+_PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
     if (bindDirectlyToSource == null)
         bindDirectlyToSource = true;
     if (bindsToView == null)
@@ -17,11 +16,8 @@ function _PropertyPathWalker(path, bindDirectlyToSource, bindsToView, isDataCont
     this.IsBrokenChanged = new MulticastEvent();
     this.ValueChanged = new MulticastEvent();
 
-    this._Init(path, bindDirectlyToSource, bindsToView, isDataContextBound);
-}
-Nullstone.Create(_PropertyPathWalker, "_PropertyPathWalker");
+    //begin
 
-_PropertyPathWalker.prototype._Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
     this.SetPath(path);
     this.SetIsDataContextBound(isDataContextBound);
 
@@ -75,74 +71,75 @@ _PropertyPathWalker.prototype._Init = function (path, bindDirectlyToSource, bind
     },
     this);
 };
-_PropertyPathWalker.prototype.GetValue = function (item) {
+
+_PropertyPathWalker.Instance.GetValue = function (item) {
     this.Update(item);
     var o = this.GetFinalNode().GetValue();
     this.Update(null);
     return o;
 };
-_PropertyPathWalker.prototype.Update = function (source) {
+_PropertyPathWalker.Instance.Update = function (source) {
     this.SetSource(source);
     this.GetNode().SetSource(source);
 };
 
 //#region PROPERTIES
 
-_PropertyPathWalker.prototype.GetSource = function () {
+_PropertyPathWalker.Instance.GetSource = function () {
     /// <returns type="RefObject" />
     return this._Source;
 };
-_PropertyPathWalker.prototype.SetSource = function (value) {
+_PropertyPathWalker.Instance.SetSource = function (value) {
     /// <param name="value" type="RefObject"></param>
     this._Source = value;
 };
 
-_PropertyPathWalker.prototype.GetPath = function () {
+_PropertyPathWalker.Instance.GetPath = function () {
     /// <returns type="String" />
     return this._Path;
 };
-_PropertyPathWalker.prototype.SetPath = function (value) {
+_PropertyPathWalker.Instance.SetPath = function (value) {
     /// <param name="value" type="String"></param>
     this._Path = value;
 };
 
-_PropertyPathWalker.prototype.GetValueInternal = function () {
+_PropertyPathWalker.Instance.GetValueInternal = function () {
     ///<returns type="RefObject"></returns>
     return this._ValueInternal;
 };
-_PropertyPathWalker.prototype.SetValueInternal = function (value) {
+_PropertyPathWalker.Instance.SetValueInternal = function (value) {
     ///<param name="value" type="RefObject"></param>
     this._ValueInternal = value;
 };
 
-_PropertyPathWalker.prototype.GetIsDataContextBound = function () {
+_PropertyPathWalker.Instance.GetIsDataContextBound = function () {
     /// <returns type="Boolean" />
     return this._IsDataContextBound;
 };
-_PropertyPathWalker.prototype.SetIsDataContextBound = function (value) {
+_PropertyPathWalker.Instance.SetIsDataContextBound = function (value) {
     /// <param name="value" type="Boolean"></param>
     this._IsDataContextBound = value;
 };
 
-_PropertyPathWalker.prototype.GetNode = function () {
+_PropertyPathWalker.Instance.GetNode = function () {
     /// <returns type="_PropertyPathNode" />
     return this._Node;
 };
-_PropertyPathWalker.prototype.SetNode = function (value) {
+_PropertyPathWalker.Instance.SetNode = function (value) {
     /// <param name="value" type="_PropertyPathNode"></param>
     this._Node = value;
 };
 
-_PropertyPathWalker.prototype.GetFinalNode = function () {
+_PropertyPathWalker.Instance.GetFinalNode = function () {
     /// <returns type="_PropertyPathNode" />
     return this._FinalNode;
 };
-_PropertyPathWalker.prototype.SetFinalNode = function (value) {
+_PropertyPathWalker.Instance.SetFinalNode = function (value) {
     /// <param name="value" type="_PropertyPathNode"></param>
     this._FinalNode = value;
 };
 
-_PropertyPathWalker.prototype.GetIsPathBroken = function () {
+_PropertyPathWalker.Instance.GetIsPathBroken = function () {
     /// <returns type="Boolean" />
     var path = this.GetPath();
     if (this.GetIsDataContextBound() && (path == null || path.length < 1))
@@ -159,4 +156,5 @@ _PropertyPathWalker.prototype.GetIsPathBroken = function () {
 
 //#endregion
 
+Nullstone.FinishCreate(_PropertyPathWalker);
 //#endregion

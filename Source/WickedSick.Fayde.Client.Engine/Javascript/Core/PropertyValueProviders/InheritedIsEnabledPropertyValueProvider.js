@@ -4,23 +4,20 @@
 /// CODE
 
 //#region _InheritedIsEnabledPropertyValueProvider
+var _InheritedIsEnabledPropertyValueProvider = Nullstone.Create("_InheritedIsEnabledPropertyValueProvider", _PropertyValueProvider, 2);
 
-function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
-
+_InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
     this._Source = null;
     this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-}
-Nullstone.Extend(_InheritedIsEnabledPropertyValueProvider, "_InheritedIsEnabledPropertyValueProvider", _PropertyValueProvider);
+};
 
-_InheritedIsEnabledPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_InheritedIsEnabledPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (propd === Control.IsEnabledProperty)
         return this._CurrentValue;
     return null;
 };
-_InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (source) {
+_InheritedIsEnabledPropertyValueProvider.Instance.SetDataSource = function (source) {
     if (source) {
         while (source) {
             if (source instanceof Control)
@@ -41,7 +38,7 @@ _InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (sou
     if (!source || this._Object.IsAttached())
         this.LocalValueChanged(null);
 };
-_InheritedIsEnabledPropertyValueProvider.prototype._AttachListener = function (obj) {
+_InheritedIsEnabledPropertyValueProvider.Instance._AttachListener = function (obj) {
     if (source) {
         var matchFunc = function (sender, args) {
             return this === args.Property; //Closure - Control.IsEnabledProperty
@@ -50,16 +47,16 @@ _InheritedIsEnabledPropertyValueProvider.prototype._AttachListener = function (o
         //TODO: Add Handler - Destroyed Event
     }
 };
-_InheritedIsEnabledPropertyValueProvider.prototype._DetachListener = function (source) {
+_InheritedIsEnabledPropertyValueProvider.Instance._DetachListener = function (source) {
     if (source) {
         source.PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Control.IsEnabledProperty);
         //TODO: Remove Handler - Destroyed Event
     }
 };
-_InheritedIsEnabledPropertyValueProvider.prototype._IsEnabledChanged = function (sender, args) {
+_InheritedIsEnabledPropertyValueProvider.Instance._IsEnabledChanged = function (sender, args) {
     this.LocalValueChanged(args.Property);
 };
-_InheritedIsEnabledPropertyValueProvider.prototype.LocalValueChanged = function (propd) {
+_InheritedIsEnabledPropertyValueProvider.Instance.LocalValueChanged = function (propd) {
     if (propd && propd !== Control.IsEnabledProperty)
         return false;
 
@@ -77,4 +74,5 @@ _InheritedIsEnabledPropertyValueProvider.prototype.LocalValueChanged = function 
     return false;
 };
 
+Nullstone.FinishCreate(_InheritedIsEnabledPropertyValueProvider);
 //#endregion

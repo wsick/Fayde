@@ -4,12 +4,10 @@
 /// CODE
 
 //#region BindingExpressionBase
+var BindingExpressionBase = Nullstone.Create("BindingExpressionBase", Expression, 3);
 
-function BindingExpressionBase(binding, target, propd) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-
+BindingExpressionBase.prototype.Init = function (binding, target, propd) {
+    this.Init$super();
     if (!binding)
         return;
 
@@ -27,8 +25,7 @@ function BindingExpressionBase(binding, target, propd) {
         walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);
         walker.ValueChanged.Subscribe(this._PropertyPathValueChanged, this);
     }
-}
-Nullstone.Extend(BindingExpressionBase, "BindingExpressionBase", Expression);
+};
 
 BindingExpressionBase.prototype.GetValue = function (propd) {
     if (this._Cached)
@@ -515,4 +512,5 @@ BindingExpressionBase.prototype.GetIsTwoWayTextBoxText = function () {
 
 //#endregion
 
+Nullstone.FinishCreate(BindingExpressionBase);
 //#endregion

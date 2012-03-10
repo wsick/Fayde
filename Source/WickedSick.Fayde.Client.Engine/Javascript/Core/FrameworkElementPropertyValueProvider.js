@@ -5,19 +5,16 @@
 /// <reference path="FrameworkElement.js"/>
 
 //#region FrameworkElementPropertyValueProvider
+var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);
 
-function FrameworkElementPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, 0);
-
+FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, 0);
     this._ActualHeight = null;
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-}
-Nullstone.Extend(FrameworkElementPropertyValueProvider, "FrameworkElementPropertyValueProvider", _PropertyValueProvider);
+};
 
-FrameworkElementPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (propd !== FrameworkElement.ActualHeightProperty && propd !== FrameworkElement.ActualWidthProperty)
         return undefined;
 
@@ -35,4 +32,5 @@ FrameworkElementPropertyValueProvider.prototype.GetPropertyValue = function (pro
     }
 };
 
+Nullstone.FinishCreate(FrameworkElementPropertyValueProvider);
 //#endregion

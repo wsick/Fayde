@@ -5,16 +5,14 @@
 /// <reference path="InheritedContext.js"/>
 
 //#region _InheritedPropertyValueProvider
+var _InheritedPropertyValueProvider = Nullstone.Create("_InheritedPropertyValueProvider", _PropertyValueProvider, 2);
 
-function _InheritedPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, 0);
+_InheritedPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$super(obj, propPrecedence, 0);
     this._ht = new Array();
-}
-Nullstone.Extend(_InheritedPropertyValueProvider, "_InheritedPropertyValueProvider", _PropertyValueProvider);
+};
 
-_InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_InheritedPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
         return undefined;
 
@@ -31,7 +29,7 @@ _InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
         return v;
     return undefined;
 };
-_InheritedPropertyValueProvider.prototype.WalkSubtree = function (rootParent, element, context, props, adding) {
+_InheritedPropertyValueProvider.Instance.WalkSubtree = function (rootParent, element, context, props, adding) {
     if (element instanceof TextElement || element instanceof TextBlock) {
         var childProp;
         if (element instanceof TextBlock)
@@ -66,7 +64,7 @@ _InheritedPropertyValueProvider.prototype.WalkSubtree = function (rootParent, el
         }
     }
 };
-_InheritedPropertyValueProvider.prototype.WalkTree = function (rootParent, element, context, props, adding) {
+_InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, element, context, props, adding) {
     if (props == _Inheritable.None)
         return;
 
@@ -112,7 +110,7 @@ _InheritedPropertyValueProvider.prototype.WalkTree = function (rootParent, eleme
         this.WalkSubtree(rootParent, element, context, props, adding);
     }
 };
-_InheritedPropertyValueProvider.prototype.MaybePropagateInheritedValue = function (source, prop, props, element) {
+_InheritedPropertyValueProvider.Instance.MaybePropagateInheritedValue = function (source, prop, props, element) {
     if (!source) return;
     if ((props & prop) == 0) return;
 
@@ -121,14 +119,14 @@ _InheritedPropertyValueProvider.prototype.MaybePropagateInheritedValue = functio
     if (value)
         element._PropagateInheritedValue(prop, source, value);
 };
-_InheritedPropertyValueProvider.prototype.MaybeRemoveInheritedValue = function (source, prop, props, element) {
+_InheritedPropertyValueProvider.Instance.MaybeRemoveInheritedValue = function (source, prop, props, element) {
     if (!source) return;
     if ((props & prop) == 0) return;
 
     if (source == element._GetInheritedValueSource(prop))
         element._PropagateInheritedValue(prop, null, null);
 };
-_InheritedPropertyValueProvider.prototype.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
+_InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
     var baseContext = new _InheritedContext(
             this._GetPropertySource(_Inheritable.Foreground),
             this._GetPropertySource(_Inheritable.FontFamily),
@@ -144,12 +142,12 @@ _InheritedPropertyValueProvider.prototype.PropagateInheritedPropertiesOnAddingTo
     var objContext = new _InheritedContext(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, true);
 };
-_InheritedPropertyValueProvider.prototype.PropagateInheritedProperty = function (propd, source, subtree) {
+_InheritedPropertyValueProvider.Instance.PropagateInheritedProperty = function (propd, source, subtree) {
     var inheritable = _InheritedPropertyValueProvider.GetInheritable(source, propd);
     var objContext = new _InheritedContext(this._Object, null);
     this.WalkSubtree(source, subtree, objContext, inheritable, true);
 };
-_InheritedPropertyValueProvider.prototype.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
+_InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
     var baseContext = new _InheritedContext(
             this._GetPropertySource(_Inheritable.Foreground),
             this._GetPropertySource(_Inheritable.FontFamily),
@@ -165,12 +163,12 @@ _InheritedPropertyValueProvider.prototype.ClearInheritedPropertiesOnRemovingFrom
     var objContext = new _InheritedContext(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, false);
 };
-_InheritedPropertyValueProvider.prototype._GetPropertySource = function (inheritableOrProp) {
+_InheritedPropertyValueProvider.Instance._GetPropertySource = function (inheritableOrProp) {
     if (inheritableOrProp instanceof DependencyProperty)
         return this._ht[GetInheritableFromProperty(inheritableOrProp)];
     return this._ht[inheritableOrProp];
 };
-_InheritedPropertyValueProvider.prototype._SetPropertySource = function (inheritable, source) {
+_InheritedPropertyValueProvider.Instance._SetPropertySource = function (inheritable, source) {
     if (source)
         this._ht[inheritable] = source;
     else
@@ -296,4 +294,5 @@ _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
 
 //#endregion
 
+Nullstone.FinishCreate(_InheritedPropertyValueProvider);
 //#endregion

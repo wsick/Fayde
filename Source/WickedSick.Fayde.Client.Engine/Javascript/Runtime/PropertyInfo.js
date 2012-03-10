@@ -2,10 +2,7 @@
 /// CODE
 
 //#region PropertyInfo
-
-function PropertyInfo() {
-}
-Nullstone.Create(PropertyInfo, "PropertyInfo");
+var PropertyInfo = Nullstone.Create("PropertyInfo");
 
 PropertyInfo.Find = function (typeOrObj, name) {
     var isType = typeOrObj instanceof Function;
@@ -13,11 +10,11 @@ PropertyInfo.Find = function (typeOrObj, name) {
 
     var setFunc;
     var getFunc;
-    for (var i in type.prototype) {
+    for (var i in type.Instance) {
         if (i.toString() === ("Set" + name))
-            setFunc = type.prototype[i];
+            setFunc = type.Instance[i];
         if (i.toString() === ("Get" + name))
-            getFunc = type.prototype[i];
+            getFunc = type.Instance[i];
         if (getFunc && setFunc) {
             var pi = new PropertyInfo();
             pi.Type = type;
@@ -28,14 +25,15 @@ PropertyInfo.Find = function (typeOrObj, name) {
     }
 };
 
-PropertyInfo.prototype.GetValue = function (ro) {
+PropertyInfo.Instance.GetValue = function (ro) {
     if (!this.GetFunc)
         return undefined;
     return this.GetFunc.call(ro);
 };
-PropertyInfo.prototype.SetValue = function (ro, value) {
+PropertyInfo.Instance.SetValue = function (ro, value) {
     if (this.SetFunc)
         this.SetFunc.call(ro, value);
 };
 
+Nullstone.FinishCreate(PropertyInfo);
 //#endregion

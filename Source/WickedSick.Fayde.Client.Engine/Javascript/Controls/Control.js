@@ -3,158 +3,156 @@
 /// CODE
 
 //#region Control
+var Control = Nullstone.Create("Control", FrameworkElement);
 
-function Control() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Control.Instance.Init = function () {
+    this.Init$super();
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
-}
-Nullstone.Extend(Control, "Control", FrameworkElement);
+};
 
 //#region DEPENDENCY PROPERTIES
 
 Control.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Control);
-Control.prototype.GetBackground = function () {
+Control.Instance.GetBackground = function () {
     return this.GetValue(Control.BackgroundProperty);
 };
-Control.prototype.SetBackground = function (value) {
+Control.Instance.SetBackground = function (value) {
     this.SetValue(Control.BackgroundProperty, value);
 };
 
 Control.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Control);
-Control.prototype.GetBorderBrush = function () {
+Control.Instance.GetBorderBrush = function () {
     return this.GetValue(Control.BorderBrushProperty);
 };
-Control.prototype.SetBorderBrush = function (value) {
+Control.Instance.SetBorderBrush = function (value) {
     this.SetValue(Control.BorderBrushProperty, value);
 };
 
 Control.BorderThicknessProperty = DependencyProperty.Register("BorderThickness", function () { return Thickness; }, Control, new Thickness());
-Control.prototype.GetBorderThickness = function () {
+Control.Instance.GetBorderThickness = function () {
     return this.GetValue(Control.BorderThicknessProperty);
 };
-Control.prototype.SetBorderThickness = function (value) {
+Control.Instance.SetBorderThickness = function (value) {
     this.SetValue(Control.BorderThicknessProperty, value);
 };
 
 Control.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
-Control.prototype.GetFontFamily = function () {
+Control.Instance.GetFontFamily = function () {
     return this.GetValue(Control.FontFamilyProperty);
 };
-Control.prototype.SetFontFamily = function (value) {
+Control.Instance.SetFontFamily = function (value) {
     this.SetValue(Control.FontFamilyProperty, value);
 };
 
 Control.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, Control, Font.DEFAULT_SIZE);
-Control.prototype.GetFontSize = function () {
+Control.Instance.GetFontSize = function () {
     return this.GetValue(Control.FontSizeProperty);
 };
-Control.prototype.SetFontSize = function (value) {
+Control.Instance.SetFontSize = function (value) {
     this.SetValue(Control.FontSizeProperty, value);
 };
 
 Control.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
-Control.prototype.GetFontStretch = function () {
+Control.Instance.GetFontStretch = function () {
     return this.GetValue(Control.FontStretchProperty);
 };
-Control.prototype.SetFontStretch = function (value) {
+Control.Instance.SetFontStretch = function (value) {
     this.SetValue(Control.FontStretchProperty, value);
 };
 
 Control.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
-Control.prototype.GetFontStyle = function () {
+Control.Instance.GetFontStyle = function () {
     return this.GetValue(Control.FontStyleProperty);
 };
-Control.prototype.SetFontStyle = function (value) {
+Control.Instance.SetFontStyle = function (value) {
     this.SetValue(Control.FontStyleProperty, value);
 };
 
 Control.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, Control, Font.DEFAULT_WEIGHT);
-Control.prototype.GetFontWeight = function () {
+Control.Instance.GetFontWeight = function () {
     return this.GetValue(Control.FontWeightProperty);
 };
-Control.prototype.SetFontWeight = function (value) {
+Control.Instance.SetFontWeight = function (value) {
     this.SetValue(Control.FontWeightProperty, value);
 };
 
 Control.ForegroundProperty = DependencyProperty.Register("Foreground", function () { return Brush; }, Control);
-Control.prototype.GetForeground = function () {
+Control.Instance.GetForeground = function () {
     return this.GetValue(Control.ForegroundProperty);
 };
-Control.prototype.SetForeground = function (value) {
+Control.Instance.SetForeground = function (value) {
     this.SetValue(Control.ForegroundProperty, value);
 };
 
 Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return Number; }, Control, HorizontalAlignment.Center);
-Control.prototype.GetHorizontalContentAlignment = function () {
+Control.Instance.GetHorizontalContentAlignment = function () {
     return this.GetValue(Control.HorizontalContentAlignmentProperty);
 };
-Control.prototype.SetHorizontalContentAlignment = function (value) {
+Control.Instance.SetHorizontalContentAlignment = function (value) {
     this.SetValue(Control.HorizontalContentAlignmentProperty, value);
 };
 
 Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
-Control.prototype.GetIsEnabled = function () {
+Control.Instance.GetIsEnabled = function () {
     return this.GetValue(Control.IsEnabledProperty);
 };
-Control.prototype.SetIsEnabled = function (value) {
+Control.Instance.SetIsEnabled = function (value) {
     this.SetValue(Control.IsEnabledProperty, value);
 };
 
 Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () { return Boolean; }, Control, true);
-Control.prototype.GetIsTabStop = function () {
+Control.Instance.GetIsTabStop = function () {
     return this.GetValue(Control.IsTabStopProperty);
 };
-Control.prototype.SetIsTabStop = function (value) {
+Control.Instance.SetIsTabStop = function (value) {
     this.SetValue(Control.IsTabStopProperty, value);
 };
 
 Control.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, Control, new Thickness());
-Control.prototype.GetPadding = function () {
+Control.Instance.GetPadding = function () {
     return this.GetValue(Control.PaddingProperty);
 };
-Control.prototype.SetPadding = function (value) {
+Control.Instance.SetPadding = function (value) {
     this.SetValue(Control.PaddingProperty, value);
 };
 
 Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
-Control.prototype.GetTabIndex = function () {
+Control.Instance.GetTabIndex = function () {
     return this.GetValue(Control.TabIndexProperty);
 };
-Control.prototype.SetTabIndex = function (value) {
+Control.Instance.SetTabIndex = function (value) {
     this.SetValue(Control.TabIndexProperty, value);
 };
 
 Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () { return Number; }, Control);
-Control.prototype.GetTabNavigation = function () {
+Control.Instance.GetTabNavigation = function () {
     return this.GetValue(Control.TabNavigationProperty);
 };
-Control.prototype.SetTabNavigation = function (value) {
+Control.Instance.SetTabNavigation = function (value) {
     this.SetValue(Control.TabNavigationProperty, value);
 };
 
 Control.TemplateProperty = DependencyProperty.Register("Template", function () { return ControlTemplate; }, Control);
-Control.prototype.GetTemplate = function () {
+Control.Instance.GetTemplate = function () {
     return this.GetValue(Control.TemplateProperty);
 };
-Control.prototype.SetTemplate = function (value) {
+Control.Instance.SetTemplate = function (value) {
     this.SetValue(Control.TemplateProperty, value);
 };
 
 Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return Number; }, Control, VerticalAlignment.Center);
-Control.prototype.GetVerticalContentAlignment = function () {
+Control.Instance.GetVerticalContentAlignment = function () {
     return this.GetValue(Control.VerticalContentAlignmentProperty);
 };
-Control.prototype.SetVerticalContentAlignment = function (value) {
+Control.Instance.SetVerticalContentAlignment = function (value) {
     this.SetValue(Control.VerticalContentAlignmentProperty, value);
 };
 
 Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () { return Function; }, Control);
-Control.prototype.GetDefaultStyleKey = function () {
+Control.Instance.GetDefaultStyleKey = function () {
     return this.GetValue(Control.DefaultStyleKeyProperty);
 };
-Control.prototype.SetDefaultStyleKey = function (value) {
+Control.Instance.SetDefaultStyleKey = function (value) {
     this.SetValue(Control.DefaultStyleKeyProperty, value);
 };
 
@@ -170,7 +168,7 @@ Control.SetIsTemplateItem = function (d, value) {
 
 //#region PROPERTIES
 
-Control.prototype.GetIsFocused = function () {
+Control.Instance.GetIsFocused = function () {
     ///<returns type="Boolean"></returns>
     return this._IsFocused;
 };
@@ -179,28 +177,28 @@ Control.prototype.GetIsFocused = function () {
 
 //#region INSTANCE METHODS
 
-Control.prototype.GetDefaultStyle = function () {
+Control.Instance.GetDefaultStyle = function () {
     return null;
 };
-Control.prototype.GetTemplateChild = function (name) {
+Control.Instance.GetTemplateChild = function (name) {
     if (this._TemplateRoot)
         return this._TemplateRoot.FindName(name);
     return null;
 };
-Control.prototype.SetVisualParent = function (visualParent) {
+Control.Instance.SetVisualParent = function (visualParent) {
     if (this.GetVisualParent() != visualParent) {
         this.SetVisualParent$super(visualParent);
         this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
     }
 };
 
-Control.prototype._ElementAdded = function (item) {
+Control.Instance._ElementAdded = function (item) {
     var error = new BError();
     item._AddParent(this, true, error);
     this._SetSubtreeObject(item);
     this._ElementAdded$super(item);
 };
-Control.prototype._ElementRemoved = function (item) {
+Control.Instance._ElementRemoved = function (item) {
     var error;
     if (this._TemplateRoot) {
         this._TemplateRoot._RemoveParent(this, error);
@@ -210,26 +208,26 @@ Control.prototype._ElementRemoved = function (item) {
     this._ElementRemoved$super(item);
 };
 
-Control.prototype.CanCaptureMouse = function () {
+Control.Instance.CanCaptureMouse = function () {
     return this.GetIsEnabled();
 };
 
-Control.prototype._CanFindElement = function () {
+Control.Instance._CanFindElement = function () {
     return this.GetIsEnabled();
 };
-Control.prototype._InsideObject = function (x, y) {
+Control.Instance._InsideObject = function (x, y) {
     return false;
 };
-Control.prototype._HitTestPoint = function (ctx, p, uielist) {
+Control.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (this.GetIsEnabled())
         this._HitTestPoint$super(ctx, p, uielist);
 };
 
-Control.prototype._UpdateIsEnabledSource = function (control) {
+Control.Instance._UpdateIsEnabledSource = function (control) {
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(control);
 };
 
-Control.prototype._OnPropertyChanged = function (args, error) {
+Control.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Control) {
         this._OnPropertyChanged$super(args, error);
         return;
@@ -251,16 +249,16 @@ Control.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-Control.prototype._OnLogicalParentChanged = function (oldParent, newParent) {
+Control.Instance._OnLogicalParentChanged = function (oldParent, newParent) {
     this._OnLogicalParentChanged$super(oldParent, newParent);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(newParent);
 };
-Control.prototype._OnIsAttachedChanged = function (value) {
+Control.Instance._OnIsAttachedChanged = function (value) {
     this._OnIsAttachedChanged$super(value);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
 };
 
-Control.prototype._DoApplyTemplateWithError = function (error) {
+Control.Instance._DoApplyTemplateWithError = function (error) {
     var t = this.GetTemplate();
     if (!t)
         return this._DoApplyTemplateWithError$super(error);
@@ -294,7 +292,7 @@ Control.prototype._DoApplyTemplateWithError = function (error) {
 
 //#region FOCUS
 
-Control.prototype.Focus = function (recurse) {
+Control.Instance.Focus = function (recurse) {
     recurse = recurse === undefined || recurse === true;
     if (!this._IsAttached)
         return false;
@@ -331,18 +329,19 @@ Control.prototype.Focus = function (recurse) {
     }
     return false;
 };
-Control.prototype.OnGotFocus = function (sender, args) {
+Control.Instance.OnGotFocus = function (sender, args) {
     this._IsFocused = true;
     this.OnGotFocus$super(sender, args);
 };
-Control.prototype.OnLostFocus = function (sender, args) {
+Control.Instance.OnLostFocus = function (sender, args) {
     this._IsFocused = false;
     this.OnLostFocus$super(sender, args);
 };
 
 //#endregion
 
-Control.prototype.OnIsEnabledChanged = function (args) {
+Control.Instance.OnIsEnabledChanged = function (args) {
 }
 
+Nullstone.FinishCreate(Control);
 //#endregion

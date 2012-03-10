@@ -5,61 +5,55 @@
 /// <reference path="../../Core/DependencyObject.js"/>
 
 //#region DoubleAnimation
-
-function DoubleAnimation() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(DoubleAnimation, "DoubleAnimation", Animation);
+var DoubleAnimation = Nullstone.Create("DoubleAnimation", Animation);
 
 //#region DEPENDENCY PROPERTIES
 
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetBy = function () {
+DoubleAnimation.Instance.GetBy = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(DoubleAnimation.ByProperty);
 };
-DoubleAnimation.prototype.SetBy = function (value) {
+DoubleAnimation.Instance.SetBy = function (value) {
     ///<param name="value" type="Number"></param>
     this.SetValue(DoubleAnimation.ByProperty, value);
 };
 
 /*
 DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, DoubleAnimation);
-DoubleAnimation.prototype.GetEasingFunction = function () {
-    ///<returns type="EasingFunction"></returns>
-    return this.GetValue(DoubleAnimation.EasingFunctionProperty);
+DoubleAnimation.Instance.GetEasingFunction = function () {
+///<returns type="EasingFunction"></returns>
+return this.GetValue(DoubleAnimation.EasingFunctionProperty);
 };
-DoubleAnimation.prototype.SetEasingFunction = function (value) {
-    ///<param name="value" type="EasingFunction"></param>
-    this.SetValue(DoubleAnimation.EasingFunctionProperty, value);
+DoubleAnimation.Instance.SetEasingFunction = function (value) {
+///<param name="value" type="EasingFunction"></param>
+this.SetValue(DoubleAnimation.EasingFunctionProperty, value);
 };
 */
 
 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetFrom = function () {
+DoubleAnimation.Instance.GetFrom = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(DoubleAnimation.FromProperty);
 };
-DoubleAnimation.prototype.SetFrom = function (value) {
+DoubleAnimation.Instance.SetFrom = function (value) {
     ///<param name="value" type="Number"></param>
     this.SetValue(DoubleAnimation.FromProperty, value);
 };
 
 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetTo = function () {
+DoubleAnimation.Instance.GetTo = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(DoubleAnimation.ToProperty);
 };
-DoubleAnimation.prototype.SetTo = function (value) {
+DoubleAnimation.Instance.SetTo = function (value) {
     ///<param name="value" type="Number"></param>
     this.SetValue(DoubleAnimation.ToProperty, value);
 };
 
 //#endregion
 
-DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
+DoubleAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
 
     var start = 0.0;
@@ -74,7 +68,7 @@ DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
         return start + this._ByCached;
     return start;
 };
-DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+DoubleAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
 
     var start = 0.0;
@@ -97,7 +91,7 @@ DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defau
 
     return start + ((end - start) * clockData.Progress);
 };
-DoubleAnimation.prototype._EnsureCache = function () {
+DoubleAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
         return;
     this._FromCached = this.GetFrom();
@@ -106,7 +100,7 @@ DoubleAnimation.prototype._EnsureCache = function () {
     this._HasCached = true;
 };
 
-DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
+DoubleAnimation.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== DoubleAnimation) {
         this._OnPropertyChanged$super(args, error);
         return;
@@ -120,4 +114,5 @@ DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 
+Nullstone.FinishCreate(DoubleAnimation);
 //#endregion

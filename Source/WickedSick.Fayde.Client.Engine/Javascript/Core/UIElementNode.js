@@ -4,14 +4,12 @@
 /// <reference path="UIElement.js"/>
 
 //#region UIElementNode
+var UIElementNode = Nullstone.Create("UIElementNode", LinkedListNode);
 
-function UIElementNode(element) {
+UIElementNode.Instance.Init = function (element) {
     /// <param name="element" type="UIElement"></param>
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
     this.UIElement = element;
-}
-Nullstone.Extend(UIElementNode, "UIElementNode", LinkedListNode);
+};
 
+Nullstone.FinishCreate(UIElementNode);
 //#endregion

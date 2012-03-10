@@ -10,10 +10,9 @@
 /// <reference path="Clock.js"/>
 
 //#region Surface
+var Surface = Nullstone.Create("Surface", null, 1);
 
-function Surface(app) {
-    if (!Nullstone.IsReady)
-        return;
+Surface.Instance.Init = function (app) {
     this._App = app;
     this._Clock = new Clock();
     this._InputList = new LinkedList();
@@ -21,10 +20,9 @@ function Surface(app) {
     this._FirstUserInitiatedEvent = false;
     this._UserInitiatedEvent = false;
     this._Cursor = CursorType.Default;
-}
-Nullstone.Create(Surface, "Surface");
+};
 
-Surface.prototype.Init = function (jCanvas) {
+Surface.Instance.Register = function (jCanvas) {
     Surface._TestCanvas = document.createElement('canvas');
     this._Layers = new Collection();
     this._DownDirty = new _DirtyList();
@@ -35,17 +33,17 @@ Surface.prototype.Init = function (jCanvas) {
     this._CanvasOffset = this._jCanvas.offset();
     this.RegisterEvents();
 };
-Surface.prototype.GetCanvas = function () { return this._jCanvas[0]; };
-Surface.prototype.GetExtents = function () {
+Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
+Surface.Instance.GetExtents = function () {
     return new Size(this.GetWidth(), this.GetHeight());
 };
-Surface.prototype.GetWidth = function () {
+Surface.Instance.GetWidth = function () {
     return this._jCanvas.width();
 };
-Surface.prototype.GetHeight = function () {
+Surface.Instance.GetHeight = function () {
     return this._jCanvas.height();
 };
-Surface.prototype.Render = function (region) {
+Surface.Instance.Render = function (region) {
     var ctx = new _RenderContext(this);
 
     var layerCount = 0;
@@ -58,7 +56,7 @@ Surface.prototype.Render = function (region) {
         layer._DoRender(ctx, region);
     }
 };
-Surface.prototype._Attach = function (element) {
+Surface.Instance._Attach = function (element) {
     /// <param name="element" type="UIElement"></param>
     if (this._TopLevel) {
         //TODO: Detach previous layer
@@ -94,7 +92,7 @@ Surface.prototype._Attach = function (element) {
     };
     setTimeout(postAttach, 1);
 };
-Surface.prototype._AttachLayer = function (layer) {
+Surface.Instance._AttachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
     if (RefObject.RefEquals(layer, this._TopLevel))
         this._Layers.Insert(0, layer);
@@ -107,7 +105,7 @@ Surface.prototype._AttachLayer = function (layer) {
     layer._SetIsLoaded(true);
     //TODO: App Loaded event
 };
-Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
+Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
     this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
     if (RefObject.RefEquals(element, this._TopLevel)) {
@@ -120,7 +118,7 @@ Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
         element._InvalidateMeasure();
     }
 };
-Surface.prototype._IsTopLevel = function (top) {
+Surface.Instance._IsTopLevel = function (top) {
     /// <param name="top" type="UIElement"></param>
     if (!top || !this._Layers)
         return false;
@@ -132,7 +130,7 @@ Surface.prototype._IsTopLevel = function (top) {
     }
     return ret;
 };
-Surface.prototype.ProcessDirtyElements = function () {
+Surface.Instance.ProcessDirtyElements = function () {
     var error = new BError();
     var dirty = this._UpdateLayout(error);
     if (error.IsErrored()) {
@@ -140,7 +138,7 @@ Surface.prototype.ProcessDirtyElements = function () {
     }
     return dirty;
 };
-Surface.prototype._Invalidate = function (rect) {
+Surface.Instance._Invalidate = function (rect) {
     if (!rect)
         rect = new Rect(0, 0, this.GetWidth(), this.GetHeight());
     if (!this._InvalidatedRect)
@@ -149,7 +147,7 @@ Surface.prototype._Invalidate = function (rect) {
         this._InvalidatedRect = this._InvalidatedRect.Union(rect);
     this._QueueRender();
 };
-Surface.prototype._QueueRender = function () {
+Surface.Instance._QueueRender = function () {
     if (this._IsRenderQueued)
         return;
     var surface = this;
@@ -162,7 +160,7 @@ Surface.prototype._QueueRender = function () {
     }, 1);
 };
 
-Surface.prototype._UpdateLayout = function (error) {
+Surface.Instance._UpdateLayout = function (error) {
     if (!this._Layers)
         return false;
     var pass = new LayoutPass();
@@ -203,7 +201,7 @@ Surface.prototype._UpdateLayout = function (error) {
     return dirty;
 };
 //Down --> Transformation, Opacity
-Surface.prototype._ProcessDownDirtyElements = function () {
+Surface.Instance._ProcessDownDirtyElements = function () {
     var visualParent;
     var node;
     while (node = this._DownDirty.GetFirst()) {
@@ -285,7 +283,7 @@ Surface.prototype._ProcessDownDirtyElements = function () {
     }
 };
 //Up --> Bounds, Invalidation
-Surface.prototype._ProcessUpDirtyElements = function () {
+Surface.Instance._ProcessUpDirtyElements = function () {
     var visualParent;
     var node;
     while (node = this._UpDirty.GetFirst()) {
@@ -357,14 +355,14 @@ Surface.prototype._ProcessUpDirtyElements = function () {
         Warn("Finished UpDirty pass, not empty.");
     }
 };
-Surface.prototype._PropagateDirtyFlagToChildren = function (element, dirt) {
+Surface.Instance._PropagateDirtyFlagToChildren = function (element, dirt) {
     var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical);
     var child;
     while (child = walker.Step()) {
         this._AddDirtyElement(child, dirt);
     }
 };
-Surface.prototype._AddDirtyElement = function (element, dirt) {
+Surface.Instance._AddDirtyElement = function (element, dirt) {
     /// <param name="element" type="UIElement"></param>
     if (element.GetVisualParent() == null && !this._IsTopLevel(element))
         return;
@@ -385,7 +383,7 @@ Surface.prototype._AddDirtyElement = function (element, dirt) {
     }
     //TODO: Alert redraw needed
 };
-Surface.prototype._RemoveDirtyElement = function (element) {
+Surface.Instance._RemoveDirtyElement = function (element) {
     /// <param name="element" type="UIElement"></param>
     if (element._UpDirtyNode)
         this._UpDirty.RemoveDirtyNode(element._UpDirtyNode);
@@ -395,12 +393,12 @@ Surface.prototype._RemoveDirtyElement = function (element) {
     element._DownDirtyNode = null;
 };
 
-Surface.prototype._SetUserInitiatedEvent = function (val) {
+Surface.Instance._SetUserInitiatedEvent = function (val) {
     this._EmitFocusChangeEvents();
     this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
     this._UserInitiatedEvent = val;
 };
-Surface.prototype._UpdateCursorFromInputList = function () {
+Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
     for (var node = this._InputList.First(); node; node = node.Next) {
         newCursor = node.UIElement.GetCursor();
@@ -409,12 +407,12 @@ Surface.prototype._UpdateCursorFromInputList = function () {
     }
     this._SetCursor(newCursor);
 };
-Surface.prototype._SetCursor = function (cursor) {
+Surface.Instance._SetCursor = function (cursor) {
     this._Cursor = cursor;
     this._jCanvas.css("cursor", cursor);
 };
 
-Surface.prototype.RegisterEvents = function () {
+Surface.Instance.RegisterEvents = function () {
     var surface = this;
     var canvas = this.GetCanvas();
 
@@ -427,7 +425,7 @@ Surface.prototype.RegisterEvents = function () {
 
 //#region MOUSE
 
-Surface.prototype._HandleButtonRelease = function (button, pos) {
+Surface.Instance._HandleButtonRelease = function (button, pos) {
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("up", button, pos);
     this._SetUserInitiatedEvent(false);
@@ -435,24 +433,24 @@ Surface.prototype._HandleButtonRelease = function (button, pos) {
     if (this._Captured)
         this._PerformReleaseCapture();
 };
-Surface.prototype._HandleButtonPress = function (button, pos) {
+Surface.Instance._HandleButtonPress = function (button, pos) {
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("down", button, pos);
     this._SetUserInitiatedEvent(false);
     this._UpdateCursorFromInputList();
 };
-Surface.prototype._HandleWheel = function (pos) {
+Surface.Instance._HandleWheel = function (pos) {
     this._HandleMouseEvent("wheel", null, pos);
     this._UpdateCursorFromInputList();
 };
-Surface.prototype._HandleMove = function (pos) {
+Surface.Instance._HandleMove = function (pos) {
     this._HandleMouseEvent("move", null, pos);
     this._UpdateCursorFromInputList();
 };
-Surface.prototype._HandleOut = function (pos) {
+Surface.Instance._HandleOut = function (pos) {
     this._HandleMouseEvent("out", null, pos);
 };
-Surface.prototype._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
+Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
     HUDUpdate("mouse", pos.toString());
     this._CurrentPos = pos;
     if (this._EmittingMouseEvent)
@@ -493,12 +491,12 @@ Surface.prototype._HandleMouseEvent = function (type, button, pos, emitLeave, em
     this._EmittingMouseEvent = false;
 };
 
-Surface.prototype._GetMousePosition = function (evt) {
+Surface.Instance._GetMousePosition = function (evt) {
     return new Point(
         evt.clientX - this._CanvasOffset.left,
         evt.clientY - this._CanvasOffset.top);
 };
-Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
+Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
     var ui1 = list1.Last();
     var i1 = list1._Count - 1;
     var ui2 = list2.Last();
@@ -520,7 +518,7 @@ Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
         i2--;
     }
 };
-Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) {
+Surface.Instance._EmitMouseList = function (type, button, pos, list, endIndex) {
     if (endIndex === 0)
         return;
     var i = 0;
@@ -531,7 +529,7 @@ Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) 
     }
 };
 
-Surface.prototype.SetMouseCapture = function (uie) {
+Surface.Instance.SetMouseCapture = function (uie) {
     /// <param name="uie" type="UIElement"></param>
     if (this._Captured || this._PendingCapture)
         return RefObject.RefEquals(uie, this._Captured) || RefObject.RefEquals(uie, this._PendingCapture);
@@ -540,7 +538,7 @@ Surface.prototype.SetMouseCapture = function (uie) {
     this._PendingCapture = uie;
     return true;
 };
-Surface.prototype.ReleaseMouseCapture = function (uie) {
+Surface.Instance.ReleaseMouseCapture = function (uie) {
     /// <param name="uie" type="UIElement"></param>
     if (!RefObject.RefEquals(uie, this._Captured) && !RefObject.RefEquals(uie, this._PendingCapture))
         return;
@@ -549,7 +547,7 @@ Surface.prototype.ReleaseMouseCapture = function (uie) {
     else
         this._PerformReleaseCapture();
 };
-Surface.prototype._PerformCapture = function (uie) {
+Surface.Instance._PerformCapture = function (uie) {
     /// <param name="uie" type="UIElement"></param>
     this._Captured = uie;
     var newInputList = new LinkedList();
@@ -560,7 +558,7 @@ Surface.prototype._PerformCapture = function (uie) {
     this._InputList = newInputList;
     this._PendingCapture = null;
 };
-Surface.prototype._PerformReleaseCapture = function () {
+Surface.Instance._PerformReleaseCapture = function () {
     var oldCaptured = this._Captured;
     this._Captured = null;
     this._PendingReleaseCapture = false;
@@ -573,7 +571,7 @@ Surface.prototype._PerformReleaseCapture = function () {
 
 //#region FOCUS
 
-Surface.prototype._FocusElement = function (uie) {
+Surface.Instance._FocusElement = function (uie) {
     /// <param name="uie" type="UIElement"></param>
     if (RefObject.RefEquals(uie, this._FocusedElement))
         return true;
@@ -591,11 +589,11 @@ Surface.prototype._FocusElement = function (uie) {
 
     return true;
 };
-Surface.prototype._EmitFocusChangeEventsAsync = function () {
+Surface.Instance._EmitFocusChangeEventsAsync = function () {
     var surface = this;
     window.setTimeout(function () { surface._EmitFocusChangeEvents(); }, 1);
 };
-Surface.prototype._EmitFocusChangeEvents = function () {
+Surface.Instance._EmitFocusChangeEvents = function () {
     var node;
     while (node = this._FocusChangedEvents.First()) {
         this._FocusChangedEvents.Remove(node);
@@ -603,7 +601,7 @@ Surface.prototype._EmitFocusChangeEvents = function () {
         this._EmitFocusList("got", node.GotFocus);
     }
 };
-Surface.prototype._EmitFocusList = function (type, list) {
+Surface.Instance._EmitFocusList = function (type, list) {
     if (list == null)
         return;
     for (var node = list.First(); node; node = node.Next) {
@@ -651,4 +649,5 @@ Surface._ElementPathToRoot = function (source) {
     return list;
 };
 
+Nullstone.FinishCreate(Surface);
 //#endregion

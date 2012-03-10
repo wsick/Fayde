@@ -1,8 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
-function Validators() {
-}
+var Validators = {};
 Validators.StyleValidator = function (instance, propd, value, error) {
     /// <param name="instance" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>

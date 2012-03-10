@@ -3,14 +3,13 @@
 /// CODE
 
 //#region DirtyNode
+var DirtyNode = Nullstone.Create("DirtyNode", LinkedListNode, 1);
 
-function DirtyNode(element) {
+DirtyNode.Instance.Init = function (element) {
     /// <param name="element" type="UIElement"></param>
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+    this.Init$super();
     this.Element = element;
-}
-Nullstone.Extend(DirtyNode, "DirtyNode", LinkedListNode);
+};
 
+Nullstone.FinishCreate(DirtyNode);
 //#endregion

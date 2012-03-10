@@ -1,30 +1,40 @@
-﻿function Nullstone() {
-}
+﻿var Nullstone = {};
 Nullstone._LastID = 0;
-Nullstone.Create = function (f, typeName) {
+Nullstone.Create = function (typeName, parent, argCount) {
+    var s;
+    if (argCount) {
+        s = "";
+        for (var i = 0; i < argCount; i++) {
+            if (s)
+                s += ", arguments[" + i + "]";
+            else
+                s += "arguments[" + i + "]";
+        }
+    }
+    else
+        s = "arguments";
+    var f = new Function("if (!Nullstone.IsReady) return; if (this.Init) this.Init(" + s + ");")
     Nullstone._LastID = f._ID = Nullstone._LastID + 1;
     f._IsNullstone = true;
     f._TypeName = typeName;
-    f.GetBaseClass = function () { return null; };
-};
-Nullstone.Extend = function (f, typeName, parent, interfaces) {
-    Nullstone._LastID = f._ID = Nullstone._LastID + 1;
-    f._IsNullstone = true;
-    f._TypeName = typeName;
-    f.GetBaseClass = function () { return parent; };
+    f._BaseClass = parent;
+    if (!parent) parent = Object;
     Nullstone.IsReady = false;
     f.prototype = new parent;
     Nullstone.IsReady = true;
-    for (var k in parent.prototype) {
-        if (typeof parent.prototype[k] == 'function') {
-            if (k.length > 5 && k.substr(k.length - 6) === '$super')
-                continue;
-            f.prototype[k + '$super'] = parent.prototype[k];
-        }
-    }
-    f.prototype['$super'] = parent.prototype.constructor;
+    f.Instance = {};
     return f;
+}
+Nullstone.FinishCreate = function (f) {
+    for (var k in f.Instance) {
+        if (k in f.prototype) {
+            f.prototype[k + '$super'] = f.prototype[k];
+        }
+        f.prototype[k] = f.Instance[k];
+    }
+    delete f['Instance'];
 };
+
 Nullstone.RefEquals = function (obj1, obj2) {
     if (obj1 == null && obj2 == null)
         return true;
@@ -35,8 +45,10 @@ Nullstone.RefEquals = function (obj1, obj2) {
 Nullstone.Equals = function (val1, val2) {
     if (val1 == null && val2 == null)
         return true;
+    if (val1 == null || val2 == null)
+        return false;
     if (obj1._IsNullstone && obj2._IsNullstone)
-        return RefObject.RefEquals(val1, val2);
+        return Nullstone.RefEquals(val1, val2);
     if (!(val1 instanceof Object) && !(val2 instanceof Object))
         return val1 === val2;
     return false;
@@ -46,14 +58,14 @@ Nullstone.As = function (obj, type) {
         return null;
     if (obj instanceof type)
         return obj;
-    if (obj.constructor.DoesImplement(type))
-        return obj;
+    //if (obj.constructor.DoesImplement(type))
+        //return obj;
     return null;
 };
 Nullstone.DoesInheritFrom = function (t, type) {
     var temp = t;
     while (temp != null && temp._TypeName !== type._TypeName) {
-        temp = temp.GetBaseClass();
+        temp = temp._BaseClass;
     }
     return temp != null;
 };

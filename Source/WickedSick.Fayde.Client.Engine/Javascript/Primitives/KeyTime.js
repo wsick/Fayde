@@ -2,12 +2,7 @@
 /// CODE
 
 //#region KeyTime
-
-function KeyTime() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(KeyTime, "KeyTime");
+var KeyTime = Nullstone.Create("KeyTime");
 
 KeyTime.CreateUniform = function () {
     var kt = new KeyTime();
@@ -15,11 +10,12 @@ KeyTime.CreateUniform = function () {
     return kt;
 };
 
-KeyTime.prototype.IsPaced = function () {
+KeyTime.Instance.IsPaced = function () {
     return this._IsPaced == true;
 };
-KeyTime.prototype.IsUniform = function () {
+KeyTime.Instance.IsUniform = function () {
     return this._IsUniform == true;
 };
 
+Nullstone.FinishCreate(KeyTime);
 //#endregion

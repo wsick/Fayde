@@ -4,28 +4,26 @@
 /// CODE
 
 //#region DependencyObjectCollection
+var DependencyObjectCollection = Nullstone.Create("DependencyObjectCollection", Collection, 1);
 
-function DependencyObjectCollection(setsParent) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+DependencyObjectCollection.Instance.Init = function (setsParent) {
+    this.Init$super();
     this._IsSecondaryParent = false;
     this._SetsParent = !setsParent ? true : setsParent;
-}
-Nullstone.Extend(DependencyObjectCollection, "DependencyObjectCollection", Collection);
+};
 
-DependencyObjectCollection.prototype.IsElementType = function (value) {
+DependencyObjectCollection.Instance.IsElementType = function (value) {
     return value instanceof DependencyObject;
 };
 
-DependencyObjectCollection.prototype._GetIsSecondaryParent = function () {
+DependencyObjectCollection.Instance._GetIsSecondaryParent = function () {
     return this._IsSecondaryParent;
 };
-DependencyObjectCollection.prototype._SetIsSecondaryParent = function (value) {
+DependencyObjectCollection.Instance._SetIsSecondaryParent = function (value) {
     this._IsSecondaryParent = value;
 };
 
-DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newValue) {
+DependencyObjectCollection.Instance._OnMentorChanged = function (oldValue, newValue) {
     this._OnMentorChanged$super(oldValue, newValue);
     for (var i = 0; i < this._ht.length; i++) {
         if (this._ht[i] instanceof DependencyObject)
@@ -33,7 +31,7 @@ DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newV
     }
 };
 
-DependencyObjectCollection.prototype.AddedToCollection = function (value, error) {
+DependencyObjectCollection.Instance.AddedToCollection = function (value, error) {
     if (this._SetsParent) {
         var existingParent = value._GetParent();
         value._AddParent(this, true, error);
@@ -59,7 +57,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     }
     return rv;
 };
-DependencyObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof DependencyObject) {
             value.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
@@ -72,7 +70,7 @@ DependencyObjectCollection.prototype.RemovedFromCollection = function (value, is
         }
     }
 };
-DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
+DependencyObjectCollection.Instance._OnIsAttachedChanged = function (value) {
     this._OnIsAttachedChanged$super(value);
     for (var i = 0; i < this.GetCount(); i++) {
         var val = this.GetValueAt(i);
@@ -80,8 +78,9 @@ DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
             val._SetIsAttached(value);
     }
 };
-DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
+DependencyObjectCollection.Instance._OnSubPropertyChanged = function (sender, args) {
     this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
 };
 
+Nullstone.FinishCreate(DependencyObjectCollection);
 //#endregion

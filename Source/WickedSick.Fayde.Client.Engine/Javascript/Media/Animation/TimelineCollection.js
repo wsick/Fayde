@@ -3,12 +3,7 @@
 /// CODE
 
 //#region TimelineCollection
+var TimelineCollection = Nullstone.Create("TimelineCollection", Collection);
 
-function TimelineCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(TimelineCollection, "TimelineCollection", Collection);
-
+Nullstone.FinishCreate(TimelineCollection);
 //#endregion

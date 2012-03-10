@@ -8,18 +8,12 @@
 /// <reference path="Animation.js"/>
 
 //#region Storyboard
-
-function Storyboard() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Storyboard, "Storyboard", Timeline);
+var Storyboard = Nullstone.Create("Storyboard", Timeline);
 
 //#region DEPENDENCY PROPERTIES
 
 Storyboard.ChildrenProperty = DependencyProperty.Register("Children", function () { return TimelineCollection; }, Storyboard);
-Storyboard.prototype.GetChildren = function () {
+Storyboard.Instance.GetChildren = function () {
     ///<returns type="TimelineCollection"></returns>
     return this.GetValue(Storyboard.ChildrenProperty);
 };
@@ -54,22 +48,22 @@ Storyboard.Annotations = {
 
 //#endregion
 
-Storyboard.prototype.Begin = function () {
+Storyboard.Instance.Begin = function () {
     var error = new BError();
     this.BeginWithError(error);
     if (error.IsErrored())
         throw error.CreateException();
 };
-Storyboard.prototype.BeginWithError = function (error) {
+Storyboard.Instance.BeginWithError = function (error) {
     this.Reset();
     if (!this._HookupAnimations(error))
         return false;
     App.Instance.RegisterStoryboard(this);
 };
-Storyboard.prototype.Pause = function () {
+Storyboard.Instance.Pause = function () {
     this._IsPaused = true;
 };
-Storyboard.prototype.Resume = function () {
+Storyboard.Instance.Resume = function () {
     var nowTime = new Date().getTime();
     this._LastStep = nowTime;
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
@@ -77,7 +71,7 @@ Storyboard.prototype.Resume = function () {
     }
     this._IsPaused = false;
 };
-Storyboard.prototype.Stop = function () {
+Storyboard.Instance.Stop = function () {
     App.Instance.UnregisterStoryboard(this);
     var children = this.GetChildren();
     for (var i = 0; i < children.GetCount(); i++) {
@@ -85,7 +79,7 @@ Storyboard.prototype.Stop = function () {
     }
 };
 
-Storyboard.prototype._HookupAnimations = function (error) {
+Storyboard.Instance._HookupAnimations = function (error) {
     /// <param name="error" type="BError"></param>
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         var animation = this.GetChildren(i).GetValueAt(i);
@@ -95,7 +89,7 @@ Storyboard.prototype._HookupAnimations = function (error) {
     }
     return true;
 };
-Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
+Storyboard.Instance._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
     /// <param name="animation" type="Animation"></param>
     /// <param name="targetObject" type="DependencyObject"></param>
     /// <param name="targetPropertyPath" type="DependencyProperty"></param>
@@ -133,34 +127,30 @@ Storyboard.prototype._HookupAnimation = function (animation, targetObject, targe
     return true;
 };
 
-Storyboard.prototype._Tick = function (lastTime, nowTime) {
+Storyboard.Instance._Tick = function (lastTime, nowTime) {
     if (this._IsPaused)
         return;
     this.Update(nowTime);
 };
-Storyboard.prototype.UpdateInternal = function (clockData) {
+Storyboard.Instance.UpdateInternal = function (clockData) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         this.GetChildren().GetValueAt(i).Update(clockData.RealTicks);
     }
 };
-Storyboard.prototype.OnDurationReached = function () {
+Storyboard.Instance.OnDurationReached = function () {
     App.Instance.UnregisterStoryboard(this);
     this.OnDurationReached$super();
 };
 
+Nullstone.FinishCreate(Storyboard);
 //#endregion
 
 //#region StoryboardCollection
+var StoryboardCollection = Nullstone.Create("StoryboardCollection", Collection);
 
-function StoryboardCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(StoryboardCollection, "StoryboardCollection", Collection);
-
-StoryboardCollection.prototype.IsElementType = function (obj) {
+StoryboardCollection.Instance.IsElementType = function (obj) {
     return obj instanceof Storyboard;
 };
 
+Nullstone.FinishCreate(StoryboardCollection);
 //#endregion

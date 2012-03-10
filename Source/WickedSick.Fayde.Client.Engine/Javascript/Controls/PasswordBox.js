@@ -6,14 +6,13 @@
 /// CODE
 
 //#region PasswordBox
+var PasswordBox = Nullstone.Create("PasswordBox", TextBoxBase);
 
-function PasswordBox() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+PasswordBox.Instance.Init = function () {
+    this.Init$super();
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._EventsMask = _TextBoxEmitChanged.TEXT;
-}
-Nullstone.Extend(PasswordBox, "PasswordBox", TextBoxBase);
+};
 
+Nullstone.FinishCreate(PasswordBox);
 //#endregion
