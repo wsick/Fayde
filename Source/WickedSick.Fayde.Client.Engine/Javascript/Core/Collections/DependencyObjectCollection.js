@@ -80,6 +80,8 @@ DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
             val._SetIsAttached(value);
     }
 };
-DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) 
+DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
+    this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
+};
 
 //#endregion
