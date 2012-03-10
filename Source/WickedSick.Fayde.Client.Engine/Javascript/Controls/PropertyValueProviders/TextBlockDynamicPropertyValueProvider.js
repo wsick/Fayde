@@ -6,7 +6,7 @@
 var _TextBlockDynamicPropertyValueProvider = Nullstone.Create("_TextBlockDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider, 2);
 
 _TextBlockDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$super(obj, propPrecedence);
+    this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence);
     this._BaselineOffsetValue = null;
     this._TextValue = null;
 };
@@ -17,7 +17,7 @@ _TextBlockDynamicPropertyValueProvider.Instance.GetPropertyValue = function (pro
             return 0;
         return layout.GetBaselineOffset();
     }
-    return this.GetPropertyValue$super(propd);
+    return this.GetPropertyValue$FrameworkElementPropertyValueProvider(propd);
 };
 
 Nullstone.FinishCreate(_TextBlockDynamicPropertyValueProvider);

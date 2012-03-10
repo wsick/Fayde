@@ -7,7 +7,7 @@
 var DependencyObjectCollection = Nullstone.Create("DependencyObjectCollection", Collection, 1);
 
 DependencyObjectCollection.Instance.Init = function (setsParent) {
-    this.Init$super();
+    this.Init$Collection();
     this._IsSecondaryParent = false;
     this._SetsParent = !setsParent ? true : setsParent;
 };
@@ -24,7 +24,7 @@ DependencyObjectCollection.Instance._SetIsSecondaryParent = function (value) {
 };
 
 DependencyObjectCollection.Instance._OnMentorChanged = function (oldValue, newValue) {
-    this._OnMentorChanged$super(oldValue, newValue);
+    this._OnMentorChanged$Collection(oldValue, newValue);
     for (var i = 0; i < this._ht.length; i++) {
         if (this._ht[i] instanceof DependencyObject)
             this._ht[i].SetMentor(newValue);
@@ -45,7 +45,7 @@ DependencyObjectCollection.Instance.AddedToCollection = function (value, error) 
 
     value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
 
-    var rv = this.AddedToCollection$super(value, error);
+    var rv = this.AddedToCollection$Collection(value, error);
     value._SetIsAttached(rv && this._IsAttached);
     if (!rv) {
         if (this._SetsParent) {
@@ -71,7 +71,7 @@ DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isV
     }
 };
 DependencyObjectCollection.Instance._OnIsAttachedChanged = function (value) {
-    this._OnIsAttachedChanged$super(value);
+    this._OnIsAttachedChanged$Collection(value);
     for (var i = 0; i < this.GetCount(); i++) {
         var val = this.GetValueAt(i);
         if (val instanceof DependencyObject)

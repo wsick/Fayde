@@ -8,7 +8,7 @@
 var _InheritedDataContextPropertyValueProvider = Nullstone.Create("_InheritedDataContextPropertyValueProvider", _PropertyValueProvider, 2);
 
 _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$super(obj, propPrecedence);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._Source = null;
 };
 

@@ -6,7 +6,7 @@
 var _IndexedPropertyPathNode = Nullstone.Create("_IndexedPropertyPathNode", _PropertyPathNode, 1);
 
 _IndexedPropertyPathNode.Instance.Init = function (index) {
-    this.Init$super();
+    this.Init$_PropertyPathNode();
     this._isBroken = false;
     var val = parseInt(index, 10);
     if (isNaN(val))
@@ -16,7 +16,7 @@ _IndexedPropertyPathNode.Instance.Init = function (index) {
 };
 
 _IndexedPropertyPathNode.Instance._CheckIsBroken = function () {
-    return this._isBroken || this._CheckIsBroken$super();
+    return this._isBroken || this._CheckIsBroken$_PropertyPathNode();
 };
 _IndexedPropertyPathNode.Instance.UpdateValue = function () {
     NotImplemented("_IndexedPropertyPathNode.UpdateValue");

@@ -9,7 +9,7 @@
 var Collection = Nullstone.Create("Collection", DependencyObject);
 
 Collection.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObject();
     this._ht = new Array();
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();

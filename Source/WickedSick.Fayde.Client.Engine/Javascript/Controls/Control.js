@@ -6,7 +6,7 @@
 var Control = Nullstone.Create("Control", FrameworkElement);
 
 Control.Instance.Init = function () {
-    this.Init$super();
+    this.Init$FrameworkElement();
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 };
 
@@ -187,7 +187,7 @@ Control.Instance.GetTemplateChild = function (name) {
 };
 Control.Instance.SetVisualParent = function (visualParent) {
     if (this.GetVisualParent() != visualParent) {
-        this.SetVisualParent$super(visualParent);
+        this.SetVisualParent$FrameworkElement(visualParent);
         this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
     }
 };
@@ -196,7 +196,7 @@ Control.Instance._ElementAdded = function (item) {
     var error = new BError();
     item._AddParent(this, true, error);
     this._SetSubtreeObject(item);
-    this._ElementAdded$super(item);
+    this._ElementAdded$FrameworkElement(item);
 };
 Control.Instance._ElementRemoved = function (item) {
     var error;
@@ -205,7 +205,7 @@ Control.Instance._ElementRemoved = function (item) {
         this._TemplateRoot = null;
     }
     item._RemoveParent(this, error);
-    this._ElementRemoved$super(item);
+    this._ElementRemoved$FrameworkElement(item);
 };
 
 Control.Instance.CanCaptureMouse = function () {
@@ -220,7 +220,7 @@ Control.Instance._InsideObject = function (x, y) {
 };
 Control.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (this.GetIsEnabled())
-        this._HitTestPoint$super(ctx, p, uielist);
+        this._HitTestPoint$FrameworkElement(ctx, p, uielist);
 };
 
 Control.Instance._UpdateIsEnabledSource = function (control) {
@@ -229,7 +229,7 @@ Control.Instance._UpdateIsEnabledSource = function (control) {
 
 Control.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Control) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
 
@@ -250,18 +250,18 @@ Control.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 Control.Instance._OnLogicalParentChanged = function (oldParent, newParent) {
-    this._OnLogicalParentChanged$super(oldParent, newParent);
+    this._OnLogicalParentChanged$FrameworkElement(oldParent, newParent);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(newParent);
 };
 Control.Instance._OnIsAttachedChanged = function (value) {
-    this._OnIsAttachedChanged$super(value);
+    this._OnIsAttachedChanged$FrameworkElement(value);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
 };
 
 Control.Instance._DoApplyTemplateWithError = function (error) {
     var t = this.GetTemplate();
     if (!t)
-        return this._DoApplyTemplateWithError$super(error);
+        return this._DoApplyTemplateWithError$FrameworkElement(error);
 
     var root = t._GetVisualTreeWithError(this, error);
     if (root && !(root instanceof UIElement)) {
@@ -270,7 +270,7 @@ Control.Instance._DoApplyTemplateWithError = function (error) {
     }
 
     if (!root)
-        return this._DoApplyTemplateWithError$super(error);
+        return this._DoApplyTemplateWithError$FrameworkElement(error);
 
     if (this._TemplateRoot != root && this._TemplateRoot != null) {
         this._TemplateRoot._RemoveParent(this, null);
@@ -331,11 +331,11 @@ Control.Instance.Focus = function (recurse) {
 };
 Control.Instance.OnGotFocus = function (sender, args) {
     this._IsFocused = true;
-    this.OnGotFocus$super(sender, args);
+    this.OnGotFocus$FrameworkElement(sender, args);
 };
 Control.Instance.OnLostFocus = function (sender, args) {
     this._IsFocused = false;
-    this.OnLostFocus$super(sender, args);
+    this.OnLostFocus$FrameworkElement(sender, args);
 };
 
 //#endregion

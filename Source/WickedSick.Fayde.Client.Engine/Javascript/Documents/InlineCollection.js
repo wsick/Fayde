@@ -12,7 +12,7 @@ InlineCollection.Instance.AddedToCollection = function (value, error) {
             return false;
         }
     }
-    return this.AddedToCollection$super(value, error);
+    return this.AddedToCollection$TextElementCollection(value, error);
 };
 InlineCollection.Instance.Equals = function (inlines) {
     NotImplemented("InlineCollection.Equals");

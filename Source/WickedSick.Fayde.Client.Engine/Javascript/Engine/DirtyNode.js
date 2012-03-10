@@ -7,7 +7,7 @@ var DirtyNode = Nullstone.Create("DirtyNode", LinkedListNode, 1);
 
 DirtyNode.Instance.Init = function (element) {
     /// <param name="element" type="UIElement"></param>
-    this.Init$super();
+    this.Init$LinkedListNode();
     this.Element = element;
 };
 

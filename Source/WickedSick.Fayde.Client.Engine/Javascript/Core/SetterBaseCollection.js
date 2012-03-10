@@ -38,14 +38,14 @@ SetterBaseCollection.Instance.AddedToCollection = function (value, error) {
         value.SetAttached(true);
         value._Seal();
     }
-    return this.AddedToCollection$super(value, error);
+    return this.AddedToCollection$DependencyObjectCollection(value, error);
 };
 SetterBaseCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof SetterBase)
             value.SetAttached(false);
     }
-    this.RemovedFromCollection$super(value, isValueSafe);
+    this.RemovedFromCollection$DependencyObjectCollection(value, isValueSafe);
 };
 
 SetterBaseCollection.Instance.IsElementType = function (value) {

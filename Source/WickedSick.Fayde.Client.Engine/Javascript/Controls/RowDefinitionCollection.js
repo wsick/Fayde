@@ -11,7 +11,7 @@ RowDefinitionCollection.Instance.AddedToCollection = function (value, error) {
         error.SetErrored(BError.Argument, "RowDefinition is already a member of this collection.");
         return false;
     }
-    return this.AddedToCollection$super(value, error);
+    return this.AddedToCollection$DependencyObjectCollection(value, error);
 };
 
 RowDefinitionCollection.Instance.IsElementType = function (value) {

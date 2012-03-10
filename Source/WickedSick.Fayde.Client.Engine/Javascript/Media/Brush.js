@@ -30,7 +30,7 @@ Brush.Instance._OnSubPropertyChanged = function (sender, args) {
         NewValue: true
     };
     this.PropertyChanged.Raise(this, newArgs);
-    this._OnSubPropertyChanged$super(sender, args);
+    this._OnSubPropertyChanged$DependencyObject(sender, args);
 };
 
 Nullstone.FinishCreate(Brush);

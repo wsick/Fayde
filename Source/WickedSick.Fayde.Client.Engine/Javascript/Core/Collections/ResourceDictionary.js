@@ -6,7 +6,7 @@
 var ResourceDictionary = Nullstone.Create("ResourceDictionary", Collection);
 
 ResourceDictionary.Instance.Init = function () {
-    this.Init$super();
+    this.Init$Collection();
     this._KeyIndex = new Array();
 };
 
@@ -50,7 +50,7 @@ ResourceDictionary.Instance.Set = function (key, value) {
         oldValue = this.Get(key);
         this.Remove(oldValue);
     }
-    var index = this.Add$super(value);
+    var index = this.Add$Collection(value);
     this._KeyIndex[key] = index;
     this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
     return true;
@@ -83,7 +83,7 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
         //WTF: if (!from_resource_dictionary_api)...
     }
 
-    rv = this.AddedToCollection$super(value, error);
+    rv = this.AddedToCollection$Collection(value, error);
 
     if (rv /* && !from_resource_dictionary_api */ && obj != null) {
         this._RaiseChanged(CollectionChangedArgs.Action.Add, null, obj, obj.GetName());
@@ -100,11 +100,11 @@ ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe
             obj._SetIsAttached(false);
         }
     }
-    this.RemovedFromCollection$super(value, isValueSafe);
+    this.RemovedFromCollection$Collection(value, isValueSafe);
 };
 
 ResourceDictionary.Instance._OnIsAttachedChanged = function (value) {
-    this._OnIsAttachedChanged$super(value);
+    this._OnIsAttachedChanged$Collection(value);
 
     for (var i = 0; i < this._ht.length; i++) {
         var obj = this._ht[i];
@@ -113,7 +113,7 @@ ResourceDictionary.Instance._OnIsAttachedChanged = function (value) {
     }
 };
 ResourceDictionary.Instance._OnMentorChanged = function (oldValue, newValue) {
-    this._OnMentorChanged$super(oldValue, newValue);
+    this._OnMentorChanged$Collection(oldValue, newValue);
     for (var i = 0; i < this._KeyIndex.length; i++) {
         DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
     }
@@ -127,7 +127,7 @@ ResourceDictionary.Instance._RegisterAllNamesRootedAt = function (namescope, err
         if (obj != null && obj instanceof DependencyObject)
             obj._RegisterAllNamesRootedAt(namescope, error);
     }
-    this._RegisterAllNamesRootedAt$super(namescope, error);
+    this._RegisterAllNamesRootedAt$Collection(namescope, error);
 };
 ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
     /// <param name="fromNs" type="NameScope"></param>
@@ -136,7 +136,7 @@ ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
         if (obj != null && obj instanceof DependencyObject)
             obj._UnregisterAllNamesRootedAt(fromNs);
     }
-    this._UnregisterAllNamesRootedAt$super(fromNs);
+    this._UnregisterAllNamesRootedAt$Collection(fromNs);
 };
 
 ResourceDictionary._CanBeAddedTwice = function (value) {

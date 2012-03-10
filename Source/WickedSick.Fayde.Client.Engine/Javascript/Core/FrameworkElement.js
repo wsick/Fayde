@@ -14,6 +14,8 @@
 var FrameworkElement = Nullstone.Create("FrameworkElement", UIElement);
 
 FrameworkElement.Instance.Init = function () {
+    this.Init$UIElement();
+
     this.TemplatedApplied = new MulticastEvent();
 
     this._BoundsWithChildren = new Rect();
@@ -223,11 +225,11 @@ FrameworkElement.Instance._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 FrameworkElement.Instance._ComputeGlobalBounds = function () {
-    this._ComputeGlobalBounds$super();
+    this._ComputeGlobalBounds$UIElement();
     this._GlobalBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._LocalProjection);
 };
 FrameworkElement.Instance._ComputeSurfaceBounds = function () {
-    this._ComputeSurfaceBounds$super();
+    this._ComputeSurfaceBounds$UIElement();
     this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
 };
 
@@ -562,7 +564,7 @@ FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
     if (!this._InsideLayoutClip(x, y))
         return false;
 
-    return this._InsideObject$super(ctx, x, y);
+    return this._InsideObject$UIElement(ctx, x, y);
 };
 
 FrameworkElement.Instance._InsideLayoutClip = function (x, y) {
@@ -604,7 +606,7 @@ FrameworkElement.Instance._RenderLayoutClip = function (ctx) {
 };
 
 FrameworkElement.Instance._ElementRemoved = function (value) {
-    this._ElementRemoved$super(value);
+    this._ElementRemoved$UIElement(value);
     if (this._GetSubtreeObject() == value)
         this._SetSubtreeObject(null);
 };
@@ -760,7 +762,7 @@ FrameworkElement.Instance._GetDefaultTemplate = function () {
 
 FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== FrameworkElement) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$UIElement(args, error);
         return;
     }
 
@@ -805,7 +807,7 @@ FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
     else
         this._ClearImplicitStyles(_StyleMask.VisualTree);
 
-    this._OnIsLoadedChanged$super(loaded);
+    this._OnIsLoadedChanged$UIElement(loaded);
     if (loaded)
         this.InvokeLoaded();
 
@@ -814,7 +816,7 @@ FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
 };
 
 FrameworkElement.Instance.SetVisualParent = function (/* UIElement */value) {
-    this.SetVisualParent$super(value);
+    this.SetVisualParent$UIElement(value);
 
     if (!this._LogicalParent && (this._VisualParent == null || this._VisualParent instanceof FrameworkElement)) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(this._VisualParent);

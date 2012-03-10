@@ -102,7 +102,7 @@ DoubleAnimation.Instance._EnsureCache = function () {
 
 DoubleAnimation.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== DoubleAnimation) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$Animation(args, error);
         return;
     }
 

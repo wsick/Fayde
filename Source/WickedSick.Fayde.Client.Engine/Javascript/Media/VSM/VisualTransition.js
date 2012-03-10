@@ -8,7 +8,7 @@
 var VisualTransition = Nullstone.Create("VisualTransition", DependencyObject);
 
 VisualTransition.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObject();
     this.SetDynamicStoryboardCompleted(true);
     this.SetExplicitStoryboardCompleted(true);
     this._GeneratedDuration = new Duration();

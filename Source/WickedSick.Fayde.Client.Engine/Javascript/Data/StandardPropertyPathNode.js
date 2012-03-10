@@ -6,7 +6,7 @@
 var _StandardPropertyPathNode = Nullstone.Create("_StandardPropertyPathNode", _PropertyPathNode, 2);
 
 _StandardPropertyPathNode.Instance.Init = function (typeName, propertyName) {
-    this.Init$super();
+    this.Init$_PropertyPathNode();
     this._STypeName = typeName;
     this._PropertyName = propertyName;
 };
@@ -36,7 +36,7 @@ _StandardPropertyPathNode.Instance.UpdateValue = function () {
 };
 
 _StandardPropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSource) {
-    this.OnSourceChanged$super(oldSource, newSource);
+    this.OnSourceChanged$_PropertyPathNode(oldSource, newSource);
 
     var oldDO = Nullstone.As(oldSource, DependencyObject);
     var newDO = Nullstone.As(newSource, DependencyObject);

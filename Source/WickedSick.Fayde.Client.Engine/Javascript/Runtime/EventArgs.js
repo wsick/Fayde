@@ -29,7 +29,7 @@ Nullstone.FinishCreate(MouseEventArgs);
 var MouseButtonEventArgs = Nullstone.Create("MouseButtonEventArgs", MouseEventArgs, 1);
 
 MouseButtonEventArgs.Instance.Init = function (absolutePos) {
-    this.Init$super(absolutePos);
+    this.Init$MouseEventArgs(absolutePos);
 };
 
 Nullstone.FinishCreate(MouseButtonEventArgs);

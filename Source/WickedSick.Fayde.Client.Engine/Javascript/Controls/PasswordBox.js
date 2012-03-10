@@ -9,7 +9,7 @@
 var PasswordBox = Nullstone.Create("PasswordBox", TextBoxBase);
 
 PasswordBox.Instance.Init = function () {
-    this.Init$super();
+    this.Init$TextBoxBase();
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._EventsMask = _TextBoxEmitChanged.TEXT;
 };

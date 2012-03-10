@@ -18,7 +18,7 @@ TemplateBindingExpression.Instance.GetValue = function (propd) {
     return value; //TODO: Send through TypeConverter
 };
 TemplateBindingExpression.Instance._OnAttached = function (element) {
-    this._OnAttached$super(element);
+    this._OnAttached$Expression(element);
 
     this.Target = element;
     var listener = this.GetListener();
@@ -41,7 +41,7 @@ TemplateBindingExpression.Instance._OnAttached = function (element) {
     }
 };
 TemplateBindingExpression.Instance._OnDetached = function (element) {
-    this._OnDetached$super(element);
+    this._OnDetached$Expression(element);
 
     var listener = this.GetListener();
     if (listener == null)

@@ -139,7 +139,7 @@ Storyboard.Instance.UpdateInternal = function (clockData) {
 };
 Storyboard.Instance.OnDurationReached = function () {
     App.Instance.UnregisterStoryboard(this);
-    this.OnDurationReached$super();
+    this.OnDurationReached$Timeline();
 };
 
 Nullstone.FinishCreate(Storyboard);

@@ -11,7 +11,7 @@
 var VisualStateGroup = Nullstone.Create("VisualStateGroup", DependencyObject);
 
 VisualStateGroup.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObject();
     this.CurrentStateChanging = new MulticastEvent();
     this.CurrentStateChanged = new MulticastEvent();
 };

@@ -6,7 +6,7 @@
 var BindingExpression = Nullstone.Create("BindingExpression", BindingExpressionBase, 3);
 
 BindingExpression.Instance.Init = function (binding, target, propd) {
-    this.Init$super(binding, target, propd);
+    this.Init$BindingExpressionBase(binding, target, propd);
 };
 
 BindingExpression.Instance.GetParentBinding = function () {

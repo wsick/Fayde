@@ -15,7 +15,7 @@
 var TextBox = Nullstone.Create("TextBox", TextBoxBase);
 
 TextBox.Instance.Init = function () {
-    this.Init$super();
+    this.Init$TextBoxBase();
 
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
 
@@ -139,7 +139,7 @@ TextBox.Instance.GetIsMouseOver = function () {
 //#region INSTANCE METHODS
 
 TextBox.Instance.OnApplyTemplate = function () {
-    this.OnApplyTemplate$super();
+    this.OnApplyTemplate$TextBoxBase();
 
     if (!this._ContentElement)
         return;
@@ -182,7 +182,7 @@ TextBox.Instance._SyncText = function () {
 
 TextBox.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextBox) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$TextBoxBase(args, error);
         return;
     }
 
@@ -312,7 +312,7 @@ TextBox.Instance._OnSubPropertyChanged = function (sender, args) {
     }
 
     if (args.Property.OwnerType !== TextBox)
-        this._OnSubPropertyChanged$super(sender, args);
+        this._OnSubPropertyChanged$TextBoxBase(sender, args);
 };
 
 TextBox.Instance._EmitTextChanged = function () {
@@ -327,19 +327,19 @@ TextBox.Instance._EmitSelectionChanged = function () {
 TextBox.Instance.OnMouseEnter = function (sender, args) {
     this._IsMouseOver = true;
     this._ChangeVisualState(true);
-    this.OnMouseEnter$super(sender, args);
+    this.OnMouseEnter$TextBoxBase(sender, args);
 };
 TextBox.Instance.OnMouseLeave = function (sender, args) {
     this._IsMouseOver = false;
     this._ChangeVisualState(true);
-    this.OnMouseLeave$super(sender, args);
+    this.OnMouseLeave$TextBoxBase(sender, args);
 };
 TextBox.Instance.OnGotFocus = function (sender, args) {
-    this.OnGotFocus$super(sender, args);
+    this.OnGotFocus$TextBoxBase(sender, args);
     this._ChangeVisualState(true);
 };
 TextBox.Instance.OnLostFocus = function (sender, args) {
-    this.OnLostFocus$super(sender, args);
+    this.OnLostFocus$TextBoxBase(sender, args);
     this._ChangeVisualState(true);
 };
 

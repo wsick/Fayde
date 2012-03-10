@@ -10,7 +10,7 @@
 var App = Nullstone.Create("App", DependencyObject);
 
 App.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObject();
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
     this._Storyboards = new Array();

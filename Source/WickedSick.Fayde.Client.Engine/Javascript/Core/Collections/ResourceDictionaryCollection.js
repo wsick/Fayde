@@ -7,7 +7,7 @@
 var ResourceDictionaryCollection = Nullstone.Create("ResourceDictionaryCollection", DependencyObjectCollection);
 
 ResourceDictionaryCollection.Instance.AddedToCollection = function (value, error) {
-    if (!this.AddedToCollection$super(value, error))
+    if (!this.AddedToCollection$DependencyObjectCollection(value, error))
         return false;
     var parent = this._GetParent();
     if (!parent)

@@ -13,6 +13,8 @@
 var UIElement = Nullstone.Create("UIElement", DependencyObject);
 
 UIElement.Instance.Init = function () {
+    this.Init$DependencyObject();
+
     this.Unloaded = new MulticastEvent();
     this.Loaded = new MulticastEvent();
     this.Invalidated = new MulticastEvent();
@@ -571,7 +573,7 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
 
     //HACK:
     this._InvalidateVisibility();
-    this._OnIsAttachedChanged$super(value);
+    this._OnIsAttachedChanged$DependencyObject(value);
 
     if (!value) {
         this._CacheInvalidateHint();
@@ -591,7 +593,7 @@ UIElement.Instance._OnInvalidated = function () {
 
 UIElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== UIElement) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
     if (args.Property === UIElement.OpacityProperty) {

@@ -55,7 +55,7 @@ UserControl.Instance._ArrangeOverrideWithError = function (finalSize, error) {
 
 UserControl.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType != UserControl) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
 

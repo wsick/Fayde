@@ -7,7 +7,7 @@
 var KeyFrameCollection = Nullstone.Create("KeyFrameCollection", DependencyObjectCollection);
 
 KeyFrameCollection.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObjectCollection();
     this._Resolved = false;
     this._SortedList = new Array();
 };
@@ -61,24 +61,24 @@ KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
 KeyFrameCollection.Instance.Clear = function () {
     this._Resolved = false;
     //Clear sorted
-    this.Clear$super();
+    this.Clear$DependencyObjectCollection();
 };
 
 KeyFrameCollection.Instance.AddedToCollection = function (value, error) {
-    if (!this.AddedToCollection$super(value, error))
+    if (!this.AddedToCollection$DependencyObjectCollection(value, error))
         return false;
     this._Resolved = false;
     return true;
 };
 KeyFrameCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
-    this.RemovedFromCollection$super(value, isValueSafe);
+    this.RemovedFromCollection$DependencyObjectCollection(value, isValueSafe);
     this._Resolved = false;
 };
 
 KeyFrameCollection.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property.Name === "KeyTime")
         this._Resolved = false;
-    this._OnSubPropertyChanged$super(sender, args);
+    this._OnSubPropertyChanged$DependencyObjectCollection(sender, args);
 };
 
 /// http://msdn2.microsoft.com/en-us/library/ms742524.aspx (Bottom of page)

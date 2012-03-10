@@ -6,7 +6,7 @@
 var UIElementCollection = Nullstone.Create("UIElementCollection", DependencyObjectCollection);
 
 UIElementCollection.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObjectCollection();
     this._ZSorted = new Array();
 };
 

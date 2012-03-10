@@ -37,12 +37,12 @@ HyperlinkButton.Instance.SetTargetName = function (value) {
 //#endregion
 
 HyperlinkButton.Instance.OnApplyTemplate = function () {
-    this.OnApplyTemplate$super();
+    this.OnApplyTemplate$ButtonBase();
     this.UpdateVisualState(false);
 };
 
 HyperlinkButton.Instance.OnClick = function () {
-    this.OnClick$super();
+    this.OnClick$ButtonBase();
     if (this.GetNavigateUri() != null) {
         this._Navigate();
     }

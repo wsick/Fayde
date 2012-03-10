@@ -19,7 +19,7 @@ Button.StateFocused = "Focused";
 Button.StateUnfocused = "Unfocused";
 
 Button.Instance.OnApplyTemplate = function () {
-    this.OnApplyTemplate$super();
+    this.OnApplyTemplate$ButtonBase();
     this.UpdateVisualState(false);
 };
 Button.Instance._ChangeVisualState = function (useTransitions) {
@@ -40,7 +40,7 @@ Button.Instance._ChangeVisualState = function (useTransitions) {
     }
 };
 Button.Instance.OnIsEnabledChanged = function (e) {
-    this.OnIsEnabledChanged$super(e);
+    this.OnIsEnabledChanged$ButtonBase(e);
     this.SetIsTabStop(e.NewValue);
 };
 

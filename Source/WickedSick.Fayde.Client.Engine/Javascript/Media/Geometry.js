@@ -7,7 +7,7 @@
 var Geometry = Nullstone.Create("Geometry", DependencyObject);
 
 Geometry.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObject();
     this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 };
 

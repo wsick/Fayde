@@ -7,14 +7,14 @@
 var _CollectionViewNode = Nullstone.Create("_CollectionViewNode", _PropertyPathNode, 3);
 
 _CollectionViewNode.Instance.Init = function (bindsDirectlyToSource, bindToView, viewChanged) {
-    this.Init$super();
+    this.Init$_PropertyPathNode();
     this.SetBindsDirectlyToSource(bindsDirectlyToSource === true);
     this.SetBindToView(bindToView === true);
     this.SetViewChangedHandler(this.ViewChanged);
 };
 
 _CollectionViewNode.Instance.OnSourceChanged = function (oldSource, newSource) {
-    this.OnSourceChanged$super(oldSource, newSource);
+    this.OnSourceChanged$_PropertyPathNode(oldSource, newSource);
     this.DisconnectViewHandlers();
     this.ConnectViewHandlers(Nullstone.As(newSource, CollectionViewSource), Nullstone.As(newSource, ICollectionView));
 };

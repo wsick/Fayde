@@ -6,7 +6,7 @@
 var Inline = Nullstone.Create("Inline", TextElement);
 
 Inline.Instance.Init = function () {
-    this.Init$super();
+    this.Init$TextElement();
     this._Autogen = false;
 };
 

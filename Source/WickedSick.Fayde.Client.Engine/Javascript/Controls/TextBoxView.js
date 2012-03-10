@@ -9,7 +9,7 @@
 var _TextBoxView = Nullstone.Create("_TextBoxView", FrameworkElement);
 
 _TextBoxView.Instance.Init = function () {
-    this.Init$super();
+    this.Init$FrameworkElement();
     this._Cursor = new Rect();
     this._Layout = new TextLayout();
     this._SelectionChanged = false;
@@ -164,7 +164,7 @@ _TextBoxView.Instance._UpdateText = function () {
 
 _TextBoxView.Instance._ComputeActualSize = function () {
     if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty))
-        return this._ComputeActualSize$super();
+        return this._ComputeActualSize$FrameworkElement();
 
     this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     return this._Layout.GetActualExtents();

@@ -7,7 +7,8 @@
 var _PasswordBoxDynamicPropertyValueProvider = Nullstone.Create("_PasswordBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider, 2);
 
 _PasswordBoxDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$super(obj, propPrecedence, PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
+    this.Init$_TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, 
+        PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
 };
 
 Nullstone.FinishCreate(_PasswordBoxDynamicPropertyValueProvider);

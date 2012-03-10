@@ -7,7 +7,7 @@
 var TextElement = Nullstone.Create("TextElement", DependencyObject);
 
 TextElement.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObject();
     this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
     this._Font = new Font();
     this._UpdateFont(true);
@@ -113,7 +113,7 @@ TextElement.Instance._UpdateFont = function (force) {
 };
 TextElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextElement) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
 

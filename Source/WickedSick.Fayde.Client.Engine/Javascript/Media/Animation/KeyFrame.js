@@ -5,7 +5,7 @@
 var KeyFrame = Nullstone.Create("KeyFrame", DependencyObject);
 
 KeyFrame.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObject();
     this._ResolvedKeyTime = null;
     this._Resolved = false;
 };

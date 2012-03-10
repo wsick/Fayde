@@ -8,7 +8,7 @@
 var ControlTemplate = Nullstone.Create("ControlTemplate", FrameworkTemplate, 2);
 
 ControlTemplate.Instance.Init = function (targetType, json) {
-    this.Init$super();
+    this.Init$FrameworkTemplate();
     this.SetTargetType(targetType);
     this._TempJson = json;
 };
@@ -36,7 +36,7 @@ ControlTemplate.Instance._GetVisualTreeWithError = function (templateBindingSour
         NameScope.SetNameScope(root, namescope);
         return root;
     }
-    this._GetVisualTreeWithError$super(templateBindingSource, error);
+    this._GetVisualTreeWithError$FrameworkTemplate(templateBindingSource, error);
 };
 
 Nullstone.FinishCreate(ControlTemplate);

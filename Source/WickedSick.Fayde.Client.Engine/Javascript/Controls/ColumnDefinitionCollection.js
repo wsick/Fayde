@@ -11,7 +11,7 @@ ColumnDefinitionCollection.Instance.AddedToCollection = function (value, error) 
         error.SetErrored(BError.Argument, "ColumnDefinition is already a member of this collection.");
         return false;
     }
-    return this.AddedToCollection$super(value, error);
+    return this.AddedToCollection$DependencyObjectCollection(value, error);
 };
 ColumnDefinitionCollection.Instance.IsElementType = function (value) {
     return value instanceof ColumnDefinition;

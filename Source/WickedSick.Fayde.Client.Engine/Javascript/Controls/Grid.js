@@ -15,7 +15,7 @@
 var Grid = Nullstone.Create("Grid", Panel);
 
 Grid.Instance.Init = function () {
-    this.Init$super();
+    this.Init$Panel();
     this._RowMatrix = null;
     this._ColMatrix = null;
 };
@@ -512,7 +512,7 @@ Grid.Instance._RestoreMeasureResults = function () {
 };
 
 Grid.Instance._ComputeBounds = function () {
-    this._ComputeBounds$super();
+    this._ComputeBounds$Panel();
 
     if (this.GetShowGridLines()) {
         this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
@@ -536,7 +536,7 @@ Grid.Instance._GetColumnDefinitionsNoAutoCreate = function () {
 
 Grid.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Grid) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$Panel(args, error);
         return;
     }
 
@@ -551,7 +551,7 @@ Grid.Instance._OnCollectionChanged = function (sender, args) {
         || this._PropertyHasValueNoAutoCreate(Grid.RowDefinitionsProperty, sender)) {
         this._InvalidateMeasure();
     } else {
-        this._OnCollectionChanged$super(sender, args);
+        this._OnCollectionChanged$Panel(sender, args);
     }
 };
 Grid.Instance._OnCollectionItemChanged = function (sender, args) {
@@ -572,7 +572,7 @@ Grid.Instance._OnCollectionItemChanged = function (sender, args) {
         }
         return;
     }
-    this._OnCollectionChanged$super(sender, args);
+    this._OnCollectionChanged$Panel(sender, args);
 };
 
 //#endregion

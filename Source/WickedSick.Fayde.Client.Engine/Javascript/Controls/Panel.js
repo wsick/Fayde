@@ -79,7 +79,7 @@ Panel.Instance._ShiftPosition = function (point) {
     var dx = point.X - this._Bounds.X;
     var dy = point.Y - this._Bounds.Y;
 
-    this._ShiftPosition$super(point);
+    this._ShiftPosition$FrameworkElement(point);
 
     this._BoundsWithChildren.X += dx;
     this._BoundsWithChildren.Y += dy;
@@ -115,18 +115,18 @@ Panel.Instance._Render = function (ctx, region) {
 Panel.Instance._CanFindElement = function () { return this.GetBackground() != null; }
 Panel.Instance._InsideObject = function (ctx, x, y) {
     if (this.GetBackground())
-        return this._InsideObject$super(ctx, x, y);
+        return this._InsideObject$FrameworkElement(ctx, x, y);
     return false;
 };
 
 Panel.Instance._ElementAdded = function (item) {
-    this._ElementAdded$super(item);
+    this._ElementAdded$FrameworkElement(item);
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
 };
 Panel.Instance._ElementRemoved = function (item) {
-    this._ElementRemoved$super(item);
+    this._ElementRemoved$FrameworkElement(item);
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
@@ -134,7 +134,7 @@ Panel.Instance._ElementRemoved = function (item) {
 
 Panel.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Panel) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
     if (args.Property == Panel.BackgroundProperty) {
@@ -167,7 +167,7 @@ Panel.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property && args.Property == Panel.BackgroundProperty) {
         this._Invalidate();
     } else {
-        this._OnSubPropertyChanged$super(sender, args);
+        this._OnSubPropertyChanged$FrameworkElement(sender, args);
     }
 };
 Panel.Instance._OnCollectionChanged = function (sender, args) {
@@ -195,7 +195,7 @@ Panel.Instance._OnCollectionChanged = function (sender, args) {
                 break;
         }
     } else {
-        this._OnCollectionChanged$super(sender, args);
+        this._OnCollectionChanged$FrameworkElement(sender, args);
     }
 };
 Panel.Instance._OnCollectionItemChanged = function (sender, args) {
@@ -208,10 +208,10 @@ Panel.Instance._OnCollectionItemChanged = function (sender, args) {
             return;
         }
     }
-    this._OnCollectionItemChanged$super(sender, args);
+    this._OnCollectionItemChanged$FrameworkElement(sender, args);
 };
 Panel.Instance._OnIsAttachedChanged = function (value) {
-    this._OnIsAttachedChanged$super(value);
+    this._OnIsAttachedChanged$FrameworkElement(value);
     if (value) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }

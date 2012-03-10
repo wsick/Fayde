@@ -35,7 +35,7 @@ Span.Instance._OnCollectionChanged = function (sender, args) {
             this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
         this._NotifyLayoutContainerOnCollectionChanged(sender, args);
     } else {
-        this._OnCollectionChanged$super(sender, args);
+        this._OnCollectionChanged$Inline(sender, args);
     }
 };
 

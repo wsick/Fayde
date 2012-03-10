@@ -27,8 +27,8 @@ Nullstone.Create = function (typeName, parent, argCount) {
 }
 Nullstone.FinishCreate = function (f) {
     for (var k in f.Instance) {
-        if (k in f.prototype) {
-            f.prototype[k + '$super'] = f.prototype[k];
+        if ((k in f.prototype) && f._BaseClass != null) {
+            f.prototype[k + '$' + f._BaseClass._TypeName] = f.prototype[k];
         }
         f.prototype[k] = f.Instance[k];
     }

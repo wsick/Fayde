@@ -6,7 +6,7 @@
 var ButtonBase = Nullstone.Create(ButtonBase, ContentControl);
 
 ButtonBase.Instance.Init = function () {
-    this.Init$super();
+    this.Init$ContentControl();
     this._IsMouseCaptured = false;
     this._IsMouseLeftButtonDown = false;
     this._IsSpaceKeyDown = false;
@@ -55,7 +55,7 @@ ButtonBase.Instance.SetIsMouseOver = function (value) {
 //#endregion
 
 ButtonBase.Instance.OnIsEnabledChanged = function (e) {
-    this.OnIsEnabledChanged$super(e);
+    this.OnIsEnabledChanged$ContentControl(e);
     var isEnabled = e.NewValue;
     this._SuspendStateChanges = true;
     try {
@@ -98,7 +98,7 @@ ButtonBase.Instance._GoToState = function (useTransitions, stateName) {
 //#region MOUSE
 
 ButtonBase.Instance.OnMouseEnter = function (sender, args) {
-    this.OnMouseEnter$super(sender, args);
+    this.OnMouseEnter$ContentControl(sender, args);
 
     this.SetIsMouseOver(true);
 
@@ -114,7 +114,7 @@ ButtonBase.Instance.OnMouseEnter = function (sender, args) {
     }
 };
 ButtonBase.Instance.OnMouseLeave = function (sender, args) {
-    this.OnMouseLeave$super(sender, args);
+    this.OnMouseLeave$ContentControl(sender, args);
 
     this.SetIsMouseOver(false);
 
@@ -128,7 +128,7 @@ ButtonBase.Instance.OnMouseLeave = function (sender, args) {
     }
 };
 ButtonBase.Instance.OnMouseMove = function (sender, args) {
-    this.OnMouseMove$super(sender, args);
+    this.OnMouseMove$ContentControl(sender, args);
 
     this._MousePosition = args.GetPosition(this);
 
@@ -137,7 +137,7 @@ ButtonBase.Instance.OnMouseMove = function (sender, args) {
     }
 };
 ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
-    this.OnMouseLeftButtonDown$super(sender, args);
+    this.OnMouseLeftButtonDown$ContentControl(sender, args);
 
     this._IsMouseLeftButtonDown = true;
     if (!this.GetIsEnabled())
@@ -162,7 +162,7 @@ ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
         this.OnClick();
 };
 ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
-    this.OnMouseLeftButtonDown$super(sender, args);
+    this.OnMouseLeftButtonDown$ContentControl(sender, args);
 
     this._IsMouseLeftButtonDown = false;
     if (!this.GetIsEnabled())
@@ -206,13 +206,13 @@ ButtonBase.Instance._IsValidMousePosition = function () {
 //#region FOCUS
 
 ButtonBase.Instance.OnGotFocus = function (sender, args) {
-    this.OnGotFocus$super(sender, args);
+    this.OnGotFocus$ContentControl(sender, args);
 
     this.SetIsFocused(true);
     this.UpdateVisualState();
 };
 ButtonBase.Instance.OnLostFocus = function (sender, args) {
-    this.OnLostFocus$super(sender, args);
+    this.OnLostFocus$ContentControl(sender, args);
 
     this.SetIsFocused(false);
 

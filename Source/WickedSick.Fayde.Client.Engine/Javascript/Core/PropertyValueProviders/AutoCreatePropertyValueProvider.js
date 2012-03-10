@@ -7,7 +7,7 @@
 var _AutoCreatePropertyValueProvider = Nullstone.Create("_AutoCreatePropertyValueProvider", _PropertyValueProvider, 2);
 
 _AutoCreatePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
 

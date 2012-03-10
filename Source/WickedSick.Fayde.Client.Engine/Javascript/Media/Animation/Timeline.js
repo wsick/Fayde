@@ -7,7 +7,7 @@
 var Timeline = Nullstone.Create("Timeline", DependencyObject);
 
 Timeline.Instance.Init = function () {
-    this.Init$super();
+    this.Init$DependencyObject();
     this.Completed = new MulticastEvent();
     this.Reset();
 };

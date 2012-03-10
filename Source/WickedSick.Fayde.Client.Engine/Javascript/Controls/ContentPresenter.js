@@ -67,7 +67,7 @@ ContentPresenter.Instance._GetDefaultTemplate = function () {
 };
 ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== ContentPresenter) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
     if (args.Property === ContentPresenter.ContentProperty) {
@@ -96,7 +96,7 @@ ContentPresenter.Instance.InvokeLoaded = function () {
         this.ClearValue(FrameworkElement.DataContextProperty);
     else
         this.SetDataContext(this.GetContent());
-    this.InvokeLoaded$super();
+    this.InvokeLoaded$FrameworkElement();
 };
 
 //#endregion

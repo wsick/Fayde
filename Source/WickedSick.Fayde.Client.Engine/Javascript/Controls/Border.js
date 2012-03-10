@@ -134,7 +134,7 @@ Border.Instance._CanFindElement = function () {
 
 Border.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Border) {
-        this._OnPropertyChanged$super(args, error)
+        this._OnPropertyChanged$FrameworkElement(args, error)
         return;
     }
     if (args.Property == Border.ChildProperty) {

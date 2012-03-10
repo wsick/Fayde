@@ -8,7 +8,7 @@
 var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
 
 TextBoxBase.Instance.Init = function () {
-    this.Init$super();
+    this.Init$Control();
 
     this._SelectionAnchor = 0;
     this._SelectionCursor = 0;
@@ -51,7 +51,7 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
 
     if (this._ContentElement == null) {
         Warn("No ContentElement found");
-        this.OnApplyTemplate$super();
+        this.OnApplyTemplate$Control();
         return;
     }
 
@@ -76,7 +76,7 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
         this._View.SetTextBox(null);
         this._View = null;
     }
-    this.OnApplyTemplate$super();
+    this.OnApplyTemplate$Control();
 };
 
 TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
@@ -102,7 +102,7 @@ TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
 
     if (args.Property.OwnerType !== TextBoxBase) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$Control(args, error);
         return;
     }
 
@@ -116,7 +116,7 @@ TextBoxBase.Instance._OnSubPropertyChanged = function (sender, args) {
     }
 
     if (args.Property.OwnerType !== TextBoxBase)
-        this._OnSubPropertyChanged$super(sender, args);
+        this._OnSubPropertyChanged$Control(sender, args);
 };
 
 TextBoxBase.Instance._BatchPush = function () {

@@ -9,7 +9,7 @@
 var TextBlock = Nullstone.Create("TextBlock", FrameworkElement);
 
 TextBlock.Instance.Init = function () {
-    this.Init$super();
+    this.Init$FrameworkElement();
 
     this._Layout = new TextLayout();
 
@@ -361,7 +361,7 @@ TextBlock.Instance._CanFindElement = function () {
 TextBlock.Instance._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         if (args.Property !== FrameworkElement.LanguageProperty)
             return;
         if (!this._UpdateFonts(false))
@@ -427,12 +427,12 @@ TextBlock.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property != null && args.Property === TextBlock.ForegroundProperty) {
         this._Invalidate();
     } else {
-        this._OnSubPropertyChanged$super(sender, args);
+        this._OnSubPropertyChanged$FrameworkElement(sender, args);
     }
 };
 TextBlock.Instance._OnCollectionChanged = function (sender, args) {
     if (!this._PropertyHasValueNoAutoCreate(TextBlock.InlinesProperty, sender)) {
-        this._OnCollectionChanged$super(sender, args);
+        this._OnCollectionChanged$FrameworkElement(sender, args);
         return;
     }
 

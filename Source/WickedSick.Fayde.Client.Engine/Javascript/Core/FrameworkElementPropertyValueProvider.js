@@ -8,7 +8,7 @@
 var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);
 
 FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$super(obj, propPrecedence, 0);
+    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
     this._ActualHeight = null;
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);

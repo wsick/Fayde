@@ -7,7 +7,7 @@
 var _ImplicitStylePropertyValueProvider = Nullstone.Create("_ImplicitStylePropertyValueProvider", _PropertyValueProvider, 2);
 
 _ImplicitStylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._Styles = null;
     this._StyleMask = _StyleMask.None;
     this._ht = new Array();

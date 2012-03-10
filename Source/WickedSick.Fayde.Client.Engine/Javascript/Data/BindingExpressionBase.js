@@ -7,7 +7,7 @@
 var BindingExpressionBase = Nullstone.Create("BindingExpressionBase", Expression, 3);
 
 BindingExpressionBase.prototype.Init = function (binding, target, propd) {
-    this.Init$super();
+    this.Init$Expression();
     if (!binding)
         return;
 
@@ -50,7 +50,7 @@ BindingExpressionBase.prototype._OnAttached = function (element) {
     ///<param name="element" type="DependencyObject"></param>
     if (this.GetAttached())
         return;
-    this._OnAttached$super(element);
+    this._OnAttached$Expression(element);
     this._CalculateDataSource();
 
     if (this.GetIsTwoWayTextBoxText())
@@ -74,7 +74,7 @@ BindingExpressionBase.prototype._OnDetached = function (element) {
     if (!this.GetAttached())
         return;
 
-    this._OnDetached$super(element);
+    this._OnDetached$Expression(element);
     if (this.GetIsTwoWayTextBoxText())
         this.GetTarget().LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
 
