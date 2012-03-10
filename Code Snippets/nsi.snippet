@@ -1,0 +1,35 @@
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>nsi</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>nsi</Shortcut>
+    <Description>Code snippet for a nullstone object with init</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+      <SnippetType>SurroundsWith</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Object Name</ToolTip>
+        <Default>DependencyObject</Default>
+      </Literal>
+      <Literal>
+        <ID>base</ID>
+        <ToolTip>Base Object Type</ToolTip>
+        <Default>Object</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[//#region $name$
+	var $name$ = Nullstone.Create("$name$", $base$);
+	
+	$name$.Instance.Init = function (args) {
+		$end$
+	};
+	$selected$
+Nullstone.FinishCreate($name$);
+//#endregion]]></Code>
+  </Snippet>
+</CodeSnippet>

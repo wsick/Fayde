@@ -1,0 +1,33 @@
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>ns</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>ns</Shortcut>
+    <Description>Code snippet for a nullstone object</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+      <SnippetType>SurroundsWith</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Object Name</ToolTip>
+        <Default>DependencyObject</Default>
+      </Literal>
+      <Literal>
+        <ID>base</ID>
+        <ToolTip>Base Object Type</ToolTip>
+        <Default>Object</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[//#region $name$
+	var $name$ = Nullstone.Create("$name$", $base$);
+	
+	$selected$$end$
+
+Nullstone.FinishCreate($name$);
+//#endregion]]></Code>
+  </Snippet>
+</CodeSnippet>

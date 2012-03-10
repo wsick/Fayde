@@ -1,0 +1,24 @@
+<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <Header>
+    <Title>ninit</Title>
+    <Author>WickedSick</Author>
+    <Shortcut>ninit</Shortcut>
+    <Description>Code snippet for a nullstone object refactor</Description>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+      <SnippetType>SurroundsWith</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>name</ID>
+        <ToolTip>Object Name</ToolTip>
+        <Default>DependencyObject</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="jscript"><![CDATA[$name$.Instance.Init = function() {
+	$selected$
+};]]></Code>
+  </Snippet>
+</CodeSnippet>
