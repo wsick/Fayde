@@ -3,7 +3,7 @@
 /// CODE
 
 //#region ButtonBase
-var ButtonBase = Nullstone.Create(ButtonBase, ContentControl);
+var ButtonBase = Nullstone.Create("ButtonBase", ContentControl);
 
 ButtonBase.Instance.Init = function () {
     this.Init$ContentControl();

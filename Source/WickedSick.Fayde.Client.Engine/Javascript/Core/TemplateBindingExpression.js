@@ -3,7 +3,7 @@
 /// CODE
 
 //#region TemplateBindingExpression
-var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", Expression);
+var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", Expression, 2);
 
 TemplateBindingExpression.Instance.Init = function (sourcePropd, targetPropd) {
     this.SourceProperty = sourcePropd;
