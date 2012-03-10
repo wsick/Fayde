@@ -102,6 +102,7 @@
     <Content Include="Javascript\Core\SetterBaseCollection.js" />
     <Content Include="Javascript\Core\TemplateBindingExpression.js" />
     <Content Include="Javascript\Core\UIElementNode.js" />
+    <Content Include="Javascript\Core\UnsetValue.js" />
     <Content Include="Javascript\Core\VisualTreeWalker.js" />
     <Content Include="Javascript\Data\BindingBase.js" />
     <Content Include="Javascript\Data\CollectionViewNode.js" />

@@ -4,7 +4,7 @@
 //#region LinkedListNode
 var LinkedListNode = Nullstone.Create("LinkedListNode");
 
-LinkedListNode.Instance.Init = function (args) 
+LinkedListNode.Instance.Init = function () {
     this.Previous = null;
     this.Next = null;
 };

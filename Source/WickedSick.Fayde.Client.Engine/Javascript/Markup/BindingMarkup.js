@@ -6,7 +6,6 @@
 var BindingMarkup = Nullstone.Create("BindingMarkup", Markup, 1);
 
 BindingMarkup.Instance.Init = function (data) {
-    this.Init$super();
     if (!data)
         data = {};
     this._Data = data;
