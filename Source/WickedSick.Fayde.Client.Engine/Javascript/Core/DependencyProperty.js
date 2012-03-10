@@ -84,7 +84,7 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
     if (reg)
         propd = reg[name];
     if (!propd && ownerType != null && ownerType._IsNullstone) {
-        propd = DependencyProperty.GetDependencyProperty(ownerType.GetBaseClass(), name);
+        propd = DependencyProperty.GetDependencyProperty(ownerType._BaseClass, name);
     }
     return propd;
 };

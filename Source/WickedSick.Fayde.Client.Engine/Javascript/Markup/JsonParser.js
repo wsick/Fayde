@@ -115,10 +115,10 @@ JsonParser.Instance.GetAnnotationMember = function (type, member) {
     if (type === RefObject)
         return null;
     if (type.Annotations == null)
-        return this.GetAnnotationMember(type.GetBaseClass(), member);
+        return this.GetAnnotationMember(type._BaseClass, member);
     var annotation = type.Annotations[member];
     if (annotation == null)
-        return this.GetAnnotationMember(type.GetBaseClass(), member);
+        return this.GetAnnotationMember(type._BaseClass, member);
     return annotation;
 };
 
