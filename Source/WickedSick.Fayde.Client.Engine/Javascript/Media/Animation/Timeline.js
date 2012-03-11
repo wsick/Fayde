@@ -15,40 +15,40 @@ Timeline.Instance.Init = function () {
 //#region DEPENDENCY PROPERTIES
 
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
-Timeline.prototype.GetBeginTime = function () {
+Timeline.Instance.GetBeginTime = function () {
     ///<returns type="TimeSpan"></returns>
     return this.GetValue(Timeline.BeginTimeProperty);
 };
-Timeline.prototype.SetBeginTime = function (value) {
+Timeline.Instance.SetBeginTime = function (value) {
     ///<param name="value" type="TimeSpan"></param>
     this.SetValue(Timeline.BeginTimeProperty, value);
 };
 
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
-Timeline.prototype.GetDuration = function () {
+Timeline.Instance.GetDuration = function () {
     ///<returns type="Duration"></returns>
     return this.GetValue(Timeline.DurationProperty);
 };
-Timeline.prototype.SetDuration = function (value) {
+Timeline.Instance.SetDuration = function (value) {
     ///<param name="value" type="Duration"></param>
     this.SetValue(Timeline.DurationProperty, value);
 };
 
 //#endregion
 
-Timeline.prototype.HasManualTarget = function () {
+Timeline.Instance.HasManualTarget = function () {
     return this._ManualTarget != null;
 };
-Timeline.prototype.GetManualTarget = function () {
+Timeline.Instance.GetManualTarget = function () {
     return this._ManualTarget;
 };
 
-Timeline.prototype.Reset = function () {
+Timeline.Instance.Reset = function () {
     this._IsFirstUpdate = true;
     this._BeginStep = null;
     this._HasReachedBeg = false;
 };
-Timeline.prototype.IsAfterBeginTime = function (nowTime) {
+Timeline.Instance.IsAfterBeginTime = function (nowTime) {
     var beginTime = this.GetBeginTime();
     if (beginTime == null || beginTime.IsZero())
         return true;
@@ -58,7 +58,7 @@ Timeline.prototype.IsAfterBeginTime = function (nowTime) {
         return false;
     return true;
 };
-Timeline.prototype.CreateClockData = function (nowTime) {
+Timeline.Instance.CreateClockData = function (nowTime) {
     var clockData = {
         BeginTicks: this._BeginStep,
         RealTicks: nowTime,
@@ -79,11 +79,11 @@ Timeline.prototype.CreateClockData = function (nowTime) {
 
     return clockData;
 };
-Timeline.prototype.OnDurationReached = function () {
+Timeline.Instance.OnDurationReached = function () {
     this.Completed.Raise(this, {});
 };
 
-Timeline.prototype.Update = function (nowTime) {
+Timeline.Instance.Update = function (nowTime) {
     try {
         if (this._IsFirstUpdate) {
             this._InitialStep = nowTime;
@@ -107,7 +107,7 @@ Timeline.prototype.Update = function (nowTime) {
         this._LastStep = nowTime;
     }
 };
-Timeline.prototype.UpdateInternal = function (nowTime) { };
+Timeline.Instance.UpdateInternal = function (nowTime) { };
 
 Nullstone.FinishCreate(Timeline);
 //#endregion

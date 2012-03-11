@@ -11,18 +11,18 @@ BError.Instance.Init = function () {
     this.Message = "";
 };
 
-BError.prototype.SetErrored = function (number, message, code) {
+BError.Instance.SetErrored = function (number, message, code) {
     this._Number = number;
     this.Message = message;
     this.Code = code || 0;
 };
-BError.prototype.IsErrored = function () {
+BError.Instance.IsErrored = function () {
     return this._Number > 0;
 };
-BError.prototype.toString = function () {
+BError.Instance.toString = function () {
     return "[" + this._Number + "] " + this.Message;
 };
-BError.prototype.CreateException = function () {
+BError.Instance.CreateException = function () {
     return new Exception();
 };
 BError.UnauthorizedAccess = 1;

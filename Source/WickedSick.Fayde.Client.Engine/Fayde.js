@@ -2949,18 +2949,18 @@ BError.Instance.Init = function () {
     this.LineNumber = 0;
     this.Message = "";
 };
-BError.prototype.SetErrored = function (number, message, code) {
+BError.Instance.SetErrored = function (number, message, code) {
     this._Number = number;
     this.Message = message;
     this.Code = code || 0;
 };
-BError.prototype.IsErrored = function () {
+BError.Instance.IsErrored = function () {
     return this._Number > 0;
 };
-BError.prototype.toString = function () {
+BError.Instance.toString = function () {
     return "[" + this._Number + "] " + this.Message;
 };
-BError.prototype.CreateException = function () {
+BError.Instance.CreateException = function () {
     return new Exception();
 };
 BError.UnauthorizedAccess = 1;
@@ -8480,31 +8480,31 @@ Timeline.Instance.Init = function () {
     this.Reset();
 };
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
-Timeline.prototype.GetBeginTime = function () {
+Timeline.Instance.GetBeginTime = function () {
     return this.GetValue(Timeline.BeginTimeProperty);
 };
-Timeline.prototype.SetBeginTime = function (value) {
+Timeline.Instance.SetBeginTime = function (value) {
     this.SetValue(Timeline.BeginTimeProperty, value);
 };
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
-Timeline.prototype.GetDuration = function () {
+Timeline.Instance.GetDuration = function () {
     return this.GetValue(Timeline.DurationProperty);
 };
-Timeline.prototype.SetDuration = function (value) {
+Timeline.Instance.SetDuration = function (value) {
     this.SetValue(Timeline.DurationProperty, value);
 };
-Timeline.prototype.HasManualTarget = function () {
+Timeline.Instance.HasManualTarget = function () {
     return this._ManualTarget != null;
 };
-Timeline.prototype.GetManualTarget = function () {
+Timeline.Instance.GetManualTarget = function () {
     return this._ManualTarget;
 };
-Timeline.prototype.Reset = function () {
+Timeline.Instance.Reset = function () {
     this._IsFirstUpdate = true;
     this._BeginStep = null;
     this._HasReachedBeg = false;
 };
-Timeline.prototype.IsAfterBeginTime = function (nowTime) {
+Timeline.Instance.IsAfterBeginTime = function (nowTime) {
     var beginTime = this.GetBeginTime();
     if (beginTime == null || beginTime.IsZero())
         return true;
@@ -8514,7 +8514,7 @@ Timeline.prototype.IsAfterBeginTime = function (nowTime) {
         return false;
     return true;
 };
-Timeline.prototype.CreateClockData = function (nowTime) {
+Timeline.Instance.CreateClockData = function (nowTime) {
     var clockData = {
         BeginTicks: this._BeginStep,
         RealTicks: nowTime,
@@ -8533,10 +8533,10 @@ Timeline.prototype.CreateClockData = function (nowTime) {
     }
     return clockData;
 };
-Timeline.prototype.OnDurationReached = function () {
+Timeline.Instance.OnDurationReached = function () {
     this.Completed.Raise(this, {});
 };
-Timeline.prototype.Update = function (nowTime) {
+Timeline.Instance.Update = function (nowTime) {
     try {
         if (this._IsFirstUpdate) {
             this._InitialStep = nowTime;
@@ -8560,7 +8560,7 @@ Timeline.prototype.Update = function (nowTime) {
         this._LastStep = nowTime;
     }
 };
-Timeline.prototype.UpdateInternal = function (nowTime) { };
+Timeline.Instance.UpdateInternal = function (nowTime) { };
 Nullstone.FinishCreate(Timeline);
 
 var TimelineCollection = Nullstone.Create("TimelineCollection", Collection);
