@@ -38,18 +38,8 @@ Clock.Instance._RunTimers = function (lastTime, nowTime) {
 
 Clock.Instance.RequestAnimationTick = function () {
     var clock = this;
-    Clock._RequestAnimationFrame(function () { clock.DoTick(); });
+    window.requestAnimFrame(function () { clock.DoTick(); });
 };
-Clock._RequestAnimationFrame = (function () {
-    return window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function (callback) {
-            window.setTimeout(callback, 1000 / 200);
-        };
-})();
 
 Nullstone.FinishCreate(Clock);
 //#endregion

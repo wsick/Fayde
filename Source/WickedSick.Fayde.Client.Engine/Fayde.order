@@ -64,7 +64,6 @@ Runtime/LinkedList.js
 Runtime/LinkedListNode.js
 Runtime/MulticastEvent.js
 Runtime/PropertyInfo.js
-Runtime/RefObject.js
 TextLayout/LayoutWord.js
 TextLayout/TextLayout.js
 TextLayout/TextLayoutAttributes.js
