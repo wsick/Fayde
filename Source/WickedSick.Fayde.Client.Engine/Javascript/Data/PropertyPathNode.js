@@ -33,7 +33,7 @@ _PropertyPathNode.Instance.SetSource = function (value) {
         }
 
         this._Source = value;
-        if (this._Source != null && this._Source.constructor._IsNullstone && this._Source.DoesImplement(INotifyPropertyChanged)) {
+        if (this._Source != null && Nullstone.DoesImplement(this._Source, INotifyPropertyChanged)) {
             listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
             this.SetListener(listener);
         }

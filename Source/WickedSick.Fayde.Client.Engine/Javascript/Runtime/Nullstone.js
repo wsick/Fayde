@@ -13,8 +13,13 @@ Nullstone.Create = function (typeName, parent, argCount) {
     }
     else
         s = "arguments";
-    var f = new Function("if (!Nullstone.IsReady) return; if (this.Init) this.Init(" + s + ");")
-    Nullstone._LastID = f._ID = Nullstone._LastID + 1;
+
+    var code = "if (!Nullstone.IsReady) return;" +
+        "Nullstone._LastID = this._ID = Nullstone._LastID + 1;" +
+        "if (this.Init) this.Init(" + s + ");"
+
+    var f = new Function(code);
+
     f._IsNullstone = true;
     f._TypeName = typeName;
     f._BaseClass = parent;
@@ -41,7 +46,7 @@ Nullstone.RefEquals = function (obj1, obj2) {
         return true;
     if (obj1 == null || obj2 == null)
         return false;
-    if (obj1._IsNullstone && obj2._IsNullstone)
+    if (obj1.constructor._IsNullstone && obj2.constructor._IsNullstone)
         return obj1._ID === obj2._ID;
     return false;
 };
@@ -50,8 +55,8 @@ Nullstone.Equals = function (val1, val2) {
         return true;
     if (val1 == null || val2 == null)
         return false;
-    if (val1._IsNullstone && val2._IsNullstone)
-        return Nullstone.RefEquals(val1, val2);
+    if (val1.constructor._IsNullstone && val2.constructor._IsNullstone)
+        return val1._ID === val2._ID;
     if (!(val1 instanceof Object) && !(val2 instanceof Object))
         return val1 === val2;
     return false;
@@ -71,4 +76,9 @@ Nullstone.DoesInheritFrom = function (t, type) {
         temp = temp._BaseClass;
     }
     return temp != null;
+};
+Nullstone.DoesImplement = function (ns, interface) {
+    if (!ns.constructor._IsNullstone)
+        return false;
+
 };

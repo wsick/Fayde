@@ -34,6 +34,14 @@ namespace WickedSick.Server.XamlParser.Elements
         public double? MinHeight { get; set; }
 
         [Property]
+        [DoubleConverter]
+        public double? Width { get; set; }
+
+        [Property]
+        [DoubleConverter]
+        public double? Height { get; set; }
+
+        [Property]
         public Style Style { get; set; }
     }
 }

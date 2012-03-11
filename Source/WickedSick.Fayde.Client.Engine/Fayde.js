@@ -325,129 +325,61 @@ var DurationType = {
     TimeSpan: 2
 };
 
-Object.Clone = function (o) {
-    return eval(uneval(o));
-};
-/*
-Function.prototype.Implement = function (interface) {
-    var interfaceName = (new interface())._TypeName;
-    for (var i in interface.prototype) {
-        if (!this.prototype[i])
-            this.prototype[i] = new Function("throw new NotImplementedException();");
-    }
-    if (this._Interfaces == null)
-        this._Interfaces = new Array();
-    this._Interfaces[interfaceName] = true;
-    return this;
-};
-Function.prototype.DoesImplement = function (interface) {
-    if (!this._Interfaces)
-        return false;
-    var interfaceName = (new interface())._TypeName;
-    return this._Interfaces[interfaceName] === true;
-};
-*/
-Function.prototype.Clone = function () {
-    return eval(uneval(this));
-};
-String.prototype.indexOfAny = function (carr, start) {
-    if (!(carr instanceof Array))
-        return -1;
-    if (start == null)
-        start = 0;
-    for (var cur = start; cur < this.length; cur++) {
-        var c = this.charAt(c);
-        for (var i = 0; i < carr.length; i++) {
-            if (c === carr[i])
-                return cur;
+var Nullstone = {};
+Nullstone._LastID = 0;
+Nullstone.Create = function (typeName, parent, argCount) {
+    var s;
+    if (argCount) {
+        s = "";
+        for (var i = 0; i < argCount; i++) {
+            if (s)
+                s += ", arguments[" + i + "]";
+            else
+                s += "arguments[" + i + "]";
         }
     }
-    return -1;
-};
-Array.indexOfRefObject = function (arr, ro) {
-    for (var i = 0; i < arr.length; i++) {
-        if (RefObject.RefEquals(arr[i], ro))
-            return i;
-    }
-    return -1;
-};
-Array.containsRefObject = function (arr, ro) {
-    return Array.indexOfRefObject(arr, ro) > -1;
-};
-Array.addDistinctRefObject = function (arr, ro) {
-    if (Array.containsRefObject(arr, ro))
-        return false;
-    arr.push(ro);
-    return true;
-};
-Array.removeRefObject = function (arr, ro) {
-    var index = Array.indexOfRefObject(arr, ro);
-    if (index > -1)
-        arr.splice(index, 1);
-};
-Number.isNumber = function (o) {
-    return typeof o == "number";
-};
-String.isString = function (o) {
-    return typeof o == "string";
-};
-String.contains = function (str, match) {
-    if (!str)
-        return false;
-    if (!match)
-        return false;
-    var j = 0;
-    for (var i = 0; i < str.length && j < match.length; i++) {
-        if (str.charAt(i) === match.charAt(j))
-            j++;
-        else
-            j = 0;
-    }
-    return j >= match.length;
-};
-String.format = function (culture, format, str) {
-    return str;
-};
-
-function Nullstone() {
-}
-Nullstone._LastID = 0;
-Nullstone.Create = function (f, typeName) {
-    Nullstone._LastID = f._ID = Nullstone._LastID + 1;
+    else
+        s = "arguments";
+    var code = "if (!Nullstone.IsReady) return;" +
+        "Nullstone._LastID = this._ID = Nullstone._LastID + 1;" +
+        "if (this.Init) this.Init(" + s + ");"
+    var f = new Function(code);
     f._IsNullstone = true;
     f._TypeName = typeName;
-    f.GetBaseClass = function () { return null; };
-};
-Nullstone.Extend = function (f, typeName, parent, interfaces) {
-    Nullstone._LastID = f._ID = Nullstone._LastID + 1;
-    f._IsNullstone = true;
-    f._TypeName = typeName;
-    f.GetBaseClass = function () { return parent; };
+    f._BaseClass = parent;
+    if (!parent) parent = Object;
     Nullstone.IsReady = false;
     f.prototype = new parent;
+    f.prototype.constructor = f;
     Nullstone.IsReady = true;
-    for (var k in parent.prototype) {
-        if (typeof parent.prototype[k] == 'function') {
-            if (k.length > 5 && k.substr(k.length - 6) === '$super')
-                continue;
-            f.prototype[k + '$super'] = parent.prototype[k];
-        }
-    }
-    f.prototype['$super'] = parent.prototype.constructor;
+    f.Instance = {};
     return f;
+}
+Nullstone.FinishCreate = function (f) {
+    for (var k in f.Instance) {
+        if ((k in f.prototype) && f._BaseClass != null) {
+            f.prototype[k + '$' + f._BaseClass._TypeName] = f.prototype[k];
+        }
+        f.prototype[k] = f.Instance[k];
+    }
+    delete f['Instance'];
 };
 Nullstone.RefEquals = function (obj1, obj2) {
     if (obj1 == null && obj2 == null)
         return true;
-    if (obj1._IsNullstone && obj2._IsNullstone)
+    if (obj1 == null || obj2 == null)
+        return false;
+    if (obj1.constructor._IsNullstone && obj2.constructor._IsNullstone)
         return obj1._ID === obj2._ID;
     return false;
 };
 Nullstone.Equals = function (val1, val2) {
     if (val1 == null && val2 == null)
         return true;
-    if (obj1._IsNullstone && obj2._IsNullstone)
-        return RefObject.RefEquals(val1, val2);
+    if (val1 == null || val2 == null)
+        return false;
+    if (val1.constructor._IsNullstone && val2.constructor._IsNullstone)
+        return val1._ID === val2._ID;
     if (!(val1 instanceof Object) && !(val2 instanceof Object))
         return val1 === val2;
     return false;
@@ -457,16 +389,18 @@ Nullstone.As = function (obj, type) {
         return null;
     if (obj instanceof type)
         return obj;
-    if (obj.constructor.DoesImplement(type))
-        return obj;
     return null;
 };
 Nullstone.DoesInheritFrom = function (t, type) {
     var temp = t;
     while (temp != null && temp._TypeName !== type._TypeName) {
-        temp = temp.GetBaseClass();
+        temp = temp._BaseClass;
     }
     return temp != null;
+};
+Nullstone.DoesImplement = function (ns, interface) {
+    if (!ns.constructor._IsNullstone)
+        return false;
 };
 
 var _BreakType = {
@@ -500,74 +434,65 @@ var _LayoutWordType = {
 var _CharType = {
 };
 
-function GridLength(value, type) {
-    if (!Nullstone.IsReady)
-        return;
+var GridLength = Nullstone.Create("GridLength", null, 2);
+GridLength.Instance.Init = function (value, unitType) {
     this.Value = value == null ? 0 : value;
-    this.Type = type == null ? GridUnitType.Auto : type;
-}
-Nullstone.Create(GridLength, "GridLength");
+    this.Type = unitType == null ? GridUnitType.Auto : unitType;
+};
 GridLength.Equals = function (gl1, gl2) {
     return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
 };
+Nullstone.FinishCreate(GridLength);
 
-function _TextBoxModelChangedEventArgs(changed, propArgs) {
-    if (!Nullstone.IsReady)
-        return;
+var _TextBoxModelChangedEventArgs = Nullstone.Create("_TextBoxModelChangedEventArgs", null, 2);
+_TextBoxModelChangedEventArgs.Instance.Init = function (changed, propArgs) {
     this.Changed = changed;
     this.PropArgs = propArgs;
-}
-Nullstone.Create(_TextBoxModelChangedEventArgs, "_TextBoxModelChangedEventArgs");
-
-function BindingOperations() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(BindingOperations, "BindingOperations");
-BindingOperations.SetBinding = function (target, dp, binding) {
-    if (target == null)
-        throw new ArgumentNullException("target");
-    if (dp == null)
-        throw new ArgumentNullException("dp");
-    if (binding == null)
-        throw new ArgumentNullException("binding");
-    var e = new BindingExpression(binding, target, dp);
-    target.SetValue(dp, e);
-    return e;
 };
+Nullstone.FinishCreate(_TextBoxModelChangedEventArgs);
 
-function Fayde() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(Fayde, "Fayde");
-Fayde.TypeConverter = {};
-Fayde.TypeConverter.ConvertObject = function (propd, val, objectType, doStringConversion) {
-    if (val == null)
-        return val;
-    if (val instanceof propd.GetTargetType())
-        return val;
-    if (propd.GetTargetType() === String)
-        return doStringConversion ? val.toString() : "";
-    var tc;
-    if (propd._IsAttached) {
-    } else {
+var BindingOperations = {
+    SetBinding: function (target, dp, binding) {
+        if (target == null)
+            throw new ArgumentNullException("target");
+        if (dp == null)
+            throw new ArgumentNullException("dp");
+        if (binding == null)
+            throw new ArgumentNullException("binding");
+        var e = new BindingExpression(binding, target, dp);
+        target.SetValue(dp, e);
+        return e;
     }
-    return val;
 };
 
-function _DeepStyleWalker(styles) {
-    if (!Nullstone.IsReady)
-        return;
+var Fayde = {
+    TypeConverter: {
+        ConvertObject: function (propd, val, objectType, doStringConversion) {
+            if (val == null)
+                return val;
+            if (val instanceof propd.GetTargetType())
+                return val;
+            if (propd.GetTargetType() === String)
+                return doStringConversion ? val.toString() : "";
+            var tc;
+            if (propd._IsAttached) {
+            } else {
+            }
+            return val;
+        }
+    }
+};
+
+var _DeepStyleWalker = Nullstone.Create("_DeepStyleWalker", null, 1);
+_DeepStyleWalker.Instance.Init = function (styles) {
     this._Setters = new Array();
     this._Offset = 0;
     if (styles instanceof Style)
         this._InitializeStyle(styles);
     else if (styles instanceof Array)
         this._InitializeStyles(styles);
-}
-Nullstone.Create(_DeepStyleWalker, "_DeepStyleWalker");
-_DeepStyleWalker.prototype.Step = function () {
+};
+_DeepStyleWalker.Instance.Step = function () {
     if (this._Offset < this._Setters.length) {
         var s = this._Setters[this._Offset];
         this._Offset++;
@@ -575,7 +500,7 @@ _DeepStyleWalker.prototype.Step = function () {
     }
     return undefined;
 };
-_DeepStyleWalker.prototype._InitializeStyle = function (style) {
+_DeepStyleWalker.Instance._InitializeStyle = function (style) {
     var dps = new Array();
     var cur = style;
     while (cur) {
@@ -592,7 +517,7 @@ _DeepStyleWalker.prototype._InitializeStyle = function (style) {
     }
     this._Setters.sort(_DeepStyleWalker.SetterSort);
 };
-_DeepStyleWalker.prototype._InitializeStyles = function (styles) {
+_DeepStyleWalker.Instance._InitializeStyles = function (styles) {
     if (!styles)
         return;
     var dps = new Array();
@@ -627,10 +552,10 @@ _DeepStyleWalker.SetterSort = function (setter1, setter2) {
     var b = setter2.GetValue(Setter.PropertyProperty);
     return (a === b) ? 0 : ((a > b) ? 1 : -1);
 };
+Nullstone.FinishCreate(_DeepStyleWalker);
 
-function _DeepTreeWalker(top, direction) {
-    if (!Nullstone.IsReady)
-        return;
+var _DeepTreeWalker = Nullstone.Create("_DeepTreeWalker", null, 2);
+_DeepTreeWalker.Instance.Init = function (top, direction) {
     if (!top)
         return;
     this._WalkList = new LinkedList();
@@ -639,9 +564,8 @@ function _DeepTreeWalker(top, direction) {
     this._Direction = _VisualTreeWalkerDirection.Logical;
     if (direction)
         this._Direction = direction;
-}
-Nullstone.Create(_DeepTreeWalker, "_DeepTreeWalker");
-_DeepTreeWalker.prototype.Step = function () {
+};
+_DeepTreeWalker.Instance.Step = function () {
     if (this._Last) {
         var walker = new _VisualTreeWalker(this._Last, this._Direction);
         var prepend = this._WalkList.First();
@@ -660,52 +584,51 @@ _DeepTreeWalker.prototype.Step = function () {
     this._Last = current;
     return current;
 };
-_DeepTreeWalker.prototype.SkipBranch = function () {
+_DeepTreeWalker.Instance.SkipBranch = function () {
     this._Last = null;
 };
+Nullstone.FinishCreate(_DeepTreeWalker);
 
-function DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
-    if (!Nullstone.IsReady)
-        return;
+var DependencyProperty = Nullstone.Create("DependencyProperty", null, 10);
+DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     this.Name = name;
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
-    this._AutoCreator = autocreator;
+    this._AutoCreator = autoCreator;
     this._Coercer = coercer;
     this._AlwaysChange = alwaysChange;
     this._Validator = validator;
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
-}
-Nullstone.Create(DependencyProperty, "DependencyProperty");
-DependencyProperty.prototype.toString = function () {
+};
+DependencyProperty.Instance.toString = function () {
     var ownerTypeName = this.OwnerType._TypeName;
     return ownerTypeName + "." + this.Name.toString();
 };
-DependencyProperty.prototype.GetDefaultValue = function (obj) {
+DependencyProperty.Instance.GetDefaultValue = function (obj) {
     if (this._HasDefaultValue)
         return this.DefaultValue;
     return this._GetAutoCreatedValue(obj);
 };
-DependencyProperty.prototype._HasDefaultValue = function () {
+DependencyProperty.Instance._HasDefaultValue = function () {
     return this.DefaultValue != null;
 };
-DependencyProperty.prototype._IsAutoCreated = function () {
+DependencyProperty.Instance._IsAutoCreated = function () {
     return this._AutoCreator != undefined && this._AutoCreator != null;
 };
-DependencyProperty.prototype._GetAutoCreatedValue = function (obj) {
+DependencyProperty.Instance._GetAutoCreatedValue = function (obj) {
     return this._AutoCreator.GetValue(this, obj);
 };
-DependencyProperty.prototype._HasCoercer = function () {
+DependencyProperty.Instance._HasCoercer = function () {
     return this._Coercer != null;
 };
-DependencyProperty.prototype._Coerce = function (instance, value, error) {
+DependencyProperty.Instance._Coerce = function (instance, value, error) {
     if (!this._Coercer)
         return value;
     return this._Coercer.GetValue(instance, this, value, error);
 };
-DependencyProperty.prototype._Validate = function (instance, propd, value, error) {
+DependencyProperty.Instance._Validate = function (instance, propd, value, error) {
     if (!this._Validator)
         return true;
     return this._Validator(instance, propd, value, error);
@@ -716,32 +639,34 @@ DependencyProperty.Register = function (name, getTargetType, ownerType, defaultV
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();
-    if (!DependencyProperty._Registered[ownerType])
-        DependencyProperty._Registered[ownerType] = new Array();
+    if (!DependencyProperty._Registered[ownerType._TypeName])
+        DependencyProperty._Registered[ownerType._TypeName] = new Array();
     var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
-    DependencyProperty._Registered[ownerType][name] = propd;
+    DependencyProperty._Registered[ownerType._TypeName][name] = propd;
     return propd;
 }
 DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();
-    if (!DependencyProperty._Registered[ownerType])
-        DependencyProperty._Registered[ownerType] = new Array();
+    if (!DependencyProperty._Registered[ownerType._TypeName])
+        DependencyProperty._Registered[ownerType._TypeName] = new Array();
     var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue);
     propd._IsAttached = true;
-    DependencyProperty._Registered[ownerType][name] = propd;
+    DependencyProperty._Registered[ownerType._TypeName][name] = propd;
     return propd;
 }
 DependencyProperty.GetDependencyProperty = function (ownerType, name) {
     var reg = DependencyProperty._Registered;
     if (!reg)
         return null;
-    var reg = reg[ownerType];
+    if (ownerType == null)
+        return null;
+    var reg = reg[ownerType._TypeName];
     var propd;
     if (reg)
         propd = reg[name];
     if (!propd && ownerType != null && ownerType._IsNullstone) {
-        propd = DependencyProperty.GetDependencyProperty(ownerType.GetBaseClass(), name);
+        propd = DependencyProperty.GetDependencyProperty(ownerType._BaseClass, name);
     }
     return propd;
 };
@@ -925,56 +850,46 @@ DependencyProperty._HandleDefault = function (data) {
 DependencyProperty._LookupType = function (name) {
     return eval(name);
 };
-function UnsetValue() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(UnsetValue, "UnsetValue");
+Nullstone.FinishCreate(DependencyProperty);
 
-function Expression() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(Expression, "Expression");
-Expression.prototype.GetValue = function (propd) {
+var Expression = Nullstone.Create("Expression");
+Expression.Instance.GetValue = function (propd) {
     AbstractMethod("Expression.GetValue");
 };
-Expression.prototype._OnAttached = function (element) {
+Expression.Instance._OnAttached = function (element) {
     this.SetAttached(true);
 };
-Expression.prototype._OnDetached = function (element) {
+Expression.Instance._OnDetached = function (element) {
     this.SetAttached(false);
 };
-Expression.prototype.GetAttached = function () {
+Expression.Instance.GetAttached = function () {
     return this._Attached;
 };
-Expression.prototype.SetAttached = function (value) {
+Expression.Instance.SetAttached = function (value) {
     this._Attached = value;
 };
-Expression.prototype.GetUpdating = function () {
+Expression.Instance.GetUpdating = function () {
     return this._Updating;
 };
-Expression.prototype.SetUpdating = function (value) {
+Expression.Instance.SetUpdating = function (value) {
     this._Updating = value;
 };
+Nullstone.FinishCreate(Expression);
 
-function TemplateBindingExpression(sourcePropd, targetPropd) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", Expression, 2);
+TemplateBindingExpression.Instance.Init = function (sourcePropd, targetPropd) {
     this.SourceProperty = sourcePropd;
     this.TargetProperty = targetPropd;
-}
-Nullstone.Extend(TemplateBindingExpression, "TemplateBindingExpression", Expression);
-TemplateBindingExpression.prototype.GetValue = function (propd) {
+};
+TemplateBindingExpression.Instance.GetValue = function (propd) {
     var source = this.Target.GetTemplateOwner();
     var value = null;
     if (source != null)
         value = source.GetValue(this.SourceProperty);
     return value; //TODO: Send through TypeConverter
 };
-TemplateBindingExpression.prototype._OnAttached = function (element) {
-    this._OnAttached$super(element);
+TemplateBindingExpression.Instance._OnAttached = function (element) {
+    this._OnAttached$Expression(element);
     this.Target = element;
     var listener = this.GetListener();
     if (listener != null) {
@@ -993,8 +908,8 @@ TemplateBindingExpression.prototype._OnAttached = function (element) {
         this.SetListener(listener);
     }
 };
-TemplateBindingExpression.prototype._OnDetached = function (element) {
-    this._OnDetached$super(element);
+TemplateBindingExpression.Instance._OnDetached = function (element) {
+    this._OnDetached$Expression(element);
     var listener = this.GetListener();
     if (listener == null)
         return;
@@ -1006,7 +921,7 @@ TemplateBindingExpression.prototype._OnDetached = function (element) {
     this.SetListener(listener);
     this.Target = null;
 };
-TemplateBindingExpression.prototype.OnPropertyChanged = function (sender, args) {
+TemplateBindingExpression.Instance.OnPropertyChanged = function (sender, args) {
     try {
         this.SetUpdating(true);
         try {
@@ -1019,15 +934,18 @@ TemplateBindingExpression.prototype.OnPropertyChanged = function (sender, args) 
         this.SetUpdating(false);
     }
 };
-TemplateBindingExpression.prototype.GetListener = function () {
+TemplateBindingExpression.Instance.GetListener = function () {
     return this._Listener;
 };
-TemplateBindingExpression.prototype.SetListener = function (value) {
+TemplateBindingExpression.Instance.SetListener = function (value) {
     this._Listener = value;
 };
+Nullstone.FinishCreate(TemplateBindingExpression);
 
-function Validators() {
-}
+var UnsetValue = Nullstone.Create("UnsetValue");
+Nullstone.FinishCreate(UnsetValue);
+
+var Validators = {};
 Validators.StyleValidator = function (instance, propd, value, error) {
     var parentType = instance.constructor;
     var errorMessage = null;
@@ -1055,7 +973,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
         root = style;
         while (root != null) {
             var targetType = root.GetTargetType();
-            if (RefObject.RefEquals(root, style)) {
+            if (Nullstone.RefEquals(root, style)) {
                 if (targetType == null) {
                     error.SetErrored(BError.InvalidOperation, "TargetType cannot be null");
                     return false;
@@ -1075,11 +993,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
     return true;
 };
 
-function VisualTreeHelper() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(VisualTreeHelper, "VisualTreeHelper");
+var VisualTreeHelper = {};
 VisualTreeHelper.GetChild = function (d, childIndex) {
     var fw = Nullstone.As(d, FrameworkElement);
     if (fw == null)
@@ -1107,9 +1021,8 @@ VisualTreeHelper.GetChildrenCount = function (d) {
     return 0;
 };
 
-function _VisualTreeWalker(obj, direction) {
-    if (!Nullstone.IsReady)
-        return;
+var _VisualTreeWalker = Nullstone.Create("_VisualTreeWalker", null, 2);
+_VisualTreeWalker.Instance.Init = function (obj, direction) {
     if (obj == null)
         return;
     this._Offset = 0;
@@ -1126,9 +1039,8 @@ function _VisualTreeWalker(obj, direction) {
                 this._Direction = _VisualTreeWalkerDirection.Logical;
         }
     }
-}
-Nullstone.Create(_VisualTreeWalker, "_VisualTreeWalker");
-_VisualTreeWalker.prototype.Step = function () {
+};
+_VisualTreeWalker.Instance.Step = function () {
     var result = null;
     if (this._Collection) {
         var count = this.GetCount();
@@ -1166,23 +1078,22 @@ _VisualTreeWalker.prototype.Step = function () {
     }
     return result;
 };
-_VisualTreeWalker.prototype.GetCount = function () {
+_VisualTreeWalker.Instance.GetCount = function () {
     if (!this._Content)
         return 0;
     if (!this._Collection)
         return 1;
     return this._Collection.GetCount();
 };
+Nullstone.FinishCreate(_VisualTreeWalker);
 
-function CollectionChangedArgs(action, oldValue, newValue, index) {
-    if (!Nullstone.IsReady)
-        return;
+var CollectionChangedArgs = Nullstone.Create("CollectionChangedArgs", null, 4);
+CollectionChangedArgs.prototype.Init = function (action, oldValue, newValue, index) {
     this.Action = action;
     this.OldValue = oldValue;
     this.NewValue = newValue;
     this.Index = index;
-}
-Nullstone.Create(CollectionChangedArgs, "CollectionChangedArgs");
+};
 CollectionChangedArgs.Action = {
     Clearing: 0,
     Cleared: 1,
@@ -1190,50 +1101,47 @@ CollectionChangedArgs.Action = {
     Remove: 3,
     Replace: 4
 };
+Nullstone.FinishCreate(CollectionChangedArgs);
 
-function CollectionIterator(collection) {
-    if (!Nullstone.IsReady)
-        return;
+var CollectionIterator = Nullstone.Create("CollectionIterator", null, 1);
+CollectionIterator.Instance.Init = function (collection) {
     this._Collection = collection;
     this._Index = -1;
-}
-Nullstone.Create(CollectionIterator, "CollectionIterator");
-CollectionIterator.prototype.Next = function (error) {
+};
+CollectionIterator.Instance.Next = function (error) {
     this._Index++;
     return this._Index < this._Collection.GetCount();
 };
-CollectionIterator.prototype.Reset = function () {
+CollectionIterator.Instance.Reset = function () {
     this._Index = -1;
 };
-CollectionIterator.prototype.GetCurrent = function (error) {
+CollectionIterator.Instance.GetCurrent = function (error) {
     if (this._Index < 0 || this._Index >= this._Collection.GetCount()) {
         error.SetErrored(BError.InvalidOperation, "Index out of bounds.");
         return null;
     }
     return this._Collection.GetValueAt(this._Index);
 };
+Nullstone.FinishCreate(CollectionIterator);
 
-function ItemChangedArgs(item, propd, oldValue, newValue) {
-    if (!Nullstone.IsReady)
-        return;
+var ItemChangedArgs = Nullstone.Create("ItemChangedArgs", null, 4);
+ItemChangedArgs.Instance.Init = function (item, propd, oldValue, newValue) {
     this.Item = item;
     this.Property = propd;
     this.OldValue = oldValue;
     this.NewValue = newValue;
-}
-Nullstone.Create(ItemChangedArgs, "ItemChangedArgs");
+};
+Nullstone.FinishCreate(ItemChangedArgs);
 
-function _InheritedContext() {
-    if (!Nullstone.IsReady)
-        return;
-    if (arguments.length > 2) {
-        this._InitFull(arguments);
-    } else if (arguments.length == 2) {
-        this._InitFromObj(arguments[0], arguments[1]);
+var _InheritedContext = Nullstone.Create("_InheritedContext", null);
+_InheritedContext.Instance.Init = function (args) {
+    if (args.length > 2) {
+        this._InitFull(args);
+    } else if (args.length == 2) {
+        this._InitFromObj(args[0], args[1]);
     }
-}
-Nullstone.Create(_InheritedContext, "_InheritedContext");
-_InheritedContext.prototype._InitFull = function (args) {
+};
+_InheritedContext.Instance._InitFull = function (args) {
     this.ForegroundSource = args[0];
     this.FontFamilySource = args[1];
     this.FontStretchSource = args[2];
@@ -1246,7 +1154,7 @@ _InheritedContext.prototype._InitFull = function (args) {
     this.TextDecorationsSource = args[9];
     this.FontResourceSource = args[10];
 };
-_InheritedContext.prototype._InitFromObj = function (obj, parentContext) {
+_InheritedContext.Instance._InitFromObj = function (obj, parentContext) {
     this.ForegroundSource = this.GetLocalSource(obj, _Inheritable.Foreground);
     if (!this.ForegroundSource && parentContext) this.ForegroundSource = parentContext.ForegroundSource;
     this.FontFamilySource = this.GetLocalSource(obj, _Inheritable.FontFamily);
@@ -1270,7 +1178,7 @@ _InheritedContext.prototype._InitFromObj = function (obj, parentContext) {
     this.FontResourceSource = this.GetLocalSource(obj, _Inheritable.FontResource);
     if (!this.FontResourceSource && parentContext) this.FontResourceSource = parentContext.FontResourceSource;
 };
-_InheritedContext.prototype.Compare = function (withContext, props) {
+_InheritedContext.Instance.Compare = function (withContext, props) {
     var rv = _Inheritable.None;
     if (props & _Inheritable.Foreground && withContext.ForegroundSource == this.ForegroundSource)
         rv |= _Inheritable.Foreground;
@@ -1296,48 +1204,46 @@ _InheritedContext.prototype.Compare = function (withContext, props) {
         rv |= _Inheritable.FontResource;
     return rv;
 };
-_InheritedContext.prototype.GetLocalSource = function (obj, prop) {
+_InheritedContext.Instance.GetLocalSource = function (obj, prop) {
     var source = null;
     var propd = _InheritedPropertyValueProvider.GetProperty(prop, obj);
     if (propd && obj._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited)
         source = obj;
     return source;
 };
+Nullstone.FinishCreate(_InheritedContext);
 
-function _PropertyValueProvider(obj, propPrecedence, flags) {
-    if (!Nullstone.IsReady)
-        return;
+var _PropertyValueProvider = Nullstone.Create("_PropertyValueProvider", null, 3);
+_PropertyValueProvider.Instance.Init = function (obj, propPrecedence, flags) {
     this._Object = obj;
     this._PropertyPrecedence = propPrecedence;
     this._Flags = flags;
-}
-Nullstone.Create(_PropertyValueProvider, "_PropertyValueProvider");
-_PropertyValueProvider.prototype._HasFlag = function (flag) {
+};
+_PropertyValueProvider.Instance._HasFlag = function (flag) {
     return (this._Flags & flag) != 0;
 };
-_PropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_PropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     AbstractMethod("_PropertyValueProvider.GetPropertyValue(propd)");
 };
-_PropertyValueProvider.prototype.ForeachValue = function (func, data) {
+_PropertyValueProvider.Instance.ForeachValue = function (func, data) {
     if (!func)
         return;
     for (var value in this._ht)
         func(value, this._ht[value], data);
 };
-_PropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+_PropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
 };
+Nullstone.FinishCreate(_PropertyValueProvider);
 
-function _StylePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+var _StylePropertyValueProvider = Nullstone.Create("_StylePropertyValueProvider", _PropertyValueProvider, 2);
+_StylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._ht = new Array();
-}
-Nullstone.Extend(_StylePropertyValueProvider, "_StylePropertyValueProvider", _PropertyValueProvider);
-_StylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+};
+_StylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
-_StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, reason, error) {
+_StylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, reason, error) {
     if ((reason & _ProviderFlags.RecomputesOnClear) == 0)
         return;
     var oldValue = undefined;
@@ -1357,7 +1263,7 @@ _StylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, 
             return;
     }
 };
-_StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
+_StylePropertyValueProvider.Instance._UpdateStyle = function (style, error) {
     var oldValue = undefined;
     var newValue = undefined;
     var oldWalker = new _DeepStyleWalker(this._Style);
@@ -1394,51 +1300,47 @@ _StylePropertyValueProvider.prototype._UpdateStyle = function (style, error) {
     }
     this._Style = style;
 };
+Nullstone.FinishCreate(_StylePropertyValueProvider);
 
-function BindingBase() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(BindingBase, "BindingBase");
-BindingBase.prototype.CheckSealed = function () {
+var BindingBase = Nullstone.Create("BindingBase");
+BindingBase.Instance.CheckSealed = function () {
     if (this.GetSealed())
         throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
 };
-BindingBase.prototype.Seal = function () {
+BindingBase.Instance.Seal = function () {
     this.SetSealed(true);
 };
-BindingBase.prototype.GetFallbackValue = function () {
+BindingBase.Instance.GetFallbackValue = function () {
     return this._FallbackValue;
 };
-BindingBase.prototype.SetFallbackValue = function (value) {
+BindingBase.Instance.SetFallbackValue = function (value) {
     this.CheckSealed();
     this._FallbackValue = value;
 };
-BindingBase.prototype.GetSealed = function () {
+BindingBase.Instance.GetSealed = function () {
     return this._Sealed;
 };
-BindingBase.prototype.SetSealed = function (value) {
+BindingBase.Instance.SetSealed = function (value) {
     this._Sealed = value;
 };
-BindingBase.prototype.GetStringFormat = function () {
+BindingBase.Instance.GetStringFormat = function () {
     return this._StringFormat;
 };
-BindingBase.prototype.SetStringFormat = function (value) {
+BindingBase.Instance.SetStringFormat = function (value) {
     this.CheckSealed();
     this._StringFormat = value;
 };
-BindingBase.prototype.GetTargetNullValue = function () {
+BindingBase.Instance.GetTargetNullValue = function () {
     return this._TargetNullValue;
 };
-BindingBase.prototype.SetTargetNullValue = function (value) {
+BindingBase.Instance.SetTargetNullValue = function (value) {
     this.CheckSealed();
     this._TargetNullValue = value;
 };
+Nullstone.FinishCreate(BindingBase);
 
-function BindingExpressionBase(binding, target, propd) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var BindingExpressionBase = Nullstone.Create("BindingExpressionBase", Expression, 3);
+BindingExpressionBase.Instance.Init = function (binding, target, propd) {
     if (!binding)
         return;
     this._Cached = false;
@@ -1453,9 +1355,8 @@ function BindingExpressionBase(binding, target, propd) {
         walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);
         walker.ValueChanged.Subscribe(this._PropertyPathValueChanged, this);
     }
-}
-Nullstone.Extend(BindingExpressionBase, "BindingExpressionBase", Expression);
-BindingExpressionBase.prototype.GetValue = function (propd) {
+};
+BindingExpressionBase.Instance.GetValue = function (propd) {
     if (this._Cached)
         return this._CachedValue;
     this._Cached = true;
@@ -1471,10 +1372,10 @@ BindingExpressionBase.prototype.GetValue = function (propd) {
     }
     return this._CachedValue;
 };
-BindingExpressionBase.prototype._OnAttached = function (element) {
+BindingExpressionBase.Instance._OnAttached = function (element) {
     if (this.GetAttached())
         return;
-    this._OnAttached$super(element);
+    this._OnAttached$Expression(element);
     this._CalculateDataSource();
     if (this.GetIsTwoWayTextBoxText())
         this.GetTarget().LostFocus.Subscribe(this._TextBoxLostFocus, this);
@@ -1490,10 +1391,10 @@ BindingExpressionBase.prototype._OnAttached = function (element) {
         this._PropertyListener = new PropertyChangedListener(this.GetTarget(), this.GetProperty(), this, updateDataSourceCallback);
     }
 };
-BindingExpressionBase.prototype._OnDetached = function (element) {
+BindingExpressionBase.Instance._OnDetached = function (element) {
     if (!this.GetAttached())
         return;
-    this._OnDetached$super(element);
+    this._OnDetached$Expression(element);
     if (this.GetIsTwoWayTextBoxText())
         this.GetTarget().LostFocus.Unsubscribe(this._TextBoxLostFocus, this);
     var targetFE = Nullstone.As(element, FrameworkElement);
@@ -1517,15 +1418,15 @@ BindingExpressionBase.prototype._OnDetached = function (element) {
     }
     this.GetPropertyPathWalker().Update(null);
 };
-BindingExpressionBase.prototype._TextBoxLostFocus = function () {
+BindingExpressionBase.Instance._TextBoxLostFocus = function () {
     this._UpdateSourceObject();
 };
-BindingExpressionBase.prototype._TryUpdateSourceObject = function (value) {
+BindingExpressionBase.Instance._TryUpdateSourceObject = function (value) {
     if (!this.GetUpdating() && this.GetBinding().GetUpdateSourceTrigger() === UpdateSourceTrigger.Default) {
         this._UpdateSourceObject(value, false);
     }
 };
-BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
+BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
     if (value === undefined)
         value = GetTarget().GetValue(GetProperty());
     if (force === undefined)
@@ -1541,7 +1442,7 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
             return;
         if (this.GetBinding().GetTargetNullValue() != null) {
             try {
-                if (RefObject.RefEquals(this.GetBinding().GetTargetNullValue(), value))
+                if (Nullstone.RefEquals(this.GetBinding().GetTargetNullValue(), value))
                     value = null;
             } catch (err) {
             }
@@ -1574,7 +1475,7 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
     }
     this._MaybeEmitError(dataError, exception);
 };
-BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) {
+BindingExpressionBase.Instance._MaybeEmitError = function (message, exception) {
     var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
     if (fe == null)
         fe = this.GetTarget().GetMentor();
@@ -1606,15 +1507,15 @@ BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) 
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
     }
 };
-BindingExpressionBase.prototype._ConvertFromTargetToSource = function (value) {
+BindingExpressionBase.Instance._ConvertFromTargetToSource = function (value) {
     NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
     return value;
 };
-BindingExpressionBase.prototype._ConvertFromSourceToTarget = function (value) {
+BindingExpressionBase.Instance._ConvertFromSourceToTarget = function (value) {
     NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
     return value;
 };
-BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
+BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
     try {
         if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter() != null) {
             value = this.GetBinding().GetConverter().Convert(value, this.GetProperty().GetTargetType(), this.GetBinding().GetConverterParameter(), {});
@@ -1640,13 +1541,13 @@ BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
     }
     return value;
 };
-BindingExpressionBase.prototype._AttachToNotifyError = function (element) {
+BindingExpressionBase.Instance._AttachToNotifyError = function (element) {
     NotImplemented("BindingExpressionBase._AttachToNotifyError");
 };
-BindingExpressionBase.prototype._NotifyErrorsChanged = function (o, e) {
+BindingExpressionBase.Instance._NotifyErrorsChanged = function (o, e) {
     NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
 };
-BindingExpressionBase.prototype._CalculateDataSource = function () {
+BindingExpressionBase.Instance._CalculateDataSource = function () {
     var source = null;
     if (this.GetBinding().GetSource() != null) {
         this.GetPropertyPathWalker().Update(this.GetBinding().GetSource());
@@ -1682,7 +1583,7 @@ BindingExpressionBase.prototype._CalculateDataSource = function () {
         }
     }
 };
-BindingExpressionBase.prototype.SetDataContextSource = function (value) {
+BindingExpressionBase.Instance.SetDataContextSource = function (value) {
     if (this._DataContextSource != null && this._DataContextPropertyListener != null) {
         this._DataContextPropertyListener.Detach();
         this._DataContextPropertyListener = null;
@@ -1694,7 +1595,7 @@ BindingExpressionBase.prototype.SetDataContextSource = function (value) {
     if (this._DataContextSource != null || this.GetIsMentorDataContextBound())
         this.GetPropertyPathWalker().Update(this._DataContextSource == null ? null : this._DataContextSource.GetDataContext());
 };
-BindingExpressionBase.prototype._InvalidateAfterMentorChanged = function (sender, e) {
+BindingExpressionBase.Instance._InvalidateAfterMentorChanged = function (sender, e) {
     this.GetTarget().MentorChanged.Unsubscribe(this._InvalidateAfterMentorChanged, this);
     var source = this._FindSourceByElementName();
     if (source == null) {
@@ -1705,7 +1606,7 @@ BindingExpressionBase.prototype._InvalidateAfterMentorChanged = function (sender
     this._Invalidate();
     this.GetTarget().SetValue(this.GetProperty(), this);
 };
-BindingExpressionBase.prototype._HandleFeTargetLoaded = function (sender, e) {
+BindingExpressionBase.Instance._HandleFeTargetLoaded = function (sender, e) {
     var fe = sender;
     fe.Loaded.Unsubscribe(this._HandleFeTargetLoaded, this);
     var source = this._FindSourceByElementName();
@@ -1714,7 +1615,7 @@ BindingExpressionBase.prototype._HandleFeTargetLoaded = function (sender, e) {
     this._Invalidate();
     this.GetTarget().SetValue(this.GetProperty(), this);
 };
-BindingExpressionBase.prototype._FindSourceByElementName = function () {
+BindingExpressionBase.Instance._FindSourceByElementName = function () {
     var source = null;
     var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
     if (!fe)
@@ -1730,11 +1631,11 @@ BindingExpressionBase.prototype._FindSourceByElementName = function () {
     }
     return source;
 };
-BindingExpressionBase.prototype._Invalidate = function () {
+BindingExpressionBase.Instance._Invalidate = function () {
     this._Cached = false;
     this._CachedValue = null;
 };
-BindingExpressionBase.prototype._MentorChanged = function (sender, e) {
+BindingExpressionBase.Instance._MentorChanged = function (sender, e) {
     try {
         var mentor = this.GetTarget().GetMentor();
         if (this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
@@ -1749,14 +1650,14 @@ BindingExpressionBase.prototype._MentorChanged = function (sender, e) {
     } catch (err) {
     }
 };
-BindingExpressionBase.prototype._ParentChanged = function (sender, e) {
+BindingExpressionBase.Instance._ParentChanged = function (sender, e) {
     try {
         var targetFE = this.GetTarget();
         this.SetDataContextSource(targetFE.GetVisualParent());
     } catch (err) {
     }
 };
-BindingExpressionBase.prototype._DataContextChanged = function (sender, e) {
+BindingExpressionBase.Instance._DataContextChanged = function (sender, e) {
     try {
         var fe = sender;
         this.GetPropertyPathWalker().Update(fe.GetDataContext());
@@ -1766,10 +1667,10 @@ BindingExpressionBase.prototype._DataContextChanged = function (sender, e) {
         Warn(err.message);
     }
 };
-BindingExpressionBase.prototype._PropertyPathValueChanged = function () {
+BindingExpressionBase.Instance._PropertyPathValueChanged = function () {
     this.Refresh();
 };
-BindingExpressionBase.prototype.Refresh = function () {
+BindingExpressionBase.Instance.Refresh = function () {
     var dataError = null;
     var exception = null;
     if (!this.GetAttached())
@@ -1790,76 +1691,75 @@ BindingExpressionBase.prototype.Refresh = function () {
     }
     this._MaybeEmitError(dataError, exception);
 };
-BindingExpressionBase.prototype.GetBinding = function () {
+BindingExpressionBase.Instance.GetBinding = function () {
     return this._Binding;
 };
-BindingExpressionBase.prototype.GetCurrentError = function () {
+BindingExpressionBase.Instance.GetCurrentError = function () {
     return this._CurrentError;
 };
-BindingExpressionBase.prototype.SetCurrentError = function (/* ValidationError */value) {
+BindingExpressionBase.Instance.SetCurrentError = function (/* ValidationError */value) {
     this._CurrentError = value;
 };
-BindingExpressionBase.prototype.GetCurrentNotifyError = function () {
+BindingExpressionBase.Instance.GetCurrentNotifyError = function () {
     return this._CurrentNotifyError;
 };
-BindingExpressionBase.prototype.SetCurrentNotifyError = function (/* INotifyDataErrorInfo */value) {
+BindingExpressionBase.Instance.SetCurrentNotifyError = function (/* INotifyDataErrorInfo */value) {
     this._CurrentNotifyError = value;
 };
-BindingExpressionBase.prototype.GetDataContextSource = function () {
+BindingExpressionBase.Instance.GetDataContextSource = function () {
     return this._DataContextSource;
 };
-BindingExpressionBase.prototype.GetDataSource = function () {
+BindingExpressionBase.Instance.GetDataSource = function () {
     return this.GetPropertyPathWalker().GetSource();
 };
-BindingExpressionBase.prototype.GetIsBoundToAnyDataContext = function () {
+BindingExpressionBase.Instance.GetIsBoundToAnyDataContext = function () {
     return !this.GetBinding().GetElementName() && this.GetBinding().GetSource() == null;
 };
-BindingExpressionBase.prototype.GetIsSelfDataContextBound = function () {
+BindingExpressionBase.Instance.GetIsSelfDataContextBound = function () {
     return this.GetIsBoundToAnyDataContext()
         && this.GetTarget() instanceof FrameworkElement
         && this.GetProperty() !== FrameworkElement.DataContextProperty;
 };
-BindingExpressionBase.prototype.GetIsParentDataContextBound = function () {
+BindingExpressionBase.Instance.GetIsParentDataContextBound = function () {
     return this.GetIsBoundToAnyDataContext()
         && this.GetTarget() instanceof FrameworkElement
         && (this.GetProperty() === FrameworkElement.DataContextProperty || this.GetProperty() === ContentPresenter.ContentProperty);
 };
-BindingExpressionBase.prototype.GetIsMentorDataContextBound = function () {
+BindingExpressionBase.Instance.GetIsMentorDataContextBound = function () {
     return this.GetIsBoundToAnyDataContext()
         && !(this.GetTarget() instanceof FrameworkElement);
 };
-BindingExpressionBase.prototype.GetTarget = function () {
+BindingExpressionBase.Instance.GetTarget = function () {
     return this._Target;
 };
-BindingExpressionBase.prototype.SetTarget = function (/* DependencyObject */value) {
+BindingExpressionBase.Instance.SetTarget = function (/* DependencyObject */value) {
     this._Target = value;
 };
-BindingExpressionBase.prototype.GetProperty = function () {
+BindingExpressionBase.Instance.GetProperty = function () {
     return this._Property;
 };
-BindingExpressionBase.prototype.SetProperty = function (/* DependencyProperty */value) {
+BindingExpressionBase.Instance.SetProperty = function (/* DependencyProperty */value) {
     this._Property = value;
 };
-BindingExpressionBase.prototype.GetPropertyPathWalker = function () {
+BindingExpressionBase.Instance.GetPropertyPathWalker = function () {
     return this._PropertyPathWalker;
 };
-BindingExpressionBase.prototype.SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
+BindingExpressionBase.Instance.SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
     this._PropertyPathWalker = value;
 };
-BindingExpressionBase.prototype.GetIsTwoWayTextBoxText = function () {
+BindingExpressionBase.Instance.GetIsTwoWayTextBoxText = function () {
     return this.GetTarget() instanceof TextBox && this.GetProperty() === TextBox.TextProperty && this.GetBinding().GetMode() === BindingMode.TwoWay;
 };
+Nullstone.FinishCreate(BindingExpressionBase);
 
-function CurrentChangedListener(source, closure, func) {
-    if (!Nullstone.IsReady)
-        return;
+var CurrentChangedListener = Nullstone.Create("CurrentChangedListener", null, 3);
+CurrentChangedListener.Instance.Init = function (source, closure, func) {
     this._Source = source;
     this._Closure = closure;
     this._Func = func;
     this._Source.CurrentChanged.Subscribe(this, this.OnCurrentChangedInternal);
-}
-Nullstone.Create(CurrentChangedListener, "CurrentChangedListener");
-CurrentChangedListener.prototype.Detach = function () {
+};
+CurrentChangedListener.Instance.Detach = function () {
     if (this._Source != null) {
         this._Source.CurrentChanged.Unsubscribe(this, this.OnCurrentChangedInternal);
         this._Source = null;
@@ -1867,36 +1767,34 @@ CurrentChangedListener.prototype.Detach = function () {
         this._Func = null;
     }
 };
-CurrentChangedListener.prototype.OnCurrentChangedInternal = function (s, e) {
+CurrentChangedListener.Instance.OnCurrentChangedInternal = function (s, e) {
     if (this._Closure != null && this._Func != null)
         this._Func.call(this._Closure, s, e);
 };
+Nullstone.FinishCreate(CurrentChangedListener);
 
-function NPCListener(source, closure, func) {
-    if (!Nullstone.IsReady)
-        return;
+var NPCListener = Nullstone.Create("NPCListener", null, 3);
+NPCListener.Instance.Init = function (source, closure, func) {
     this._Source = source;
     this._Closure = closure;
     this._Func = func;
     if (this._Source)
         this._Source.PropertyChanged.Subscribe(this._Func, this._Closure);
-}
-Nullstone.Create(NPCListener, "NPCListener");
-NPCListener.prototype.Detach = function () {
+};
+NPCListener.Instance.Detach = function () {
     this._Source.PropertyChanged.Unsubscribe(this._Closure, this._Func);
 };
+Nullstone.FinishCreate(NPCListener);
 
-function PropertyChangedListener(source, propd, closure, func) {
-    if (!Nullstone.IsReady)
-        return;
+var PropertyChangedListener = Nullstone.Create("PropertyChangedListener", null, 4);
+PropertyChangedListener.Instance.Init = function (source, propd, closure, func) {
     this._Source = source;
     this._Property = propd;
     this._Closure = closure;
     this._Func = func;
     this._Source.PropertyChanged.Subscribe(this.OnPropertyChangedInternal, this);
-}
-Nullstone.Create(PropertyChangedListener, "PropertyChangedListener");
-PropertyChangedListener.prototype.Detach = function () {
+};
+PropertyChangedListener.Instance.Detach = function () {
     if (this._Source != null) {
         this._Source.PropertyChanged.Unsubscribe(this, this.OnPropertyChangedInternal);
         this._Source = null;
@@ -1904,20 +1802,19 @@ PropertyChangedListener.prototype.Detach = function () {
         this._Func = null;
     }
 };
-PropertyChangedListener.prototype.OnPropertyChangedInternal = function (s, e) {
+PropertyChangedListener.Instance.OnPropertyChangedInternal = function (s, e) {
     if (e.Property !== this._Property)
         return;
     if (this._Closure != null && this._Func != null)
         this._Func.call(this._Closure, s, e);
 };
+Nullstone.FinishCreate(PropertyChangedListener);
 
-function _PropertyPath(path, expandedPath) {
-    if (!Nullstone.IsReady)
-        return;
+var _PropertyPath = Nullstone.Create("_PropertyPath", null, 2);
+_PropertyPath.Instance.Init = function (path, expandedPath) {
     this._Path = path;
     this._ExpandedPath = expandedPath;
-}
-Nullstone.Create(_PropertyPath, "_PropertyPath");
+};
 _PropertyPath.CreateFromParameter = function (parameter) {
     var p = new _PropertyPath();
     p._Propd = Nullstone.As(parameter, DependencyProperty);
@@ -1926,40 +1823,39 @@ _PropertyPath.CreateFromParameter = function (parameter) {
         p._Path = parameter;
     return p;
 };
-_PropertyPath.prototype.HasDependencyProperty = function () {
+_PropertyPath.Instance.HasDependencyProperty = function () {
     return this._Propd != null;
 };
-_PropertyPath.prototype.TryResolveDependencyProperty = function (dobj) {
+_PropertyPath.Instance.TryResolveDependencyProperty = function (dobj) {
     if (this.HasDependencyProperty())
         return;
     if (dobj == null)
         return;
     this._Propd = dobj.GetDependencyProperty(this.GetPath());
 };
-_PropertyPath.prototype.GetDependencyProperty = function () {
+_PropertyPath.Instance.GetDependencyProperty = function () {
     return this._Propd;
 };
-_PropertyPath.prototype.GetPath = function () {
+_PropertyPath.Instance.GetPath = function () {
     return this._Propd == null ? this._Path : "(0)";
 };
-_PropertyPath.prototype.GetExpandedPath = function () {
+_PropertyPath.Instance.GetExpandedPath = function () {
     return this._Propd == null ? this._ExpandedPath : "(0)";
 };
-_PropertyPath.prototype.GetParsePath = function () {
+_PropertyPath.Instance.GetParsePath = function () {
     if (this._Propd != null)
         return "(0)";
     if (this._ExpandedPath != null)
         return this._ExpandedPath;
     return this._Path;
 };
+Nullstone.FinishCreate(_PropertyPath);
 
-function _PropertyPathParser(path) {
-    if (!Nullstone.IsReady)
-        return;
+var _PropertyPathParser = Nullstone.Create("_PropertyPathParser", null, 1);
+_PropertyPathParser.Instance.Init = function (path) {
     this.SetPath(path);
-}
-Nullstone.Create(_PropertyPathParser, "_PropertyPathParser");
-_PropertyPathParser.prototype.Step = function (data) {
+};
+_PropertyPathParser.Instance.Step = function (data) {
     var type = _PropertyNodeType.None;
     if (this.GetPath().length === 0) {
         data.typeName = null;
@@ -2031,44 +1927,42 @@ _PropertyPathParser.prototype.Step = function (data) {
     }
     return type;
 };
-_PropertyPathParser.prototype.GetPath = function () {
+_PropertyPathParser.Instance.GetPath = function () {
     return this._Path;
 };
-_PropertyPathParser.prototype.SetPath = function (value) {
+_PropertyPathParser.Instance.SetPath = function (value) {
     this._Path = value;
 };
+Nullstone.FinishCreate(_PropertyPathParser);
 
-function RelativeSource(mode) {
-    if (!Nullstone.IsReady)
-        return;
+var RelativeSource = Nullstone.Create("RelativeSource", null, 1);
+RelativeSource.Instance.Init = function (mode) {
     if (mode == null)
         mode = RelativeSourceMode.TemplatedParent;
     this.SetMode(mode);
-}
-Nullstone.Create(RelativeSource, "RelativeSource");
-RelativeSource.prototype.GetMode = function () {
+};
+RelativeSource.Instance.GetMode = function () {
     return this._Mode;
 };
-RelativeSource.prototype.SetMode = function (/* RelativeSourceMode */value) {
+RelativeSource.Instance.SetMode = function (/* RelativeSourceMode */value) {
     this._Mode = value;
 };
+Nullstone.FinishCreate(RelativeSource);
 
-function Clock() {
-    if (!Nullstone.IsReady)
-        return;
+var Clock = Nullstone.Create("Clock");
+Clock.Instance.Init = function () {
     this._Timers = new Array();
-}
-Nullstone.Create(Clock, "Clock");
-Clock.prototype.RegisterTimer = function (timer) {
-    if (!Array.addDistinctRefObject(this._Timers, timer))
+};
+Clock.Instance.RegisterTimer = function (timer) {
+    if (!Array.addDistinctNullstone(this._Timers, timer))
         return;
     if (this._Timers.length === 1)
         this.RequestAnimationTick();
 };
-Clock.prototype.UnregisterTimer = function (timer) {
-    Array.removeRefObject(this._Timers, timer);
+Clock.Instance.UnregisterTimer = function (timer) {
+    Array.removeNullstone(this._Timers, timer);
 };
-Clock.prototype.DoTick = function () {
+Clock.Instance.DoTick = function () {
     var nowTime = new Date().getTime();
     if (!this._RunTimers(this._LastTime, nowTime)) {
         return;
@@ -2076,7 +1970,7 @@ Clock.prototype.DoTick = function () {
     this._LastTime = nowTime;
     this.RequestAnimationTick();
 };
-Clock.prototype._RunTimers = function (lastTime, nowTime) {
+Clock.Instance._RunTimers = function (lastTime, nowTime) {
     if (this._Timers.length === 0)
         return false;
     for (var i = 0; i < this._Timers.length; i++) {
@@ -2085,7 +1979,7 @@ Clock.prototype._RunTimers = function (lastTime, nowTime) {
     }
     return true;
 };
-Clock.prototype.RequestAnimationTick = function () {
+Clock.Instance.RequestAnimationTick = function () {
     var clock = this;
     Clock._RequestAnimationFrame(function () { clock.DoTick(); });
 };
@@ -2099,30 +1993,8 @@ Clock._RequestAnimationFrame = (function () {
             window.setTimeout(callback, 1000 / 200);
         };
 })();
+Nullstone.FinishCreate(Clock);
 
-function _DirtyList() {
-    if (!Nullstone.IsReady)
-        return;
-    this._DirtyNodes = new LinkedList();
-}
-Nullstone.Create(_DirtyList, "_DirtyList");
-_DirtyList.prototype.AddDirtyNode = function (node) {
-    this._DirtyNodes.Append(node);
-};
-_DirtyList.prototype.RemoveDirtyNode = function (node) {
-    if (!this._DirtyNodes)
-        return;
-    this._DirtyNodes.Remove(node);
-};
-_DirtyList.prototype.GetFirst = function () {
-    return this._DirtyNodes.First();
-};
-_DirtyList.prototype.IsEmpty = function () {
-    return this._DirtyNodes.IsEmpty();
-};
-_DirtyList.prototype.Clear = function () {
-    this._DirtyNodes.Clear();
-};
 var _Dirty = {
     Transform: 1 << 0,
     LocalTransform: 1 << 1,
@@ -2151,87 +2023,104 @@ _Dirty.DownDirtyState =
     _Dirty.ChildrenZIndices;
 _Dirty.UpDirtyState = _Dirty.Bounds | _Dirty.Invalidate;
 _Dirty.State = _Dirty.DownDirtyState | _Dirty.UpDirtyState;
-
-function _RenderContext(surface) {
-    if (!Nullstone.IsReady)
+var _DirtyList = Nullstone.Create("_DirtyList");
+_DirtyList.Instance.Init = function () {
+    this._DirtyNodes = new LinkedList();
+};
+_DirtyList.Instance.AddDirtyNode = function (node) {
+    this._DirtyNodes.Append(node);
+};
+_DirtyList.Instance.RemoveDirtyNode = function (node) {
+    if (!this._DirtyNodes)
         return;
+    this._DirtyNodes.Remove(node);
+};
+_DirtyList.Instance.GetFirst = function () {
+    return this._DirtyNodes.First();
+};
+_DirtyList.Instance.IsEmpty = function () {
+    return this._DirtyNodes.IsEmpty();
+};
+_DirtyList.Instance.Clear = function () {
+    this._DirtyNodes.Clear();
+};
+Nullstone.FinishCreate(_DirtyList);
+
+var _RenderContext = Nullstone.Create("_RenderContext", null, 1);
+_RenderContext.Instance.Init = function (surface) {
     this._Surface = surface;
     this._Transforms = new Array();
-}
-Nullstone.Create(_RenderContext, "_RenderContext");
-_RenderContext.prototype.GetSurface = function () {
+};
+_RenderContext.Instance.GetSurface = function () {
     return this._Surface;
 };
-_RenderContext.prototype.Clip = function (clip) {
+_RenderContext.Instance.Clip = function (clip) {
     this._DrawClip(clip);
     this._Surface._Ctx.clip();
 };
-_RenderContext.prototype.IsPointInClipPath = function (clip, p) {
+_RenderContext.Instance.IsPointInClipPath = function (clip, p) {
     this._Surface._Ctx.clear();
     this._DrawClip(clip);
     return this._Surface._Ctx.isPointInPath(p.X, p.Y);
 };
-_RenderContext.prototype._DrawClip = function (clip) {
+_RenderContext.Instance._DrawClip = function (clip) {
     if (clip instanceof Rect) {
         this._Surface._Ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
     } else if (clip instanceof Geometry) {
         clip.Draw(this._Surface._Ctx);
     }
 };
-_RenderContext.prototype.Transform = function (matrix) {
+_RenderContext.Instance.Transform = function (matrix) {
     matrix.Apply(this._Surface._Ctx);
     this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
     this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
 };
-_RenderContext.prototype.GetCurrentTransform = function () {
+_RenderContext.Instance.GetCurrentTransform = function () {
     return this._CurrentTransform;
 };
-_RenderContext.prototype.GetInverseTransform = function () {
+_RenderContext.Instance.GetInverseTransform = function () {
     return this._InverseTransform;
 };
-_RenderContext.prototype.Save = function () {
+_RenderContext.Instance.Save = function () {
     this._Surface._Ctx.save();
     this._Transforms.push({ Current: this._CurrentTransform, Inverse: this._InverseTransform });
     this._CurrentTransform = this._CurrentTransform == null ? new Matrix() : this._CurrentTransform.Copy();
     this._InverseTransform = this._InverseTransform == null ? new Matrix() : this._InverseTransform.Copy();
 };
-_RenderContext.prototype.Restore = function () {
+_RenderContext.Instance.Restore = function () {
     var temp = this._Transforms.pop();
     this._CurrentTransform = temp.Current;
     this._InverseTransform = temp.Inverse;
     this._Surface._Ctx.restore();
 };
-_RenderContext.prototype.Fill = function (region, brush) {
+_RenderContext.Instance.Fill = function (region, brush) {
     if (region instanceof Rect) {
         this._Surface._Ctx.fillStyle = brush._Translate(this._Surface._Ctx, region);
         this._Surface._Ctx.fillRect(region.X, region.Y, region.Width, region.Height);
     }
 };
-_RenderContext.prototype.Clear = function (rect) {
+_RenderContext.Instance.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
 };
-_RenderContext.prototype.CustomRender = function (painterFunc) {
+_RenderContext.Instance.CustomRender = function (painterFunc) {
     var args = _RenderContext.ToArray(arguments);
     args.shift(); //remove painterFunc
     args.unshift(this._Surface._Ctx); //prepend canvas context
     painterFunc.apply(this, args);
 };
-_RenderContext.prototype.SetGlobalAlpha = function (alpha) {
+_RenderContext.Instance.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;
 };
-_RenderContext.ToArray = function(args) {
+_RenderContext.ToArray = function (args) {
     var arr = new Array();
     for (var i in args)
         arr.push(args[i]);
     return arr;
 };
+Nullstone.FinishCreate(_RenderContext);
 
-function JsonParser() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(JsonParser, "JsonParser");
-JsonParser.prototype.CreateObject = function (json, namescope) {
+var JsonParser = Nullstone.Create("JsonParser");
+JsonParser.Instance.CreateObject = function (json, namescope) {
     var dobj = new json.Type();
     dobj.SetTemplateOwner(this._TemplateBindingSource);
     if (json.Name)
@@ -2281,8 +2170,8 @@ JsonParser.prototype.CreateObject = function (json, namescope) {
     }
     return dobj;
 };
-JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
-    if (!(propValue instanceof RefObject) && propValue.Type) {
+JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
+    if (!propValue.constructor._IsNullstone && propValue.Type) {
         propValue = this.CreateObject(propValue, namescope);
     }
     if (propValue instanceof Markup)
@@ -2299,7 +2188,7 @@ JsonParser.prototype.TrySetPropertyValue = function (dobj, propd, propValue, nam
         Warn("Could not find attached property: " + ownerType._TypeName + "." + propName);
     }
 };
-JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
+JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
     var targetType = propd.GetTargetType();
     if (!Nullstone.DoesInheritFrom(targetType, Collection))
         return false;
@@ -2322,14 +2211,14 @@ JsonParser.prototype.TrySetCollectionProperty = function (subJson, dobj, propd, 
     }
     return true;
 };
-JsonParser.prototype.GetAnnotationMember = function (type, member) {
-    if (type === RefObject)
+JsonParser.Instance.GetAnnotationMember = function (type, member) {
+    if (type == null || !type._IsNullstone)
         return null;
     if (type.Annotations == null)
-        return this.GetAnnotationMember(type.GetBaseClass(), member);
+        return this.GetAnnotationMember(type._BaseClass, member);
     var annotation = type.Annotations[member];
     if (annotation == null)
-        return this.GetAnnotationMember(type.GetBaseClass(), member);
+        return this.GetAnnotationMember(type._BaseClass, member);
     return annotation;
 };
 JsonParser.CreateSetter = function (dobj, propName, value) {
@@ -2339,42 +2228,35 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
     setter.SetValue_Prop(value);
     return setter;
 };
+Nullstone.FinishCreate(JsonParser);
 
-function Markup() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(Markup, "Markup");
-Markup.prototype.Transmute = function (propd, templateBindingSource) {
+var Markup = Nullstone.Create("Markup");
+Markup.Instance.Transmute = function (propd, templateBindingSource) {
     AbstractMethod("Markup.Transmute");
 };
+Nullstone.FinishCreate(Markup);
 
-function StaticResourceMarkup(key) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var StaticResourceMarkup = Nullstone.Create("StaticResourceMarkup", Markup, 1);
+StaticResourceMarkup.Instance.Init = function (key) {
     this.Key = key;
-}
-Nullstone.Extend(StaticResourceMarkup, "StaticResourceMarkup", Markup);
-StaticResourceMarkup.prototype.Transmute = function (propd, templateBindingSource) {
+};
+StaticResourceMarkup.Instance.Transmute = function (propd, templateBindingSource) {
     NotImplemented("StaticResourceMarkup.Transmute");
 };
+Nullstone.FinishCreate(StaticResourceMarkup);
 
-function TemplateBindingMarkup(path) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var TemplateBindingMarkup = Nullstone.Create("TemplateBindingMarkup", Markup, 1);
+TemplateBindingMarkup.Instance.Init = function (path) {
     this.Path = path;
-}
-Nullstone.Extend(TemplateBindingMarkup, "TemplateBindingMarkup", Markup);
-TemplateBindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+};
+TemplateBindingMarkup.Instance.Transmute = function (target, propd, templateBindingSource) {
     var sourcePropd = DependencyProperty.GetDependencyProperty(templateBindingSource.constructor, this.Path);
     return new TemplateBindingExpression(sourcePropd, propd);
 };
+Nullstone.FinishCreate(TemplateBindingMarkup);
 
-function AnimationStorage(timeline, targetobj, targetprop) {
-    if (!Nullstone.IsReady)
-        return;
+var AnimationStorage = Nullstone.Create("AnimationStorage", null, 3);
+AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
     this._Timeline = timeline;
     this._TargetObj = targetobj;
     this._TargetProp = targetprop;
@@ -2384,45 +2266,44 @@ function AnimationStorage(timeline, targetobj, targetprop) {
         var targetType = this._TargetProp.GetTargetType();
         if (targetType === Number)
             this._BaseValue = 0;
-        else if (targetType === RefObject)
-            this._BaseValue = new targetType();
         else if (targetType === String)
             this._BaseValue = "";
+        else
+            this._BaseValue = new targetType();
     }
     if (prevStorage != null)
         this.SetStopValue(prevStorage.GetStopValue());
     else
         this.SetStopValue(targetobj.ReadLocalValue(targetprop));
-}
-Nullstone.Create(AnimationStorage, "AnimationStorage");
-AnimationStorage.prototype.GetStopValue = function () {
+};
+AnimationStorage.Instance.GetStopValue = function () {
     return this._StopValue;
 };
-AnimationStorage.prototype.SetStopValue = function (value) {
+AnimationStorage.Instance.SetStopValue = function (value) {
     this._StopValue = value;
 };
-AnimationStorage.prototype.Enable = function () {
+AnimationStorage.Instance.Enable = function () {
     this._Disabled = false;
     this.ApplyCurrentValue();
 };
-AnimationStorage.prototype.Disable = function () {
+AnimationStorage.Instance.Disable = function () {
     this._Disabled = true;
 };
-AnimationStorage.prototype.Stop = function () {
+AnimationStorage.Instance.Stop = function () {
     this.DetachFromObject();
     this.ResetPropertyValue();
 };
-AnimationStorage.prototype.DetachFromObject = function () {
+AnimationStorage.Instance.DetachFromObject = function () {
     if (this._TargetObj == null || this._TargetProp == null)
         return;
     this._TargetObj._DetachAnimationStorage(this._TargetProp, this);
 };
-AnimationStorage.prototype.ResetPropertyValue = function () {
+AnimationStorage.Instance.ResetPropertyValue = function () {
     if (this._TargetObj == null || this._TargetProp == null)
         return;
     this._TargetObj.SetValue(this._TargetProp, this.GetStopValue());
 };
-AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {
+AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
     if (this._Disabled)
         return;
     if (this._TargetObj == null)
@@ -2430,27 +2311,23 @@ AnimationStorage.prototype.UpdateCurrentValueAndApply = function (progress) {
     this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this._StopValue !== undefined ? this._StopValue : this._BaseValue, progress);
     this.ApplyCurrentValue();
 };
-AnimationStorage.prototype.ApplyCurrentValue = function () {
+AnimationStorage.Instance.ApplyCurrentValue = function () {
     if (this._CurrentValue == null)
         return;
     this._TargetObj.SetValue(this._TargetProp, this._CurrentValue);
 };
+Nullstone.FinishCreate(AnimationStorage);
 
-function VisualStateChangedEventArgs() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(VisualStateChangedEventArgs, "VisualStateChangedEventArgs");
+var VisualStateChangedEventArgs = Nullstone.Create("VisualStateChangedEventArgs");
+Nullstone.FinishCreate(VisualStateChangedEventArgs);
 
-function Color(r, g, b, a) {
-    if (!Nullstone.IsReady)
-        return;
+var Color = Nullstone.Create("Color", null, 4);
+Color.Instance.Init = function (r, g, b, a) {
     this.R = r == null ? 255 : r;
     this.G = g == null ? 255 : g;
     this.B = b == null ? 255 : b;
     this.A = a == null ? 1.0 : a;
-}
-Nullstone.Create(Color, "Color");
+};
 Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 Color.FromHex = function (hex) {
@@ -2472,41 +2349,40 @@ Color.FromHex = function (hex) {
     }
     return new Color(r, g, b, a);
 };
-Color.prototype.Add = function (color2) {
+Color.Instance.Add = function (color2) {
     return new Color(this.R + color2.R, this.G + color2.G, this.B + color2.B, this.A + color2.A);
 };
-Color.prototype.Subtract = function (color2) {
+Color.Instance.Subtract = function (color2) {
     return new Color(this.R - color2.R, this.G - color2.G, this.B - color2.B, this.A - color2.A);
 };
-Color.prototype.Multiply = function (factor) {
+Color.Instance.Multiply = function (factor) {
     return new Color(this.R * factor, this.G * factor, this.B * factor, this.A * factor);
 };
-Color.prototype._Translate = function () {
+Color.Instance._Translate = function () {
     return this.toString();
 };
-Color.prototype.toString = function () {
+Color.Instance.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
 };
+Nullstone.FinishCreate(Color);
 
-function CornerRadius(topLeft, topRight, bottomRight, bottomLeft) {
-    if (!Nullstone.IsReady)
-        return;
+var CornerRadius = Nullstone.Create("CornerRadius", null, 4);
+CornerRadius.Instance.Init = function (topLeft, topRight, bottomRight, bottomLeft) {
     this.TopLeft = topLeft == null ? 0 : topLeft;
     this.TopRight = topRight == null ? 0 : topRight;
     this.BottomRight = bottomRight == null ? 0 : bottomRight;
     this.BottomLeft = bottomLeft == null ? 0 : bottomLeft;
-}
-Nullstone.Create(CornerRadius, "CornerRadius");
-CornerRadius.prototype.IsZero = function () {
+};
+CornerRadius.Instance.IsZero = function () {
     return this.TopLeft === 0
         && this.TopRight === 0
         && this.BottomRight === 0
         && this.BottomLeft === 0;
 };
+Nullstone.FinishCreate(CornerRadius);
 
-function Duration(value) {
-    if (!Nullstone.IsReady)
-        return;
+var Duration = Nullstone.Create("Duration", null, 1);
+Duration.Instance.Init = function (value) {
     if (typeof value == "number") {
         this._Type = DurationType.TimeSpan;
         this._TimeSpan = new TimeSpan(value);
@@ -2519,8 +2395,7 @@ function Duration(value) {
         if (value === "Forever")
             this._Type = DurationType.Forever;
     }
-}
-Nullstone.Create(Duration, "Duration");
+};
 Duration.CreateAutomatic = function () {
     var d = new Duration();
     d._Type = DurationType.Automatic;
@@ -2537,87 +2412,86 @@ Duration.CreateTimeSpan = function (timespan) {
     d._TimeSpan = timespan;
     return d;
 };
-Duration.prototype.GetType = function () {
+Duration.Instance.GetType = function () {
     return this._Type;
 };
-Duration.prototype.GetTimeSpan = function () {
+Duration.Instance.GetTimeSpan = function () {
     if (this.HasTimeSpan())
         return this._TimeSpan;
     throw new InvalidOperationException();
 };
-Duration.prototype.HasTimeSpan = function () {
+Duration.Instance.HasTimeSpan = function () {
     return this.GetType() === DurationType.TimeSpan;
 };
+Nullstone.FinishCreate(Duration);
 
-function Font() {
-    if (!Nullstone.IsReady)
-        return;
+var Font = Nullstone.Create("Font");
+Font.Instance.Init = function () {
     this._Family = Font.DEFAULT_FAMILY;
     this._Stretch = Font.DEFAULT_STRETCH;
     this._Style = Font.DEFAULT_STYLE;
     this._Weight = Font.DEFAULT_WEIGHT;
     this._Size = Font.DEFAULT_SIZE;
-}
-Nullstone.Create(Font, "Font");
-Font.prototype.GetFamily = function () {
+};
+Font.Instance.GetFamily = function () {
     return this._Family;
 };
-Font.prototype.SetFamily = function (value) {
+Font.Instance.SetFamily = function (value) {
     if (this._Family == value)
         return false;
     this._Family = value;
     this._PurgeCache();
     return true;
 };
-Font.prototype.GetStretch = function () {
+Font.Instance.GetStretch = function () {
     return this._Stretch;
 };
-Font.prototype.SetStretch = function (value) {
+Font.Instance.SetStretch = function (value) {
     if (this._Stretch == value)
         return false;
     this._Stretch = value;
     this._PurgeCache();
     return true;
 };
-Font.prototype.GetStyle = function () {
+Font.Instance.GetStyle = function () {
     return this._Style;
 };
-Font.prototype.SetStyle = function (value) {
+Font.Instance.SetStyle = function (value) {
     if (this._Style == value)
         return false;
     this._Style = value;
     this._PurgeCache();
     return true;
 };
-Font.prototype.GetWeight = function () {
+Font.Instance.GetWeight = function () {
     return this._Weight;
 };
-Font.prototype.SetWeight = function (value) {
+Font.Instance.SetWeight = function (value) {
     if (this._Weight == value)
         return false;
     this._Weight = value;
     this._PurgeCache();
     return true;
 };
-Font.prototype.GetSize = function () {
+Font.Instance.GetSize = function () {
     return this._Size;
 };
-Font.prototype.SetSize = function (value) {
+Font.Instance.SetSize = function (value) {
     if (this._Size == value)
         return false;
     this._Size = value;
     this._PurgeCache();
     return true;
 };
-Font.prototype.GetActualHeight = function () {
+Font.Instance.GetActualHeight = function () {
     return Surface._MeasureHeight(this);
 };
-Font.prototype._Descender = function () { return 0.0; }; //most likely removable
-Font.prototype._Ascender = function () { return 0.0; }; //most likely removable
-Font.prototype._PurgeCache = function () {
+Font.Instance._Descender = function () { return 0.0; }; //most likely removable
+Font.Instance._Ascender = function () { return 0.0; }; //most likely removable
+Font.Instance._PurgeCache = function () {
     this._CachedHeight = undefined;
 };
-Font.prototype._Translate = function () {
+Font.Instance._Translate = function () {
     var s = "";
     var style = this.GetStyle();
     var weight = this.GetWeight();
@@ -2634,41 +2508,37 @@ Font.DEFAULT_STRETCH = FontStretches.Normal;
 Font.DEFAULT_STYLE = FontStyles.Normal;
 Font.DEFAULT_WEIGHT = FontWeights.Normal;
 Font.DEFAULT_SIZE = "11px";
+Nullstone.FinishCreate(Font);
 
-function KeyTime() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(KeyTime, "KeyTime");
+var KeyTime = Nullstone.Create("KeyTime");
 KeyTime.CreateUniform = function () {
     var kt = new KeyTime();
     kt._IsUniform = true;
     return kt;
 };
-KeyTime.prototype.IsPaced = function () {
+KeyTime.Instance.IsPaced = function () {
     return this._IsPaced == true;
 };
-KeyTime.prototype.IsUniform = function () {
+KeyTime.Instance.IsUniform = function () {
     return this._IsUniform == true;
 };
+Nullstone.FinishCreate(KeyTime);
 
-function Matrix() {
-    if (!Nullstone.IsReady)
-        return;
+var Matrix = Nullstone.Create("Matrix");
+Matrix.Instance.Init = function () {
     this._Elements = Matrix.CreateIdentityArray();
-}
-Nullstone.Create(Matrix, "Matrix");
-Matrix.prototype.GetElements = function () {
+};
+Matrix.Instance.GetElements = function () {
     return this._Elements;
 };
-Matrix.prototype.SetElement = function (i, j, value) {
+Matrix.Instance.SetElement = function (i, j, value) {
     this._Elements[i][j] = value;
 };
-Matrix.prototype.Apply = function (ctx) {
+Matrix.Instance.Apply = function (ctx) {
     var elements = this.GetElements();
     ctx.transform(elements[0][0], elements[1][0], elements[0][1], elements[1][1], elements[0][2], elements[1][2]);
 };
-Matrix.prototype.MultiplyMatrix = function (val) {
+Matrix.Instance.MultiplyMatrix = function (val) {
     var arr1 = this.GetElements();
     var result = new Matrix();
     var arr2 = val.GetElements();
@@ -2683,7 +2553,7 @@ Matrix.prototype.MultiplyMatrix = function (val) {
     }
     return result;
 };
-Matrix.prototype.MultiplyPoint = function (val) {
+Matrix.Instance.MultiplyPoint = function (val) {
     var arr1 = this.GetElements();
     var result = new Point();
     val = [[val.X], [val.Y], [1]];
@@ -2693,7 +2563,7 @@ Matrix.prototype.MultiplyPoint = function (val) {
     }
     return result;
 };
-Matrix.prototype.Copy = function () {
+Matrix.Instance.Copy = function () {
     var m = new Matrix();
     var els = this.GetElements();
     for (var i = 0; i < 3; i++) {
@@ -2703,7 +2573,7 @@ Matrix.prototype.Copy = function () {
     }
     return m;
 };
-Matrix.prototype.toString = function () {
+Matrix.Instance.toString = function () {
     var t = new String();
     t += "[\n";
     var arr = this.GetElements();
@@ -2727,119 +2597,107 @@ Matrix.CreateIdentityArray = function () {
         [0, 0, 1]
     ];
 };
-function TranslationMatrix(x, y) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Nullstone.FinishCreate(Matrix);
+var TranslationMatrix = Nullstone.Create("TranslationMatrix", Matrix, 2);
+TranslationMatrix.Instance.Init = function (x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
-}
-Nullstone.Extend(TranslationMatrix, "TranslationMatrix", Matrix);
-TranslationMatrix.prototype.GetElements = function () {
+};
+TranslationMatrix.Instance.GetElements = function () {
     return [
         [1, 0, this.X],
         [0, 1, this.Y],
         [0, 0, 1]
     ];
 };
-TranslationMatrix.prototype.GetInverse = function () {
+TranslationMatrix.Instance.GetInverse = function () {
     return new TranslationMatrix(-this.X, -this.Y);
 };
-TranslationMatrix.prototype.Apply = function (ctx) {
+TranslationMatrix.Instance.Apply = function (ctx) {
     ctx.translate(this.X, this.Y);
 };
-RotationMatrix.prototype = new Matrix;
-RotationMatrix.prototype.constructor = RotationMatrix;
-function RotationMatrix(angleRad) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Nullstone.FinishCreate(TranslationMatrix);
+var RotationMatrix = Nullstone.Create("RotationMatrix", Matrix, 1);
+RotationMatrix.Instance.Init = function (angleRad) {
     this.Angle = angleRad == null ? 0 : angleRad;
-}
-RotationMatrix.GetBaseClass = function () { return Matrix; };
-RotationMatrix.prototype.GetElements = function () {
+};
+RotationMatrix.Instance.GetElements = function () {
     return [
         [Math.cos(this.Angle), -1 * Math.sin(this.Angle), 0],
         [Math.sin(this.Angle), Math.cos(this.Angle), 0],
         [0, 0, 1]
     ];
 };
-RotationMatrix.prototype.GetInverse = function () {
+RotationMatrix.Instance.GetInverse = function () {
     return new RotationMatrix(-this.Angle);
 };
-RotationMatrix.prototype.Apply = function (ctx) {
+RotationMatrix.Instance.Apply = function (ctx) {
     ctx.rotate(this.Angle);
 };
-function ScalingMatrix(x, y) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Nullstone.FinishCreate(RotationMatrix);
+var ScalingMatrix = Nullstone.Create("ScalingMatrix", Matrix, 2);
+ScalingMatrix.Instance.Init = function (x, y) {
     this.X = x == null ? 1 : x;
     this.Y = y == null ? 1 : y;
-}
-Nullstone.Extend(ScalingMatrix, "ScalingMatrix", Matrix);
-ScalingMatrix.prototype.GetElements = function () {
+};
+ScalingMatrix.Instance.GetElements = function () {
     return [
         [this.X, 0, 0],
         [0, this.Y, 0],
         [0, 0, 1]
     ];
 };
-ScalingMatrix.prototype.GetInverse = function () {
+ScalingMatrix.Instance.GetInverse = function () {
     return new ScalingMatrix(-this.X, -this.Y);
 };
-ScalingMatrix.prototype.Apply = function (ctx) {
+ScalingMatrix.Instance.Apply = function (ctx) {
     ctx.scale(this.X, this.Y);
 };
-function ShearingMatrix(shearX, shearY) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Nullstone.FinishCreate(ScalingMatrix);
+var ShearingMatrix = Nullstone.Create("ShearingMatrix", Matrix, 2);
+ShearingMatrix.Instance.Init = function (shearX, shearY) {
     this.ShearX = shearX == null ? 0 : shearX;
     this.ShearY = shearY == null ? 0 : shearY;
-}
-Nullstone.Extend(ShearingMatrix, "ShearingMatrix", Matrix);
-ShearingMatrix.prototype.GetElements = function () {
+};
+ShearingMatrix.Instance.GetElements = function () {
     return [
         [1, this.ShearX, 0],
         [this.ShearY, 1, 0],
         [0, 0, 1]
     ];
 };
-ShearingMatrix.prototype.GetInverse = function () {
+ShearingMatrix.Instance.GetInverse = function () {
     return new ShearingMatrix(-this.ShearX, -this.ShearY);
 };
-ShearingMatrix.prototype.Apply = function () {
+ShearingMatrix.Instance.Apply = function () {
     NotImplemented("ShearingMatrix.Apply");
 };
+Nullstone.FinishCreate(ShearingMatrix);
 
-function Point(x, y) {
-    if (!Nullstone.IsReady)
-        return;
+var Point = Nullstone.Create("Point", null, 2);
+Point.Instance.Init = function (x, y) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
-}
-Nullstone.Create(Point, "Point");
-Point.prototype.Apply = function (matrix) {
+};
+Point.Instance.Apply = function (matrix) {
     return matrix.MultiplyPoint(this);
 };
-Point.prototype.toString = function () {
+Point.Instance.toString = function () {
     return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
 };
+Nullstone.FinishCreate(Point);
 
-function Rect(x, y, width, height) {
-    if (!Nullstone.IsReady)
-        return;
+var Rect = Nullstone.Create("Rect", null, 4);
+Rect.Instance.Init = function (x, y, width, height) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
-}
-Nullstone.Create(Rect, "Rect");
-Rect.prototype.IsEmpty = function () {
+};
+Rect.Instance.IsEmpty = function () {
     return this.Width <= 0.0 || this.Height <= 0.0;
 };
-Rect.prototype.GrowBy = function (left, top, right, bottom) {
+Rect.Instance.GrowBy = function (left, top, right, bottom) {
     var result = new Rect(this.X - left, this.Y - top, this.Width + left + right, this.Height + top + bottom);
     if (result.Width < 0)
         result.Width = 0;
@@ -2847,10 +2705,10 @@ Rect.prototype.GrowBy = function (left, top, right, bottom) {
         result.Height = 0;
     return result;
 };
-Rect.prototype.GrowByThickness = function (thickness) {
+Rect.Instance.GrowByThickness = function (thickness) {
     return this.GrowBy(thickness.Left, thickness.Top, thickness.Right, thickness.Bottom);
 };
-Rect.prototype.Union = function (rect2) {
+Rect.Instance.Union = function (rect2) {
     if (this.IsEmpty())
         return new Rect(rect2.X, rect2.Y, rect2.Width, rect2.Height);
     if (rect2.Width <= 0 || rect2.Height <= 0)
@@ -2862,7 +2720,7 @@ Rect.prototype.Union = function (rect2) {
     result.Height = Math.max(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y;
     return result;
 };
-Rect.prototype.Intersection = function (rect2) {
+Rect.Instance.Intersection = function (rect2) {
     var result = new Rect(0, 0, 0, 0);
     result.X = Math.max(this.X, rect2.X);
     result.Y = Math.max(this.Y, rect2.Y);
@@ -2870,10 +2728,10 @@ Rect.prototype.Intersection = function (rect2) {
     result.Height = Math.max(0, Math.min(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y);
     return result;
 };
-Rect.prototype.RoundOut = function () {
+Rect.Instance.RoundOut = function () {
     return new Rect(Math.floor(this.X), Math.floor(this.Y), Math.ceil(this.X + this.Width) - Math.floor(this.X), Math.ceil(this.Y + this.Height) - Math.floor(this.Y));
 }
-Rect.prototype.RoundIn = function () {
+Rect.Instance.RoundIn = function () {
     return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
 }
 Rect.Equals = function (rect1, rect2) {
@@ -2883,15 +2741,14 @@ Rect.Equals = function (rect1, rect2) {
         return false;
     return rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
 };
+Nullstone.FinishCreate(Rect);
 
-function Size(width, height) {
-    if (!Nullstone.IsReady)
-        return;
+var Size = Nullstone.Create("Size", null, 2);
+Size.Instance.Init = function (width, height) {
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
-}
-Nullstone.Create(Size, "Size");
-Size.prototype.GrowBy = function (width, height) {
+};
+Size.Instance.GrowBy = function (width, height) {
     var h = this.Height;
     var w = this.Width;
     if (h != Number.POSITIVE_INFINITY)
@@ -2900,35 +2757,34 @@ Size.prototype.GrowBy = function (width, height) {
         w += width;
     return new Size(w > 0 ? w : 0, h > 0 ? h : 0);
 };
-Size.prototype.GrowByThickness = function (thickness) {
+Size.Instance.GrowByThickness = function (thickness) {
     return this.GrowBy(thickness.Left + thickness.Right, thickness.Top + thickness.Bottom);
 };
-Size.prototype.Min = function (size2) {
+Size.Instance.Min = function (size2) {
     return new Size(Math.min(this.Width, size2.Width), Math.min(this.Height, size2.Height));
 };
-Size.prototype.Max = function (size2) {
+Size.Instance.Max = function (size2) {
     return new Size(Math.max(this.Width, size2.Width), Math.max(this.Height, size2.Height));
 };
-Size.prototype.Equals = function (size2) {
+Size.Instance.Equals = function (size2) {
     return this.Width == size2.Width && this.Height == size2.Height;
 };
-Size.prototype.toString = function () {
+Size.Instance.toString = function () {
     return "[Width = " + this.Width + "; Height = " + this.Height + "]";
 };
-Size.prototype.Copy = function () {
+Size.Instance.Copy = function () {
     return new Size(this.Width, this.Height);
 };
+Nullstone.FinishCreate(Size);
 
-function Thickness(left, top, right, bottom) {
-    if (!Nullstone.IsReady)
-        return;
+var Thickness = Nullstone.Create("Thickness", null, 4);
+Thickness.Instance.Init = function (left, top, right, bottom) {
     this.Left = left == null ? 0 : left;
     this.Top = top == null ? 0 : top;
     this.Right = right == null ? 0 : right;
     this.Bottom = bottom == null ? 0 : bottom;
-}
-Nullstone.Create(Thickness, "Thickness");
-Thickness.prototype.Plus = function (thickness2) {
+};
+Thickness.Instance.Plus = function (thickness2) {
     var t = new Thickness();
     t.Left = this.Left + thickness2.Left;
     t.Right = this.Right + thickness2.Right;
@@ -2936,7 +2792,7 @@ Thickness.prototype.Plus = function (thickness2) {
     t.Bottom = this.Bottom + thickness2.Bottom;
     return t;
 };
-Thickness.prototype.Half = function () {
+Thickness.Instance.Half = function () {
     var t = new Thickness();
     t.Left = this.Left / 2;
     t.Top = this.Top / 2;
@@ -2944,7 +2800,7 @@ Thickness.prototype.Half = function () {
     t.Bottom = this.Bottom / 2;
     return t;
 };
-Thickness.prototype.Negate = function () {
+Thickness.Instance.Negate = function () {
     var t = new Thickness();
     t.Left = -this.Left;
     t.Right = -this.Right;
@@ -2952,17 +2808,13 @@ Thickness.prototype.Negate = function () {
     t.Bottom = -this.Bottom;
     return t;
 };
-Thickness.prototype.IsEmpty = function () {
+Thickness.Instance.IsEmpty = function () {
     return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
 };
+Nullstone.FinishCreate(Thickness);
 
-function TimeSpan() {
-    if (!Nullstone.IsReady)
-        return;
-    this._Initialize(arguments);
-}
-Nullstone.Create(TimeSpan, "TimeSpan");
-TimeSpan.prototype._Initialize = function (args) {
+var TimeSpan = Nullstone.Create("TimeSpan");
+TimeSpan.Instance.Init = function (args) {
     if (args.length === 0) {
         this._Ticks = 0;
         return;
@@ -2995,80 +2847,80 @@ TimeSpan.prototype._Initialize = function (args) {
     this._Ticks = (days * TimeSpan._TicksPerDay) + (hours * TimeSpan._TicksPerHour) + (minutes * TimeSpan._TicksPerMinute)
         + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
 };
-TimeSpan.prototype.GetDays = function () {
+TimeSpan.Instance.GetDays = function () {
     return Math.floor(this._Ticks / TimeSpan._TicksPerDay);
 };
-TimeSpan.prototype.GetHours = function () {
+TimeSpan.Instance.GetHours = function () {
     var remTicks = this._Ticks % TimeSpan._TicksPerDay;
     return Math.floor(remTicks / TimeSpan._TicksPerHour);
 };
-TimeSpan.prototype.GetMinutes = function () {
+TimeSpan.Instance.GetMinutes = function () {
     var remTicks = this._Ticks % TimeSpan._TicksPerDay;
     remTicks = remTicks % TimeSpan._TicksPerHour;
     return Math.floor(remTicks / TimeSpan._TicksPerMinute);
 };
-TimeSpan.prototype.GetSeconds = function () {
+TimeSpan.Instance.GetSeconds = function () {
     var remTicks = this._Ticks % TimeSpan._TicksPerDay;
     remTicks = remTicks % TimeSpan._TicksPerHour;
     remTicks = remTicks % TimeSpan._TicksPerMinute;
     return Math.floor(remTicks / TimeSpan._TicksPerSecond);
 };
-TimeSpan.prototype.GetMilliseconds = function () {
+TimeSpan.Instance.GetMilliseconds = function () {
     var remTicks = this._Ticks % TimeSpan._TicksPerDay;
     remTicks = remTicks % TimeSpan._TicksPerHour;
     remTicks = remTicks % TimeSpan._TicksPerMinute;
     remTicks = remTicks % TimeSpan._TicksPerSecond;
     return Math.floor(remTicks / TimeSpan._TicksPerMillisecond);
 };
-TimeSpan.prototype.GetTicks = function () {
+TimeSpan.Instance.GetTicks = function () {
     return this._Ticks;
 };
-TimeSpan.prototype.GetTotalDays = function () {
+TimeSpan.Instance.GetTotalDays = function () {
     return this._Ticks / TimeSpan._TicksPerDay;
 };
-TimeSpan.prototype.GetTotalHours = function () {
+TimeSpan.Instance.GetTotalHours = function () {
     return this._Ticks / TimeSpan._TicksPerHour;
 };
-TimeSpan.prototype.GetTotalMinutes = function () {
+TimeSpan.Instance.GetTotalMinutes = function () {
     return this._Ticks / TimeSpan._TicksPerMinute;
 };
-TimeSpan.prototype.GetTotalSeconds = function () {
+TimeSpan.Instance.GetTotalSeconds = function () {
     return this._Ticks / TimeSpan._TicksPerSecond;
 };
-TimeSpan.prototype.GetTotalMilliseconds = function () {
+TimeSpan.Instance.GetTotalMilliseconds = function () {
     return this._Ticks / TimeSpan._TicksPerMillisecond;
 };
-TimeSpan.prototype.AddTicks = function (ticks) {
+TimeSpan.Instance.AddTicks = function (ticks) {
     if (ticks == null)
         return;
     if (isNaN(ticks))
         return;
     this._Ticks += ticks;
 };
-TimeSpan.prototype.AddMilliseconds = function (milliseconds) {
+TimeSpan.Instance.AddMilliseconds = function (milliseconds) {
     this.AddTicks(milliseconds * TimeSpan._TicksPerMillisecond);
 };
-TimeSpan.prototype.Add = function (ts2) {
+TimeSpan.Instance.Add = function (ts2) {
     return new TimeSpan(this._Ticks + ts2._Ticks);
 };
-TimeSpan.prototype.Subtract = function (ts2) {
+TimeSpan.Instance.Subtract = function (ts2) {
     return new TimeSpan(this._Ticks - ts2._Ticks);
 };
-TimeSpan.prototype.Multiply = function (v) {
+TimeSpan.Instance.Multiply = function (v) {
     if (v instanceof TimeSpan) {
     } else if (typeof v == "number") {
         return new TimeSpan(Math.round(this._Ticks * v));
     }
 }
-TimeSpan.prototype.Divide = function (ts2) {
+TimeSpan.Instance.Divide = function (ts2) {
     return new TimeSpan(this._Ticks / ts2._Ticks);
 };
-TimeSpan.prototype.CompareTo = function (ts2) {
+TimeSpan.Instance.CompareTo = function (ts2) {
     if (this._Ticks === ts2)
         return 0;
     return (this._Ticks > ts2) ? 1 : -1;
 };
-TimeSpan.prototype.IsZero = function () {
+TimeSpan.Instance.IsZero = function () {
     return this._Ticks === 0;
 };
 TimeSpan._TicksPerMillisecond = 1;
@@ -3076,29 +2928,27 @@ TimeSpan._TicksPerSecond = 1000;
 TimeSpan._TicksPerMinute = TimeSpan._TicksPerSecond * 60;
 TimeSpan._TicksPerHour = TimeSpan._TicksPerMinute * 60;
 TimeSpan._TicksPerDay = TimeSpan._TicksPerHour * 24;
+Nullstone.FinishCreate(TimeSpan);
 
-function Uri(os) {
-    if (!Nullstone.IsReady)
-        return;
+var Uri = Nullstone.Create("Uri", null, 1);
+Uri.Instance.Init = function (os) {
     this._OriginalString = os;
-}
-Nullstone.Create(Uri, "Uri");
-Uri.prototype.GetFragment = function () {
 };
-Uri.prototype.toString = function () {
+Uri.Instance.GetFragment = function () {
+};
+Uri.Instance.toString = function () {
     return this._OriginalString;
 };
+Nullstone.FinishCreate(Uri);
 
-function BError() {
-    if (!Nullstone.IsReady)
-        return;
+var BError = Nullstone.Create("BError");
+BError.Instance.Init = function () {
     this._Number = 0;
     this.Code = 0;
     this.CharPosition = 0;
     this.LineNumber = 0;
     this.Message = "";
-}
-Nullstone.Create(BError, "BError");
+};
 BError.prototype.SetErrored = function (number, message, code) {
     this._Number = number;
     this.Message = message;
@@ -3118,62 +2968,145 @@ BError.Argument = 2;
 BError.InvalidOperation = 3;
 BError.Exception = 4;
 BError.XamlParseException = 5;
+Nullstone.FinishCreate(BError);
 
-function Dictionary() {
-    if (!Nullstone.IsReady)
-        return;
+var Closure = Nullstone.Create("Closure");
+Nullstone.FinishCreate(Closure);
+
+var Dictionary = Nullstone.Create("Dictionary");
+Dictionary.Instance.Init = function () {
     this._ht = new Array();
-}
-Nullstone.Create(Dictionary, "Dictionary");
-Dictionary.prototype.TryGetValue = function (key, data) {
+};
+Dictionary.Instance.TryGetValue = function (key, data) {
     data.Value = this._ht[key];
     return data.Value != null;
 };
-Dictionary.prototype.Add = function (key, value) {
+Dictionary.Instance.Add = function (key, value) {
     this._ht[key] = value;
 };
-Dictionary.prototype.Remove = function (key) {
+Dictionary.Instance.Remove = function (key) {
     delete this._ht[key];
 };
+Nullstone.FinishCreate(Dictionary);
 
-function EventArgs() {
-}
-Nullstone.Create(EventArgs, "EventArgs");
-function MouseEventArgs(absolutePos) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var EventArgs = Nullstone.Create("EventArgs");
+Nullstone.FinishCreate(EventArgs);
+var MouseEventArgs = Nullstone.Create("MouseEventArgs", EventArgs, 1);
+MouseEventArgs.Instance.Init = function (absolutePos) {
     this._AbsolutePosition = absolutePos;
-}
-Nullstone.Extend(MouseEventArgs, "MouseEventArgs", EventArgs);
-MouseEventArgs.prototype.GetPosition = function (/* UIElement */relativeTo) {
+};
+MouseEventArgs.Instance.GetPosition = function (relativeTo) {
     if (relativeTo._IsAttached)
         "".toString(); //TODO: ProcessDirtyElements on surface
     var p = new Point(this._AbsolutePosition.X, this._AbsolutePosition.Y);
     relativeTo._TransformPoint(p);
     return p;
 };
-function MouseButtonEventArgs(absolutePos) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(absolutePos);
-}
-Nullstone.Extend(MouseButtonEventArgs, "MouseButtonEventArgs", MouseEventArgs);
+Nullstone.FinishCreate(MouseEventArgs);
+var MouseButtonEventArgs = Nullstone.Create("MouseButtonEventArgs", MouseEventArgs, 1);
+MouseButtonEventArgs.Instance.Init = function (absolutePos) {
+    this.Init$MouseEventArgs(absolutePos);
+};
+Nullstone.FinishCreate(MouseButtonEventArgs);
 
-function LinkedList() {
+Object.Clone = function (o) {
+    return eval(uneval(o));
+};
+/*
+Function.prototype.Implement = function (interface) {
+    var interfaceName = (new interface())._TypeName;
+    for (var i in interface.prototype) {
+        if (!this.prototype[i])
+            this.prototype[i] = new Function("throw new NotImplementedException();");
+    }
+    if (this._Interfaces == null)
+        this._Interfaces = new Array();
+    this._Interfaces[interfaceName] = true;
+    return this;
+};
+Function.prototype.DoesImplement = function (interface) {
+    if (!this._Interfaces)
+        return false;
+    var interfaceName = (new interface())._TypeName;
+    return this._Interfaces[interfaceName] === true;
+};
+*/
+Function.prototype.Clone = function () {
+    return eval(uneval(this));
+};
+String.prototype.indexOfAny = function (carr, start) {
+    if (!(carr instanceof Array))
+        return -1;
+    if (start == null)
+        start = 0;
+    for (var cur = start; cur < this.length; cur++) {
+        var c = this.charAt(c);
+        for (var i = 0; i < carr.length; i++) {
+            if (c === carr[i])
+                return cur;
+        }
+    }
+    return -1;
+};
+Array.indexOfNullstone = function (arr, ns) {
+    for (var i = 0; i < arr.length; i++) {
+        if (Nullstone.RefEquals(arr[i], ns))
+            return i;
+    }
+    return -1;
+};
+Array.containsNullstone = function (arr, ns) {
+    return Array.indexOfNullstone(arr, ns) > -1;
+};
+Array.addDistinctNullstone = function (arr, ns) {
+    if (Array.containsNullstone(arr, ns))
+        return false;
+    arr.push(ns);
+    return true;
+};
+Array.removeNullstone = function (arr, ns) {
+    var index = Array.indexOfNullstone(arr, ns);
+    if (index > -1)
+        arr.splice(index, 1);
+};
+Number.isNumber = function (o) {
+    return typeof o == "number";
+};
+String.isString = function (o) {
+    return typeof o == "string";
+};
+String.contains = function (str, match) {
+    if (!str)
+        return false;
+    if (!match)
+        return false;
+    var j = 0;
+    for (var i = 0; i < str.length && j < match.length; i++) {
+        if (str.charAt(i) === match.charAt(j))
+            j++;
+        else
+            j = 0;
+    }
+    return j >= match.length;
+};
+String.format = function (culture, format, str) {
+    return str;
+};
+
+var LinkedList = Nullstone.Create("LinkedList");
+LinkedList.Instance.Init = function () {
     this.Clear();
-}
-Nullstone.Create(LinkedList, "LinkedList");
-LinkedList.prototype.First = function () {
+};
+LinkedList.Instance.First = function () {
     return this._Head;
 };
-LinkedList.prototype.Last = function () {
+LinkedList.Instance.Last = function () {
     return this._Tail;
 };
-LinkedList.prototype.IsEmpty = function () {
+LinkedList.Instance.IsEmpty = function () {
     return !this._Head;
 };
-LinkedList.prototype.Prepend = function (node) {
+LinkedList.Instance.Prepend = function (node) {
     node.Next = this._Head;
     node.Previous = null;
     if (this._Head)
@@ -3184,7 +3117,7 @@ LinkedList.prototype.Prepend = function (node) {
     this._Count++;
     return node;
 };
-LinkedList.prototype.Append = function (node) {
+LinkedList.Instance.Append = function (node) {
     node.Previous = this._Tail;
     node.Next = null;
     if (this._Tail)
@@ -3195,7 +3128,7 @@ LinkedList.prototype.Append = function (node) {
     this._Count++;
     return node;
 };
-LinkedList.prototype.Remove = function (node) {
+LinkedList.Instance.Remove = function (node) {
     if (node.Previous)
         node.Previous.Next = node.Next;
     else
@@ -3208,7 +3141,7 @@ LinkedList.prototype.Remove = function (node) {
     node.Next = null;
     this._Count--;
 };
-LinkedList.prototype.InsertBefore = function (node, before) {
+LinkedList.Instance.InsertBefore = function (node, before) {
     if (before == null) {
         this.Append(node);
         return;
@@ -3222,44 +3155,46 @@ LinkedList.prototype.InsertBefore = function (node, before) {
     before.Previous = node;
     this._Count++;
 };
-LinkedList.prototype.Clear = function () {
+LinkedList.Instance.Clear = function () {
     this._Count = 0;
     this._Head = null;
     this._Tail = null;
 };
+Nullstone.FinishCreate(LinkedList);
 
-function LinkedListNode() {
+var LinkedListNode = Nullstone.Create("LinkedListNode");
+LinkedListNode.Instance.Init = function () {
     this.Previous = null;
     this.Next = null;
-}
-Nullstone.Create(LinkedListNode, "LinkedListNode");
+};
+Nullstone.FinishCreate(LinkedListNode);
 
-function MulticastEvent() {
+var MulticastEvent = Nullstone.Create("MulticastEvent");
+MulticastEvent.Instance.Init = function () {
     this._Listeners = new Array();
-}
-Nullstone.Create(MulticastEvent, "MulticastEvent");
-MulticastEvent.prototype.Subscribe = function (callback, closure) {
+};
+MulticastEvent.Instance.Subscribe = function (callback, closure) {
     if (!(callback instanceof Function))
         throw new InvalidOperationException("Callback must be a function!");
     this._Listeners.push({ Callback: callback, Closure: closure });
 };
-MulticastEvent.prototype.SubscribeSpecific = function (callback, closure, matchFunc, matchClosure) {
+MulticastEvent.Instance.SubscribeSpecific = function (callback, closure, matchFunc, matchClosure) {
     this._Listeners.push({ Callback: callback, Closure: closure, MatchFunc: matchFunc, MatchClosure: matchClosure });
 };
-MulticastEvent.prototype.Unsubscribe = function (callback, closure, matchClosure) {
+MulticastEvent.Instance.Unsubscribe = function (callback, closure, matchClosure) {
     for (var i in this._Listeners) {
         var listener = this._Listeners[i];
         if (listener.Callback === callback) {
-            if (listener.Closure && closure && !RefObject.RefEquals(listener.Closure, closure))
+            if (listener.Closure && closure && !Nullstone.RefEquals(listener.Closure, closure))
                 continue;
-            if (listener.MatchClosure && matchClosure && !RefObject.RefEquals(listener.MatchClosure, matchClosure))
+            if (listener.MatchClosure && matchClosure && !Nullstone.RefEquals(listener.MatchClosure, matchClosure))
                 continue;
             this._Listeners.splice(i, 1);
             return;
         }
     }
 };
-MulticastEvent.prototype.Raise = function (sender, args) {
+MulticastEvent.Instance.Raise = function (sender, args) {
     var listeners = this._Listeners;
     for (var i in listeners) {
         var listener = listeners[i];
@@ -3268,24 +3203,23 @@ MulticastEvent.prototype.Raise = function (sender, args) {
         listener.Callback.call(listener.Closure, sender, args);
     }
 };
-MulticastEvent.prototype.RaiseAsync = function (sender, args) {
+MulticastEvent.Instance.RaiseAsync = function (sender, args) {
     var me = this;
     setTimeout(function () { me.Raise(sender, args); }, 1);
 };
+Nullstone.FinishCreate(MulticastEvent);
 
-function PropertyInfo() {
-}
-Nullstone.Create(PropertyInfo, "PropertyInfo");
+var PropertyInfo = Nullstone.Create("PropertyInfo");
 PropertyInfo.Find = function (typeOrObj, name) {
     var isType = typeOrObj instanceof Function;
     var type = isType ? typeOrObj : typeOrObj.constructor;
     var setFunc;
     var getFunc;
-    for (var i in type.prototype) {
+    for (var i in type.Instance) {
         if (i.toString() === ("Set" + name))
-            setFunc = type.prototype[i];
+            setFunc = type.Instance[i];
         if (i.toString() === ("Get" + name))
-            getFunc = type.prototype[i];
+            getFunc = type.Instance[i];
         if (getFunc && setFunc) {
             var pi = new PropertyInfo();
             pi.Type = type;
@@ -3295,15 +3229,16 @@ PropertyInfo.Find = function (typeOrObj, name) {
         }
     }
 };
-PropertyInfo.prototype.GetValue = function (ro) {
+PropertyInfo.Instance.GetValue = function (ro) {
     if (!this.GetFunc)
         return undefined;
     return this.GetFunc.call(ro);
 };
-PropertyInfo.prototype.SetValue = function (ro, value) {
+PropertyInfo.Instance.SetValue = function (ro, value) {
     if (this.SetFunc)
         this.SetFunc.call(ro, value);
 };
+Nullstone.FinishCreate(PropertyInfo);
 
 function RefObject() {
     RefObject._LastID = this._ID = RefObject._LastID + 1;
@@ -3342,20 +3277,18 @@ RefObject.Equals = function (val1, val2) {
     return false;
 };
 
-function _LayoutWord() {
-    if (!Nullstone.IsReady)
-        return;
+var _LayoutWord = Nullstone.Create("_LayoutWord");
+_LayoutWord.Instance.Init = function () {
     this._Advance = 0.0;
     this._LineAdvance = 0.0;
     this._Length = 0;
     this._BreakOps = null;
     this._Font = new Font();
-}
-Nullstone.Create(_LayoutWord, "_LayoutWord");
+};
+Nullstone.FinishCreate(_LayoutWord);
 
-function TextLayout() {
-    if (!Nullstone.IsReady)
-        return;
+var TextLayout = Nullstone.Create("TextLayout");
+TextLayout.Instance.Init = function () {
     this._SelectionStart = 0;
     this._SelectionLength = 0;
     this._Strategy = LineStackingStrategy.MaxHeight;
@@ -3375,28 +3308,27 @@ function TextLayout() {
     this._IsWrapped = true;
     this._Text = null;
     this._Length = 0;
-}
-Nullstone.Create(TextLayout, "TextLayout");
-TextLayout.prototype.GetSelectionLength = function () {
+};
+TextLayout.Instance.GetSelectionLength = function () {
     return this._SelectionLength;
 };
-TextLayout.prototype.GetSelectionStart = function () {
+TextLayout.Instance.GetSelectionStart = function () {
     return this._SelectionStart;
 };
-TextLayout.prototype.GetLineStackingStrategy = function () {
+TextLayout.Instance.GetLineStackingStrategy = function () {
     return this._Strategy;
 };
-TextLayout.prototype.SetLineStackingStrategy = function (value) {
+TextLayout.Instance.SetLineStackingStrategy = function (value) {
     if (this._Strategy == value)
         return false;
     this._Strategy = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetTextAttributes = function () {
+TextLayout.Instance.GetTextAttributes = function () {
     return this._Attributes;
 };
-TextLayout.prototype.SetTextAttributes = function (value) {
+TextLayout.Instance.SetTextAttributes = function (value) {
     if (this._Attributes) {
         this._Attributes._Clear(true);
     }
@@ -3404,30 +3336,30 @@ TextLayout.prototype.SetTextAttributes = function (value) {
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetTextAlignment = function () {
+TextLayout.Instance.GetTextAlignment = function () {
     return this._Alignment;
 };
-TextLayout.prototype.SetTextAlignment = function (value) {
+TextLayout.Instance.SetTextAlignment = function (value) {
     if (this._Alignment == value)
         return false;
     this._Alignment = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetTextTrimming = function () {
+TextLayout.Instance.GetTextTrimming = function () {
     return this._Trimming;
 };
-TextLayout.prototype.SetTextTrimming = function (value) {
+TextLayout.Instance.SetTextTrimming = function (value) {
     if (this._Trimming == value)
         return false;
     this._Trimming = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetTextWrapping = function () {
+TextLayout.Instance.GetTextWrapping = function () {
     return this._Wrapping;
 };
-TextLayout.prototype.SetTextWrapping = function (value) {
+TextLayout.Instance.SetTextWrapping = function (value) {
     switch (value) {
         case TextWrapping.NoWrap:
         case TextWrapping.Wrap:
@@ -3442,30 +3374,30 @@ TextLayout.prototype.SetTextWrapping = function (value) {
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetLineHeight = function () {
+TextLayout.Instance.GetLineHeight = function () {
     return this._LineHeight;
 };
-TextLayout.prototype.SetLineHeight = function (value) {
+TextLayout.Instance.SetLineHeight = function (value) {
     if (this._LineHeight == value)
         return false;
     this._LineHeight = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetMaxHeight = function () {
+TextLayout.Instance.GetMaxHeight = function () {
     return this._MaxHeight;
 };
-TextLayout.prototype.SetMaxHeight = function (value) {
+TextLayout.Instance.SetMaxHeight = function (value) {
     if (this._MaxHeight == value)
         return false;
-    this._MaxHeight  = value;
+    this._MaxHeight = value;
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetMaxWidth = function () {
+TextLayout.Instance.GetMaxWidth = function () {
     return this._MaxWidth;
 };
-TextLayout.prototype.SetMaxWidth = function (value) {
+TextLayout.Instance.SetMaxWidth = function (value) {
     if (value === 0.0)
         value = Number.POSITIVE_INFINITY;
     if (this._MaxWidth === value)
@@ -3478,17 +3410,17 @@ TextLayout.prototype.SetMaxWidth = function (value) {
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetAvailableWidth = function () {
+TextLayout.Instance.GetAvailableWidth = function () {
     return this._AvailableWidth;
 };
-TextLayout.prototype.SetAvailableWidth = function (value) {
+TextLayout.Instance.SetAvailableWidth = function (value) {
     this._AvailableWidth = value;
     return false;
 };
-TextLayout.prototype.GetText = function () {
+TextLayout.Instance.GetText = function () {
     return this._Text;
 };
-TextLayout.prototype.SetText = function (value, length) {
+TextLayout.Instance.SetText = function (value, length) {
     if (value) {
         this._Text = value;
         this._Length = length == -1 ? value.length : length;
@@ -3499,37 +3431,37 @@ TextLayout.prototype.SetText = function (value, length) {
     this._ResetState();
     return true;
 };
-TextLayout.prototype.GetBaselineOffset = function () {
+TextLayout.Instance.GetBaselineOffset = function () {
     if (this._Lines.length === 0)
         return 0;
     var line = this._Lines[0];
     return line._Height + line._Descend;
 };
-TextLayout.prototype.OverrideLineHeight = function () {
+TextLayout.Instance.OverrideLineHeight = function () {
     return this.GetLineStackingStrategy() === LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
 };
-TextLayout.prototype.GetLineHeightOverride = function () {
+TextLayout.Instance.GetLineHeightOverride = function () {
     if (isNaN(this.GetLineHeight()))
         return this._BaseHeight;
     return this.GetLineHeight();
 };
-TextLayout.prototype.GetDescendOverride = function () {
+TextLayout.Instance.GetDescendOverride = function () {
     if (isNaN(this.GetLineHeight()))
         return this._BaseDescent;
     if (this._BaseHeight == 0.0)
         return 0.0;
     return this.GetLineHeight() * (this._BaseDescent / this._BaseHeight);
 }
-TextLayout.prototype.GetLineFromY = function (offset, y) {
+TextLayout.Instance.GetLineFromY = function (offset, y) {
     NotImplemented("TextLayout.GetLineFromY");
 };
-TextLayout.prototype.GetLineFromIndex = function (index) {
+TextLayout.Instance.GetLineFromIndex = function (index) {
     NotImplemented("TextLayout.GetLineFromIndex");
 };
-TextLayout.prototype.GetCursorFromXY = function (offset, x, y) {
+TextLayout.Instance.GetCursorFromXY = function (offset, x, y) {
     NotImplemented("TextLayout.GetCursorFromXY");
 };
-TextLayout.prototype.GetCursor = function (offset, pos) {
+TextLayout.Instance.GetCursor = function (offset, pos) {
     var x0 = offset.X;
     var y0 = offset.Y;
     var height = 0.0;
@@ -3571,7 +3503,7 @@ TextLayout.prototype.GetCursor = function (offset, pos) {
     }
     return new Rect(x0, y0, 1.0, height);
 };
-TextLayout.prototype._FindLineWithIndex = function (index) {
+TextLayout.Instance._FindLineWithIndex = function (index) {
     var cursor = 0;
     for (var i = 0; i < this._Lines.length; i++) {
         var line = this._Lines[i];
@@ -3581,24 +3513,24 @@ TextLayout.prototype._FindLineWithIndex = function (index) {
     }
     return null;
 };
-TextLayout.prototype.Select = function (start, length) {
+TextLayout.Instance.Select = function (start, length) {
     NotImplemented("TextLayout.Select");
 };
-TextLayout.prototype._ClearLines = function () {
+TextLayout.Instance._ClearLines = function () {
     this._Lines = new Array();
 };
-TextLayout.prototype._ResetState = function () {
+TextLayout.Instance._ResetState = function () {
     this._ActualHeight = NaN;
     this._ActualWidth = NaN;
 };
-TextLayout.prototype.GetRenderExtents = function () {
+TextLayout.Instance.GetRenderExtents = function () {
     this.Layout();
     return new Rect(this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
 };
-TextLayout.prototype.GetActualExtents = function () {
+TextLayout.Instance.GetActualExtents = function () {
     return new Size(this._ActualWidth, this._ActualHeight);
 };
-TextLayout.prototype.Layout = function () {
+TextLayout.Instance.Layout = function () {
     if (!isNaN(this._ActualWidth))
         return;
     this._ActualHeight = 0.0;
@@ -3717,7 +3649,7 @@ TextLayout.prototype.Layout = function () {
         attrs = nattrs;
     } while (end - index > 0);
 };
-TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
+TextLayout.Instance._HorizontalAlignment = function (lineWidth) {
     var deltax = 0.0;
     var width;
     switch (this._Alignment) {
@@ -3734,7 +3666,7 @@ TextLayout.prototype._HorizontalAlignment = function (lineWidth) {
     }
     return deltax;
 };
-TextLayout.prototype._Render = function (ctx, origin, offset) {
+TextLayout.Instance._Render = function (ctx, origin, offset) {
     var line;
     var x;
     var y = offset.Y;
@@ -3746,7 +3678,7 @@ TextLayout.prototype._Render = function (ctx, origin, offset) {
         y += line._Height;
     }
 };
-TextLayout.prototype.__Debug = function () {
+TextLayout.Instance.__Debug = function () {
     var allText = this.GetText();
     var t = "";
     t += "Lines: " + this._Lines.length.toString() + "\n";
@@ -4079,30 +4011,27 @@ TextLayout._GetWordType = function (ctype, btype) {
 TextLayout._BreakSpace = function (c, btype) {
     NotImplemented("TextLayout._BreakSpace");
 };
+Nullstone.FinishCreate(TextLayout);
 
-function _TextLayoutAttributes(source, start) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var _TextLayoutAttributes = Nullstone.Create("_TextLayoutAttributes", null, 2);
+_TextLayoutAttributes.Instance.Init = function (source, start) {
     this._Source = source;
     this._Start = start == null ? 0 : start;
-}
-Nullstone.Extend(_TextLayoutAttributes, "_TextLayoutAttributes", LinkedListNode);
-_TextLayoutAttributes.prototype.GetBackground = function (selected) { return this._Source.GetBackground(selected); };
-_TextLayoutAttributes.prototype.GetForeground = function (selected) { return this._Source.GetForeground(selected); };
-_TextLayoutAttributes.prototype.GetFont = function () { return this._Source.GetFont(); };
-_TextLayoutAttributes.prototype.GetDirection = function () { return this._Source.GetDirection(); };
-_TextLayoutAttributes.prototype.IsUnderlined = function () { return this._Source.GetTextDecorations() & TextDecorations.Underline; };
+};
+_TextLayoutAttributes.Instance.GetBackground = function (selected) { return this._Source.GetBackground(selected); };
+_TextLayoutAttributes.Instance.GetForeground = function (selected) { return this._Source.GetForeground(selected); };
+_TextLayoutAttributes.Instance.GetFont = function () { return this._Source.GetFont(); };
+_TextLayoutAttributes.Instance.GetDirection = function () { return this._Source.GetDirection(); };
+_TextLayoutAttributes.Instance.IsUnderlined = function () { return this._Source.GetTextDecorations() & TextDecorations.Underline; };
+Nullstone.FinishCreate(_TextLayoutAttributes);
 
-function _TextLayoutGlyphCluster(text, font, selected) {
-    if (!Nullstone.IsReady)
-        return;
+var _TextLayoutGlyphCluster = Nullstone.Create("_TextLayoutGlyphCluster", null, 3);
+_TextLayoutGlyphCluster.Instance.Init = function (text, font, selected) {
     this._Text = text;
     this._Selected = selected == true;
     this._Advance = Surface.MeasureText(text, font).Width;
-}
-Nullstone.Create(_TextLayoutGlyphCluster, "_TextLayoutGlyphCluster");
-_TextLayoutGlyphCluster.prototype._Render = function (ctx, origin, attrs, x, y) {
+};
+_TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     if (this._Text.length == 0 || this._Advance == 0.0)
         return;
     var font = attrs.GetFont();
@@ -4127,8 +4056,10 @@ _TextLayoutGlyphCluster.Painter = function (canvasCtx, text, foreground, font) {
     canvasCtx.textBaseline = "top";
     canvasCtx.fillText(text, 0, 0);
 };
+Nullstone.FinishCreate(_TextLayoutGlyphCluster);
 
-function _TextLayoutLine(layout, start, offset) {
+var _TextLayoutLine = Nullstone.Create("_TextLayoutLine", null, 3);
+_TextLayoutLine.Instance.Init = function (layout, start, offset) {
     this._Runs = new Array();
     this._Layout = layout;
     this._Start = start;
@@ -4138,9 +4069,8 @@ function _TextLayoutLine(layout, start, offset) {
     this._Height = 0.0;
     this._Width = 0.0;
     this._Length = 0;
-}
-Nullstone.Create(_TextLayoutLine, "_TextLayoutLine");
-_TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
+};
+_TextLayoutLine.Instance._Render = function (ctx, origin, left, top) {
     var run;
     var x0 = left;
     var y0 = top;
@@ -4150,7 +4080,7 @@ _TextLayoutLine.prototype._Render = function (ctx, origin, left, top) {
         x0 += run._Advance;
     }
 };
-_TextLayoutLine.prototype.__Debug = function (allText) {
+_TextLayoutLine.Instance.__Debug = function (allText) {
     var t = "";
     t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
     for (var i = 0; i < this._Runs.length; i++) {
@@ -4160,17 +4090,18 @@ _TextLayoutLine.prototype.__Debug = function (allText) {
     }
     return t;
 };
+Nullstone.FinishCreate(_TextLayoutLine);
 
-function _TextLayoutRun(line, attrs, start) {
+var _TextLayoutRun = Nullstone.Create("_TextLayoutRun", null, 3);
+_TextLayoutRun.Instance.Init = function (line, attrs, start) {
     this._Clusters = new Array();
     this._Attrs = attrs;
     this._Start = start;
     this._Line = line;
     this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
     this._Length = 0;
-}
-Nullstone.Create(_TextLayoutRun, "_TextLayoutRun");
-_TextLayoutRun.prototype._GenerateCache = function () {
+};
+_TextLayoutRun.Instance._GenerateCache = function () {
     var selectionLength = this._Line._Layout.GetSelectionLength();
     var selectionStart = this._Line._Layout.GetSelectionStart();
     var text = this._Line._Layout.GetText();
@@ -4195,10 +4126,10 @@ _TextLayoutRun.prototype._GenerateCache = function () {
         index += len;
     }
 };
-_TextLayoutRun.prototype._ClearCache = function () {
+_TextLayoutRun.Instance._ClearCache = function () {
     this._Clusters = new Array();
 };
-_TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
+_TextLayoutRun.Instance._Render = function (ctx, origin, x, y) {
     var x0 = x;
     if (this._Clusters.length == 0)
         this._GenerateCache();
@@ -4210,39 +4141,39 @@ _TextLayoutRun.prototype._Render = function (ctx, origin, x, y) {
         x0 += cluster._Advance;
     }
 };
-_TextLayoutRun.prototype.__Debug = function (allText) {
+_TextLayoutRun.Instance.__Debug = function (allText) {
     return allText.substr(this._Start, this._Length);
 };
+Nullstone.FinishCreate(_TextLayoutRun);
 
-function _WordBreakOp() {
+var _WordBreakOp = Nullstone.Create("_WordBreakOp");
+_WordBreakOp.Instance.Init = function () {
     this._Advance = 0.0;
     this._Index = 0;
     this._Btype = 0;
     this._C = '';
-}
-Nullstone.Create(_WordBreakOp, "_WordBreakOp");
-_WordBreakOp.prototype.Copy = function () {
+};
+_WordBreakOp.Instance.Copy = function () {
     var newOp = new _WordBreakOp();
     newOp._Advance = this._Advance;
     newOp._Btype = this._Btype;
     newOp._C = this._C;
     newOp._Index = this._Index;
 };
-_WordBreakOp.prototype.SetWordBasics = function (word) {
+_WordBreakOp.Instance.SetWordBasics = function (word) {
     word._Length = this._Index;
     word._Advance = this._Advance;
 };
+Nullstone.FinishCreate(_WordBreakOp);
 
-function FrameworkElementPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, 0);
+var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);
+FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
     this._ActualHeight = null;
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-}
-Nullstone.Extend(FrameworkElementPropertyValueProvider, "FrameworkElementPropertyValueProvider", _PropertyValueProvider);
-FrameworkElementPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+};
+FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (propd !== FrameworkElement.ActualHeightProperty && propd !== FrameworkElement.ActualWidthProperty)
         return undefined;
     var actual = this._Object._ComputeActualSize();
@@ -4257,12 +4188,9 @@ FrameworkElementPropertyValueProvider.prototype.GetPropertyValue = function (pro
         return this._ActualWidth;
     }
 };
+Nullstone.FinishCreate(FrameworkElementPropertyValueProvider);
 
-function LayoutInformation() {
-    if (!Nullstone.IsReady)
-        return;
-}
-Nullstone.Create(LayoutInformation, "LayoutInformation");
+var LayoutInformation = Nullstone.Create("LayoutInformation");
 LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttached("LayoutClip", function () { return Geometry; }, LayoutInformation);
 LayoutInformation.GetLayoutClip = function (d) {
     return d.GetValue(LayoutInformation.LayoutClipProperty);
@@ -4312,35 +4240,31 @@ LayoutInformation.GetVisualOffset = function (d) {
 LayoutInformation.SetVisualOffset = function (d, value) {
     d.SetValue(LayoutInformation.VisualOffsetProperty, value);
 };
+Nullstone.FinishCreate(LayoutInformation);
 
-function LayoutPass() {
-    if (!Nullstone.IsReady)
-        return;
+var LayoutPass = Nullstone.Create("LayoutPass");
+LayoutPass.Instance.Init = function () {
     this._MeasureList = new LinkedList();
     this._ArrangeList = new LinkedList();
     this._SizeList = new LinkedList();
     this._Count = 0;
     this._Updated = false;
-}
-Nullstone.Create(LayoutPass, "LayoutPass");
+};
 LayoutPass.MaxCount = 250;
+Nullstone.FinishCreate(LayoutPass);
 
-function UIElementNode(element) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var UIElementNode = Nullstone.Create("UIElementNode", LinkedListNode, 1);
+UIElementNode.Instance.Init = function (element) {
     this.UIElement = element;
-}
-Nullstone.Extend(UIElementNode, "UIElementNode", LinkedListNode);
+};
+Nullstone.FinishCreate(UIElementNode);
 
-function _AutoCreatePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+var _AutoCreatePropertyValueProvider = Nullstone.Create("_AutoCreatePropertyValueProvider", _PropertyValueProvider, 2);
+_AutoCreatePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
 }
-Nullstone.Extend(_AutoCreatePropertyValueProvider, "_AutoCreatePropertyValueProvider", _PropertyValueProvider);
-_AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);
     if (value !== undefined)
         return value;
@@ -4352,41 +4276,39 @@ _AutoCreatePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
     this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
     return value;
 };
-_AutoCreatePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+_AutoCreatePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
     if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
         return;
     this.ClearValue(propd);
 };
-_AutoCreatePropertyValueProvider.prototype.ReadLocalValue = function (propd) {
+_AutoCreatePropertyValueProvider.Instance.ReadLocalValue = function (propd) {
     return this._ht[propd];
 };
-_AutoCreatePropertyValueProvider.prototype.ClearValue = function (propd) {
+_AutoCreatePropertyValueProvider.Instance.ClearValue = function (propd) {
     delete this._ht[propd];
 };
+Nullstone.FinishCreate(_AutoCreatePropertyValueProvider);
 
-function _DefaultValuePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, 0);
+var _DefaultValuePropertyValueProvider = Nullstone.Create("_DefaultValuePropertyValueProvider", _PropertyValueProvider, 2);
+_DefaultValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
 }
-Nullstone.Extend(_DefaultValuePropertyValueProvider, "_DefaultValuePropertyValueProvider", _PropertyValueProvider);
-_DefaultValuePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_DefaultValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return propd.DefaultValue;
 };
+Nullstone.FinishCreate(_DefaultValuePropertyValueProvider);
 
-function _ImplicitStylePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+var _ImplicitStylePropertyValueProvider = Nullstone.Create("_ImplicitStylePropertyValueProvider", _PropertyValueProvider, 2);
+_ImplicitStylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._Styles = null;
     this._StyleMask = _StyleMask.None;
     this._ht = new Array();
 }
-Nullstone.Extend(_ImplicitStylePropertyValueProvider, "_ImplicitStylePropertyValueProvider", _PropertyValueProvider);
-_ImplicitStylePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_ImplicitStylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
-_ImplicitStylePropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+_ImplicitStylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
     if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
         return;
     if (!this._Styles)
@@ -4408,7 +4330,7 @@ _ImplicitStylePropertyValueProvider.prototype.RecomputePropertyValue = function 
             return;
     }
 };
-_ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask, styles, error) {
+_ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask, styles, error) {
     var isChanged = !this._Styles || styleMask != this._StyleMask;
     if (!isChanged) {
         for (var i = 0; i < _StyleIndex.Count; i++) {
@@ -4458,7 +4380,7 @@ _ImplicitStylePropertyValueProvider.prototype._ApplyStyles = function (styleMask
     this._Styles = styles;
     this._StyleMask = styleMask;
 };
-_ImplicitStylePropertyValueProvider.prototype.SetStyles = function (styleMask, styles, error) {
+_ImplicitStylePropertyValueProvider.Instance.SetStyles = function (styleMask, styles, error) {
     if (!styles)
         return;
     var newStyles = new Array();
@@ -4475,7 +4397,7 @@ _ImplicitStylePropertyValueProvider.prototype.SetStyles = function (styleMask, s
         newStyles[_StyleIndex.VisualTree] = styles[_StyleIndex.VisualTree];
     this._ApplyStyles(this._StyleMask | styleMask, newStyles, error);
 };
-_ImplicitStylePropertyValueProvider.prototype.ClearStyles = function (styleMask, error) {
+_ImplicitStylePropertyValueProvider.Instance.ClearStyles = function (styleMask, error) {
     if (!this._Styles)
         return;
     var newStyles = $.clone(this._Styles); //WTF: Does $.clone fully work for us?
@@ -4487,38 +4409,37 @@ _ImplicitStylePropertyValueProvider.prototype.ClearStyles = function (styleMask,
         newStyles[_StyleIndex.VisualTree] = null;
     this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
 };
+Nullstone.FinishCreate(_ImplicitStylePropertyValueProvider);
 
-function _InheritedDataContextPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence);
+var _InheritedDataContextPropertyValueProvider = Nullstone.Create("_InheritedDataContextPropertyValueProvider", _PropertyValueProvider, 2);
+_InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._Source = null;
-}
-Nullstone.Extend(_InheritedDataContextPropertyValueProvider, "_InheritedDataContextPropertyValueProvider", _PropertyValueProvider);
-_InheritedDataContextPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+};
+_InheritedDataContextPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (!this._Source || propd != FrameworkElement.DataContextProperty)
         return null;
     return this._Source.GetValue(propd);
 };
-_InheritedDataContextPropertyValueProvider.prototype.SetDataSource = function (source) {
-    if (RefObject.RefEquals(this._Source, source))
+_InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (source) {
+    if (Nullstone.RefEquals(this._Source, source))
         return;
     var oldValue = this._Source != null ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
     var newValue = source != null ? source.GetValue(FrameworkElement.DataContextProperty) : null;
     this._DetachListener(this._Source);
     this._Source = source;
     this._AttachListener(this._Source);
-    if (!RefObject.Equals(oldValue, newValue)) {
+    if (!Nullstone.Equals(oldValue, newValue)) {
         var error = new BError();
         this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, oldValue, newValue, false, false, false, error);
     }
 };
-_InheritedDataContextPropertyValueProvider.prototype._AttachListener = function (source) {
+_InheritedDataContextPropertyValueProvider.Instance._AttachListener = function (source) {
     if (source != null) {
         this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
     }
 };
-_InheritedDataContextPropertyValueProvider.prototype._DetachListener = function (source) {
+_InheritedDataContextPropertyValueProvider.Instance._DetachListener = function (source) {
     if (this._DataContextListener != null) {
         this._DataContextListener.Detach();
         this._DataContextListener = null;
@@ -4526,31 +4447,30 @@ _InheritedDataContextPropertyValueProvider.prototype._DetachListener = function 
     if (source != null) {
     }
 };
-_InheritedDataContextPropertyValueProvider.prototype._SourceDataContextChanged = function (sender, args) {
+_InheritedDataContextPropertyValueProvider.Instance._SourceDataContextChanged = function (sender, args) {
     var error = new BError();
     this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
 };
-_InheritedDataContextPropertyValueProvider.prototype.EmitChanged = function () {
+_InheritedDataContextPropertyValueProvider.Instance.EmitChanged = function () {
     if (this._Source != null) {
         var error = new BError();
         this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
     }
 };
+Nullstone.FinishCreate(_InheritedDataContextPropertyValueProvider);
 
-function _InheritedIsEnabledPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
+var _InheritedIsEnabledPropertyValueProvider = Nullstone.Create("_InheritedIsEnabledPropertyValueProvider", _PropertyValueProvider, 2);
+_InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
     this._Source = null;
     this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-}
-Nullstone.Extend(_InheritedIsEnabledPropertyValueProvider, "_InheritedIsEnabledPropertyValueProvider", _PropertyValueProvider);
-_InheritedIsEnabledPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+};
+_InheritedIsEnabledPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (propd === Control.IsEnabledProperty)
         return this._CurrentValue;
     return null;
 };
-_InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (source) {
+_InheritedIsEnabledPropertyValueProvider.Instance.SetDataSource = function (source) {
     if (source) {
         while (source) {
             if (source instanceof Control)
@@ -4569,7 +4489,7 @@ _InheritedIsEnabledPropertyValueProvider.prototype.SetDataSource = function (sou
     if (!source || this._Object.IsAttached())
         this.LocalValueChanged(null);
 };
-_InheritedIsEnabledPropertyValueProvider.prototype._AttachListener = function (obj) {
+_InheritedIsEnabledPropertyValueProvider.Instance._AttachListener = function (obj) {
     if (source) {
         var matchFunc = function (sender, args) {
             return this === args.Property; //Closure - Control.IsEnabledProperty
@@ -4577,15 +4497,15 @@ _InheritedIsEnabledPropertyValueProvider.prototype._AttachListener = function (o
         source.PropertyChanged.SubscribeSpecific(this._IsEnabledChanged, this, matchFunc, Control.IsEnabledProperty);
     }
 };
-_InheritedIsEnabledPropertyValueProvider.prototype._DetachListener = function (source) {
+_InheritedIsEnabledPropertyValueProvider.Instance._DetachListener = function (source) {
     if (source) {
         source.PropertyChanged.Unsubscribe(this._IsEnabledChanged, this, Control.IsEnabledProperty);
     }
 };
-_InheritedIsEnabledPropertyValueProvider.prototype._IsEnabledChanged = function (sender, args) {
+_InheritedIsEnabledPropertyValueProvider.Instance._IsEnabledChanged = function (sender, args) {
     this.LocalValueChanged(args.Property);
 };
-_InheritedIsEnabledPropertyValueProvider.prototype.LocalValueChanged = function (propd) {
+_InheritedIsEnabledPropertyValueProvider.Instance.LocalValueChanged = function (propd) {
     if (propd && propd !== Control.IsEnabledProperty)
         return false;
     var localEnabled = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
@@ -4600,15 +4520,14 @@ _InheritedIsEnabledPropertyValueProvider.prototype.LocalValueChanged = function 
     }
     return false;
 };
+Nullstone.FinishCreate(_InheritedIsEnabledPropertyValueProvider);
 
-function _InheritedPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, 0);
+var _InheritedPropertyValueProvider = Nullstone.Create("_InheritedPropertyValueProvider", _PropertyValueProvider, 2);
+_InheritedPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
     this._ht = new Array();
-}
-Nullstone.Extend(_InheritedPropertyValueProvider, "_InheritedPropertyValueProvider", _PropertyValueProvider);
-_InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+};
+_InheritedPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
         return undefined;
     var inheritable = _InheritedPropertyValueProvider.GetInheritable(this._Object, propd);
@@ -4623,7 +4542,7 @@ _InheritedPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
         return v;
     return undefined;
 };
-_InheritedPropertyValueProvider.prototype.WalkSubtree = function (rootParent, element, context, props, adding) {
+_InheritedPropertyValueProvider.Instance.WalkSubtree = function (rootParent, element, context, props, adding) {
     if (element instanceof TextElement || element instanceof TextBlock) {
         var childProp;
         if (element instanceof TextBlock)
@@ -4657,7 +4576,7 @@ _InheritedPropertyValueProvider.prototype.WalkSubtree = function (rootParent, el
         }
     }
 };
-_InheritedPropertyValueProvider.prototype.WalkTree = function (rootParent, element, context, props, adding) {
+_InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, element, context, props, adding) {
     if (props == _Inheritable.None)
         return;
     if (adding) {
@@ -4696,7 +4615,7 @@ _InheritedPropertyValueProvider.prototype.WalkTree = function (rootParent, eleme
         this.WalkSubtree(rootParent, element, context, props, adding);
     }
 };
-_InheritedPropertyValueProvider.prototype.MaybePropagateInheritedValue = function (source, prop, props, element) {
+_InheritedPropertyValueProvider.Instance.MaybePropagateInheritedValue = function (source, prop, props, element) {
     if (!source) return;
     if ((props & prop) == 0) return;
     var sourceProperty = _InheritedPropertyValueProvider.GetProperty(prop, source);
@@ -4704,13 +4623,13 @@ _InheritedPropertyValueProvider.prototype.MaybePropagateInheritedValue = functio
     if (value)
         element._PropagateInheritedValue(prop, source, value);
 };
-_InheritedPropertyValueProvider.prototype.MaybeRemoveInheritedValue = function (source, prop, props, element) {
+_InheritedPropertyValueProvider.Instance.MaybeRemoveInheritedValue = function (source, prop, props, element) {
     if (!source) return;
     if ((props & prop) == 0) return;
     if (source == element._GetInheritedValueSource(prop))
         element._PropagateInheritedValue(prop, null, null);
 };
-_InheritedPropertyValueProvider.prototype.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
+_InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
     var baseContext = new _InheritedContext(
             this._GetPropertySource(_Inheritable.Foreground),
             this._GetPropertySource(_Inheritable.FontFamily),
@@ -4726,12 +4645,12 @@ _InheritedPropertyValueProvider.prototype.PropagateInheritedPropertiesOnAddingTo
     var objContext = new _InheritedContext(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, true);
 };
-_InheritedPropertyValueProvider.prototype.PropagateInheritedProperty = function (propd, source, subtree) {
+_InheritedPropertyValueProvider.Instance.PropagateInheritedProperty = function (propd, source, subtree) {
     var inheritable = _InheritedPropertyValueProvider.GetInheritable(source, propd);
     var objContext = new _InheritedContext(this._Object, null);
     this.WalkSubtree(source, subtree, objContext, inheritable, true);
 };
-_InheritedPropertyValueProvider.prototype.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
+_InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
     var baseContext = new _InheritedContext(
             this._GetPropertySource(_Inheritable.Foreground),
             this._GetPropertySource(_Inheritable.FontFamily),
@@ -4747,12 +4666,12 @@ _InheritedPropertyValueProvider.prototype.ClearInheritedPropertiesOnRemovingFrom
     var objContext = new _InheritedContext(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, false);
 };
-_InheritedPropertyValueProvider.prototype._GetPropertySource = function (inheritableOrProp) {
+_InheritedPropertyValueProvider.Instance._GetPropertySource = function (inheritableOrProp) {
     if (inheritableOrProp instanceof DependencyProperty)
         return this._ht[GetInheritableFromProperty(inheritableOrProp)];
     return this._ht[inheritableOrProp];
 };
-_InheritedPropertyValueProvider.prototype._SetPropertySource = function (inheritable, source) {
+_InheritedPropertyValueProvider.Instance._SetPropertySource = function (inheritable, source) {
     if (source)
         this._ht[inheritable] = source;
     else
@@ -4872,155 +4791,144 @@ _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
     }
     return null;
 };
+Nullstone.FinishCreate(_InheritedPropertyValueProvider);
 
-function _LocalValuePropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+var _LocalValuePropertyValueProvider = Nullstone.Create("_LocalValuePropertyValueProvider", _PropertyValueProvider, 2);
+_LocalValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
     this._ht = new Array();
-}
-Nullstone.Extend(_LocalValuePropertyValueProvider, "_LocalValuePropertyValueProvider", _PropertyValueProvider);
-_LocalValuePropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+};
+_LocalValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
-_LocalValuePropertyValueProvider.prototype.SetValue = function (propd, value) {
+_LocalValuePropertyValueProvider.Instance.SetValue = function (propd, value) {
     this._ht[propd] = value;
 };
-_LocalValuePropertyValueProvider.prototype.ClearValue = function (propd) {
+_LocalValuePropertyValueProvider.Instance.ClearValue = function (propd) {
     delete this._ht[propd];
 };
+Nullstone.FinishCreate(_LocalValuePropertyValueProvider);
 
-function Binding(path) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Binding = Nullstone.Create("Binding", BindingBase, 1);
+Binding.Instance.Init = function (path) {
     if (!path)
         path = "";
     this.SetMode(BindingMode.OneWay);
     this.SetPath(new _PropertyPath(path));
     this.SetValidatesOnNotifyDataErrors(true);
     this.SetUpdateSourceTrigger(UpdateSourceTrigger.Default);
-}
-Nullstone.Extend(Binding, "Binding", BindingBase);
-Binding.prototype.GetBindsDirectlyToSource = function () { return this._BindsDirectlyToSource; };
-Binding.prototype.SetBindsDirectlyToSource = function (/* Boolean */value) { this.CheckSealed(); this._BindsDirectlyToSource = value; };
-Binding.prototype.GetConverter = function () { return this._Converter; };
-Binding.prototype.SetConverter = function (/* IValueConverter */value) { this.CheckSealed(); this._Converter = value; };
-Binding.prototype.GetConverterCulture = function () { return this._ConverterCulture; };
-Binding.prototype.SetConverterCulture = function (/* Culture */value) { this.CheckSealed(); this._ConverterCulture = value; };
-Binding.prototype.GetConverterParameter = function () { return this._ConverterParameter; };
-Binding.prototype.SetConverterParameter = function (/* Object */value) { this.CheckSealed(); this._ConverterParameter = value; };
-Binding.prototype.GetElementName = function () { return this._ElementName; };
-Binding.prototype.SetElementName = function (/* String */value) {
+};
+Binding.Instance.GetBindsDirectlyToSource = function () { return this._BindsDirectlyToSource; };
+Binding.Instance.SetBindsDirectlyToSource = function (/* Boolean */value) { this.CheckSealed(); this._BindsDirectlyToSource = value; };
+Binding.Instance.GetConverter = function () { return this._Converter; };
+Binding.Instance.SetConverter = function (/* IValueConverter */value) { this.CheckSealed(); this._Converter = value; };
+Binding.Instance.GetConverterCulture = function () { return this._ConverterCulture; };
+Binding.Instance.SetConverterCulture = function (/* Culture */value) { this.CheckSealed(); this._ConverterCulture = value; };
+Binding.Instance.GetConverterParameter = function () { return this._ConverterParameter; };
+Binding.Instance.SetConverterParameter = function (/* Object */value) { this.CheckSealed(); this._ConverterParameter = value; };
+Binding.Instance.GetElementName = function () { return this._ElementName; };
+Binding.Instance.SetElementName = function (/* String */value) {
     this.CheckSealed();
     if (this.GetSource() != null || this.GetRelativeSource() != null)
         throw new InvalidOperationException("ElementName cannot be set if either RelativeSource or Source is set");
     this._ElementName = value;
 };
-Binding.prototype.GetMode = function () { return this._Mode; };
-Binding.prototype.SetMode = function (/* Number */value) { this.CheckSealed(); this._Mode = value; };
-Binding.prototype.GetNotifyOnValidationError = function () { return this._NotifyOnValidationError; };
-Binding.prototype.SetNotifyOnValidationError = function (/* Boolean */value) { this.CheckSealed(); this._NotifyOnValidationError = value; };
-Binding.prototype.GetRelativeSource = function () {
-    return this._RelativeSource; 
- };
-Binding.prototype.SetRelativeSource = function (/* RelativeSource */value) {
+Binding.Instance.GetMode = function () { return this._Mode; };
+Binding.Instance.SetMode = function (/* Number */value) { this.CheckSealed(); this._Mode = value; };
+Binding.Instance.GetNotifyOnValidationError = function () { return this._NotifyOnValidationError; };
+Binding.Instance.SetNotifyOnValidationError = function (/* Boolean */value) { this.CheckSealed(); this._NotifyOnValidationError = value; };
+Binding.Instance.GetRelativeSource = function () {
+    return this._RelativeSource;
+};
+Binding.Instance.SetRelativeSource = function (/* RelativeSource */value) {
     this.CheckSealed();
     if (this.GetSource() != null || this.GetElementName() != null)
         throw new InvalidOperationException("RelativeSource cannot be set if either ElementName or Source is set");
     this._RelativeSource = value;
 };
-Binding.prototype.GetPath = function () {
-    return this._Path; 
+Binding.Instance.GetPath = function () {
+    return this._Path;
 };
-Binding.prototype.SetPath = function (value) {
+Binding.Instance.SetPath = function (value) {
     this.CheckSealed();
     if (value.HasDependencyProperty())
         throw new ArgumentException("PropertyPaths which are instantiated with a DependencyProperty are not supported");
     this._Path = value;
 };
-Binding.prototype.GetSource = function () { return this._Source; };
-Binding.prototype.SetSource = function (/* RefObject */value) {
+Binding.Instance.GetSource = function () { return this._Source; };
+Binding.Instance.SetSource = function (/* Object */value) {
     this.CheckSealed();
     if (this.GetElementName() != null || this.GetRelativeSource() != null)
         throw new InvalidOperationException("Source cannot be set if either ElementName or RelativeSource is set");
-    this._Source = value; 
+    this._Source = value;
 };
-Binding.prototype.GetUpdateSourceTrigger = function () { return this._UpdateSourceTrigger; };
-Binding.prototype.SetUpdateSourceTrigger = function (/* Number */value) { this.CheckSealed(); this._UpdateSourceTrigger = value; };
-Binding.prototype.GetValidatesOnExceptions = function () { return this._ValidatesOnExceptions; };
-Binding.prototype.SetValidatesOnExceptions = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnExceptions = value; };
-Binding.prototype.GetValidatesOnDataErrors = function () { return this._ValidatesOnDataErrors; };
-Binding.prototype.SetValidatesOnDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnDataErrors = value; };
-Binding.prototype.GetValidatesOnNotifyDataErrors = function () { return this._ValidatesOnNotifyDataErrors; };
-Binding.prototype.SetValidatesOnNotifyDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnNotifyDataErrors = value; };
+Binding.Instance.GetUpdateSourceTrigger = function () { return this._UpdateSourceTrigger; };
+Binding.Instance.SetUpdateSourceTrigger = function (/* Number */value) { this.CheckSealed(); this._UpdateSourceTrigger = value; };
+Binding.Instance.GetValidatesOnExceptions = function () { return this._ValidatesOnExceptions; };
+Binding.Instance.SetValidatesOnExceptions = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnExceptions = value; };
+Binding.Instance.GetValidatesOnDataErrors = function () { return this._ValidatesOnDataErrors; };
+Binding.Instance.SetValidatesOnDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnDataErrors = value; };
+Binding.Instance.GetValidatesOnNotifyDataErrors = function () { return this._ValidatesOnNotifyDataErrors; };
+Binding.Instance.SetValidatesOnNotifyDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnNotifyDataErrors = value; };
+Nullstone.FinishCreate(Binding);
 
-function BindingExpression(binding, target, propd) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(binding, target, propd);
-}
-Nullstone.Extend(BindingExpression, "BindingExpression", BindingExpressionBase);
-BindingExpression.prototype.GetParentBinding = function () {
+var BindingExpression = Nullstone.Create("BindingExpression", BindingExpressionBase, 3);
+BindingExpression.Instance.Init = function (binding, target, propd) {
+    this.Init$BindingExpressionBase(binding, target, propd);
+};
+BindingExpression.Instance.GetParentBinding = function () {
     return this.GetBinding();
 };
-BindingExpression.prototype.GetDataItem = function () {
+BindingExpression.Instance.GetDataItem = function () {
     return this.GetDataSource();
 };
-BindingExpression.prototype.UpdateSource = function () {
+BindingExpression.Instance.UpdateSource = function () {
     return this._UpdateSourceObject(undefined, true);
 };
+Nullstone.FinishCreate(BindingExpression);
 
-function ICollectionView() {
-    if (!Nullstone.IsReady)
-        return;
+var ICollectionView = Nullstone.Create("ICollectionView");
+ICollectionView.Instance.Init = function () {
     this.CurrentChanged = new MulticastEvent();
-}
-Nullstone.Create(ICollectionView, "ICollectionView");
+};
+Nullstone.FinishCreate(ICollectionView);
 
-function INotifyPropertyChanged() {
-    if (!Nullstone.IsReady)
-        return;
+var INotifyPropertyChanged = Nullstone.Create("INotifyPropertyChanged", null);
+INotifyPropertyChanged.Instance.Init = function () {
     this.PropertyChanged = new MulticastEvent();
-}
-Nullstone.Create(INotifyPropertyChanged, "INotifyPropertyChanged");
-INotifyPropertyChanged.prototype.RaisePropertyChanged = function (propertyName) {
+};
+INotifyPropertyChanged.Instance.RaisePropertyChanged = function (propertyName) {
     this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
 };
+Nullstone.FinishCreate(INotifyPropertyChanged);
 
-function PropertyChangedEventArgs() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(PropertyChangedEventArgs, "PropertyChangedEventArgs", EventArgs);
-PropertyChangedEventArgs.prototype.GetPropertyName = function () {
+var PropertyChangedEventArgs = Nullstone.Create("PropertyChangedEventArgs", EventArgs);
+PropertyChangedEventArgs.Instance.GetPropertyName = function () {
     return this._PropertyName;
 };
-PropertyChangedEventArgs.prototype.SetPropertyName = function (value) {
+PropertyChangedEventArgs.Instance.SetPropertyName = function (value) {
     this._PropertyName = value;
 };
+Nullstone.FinishCreate(PropertyChangedEventArgs);
 
-function _PropertyPathNode() {
-    if (!Nullstone.IsReady)
-        return;
+var _PropertyPathNode = Nullstone.Create("_PropertyPathNode");
+_PropertyPathNode.Instance.Init = function () {
     this.SetIsBroken(true);
     this.IsBrokenChanged = new MulticastEvent();
     this.ValueChanged = new MulticastEvent();
-}
-Nullstone.Create(_PropertyPathNode, "_PropertyPathNode");
-_PropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
 };
-_PropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
+_PropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSource) {
 };
-_PropertyPathNode.prototype.UpdateValue = function () {
+_PropertyPathNode.Instance.OnSourcePropertyChanged = function (o, e) {
+};
+_PropertyPathNode.Instance.UpdateValue = function () {
     AbstractMethod("_PropertyPathNode.UpdateValue");
 };
-_PropertyPathNode.prototype.SetValue = function (value) {
+_PropertyPathNode.Instance.SetValue = function (value) {
     AbstractMethod("_PropertyPathNode.SetValue");
 };
-_PropertyPathNode.prototype.SetSource = function (value) {
-    if (value == null || !RefObject.Equals(value, this._Source)) {
+_PropertyPathNode.Instance.SetSource = function (value) {
+    if (value == null || !Nullstone.Equals(value, this._Source)) {
         var oldSource = this._Source;
         var listener = this.GetListener();
         if (listener != null) {
@@ -5029,7 +4937,7 @@ _PropertyPathNode.prototype.SetSource = function (value) {
             this.SetListener(listener);
         }
         this._Source = value;
-        if (this._Source != null && this._Source instanceof RefObject && this._Source.DoesImplement(INotifyPropertyChanged)) {
+        if (this._Source != null && Nullstone.DoesImplement(this._Source, INotifyPropertyChanged)) {
             listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
             this.SetListener(listener);
         }
@@ -5039,9 +4947,9 @@ _PropertyPathNode.prototype.SetSource = function (value) {
             this.GetNext().SetSource(this._Value);
     }
 };
-_PropertyPathNode.prototype._UpdateValueAndIsBroken = function (newValue, isBroken) {
+_PropertyPathNode.Instance._UpdateValueAndIsBroken = function (newValue, isBroken) {
     var emitBrokenChanged = this.GetIsBroken() !== isBroken;
-    var emitValueChanged = !RefObject.Equals(this.GetValue(), newValue);
+    var emitValueChanged = !Nullstone.Equals(this.GetValue(), newValue);
     this.SetIsBroken(isBroken);
     this._Value = newValue;
     if (emitValueChanged) {
@@ -5050,55 +4958,55 @@ _PropertyPathNode.prototype._UpdateValueAndIsBroken = function (newValue, isBrok
         this.IsBrokenChanged.Raise(this, new EventArgs());
     }
 };
-_PropertyPathNode.prototype._CheckIsBroken = function () {
+_PropertyPathNode.Instance._CheckIsBroken = function () {
     return this.GetSource() == null || (this.GetPropertyInfo() == null && this.GetDependencyProperty() == null);
 };
-_PropertyPathNode.prototype.GetIsBroken = function () {
+_PropertyPathNode.Instance.GetIsBroken = function () {
     return this._IsBroken;
 };
-_PropertyPathNode.prototype.SetIsBroken = function (value) {
+_PropertyPathNode.Instance.SetIsBroken = function (value) {
     this._IsBroken = value;
 };
-_PropertyPathNode.prototype.GetDependencyProperty = function () {
+_PropertyPathNode.Instance.GetDependencyProperty = function () {
     return this._DependencyProperty;
 };
-_PropertyPathNode.prototype.SetDependencyProperty = function (value) {
+_PropertyPathNode.Instance.SetDependencyProperty = function (value) {
     this._DependencyProperty = value;
 };
-_PropertyPathNode.prototype.GetNext = function () {
+_PropertyPathNode.Instance.GetNext = function () {
     return this._Next;
 };
-_PropertyPathNode.prototype.SetNext = function (value) {
+_PropertyPathNode.Instance.SetNext = function (value) {
     this._Next = value;
 };
-_PropertyPathNode.prototype.GetPropertyInfo = function () {
+_PropertyPathNode.Instance.GetPropertyInfo = function () {
     return this._PropertyInfo;
 };
-_PropertyPathNode.prototype.SetPropertyInfo = function (value) {
+_PropertyPathNode.Instance.SetPropertyInfo = function (value) {
     this._PropertyInfo = value;
 };
-_PropertyPathNode.prototype.GetListener = function () {
+_PropertyPathNode.Instance.GetListener = function () {
     return this._Listener;
 };
-_PropertyPathNode.prototype.SetListener = function (value) {
+_PropertyPathNode.Instance.SetListener = function (value) {
     this._Listener = value;
 };
-_PropertyPathNode.prototype.GetSource = function () {
+_PropertyPathNode.Instance.GetSource = function () {
     return this._Source;
 };
-_PropertyPathNode.prototype.GetValue = function () {
+_PropertyPathNode.Instance.GetValue = function () {
     return this._Value;
 };
-_PropertyPathNode.prototype.GetValueType = function () {
+_PropertyPathNode.Instance.GetValueType = function () {
     return this._ValueType;
 };
-_PropertyPathNode.prototype.SetValueType = function (value) {
+_PropertyPathNode.Instance.SetValueType = function (value) {
     this._ValueType = value;
 };
+Nullstone.FinishCreate(_PropertyPathNode);
 
-function _PropertyPathWalker(path, bindDirectlyToSource, bindsToView, isDataContextBound) {
-    if (!Nullstone.IsReady)
-        return;
+var _PropertyPathWalker = Nullstone.Create("_PropertyPathWalker", null, 4);
+_PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
     if (bindDirectlyToSource == null)
         bindDirectlyToSource = true;
     if (bindsToView == null)
@@ -5107,10 +5015,6 @@ function _PropertyPathWalker(path, bindDirectlyToSource, bindsToView, isDataCont
         isDataContextBound = false;
     this.IsBrokenChanged = new MulticastEvent();
     this.ValueChanged = new MulticastEvent();
-    this._Init(path, bindDirectlyToSource, bindsToView, isDataContextBound);
-}
-Nullstone.Create(_PropertyPathWalker, "_PropertyPathWalker");
-_PropertyPathWalker.prototype._Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
     this.SetPath(path);
     this.SetIsDataContextBound(isDataContextBound);
     var lastCVNode = null;
@@ -5160,53 +5064,53 @@ _PropertyPathWalker.prototype._Init = function (path, bindDirectlyToSource, bind
     },
     this);
 };
-_PropertyPathWalker.prototype.GetValue = function (item) {
+_PropertyPathWalker.Instance.GetValue = function (item) {
     this.Update(item);
     var o = this.GetFinalNode().GetValue();
     this.Update(null);
     return o;
 };
-_PropertyPathWalker.prototype.Update = function (source) {
+_PropertyPathWalker.Instance.Update = function (source) {
     this.SetSource(source);
     this.GetNode().SetSource(source);
 };
-_PropertyPathWalker.prototype.GetSource = function () {
+_PropertyPathWalker.Instance.GetSource = function () {
     return this._Source;
 };
-_PropertyPathWalker.prototype.SetSource = function (value) {
+_PropertyPathWalker.Instance.SetSource = function (value) {
     this._Source = value;
 };
-_PropertyPathWalker.prototype.GetPath = function () {
+_PropertyPathWalker.Instance.GetPath = function () {
     return this._Path;
 };
-_PropertyPathWalker.prototype.SetPath = function (value) {
+_PropertyPathWalker.Instance.SetPath = function (value) {
     this._Path = value;
 };
-_PropertyPathWalker.prototype.GetValueInternal = function () {
+_PropertyPathWalker.Instance.GetValueInternal = function () {
     return this._ValueInternal;
 };
-_PropertyPathWalker.prototype.SetValueInternal = function (value) {
+_PropertyPathWalker.Instance.SetValueInternal = function (value) {
     this._ValueInternal = value;
 };
-_PropertyPathWalker.prototype.GetIsDataContextBound = function () {
+_PropertyPathWalker.Instance.GetIsDataContextBound = function () {
     return this._IsDataContextBound;
 };
-_PropertyPathWalker.prototype.SetIsDataContextBound = function (value) {
+_PropertyPathWalker.Instance.SetIsDataContextBound = function (value) {
     this._IsDataContextBound = value;
 };
-_PropertyPathWalker.prototype.GetNode = function () {
+_PropertyPathWalker.Instance.GetNode = function () {
     return this._Node;
 };
-_PropertyPathWalker.prototype.SetNode = function (value) {
+_PropertyPathWalker.Instance.SetNode = function (value) {
     this._Node = value;
 };
-_PropertyPathWalker.prototype.GetFinalNode = function () {
+_PropertyPathWalker.Instance.GetFinalNode = function () {
     return this._FinalNode;
 };
-_PropertyPathWalker.prototype.SetFinalNode = function (value) {
+_PropertyPathWalker.Instance.SetFinalNode = function (value) {
     this._FinalNode = value;
 };
-_PropertyPathWalker.prototype.GetIsPathBroken = function () {
+_PropertyPathWalker.Instance.GetIsPathBroken = function () {
     var path = this.GetPath();
     if (this.GetIsDataContextBound() && (path == null || path.length < 1))
         return false;
@@ -5218,22 +5122,21 @@ _PropertyPathWalker.prototype.GetIsPathBroken = function () {
     }
     return false;
 };
+Nullstone.FinishCreate(_PropertyPathWalker);
 
-function _StandardPropertyPathNode(typeName, propertyName) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var _StandardPropertyPathNode = Nullstone.Create("_StandardPropertyPathNode", _PropertyPathNode, 2);
+_StandardPropertyPathNode.Instance.Init = function (typeName, propertyName) {
+    this.Init$_PropertyPathNode();
     this._STypeName = typeName;
     this._PropertyName = propertyName;
-}
-Nullstone.Extend(_StandardPropertyPathNode, "_StandardPropertyPathNode", _PropertyPathNode);
-_StandardPropertyPathNode.prototype.SetValue = function (value) {
+};
+_StandardPropertyPathNode.Instance.SetValue = function (value) {
     if (this.GetDependencyProperty() != null)
         this.GetSource().SetValue(this.GetDependencyProperty(), value);
     else if (this.GetPropertyInfo() != null)
         this.GetPropertyInfo().SetValue(this.GetSource(), value, null);
 };
-_StandardPropertyPathNode.prototype.UpdateValue = function () {
+_StandardPropertyPathNode.Instance.UpdateValue = function () {
     if (this.GetDependencyProperty() != null) {
         this.SetValueType(this.GetDependencyProperty().GetTargetType());
         this._UpdateValueAndIsBroken(this.GetSource().GetValue(this.GetDependencyProperty()), this._CheckIsBroken());
@@ -5249,8 +5152,8 @@ _StandardPropertyPathNode.prototype.UpdateValue = function () {
         this._UpdateValueAndIsBroken(null, this._CheckIsBroken());
     }
 };
-_StandardPropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSource) {
-    this.OnSourceChanged$super(oldSource, newSource);
+_StandardPropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSource) {
+    this.OnSourceChanged$_PropertyPathNode(oldSource, newSource);
     var oldDO = Nullstone.As(oldSource, DependencyObject);
     var newDO = Nullstone.As(newSource, DependencyObject);
     var listener = this.GetListener();
@@ -5274,7 +5177,7 @@ _StandardPropertyPathNode.prototype.OnSourceChanged = function (oldSource, newSo
         this.SetPropertyInfo(PropertyInfo.Find(this.GetSource(), this.GetPropertyName()));
     }
 };
-_StandardPropertyPathNode.prototype.OnPropertyChanged = function (s, e) {
+_StandardPropertyPathNode.Instance.OnPropertyChanged = function (s, e) {
     try {
         this.UpdateValue();
         if (this.GetNext() != null)
@@ -5282,7 +5185,7 @@ _StandardPropertyPathNode.prototype.OnPropertyChanged = function (s, e) {
     } catch (err) {
     }
 };
-_StandardPropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
+_StandardPropertyPathNode.Instance.OnSourcePropertyChanged = function (o, e) {
     if (e.PropertyName === this.GetPropertyName() && this.GetPropertyInfo() != null) {
         this.UpdateValue();
         var next = this.GetNext();
@@ -5290,33 +5193,31 @@ _StandardPropertyPathNode.prototype.OnSourcePropertyChanged = function (o, e) {
             next.SetSource(this.GetValue());
     }
 };
-_StandardPropertyPathNode.prototype.GetTypeName = function () {
+_StandardPropertyPathNode.Instance.GetTypeName = function () {
     return this._STypeName;
 };
-_StandardPropertyPathNode.prototype.GetPropertyName = function () {
+_StandardPropertyPathNode.Instance.GetPropertyName = function () {
     return this._PropertyName;
 };
+Nullstone.FinishCreate(_StandardPropertyPathNode);
 
-function DirtyNode(element) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var DirtyNode = Nullstone.Create("DirtyNode", LinkedListNode, 1);
+DirtyNode.Instance.Init = function (element) {
+    this.Init$LinkedListNode();
     this.Element = element;
-}
-Nullstone.Extend(DirtyNode, "DirtyNode", LinkedListNode);
+};
+Nullstone.FinishCreate(DirtyNode);
 
-function FocusChangedNode(lostFocus, gotFocus) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var FocusChangedNode = Nullstone.Create("FocusChangedNode", LinkedListNode, 2);
+FocusChangedNode.Instance.Init = function (lostFocus, gotFocus) {
+    this.Init$LinkedListNode();
     this.LostFocus = lostFocus;
     this.GotFocus = gotFocus;
-}
-Nullstone.Extend(FocusChangedNode, "FocusChangedNode", LinkedListNode);
+};
+Nullstone.FinishCreate(FocusChangedNode);
 
-function Surface(app) {
-    if (!Nullstone.IsReady)
-        return;
+var Surface = Nullstone.Create("Surface", null, 1);
+Surface.Instance.Init = function (app) {
     this._App = app;
     this._Clock = new Clock();
     this._InputList = new LinkedList();
@@ -5324,9 +5225,8 @@ function Surface(app) {
     this._FirstUserInitiatedEvent = false;
     this._UserInitiatedEvent = false;
     this._Cursor = CursorType.Default;
-}
-Nullstone.Create(Surface, "Surface");
-Surface.prototype.Init = function (jCanvas) {
+};
+Surface.Instance.Register = function (jCanvas) {
     Surface._TestCanvas = document.createElement('canvas');
     this._Layers = new Collection();
     this._DownDirty = new _DirtyList();
@@ -5336,17 +5236,17 @@ Surface.prototype.Init = function (jCanvas) {
     this._CanvasOffset = this._jCanvas.offset();
     this.RegisterEvents();
 };
-Surface.prototype.GetCanvas = function () { return this._jCanvas[0]; };
-Surface.prototype.GetExtents = function () {
+Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
+Surface.Instance.GetExtents = function () {
     return new Size(this.GetWidth(), this.GetHeight());
 };
-Surface.prototype.GetWidth = function () {
+Surface.Instance.GetWidth = function () {
     return this._jCanvas.width();
 };
-Surface.prototype.GetHeight = function () {
+Surface.Instance.GetHeight = function () {
     return this._jCanvas.height();
 };
-Surface.prototype.Render = function (region) {
+Surface.Instance.Render = function (region) {
     var ctx = new _RenderContext(this);
     var layerCount = 0;
     if (this._Layers)
@@ -5357,7 +5257,7 @@ Surface.prototype.Render = function (region) {
         layer._DoRender(ctx, region);
     }
 };
-Surface.prototype._Attach = function (element) {
+Surface.Instance._Attach = function (element) {
     if (this._TopLevel) {
     }
     if (!element) {
@@ -5381,8 +5281,8 @@ Surface.prototype._Attach = function (element) {
     };
     setTimeout(postAttach, 1);
 };
-Surface.prototype._AttachLayer = function (layer) {
-    if (RefObject.RefEquals(layer, this._TopLevel))
+Surface.Instance._AttachLayer = function (layer) {
+    if (Nullstone.RefEquals(layer, this._TopLevel))
         this._Layers.Insert(0, layer);
     else
         this._Layers.Add(layer);
@@ -5391,28 +5291,28 @@ Surface.prototype._AttachLayer = function (layer) {
     layer._SetIsAttached(true);
     layer._SetIsLoaded(true);
 };
-Surface.prototype._HandleTopLevelLoaded = function (sender, args) {
+Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
     this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
-    if (RefObject.RefEquals(element, this._TopLevel)) {
+    if (Nullstone.RefEquals(element, this._TopLevel)) {
         element._UpdateTotalRenderVisibility();
         element._UpdateTotalHitTestVisibility();
         element._FullInvalidate(true);
         element._InvalidateMeasure();
     }
 };
-Surface.prototype._IsTopLevel = function (top) {
+Surface.Instance._IsTopLevel = function (top) {
     if (!top || !this._Layers)
         return false;
     var ret = false; //TODO: full-screen message
     var count = this._Layers.GetCount();
     for (var i = 0; i < count && !ret; i++) {
         var layer = this._Layers.GetValueAt(i);
-        ret = RefObject.RefEquals(top, layer);
+        ret = Nullstone.RefEquals(top, layer);
     }
     return ret;
 };
-Surface.prototype.ProcessDirtyElements = function () {
+Surface.Instance.ProcessDirtyElements = function () {
     var error = new BError();
     var dirty = this._UpdateLayout(error);
     if (error.IsErrored()) {
@@ -5420,7 +5320,7 @@ Surface.prototype.ProcessDirtyElements = function () {
     }
     return dirty;
 };
-Surface.prototype._Invalidate = function (rect) {
+Surface.Instance._Invalidate = function (rect) {
     if (!rect)
         rect = new Rect(0, 0, this.GetWidth(), this.GetHeight());
     if (!this._InvalidatedRect)
@@ -5429,7 +5329,7 @@ Surface.prototype._Invalidate = function (rect) {
         this._InvalidatedRect = this._InvalidatedRect.Union(rect);
     this._QueueRender();
 };
-Surface.prototype._QueueRender = function () {
+Surface.Instance._QueueRender = function () {
     if (this._IsRenderQueued)
         return;
     var surface = this;
@@ -5441,7 +5341,7 @@ Surface.prototype._QueueRender = function () {
         surface.Render(rect2);
     }, 1);
 };
-Surface.prototype._UpdateLayout = function (error) {
+Surface.Instance._UpdateLayout = function (error) {
     if (!this._Layers)
         return false;
     var pass = new LayoutPass();
@@ -5473,7 +5373,7 @@ Surface.prototype._UpdateLayout = function (error) {
     }
     return dirty;
 };
-Surface.prototype._ProcessDownDirtyElements = function () {
+Surface.Instance._ProcessDownDirtyElements = function () {
     var visualParent;
     var node;
     while (node = this._DownDirty.GetFirst()) {
@@ -5539,7 +5439,7 @@ Surface.prototype._ProcessDownDirtyElements = function () {
         Warn("Finished DownDirty pass, not empty.");
     }
 };
-Surface.prototype._ProcessUpDirtyElements = function () {
+Surface.Instance._ProcessUpDirtyElements = function () {
     var visualParent;
     var node;
     while (node = this._UpDirty.GetFirst()) {
@@ -5602,14 +5502,14 @@ Surface.prototype._ProcessUpDirtyElements = function () {
         Warn("Finished UpDirty pass, not empty.");
     }
 };
-Surface.prototype._PropagateDirtyFlagToChildren = function (element, dirt) {
+Surface.Instance._PropagateDirtyFlagToChildren = function (element, dirt) {
     var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical);
     var child;
     while (child = walker.Step()) {
         this._AddDirtyElement(child, dirt);
     }
 };
-Surface.prototype._AddDirtyElement = function (element, dirt) {
+Surface.Instance._AddDirtyElement = function (element, dirt) {
     if (element.GetVisualParent() == null && !this._IsTopLevel(element))
         return;
     element._DirtyFlags |= dirt;
@@ -5626,7 +5526,7 @@ Surface.prototype._AddDirtyElement = function (element, dirt) {
         this._UpDirty.AddDirtyNode(element._UpDirtyNode);
     }
 };
-Surface.prototype._RemoveDirtyElement = function (element) {
+Surface.Instance._RemoveDirtyElement = function (element) {
     if (element._UpDirtyNode)
         this._UpDirty.RemoveDirtyNode(element._UpDirtyNode);
     if (element._DownDirtyNode)
@@ -5634,12 +5534,12 @@ Surface.prototype._RemoveDirtyElement = function (element) {
     element._UpDirtyNode = null;
     element._DownDirtyNode = null;
 };
-Surface.prototype._SetUserInitiatedEvent = function (val) {
+Surface.Instance._SetUserInitiatedEvent = function (val) {
     this._EmitFocusChangeEvents();
     this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
     this._UserInitiatedEvent = val;
 };
-Surface.prototype._UpdateCursorFromInputList = function () {
+Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
     for (var node = this._InputList.First(); node; node = node.Next) {
         newCursor = node.UIElement.GetCursor();
@@ -5648,11 +5548,11 @@ Surface.prototype._UpdateCursorFromInputList = function () {
     }
     this._SetCursor(newCursor);
 };
-Surface.prototype._SetCursor = function (cursor) {
+Surface.Instance._SetCursor = function (cursor) {
     this._Cursor = cursor;
     this._jCanvas.css("cursor", cursor);
 };
-Surface.prototype.RegisterEvents = function () {
+Surface.Instance.RegisterEvents = function () {
     var surface = this;
     var canvas = this.GetCanvas();
     canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(event.button, surface._GetMousePosition(event)); });
@@ -5661,7 +5561,7 @@ Surface.prototype.RegisterEvents = function () {
     canvas.addEventListener("mousemove", function (e) { surface._HandleMove(surface._GetMousePosition(event)); });
     canvas.addEventListener("mousewheel", function (e) { surface._HandleWheel(surface._GetMousePosition(event)); });
 };
-Surface.prototype._HandleButtonRelease = function (button, pos) {
+Surface.Instance._HandleButtonRelease = function (button, pos) {
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("up", button, pos);
     this._SetUserInitiatedEvent(false);
@@ -5669,24 +5569,24 @@ Surface.prototype._HandleButtonRelease = function (button, pos) {
     if (this._Captured)
         this._PerformReleaseCapture();
 };
-Surface.prototype._HandleButtonPress = function (button, pos) {
+Surface.Instance._HandleButtonPress = function (button, pos) {
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("down", button, pos);
     this._SetUserInitiatedEvent(false);
     this._UpdateCursorFromInputList();
 };
-Surface.prototype._HandleWheel = function (pos) {
+Surface.Instance._HandleWheel = function (pos) {
     this._HandleMouseEvent("wheel", null, pos);
     this._UpdateCursorFromInputList();
 };
-Surface.prototype._HandleMove = function (pos) {
+Surface.Instance._HandleMove = function (pos) {
     this._HandleMouseEvent("move", null, pos);
     this._UpdateCursorFromInputList();
 };
-Surface.prototype._HandleOut = function (pos) {
+Surface.Instance._HandleOut = function (pos) {
     this._HandleMouseEvent("out", null, pos);
 };
-Surface.prototype._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
+Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
     HUDUpdate("mouse", pos.toString());
     this._CurrentPos = pos;
     if (this._EmittingMouseEvent)
@@ -5722,12 +5622,12 @@ Surface.prototype._HandleMouseEvent = function (type, button, pos, emitLeave, em
         this._PerformReleaseCapture();
     this._EmittingMouseEvent = false;
 };
-Surface.prototype._GetMousePosition = function (evt) {
+Surface.Instance._GetMousePosition = function (evt) {
     return new Point(
         evt.clientX - this._CanvasOffset.left,
         evt.clientY - this._CanvasOffset.top);
 };
-Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
+Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
     var ui1 = list1.Last();
     var i1 = list1._Count - 1;
     var ui2 = list2.Last();
@@ -5735,7 +5635,7 @@ Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
     outObj.Index1 = -1;
     outObj.Index2 = -1;
     while (ui1 != null && ui2 != null) {
-        if (RefObject.RefEquals(ui1.UIElement, ui2.UIElement)) {
+        if (Nullstone.RefEquals(ui1.UIElement, ui2.UIElement)) {
             outObj.Index1 = i1;
             outObj.Index2 = i2;
         } else {
@@ -5747,7 +5647,7 @@ Surface.prototype._FindFirstCommonElement = function (list1, list2, outObj) {
         i2--;
     }
 };
-Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) {
+Surface.Instance._EmitMouseList = function (type, button, pos, list, endIndex) {
     if (endIndex === 0)
         return;
     var i = 0;
@@ -5757,23 +5657,23 @@ Surface.prototype._EmitMouseList = function (type, button, pos, list, endIndex) 
         node.UIElement._EmitMouseEvent(type, button, pos);
     }
 };
-Surface.prototype.SetMouseCapture = function (uie) {
+Surface.Instance.SetMouseCapture = function (uie) {
     if (this._Captured || this._PendingCapture)
-        return RefObject.RefEquals(uie, this._Captured) || RefObject.RefEquals(uie, this._PendingCapture);
+        return Nullstone.RefEquals(uie, this._Captured) || Nullstone.RefEquals(uie, this._PendingCapture);
     if (!this._EmittingMouseEvent)
         return false;
     this._PendingCapture = uie;
     return true;
 };
-Surface.prototype.ReleaseMouseCapture = function (uie) {
-    if (!RefObject.RefEquals(uie, this._Captured) && !RefObject.RefEquals(uie, this._PendingCapture))
+Surface.Instance.ReleaseMouseCapture = function (uie) {
+    if (!Nullstone.RefEquals(uie, this._Captured) && !Nullstone.RefEquals(uie, this._PendingCapture))
         return;
     if (this._EmittingMouseEvent)
         this._PendingReleaseCapture = true;
     else
         this._PerformReleaseCapture();
 };
-Surface.prototype._PerformCapture = function (uie) {
+Surface.Instance._PerformCapture = function (uie) {
     this._Captured = uie;
     var newInputList = new LinkedList();
     while (uie != null) {
@@ -5783,15 +5683,15 @@ Surface.prototype._PerformCapture = function (uie) {
     this._InputList = newInputList;
     this._PendingCapture = null;
 };
-Surface.prototype._PerformReleaseCapture = function () {
+Surface.Instance._PerformReleaseCapture = function () {
     var oldCaptured = this._Captured;
     this._Captured = null;
     this._PendingReleaseCapture = false;
     oldCaptured._EmitLostMouseCapture(this._CurrentPos);
     this._HandleMouseEvent("noop", null, this._CurrentPos, false, true);
 };
-Surface.prototype._FocusElement = function (uie) {
-    if (RefObject.RefEquals(uie, this._FocusedElement))
+Surface.Instance._FocusElement = function (uie) {
+    if (Nullstone.RefEquals(uie, this._FocusedElement))
         return true;
     if (this._FocusedElement != null)
         this._FocusChangedEvents.Append(new FocusChangedNode(Surface._ElementPathToRoot(this._FocusedElement), null));
@@ -5802,11 +5702,11 @@ Surface.prototype._FocusElement = function (uie) {
         this._EmitFocusChangeEventsAsync();
     return true;
 };
-Surface.prototype._EmitFocusChangeEventsAsync = function () {
+Surface.Instance._EmitFocusChangeEventsAsync = function () {
     var surface = this;
     window.setTimeout(function () { surface._EmitFocusChangeEvents(); }, 1);
 };
-Surface.prototype._EmitFocusChangeEvents = function () {
+Surface.Instance._EmitFocusChangeEvents = function () {
     var node;
     while (node = this._FocusChangedEvents.First()) {
         this._FocusChangedEvents.Remove(node);
@@ -5814,7 +5714,7 @@ Surface.prototype._EmitFocusChangeEvents = function () {
         this._EmitFocusList("got", node.GotFocus);
     }
 };
-Surface.prototype._EmitFocusList = function (type, list) {
+Surface.Instance._EmitFocusList = function (type, list) {
     if (list == null)
         return;
     for (var node = list.First(); node; node = node.Next) {
@@ -5856,20 +5756,18 @@ Surface._ElementPathToRoot = function (source) {
     }
     return list;
 };
+Nullstone.FinishCreate(Surface);
 
-function BindingMarkup(data) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var BindingMarkup = Nullstone.Create("BindingMarkup", Markup, 1);
+BindingMarkup.Instance.Init = function (data) {
     if (!data)
         data = {};
     this._Data = data;
-}
-Nullstone.Extend(BindingMarkup, "BindingMarkup", Markup);
-BindingMarkup.prototype.Transmute = function (target, propd, templateBindingSource) {
+};
+BindingMarkup.Instance.Transmute = function (target, propd, templateBindingSource) {
     return new BindingExpression(this._BuildBinding(), target, propd);
 };
-BindingMarkup.prototype._BuildBinding = function () {
+BindingMarkup.Instance._BuildBinding = function () {
     var b = new Binding(this._Data.Path);
     if (this._Data.FallbackValue !== undefined)
         b.SetFallbackValue(this._Data.FallbackValue);
@@ -5877,57 +5775,54 @@ BindingMarkup.prototype._BuildBinding = function () {
         b.SetMode(this._Data.Mode);
     return b;
 };
+Nullstone.FinishCreate(BindingMarkup);
 
-function Clip(rect) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Clip = Nullstone.Create("Clip", null, 1);
+Clip.Instance.Init = function (rect) {
     var rounded = rect.RoundOut();
     this.X = rounded.X;
     this.Y = rounded.Y;
     this.Width = rounded.Width;
     this.Height = rounded.Height;
-}
-Nullstone.Extend(Clip, "Clip", Rect);
+};
+Nullstone.FinishCreate(Clip);
 
-function _TextBlockDynamicPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence);
+var _TextBlockDynamicPropertyValueProvider = Nullstone.Create("_TextBlockDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider, 2);
+_TextBlockDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence);
     this._BaselineOffsetValue = null;
     this._TextValue = null;
-}
-Nullstone.Extend(_TextBlockDynamicPropertyValueProvider, "_TextBlockDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider);
-_TextBlockDynamicPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+};
+_TextBlockDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (propd == TextBlock.BaselineOffsetProperty) {
         var layout = this._Object._Layout;
         if (layout == null)
             return 0;
         return layout.GetBaselineOffset();
     }
-    return this.GetPropertyValue$super(propd);
+    return this.GetPropertyValue$FrameworkElementPropertyValueProvider(propd);
 };
+Nullstone.FinishCreate(_TextBlockDynamicPropertyValueProvider);
 
-function _TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence, _ProviderFlags.RecomputesOnClear | _ProviderFlags.RecomputesOnLowerPriorityChange);
+var _TextBoxBaseDynamicPropertyValueProvider = Nullstone.Create("_TextBoxBaseDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider, 5);
+_TextBoxBaseDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
+    this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence, 
+        _ProviderFlags.RecomputesOnClear | _ProviderFlags.RecomputesOnLowerPriorityChange);
     this._ForegroundPropd = foregroundPropd;
     this._BackgroundPropd = backgroundPropd;
     this._BaselineOffsetPropd = baselineOffsetPropd;
     this._SelectionBackground = undefined;
     this._SelectionForeground = undefined;
     this._BaselineOffset = undefined;
-}
-Nullstone.Extend(_TextBoxBaseDynamicPropertyValueProvider, "_TextBoxBaseDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider);
-_TextBoxBaseDynamicPropertyValueProvider.prototype.RecomputePropertyValue = function (propd, providerFlags, error) {
+};
+_TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
     if (propd == this._BackgroundPropd)
         this._SelectionBackground = undefined;
     else if (propd == this._ForegroundPropd)
         this._SelectionForeground = undefined;
-    this.RecomputePropertyValue$super(propd, providerFlags, error);
+    this.RecomputePropertyValue$FrameworkElementPropertyValueProvider(propd, providerFlags, error);
 };
-_TextBoxBaseDynamicPropertyValueProvider.prototype.GetPropertyValue = function (propd) {
+_TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var v;
     if (propd == this._BackgroundPropd) {
         v = this._Object.GetValue(propd, this._PropertyPrecedence + 1);
@@ -5944,53 +5839,58 @@ _TextBoxBaseDynamicPropertyValueProvider.prototype.GetPropertyValue = function (
     }
     if (v != undefined)
         return v;
-    return this.GetPropertyValue$super(propd);
+    return this.GetPropertyValue$FrameworkElementPropertyValueProvider(propd);
 };
-_TextBoxBaseDynamicPropertyValueProvider.prototype._InitializeSelectionBrushes = function () {
+_TextBoxBaseDynamicPropertyValueProvider.Instance._InitializeSelectionBrushes = function () {
     if (this._SelectionBackground == null)
         this._SelectionBackground = new SolidColorBrush(new Color(68, 68, 68));
     if (this._SelectionForeground == null)
         this._SelectionForeground = new SolidColorBrush(new Color(255, 255, 255));
 };
+Nullstone.FinishCreate(_TextBoxBaseDynamicPropertyValueProvider);
 
-function _TextBoxDynamicPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence,
+var _TextBoxDynamicPropertyValueProvider = Nullstone.Create("_TextBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider, 2);
+_TextBoxDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, 
         TextBox.SelectionForegroundProperty, TextBox.SelectionBackgroundProperty, TextBox.BaselineOffsetProperty);
-}
-Nullstone.Extend(_TextBoxDynamicPropertyValueProvider, "_TextBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider);
+};
+Nullstone.FinishCreate(_TextBoxDynamicPropertyValueProvider);
 
-function DependencyObject() {
-    if (!Nullstone.IsReady)
-        return;
-    this._Initialize();
-}
-Nullstone.Create(DependencyObject, "DependencyObject");
+var DependencyObject = Nullstone.Create("DependencyObject");
+DependencyObject.Instance.Init = function () {
+    this._IsAttached = false;
+    this._Providers = new Array();
+    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
+    this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
+    this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
+    this._ProviderBitmasks = new Array();
+    this._SecondaryParents = new Array();
+    this.PropertyChanged = new MulticastEvent();
+};
 DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", null, null, false, DependencyObject._NameValidator);
-DependencyObject.prototype.GetName = function () {
+DependencyObject.Instance.GetName = function () {
     return this.GetValue(DependencyObject.NameProperty);
 };
-DependencyObject.prototype.SetName = function (value) {
+DependencyObject.Instance.SetName = function (value) {
     this.SetValue(DependencyObject.NameProperty, value);
 };
-DependencyObject.prototype.GetTemplateOwner = function () {
+DependencyObject.Instance.GetTemplateOwner = function () {
     return this._TemplateOwner;
 };
-DependencyObject.prototype.SetTemplateOwner = function (value) {
+DependencyObject.Instance.SetTemplateOwner = function (value) {
     this._TemplateOwner = value;
 };
-DependencyObject.prototype.GetMentor = function () {
+DependencyObject.Instance.GetMentor = function () {
     return this._Mentor;
 };
-DependencyObject.prototype.SetMentor = function (value) {
+DependencyObject.Instance.SetMentor = function (value) {
     if (this._Mentor == value)
         return;
     var oldMentor = this._Mentor;
     this._Mentor = value;
     this._OnMentorChanged(oldMentor, value);
 };
-DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
+DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
     if (!(this instanceof FrameworkElement)) {
         this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
         this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
@@ -6003,20 +5903,10 @@ DependencyObject.prototype._OnMentorChanged = function (oldValue, newValue) {
         this._MentorChangedCallback(this, newValue);
     }
 };
-DependencyObject.prototype.GetDependencyProperty = function (propName) {
+DependencyObject.Instance.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);
 };
-DependencyObject.prototype._Initialize = function () {
-    this._IsAttached = false;
-    this._Providers = new Array();
-    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
-    this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
-    this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
-    this._ProviderBitmasks = new Array();
-    this._SecondaryParents = new Array();
-    this.PropertyChanged = new MulticastEvent();
-};
-DependencyObject.prototype.SetValue = function (propd, value) {
+DependencyObject.Instance.SetValue = function (propd, value) {
     if (propd == null)
         throw new ArgumentException("No property specified.");
     if (propd.IsReadOnly) {
@@ -6047,7 +5937,7 @@ DependencyObject.prototype.SetValue = function (propd, value) {
     var addingExpression = false;
     var updateTwoWay = false;
     if (expression != null) {
-        if (!RefObject.RefEquals(expression, existing)) {
+        if (!Nullstone.RefEquals(expression, existing)) {
             if (expression.GetAttached())
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
             if (existing != null)
@@ -6082,7 +5972,7 @@ DependencyObject.prototype.SetValue = function (propd, value) {
             existing._TryUpdateSourceObject(value);
     }
 };
-DependencyObject.prototype._SetValue = function (propd, value, error) {
+DependencyObject.Instance._SetValue = function (propd, value, error) {
     if (error == null)
         error = new BError();
     var hasCoercer = propd._HasCoercer();
@@ -6099,7 +5989,7 @@ DependencyObject.prototype._SetValue = function (propd, value, error) {
         throw new error.CreateException();
     return retVal;
 };
-DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
+DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
     if (this._IsFrozen) {
         error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
         return false;
@@ -6109,13 +5999,8 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
     if ((currentValue = this.ReadLocalValue(propd)) == null)
         if (propd._IsAutoCreated())
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
-    if (currentValue != null && value != null) {
-        if (currentValue instanceof RefObject) {
-            equal = !propd._AlwaysChange && RefObject.RefEquals(currentValue, value);
-        } else {
-            equal = !propd._AlwaysChange && currentValue === value;
-        }
-    }
+    if (currentValue != null && value != null)
+        equal = !propd._AlwaysChange && Nullstone.Equals(currentValue, value);
     else
         equal = currentValue == null && value == null;
     if (!equal) {
@@ -6134,7 +6019,7 @@ DependencyObject.prototype._SetValueImpl = function (propd, value, error) {
     }
     return true;
 };
-DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endingPrecedence) {
+DependencyObject.Instance.GetValue = function (propd, startingPrecedence, endingPrecedence) {
     if (startingPrecedence === undefined)
         startingPrecedence = _PropertyPrecedence.Highest;
     if (endingPrecedence === undefined)
@@ -6158,7 +6043,7 @@ DependencyObject.prototype.GetValue = function (propd, startingPrecedence, endin
     }
     return null;
 };
-DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error) {
+DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) {
     if (notifyListeners == undefined)
         notifyListeners = true;
     if (error == undefined)
@@ -6193,16 +6078,16 @@ DependencyObject.prototype.ClearValue = function (propd, notifyListeners, error)
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
     }
 };
-DependencyObject.prototype.ReadLocalValue = function (propd) {
+DependencyObject.Instance.ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
-DependencyObject.prototype._GetValueNoAutoCreate = function (propd) {
+DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
     var v = this.GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
     if (v == null && propd._IsAutoCreated())
         v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     return v;
 };
-DependencyObject.prototype._GetValueNoDefault = function (propd) {
+DependencyObject.Instance._GetValueNoDefault = function (propd) {
     var value = null;
     for (var i = 0; i < _PropertyPrecedence.DefaultValue; i++) {
         var provider = this._Providers[i];
@@ -6215,11 +6100,11 @@ DependencyObject.prototype._GetValueNoDefault = function (propd) {
     }
     return null;
 };
-DependencyObject.prototype._PropertyHasValueNoAutoCreate = function (propd, obj) {
+DependencyObject.Instance._PropertyHasValueNoAutoCreate = function (propd, obj) {
     var v = this._GetValueNoAutoCreate(propd);
     return v == null ? obj == null : v == obj;
 };
-DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
+DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
     var bitmask = this._ProviderBitmasks[propd] || 0;
     if (newProviderValue != null)
         bitmask |= 1 << providerPrecedence;
@@ -6264,7 +6149,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
     }
     var equal = oldValue == null && newValue == null;
     if (oldValue != null && newValue != null) {
-        equal = !propd._AlwaysChange && RefObject.Equals(oldValue, newValue);
+        equal = !propd._AlwaysChange && Nullstone.Equals(oldValue, newValue);
     }
     if (equal)
         return;
@@ -6333,7 +6218,7 @@ DependencyObject.prototype._ProviderValueChanged = function (providerPrecedence,
         }
     }
 };
-DependencyObject.prototype._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
+DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
     for (var i = 0; i < _PropertyPrecedence.Count; i++) {
         var provider = this._Providers[i];
         if (provider == null)
@@ -6346,7 +6231,7 @@ DependencyObject.prototype._CallRecomputePropertyValueForProviders = function (p
             provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnHigherPriorityChange, error);
     }
 };
-DependencyObject.prototype._PropagateInheritedValue = function (inheritable, source, newValue) {
+DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
     if (inheritedProvider == null)
         return true;
@@ -6358,13 +6243,13 @@ DependencyObject.prototype._PropagateInheritedValue = function (inheritable, sou
     this._ProviderValueChanged(_PropertyPrecedence.Inherited, propd, null, newValue, true, false, false, error);
     return this._GetPropertyValueProvider(propd) == _PropertyPrecedence.Inherited;
 };
-DependencyObject.prototype._GetInheritedValueSource = function (inheritable) {
+DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
     if (inheritedProvider == null)
         return null;
     return inheritedProvider._GetPropertySource(inheritable);
 };
-DependencyObject.prototype._SetInheritedValueSource = function (inheritable, source) {
+DependencyObject.Instance._SetInheritedValueSource = function (inheritable, source) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
     if (inheritedProvider == null)
         return;
@@ -6378,7 +6263,7 @@ DependencyObject.prototype._SetInheritedValueSource = function (inheritable, sou
     }
     inheritedProvider._SetPropertySource(inheritable, source);
 };
-DependencyObject.prototype._GetPropertyValueProvider = function (propd) {
+DependencyObject.Instance._GetPropertyValueProvider = function (propd) {
     var bitmask = this._ProviderBitmasks[propd];
     for (var i = 0; i < _PropertyPrecedence.Lowest; i++) {
         var p = 1 << i;
@@ -6391,21 +6276,21 @@ DependencyObject.prototype._GetPropertyValueProvider = function (propd) {
     }
     return -1;
 };
-DependencyObject.prototype._IsValueValid = function (propd, coerced, error) {
+DependencyObject.Instance._IsValueValid = function (propd, coerced, error) {
     return true;
 };
-DependencyObject.prototype._RemoveExpression = function (propd) {
+DependencyObject.Instance._RemoveExpression = function (propd) {
     var data = {};
     if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
         this._Expressions.Remove(propd);
         data.Value._OnDetached(this);
     }
 };
-DependencyObject.prototype._AddTarget = function (obj) {
+DependencyObject.Instance._AddTarget = function (obj) {
 };
-DependencyObject.prototype._RemoveTarget = function (obj) {
+DependencyObject.Instance._RemoveTarget = function (obj) {
 };
-DependencyObject.prototype._GetResourceBase = function () {
+DependencyObject.Instance._GetResourceBase = function () {
     var rb = this._ResourceBase;
     if (rb)
         rb = rb.replace(/^\s+/, ''); //trim if not null
@@ -6415,20 +6300,20 @@ DependencyObject.prototype._GetResourceBase = function () {
         return this._Parent._GetResourceBase();
     return this._ResourceBase;
 };
-DependencyObject.prototype._SetResourceBase = function (value) {
+DependencyObject.Instance._SetResourceBase = function (value) {
     this._ResourceBase = value;
 };
-DependencyObject.prototype._SetIsAttached = function (value) {
+DependencyObject.Instance._SetIsAttached = function (value) {
     if (this._IsAttached == value)
         return;
     this._IsAttached = value;
     this._OnIsAttachedChanged(value);
 };
-DependencyObject.prototype._OnIsAttachedChanged = function (value) {
+DependencyObject.Instance._OnIsAttachedChanged = function (value) {
     this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
     this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
 };
-DependencyObject.prototype._OnPropertyChanged = function (args, error) {
+DependencyObject.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property === DependencyObject.NameProperty) {
         var scope = this.FindNameScope();
         if (scope && args.NewValue) {
@@ -6447,10 +6332,10 @@ DependencyObject.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-DependencyObject.prototype._OnSubPropertyChanged = function (sender, args) { };
-DependencyObject.prototype._OnCollectionChanged = function (sender, args) {
+DependencyObject.Instance._OnSubPropertyChanged = function (sender, args) { };
+DependencyObject.Instance._OnCollectionChanged = function (sender, args) {
 };
-DependencyObject.prototype._OnCollectionItemChanged = function (sender, args) {
+DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) {
 };
 DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
     if (propd._IsCustom)
@@ -6464,7 +6349,7 @@ DependencyObject._PropagateMentor = function (propd, value, newMentor) {
         value.SetMentor(newMentor);
     }
 };
-DependencyObject.prototype.FindName = function (name, isTemplateItem) {
+DependencyObject.Instance.FindName = function (name, isTemplateItem) {
     if (isTemplateItem === undefined)
         isTemplateItem = Control.GetIsTemplateItem(this);
     var scope = NameScope.GetNameScope(this);
@@ -6474,7 +6359,7 @@ DependencyObject.prototype.FindName = function (name, isTemplateItem) {
         return this._Parent.FindName(name, isTemplateItem);
     return undefined;
 };
-DependencyObject.prototype.FindNameScope = function (templateNamescope) {
+DependencyObject.Instance.FindNameScope = function (templateNamescope) {
     if (templateNamescope === undefined)
         templateNamescope = Control.GetIsTemplateItem(this);
     var scope = NameScope.GetNameScope(this);
@@ -6485,14 +6370,14 @@ DependencyObject.prototype.FindNameScope = function (templateNamescope) {
     }
     return undefined;
 };
-DependencyObject.prototype.SetNameOnScope = function (name, scope) {
+DependencyObject.Instance.SetNameOnScope = function (name, scope) {
     if (scope.FindName(name))
         return false;
     this.SetValue(DependencyObject.NameProperty, name);
     scope.RegisterName(name, this);
     return true;
 };
-DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+DependencyObject.Instance._RegisterAllNamesRootedAt = function (namescope, error) {
     if (error.IsErrored())
         return;
     if (this._RegisteringNames)
@@ -6506,7 +6391,7 @@ DependencyObject.prototype._RegisterAllNamesRootedAt = function (namescope, erro
     var thisNs = NameScope.GetNameScope(this);
     this._RegisteringNames = false;
 };
-DependencyObject.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+DependencyObject.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
     if (this._RegisteringNames)
         return;
     if (this._PermitsMultipleParents() && this._HasSecondaryParents())
@@ -6531,20 +6416,20 @@ DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
         value._UnregisterAllNamesRootedAt(fromNs);
     }
 };
-DependencyObject.prototype._GetParent = function () {
+DependencyObject.Instance._GetParent = function () {
     return this._Parent;
 };
-DependencyObject.prototype._PermitsMultipleParents = function () {
+DependencyObject.Instance._PermitsMultipleParents = function () {
     return true;
 };
-DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree, error) {
+DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, error) {
     if (false/* TODO: IsShuttingDown */) {
         this._Parent = null;
         return;
     }
     var current = parent;
     while (current != null) {
-        if (RefObject.RefEquals(current, this)) {
+        if (Nullstone.RefEquals(current, this)) {
             return;
         }
         current = current._GetParent();
@@ -6604,12 +6489,12 @@ DependencyObject.prototype._AddParent = function (parent, mergeNamesFromSubtree,
         this.SetMentor(d);
     }
 };
-DependencyObject.prototype._RemoveParent = function (parent, error) {
+DependencyObject.Instance._RemoveParent = function (parent, error) {
     if (this._RemoveSecondaryParent(parent)) {
         if (this._HasSecondaryParents() || !(parent instanceof DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
             return;
     } else {
-        if (!RefObject.RefEquals(this._Parent, parent))
+        if (!Nullstone.RefEquals(this._Parent, parent))
             return;
     }
     if (false/* TODO:IsShuttingDown */) {
@@ -6623,17 +6508,17 @@ DependencyObject.prototype._RemoveParent = function (parent, error) {
         this.SetMentor(null);
     }
     if (error == null || !error.IsErrored()) {
-        if (RefObject.RefEquals(this._Parent, parent))
+        if (Nullstone.RefEquals(this._Parent, parent))
             this._Parent = null;
     }
 };
-DependencyObject.prototype._AddSecondaryParent = function (obj) {
+DependencyObject.Instance._AddSecondaryParent = function (obj) {
     this._SecondaryParents.push(obj);
 };
-DependencyObject.prototype._RemoveSecondaryParent = function (obj) {
+DependencyObject.Instance._RemoveSecondaryParent = function (obj) {
     var index = -1;
     for (var i = 0; i < this._SecondaryParents.length; i++) {
-        if (RefObject.RefEquals(this._SecondaryParents[i], obj)) {
+        if (Nullstone.RefEquals(this._SecondaryParents[i], obj)) {
             index = i;
             break;
         }
@@ -6643,13 +6528,13 @@ DependencyObject.prototype._RemoveSecondaryParent = function (obj) {
     this._SecondaryParents.splice(index, 1);
     return true;
 };
-DependencyObject.prototype._GetSecondaryParents = function () {
+DependencyObject.Instance._GetSecondaryParents = function () {
     return this._SecondaryParents;
 };
-DependencyObject.prototype._HasSecondaryParents = function () {
+DependencyObject.Instance._HasSecondaryParents = function () {
     return this._SecondaryParents.length > 0;
 };
-DependencyObject.prototype._GetAnimationStorageFor = function (propd) {
+DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
     if (this._StorageRepo == null)
         return null;
     var list = this._StorageRepo[propd];
@@ -6657,7 +6542,7 @@ DependencyObject.prototype._GetAnimationStorageFor = function (propd) {
         return null;
     return list.Last().Storage;
 };
-DependencyObject.prototype._AttachAnimationStorage = function (propd, storage) {
+DependencyObject.Instance._AttachAnimationStorage = function (propd, storage) {
     var attachedStorage = null;
     if (this._StorageRepo == null)
         this._StorageRepo = new Array();
@@ -6674,21 +6559,21 @@ DependencyObject.prototype._AttachAnimationStorage = function (propd, storage) {
     list.Append(node);
     return attachedStorage;
 };
-DependencyObject.prototype._DetachAnimationStorage = function (propd, storage) {
+DependencyObject.Instance._DetachAnimationStorage = function (propd, storage) {
     if (this._StorageRepo == null)
         return;
     var list = this._StorageRepo[propd];
     if (!list || list.IsEmpty())
         return;
     var last = list.Last();
-    if (RefObject.RefEquals(last.Storage, storage)) {
+    if (Nullstone.RefEquals(last.Storage, storage)) {
         list.Remove(last);
         if (!list.IsEmpty())
             list.Last().Storage.Enable();
     } else {
         var node = list.First();
         while (node) {
-            if (RefObject.RefEquals(node.Storage, storage)) {
+            if (Nullstone.RefEquals(node.Storage, storage)) {
                 var remove = node;
                 node = node.Next;
                 node.Storage.SetStopValue(storage.GetStopValue());
@@ -6699,30 +6584,25 @@ DependencyObject.prototype._DetachAnimationStorage = function (propd, storage) {
         }
     }
 };
+Nullstone.FinishCreate(DependencyObject);
 
-function FrameworkTemplate() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(FrameworkTemplate, "FrameworkTemplate", DependencyObject);
-FrameworkTemplate.prototype.GetVisualTree = function (bindingSource) {
+var FrameworkTemplate = Nullstone.Create("FrameworkTemplate", DependencyObject);
+FrameworkTemplate.Instance.GetVisualTree = function (bindingSource) {
     var error = new BError();
     return this._GetVisualTreeWithError(bindingSource, error);
 };
-FrameworkTemplate.prototype._GetVisualTreeWithError = function (/* FrameworkElement */templateBindingSource, error) {
+FrameworkTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
 };
+Nullstone.FinishCreate(FrameworkTemplate);
 
-function NameScope() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var NameScope = Nullstone.Create("NameScope", DependencyObject);
+NameScope.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._IsLocked = false;
     this._Names = null;
     this._Temporary = false;
-}
-Nullstone.Extend(NameScope, "NameScope", DependencyObject);
+};
 NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", function () { return NameScope; }, NameScope);
 NameScope.GetNameScope = function (d) {
     return d.GetValue(NameScope.NameScopeProperty);
@@ -6730,13 +6610,13 @@ NameScope.GetNameScope = function (d) {
 NameScope.SetNameScope = function (d, value) {
     d.SetValue(NameScope.NameScopeProperty, value);
 };
-NameScope.prototype.GetIsLocked = function () {
+NameScope.Instance.GetIsLocked = function () {
     return this._IsLocked;
 };
-NameScope.prototype.Lock = function () {
+NameScope.Instance.Lock = function () {
     this._IsLocked = true;
 };
-NameScope.prototype.RegisterName = function (name, obj) {
+NameScope.Instance.RegisterName = function (name, obj) {
     if (this.GetIsLocked())
         return;
     if (!this._Names)
@@ -6748,7 +6628,7 @@ NameScope.prototype.RegisterName = function (name, obj) {
     }
     this._Names[name] = obj;
 };
-NameScope.prototype.UnregisterName = function (name) {
+NameScope.Instance.UnregisterName = function (name) {
     if (this.GetIsLocked())
         return;
     if (!this._Names)
@@ -6758,7 +6638,7 @@ NameScope.prototype.UnregisterName = function (name) {
         delete this._Names[name];
     }
 };
-NameScope.prototype.FindName = function (name) {
+NameScope.Instance.FindName = function (name) {
     if (!this._Names)
         return undefined;
     if (name == null) {
@@ -6767,7 +6647,7 @@ NameScope.prototype.FindName = function (name) {
     }
     return this._Names[name];
 };
-NameScope.prototype._MergeTemporaryScope = function (temp, error) {
+NameScope.Instance._MergeTemporaryScope = function (temp, error) {
     if (!temp || !temp._Names)
         return;
     for (var name in temp._Names) {
@@ -6782,68 +6662,63 @@ NameScope.prototype._MergeTemporaryScope = function (temp, error) {
         this.RegisterName(name, temp._Names[name]);
     }
 };
-NameScope.prototype._GetTemporary = function () {
+NameScope.Instance._GetTemporary = function () {
     return this._Temporary;
 };
-NameScope.prototype._SetTemporary = function (value) {
+NameScope.Instance._SetTemporary = function (value) {
     this._Temporary = value;
 };
+Nullstone.FinishCreate(NameScope);
 
-function SetterBase() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var SetterBase = Nullstone.Create("SetterBase", DependencyObject);
+SetterBase.Instance.Init = function () {
+    this.Init$DependencyObject();
     this.SetAttached(false);
-}
-Nullstone.Extend(SetterBase, "SetterBase", DependencyObject);
+};
 SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBase, false);
-SetterBase.prototype.GetIsSealed = function () {
+SetterBase.Instance.GetIsSealed = function () {
     return this.GetValue(SetterBase.IsSealedProperty);
 };
-SetterBase.prototype.GetAttached = function () {
+SetterBase.Instance.GetAttached = function () {
     return this._Attached;
 };
-SetterBase.prototype.SetAttached = function (value) {
+SetterBase.Instance.SetAttached = function (value) {
     this._Attached = value;
 };
-SetterBase.prototype._Seal = function () {
+SetterBase.Instance._Seal = function () {
     if (this.GetIsSealed())
         return;
     this.SetValue(SetterBase.IsSealedProperty, true);
 };
+Nullstone.FinishCreate(SetterBase);
 
-function Style() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Style, "Style", DependencyObject);
+var Style = Nullstone.Create("Style", DependencyObject);
 Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
-Style.prototype.GetSetters = function () {
+Style.Instance.GetSetters = function () {
     return this.GetValue(Style.SettersProperty);
 };
 Style.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, Style);
-Style.prototype.GetIsSealed = function () {
+Style.Instance.GetIsSealed = function () {
     return this.GetValue(Style.IsSealedProperty);
 };
 Style.BasedOnProperty = DependencyProperty.Register("BasedOn", function () { return Function; }, Style);
-Style.prototype.GetBasedOn = function () {
+Style.Instance.GetBasedOn = function () {
     return this.GetValue(Style.BasedOnProperty);
 };
-Style.prototype.SetBasedOn = function (value) {
+Style.Instance.SetBasedOn = function (value) {
     this.SetValue(Style.BasedOnProperty, value);
 };
 Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, Style);
-Style.prototype.GetTargetType = function () {
+Style.Instance.GetTargetType = function () {
     return this.GetValue(Style.TargetTypeProperty);
 };
-Style.prototype.SetTargetType = function (value) {
+Style.Instance.SetTargetType = function (value) {
     this.SetValue(Style.TargetTypeProperty, value);
 };
 Style.Annotations = {
     ContentProperty: Style.SettersProperty
 };
-Style.prototype._Seal = function () {
+Style.Instance._Seal = function () {
     if (this.GetIsSealed())
         return;
     this._ConvertSetterValues();
@@ -6853,13 +6728,13 @@ Style.prototype._Seal = function () {
     if (base != null)
         base._Seal();
 };
-Style.prototype._ConvertSetterValues = function () {
+Style.Instance._ConvertSetterValues = function () {
     var setters = this.GetSetters();
     for (var i = 0; i < setters.GetCount(); i++) {
         this._ConvertSetterValue(setters.GetValueAt(i));
     }
 };
-Style.prototype._ConvertSetterValue = function (setter) {
+Style.Instance._ConvertSetterValue = function (setter) {
     var propd = setter.GetValue(Setter.PropertyProperty);
     var val = setter.GetValue(Setter.ValueProperty);
     if (propd.GetTargetType() === String) {
@@ -6872,21 +6747,21 @@ Style.prototype._ConvertSetterValue = function (setter) {
         throw new XamlParseException(err.message);
     }
 };
-Style.prototype._AddSetter = function (dobj, propName, value) {
+Style.Instance._AddSetter = function (dobj, propName, value) {
     this.GetSetters().Add(JsonParser.CreateSetter(dobj, propName, value));
 };
-Style.prototype._AddSetterJson = function (dobj, propName, json) {
+Style.Instance._AddSetterJson = function (dobj, propName, json) {
     var parser = new JsonParser();
     this._AddSetter(dobj, propName, parser.CreateObject(json, new NameScope()));
 };
-Style.prototype._AddSetterControlTemplate = function (dobj, propName, templateJson) {
+Style.Instance._AddSetterControlTemplate = function (dobj, propName, templateJson) {
     this._AddSetter(dobj, propName, new ControlTemplate(dobj.constructor, templateJson));
 };
+Nullstone.FinishCreate(Style);
 
-function UIElement() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var UIElement = Nullstone.Create("UIElement", DependencyObject);
+UIElement.Instance.Init = function () {
+    this.Init$DependencyObject();
     this.Unloaded = new MulticastEvent();
     this.Loaded = new MulticastEvent();
     this.Invalidated = new MulticastEvent();
@@ -6926,83 +6801,82 @@ function UIElement() {
     this.GotFocus.Subscribe(this.OnGotFocus, this);
     this.LostFocus = new MulticastEvent();
     this.LostFocus.Subscribe(this.OnLostFocus, this);
-}
-Nullstone.Extend(UIElement, "UIElement", DependencyObject);
+};
 UIElement.ClipProperty = DependencyProperty.Register("Clip", function () { return Geometry; }, UIElement);
-UIElement.prototype.GetClip = function () {
+UIElement.Instance.GetClip = function () {
     return this.GetValue(UIElement.ClipProperty);
 };
-UIElement.prototype.SetClip = function (value) {
+UIElement.Instance.SetClip = function (value) {
     this.SetValue(UIElement.ClipProperty, value);
 };
 UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement);
-UIElement.prototype.GetIsHitTestVisible = function () {
+UIElement.Instance.GetIsHitTestVisible = function () {
     return this.GetValue(UIElement.IsHitTestVisibleProperty);
 };
-UIElement.prototype.SetIsHitTestVisible = function (value) {
+UIElement.Instance.SetIsHitTestVisible = function (value) {
     this.SetValue(UIElement.IsHitTestVisibleProperty, value);
 };
 UIElement.OpacityMaskProperty = DependencyProperty.Register("OpacityMask", function () { return Brush; }, UIElement);
-UIElement.prototype.GetOpacityMask = function () {
+UIElement.Instance.GetOpacityMask = function () {
     return this.GetValue(UIElement.OpacityMaskProperty);
 };
-UIElement.prototype.SetOpacityMask = function (value) {
+UIElement.Instance.SetOpacityMask = function (value) {
     this.SetValue(UIElement.OpacityMaskProperty, value);
 };
 UIElement.OpacityProperty = DependencyProperty.Register("Opacity", function () { return Number; }, UIElement, 1.0);
-UIElement.prototype.GetOpacity = function () {
+UIElement.Instance.GetOpacity = function () {
     return this.GetValue(UIElement.OpacityProperty);
 };
-UIElement.prototype.SetOpacity = function (value) {
+UIElement.Instance.SetOpacity = function (value) {
     this.SetValue(UIElement.OpacityProperty, value);
 };
 UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return Number; }, UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
-UIElement.prototype.GetCursor = function () {
+UIElement.Instance.GetCursor = function () {
     return this.GetValue(UIElement.CursorProperty);
 };
-UIElement.prototype.SetCursor = function (value) {
+UIElement.Instance.SetCursor = function (value) {
     this.SetValue(UIElement.CursorProperty, value);
 };
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
-UIElement.prototype.GetResources = function () {
+UIElement.Instance.GetResources = function () {
     return this.GetValue(UIElement.ResourcesProperty);
 };
 UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, null, { GetValue: function () { } }*/);
-UIElement.prototype.GetTriggers = function () {
+UIElement.Instance.GetTriggers = function () {
     return this.GetValue(UIElement.TriggersProperty);
 };
 UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", function () { return Boolean; }, UIElement);
-UIElement.prototype.GetUseLayoutRounding = function () {
+UIElement.Instance.GetUseLayoutRounding = function () {
     return this.GetValue(UIElement.UseLayoutRoundingProperty);
 };
-UIElement.prototype.SetUseLayoutRounding = function (value) {
+UIElement.Instance.SetUseLayoutRounding = function (value) {
     this.SetValue(UIElement.UseLayoutRoundingProperty, value);
 };
 UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", function () { return Number; }, UIElement, Visibility.Visible);
-UIElement.prototype.GetVisibility = function () {
+UIElement.Instance.GetVisibility = function () {
     return this.GetValue(UIElement.VisibilityProperty);
 };
-UIElement.prototype.SetVisibility = function (value) {
+UIElement.Instance.SetVisibility = function (value) {
     this.SetValue(UIElement.VisibilityProperty, value);
 };
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-UIElement.prototype.GetTag = function () {
+UIElement.Instance.GetTag = function () {
     return this.GetValue(UIElement.TagProperty);
 };
-UIElement.prototype.SetTag = function (value) {
+UIElement.Instance.SetTag = function (value) {
     this.SetValue(UIElement.TagProperty, value);
 };
-UIElement.prototype.SetVisualParent = function (/* UIElement */value) {
+UIElement.Instance.SetVisualParent = function (/* UIElement */value) {
     this._VisualParent = value;
 };
-UIElement.prototype.GetVisualParent = function () {
+UIElement.Instance.GetVisualParent = function () {
     return this._VisualParent; //UIElement
 };
-UIElement.prototype.IsLayoutContainer = function () { return false; };
-UIElement.prototype.IsContainer = function () { return this.IsLayoutContainer(); };
-UIElement.prototype._CacheInvalidateHint = function () {
+UIElement.Instance.IsLayoutContainer = function () { return false; };
+UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
+UIElement.Instance._CacheInvalidateHint = function () {
 };
-UIElement.prototype._FullInvalidate = function (renderTransform) {
+UIElement.Instance._FullInvalidate = function (renderTransform) {
     this._Invalidate();
     if (renderTransform) {
         this._UpdateTransform();
@@ -7010,7 +6884,7 @@ UIElement.prototype._FullInvalidate = function (renderTransform) {
     }
     this._UpdateBounds(true);
 };
-UIElement.prototype._Invalidate = function (rect) {
+UIElement.Instance._Invalidate = function (rect) {
     if (!rect)
         rect = this._SurfaceBounds;
     if (!this._GetRenderVisible() || UIElement._IsOpacityInvisible(this._TotalOpacity))
@@ -7021,61 +6895,61 @@ UIElement.prototype._Invalidate = function (rect) {
         this._OnInvalidated();
     }
 };
-UIElement.prototype._InvalidateMeasure = function () {
+UIElement.Instance._InvalidateMeasure = function () {
     this._DirtyFlags |= _Dirty.Measure;
     this._PropagateFlagUp(UIElementFlags.DirtyMeasureHint);
 };
-UIElement.prototype._InvalidateArrange = function () {
+UIElement.Instance._InvalidateArrange = function () {
     this._DirtyFlags |= _Dirty.Arrange;
     this._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
 };
-UIElement.prototype._InvalidateVisibility = function () {
+UIElement.Instance._InvalidateVisibility = function () {
     this._UpdateTotalRenderVisibility();
     this._InvalidateParent(this._GetSubtreeBounds());
 };
-UIElement.prototype._InvalidateSubtreePaint = function () {
+UIElement.Instance._InvalidateSubtreePaint = function () {
     this._Invalidate(this._GetSubtreeBounds());
 };
-UIElement.prototype._InvalidateParent = function (r) {
+UIElement.Instance._InvalidateParent = function (r) {
     var visualParent = this.GetVisualParent();
     if (visualParent)
         visualParent._Invalidate(r);
     else if (this._IsAttached)
         App.Instance.MainSurface._Invalidate(r);
 };
-UIElement.prototype._UpdateBounds = function (forceRedraw) {
+UIElement.Instance._UpdateBounds = function (forceRedraw) {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
     this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
 };
-UIElement.prototype._UpdateTransform = function () {
+UIElement.Instance._UpdateTransform = function () {
 };
-UIElement.prototype._UpdateProjection = function () {
+UIElement.Instance._UpdateProjection = function () {
 };
-UIElement.prototype._ComputeBounds = function () {
+UIElement.Instance._ComputeBounds = function () {
     AbstractMethod("UIElement._ComputeBounds()");
 };
-UIElement.prototype._ComputeGlobalBounds = function () {
+UIElement.Instance._ComputeGlobalBounds = function () {
     this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._LocalProjection);
 };
-UIElement.prototype._ComputeSurfaceBounds = function () {
+UIElement.Instance._ComputeSurfaceBounds = function () {
     this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteProjection);
 };
-UIElement.prototype._ComputeLocalTransform = function () {
+UIElement.Instance._ComputeLocalTransform = function () {
 };
-UIElement.prototype._ComputeLocalProjection = function () {
+UIElement.Instance._ComputeLocalProjection = function () {
 };
-UIElement.prototype._ComputeTotalRenderVisibility = function () {
+UIElement.Instance._ComputeTotalRenderVisibility = function () {
     if (this._GetActualTotalRenderVisibility())
         this._Flags |= UIElementFlags.TotalRenderVisible;
     else
         this._Flags &= ~UIElementFlags.TotalRenderVisible;
 };
-UIElement.prototype._UpdateTotalRenderVisibility = function () {
+UIElement.Instance._UpdateTotalRenderVisibility = function () {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.RenderVisibility);
 };
-UIElement.prototype._GetActualTotalRenderVisibility = function () {
+UIElement.Instance._GetActualTotalRenderVisibility = function () {
     var visible = (this._Flags & UIElementFlags.RenderVisible) != 0;
     var parentVisible = true;
     this._TotalOpacity = this.GetOpacity();
@@ -7088,20 +6962,20 @@ UIElement.prototype._GetActualTotalRenderVisibility = function () {
     visible = visible && parentVisible;
     return visible;
 };
-UIElement.prototype._GetRenderVisible = function () {
+UIElement.Instance._GetRenderVisible = function () {
     return (this._Flags & UIElementFlags.TotalRenderVisible) != 0;
 };
-UIElement.prototype._ComputeTotalHitTestVisibility = function () {
+UIElement.Instance._ComputeTotalHitTestVisibility = function () {
     if (this._GetActualTotalHitTestVisibility())
         this._Flags |= UIElementFlags.TotalHitTestVisible;
     else
         this._Flags &= ~UIElementFlags.TotalHitTestVisible;
 };
-UIElement.prototype._UpdateTotalHitTestVisibility = function () {
+UIElement.Instance._UpdateTotalHitTestVisibility = function () {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.HitTestVisibility);
 };
-UIElement.prototype._GetActualTotalHitTestVisibility = function () {
+UIElement.Instance._GetActualTotalHitTestVisibility = function () {
     var visible = (this._Flags & UIElementFlags.HitTestVisible) != 0;
     var visualParent;
     if (visible && (visualParent = this.GetVisualParent())) {
@@ -7110,16 +6984,16 @@ UIElement.prototype._GetActualTotalHitTestVisibility = function () {
     }
     return visible;
 };
-UIElement.prototype._GetIsHitTestVisible = function () {
+UIElement.Instance._GetIsHitTestVisible = function () {
     return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
 };
-UIElement.prototype._HitTestPoint = function (ctx, p, uielist) {
+UIElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     uielist.Prepend(new UIElementNode(this));
 };
-UIElement.prototype._InsideObject = function (ctx, x, y) {
+UIElement.Instance._InsideObject = function (ctx, x, y) {
     return this._InsideClip(ctx, x, y);
 };
-UIElement.prototype._InsideClip = function (ctx, x, y) {
+UIElement.Instance._InsideClip = function (ctx, x, y) {
     var clip = this.GetClip();
     if (!clip)
         return true;
@@ -7129,10 +7003,10 @@ UIElement.prototype._InsideClip = function (ctx, x, y) {
         return false;
     return ctx.IsPointInClipPath(clip, np);
 };
-UIElement.prototype._CanFindElement = function () {
+UIElement.Instance._CanFindElement = function () {
     return false;
 };
-UIElement.prototype._TransformPoint = function (p) {
+UIElement.Instance._TransformPoint = function (p) {
     var inverse;
     if (!this._CachedTransform || !(inverse = this._CachedTransform.Inverse))
         return;
@@ -7140,31 +7014,31 @@ UIElement.prototype._TransformPoint = function (p) {
     p.X = np.X;
     p.Y = np.Y;
 };
-UIElement.prototype._GetGlobalBounds = function () {
+UIElement.Instance._GetGlobalBounds = function () {
     return this._GlobalBounds;
 };
-UIElement.prototype._GetSubtreeObject = function () {
+UIElement.Instance._GetSubtreeObject = function () {
     return this._SubtreeObject;
 };
-UIElement.prototype._SetSubtreeObject = function (value) {
+UIElement.Instance._SetSubtreeObject = function (value) {
     this._SubtreeObject = value;
 };
-UIElement.prototype._GetSubtreeExtents = function () {
+UIElement.Instance._GetSubtreeExtents = function () {
     AbstractMethod("UIElement._GetSubtreeExtents()");
 };
-UIElement.prototype._GetSubtreeBounds = function () {
+UIElement.Instance._GetSubtreeBounds = function () {
     return this._SurfaceBounds;
 };
-UIElement.prototype._SetRenderSize = function (value) {
+UIElement.Instance._SetRenderSize = function (value) {
     this._RenderSize = value;
 };
-UIElement.prototype._GetRenderSize = function () {
+UIElement.Instance._GetRenderSize = function () {
     return this._RenderSize;
 };
-UIElement.prototype._GetOriginPoint = function () {
+UIElement.Instance._GetOriginPoint = function () {
     return new Point(0.0, 0.0);
 };
-UIElement.prototype._DoMeasureWithError = function (error) {
+UIElement.Instance._DoMeasureWithError = function (error) {
     var last = LayoutInformation.GetPreviousConstraint(this);
     var parent = this.GetVisualParent();
     var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
@@ -7181,12 +7055,12 @@ UIElement.prototype._DoMeasureWithError = function (error) {
         parent._InvalidateMeasure();
     this._DirtyFlags &= ~_Dirty.Measure;
 };
-UIElement.prototype.Measure = function (availableSize) {
+UIElement.Instance.Measure = function (availableSize) {
     var error = new BError();
     this._MeasureWithError(availableSize, error);
 };
-UIElement.prototype._MeasureWithError = function (availableSize, error) { };
-UIElement.prototype._DoArrangeWithError = function (error) {
+UIElement.Instance._MeasureWithError = function (availableSize, error) { };
+UIElement.Instance._DoArrangeWithError = function (error) {
     var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var parent = this.GetVisualParent();
     if (!parent) {
@@ -7214,19 +7088,19 @@ UIElement.prototype._DoArrangeWithError = function (error) {
             parent._InvalidateArrange();
     }
 };
-UIElement.prototype.Arrange = function (finalRect) {
+UIElement.Instance.Arrange = function (finalRect) {
     var error = new BError();
     this._ArrangeWithError(finalRect, error);
 };
-UIElement.prototype._ArrangeWithError = function (finalRect, error) { };
-UIElement.prototype._ShiftPosition = function (point) {
+UIElement.Instance._ArrangeWithError = function (finalRect, error) { };
+UIElement.Instance._ShiftPosition = function (point) {
     this._Bounds.X = point.X;
     this._Bounds.Y = point.Y;
 };
-UIElement.prototype._DoRender = function (ctx, parentRegion) {
+UIElement.Instance._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
     if (!region) {
-        Warn("Render Extents are empty. [" + this._TypeName + "]");
+        Warn("Render Extents are empty. [" + this.constructor._TypeName + "]");
         return;
     }
     region = region.RoundOut();
@@ -7238,7 +7112,7 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
         return;
     }
     if (region.IsEmpty()) {
-        Info("Nothing to render. [" + this._TypeName + "]");
+        Info("Nothing to render. [" + this.constructor._TypeName + "]");
         return;
     }
     var visualOffset = LayoutInformation.GetVisualOffset(this);
@@ -7250,15 +7124,15 @@ UIElement.prototype._DoRender = function (ctx, parentRegion) {
     this._PostRender(ctx, region);
     ctx.Restore();
 };
-UIElement.prototype._Render = function (ctx, region) { };
-UIElement.prototype._PostRender = function (ctx, region) {
+UIElement.Instance._Render = function (ctx, region) { };
+UIElement.Instance._PostRender = function (ctx, region) {
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
     var child;
     while (child = walker.Step()) {
         child._DoRender(ctx, region);
     }
 };
-UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transform) {
+UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
     var clip = this.GetClip();
     var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);
     var box;
@@ -7274,7 +7148,7 @@ UIElement.prototype._IntersectBoundsWithClipPath = function (unclipped, transfor
         box = new Rect(0, 0, 0, 0);
     return box.Intersection(unclipped);
 };
-UIElement.prototype._ElementRemoved = function (item) {
+UIElement.Instance._ElementRemoved = function (item) {
     this._Invalidate(item._GetSubtreeBounds());
     item.SetVisualParent(null);
     item._SetIsLoaded(false);
@@ -7286,7 +7160,7 @@ UIElement.prototype._ElementRemoved = function (item) {
     this._InvalidateMeasure();
     this._Providers[_PropertyPrecedence.Inherited].ClearInheritedPropertiesOnRemovingFromTree(item);
 }
-UIElement.prototype._ElementAdded = function (item) {
+UIElement.Instance._ElementAdded = function (item) {
     item.SetVisualParent(this);
     item._UpdateTotalRenderVisibility();
     item._UpdateTotalHitTestVisibility();
@@ -7310,15 +7184,15 @@ UIElement.prototype._ElementAdded = function (item) {
     if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
-UIElement.prototype._UpdateLayer = function (pass, error) {
+UIElement.Instance._UpdateLayer = function (pass, error) {
 };
-UIElement.prototype._SetIsLoaded = function (value) {
+UIElement.Instance._SetIsLoaded = function (value) {
     if (this._IsLoaded != value) {
         this._IsLoaded = value;
         this._OnIsLoadedChanged(value);
     }
 };
-UIElement.prototype._OnIsLoadedChanged = function (loaded) {
+UIElement.Instance._OnIsLoadedChanged = function (loaded) {
     if (!this._IsLoaded) {
         this.Unloaded.Raise(this, new EventArgs());
         var iter = new CollectionIterator(this.GetResources());
@@ -7345,11 +7219,11 @@ UIElement.prototype._OnIsLoadedChanged = function (loaded) {
         this.Loaded.RaiseAsync(this, new EventArgs());
     }
 };
-UIElement.prototype._OnIsAttachedChanged = function (value) {
+UIElement.Instance._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
     this._InvalidateVisibility();
-    this._OnIsAttachedChanged$super(value);
+    this._OnIsAttachedChanged$DependencyObject(value);
     if (!value) {
         this._CacheInvalidateHint();
         var surface = App.Instance.MainSurface;
@@ -7358,12 +7232,12 @@ UIElement.prototype._OnIsAttachedChanged = function (value) {
         }
     }
 };
-UIElement.prototype._OnInvalidated = function () {
+UIElement.Instance._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
 };
-UIElement.prototype._OnPropertyChanged = function (args, error) {
+UIElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== UIElement) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
     if (args.Property === UIElement.OpacityProperty) {
@@ -7381,10 +7255,10 @@ UIElement.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-UIElement.prototype._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
-UIElement.prototype._ClearFlag = function (flag) { this._Flags &= ~flag; };
-UIElement.prototype._SetFlag = function (flag) { this._Flags |= flag; };
-UIElement.prototype._PropagateFlagUp = function (flag) {
+UIElement.Instance._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
+UIElement.Instance._ClearFlag = function (flag) { this._Flags &= ~flag; };
+UIElement.Instance._SetFlag = function (flag) { this._Flags |= flag; };
+UIElement.Instance._PropagateFlagUp = function (flag) {
     this._SetFlag(flag);
     var el = this.GetVisualParent();
     while (el && !el._HasFlag(flag)) {
@@ -7392,7 +7266,7 @@ UIElement.prototype._PropagateFlagUp = function (flag) {
         el = el.GetVisualParent();
     }
 };
-UIElement.prototype.__DebugDirtyFlags = function () {
+UIElement.Instance.__DebugDirtyFlags = function () {
     var t = new String();
     if (this._DirtyFlags & _Dirty.Measure)
         t = t.concat("[Measure]");
@@ -7408,18 +7282,18 @@ UIElement.prototype.__DebugDirtyFlags = function () {
         t = t.concat("[Invalidate]");
     return t;
 };
-UIElement.prototype.CanCaptureMouse = function () { return true; };
-UIElement.prototype.CaptureMouse = function () {
+UIElement.Instance.CanCaptureMouse = function () { return true; };
+UIElement.Instance.CaptureMouse = function () {
     if (!this._IsAttached)
         return false;
     return App.Instance.MainSurface.SetMouseCapture(this);
 };
-UIElement.prototype.ReleaseMouseCapture = function () {
+UIElement.Instance.ReleaseMouseCapture = function () {
     if (!this._IsAttached)
         return;
     App.Instance.MainSurface.ReleaseMouseCapture(this);
 };
-UIElement.prototype._EmitMouseEvent = function (type, button, absolutePos) {
+UIElement.Instance._EmitMouseEvent = function (type, button, absolutePos) {
     var func;
     if (type === "up") {
         if (Surface.IsLeftButton(button))
@@ -7439,58 +7313,58 @@ UIElement.prototype._EmitMouseEvent = function (type, button, absolutePos) {
     if (func)
         func.call(this, absolutePos);
 };
-UIElement.prototype._EmitMouseMoveEvent = function (absolutePos) {
+UIElement.Instance._EmitMouseMoveEvent = function (absolutePos) {
     this.MouseMove.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseMove = function (sender, args) { };
-UIElement.prototype._EmitMouseLeftButtonDown = function (absolutePos) {
+UIElement.Instance.OnMouseMove = function (sender, args) { };
+UIElement.Instance._EmitMouseLeftButtonDown = function (absolutePos) {
     HUDUpdate("clicky", "MouseLeftButtonDown " + absolutePos.toString());
     this.MouseLeftButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseLeftButtonDown = function (sender, args) { };
-UIElement.prototype._EmitMouseLeftButtonUp = function (absolutePos) {
+UIElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
+UIElement.Instance._EmitMouseLeftButtonUp = function (absolutePos) {
     HUDUpdate("clicky", "MouseLeftButtonUp " + absolutePos.toString());
     this.MouseLeftButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseLeftButtonUp = function (sender, args) { };
-UIElement.prototype._EmitMouseRightButtonDown = function (absolutePos) {
+UIElement.Instance.OnMouseLeftButtonUp = function (sender, args) { };
+UIElement.Instance._EmitMouseRightButtonDown = function (absolutePos) {
     HUDUpdate("clicky", "MouseRightButtonDown " + absolutePos.toString());
     this.MouseRightButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseRightButtonDown = function (sender, args) { };
-UIElement.prototype._EmitMouseRightButtonUp = function (absolutePos) {
+UIElement.Instance.OnMouseRightButtonDown = function (sender, args) { };
+UIElement.Instance._EmitMouseRightButtonUp = function (absolutePos) {
     HUDUpdate("clicky", "MouseRightButtonUp " + absolutePos.toString());
     this.MouseRightButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseRightButtonUp = function (sender, args) { };
-UIElement.prototype._EmitMouseEnter = function (absolutePos) {
+UIElement.Instance.OnMouseRightButtonUp = function (sender, args) { };
+UIElement.Instance._EmitMouseEnter = function (absolutePos) {
     this.MouseEnter.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseEnter = function (sender, args) { };
-UIElement.prototype._EmitMouseLeave = function (absolutePos) {
+UIElement.Instance.OnMouseEnter = function (sender, args) { };
+UIElement.Instance._EmitMouseLeave = function (absolutePos) {
     this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.prototype.OnMouseLeave = function (sender, args) { };
-UIElement.prototype._EmitLostMouseCapture = function (absolutePos) {
+UIElement.Instance.OnMouseLeave = function (sender, args) { };
+UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
     this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.prototype.Focus = function (recurse) {
+UIElement.Instance.Focus = function (recurse) {
     return false;
 };
-UIElement.prototype._EmitFocusChange = function (type) {
+UIElement.Instance._EmitFocusChange = function (type) {
     if (type === "got")
         this._EmitGotFocus();
     else if (type === "lost")
         this._EmitLostFocus();
 };
-UIElement.prototype._EmitGotFocus = function () {
+UIElement.Instance._EmitGotFocus = function () {
     this.GotFocus.Raise(this, new EventArgs());
 };
-UIElement.prototype.OnGotFocus = function (sender, args) { };
-UIElement.prototype._EmitLostFocus = function () {
+UIElement.Instance.OnGotFocus = function (sender, args) { };
+UIElement.Instance._EmitLostFocus = function () {
     this.LostFocus.Raise(this, new EventArgs());
 };
-UIElement.prototype.OnLostFocus = function (sender, args) { };
+UIElement.Instance.OnLostFocus = function (sender, args) { };
 UIElement._IsOpacityInvisible = function (opacity) {
     return opacity <= 0.0;
 };
@@ -7506,28 +7380,27 @@ UIElement.ZIndexComparer = function (uie1, uie2) {
     }
     return zi1 - zi2;
 };
+Nullstone.FinishCreate(UIElement);
 
-function Collection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Collection = Nullstone.Create("Collection", DependencyObject);
+Collection.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._ht = new Array();
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();
-}
-Nullstone.Extend(Collection, "Collection", DependencyObject);
+};
 Collection.CountProperty = DependencyProperty.RegisterFull("Count", function () { return Number; }, Collection, 0);
-Collection.prototype.GetCount = function () {
+Collection.Instance.GetCount = function () {
     return this._ht.length;
 };
-Collection.prototype.GetValueAt = function (index) {
+Collection.Instance.GetValueAt = function (index) {
     return this._ht[index];
 };
-Collection.prototype.Add = function (value) {
+Collection.Instance.Add = function (value) {
     var rv = this.Insert(this._ht.length, value);
     return rv ? this._ht.length - 1 : -1;
 };
-Collection.prototype.Insert = function (index, value) {
+Collection.Instance.Insert = function (index, value) {
     if (!this.CanAdd(value))
         return false;
     if (index < 0)
@@ -7543,13 +7416,13 @@ Collection.prototype.Insert = function (index, value) {
     }
     return false;
 };
-Collection.prototype.Remove = function (value) {
+Collection.Instance.Remove = function (value) {
     var index = this.IndexOf(value);
     if (index == -1)
         return false;
     return this.RemoveAt(index);
 };
-Collection.prototype.RemoveAt = function (index) {
+Collection.Instance.RemoveAt = function (index) {
     if (index < 0 || index >= this._ht.length)
         return false;
     var value = this._ht[index];
@@ -7558,7 +7431,7 @@ Collection.prototype.RemoveAt = function (index) {
     this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, null, index);
     return true;
 };
-Collection.prototype.Clear = function () {
+Collection.Instance.Clear = function () {
     this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
     var old = this._ht;
     this._ht = new Array();
@@ -7568,53 +7441,53 @@ Collection.prototype.Clear = function () {
     this._RaiseChanged(CollectionChangedArgs.Action.Cleared, null, null, -1);
     return true;
 };
-Collection.prototype.IndexOf = function (value) {
+Collection.Instance.IndexOf = function (value) {
     for (var i = 0; i < this.GetCount(); i++) {
         if (value == this._ht[i])
             return i;
     }
     return -1;
 };
-Collection.prototype.Contains = function (value) {
+Collection.Instance.Contains = function (value) {
     return this.IndexOf(value) > -1;
 };
-Collection.prototype.CanAdd = function (value) { return true; };
-Collection.prototype.AddedToCollection = function (value, error) { return true; };
-Collection.prototype.RemovedFromCollection = function (value, isValueSafe) { };
-Collection.prototype.GetIterator = function () {
+Collection.Instance.CanAdd = function (value) { return true; };
+Collection.Instance.AddedToCollection = function (value, error) { return true; };
+Collection.Instance.RemovedFromCollection = function (value, isValueSafe) { };
+Collection.Instance.GetIterator = function () {
     return new CollectionIterator(this);
 };
-Collection.prototype._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
+Collection.Instance._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
     this.ItemChanged.Raise(this, new ItemChangedArgs(obj, propd, oldValue, newValue));
 };
-Collection.prototype._RaiseChanged = function (action, oldValue, newValue, index) {
+Collection.Instance._RaiseChanged = function (action, oldValue, newValue, index) {
     this.Changed.Raise(this, new CollectionChangedArgs(action, oldValue, newValue, index));
 };
+Nullstone.FinishCreate(Collection);
 
-function DependencyObjectCollection(setsParent) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var DependencyObjectCollection = Nullstone.Create("DependencyObjectCollection", Collection, 1);
+DependencyObjectCollection.Instance.Init = function (setsParent) {
+    this.Init$Collection();
     this._IsSecondaryParent = false;
     this._SetsParent = !setsParent ? true : setsParent;
-}
-DependencyObjectCollection.prototype.IsElementType = function (value) {
+};
+DependencyObjectCollection.Instance.IsElementType = function (value) {
     return value instanceof DependencyObject;
 };
-DependencyObjectCollection.prototype._GetIsSecondaryParent = function () {
+DependencyObjectCollection.Instance._GetIsSecondaryParent = function () {
     return this._IsSecondaryParent;
 };
-DependencyObjectCollection.prototype._SetIsSecondaryParent = function (value) {
+DependencyObjectCollection.Instance._SetIsSecondaryParent = function (value) {
     this._IsSecondaryParent = value;
 };
-DependencyObjectCollection.prototype._OnMentorChanged = function (oldValue, newValue) {
-    this._OnMentorChanged$super(oldValue, newValue);
+DependencyObjectCollection.Instance._OnMentorChanged = function (oldValue, newValue) {
+    this._OnMentorChanged$Collection(oldValue, newValue);
     for (var i = 0; i < this._ht.length; i++) {
         if (this._ht[i] instanceof DependencyObject)
             this._ht[i].SetMentor(newValue);
     }
 };
-DependencyObjectCollection.prototype.AddedToCollection = function (value, error) {
+DependencyObjectCollection.Instance.AddedToCollection = function (value, error) {
     if (this._SetsParent) {
         var existingParent = value._GetParent();
         value._AddParent(this, true, error);
@@ -7626,7 +7499,7 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
         value.SetMentor(this.GetMentor());
     }
     value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
-    var rv = this.AddedToCollection$super(value, error);
+    var rv = this.AddedToCollection$Collection(value, error);
     value._SetIsAttached(rv && this._IsAttached);
     if (!rv) {
         if (this._SetsParent) {
@@ -7638,54 +7511,52 @@ DependencyObjectCollection.prototype.AddedToCollection = function (value, error)
     }
     return rv;
 };
-DependencyObjectCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof DependencyObject) {
             value.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
-            if (this._SetsParent && RefObject.RefEquals(value._GetParent(), this))
+            if (this._SetsParent && Nullstone.RefEquals(value._GetParent(), this))
                 value._RemoveParent(this, null);
             value._SetIsAttached(false);
         }
     }
 };
-DependencyObjectCollection.prototype._OnIsAttachedChanged = function (value) {
-    this._OnIsAttachedChanged$super(value);
+DependencyObjectCollection.Instance._OnIsAttachedChanged = function (value) {
+    this._OnIsAttachedChanged$Collection(value);
     for (var i = 0; i < this.GetCount(); i++) {
         var val = this.GetValueAt(i);
         if (val instanceof DependencyObject)
             val._SetIsAttached(value);
     }
 };
-DependencyObjectCollection.prototype._OnSubPropertyChanged = function (sender, args) {
+DependencyObjectCollection.Instance._OnSubPropertyChanged = function (sender, args) {
     this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
 };
-Nullstone.Extend(DependencyObjectCollection, "DependencyObjectCollection", Collection);
+Nullstone.FinishCreate(DependencyObjectCollection);
 
-function ResourceDictionary() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var ResourceDictionary = Nullstone.Create("ResourceDictionary", Collection);
+ResourceDictionary.Instance.Init = function () {
+    this.Init$Collection();
     this._KeyIndex = new Array();
-}
-Nullstone.Extend(ResourceDictionary, "ResourceDictionary", Collection);
+};
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
-ResourceDictionary.prototype.GetMergedDictionaries = function () {
+ResourceDictionary.Instance.GetMergedDictionaries = function () {
     return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
 };
-ResourceDictionary.prototype.ContainsKey = function (key) {
+ResourceDictionary.Instance.ContainsKey = function (key) {
     return this._KeyIndex[key] != undefined;
 };
-ResourceDictionary.prototype._GetIndexFromKey = function (key) {
+ResourceDictionary.Instance._GetIndexFromKey = function (key) {
     return this._KeyIndex[key];
 };
-ResourceDictionary.prototype.Get = function (key) {
+ResourceDictionary.Instance.Get = function (key) {
     if (this.ContainsKey(key))
         return this.GetValueAt(this._GetIndexFromKey(key));
     return this._GetFromMergedDictionaries(key);
 };
-ResourceDictionary.prototype._GetFromMergedDictionaries = function (key) {
+ResourceDictionary.Instance._GetFromMergedDictionaries = function (key) {
     var merged = this.GetMergedDictionaries();
     if (!merged)
         return undefined;
@@ -7697,26 +7568,26 @@ ResourceDictionary.prototype._GetFromMergedDictionaries = function (key) {
     }
     return undefined;
 };
-ResourceDictionary.prototype.Set = function (key, value) {
+ResourceDictionary.Instance.Set = function (key, value) {
     var oldValue;
     if (this.ContainsKey(key)) {
         oldValue = this.Get(key);
         this.Remove(oldValue);
     }
-    var index = this.Add$super(value);
+    var index = this.Add$Collection(value);
     this._KeyIndex[key] = index;
     this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
     return true;
 };
-ResourceDictionary.prototype.Add = function (key, value) {
+ResourceDictionary.Instance.Add = function (key, value) {
     this.Set(key, value);
 };
-ResourceDictionary.prototype.Remove = function (key) {
+ResourceDictionary.Instance.Remove = function (key) {
     var index = this._GetIndexFromKey(key);
     if (index > -1)
         return this.RemoveAt(index);
 };
-ResourceDictionary.prototype.AddedToCollection = function (value, error) {
+ResourceDictionary.Instance.AddedToCollection = function (value, error) {
     var obj = null;
     var rv = false;
     if (value instanceof DependencyObject) {
@@ -7731,13 +7602,13 @@ ResourceDictionary.prototype.AddedToCollection = function (value, error) {
         obj._SetIsAttached(this._IsAttached);
         obj.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
     }
-    rv = this.AddedToCollection$super(value, error);
+    rv = this.AddedToCollection$Collection(value, error);
     if (rv /* && !from_resource_dictionary_api */ && obj != null) {
         this._RaiseChanged(CollectionChangedArgs.Action.Add, null, obj, obj.GetName());
     }
     return rv;
 };
-ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSafe) {
+ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe && value instanceof DependencyObject) {
         var obj = Nullstone.As(value, DependencyObject);
         if (obj != null) {
@@ -7746,37 +7617,37 @@ ResourceDictionary.prototype.RemovedFromCollection = function (value, isValueSaf
             obj._SetIsAttached(false);
         }
     }
-    this.RemovedFromCollection$super(value, isValueSafe);
+    this.RemovedFromCollection$Collection(value, isValueSafe);
 };
-ResourceDictionary.prototype._OnIsAttachedChanged = function (value) {
-    this._OnIsAttachedChanged$super(value);
+ResourceDictionary.Instance._OnIsAttachedChanged = function (value) {
+    this._OnIsAttachedChanged$Collection(value);
     for (var i = 0; i < this._ht.length; i++) {
         var obj = this._ht[i];
         if (obj instanceof DependencyObject)
             obj._SetIsAttached(value);
     }
 };
-ResourceDictionary.prototype._OnMentorChanged = function (oldValue, newValue) {
-    this._OnMentorChanged$super(oldValue, newValue);
+ResourceDictionary.Instance._OnMentorChanged = function (oldValue, newValue) {
+    this._OnMentorChanged$Collection(oldValue, newValue);
     for (var i = 0; i < this._KeyIndex.length; i++) {
         DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
     }
 };
-ResourceDictionary.prototype._RegisterAllNamesRootedAt = function (namescope, error) {
+ResourceDictionary.Instance._RegisterAllNamesRootedAt = function (namescope, error) {
     for (var i = 0; i < this.GetCount(); i++) {
         var obj = this.GetValueAt(i);
         if (obj != null && obj instanceof DependencyObject)
             obj._RegisterAllNamesRootedAt(namescope, error);
     }
-    this._RegisterAllNamesRootedAt$super(namescope, error);
+    this._RegisterAllNamesRootedAt$Collection(namescope, error);
 };
-ResourceDictionary.prototype._UnregisterAllNamesRootedAt = function (fromNs) {
+ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
     for (var i = 0; i < this.GetCount(); i++) {
         var obj = this.GetValueAt(i);
         if (obj != null && obj instanceof DependencyObject)
             obj._UnregisterAllNamesRootedAt(fromNs);
     }
-    this._UnregisterAllNamesRootedAt$super(fromNs);
+    this._UnregisterAllNamesRootedAt$Collection(fromNs);
 };
 ResourceDictionary._CanBeAddedTwice = function (value) {
     var twices = [
@@ -7790,25 +7661,21 @@ ResourceDictionary._CanBeAddedTwice = function (value) {
     }
     return true;
 };
+Nullstone.FinishCreate(ResourceDictionary);
 
-function ResourceDictionaryCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ResourceDictionaryCollection, "ResourceDictionaryCollection", DependencyObjectCollection);
-ResourceDictionaryCollection.prototype.AddedToCollection = function (value, error) {
-    if (!this.AddedToCollection$super(value, error))
+var ResourceDictionaryCollection = Nullstone.Create("ResourceDictionaryCollection", DependencyObjectCollection);
+ResourceDictionaryCollection.Instance.AddedToCollection = function (value, error) {
+    if (!this.AddedToCollection$DependencyObjectCollection(value, error))
         return false;
     var parent = this._GetParent();
     if (!parent)
         return true;
     return this._WalkSubtreeLookingForCycle(value, parent, error);
 };
-ResourceDictionaryCollection.prototype.IsElementType = function (value) {
+ResourceDictionaryCollection.Instance.IsElementType = function (value) {
     return value instanceof ResourceDictionary;
 };
-ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
+ResourceDictionaryCollection.Instance._WalkSubtreeLookingForCycle = function (subtreeRoot, firstAncestor, error) {
     var source = subtreeRoot._GetInternalSource();
     var p = firstAncestor;
     while (p) {
@@ -7833,21 +7700,20 @@ ResourceDictionaryCollection.prototype._WalkSubtreeLookingForCycle = function (s
     }
     return true;
 };
+Nullstone.FinishCreate(ResourceDictionaryCollection);
 
-function UIElementCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var UIElementCollection = Nullstone.Create("UIElementCollection", DependencyObjectCollection);
+UIElementCollection.Instance.Init = function () {
+    this.Init$DependencyObjectCollection();
     this._ZSorted = new Array();
-}
-Nullstone.Extend(UIElementCollection, "UIElementCollection", DependencyObjectCollection);
-UIElementCollection.prototype.GetValueAtZIndex = function (index) {
+};
+UIElementCollection.Instance.GetValueAtZIndex = function (index) {
     return this._ZSorted[index];
 };
-UIElementCollection.prototype.GetZSortedCount = function () {
+UIElementCollection.Instance.GetZSortedCount = function () {
     return this._ZSorted.length;
 };
-UIElementCollection.prototype.ResortByZIndex = function () {
+UIElementCollection.Instance.ResortByZIndex = function () {
     var count = this.GetCount();
     this._ZSorted = new Array(count);
     if (count < 1)
@@ -7859,38 +7725,37 @@ UIElementCollection.prototype.ResortByZIndex = function () {
         this._ZSorted.sort(UIElement.ZIndexComparer);
     }
 };
-UIElementCollection.prototype.IsElementType = function (value) {
+UIElementCollection.Instance.IsElementType = function (value) {
     return value instanceof UIElement;
 };
+Nullstone.FinishCreate(UIElementCollection);
 
-function _CollectionViewNode(bindsDirectlyToSource, bindToView, viewChanged) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var _CollectionViewNode = Nullstone.Create("_CollectionViewNode", _PropertyPathNode, 3);
+_CollectionViewNode.Instance.Init = function (bindsDirectlyToSource, bindToView, viewChanged) {
+    this.Init$_PropertyPathNode();
     this.SetBindsDirectlyToSource(bindsDirectlyToSource === true);
     this.SetBindToView(bindToView === true);
     this.SetViewChangedHandler(this.ViewChanged);
-}
-Nullstone.Extend(_CollectionViewNode, "_CollectionViewNode", _PropertyPathNode);
-_CollectionViewNode.prototype.OnSourceChanged = function (oldSource, newSource) {
-    this.OnSourceChanged$super(oldSource, newSource);
+};
+_CollectionViewNode.Instance.OnSourceChanged = function (oldSource, newSource) {
+    this.OnSourceChanged$_PropertyPathNode(oldSource, newSource);
     this.DisconnectViewHandlers();
     this.ConnectViewHandlers(Nullstone.As(newSource, CollectionViewSource), Nullstone.As(newSource, ICollectionView));
 };
-_CollectionViewNode.prototype.ViewChanged = function (sender, e) {
+_CollectionViewNode.Instance.ViewChanged = function (sender, e) {
     this.DisconnectViewHandlers(true);
     this.ConnectViewHandlers(null, e.NewValue);
     this.ViewCurrentChanged(this, new EventArgs());
 };
-_CollectionViewNode.prototype.ViewCurrentChanged = function (sender, e) {
+_CollectionViewNode.Instance.ViewCurrentChanged = function (sender, e) {
     this.UpdateValue();
     if (this.GetNext() != null)
         this.GetNext().SetSource(this.GetValue());
 };
-_CollectionViewNode.prototype.SetValue = function () {
+_CollectionViewNode.Instance.SetValue = function () {
     throw new NotImplementedException();
 };
-_CollectionViewNode.prototype.UpdateValue = function () {
+_CollectionViewNode.Instance.UpdateValue = function () {
     if (this.GetBindsDirectlyToSource()) {
         this.SetValueType(this.GetSource() == null ? null : this.GetSource().constructor);
         this._UpdateValueAndIsBroken(this.GetSource(), this._CheckIsBroken());
@@ -7917,10 +7782,10 @@ _CollectionViewNode.prototype.UpdateValue = function () {
         }
     }
 };
-_CollectionViewNode.prototype._CheckIsBroken = function () {
+_CollectionViewNode.Instance._CheckIsBroken = function () {
     return this.GetSource() == null;
 };
-_CollectionViewNode.prototype.ConnectViewHandlers = function (source, view) {
+_CollectionViewNode.Instance.ConnectViewHandlers = function (source, view) {
     if (source != null) {
         this._ViewPropertyListener = new PropertyChangedListener(source, source.constructor.ViewProperty, this, this.ViewChanged);
         view = source.GetView();
@@ -7928,7 +7793,7 @@ _CollectionViewNode.prototype.ConnectViewHandlers = function (source, view) {
     if (view != null)
         this._ViewListener = new CurrentChangedListener(view, this, this.ViewCurrentChanged);
 };
-_CollectionViewNode.prototype.DisconnectViewHandlers = function (onlyView) {
+_CollectionViewNode.Instance.DisconnectViewHandlers = function (onlyView) {
     if (onlyView == null)
         onlyView = false;
     if (this._ViewPropertyListener != null && !onlyView) {
@@ -7940,148 +7805,142 @@ _CollectionViewNode.prototype.DisconnectViewHandlers = function (onlyView) {
         this._ViewListener = null;
     }
 };
-_CollectionViewNode.prototype.GetBindsDirectlyToSource = function () {
+_CollectionViewNode.Instance.GetBindsDirectlyToSource = function () {
     return this._BindsDirectlyToSource;
 };
-_CollectionViewNode.prototype.SetBindsDirectlyToSource = function (value) {
+_CollectionViewNode.Instance.SetBindsDirectlyToSource = function (value) {
     this._BindsDirectlyToSource = value;
 };
-_CollectionViewNode.prototype.GetBindToView = function () {
+_CollectionViewNode.Instance.GetBindToView = function () {
     return this._BindToView;
 };
-_CollectionViewNode.prototype.SetBindToView = function (value) {
+_CollectionViewNode.Instance.SetBindToView = function (value) {
     this._BindToView = value;
 };
-_CollectionViewNode.prototype.GetViewChangedHandler = function () {
+_CollectionViewNode.Instance.GetViewChangedHandler = function () {
     return this._ViewChangedHandler;
 };
-_CollectionViewNode.prototype.SetViewChangedHandler = function (value) {
+_CollectionViewNode.Instance.SetViewChangedHandler = function (value) {
     this._ViewChangedHandler = value;
 };
+Nullstone.FinishCreate(_CollectionViewNode);
 
-function CollectionViewSource() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(CollectionViewSource, "CollectionViewSource", DependencyObject);
-CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return RefObject; }, CollectionViewSource);
-CollectionViewSource.prototype.GetSource = function () {
+var CollectionViewSource = Nullstone.Create("CollectionViewSource", DependencyObject);
+CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
+CollectionViewSource.Instance.GetSource = function () {
     return this.GetValue(CollectionViewSource.SourceProperty);
 };
-CollectionViewSource.prototype.SetSource = function (value) {
+CollectionViewSource.Instance.SetSource = function (value) {
     this.SetValue(CollectionViewSource.SourceProperty, value);
 };
 CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
-CollectionViewSource.prototype.GetView = function () {
+CollectionViewSource.Instance.GetView = function () {
     return this.GetValue(CollectionViewSource.ViewProperty);
 };
-CollectionViewSource.prototype.SetView = function (value) {
+CollectionViewSource.Instance.SetView = function (value) {
     this.SetValue(CollectionViewSource.ViewProperty, value);
 };
+Nullstone.FinishCreate(CollectionViewSource);
 
-function _IndexedPropertyPathNode(index) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var _IndexedPropertyPathNode = Nullstone.Create("_IndexedPropertyPathNode", _PropertyPathNode, 1);
+_IndexedPropertyPathNode.Instance.Init = function (index) {
+    this.Init$_PropertyPathNode();
     this._isBroken = false;
     var val = parseInt(index, 10);
     if (isNaN(val))
         this.SetIndex(index);
     else
         this.SetIndex(val);
-}
-Nullstone.Extend(_IndexedPropertyPathNode, "_IndexedPropertyPathNode", _PropertyPathNode);
-_IndexedPropertyPathNode.prototype._CheckIsBroken = function () {
-    return this._isBroken || this._CheckIsBroken$super();
 };
-_IndexedPropertyPathNode.prototype.UpdateValue = function () {
+_IndexedPropertyPathNode.Instance._CheckIsBroken = function () {
+    return this._isBroken || this._CheckIsBroken$_PropertyPathNode();
+};
+_IndexedPropertyPathNode.Instance.UpdateValue = function () {
     NotImplemented("_IndexedPropertyPathNode.UpdateValue");
 };
-_IndexedPropertyPathNode.prototype.GetIndex = function () {
+_IndexedPropertyPathNode.Instance.GetIndex = function () {
     return this._Index;
 };
-_IndexedPropertyPathNode.prototype.SetIndex = function (value) {
+_IndexedPropertyPathNode.Instance.SetIndex = function (value) {
     this._Index = value;
 };
+Nullstone.FinishCreate(_IndexedPropertyPathNode);
 
-function TextElement() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var TextElement = Nullstone.Create("TextElement", DependencyObject);
+TextElement.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
     this._Font = new Font();
     this._UpdateFont(true);
-}
-Nullstone.Extend(TextElement, "TextElement", DependencyObject);
+};
 TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextElement.prototype.GetForeground = function () {
+TextElement.Instance.GetForeground = function () {
     return this.GetValue(TextElement.ForegroundProperty);
 };
-TextElement.prototype.SetForeground = function (value) {
+TextElement.Instance.SetForeground = function (value) {
     this.SetValue(TextElement.ForegroundProperty, value);
 };
 TextElement.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY);
-TextElement.prototype.GetFontFamily = function () {
+TextElement.Instance.GetFontFamily = function () {
     return this.GetValue(TextElement.FontFamilyProperty);
 };
-TextElement.prototype.SetFontFamily = function (value) {
+TextElement.Instance.SetFontFamily = function (value) {
     this.SetValue(TextElement.FontFamilyProperty, value);
 };
 TextElement.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH);
-TextElement.prototype.GetFontStretch = function () {
+TextElement.Instance.GetFontStretch = function () {
     return this.GetValue(TextElement.FontStretchProperty);
 };
-TextElement.prototype.SetFontStretch = function (value) {
+TextElement.Instance.SetFontStretch = function (value) {
     this.SetValue(TextElement.FontStretchProperty, value);
 };
 TextElement.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE);
-TextElement.prototype.GetFontStyle = function () {
+TextElement.Instance.GetFontStyle = function () {
     return this.GetValue(TextElement.FontStyleProperty);
 };
-TextElement.prototype.SetFontStyle = function (value) {
+TextElement.Instance.SetFontStyle = function (value) {
     this.SetValue(TextElement.FontStyleProperty, value);
 };
 TextElement.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextElement, Font.DEFAULT_WEIGHT);
-TextElement.prototype.GetFontWeight = function () {
+TextElement.Instance.GetFontWeight = function () {
     return this.GetValue(TextElement.FontWeightProperty);
 };
-TextElement.prototype.SetFontWeight = function (value) {
+TextElement.Instance.SetFontWeight = function (value) {
     this.SetValue(TextElement.FontWeightProperty, value);
 };
 TextElement.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextElement, Font.DEFAULT_SIZE);
-TextElement.prototype.GetFontSize = function () {
+TextElement.Instance.GetFontSize = function () {
     return this.GetValue(TextElement.FontSizeProperty);
 };
-TextElement.prototype.SetFontSize = function (value) {
+TextElement.Instance.SetFontSize = function (value) {
     this.SetValue(TextElement.FontSizeProperty, value);
 };
 TextElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, TextElement);
-TextElement.prototype.GetLanguage = function () {
+TextElement.Instance.GetLanguage = function () {
     return this.GetValue(TextElement.LanguageProperty);
 };
-TextElement.prototype.SetLanguage = function (value) {
+TextElement.Instance.SetLanguage = function (value) {
     this.SetValue(TextElement.LanguageProperty, value);
 };
 TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return Number; }, TextElement, TextDecorations.None);
-TextElement.prototype.GetTextDecorations = function () {
+TextElement.Instance.GetTextDecorations = function () {
     return this.GetValue(TextElement.TextDecorationsProperty);
 };
-TextElement.prototype.SetTextDecorations = function (value) {
+TextElement.Instance.SetTextDecorations = function (value) {
     this.SetValue(TextElement.TextDecorationsProperty, value);
 };
 TextElement.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextElement);
-TextElement.prototype.GetFontResource = function () {
+TextElement.Instance.GetFontResource = function () {
     return this.GetValue(TextElement.FontResourceProperty);
 };
-TextElement.prototype.SetFontResource = function (value) {
+TextElement.Instance.SetFontResource = function (value) {
     this.SetValue(TextElement.FontResourceProperty, value);
 };
-TextElement.prototype.GetBackground = function (selected) { return null; }
-TextElement.prototype.GetFont = function () { return this._Font; };
-TextElement.prototype.GetDirection = function () { return FlowDirection.LeftToRight; };
-TextElement.prototype._SerializeText = function (str) { return str; };
-TextElement.prototype._UpdateFont = function (force) {
+TextElement.Instance.GetBackground = function (selected) { return null; }
+TextElement.Instance.GetFont = function () { return this._Font; };
+TextElement.Instance.GetDirection = function () { return FlowDirection.LeftToRight; };
+TextElement.Instance._SerializeText = function (str) { return str; };
+TextElement.Instance._UpdateFont = function (force) {
     var changed = false;
     changed = changed || this._Font.SetFamily(this.GetFontFamily());
     changed = changed || this._Font.SetStretch(this.GetFontStretch());
@@ -8090,9 +7949,9 @@ TextElement.prototype._UpdateFont = function (force) {
     changed = changed || this._Font.SetSize(this.GetFontSize());
     return changed || force;
 };
-TextElement.prototype._OnPropertyChanged = function (args, error) {
+TextElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextElement) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
     if (args.Property == TextElement.FontFamilyProperty
@@ -8104,79 +7963,70 @@ TextElement.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
+Nullstone.FinishCreate(TextElement);
 
-function TextElementCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(TextElementCollection, "TextElementCollection", DependencyObjectCollection);
+var TextElementCollection = Nullstone.Create("TextElementCollection", DependencyObjectCollection);
+Nullstone.FinishCreate(TextElementCollection);
 
-function App() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var App = Nullstone.Create("App", DependencyObject);
+App.Instance.Init = function () {
+    this.Init$DependencyObject();
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
     this._Storyboards = new Array();
-}
-Nullstone.Extend(App, "App", DependencyObject);
+};
 App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
-App.prototype.GetResources = function () {
+App.Instance.GetResources = function () {
     return this.GetValue(App.ResourcesProperty);
 };
-App.prototype.SetResources = function (value) {
+App.Instance.SetResources = function (value) {
     this.SetValue(App.ResourcesProperty, value);
 };
-App.prototype.GetAddress = function () {
+App.Instance.GetAddress = function () {
     return this._Address;
 };
-App.prototype.SetAddress = function (value) {
+App.Instance.SetAddress = function (value) {
     this._Address = value;
 };
-App.prototype.Load = function (element, containerId, width, height) {
+App.Instance.Load = function (element, containerId, width, height) {
     this.SetAddress(new Uri(document.URL));
-    this.MainSurface.Init(containerId, width, height);
+    this.MainSurface.Register(containerId, width, height);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);
     this.Start();
 };
-App.prototype.Start = function () {
+App.Instance.Start = function () {
     this._Clock.RegisterTimer(this);
 };
-App.prototype._Tick = function (lastTime, nowTime) {
+App.Instance._Tick = function (lastTime, nowTime) {
     this.ProcessStoryboards(lastTime, nowTime);
     this.ProcessDirty();
 };
-App.prototype._Stop = function () {
+App.Instance._Stop = function () {
     this._Clock.UnregisterTimer(this);
 };
-App.prototype.ProcessStoryboards = function (lastTime, nowTime) {
+App.Instance.ProcessStoryboards = function (lastTime, nowTime) {
     for (var i = 0; i < this._Storyboards.length; i++) {
         this._Storyboards[i]._Tick(lastTime, nowTime);
     }
 };
-App.prototype.ProcessDirty = function () {
+App.Instance.ProcessDirty = function () {
     if (this._IsRunning)
         return;
     this._IsRunning = true;
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
-    try {
         this.MainSurface.ProcessDirtyElements(region);
-    } catch (err) {
-        Fatal("An error occurred processing dirty elements: " + err.toString());
-    }
     this._IsRunning = false;
 };
-App.prototype.RegisterStoryboard = function (storyboard) {
-    Array.addDistinctRefObject(this._Storyboards, storyboard);
+App.Instance.RegisterStoryboard = function (storyboard) {
+    Array.addDistinctNullstone(this._Storyboards, storyboard);
 };
-App.prototype.UnregisterStoryboard = function (storyboard) {
-    Array.removeRefObject(this._Storyboards, storyboard);
+App.Instance.UnregisterStoryboard = function (storyboard) {
+    Array.removeNullstone(this._Storyboards, storyboard);
 };
-App.prototype._GetImplicitStyles = function (fe, styleMask) {
+App.Instance._GetImplicitStyles = function (fe, styleMask) {
     var genericXamlStyle = undefined;
     var appResourcesStyle = undefined;
     var visualTreeStyle = undefined;
@@ -8220,128 +8070,110 @@ App.prototype._GetImplicitStyles = function (fe, styleMask) {
     styles[_StyleIndex.VisualTree] = visualTreeStyle;
     return styles;
 };
-App.prototype._GetGenericXamlStyleFor = function (type) {
+App.Instance._GetGenericXamlStyleFor = function (type) {
     NotImplemented("App._GetGenericXamlStyleFor");
 };
+Nullstone.FinishCreate(App);
 
-function Brush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Brush = Nullstone.Create("Brush", DependencyObject);
+Brush.Instance.Init = function () {
+    this.Init$DependencyObject();
 };
-Nullstone.Extend(Brush, "Brush", DependencyObject);
 Brush.ChangedProperty = DependencyProperty.Register("Changed", function () { return Boolean; }, Brush);
-Brush.prototype.GetChanged = function () {
+Brush.Instance.GetChanged = function () {
     return this.GetValue(Brush.ChangedProperty);
 };
-Brush.prototype.SetChanged = function (value) {
+Brush.Instance.SetChanged = function (value) {
     this.SetValue(Brush.ChangedProperty, value);
 };
-Brush.prototype._Translate = function (ctx) {
+Brush.Instance._Translate = function (ctx) {
     AbstractMethod("Brush._Translate()");
 };
-Brush.prototype._OnSubPropertyChanged = function (sender, args) {
+Brush.Instance._OnSubPropertyChanged = function (sender, args) {
     var newArgs = {
         Property: Brush.ChangedProperty,
         OldValue: false,
         NewValue: true
     };
     this.PropertyChanged.Raise(this, newArgs);
-    this._OnSubPropertyChanged$super(sender, args);
+    this._OnSubPropertyChanged$DependencyObject(sender, args);
 };
+Nullstone.FinishCreate(Brush);
 
-function Geometry() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Geometry = Nullstone.Create("Geometry", DependencyObject);
+Geometry.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-}
-Nullstone.Extend(Geometry, "Geometry", DependencyObject);
-Geometry.prototype.GetBounds = function () {
+};
+Geometry.Instance.GetBounds = function () {
     var compute = this._LocalBounds.IsEmpty();
     if (compute)
         this._LocalBounds = this.ComputePathBounds();
     var bounds = this._LocalBounds;
     return bounds;
 };
-Geometry.prototype.ComputePathBounds = function () {
+Geometry.Instance.ComputePathBounds = function () {
 };
+Nullstone.FinishCreate(Geometry);
 
-function GradientBrush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(GradientBrush, "GradientBrush", Brush);
-GradientBrush.prototype._GetMappingModeTransform = function (bounds) {
+var GradientBrush = Nullstone.Create("GradientBrush", Brush);
+GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
     if (this.GetMappingMode() === BrushMappingMode.Absolute)
         return new Matrix();
     return new ScalingMatrix(bounds.Width, bounds.Height);
 };
 GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
-GradientBrush.prototype.GetGradientStops = function () {
+GradientBrush.Instance.GetGradientStops = function () {
     return this.GetValue(GradientBrush.GradientStopsProperty);
 };
 GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return Number; }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
-GradientBrush.prototype.GetMappingMode = function () {
+GradientBrush.Instance.GetMappingMode = function () {
     return this.GetValue(GradientBrush.MappingModeProperty);
 };
-GradientBrush.prototype.SetMappingMode = function (value) {
+GradientBrush.Instance.SetMappingMode = function (value) {
     this.SetValue(GradientBrush.MappingModeProperty, value);
 };
+Nullstone.FinishCreate(GradientBrush);
 
-function GradientStop() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(GradientStop, "GradientStop", DependencyObject);
+var GradientStop = Nullstone.Create("GradientStop", DependencyObject);
 GradientStop.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, GradientStop, new Color());
-GradientStop.prototype.GetColor = function () {
+GradientStop.Instance.GetColor = function () {
     return this.GetValue(GradientStop.ColorProperty);
 };
-GradientStop.prototype.SetColor = function (value) {
+GradientStop.Instance.SetColor = function (value) {
     this.SetValue(GradientStop.ColorProperty, value);
 };
 GradientStop.OffsetProperty = DependencyProperty.Register("Offset", function () { return Number; }, GradientStop, 0.0);
-GradientStop.prototype.GetOffset = function () {
+GradientStop.Instance.GetOffset = function () {
     return this.GetValue(GradientStop.OffsetProperty);
 };
-GradientStop.prototype.SetOffset = function (value) {
+GradientStop.Instance.SetOffset = function (value) {
     this.SetValue(GradientStop.OffsetProperty, value);
 };
+Nullstone.FinishCreate(GradientStop);
 
-function GradientStopCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(GradientStopCollection, "GradientStopCollection", DependencyObjectCollection);
-GradientStopCollection.prototype.IsElementType = function (value) {
+var GradientStopCollection = Nullstone.Create("GradientStopCollection", DependencyObjectCollection);
+GradientStopCollection.Instance.IsElementType = function (value) {
     return value instanceof GradientStop;
 };
+Nullstone.FinishCreate(GradientStopCollection);
 
-function LinearGradientBrush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(LinearGradientBrush, "LinearGradientBrush", GradientBrush);
+var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", GradientBrush);
 LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
-LinearGradientBrush.prototype.GetStartPoint = function () {
+LinearGradientBrush.Instance.GetStartPoint = function () {
     return this.GetValue(LinearGradientBrush.StartPointProperty);
 };
-LinearGradientBrush.prototype.SetStartPoint = function (value) {
+LinearGradientBrush.Instance.SetStartPoint = function (value) {
     this.SetValue(LinearGradientBrush.StartPointProperty, value);
 };
 LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterFull("EndPoint", function () { return Point; }, LinearGradientBrush, new Point(1, 1));
-LinearGradientBrush.prototype.GetEndPoint = function () {
+LinearGradientBrush.Instance.GetEndPoint = function () {
     return this.GetValue(LinearGradientBrush.EndPointProperty);
 };
-LinearGradientBrush.prototype.SetEndPoint = function (value) {
+LinearGradientBrush.Instance.SetEndPoint = function (value) {
     this.SetValue(LinearGradientBrush.EndPointProperty, value);
 };
-LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
+LinearGradientBrush.Instance._Translate = function (ctx, bounds) {
     var transform = this._GetMappingModeTransform(bounds);
     var start = this.GetStartPoint().Apply(transform);
     var end = this.GetEndPoint().Apply(transform);
@@ -8353,144 +8185,130 @@ LinearGradientBrush.prototype._Translate = function (ctx, bounds) {
     }
     return grd;
 };
+Nullstone.FinishCreate(LinearGradientBrush);
 
-function RadialGradientBrush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(RadialGradientBrush, "RadialGradientBrush", GradientBrush);
+var RadialGradientBrush = Nullstone.Create("RadialGradientBrush", GradientBrush);
 RadialGradientBrush.CenterProperty = DependencyProperty.RegisterFull("Center", function () { return Point; }, RadialGradientBrush, new Point(0.5, 0.5));
-RadialGradientBrush.prototype.GetCenter = function () {
+RadialGradientBrush.Instance.GetCenter = function () {
     return this.GetValue(RadialGradientBrush.CenterProperty);
 };
-RadialGradientBrush.prototype.SetCenter = function (value) {
+RadialGradientBrush.Instance.SetCenter = function (value) {
     this.SetValue(RadialGradientBrush.CenterProperty, value);
 };
 RadialGradientBrush.GradientOriginProperty = DependencyProperty.RegisterFull("GradientOrigin", function () { return Point; }, RadialGradientBrush, new Point(0.5, 0.5));
-RadialGradientBrush.prototype.GetGradientOrigin = function () {
+RadialGradientBrush.Instance.GetGradientOrigin = function () {
     return this.GetValue(RadialGradientBrush.GradientOriginProperty);
 };
-RadialGradientBrush.prototype.SetGradientoOrigin = function (value) {
+RadialGradientBrush.Instance.SetGradientoOrigin = function (value) {
     this.SetValue(RadialGradientBrush.GradientOriginProperty, value);
 };
 RadialGradientBrush.RadiusXProperty = DependencyProperty.RegisterFull("RadiusX", function () { return Number; }, RadialGradientBrush, 0.5);
-RadialGradientBrush.prototype.GetRadiusX = function () {
+RadialGradientBrush.Instance.GetRadiusX = function () {
     return this.GetValue(RadialGradientBrush.RadiusXProperty);
 };
-RadialGradientBrush.prototype.SetRadiusX = function (value) {
+RadialGradientBrush.Instance.SetRadiusX = function (value) {
     this.SetValue(RadialGradientBrush.RadiusXProperty, value);
 };
 RadialGradientBrush.RadiusYProperty = DependencyProperty.RegisterFull("RadiusY", function () { return Number; }, RadialGradientBrush, 0.5);
-RadialGradientBrush.prototype.GetRadiusY = function () {
+RadialGradientBrush.Instance.GetRadiusY = function () {
     return this.GetValue(RadialGradientBrush.RadiusYProperty);
 };
-RadialGradientBrush.prototype.SetRadiusY = function (value) {
+RadialGradientBrush.Instance.SetRadiusY = function (value) {
     this.SetValue(RadialGradientBrush.RadiusYProperty, value);
 };
-RadialGradientBrush.prototype._Translate = function (ctx, bounds) {
+RadialGradientBrush.Instance._Translate = function (ctx, bounds) {
     NotImplemented("RadialGradientBrush._Translate");
 };
+Nullstone.FinishCreate(RadialGradientBrush);
 
-function RectangleGeometry() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(RectangleGeometry, "RectangleGeometry", Geometry);
+var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
 RectangleGeometry.RectProperty = DependencyProperty.Register("Rect", function () { return Rect; }, RectangleGeometry);
-RectangleGeometry.prototype.GetRect = function () {
+RectangleGeometry.Instance.GetRect = function () {
     return this.GetValue(RectangleGeometry.RectProperty);
 };
-RectangleGeometry.prototype.SetRect = function (value) {
+RectangleGeometry.Instance.SetRect = function (value) {
     this.SetValue(RectangleGeometry.RectProperty, value);
 };
-RectangleGeometry.prototype.ComputePathBounds = function () {
+RectangleGeometry.Instance.ComputePathBounds = function () {
     var rect = this.GetRect();
     if (rect)
         return rect;
     return new Rect(0.0, 0.0, 0.0, 0.0);
 };
-RectangleGeometry.prototype.Draw = function (canvasCtx) {
+RectangleGeometry.Instance.Draw = function (canvasCtx) {
     var rect = this.GetRect();
     canvasCtx.beginPath();
     canvasCtx.rect(rect.X, rect.Y, rect.Width, rect.Height);
 };
+Nullstone.FinishCreate(RectangleGeometry);
 
-function SolidColorBrush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-    if (arguments.length === 1) {
-        if (arguments[0] instanceof Color)
-            this.SetColor(arguments[0]);
+var SolidColorBrush = Nullstone.Create("SolidColorBrush", Brush);
+SolidColorBrush.Instance.Init = function (args) {
+    this.Init$Brush();
+    if (args.length === 1) {
+        if (args[0] instanceof Color)
+            this.SetColor(args[0]);
     }
-}
-Nullstone.Extend(SolidColorBrush, "SolidColorBrush", Brush);
+};
 SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush);
-SolidColorBrush.prototype.GetColor = function () {
+SolidColorBrush.Instance.GetColor = function () {
     return this.GetValue(SolidColorBrush.ColorProperty);
 };
-SolidColorBrush.prototype.SetColor = function (value) {
+SolidColorBrush.Instance.SetColor = function (value) {
     this.SetValue(SolidColorBrush.ColorProperty, value);
 };
-SolidColorBrush.prototype._Translate = function (ctx) {
+SolidColorBrush.Instance._Translate = function (ctx) {
     var color = this.GetColor();
     if (color == null)
         return "#000000";
     return color.toString();
 };
+Nullstone.FinishCreate(SolidColorBrush);
 
-function TileBrush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(TileBrush, "TileBrush", Brush);
+var TileBrush = Nullstone.Create("TileBrush", Brush);
 TileBrush.AlignmentXProperty = DependencyProperty.Register("AlignmentX", function () { return Number; }, TileBrush, AlignmentX.Center);
-TileBrush.prototype.GetAlignmentX = function () {
+TileBrush.Instance.GetAlignmentX = function () {
     return this.GetValue(TileBrush.AlignmentXProperty);
 };
-TileBrush.prototype.SetAlignmentX = function (value) {
+TileBrush.Instance.SetAlignmentX = function (value) {
     this.SetValue(TileBrush.AlignmentXProperty, value);
 };
 TileBrush.AlignmentYProperty = DependencyProperty.Register("AlignmentY", function () { return Number; }, TileBrush, AlignmentY.Center);
-TileBrush.prototype.GetAlignmentY = function () {
+TileBrush.Instance.GetAlignmentY = function () {
     return this.GetValue(TileBrush.AlignmentYProperty);
 };
-TileBrush.prototype.SetAlignmentY = function (value) {
+TileBrush.Instance.SetAlignmentY = function (value) {
     this.SetValue(TileBrush.AlignmentYProperty, value);
 };
 TileBrush.StretchProperty = DependencyProperty.Register("Stretch", function () { return Number; }, TileBrush, Stretch.Fill);
-TileBrush.prototype.GetStretch = function () {
+TileBrush.Instance.GetStretch = function () {
     return this.GetValue(TileBrush.StretchProperty);
 };
-TileBrush.prototype.SetStretch = function (value) {
+TileBrush.Instance.SetStretch = function (value) {
     this.SetValue(TileBrush.StretchProperty, value);
 };
+Nullstone.FinishCreate(TileBrush);
 
-function KeyFrame() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var KeyFrame = Nullstone.Create("KeyFrame", DependencyObject);
+KeyFrame.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._ResolvedKeyTime = null;
     this._Resolved = false;
-}
-Nullstone.Extend(KeyFrame, "KeyFrame", DependencyObject);
-KeyFrame.prototype.GetKeyTime = function () {
+};
+KeyFrame.Instance.GetKeyTime = function () {
     throw new AbstractMethodException();
 };
-KeyFrame.prototype.SetKeyTime = function (value) {
+KeyFrame.Instance.SetKeyTime = function (value) {
     throw new AbstractMethodException();
 };
-KeyFrame.prototype.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
+KeyFrame.Instance.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
     if (value == null)
         coerced.Value = this.GetKeyTime();
     else
         coerced.Value = value;
     return true;
 };
-KeyFrame.prototype.InterpolateValue = function () {
+KeyFrame.Instance.InterpolateValue = function () {
     throw new AbstractMethodException();
 };
 KeyFrame.Comparer = function (kf1, kf2) {
@@ -8498,16 +8316,15 @@ KeyFrame.Comparer = function (kf1, kf2) {
     var ts2 = kf2._ResolvedKeyTime;
     return ts1.CompareTo(ts2);
 };
+Nullstone.FinishCreate(KeyFrame);
 
-function KeyFrameCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var KeyFrameCollection = Nullstone.Create("KeyFrameCollection", DependencyObjectCollection);
+KeyFrameCollection.Instance.Init = function () {
+    this.Init$DependencyObjectCollection();
     this._Resolved = false;
     this._SortedList = new Array();
-}
-Nullstone.Extend(KeyFrameCollection, "KeyFrameCollection", DependencyObjectCollection);
-KeyFrameCollection.prototype.GetKeyFrameForTime = function (t, prevFrameRef) {
+};
+KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
     var currentKeyFrame = null;
     var previousKeyFrame = null;
     var i;
@@ -8542,24 +8359,24 @@ KeyFrameCollection.prototype.GetKeyFrameForTime = function (t, prevFrameRef) {
     prevFrameRef.Value = previousKeyFrame;
     return currentKeyFrame;
 };
-KeyFrameCollection.prototype.Clear = function () {
+KeyFrameCollection.Instance.Clear = function () {
     this._Resolved = false;
-    this.Clear$super();
+    this.Clear$DependencyObjectCollection();
 };
-KeyFrameCollection.prototype.AddedToCollection = function (value, error) {
-    if (!this.AddedToCollection$super(value, error))
+KeyFrameCollection.Instance.AddedToCollection = function (value, error) {
+    if (!this.AddedToCollection$DependencyObjectCollection(value, error))
         return false;
     this._Resolved = false;
     return true;
 };
-KeyFrameCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
-    this.RemovedFromCollection$super(value, isValueSafe);
+KeyFrameCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
+    this.RemovedFromCollection$DependencyObjectCollection(value, isValueSafe);
     this._Resolved = false;
 };
-KeyFrameCollection.prototype._OnSubPropertyChanged = function (sender, args) {
+KeyFrameCollection.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property.Name === "KeyTime")
         this._Resolved = false;
-    this._OnSubPropertyChanged$super(sender, args);
+    this._OnSubPropertyChanged$DependencyObjectCollection(sender, args);
 };
 KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     if (coll._Resolved)
@@ -8642,35 +8459,26 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     }
     this._SortedList.sort(KeyFrame.Comparer);
 };
+Nullstone.FinishCreate(KeyFrameCollection);
 
-function ObjectKeyFrame() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ObjectKeyFrame, "ObjectKeyFrame", KeyFrame);
+var ObjectKeyFrame = Nullstone.Create("ObjectKeyFrame", KeyFrame);
 ObjectKeyFrame.KeyTimeProperty = DependencyProperty.RegisterFull("KeyTime", function () { return KeyTime; }, ObjectKeyFrame, KeyTime.CreateUniform(), null, { GetValue: function () { NotImplemented("KeyTime Coercer"); } });
 ObjectKeyFrame.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, ObjectKeyFrame);
 ObjectKeyFrame.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, ObjectKeyFrame);
+Nullstone.FinishCreate(ObjectKeyFrame);
 
-function ObjectKeyFrameCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ObjectKeyFrameCollection, "ObjectKeyFrameCollection", KeyFrameCollection);
-ObjectKeyFrameCollection.prototype.IsElementType = function (value) {
+var ObjectKeyFrameCollection = Nullstone.Create("ObjectKeyFrameCollection", KeyFrameCollection);
+ObjectKeyFrameCollection.Instance.IsElementType = function (value) {
     return value instanceof ObjectKeyFrame;
 };
+Nullstone.FinishCreate(ObjectKeyFrameCollection);
 
-function Timeline() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Timeline = Nullstone.Create("Timeline", DependencyObject);
+Timeline.Instance.Init = function () {
+    this.Init$DependencyObject();
     this.Completed = new MulticastEvent();
     this.Reset();
-}
-Nullstone.Extend(Timeline, "Timeline", DependencyObject);
+};
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
 Timeline.prototype.GetBeginTime = function () {
     return this.GetValue(Timeline.BeginTimeProperty);
@@ -8753,70 +8561,57 @@ Timeline.prototype.Update = function (nowTime) {
     }
 };
 Timeline.prototype.UpdateInternal = function (nowTime) { };
+Nullstone.FinishCreate(Timeline);
 
-function TimelineCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(TimelineCollection, "TimelineCollection", Collection);
+var TimelineCollection = Nullstone.Create("TimelineCollection", Collection);
+Nullstone.FinishCreate(TimelineCollection);
 
-function VisualState() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualState, "VisualState", DependencyObject);
+var VisualState = Nullstone.Create("VisualState", DependencyObject);
 VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
-VisualState.prototype.GetStoryboard = function () {
+VisualState.Instance.GetStoryboard = function () {
     return this.GetValue(VisualState.StoryboardProperty);
 };
-VisualState.prototype.SetStoryboard = function (value) {
+VisualState.Instance.SetStoryboard = function (value) {
     this.SetValue(VisualState.StoryboardProperty, value);
 };
 VisualState.Annotations = {
     ContentProperty: VisualState.StoryboardProperty
 };
-function VisualStateCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualStateCollection, "VisualStateCollection", DependencyObjectCollection);
-VisualStateCollection.prototype.IsElementType = function (value) {
+Nullstone.FinishCreate(VisualState);
+var VisualStateCollection = Nullstone.Create("VisualStateCollection", DependencyObjectCollection);
+VisualStateCollection.Instance.IsElementType = function (value) {
     return value instanceof VisualState;
 };
+Nullstone.FinishCreate(VisualStateCollection);
 
-function VisualStateGroup() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var VisualStateGroup = Nullstone.Create("VisualStateGroup", DependencyObject);
+VisualStateGroup.Instance.Init = function () {
+    this.Init$DependencyObject();
     this.CurrentStateChanging = new MulticastEvent();
     this.CurrentStateChanged = new MulticastEvent();
-}
-Nullstone.Extend(VisualStateGroup, "VisualStateGroup", DependencyObject);
-VisualStateGroup.prototype.GetStates = function () {
+};
+VisualStateGroup.Instance.GetStates = function () {
     if (this._States == null)
         this._States = new VisualStateCollection();
     return this._States;
 };
-VisualStateGroup.prototype.GetCurrentStoryboards = function () {
+VisualStateGroup.Instance.GetCurrentStoryboards = function () {
     if (this._CurrentStoryboards == null)
         this._CurrentStoryboards = new StoryboardCollection();
     return this._CurrentStoryboards;
 };
-VisualStateGroup.prototype.GetTransitions = function () {
+VisualStateGroup.Instance.GetTransitions = function () {
     if (this._Transitions == null)
         this._Transitions = new VisualTransitionCollection();
     return this._Transitions;
 };
-VisualStateGroup.prototype.GetCurrentState = function () {
+VisualStateGroup.Instance.GetCurrentState = function () {
     return this._CurrentState;
 };
-VisualStateGroup.prototype.SetCurrentState = function (value) {
+VisualStateGroup.Instance.SetCurrentState = function (value) {
     this._CurrentState = value;
 };
-VisualStateGroup.prototype.GetState = function (stateName) {
+VisualStateGroup.Instance.GetState = function (stateName) {
     var states = this.GetStates();
     for (var i = 0; i < states.GetCount(); i++) {
         var state = states.GetValueAt(i);
@@ -8825,7 +8620,7 @@ VisualStateGroup.prototype.GetState = function (stateName) {
     }
     return null;
 };
-VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboards) {
+VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboards) {
     var i;
     var storyboard;
     for (i = 0; i < newStoryboards.length; i++) {
@@ -8858,31 +8653,23 @@ VisualStateGroup.prototype.StartNewThenStopOld = function (element, newStoryboar
         currentStoryboards.Add(newStoryboards[i]);
     }
 };
-VisualStateGroup.prototype.RaiseCurrentStateChanging = function (element, oldState, newState, control) {
+VisualStateGroup.Instance.RaiseCurrentStateChanging = function (element, oldState, newState, control) {
     this.CurrentStateChanging.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
 };
-VisualStateGroup.prototype.RaiseCurrentStateChanged = function (element, oldState, newState, control) {
+VisualStateGroup.Instance.RaiseCurrentStateChanged = function (element, oldState, newState, control) {
     this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
 };
 VisualStateGroup.Annotations = {
     ContentProperty: "States"
 };
-function VisualStateGroupCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualStateGroupCollection, "VisualStateGroupCollection", DependencyObjectCollection);
-VisualStateGroupCollection.prototype.IsElementType = function (value) {
+Nullstone.FinishCreate(VisualStateGroup);
+var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", DependencyObjectCollection);
+VisualStateGroupCollection.Instance.IsElementType = function (value) {
     return value instanceof VisualStateGroup;
 }
+Nullstone.FinishCreate(VisualStateGroupCollection);
 
-function VisualStateManager() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualStateManager, "VisualStateManager", DependencyObject);
+var VisualStateManager = Nullstone.Create("VisualStateManager", DependencyObject);
 VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttached("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
 VisualStateManager.GetVisualStateGroups = function (d) {
     return d.GetValue(VisualStateManager.VisualStateGroupsProperty);
@@ -8905,7 +8692,7 @@ VisualStateManager.GetCustomVisualStateManager = function (d) {
 VisualStateManager.SetCustomVisualStateManager = function (d, value) {
     d.SetValue(VisualStateManager.CustomVisualStateManagerProperty, value);
 };
-VisualStateManager.prototype.GoToStateCore = function (control, element, stateName, group, state, useTransitions) {
+VisualStateManager.Instance.GoToStateCore = function (control, element, stateName, group, state, useTransitions) {
     return VisualStateManager.GoToStateInternal(control, element, group, state, useTransitions);
 };
 VisualStateManager.GoToState = function (control, stateName, useTransitions) {
@@ -8928,7 +8715,7 @@ VisualStateManager.GoToState = function (control, stateName, useTransitions) {
 };
 VisualStateManager.GoToStateInternal = function (control, element, group, state, useTransitions) {
     var lastState = group.GetCurrentState();
-    if (RefObject.RefEquals(lastState, state))
+    if (Nullstone.RefEquals(lastState, state))
         return true;
     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
     if (transition == null || (transition.GetGeneratedDuration().IsZero() && (transition.GetStoryboard() == null || transition.GetStoryboard().GetDuration().IsZero()))) {
@@ -8942,7 +8729,7 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
     } else {
         var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
         dynamicTransition.SetValue(Control.IsTemplateItemProperty, true);
-        var eventClosure = new RefObject();
+        var eventClosure = new Closure();
         transition.SetDynamicStoryboardCompleted(false);
         var dynamicCompleted = function (sender, e) {
             if (transition.GetStoryboard() == null || transition.GetExplicitStoryboardCompleted() === true) {
@@ -9011,11 +8798,11 @@ VisualStateManager._GetTransition = function (element, group, from, to) {
             var score = -1;
             var transFromState = group.GetState(transition.GetFrom());
             var transToState = group.GetState(transition.GetTo());
-            if (RefObject.RefEquals(from, transFromState))
+            if (Nullstone.RefEquals(from, transFromState))
                 score += 1;
             else if (transFromState != null)
                 continue;
-            if (RefObject.RefEquals(to, transToState))
+            if (Nullstone.RefEquals(to, transToState))
                 score += 2;
             else if (transToState != null)
                 continue;
@@ -9042,136 +8829,122 @@ VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group,
     NotImplemented("VisualStateManager._GenerateDynamicTransitionAnimations");
     return dynamic;
 };
+Nullstone.FinishCreate(VisualStateManager);
 
-function VisualTransition() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var VisualTransition = Nullstone.Create("VisualTransition", DependencyObject);
+VisualTransition.Instance.Init = function () {
+    this.Init$DependencyObject();
     this.SetDynamicStoryboardCompleted(true);
     this.SetExplicitStoryboardCompleted(true);
     this._GeneratedDuration = new Duration();
-}
-Nullstone.Extend(VisualTransition, "VisualTransition", DependencyObject);
-VisualTransition.prototype.GetFrom = function () {
+};
+VisualTransition.Instance.GetFrom = function () {
     return this._From;
 };
-VisualTransition.prototype.SetFrom = function (value) {
+VisualTransition.Instance.SetFrom = function (value) {
     this._From = value;
 };
-VisualTransition.prototype.GetTo = function () {
+VisualTransition.Instance.GetTo = function () {
     return this._To;
 };
-VisualTransition.prototype.SetTo = function (value) {
+VisualTransition.Instance.SetTo = function (value) {
     this._To = value;
 };
-VisualTransition.prototype.GetStoryboard = function () {
+VisualTransition.Instance.GetStoryboard = function () {
     return this._Storyboard;
 };
-VisualTransition.prototype.SetStoryboard = function (value) {
+VisualTransition.Instance.SetStoryboard = function (value) {
     this._Storyboard = value;
 };
-VisualTransition.prototype.GetGeneratedDuration = function () {
+VisualTransition.Instance.GetGeneratedDuration = function () {
     return this._GeneratedDuration;
 };
-VisualTransition.prototype.SetGeneratedDuration = function (value) {
+VisualTransition.Instance.SetGeneratedDuration = function (value) {
     this._GeneratedDuration = value;
 };
-VisualTransition.prototype.GetDynamicStoryboardCompleted = function () {
+VisualTransition.Instance.GetDynamicStoryboardCompleted = function () {
     return this._DynamicStoryboardCompleted;
 };
-VisualTransition.prototype.SetDynamicStoryboardCompleted = function (value) {
+VisualTransition.Instance.SetDynamicStoryboardCompleted = function (value) {
     this._DynamicStoryboardCompleted = value;
 };
-VisualTransition.prototype.GetExplicitStoryboardCompleted = function () {
+VisualTransition.Instance.GetExplicitStoryboardCompleted = function () {
     return this._ExplicitStoryboardCompleted;
 };
-VisualTransition.prototype.SetExplicitStoryboardCompleted = function (value) {
+VisualTransition.Instance.SetExplicitStoryboardCompleted = function (value) {
     this._ExplicitStoryboardCompleted = value;
 };
-VisualTransition.prototype.GetGeneratedEasingFunction = function () {
+VisualTransition.Instance.GetGeneratedEasingFunction = function () {
     return this._GeneratedEasingFunction;
 };
-VisualTransition.prototype.SetGeneratedEasingFunction = function (value) {
+VisualTransition.Instance.SetGeneratedEasingFunction = function (value) {
     this._GeneratedEasingFunction = value;
 };
-function VisualTransitionCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(VisualTransitionCollection, "VisualTransitionCollection", DependencyObjectCollection);
-VisualTransitionCollection.prototype.IsElementType = function (obj) {
+Nullstone.FinishCreate(VisualTransition);
+var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", DependencyObjectCollection);
+VisualTransitionCollection.Instance.IsElementType = function (obj) {
     return obj instanceof VisualTransition;
 };
+Nullstone.FinishCreate(VisualTransitionCollection);
 
-function ColumnDefinition() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ColumnDefinition, "ColumnDefinition", DependencyObject);
+var ColumnDefinition = Nullstone.Create("ColumnDefinition", DependencyObject);
 ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () { return GridLength; }, ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
-ColumnDefinition.prototype.GetWidth = function () {
+ColumnDefinition.Instance.GetWidth = function () {
     return this.GetValue(ColumnDefinition.WidthProperty);
 };
-ColumnDefinition.prototype.SetWidth = function (value) {
+ColumnDefinition.Instance.SetWidth = function (value) {
     this.SetValue(ColumnDefinition.WidthProperty, value);
 };
 ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, ColumnDefinition, Number.POSITIVE_INFINITY);
-ColumnDefinition.prototype.GetMaxWidth = function () {
+ColumnDefinition.Instance.GetMaxWidth = function () {
     return this.GetValue(ColumnDefinition.MaxWidthProperty);
 };
-ColumnDefinition.prototype.SetMaxWidth = function (value) {
+ColumnDefinition.Instance.SetMaxWidth = function (value) {
     this.SetValue(ColumnDefinition.MaxWidthProperty, value);
 };
 ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, ColumnDefinition, 0.0);
-ColumnDefinition.prototype.GetMinWidth = function () {
+ColumnDefinition.Instance.GetMinWidth = function () {
     return this.GetValue(ColumnDefinition.MinWidthProperty);
 };
-ColumnDefinition.prototype.SetMinWidth = function (value) {
+ColumnDefinition.Instance.SetMinWidth = function (value) {
     this.SetValue(ColumnDefinition.MinWidthProperty, value);
 };
 ColumnDefinition.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, ColumnDefinition, 0.0);
-ColumnDefinition.prototype.GetActualWidth = function () {
+ColumnDefinition.Instance.GetActualWidth = function () {
     return this.GetValue(ColumnDefinition.ActualWidthProperty);
 };
-ColumnDefinition.prototype.SetActualWidth = function (value) {
+ColumnDefinition.Instance.SetActualWidth = function (value) {
     this.SetValue(ColumnDefinition.ActualWidthProperty, value);
 };
+Nullstone.FinishCreate(ColumnDefinition);
 
-function ColumnDefinitionCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ColumnDefinitionCollection, "ColumnDefinitionCollection", DependencyObjectCollection);
-ColumnDefinitionCollection.prototype.AddedToCollection = function (value, error) {
+var ColumnDefinitionCollection = Nullstone.Create("ColumnDefinitionCollection", DependencyObjectCollection);
+ColumnDefinitionCollection.Instance.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
         error.SetErrored(BError.Argument, "ColumnDefinition is already a member of this collection.");
         return false;
     }
-    return this.AddedToCollection$super(value, error);
+    return this.AddedToCollection$DependencyObjectCollection(value, error);
 };
-ColumnDefinitionCollection.prototype.IsElementType = function (value) {
+ColumnDefinitionCollection.Instance.IsElementType = function (value) {
     return value instanceof ColumnDefinition;
 };
+Nullstone.FinishCreate(ColumnDefinitionCollection);
 
-function ControlTemplate(targetType, json) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var ControlTemplate = Nullstone.Create("ControlTemplate", FrameworkTemplate, 2);
+ControlTemplate.Instance.Init = function (targetType, json) {
+    this.Init$FrameworkTemplate();
     this.SetTargetType(targetType);
     this._TempJson = json;
-}
-Nullstone.Extend(ControlTemplate, "ControlTemplate", FrameworkTemplate);
+};
 ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, ControlTemplate);
-ControlTemplate.prototype.GetTargetType = function () {
+ControlTemplate.Instance.GetTargetType = function () {
     return this.GetValue(ControlTemplate.TargetTypeProperty);
 };
-ControlTemplate.prototype.SetTargetType = function (value) {
+ControlTemplate.Instance.SetTargetType = function (value) {
     this.SetValue(ControlTemplate.TargetTypeProperty, value);
 };
-ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSource, error) {
+ControlTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
     if (this._TempJson) {
         var namescope = new NameScope();
         var parser = new JsonParser();
@@ -9180,75 +8953,62 @@ ControlTemplate.prototype._GetVisualTreeWithError = function (templateBindingSou
         NameScope.SetNameScope(root, namescope);
         return root;
     }
-    this._GetVisualTreeWithError$super(templateBindingSource, error);
+    this._GetVisualTreeWithError$FrameworkTemplate(templateBindingSource, error);
 };
+Nullstone.FinishCreate(ControlTemplate);
 
-function RowDefinition() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(RowDefinition, "RowDefinition", DependencyObject);
+var RowDefinition = Nullstone.Create("RowDefinition", DependencyObject);
 RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
-RowDefinition.prototype.GetHeight = function () {
+RowDefinition.Instance.GetHeight = function () {
     return this.GetValue(RowDefinition.HeightProperty);
 };
-RowDefinition.prototype.SetHeight = function (value) {
+RowDefinition.Instance.SetHeight = function (value) {
     this.SetValue(RowDefinition.HeightProperty, value);
 };
 RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
-RowDefinition.prototype.GetMaxHeight = function () {
+RowDefinition.Instance.GetMaxHeight = function () {
     return this.GetValue(RowDefinition.MaxHeightProperty);
 };
-RowDefinition.prototype.SetMaxHeight = function (value) {
+RowDefinition.Instance.SetMaxHeight = function (value) {
     this.SetValue(RowDefinition.MaxHeightProperty, value);
 };
 RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, RowDefinition, 0.0);
-RowDefinition.prototype.GetMinHeight = function () {
+RowDefinition.Instance.GetMinHeight = function () {
     return this.GetValue(RowDefinition.MinHeightProperty);
 };
-RowDefinition.prototype.SetMinHeight = function (value) {
+RowDefinition.Instance.SetMinHeight = function (value) {
     this.SetValue(RowDefinition.MinHeightProperty, value);
 };
 RowDefinition.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
-RowDefinition.prototype.GetActualHeight = function () {
+RowDefinition.Instance.GetActualHeight = function () {
     return this.GetValue(RowDefinition.ActualHeightProperty);
 };
-RowDefinition.prototype.SetActualHeight = function (value) {
+RowDefinition.Instance.SetActualHeight = function (value) {
     this.SetValue(RowDefinition.ActualHeightProperty, value);
 };
+Nullstone.FinishCreate(RowDefinition);
 
-function RowDefinitionCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(RowDefinitionCollection, "RowDefinitionCollection", DependencyObjectCollection);
-RowDefinitionCollection.prototype.AddedToCollection = function (value, error) {
+var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", DependencyObjectCollection);
+RowDefinitionCollection.Instance.AddedToCollection = function (value, error) {
     if (this.Contains(value)) {
         error.SetErrored(BError.Argument, "RowDefinition is already a member of this collection.");
         return false;
     }
-    return this.AddedToCollection$super(value, error);
+    return this.AddedToCollection$DependencyObjectCollection(value, error);
 };
-RowDefinitionCollection.prototype.IsElementType = function (value) {
+RowDefinitionCollection.Instance.IsElementType = function (value) {
     return value instanceof RowDefinition;
 };
+Nullstone.FinishCreate(RowDefinitionCollection);
 
-function _PasswordBoxDynamicPropertyValueProvider(obj, propPrecedence) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super(obj, propPrecedence,
+var _PasswordBoxDynamicPropertyValueProvider = Nullstone.Create("_PasswordBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider, 2);
+_PasswordBoxDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_TextBoxBaseDynamicPropertyValueProvider(obj, propPrecedence, 
         PasswordBox.SelectionForegroundProperty, PasswordBox.SelectionBackgroundProperty, PasswordBox.BaselineOffsetProperty);
-}
-Nullstone.Extend(_PasswordBoxDynamicPropertyValueProvider, "_PasswordBoxDynamicPropertyValueProvider", _TextBoxBaseDynamicPropertyValueProvider);
+};
+Nullstone.FinishCreate(_PasswordBoxDynamicPropertyValueProvider);
 
-function DataTemplate() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(DataTemplate, "DataTemplate", FrameworkTemplate);
+var DataTemplate = Nullstone.Create("DataTemplate", FrameworkTemplate);
 DataTemplate.CreateTemplateFromJson = function (json) {
     var template = new DataTemplate();
     var namescope = new NameScope();
@@ -9258,11 +9018,11 @@ DataTemplate.CreateTemplateFromJson = function (json) {
     template._Hijack(root);
     return template;
 };
+Nullstone.FinishCreate(DataTemplate);
 
-function FrameworkElement() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var FrameworkElement = Nullstone.Create("FrameworkElement", UIElement);
+FrameworkElement.Instance.Init = function () {
+    this.Init$UIElement();
     this.TemplatedApplied = new MulticastEvent();
     this._BoundsWithChildren = new Rect();
     this._GlobalBoundsWithChildren = new Rect();
@@ -9272,117 +9032,116 @@ function FrameworkElement() {
     this._Providers[_PropertyPrecedence.ImplicitStyle] = new _ImplicitStylePropertyValueProvider(this, _PropertyPrecedence.ImplicitStyle);
     this._Providers[_PropertyPrecedence.DynamicValue] = new FrameworkElementPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
-}
-Nullstone.Extend(FrameworkElement, "FrameworkElement", UIElement);
+};
 FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () { return Number; }, FrameworkElement, NaN);
-FrameworkElement.prototype.GetHeight = function () {
+FrameworkElement.Instance.GetHeight = function () {
     return this.GetValue(FrameworkElement.HeightProperty);
 };
-FrameworkElement.prototype.SetHeight = function (value) {
+FrameworkElement.Instance.SetHeight = function (value) {
     this.SetValue(FrameworkElement.HeightProperty, value);
 };
 FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () { return Number; }, FrameworkElement, NaN);
-FrameworkElement.prototype.GetWidth = function () {
+FrameworkElement.Instance.GetWidth = function () {
     return this.GetValue(FrameworkElement.WidthProperty);
 };
-FrameworkElement.prototype.SetWidth = function (value) {
+FrameworkElement.Instance.SetWidth = function (value) {
     this.SetValue(FrameworkElement.WidthProperty, value);
 };
 FrameworkElement.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, FrameworkElement);
-FrameworkElement.prototype.GetActualHeight = function () {
+FrameworkElement.Instance.GetActualHeight = function () {
     return this.GetValue(FrameworkElement.ActualHeightProperty);
 };
 FrameworkElement.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, FrameworkElement);
-FrameworkElement.prototype.GetActualWidth = function () {
+FrameworkElement.Instance.GetActualWidth = function () {
     return this.GetValue(FrameworkElement.ActualWidthProperty);
 };
 FrameworkElement.DataContextProperty = DependencyProperty.Register("DataContext", function () { return Object; }, FrameworkElement);
-FrameworkElement.prototype.GetDataContext = function () {
+FrameworkElement.Instance.GetDataContext = function () {
     return this.GetValue(FrameworkElement.DataContextProperty);
 };
-FrameworkElement.prototype.SetDataContext = function (value) {
+FrameworkElement.Instance.SetDataContext = function (value) {
     this.SetValue(FrameworkElement.DataContextProperty, value);
 };
 FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return Number; }, FrameworkElement, HorizontalAlignment.Stretch);
-FrameworkElement.prototype.GetHorizontalAlignment = function () {
+FrameworkElement.Instance.GetHorizontalAlignment = function () {
     return this.GetValue(FrameworkElement.HorizontalAlignmentProperty);
 };
-FrameworkElement.prototype.SetHorizontalAlignment = function (value) {
+FrameworkElement.Instance.SetHorizontalAlignment = function (value) {
     this.SetValue(FrameworkElement.HorizontalAlignmentProperty, value);
 };
 FrameworkElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, FrameworkElement);
-FrameworkElement.prototype.GetLanguage = function () {
+FrameworkElement.Instance.GetLanguage = function () {
     return this.GetValue(FrameworkElement.LanguageProperty);
 };
-FrameworkElement.prototype.SetLanguage = function (value) {
+FrameworkElement.Instance.SetLanguage = function (value) {
     this.SetValue(FrameworkElement.LanguageProperty, value);
 };
 FrameworkElement.MarginProperty = DependencyProperty.Register("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
-FrameworkElement.prototype.GetMargin = function () {
+FrameworkElement.Instance.GetMargin = function () {
     return this.GetValue(FrameworkElement.MarginProperty);
 };
-FrameworkElement.prototype.SetMargin = function (value) {
+FrameworkElement.Instance.SetMargin = function (value) {
     this.SetValue(FrameworkElement.MarginProperty, value);
 };
 FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-FrameworkElement.prototype.GetMaxHeight = function () {
+FrameworkElement.Instance.GetMaxHeight = function () {
     return this.GetValue(FrameworkElement.MaxHeightProperty);
 };
-FrameworkElement.prototype.SetMaxHeight = function (value) {
+FrameworkElement.Instance.SetMaxHeight = function (value) {
     this.SetValue(FrameworkElement.MaxHeightProperty, value);
 };
 FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-FrameworkElement.prototype.GetMaxWidth = function () {
+FrameworkElement.Instance.GetMaxWidth = function () {
     return this.GetValue(FrameworkElement.MaxWidthProperty);
 };
-FrameworkElement.prototype.SetMaxWidth = function (value) {
+FrameworkElement.Instance.SetMaxWidth = function (value) {
     this.SetValue(FrameworkElement.MaxWidthProperty, value);
 };
 FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
-FrameworkElement.prototype.GetMinHeight = function () {
+FrameworkElement.Instance.GetMinHeight = function () {
     return this.GetValue(FrameworkElement.MinHeightProperty);
 };
-FrameworkElement.prototype.SetMinHeight = function (value) {
+FrameworkElement.Instance.SetMinHeight = function (value) {
     this.SetValue(FrameworkElement.MinHeightProperty, value);
 };
 FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
-FrameworkElement.prototype.GetMinWidth = function () {
+FrameworkElement.Instance.GetMinWidth = function () {
     return this.GetValue(FrameworkElement.MinWidthProperty);
 };
-FrameworkElement.prototype.SetMinWidth = function (value) {
+FrameworkElement.Instance.SetMinWidth = function (value) {
     this.SetValue(FrameworkElement.MinWidthProperty, value);
 };
 FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return Number; }, FrameworkElement, VerticalAlignment.Stretch);
-FrameworkElement.prototype.GetVerticalAlignment = function () {
+FrameworkElement.Instance.GetVerticalAlignment = function () {
     return this.GetValue(FrameworkElement.VerticalAlignmentProperty);
 };
-FrameworkElement.prototype.SetVerticalAlignment = function (value) {
+FrameworkElement.Instance.SetVerticalAlignment = function (value) {
     this.SetValue(FrameworkElement.VerticalAlignmentProperty, value);
 };
 FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () { return Style; }, FrameworkElement);
-FrameworkElement.prototype.GetStyle = function () {
+FrameworkElement.Instance.GetStyle = function () {
     return this.GetValue(FrameworkElement.StyleProperty);
 };
-FrameworkElement.prototype.SetStyle = function (value) {
+FrameworkElement.Instance.SetStyle = function (value) {
     this.SetValue(FrameworkElement.StyleProperty, value);
 };
 FrameworkElement.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return Number; }, FrameworkElement);
-FrameworkElement.prototype.GetFlowDirection = function () {
+FrameworkElement.Instance.GetFlowDirection = function () {
     return this.GetValue(FrameworkElement.FlowDirectionProperty);
 };
-FrameworkElement.prototype.SetFlowDirection = function (value) {
+FrameworkElement.Instance.SetFlowDirection = function (value) {
     this.SetValue(FrameworkElement.FlowDirectionProperty, value);
 };
-FrameworkElement.prototype.SetTemplateBinding = function (propd, tb) {
+FrameworkElement.Instance.SetTemplateBinding = function (propd, tb) {
     try {
         this.SetValue(propd, tb);
     } catch (err) {
     }
 };
-FrameworkElement.prototype.SetBinding = function (propd, binding) {
+FrameworkElement.Instance.SetBinding = function (propd, binding) {
     return BindingOperations.SetBinding(this, propd, binding);
 };
-FrameworkElement.prototype._ApplySizeConstraints = function (size) {
+FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     var specified = new Size(this.GetWidth(), this.GetHeight());
     var constrained = new Size(this.GetMinWidth(), this.GetMinHeight());
     constrained = constrained.Max(size);
@@ -9398,14 +9157,14 @@ FrameworkElement.prototype._ApplySizeConstraints = function (size) {
     }
     return constrained;
 };
-FrameworkElement.prototype._GetSubtreeExtents = function () {
+FrameworkElement.Instance._GetSubtreeExtents = function () {
     if (this._GetSubtreeObject())
         return this._ExtentsWithChildren;
     return this._Extents;
 };
-FrameworkElement.prototype._ComputeActualSize = function () {
+FrameworkElement.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
-    if (this.GetVisibility() != Visibility.Visible)
+    if (this.GetVisibility() !== Visibility.Visible)
         return new Size(0.0, 0.0);
     if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
         return this._GetRenderSize();
@@ -9413,7 +9172,7 @@ FrameworkElement.prototype._ComputeActualSize = function () {
     actual = this._ApplySizeConstraints(actual);
     return actual;
 };
-FrameworkElement.prototype._ComputeBounds = function () {
+FrameworkElement.Instance._ComputeBounds = function () {
     var size = new Size(this.GetActualWidth(), this.GetActualHeight());
     size = this._ApplySizeConstraints(size);
     this._Extents = new Rect(0, 0, size.Width, size.Height);
@@ -9429,25 +9188,25 @@ FrameworkElement.prototype._ComputeBounds = function () {
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
-FrameworkElement.prototype._ComputeGlobalBounds = function () {
-    this._ComputeGlobalBounds$super();
+FrameworkElement.Instance._ComputeGlobalBounds = function () {
+    this._ComputeGlobalBounds$UIElement();
     this._GlobalBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._LocalProjection);
 };
-FrameworkElement.prototype._ComputeSurfaceBounds = function () {
-    this._ComputeSurfaceBounds$super();
+FrameworkElement.Instance._ComputeSurfaceBounds = function () {
+    this._ComputeSurfaceBounds$UIElement();
     this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
 };
-FrameworkElement.prototype._GetGlobalBounds = function () {
+FrameworkElement.Instance._GetGlobalBounds = function () {
     if (this._GetSubtreeObject())
         return this._GlobalBoundsWithChildren;
     return this._GlobalBounds;
 };
-FrameworkElement.prototype._GetSubtreeBounds = function () {
+FrameworkElement.Instance._GetSubtreeBounds = function () {
     if (this._GetSubtreeObject())
         return this._SurfaceBoundsWithChildren;
     return this._SurfaceBounds;
 };
-FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
+FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
         return;
     if (isNaN(availableSize.Width) || isNaN(availableSize.Height)) {
@@ -9495,7 +9254,7 @@ FrameworkElement.prototype._MeasureWithError = function (availableSize, error) {
     }
     this._DesiredSize = size;
 };
-FrameworkElement.prototype._MeasureOverrideWithError = function (availableSize, error) {
+FrameworkElement.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
     availableSize = availableSize.Max(desired);
     var walker = new _VisualTreeWalker(this);
@@ -9506,7 +9265,7 @@ FrameworkElement.prototype._MeasureOverrideWithError = function (availableSize, 
     }
     return desired.Min(availableSize);
 };
-FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
+FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
     var slot = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
@@ -9523,7 +9282,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         return;
     }
     var parent = this.GetVisualParent();
-    if (this.GetVisibility() != Visibility.Visible) {
+    if (this.GetVisibility() !== Visibility.Visible) {
         LayoutInformation.SetLayoutSlot(this, finalRect);
         return;
     }
@@ -9659,7 +9418,7 @@ FrameworkElement.prototype._ArrangeWithError = function (finalRect, error) {
         }
     }
 };
-FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var arranged = finalSize;
     var walker = new _VisualTreeWalker(this);
     var child;
@@ -9670,7 +9429,7 @@ FrameworkElement.prototype._ArrangeOverrideWithError = function (finalSize, erro
     }
     return arranged;
 };
-FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
+FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (!this._GetRenderVisible())
         return;
     if (!this._GetIsHitTestVisible())
@@ -9683,7 +9442,7 @@ FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
     var child;
     while (child = walker.Step()) {
         child._HitTestPoint(ctx, p, uielist);
-        if (!RefObject.RefEquals(node, uielist.First())) {
+        if (!Nullstone.RefEquals(node, uielist.First())) {
             hit = true;
             break;
         }
@@ -9691,7 +9450,7 @@ FrameworkElement.prototype._HitTestPoint = function (ctx, p, uielist) {
     if (!hit && !(this._CanFindElement() && this._InsideObject(ctx, p.X, p.Y)))
         uielist.Remove(node);
 };
-FrameworkElement.prototype._InsideObject = function (ctx, x, y) {
+FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
     var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
     var np = new Point(x, y);
     this._TransformPoint(np);
@@ -9699,12 +9458,12 @@ FrameworkElement.prototype._InsideObject = function (ctx, x, y) {
         return false;
     if (!this._InsideLayoutClip(x, y))
         return false;
-    return this._InsideObject$super(ctx, x, y);
+    return this._InsideObject$UIElement(ctx, x, y);
 };
-FrameworkElement.prototype._InsideLayoutClip = function (x, y) {
+FrameworkElement.Instance._InsideLayoutClip = function (x, y) {
     return true;
 };
-FrameworkElement.prototype._HasLayoutClip = function () {
+FrameworkElement.Instance._HasLayoutClip = function () {
     var element = this;
     while (element) {
         if (LayoutInformation.GetLayoutClip(element))
@@ -9715,7 +9474,7 @@ FrameworkElement.prototype._HasLayoutClip = function () {
     }
     return false;
 };
-FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
+FrameworkElement.Instance._RenderLayoutClip = function (ctx) {
     var element = this;
     var inverse = new TranslationMatrix(0, 0);
     while (element) {
@@ -9734,12 +9493,12 @@ FrameworkElement.prototype._RenderLayoutClip = function (ctx) {
     }
     ctx.Transform(inverse);
 };
-FrameworkElement.prototype._ElementRemoved = function (value) {
-    this._ElementRemoved$super(value);
+FrameworkElement.Instance._ElementRemoved = function (value) {
+    this._ElementRemoved$UIElement(value);
     if (this._GetSubtreeObject() == value)
         this._SetSubtreeObject(null);
 };
-FrameworkElement.prototype._UpdateLayer = function (pass, error) {
+FrameworkElement.Instance._UpdateLayer = function (pass, error) {
     var element = this;
     var parent;
     while (parent = element.GetVisualParent())
@@ -9758,7 +9517,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
         }
         pass._Count = pass._Count + 1;
         var flag = UIElementFlags.None;
-        if (element.GetVisibility() == Visibility.Visible) {
+        if (element.GetVisibility() === Visibility.Visible) {
             if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                 flag = UIElementFlags.DirtyMeasureHint;
             else if (element._HasFlag(UIElementFlags.DirtyArrangeHint))
@@ -9770,7 +9529,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
             var measureWalker = new _DeepTreeWalker(element);
             var child;
             while (child = measureWalker.Step()) {
-                if (child.GetVisibility() != Visibility.Visible || !child._HasFlag(flag)) {
+                if (child.GetVisibility() !== Visibility.Visible || !child._HasFlag(flag)) {
                     measureWalker.SkipBranch();
                     continue;
                 }
@@ -9825,7 +9584,7 @@ FrameworkElement.prototype._UpdateLayer = function (pass, error) {
         }
     }
 };
-FrameworkElement.prototype._SetImplicitStyles = function (styleMask, styles) {
+FrameworkElement.Instance._SetImplicitStyles = function (styleMask, styles) {
     var app = App.Instance;
     if (!app)
         return;
@@ -9845,14 +9604,14 @@ FrameworkElement.prototype._SetImplicitStyles = function (styleMask, styles) {
     }
     this._Providers[_PropertyPrecedence.ImplicitStyle].SetStyles(styleMask, styles, error);
 };
-FrameworkElement.prototype._ClearImplicitStyles = function (styleMask) {
+FrameworkElement.Instance._ClearImplicitStyles = function (styleMask) {
     var error = new BError();
     this._Providers[_PropertyPrecedence.ImplicitStyle].ClearStyles(styleMask, error);
 };
-FrameworkElement.prototype.OnApplyTemplate = function () {
+FrameworkElement.Instance.OnApplyTemplate = function () {
     this.TemplatedApplied.Raise(this, null);
 };
-FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
+FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
     if (this._GetSubtreeObject())
         return false;
     var result = this._DoApplyTemplateWithError(error);
@@ -9860,7 +9619,7 @@ FrameworkElement.prototype._ApplyTemplateWithError = function (error) {
         this.OnApplyTemplate();
     return result;
 };
-FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
+FrameworkElement.Instance._DoApplyTemplateWithError = function (error) {
     var d = this._GetDefaultTemplate();
     if (d) {
         d._AddParent(this, true, error);
@@ -9871,14 +9630,14 @@ FrameworkElement.prototype._DoApplyTemplateWithError = function (error) {
     }
     return d != null;
 };
-FrameworkElement.prototype._GetDefaultTemplate = function () {
+FrameworkElement.Instance._GetDefaultTemplate = function () {
     if (this._GetDefaultTemplateCallback)
         return this._GetDefaultTemplateCallback(this);
     return null;
 };
-FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
+FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== FrameworkElement) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$UIElement(args, error);
         return;
     }
     if (args.Property === FrameworkElement.WidthProperty
@@ -9909,28 +9668,28 @@ FrameworkElement.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-FrameworkElement.prototype.InvokeLoaded = function () {
+FrameworkElement.Instance.InvokeLoaded = function () {
 };
-FrameworkElement.prototype._OnIsLoadedChanged = function (loaded) {
+FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
     if (loaded)
         this._SetImplicitStyles(_StyleMask.All);
     else
         this._ClearImplicitStyles(_StyleMask.VisualTree);
-    this._OnIsLoadedChanged$super(loaded);
+    this._OnIsLoadedChanged$UIElement(loaded);
     if (loaded)
         this.InvokeLoaded();
     if (this._Providers[_PropertyPrecedence.InheritedDataContext])
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
-FrameworkElement.prototype.SetVisualParent = function (/* UIElement */value) {
-    this.SetVisualParent$super(value);
+FrameworkElement.Instance.SetVisualParent = function (/* UIElement */value) {
+    this.SetVisualParent$UIElement(value);
     if (!this._LogicalParent && (this._VisualParent == null || this._VisualParent instanceof FrameworkElement)) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(this._VisualParent);
         if (this._IsLoaded)
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
     }
 };
-FrameworkElement.prototype._SetLogicalParent = function (value, error) {
+FrameworkElement.Instance._SetLogicalParent = function (value, error) {
     if (this._LogicalParent == value)
         return;
     if (false/* TODO: IsShuttingDown */) {
@@ -9945,10 +9704,10 @@ FrameworkElement.prototype._SetLogicalParent = function (value, error) {
     this._LogicalParent = value;
     this._OnLogicalParentChanged(oldParent, value);
 };
-FrameworkElement.prototype._GetLogicalParent = function () {
+FrameworkElement.Instance._GetLogicalParent = function () {
     return this._LogicalParent;
 };
-FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newParent) {
+FrameworkElement.Instance._OnLogicalParentChanged = function (oldParent, newParent) {
     if (false/* TODO: this._IsDisposing() */) {
     } else {
         var visualParent;
@@ -9962,31 +9721,23 @@ FrameworkElement.prototype._OnLogicalParentChanged = function (oldParent, newPar
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
     }
 };
+Nullstone.FinishCreate(FrameworkElement);
 
-function Setter() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Setter, "Setter", SetterBase);
+var Setter = Nullstone.Create("Setter", SetterBase);
 Setter.PropertyProperty = DependencyProperty.Register("Property", function () { return DependencyProperty; }, Setter);
 Setter.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, Setter);
 Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, Setter);
+Nullstone.FinishCreate(Setter);
 
-function SetterBaseCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(SetterBaseCollection, "SetterBaseCollection", DependencyObjectCollection);
+var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", DependencyObjectCollection);
 SetterBaseCollection.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBaseCollection);
-SetterBaseCollection.prototype.GetIsSealed = function () {
+SetterBaseCollection.Instance.GetIsSealed = function () {
     return this.GetValue(SetterBaseCollection.IsSealedProperty);
 };
-SetterBaseCollection.prototype.SetIsSealed = function (value) {
+SetterBaseCollection.Instance.SetIsSealed = function (value) {
     this.SetValue(SetterBaseCollection.IsSealedProperty, value);
 };
-SetterBaseCollection.prototype._Seal = function () {
+SetterBaseCollection.Instance._Seal = function () {
     this.SetIsSealed(true);
     var error = new BError();
     var iterator = this.GetIterator();
@@ -9995,26 +9746,26 @@ SetterBaseCollection.prototype._Seal = function () {
         setter._Seal();
     }
 };
-SetterBaseCollection.prototype.AddedToCollection = function (value, error) {
+SetterBaseCollection.Instance.AddedToCollection = function (value, error) {
     if (!value || !this._ValidateSetter(value, error))
         return false;
     if (value instanceof SetterBase) {
         value.SetAttached(true);
         value._Seal();
     }
-    return this.AddedToCollection$super(value, error);
+    return this.AddedToCollection$DependencyObjectCollection(value, error);
 };
-SetterBaseCollection.prototype.RemovedFromCollection = function (value, isValueSafe) {
+SetterBaseCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof SetterBase)
             value.SetAttached(false);
     }
-    this.RemovedFromCollection$super(value, isValueSafe);
+    this.RemovedFromCollection$DependencyObjectCollection(value, isValueSafe);
 };
-SetterBaseCollection.prototype.IsElementType = function (value) {
+SetterBaseCollection.Instance.IsElementType = function (value) {
     return value instanceof SetterBase;
 };
-SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
+SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
     var s;
     if (value instanceof Setter) {
         s = Nullstone.As(value, Setter);
@@ -10040,36 +9791,27 @@ SetterBaseCollection.prototype._ValidateSetter = function (value, error) {
     }
     return true;
 };
+Nullstone.FinishCreate(SetterBaseCollection);
 
-function Block() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Block, "Block", TextElement);
+var Block = Nullstone.Create("Block", TextElement);
 Block.InlinesProperty = DependencyProperty.Register("Inlines", function () { return InlineCollection; }, Block);
-Block.prototype.GetInlines = function () {
+Block.Instance.GetInlines = function () {
     return this.GetValue(Block.InlinesProperty);
 };
-Block.prototype.SetInlines = function (value) {
+Block.Instance.SetInlines = function (value) {
     this.SetValue(Block.InlinesProperty, value);
 };
+Nullstone.FinishCreate(Block);
 
-function BlockCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(BlockCollection, "BlockCollection", TextElementCollection);
+var BlockCollection = Nullstone.Create("BlockCollection", TextElementCollection);
+Nullstone.FinishCreate(BlockCollection);
 
-function Inline() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Inline = Nullstone.Create("Inline", TextElement);
+Inline.Instance.Init = function () {
+    this.Init$TextElement();
     this._Autogen = false;
-}
-Nullstone.Extend(Inline, "Inline", TextElement);
-Inline.prototype.Equals = function (inline) {
+};
+Inline.Instance.Equals = function (inline) {
     if (this.GetFontFamily() != inline.GetFontFamily())
         return false;
     if (this.GetFontSize() != inline.GetFontSize())
@@ -10086,103 +9828,73 @@ Inline.prototype.Equals = function (inline) {
         return false;
     return true;
 };
-Inline.prototype._GetAutogenerated = function () {
+Inline.Instance._GetAutogenerated = function () {
     return this._Autogen;
 };
-Inline.prototype._SetAutogenerated = function (value) {
+Inline.Instance._SetAutogenerated = function (value) {
     this._Autogen = value;
 };
+Nullstone.FinishCreate(Inline);
 
-function InlineCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(InlineCollection, "InlineCollection", TextElementCollection);
-function InlineCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(InlineCollection, "InlineCollection", TextElementCollection);
-InlineCollection.prototype.AddedToCollection = function (value, error) {
+var InlineCollection = Nullstone.Create("InlineCollection", TextElementCollection);
+InlineCollection.Instance.AddedToCollection = function (value, error) {
     if (this._ForHyperlink) {
         if (false) { //TODO: if (!this._IsValueSupportedInHyperlinkn(value)) {
             error.SetErrored(BError.Argument, "Invalid value in Hyperlink");
             return false;
         }
     }
-    return this.AddedToCollection$super(value, error);
+    return this.AddedToCollection$TextElementCollection(value, error);
 };
-InlineCollection.prototype.Equals = function (inlines) {
+InlineCollection.Instance.Equals = function (inlines) {
     NotImplemented("InlineCollection.Equals");
 };
-InlineCollection.prototype.IsElementType = function (value) {
+InlineCollection.Instance.IsElementType = function (value) {
     return value instanceof Inline;
 };
-InlineCollection.prototype._SetIsForHyperlink = function () { this._ForHyperlink = true; };
+InlineCollection.Instance._SetIsForHyperlink = function () { this._ForHyperlink = true; };
+Nullstone.FinishCreate(InlineCollection);
 
-function LineBreak() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(LineBreak, "LineBreak", Inline);
+var LineBreak = Nullstone.Create("LineBreak", Inline);
+Nullstone.FinishCreate(LineBreak);
 
-function Paragraph() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Paragraph, "Paragraph", Block);
+var Paragraph = Nullstone.Create("Paragraph", Block);
+Nullstone.FinishCreate(Paragraph);
 
-function Run() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Run, "Run", Inline);
+var Run = Nullstone.Create("Run", Inline);
 Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return Number; }, Run, FlowDirection.LeftToRight);
-Run.prototype.GetFlowDirection = function () {
+Run.Instance.GetFlowDirection = function () {
     return this.GetValue(Run.FlowDirectionProperty);
 };
-Run.prototype.SetFlowDirection = function (value) {
+Run.Instance.SetFlowDirection = function (value) {
     this.SetValue(Run.FlowDirectionProperty, value);
 };
 Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
-Run.prototype.GetText = function () {
+Run.Instance.GetText = function () {
     return this.GetValue(Run.TextProperty);
 };
-Run.prototype.SetText = function (value) {
+Run.Instance.SetText = function (value) {
     this.SetValue(Run.TextProperty, value);
 };
-Run.prototype._SerializeText = function (str) {
+Run.Instance._SerializeText = function (str) {
     var t = this.GetText();
     if (t != null)
         return str.concat(t);
     return str;
 };
+Nullstone.FinishCreate(Run);
 
-function Section() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Section, "Section", TextElement);
+var Section = Nullstone.Create("Section", TextElement);
 Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return BlockCollection; }, Section);
-Section.prototype.GetBlocks = function () {
+Section.Instance.GetBlocks = function () {
     return this.GetValue(Section.BlocksProperty);
 };
-Section.prototype.SetBlocks = function (value) {
+Section.Instance.SetBlocks = function (value) {
     this.SetValue(Section.BlocksProperty, value);
 };
+Nullstone.FinishCreate(Section);
 
-function Span() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Span, "Span", Inline);
+var Span = Nullstone.Create("Span", Inline);
 Span._CreateInlineCollection = function (obj) {
     var inlines = new InlineCollection();
     if (obj instanceof Hyperlink)
@@ -10190,10 +9902,10 @@ Span._CreateInlineCollection = function (obj) {
     return inlines;
 };
 Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, null, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
-Span.prototype.GetInlines = function () {
+Span.Instance.GetInlines = function () {
     return this.GetValue(Span.InlinesProperty);
 };
-Span.prototype._SerializeText = function (str) {
+Span.Instance._SerializeText = function (str) {
     var inlines = this.GetInlines();
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
@@ -10201,83 +9913,71 @@ Span.prototype._SerializeText = function (str) {
     }
     return str;
 };
-Span.prototype._OnCollectionChanged = function (sender, args) {
+Span.Instance._OnCollectionChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Span.InlinesProperty, sender)) {
         if (args.Action === CollectionChangedArgs.Action.Add)
             this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
         this._NotifyLayoutContainerOnCollectionChanged(sender, args);
     } else {
-        this._OnCollectionChanged$super(sender, args);
+        this._OnCollectionChanged$Inline(sender, args);
     }
 };
+Nullstone.FinishCreate(Span);
 
-function ImageBrush() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ImageBrush, "ImageBrush", TileBrush);
+var ImageBrush = Nullstone.Create("ImageBrush", TileBrush);
+Nullstone.FinishCreate(ImageBrush);
 
-function Animation() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Animation, "Animation", Timeline);
-Animation.prototype.Resolve = function () { return true; };
-Animation.prototype.HookupStorage = function (targetObj, targetProp) {
+var Animation = Nullstone.Create("Animation", Timeline);
+Animation.Instance.Resolve = function () { return true; };
+Animation.Instance.HookupStorage = function (targetObj, targetProp) {
     this._Storage = new AnimationStorage(this, targetObj, targetProp);
     return this._Storage;
 };
-Animation.prototype.Stop = function () {
+Animation.Instance.Stop = function () {
     if (this._Storage == null)
         return;
     this._Storage.Stop();
 };
-Animation.prototype.UpdateInternal = function (clockData) {
+Animation.Instance.UpdateInternal = function (clockData) {
     if (this._Storage != null)
         this._Storage.UpdateCurrentValueAndApply(clockData);
 };
-Animation.prototype._GetTargetValue = function (defaultOriginValue) { return null; };
-Animation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) { return null; };
+Animation.Instance._GetTargetValue = function (defaultOriginValue) { return null; };
+Animation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) { return null; };
+Nullstone.FinishCreate(Animation);
 
-function ColorAnimation() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ColorAnimation, "ColorAnimation", Animation);
+var ColorAnimation = Nullstone.Create("ColorAnimation", Animation);
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetBy = function () {
+ColorAnimation.Instance.GetBy = function () {
     return this.GetValue(ColorAnimation.ByProperty);
 };
-ColorAnimation.prototype.SetBy = function (value) {
+ColorAnimation.Instance.SetBy = function (value) {
     this.SetValue(ColorAnimation.ByProperty, value);
 };
 /*
 ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
-ColorAnimation.prototype.GetEasingFunction = function () {
-    return this.GetValue(ColorAnimation.EasingFunctionProperty);
+ColorAnimation.Instance.GetEasingFunction = function () {
+return this.GetValue(ColorAnimation.EasingFunctionProperty);
 };
-ColorAnimation.prototype.SetEasingFunction = function (value) {
-    this.SetValue(ColorAnimation.EasingFunctionProperty, value);
+ColorAnimation.Instance.SetEasingFunction = function (value) {
+this.SetValue(ColorAnimation.EasingFunctionProperty, value);
 };
 */
 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetFrom = function () {
+ColorAnimation.Instance.GetFrom = function () {
     return this.GetValue(ColorAnimation.FromProperty);
 };
-ColorAnimation.prototype.SetFrom = function (value) {
+ColorAnimation.Instance.SetFrom = function (value) {
     this.SetValue(ColorAnimation.FromProperty, value);
 };
 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
-ColorAnimation.prototype.GetTo = function () {
+ColorAnimation.Instance.GetTo = function () {
     return this.GetValue(ColorAnimation.ToProperty);
 };
-ColorAnimation.prototype.SetTo = function (value) {
+ColorAnimation.Instance.SetTo = function (value) {
     this.SetValue(ColorAnimation.ToProperty, value);
 };
-ColorAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
+ColorAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
     var start = new Color();
     if (this._FromCached != null)
@@ -10290,7 +9990,7 @@ ColorAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
         return start.Add(this._ByCached);
     return start;
 };
-ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+ColorAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
     var start = new Color();
     if (this._FromCached != null)
@@ -10306,7 +10006,7 @@ ColorAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaul
         end = defaultDestinationValue;
     return start.Add(end.Subtract(start).Multiply(clockData.Progress));
 };
-ColorAnimation.prototype._EnsureCache = function () {
+ColorAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
         return;
     this._FromCached = this.GetFrom();
@@ -10314,57 +10014,49 @@ ColorAnimation.prototype._EnsureCache = function () {
     this._ByCached = this.GetBy();
     this._HasCached = true;
 };
+Nullstone.FinishCreate(ColorAnimation);
 
-function DiscreteObjectKeyFrame() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(DiscreteObjectKeyFrame, "DiscreteObjectKeyFrame", ObjectKeyFrame);
-DiscreteObjectKeyFrame.prototype.InterpolateValue = function (baseValue, keyFrameProgress) {
+var DiscreteObjectKeyFrame = Nullstone.Create("DiscreteObjectKeyFrame", ObjectKeyFrame);
+DiscreteObjectKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
     if (keyFrameProgress >= 1.0) {
         return this.GetConvertedValue();
     }
     return baseValue;
 };
+Nullstone.FinishCreate(DiscreteObjectKeyFrame);
 
-function DoubleAnimation() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(DoubleAnimation, "DoubleAnimation", Animation);
+var DoubleAnimation = Nullstone.Create("DoubleAnimation", Animation);
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetBy = function () {
+DoubleAnimation.Instance.GetBy = function () {
     return this.GetValue(DoubleAnimation.ByProperty);
 };
-DoubleAnimation.prototype.SetBy = function (value) {
+DoubleAnimation.Instance.SetBy = function (value) {
     this.SetValue(DoubleAnimation.ByProperty, value);
 };
 /*
 DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, DoubleAnimation);
-DoubleAnimation.prototype.GetEasingFunction = function () {
-    return this.GetValue(DoubleAnimation.EasingFunctionProperty);
+DoubleAnimation.Instance.GetEasingFunction = function () {
+return this.GetValue(DoubleAnimation.EasingFunctionProperty);
 };
-DoubleAnimation.prototype.SetEasingFunction = function (value) {
-    this.SetValue(DoubleAnimation.EasingFunctionProperty, value);
+DoubleAnimation.Instance.SetEasingFunction = function (value) {
+this.SetValue(DoubleAnimation.EasingFunctionProperty, value);
 };
 */
 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetFrom = function () {
+DoubleAnimation.Instance.GetFrom = function () {
     return this.GetValue(DoubleAnimation.FromProperty);
 };
-DoubleAnimation.prototype.SetFrom = function (value) {
+DoubleAnimation.Instance.SetFrom = function (value) {
     this.SetValue(DoubleAnimation.FromProperty, value);
 };
 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.prototype.GetTo = function () {
+DoubleAnimation.Instance.GetTo = function () {
     return this.GetValue(DoubleAnimation.ToProperty);
 };
-DoubleAnimation.prototype.SetTo = function (value) {
+DoubleAnimation.Instance.SetTo = function (value) {
     this.SetValue(DoubleAnimation.ToProperty, value);
 };
-DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
+DoubleAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
     var start = 0.0;
     if (this._FromCached != null)
@@ -10377,7 +10069,7 @@ DoubleAnimation.prototype._GetTargetValue = function (defaultOriginValue) {
         return start + this._ByCached;
     return start;
 };
-DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+DoubleAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
     var start = 0.0;
     if (this._FromCached != null)
@@ -10393,7 +10085,7 @@ DoubleAnimation.prototype._GetCurrentValue = function (defaultOriginValue, defau
         end = defaultDestinationValue;
     return start + ((end - start) * clockData.Progress);
 };
-DoubleAnimation.prototype._EnsureCache = function () {
+DoubleAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
         return;
     this._FromCached = this.GetFrom();
@@ -10401,9 +10093,9 @@ DoubleAnimation.prototype._EnsureCache = function () {
     this._ByCached = this.GetBy();
     this._HasCached = true;
 };
-DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
+DoubleAnimation.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== DoubleAnimation) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$Animation(args, error);
         return;
     }
     this._FromCached = null;
@@ -10412,21 +10104,17 @@ DoubleAnimation.prototype._OnPropertyChanged = function (args, error) {
     this._HasCached = false;
     this.PropertyChanged.Raise(this, args);
 };
+Nullstone.FinishCreate(DoubleAnimation);
 
-function ObjectAnimationUsingKeyFrames() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ObjectAnimationUsingKeyFrames, "ObjectAnimationUsingKeyFrames", Animation);
+var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFrames", Animation);
 ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, null, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
-ObjectAnimationUsingKeyFrames.prototype.GetKeyFrames = function () {
+ObjectAnimationUsingKeyFrames.Instance.GetKeyFrames = function () {
     return this.GetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty);
 };
-ObjectAnimationUsingKeyFrames.prototype.SetKeyFrames = function (value) {
+ObjectAnimationUsingKeyFrames.Instance.SetKeyFrames = function (value) {
     this.SetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty, value);
 };
-ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
+ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
     var frames = this.GetKeyFrames();
     var count = frames.GetCount();
     for (var i = 0; i < count; i++) {
@@ -10442,7 +10130,7 @@ ObjectAnimationUsingKeyFrames.prototype.Resolve = function (target, propd) {
     KeyFrameCollection.ResolveKeyFrames(this, frames);
     return true;
 };
-ObjectAnimationUsingKeyFrames.prototype._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     var keyFrames = this.GetKeyFrames();
     var prevFrameRef = {};
     var currentKeyFrame = keyFrames.GetKeyFrameForTime(clockData.CurrentTime, prevFrameRef);
@@ -10471,21 +10159,17 @@ ObjectAnimationUsingKeyFrames.prototype._GetCurrentValue = function (defaultOrig
     }
     return currentKeyFrame.InterpolateValue(baseValue, progress);
 };
-ObjectAnimationUsingKeyFrames.prototype.AddKeyFrame = function (frame) {
+ObjectAnimationUsingKeyFrames.Instance.AddKeyFrame = function (frame) {
     this.GetKeyFrames().Add(frame);
 };
-ObjectAnimationUsingKeyFrames.prototype.RemoveKeyFrame = function (frame) {
+ObjectAnimationUsingKeyFrames.Instance.RemoveKeyFrame = function (frame) {
     this.GetKeyFrames().Remove(frame);
 };
+Nullstone.FinishCreate(ObjectAnimationUsingKeyFrames);
 
-function Storyboard() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Storyboard, "Storyboard", Timeline);
+var Storyboard = Nullstone.Create("Storyboard", Timeline);
 Storyboard.ChildrenProperty = DependencyProperty.Register("Children", function () { return TimelineCollection; }, Storyboard);
-Storyboard.prototype.GetChildren = function () {
+Storyboard.Instance.GetChildren = function () {
     return this.GetValue(Storyboard.ChildrenProperty);
 };
 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () { return String }, Storyboard);
@@ -10505,22 +10189,22 @@ Storyboard.SetTargetProperty = function (d, value) {
 Storyboard.Annotations = {
     ContentProperty: Storyboard.ChildrenProperty
 };
-Storyboard.prototype.Begin = function () {
+Storyboard.Instance.Begin = function () {
     var error = new BError();
     this.BeginWithError(error);
     if (error.IsErrored())
         throw error.CreateException();
 };
-Storyboard.prototype.BeginWithError = function (error) {
+Storyboard.Instance.BeginWithError = function (error) {
     this.Reset();
     if (!this._HookupAnimations(error))
         return false;
     App.Instance.RegisterStoryboard(this);
 };
-Storyboard.prototype.Pause = function () {
+Storyboard.Instance.Pause = function () {
     this._IsPaused = true;
 };
-Storyboard.prototype.Resume = function () {
+Storyboard.Instance.Resume = function () {
     var nowTime = new Date().getTime();
     this._LastStep = nowTime;
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
@@ -10528,23 +10212,23 @@ Storyboard.prototype.Resume = function () {
     }
     this._IsPaused = false;
 };
-Storyboard.prototype.Stop = function () {
+Storyboard.Instance.Stop = function () {
     App.Instance.UnregisterStoryboard(this);
     var children = this.GetChildren();
     for (var i = 0; i < children.GetCount(); i++) {
         children.GetValueAt(i).Stop();
     }
 };
-Storyboard.prototype._HookupAnimations = function (error) {
+Storyboard.Instance._HookupAnimations = function (error) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         var animation = this.GetChildren(i).GetValueAt(i);
         animation.Reset();
-        if (!this._HookupAnimation(animation, error))
+        if (!this._HookupAnimation(animation, null, null, error))
             return false;
     }
     return true;
 };
-Storyboard.prototype._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
+Storyboard.Instance._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
     var localTargetObject = null;
     var localTargetPropertyPath = null;
     if (animation.HasManualTarget()) {
@@ -10575,80 +10259,72 @@ Storyboard.prototype._HookupAnimation = function (animation, targetObject, targe
     animation.HookupStorage(refobj.Value, targetProperty);
     return true;
 };
-Storyboard.prototype._Tick = function (lastTime, nowTime) {
+Storyboard.Instance._Tick = function (lastTime, nowTime) {
     if (this._IsPaused)
         return;
     this.Update(nowTime);
 };
-Storyboard.prototype.UpdateInternal = function (clockData) {
+Storyboard.Instance.UpdateInternal = function (clockData) {
     for (var i = 0; i < this.GetChildren().GetCount(); i++) {
         this.GetChildren().GetValueAt(i).Update(clockData.RealTicks);
     }
 };
-Storyboard.prototype.OnDurationReached = function () {
+Storyboard.Instance.OnDurationReached = function () {
     App.Instance.UnregisterStoryboard(this);
-    this.OnDurationReached$super();
+    this.OnDurationReached$Timeline();
 };
-function StoryboardCollection() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(StoryboardCollection, "StoryboardCollection", Collection);
-StoryboardCollection.prototype.IsElementType = function (obj) {
+Nullstone.FinishCreate(Storyboard);
+var StoryboardCollection = Nullstone.Create("StoryboardCollection", Collection);
+StoryboardCollection.Instance.IsElementType = function (obj) {
     return obj instanceof Storyboard;
 };
+Nullstone.FinishCreate(StoryboardCollection);
 
-function Border() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Border, "Border", FrameworkElement);
+var Border = Nullstone.Create("Border", FrameworkElement);
 Border.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Border);
-Border.prototype.GetBackground = function () {
+Border.Instance.GetBackground = function () {
     return this.GetValue(Border.BackgroundProperty);
 };
-Border.prototype.SetBackground = function (value) {
+Border.Instance.SetBackground = function (value) {
     this.SetValue(Border.BackgroundProperty, value);
 };
 Border.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Border);
-Border.prototype.GetBorderBrush = function () {
+Border.Instance.GetBorderBrush = function () {
     return this.GetValue(Border.BorderBrushProperty);
 };
-Border.prototype.SetBorderBrush = function (value) {
+Border.Instance.SetBorderBrush = function (value) {
     this.SetValue(Border.BorderBrushProperty, value);
 };
 Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
-Border.prototype.GetBorderThickness = function () {
+Border.Instance.GetBorderThickness = function () {
     return this.GetValue(Border.BorderThicknessProperty);
 };
-Border.prototype.SetBorderThickness = function (value) {
+Border.Instance.SetBorderThickness = function (value) {
     this.SetValue(Border.BorderThicknessProperty, value);
 };
 Border.ChildProperty = DependencyProperty.Register("Child", function () { return UIElement; }, Border);
-Border.prototype.GetChild = function () {
+Border.Instance.GetChild = function () {
     return this.GetValue(Border.ChildProperty);
 };
-Border.prototype.SetChild = function (value) {
+Border.Instance.SetChild = function (value) {
     this.SetValue(Border.ChildProperty, value);
 };
 Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
-Border.prototype.GetCornerRadius = function () {
+Border.Instance.GetCornerRadius = function () {
     return this.GetValue(Border.CornerRadiusProperty);
 };
-Border.prototype.SetCornerRadius = function (value) {
+Border.Instance.SetCornerRadius = function (value) {
     this.SetValue(Border.CornerRadiusProperty, value);
 };
 Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
-Border.prototype.GetPadding = function () {
+Border.Instance.GetPadding = function () {
     return this.GetValue(Border.PaddingProperty);
 };
-Border.prototype.SetPadding = function (value) {
+Border.Instance.SetPadding = function (value) {
     this.SetValue(Border.PaddingProperty, value);
 };
-Border.prototype.IsLayoutContainer = function () { return true; };
-Border.prototype._MeasureOverrideWithError = function (availableSize, error) {
+Border.Instance.IsLayoutContainer = function () { return true; };
+Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
     var border = this.GetPadding().Plus(this.GetBorderThickness());
     var walker = new _VisualTreeWalker(this);
@@ -10661,7 +10337,7 @@ Border.prototype._MeasureOverrideWithError = function (availableSize, error) {
     desired = desired.Min(availableSize);
     return desired;
 };
-Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var border = this.GetPadding().Plus(this.GetBorderThickness());
     var arranged = finalSize;
     var walker = new _VisualTreeWalker(this);
@@ -10675,7 +10351,7 @@ Border.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     }
     return finalSize;
 };
-Border.prototype._Render = function (ctx, region) {
+Border.Instance._Render = function (ctx, region) {
     var borderBrush = this.GetBorderBrush();
     var paintBorder = this._Extents;
     if (!this.GetBackground() && !borderBrush)
@@ -10695,18 +10371,18 @@ Border.prototype._Render = function (ctx, region) {
         ctx.Restore();
     }
 };
-Border.prototype._RenderImpl = function (ctx, region) {
+Border.Instance._RenderImpl = function (ctx, region) {
     ctx.Save();
     this._RenderLayoutClip(ctx);
     ctx.CustomRender(Border._Painter, this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius());
     ctx.Restore();
 };
-Border.prototype._CanFindElement = function () {
+Border.Instance._CanFindElement = function () {
     return this.GetBackground() != null || this.GetBorderBrush() != null;
 };
-Border.prototype._OnPropertyChanged = function (args, error) {
+Border.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Border) {
-        this._OnPropertyChanged$super(args, error)
+        this._OnPropertyChanged$FrameworkElement(args, error)
         return;
     }
     if (args.Property == Border.ChildProperty) {
@@ -10784,41 +10460,37 @@ Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRec
 };
 Border._ThicknessValidator = function () {
 };
+Nullstone.FinishCreate(Border);
 
-function ContentPresenter() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ContentPresenter, "ContentPresenter", FrameworkElement);
+var ContentPresenter = Nullstone.Create("ContentPresenter", FrameworkElement);
 ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter);
-ContentPresenter.prototype.GetContent = function () {
+ContentPresenter.Instance.GetContent = function () {
     return this.GetValue(ContentPresenter.ContentProperty);
 };
-ContentPresenter.prototype.SetContent = function (value) {
+ContentPresenter.Instance.SetContent = function (value) {
     this.SetValue(ContentPresenter.ContentProperty, value);
 };
 ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
-ContentPresenter.prototype.GetContentTemplate = function () {
+ContentPresenter.Instance.GetContentTemplate = function () {
     return this.GetValue(ContentPresenter.ContentTemplateProperty);
 };
-ContentPresenter.prototype.SetContentTemplate = function (value) {
+ContentPresenter.Instance.SetContentTemplate = function (value) {
     this.SetValue(ContentPresenter.ContentTemplateProperty, value);
 };
-ContentPresenter.prototype.GetFallbackRoot = function () {
+ContentPresenter.Instance.GetFallbackRoot = function () {
     if (this._FallbackRoot == null)
         this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
     return this._FallbackRoot;
 };
-ContentPresenter.prototype._GetDefaultTemplate = function () {
+ContentPresenter.Instance._GetDefaultTemplate = function () {
     var templateOwner = this.GetTemplateOwner();
     if (templateOwner) {
         if (this.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
-            this.SetValue(ContentPresenter.ContentProperty, 
+            this.SetValue(ContentPresenter.ContentProperty,
                 new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
         if (this.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
-            this.SetValue(ContentPresenter.ContentTemplateProperty, 
+            this.SetValue(ContentPresenter.ContentTemplateProperty,
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }
     }
@@ -10833,9 +10505,9 @@ ContentPresenter.prototype._GetDefaultTemplate = function () {
     }
     return this._ContentRoot;
 };
-ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
+ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== ContentPresenter) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
     if (args.Property === ContentPresenter.ContentProperty) {
@@ -10854,153 +10526,152 @@ ContentPresenter.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-ContentPresenter.prototype._ClearRoot = function () {
+ContentPresenter.Instance._ClearRoot = function () {
     if (this._ContentRoot != null)
         this._ElementRemoved(this._ContentRoot);
     this._ContentRoot = null;
 };
-ContentPresenter.prototype.InvokeLoaded = function () {
+ContentPresenter.Instance.InvokeLoaded = function () {
     if (this.GetContent() instanceof UIElement)
         this.ClearValue(FrameworkElement.DataContextProperty);
     else
         this.SetDataContext(this.GetContent());
-    this.InvokeLoaded$super();
+    this.InvokeLoaded$FrameworkElement();
 };
 ContentPresenter.Annotations = {
     ContentProperty: ContentPresenter.ContentProperty
 };
+Nullstone.FinishCreate(ContentPresenter);
 
-function Control() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Control = Nullstone.Create("Control", FrameworkElement);
+Control.Instance.Init = function () {
+    this.Init$FrameworkElement();
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
-}
-Nullstone.Extend(Control, "Control", FrameworkElement);
+};
 Control.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Control);
-Control.prototype.GetBackground = function () {
+Control.Instance.GetBackground = function () {
     return this.GetValue(Control.BackgroundProperty);
 };
-Control.prototype.SetBackground = function (value) {
+Control.Instance.SetBackground = function (value) {
     this.SetValue(Control.BackgroundProperty, value);
 };
 Control.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Control);
-Control.prototype.GetBorderBrush = function () {
+Control.Instance.GetBorderBrush = function () {
     return this.GetValue(Control.BorderBrushProperty);
 };
-Control.prototype.SetBorderBrush = function (value) {
+Control.Instance.SetBorderBrush = function (value) {
     this.SetValue(Control.BorderBrushProperty, value);
 };
 Control.BorderThicknessProperty = DependencyProperty.Register("BorderThickness", function () { return Thickness; }, Control, new Thickness());
-Control.prototype.GetBorderThickness = function () {
+Control.Instance.GetBorderThickness = function () {
     return this.GetValue(Control.BorderThicknessProperty);
 };
-Control.prototype.SetBorderThickness = function (value) {
+Control.Instance.SetBorderThickness = function (value) {
     this.SetValue(Control.BorderThicknessProperty, value);
 };
 Control.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
-Control.prototype.GetFontFamily = function () {
+Control.Instance.GetFontFamily = function () {
     return this.GetValue(Control.FontFamilyProperty);
 };
-Control.prototype.SetFontFamily = function (value) {
+Control.Instance.SetFontFamily = function (value) {
     this.SetValue(Control.FontFamilyProperty, value);
 };
 Control.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, Control, Font.DEFAULT_SIZE);
-Control.prototype.GetFontSize = function () {
+Control.Instance.GetFontSize = function () {
     return this.GetValue(Control.FontSizeProperty);
 };
-Control.prototype.SetFontSize = function (value) {
+Control.Instance.SetFontSize = function (value) {
     this.SetValue(Control.FontSizeProperty, value);
 };
 Control.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
-Control.prototype.GetFontStretch = function () {
+Control.Instance.GetFontStretch = function () {
     return this.GetValue(Control.FontStretchProperty);
 };
-Control.prototype.SetFontStretch = function (value) {
+Control.Instance.SetFontStretch = function (value) {
     this.SetValue(Control.FontStretchProperty, value);
 };
 Control.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
-Control.prototype.GetFontStyle = function () {
+Control.Instance.GetFontStyle = function () {
     return this.GetValue(Control.FontStyleProperty);
 };
-Control.prototype.SetFontStyle = function (value) {
+Control.Instance.SetFontStyle = function (value) {
     this.SetValue(Control.FontStyleProperty, value);
 };
 Control.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, Control, Font.DEFAULT_WEIGHT);
-Control.prototype.GetFontWeight = function () {
+Control.Instance.GetFontWeight = function () {
     return this.GetValue(Control.FontWeightProperty);
 };
-Control.prototype.SetFontWeight = function (value) {
+Control.Instance.SetFontWeight = function (value) {
     this.SetValue(Control.FontWeightProperty, value);
 };
 Control.ForegroundProperty = DependencyProperty.Register("Foreground", function () { return Brush; }, Control);
-Control.prototype.GetForeground = function () {
+Control.Instance.GetForeground = function () {
     return this.GetValue(Control.ForegroundProperty);
 };
-Control.prototype.SetForeground = function (value) {
+Control.Instance.SetForeground = function (value) {
     this.SetValue(Control.ForegroundProperty, value);
 };
 Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return Number; }, Control, HorizontalAlignment.Center);
-Control.prototype.GetHorizontalContentAlignment = function () {
+Control.Instance.GetHorizontalContentAlignment = function () {
     return this.GetValue(Control.HorizontalContentAlignmentProperty);
 };
-Control.prototype.SetHorizontalContentAlignment = function (value) {
+Control.Instance.SetHorizontalContentAlignment = function (value) {
     this.SetValue(Control.HorizontalContentAlignmentProperty, value);
 };
 Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
-Control.prototype.GetIsEnabled = function () {
+Control.Instance.GetIsEnabled = function () {
     return this.GetValue(Control.IsEnabledProperty);
 };
-Control.prototype.SetIsEnabled = function (value) {
+Control.Instance.SetIsEnabled = function (value) {
     this.SetValue(Control.IsEnabledProperty, value);
 };
 Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () { return Boolean; }, Control, true);
-Control.prototype.GetIsTabStop = function () {
+Control.Instance.GetIsTabStop = function () {
     return this.GetValue(Control.IsTabStopProperty);
 };
-Control.prototype.SetIsTabStop = function (value) {
+Control.Instance.SetIsTabStop = function (value) {
     this.SetValue(Control.IsTabStopProperty, value);
 };
 Control.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, Control, new Thickness());
-Control.prototype.GetPadding = function () {
+Control.Instance.GetPadding = function () {
     return this.GetValue(Control.PaddingProperty);
 };
-Control.prototype.SetPadding = function (value) {
+Control.Instance.SetPadding = function (value) {
     this.SetValue(Control.PaddingProperty, value);
 };
 Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
-Control.prototype.GetTabIndex = function () {
+Control.Instance.GetTabIndex = function () {
     return this.GetValue(Control.TabIndexProperty);
 };
-Control.prototype.SetTabIndex = function (value) {
+Control.Instance.SetTabIndex = function (value) {
     this.SetValue(Control.TabIndexProperty, value);
 };
 Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () { return Number; }, Control);
-Control.prototype.GetTabNavigation = function () {
+Control.Instance.GetTabNavigation = function () {
     return this.GetValue(Control.TabNavigationProperty);
 };
-Control.prototype.SetTabNavigation = function (value) {
+Control.Instance.SetTabNavigation = function (value) {
     this.SetValue(Control.TabNavigationProperty, value);
 };
 Control.TemplateProperty = DependencyProperty.Register("Template", function () { return ControlTemplate; }, Control);
-Control.prototype.GetTemplate = function () {
+Control.Instance.GetTemplate = function () {
     return this.GetValue(Control.TemplateProperty);
 };
-Control.prototype.SetTemplate = function (value) {
+Control.Instance.SetTemplate = function (value) {
     this.SetValue(Control.TemplateProperty, value);
 };
 Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return Number; }, Control, VerticalAlignment.Center);
-Control.prototype.GetVerticalContentAlignment = function () {
+Control.Instance.GetVerticalContentAlignment = function () {
     return this.GetValue(Control.VerticalContentAlignmentProperty);
 };
-Control.prototype.SetVerticalContentAlignment = function (value) {
+Control.Instance.SetVerticalContentAlignment = function (value) {
     this.SetValue(Control.VerticalContentAlignmentProperty, value);
 };
 Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () { return Function; }, Control);
-Control.prototype.GetDefaultStyleKey = function () {
+Control.Instance.GetDefaultStyleKey = function () {
     return this.GetValue(Control.DefaultStyleKeyProperty);
 };
-Control.prototype.SetDefaultStyleKey = function (value) {
+Control.Instance.SetDefaultStyleKey = function (value) {
     this.SetValue(Control.DefaultStyleKeyProperty, value);
 };
 Control.IsTemplateItemProperty = DependencyProperty.RegisterAttached("IsTemplateItem", function () { return Boolean; }, Control, false);
@@ -11010,57 +10681,57 @@ Control.GetIsTemplateItem = function (d) {
 Control.SetIsTemplateItem = function (d, value) {
     d.SetValue(Control.IsTemplateItemProperty, value);
 };
-Control.prototype.GetIsFocused = function () {
+Control.Instance.GetIsFocused = function () {
     return this._IsFocused;
 };
-Control.prototype.GetDefaultStyle = function () {
+Control.Instance.GetDefaultStyle = function () {
     return null;
 };
-Control.prototype.GetTemplateChild = function (name) {
+Control.Instance.GetTemplateChild = function (name) {
     if (this._TemplateRoot)
         return this._TemplateRoot.FindName(name);
     return null;
 };
-Control.prototype.SetVisualParent = function (visualParent) {
+Control.Instance.SetVisualParent = function (visualParent) {
     if (this.GetVisualParent() != visualParent) {
-        this.SetVisualParent$super(visualParent);
+        this.SetVisualParent$FrameworkElement(visualParent);
         this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
     }
 };
-Control.prototype._ElementAdded = function (item) {
+Control.Instance._ElementAdded = function (item) {
     var error = new BError();
     item._AddParent(this, true, error);
     this._SetSubtreeObject(item);
-    this._ElementAdded$super(item);
+    this._ElementAdded$FrameworkElement(item);
 };
-Control.prototype._ElementRemoved = function (item) {
+Control.Instance._ElementRemoved = function (item) {
     var error;
     if (this._TemplateRoot) {
         this._TemplateRoot._RemoveParent(this, error);
         this._TemplateRoot = null;
     }
     item._RemoveParent(this, error);
-    this._ElementRemoved$super(item);
+    this._ElementRemoved$FrameworkElement(item);
 };
-Control.prototype.CanCaptureMouse = function () {
+Control.Instance.CanCaptureMouse = function () {
     return this.GetIsEnabled();
 };
-Control.prototype._CanFindElement = function () {
+Control.Instance._CanFindElement = function () {
     return this.GetIsEnabled();
 };
-Control.prototype._InsideObject = function (x, y) {
+Control.Instance._InsideObject = function (x, y) {
     return false;
 };
-Control.prototype._HitTestPoint = function (ctx, p, uielist) {
+Control.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (this.GetIsEnabled())
-        this._HitTestPoint$super(ctx, p, uielist);
+        this._HitTestPoint$FrameworkElement(ctx, p, uielist);
 };
-Control.prototype._UpdateIsEnabledSource = function (control) {
+Control.Instance._UpdateIsEnabledSource = function (control) {
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(control);
 };
-Control.prototype._OnPropertyChanged = function (args, error) {
+Control.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Control) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
     if (args.Property == Control.TemplateProperty) {
@@ -11076,25 +10747,25 @@ Control.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-Control.prototype._OnLogicalParentChanged = function (oldParent, newParent) {
-    this._OnLogicalParentChanged$super(oldParent, newParent);
+Control.Instance._OnLogicalParentChanged = function (oldParent, newParent) {
+    this._OnLogicalParentChanged$FrameworkElement(oldParent, newParent);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(newParent);
 };
-Control.prototype._OnIsAttachedChanged = function (value) {
-    this._OnIsAttachedChanged$super(value);
+Control.Instance._OnIsAttachedChanged = function (value) {
+    this._OnIsAttachedChanged$FrameworkElement(value);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
 };
-Control.prototype._DoApplyTemplateWithError = function (error) {
+Control.Instance._DoApplyTemplateWithError = function (error) {
     var t = this.GetTemplate();
     if (!t)
-        return this._DoApplyTemplateWithError$super(error);
+        return this._DoApplyTemplateWithError$FrameworkElement(error);
     var root = t._GetVisualTreeWithError(this, error);
     if (root && !(root instanceof UIElement)) {
         Warn("Root element in template was not a UIElement.");
         root = null;
     }
     if (!root)
-        return this._DoApplyTemplateWithError$super(error);
+        return this._DoApplyTemplateWithError$FrameworkElement(error);
     if (this._TemplateRoot != root && this._TemplateRoot != null) {
         this._TemplateRoot._RemoveParent(this, null);
         this._TemplateRoot = null;
@@ -11105,7 +10776,7 @@ Control.prototype._DoApplyTemplateWithError = function (error) {
     }
     return true;
 };
-Control.prototype.Focus = function (recurse) {
+Control.Instance.Focus = function (recurse) {
     recurse = recurse === undefined || recurse === true;
     if (!this._IsAttached)
         return false;
@@ -11136,24 +10807,20 @@ Control.prototype.Focus = function (recurse) {
     }
     return false;
 };
-Control.prototype.OnGotFocus = function (sender, args) {
+Control.Instance.OnGotFocus = function (sender, args) {
     this._IsFocused = true;
-    this.OnGotFocus$super(sender, args);
+    this.OnGotFocus$FrameworkElement(sender, args);
 };
-Control.prototype.OnLostFocus = function (sender, args) {
+Control.Instance.OnLostFocus = function (sender, args) {
     this._IsFocused = false;
-    this.OnLostFocus$super(sender, args);
+    this.OnLostFocus$FrameworkElement(sender, args);
 };
-Control.prototype.OnIsEnabledChanged = function (args) {
+Control.Instance.OnIsEnabledChanged = function (args) {
 }
+Nullstone.FinishCreate(Control);
 
 var ItemCollection = {};//TODO: Implement
-function ItemsControl() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ItemsControl, "ItemsControl", Control);
+var ItemsControl = Nullstone.Create("ItemsControl", Control);
 ItemsControl.GetItemsOwner = function (ele) {
     var panel = Nullstone.As(ele, Panel);
     if (panel == null || !panel.GetIsItemsHost())
@@ -11164,41 +10831,29 @@ ItemsControl.GetItemsOwner = function (ele) {
     return null;
 };
 ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl);
-ItemsControl.prototype.GetItems = function () {
+ItemsControl.Instance.GetItems = function () {
     return this.GetValue(ItemsControl.ItemsProperty);
 };
-ItemsControl.prototype.SetItems = function (value) {
+ItemsControl.Instance.SetItems = function (value) {
     this.SetValue(ItemsControl.ItemsProperty, value);
 };
 ItemsControl.Annotations = {
     ContentProperty: ItemsControl.ItemsProperty
 };
+Nullstone.FinishCreate(ItemsControl);
 
-function ItemsPresenter() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ItemsPresenter, "ItemsPresenter", FrameworkElement);
+var ItemsPresenter = Nullstone.Create("ItemsPresenter", FrameworkElement);
+Nullstone.FinishCreate(ItemsPresenter);
 
-function MediaElement() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(MediaElement, "MediaElement", FrameworkElement);
+var MediaElement = Nullstone.Create("MediaElement", FrameworkElement);
+Nullstone.FinishCreate(MediaElement);
 
-function Panel() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Panel, "Panel", FrameworkElement);
+var Panel = Nullstone.Create("Panel", FrameworkElement);
 Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
-Panel.prototype.GetBackground = function () {
+Panel.Instance.GetBackground = function () {
     return this.GetValue(Panel.BackgroundProperty);
 };
-Panel.prototype.SetBackground = function (value) {
+Panel.Instance.SetBackground = function (value) {
     this.SetValue(Panel.BackgroundProperty, value);
 };
 Panel._CreateChildren = {
@@ -11211,22 +10866,22 @@ Panel._CreateChildren = {
     }
 };
 Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, null, Panel._CreateChildren);
-Panel.prototype.GetChildren = function () {
+Panel.Instance.GetChildren = function () {
     return this.GetValue(Panel.ChildrenProperty);
 };
-Panel.prototype.SetChildren = function (value) {
+Panel.Instance.SetChildren = function (value) {
     this.SetValue(Panel.ChildrenProperty, value);
 };
 Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
-Panel.prototype.GetIsItemsHost = function () {
+Panel.Instance.GetIsItemsHost = function () {
     return this.GetValue(Panel.IsItemsHostProperty);
 };
-Panel.prototype.SetIsItemsHost = function (value) {
+Panel.Instance.SetIsItemsHost = function (value) {
     this.SetValue(Panel.IsItemsHostProperty, value);
 };
-Panel.prototype.IsLayoutContainer = function () { return true; };
-Panel.prototype.IsContainer = function () { return true; };
-Panel.prototype._ComputeBounds = function () {
+Panel.Instance.IsLayoutContainer = function () { return true; };
+Panel.Instance.IsContainer = function () { return true; };
+Panel.Instance._ComputeBounds = function () {
     this._Extents = this._ExtentsWithChildren = this._Bounds = this._BoundsWithChildren = new Rect();
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.Logical);
     var item;
@@ -11244,28 +10899,28 @@ Panel.prototype._ComputeBounds = function () {
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
-Panel.prototype._GetCoverageBounds = function () {
+Panel.Instance._GetCoverageBounds = function () {
     var background = this.GetBackground();
     if (background && background.IsOpaque())
         return this._Bounds;
     return new Rect();
 };
-Panel.prototype._ShiftPosition = function (point) {
+Panel.Instance._ShiftPosition = function (point) {
     var dx = point.X - this._Bounds.X;
     var dy = point.Y - this._Bounds.Y;
-    this._ShiftPosition$super(point);
+    this._ShiftPosition$FrameworkElement(point);
     this._BoundsWithChildren.X += dx;
     this._BoundsWithChildren.Y += dy;
 };
-Panel.prototype._EmptyBackground = function () {
+Panel.Instance._EmptyBackground = function () {
     return this.GetBackground() == null;
 };
-Panel.prototype._MeasureOverrideWithError = function (availableSize, error) {
+Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
     Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
     var result = new Size(0, 0);
     return result;
 };
-Panel.prototype._Render = function (ctx, region) {
+Panel.Instance._Render = function (ctx, region) {
     var background = this.GetBackground();
     if (!background)
         return;
@@ -11282,27 +10937,27 @@ Panel.prototype._Render = function (ctx, region) {
         ctx.Restore();
     }
 };
-Panel.prototype._CanFindElement = function () { return this.GetBackground() != null; }
-Panel.prototype._InsideObject = function (ctx, x, y) {
+Panel.Instance._CanFindElement = function () { return this.GetBackground() != null; }
+Panel.Instance._InsideObject = function (ctx, x, y) {
     if (this.GetBackground())
-        return this._InsideObject$super(ctx, x, y);
+        return this._InsideObject$FrameworkElement(ctx, x, y);
     return false;
 };
-Panel.prototype._ElementAdded = function (item) {
-    this._ElementAdded$super(item);
+Panel.Instance._ElementAdded = function (item) {
+    this._ElementAdded$FrameworkElement(item);
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
 };
-Panel.prototype._ElementRemoved = function (item) {
-    this._ElementRemoved$super(item);
+Panel.Instance._ElementRemoved = function (item) {
+    this._ElementRemoved$FrameworkElement(item);
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
 };
-Panel.prototype._OnPropertyChanged = function (args, error) {
+Panel.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Panel) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
     if (args.Property == Panel.BackgroundProperty) {
@@ -11331,14 +10986,14 @@ Panel.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-Panel.prototype._OnSubPropertyChanged = function (sender, args) {
+Panel.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property && args.Property == Panel.BackgroundProperty) {
         this._Invalidate();
     } else {
-        this._OnSubPropertyChanged$super(sender, args);
+        this._OnSubPropertyChanged$FrameworkElement(sender, args);
     }
 };
-Panel.prototype._OnCollectionChanged = function (sender, args) {
+Panel.Instance._OnCollectionChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
         var error = new BError();
         switch (args.Action) {
@@ -11362,10 +11017,10 @@ Panel.prototype._OnCollectionChanged = function (sender, args) {
                 break;
         }
     } else {
-        this._OnCollectionChanged$super(sender, args);
+        this._OnCollectionChanged$FrameworkElement(sender, args);
     }
 };
-Panel.prototype._OnCollectionItemChanged = function (sender, args) {
+Panel.Instance._OnCollectionItemChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
         if (args.Property == Canvas.ZIndexProperty || args.Property == Canvas.ZProperty) {
             args.Item._Invalidate();
@@ -11375,10 +11030,10 @@ Panel.prototype._OnCollectionItemChanged = function (sender, args) {
             return;
         }
     }
-    this._OnCollectionItemChanged$super(sender, args);
+    this._OnCollectionItemChanged$FrameworkElement(sender, args);
 };
-Panel.prototype._OnIsAttachedChanged = function (value) {
-    this._OnIsAttachedChanged$super(value);
+Panel.Instance._OnIsAttachedChanged = function (value) {
+    this._OnIsAttachedChanged$FrameworkElement(value);
     if (value) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
     }
@@ -11386,20 +11041,12 @@ Panel.prototype._OnIsAttachedChanged = function (value) {
 Panel.Annotations = {
     ContentProperty: Panel.ChildrenProperty
 };
+Nullstone.FinishCreate(Panel);
 
-function Popup() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Popup, "Popup", FrameworkElement);
+var Popup = Nullstone.Create("Popup", FrameworkElement);
+Nullstone.FinishCreate(Popup);
 
-function StackPanel() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(StackPanel, "StackPanel", Panel);
+var StackPanel = Nullstone.Create("StackPanel", Panel);
 StackPanel._OrientationChanged = function (d, args) {
     var sp = Nullstone.As(d, StackPanel);
     if (sp == null)
@@ -11408,13 +11055,13 @@ StackPanel._OrientationChanged = function (d, args) {
     d._InvalidateArrange();
 };
 StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return Number; }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
-StackPanel.prototype.GetOrientation = function () {
+StackPanel.Instance.GetOrientation = function () {
     return this.GetValue(StackPanel.OrientationProperty);
 };
-StackPanel.prototype.SetOrientation = function (value) {
+StackPanel.Instance.SetOrientation = function (value) {
     this.SetValue(StackPanel.OrientationProperty, value);
 };
-StackPanel.prototype.MeasureOverride = function (constraint) {
+StackPanel.Instance.MeasureOverride = function (constraint) {
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
     if (this.GetOrientation() === Orientation.Vertical) {
@@ -11445,7 +11092,7 @@ StackPanel.prototype.MeasureOverride = function (constraint) {
     }
     return measured;
 };
-StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
+StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     var arranged = arrangeSize;
     if (this.GetOrientation() === Orientation.Vertical)
         arranged.Height = 0;
@@ -11482,11 +11129,11 @@ StackPanel.prototype.ArrangeOverride = function (arrangeSize) {
         arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
     return arranged;
 };
+Nullstone.FinishCreate(StackPanel);
 
-function TextBlock() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var TextBlock = Nullstone.Create("TextBlock", FrameworkElement);
+TextBlock.Instance.Init = function () {
+    this.Init$FrameworkElement();
     this._Layout = new TextLayout();
     this._ActualHeight = 0.0;
     this._ActualWidth = 0.0;
@@ -11495,125 +11142,124 @@ function TextBlock() {
     this._Dirty = true;
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._Font = new Font();
-}
-Nullstone.Extend(TextBlock, "TextBlock", FrameworkElement);
+};
 TextBlock.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, TextBlock, new Thickness());
-TextBlock.prototype.GetPadding = function () {
+TextBlock.Instance.GetPadding = function () {
     return this.GetValue(TextBlock.PaddingProperty);
 };
-TextBlock.prototype.SetPadding = function (value) {
+TextBlock.Instance.SetPadding = function (value) {
     this.SetValue(TextBlock.PaddingProperty, value);
 };
 TextBlock.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextBlock, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextBlock.prototype.GetForeground = function () {
+TextBlock.Instance.GetForeground = function () {
     return this.GetValue(TextBlock.ForegroundProperty);
 };
-TextBlock.prototype.SetForeground = function (value) {
+TextBlock.Instance.SetForeground = function (value) {
     this.SetValue(TextBlock.ForegroundProperty, value);
 };
 TextBlock.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY);
-TextBlock.prototype.GetFontFamily = function () {
+TextBlock.Instance.GetFontFamily = function () {
     return this.GetValue(TextBlock.FontFamilyProperty);
 };
-TextBlock.prototype.SetFontFamily = function (value) {
+TextBlock.Instance.SetFontFamily = function (value) {
     this.SetValue(TextBlock.FontFamilyProperty, value);
 };
 TextBlock.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH);
-TextBlock.prototype.GetFontStretch = function () {
+TextBlock.Instance.GetFontStretch = function () {
     return this.GetValue(TextBlock.FontStretchProperty);
 };
-TextBlock.prototype.SetFontStretch = function (value) {
+TextBlock.Instance.SetFontStretch = function (value) {
     this.SetValue(TextBlock.FontStretchProperty, value);
 };
 TextBlock.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE);
-TextBlock.prototype.GetFontStyle = function () {
+TextBlock.Instance.GetFontStyle = function () {
     return this.GetValue(TextBlock.FontStyleProperty);
 };
-TextBlock.prototype.SetFontStyle = function (value) {
+TextBlock.Instance.SetFontStyle = function (value) {
     this.SetValue(TextBlock.FontStyleProperty, value);
 };
 TextBlock.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextBlock, Font.DEFAULT_WEIGHT);
-TextBlock.prototype.GetFontWeight = function () {
+TextBlock.Instance.GetFontWeight = function () {
     return this.GetValue(TextBlock.FontWeightProperty);
 };
-TextBlock.prototype.SetFontWeight = function (value) {
+TextBlock.Instance.SetFontWeight = function (value) {
     this.SetValue(TextBlock.FontWeightProperty, value);
 };
 TextBlock.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextBlock, Font.DEFAULT_SIZE);
-TextBlock.prototype.GetFontSize = function () {
+TextBlock.Instance.GetFontSize = function () {
     return this.GetValue(TextBlock.FontSizeProperty);
 };
-TextBlock.prototype.SetFontSize = function (value) {
+TextBlock.Instance.SetFontSize = function (value) {
     this.SetValue(TextBlock.FontSizeProperty, value);
 };
 TextBlock.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return Number; }, TextBlock, TextDecorations.None);
-TextBlock.prototype.GetTextDecorations = function () {
+TextBlock.Instance.GetTextDecorations = function () {
     return this.GetValue(TextBlock.TextDecorationsProperty);
 };
-TextBlock.prototype.SetTextDecorations = function (value) {
+TextBlock.Instance.SetTextDecorations = function (value) {
     this.SetValue(TextBlock.TextDecorationsProperty, value);
 };
 TextBlock.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextBlock);
-TextBlock.prototype.GetFontResource = function () {
+TextBlock.Instance.GetFontResource = function () {
     return this.GetValue(TextBlock.FontResourceProperty);
 };
-TextBlock.prototype.SetFontResource = function (value) {
+TextBlock.Instance.SetFontResource = function (value) {
     this.SetValue(TextBlock.FontResourceProperty, value);
 };
 TextBlock.FontSourceProperty = DependencyProperty.Register("FontSource", function () { return Object; }, TextBlock);
-TextBlock.prototype.GetFontSource = function () {
+TextBlock.Instance.GetFontSource = function () {
     return this.GetValue(TextBlock.FontSourceProperty);
 };
-TextBlock.prototype.SetFontSource = function (value) {
+TextBlock.Instance.SetFontSource = function (value) {
     this.SetValue(TextBlock.FontSourceProperty, value);
 };
 TextBlock.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBlock, "");
-TextBlock.prototype.GetText = function () {
+TextBlock.Instance.GetText = function () {
     return this.GetValue(TextBlock.TextProperty);
 };
-TextBlock.prototype.SetText = function (value) {
+TextBlock.Instance.SetText = function (value) {
     this.SetValue(TextBlock.TextProperty, value);
 };
 TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, null, { GetValue: function () { return new InlineCollection(); } });
-TextBlock.prototype.GetInlines = function () {
+TextBlock.Instance.GetInlines = function () {
     return this.GetValue(TextBlock.InlinesProperty);
 };
 TextBlock.LineStackingStrategyProperty = DependencyProperty.Register("LineStackingStrategy", function () { return Number; }, TextBlock);
-TextBlock.prototype.GetLineStackingStrategy = function () {
+TextBlock.Instance.GetLineStackingStrategy = function () {
     return this.GetValue(TextBlock.LineStackingStrategyProperty);
 };
-TextBlock.prototype.SetLineStackingStrategy = function (value) {
+TextBlock.Instance.SetLineStackingStrategy = function (value) {
     this.SetValue(TextBlock.LineStackingStrategyProperty, value);
 };
 TextBlock.LineHeightProperty = DependencyProperty.Register("LineHeight", function () { return Number; }, TextBlock, 0.0);
-TextBlock.prototype.GetLineHeight = function () {
+TextBlock.Instance.GetLineHeight = function () {
     return this.GetValue(TextBlock.LineHeightProperty);
 };
-TextBlock.prototype.SetLineHeight = function (value) {
+TextBlock.Instance.SetLineHeight = function (value) {
     this.SetValue(TextBlock.LineHeightProperty, value);
 };
 TextBlock.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return Number; }, TextBlock, TextAlignment.Left);
-TextBlock.prototype.GetTextAlignment = function () {
+TextBlock.Instance.GetTextAlignment = function () {
     return this.GetValue(TextBlock.TextAlignmentProperty);
 };
-TextBlock.prototype.SetTextAlignment = function (value) {
+TextBlock.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBlock.TextAlignmentProperty, value);
 };
 TextBlock.TextTrimmingProperty = DependencyProperty.Register("TextTrimming", function () { return Number; }, TextBlock, TextTrimming.None);
-TextBlock.prototype.GetTextTrimming = function () {
+TextBlock.Instance.GetTextTrimming = function () {
     return this.GetValue(TextBlock.TextTrimmingProperty);
 };
-TextBlock.prototype.SetTextTrimming = function (value) {
+TextBlock.Instance.SetTextTrimming = function (value) {
     this.SetValue(TextBlock.TextTrimmingProperty, value);
 };
 TextBlock.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return Number; }, TextBlock, TextWrapping.NoWrap);
-TextBlock.prototype.GetTextWrapping = function () {
+TextBlock.Instance.GetTextWrapping = function () {
     return this.GetValue(TextBlock.TextWrappingProperty);
 };
-TextBlock.prototype.SetTextWrapping = function (value) {
+TextBlock.Instance.SetTextWrapping = function (value) {
     this.SetValue(TextBlock.TextWrappingProperty, value);
 };
-TextBlock.prototype._ComputeBounds = function () {
+TextBlock.Instance._ComputeBounds = function () {
     this._Extents = this._Layout.GetRenderExtents();
     var padding = this.GetPadding();
     this._Extents.X += padding.Left;
@@ -11624,7 +11270,7 @@ TextBlock.prototype._ComputeBounds = function () {
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
-TextBlock.prototype._ComputeActualSize = function () {
+TextBlock.Instance._ComputeActualSize = function () {
     var padding = this.GetPadding();
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
@@ -11641,14 +11287,14 @@ TextBlock.prototype._ComputeActualSize = function () {
     result = result.GrowByThickness(padding);
     return result;
 };
-TextBlock.prototype._MeasureOverrideWithError = function (availableSize, error) {
+TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var padding = this.GetPadding();
     var constraint = availableSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);
     desired = new Size(this._ActualWidth, this._ActualHeight).GrowByThickness(padding);
     return desired;
 };
-TextBlock.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var padding = this.GetPadding();
     var constraint = finalSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);
@@ -11658,7 +11304,7 @@ TextBlock.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     arranged = arranged.GrowByThickness(padding);
     return finalSize;
 };
-TextBlock.prototype._Render = function (ctx, region) {
+TextBlock.Instance._Render = function (ctx, region) {
     ctx.Save();
     this._RenderLayoutClip(ctx);
     var padding = this.GetPadding();
@@ -11669,7 +11315,7 @@ TextBlock.prototype._Render = function (ctx, region) {
     this._Layout._Render(ctx, this._GetOriginPoint(), offset);
     ctx.Restore();
 };
-TextBlock.prototype.Layout = function (/* Size */constraint) {
+TextBlock.Instance.Layout = function (/* Size */constraint) {
     if (this._WasSet && this._GetValueNoDefault(TextBlock.TextProperty) == null) {
         this._ActualHeight = this._Font.GetActualHeight();
         this._ActualWidth = 0.0;
@@ -11685,7 +11331,7 @@ TextBlock.prototype.Layout = function (/* Size */constraint) {
     }
     this._Dirty = false;
 };
-TextBlock.prototype._UpdateFont = function (force) {
+TextBlock.Instance._UpdateFont = function (force) {
     var changed = false;
     changed = changed || this._Font.SetFamily(this.GetFontFamily());
     changed = changed || this._Font.SetStretch(this.GetFontStretch());
@@ -11695,7 +11341,7 @@ TextBlock.prototype._UpdateFont = function (force) {
     changed = changed || force;
     return changed;
 };
-TextBlock.prototype._UpdateFonts = function (force) {
+TextBlock.Instance._UpdateFonts = function (force) {
     if (!this._UpdateFont(force))
         return false;
     this._InvalidateMeasure();
@@ -11704,7 +11350,7 @@ TextBlock.prototype._UpdateFonts = function (force) {
     this._Dirty = true;
     return true;
 };
-TextBlock.prototype._UpdateLayoutAttributes = function () {
+TextBlock.Instance._UpdateLayoutAttributes = function () {
     var inlines = this.GetInlines();
     this._InvalidateMeasure();
     this._InvalidateArrange();
@@ -11720,7 +11366,7 @@ TextBlock.prototype._UpdateLayoutAttributes = function () {
     this._Layout.SetText(this.GetText(), length);
     this._Layout.SetTextAttributes(runs);
 };
-TextBlock.prototype._UpdateLayoutAttributesForInline = function (item, length, runs) {
+TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, runs) {
     if (item instanceof Run) {
         var text = item.GetText();
         if (text && text.length) {
@@ -11739,7 +11385,7 @@ TextBlock.prototype._UpdateLayoutAttributesForInline = function (item, length, r
     }
     return length;
 };
-TextBlock.prototype._SerializeText = function (str) {
+TextBlock.Instance._SerializeText = function (str) {
     var inlines = this.GetInlines();
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
@@ -11747,7 +11393,7 @@ TextBlock.prototype._SerializeText = function (str) {
     }
     return str;
 };
-TextBlock.prototype._GetTextInternal = function (inlines) {
+TextBlock.Instance._GetTextInternal = function (inlines) {
     if (!inlines)
         return "";
     var block = "";
@@ -11757,7 +11403,7 @@ TextBlock.prototype._GetTextInternal = function (inlines) {
     }
     return block;
 };
-TextBlock.prototype._SetTextInternal = function (text) {
+TextBlock.Instance._SetTextInternal = function (text) {
     this._SetsValue = false;
     var value;
     var inlines = this.GetValue(TextBlock.InlinesProperty);
@@ -11789,13 +11435,13 @@ TextBlock.prototype._SetTextInternal = function (text) {
     }
     this._SetsValue = true;
 };
-TextBlock.prototype._CanFindElement = function () {
+TextBlock.Instance._CanFindElement = function () {
     return true;
 };
-TextBlock.prototype._OnPropertyChanged = function (args, error) {
+TextBlock.Instance._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         if (args.Property !== FrameworkElement.LanguageProperty)
             return;
         if (!this._UpdateFonts(false))
@@ -11853,16 +11499,16 @@ TextBlock.prototype._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-TextBlock.prototype._OnSubPropertyChanged = function (sender, args) {
+TextBlock.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property != null && args.Property === TextBlock.ForegroundProperty) {
         this._Invalidate();
     } else {
-        this._OnSubPropertyChanged$super(sender, args);
+        this._OnSubPropertyChanged$FrameworkElement(sender, args);
     }
 };
-TextBlock.prototype._OnCollectionChanged = function (sender, args) {
+TextBlock.Instance._OnCollectionChanged = function (sender, args) {
     if (!this._PropertyHasValueNoAutoCreate(TextBlock.InlinesProperty, sender)) {
-        this._OnCollectionChanged$super(sender, args);
+        this._OnCollectionChanged$FrameworkElement(sender, args);
         return;
     }
     var inlines = this.GetInlines();
@@ -11884,48 +11530,47 @@ TextBlock.prototype._OnCollectionChanged = function (sender, args) {
 TextBlock.Annotations = {
     ContentProperty: TextBlock.InlinesProperty
 };
+Nullstone.FinishCreate(TextBlock);
 
-function TextBoxBase() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
+TextBoxBase.Instance.Init = function () {
+    this.Init$Control();
     this._SelectionAnchor = 0;
     this._SelectionCursor = 0;
     this._Buffer = new String();
     this._Font = new Font();
     this.ModelChanged = new MulticastEvent();
     this._Batch = 0;
-}
-Nullstone.Extend(TextBoxBase, "TextBoxBase", Control);
-TextBoxBase.prototype.HasSelectedText = function () {
+};
+TextBoxBase.Instance.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
 };
-TextBoxBase.prototype.GetFont = function () {
+TextBoxBase.Instance.GetFont = function () {
     return this._Font;
 };
-TextBoxBase.prototype.GetTextDecorations = function () {
+TextBoxBase.Instance.GetTextDecorations = function () {
     return TextDecorations.None;
 };
-TextBoxBase.prototype.GetCursor = function () {
+TextBoxBase.Instance.GetCursor = function () {
     return this._SelectionCursor;
 };
-TextBoxBase.prototype.GetSelectionStart = function () {
+TextBoxBase.Instance.GetSelectionStart = function () {
     AbstractMethod("TextBoxBase.GetSelectionStart");
 };
-TextBoxBase.prototype.SetSelectionStart = function (value) {
+TextBoxBase.Instance.SetSelectionStart = function (value) {
     AbstractMethod("TextBoxBase.SetSelectionStart");
 };
-TextBoxBase.prototype.GetSelectionLength = function () {
+TextBoxBase.Instance.GetSelectionLength = function () {
     AbstractMethod("TextBoxBase.GetSelectionLength");
 };
-TextBoxBase.prototype.SetSelectionLength = function (value) {
+TextBoxBase.Instance.SetSelectionLength = function (value) {
     AbstractMethod("TextBoxBase.SetSelectionLength");
 };
-TextBoxBase.prototype.OnApplyTemplate = function () {
+TextBoxBase.Instance.OnApplyTemplate = function () {
     this._ContentElement = this.GetTemplateChild("ContentElement");
     if (this._ContentElement == null) {
         Warn("No ContentElement found");
-        this.OnApplyTemplate$super();
+        this.OnApplyTemplate$Control();
         return;
     }
     if (this._View != null) {
@@ -11947,9 +11592,9 @@ TextBoxBase.prototype.OnApplyTemplate = function () {
         this._View.SetTextBox(null);
         this._View = null;
     }
-    this.OnApplyTemplate$super();
+    this.OnApplyTemplate$Control();
 };
-TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
+TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     var changed = _TextBoxModelChanged.Nothing;
     if (args.Property === Control.FontFamilyProperty) {
         this._Font.SetFamily(args.NewValue);
@@ -11970,31 +11615,31 @@ TextBoxBase.prototype._OnPropertyChanged = function (args, error) {
     if (changed !== _TextBoxModelChanged.Nothing)
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
     if (args.Property.OwnerType !== TextBoxBase) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$Control(args, error);
         return;
     }
     this.PropertyChanged.Raise(this, args);
 };
-TextBoxBase.prototype._OnSubPropertyChanged = function (sender, args) {
+TextBoxBase.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property === Control.BackgroundProperty
         || args.Property === Control.ForegroundProperty) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
         this._Invalidate();
     }
     if (args.Property.OwnerType !== TextBoxBase)
-        this._OnSubPropertyChanged$super(sender, args);
+        this._OnSubPropertyChanged$Control(sender, args);
 };
-TextBoxBase.prototype._BatchPush = function () {
+TextBoxBase.Instance._BatchPush = function () {
     this._Batch++;
 };
-TextBoxBase.prototype._BatchPop = function () {
+TextBoxBase.Instance._BatchPop = function () {
     if (this._Batch == 0) {
         Warn("TextBoxBase._Batch underflow");
         return;
     }
     this._Batch--;
 };
-TextBoxBase.prototype._SyncAndEmit = function (syncText) {
+TextBoxBase.Instance._SyncAndEmit = function (syncText) {
     if (syncText == undefined)
         syncText = true;
     if (this._Batch != 0 || this._Emit == _TextBoxEmitChanged.NOTHING)
@@ -12012,25 +11657,25 @@ TextBoxBase.prototype._SyncAndEmit = function (syncText) {
     }
     this._Emit = _TextBoxEmitChanged.NOTHING;
 };
-TextBoxBase.prototype._SyncText = function () {
+TextBoxBase.Instance._SyncText = function () {
     AbstractMethod("TextBoxBase._SyncText");
 };
-TextBoxBase.prototype._SyncSelectedText = function () {
+TextBoxBase.Instance._SyncSelectedText = function () {
     AbstractMethod("TextBoxBase._SyncSelectedText");
 };
-TextBoxBase.prototype.ClearSelection = function (start) {
+TextBoxBase.Instance.ClearSelection = function (start) {
     this._BatchPush();
     this.SetSelectionStart(start);
     this.SetSelectionLength(0);
     this._BatchPop();
 };
-TextBoxBase.prototype._EmitTextChanged = function () { };
-TextBoxBase.prototype._EmitSelectionChanged = function () { };
+TextBoxBase.Instance._EmitTextChanged = function () { };
+TextBoxBase.Instance._EmitSelectionChanged = function () { };
+Nullstone.FinishCreate(TextBoxBase);
 
-function _TextBoxView() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var _TextBoxView = Nullstone.Create("_TextBoxView", FrameworkElement);
+_TextBoxView.Instance.Init = function () {
+    this.Init$FrameworkElement();
     this._Cursor = new Rect();
     this._Layout = new TextLayout();
     this._SelectionChanged = false;
@@ -12040,9 +11685,8 @@ function _TextBoxView() {
     this._BlinkTimeout = 0;
     this._TextBox = null;
     this._Dirty = false;
-}
-Nullstone.Extend(_TextBoxView, "_TextBoxView", FrameworkElement);
-_TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
+};
+_TextBoxView.Instance.SetTextBox = function (value) {
     if (this._TextBox == value)
         return;
     if (this._TextBox) {
@@ -12068,7 +11712,7 @@ _TextBoxView.prototype.SetTextBox = function (/* TextBoxBase */value) {
     this._Invalidate();
     this._Dirty = true;
 };
-_TextBoxView.prototype.SetEnableCursor = function (value) {
+_TextBoxView.Instance.SetEnableCursor = function (value) {
     if (this._EnableCursor == value)
         return;
     this._EnableCursor = value;
@@ -12077,7 +11721,7 @@ _TextBoxView.prototype.SetEnableCursor = function (value) {
     else
         this._EndCursorBlink();
 };
-_TextBoxView.prototype._Blink = function () {
+_TextBoxView.Instance._Blink = function () {
     var multiplier;
     if (this._CursorVisible) {
         multiplier = _TextBoxView.CURSOR_BLINK_OFF_MULTIPLIER;
@@ -12089,14 +11733,14 @@ _TextBoxView.prototype._Blink = function () {
     this._ConnectBlinkTimeout(multiplier);
     return false;
 };
-_TextBoxView.prototype._ConnectBlinkTimeout = function (multiplier) {
+_TextBoxView.Instance._ConnectBlinkTimeout = function (multiplier) {
     if (!this._IsAttached)
         return;
     var func = NotImplemented;
     var timeout = this._GetCursorBlinkTimeout() * multiplier / _TextBoxView.CURSOR_BLINK_DIVIDER;
     this._BlinkTimeout = setTimeout(func, timeout);
 };
-_TextBoxView.prototype._DisconnectBlinkTimeout = function () {
+_TextBoxView.Instance._DisconnectBlinkTimeout = function () {
     if (this._BlinkTimeout != 0) {
         if (!this._IsAttached)
             return;
@@ -12104,10 +11748,10 @@ _TextBoxView.prototype._DisconnectBlinkTimeout = function () {
         this._BlinkTimeout = 0;
     }
 };
-_TextBoxView.prototype._GetCursorBlinkTimeout = function () {
+_TextBoxView.Instance._GetCursorBlinkTimeout = function () {
     return _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT;
 };
-_TextBoxView.prototype._ResetCursorBlink = function (delay) {
+_TextBoxView.Instance._ResetCursorBlink = function (delay) {
     if (this._TextBox.IsFocused() && !this._TextBox.HasSelectedText()) {
         if (this._EnableCursor) {
             if (this._Delay)
@@ -12121,36 +11765,36 @@ _TextBoxView.prototype._ResetCursorBlink = function (delay) {
         this._EndCursorBlink();
     }
 };
-_TextBoxView.prototype._DelayCursorBlink = function () {
+_TextBoxView.Instance._DelayCursorBlink = function () {
     this._DisconnectBlinkTimeout();
     this._ConnectBlinkTimeout(_TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER);
     this._UpdateCursor(true);
     this._ShowCursor();
 };
-_TextBoxView.prototype._BeginCursorBlink = function () {
+_TextBoxView.Instance._BeginCursorBlink = function () {
     if (this._BlinkTimeout == 0) {
         this._ConnectBlinkTimeout(_TextBoxView.CURSOR_BLINK_ON_MULTIPLIER);
         this._UpdateCursor(true);
         this._ShowCursor();
     }
 };
-_TextBoxView.prototype._EndCursorBlink = function () {
+_TextBoxView.Instance._EndCursorBlink = function () {
     this._DisconnectBlinkTimeout();
     if (this._CursorVisible)
         this._HideCursor();
 };
-_TextBoxView.prototype._InvalidateCursor = function () {
+_TextBoxView.Instance._InvalidateCursor = function () {
     this._Invalidate(this._Cursor/*.Transform(this._AbsoluteTransform)*/);
 };
-_TextBoxView.prototype._ShowCursor = function () {
+_TextBoxView.Instance._ShowCursor = function () {
     this._CursorVisible = true;
     this._InvalidateCursor();
 };
-_TextBoxView.prototype._HideCursor = function () {
+_TextBoxView.Instance._HideCursor = function () {
     this._CursorVisible = false;
     this._InvalidateCursor();
 };
-_TextBoxView.prototype._UpdateCursor = function (invalidate) {
+_TextBoxView.Instance._UpdateCursor = function (invalidate) {
     var cur = this._TextBox.GetCursor();
     var current = this._Cursor;
     var rect;
@@ -12161,47 +11805,47 @@ _TextBoxView.prototype._UpdateCursor = function (invalidate) {
     if (invalidate && this._CursorVisible)
         this._InvalidateCursor();
 };
-_TextBoxView.prototype._UpdateText = function () {
+_TextBoxView.Instance._UpdateText = function () {
     var text = this._TextBox.GetDisplayText();
     this._Layout.SetText(text ? text : "", -1);
 };
-_TextBoxView.prototype._ComputeActualSize = function () {
+_TextBoxView.Instance._ComputeActualSize = function () {
     if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty))
-        return this._ComputeActualSize$super();
+        return this._ComputeActualSize$FrameworkElement();
     this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     return this._Layout.GetActualExtents();
 };
-_TextBoxView.prototype._MeasureOverrideWithError = function (availableSize, error) {
+_TextBoxView.Instance._MeasureOverrideWithError = function (availableSize, error) {
     this.Layout(availableSize);
     var desired = this._Layout.GetActualExtents();
     if (!isFinite(availableSize.Width))
         desired.Width = Math.max(desired.Width, 11);
     return desired.Min(availableSize);
 };
-_TextBoxView.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+_TextBoxView.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     this.Layout(finalSize);
     var arranged = this._Layout.GetActualExtents();
     arranged = arranged.Max(finalSize);
     return arranged;
 };
-_TextBoxView.prototype.Layout = function (constraint) {
+_TextBoxView.Instance.Layout = function (constraint) {
     this._Layout.SetMaxWidth(constraint.Width);
     this._Layout.Layout();
     this._Dirty = false;
 };
-_TextBoxView.prototype.GetBaselineOffset = function () {
+_TextBoxView.Instance.GetBaselineOffset = function () {
     return this._Layout.GetBaselineOffset();
 };
-_TextBoxView.prototype.GetLineFromY = function (y) {
+_TextBoxView.Instance.GetLineFromY = function (y) {
     return this._Layout.GetLineFromY(new Point(), y);
 };
-_TextBoxView.prototype.GetLineFromIndex = function (index) {
+_TextBoxView.Instance.GetLineFromIndex = function (index) {
     return this._Layout.GetLineFromIndex(index);
 };
-_TextBoxView.prototype.GetCursorFromXY = function (x, y) {
+_TextBoxView.Instance.GetCursorFromXY = function (x, y) {
     return this._Layout.GetCursorFromXY(new Point(), x, y);
 };
-_TextBoxView.prototype._Render = function (ctx, region) {
+_TextBoxView.Instance._Render = function (ctx, region) {
     var renderSize = this._RenderSize;
     this._TextBox._Providers[_PropertyPrecedence.DynamicValue]._InitializeSelectionBrushes();
     this._UpdateCursor(false);
@@ -12215,7 +11859,7 @@ _TextBoxView.prototype._Render = function (ctx, region) {
     this._RenderImpl(ctx, region);
     ctx.Restore();
 };
-_TextBoxView.prototype._RenderImpl = function (ctx, region) {
+_TextBoxView.Instance._RenderImpl = function (ctx, region) {
     ctx.Save();
     if (this.GetFlowDirection() === FlowDirection.RightToLeft) {
     }
@@ -12227,19 +11871,19 @@ _TextBoxView.prototype._RenderImpl = function (ctx, region) {
     }
     ctx.Restore();
 };
-_TextBoxView.prototype.OnLostFocus = function () {
+_TextBoxView.Instance.OnLostFocus = function () {
     this._EndCursorBlink();
 };
-_TextBoxView.prototype.OnGotFocus = function () {
+_TextBoxView.Instance.OnGotFocus = function () {
     this._ResetCursorBlink(false);
 };
-_TextBoxView.prototype.OnMouseLeftButtonDown = function (args) {
+_TextBoxView.Instance.OnMouseLeftButtonDown = function (args) {
     this._TextBox.OnMouseLeftButtonDown(args);
 };
-_TextBoxView.prototype.OnMouseLeftButtonUp = function (args) {
+_TextBoxView.Instance.OnMouseLeftButtonUp = function (args) {
     this._TextBox.OnMouseLeftButtonUp(args);
 };
-_TextBoxView.prototype._OnModelChanged = function (sender, args) {
+_TextBoxView.Instance._OnModelChanged = function (sender, args) {
     switch (args.Changed) {
         case _TextBoxModelChanged.TextAlignment:
             if (this._Layout.SetTextAlignment(args.NewValue))
@@ -12283,22 +11927,18 @@ _TextBoxView.CURSOR_BLINK_OFF_MULTIPLIER = 2;
 _TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER = 3;
 _TextBoxView.CURSOR_BLINK_ON_MULTIPLIER = 4;
 _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
+Nullstone.FinishCreate(_TextBoxView);
 
-function UserControl() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(UserControl, "UserControl", Control);
-UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return RefObject; }, UserControl);
-UserControl.prototype.GetContent = function () {
+var UserControl = Nullstone.Create("UserControl", Control);
+UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
+UserControl.Instance.GetContent = function () {
     return this.GetValue(UserControl.ContentProperty);
 };
-UserControl.prototype.SetContent = function (value) {
+UserControl.Instance.SetContent = function (value) {
     this.SetValue(UserControl.ContentProperty, value);
 };
-UserControl.prototype.IsLayoutContainer = function () { return true; };
-UserControl.prototype._MeasureOverrideWithError = function (availableSize, error) {
+UserControl.Instance.IsLayoutContainer = function () { return true; };
+UserControl.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
     var border = this.GetPadding().Plus(this.GetBorderThickness());
     var walker = new _VisualTreeWalker(this);
@@ -12310,7 +11950,7 @@ UserControl.prototype._MeasureOverrideWithError = function (availableSize, error
     desired = desired.GrowByThickness(border);
     return desired;
 };
-UserControl.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+UserControl.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var border = this.GetPadding().Plus(this.GetBorderThickness());
     var arranged = finalSize;
     var walker = new _VisualTreeWalker(this);
@@ -12323,9 +11963,9 @@ UserControl.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     }
     return arranged;
 };
-UserControl.prototype._OnPropertyChanged = function (args, error) {
+UserControl.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType != UserControl) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
     if (args.Property == UserControl.ContentProperty) {
@@ -12352,20 +11992,12 @@ UserControl.prototype._OnPropertyChanged = function (args, error) {
 UserControl.Annotations = {
     ContentProperty: UserControl.ContentProperty
 };
+Nullstone.FinishCreate(UserControl);
 
-function Hyperlink() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Hyperlink, "Hyperlink", Span);
+var Hyperlink = Nullstone.Create("Hyperlink", Span);
+Nullstone.FinishCreate(Hyperlink);
 
-function Canvas() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Canvas, "Canvas", Panel);
+var Canvas = Nullstone.Create("Canvas", Panel);
 Canvas.LeftProperty = DependencyProperty.RegisterAttached("Left", function () { return Number; }, Canvas, 0.0);
 Canvas.GetLeft = function (d) {
     return d.GetValue(Canvas.LeftProperty);
@@ -12394,15 +12026,14 @@ Canvas.GetZ = function (d) {
 Canvas.SetZ = function (d, value) {
     d.SetValue(Canvas.ZProperty, value);
 };
+Nullstone.FinishCreate(Canvas);
 
-function Grid() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var Grid = Nullstone.Create("Grid", Panel);
+Grid.Instance.Init = function () {
+    this.Init$Panel();
     this._RowMatrix = null;
     this._ColMatrix = null;
-}
-Nullstone.Extend(Grid, "Grid", Panel);
+};
 Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0);
 Grid.GetColumn = function (d) {
     return d.GetValue(Grid.ColumnProperty);
@@ -12432,21 +12063,21 @@ Grid.SetRowSpan = function (d, value) {
     d.SetValue(Grid.RowSpanProperty, value);
 };
 Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
-Grid.prototype.GetShowGridLines = function () {
+Grid.Instance.GetShowGridLines = function () {
     return this.GetValue(Grid.ShowGridLinesProperty);
 };
-Grid.prototype.SetShowGridLines = function (value) {
+Grid.Instance.SetShowGridLines = function (value) {
     this.SetValue(Grid.ShowGridLinesProperty, value);
 };
 Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
-Grid.prototype.GetColumnDefinitions = function () {
+Grid.Instance.GetColumnDefinitions = function () {
     return this.GetValue(Grid.ColumnDefinitionsProperty);
 };
 Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
-Grid.prototype.GetRowDefinitions = function () {
+Grid.Instance.GetRowDefinitions = function () {
     return this.GetValue(Grid.RowDefinitionsProperty);
 };
-Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
+Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var totalSize = availableSize.Copy();
     var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
@@ -12610,7 +12241,7 @@ Grid.prototype._MeasureOverrideWithError = function (availableSize, error) {
     }
     return gridSize;
 };
-Grid.prototype._ArrangeOverrideWithError = function (finalSize, error) {
+Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var columns = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var colCount = columns ? columns.GetCount() : 0;
@@ -12659,7 +12290,7 @@ Grid.prototype._ArrangeOverrideWithError = function (finalSize, error) {
     }
     return finalSize;
 };
-Grid.prototype._ExpandStarRows = function (availableSize) {
+Grid.Instance._ExpandStarRows = function (availableSize) {
     var availSize = availableSize.Copy();
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var rowsCount = rows ? rows.GetCount() : 0;
@@ -12681,7 +12312,7 @@ Grid.prototype._ExpandStarRows = function (availableSize) {
         }
     }
 };
-Grid.prototype._ExpandStarCols = function (availableSize) {
+Grid.Instance._ExpandStarCols = function (availableSize) {
     var availSize = availableSize.Copy();
     var columns = this._GetColumnDefinitionsNoAutoCreate();
     var columnsCount = columns ? columns.GetCount() : 0;
@@ -12704,7 +12335,7 @@ Grid.prototype._ExpandStarCols = function (availableSize) {
         }
     }
 };
-Grid.prototype._AllocateDesiredSize = function (rowCount, colCount) {
+Grid.Instance._AllocateDesiredSize = function (rowCount, colCount) {
     for (var i = 0; i < 2; i++) {
         var matrix = i === 0 ? this._RowMatrix : this._ColMatrix;
         var count = i === 0 ? rowCount : colCount;
@@ -12738,7 +12369,7 @@ Grid.prototype._AllocateDesiredSize = function (rowCount, colCount) {
         this._ColMatrix[c][c]._OfferedSize = this._ColMatrix[c][c]._DesiredSize;
     }
 };
-Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desiredSize) {
+Grid.Instance._AssignSize = function (matrix, start, end, size, unitType, desiredSize) {
     var count = 0;
     var assigned;
     var segmentSize;
@@ -12771,7 +12402,7 @@ Grid.prototype._AssignSize = function (matrix, start, end, size, unitType, desir
     } while (assigned);
     return size;
 };
-Grid.prototype._CreateMatrices = function (rowCount, colCount) {
+Grid.Instance._CreateMatrices = function (rowCount, colCount) {
     if (this._RowMatrix == null || this._ColMatrix == null || this._RowMatrixDim !== rowCount || this._ColMatrixDim !== colCount) {
         this._DestroyMatrices();
         this._RowMatrixDim = rowCount;
@@ -12796,11 +12427,11 @@ Grid.prototype._CreateMatrices = function (rowCount, colCount) {
         }
     }
 };
-Grid.prototype._DestroyMatrices = function () {
+Grid.Instance._DestroyMatrices = function () {
     this._RowMatrix = null;
     this._ColMatrix = null;
 };
-Grid.prototype._SaveMeasureResults = function () {
+Grid.Instance._SaveMeasureResults = function () {
     var i;
     var j;
     for (i = 0; i < this._RowMatrixDim; i++) {
@@ -12814,7 +12445,7 @@ Grid.prototype._SaveMeasureResults = function () {
         }
     }
 };
-Grid.prototype._RestoreMeasureResults = function () {
+Grid.Instance._RestoreMeasureResults = function () {
     var i;
     var j;
     for (i = 0; i < this._RowMatrixDim; i++) {
@@ -12828,8 +12459,8 @@ Grid.prototype._RestoreMeasureResults = function () {
         }
     }
 };
-Grid.prototype._ComputeBounds = function () {
-    this._ComputeBounds$super();
+Grid.Instance._ComputeBounds = function () {
+    this._ComputeBounds$Panel();
     if (this.GetShowGridLines()) {
         this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
@@ -12839,17 +12470,17 @@ Grid.prototype._ComputeBounds = function () {
         this._ComputeSurfaceBounds();
     }
 };
-Grid.prototype._GetRowDefinitionsNoAutoCreate = function () {
+Grid.Instance._GetRowDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.RowDefinitionsProperty);
     return value === undefined ? null : value;
 }
-Grid.prototype._GetColumnDefinitionsNoAutoCreate = function () {
+Grid.Instance._GetColumnDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.ColumnDefinitionsProperty);
     return value === undefined ? null : value;
 }
-Grid.prototype._OnPropertyChanged = function (args, error) {
+Grid.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Grid) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$Panel(args, error);
         return;
     }
     if (args.Property === Grid.ShowGridLinesProperty) {
@@ -12858,15 +12489,15 @@ Grid.prototype._OnPropertyChanged = function (args, error) {
     this._InvalidateMeasure();
     this.PropertyChange.Raise(this, args);
 };
-Grid.prototype._OnCollectionChanged = function (sender, args) {
+Grid.Instance._OnCollectionChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Grid.ColumnDefinitionsProperty, sender)
         || this._PropertyHasValueNoAutoCreate(Grid.RowDefinitionsProperty, sender)) {
         this._InvalidateMeasure();
     } else {
-        this._OnCollectionChanged$super(sender, args);
+        this._OnCollectionChanged$Panel(sender, args);
     }
 };
-Grid.prototype._OnCollectionItemChanged = function (sender, args) {
+Grid.Instance._OnCollectionItemChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
         if (args.Property === Grid.ColumnProperty
             || args.Property === Grid.RowProperty
@@ -12876,19 +12507,19 @@ Grid.prototype._OnCollectionItemChanged = function (sender, args) {
             args.Item._InvalidateMeasure();
             return;
         }
-    } else if (RefObject.RefEquals(sender, this._GetColumnDefinitionsNoAutoCreate())
-        || RefObject.RefEquals(sender, this._GetRowDefinitionsNoAutoCreate())) {
+    } else if (Nullstone.RefEquals(sender, this._GetColumnDefinitionsNoAutoCreate())
+        || Nullstone.RefEquals(sender, this._GetRowDefinitionsNoAutoCreate())) {
         if (args.Property !== ColumnDefinition.ActualWidthProperty
             && args.Property !== RowDefinition.ActualHeightProperty) {
             this._InvalidateMeasure();
         }
         return;
     }
-    this._OnCollectionChanged$super(sender, args);
+    this._OnCollectionChanged$Panel(sender, args);
 };
-function _Segment(offered, min, max, unitType) {
-    if (!Nullstone.IsReady)
-        return;
+Nullstone.FinishCreate(Grid);
+var _Segment = Nullstone.Create("_Segment", null, 4);
+_Segment.Instance.Init = function (offered, min, max, unitType) {
     this._DesiredSize = 0;
     this._Min = min == null ? 0.0 : min;
     this._Max = max == null ? Number.POSITIVE_INFINITY : max;
@@ -12896,38 +12527,34 @@ function _Segment(offered, min, max, unitType) {
     this._Type = unitType == null ? GridUnitType.Pixel : unitType;
     this._OfferedSize = this._Clamp(offered);
     this._OriginalSize = this._OfferedSize;
-}
-Nullstone.Create(_Segment, "_Segment");
-_Segment.prototype._SetOfferedToDesired = function () {
+};
+_Segment.Instance._SetOfferedToDesired = function () {
     this._OfferedSize = this._DesiredSize;
     return this._OfferedSize;
 };
-_Segment.prototype._SetDesiredToOffered = function () {
+_Segment.Instance._SetDesiredToOffered = function () {
     this._DesiredSize = this._OfferedSize;
     return this._DesiredSize;
 };
-_Segment.prototype._Clamp = function (value) {
+_Segment.Instance._Clamp = function (value) {
     if (value < this._Min)
         return this._Min;
     if (value > this._Max)
         return this._Max;
     return value;
 }
-function _GridNode(matrix, row, col, size) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+Nullstone.FinishCreate(_Segment);
+var _GridNode = Nullstone.Create("_GridNode", LinkedListNode, 4);
+_GridNode.Instance.Init = function (matrix, row, col, size) {
     this._Matrix = matrix;
     this._Row = row;
     this._Col = col;
     this._Size = size;
     this._Cell = this._Matrix == null ? null : this._Matrix[row][col];
-}
-Nullstone.Extend(_GridNode, "_GridNode", LinkedListNode);
-function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+};
+Nullstone.FinishCreate(_GridNode);
+var _GridWalker = Nullstone.Create("_GridWalker", null, 5);
+_GridWalker.Instance.Init = function (grid, rowMatrix, rowCount, colMatrix, colCount) {
     this._HasAutoAuto = false;
     this._HasStarAuto = false;
     this._HasAutoStar = false;
@@ -12954,117 +12581,114 @@ function _GridWalker(grid, rowMatrix, rowCount, colMatrix, colCount) {
         this._HasStarAuto = this._HasStarAuto || (starRow && autoCol);
         this._HasAutoStar = this._HasAutoStar || (autoRow && starCol);
     }
-}
-Nullstone.Create(_GridWalker, "_GridWalker");
+};
+Nullstone.FinishCreate(_GridWalker);
 
-function PasswordBox() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var PasswordBox = Nullstone.Create("PasswordBox", TextBoxBase);
+PasswordBox.Instance.Init = function () {
+    this.Init$TextBoxBase();
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._EventsMask = _TextBoxEmitChanged.TEXT;
-}
-Nullstone.Extend(PasswordBox, "PasswordBox", TextBoxBase);
+};
+Nullstone.FinishCreate(PasswordBox);
 
-function TextBox() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var TextBox = Nullstone.Create("TextBox", TextBoxBase);
+TextBox.Instance.Init = function () {
+    this.Init$TextBoxBase();
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._EventsMask = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
-}
-Nullstone.Extend(TextBox, "TextBox", TextBoxBase);
+};
 TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () { return Boolean; }, TextBox);
-TextBox.prototype.GetIsReadOnly = function () {
+TextBox.Instance.GetIsReadOnly = function () {
     return this.GetValue(TextBox.IsReadOnlyProperty);
 };
-TextBox.prototype.SetIsReadOnly = function (value) {
+TextBox.Instance.SetIsReadOnly = function (value) {
     this.SetValue(TextBox.IsReadOnlyProperty, value);
 };
 TextBox.SelectionForegroundProperty = DependencyProperty.Register("SelectionForeground", function () { return Brush; }, TextBox);
-TextBox.prototype.GetSelectionForeground = function () {
+TextBox.Instance.GetSelectionForeground = function () {
     return this.GetValue(TextBox.SelectionForegroundProperty);
 };
-TextBox.prototype.SetSelectionForeground = function (value) {
+TextBox.Instance.SetSelectionForeground = function (value) {
     this.SetValue(TextBox.SelectionForegroundProperty, value);
 };
 TextBox.SelectionBackgroundProperty = DependencyProperty.Register("SelectionBackground", function () { return Brush; }, TextBox);
-TextBox.prototype.GetSelectionBackground = function () {
+TextBox.Instance.GetSelectionBackground = function () {
     return this.GetValue(TextBox.SelectionBackgroundProperty);
 };
-TextBox.prototype.SetSelectionBackground = function (value) {
+TextBox.Instance.SetSelectionBackground = function (value) {
     this.SetValue(TextBox.SelectionBackgroundProperty, value);
 };
 TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () { return Number; }, TextBox);
-TextBox.prototype.GetBaselineOffset = function () {
+TextBox.Instance.GetBaselineOffset = function () {
     return this.GetValue(TextBox.BaselineOffsetProperty);
 };
-TextBox.prototype.SetBaselineOffset = function (value) {
+TextBox.Instance.SetBaselineOffset = function (value) {
     this.SetValue(TextBox.BaselineOffsetProperty, value);
 };
 TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", function () { return String; }, TextBox, "");
-TextBox.prototype.GetSelectedText = function () {
+TextBox.Instance.GetSelectedText = function () {
     return this.GetValue(TextBox.SelectedTextProperty);
 };
-TextBox.prototype.SetSelectedText = function (value) {
+TextBox.Instance.SetSelectedText = function (value) {
     this.SetValue(TextBox.SelectedTextProperty, value);
 };
 TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", function () { return Number; }, TextBox, 0);
-TextBox.prototype.GetSelectionLength = function () {
+TextBox.Instance.GetSelectionLength = function () {
     return this.GetValue(TextBox.SelectionLengthProperty);
 };
-TextBox.prototype.SetSelectionLength = function (value) {
+TextBox.Instance.SetSelectionLength = function (value) {
     this.SetValue(TextBox.SelectionLengthProperty, value);
 };
 TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", function () { return Number; }, TextBox, 0);
-TextBox.prototype.GetSelectionStart = function () {
+TextBox.Instance.GetSelectionStart = function () {
     return this.GetValue(TextBox.SelectionStartProperty);
 };
-TextBox.prototype.SetSelectionStart = function (value) {
+TextBox.Instance.SetSelectionStart = function (value) {
     this.SetValue(TextBox.SelectionStartProperty, value);
 };
 TextBox.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBox);
-TextBox.prototype.GetText = function () {
+TextBox.Instance.GetText = function () {
     return this.GetValue(TextBox.TextProperty);
 };
-TextBox.prototype.SetText = function (value) {
+TextBox.Instance.SetText = function (value) {
     this.SetValue(TextBox.TextProperty, value);
 };
 TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return Number; }, TextBox, TextAlignment.Left);
-TextBox.prototype.GetTextAlignment = function () {
+TextBox.Instance.GetTextAlignment = function () {
     return this.GetValue(TextBox.TextAlignmentProperty);
 };
-TextBox.prototype.SetTextAlignment = function (value) {
+TextBox.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBox.TextAlignmentProperty, value);
 };
 TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return Number; }, TextBox, TextWrapping.NoWrap);
-TextBox.prototype.GetTextWrapping = function () {
+TextBox.Instance.GetTextWrapping = function () {
     return this.GetValue(TextBox.TextWrappingProperty);
 };
-TextBox.prototype.SetTextWrapping = function (value) {
+TextBox.Instance.SetTextWrapping = function (value) {
     this.SetValue(TextBox.TextWrappingProperty, value);
 };
 TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
-TextBox.prototype.GetHorizontalScrollBarVisibility = function () {
+TextBox.Instance.GetHorizontalScrollBarVisibility = function () {
     return this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
 };
-TextBox.prototype.SetHorizontalScrollBarVisibility = function (value) {
+TextBox.Instance.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
 };
 TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
-TextBox.prototype.GetVerticalScrollBarVisibility = function () {
+TextBox.Instance.GetVerticalScrollBarVisibility = function () {
     return this.GetValue(TextBox.VerticalScrollBarVisibilityProperty);
 };
-TextBox.prototype.SetVerticalScrollBarVisibility = function (value) {
+TextBox.Instance.SetVerticalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.VerticalScrollBarVisibilityProperty, value);
 };
-TextBox.prototype.GetIsMouseOver = function () {
+TextBox.Instance.GetIsMouseOver = function () {
     return this._IsMouseOver;
 };
-TextBox.prototype.OnApplyTemplate = function () {
-    this.OnApplyTemplate$super();
+TextBox.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$TextBoxBase();
     if (!this._ContentElement)
         return;
     var prop;
@@ -13077,10 +12701,10 @@ TextBox.prototype.OnApplyTemplate = function () {
             this._ContentElement.SetValue(prop, this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
     }
 };
-TextBox.prototype.GetDisplayText = function () {
+TextBox.Instance.GetDisplayText = function () {
     return this.GetText();
 };
-TextBox.prototype._SyncSelectedText = function () {
+TextBox.Instance._SyncSelectedText = function () {
     if (this._SelectionCursor != this._SelectionAnchor) {
         var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
         var end = Math.max(this._SelectionAnchor, this._SelectionCursor);
@@ -13094,14 +12718,14 @@ TextBox.prototype._SyncSelectedText = function () {
         this._SetValue = true;
     }
 };
-TextBox.prototype._SyncText = function () {
+TextBox.Instance._SyncText = function () {
     this._SetValue = false;
     this.SetValue(TextBox.TextProperty, this._Buffer);
     this._SetValue = true;
 };
-TextBox.prototype._OnPropertyChanged = function (args, error) {
+TextBox.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextBox) {
-        this._OnPropertyChanged$super(args, error);
+        this._OnPropertyChanged$TextBoxBase(args, error);
         return;
     }
     var changed = _TextBoxModelChanged.Nothing;
@@ -13207,40 +12831,40 @@ TextBox.prototype._OnPropertyChanged = function (args, error) {
     this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
     this.PropertyChanged.Raise(this, args);
 };
-TextBox.prototype._OnSubPropertyChanged = function (sender, args) {
+TextBox.Instance._OnSubPropertyChanged = function (sender, args) {
     if (args.Property && (args.Property === TextBox.SelectionBackgroundProperty
         || args.Property === TextBox.SelectionForegroundProperty)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
         this._Invalidate();
     }
     if (args.Property.OwnerType !== TextBox)
-        this._OnSubPropertyChanged$super(sender, args);
+        this._OnSubPropertyChanged$TextBoxBase(sender, args);
 };
-TextBox.prototype._EmitTextChanged = function () {
+TextBox.Instance._EmitTextChanged = function () {
     this.SelectionChanged.RaiseAsync(this, {});
 };
-TextBox.prototype._EmitSelectionChanged = function () {
+TextBox.Instance._EmitSelectionChanged = function () {
     this.TextChanged.RaiseAsync(this, {});
 };
-TextBox.prototype.OnMouseEnter = function (sender, args) {
+TextBox.Instance.OnMouseEnter = function (sender, args) {
     this._IsMouseOver = true;
     this._ChangeVisualState(true);
-    this.OnMouseEnter$super(sender, args);
+    this.OnMouseEnter$TextBoxBase(sender, args);
 };
-TextBox.prototype.OnMouseLeave = function (sender, args) {
+TextBox.Instance.OnMouseLeave = function (sender, args) {
     this._IsMouseOver = false;
     this._ChangeVisualState(true);
-    this.OnMouseLeave$super(sender, args);
+    this.OnMouseLeave$TextBoxBase(sender, args);
 };
-TextBox.prototype.OnGotFocus = function (sender, args) {
-    this.OnGotFocus$super(sender, args);
+TextBox.Instance.OnGotFocus = function (sender, args) {
+    this.OnGotFocus$TextBoxBase(sender, args);
     this._ChangeVisualState(true);
 };
-TextBox.prototype.OnLostFocus = function (sender, args) {
-    this.OnLostFocus$super(sender, args);
+TextBox.Instance.OnLostFocus = function (sender, args) {
+    this.OnLostFocus$TextBoxBase(sender, args);
     this._ChangeVisualState(true);
 };
-TextBox.prototype._ChangeVisualState = function (useTransitions) {
+TextBox.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         VisualStateManager.GoToState(this, "Disabled", useTransitions);
     } else if (this.GetIsReadOnly()) {
@@ -13256,7 +12880,7 @@ TextBox.prototype._ChangeVisualState = function (useTransitions) {
         VisualStateManager.GoToState(this, "Unfocused", useTransitions);
     }
 };
-TextBox.prototype.GetDefaultStyle = function () {
+TextBox.Instance.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,
         Props: {
@@ -13522,13 +13146,9 @@ TextBox.prototype.GetDefaultStyle = function () {
     var parser = new JsonParser();
     return parser.CreateObject(styleJson, new NameScope());
 };
+Nullstone.FinishCreate(TextBox);
 
-function ContentControl() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(ContentControl, "ContentControl", Control);
+var ContentControl = Nullstone.Create("ContentControl", Control);
 ContentControl._FallbackTemplate = (function () {
     return new ControlTemplate(ContentControl, {
         Type: Grid,
@@ -13543,35 +13163,35 @@ ContentControl._FallbackTemplate = (function () {
     });
 })();
 ContentControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentControl);
-ContentControl.prototype.GetContent = function () {
+ContentControl.Instance.GetContent = function () {
     return this.GetValue(ContentControl.ContentProperty);
 };
-ContentControl.prototype.SetContent = function (value) {
+ContentControl.Instance.SetContent = function (value) {
     this.SetValue(ContentControl.ContentProperty, value);
 };
 ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentControl);
-ContentControl.prototype.GetContentTemplate = function () {
+ContentControl.Instance.GetContentTemplate = function () {
     return this.GetValue(ContentControl.ContentTemplateProperty);
 };
-ContentControl.prototype.SetContentTemplate = function (value) {
+ContentControl.Instance.SetContentTemplate = function (value) {
     this.SetValue(ContentControl.ContentTemplateProperty, value);
 };
-ContentControl.prototype.GetFallbackRoot = function () {
+ContentControl.Instance.GetFallbackRoot = function () {
     if (this._FallbackRoot == null)
         this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
     return this._FallbackRoot;
 };
-ContentControl.prototype._GetDefaultTemplate = function () {
+ContentControl.Instance._GetDefaultTemplate = function () {
     return this.GetFallbackRoot();
 };
 ContentControl.Annotations = {
     ContentProperty: ContentControl.ContentProperty
 };
+Nullstone.FinishCreate(ContentControl);
 
-function ButtonBase() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
+var ButtonBase = Nullstone.Create("ButtonBase", ContentControl);
+ButtonBase.Instance.Init = function () {
+    this.Init$ContentControl();
     this._IsMouseCaptured = false;
     this._IsMouseLeftButtonDown = false;
     this._IsSpaceKeyDown = false;
@@ -13580,37 +13200,36 @@ function ButtonBase() {
     this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
     this.SetIsTabStop(true);
 }
-Nullstone.Extend(ButtonBase, "ButtonBase", ContentControl);
 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return Number; }, ButtonBase, ClickMode.Release);
-ButtonBase.prototype.GetClickMode = function () {
+ButtonBase.Instance.GetClickMode = function () {
     return this.GetValue(ButtonBase.ClickModeProperty);
 };
-ButtonBase.prototype.SetClickMode = function (value) {
+ButtonBase.Instance.SetClickMode = function (value) {
     this.SetValue(ButtonBase.ClickModeProperty, value);
 };
 ButtonBase.IsPressedProperty = DependencyProperty.Register("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
-ButtonBase.prototype.GetIsPressed = function () {
+ButtonBase.Instance.GetIsPressed = function () {
 	return this.GetValue(ButtonBase.IsPressedProperty);
 };
-ButtonBase.prototype.SetIsPressed = function (value) {
+ButtonBase.Instance.SetIsPressed = function (value) {
 	this.SetValue(ButtonBase.IsPressedProperty, value);
 };
 ButtonBase.IsFocusedProperty = DependencyProperty.Register("IsFocused", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.prototype.GetIsFocused = function () {
+ButtonBase.Instance.GetIsFocused = function () {
     return this.GetValue(ButtonBase.IsFocusedProperty);
 };
-ButtonBase.prototype.SetIsFocused = function (value) {
+ButtonBase.Instance.SetIsFocused = function (value) {
     this.SetValue(ButtonBase.IsFocusedProperty, value);
 };
 ButtonBase.IsMouseOverProperty = DependencyProperty.Register("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.prototype.GetIsMouseOver = function () {
+ButtonBase.Instance.GetIsMouseOver = function () {
     return this.GetValue(ButtonBase.IsMouseOverProperty);
 };
-ButtonBase.prototype.SetIsMouseOver = function (value) {
+ButtonBase.Instance.SetIsMouseOver = function (value) {
     this.SetValue(ButtonBase.IsMouseOverProperty, value);
 };
-ButtonBase.prototype.OnIsEnabledChanged = function (e) {
-    this.OnIsEnabledChanged$super(e);
+ButtonBase.Instance.OnIsEnabledChanged = function (e) {
+    this.OnIsEnabledChanged$ContentControl(e);
     var isEnabled = e.NewValue;
     this._SuspendStateChanges = true;
     try {
@@ -13626,21 +13245,21 @@ ButtonBase.prototype.OnIsEnabledChanged = function (e) {
         this.UpdateVisualState();
     }
 };
-ButtonBase.prototype.OnIsPressedChanged = function (e) {
+ButtonBase.Instance.OnIsPressedChanged = function (e) {
     this.UpdateVisualState();
 };
-ButtonBase.prototype.UpdateVisualState = function (useTransitions) {
+ButtonBase.Instance.UpdateVisualState = function (useTransitions) {
     if (this._SuspendStateChanges)
         return;
     this._ChangeVisualState(useTransitions === true);
 };
-ButtonBase.prototype._ChangeVisualState = function (useTransitions) {
+ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
 };
-ButtonBase.prototype._GoToState = function (useTransitions, stateName) {
+ButtonBase.Instance._GoToState = function (useTransitions, stateName) {
     return VisualStateManager.GoToState(this, stateName, useTransitions);
 };
-ButtonBase.prototype.OnMouseEnter = function (sender, args) {
-    this.OnMouseEnter$super(sender, args);
+ButtonBase.Instance.OnMouseEnter = function (sender, args) {
+    this.OnMouseEnter$ContentControl(sender, args);
     this.SetIsMouseOver(true);
     this._SuspendStateChanges = true;
     try {
@@ -13653,8 +13272,8 @@ ButtonBase.prototype.OnMouseEnter = function (sender, args) {
         this.UpdateVisualState();
     }
 };
-ButtonBase.prototype.OnMouseLeave = function (sender, args) {
-    this.OnMouseLeave$super(sender, args);
+ButtonBase.Instance.OnMouseLeave = function (sender, args) {
+    this.OnMouseLeave$ContentControl(sender, args);
     this.SetIsMouseOver(false);
     this._SuspendStateChanges = true;
     try {
@@ -13665,15 +13284,15 @@ ButtonBase.prototype.OnMouseLeave = function (sender, args) {
         this.UpdateVisualState();
     }
 };
-ButtonBase.prototype.OnMouseMove = function (sender, args) {
-    this.OnMouseMove$super(sender, args);
+ButtonBase.Instance.OnMouseMove = function (sender, args) {
+    this.OnMouseMove$ContentControl(sender, args);
     this._MousePosition = args.GetPosition(this);
     if (this._IsMouseLeftButtonDown && this.GetIsEnabled() && this.GetClickMode() !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
         this.SetIsPressed(this._IsValidMousePosition());
     }
 };
-ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
-    this.OnMouseLeftButtonDown$super(sender, args);
+ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
+    this.OnMouseLeftButtonDown$ContentControl(sender, args);
     this._IsMouseLeftButtonDown = true;
     if (!this.GetIsEnabled())
         return;
@@ -13693,8 +13312,8 @@ ButtonBase.prototype.OnMouseLeftButtonDown = function (sender, args) {
     if (clickMode === ClickMode.Press)
         this.OnClick();
 };
-ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
-    this.OnMouseLeftButtonDown$super(sender, args);
+ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
+    this.OnMouseLeftButtonDown$ContentControl(sender, args);
     this._IsMouseLeftButtonDown = false;
     if (!this.GetIsEnabled())
         return;
@@ -13708,29 +13327,29 @@ ButtonBase.prototype.OnMouseLeftButtonUp = function (sender, args) {
         this.SetIsPressed(false);
     }
 };
-ButtonBase.prototype.OnClick = function () {
+ButtonBase.Instance.OnClick = function () {
     this.Click.Raise(this, null);
 };
-ButtonBase.prototype._CaptureMouseInternal = function () {
+ButtonBase.Instance._CaptureMouseInternal = function () {
     if (!this._IsMouseCaptured)
         this._IsMouseCaptured = this.CaptureMouse();
 };
-ButtonBase.prototype._ReleaseMouseCaptureInternal = function () {
+ButtonBase.Instance._ReleaseMouseCaptureInternal = function () {
     this.ReleaseMouseCapture();
     this._IsMouseCaptured = false;
 };
-ButtonBase.prototype._IsValidMousePosition = function () {
+ButtonBase.Instance._IsValidMousePosition = function () {
     var pos = this._MousePosition;
     return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
         && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
 };
-ButtonBase.prototype.OnGotFocus = function (sender, args) {
-    this.OnGotFocus$super(sender, args);
+ButtonBase.Instance.OnGotFocus = function (sender, args) {
+    this.OnGotFocus$ContentControl(sender, args);
     this.SetIsFocused(true);
     this.UpdateVisualState();
 };
-ButtonBase.prototype.OnLostFocus = function (sender, args) {
-    this.OnLostFocus$super(sender, args);
+ButtonBase.Instance.OnLostFocus = function (sender, args) {
+    this.OnLostFocus$ContentControl(sender, args);
     this.SetIsFocused(false);
     this._SuspendStateChanges = true;
     try {
@@ -13752,44 +13371,40 @@ ButtonBase._GetVisualRoot = function (d) {
     }
     return d;
 };
+Nullstone.FinishCreate(ButtonBase);
 
-function HyperlinkButton() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(HyperlinkButton, "HyperlinkButton", ButtonBase);
+var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
 HyperlinkButton.StateDisabled = "Disabled";
 HyperlinkButton.StatePressed = "Pressed";
 HyperlinkButton.StateMouseOver = "MouseOver";
 HyperlinkButton.StateNormal = "Normal";
 HyperlinkButton.StateFocused = "Focused";
 HyperlinkButton.StateUnfocused = "Unfocused";
-HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function() { return Uri; }, HyperlinkButton, null);
-HyperlinkButton.prototype.GetNavigateUri = function () {
-	return this.GetValue(HyperlinkButton.NavigateUriProperty);
+HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton, null);
+HyperlinkButton.Instance.GetNavigateUri = function () {
+    return this.GetValue(HyperlinkButton.NavigateUriProperty);
 };
-HyperlinkButton.prototype.SetNavigateUri = function (value) {
-	this.SetValue(HyperlinkButton.NavigateUriProperty, value);
+HyperlinkButton.Instance.SetNavigateUri = function (value) {
+    this.SetValue(HyperlinkButton.NavigateUriProperty, value);
 };
-HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function() { return String; }, HyperlinkButton, null);
-HyperlinkButton.prototype.GetTargetName = function () {
-	return this.GetValue(HyperlinkButton.TargetNameProperty);
+HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, null);
+HyperlinkButton.Instance.GetTargetName = function () {
+    return this.GetValue(HyperlinkButton.TargetNameProperty);
 };
-HyperlinkButton.prototype.SetTargetName = function (value) {
-	this.SetValue(HyperlinkButton.TargetNameProperty, value);
+HyperlinkButton.Instance.SetTargetName = function (value) {
+    this.SetValue(HyperlinkButton.TargetNameProperty, value);
 };
-HyperlinkButton.prototype.OnApplyTemplate = function () {
-    this.OnApplyTemplate$super();
+HyperlinkButton.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$ButtonBase();
     this.UpdateVisualState(false);
 };
-HyperlinkButton.prototype.OnClick = function () {
-    this.OnClick$super();
+HyperlinkButton.Instance.OnClick = function () {
+    this.OnClick$ButtonBase();
     if (this.GetNavigateUri() != null) {
         this._Navigate();
     }
 };
-HyperlinkButton.prototype._GetAbsoluteUri = function () {
+HyperlinkButton.Instance._GetAbsoluteUri = function () {
     var destination = this.GetNavigateUri();
     if (!destination.IsAbsoluteUri) {
         var original = destination.OriginalString;
@@ -13799,7 +13414,7 @@ HyperlinkButton.prototype._GetAbsoluteUri = function () {
     }
     return destination;
 };
-HyperlinkButton.prototype._ChangeVisualState = function (useTransitions) {
+HyperlinkButton.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         this._GoToState(useTransitions, HyperlinkButton.StateDisabled);
     } else if (this.GetIsPressed()) {
@@ -13815,10 +13430,10 @@ HyperlinkButton.prototype._ChangeVisualState = function (useTransitions) {
         this._GoToState(useTransitions, HyperlinkButton.StateUnfocused);
     }
 };
-HyperlinkButton.prototype._Navigate = function () {
+HyperlinkButton.Instance._Navigate = function () {
     window.location.href = this.GetNavigateUri().toString();
 };
-HyperlinkButton.prototype.GetDefaultStyle = function () {
+HyperlinkButton.Instance.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,
         Props: {
@@ -13907,7 +13522,7 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                                                         Children: [
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
-                                                                Props: 
+                                                                Props:
                                                                 {
                                                                     KeyTime: new KeyTime(0.0),
                                                                     Value: Visibility.Visible
@@ -13934,7 +13549,7 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                                                         Children: [
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
-                                                                Props: 
+                                                                Props:
                                                                 {
                                                                     KeyTime: new KeyTime(0.0),
                                                                     Value: Visibility.Visible
@@ -13961,7 +13576,7 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
                                                         Children: [
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
-                                                                Props: 
+                                                                Props:
                                                                 {
                                                                     KeyTime: new KeyTime(0.0),
                                                                     Value: Visibility.Visible
@@ -14059,24 +13674,20 @@ HyperlinkButton.prototype.GetDefaultStyle = function () {
     var parser = new JsonParser();
     return parser.CreateObject(styleJson, new NameScope());
 };
+Nullstone.FinishCreate(HyperlinkButton);
 
-function Button() {
-    if (!Nullstone.IsReady)
-        return;
-    this.$super();
-}
-Nullstone.Extend(Button, "Button", ButtonBase);
+var Button = Nullstone.Create("Button", ButtonBase);
 Button.StateDisabled = "Disabled";
 Button.StatePressed = "Pressed";
 Button.StateMouseOver = "MouseOver";
 Button.StateNormal = "Normal";
 Button.StateFocused = "Focused";
 Button.StateUnfocused = "Unfocused";
-Button.prototype.OnApplyTemplate = function () {
-    this.OnApplyTemplate$super();
+Button.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$ButtonBase();
     this.UpdateVisualState(false);
 };
-Button.prototype._ChangeVisualState = function (useTransitions) {
+Button.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         this._GoToState(useTransitions, Button.StateDisabled);
     } else if (this.GetIsPressed()) {
@@ -14092,11 +13703,11 @@ Button.prototype._ChangeVisualState = function (useTransitions) {
         this._GoToState(useTransitions, Button.StateUnfocused);
     }
 };
-Button.prototype.OnIsEnabledChanged = function (e) {
-    this.OnIsEnabledChanged$super(e);
+Button.Instance.OnIsEnabledChanged = function (e) {
+    this.OnIsEnabledChanged$ButtonBase(e);
     this.SetIsTabStop(e.NewValue);
 };
-Button.prototype.GetDefaultStyle = function () {
+Button.Instance.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,
         Props: {
@@ -14453,4 +14064,5 @@ Button.prototype.GetDefaultStyle = function () {
     var parser = new JsonParser();
     return parser.CreateObject(styleJson, new NameScope());
 };
+Nullstone.FinishCreate(Button);
 

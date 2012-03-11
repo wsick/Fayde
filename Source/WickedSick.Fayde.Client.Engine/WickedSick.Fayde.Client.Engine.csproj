@@ -258,6 +258,7 @@
   <ItemGroup>
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
+    <None Include="Tests\basic.fayde" />
     <None Include="Tests\smoke.fayde">
       <SubType>Designer</SubType>
     </None>

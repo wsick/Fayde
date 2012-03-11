@@ -6,8 +6,7 @@
 //#region BindingExpressionBase
 var BindingExpressionBase = Nullstone.Create("BindingExpressionBase", Expression, 3);
 
-BindingExpressionBase.prototype.Init = function (binding, target, propd) {
-    this.Init$Expression();
+BindingExpressionBase.Instance.Init = function (binding, target, propd) {
     if (!binding)
         return;
 
@@ -27,7 +26,7 @@ BindingExpressionBase.prototype.Init = function (binding, target, propd) {
     }
 };
 
-BindingExpressionBase.prototype.GetValue = function (propd) {
+BindingExpressionBase.Instance.GetValue = function (propd) {
     if (this._Cached)
         return this._CachedValue;
 
@@ -46,7 +45,7 @@ BindingExpressionBase.prototype.GetValue = function (propd) {
     return this._CachedValue;
 };
 
-BindingExpressionBase.prototype._OnAttached = function (element) {
+BindingExpressionBase.Instance._OnAttached = function (element) {
     ///<param name="element" type="DependencyObject"></param>
     if (this.GetAttached())
         return;
@@ -69,7 +68,7 @@ BindingExpressionBase.prototype._OnAttached = function (element) {
         this._PropertyListener = new PropertyChangedListener(this.GetTarget(), this.GetProperty(), this, updateDataSourceCallback);
     }
 };
-BindingExpressionBase.prototype._OnDetached = function (element) {
+BindingExpressionBase.Instance._OnDetached = function (element) {
     ///<param name="element" type="DependencyObject"></param>
     if (!this.GetAttached())
         return;
@@ -104,15 +103,15 @@ BindingExpressionBase.prototype._OnDetached = function (element) {
     this.GetPropertyPathWalker().Update(null);
 };
 
-BindingExpressionBase.prototype._TextBoxLostFocus = function () {
+BindingExpressionBase.Instance._TextBoxLostFocus = function () {
     this._UpdateSourceObject();
 };
-BindingExpressionBase.prototype._TryUpdateSourceObject = function (value) {
+BindingExpressionBase.Instance._TryUpdateSourceObject = function (value) {
     if (!this.GetUpdating() && this.GetBinding().GetUpdateSourceTrigger() === UpdateSourceTrigger.Default) {
         this._UpdateSourceObject(value, false);
     }
 };
-BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
+BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
     if (value === undefined)
         value = GetTarget().GetValue(GetProperty());
     if (force === undefined)
@@ -181,7 +180,7 @@ BindingExpressionBase.prototype._UpdateSourceObject = function (value, force) {
     }
     this._MaybeEmitError(dataError, exception);
 };
-BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) {
+BindingExpressionBase.Instance._MaybeEmitError = function (message, exception) {
     /// <param name="message" type="String"></param>
     /// <param name="exception" type="Exception"></param>
     var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
@@ -219,15 +218,15 @@ BindingExpressionBase.prototype._MaybeEmitError = function (message, exception) 
     }
 };
 
-BindingExpressionBase.prototype._ConvertFromTargetToSource = function (value) {
+BindingExpressionBase.Instance._ConvertFromTargetToSource = function (value) {
     NotImplemented("BindingExpressionBase._ConvertFromTargetToSource");
     return value;
 };
-BindingExpressionBase.prototype._ConvertFromSourceToTarget = function (value) {
+BindingExpressionBase.Instance._ConvertFromSourceToTarget = function (value) {
     NotImplemented("BindingExpressionBase._ConvertFromSourceToTarget");
     return value;
 };
-BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
+BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
     try {
         if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter() != null) {
             value = this.GetBinding().GetConverter().Convert(value, this.GetProperty().GetTargetType(), this.GetBinding().GetConverterParameter(), {});
@@ -254,16 +253,16 @@ BindingExpressionBase.prototype._ConvertToType = function (propd, value) {
     return value;
 };
 
-BindingExpressionBase.prototype._AttachToNotifyError = function (element) {
+BindingExpressionBase.Instance._AttachToNotifyError = function (element) {
     ///<param name="element" type="INotifyDataErrorInfo"></param>
     NotImplemented("BindingExpressionBase._AttachToNotifyError");
 };
-BindingExpressionBase.prototype._NotifyErrorsChanged = function (o, e) {
+BindingExpressionBase.Instance._NotifyErrorsChanged = function (o, e) {
     ///<param name="e" type="DataErrorsChangedEventArgs"></param>
     NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
 };
 
-BindingExpressionBase.prototype._CalculateDataSource = function () {
+BindingExpressionBase.Instance._CalculateDataSource = function () {
     var source = null;
     if (this.GetBinding().GetSource() != null) {
         this.GetPropertyPathWalker().Update(this.GetBinding().GetSource());
@@ -300,7 +299,7 @@ BindingExpressionBase.prototype._CalculateDataSource = function () {
         }
     }
 };
-BindingExpressionBase.prototype.SetDataContextSource = function (value) {
+BindingExpressionBase.Instance.SetDataContextSource = function (value) {
     ///<param name="value" type="FrameworkElement"></param>
     if (this._DataContextSource != null && this._DataContextPropertyListener != null) {
         this._DataContextPropertyListener.Detach();
@@ -314,7 +313,7 @@ BindingExpressionBase.prototype.SetDataContextSource = function (value) {
     if (this._DataContextSource != null || this.GetIsMentorDataContextBound())
         this.GetPropertyPathWalker().Update(this._DataContextSource == null ? null : this._DataContextSource.GetDataContext());
 };
-BindingExpressionBase.prototype._InvalidateAfterMentorChanged = function (sender, e) {
+BindingExpressionBase.Instance._InvalidateAfterMentorChanged = function (sender, e) {
     ///<param name="e" type="EventArgs"></param>
     this.GetTarget().MentorChanged.Unsubscribe(this._InvalidateAfterMentorChanged, this);
     var source = this._FindSourceByElementName();
@@ -327,7 +326,7 @@ BindingExpressionBase.prototype._InvalidateAfterMentorChanged = function (sender
     this._Invalidate();
     this.GetTarget().SetValue(this.GetProperty(), this);
 };
-BindingExpressionBase.prototype._HandleFeTargetLoaded = function (sender, e) {
+BindingExpressionBase.Instance._HandleFeTargetLoaded = function (sender, e) {
     var fe = sender;
     fe.Loaded.Unsubscribe(this._HandleFeTargetLoaded, this);
 
@@ -338,7 +337,7 @@ BindingExpressionBase.prototype._HandleFeTargetLoaded = function (sender, e) {
     this._Invalidate();
     this.GetTarget().SetValue(this.GetProperty(), this);
 };
-BindingExpressionBase.prototype._FindSourceByElementName = function () {
+BindingExpressionBase.Instance._FindSourceByElementName = function () {
     var source = null;
     var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
     if (!fe)
@@ -355,11 +354,11 @@ BindingExpressionBase.prototype._FindSourceByElementName = function () {
     return source;
 };
 
-BindingExpressionBase.prototype._Invalidate = function () {
+BindingExpressionBase.Instance._Invalidate = function () {
     this._Cached = false;
     this._CachedValue = null;
 };
-BindingExpressionBase.prototype._MentorChanged = function (sender, e) {
+BindingExpressionBase.Instance._MentorChanged = function (sender, e) {
     /// <param name="e" type="EventArgs"></param>
     try {
         var mentor = this.GetTarget().GetMentor();
@@ -376,7 +375,7 @@ BindingExpressionBase.prototype._MentorChanged = function (sender, e) {
         //ignore
     }
 };
-BindingExpressionBase.prototype._ParentChanged = function (sender, e) {
+BindingExpressionBase.Instance._ParentChanged = function (sender, e) {
     /// <param name="e" type="EventArgs"></param>
     try {
         var targetFE = this.GetTarget();
@@ -385,7 +384,7 @@ BindingExpressionBase.prototype._ParentChanged = function (sender, e) {
         //ignore
     }
 };
-BindingExpressionBase.prototype._DataContextChanged = function (sender, e) {
+BindingExpressionBase.Instance._DataContextChanged = function (sender, e) {
     try {
         var fe = sender;
         this.GetPropertyPathWalker().Update(fe.GetDataContext());
@@ -395,10 +394,10 @@ BindingExpressionBase.prototype._DataContextChanged = function (sender, e) {
         Warn(err.message);
     }
 };
-BindingExpressionBase.prototype._PropertyPathValueChanged = function () {
+BindingExpressionBase.Instance._PropertyPathValueChanged = function () {
     this.Refresh();
 };
-BindingExpressionBase.prototype.Refresh = function () {
+BindingExpressionBase.Instance.Refresh = function () {
     var dataError = null;
     var exception = null;
 
@@ -434,79 +433,79 @@ BindingExpressionBase.prototype.Refresh = function () {
 
 //#region PROPERTIES
 
-BindingExpressionBase.prototype.GetBinding = function () {
+BindingExpressionBase.Instance.GetBinding = function () {
     /// <returns type="Binding"></returns>
     return this._Binding;
 };
 
 //NOT USED YET
-BindingExpressionBase.prototype.GetCurrentError = function () {
+BindingExpressionBase.Instance.GetCurrentError = function () {
     return this._CurrentError;
 };
-BindingExpressionBase.prototype.SetCurrentError = function (/* ValidationError */value) {
+BindingExpressionBase.Instance.SetCurrentError = function (/* ValidationError */value) {
     this._CurrentError = value;
 };
 
-BindingExpressionBase.prototype.GetCurrentNotifyError = function () {
+BindingExpressionBase.Instance.GetCurrentNotifyError = function () {
     return this._CurrentNotifyError;
 };
-BindingExpressionBase.prototype.SetCurrentNotifyError = function (/* INotifyDataErrorInfo */value) {
+BindingExpressionBase.Instance.SetCurrentNotifyError = function (/* INotifyDataErrorInfo */value) {
     this._CurrentNotifyError = value;
 };
 //NOT USED YET
 
-BindingExpressionBase.prototype.GetDataContextSource = function () {
+BindingExpressionBase.Instance.GetDataContextSource = function () {
     /// <returns type="FrameworkElement"></returns>
     return this._DataContextSource;
 };
 
-BindingExpressionBase.prototype.GetDataSource = function () {
+BindingExpressionBase.Instance.GetDataSource = function () {
     return this.GetPropertyPathWalker().GetSource();
 };
 
-BindingExpressionBase.prototype.GetIsBoundToAnyDataContext = function () {
+BindingExpressionBase.Instance.GetIsBoundToAnyDataContext = function () {
     return !this.GetBinding().GetElementName() && this.GetBinding().GetSource() == null;
 };
-BindingExpressionBase.prototype.GetIsSelfDataContextBound = function () {
+BindingExpressionBase.Instance.GetIsSelfDataContextBound = function () {
     return this.GetIsBoundToAnyDataContext()
         && this.GetTarget() instanceof FrameworkElement
         && this.GetProperty() !== FrameworkElement.DataContextProperty;
 };
-BindingExpressionBase.prototype.GetIsParentDataContextBound = function () {
+BindingExpressionBase.Instance.GetIsParentDataContextBound = function () {
     return this.GetIsBoundToAnyDataContext()
         && this.GetTarget() instanceof FrameworkElement
         && (this.GetProperty() === FrameworkElement.DataContextProperty || this.GetProperty() === ContentPresenter.ContentProperty);
 };
-BindingExpressionBase.prototype.GetIsMentorDataContextBound = function () {
+BindingExpressionBase.Instance.GetIsMentorDataContextBound = function () {
     return this.GetIsBoundToAnyDataContext()
         && !(this.GetTarget() instanceof FrameworkElement);
 };
 
-BindingExpressionBase.prototype.GetTarget = function () {
+BindingExpressionBase.Instance.GetTarget = function () {
     /// <returns type="DependencyObject"></returns>
     return this._Target;
 };
-BindingExpressionBase.prototype.SetTarget = function (/* DependencyObject */value) {
+BindingExpressionBase.Instance.SetTarget = function (/* DependencyObject */value) {
     this._Target = value;
 };
 
-BindingExpressionBase.prototype.GetProperty = function () {
+BindingExpressionBase.Instance.GetProperty = function () {
     /// <returns type="DependencyProperty"></returns>
     return this._Property;
 };
-BindingExpressionBase.prototype.SetProperty = function (/* DependencyProperty */value) {
+BindingExpressionBase.Instance.SetProperty = function (/* DependencyProperty */value) {
     this._Property = value;
 };
 
-BindingExpressionBase.prototype.GetPropertyPathWalker = function () {
+BindingExpressionBase.Instance.GetPropertyPathWalker = function () {
     /// <returns type="_PropertyPathWalker"></returns>
     return this._PropertyPathWalker;
 };
-BindingExpressionBase.prototype.SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
+BindingExpressionBase.Instance.SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
     this._PropertyPathWalker = value;
 };
 
-BindingExpressionBase.prototype.GetIsTwoWayTextBoxText = function () {
+BindingExpressionBase.Instance.GetIsTwoWayTextBoxText = function () {
     return this.GetTarget() instanceof TextBox && this.GetProperty() === TextBox.TextProperty && this.GetBinding().GetMode() === BindingMode.TwoWay;
 };
 

@@ -5,7 +5,6 @@ Data/Enums.js
 Engine/Debug.js
 Media/Enums.js
 Primitives/Enums.js
-Runtime/JsEx.js
 Runtime/Nullstone.js
 TextLayout/Enums.js
 Controls/GridLength.js
@@ -17,6 +16,7 @@ Core/DeepTreeWalker.js
 Core/DependencyProperty.js
 Core/Expression.js
 Core/TemplateBindingExpression.js
+Core/UnsetValue.js
 Core/Validators.js
 Core/VisualTreeHelper.js
 Core/VisualTreeWalker.js
@@ -56,8 +56,10 @@ Primitives/Thickness.js
 Primitives/TimeSpan.js
 Primitives/Uri.js
 Runtime/BError.js
+Runtime/Closure.js
 Runtime/Dictionary.js
 Runtime/EventArgs.js
+Runtime/JsEx.js
 Runtime/LinkedList.js
 Runtime/LinkedListNode.js
 Runtime/MulticastEvent.js

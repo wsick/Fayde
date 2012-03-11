@@ -8,8 +8,6 @@
 var Binding = Nullstone.Create("Binding", BindingBase, 1);
 
 Binding.Instance.Init = function (path) {
-    this.Init$BindingBase();
-
     if (!path)
         path = "";
 

@@ -181,13 +181,8 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
         if (propd._IsAutoCreated())
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
 
-    if (currentValue != null && value != null) {
-        if (currentValue.constructor._IsNullstone) {
-            equal = !propd._AlwaysChange && Nullstone.RefEquals(currentValue, value);
-        } else {
-            equal = !propd._AlwaysChange && currentValue === value;
-        }
-    }
+    if (currentValue != null && value != null)
+        equal = !propd._AlwaysChange && Nullstone.Equals(currentValue, value);
     else
         equal = currentValue == null && value == null;
 

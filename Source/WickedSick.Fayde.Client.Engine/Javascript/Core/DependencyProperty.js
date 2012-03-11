@@ -59,27 +59,29 @@ DependencyProperty.Register = function (name, getTargetType, ownerType, defaultV
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();
-    if (!DependencyProperty._Registered[ownerType])
-        DependencyProperty._Registered[ownerType] = new Array();
+    if (!DependencyProperty._Registered[ownerType._TypeName])
+        DependencyProperty._Registered[ownerType._TypeName] = new Array();
     var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
-    DependencyProperty._Registered[ownerType][name] = propd;
+    DependencyProperty._Registered[ownerType._TypeName][name] = propd;
     return propd;
 }
 DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();
-    if (!DependencyProperty._Registered[ownerType])
-        DependencyProperty._Registered[ownerType] = new Array();
+    if (!DependencyProperty._Registered[ownerType._TypeName])
+        DependencyProperty._Registered[ownerType._TypeName] = new Array();
     var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue);
     propd._IsAttached = true;
-    DependencyProperty._Registered[ownerType][name] = propd;
+    DependencyProperty._Registered[ownerType._TypeName][name] = propd;
     return propd;
 }
 DependencyProperty.GetDependencyProperty = function (ownerType, name) {
     var reg = DependencyProperty._Registered;
     if (!reg)
         return null;
-    var reg = reg[ownerType];
+    if (ownerType == null)
+        return null;
+    var reg = reg[ownerType._TypeName];
     var propd;
     if (reg)
         propd = reg[name];

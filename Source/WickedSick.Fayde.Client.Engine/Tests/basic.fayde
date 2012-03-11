@@ -1,0 +1,5 @@
+﻿<Page Title="Basic Test">
+    <Border Width="200" Height="200" BorderBrush="#000000" BorderThickness="2" Background="#000000">
+        
+    </Border>
+</Page>

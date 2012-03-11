@@ -425,22 +425,22 @@ UIElement.Instance._ShiftPosition = function (point) {
 UIElement.Instance._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
     if (!region) {
-        Warn("Render Extents are empty. [" + this._TypeName + "]");
+        Warn("Render Extents are empty. [" + this.constructor._TypeName + "]");
         return;
     }
     //region = region.Transform(this._RenderTransform);
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
     if (UIElement._IsOpacityInvisible(this._TotalOpacity)) {
-        // Info("No opacity. [" + this._TypeName + ":" + this.GetName() + "]");
+        // Info("No opacity. [" + this.constructor._TypeName + ":" + this.GetName() + "]");
         return;
     }
     if (!this._GetRenderVisible()) {
-        //Info("Render invisible. [" + this._TypeName + ":" + this.GetName() + "]");
+        //Info("Render invisible. [" + this.constructor._TypeName + ":" + this.GetName() + "]");
         return;
     }
     if (region.IsEmpty()) {
-        Info("Nothing to render. [" + this._TypeName + "]");
+        Info("Nothing to render. [" + this.constructor._TypeName + "]");
         return;
     }
 
