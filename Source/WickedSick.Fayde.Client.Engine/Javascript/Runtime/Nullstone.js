@@ -1,5 +1,6 @@
 ﻿var Nullstone = {};
 Nullstone._LastID = 0;
+Nullstone._LastTypeID = 1;
 Nullstone.Create = function (typeName, parent, argCount) {
     var s;
     if (argCount) {
@@ -22,6 +23,7 @@ Nullstone.Create = function (typeName, parent, argCount) {
 
     f._IsNullstone = true;
     f._TypeName = typeName;
+    Nullstone._LastTypeID = f._TypeID = Nullstone._LastTypeID + 1;
     f._BaseClass = parent;
     if (!parent) parent = Object;
     Nullstone.IsReady = false;

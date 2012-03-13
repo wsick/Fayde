@@ -8,6 +8,7 @@
 //#region DependencyProperty
 var DependencyProperty = Nullstone.Create("DependencyProperty", null, 10);
 
+DependencyProperty._LastID = 0;
 DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     this.Name = name;
     this.GetTargetType = getTargetType;
@@ -19,11 +20,13 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this._Validator = validator;
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
+    DependencyProperty._LastID = this._ID = DependencyProperty._LastID + 1;
 };
 
 DependencyProperty.Instance.toString = function () {
-    var ownerTypeName = this.OwnerType._TypeName;
-    return ownerTypeName + "." + this.Name.toString();
+    return this._ID;
+    //var ownerTypeName = this.OwnerType._TypeName;
+    //return ownerTypeName + "." + this.Name.toString();
 };
 DependencyProperty.Instance.GetDefaultValue = function (obj) {
     if (this._HasDefaultValue)
