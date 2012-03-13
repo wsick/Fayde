@@ -598,7 +598,9 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
+    this._HasDefaultValue = defaultValue != null;
     this._AutoCreator = autoCreator;
+    this._IsAutoCreated = autoCreator != null;
     this._Coercer = coercer;
     this._AlwaysChange = alwaysChange;
     this._Validator = validator;
@@ -613,12 +615,6 @@ DependencyProperty.Instance.GetDefaultValue = function (obj) {
     if (this._HasDefaultValue)
         return this.DefaultValue;
     return this._GetAutoCreatedValue(obj);
-};
-DependencyProperty.Instance._HasDefaultValue = function () {
-    return this.DefaultValue != null;
-};
-DependencyProperty.Instance._IsAutoCreated = function () {
-    return this._AutoCreator != undefined && this._AutoCreator != null;
 };
 DependencyProperty.Instance._GetAutoCreatedValue = function (obj) {
     return this._AutoCreator.GetValue(this, obj);
@@ -2188,7 +2184,7 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
     if (!(subJson instanceof Array))
         return false;
     var coll;
-    if (propd._IsAutoCreated()) {
+    if (propd._IsAutoCreated) {
         coll = dobj.GetValue(propd);
     } else {
         coll = new targetType();
@@ -4192,7 +4188,7 @@ _AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);
     if (value !== undefined)
         return value;
-    value = propd._IsAutoCreated() ? propd._GetAutoCreatedValue(this._Object) : null;
+    value = propd._IsAutoCreated ? propd._GetAutoCreatedValue(this._Object) : null;
     if (value == null)
         return null;
     this._ht[propd] = value;
@@ -5981,7 +5977,7 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
     var currentValue;
     var equal = false;
     if ((currentValue = this.ReadLocalValue(propd)) == null)
-        if (propd._IsAutoCreated())
+        if (propd._IsAutoCreated)
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     if (currentValue != null && value != null)
         equal = !propd._AlwaysChange && Nullstone.Equals(currentValue, value);
@@ -5990,9 +5986,9 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
     if (!equal) {
         var newValue;
         this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
-        if (propd._IsAutoCreated())
+        if (propd._IsAutoCreated)
             this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
-        if (value != null && (!propd._IsAutoCreated() || !(value instanceof DependencyObject) || Nullstone.As(value, DependencyObject) != null))
+        if (value != null && (!propd._IsAutoCreated || !(value instanceof DependencyObject) || Nullstone.As(value, DependencyObject) != null))
             newValue = value;
         else
             newValue = null;
@@ -6008,11 +6004,11 @@ DependencyObject.Instance.GetValue = function (propd, startingPrecedence, ending
         startingPrecedence = _PropertyPrecedence.Highest;
     if (endingPrecedence === undefined)
         endingPrecedence = _PropertyPrecedence.Lowest;
-    var bitmask = this._ProviderBitmasks[propd] || 0;
+    var bitmask = this._ProviderBitmasks[propd._ID] || 0;
     bitmask |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
-    if (propd._IsAutoCreated())
+    if (propd._IsAutoCreated)
         bitmask |= 1 << _PropertyPrecedence.AutoCreate;
-    if (propd._HasDefaultValue())
+    if (propd._HasDefaultValue)
         bitmask |= 1 << _PropertyPrecedence.DefaultValue;
     for (var i = startingPrecedence; i <= endingPrecedence; i++) {
         if (!(bitmask & (1 << i)))
@@ -6037,7 +6033,7 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
     }
     var oldLocalValue;
     if ((oldLocalValue = this.ReadLocalValue(propd)) == null) {
-        if (propd._IsAutoCreated())
+        if (propd._IsAutoCreated)
             oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     }
     if (oldLocalValue != null) {
@@ -6050,7 +6046,7 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
             }
         }
         this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
-        if (propd._IsAutoCreated())
+        if (propd._IsAutoCreated)
             this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
     }
     for (var i = _PropertyPrecedence.LocalValue + 1; i < _PropertyPrecedence.Count; i++) {
@@ -6067,7 +6063,7 @@ DependencyObject.Instance.ReadLocalValue = function (propd) {
 };
 DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
     var v = this.GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
-    if (v == null && propd._IsAutoCreated())
+    if (v == null && propd._IsAutoCreated)
         v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     return v;
 };
@@ -6089,21 +6085,21 @@ DependencyObject.Instance._PropertyHasValueNoAutoCreate = function (propd, obj) 
     return v == null ? obj == null : v == obj;
 };
 DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
-    var bitmask = this._ProviderBitmasks[propd] || 0;
+    var bitmask = this._ProviderBitmasks[propd._ID] || 0;
     if (newProviderValue != null)
         bitmask |= 1 << providerPrecedence;
     else
         bitmask &= ~(1 << providerPrecedence);
-    this._ProviderBitmasks[propd] = bitmask;
+    this._ProviderBitmasks[propd._ID] = bitmask;
     var higher = 0;
     for (var i = providerPrecedence; i >= _PropertyPrecedence.LocalValue; i--) {
         higher |= 1 << i;
     }
     higher &= bitmask;
     higher |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
-    if (propd._IsAutoCreated())
+    if (propd._IsAutoCreated)
         higher |= 1 << _PropertyPrecedence.AutoCreate;
-    if (propd._HasDefaultValue())
+    if (propd._HasDefaultValue)
         higher |= 1 << _PropertyPrecedence.DefaultValue;
     for (var j = providerPrecedence; j >= _PropertyPrecedence.Highest; j--) {
         if (!(higher & (1 << j)))
@@ -6241,21 +6237,21 @@ DependencyObject.Instance._SetInheritedValueSource = function (inheritable, sour
         var propd = _InheritedPropertyValueProvider.GetProperty(inheritable, this);
         if (propd)
             return;
-        var bitmask = this._ProviderBitmasks[propd];
+        var bitmask = this._ProviderBitmasks[propd._ID];
         bitmask &= ~(1 << _PropertyPrecedence.Inherited);
-        this._ProviderBitmasks[propd] = bitmask;
+        this._ProviderBitmasks[propd._ID] = bitmask;
     }
     inheritedProvider._SetPropertySource(inheritable, source);
 };
 DependencyObject.Instance._GetPropertyValueProvider = function (propd) {
-    var bitmask = this._ProviderBitmasks[propd];
+    var bitmask = this._ProviderBitmasks[propd._ID];
     for (var i = 0; i < _PropertyPrecedence.Lowest; i++) {
         var p = 1 << i;
         if ((bitmask & p) == p)
             return i;
-        if (i == _PropertyPrecedence.DefaultValue && propd._HasDefaultValue())
+        if (i == _PropertyPrecedence.DefaultValue && propd._HasDefaultValue)
             return i;
-        if (i == _PropertyPrecedence.AutoCreate && propd._IsAutoCreated())
+        if (i == _PropertyPrecedence.AutoCreate && propd._IsAutoCreated)
             return i;
     }
     return -1;

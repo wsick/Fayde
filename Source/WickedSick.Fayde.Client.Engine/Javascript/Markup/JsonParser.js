@@ -92,7 +92,7 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
         return false;
 
     var coll;
-    if (propd._IsAutoCreated()) {
+    if (propd._IsAutoCreated) {
         coll = dobj.GetValue(propd);
     } else {
         coll = new targetType();

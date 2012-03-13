@@ -16,7 +16,7 @@ _AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (value !== undefined)
         return value;
 
-    value = propd._IsAutoCreated() ? propd._GetAutoCreatedValue(this._Object) : null;
+    value = propd._IsAutoCreated ? propd._GetAutoCreatedValue(this._Object) : null;
     if (value == null)
         return null;
 

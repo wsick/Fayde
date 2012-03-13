@@ -14,7 +14,9 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
+    this._HasDefaultValue = defaultValue != null;
     this._AutoCreator = autoCreator;
+    this._IsAutoCreated = autoCreator != null;
     this._Coercer = coercer;
     this._AlwaysChange = alwaysChange;
     this._Validator = validator;
@@ -32,12 +34,6 @@ DependencyProperty.Instance.GetDefaultValue = function (obj) {
     if (this._HasDefaultValue)
         return this.DefaultValue;
     return this._GetAutoCreatedValue(obj);
-};
-DependencyProperty.Instance._HasDefaultValue = function () {
-    return this.DefaultValue != null;
-};
-DependencyProperty.Instance._IsAutoCreated = function () {
-    return this._AutoCreator != undefined && this._AutoCreator != null;
 };
 DependencyProperty.Instance._GetAutoCreatedValue = function (obj) {
     return this._AutoCreator.GetValue(this, obj);
