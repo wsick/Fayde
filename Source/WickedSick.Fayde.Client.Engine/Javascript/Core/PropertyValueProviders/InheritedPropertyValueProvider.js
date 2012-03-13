@@ -182,30 +182,92 @@ _InheritedPropertyValueProvider.IsInherited = function (obj, propd) {
     return inheritable != _Inheritable.None;
 };
 _InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
-    if (propd == Control.ForegroundProperty || propd == TextBlock.ForegroundProperty || propd == TextElement.ForegroundProperty)
-        return _Inheritable.Foreground;
-    if (propd == Control.FontFamilyProperty || propd == TextBlock.FontFamilyProperty || propd == TextElement.FontFamilyProperty)
-        return _Inheritable.FontFamily;
-    if (propd == Control.FontStretchProperty || propd == TextBlock.FontStretchProperty || propd == TextElement.FontStretchProperty)
-        return _Inheritable.FontStretch;
-    if (propd == Control.FontStyleProperty || propd == TextBlock.FontStyleProperty || propd == TextElement.FontStyleProperty)
-        return _Inheritable.FontStyle;
-    if (propd == Control.FontWeightProperty || propd == TextBlock.FontWeightProperty || propd == TextElement.FontWeightProperty)
-        return _Inheritable.FontWeight;
-    if (propd == Control.FontSizeProperty || propd == TextBlock.FontSizeProperty || propd == TextElement.FontSizeProperty)
-        return _Inheritable.FontSize;
-    if (propd == FrameworkElement.LanguageProperty || propd == TextElement.LanguageProperty)
-        return _Inheritable.Language;
-    if (propd == FrameworkElement.FlowDirectionProperty && !(obj instanceof Image) && !(obj instanceof MediaElement))
-        return _Inheritable.FlowDirection;
-    if (propd == Run.FlowDirectionProperty)
-        return _Inheritable.FlowDirection;
-    if (propd == UIElement.UseLayoutRoundingProperty)
-        return _Inheritable.UseLayoutRounding;
-    if (propd == TextElement.TextDecorationsProperty || propd == TextBlock.TextDecorationsProperty)
-        return _Inheritable.TextDecorations;
-    if (propd == TextElement.FontResourceProperty || propd == TextBlock.FontResourceProperty)
-        return _Inheritable.FontResource;
+    var inh = propd._CachedInheritable;
+    if (inh == null) {
+        inh = _InheritedPropertyValueProvider._DeriveInheritable(obj, propd);
+        //don't cache this property, object type dependent
+        if (propd._ID !== FrameworkElement.FlowDirectionProperty._ID)
+            propd._CachedInheritable = inh;
+    }
+    return inh;
+};
+_InheritedPropertyValueProvider._DeriveInheritable = function (obj, propd) {
+    if (propd.OwnerType._TypeID === Control._TypeID) {
+        switch (propd._ID) {
+            case Control.ForegroundProperty._ID:
+                return _Inheritable.Foreground;
+            case Control.FontFamilyProperty._ID:
+                return _Inheritable.FontFamily;
+            case Control.FontStretchProperty._ID:
+                return _Inheritable.FontStretch;
+            case Control.FontStyleProperty._ID:
+                return _Inheritable.FontStyle;
+            case Control.FontWeightProperty._ID:
+                return _Inheritable.FontWeight;
+            case Control.FontSizeProperty._ID:
+                return _Inheritable.FontSize;
+            default:
+                return _Inheritable.None;
+        }
+    }
+    if (propd.OwnerType._TypeID === TextBlock._TypeID) {
+        switch (propd._ID) {
+            case TextBlock.ForegroundProperty._ID:
+                return _Inheritable.Foreground;
+            case TextBlock.FontFamilyProperty._ID:
+                return _Inheritable.FontFamily;
+            case TextBlock.FontStretchProperty._ID:
+                return _Inheritable.FontStretch;
+            case TextBlock.FontStyleProperty._ID:
+                return _Inheritable.FontStyle;
+            case TextBlock.FontWeightProperty._ID:
+                return _Inheritable.FontWeight;
+            case TextBlock.FontSizeProperty._ID:
+                return _Inheritable.FontSize;
+            case TextBlock.TextDecorationsProperty._ID:
+                return _Inheritable.TextDecorations;
+            case TextBlock.FontResourceProperty._ID:
+                return _Inheritable.FontResource;
+            default:
+                return _Inheritable.None;
+        }
+    }
+    if (propd.OwnerType._TypeID === TextElement._TypeID) {
+        switch (propd._ID) {
+            case TextElement.ForegroundProperty._ID:
+                return _Inheritable.Foreground;
+            case TextElement.FontFamilyProperty._ID:
+                return _Inheritable.FontFamily;
+            case TextElement.FontStretchProperty._ID:
+                return _Inheritable.FontStretch;
+            case TextElement.FontStyleProperty._ID:
+                return _Inheritable.FontStyle;
+            case TextElement.FontWeightProperty._ID:
+                return _Inheritable.FontWeight;
+            case TextElement.FontSizeProperty._ID:
+                return _Inheritable.FontSize;
+            case TextElement.LanguageProperty._ID:
+                return _Inheritable.Language;
+            case TextElement.TextDecorationsProperty._ID:
+                return _Inheritable.TextDecorations;
+            case TextElement.FontResourceProperty._ID:
+                return _Inheritable.FontResource;
+            default:
+                return _Inheritable.None;
+        }
+    }
+    switch (propd._ID) {
+
+        case FrameworkElement.LanguageProperty._ID:
+            return _Inheritable.Language;
+        case FrameworkElement.FlowDirectionProperty._ID:
+            if (!(obj instanceof Image) && !(obj instanceof MediaElement))
+                return _Inheritable.FlowDirection;
+        case Run.FlowDirectionProperty._ID:
+            return _Inheritable.FlowDirection;
+        case UIElement.UseLayoutRoundingProperty._ID:
+            return _Inheritable.UseLayoutRounding;
+    }
     return _Inheritable.None;
 };
 _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {

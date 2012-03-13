@@ -13,7 +13,7 @@ _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPr
 };
 
 _InheritedDataContextPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (!this._Source || propd != FrameworkElement.DataContextProperty)
+    if (!this._Source || propd !== FrameworkElement.DataContextProperty)
         return null;
     return this._Source.GetValue(propd);
 };
