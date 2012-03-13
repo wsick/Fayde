@@ -584,7 +584,8 @@ FrameworkElement.Instance._HasLayoutClip = function () {
 };
 FrameworkElement.Instance._RenderLayoutClip = function (ctx) {
     var element = this;
-    var inverse = new TranslationMatrix(0, 0);
+    var iX = 0;
+    var iY = 0;
 
     while (element) {
         var geom = LayoutInformation.GetLayoutClip(element);
@@ -596,13 +597,13 @@ FrameworkElement.Instance._RenderLayoutClip = function (ctx) {
         var visualOffset = LayoutInformation.GetVisualOffset(element);
         if (visualOffset) {
             ctx.Transform(new TranslationMatrix(-visualOffset.X, -visualOffset.Y));
-            inverse.X += visualOffset.X;
-            inverse.Y += visualOffset.Y;
+            iX += visualOffset.X;
+            iY += visualOffset.Y;
         }
 
         element = element.GetVisualParent();
     }
-    ctx.Transform(inverse);
+    ctx.Transform(new TranslationMatrix(iX, iY));
 };
 
 FrameworkElement.Instance._ElementRemoved = function (value) {

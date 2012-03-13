@@ -447,7 +447,8 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     //TODO: render to intermediate not implemented
     var visualOffset = LayoutInformation.GetVisualOffset(this);
     ctx.Save();
-    ctx.Transform(new TranslationMatrix(visualOffset.X, visualOffset.Y));
+    if (visualOffset.X !== 0 || visualOffset.Y !== 0)
+        ctx.Transform(new TranslationMatrix(visualOffset.X, visualOffset.Y));
     this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
     this._Render(ctx, region);
