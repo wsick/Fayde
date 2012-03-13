@@ -90,7 +90,7 @@ Font.Instance._Translate = function () {
     return s;
 };
 
-Font.DEFAULT_FAMILY = "'Lucida Sans Unicode'";
+Font.DEFAULT_FAMILY = "Verdana";
 Font.DEFAULT_STRETCH = FontStretches.Normal;
 Font.DEFAULT_STYLE = FontStyles.Normal;
 Font.DEFAULT_WEIGHT = FontWeights.Normal;
