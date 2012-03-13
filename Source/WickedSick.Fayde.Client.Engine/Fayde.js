@@ -8017,7 +8017,11 @@ App.Instance.ProcessDirty = function () {
     this._IsRunning = true;
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
+    try {
         this.MainSurface.ProcessDirtyElements(region);
+    } catch (err) {
+        Fatal("An error occurred processing dirty elements: " + err.toString());
+    }
     this._IsRunning = false;
 };
 App.Instance.RegisterStoryboard = function (storyboard) {
