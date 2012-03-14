@@ -635,6 +635,9 @@ DependencyProperty.Instance._Validate = function (instance, propd, value, error)
 DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback);
 };
+DependencyProperty.RegisterCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback);
+};
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();
@@ -874,6 +877,16 @@ Expression.Instance.SetUpdating = function (value) {
     this._Updating = value;
 };
 Nullstone.FinishCreate(Expression);
+
+var SubPropertyListener = Nullstone.Create("SubPropertyListener", null, 2);
+SubPropertyListener.Instance.Init = function (dobj, propd) {
+    this._Dobj = dobj;
+    this._Propd = propd;
+};
+SubPropertyListener.Instance.OnSubPropertyChanged = function (sender, args) {
+    this._Dobj._OnSubPropertyChanged(this._Propd, sender, args);
+};
+Nullstone.FinishCreate(SubPropertyListener);
 
 var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", Expression, 2);
 TemplateBindingExpression.Instance.Init = function (sourcePropd, targetPropd) {
@@ -5505,6 +5518,7 @@ Surface.Instance._AddDirtyElement = function (element, dirt) {
         element._UpDirtyNode = new DirtyNode(element);
         this._UpDirty.AddDirtyNode(element._UpDirtyNode);
     }
+    this._Invalidate();
 };
 Surface.Instance._RemoveDirtyElement = function (element) {
     if (element._UpDirtyNode)
@@ -5846,6 +5860,7 @@ DependencyObject.Instance.Init = function () {
     this._ProviderBitmasks = new Array();
     this._SecondaryParents = new Array();
     this.PropertyChanged = new MulticastEvent();
+    this._SubPropertyListeners = [];
 };
 DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 DependencyObject.Instance.GetName = function () {
@@ -6133,7 +6148,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     }
     if (equal)
         return;
-    if (providerPrecedence != _PropertyPrecedence.IsEnabled && this._Providers[_PropertyPrecedence.IsEnabled] && this._Providers[_PropertyPrecedence.IsEnabled].LocalValueChanged(propd))
+    if (providerPrecedence !== _PropertyPrecedence.IsEnabled && this._Providers[_PropertyPrecedence.IsEnabled] && this._Providers[_PropertyPrecedence.IsEnabled].LocalValueChanged(propd))
         return;
     this._CallRecomputePropertyValueForProviders(propd, providerPrecedence, error);
     var oldDO = undefined;
@@ -6148,10 +6163,10 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
             oldDO._SetIsAttached(false);
             oldDO._RemoveParent(this, null);
             oldDO._RemoveTarget(this);
-            oldDO.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
+            oldDO.RemovePropertyChangedListener(this, propd);
             if (oldDO instanceof Collection) {
-                oldDO.Changed.Unsubscribe(this._OnCollectionChanged, this);
-                oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged, this);
+                oldDO.Changed.Unsubscribe(this._OnCollectionChangedEH, this);
+                oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChangedEH, this);
             }
         } else {
             oldDO.SetMentor(null);
@@ -6165,10 +6180,10 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
                 return;
             newDO._SetResourceBase(this._GetResourceBase());
             if (newDO instanceof Collection) {
-                newDO.Changed.Subscribe(this._OnCollectionChanged, this);
-                newDO.ItemChanged.Subscribe(this._OnCollectionItemChanged, this);
+                newDO.Changed.Subscribe(this._OnCollectionChangedEH, this);
+                newDO.ItemChanged.Subscribe(this._OnCollectionItemChangedEH, this);
             }
-            newDO.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+            newDO.AddPropertyChangedListener(this, propd);
             newDO._AddTarget(this);
         } else {
             var cur = this;
@@ -6203,7 +6218,7 @@ DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (pr
         var provider = this._Providers[i];
         if (provider == null)
             continue;
-        if (i == providerPrecedence)
+        if (i === providerPrecedence)
             continue;
         if (i < providerPrecedence && provider._HasFlag(_ProviderFlags.RecomputesOnLowerPriorityChange))
             provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnLowerPriorityChange, error);
@@ -6312,11 +6327,32 @@ DependencyObject.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-DependencyObject.Instance._OnSubPropertyChanged = function (sender, args) { };
-DependencyObject.Instance._OnCollectionChanged = function (sender, args) {
+DependencyObject.Instance.AddPropertyChangedListener = function (ldo, propd) {
+    var listener = new SubPropertyListener(ldo, propd);
+    this._SubPropertyListeners.push(listener);
+    this.PropertyChanged.Subscribe(listener.OnSubPropertyChanged, listener);
 };
-DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) {
+DependencyObject.Instance.RemovePropertyChangedListener = function (ldo, propd) {
+    for (var i = 0; i < this._SubPropertyListeners.length; i++) {
+        var listener = this._SubPropertyListeners[i];
+        if (!Nullstone.Equals(listener._Dobj, ldo))
+            continue;
+        if (propd != null && listener._Propd._ID !== propd._ID)
+            continue;
+        this.PropertyChanged.Unsubscribe(listener.OnSubPropertyChanged, listener);
+        this._SubPropertyListeners.slice(i, 1);
+        break;
+    }
 };
+DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) { };
+DependencyObject.Instance._OnCollectionChangedEH = function (sender, args) {
+    this._OnCollectionChanged(sender, args);
+};
+DependencyObject.Instance._OnCollectionChanged = function (sender, args) { };
+DependencyObject.Instance._OnCollectionItemChangedEH = function (sender, args) {
+    this._OnCollectionItemChanged(sender, args);
+};
+DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) { };
 DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
     if (propd._IsCustom)
         return;
@@ -7216,26 +7252,6 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
 UIElement.Instance._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
 };
-UIElement.Instance._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== UIElement) {
-        this._OnPropertyChanged$DependencyObject(args, error);
-        return;
-    }
-    if (args.Property === UIElement.OpacityProperty) {
-        this._InvalidateVisibility();
-    } else if (args.Property === UIElement.VisibilityProperty) {
-        if (args.NewValue === Visibility.Visible)
-            this._Flags |= UIElementFlags.RenderVisible;
-        else
-            this._Flags &= ~UIElementFlags.RenderVisible;
-        this._InvalidateVisibility();
-        this._InvalidateMeasure();
-        var parent = this.GetVisualParent();
-        if (parent)
-            parent._InvalidateMeasure();
-    }
-    this.PropertyChanged.Raise(this, args);
-};
 UIElement.Instance._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
 UIElement.Instance._ClearFlag = function (flag) { this._Flags &= ~flag; };
 UIElement.Instance._SetFlag = function (flag) { this._Flags |= flag; };
@@ -7262,6 +7278,28 @@ UIElement.Instance.__DebugDirtyFlags = function () {
     if (this._DirtyFlags & _Dirty.Invalidate)
         t = t.concat("[Invalidate]");
     return t;
+};
+UIElement.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== UIElement) {
+        this._OnPropertyChanged$DependencyObject(args, error);
+        return;
+    }
+    if (args.Property === UIElement.OpacityProperty) {
+        this._InvalidateVisibility();
+    } else if (args.Property === UIElement.VisibilityProperty) {
+        if (args.NewValue === Visibility.Visible)
+            this._Flags |= UIElementFlags.RenderVisible;
+        else
+            this._Flags &= ~UIElementFlags.RenderVisible;
+        this._InvalidateVisibility();
+        this._InvalidateMeasure();
+        var parent = this.GetVisualParent();
+        if (parent)
+            parent._InvalidateMeasure();
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 };
 UIElement.Instance.CanCaptureMouse = function () { return true; };
 UIElement.Instance.CaptureMouse = function () {
@@ -7479,7 +7517,7 @@ DependencyObjectCollection.Instance.AddedToCollection = function (value, error) 
     } else {
         value.SetMentor(this.GetMentor());
     }
-    value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+    this.AddPropertyChangedListener(value);
     var rv = this.AddedToCollection$Collection(value, error);
     value._SetIsAttached(rv && this._IsAttached);
     if (!rv) {
@@ -7495,7 +7533,7 @@ DependencyObjectCollection.Instance.AddedToCollection = function (value, error) 
 DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof DependencyObject) {
-            value.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
+            this.RemovePropertyChangedListener(value);
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
             if (this._SetsParent && Nullstone.RefEquals(value._GetParent(), this))
@@ -7512,7 +7550,7 @@ DependencyObjectCollection.Instance._OnIsAttachedChanged = function (value) {
             val._SetIsAttached(value);
     }
 };
-DependencyObjectCollection.Instance._OnSubPropertyChanged = function (sender, args) {
+DependencyObjectCollection.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
 };
 Nullstone.FinishCreate(DependencyObjectCollection);
@@ -7581,7 +7619,7 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
         if (error.IsErrored())
             return false;
         obj._SetIsAttached(this._IsAttached);
-        obj.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+        this.AddPropertyChangedListener(obj);
     }
     rv = this.AddedToCollection$Collection(value, error);
     if (rv /* && !from_resource_dictionary_api */ && obj != null) {
@@ -7593,7 +7631,7 @@ ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe
     if (isValueSafe && value instanceof DependencyObject) {
         var obj = Nullstone.As(value, DependencyObject);
         if (obj != null) {
-            obj.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
+            this.RemovePropertyChangedListener(obj);
             obj._RemoveParent(this, null);
             obj._SetIsAttached(false);
         }
@@ -7998,11 +8036,7 @@ App.Instance.ProcessDirty = function () {
     this._IsRunning = true;
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
-    try {
         this.MainSurface.ProcessDirtyElements(region);
-    } catch (err) {
-        Fatal("An error occurred processing dirty elements: " + err.toString());
-    }
     this._IsRunning = false;
 };
 App.Instance.RegisterStoryboard = function (storyboard) {
@@ -8358,10 +8392,10 @@ KeyFrameCollection.Instance.RemovedFromCollection = function (value, isValueSafe
     this.RemovedFromCollection$DependencyObjectCollection(value, isValueSafe);
     this._Resolved = false;
 };
-KeyFrameCollection.Instance._OnSubPropertyChanged = function (sender, args) {
+KeyFrameCollection.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (args.Property.Name === "KeyTime")
         this._Resolved = false;
-    this._OnSubPropertyChanged$DependencyObjectCollection(sender, args);
+    this._OnSubPropertyChanged$DependencyObjectCollection(propd, sender, args);
 };
 KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     if (coll._Resolved)
@@ -9654,6 +9688,8 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
+FrameworkElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+};
 FrameworkElement.Instance.InvokeLoaded = function () {
 };
 FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
@@ -10267,14 +10303,14 @@ StoryboardCollection.Instance.IsElementType = function (obj) {
 Nullstone.FinishCreate(StoryboardCollection);
 
 var Border = Nullstone.Create("Border", FrameworkElement);
-Border.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Border);
+Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
 Border.Instance.GetBackground = function () {
     return this.GetValue(Border.BackgroundProperty);
 };
 Border.Instance.SetBackground = function (value) {
     this.SetValue(Border.BackgroundProperty, value);
 };
-Border.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Border);
+Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Border);
 Border.Instance.GetBorderBrush = function () {
     return this.GetValue(Border.BorderBrushProperty);
 };
@@ -10288,7 +10324,7 @@ Border.Instance.GetBorderThickness = function () {
 Border.Instance.SetBorderThickness = function (value) {
     this.SetValue(Border.BorderThicknessProperty, value);
 };
-Border.ChildProperty = DependencyProperty.Register("Child", function () { return UIElement; }, Border);
+Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Border);
 Border.Instance.GetChild = function () {
     return this.GetValue(Border.ChildProperty);
 };
@@ -10371,7 +10407,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error)
         return;
     }
-    if (args.Property == Border.ChildProperty) {
+    if (args.Property._ID === Border.ChildProperty._ID) {
         if (args.OldValue && args.OldValue instanceof UIElement) {
             this._ElementRemoved(args.OldValue);
             this._SetSubtreeObject(null);
@@ -10397,14 +10433,20 @@ Border.Instance._OnPropertyChanged = function (args, error) {
         }
         this._UpdateBounds();
         this._InvalidateMeasure();
-    } else if (args.Property == Border.PaddingProperty || args.Property == Border.BorderThicknessProperty) {
+    } else if (args.Property._ID === Border.PaddingProperty._ID || args.Property._ID === Border.BorderThicknessProperty._ID) {
         this._InvalidateMeasure();
-    } else if (args.Property == Border.BackgroundProperty) {
+    } else if (args.Property._ID === Border.BackgroundProperty._ID) {
         this._Invalidate();
-    } else if (args.Property == Border.BorderBrushProperty) {
+    } else if (args.Property._ID === Border.BorderBrushProperty._ID) {
         this._Invalidate();
     }
     this.PropertyChanged.Raise(this, args);
+};
+Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID))
+        this._Invalidate();
+    else
+        this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
 };
 Border.Annotations = {
     ContentProperty: Border.ChildProperty
@@ -10720,15 +10762,15 @@ Control.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
-    if (args.Property == Control.TemplateProperty) {
-    } else if (args.Property == Control.PaddingProperty
-        || args.Property == Control.BorderThicknessProperty) {
+    if (args.Property._ID === Control.TemplateProperty._ID) {
+    } else if (args.Property._ID === Control.PaddingProperty._ID
+        || args.Property._ID === Control.BorderThicknessProperty._ID) {
         this._InvalidateMeasure();
-    } else if (args.Property == Control.IsEnabledProperty) {
+    } else if (args.Property._ID === Control.IsEnabledProperty._ID) {
         if (!args.NewValue) {
         }
-    } else if (args.Property == Control.HorizontalContentAlignmentProperty
-        || args.Property == Control.VerticalContentAlignmentProperty) {
+    } else if (args.Property._ID === Control.HorizontalContentAlignmentProperty._ID
+        || args.Property._ID === Control.VerticalContentAlignmentProperty._ID) {
         this._InvalidateArrange();
     }
     this.PropertyChanged.Raise(this, args);
@@ -10972,11 +11014,11 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-Panel.Instance._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property && args.Property == Panel.BackgroundProperty) {
+Panel.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && propd._ID === Panel.BackgroundProperty._ID) {
         this._Invalidate();
     } else {
-        this._OnSubPropertyChanged$FrameworkElement(sender, args);
+        this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
     }
 };
 Panel.Instance._OnCollectionChanged = function (sender, args) {
@@ -11485,11 +11527,11 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-TextBlock.Instance._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property != null && args.Property === TextBlock.ForegroundProperty) {
+TextBlock.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && propd._ID === TextBlock.ForegroundProperty._ID) {
         this._Invalidate();
     } else {
-        this._OnSubPropertyChanged$FrameworkElement(sender, args);
+        this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
     }
 };
 TextBlock.Instance._OnCollectionChanged = function (sender, args) {
@@ -11582,19 +11624,19 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
 };
 TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     var changed = _TextBoxModelChanged.Nothing;
-    if (args.Property === Control.FontFamilyProperty) {
+    if (args.Property._ID === Control.FontFamilyProperty._ID) {
         this._Font.SetFamily(args.NewValue);
         changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontSizeProperty) {
+    } else if (args.Property._ID === Control.FontSizeProperty._ID) {
         this._Font.SetSize(args.NewValue);
         changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontStretchProperty) {
+    } else if (args.Property._ID === Control.FontStretchProperty._ID) {
         this._Font.SetStretch(args.NewValue);
         changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontStyleProperty) {
+    } else if (args.Property._ID === Control.FontStyleProperty._ID) {
         this._Font.SetStyle(args.NewValue);
         changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontWeightProperty) {
+    } else if (args.Property._ID === Control.FontWeightProperty._ID) {
         this._Font.SetWeight(args.NewValue);
         changed = _TextBoxModelChanged.Font;
     }
@@ -11606,14 +11648,14 @@ TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-TextBoxBase.Instance._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property === Control.BackgroundProperty
-        || args.Property === Control.ForegroundProperty) {
+TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && (propd._ID === Control.BackgroundProperty._ID
+        || propd._ID === Control.ForegroundProperty._ID)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
         this._Invalidate();
     }
-    if (args.Property.OwnerType !== TextBoxBase)
-        this._OnSubPropertyChanged$Control(sender, args);
+    if (propd != null && propd.OwnerType !== TextBoxBase)
+        this._OnSubPropertyChanged$Control(propd, sender, args);
 };
 TextBoxBase.Instance._BatchPush = function () {
     this._Batch++;
@@ -12817,14 +12859,14 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
     this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
     this.PropertyChanged.Raise(this, args);
 };
-TextBox.Instance._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property && (args.Property === TextBox.SelectionBackgroundProperty
-        || args.Property === TextBox.SelectionForegroundProperty)) {
+TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && (propd._ID === TextBox.SelectionBackgroundProperty._ID
+        || propd._ID === TextBox.SelectionForegroundProperty._ID)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
         this._Invalidate();
     }
-    if (args.Property.OwnerType !== TextBox)
-        this._OnSubPropertyChanged$TextBoxBase(sender, args);
+    if (propd == null || propd.OwnerType !== TextBox)
+        this._OnSubPropertyChanged$TextBoxBase(propd, sender, args);
 };
 TextBox.Instance._EmitTextChanged = function () {
     this.SelectionChanged.RaiseAsync(this, {});
@@ -13029,7 +13071,7 @@ TextBox.Instance.GetDefaultStyle = function () {
                                                     Children: [
                                                         {
                                                             Type: DoubleAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: 0.0 },
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
                                                                 { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
@@ -13046,7 +13088,7 @@ TextBox.Instance.GetDefaultStyle = function () {
                                                     Children: [
                                                         {
                                                             Type: DoubleAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            Props: { Duration: new Duration(0.0), To: 0.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
                                                                 { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }

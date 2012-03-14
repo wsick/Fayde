@@ -78,7 +78,7 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
         if (error.IsErrored())
             return false;
         obj._SetIsAttached(this._IsAttached);
-        obj.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+        this.AddPropertyChangedListener(obj);
 
         //WTF: if (!from_resource_dictionary_api)...
     }
@@ -95,7 +95,7 @@ ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe
     if (isValueSafe && value instanceof DependencyObject) {
         var obj = Nullstone.As(value, DependencyObject);
         if (obj != null) {
-            obj.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
+            this.RemovePropertyChangedListener(obj);
             obj._RemoveParent(this, null);
             obj._SetIsAttached(false);
         }

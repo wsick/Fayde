@@ -75,10 +75,10 @@ KeyFrameCollection.Instance.RemovedFromCollection = function (value, isValueSafe
     this._Resolved = false;
 };
 
-KeyFrameCollection.Instance._OnSubPropertyChanged = function (sender, args) {
+KeyFrameCollection.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (args.Property.Name === "KeyTime")
         this._Resolved = false;
-    this._OnSubPropertyChanged$DependencyObjectCollection(sender, args);
+    this._OnSubPropertyChanged$DependencyObjectCollection(propd, sender, args);
 };
 
 /// http://msdn2.microsoft.com/en-us/library/ms742524.aspx (Bottom of page)

@@ -163,11 +163,11 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-Panel.Instance._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property && args.Property == Panel.BackgroundProperty) {
+Panel.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && propd._ID === Panel.BackgroundProperty._ID) {
         this._Invalidate();
     } else {
-        this._OnSubPropertyChanged$FrameworkElement(sender, args);
+        this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
     }
 };
 Panel.Instance._OnCollectionChanged = function (sender, args) {

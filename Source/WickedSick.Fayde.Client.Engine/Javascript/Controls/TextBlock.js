@@ -423,11 +423,11 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-TextBlock.Instance._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property != null && args.Property === TextBlock.ForegroundProperty) {
+TextBlock.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && propd._ID === TextBlock.ForegroundProperty._ID) {
         this._Invalidate();
     } else {
-        this._OnSubPropertyChanged$FrameworkElement(sender, args);
+        this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
     }
 };
 TextBlock.Instance._OnCollectionChanged = function (sender, args) {

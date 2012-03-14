@@ -15,6 +15,7 @@ Core/DeepStyleWalker.js
 Core/DeepTreeWalker.js
 Core/DependencyProperty.js
 Core/Expression.js
+Core/SubPropertyListener.js
 Core/TemplateBindingExpression.js
 Core/UnsetValue.js
 Core/Validators.js

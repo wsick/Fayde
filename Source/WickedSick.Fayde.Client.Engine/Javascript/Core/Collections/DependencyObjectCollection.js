@@ -43,7 +43,7 @@ DependencyObjectCollection.Instance.AddedToCollection = function (value, error) 
         value.SetMentor(this.GetMentor());
     }
 
-    value.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+    this.AddPropertyChangedListener(value);
 
     var rv = this.AddedToCollection$Collection(value, error);
     value._SetIsAttached(rv && this._IsAttached);
@@ -60,7 +60,7 @@ DependencyObjectCollection.Instance.AddedToCollection = function (value, error) 
 DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof DependencyObject) {
-            value.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
+            this.RemovePropertyChangedListener(value);
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
@@ -78,7 +78,7 @@ DependencyObjectCollection.Instance._OnIsAttachedChanged = function (value) {
             val._SetIsAttached(value);
     }
 };
-DependencyObjectCollection.Instance._OnSubPropertyChanged = function (sender, args) {
+DependencyObjectCollection.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     this._RaiseItemChanged(sender, args.Property, args.OldValue, args.NewValue);
 };
 

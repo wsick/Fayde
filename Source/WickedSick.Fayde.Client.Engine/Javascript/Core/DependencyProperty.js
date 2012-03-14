@@ -55,6 +55,9 @@ DependencyProperty.Instance._Validate = function (instance, propd, value, error)
 DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback);
 };
+DependencyProperty.RegisterCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback);
+};
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = new Array();

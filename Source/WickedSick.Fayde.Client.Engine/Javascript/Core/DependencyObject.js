@@ -10,6 +10,7 @@
 /// <reference path="NameScope.js"/>
 /// <reference path="../Data/Binding.js"/>
 /// <reference path="../Runtime/BError.js" />
+/// <reference path="SubPropertyListener.js"/>
 
 //#region DependencyObject
 var DependencyObject = Nullstone.Create("DependencyObject");
@@ -23,6 +24,7 @@ DependencyObject.Instance.Init = function () {
     this._ProviderBitmasks = new Array();
     this._SecondaryParents = new Array();
     this.PropertyChanged = new MulticastEvent();
+    this._SubPropertyListeners = [];
 };
 
 //#region DEPENDENCY PROPERTIES
@@ -360,7 +362,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     if (equal)
         return;
 
-    if (providerPrecedence != _PropertyPrecedence.IsEnabled && this._Providers[_PropertyPrecedence.IsEnabled] && this._Providers[_PropertyPrecedence.IsEnabled].LocalValueChanged(propd))
+    if (providerPrecedence !== _PropertyPrecedence.IsEnabled && this._Providers[_PropertyPrecedence.IsEnabled] && this._Providers[_PropertyPrecedence.IsEnabled].LocalValueChanged(propd))
         return;
 
     this._CallRecomputePropertyValueForProviders(propd, providerPrecedence, error);
@@ -380,10 +382,11 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
             oldDO._SetIsAttached(false);
             oldDO._RemoveParent(this, null);
             oldDO._RemoveTarget(this);
-            oldDO.PropertyChanged.Unsubscribe(this._OnSubPropertyChanged, this);
+
+            oldDO.RemovePropertyChangedListener(this, propd);
             if (oldDO instanceof Collection) {
-                oldDO.Changed.Unsubscribe(this._OnCollectionChanged, this);
-                oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChanged, this);
+                oldDO.Changed.Unsubscribe(this._OnCollectionChangedEH, this);
+                oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChangedEH, this);
             }
         } else {
             oldDO.SetMentor(null);
@@ -400,11 +403,10 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
             newDO._SetResourceBase(this._GetResourceBase());
 
             if (newDO instanceof Collection) {
-                newDO.Changed.Subscribe(this._OnCollectionChanged, this);
-                newDO.ItemChanged.Subscribe(this._OnCollectionItemChanged, this);
+                newDO.Changed.Subscribe(this._OnCollectionChangedEH, this);
+                newDO.ItemChanged.Subscribe(this._OnCollectionItemChangedEH, this);
             }
-
-            newDO.PropertyChanged.Subscribe(this._OnSubPropertyChanged, this);
+            newDO.AddPropertyChangedListener(this, propd);
             newDO._AddTarget(this);
         } else {
             var cur = this;
@@ -446,7 +448,7 @@ DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (pr
         var provider = this._Providers[i];
         if (provider == null)
             continue;
-        if (i == providerPrecedence)
+        if (i === providerPrecedence)
             continue;
 
         if (i < providerPrecedence && provider._HasFlag(_ProviderFlags.RecomputesOnLowerPriorityChange))
@@ -564,12 +566,33 @@ DependencyObject.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-DependencyObject.Instance._OnSubPropertyChanged = function (sender, args) { };
+DependencyObject.Instance.AddPropertyChangedListener = function (ldo, propd) {
+    var listener = new SubPropertyListener(ldo, propd);
+    this._SubPropertyListeners.push(listener);
+    this.PropertyChanged.Subscribe(listener.OnSubPropertyChanged, listener);
+};
+DependencyObject.Instance.RemovePropertyChangedListener = function (ldo, propd) {
+    for (var i = 0; i < this._SubPropertyListeners.length; i++) {
+        var listener = this._SubPropertyListeners[i];
+        if (!Nullstone.Equals(listener._Dobj, ldo))
+            continue;
+        if (propd != null && listener._Propd._ID !== propd._ID)
+            continue;
+        this.PropertyChanged.Unsubscribe(listener.OnSubPropertyChanged, listener);
+        this._SubPropertyListeners.slice(i, 1);
+        break;
+    }
+};
+DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) { };
 
-DependencyObject.Instance._OnCollectionChanged = function (sender, args) {
+DependencyObject.Instance._OnCollectionChangedEH = function (sender, args) {
+    this._OnCollectionChanged(sender, args);
 };
-DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) {
+DependencyObject.Instance._OnCollectionChanged = function (sender, args) { };
+DependencyObject.Instance._OnCollectionItemChangedEH = function (sender, args) {
+    this._OnCollectionItemChanged(sender, args);
 };
+DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) { };
 
 DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
     if (propd._IsCustom)

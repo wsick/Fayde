@@ -11,7 +11,7 @@ var Border = Nullstone.Create("Border", FrameworkElement);
 
 //#region DEPENDENCY PROPERTIES
 
-Border.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Border);
+Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
 Border.Instance.GetBackground = function () {
     return this.GetValue(Border.BackgroundProperty);
 };
@@ -19,7 +19,7 @@ Border.Instance.SetBackground = function (value) {
     this.SetValue(Border.BackgroundProperty, value);
 };
 
-Border.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Border);
+Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Border);
 Border.Instance.GetBorderBrush = function () {
     return this.GetValue(Border.BorderBrushProperty);
 };
@@ -35,7 +35,7 @@ Border.Instance.SetBorderThickness = function (value) {
     this.SetValue(Border.BorderThicknessProperty, value);
 };
 
-Border.ChildProperty = DependencyProperty.Register("Child", function () { return UIElement; }, Border);
+Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Border);
 Border.Instance.GetChild = function () {
     return this.GetValue(Border.ChildProperty);
 };
@@ -137,7 +137,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error)
         return;
     }
-    if (args.Property == Border.ChildProperty) {
+    if (args.Property._ID === Border.ChildProperty._ID) {
         if (args.OldValue && args.OldValue instanceof UIElement) {
             this._ElementRemoved(args.OldValue);
             this._SetSubtreeObject(null);
@@ -163,20 +163,26 @@ Border.Instance._OnPropertyChanged = function (args, error) {
         }
         this._UpdateBounds();
         this._InvalidateMeasure();
-    } else if (args.Property == Border.PaddingProperty || args.Property == Border.BorderThicknessProperty) {
+    } else if (args.Property._ID === Border.PaddingProperty._ID || args.Property._ID === Border.BorderThicknessProperty._ID) {
         this._InvalidateMeasure();
-    } else if (args.Property == Border.BackgroundProperty) {
+    } else if (args.Property._ID === Border.BackgroundProperty._ID) {
         this._Invalidate();
-    } else if (args.Property == Border.BorderBrushProperty) {
+    } else if (args.Property._ID === Border.BorderBrushProperty._ID) {
         this._Invalidate();
     }
 
     this.PropertyChanged.Raise(this, args);
 };
+Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID))
+        this._Invalidate();
+    else
+        this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+};
 
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 Border.Annotations = {
     ContentProperty: Border.ChildProperty

@@ -304,15 +304,15 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
 
     this.PropertyChanged.Raise(this, args);
 };
-TextBox.Instance._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property && (args.Property === TextBox.SelectionBackgroundProperty
-        || args.Property === TextBox.SelectionForegroundProperty)) {
+TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && (propd._ID === TextBox.SelectionBackgroundProperty._ID
+        || propd._ID === TextBox.SelectionForegroundProperty._ID)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
         this._Invalidate();
     }
 
-    if (args.Property.OwnerType !== TextBox)
-        this._OnSubPropertyChanged$TextBoxBase(sender, args);
+    if (propd == null || propd.OwnerType !== TextBox)
+        this._OnSubPropertyChanged$TextBoxBase(propd, sender, args);
 };
 
 TextBox.Instance._EmitTextChanged = function () {
@@ -527,7 +527,7 @@ TextBox.Instance.GetDefaultStyle = function () {
                                                     Children: [
                                                         {
                                                             Type: DoubleAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: 0.0 },
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
                                                                 { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
@@ -544,7 +544,7 @@ TextBox.Instance.GetDefaultStyle = function () {
                                                     Children: [
                                                         {
                                                             Type: DoubleAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            Props: { Duration: new Duration(0.0), To: 0.0 },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
                                                                 { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }

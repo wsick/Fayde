@@ -189,7 +189,6 @@ UIElement.Instance._Invalidate = function (rect) {
         //WTF: Invalidate bitmap cache
         //TODO: Render Intermediate not implemented
         this._DirtyRegion = this._DirtyRegion.Union(rect);
-        //TODO: Alert needs redraw
         this._OnInvalidated();
     }
 };
@@ -353,6 +352,8 @@ UIElement.Instance._GetOriginPoint = function () {
     return new Point(0.0, 0.0);
 };
 
+//#region Measure
+
 UIElement.Instance._DoMeasureWithError = function (error) {
     var last = LayoutInformation.GetPreviousConstraint(this);
     var parent = this.GetVisualParent();
@@ -379,6 +380,11 @@ UIElement.Instance.Measure = function (availableSize) {
     this._MeasureWithError(availableSize, error);
 };
 UIElement.Instance._MeasureWithError = function (availableSize, error) { };
+
+//#endregion
+
+//#region Arrange
+
 UIElement.Instance._DoArrangeWithError = function (error) {
     var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
     var parent = this.GetVisualParent();
@@ -417,6 +423,8 @@ UIElement.Instance.Arrange = function (finalRect) {
     this._ArrangeWithError(finalRect, error);
 };
 UIElement.Instance._ArrangeWithError = function (finalRect, error) { };
+
+//#endregion
 
 UIElement.Instance._ShiftPosition = function (point) {
     this._Bounds.X = point.X;
@@ -592,28 +600,6 @@ UIElement.Instance._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
 };
 
-UIElement.Instance._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== UIElement) {
-        this._OnPropertyChanged$DependencyObject(args, error);
-        return;
-    }
-    if (args.Property === UIElement.OpacityProperty) {
-        this._InvalidateVisibility();
-    } else if (args.Property === UIElement.VisibilityProperty) {
-        if (args.NewValue === Visibility.Visible)
-            this._Flags |= UIElementFlags.RenderVisible;
-        else
-            this._Flags &= ~UIElementFlags.RenderVisible;
-        this._InvalidateVisibility();
-        this._InvalidateMeasure();
-        var parent = this.GetVisualParent();
-        if (parent)
-            parent._InvalidateMeasure();
-        //TODO: change focus
-    }
-    //TODO: Check invalidation of some properties
-    this.PropertyChanged.Raise(this, args);
-};
 
 UIElement.Instance._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
 UIElement.Instance._ClearFlag = function (flag) { this._Flags &= ~flag; };
@@ -643,6 +629,35 @@ UIElement.Instance.__DebugDirtyFlags = function () {
         t = t.concat("[Invalidate]");
     return t;
 };
+
+//#region Property Changed
+
+UIElement.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== UIElement) {
+        this._OnPropertyChanged$DependencyObject(args, error);
+        return;
+    }
+    if (args.Property === UIElement.OpacityProperty) {
+        this._InvalidateVisibility();
+    } else if (args.Property === UIElement.VisibilityProperty) {
+        if (args.NewValue === Visibility.Visible)
+            this._Flags |= UIElementFlags.RenderVisible;
+        else
+            this._Flags &= ~UIElementFlags.RenderVisible;
+        this._InvalidateVisibility();
+        this._InvalidateMeasure();
+        var parent = this.GetVisualParent();
+        if (parent)
+            parent._InvalidateMeasure();
+        //TODO: change focus
+    }
+    //TODO: Check invalidation of some properties
+    this.PropertyChanged.Raise(this, args);
+};
+UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+};
+
+//#endregion
 
 //#endregion
 

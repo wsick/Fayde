@@ -81,19 +81,19 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
 
 TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     var changed = _TextBoxModelChanged.Nothing;
-    if (args.Property === Control.FontFamilyProperty) {
+    if (args.Property._ID === Control.FontFamilyProperty._ID) {
         this._Font.SetFamily(args.NewValue);
         changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontSizeProperty) {
+    } else if (args.Property._ID === Control.FontSizeProperty._ID) {
         this._Font.SetSize(args.NewValue);
         changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontStretchProperty) {
+    } else if (args.Property._ID === Control.FontStretchProperty._ID) {
         this._Font.SetStretch(args.NewValue);
         changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontStyleProperty) {
+    } else if (args.Property._ID === Control.FontStyleProperty._ID) {
         this._Font.SetStyle(args.NewValue);
         changed = _TextBoxModelChanged.Font;
-    } else if (args.Property === Control.FontWeightProperty) {
+    } else if (args.Property._ID === Control.FontWeightProperty._ID) {
         this._Font.SetWeight(args.NewValue);
         changed = _TextBoxModelChanged.Font;
     }
@@ -108,15 +108,15 @@ TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
 
     this.PropertyChanged.Raise(this, args);
 };
-TextBoxBase.Instance._OnSubPropertyChanged = function (sender, args) {
-    if (args.Property === Control.BackgroundProperty
-        || args.Property === Control.ForegroundProperty) {
+TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && (propd._ID === Control.BackgroundProperty._ID
+        || propd._ID === Control.ForegroundProperty._ID)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
         this._Invalidate();
     }
 
-    if (args.Property.OwnerType !== TextBoxBase)
-        this._OnSubPropertyChanged$Control(sender, args);
+    if (propd != null && propd.OwnerType !== TextBoxBase)
+        this._OnSubPropertyChanged$Control(propd, sender, args);
 };
 
 TextBoxBase.Instance._BatchPush = function () {

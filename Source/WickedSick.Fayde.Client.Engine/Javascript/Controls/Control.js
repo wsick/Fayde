@@ -233,18 +233,18 @@ Control.Instance._OnPropertyChanged = function (args, error) {
         return;
     }
 
-    if (args.Property == Control.TemplateProperty) {
-    } else if (args.Property == Control.PaddingProperty
-        || args.Property == Control.BorderThicknessProperty) {
+    if (args.Property._ID === Control.TemplateProperty._ID) {
+    } else if (args.Property._ID === Control.PaddingProperty._ID
+        || args.Property._ID === Control.BorderThicknessProperty._ID) {
         this._InvalidateMeasure();
-    } else if (args.Property == Control.IsEnabledProperty) {
+    } else if (args.Property._ID === Control.IsEnabledProperty._ID) {
         if (!args.NewValue) {
             //TODO: Remove element from focus
             //TODO: Release Mouse Capture
         }
         //TODO: IsEnabledChanged Event
-    } else if (args.Property == Control.HorizontalContentAlignmentProperty
-        || args.Property == Control.VerticalContentAlignmentProperty) {
+    } else if (args.Property._ID === Control.HorizontalContentAlignmentProperty._ID
+        || args.Property._ID === Control.VerticalContentAlignmentProperty._ID) {
         this._InvalidateArrange();
     }
     this.PropertyChanged.Raise(this, args);

@@ -381,7 +381,7 @@ Surface.Instance._AddDirtyElement = function (element, dirt) {
         element._UpDirtyNode = new DirtyNode(element);
         this._UpDirty.AddDirtyNode(element._UpDirtyNode);
     }
-    //TODO: Alert redraw needed
+    this._Invalidate();
 };
 Surface.Instance._RemoveDirtyElement = function (element) {
     /// <param name="element" type="UIElement"></param>
