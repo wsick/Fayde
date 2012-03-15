@@ -863,6 +863,8 @@ FrameworkElement.Instance._OnLogicalParentChanged = function (oldParent, newPare
     }
 };
 
+FrameworkElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
+
 //#endregion
 
 Nullstone.FinishCreate(FrameworkElement);

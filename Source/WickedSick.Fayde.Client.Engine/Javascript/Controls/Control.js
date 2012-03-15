@@ -288,6 +288,8 @@ Control.Instance._DoApplyTemplateWithError = function (error) {
     return true;
 };
 
+Control.Instance.OnMouseLeftButtonDown = function (sender, args) { };
+
 //#endregion
 
 //#region FOCUS

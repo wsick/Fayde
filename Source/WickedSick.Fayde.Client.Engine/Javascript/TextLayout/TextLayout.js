@@ -177,16 +177,38 @@ TextLayout.Instance.GetDescendOverride = function () {
     return this.GetLineHeight() * (this._BaseDescent / this._BaseHeight);
 }
 
-TextLayout.Instance.GetLineFromY = function (offset, y) {
-    NotImplemented("TextLayout.GetLineFromY");
+TextLayout.Instance.GetLineFromY = function (offset, y, refIndex) {
+    var line = null;
+    var y0 = offset.Y;
+    var y1;
+
+    for (var i = 0; i < this._Lines.length; i++) {
+        line = this._Lines[i];
+        y1 = y0 + line._Height; //set y1 to top of next line
+        if (y < y1) {
+            //we found the line that the point is located on
+            if (refIndex)
+                refIndex.Value = i;
+            return line;
+        }
+        y0 = y1;
+    }
+    return null;
 };
 TextLayout.Instance.GetLineFromIndex = function (index) {
-    NotImplemented("TextLayout.GetLineFromIndex");
+    if (index >= this._Lines.length || index < 0)
+        return null;
+    return this._Lines[index];
 };
 TextLayout.Instance.GetCursorFromXY = function (offset, x, y) {
-    NotImplemented("TextLayout.GetCursorFromXY");
+    var line;
+    if (y < offset.Y)
+        return 0;
+    if (!(line = this.GetLineFromY(offset, y)))
+        return this._Length;
+    return line.GetCursorFromX(offset, x);
 };
-TextLayout.Instance.GetCursor = function (offset, pos) {
+TextLayout.Instance.GetSelectionCursor = function (offset, pos) {
     var x0 = offset.X;
     var y0 = offset.Y;
     var height = 0.0;
@@ -233,8 +255,7 @@ TextLayout.Instance.GetCursor = function (offset, pos) {
 
             //cursor is in this run
             var font = run._Attrs.GetFont();
-            var remainingSize = Surface.MeasureText(this._Text.slice(run._Start, pos), font);
-            x0 += remainingSize.Width;
+            x0 += Surface._MeasureWidth(this._Text.slice(run._Start, pos), font);
             break;
         }
         break;
@@ -502,7 +523,7 @@ TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
             break;
         index += 1; //include " "
         var tempText = text.slice(measuredIndex, index);
-        var advance = Surface.MeasureText(tempText, word._Font).Width;
+        var advance = Surface._MeasureWidth(tempText, word._Font);
         if (isFinite(maxWidth) && (word._LineAdvance + advance) > maxWidth) {
             return true;
         }

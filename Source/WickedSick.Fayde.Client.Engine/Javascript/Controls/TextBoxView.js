@@ -4,6 +4,7 @@
 /// <reference path="../TextLayout/TextLayout.js"/>
 /// CODE
 /// <reference path="TextBoxBase.js"/>
+/// <reference path="../Primitives/Enums.js"/>
 
 //#region _TextBoxView
 var _TextBoxView = Nullstone.Create("_TextBoxView", FrameworkElement);
@@ -19,6 +20,7 @@ _TextBoxView.Instance.Init = function () {
     this._BlinkTimeout = 0;
     this._TextBox = null;
     this._Dirty = false;
+    this.SetCursor(CursorType.IBeam);
 };
 
 _TextBoxView.Instance.SetTextBox = function (value) {
@@ -96,7 +98,7 @@ _TextBoxView.Instance._GetCursorBlinkTimeout = function () {
     return _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT;
 };
 _TextBoxView.Instance._ResetCursorBlink = function (delay) {
-    if (this._TextBox.IsFocused() && !this._TextBox.HasSelectedText()) {
+    if (this._TextBox._IsFocused && !this._TextBox.HasSelectedText()) {
         if (this._EnableCursor) {
             if (this._Delay)
                 this._DelayCursorBlink();
@@ -139,14 +141,14 @@ _TextBoxView.Instance._HideCursor = function () {
     this._InvalidateCursor();
 };
 _TextBoxView.Instance._UpdateCursor = function (invalidate) {
-    var cur = this._TextBox.GetCursor();
+    var cur = this._TextBox.GetSelectionCursor();
     var current = this._Cursor;
     var rect;
 
     if (invalidate && this._CursorVisible)
         this._InvalidateCursor();
 
-    this._Cursor = this._Layout.GetCursor(new Point(), cur);
+    this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
     rect = this._Cursor; //.Transform(this._AbsoluteTransform);
 
     //TODO: this._TextBox._ImCtx.SetCursorLocation(rect);
@@ -239,8 +241,8 @@ _TextBoxView.Instance.OnLostFocus = function () {
 _TextBoxView.Instance.OnGotFocus = function () {
     this._ResetCursorBlink(false);
 };
-_TextBoxView.Instance.OnMouseLeftButtonDown = function (args) {
-    this._TextBox.OnMouseLeftButtonDown(args);
+_TextBoxView.Instance.OnMouseLeftButtonDown = function (sender, args) {
+    this._TextBox.OnMouseLeftButtonDown(sender, args);
 };
 _TextBoxView.Instance.OnMouseLeftButtonUp = function (args) {
     this._TextBox.OnMouseLeftButtonUp(args);

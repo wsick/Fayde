@@ -612,11 +612,14 @@ Surface.Instance._EmitFocusList = function (type, list) {
 //#endregion
 
 Surface.MeasureText = function (text, font) {
+    return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
+};
+Surface._MeasureWidth = function (text, font) {
     if (!Surface._TestCanvas)
         Surface._TestCanvas = document.createElement('canvas');
     var ctx = Surface._TestCanvas.getContext('2d');
     ctx.font = font._Translate();
-    return new Size(ctx.measureText(text).width, Surface._MeasureHeight(font));
+    return ctx.measureText(text).width;
 };
 Surface._MeasureHeight = function (font) {
     if (font._CachedHeight)
