@@ -65,7 +65,7 @@ _RenderContext.Instance.CustomRender = function (painterFunc) {
     var args = _RenderContext.ToArray(arguments);
     args.shift(); //remove painterFunc
     args.unshift(this._Surface._Ctx); //prepend canvas context
-    painterFunc.apply(this, args);
+    painterFunc(args);
 };
 _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;

@@ -274,9 +274,44 @@ TextLayout.Instance._FindLineWithIndex = function (index) {
 };
 
 TextLayout.Instance.Select = function (start, length) {
-    NotImplemented("TextLayout.Select");
+    if (!this._Text) {
+        this._SelectionLength = 0;
+        this._SelectionStart = 0;
+        return;
+    }
+
+    var newSelectionStart;
+    var newSelectionLength;
+    var index;
+    var end;
+    if (!false) {
+        newSelectionStart = index = start;
+        end = index + length;
+        newSelectionLength = length;
+    } else {
+        newSelectionLength = length;
+        newSelectionStart = start;
+    }
+
+    if (this._SelectionStart === newSelectionStart && this._SelectionLength === newSelectionLength)
+        return;
+
+    if (this._SelectionLength > 0 || newSelectionLength > 0)
+        this._ClearCache();
+
+    this._SelectionLength = newSelectionLength;
+    this._SelectionStart = newSelectionStart;
 };
 
+TextLayout.Instance._ClearCache = function () {
+    var line;
+    for (var i = 0; i < this._Lines.length; i++) {
+        line = this._Lines[i];
+        for (var j = 0; j < line._Runs.length; j++) {
+            line._Runs[i]._ClearCache();
+        }
+    }
+};
 TextLayout.Instance._ClearLines = function () {
     this._Lines = new Array();
 };
@@ -833,6 +868,8 @@ TextLayout._GetWordType = function (ctype, btype) {
 };
 TextLayout._BreakSpace = function (c, btype) {
     NotImplemented("TextLayout._BreakSpace");
+};
+TextLayout._UpdateSelection = function (lines, pre, post) {
 };
 
 Nullstone.FinishCreate(TextLayout);

@@ -51,6 +51,9 @@ TextBoxBase.Instance.GetSelectionLength = function () {
 TextBoxBase.Instance.SetSelectionLength = function (value) {
     AbstractMethod("TextBoxBase.SetSelectionLength");
 };
+TextBoxBase.Instance.GetCaretBrush = function () {
+    return null;
+};
 
 TextBoxBase.Instance.OnApplyTemplate = function () {
     this._ContentElement = this.GetTemplateChild("ContentElement");
@@ -257,6 +260,9 @@ TextBoxBase.Instance._ResetIMContext = function () {
 
 TextBoxBase.Instance._EmitTextChanged = function () { };
 TextBoxBase.Instance._EmitSelectionChanged = function () { };
+TextBoxBase.Instance._EmitCursorPositionChanged = function (height, x, y) {
+    //NotImplemented("TextBoxBase._EmitCursorPositionChanged");
+};
 
 Nullstone.FinishCreate(TextBoxBase);
 //#endregion

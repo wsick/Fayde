@@ -676,24 +676,23 @@ UIElement.Instance.ReleaseMouseCapture = function () {
 };
 
 UIElement.Instance._EmitMouseEvent = function (type, button, absolutePos) {
-    var func;
     if (type === "up") {
         if (Surface.IsLeftButton(button))
-            func = this._EmitMouseLeftButtonUp;
+            this._EmitMouseLeftButtonUp(absolutePos);
         else if (Surface.IsRightButton(button))
-            func = this._EmitMouseRightButtonUp;
+            this._EmitMouseRightButtonUp(absolutePos);
     } else if (type === "down") {
         if (Surface.IsLeftButton(button))
-            func = this._EmitMouseLeftButtonDown;
+            this._EmitMouseLeftButtonDown(absolutePos);
         else if (Surface.IsRightButton(button))
-            func = this._EmitMouseRightButtonDown;
+            this._EmitMouseRightButtonDown(absolutePos);
     } else if (type === "leave") {
-        func = this._EmitMouseLeave;
+        this._EmitMouseLeave(absolutePos);
     } else if (type === "enter") {
-        func = this._EmitMouseEnter;
+        this._EmitMouseEnter(absolutePos);
+    } else if (type === "move") {
+        this._EmitMouseMoveEvent(absolutePos);
     }
-    if (func)
-        func.call(this, absolutePos);
 };
 
 UIElement.Instance._EmitMouseMoveEvent = function (absolutePos) {

@@ -82,9 +82,9 @@ _TextBoxView.Instance._Blink = function () {
 _TextBoxView.Instance._ConnectBlinkTimeout = function (multiplier) {
     if (!this._IsAttached)
         return;
-    var func = NotImplemented;
+    var view = this;
     var timeout = this._GetCursorBlinkTimeout() * multiplier / _TextBoxView.CURSOR_BLINK_DIVIDER;
-    this._BlinkTimeout = setTimeout(func, timeout);
+    this._BlinkTimeout = setTimeout(function () { view._Blink(); }, timeout);
 };
 _TextBoxView.Instance._DisconnectBlinkTimeout = function () {
     if (this._BlinkTimeout != 0) {
@@ -153,8 +153,8 @@ _TextBoxView.Instance._UpdateCursor = function (invalidate) {
 
     //TODO: this._TextBox._ImCtx.SetCursorLocation(rect);
 
-    //TODO: if (this._Cursor != current)
-    //TODO: this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
+    if (this._Cursor != current)
+        this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
 
     if (invalidate && this._CursorVisible)
         this._InvalidateCursor();
@@ -230,7 +230,7 @@ _TextBoxView.Instance._RenderImpl = function (ctx, region) {
         var caretBrush = this._TextBox.GetCaretBrush();
         if (!caretBrush)
             caretBrush = new SolidColorBrush(new Color(0, 0, 0));
-        //TODO: Draw cursor
+        ctx.CustomRender(_TextBoxView._CursorPainter, this._Cursor, caretBrush);
     }
     ctx.Restore();
 };
@@ -293,6 +293,18 @@ _TextBoxView.CURSOR_BLINK_OFF_MULTIPLIER = 2;
 _TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER = 3;
 _TextBoxView.CURSOR_BLINK_ON_MULTIPLIER = 4;
 _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
+
+_TextBoxView._CursorPainter = function (args) {
+    var canvasCtx = args[0];
+    var rect = args[1];
+    var brush = args[2];
+
+    canvasCtx.moveTo(rect.X + 0.5, rect.Y);
+    canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
+    canvasCtx.lineWidth = 1.0;
+    canvasCtx.strokeStyle = brush._Translate();
+    canvasCtx.stroke();
+};
 
 Nullstone.FinishCreate(_TextBoxView);
 //#endregion

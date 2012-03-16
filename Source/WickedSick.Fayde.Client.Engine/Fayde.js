@@ -2108,7 +2108,7 @@ _RenderContext.Instance.CustomRender = function (painterFunc) {
     var args = _RenderContext.ToArray(arguments);
     args.shift(); //remove painterFunc
     args.unshift(this._Surface._Ctx); //prepend canvas context
-    painterFunc.apply(this, args);
+    painterFunc(args);
 };
 _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;
@@ -3466,7 +3466,38 @@ TextLayout.Instance._FindLineWithIndex = function (index) {
     return null;
 };
 TextLayout.Instance.Select = function (start, length) {
-    NotImplemented("TextLayout.Select");
+    if (!this._Text) {
+        this._SelectionLength = 0;
+        this._SelectionStart = 0;
+        return;
+    }
+    var newSelectionStart;
+    var newSelectionLength;
+    var index;
+    var end;
+    if (!false) {
+        newSelectionStart = index = start;
+        end = index + length;
+        newSelectionLength = length;
+    } else {
+        newSelectionLength = length;
+        newSelectionStart = start;
+    }
+    if (this._SelectionStart === newSelectionStart && this._SelectionLength === newSelectionLength)
+        return;
+    if (this._SelectionLength > 0 || newSelectionLength > 0)
+        this._ClearCache();
+    this._SelectionLength = newSelectionLength;
+    this._SelectionStart = newSelectionStart;
+};
+TextLayout.Instance._ClearCache = function () {
+    var line;
+    for (var i = 0; i < this._Lines.length; i++) {
+        line = this._Lines[i];
+        for (var j = 0; j < line._Runs.length; j++) {
+            line._Runs[i]._ClearCache();
+        }
+    }
 };
 TextLayout.Instance._ClearLines = function () {
     this._Lines = new Array();
@@ -3963,6 +3994,8 @@ TextLayout._GetWordType = function (ctype, btype) {
 TextLayout._BreakSpace = function (c, btype) {
     NotImplemented("TextLayout._BreakSpace");
 };
+TextLayout._UpdateSelection = function (lines, pre, post) {
+};
 Nullstone.FinishCreate(TextLayout);
 
 var _TextLayoutAttributes = Nullstone.Create("_TextLayoutAttributes", null, 2);
@@ -4001,7 +4034,11 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     if (attrs.IsUnderlined()) {
     }
 };
-_TextLayoutGlyphCluster.Painter = function (canvasCtx, text, foreground, font) {
+_TextLayoutGlyphCluster.Painter = function (args) {
+    var canvasCtx = args[0];
+    var text = args[1];
+    var foreground = args[2];
+    var font = args[3];
     canvasCtx.fillStyle = foreground._Translate(canvasCtx);
     canvasCtx.font = font._Translate();
     canvasCtx.textAlign = "left";
@@ -4035,7 +4072,7 @@ _TextLayoutLine.Instance.GetCursorFromX = function (offset, x) {
         run = this._Runs[i];
         if (x < (x0 + run._Advance))
             break; // x is somewhere inside this run
-        cursor += run._Count;
+        cursor += run._Length;
         index += run._Length;
         x0 += run._Advance;
         run = null;
@@ -4115,7 +4152,7 @@ _TextLayoutRun.Instance._GenerateCache = function () {
     var font = this._Attrs.GetFont();
     var len;
     var index = this._Start;
-    if (selectionLength == 0 || this._Start < selectionStart) {
+    if (selectionLength === 0 || this._Start < selectionStart) {
         len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
         this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, this._Length), font));
         index += len;
@@ -4134,11 +4171,11 @@ _TextLayoutRun.Instance._GenerateCache = function () {
     }
 };
 _TextLayoutRun.Instance._ClearCache = function () {
-    this._Clusters = new Array();
+    this._Clusters = [];
 };
 _TextLayoutRun.Instance._Render = function (ctx, origin, x, y) {
     var x0 = x;
-    if (this._Clusters.length == 0)
+    if (this._Clusters.length === 0)
         this._GenerateCache();
     for (var i = 0; i < this._Clusters.length; i++) {
         var cluster = this._Clusters[i];
@@ -7390,24 +7427,23 @@ UIElement.Instance.ReleaseMouseCapture = function () {
     App.Instance.MainSurface.ReleaseMouseCapture(this);
 };
 UIElement.Instance._EmitMouseEvent = function (type, button, absolutePos) {
-    var func;
     if (type === "up") {
         if (Surface.IsLeftButton(button))
-            func = this._EmitMouseLeftButtonUp;
+            this._EmitMouseLeftButtonUp(absolutePos);
         else if (Surface.IsRightButton(button))
-            func = this._EmitMouseRightButtonUp;
+            this._EmitMouseRightButtonUp(absolutePos);
     } else if (type === "down") {
         if (Surface.IsLeftButton(button))
-            func = this._EmitMouseLeftButtonDown;
+            this._EmitMouseLeftButtonDown(absolutePos);
         else if (Surface.IsRightButton(button))
-            func = this._EmitMouseRightButtonDown;
+            this._EmitMouseRightButtonDown(absolutePos);
     } else if (type === "leave") {
-        func = this._EmitMouseLeave;
+        this._EmitMouseLeave(absolutePos);
     } else if (type === "enter") {
-        func = this._EmitMouseEnter;
+        this._EmitMouseEnter(absolutePos);
+    } else if (type === "move") {
+        this._EmitMouseMoveEvent(absolutePos);
     }
-    if (func)
-        func.call(this, absolutePos);
 };
 UIElement.Instance._EmitMouseMoveEvent = function (absolutePos) {
     this.MouseMove.Raise(this, new MouseEventArgs(absolutePos));
@@ -10529,7 +10565,14 @@ Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 Border.Annotations = {
     ContentProperty: Border.ChildProperty
 };
-Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRect, thickness, cornerRadius, pathOnly) {
+Border._Painter = function (args) {
+    var canvasCtx = args[0];
+    var backgroundBrush = args[1];
+    var borderBrush = args[2];
+    var boundingRect = args[3];
+    var thickness = args[4];
+    var cornerRadius = args[5];
+    var pathOnly = args[6];
     var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
     canvasCtx.beginPath();
     if (cornerRadius.IsZero()) {
@@ -11677,6 +11720,9 @@ TextBoxBase.Instance.GetSelectionLength = function () {
 TextBoxBase.Instance.SetSelectionLength = function (value) {
     AbstractMethod("TextBoxBase.SetSelectionLength");
 };
+TextBoxBase.Instance.GetCaretBrush = function () {
+    return null;
+};
 TextBoxBase.Instance.OnApplyTemplate = function () {
     this._ContentElement = this.GetTemplateChild("ContentElement");
     if (this._ContentElement == null) {
@@ -11841,6 +11887,8 @@ TextBoxBase.Instance._ResetIMContext = function () {
 };
 TextBoxBase.Instance._EmitTextChanged = function () { };
 TextBoxBase.Instance._EmitSelectionChanged = function () { };
+TextBoxBase.Instance._EmitCursorPositionChanged = function (height, x, y) {
+};
 Nullstone.FinishCreate(TextBoxBase);
 
 var _TextBoxView = Nullstone.Create("_TextBoxView", FrameworkElement);
@@ -11907,9 +11955,9 @@ _TextBoxView.Instance._Blink = function () {
 _TextBoxView.Instance._ConnectBlinkTimeout = function (multiplier) {
     if (!this._IsAttached)
         return;
-    var func = NotImplemented;
+    var view = this;
     var timeout = this._GetCursorBlinkTimeout() * multiplier / _TextBoxView.CURSOR_BLINK_DIVIDER;
-    this._BlinkTimeout = setTimeout(func, timeout);
+    this._BlinkTimeout = setTimeout(function () { view._Blink(); }, timeout);
 };
 _TextBoxView.Instance._DisconnectBlinkTimeout = function () {
     if (this._BlinkTimeout != 0) {
@@ -11973,6 +12021,8 @@ _TextBoxView.Instance._UpdateCursor = function (invalidate) {
         this._InvalidateCursor();
     this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
     rect = this._Cursor; //.Transform(this._AbsoluteTransform);
+    if (this._Cursor != current)
+        this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
     if (invalidate && this._CursorVisible)
         this._InvalidateCursor();
 };
@@ -12039,6 +12089,7 @@ _TextBoxView.Instance._RenderImpl = function (ctx, region) {
         var caretBrush = this._TextBox.GetCaretBrush();
         if (!caretBrush)
             caretBrush = new SolidColorBrush(new Color(0, 0, 0));
+        ctx.CustomRender(_TextBoxView._CursorPainter, this._Cursor, caretBrush);
     }
     ctx.Restore();
 };
@@ -12098,6 +12149,16 @@ _TextBoxView.CURSOR_BLINK_OFF_MULTIPLIER = 2;
 _TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER = 3;
 _TextBoxView.CURSOR_BLINK_ON_MULTIPLIER = 4;
 _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
+_TextBoxView._CursorPainter = function (args) {
+    var canvasCtx = args[0];
+    var rect = args[1];
+    var brush = args[2];
+    canvasCtx.moveTo(rect.X + 0.5, rect.Y);
+    canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
+    canvasCtx.lineWidth = 1.0;
+    canvasCtx.strokeStyle = brush._Translate();
+    canvasCtx.stroke();
+};
 Nullstone.FinishCreate(_TextBoxView);
 
 var UserControl = Nullstone.Create("UserControl", Control);

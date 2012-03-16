@@ -190,7 +190,15 @@ Border.Annotations = {
 
 //#endregion
 
-Border._Painter = function (canvasCtx, backgroundBrush, borderBrush, boundingRect, thickness, cornerRadius, pathOnly) {
+Border._Painter = function (args) {
+    var canvasCtx = args[0];
+    var backgroundBrush = args[1];
+    var borderBrush = args[2];
+    var boundingRect = args[3];
+    var thickness = args[4];
+    var cornerRadius = args[5];
+    var pathOnly = args[6];
+
     var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
 
     canvasCtx.beginPath();

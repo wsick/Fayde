@@ -22,7 +22,7 @@ _TextLayoutRun.Instance._GenerateCache = function () {
     var len;
     var index = this._Start;
     //glyph before selection
-    if (selectionLength == 0 || this._Start < selectionStart) {
+    if (selectionLength === 0 || this._Start < selectionStart) {
         len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
         this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, this._Length), font));
         index += len;
@@ -45,11 +45,11 @@ _TextLayoutRun.Instance._GenerateCache = function () {
     }
 };
 _TextLayoutRun.Instance._ClearCache = function () {
-    this._Clusters = new Array();
+    this._Clusters = [];
 };
 _TextLayoutRun.Instance._Render = function (ctx, origin, x, y) {
     var x0 = x;
-    if (this._Clusters.length == 0)
+    if (this._Clusters.length === 0)
         this._GenerateCache();
 
     for (var i = 0; i < this._Clusters.length; i++) {

@@ -30,7 +30,12 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
         //TODO: Underline
     }
 };
-_TextLayoutGlyphCluster.Painter = function (canvasCtx, text, foreground, font) {
+_TextLayoutGlyphCluster.Painter = function (args) {
+    var canvasCtx = args[0];
+    var text = args[1];
+    var foreground = args[2];
+    var font = args[3];
+
     canvasCtx.fillStyle = foreground._Translate(canvasCtx);
     canvasCtx.font = font._Translate();
     canvasCtx.textAlign = "left";

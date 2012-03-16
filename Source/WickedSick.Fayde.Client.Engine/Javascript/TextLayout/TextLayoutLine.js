@@ -32,7 +32,7 @@ _TextLayoutLine.Instance.GetCursorFromX = function (offset, x) {
         if (x < (x0 + run._Advance))
             break; // x is somewhere inside this run
 
-        cursor += run._Count;
+        cursor += run._Length;
         index += run._Length;
         x0 += run._Advance;
         run = null;
