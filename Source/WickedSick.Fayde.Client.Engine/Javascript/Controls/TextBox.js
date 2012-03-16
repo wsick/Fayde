@@ -165,19 +165,19 @@ TextBox.Instance._SyncSelectedText = function () {
         var end = Math.max(this._SelectionAnchor, this._SelectionCursor);
         var text = this._Buffer.slice(start, end);
 
-        this._SetValue = false;
+        this._SettingValue = false;
         this.SetSelectedText(TextBox.SelectedTextProperty, text);
-        this._SetValue = true;
+        this._SettingValue = true;
     } else {
-        this._SetValue = false;
+        this._SettingValue = false;
         this.SetSelectedText("");
-        this._SetValue = true;
+        this._SettingValue = true;
     }
 };
 TextBox.Instance._SyncText = function () {
-    this._SetValue = false;
+    this._SettingValue = false;
     this.SetValue(TextBox.TextProperty, this._Buffer);
-    this._SetValue = true;
+    this._SettingValue = true;
 };
 
 TextBox.Instance._OnPropertyChanged = function (args, error) {
@@ -203,7 +203,7 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
     NotImplemented("TextBox._OnPropertyChanged");
     } else */
     if (args.Property === TextBox.SelectedTextProperty) {
-        if (this._SetValue) {
+        if (this._SettingValue) {
             length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
             start = Math.min(this._SelectionAnchor, this._SelectionCursor);
 
@@ -261,7 +261,7 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
     } else if (args.Property === TextBox.SelectionForegroundProperty) {
         changed = _TextBoxModelChanged.Brush;
     } else if (args.Property === TextBox.TextProperty) {
-        if (this._SetValue) {
+        if (this._SettingValue) {
             //TODO: Build undo action
             //TODO: Clear redo stack
 
