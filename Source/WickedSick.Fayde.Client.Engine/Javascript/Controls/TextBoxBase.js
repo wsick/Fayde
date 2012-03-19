@@ -514,12 +514,12 @@ TextBoxBase.Instance.PostOnKeyDown = function (sender, args) {
 
     /*
     if (!this._IsReadOnly && this._IMCtx.FilterKeyPress()) {
-        this._NeedIMReset = true;
-        return;
+    this._NeedIMReset = true;
+    return;
     }
     */
 
-    if (this._IsReadOnly || args.Modifiers.Shift || args.Modifiers.Alt || args.Modifiers.Ctrl)
+    if (this._IsReadOnly || args.Modifiers.Alt || args.Modifiers.Ctrl)
         return;
 
     this._Emit = _TextBoxEmitChanged.NOTHING;

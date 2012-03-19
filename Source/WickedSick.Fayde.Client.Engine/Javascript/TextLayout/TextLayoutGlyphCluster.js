@@ -25,7 +25,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
-    ctx.CustomRender(_TextLayoutGlyphCluster.Painter, this._Text, attrs.GetForeground(), attrs.GetFont());
+    ctx.CustomRender(_TextLayoutGlyphCluster.Painter, this._Text, brush, attrs.GetFont());
     if (attrs.IsUnderlined()) {
         //TODO: Underline
     }

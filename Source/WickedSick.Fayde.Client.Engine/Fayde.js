@@ -4171,13 +4171,12 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     var brush;
     var area;
     if (this._Selected && (brush = attrs.GetBackground(true))) {
-        attrs.GetBackground(true);
         area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
         ctx.Fill(area, brush); //selection background
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
-    ctx.CustomRender(_TextLayoutGlyphCluster.Painter, this._Text, attrs.GetForeground(), attrs.GetFont());
+    ctx.CustomRender(_TextLayoutGlyphCluster.Painter, this._Text, brush, attrs.GetFont());
     if (attrs.IsUnderlined()) {
     }
 };
@@ -12333,11 +12332,11 @@ TextBoxBase.Instance.PostOnKeyDown = function (sender, args) {
         return;
     /*
     if (!this._IsReadOnly && this._IMCtx.FilterKeyPress()) {
-        this._NeedIMReset = true;
-        return;
+    this._NeedIMReset = true;
+    return;
     }
     */
-    if (this._IsReadOnly || args.Modifiers.Shift || args.Modifiers.Alt || args.Modifiers.Ctrl)
+    if (this._IsReadOnly || args.Modifiers.Alt || args.Modifiers.Ctrl)
         return;
     this._Emit = _TextBoxEmitChanged.NOTHING;
     this._BatchPush();
