@@ -2554,8 +2554,14 @@ Font.Instance._Descender = function () { return 0.0; }; //most likely removable
 Font.Instance._Ascender = function () { return 0.0; }; //most likely removable
 Font.Instance._PurgeCache = function () {
     this._CachedHeight = undefined;
+    this._CachedTranslation = undefined;
 };
 Font.Instance._Translate = function () {
+    if (!this._CachedTranslation)
+        this._CachedTranslation = this._BuildTranslation();
+    return this._CachedTranslation;
+};
+Font.Instance._BuildTranslation = function () {
     var s = "";
     var style = this.GetStyle();
     var weight = this.GetWeight();
