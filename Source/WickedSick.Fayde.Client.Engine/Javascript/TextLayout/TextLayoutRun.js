@@ -24,13 +24,13 @@ _TextLayoutRun.Instance._GenerateCache = function () {
     //glyph before selection
     if (selectionLength === 0 || this._Start < selectionStart) {
         len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, this._Length), font));
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, len), font));
         index += len;
     }
 
     //glyph with selection
-    var selectionEnd = this._Start + selectionStart + selectionLength;
-    var runEnd = this.Start + this._Length;
+    var selectionEnd = selectionStart + selectionLength;
+    var runEnd = this._Start + this._Length;
     if (index < runEnd && index < selectionEnd) {
         len = Math.min(runEnd - index, selectionEnd - index);
         this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font, true));

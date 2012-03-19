@@ -68,7 +68,12 @@
     <Content Include="Javascript\Controls\RowDefinitionCollection.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBlockDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\TextBoxBase.js" />
+    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoAction.js" />
+    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoActionDelete.js" />
+    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoActionInsert.js" />
+    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoActionReplace.js" />
     <Content Include="Javascript\Controls\TextBoxModelChangedEventArgs.js" />
+    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoStack.js" />
     <Content Include="Javascript\Controls\TextBoxView.js" />
     <Content Include="Javascript\Core\BindingOperations.js" />
     <Content Include="Javascript\Core\Collections\CollectionChangedArgs.js" />
@@ -223,8 +228,11 @@
     <Content Include="Javascript\Controls\TextBlock.js" />
     <Content Include="Javascript\Controls\TextBox.js" />
     <Content Include="Javascript\Documents\TextElement.js" />
+    <Content Include="Javascript\Runtime\RoutedEvent.js" />
+    <Content Include="Javascript\Runtime\RoutedEventArgs.js" />
     <Content Include="Javascript\TextLayout\Enums.js" />
     <Content Include="Javascript\TextLayout\LayoutWord.js" />
+    <Content Include="Javascript\TextLayout\TextBuffer.js" />
     <Content Include="Javascript\TextLayout\TextLayout.js" />
     <Content Include="Javascript\Media\Animation\Timeline.js" />
     <Content Include="Javascript\Core\UIElement.js" />

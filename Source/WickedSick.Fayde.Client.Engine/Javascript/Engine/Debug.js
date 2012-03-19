@@ -89,20 +89,36 @@ function NotImplemented(method) {
 }
 
 function Info(message) {
-    if (_Console._Level <= DebugLevel.Info)
-        _Console.WriteLine("<i>INFO</i>: " + message);
+    if (_Console._Level <= DebugLevel.Info) {
+        if (console.info)
+            console.info(message);
+        else
+            _Console.WriteLine("<i>INFO</i>: " + message);
+    }
 }
 function Debug(message) {
-    if (_Console._Level <= DebugLevel.Debug)
-        _Console.WriteLine("<i>DEBUG</i>: " + message);
+    if (_Console._Level <= DebugLevel.Debug) {
+        if (console.log)
+            console.log(message);
+        else
+            _Console.WriteLine("<i>DEBUG</i>: " + message);
+    }
 }
 function Warn(message) {
-    if (_Console._Level <= DebugLevel.Warn)
-        _Console.WriteLine("<i>WARN</i>: " + message, "#FF6A00");
+    if (_Console._Level <= DebugLevel.Warn) {
+        if (console.warn)
+            console.warn(message);
+        else
+            _Console.WriteLine("<i>WARN</i>: " + message, "#FF6A00");
+    }
 }
 function Error(error) {
-    if (_Console._Level <= DebugLevel.Error)
-        _Console.WriteLine("<b>ERROR</b>: " + error.toString(), "#0026FF");
+    if (_Console._Level <= DebugLevel.Error) {
+        if (console.error)
+            console.error(error.toString());
+        else
+            _Console.WriteLine("<b>ERROR</b>: " + error.toString(), "#0026FF");
+    }
 }
 function Fatal(error) {
     if (_Console._Level <= DebugLevel.Fatal)

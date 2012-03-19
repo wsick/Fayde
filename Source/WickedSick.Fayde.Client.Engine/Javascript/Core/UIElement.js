@@ -69,6 +69,12 @@ UIElement.Instance.Init = function () {
 
     this.LostFocus = new MulticastEvent();
     this.LostFocus.Subscribe(this.OnLostFocus, this);
+
+    this.KeyDown = new MulticastEvent();
+    this.KeyDown.Subscribe(this.OnKeyDown, this);
+
+    this.KeyUp = new MulticastEvent();
+    this.KeyUp.Subscribe(this.OnKeyUp, this);
 };
 
 //#region DEPENDENCY PROPERTIES
@@ -539,6 +545,8 @@ UIElement.Instance._ElementAdded = function (item) {
 UIElement.Instance._UpdateLayer = function (pass, error) {
 };
 
+//#region Loaded
+
 UIElement.Instance._SetIsLoaded = function (value) {
     if (this._IsLoaded != value) {
         this._IsLoaded = value;
@@ -546,12 +554,14 @@ UIElement.Instance._SetIsLoaded = function (value) {
     }
 };
 UIElement.Instance._OnIsLoadedChanged = function (loaded) {
+    var iter;
+    var v;
     if (!this._IsLoaded) {
         //WTF: ClearForeachGeneration(Loaded)
         this.Unloaded.Raise(this, new EventArgs());
-        var iter = new CollectionIterator(this.GetResources());
+        iter = new CollectionIterator(this.GetResources());
         while (iter.Next()) {
-            var v = iter.GetCurrent();
+            v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
             if (v != null)
                 v._SetIsLoaded(loaded);
@@ -565,9 +575,9 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
     }
 
     if (this._IsLoaded) {
-        var iter = new CollectionIterator(this.GetResources());
+        iter = new CollectionIterator(this.GetResources());
         while (iter.Next()) {
-            var v = iter.GetCurrent();
+            v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
             if (v != null)
                 v._SetIsLoaded(loaded);
@@ -576,6 +586,9 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
         this.Loaded.RaiseAsync(this, new EventArgs());
     }
 };
+
+//#endregion
+
 UIElement.Instance._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
@@ -599,7 +612,6 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
 UIElement.Instance._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
 };
-
 
 UIElement.Instance._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
 UIElement.Instance._ClearFlag = function (flag) { this._Flags &= ~flag; };
@@ -661,7 +673,7 @@ UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 
 //#endregion
 
-//#region MOUSE
+//#region Mouse
 
 UIElement.Instance.CanCaptureMouse = function () { return true; };
 UIElement.Instance.CaptureMouse = function () {
@@ -740,7 +752,38 @@ UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
 
 //#endregion
 
-//#region FOCUS
+//#region Keyboard
+
+//Backspace - 8
+//Enter - 13
+//Left - 37
+//Up - 38
+//Right - 39 
+//Down - 40
+//Home - 36
+//End - 35
+//Page Up - 33
+//Page Down - 34
+//Insert - 45
+//Delete - 46
+//Esc - 27
+
+//Shift - 16
+//Ctrl - 17
+//Alt - 18
+
+UIElement.Instance._EmitKeyDown = function (args) {
+    this.KeyDown.Raise(this, args);
+};
+
+UIElement.Instance.OnKeyDown = function (sender, args) {
+};
+UIElement.Instance.OnKeyUp = function (sender, args) {
+};
+
+//#endregion
+
+//#region Focus
 
 UIElement.Instance.Focus = function (recurse) {
     return false;

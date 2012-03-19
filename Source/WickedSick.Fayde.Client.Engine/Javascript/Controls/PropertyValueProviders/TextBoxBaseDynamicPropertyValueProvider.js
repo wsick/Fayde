@@ -47,9 +47,9 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (p
 
 _TextBoxBaseDynamicPropertyValueProvider.Instance._InitializeSelectionBrushes = function () {
     if (this._SelectionBackground == null)
-        this._SelectionBackground = new SolidColorBrush(new Color(68, 68, 68));
+        this._SelectionBackground = new SolidColorBrush(Color.FromHex("#FF444444"));
     if (this._SelectionForeground == null)
-        this._SelectionForeground = new SolidColorBrush(new Color(255, 255, 255));
+        this._SelectionForeground = new SolidColorBrush(Color.FromHex("#FFFFFFFF"));
 };
 
 Nullstone.FinishCreate(_TextBoxBaseDynamicPropertyValueProvider);

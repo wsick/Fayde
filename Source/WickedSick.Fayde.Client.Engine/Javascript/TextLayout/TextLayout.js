@@ -253,6 +253,8 @@ TextLayout.Instance.GetSelectionCursor = function (offset, pos) {
                 continue;
             }
 
+            if (run._Start === pos)
+                break;
             //cursor is in this run
             var font = run._Attrs.GetFont();
             x0 += Surface._MeasureWidth(this._Text.slice(run._Start, pos), font);
@@ -313,7 +315,7 @@ TextLayout.Instance._ClearCache = function () {
     }
 };
 TextLayout.Instance._ClearLines = function () {
-    this._Lines = new Array();
+    this._Lines = [];
 };
 TextLayout.Instance._ResetState = function () {
     this._ActualHeight = NaN;

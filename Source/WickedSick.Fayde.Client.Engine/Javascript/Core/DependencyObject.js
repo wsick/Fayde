@@ -143,25 +143,25 @@ DependencyObject.Instance.SetValue = function (propd, value) {
     }
 
     try {
-        this._SetValue(propd, value);
+        this._SetValueInternal(propd, value);
         if (updateTwoWay)
             existing._TryUpdateSourceObject(value);
     } catch (err) {
         if (!addingExpression)
             throw err;
-        this._SetValue(propd, propd.DefaultValue);
+        this._SetValueInternal(propd, propd.DefaultValue);
         if (updateTwoWay)
             existing._TryUpdateSourceObject(value);
     }
 };
-DependencyObject.Instance._SetValue = function (propd, value, error) {
+DependencyObject.Instance._SetValueInternal = function (propd, value, error) {
     if (error == null)
         error = new BError();
     var hasCoercer = propd._HasCoercer();
     var coerced = value;
     if ((hasCoercer && !(coerced = propd._Coerce(this, coerced, error)))
             || !this._IsValueValid(propd, coerced, error)
-            || !propd._Validate(this, coerced, error)) {
+            || !propd._Validate(this, propd, coerced, error)) {
         if (error.IsErrored())
             throw new error.CreateException();
         return false;

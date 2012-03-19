@@ -48,6 +48,7 @@ _TextLayoutLine.Instance.GetCursorFromX = function (offset, x) {
             ch = index;
             cursor++;
             c = text.charAt(index);
+            index++;
             if (c === '\t')
                 c = ' ';
             m = Surface._MeasureWidth(c, font);

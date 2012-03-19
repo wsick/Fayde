@@ -73,7 +73,7 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("\t<body style=\"margin: 0\">");
             sb.AppendLine("\t\t<div>");
             sb.AppendLine("\t\t\t<div id=\"container\">");
-            sb.AppendLine("\t\t\t\t<canvas id=\"canvas\" width=\"600\" height=\"600\"></canvas>");
+            sb.AppendLine("\t\t\t\t<canvas id=\"canvas\" tabIndex=\"1\" width=\"600\" height=\"600\"></canvas>");
             sb.AppendLine("\t\t\t</div>");
             sb.AppendLine("\t\t\t<div id=\"hud-mouse\" style=\"height: 25px;\"></div>");
             sb.AppendLine("\t\t\t<div id=\"hud-els\" style=\"height: 25px;\"></div>");

@@ -17,6 +17,24 @@ var _TextBoxEmitChanged = {
     SELECTION: 1 << 0,
     TEXT: 1 << 1
 };
+var Keys = {
+    Backspace: 8,
+    Enter: 13,
+    Left: 37,
+    Up: 38,
+    Right: 39,
+    Down: 40,
+    Home: 36,
+    End: 35,
+    PageUp: 33,
+    PageDown: 34,
+    Insert: 45,
+    Delete: 46,
+    Esc: 27,
+    Shift: 16,
+    Ctrl: 17,
+    Alt: 18
+};
 
  var _VisualTreeWalkerDirection = {
     Logical: 0,
@@ -180,20 +198,36 @@ function NotImplemented(method) {
     Warn("Not Implemented [" + method + "]");
 }
 function Info(message) {
-    if (_Console._Level <= DebugLevel.Info)
-        _Console.WriteLine("<i>INFO</i>: " + message);
+    if (_Console._Level <= DebugLevel.Info) {
+        if (console.info)
+            console.info(message);
+        else
+            _Console.WriteLine("<i>INFO</i>: " + message);
+    }
 }
 function Debug(message) {
-    if (_Console._Level <= DebugLevel.Debug)
-        _Console.WriteLine("<i>DEBUG</i>: " + message);
+    if (_Console._Level <= DebugLevel.Debug) {
+        if (console.log)
+            console.log(message);
+        else
+            _Console.WriteLine("<i>DEBUG</i>: " + message);
+    }
 }
 function Warn(message) {
-    if (_Console._Level <= DebugLevel.Warn)
-        _Console.WriteLine("<i>WARN</i>: " + message, "#FF6A00");
+    if (_Console._Level <= DebugLevel.Warn) {
+        if (console.warn)
+            console.warn(message);
+        else
+            _Console.WriteLine("<i>WARN</i>: " + message, "#FF6A00");
+    }
 }
 function Error(error) {
-    if (_Console._Level <= DebugLevel.Error)
-        _Console.WriteLine("<b>ERROR</b>: " + error.toString(), "#0026FF");
+    if (_Console._Level <= DebugLevel.Error) {
+        if (console.error)
+            console.error(error.toString());
+        else
+            _Console.WriteLine("<b>ERROR</b>: " + error.toString(), "#0026FF");
+    }
 }
 function Fatal(error) {
     if (_Console._Level <= DebugLevel.Fatal)
@@ -452,6 +486,34 @@ _TextBoxModelChangedEventArgs.Instance.Init = function (changed, propArgs) {
     this.PropArgs = propArgs;
 };
 Nullstone.FinishCreate(_TextBoxModelChangedEventArgs);
+
+var _TextBoxUndoStack = Nullstone.Create("_TextBoxUndoStack", null, 1);
+_TextBoxUndoStack.Instance.Init = function (maxCount) {
+    this._MaxCount = maxCount;
+    this._ht = [];
+};
+_TextBoxUndoStack.Instance.IsEmpty = function () {
+    return this._ht.length === 0;
+};
+_TextBoxUndoStack.Instance.Clear = function () {
+    this._ht = [];
+};
+_TextBoxUndoStack.Instance.Push = function (action) {
+    this._ht.push(action);
+    if (this._ht.length > this._MaxCount)
+        this._ht.shift();
+};
+_TextBoxUndoStack.Instance.Peek = function () {
+    if (this._ht.length === 0)
+        return null;
+    return this._ht[this._ht.length - 1];
+};
+_TextBoxUndoStack.Instance.Pop = function () {
+    if (this._ht.length === 0)
+        return null;
+    return this._ht.pop();
+};
+Nullstone.FinishCreate(_TextBoxUndoStack);
 
 var BindingOperations = {
     SetBinding: function (target, dp, binding) {
@@ -2968,6 +3030,12 @@ MouseButtonEventArgs.Instance.Init = function (absolutePos) {
     this.Init$MouseEventArgs(absolutePos);
 };
 Nullstone.FinishCreate(MouseButtonEventArgs);
+var KeyEventArgs = Nullstone.Create("KeyEventArgs", EventArgs, 2);
+KeyEventArgs.Instance.Init = function (modifiers, keyCode) {
+    this.Modifiers = modifiers;
+    this.KeyCode = keyCode;
+};
+Nullstone.FinishCreate(KeyEventArgs);
 
 Object.Clone = function (o) {
     return eval(uneval(o));
@@ -3141,7 +3209,7 @@ Nullstone.FinishCreate(LinkedListNode);
 
 var MulticastEvent = Nullstone.Create("MulticastEvent");
 MulticastEvent.Instance.Init = function () {
-    this._Listeners = new Array();
+    this._Listeners = [];
 };
 MulticastEvent.Instance.Subscribe = function (callback, closure) {
     if (!(callback instanceof Function))
@@ -3210,6 +3278,28 @@ PropertyInfo.Instance.SetValue = function (ro, value) {
 };
 Nullstone.FinishCreate(PropertyInfo);
 
+var RoutedEvent = Nullstone.Create("RoutedEvent");
+RoutedEvent.Instance.Init = function () {
+    this._Listeners = [];
+};
+RoutedEvent.Instance.Subscribe = function (pre, on, post, closure) {
+    this._Listeners.push({
+        PreCallback: pre,
+        Callback: on,
+        PostCallback: post,
+        Closure: closure
+    });
+};
+RoutedEvent.Instance.Raise = function () {
+};
+Nullstone.FinishCreate(RoutedEvent);
+
+var RoutedEventArgs = Nullstone.Create("RoutedEventArgs", EventArgs);
+RoutedEventArgs.Instance.Init = function () {
+    this.Handled = false;
+};
+Nullstone.FinishCreate(RoutedEventArgs);
+
 var _LayoutWord = Nullstone.Create("_LayoutWord");
 _LayoutWord.Instance.Init = function () {
     this._Advance = 0.0;
@@ -3219,6 +3309,52 @@ _LayoutWord.Instance.Init = function () {
     this._Font = new Font();
 };
 Nullstone.FinishCreate(_LayoutWord);
+
+var _TextBuffer = Nullstone.Create("_TextBuffer", Object);
+_TextBuffer.Instance.Init = function () {
+    this._Text = null;
+};
+_TextBuffer.Instance.GetLength = function () {
+    if (this._Text == null)
+        return 0;
+    return this._Text.length;
+};
+_TextBuffer.Instance.Reset = function () {
+    this._Text = null;
+};
+_TextBuffer.Instance.Prepend = function (str) {
+    if (!this._Text)
+        this._Text = str;
+    else
+        this._Text = str + this._Text;
+};
+_TextBuffer.Instance.Append = function (str) {
+    if (!this._Text)
+        this._Text = str;
+    else
+        this._Text += str;
+};
+_TextBuffer.Instance.Cut = function (start, len) {
+    if (!this._Text) {
+        this._Text = null;
+        return;
+    }
+    this._Text = this._Text.slice(0, start) + this._Text.slice(start + len);
+};
+_TextBuffer.Instance.Insert = function (index, str) {
+    if (!this._Text)
+        this._Text = str;
+    else
+        this._Text = [this._Text.slice(0, index), str, this._Text.slice(index)].join('');
+};
+_TextBuffer.Instance.Replace = function (start, len, str) {
+    if (!this._Text) {
+        this._Text = str;
+        return;
+    }
+    this._Text = [this._Text.slice(0, start), str, this._Text.slice(start + len)].join('');
+};
+Nullstone.FinishCreate(_TextBuffer);
 
 var TextLayout = Nullstone.Create("TextLayout");
 TextLayout.Instance.Init = function () {
@@ -3447,6 +3583,8 @@ TextLayout.Instance.GetSelectionCursor = function (offset, pos) {
                 x0 += run._Advance;
                 continue;
             }
+            if (run._Start === pos)
+                break;
             var font = run._Attrs.GetFont();
             x0 += Surface._MeasureWidth(this._Text.slice(run._Start, pos), font);
             break;
@@ -3500,7 +3638,7 @@ TextLayout.Instance._ClearCache = function () {
     }
 };
 TextLayout.Instance._ClearLines = function () {
-    this._Lines = new Array();
+    this._Lines = [];
 };
 TextLayout.Instance._ResetState = function () {
     this._ActualHeight = NaN;
@@ -4003,8 +4141,16 @@ _TextLayoutAttributes.Instance.Init = function (source, start) {
     this._Source = source;
     this._Start = start == null ? 0 : start;
 };
-_TextLayoutAttributes.Instance.GetBackground = function (selected) { return this._Source.GetBackground(selected); };
-_TextLayoutAttributes.Instance.GetForeground = function (selected) { return this._Source.GetForeground(selected); };
+_TextLayoutAttributes.Instance.GetBackground = function (selected) {
+    if (selected)
+        return this._Source.GetSelectionBackground();
+    return null;
+};
+_TextLayoutAttributes.Instance.GetForeground = function (selected) {
+    if (selected)
+        return this._Source.GetSelectionForeground();
+    return this._Source.GetForeground(selected);
+};
 _TextLayoutAttributes.Instance.GetFont = function () { return this._Source.GetFont(); };
 _TextLayoutAttributes.Instance.GetDirection = function () { return this._Source.GetDirection(); };
 _TextLayoutAttributes.Instance.IsUnderlined = function () { return this._Source.GetTextDecorations() & TextDecorations.Underline; };
@@ -4025,6 +4171,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     var brush;
     var area;
     if (this._Selected && (brush = attrs.GetBackground(true))) {
+        attrs.GetBackground(true);
         area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
         ctx.Fill(area, brush); //selection background
     }
@@ -4087,6 +4234,7 @@ _TextLayoutLine.Instance.GetCursorFromX = function (offset, x) {
             ch = index;
             cursor++;
             c = text.charAt(index);
+            index++;
             if (c === '\t')
                 c = ' ';
             m = Surface._MeasureWidth(c, font);
@@ -4154,11 +4302,11 @@ _TextLayoutRun.Instance._GenerateCache = function () {
     var index = this._Start;
     if (selectionLength === 0 || this._Start < selectionStart) {
         len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, this._Length), font));
+        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, len), font));
         index += len;
     }
-    var selectionEnd = this._Start + selectionStart + selectionLength;
-    var runEnd = this.Start + this._Length;
+    var selectionEnd = selectionStart + selectionLength;
+    var runEnd = this._Start + this._Length;
     if (index < runEnd && index < selectionEnd) {
         len = Math.min(runEnd - index, selectionEnd - index);
         this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font, true));
@@ -4209,6 +4357,48 @@ _WordBreakOp.Instance.SetWordBasics = function (word) {
     word._Advance = this._Advance;
 };
 Nullstone.FinishCreate(_WordBreakOp);
+
+var _TextBoxUndoAction = Nullstone.Create("_TextBoxUndoAction", LinkedListNode);
+Nullstone.FinishCreate(_TextBoxUndoAction);
+
+var _TextBoxUndoActionDelete = Nullstone.Create("_TextBoxUndoActionDelete", _TextBoxUndoAction, 5);
+_TextBoxUndoActionDelete.Instance.Init = function (selectionAnchor, selectionCursor, buffer, start, length) {
+    this._SelectionAnchor = selectionAnchor;
+    this._SelectionCursor = selectionCursor;
+    this._Start = start;
+    this._Length = length;
+    this._Text = this._Buffer._Text.substr(start, length);
+};
+Nullstone.FinishCreate(_TextBoxUndoActionDelete);
+
+var _TextBoxUndoActionInsert = Nullstone.Create("_TextBoxUndoActionInsert", _TextBoxUndoAction, 5);
+_TextBoxUndoActionInsert.Instance.Init = function (selectionAnchor, selectionCursor, start, inserted, isAtomic) {
+    this._SelectionAnchor = selectionAnchor;
+    this._SelectionCursor = selectionCursor;
+    this._Start = start;
+    this._Length = inserted.length;
+    this._Buffer = new _TextBuffer(inserted);
+    this._Growable = isAtomic !== true;
+};
+_TextBoxUndoActionInsert.Instance.Insert = function (start, text) {
+    if (!this._Growable || start !== (this._Start + this._Length))
+        return false;
+    this._Buffer.Append(text);
+    this._Length += text.length;
+    return true;
+};
+Nullstone.FinishCreate(_TextBoxUndoActionInsert);
+
+var _TextBoxUndoActionReplace = Nullstone.Create("_TextBoxUndoActionReplace", _TextBoxUndoAction, 6);
+_TextBoxUndoActionReplace.Instance.Init = function (selectionAnchor, selectionCursor, buffer, start, length, inserted) {
+    this._SelectionAnchor = selectionAnchor;
+    this._SelectionCursor = selectionCursor;
+    this._Start = start;
+    this._Length = length;
+    this._Deleted = buffer._Text.substr(start, length);
+    this._Inserted = inserted;
+};
+Nullstone.FinishCreate(_TextBoxUndoActionReplace);
 
 var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);
 FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
@@ -5664,7 +5854,9 @@ Surface.Instance.RegisterEvents = function () {
     canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(event.button, surface._GetMousePosition(event)); });
     canvas.addEventListener("mouseout", function (e) { surface._HandleOut(surface._GetMousePosition(event)); });
     canvas.addEventListener("mousemove", function (e) { surface._HandleMove(surface._GetMousePosition(event)); });
-    canvas.addEventListener("mousewheel", function (e) { surface._HandleWheel(surface._GetMousePosition(event)); });
+    document.onkeypress = function (e) {
+        surface._HandleKeyPress(event);
+    };
 };
 Surface.Instance._HandleButtonRelease = function (button, pos) {
     this._SetUserInitiatedEvent(true);
@@ -5673,8 +5865,10 @@ Surface.Instance._HandleButtonRelease = function (button, pos) {
     this._UpdateCursorFromInputList();
     if (this._Captured)
         this._PerformReleaseCapture();
+    this.GetCanvas().releaseCapture();
 };
 Surface.Instance._HandleButtonPress = function (button, pos) {
+    this.GetCanvas().setCapture();
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("down", button, pos);
     this._SetUserInitiatedEvent(false);
@@ -5755,9 +5949,9 @@ Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
 Surface.Instance._EmitMouseList = function (type, button, pos, list, endIndex) {
     if (endIndex === 0)
         return;
-    var i = 0;
     if (!endIndex || endIndex === -1)
         endIndex = list._Count;
+    var i = 0;
     for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
         node.UIElement._EmitMouseEvent(type, button, pos);
     }
@@ -5795,6 +5989,38 @@ Surface.Instance._PerformReleaseCapture = function () {
     oldCaptured._EmitLostMouseCapture(this._CurrentPos);
     this._HandleMouseEvent("noop", null, this._CurrentPos, false, true);
 };
+Surface.Instance._HandleKeyPress = function (eve) {
+    this._SetUserInitiatedEvent(true);
+    var handled = false;
+    if (this._FocusedElement != null) {
+        var focusToRoot = Surface._ElementPathToRoot(this._FocusedElement);
+        var modifiers = {
+            Shift: eve.shiftKey,
+            Ctrl: eve.ctrlKey,
+            Alt: eve.altKey
+        };
+        handled = this._EmitKeyDown(focusToRoot, modifiers, eve.keyCode);
+    }
+    if (!handled && eve.keyCode === 9) { //Tab
+        if (this._FocusedElement != null)
+            TabNavigationWalker.Focus(this._FocusedElement, eve.shiftKey);
+        else
+            this._EnsureElementFocused();
+    }
+    this._SetUserInitiatedEvent(false);
+    return handled;
+};
+Surface.Instance._EmitKeyDown = function (list, modifiers, keyCode, endIndex) {
+    if (endIndex === 0)
+        return;
+    if (!endIndex || endIndex === -1)
+        endIndex = list._Count;
+    var i = 0;
+    var args = new KeyEventArgs(modifiers, keyCode);
+    for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
+        node.UIElement._EmitKeyDown(args);
+    }
+};
 Surface.Instance._FocusElement = function (uie) {
     if (Nullstone.RefEquals(uie, this._FocusedElement))
         return true;
@@ -5806,6 +6032,8 @@ Surface.Instance._FocusElement = function (uie) {
     if (this._FirstUserInitiatedEvent)
         this._EmitFocusChangeEventsAsync();
     return true;
+};
+Surface.Instance._EnsureElementFocused = function () {
 };
 Surface.Instance._EmitFocusChangeEventsAsync = function () {
     var surface = this;
@@ -5951,9 +6179,9 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (p
 };
 _TextBoxBaseDynamicPropertyValueProvider.Instance._InitializeSelectionBrushes = function () {
     if (this._SelectionBackground == null)
-        this._SelectionBackground = new SolidColorBrush(new Color(68, 68, 68));
+        this._SelectionBackground = new SolidColorBrush(Color.FromHex("#FF444444"));
     if (this._SelectionForeground == null)
-        this._SelectionForeground = new SolidColorBrush(new Color(255, 255, 255));
+        this._SelectionForeground = new SolidColorBrush(Color.FromHex("#FFFFFFFF"));
 };
 Nullstone.FinishCreate(_TextBoxBaseDynamicPropertyValueProvider);
 
@@ -6070,25 +6298,25 @@ DependencyObject.Instance.SetValue = function (propd, value) {
         }
     }
     try {
-        this._SetValue(propd, value);
+        this._SetValueInternal(propd, value);
         if (updateTwoWay)
             existing._TryUpdateSourceObject(value);
     } catch (err) {
         if (!addingExpression)
             throw err;
-        this._SetValue(propd, propd.DefaultValue);
+        this._SetValueInternal(propd, propd.DefaultValue);
         if (updateTwoWay)
             existing._TryUpdateSourceObject(value);
     }
 };
-DependencyObject.Instance._SetValue = function (propd, value, error) {
+DependencyObject.Instance._SetValueInternal = function (propd, value, error) {
     if (error == null)
         error = new BError();
     var hasCoercer = propd._HasCoercer();
     var coerced = value;
     if ((hasCoercer && !(coerced = propd._Coerce(this, coerced, error)))
             || !this._IsValueValid(propd, coerced, error)
-            || !propd._Validate(this, coerced, error)) {
+            || !propd._Validate(this, propd, coerced, error)) {
         if (error.IsErrored())
             throw new error.CreateException();
         return false;
@@ -6931,6 +7159,10 @@ UIElement.Instance.Init = function () {
     this.GotFocus.Subscribe(this.OnGotFocus, this);
     this.LostFocus = new MulticastEvent();
     this.LostFocus.Subscribe(this.OnLostFocus, this);
+    this.KeyDown = new MulticastEvent();
+    this.KeyDown.Subscribe(this.OnKeyDown, this);
+    this.KeyUp = new MulticastEvent();
+    this.KeyUp.Subscribe(this.OnKeyUp, this);
 };
 UIElement.ClipProperty = DependencyProperty.Register("Clip", function () { return Geometry; }, UIElement);
 UIElement.Instance.GetClip = function () {
@@ -7324,11 +7556,13 @@ UIElement.Instance._SetIsLoaded = function (value) {
     }
 };
 UIElement.Instance._OnIsLoadedChanged = function (loaded) {
+    var iter;
+    var v;
     if (!this._IsLoaded) {
         this.Unloaded.Raise(this, new EventArgs());
-        var iter = new CollectionIterator(this.GetResources());
+        iter = new CollectionIterator(this.GetResources());
         while (iter.Next()) {
-            var v = iter.GetCurrent();
+            v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
             if (v != null)
                 v._SetIsLoaded(loaded);
@@ -7340,9 +7574,9 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
         element._SetIsLoaded(loaded);
     }
     if (this._IsLoaded) {
-        var iter = new CollectionIterator(this.GetResources());
+        iter = new CollectionIterator(this.GetResources());
         while (iter.Next()) {
-            var v = iter.GetCurrent();
+            v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
             if (v != null)
                 v._SetIsLoaded(loaded);
@@ -7479,6 +7713,13 @@ UIElement.Instance._EmitMouseLeave = function (absolutePos) {
 UIElement.Instance.OnMouseLeave = function (sender, args) { };
 UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
     this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
+};
+UIElement.Instance._EmitKeyDown = function (args) {
+    this.KeyDown.Raise(this, args);
+};
+UIElement.Instance.OnKeyDown = function (sender, args) {
+};
+UIElement.Instance.OnKeyUp = function (sender, args) {
 };
 UIElement.Instance.Focus = function (recurse) {
     return false;
@@ -11685,16 +11926,22 @@ Nullstone.FinishCreate(TextBlock);
 var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
 TextBoxBase.Instance.Init = function () {
     this.Init$Control();
+    this._Undo = new _TextBoxUndoStack(10);
+    this._Redo = new _TextBoxUndoStack(10);
+    this._Buffer = new _TextBuffer();
+    this._MaxLength = 0;
+    this._Emit = _TextBoxEmitChanged.NOTHING;
     this._SelectionAnchor = 0;
     this._SelectionCursor = 0;
-    this._Buffer = new String();
+    this._CursorOffset = 0;
+    this._Batch = 0;
     this._Font = new Font();
     this.ModelChanged = new MulticastEvent();
-    this._Batch = 0;
     this._NeedIMReset = false;
     this._Selecting = false;
     this._Captured = false;
     this._IsFocused = false;
+    this._SettingValue = true;
 };
 TextBoxBase.Instance.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
@@ -11805,6 +12052,130 @@ TextBoxBase.Instance.OnGotFocus = function (sender, args) {
         this._NeedIMReset = true;
     }
 };
+TextBoxBase.Instance._BatchPush = function () {
+    this._Batch++;
+};
+TextBoxBase.Instance._BatchPop = function () {
+    if (this._Batch == 0) {
+        Warn("TextBoxBase._Batch underflow");
+        return;
+    }
+    this._Batch--;
+};
+TextBoxBase.Instance._SyncAndEmit = function (syncText) {
+    if (syncText === undefined)
+        syncText = true;
+    if (this._Batch != 0 || this._Emit === _TextBoxEmitChanged.NOTHING)
+        return;
+    if (syncText && (this._Emit & _TextBoxEmitChanged.TEXT))
+        this._SyncText();
+    if (this._Emit & _TextBoxEmitChanged.SELECTION)
+        this._SyncSelectedText();
+    if (this._IsLoaded) {
+        this._Emit &= this._EventsMask;
+        if (this._Emit & _TextBoxEmitChanged.TEXT)
+            this._EmitTextChanged();
+        if (this._Emit & _TextBoxEmitChanged.SELECTION)
+            this._EmitSelectionChanged();
+    }
+    this._Emit = _TextBoxEmitChanged.NOTHING;
+};
+TextBoxBase.Instance._SyncText = function () {
+    AbstractMethod("TextBoxBase._SyncText");
+};
+TextBoxBase.Instance._EmitTextChanged = function () { };
+TextBoxBase.Instance.SelectAll = function () {
+    this._Select(0, this._Buffer.GetLength());
+};
+TextBoxBase.Instance.ClearSelection = function (start) {
+    this._BatchPush();
+    this.SetSelectionStart(start);
+    this.SetSelectionLength(0);
+    this._BatchPop();
+};
+TextBoxBase.Instance.Select = function (start, length) {
+    if (start < 0)
+        throw new ArgumentException("start < 0");
+    if (length < 0)
+        throw new ArgumentException("length < 0");
+    if (start > this._Buffer.GetLength())
+        start = this._Buffer.GetLength();
+    if (length > (this._Buffer.GetLength() - start))
+        length = this._Buffer.GetLength() - start;
+    this._BatchPush();
+    this.SetSelectionStart(start);
+    this.SetSelectionLength(length);
+    this._BatchPop();
+    this._ResetIMContext();
+    this._SyncAndEmit();
+    return true;
+};
+TextBoxBase.Instance._SyncSelectedText = function () {
+    AbstractMethod("TextBoxBase._SyncSelectedText");
+};
+TextBoxBase.Instance._EmitSelectionChanged = function () { };
+TextBoxBase.Instance._ResetIMContext = function () {
+    if (this._NeedIMReset) {
+        this._NeedIMReset = false;
+    }
+};
+TextBoxBase.Instance.CanUndo = function () {
+    return !this._Undo.IsEmpty();
+};
+TextBoxBase.Instance.Undo = function () {
+    if (this._Undo.IsEmpty())
+        return;
+    var action = this._Undo.Pop();
+    this._Redo.Push(action);
+    if (action instanceof _TextBoxUndoActionInsert) {
+        this._Buffer.Cut(action._Start, action._Length);
+    } else if (action instanceof _TextBoxUndoActionDelete) {
+        this._Buffer.Insert(action._Start, action._Text);
+    } else if (action instanceof _TextBoxUndoActionReplace) {
+        this._Buffer.Cut(action._Start, action._Inserted.length);
+        this._Buffer.Insert(action._Start, action._Deleted);
+    }
+    var anchor = action._SelectionAnchor;
+    var cursor = action._SelectionCursor;
+    this._BatchPush();
+    this.SetSelectionStart(Math.min(anchor, cursor));
+    this.SetSelectionLength(Math.abs(cursor - anchor));
+    this._Emit = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
+    this._SelectionAnchor = anchor;
+    this._SelectionCursor = cursor;
+    this._BatchPop();
+    this._SyncAndEmit();
+};
+TextBoxBase.Instance.CanRedo = function () {
+    return !this._Redo.IsEmpty();
+};
+TextBoxBase.Instance.Redo = function () {
+    if (this._Redo.IsEmpty())
+        return;
+    var action = this._Redo.Pop();
+    this._Undo.Push(action);
+    var anchor;
+    var cursor;
+    if (action instanceof _TextBoxUndoActionInsert) {
+        this._Buffer.Insert(action._Start, action._Buffer._Text);
+        anchor = cursor = action._Start + action._Buffer.GetLength();
+    } else if (action instanceof _TextBoxUndoActionDelete) {
+        this._Buffer.Cut(action._Start, action._Length);
+        anchor = cursor = action._Start;
+    } else if (action instanceof _TextBoxUndoActionReplace) {
+        this._Buffer.Cut(action._Start, action._Length);
+        this._Buffer.Insert(action._Start, action._Inserted);
+        anchor = cursor = action._Start + action._Inserted.length;
+    }
+    this._BatchPush();
+    this.SetSelectionStart(Math.min(anchor, cursor));
+    this.SetSelectionLength(Math.abs(cursor - anchor));
+    this._Emit = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
+    this._SelectionAnchor = anchor;
+    this._SelectionCursor = cursor;
+    this._BatchPop();
+    this._SyncAndEmit();
+};
 TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     var changed = _TextBoxModelChanged.Nothing;
     if (args.Property._ID === Control.FontFamilyProperty._ID) {
@@ -11840,54 +12211,382 @@ TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (propd != null && propd.OwnerType !== TextBoxBase)
         this._OnSubPropertyChanged$Control(propd, sender, args);
 };
-TextBoxBase.Instance._BatchPush = function () {
-    this._Batch++;
+TextBoxBase.Instance.CursorDown = function (cursor, isPage) {
+    return cursor;
 };
-TextBoxBase.Instance._BatchPop = function () {
-    if (this._Batch == 0) {
-        Warn("TextBoxBase._Batch underflow");
-        return;
-    }
-    this._Batch--;
+TextBoxBase.Instance.CursorUp = function (cursor, isPage) {
+    return cursor;
 };
-TextBoxBase.Instance._SyncAndEmit = function (syncText) {
-    if (syncText == undefined)
-        syncText = true;
-    if (this._Batch != 0 || this._Emit === _TextBoxEmitChanged.NOTHING)
-        return;
-    if (syncText && (this._Emit & _TextBoxEmitChanged.TEXT))
-        this._SyncText();
-    if (this._Emit & _TextBoxEmitChanged.SELECTION)
-        this._SyncSelectedText();
-    if (this._IsLoaded) {
-        this._Emit &= this._EventsMask;
-        if (this._Emit & _TextBoxEmitChanged.TEXT)
-            this._EmitTextChanged();
-        if (this._Emit & _TextBoxEmitChanged.SELECTION)
-            this._EmitSelectionChanged();
-    }
-    this._Emit = _TextBoxEmitChanged.NOTHING;
+TextBoxBase.Instance.CursorNextWord = function (cursor) {
+    return cursor;
 };
-TextBoxBase.Instance._SyncText = function () {
-    AbstractMethod("TextBoxBase._SyncText");
+TextBoxBase.Instance.CursorPrevWord = function (cursor) {
+    return cursor;
 };
-TextBoxBase.Instance._SyncSelectedText = function () {
-    AbstractMethod("TextBoxBase._SyncSelectedText");
+TextBoxBase.Instance.CursorLineBegin = function (cursor) {
+    return cursor;
 };
-TextBoxBase.Instance.ClearSelection = function (start) {
-    this._BatchPush();
-    this.SetSelectionStart(start);
-    this.SetSelectionLength(0);
-    this._BatchPop();
+TextBoxBase.Instance.CursorLineEnd = function (cursor) {
+    return cursor;
 };
-TextBoxBase.Instance._ResetIMContext = function () {
-    if (this._NeedIMReset) {
-        this._NeedIMReset = false;
-    }
-};
-TextBoxBase.Instance._EmitTextChanged = function () { };
-TextBoxBase.Instance._EmitSelectionChanged = function () { };
 TextBoxBase.Instance._EmitCursorPositionChanged = function (height, x, y) {
+};
+TextBoxBase.Instance.OnKeyDown = function (sender, args) {
+    switch (args.KeyCode) {
+        case 16: //shift
+        case 17: //ctrl
+        case 18: //alt
+            return;
+    }
+    var handled = false;
+    this._Emit = _TextBoxEmitChanged.NOTHING;
+    this._BatchPush();
+    switch (args.KeyCode) {
+        case Keys.Backspace:
+            if (this._IsReadOnly)
+                break;
+            this._KeyDownBackSpace(args.Modifiers);
+            break;
+        case Keys.Delete:
+            if (this._IsReadOnly)
+                break;
+            if (args.Modifiers.Shift) {
+                handled = true;
+            } else {
+                handled = this._KeyDownDelete(args.Modifiers);
+            }
+            break;
+        case Keys.Insert:
+            if (args.Modifiers.Shift) {
+                handled = true;
+            } else if (args.Modifiers.Ctrl) {
+                handled = true;
+            }
+            break;
+        case Keys.PageDown:
+            handled = this._KeyDownPageDown(args.Modifiers);
+            break;
+        case Keys.PageUp:
+            handled = this._KeyUpPageDown(args.Modifiers);
+            break;
+        case Keys.Home:
+            handled = this._KeyDownHome(args.Modifiers);
+            break;
+        case Keys.End:
+            handled = this._KeyDownEnd(args.Modifiers);
+            break;
+        case Keys.Left:
+            handled = this._KeyDownLeft(args.Modifiers);
+            break;
+        case Keys.Right:
+            handled = this._KeyDownRight(args.Modifiers);
+            break;
+        case Keys.Down:
+            handled = this._KeyDownDown(args.Modifiers);
+            break;
+        case Keys.Up:
+            handled = this._KeyDownUp(args.Modifiers);
+            break;
+        default:
+            if (args.Modifiers.Ctrl) {
+                switch (args.KeyCode) {
+                    case 65:
+                        handled = true;
+                        this.SelectAll();
+                        break;
+                    case 67:
+                        handled = true;
+                        break;
+                    case 88:
+                        if (this._IsReadOnly)
+                            break;
+                        this.SetSelectedText("");
+                        handled = true;
+                        break;
+                    case 89:
+                        if (!this.IsReadOnly) {
+                            handled = true;
+                            this.Redo();
+                        }
+                        break;
+                    case 90:
+                        if (!this.IsReadOnly) {
+                            handled = true;
+                            this.Undo();
+                        }
+                        break;
+                }
+            }
+            break;
+    }
+    if (handled) {
+        args.Handled = handled;
+        this._ResetIMContext();
+    }
+    this._BatchPop();
+    this._SyncAndEmit();
+    if (!args.Handled)
+        this.PostOnKeyDown(sender, args);
+};
+TextBoxBase.Instance.PostOnKeyDown = function (sender, args) {
+    if (args.Handled)
+        return;
+    /*
+    if (!this._IsReadOnly && this._IMCtx.FilterKeyPress()) {
+        this._NeedIMReset = true;
+        return;
+    }
+    */
+    if (this._IsReadOnly || args.Modifiers.Shift || args.Modifiers.Alt || args.Modifiers.Ctrl)
+        return;
+    this._Emit = _TextBoxEmitChanged.NOTHING;
+    this._BatchPush();
+    switch (args.KeyCode) {
+        case Keys.Enter:
+            this._KeyDownChar('\r');
+            break;
+        default:
+            if (!args.Modifiers.Ctrl && !args.Modifiers.Alt) {
+                this._KeyDownChar(String.fromCharCode(args.KeyCode));
+            }
+            break;
+    }
+    this._BatchPop();
+    this._SyncAndEmit();
+};
+TextBoxBase.Instance._KeyDownBackSpace = function (modifiers) {
+};
+TextBoxBase.Instance._KeyDownDelete = function (modifiers) {
+};
+TextBoxBase.Instance._KeyDownPageDown = function (modifiers) {
+    if (modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    cursor = this.CursorDown(cursor, true);
+    var have = this._HaveOffset;
+    if (!modifiers.Shift) {
+        anchor = cursor;
+    }
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        this._HaveOffset = have;
+    }
+    return true;
+};
+TextBoxBase.Instance._KeyDownPageUp = function (modifiers) {
+    if (modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    cursor = this.CursorUp(cursor, true);
+    var have = this._HaveOffset;
+    if (!modifiers.Shift) {
+        anchor = cursor;
+    }
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        this._HaveOffset = have;
+    }
+    return true;
+};
+TextBoxBase.Instance._KeyDownHome = function (modifiers) {
+    if (modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var handled = false;
+    if (modifiers.Ctrl) {
+        cursor = 0;
+    } else {
+        cursor = this.CursorLineBegin(cursor);
+    }
+    if (!modifiers.Shift) {
+        anchor = cursor;
+    }
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        this._HaveOffset = false;
+        handled = true;
+    }
+    return handled;
+};
+TextBoxBase.Instance._KeyDownEnd = function (modifiers) {
+    if (modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var handled = false;
+    if (modifiers.Ctrl) {
+        cursor = this._Buffer.GetLength();
+    } else {
+        cursor = this.CursorLineEnd(cursor);
+    }
+    if (!modifiers.Shift) {
+        anchor = cursor;
+    }
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        this._HaveOffset = false;
+        handled = true;
+    }
+    return handled;
+};
+TextBoxBase.Instance._KeyDownLeft = function (modifiers) {
+    if (modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var handled = false;
+    if (modifiers.Ctrl) {
+        cursor = this.CursorPrevWord(cursor);
+    } else if (!modifiers.Shift && anchor !== cursor) {
+        cursor = Math.min(anchor, cursor);
+    } else {
+        if (cursor >= 2 && this._Buffer._Text && this._Buffer._Text.charAt(cursor - 2) === '\r' && this._Buffer._Text.charAt(cursor - 1) === '\n')
+            cursor -= 2;
+        else if (cursor > 0)
+            cursor--;
+    }
+    if (!modifiers.Shift)
+        anchor = cursor;
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        handled = true;
+    }
+    return handled;
+};
+TextBoxBase.Instance._KeyDownRight = function (modifiers) {
+    if (modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var handled = false;
+    if (modifiers.Ctrl) {
+        cursor = this.CursorNextWord(cursor);
+    } else if (!modifiers.Shift && anchor !== cursor) {
+        cursor = Math.max(anchor, cursor);
+    } else {
+        if (this._Buffer._Text && this._Buffer._Text.charAt(cursor) === '\r' && this._Buffer._Text.charAt(cursor + 1) === '\n')
+            cursor += 2;
+        else if (cursor < this._Buffer.GetLength())
+            cursor++;
+    }
+    if (!modifiers.Shift)
+        anchor = cursor;
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        handled = true;
+    }
+    return handled;
+};
+TextBoxBase.Instance._KeyDownDown = function (modifiers) {
+    if (modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var handled = false;
+    cursor = this.CursorDown(cursor, false);
+    var have = this._HaveOffset;
+    if (!modifiers.Shift) {
+        anchor = cursor;
+    }
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        this._HaveOffset = have;
+        handled = true;
+    }
+    return handled;
+};
+TextBoxBase.Instance._KeyDownUp = function (modifiers) {
+    if (modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var handled = false;
+    cursor = this.CursorUp(cursor, false);
+    var have = this._HaveOffset;
+    if (!modifiers.Shift) {
+        anchor = cursor;
+    }
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        this._HaveOffset = have;
+        handled = true;
+    }
+    return handled;
+};
+TextBoxBase.Instance._KeyDownChar = function (c) {
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var length = Math.abs(cursor - anchor);
+    var start = Math.min(anchor, cursor);
+    var action;
+    if ((this._MaxLength > 0 && this._Buffer.GetLength() >= this._MaxLength) || (c === '\r') && !this._AcceptsReturn)
+        return false;
+    if (length > 0) {
+        action = new _TextBoxUndoActionReplace(anchor, cursor, this._Buffer, start, length, c);
+        this._Undo.Push(action);
+        this._Redo.Clear();
+        this._Buffer.Replace(start, length, c);
+    } else {
+        var ins = null;
+        action = this._Undo.Peek();
+        if (action instanceof _TextBoxUndoActionInsert) {
+            ins = action;
+            if (!ins.Insert(start, c))
+                ins = null;
+        }
+        if (!ins) {
+            ins = new _TextBoxUndoActionInsert(anchor, cursor, start, c);
+            this._Undo.Push(ins);
+        }
+        this._Redo.Clear();
+        this._Buffer.Insert(start, c);
+    }
+    this._Emit |= _TextBoxEmitChanged.TEXT;
+    cursor = start + 1;
+    anchor = cursor;
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+    }
+    return true;
 };
 Nullstone.FinishCreate(TextBoxBase);
 
@@ -12832,84 +13531,107 @@ TextBox.Instance.Init = function () {
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
 };
-TextBox.IsReadOnlyProperty = DependencyProperty.Register("IsReadOnly", function () { return Boolean; }, TextBox);
+TextBox.AcceptsReturnProperty = DependencyProperty.RegisterCore("AcceptsReturn", function () { return Boolean; }, TextBox, false);
+TextBox.prototype.GetAcceptsReturn = function () {
+    return this.GetValue(TextBox.AcceptsReturnProperty);
+};
+TextBox.prototype.SetAcceptsReturn = function (value) {
+    this.SetValue(TextBox.AcceptsReturnProperty, value);
+};
+TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () { return Brush; }, TextBox);
+TextBox.prototype.GetCaretBrush = function () {
+    return this.GetValue(TextBox.CaretBrushProperty);
+};
+TextBox.prototype.SetCaretBrush = function (value) {
+    this.SetValue(TextBox.CaretBrushProperty, value);
+};
+TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBox, 0, null, null, null, TextBox.PositiveIntValidator);
+TextBox.prototype.GetMaxLength = function () {
+    return this.GetValue(TextBox.MaxLengthProperty);
+};
+TextBox.prototype.SetMaxLength = function (value) {
+    this.SetValue(TextBox.MaxLengthProperty, value);
+};
+TextBox.PositiveIntValidator = function (instance, propd, value, error) {
+    if (typeof value !== 'number')
+        return false;
+    return value >= 0;
+};
+TextBox.IsReadOnlyProperty = DependencyProperty.RegisterCore("IsReadOnly", function () { return Boolean; }, TextBox);
 TextBox.Instance.GetIsReadOnly = function () {
     return this.GetValue(TextBox.IsReadOnlyProperty);
 };
 TextBox.Instance.SetIsReadOnly = function (value) {
     this.SetValue(TextBox.IsReadOnlyProperty, value);
 };
-TextBox.SelectionForegroundProperty = DependencyProperty.Register("SelectionForeground", function () { return Brush; }, TextBox);
+TextBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () { return Brush; }, TextBox);
 TextBox.Instance.GetSelectionForeground = function () {
     return this.GetValue(TextBox.SelectionForegroundProperty);
 };
 TextBox.Instance.SetSelectionForeground = function (value) {
     this.SetValue(TextBox.SelectionForegroundProperty, value);
 };
-TextBox.SelectionBackgroundProperty = DependencyProperty.Register("SelectionBackground", function () { return Brush; }, TextBox);
+TextBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () { return Brush; }, TextBox);
 TextBox.Instance.GetSelectionBackground = function () {
     return this.GetValue(TextBox.SelectionBackgroundProperty);
 };
 TextBox.Instance.SetSelectionBackground = function (value) {
     this.SetValue(TextBox.SelectionBackgroundProperty, value);
 };
-TextBox.BaselineOffsetProperty = DependencyProperty.Register("BaselineOffset", function () { return Number; }, TextBox);
+TextBox.BaselineOffsetProperty = DependencyProperty.RegisterCore("BaselineOffset", function () { return Number; }, TextBox);
 TextBox.Instance.GetBaselineOffset = function () {
     return this.GetValue(TextBox.BaselineOffsetProperty);
 };
 TextBox.Instance.SetBaselineOffset = function (value) {
     this.SetValue(TextBox.BaselineOffsetProperty, value);
 };
-TextBox.SelectedTextProperty = DependencyProperty.Register("SelectedText", function () { return String; }, TextBox, "");
+TextBox.SelectedTextProperty = DependencyProperty.RegisterFull("SelectedText", function () { return String; }, TextBox, "", null, null, true);
 TextBox.Instance.GetSelectedText = function () {
     return this.GetValue(TextBox.SelectedTextProperty);
 };
-TextBox.Instance.SetSelectedText = function (value) {
-    this.SetValue(TextBox.SelectedTextProperty, value);
-};
-TextBox.SelectionLengthProperty = DependencyProperty.Register("SelectionLength", function () { return Number; }, TextBox, 0);
+TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () { return Number; }, TextBox, 0, null, null, true, TextBox.PositiveIntValidator);
 TextBox.Instance.GetSelectionLength = function () {
     return this.GetValue(TextBox.SelectionLengthProperty);
 };
 TextBox.Instance.SetSelectionLength = function (value) {
     this.SetValue(TextBox.SelectionLengthProperty, value);
 };
-TextBox.SelectionStartProperty = DependencyProperty.Register("SelectionStart", function () { return Number; }, TextBox, 0);
+TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBox, 0, null, null, true, TextBox.PositiveIntValidator);
 TextBox.Instance.GetSelectionStart = function () {
     return this.GetValue(TextBox.SelectionStartProperty);
 };
 TextBox.Instance.SetSelectionStart = function (value) {
     this.SetValue(TextBox.SelectionStartProperty, value);
 };
-TextBox.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBox);
+TextBox.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBox);
 TextBox.Instance.GetText = function () {
     return this.GetValue(TextBox.TextProperty);
 };
 TextBox.Instance.SetText = function (value) {
     this.SetValue(TextBox.TextProperty, value);
 };
-TextBox.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return Number; }, TextBox, TextAlignment.Left);
+TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return Number; }, TextBox, TextAlignment.Left);
 TextBox.Instance.GetTextAlignment = function () {
     return this.GetValue(TextBox.TextAlignmentProperty);
 };
 TextBox.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBox.TextAlignmentProperty, value);
 };
-TextBox.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return Number; }, TextBox, TextWrapping.NoWrap);
+TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return Number; }, TextBox, TextWrapping.NoWrap);
 TextBox.Instance.GetTextWrapping = function () {
     return this.GetValue(TextBox.TextWrappingProperty);
 };
 TextBox.Instance.SetTextWrapping = function (value) {
     this.SetValue(TextBox.TextWrappingProperty, value);
 };
-TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.Register("HorizontalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
+TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.Instance.GetHorizontalScrollBarVisibility = function () {
     return this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
 };
 TextBox.Instance.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
 };
-TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.Register("VerticalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
+TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.Instance.GetVerticalScrollBarVisibility = function () {
     return this.GetValue(TextBox.VerticalScrollBarVisibilityProperty);
 };
@@ -12933,27 +13655,33 @@ TextBox.Instance.OnApplyTemplate = function () {
             this._ContentElement.SetValue(prop, this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
     }
 };
-TextBox.Instance.GetDisplayText = function () {
-    return this.GetText();
-};
 TextBox.Instance._SyncSelectedText = function () {
-    if (this._SelectionCursor != this._SelectionAnchor) {
+    if (this._SelectionCursor !== this._SelectionAnchor) {
         var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
-        var end = Math.max(this._SelectionAnchor, this._SelectionCursor);
-        var text = this._Buffer.slice(start, end);
+        var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
+        var text = this._Buffer._Text == null ? '' : this._Buffer._Text.substr(start, len);
         this._SettingValue = false;
-        this.SetSelectedText(TextBox.SelectedTextProperty, text);
+        this._SetValueInternal(TextBox.SelectedTextProperty, text);
         this._SettingValue = true;
     } else {
         this._SettingValue = false;
-        this.SetSelectedText("");
+        this._SetValueInternal(TextBox.SelectedTextProperty, "");
         this._SettingValue = true;
     }
 };
+TextBox.Instance._EmitSelectionChanged = function () {
+    this.SelectionChanged.RaiseAsync(this, {});
+};
+TextBox.Instance.GetDisplayText = function () {
+    return this.GetText();
+};
 TextBox.Instance._SyncText = function () {
     this._SettingValue = false;
-    this.SetValue(TextBox.TextProperty, this._Buffer);
+    this._SetValueInternal(TextBox.TextProperty, this._Buffer._Text);
     this._SettingValue = true;
+};
+TextBox.Instance._EmitTextChanged = function () {
+    this.TextChanged.RaiseAsync(this, {});
 };
 TextBox.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextBox) {
@@ -12964,36 +13692,58 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
     var propd;
     var start;
     var length;
-    var textLen;
-    /*if (args.Property === TextBox.AcceptsReturnProperty) {
-    NotImplemented("TextBox._OnPropertyChanged");
-    } else if (args.Property === TextBox.CaretBrushProperty) {
-    NotImplemented("TextBox._OnPropertyChanged");
-    } else if (args.Property === TextBox.FontSourceProperty) {
-    NotImplemented("TextBox._OnPropertyChanged");
-    } else if (args.Property === TextBox.IsReadOnlyProperty) {
-    NotImplemented("TextBox._OnPropertyChanged");
-    } else if (args.Property === TextBox.MaxLengthProperty) {
-    NotImplemented("TextBox._OnPropertyChanged");
-    } else */
-    if (args.Property === TextBox.SelectedTextProperty) {
+    var action;
+    var value;
+    var text;
+    if (args.Property._ID === TextBox.AcceptsReturnProperty._ID) {
+        this._AcceptsReturn = args.NewValue === true;
+    } else if (args.Property._ID === TextBox.CaretBrushProperty._ID) {
+    } else if (args.Property._ID === TextBox.IsReadOnlyProperty._ID) {
+        this._IsReadOnly = args.NewValue === true;
+        if (this._IsFocused) {
+            if (this._IsReadOnly) {
+                this._ResetIMContext();
+            } else {
+            }
+        }
+        if (this._View)
+            this._View.SetEnableCursor(!this._IsReadOnly);
+    } else if (args.Property._ID === TextBox.MaxLengthProperty._ID) {
+        this._MaxLength = args.NewValue === true;
+    } else if (args.Property._ID === TextBox.SelectedTextProperty._ID) {
         if (this._SettingValue) {
+            value = args.NewValue;
+            text = !value ? '' : value;
             length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
             start = Math.min(this._SelectionAnchor, this._SelectionCursor);
-            this.ClearSelection(start + textLen);
-            this._SyncAndEmit();
-            NotImplemented("TextBox._OnPropertyChanged");
+            if (text) {
+                if (length > 0) {
+                    action = new _TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length, text);
+                    this._Buffer.Replace(start, length, text);
+                } else if (text.length > 0) {
+                    action = new _TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
+                    this._Buffer.Insert(start, text);
+                }
+                if (action != null) {
+                    this._Emit |= _TextBoxEmitChanged.TEXT;
+                    this._Undo.Push(action);
+                    this._Redo.Clear();
+                    this.ClearSelection(start + text.length);
+                    this._ResetIMContext();
+                    this._SyncAndEmit();
+                }
+            }
         }
-    } else if (args.Property === TextBox.SelectionStartProperty) {
+    } else if (args.Property._ID === TextBox.SelectionStartProperty._ID) {
         length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
         start = args.NewValue;
-        if (start > this._Buffer.length) {
-            this.SetSelectionStart(this._Buffer.length);
+        if (start > this._Buffer.GetLength()) {
+            this.SetSelectionStart(this._Buffer.GetLength());
             return;
         }
-        if (start + length > this._Buffer.length) {
+        if (start + length > this._Buffer.GetLength()) {
             this._BatchPush();
-            length = this._Buffer.length - start;
+            length = this._Buffer.GetLength() - start;
             this.SetSelectionLength(length);
             this._BatchPop();
         }
@@ -13005,11 +13755,11 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         this._SelectionAnchor = start;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
         this._SyncAndEmit();
-    } else if (args.Property === TextBox.SelectionLengthProperty) {
+    } else if (args.Property._ID === TextBox.SelectionLengthProperty._ID) {
         start = Math.min(this._SelectionAnchor, this._SelectionCursor);
         length = args.NewValue;
-        if (start + length > this._Buffer.length) {
-            length = this._Buffer.length - start;
+        if (start + length > this._Buffer.GetLength()) {
+            length = this._Buffer.GetLength() - start;
             this.SetSelectionLength(length);
             return;
         }
@@ -13021,21 +13771,34 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         this._SelectionAnchor = start;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
         this._SyncAndEmit();
-    } else if (args.Property === TextBox.SelectionBackgroundProperty) {
+    } else if (args.Property._ID === TextBox.SelectionBackgroundProperty._ID) {
         changed = _TextBoxModelChanged.Brush;
-    } else if (args.Property === TextBox.SelectionForegroundProperty) {
+    } else if (args.Property._ID === TextBox.SelectionForegroundProperty._ID) {
         changed = _TextBoxModelChanged.Brush;
-    } else if (args.Property === TextBox.TextProperty) {
+    } else if (args.Property._ID === TextBox.TextProperty._ID) {
+        value = args.NewValue;
+        text = !value ? '' : value;
         if (this._SettingValue) {
-            this._Emit |= _TextBoxEmitChanged.TEXT;
-            this.ClearSelection(0);
-            this._SyncAndEmit(false);
-            NotImplemented("TextBox._OnPropertyChanged");
+            if (text) {
+                if (this._Buffer.GetLength() > 0) {
+                    action = new _TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.GetLength(), text);
+                    this._Buffer.Replace(0, this._Buffer.GetLength(), text);
+                } else {
+                    action = new _TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
+                    this._Buffer.Prepend(text);
+                }
+                this._Undo.Push(action);
+                this._Redo.Clear();
+                this._Emit |= _TextBoxEmitChanged.TEXT;
+                this.ClearSelection(0);
+                this._ResetIMContext();
+                this._SyncAndEmit(false);
+            }
         }
         changed = _TextBoxModelChanged.Text;
-    } else if (args.Property === TextBox.TextAlignmentProperty) {
+    } else if (args.Property._ID === TextBox.TextAlignmentProperty._ID) {
         changed = _TextBoxModelChanged.TextAlignment;
-    } else if (args.Property === TextBox.TextWrappingProperty) {
+    } else if (args.Property._ID === TextBox.TextWrappingProperty._ID) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
                 if (args.NewValue === TextWrapping.Wrap)
@@ -13045,7 +13808,7 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
             }
         }
         changed = _TextBoxModelChanged.TextWrapping
-    } else if (args.Property === TextBox.HorizontalScrollBarVisibilityProperty) {
+    } else if (args.Property._ID === TextBox.HorizontalScrollBarVisibilityProperty._ID) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
                 if (this.GetTextWrapping() === TextWrapping.Wrap)
@@ -13054,13 +13817,14 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
                     this._ContentElement.SetValue(propd, args.NewValue);
             }
         }
-    } else if (args.Property === TextBox.VerticalScrollBarVisibilityProperty) {
+    } else if (args.Property._ID === TextBox.VerticalScrollBarVisibilityProperty._ID) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
                 this._ContentElement.SetValue(propd, args.NewValue);
         }
     }
-    this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
+    if (changed !== _TextBoxModelChanged.Nothing)
+        this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
     this.PropertyChanged.Raise(this, args);
 };
 TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
@@ -13071,12 +13835,6 @@ TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     }
     if (propd == null || propd.OwnerType !== TextBox)
         this._OnSubPropertyChanged$TextBoxBase(propd, sender, args);
-};
-TextBox.Instance._EmitTextChanged = function () {
-    this.SelectionChanged.RaiseAsync(this, {});
-};
-TextBox.Instance._EmitSelectionChanged = function () {
-    this.TextChanged.RaiseAsync(this, {});
 };
 TextBox.Instance.OnMouseEnter = function (sender, args) {
     this._IsMouseOver = true;

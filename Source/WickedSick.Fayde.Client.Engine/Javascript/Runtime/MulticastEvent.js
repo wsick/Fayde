@@ -5,7 +5,7 @@
 var MulticastEvent = Nullstone.Create("MulticastEvent");
 
 MulticastEvent.Instance.Init = function () {
-    this._Listeners = new Array();
+    this._Listeners = [];
 };
 
 MulticastEvent.Instance.Subscribe = function (callback, closure) {

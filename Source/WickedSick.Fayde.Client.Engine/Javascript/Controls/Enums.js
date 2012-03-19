@@ -18,3 +18,28 @@ var _TextBoxEmitChanged = {
     SELECTION: 1 << 0,
     TEXT: 1 << 1
 };
+
+var Keys = {
+    Backspace: 8,
+    Enter: 13,
+
+    Left: 37,
+    Up: 38,
+    Right: 39,
+    Down: 40,
+
+    Home: 36,
+    End: 35,
+    
+    PageUp: 33,
+    PageDown: 34,
+
+    Insert: 45,
+    Delete: 46,
+
+    Esc: 27,
+
+    Shift: 16,
+    Ctrl: 17,
+    Alt: 18
+};

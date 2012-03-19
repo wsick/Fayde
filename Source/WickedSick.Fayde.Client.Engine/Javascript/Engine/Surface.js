@@ -420,10 +420,13 @@ Surface.Instance.RegisterEvents = function () {
     canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(event.button, surface._GetMousePosition(event)); });
     canvas.addEventListener("mouseout", function (e) { surface._HandleOut(surface._GetMousePosition(event)); });
     canvas.addEventListener("mousemove", function (e) { surface._HandleMove(surface._GetMousePosition(event)); });
-    canvas.addEventListener("mousewheel", function (e) { surface._HandleWheel(surface._GetMousePosition(event)); });
+    //canvas.addEventListener("mousewheel", function (e) { surface._HandleWheel(surface._GetMousePosition(event)); });
+    document.onkeypress = function (e) {
+        surface._HandleKeyPress(event);
+    };
 };
 
-//#region MOUSE
+//#region Mouse
 
 Surface.Instance._HandleButtonRelease = function (button, pos) {
     this._SetUserInitiatedEvent(true);
@@ -432,8 +435,10 @@ Surface.Instance._HandleButtonRelease = function (button, pos) {
     this._UpdateCursorFromInputList();
     if (this._Captured)
         this._PerformReleaseCapture();
+    this.GetCanvas().releaseCapture();
 };
 Surface.Instance._HandleButtonPress = function (button, pos) {
+    this.GetCanvas().setCapture();
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("down", button, pos);
     this._SetUserInitiatedEvent(false);
@@ -521,9 +526,9 @@ Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
 Surface.Instance._EmitMouseList = function (type, button, pos, list, endIndex) {
     if (endIndex === 0)
         return;
-    var i = 0;
     if (!endIndex || endIndex === -1)
         endIndex = list._Count;
+    var i = 0;
     for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
         node.UIElement._EmitMouseEvent(type, button, pos);
     }
@@ -569,7 +574,44 @@ Surface.Instance._PerformReleaseCapture = function () {
 
 //#endregion
 
-//#region FOCUS
+//#region Keyboard
+
+Surface.Instance._HandleKeyPress = function (eve) {
+    this._SetUserInitiatedEvent(true);
+    var handled = false;
+    if (this._FocusedElement != null) {
+        var focusToRoot = Surface._ElementPathToRoot(this._FocusedElement);
+        var modifiers = {
+            Shift: eve.shiftKey,
+            Ctrl: eve.ctrlKey,
+            Alt: eve.altKey
+        };
+        handled = this._EmitKeyDown(focusToRoot, modifiers, eve.keyCode);
+    }
+    if (!handled && eve.keyCode === 9) { //Tab
+        if (this._FocusedElement != null)
+            TabNavigationWalker.Focus(this._FocusedElement, eve.shiftKey);
+        else
+            this._EnsureElementFocused();
+    }
+    this._SetUserInitiatedEvent(false);
+    return handled;
+};
+Surface.Instance._EmitKeyDown = function (list, modifiers, keyCode, endIndex) {
+    if (endIndex === 0)
+        return;
+    if (!endIndex || endIndex === -1)
+        endIndex = list._Count;
+    var i = 0;
+    var args = new KeyEventArgs(modifiers, keyCode);
+    for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
+        node.UIElement._EmitKeyDown(args);
+    }
+};
+
+//#endregion
+
+//#region Focus
 
 Surface.Instance._FocusElement = function (uie) {
     /// <param name="uie" type="UIElement"></param>
@@ -588,6 +630,8 @@ Surface.Instance._FocusElement = function (uie) {
         this._EmitFocusChangeEventsAsync();
 
     return true;
+};
+Surface.Instance._EnsureElementFocused = function () {
 };
 Surface.Instance._EmitFocusChangeEventsAsync = function () {
     var surface = this;

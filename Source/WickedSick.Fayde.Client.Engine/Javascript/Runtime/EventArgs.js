@@ -34,3 +34,14 @@ MouseButtonEventArgs.Instance.Init = function (absolutePos) {
 
 Nullstone.FinishCreate(MouseButtonEventArgs);
 //#endregion
+
+//#region KeyEventArgs
+var KeyEventArgs = Nullstone.Create("KeyEventArgs", EventArgs, 2);
+
+KeyEventArgs.Instance.Init = function (modifiers, keyCode) {
+    this.Modifiers = modifiers;
+    this.KeyCode = keyCode;
+};
+
+Nullstone.FinishCreate(KeyEventArgs);
+//#endregion
