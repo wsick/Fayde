@@ -5855,8 +5855,12 @@ Surface.Instance._SetCursor = function (cursor) {
 Surface.Instance.RegisterEvents = function () {
     var surface = this;
     var canvas = this.GetCanvas();
-    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(event.button, surface._GetMousePosition(event)); });
-    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(event.button, surface._GetMousePosition(event)); });
+    canvas.addEventListener("mousedown", function (e) {
+        surface._HandleButtonPress(event.which ? event.which : event.button, surface._GetMousePosition(event));
+    }, false);
+    canvas.addEventListener("mouseup", function (e) {
+        surface._HandleButtonRelease(event.which ? event.which : event.button, surface._GetMousePosition(event));
+    }, false);
     canvas.addEventListener("mouseout", function (e) { surface._HandleOut(surface._GetMousePosition(event)); });
     canvas.addEventListener("mousemove", function (e) { surface._HandleMove(surface._GetMousePosition(event)); });
     document.onkeypress = function (e) {
@@ -5870,10 +5874,8 @@ Surface.Instance._HandleButtonRelease = function (button, pos) {
     this._UpdateCursorFromInputList();
     if (this._Captured)
         this._PerformReleaseCapture();
-    this.GetCanvas().releaseCapture();
 };
 Surface.Instance._HandleButtonPress = function (button, pos) {
-    this.GetCanvas().setCapture();
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("down", button, pos);
     this._SetUserInitiatedEvent(false);

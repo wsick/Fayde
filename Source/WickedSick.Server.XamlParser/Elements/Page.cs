@@ -70,7 +70,7 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("\t\t</script>");
 
             sb.AppendLine("\t\t</head>");
-            sb.AppendLine("\t<body style=\"margin: 0\">");
+            sb.AppendLine("\t<body onmousedown=\"return false;\" style=\"margin: 0\">");
             sb.AppendLine("\t\t<div>");
             sb.AppendLine("\t\t\t<div id=\"container\">");
             sb.AppendLine("\t\t\t\t<canvas id=\"canvas\" tabIndex=\"1\" width=\"600\" height=\"600\"></canvas>");
