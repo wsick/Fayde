@@ -5855,19 +5855,15 @@ Surface.Instance._SetCursor = function (cursor) {
 Surface.Instance.RegisterEvents = function () {
     var surface = this;
     var canvas = this.GetCanvas();
-    canvas.addEventListener("mousedown", function (e) {
-        surface._HandleButtonPress(event.which ? event.which : event.button, surface._GetMousePosition(event));
-    }, false);
-    canvas.addEventListener("mouseup", function (e) {
-        surface._HandleButtonRelease(event.which ? event.which : event.button, surface._GetMousePosition(event));
-    }, false);
-    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(surface._GetMousePosition(event)); });
-    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(surface._GetMousePosition(event)); });
-    document.onkeypress = function (e) {
-        surface._HandleKeyPress(event);
-    };
+    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(event ? event : e); });
+    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(event ? event : e); });
+    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(event ? event : e); });
+    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(event ? event : e); });
+    document.onkeypress = function (e) { surface._HandleKeyPress(event ? event : e); };
 };
-Surface.Instance._HandleButtonRelease = function (button, pos) {
+Surface.Instance._HandleButtonRelease = function (evt) {
+    var button = evt.which ? evt.which : evt.button;
+    var pos = this._GetMousePosition(evt);
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("up", button, pos);
     this._SetUserInitiatedEvent(false);
@@ -5875,7 +5871,9 @@ Surface.Instance._HandleButtonRelease = function (button, pos) {
     if (this._Captured)
         this._PerformReleaseCapture();
 };
-Surface.Instance._HandleButtonPress = function (button, pos) {
+Surface.Instance._HandleButtonPress = function (evt) {
+    var button = evt.which ? evt.which : evt.button;
+    var pos = this._GetMousePosition(evt);
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("down", button, pos);
     this._SetUserInitiatedEvent(false);
@@ -5885,11 +5883,13 @@ Surface.Instance._HandleWheel = function (pos) {
     this._HandleMouseEvent("wheel", null, pos);
     this._UpdateCursorFromInputList();
 };
-Surface.Instance._HandleMove = function (pos) {
+Surface.Instance._HandleMove = function (evt) {
+    var pos = this._GetMousePosition(event);
     this._HandleMouseEvent("move", null, pos);
     this._UpdateCursorFromInputList();
 };
-Surface.Instance._HandleOut = function (pos) {
+Surface.Instance._HandleOut = function (evt) {
+    var pos = this._GetMousePosition(event);
     this._HandleMouseEvent("out", null, pos);
 };
 Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
