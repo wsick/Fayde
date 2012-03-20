@@ -202,10 +202,11 @@ TextLayout.Instance.GetLineFromIndex = function (index) {
 };
 TextLayout.Instance.GetCursorFromXY = function (offset, x, y) {
     var line;
-    if (y < offset.Y)
-        return 0;
-    if (!(line = this.GetLineFromY(offset, y)))
-        return this._Length;
+    if (y < offset.Y) {
+        line = this._Lines[0];
+    } else if (!(line = this.GetLineFromY(offset, y))) {
+        line = this._Lines[this._Lines.length - 1];
+    }
     return line.GetCursorFromX(offset, x);
 };
 TextLayout.Instance.GetSelectionCursor = function (offset, pos) {
