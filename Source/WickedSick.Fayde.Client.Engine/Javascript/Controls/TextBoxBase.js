@@ -413,7 +413,7 @@ TextBoxBase.Instance.OnKeyDown = function (sender, args) {
         case Keys.Backspace:
             if (this._IsReadOnly)
                 break;
-            this._KeyDownBackSpace(args.Modifiers);
+            handled = this._KeyDownBackSpace(args.Modifiers);
             break;
         case Keys.Delete:
             if (this._IsReadOnly)
@@ -541,9 +541,99 @@ TextBoxBase.Instance.PostOnKeyDown = function (sender, args) {
 };
 
 TextBoxBase.Instance._KeyDownBackSpace = function (modifiers) {
+    if (modifiers.Shift || modifiers.Alt)
+        return false;
 
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var start = 0;
+    var length = 0;
+    var handled = false;
+
+    if (cursor !== anchor) {
+        length = Math.abs(cursor - anchor);
+        start = Math.min(anchor, cursor);
+    } else if (modifiers.Ctrl) {
+        start = this.CursorPrevWord(cursor);
+        length = cursor - start;
+    } else if (cursor > 0) {
+        if (cursor >= 2 && this._Buffer._Text && this._Buffer._Text.charAt(cursor - 2) == '\r' && this._Buffer._Text.charAt(cursor - 1) == '\n') {
+            start = cursor - 2;
+            length = 2;
+        } else {
+            start = cursor - 1;
+            length = 1;
+        }
+    }
+
+    if (length > 0) {
+        action = new _TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
+        this._Undo.Push(action);
+        this._Redo.Clear();
+
+        this._Buffer.Cut(start, length);
+        this._Emit |= _TextBoxEmitChanged.TEXT;
+        anchor = start;
+        cursor = start;
+        handled = true;
+    }
+
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        handled = true;
+    }
+
+    return handled;
 };
 TextBoxBase.Instance._KeyDownDelete = function (modifiers) {
+    if (modifiers.Shift || modifiers.Alt)
+        return false;
+
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var start = 0;
+    var length = 0;
+    var handled = false;
+
+    if (cursor !== anchor) {
+        length = Math.abs(cursor - anchor);
+        start = Math.min(anchor, cursor);
+    } else if (modifiers.Ctrl) {
+        //Ctrl+Delete => delete the word start at the cursor
+        length = this.CursorNextWord(cursor) - cursor;
+        start = cursor;
+    } else if (this._Buffer._Text && cursor < this._Buffer._Text.length) {
+        if (this._Buffer._Text.charAt(cursor) === '\r' && this._Buffer._Text.charAt(cursor + 1) === '\n')
+            length = 2;
+        else
+            length = 1;
+        start = cursor;
+    }
+
+    if (length > 0) {
+        action = new _TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
+        this._Undo.Push(action);
+        this._Redo.Clear();
+
+        this._Buffer.Cut(start, length);
+        this._Emit |= _TextBoxEmitChanged.TEXT;
+        handled = true;
+    }
+
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        handled = true;
+    }
+
+    return handled;
 };
 TextBoxBase.Instance._KeyDownPageDown = function (modifiers) {
     if (modifiers.Alt)

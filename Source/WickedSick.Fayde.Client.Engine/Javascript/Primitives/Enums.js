@@ -108,3 +108,9 @@ var DurationType = {
     Forever: 1,
     TimeSpan: 2
 };
+
+var RectOverlap = {
+    Out: 0,
+    In: 1,
+    Part: 2
+}

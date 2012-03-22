@@ -43,3 +43,10 @@ var Keys = {
     Ctrl: 17,
     Alt: 18
 };
+
+var Stretch = {
+    Fill: 0,
+    None: 1,
+    Uniform: 2,
+    UniformToFill: 3
+};

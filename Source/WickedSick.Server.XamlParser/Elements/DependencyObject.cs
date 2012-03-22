@@ -84,11 +84,11 @@ namespace WickedSick.Server.XamlParser.Elements
             return null;
         }
 
-        public string toJson(int tabIndent)
+        public virtual string toJson(int tabIndent)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendLine(string.Format("Type: {0},", GetType().Name));
+            sb.AppendLine(string.Format("Type: {0},", GetTypeName()));
             if (NameProperty != null && NameProperty.Length > 0)
             {
                 sb.Append(string.Format("Name: {0},", NameProperty));
@@ -136,6 +136,11 @@ namespace WickedSick.Server.XamlParser.Elements
 
             sb.AppendLine("}");
             return sb.ToString();
+        }
+
+        protected virtual string GetTypeName()
+        {
+            return GetType().Name;
         }
 
         private string propsToJson()

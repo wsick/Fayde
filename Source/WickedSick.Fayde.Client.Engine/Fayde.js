@@ -35,6 +35,12 @@ var Keys = {
     Ctrl: 17,
     Alt: 18
 };
+var Stretch = {
+    Fill: 0,
+    None: 1,
+    Uniform: 2,
+    UniformToFill: 3
+};
 
  var _VisualTreeWalkerDirection = {
     Logical: 0,
@@ -358,6 +364,11 @@ var DurationType = {
     Forever: 1,
     TimeSpan: 2
 };
+var RectOverlap = {
+    Out: 0,
+    In: 1,
+    Part: 2
+}
 
 var Nullstone = {};
 Nullstone._LastID = 0;
@@ -2243,6 +2254,14 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
+        if (!(propValue instanceof Expression)) {
+            var targetType = propd.GetTargetType();
+            if (targetType._IsNullstone && !(propValue instanceof targetType)) {
+                var setFunc = dobj["Set" + propName];
+                if (setFunc && setFunc.Converter && setFunc.Converter instanceof Function)
+                    propValue = setFunc.Converter(propValue);
+            }
+        }
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
         var func = dobj["Set" + propName];
@@ -2596,12 +2615,16 @@ Nullstone.FinishCreate(KeyTime);
 
 var Matrix = Nullstone.Create("Matrix");
 Matrix.Instance.Init = function (args) {
-    if (args.length === 1) {
+    if (args.length === 2) {
         this._Elements = args[0];
+        this._Inverse = args[1];
         return;
     }
     this._Elements = [1, 0, 0, 0, 1, 0];
     this._Identity = true;
+};
+Matrix.Instance.GetInverse = function () {
+    return new Matrix(this._Inverse, this._Elements);
 };
 Matrix.Instance.Apply = function (ctx) {
     var els = this._Elements;
@@ -2762,6 +2785,24 @@ Rect.Instance.RoundOut = function () {
 Rect.Instance.RoundIn = function () {
     return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
 }
+Rect.Instance.Transform = function (matrix) {
+    var topLeft = new Point(this.X, this.Y);
+    var bottomRight = new Point(this.X + this.Width, this.Y + this.Height);
+    topLeft = matrix.MultiplyPoint(topLeft);
+    bottomRight = matrix.MultiplyPoint(bottomRight);
+    return new Rect(Math.min(topLeft.X, bottomRight.X),
+        Math.min(topLeft.Y, bottomRight.Y),
+        Math.abs(bottomRight.X - topLeft.X),
+        Math.abs(bottomRight.Y - topLeft.Y));
+};
+Rect.Instance.RectIn = function (rect2) {
+    var inter = this.Intersection(rect2);
+    if (inter.IsEmpty())
+        return RectOverlap.Out;
+    if (Rect.Equals(rect2, inter))
+        return RectOverlap.In;
+    return RectOverlap.Part;
+};
 Rect.Equals = function (rect1, rect2) {
     if (rect1 == null && rect2 == null)
         return true;
@@ -2966,6 +3007,13 @@ Uri.Instance.GetFragment = function () {
 };
 Uri.Instance.toString = function () {
     return this._OriginalString;
+};
+Uri.IsNullOrEmpty = function (uri) {
+    if (uri == null)
+        return true;
+    if (uri._OriginalString)
+        return false;
+    return true;
 };
 Nullstone.FinishCreate(Uri);
 
@@ -3550,10 +3598,11 @@ TextLayout.Instance.GetLineFromIndex = function (index) {
 };
 TextLayout.Instance.GetCursorFromXY = function (offset, x, y) {
     var line;
-    if (y < offset.Y)
-        return 0;
-    if (!(line = this.GetLineFromY(offset, y)))
-        return this._Length;
+    if (y < offset.Y) {
+        line = this._Lines[0];
+    } else if (!(line = this.GetLineFromY(offset, y))) {
+        line = this._Lines[this._Lines.length - 1];
+    }
     return line.GetCursorFromX(offset, x);
 };
 TextLayout.Instance.GetSelectionCursor = function (offset, pos) {
@@ -4305,21 +4354,27 @@ _TextLayoutRun.Instance._GenerateCache = function () {
     var font = this._Attrs.GetFont();
     var len;
     var index = this._Start;
+    var cluster1;
+    var cluster2;
     if (selectionLength === 0 || this._Start < selectionStart) {
         len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, len), font));
+        cluster1 = new _TextLayoutGlyphCluster(text.substr(this._Start, len), font);
+        this._Clusters.push(cluster1);
         index += len;
     }
     var selectionEnd = selectionStart + selectionLength;
     var runEnd = this._Start + this._Length;
     if (index < runEnd && index < selectionEnd) {
         len = Math.min(runEnd - index, selectionEnd - index);
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font, true));
+        cluster2 = new _TextLayoutGlyphCluster(text.substr(index, len), font, true);
+        this._Clusters.push(cluster2);
         index += len;
     }
+    var cluster3;
     if (index < runEnd) {
         len = runEnd - index;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font));
+        cluster3 = new _TextLayoutGlyphCluster(text.substr(index, len), font);
+        this._Clusters.push(cluster3);
         index += len;
     }
 };
@@ -4372,7 +4427,7 @@ _TextBoxUndoActionDelete.Instance.Init = function (selectionAnchor, selectionCur
     this._SelectionCursor = selectionCursor;
     this._Start = start;
     this._Length = length;
-    this._Text = this._Buffer._Text.substr(start, length);
+    this._Text = buffer._Text.substr(start, length);
 };
 Nullstone.FinishCreate(_TextBoxUndoActionDelete);
 
@@ -5855,11 +5910,18 @@ Surface.Instance._SetCursor = function (cursor) {
 Surface.Instance.RegisterEvents = function () {
     var surface = this;
     var canvas = this.GetCanvas();
-    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(event ? event : e); });
-    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(event ? event : e); });
-    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(event ? event : e); });
-    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(event ? event : e); });
-    document.onkeypress = function (e) { surface._HandleKeyPress(event ? event : e); };
+    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(window.event ? window.event : e); });
+    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(window.event ? window.event : e); });
+    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(window.event ? window.event : e); });
+    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(window.event ? window.event : e); });
+    document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
+    document.onkeydown = function (e) {
+        e = window.event ? window.event : e;
+        if (e.keyCode === 8 || e.keyCode === 46) {
+            surface._HandleKeyPress(e);
+            return false;
+        }
+    };
 };
 Surface.Instance._HandleButtonRelease = function (evt) {
     var button = evt.which ? evt.which : evt.button;
@@ -7235,11 +7297,11 @@ UIElement.Instance.GetTag = function () {
 UIElement.Instance.SetTag = function (value) {
     this.SetValue(UIElement.TagProperty, value);
 };
-UIElement.Instance.SetVisualParent = function (/* UIElement */value) {
+UIElement.Instance.SetVisualParent = function (value) {
     this._VisualParent = value;
 };
 UIElement.Instance.GetVisualParent = function () {
-    return this._VisualParent; //UIElement
+    return this._VisualParent;
 };
 UIElement.Instance.IsLayoutContainer = function () { return false; };
 UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
@@ -8538,6 +8600,18 @@ GradientStopCollection.Instance.IsElementType = function (value) {
 };
 Nullstone.FinishCreate(GradientStopCollection);
 
+var ImageSource = Nullstone.Create("ImageSource", DependencyObject);
+ImageSource.Instance.Init = function () {
+    this.Init$DependencyObject();
+};
+ImageSource.Instance.GetPixelWidth = function () { return 0; };
+ImageSource.Instance.SetPixelWidth = function (width) { };
+ImageSource.Instance.GetPixelHeight = function () { return 0; };
+ImageSource.Instance.SetPixelHeight = function (height) { };
+ImageSource.Instance.Lock = function () { };
+ImageSource.Instance.Unlock = function () { };
+Nullstone.FinishCreate(ImageSource);
+
 var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", GradientBrush);
 LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
 LinearGradientBrush.Instance.GetStartPoint = function () {
@@ -8945,6 +9019,54 @@ Nullstone.FinishCreate(Timeline);
 
 var TimelineCollection = Nullstone.Create("TimelineCollection", Collection);
 Nullstone.FinishCreate(TimelineCollection);
+
+var BitmapSource = Nullstone.Create("BitmapSource", ImageSource);
+BitmapSource.Instance.Init = function () {
+    this.Init$ImageSource();
+    this.ResetImage();
+};
+BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
+BitmapSource.Instance.GetPixelWidth = function () {
+    return this.GetValue(BitmapSource.PixelWidthProperty);
+};
+BitmapSource.Instance.SetPixelWidth = function (value) {
+    this.SetValue(BitmapSource.PixelWidthProperty, value);
+};
+BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
+BitmapSource.Instance.GetPixelHeight = function () {
+    return this.GetValue(BitmapSource.PixelHeightProperty);
+};
+BitmapSource.Instance.SetPixelHeight = function (value) {
+    this.SetValue(BitmapSource.PixelHeightProperty, value);
+};
+BitmapSource.IntGreaterThanZeroValidator = function (instance, propd, value, error) {
+    if (typeof value !== "number")
+        return false;
+    return value > 0;
+};
+BitmapSource.Instance.ResetImage = function () {
+    this._Image = new Image();
+    var bs = this;
+    this._Image.onerror = function (e) { bs._OnErrored(e); };
+    this._Image.onload = function (e) { bs._OnLoad(e); };
+    this.SetPixelWidth(0);
+    this.SetPixelHeight(0);
+};
+BitmapSource.Instance.UriSourceChanged = function (oldValue, newValue) {
+    this._Image.src = newValue.toString();
+};
+BitmapSource.Instance._OnErrored = function (e) {
+    Info("Failed to load: " + this._Image.src.toString());
+    if (this._ErroredCallback)
+        this._ErroredCallback(e);
+};
+BitmapSource.Instance._OnLoad = function (e) {
+    this.SetPixelWidth(this._Image.naturalWidth);
+    this.SetPixelHeight(this._Image.naturalHeight);
+    if (this._LoadedCallback)
+        this._LoadedCallback(e);
+};
+Nullstone.FinishCreate(BitmapSource);
 
 var VisualState = Nullstone.Create("VisualState", DependencyObject);
 VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
@@ -10309,6 +10431,37 @@ Span.Instance._OnCollectionChanged = function (sender, args) {
 Nullstone.FinishCreate(Span);
 
 var ImageBrush = Nullstone.Create("ImageBrush", TileBrush);
+ImageBrush.Instance.Init = function () {
+    this.ImageFailed = new MulticastEvent();
+    this.ImageOpened = new MulticastEvent();
+};
+ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, null, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+ImageBrush.prototype.GetImageSource = function () {
+    return this.GetValue(ImageBrush.ImageSourceProperty);
+};
+ImageBrush.prototype.SetImageSource = function (value) {
+    this.SetValue(ImageBrush.ImageSourceProperty, value);
+};
+ImageBrush.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== ImageBrush) {
+        this._OnPropertyChanged$TileBrush(args, error);
+        return;
+    }
+    if (args.Property._ID === ImageBrush.ImageSourceProperty._ID) {
+        var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
+        if (oldBmpSrc != null) {
+            oldBmpSrc._ErroredCallback = null;
+            oldBmpSrc._LoadedCallback = null;
+        }
+        var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
+        if (newBmpSrc != null) {
+            var ib = this;
+            newBmpSrc._ErroredCallback = function () { ib.ImageFailed.Raise(this, new EventArgs()); };
+            newBmpSrc._LoadedCallback = function () { ib.ImageOpened.Raise(this, new EventArgs()); };
+        }
+    }
+    this.PropertyChanged.Raise(this, args);
+};
 Nullstone.FinishCreate(ImageBrush);
 
 var Animation = Nullstone.Create("Animation", Timeline);
@@ -10663,6 +10816,47 @@ StoryboardCollection.Instance.IsElementType = function (obj) {
     return obj instanceof Storyboard;
 };
 Nullstone.FinishCreate(StoryboardCollection);
+
+var BitmapImage = Nullstone.Create("BitmapImage", BitmapSource, 1);
+BitmapImage.Instance.Init = function (uri) {
+    this.Init$BitmapSource();
+    this.ImageFailed = new MulticastEvent();
+    this.ImageOpened = new MulticastEvent();
+    if (uri == null)
+        return;
+    this.SetUriSource(uri);
+};
+BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Uri; }, BitmapImage, new Uri(), null, null, true);
+BitmapImage.Instance.GetUriSource = function () {
+    return this.GetValue(BitmapImage.UriSourceProperty);
+};
+BitmapImage.Instance.SetUriSource = function (value) {
+    this.SetValue(BitmapImage.UriSourceProperty, value);
+};
+BitmapImage.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== BitmapImage) {
+        this._OnPropertyChanged$BitmapSource(args, error);
+        return;
+    }
+    if (args.Property._ID === BitmapImage.UriSourceProperty._ID) {
+        var uri = args.NewValue;
+        if (Uri.IsNullOrEmpty(uri)) {
+            this.ResetImage();
+        } else {
+            this.UriSourceChanged(args.OldValue, uri);
+        }
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+BitmapImage.Instance._OnErrored = function (e) {
+    this._OnErrored$BitmapSource(e);
+    this.ImageFailed.Raise(this, new EventArgs());
+};
+BitmapImage.Instance._OnLoad = function (e) {
+    this._OnLoad$BitmapSource(e);
+    this.ImageOpened.Raise(this, new EventArgs());
+};
+Nullstone.FinishCreate(BitmapImage);
 
 var Border = Nullstone.Create("Border", FrameworkElement);
 Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
@@ -11216,6 +11410,233 @@ Control.Instance.OnLostFocus = function (sender, args) {
 Control.Instance.OnIsEnabledChanged = function (args) {
 }
 Nullstone.FinishCreate(Control);
+
+Fayde.Image = Nullstone.Create("Image", FrameworkElement);
+Fayde.Image.Instance.Init = function () {
+    this.Init$FrameworkElement();
+    this.ImageFailed = new MulticastEvent();
+    this.ImageOpened = new MulticastEvent();
+};
+Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, null, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+Fayde.Image.Instance.GetSource = function () {
+    return this.GetValue(Fayde.Image.SourceProperty);
+};
+Fayde.Image.Instance.SetSource = function (value) {
+    value = this.SetSource.Converter(value);
+    this.SetValue(Fayde.Image.SourceProperty, value);
+};
+Fayde.Image.Instance.SetSource.Converter = function (value) {
+    if (value instanceof Uri)
+        return new BitmapImage(value);
+    return value;
+};
+Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Number; }, Fayde.Image, Stretch.Uniform);
+Fayde.Image.Instance.GetStretch = function () {
+    return this.GetValue(Fayde.Image.StretchProperty);
+};
+Fayde.Image.Instance.SetStretch = function (value) {
+    this.SetValue(Fayde.Image.StretchProperty, value);
+};
+Fayde.Image.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    var desired = availableSize;
+    var shapeBounds = new Rect();
+    var source = this.GetSource();
+    var sx = sy = 0.0;
+    if (source != null)
+        shapeBounds = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+    if (!isFinite(desired.Width))
+        desired.Width = shapeBounds.Width;
+    if (!isFinite(desired.Height))
+        desired.Height = shapeBounds.Height;
+    if (shapeBounds.Width > 0)
+        sx = desired.Width / shapeBounds.Width;
+    if (shapeBounds.Height > 0)
+        sy = desired.Height / shapeBounds.Height;
+    if (!isFinite(availableSize.Width))
+        sx = sy;
+    if (!isFinite(availableSize.Height))
+        sy = sx;
+    switch (this.GetStretch()) {
+        case Stretch.Uniform:
+            sx = sy = Math.min(sx, sy);
+            break;
+        case Stretch.UniformToFill:
+            sx = sy = Math.max(sx, sy);
+            break;
+        case Stretch.Fill:
+            if (!isFinite(availableSize.Width))
+                sx = sy;
+            if (!isFinite(availableSize.Height))
+                sy = sx;
+            break;
+        case Stretch.None:
+            sx = sy = 1.0;
+            break;
+    }
+    desired = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
+    return desired;
+};
+Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    var arranged = finalSize;
+    var shapeBounds = new Rect();
+    var source = this.GetSource();
+    var sx = 1.0;
+    var sy = 1.0;
+    if (source != null)
+        shapeBounds = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+    if (shapeBounds.Width === 0)
+        shapeBounds.Width = arranged.Width;
+    if (shapeBounds.Height === 0)
+        shapeBounds.Height = arguments.Height;
+    if (shapeBounds.Width !== arranged.Width)
+        sx = arranged.Width / shapeBounds.Width;
+    if (shapeBounds.Height !== arranged.Height)
+        sy = arranged.Height / shapeBounds.Height;
+    switch (this.GetStretch()) {
+        case Stretch.Uniform:
+            sx = sy = Math.min(sx, sy);
+            break;
+        case Stretch.UniformToFill:
+            sx = sy = Math.max(sx, sy);
+            break;
+        case Stretch.None:
+            sx = sy = 1.0;
+            break;
+        default:
+            break;
+    }
+    arranged = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
+    return arranged;
+};
+Fayde.Image.Instance._Render = function (ctx, region) {
+    var source = this.GetSource();
+    if (source == null)
+        return;
+    var stretch = this.GetStretch();
+    var specified = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var stretched = this._ApplySizeConstraints(specified);
+    var adjust = !Rect.Equals(specified, this._GetRenderSize());
+    source.Lock();
+    var pixelWidth = source.GetPixelWidth();
+    var pixelHeight = source.GetPixelHeight();
+    if (pixelWidth === 0 || pixelHeight === 0) {
+        source.Unlock();
+        return;
+    }
+    if (stretch !== Stretch.UniformToFill)
+        specified = specified.Min(stretched);
+    var paint = new Rect(0, 0, specified.Width, specified.Height);
+    var image = new Rect(0, 0, pixelWidth, pixelHeight);
+    if (stretch === Stretch.None)
+        paint = paint.Union(image);
+    var matrix = Fayde.Image.ComputeMatrix(paint.Width, paint.Height, image.Width, image.Height,
+        stretch, AlignmentX.Center, AlignmentY.Center);
+    if (adjust) {
+        var error = new BError();
+        this._MeasureOverrideWithError(specified, error);
+        paint = new Rect((stretched.Width - specified.Width) * 0.5, (stretched.Height - specified.Height) * 0.5, specified.Width, specified.Height);
+    }
+    var overlap = RectOverlap.In;
+    if (stretch === Stretch.UniformToFill || adjust) {
+        var bounds = new Rect(paint.RoundOut());
+        var box = image.Transform(matrix).RoundIn();
+        overlap = bounds.RectIn(box);
+    }
+    ctx.Save();
+    if (overlap !== RectOverlap.In || this._HasLayoutClip())
+        this._RenderLayoutClip(ctx);
+    ctx.Transform(matrix);
+    ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
+    ctx.Restore();
+    source.Unlock();
+};
+Fayde.Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && (propd._ID === Fayde.Image.SourceProperty._ID)) {
+        this._InvalidateMeasure();
+        this._Invalidate();
+        return;
+    }
+};
+Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== FrameworkElement) {
+        this._OnPropertyChanged$FrameworkElement(args, error);
+        return;
+    }
+    if (args.Property._ID === Fayde.Image.SourceProperty._ID) {
+        var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
+        if (oldBmpSrc != null) {
+            oldBmpSrc._ErroredCallback = null;
+            oldBmpSrc._LoadedCallback = null;
+        }
+        var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
+        if (newBmpSrc != null) {
+            var i = this;
+            newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
+            newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+        } else {
+            this._UpdateBounds();
+            this._Invalidate();
+        }
+        this._InvalidateMeasure();
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
+    var sx = width / sw;
+    var sy = height / sh;
+    if (width === 0)
+        sx = 1.0;
+    if (height === 0)
+        sy = 1.0;
+    if (stretch === Stretch.Fill) {
+        return new Matrix();
+    }
+    var scale = 1.0;
+    var dx = 0.0;
+    var dy = 0.0;
+    switch (stretch) {
+        case Stretch.Uniform:
+            scale = sx < sy ? sx : sy;
+            break;
+        case Stretch.UniformToFill:
+            scale = sx < sy ? sy : sx;
+            break;
+        case Stretch.None:
+            break;
+    }
+    switch (alignX) {
+        case AlignmentX.Left:
+            dx = 0.0;
+            break;
+        case AlignmentX.Center:
+            dx = (width - (scale * sw)) / 2;
+            break;
+        case AlignmentX.Right:
+        default:
+            dx = width - (scale * sw);
+            break;
+    }
+    switch (alignY) {
+        case AlignmentY.Top:
+            dy = 0.0;
+            break;
+        case AlignmentY.Center:
+            dy = (height - (scale * sh)) / 2;
+            break;
+        case AlignmentY.Bottom:
+        default:
+            dy = height - (scale * sh);
+            break;
+    }
+    return new Matrix([scale, 0, dx, 0, scale, dy],
+        [1 / scale, 0, -dx, 0, 1 / scale, -dy]);
+};
+Fayde.Image._ImagePainter = function (args) {
+    var ctx = args[0];
+    var img = args[1];
+    ctx.drawImage(img, 0, 0);
+};
+Nullstone.FinishCreate(Fayde.Image);
 
 var ItemCollection = {};//TODO: Implement
 var ItemsControl = Nullstone.Create("ItemsControl", Control);
@@ -12252,7 +12673,7 @@ TextBoxBase.Instance.OnKeyDown = function (sender, args) {
         case Keys.Backspace:
             if (this._IsReadOnly)
                 break;
-            this._KeyDownBackSpace(args.Modifiers);
+            handled = this._KeyDownBackSpace(args.Modifiers);
             break;
         case Keys.Delete:
             if (this._IsReadOnly)
@@ -12362,8 +12783,86 @@ TextBoxBase.Instance.PostOnKeyDown = function (sender, args) {
     this._SyncAndEmit();
 };
 TextBoxBase.Instance._KeyDownBackSpace = function (modifiers) {
+    if (modifiers.Shift || modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var start = 0;
+    var length = 0;
+    var handled = false;
+    if (cursor !== anchor) {
+        length = Math.abs(cursor - anchor);
+        start = Math.min(anchor, cursor);
+    } else if (modifiers.Ctrl) {
+        start = this.CursorPrevWord(cursor);
+        length = cursor - start;
+    } else if (cursor > 0) {
+        if (cursor >= 2 && this._Buffer._Text && this._Buffer._Text.charAt(cursor - 2) == '\r' && this._Buffer._Text.charAt(cursor - 1) == '\n') {
+            start = cursor - 2;
+            length = 2;
+        } else {
+            start = cursor - 1;
+            length = 1;
+        }
+    }
+    if (length > 0) {
+        action = new _TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
+        this._Undo.Push(action);
+        this._Redo.Clear();
+        this._Buffer.Cut(start, length);
+        this._Emit |= _TextBoxEmitChanged.TEXT;
+        anchor = start;
+        cursor = start;
+        handled = true;
+    }
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        handled = true;
+    }
+    return handled;
 };
 TextBoxBase.Instance._KeyDownDelete = function (modifiers) {
+    if (modifiers.Shift || modifiers.Alt)
+        return false;
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    var start = 0;
+    var length = 0;
+    var handled = false;
+    if (cursor !== anchor) {
+        length = Math.abs(cursor - anchor);
+        start = Math.min(anchor, cursor);
+    } else if (modifiers.Ctrl) {
+        length = this.CursorNextWord(cursor) - cursor;
+        start = cursor;
+    } else if (this._Buffer._Text && cursor < this._Buffer._Text.length) {
+        if (this._Buffer._Text.charAt(cursor) === '\r' && this._Buffer._Text.charAt(cursor + 1) === '\n')
+            length = 2;
+        else
+            length = 1;
+        start = cursor;
+    }
+    if (length > 0) {
+        action = new _TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
+        this._Undo.Push(action);
+        this._Redo.Clear();
+        this._Buffer.Cut(start, length);
+        this._Emit |= _TextBoxEmitChanged.TEXT;
+        handled = true;
+    }
+    if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._Emit |= _TextBoxEmitChanged.SELECTION;
+        handled = true;
+    }
+    return handled;
 };
 TextBoxBase.Instance._KeyDownPageDown = function (modifiers) {
     if (modifiers.Alt)

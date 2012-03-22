@@ -52,11 +52,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Fayde.js" />
+    <Content Include="Images\testing.jpg" />
     <Content Include="Javascript\Controls\ColumnDefinition.js" />
     <Content Include="Javascript\Controls\ColumnDefinitionCollection.js" />
     <Content Include="Javascript\Controls\ControlTemplate.js" />
     <Content Include="Javascript\Controls\Enums.js" />
     <Content Include="Javascript\Controls\GridLength.js" />
+    <Content Include="Javascript\Controls\Image.js" />
     <Content Include="Javascript\Controls\ItemsPresenter.js" />
     <Content Include="Javascript\Controls\MediaElement.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />
@@ -157,6 +159,9 @@
     <Content Include="Javascript\Media\Animation\ObjectKeyFrameCollection.js" />
     <Content Include="Javascript\Media\GradientStop.js" />
     <Content Include="Javascript\Media\GradientStopCollection.js" />
+    <Content Include="Javascript\Media\ImageSource.js" />
+    <Content Include="Javascript\Media\Imaging\BitmapImage.js" />
+    <Content Include="Javascript\Media\Imaging\BitmapSource.js" />
     <Content Include="Javascript\Primitives\KeyTime.js" />
     <Content Include="Javascript\Primitives\TimeSpan.js" />
     <Content Include="Javascript\Runtime\BError.js" />
@@ -246,6 +251,9 @@
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
+    <Content Include="Silo\silo1.html" />
+    <Content Include="Silo\silo2.html" />
+    <Content Include="Silo\silo3.html" />
     <Content Include="Styles\HyperlinkButton.xml" />
     <Content Include="Styles\TextBox.xml">
       <SubType>Designer</SubType>
@@ -267,6 +275,7 @@
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
     <None Include="Tests\basic.fayde" />
+    <None Include="Tests\imaging.fayde" />
     <None Include="Tests\smoke.fayde">
       <SubType>Designer</SubType>
     </None>

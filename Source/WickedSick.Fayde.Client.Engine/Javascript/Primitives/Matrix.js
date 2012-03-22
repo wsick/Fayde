@@ -5,14 +5,18 @@
 var Matrix = Nullstone.Create("Matrix");
 
 Matrix.Instance.Init = function (args) {
-    if (args.length === 1) {
+    if (args.length === 2) {
         this._Elements = args[0];
+        this._Inverse = args[1];
         return;
     }
     this._Elements = [1, 0, 0, 0, 1, 0];
     this._Identity = true;
 };
 
+Matrix.Instance.GetInverse = function () {
+    return new Matrix(this._Inverse, this._Elements);
+};
 Matrix.Instance.Apply = function (ctx) {
     var els = this._Elements;
     ctx.transform(els[0], els[3], els[1], els[4], els[2], els[5]);

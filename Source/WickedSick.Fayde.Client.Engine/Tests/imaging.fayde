@@ -1,0 +1,5 @@
+﻿<Page Title="Fayde Imaging">
+    <Grid Width="360" Height="300" Background="#FFFFFF00">
+        <Image Stretch="None" Source="../Images/testing.jpg" />
+    </Grid>
+</Page>

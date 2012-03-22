@@ -129,6 +129,7 @@ Media/Geometry.js
 Media/GradientBrush.js
 Media/GradientStop.js
 Media/GradientStopCollection.js
+Media/ImageSource.js
 Media/LinearGradientBrush.js
 Media/RadialGradientBrush.js
 Media/RectangleGeometry.js
@@ -140,6 +141,7 @@ Media/Animation/ObjectKeyFrame.js
 Media/Animation/ObjectKeyFrameCollection.js
 Media/Animation/Timeline.js
 Media/Animation/TimelineCollection.js
+Media/Imaging/BitmapSource.js
 Media/VSM/VisualState.js
 Media/VSM/VisualStateGroup.js
 Media/VSM/VisualStateManager.js
@@ -170,9 +172,11 @@ Media/Animation/DiscreteObjectKeyFrame.js
 Media/Animation/DoubleAnimation.js
 Media/Animation/ObjectAnimationUsingKeyFrames.js
 Media/Animation/Storyboard.js
+Media/Imaging/BitmapImage.js
 Controls/Border.js
 Controls/ContentPresenter.js
 Controls/Control.js
+Controls/Image.js
 Controls/ItemsControl.js
 Controls/ItemsPresenter.js
 Controls/MediaElement.js

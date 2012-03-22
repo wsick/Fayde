@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript" src="../jquery-1.7.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var testCanvas = document.getElementById("testCanvas");
+            document.onkeypress = function (e) {
+                if (window.console && window.console.info)
+                    window.console.info("keypress: " + e.keyCode);
+            };
+            document.onkeydown = function (e) { return test(window.event ? window.event : e); };
+        });
+        function test(e) {
+            if (window.console && window.console.info)
+                window.console.info("keydown: " + e.keyCode);
+            if ((e.keyCode ? e.keyCode : e.which) === 8)
+                return false;
+        }
+    </script>
+</head>
+<body>
+    <canvas id="testCanvas" tabindex="1" width="600" height="600" style="background-color: Black;">
+    </canvas>
+</body>
+</html>

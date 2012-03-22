@@ -64,6 +64,7 @@
     <Compile Include="Elements\Brush.cs" />
     <Compile Include="Elements\Button.cs" />
     <Compile Include="Elements\ButtonBase.cs" />
+    <Compile Include="Elements\Controls\Image.cs" />
     <Compile Include="Elements\ControlTemplate.cs" />
     <Compile Include="Elements\DependencyObject.cs" />
     <Compile Include="Elements\GradientStop.cs" />
@@ -71,13 +72,15 @@
     <Compile Include="Elements\IJsonSerializable.cs" />
     <Compile Include="Elements\Media\Animation\ColorAnimation.cs" />
     <Compile Include="Elements\Media\Animation\DoubleAnimation.cs" />
+    <Compile Include="Elements\Media\ImageSource.cs" />
+    <Compile Include="Elements\Media\Imaging\BitmapImage.cs" />
+    <Compile Include="Elements\Media\Imaging\BitmapSource.cs" />
     <Compile Include="Elements\Setter.cs" />
     <Compile Include="Elements\SolidColorBrush.cs" />
     <Compile Include="Elements\Media\Animation\Storyboard.cs" />
     <Compile Include="Elements\Style.cs" />
     <Compile Include="Elements\TextBox.cs" />
     <Compile Include="Elements\Media\Animation\Timeline.cs" />
-    <Compile Include="Elements\Visual.cs" />
     <Compile Include="Elements\AttachedProperty.cs" />
     <Compile Include="Elements\Border.cs" />
     <Compile Include="Elements\LinearGradientBrush.cs" />
@@ -109,13 +112,16 @@
     <Compile Include="TypeConverters\FontSizeConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
     <Compile Include="TypeConverters\HorizontalAlignmentConverter.cs" />
+    <Compile Include="TypeConverters\ImageSourceConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
     <Compile Include="TypeConverters\SetterValueConverter.cs" />
+    <Compile Include="TypeConverters\StretchConverter.cs" />
     <Compile Include="TypeConverters\TextWrappingConverter.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TypeConverters\ThicknessConverter.cs" />
+    <Compile Include="TypeConverters\UriConverter.cs" />
     <Compile Include="TypeConverters\UriTypeConverter.cs" />
     <Compile Include="TypeConverters\VerticalAlignmentConverter.cs" />
   </ItemGroup>

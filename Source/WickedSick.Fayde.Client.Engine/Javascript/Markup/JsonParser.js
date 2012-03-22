@@ -70,10 +70,21 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
 
     if (propValue instanceof Markup)
         propValue = propValue.Transmute(dobj, propd, this._TemplateBindingSource);
+
     //Set property value
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
+
+        if (!(propValue instanceof Expression)) {
+            var targetType = propd.GetTargetType();
+            if (targetType._IsNullstone && !(propValue instanceof targetType)) {
+                var setFunc = dobj["Set" + propName];
+                if (setFunc && setFunc.Converter && setFunc.Converter instanceof Function)
+                    propValue = setFunc.Converter(propValue);
+            }
+        }
+
         dobj.SetValue(propd, propValue);
     } else if (!isAttached) {
         var func = dobj["Set" + propName];

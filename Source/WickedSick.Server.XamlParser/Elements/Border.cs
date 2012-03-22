@@ -7,7 +7,7 @@ using WickedSick.Server.XamlParser.TypeConverters;
 namespace WickedSick.Server.XamlParser.Elements
 {
     [Element]
-    public class Border: FrameworkElement
+    public class Border : FrameworkElement
     {
         [Property]
         [BrushTypeConverter]
