@@ -544,7 +544,7 @@ Grid.Instance._OnPropertyChanged = function (args, error) {
         this._Invalidate();
     }
     this._InvalidateMeasure();
-    this.PropertyChange.Raise(this, args);
+    this.PropertyChanged.Raise(this, args);
 };
 Grid.Instance._OnCollectionChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Grid.ColumnDefinitionsProperty, sender)
