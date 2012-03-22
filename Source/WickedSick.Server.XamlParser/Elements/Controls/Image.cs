@@ -3,7 +3,7 @@ using WickedSick.Server.XamlParser.TypeConverters;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element]
+    [Element(NullstoneName = "Fayde.Image")]
     public class Image : FrameworkElement
     {
         [Property]
@@ -13,10 +13,5 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
         [Property]
         [ImageSourceConverter]
         public ImageSource Source { get; set; }
-
-        protected override string GetTypeName()
-        {
-            return "Fayde.Image";
-        }
     }
 }

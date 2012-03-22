@@ -140,7 +140,13 @@ namespace WickedSick.Server.XamlParser.Elements
 
         protected virtual string GetTypeName()
         {
-            return GetType().Name;
+            var elAttr = GetType()
+                .GetCustomAttributes(typeof(ElementAttribute), true)
+                .OfType<ElementAttribute>()
+                .FirstOrDefault();
+            if (elAttr == null || string.IsNullOrWhiteSpace(elAttr.NullstoneName))
+                return GetType().Name;
+            return elAttr.NullstoneName;
         }
 
         private string propsToJson()

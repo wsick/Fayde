@@ -10,18 +10,12 @@ namespace WickedSick.Server.XamlParser
     [AttributeUsage(AttributeTargets.Class, AllowMultiple=false)]
     public sealed class ElementAttribute : Attribute
     {
-        private string _elementName;
-
         public ElementAttribute()
         {
         }
 
-        public ElementAttribute(string elementName)
-        {
-            _elementName = elementName;
-        }
-
-        public string ElementName { get { return _elementName; } }
+        public string ElementName { get; set; }
+        public string NullstoneName { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
