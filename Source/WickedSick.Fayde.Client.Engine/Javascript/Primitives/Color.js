@@ -44,10 +44,6 @@ Color.Instance.Multiply = function (factor) {
     return new Color(this.R * factor, this.G * factor, this.B * factor, this.A * factor);
 };
 
-Color.Instance._Translate = function () {
-    return this.toString();
-};
-
 Color.Instance.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
 };

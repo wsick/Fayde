@@ -25,19 +25,20 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
-    ctx.CustomRender(_TextLayoutGlyphCluster.Painter, this._Text, brush, attrs.GetFont());
+    ctx.CustomRender(_TextLayoutGlyphCluster._Painter, this._Text, brush, attrs.GetFont());
     if (attrs.IsUnderlined()) {
         //TODO: Underline
     }
 };
-_TextLayoutGlyphCluster.Painter = function (args) {
+_TextLayoutGlyphCluster._Painter = function (args) {
     var canvasCtx = args[0];
     var text = args[1];
     var foreground = args[2];
     var font = args[3];
 
-    canvasCtx.fillStyle = foreground._Translate(canvasCtx);
-    canvasCtx.font = font._Translate();
+    foreground.SetupBrush(canvasCtx);
+    canvasCtx.fillStyle = foreground.ToHtml5Object();
+    canvasCtx.font = font.ToHtml5Object();
     canvasCtx.textAlign = "left";
     canvasCtx.textBaseline = "top";
     canvasCtx.fillText(text, 0, 0);

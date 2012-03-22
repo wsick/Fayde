@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Server.Framework
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Server.XamlParser", "WickedSick.Server.XamlParser\WickedSick.Server.XamlParser.csproj", "{8853F726-F37C-47C6-B153-33F1000E748E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.LitmusTests", "WickedSick.LitmusTests\WickedSick.LitmusTests.csproj", "{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{8853F726-F37C-47C6-B153-33F1000E748E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8853F726-F37C-47C6-B153-33F1000E748E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8853F726-F37C-47C6-B153-33F1000E748E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

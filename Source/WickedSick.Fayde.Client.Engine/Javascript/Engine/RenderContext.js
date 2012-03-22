@@ -54,7 +54,8 @@ _RenderContext.Instance.Restore = function () {
 };
 _RenderContext.Instance.Fill = function (region, brush) {
     if (region instanceof Rect) {
-        this._Surface._Ctx.fillStyle = brush._Translate(this._Surface._Ctx, region);
+        brush.SetupBrush(this._Surface._Ctx, region);
+        this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
         this._Surface._Ctx.fillRect(region.X, region.Y, region.Width, region.Height);
     }
 };

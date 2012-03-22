@@ -14,7 +14,7 @@ SolidColorBrush.Instance.Init = function (args) {
     }
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush);
 SolidColorBrush.Instance.GetColor = function () {
@@ -28,11 +28,12 @@ SolidColorBrush.Instance.SetColor = function (value) {
 
 //#endregion
 
-SolidColorBrush.Instance._Translate = function (ctx) {
+SolidColorBrush.Instance.SetupBrush = function (ctx, bounds) {
     var color = this.GetColor();
     if (color == null)
-        return "#000000";
-    return color.toString();
+        this._Brush = "#000000";
+    else
+        this._Brush = color.toString();
 };
 
 Nullstone.FinishCreate(SolidColorBrush);

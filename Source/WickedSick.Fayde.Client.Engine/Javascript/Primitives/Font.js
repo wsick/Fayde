@@ -78,7 +78,7 @@ Font.Instance._PurgeCache = function () {
     this._CachedTranslation = undefined;
 };
 
-Font.Instance._Translate = function () {
+Font.Instance.ToHtml5Object = function () {
     if (!this._CachedTranslation)
         this._CachedTranslation = this._BuildTranslation();
     return this._CachedTranslation;

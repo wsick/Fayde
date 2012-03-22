@@ -8,6 +8,7 @@
 var ImageBrush = Nullstone.Create("ImageBrush", TileBrush);
 
 ImageBrush.Instance.Init = function () {
+    this.Init$TileBrush();
     this.ImageFailed = new MulticastEvent();
     this.ImageOpened = new MulticastEvent();
 };
@@ -47,6 +48,9 @@ ImageBrush.Instance._OnPropertyChanged = function (args, error) {
     }
 
     this.PropertyChanged.Raise(this, args);
+};
+ImageBrush.Instance._SetupBrush = function (ctx, bounds) {
+    
 };
 
 Nullstone.FinishCreate(ImageBrush);

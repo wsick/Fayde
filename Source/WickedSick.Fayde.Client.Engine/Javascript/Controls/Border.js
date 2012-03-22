@@ -233,12 +233,14 @@ Border._Painter = function (args) {
             canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
     }
     if (backgroundBrush) {
-        canvasCtx.fillStyle = backgroundBrush._Translate(canvasCtx, pathRect);
+        backgroundBrush.SetupBrush(canvasCtx, pathRect);
+        canvasCtx.fillStyle = backgroundBrush.ToHtml5Object();
         canvasCtx.fill();
     }
     if (borderBrush && !thickness.IsEmpty()) {
         canvasCtx.lineWidth = thickness;
-        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx, pathRect);
+        borderBrush.SetupBrush(canvasCtx, pathRect);
+        canvasCtx.strokeStyle = borderBrush.ToHtml5Object();
         canvasCtx.stroke();
     }
     canvasCtx.closePath();

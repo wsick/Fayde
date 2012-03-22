@@ -23,8 +23,12 @@ Brush.Instance.SetChanged = function (value) {
 
 //#endregion
 
-Brush.Instance._Translate = function (ctx) {
-    AbstractMethod("Brush._Translate()");
+Brush.Instance.SetupBrush = function (ctx, bounds) {
+    /// <param name="ctx" type="CanvasRenderingContext2D">HTML5 Canvas Context</param>
+    /// <param name="bounds" type="Rect"></param>
+};
+Brush.Instance.ToHtml5Object = function () {
+    return this._Brush;
 };
 
 Brush.Instance._OnSubPropertyChanged = function (sender, args) {

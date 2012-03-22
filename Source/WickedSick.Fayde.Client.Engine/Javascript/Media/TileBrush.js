@@ -5,9 +5,9 @@
 //#region TileBrush
 var TileBrush = Nullstone.Create("TileBrush", Brush);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
-TileBrush.AlignmentXProperty = DependencyProperty.Register("AlignmentX", function () { return Number; }, TileBrush, AlignmentX.Center);
+TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return Number; }, TileBrush, AlignmentX.Center);
 TileBrush.Instance.GetAlignmentX = function () {
     return this.GetValue(TileBrush.AlignmentXProperty);
 };
@@ -15,7 +15,7 @@ TileBrush.Instance.SetAlignmentX = function (value) {
     this.SetValue(TileBrush.AlignmentXProperty, value);
 };
 
-TileBrush.AlignmentYProperty = DependencyProperty.Register("AlignmentY", function () { return Number; }, TileBrush, AlignmentY.Center);
+TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return Number; }, TileBrush, AlignmentY.Center);
 TileBrush.Instance.GetAlignmentY = function () {
     return this.GetValue(TileBrush.AlignmentYProperty);
 };
@@ -23,7 +23,7 @@ TileBrush.Instance.SetAlignmentY = function (value) {
     this.SetValue(TileBrush.AlignmentYProperty, value);
 };
 
-TileBrush.StretchProperty = DependencyProperty.Register("Stretch", function () { return Number; }, TileBrush, Stretch.Fill);
+TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Number; }, TileBrush, Stretch.Fill);
 TileBrush.Instance.GetStretch = function () {
     return this.GetValue(TileBrush.StretchProperty);
 };

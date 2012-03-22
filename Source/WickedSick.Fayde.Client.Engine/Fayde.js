@@ -2170,7 +2170,8 @@ _RenderContext.Instance.Restore = function () {
 };
 _RenderContext.Instance.Fill = function (region, brush) {
     if (region instanceof Rect) {
-        this._Surface._Ctx.fillStyle = brush._Translate(this._Surface._Ctx, region);
+        brush.SetupBrush(this._Surface._Ctx, region);
+        this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
         this._Surface._Ctx.fillRect(region.X, region.Y, region.Width, region.Height);
     }
 };
@@ -2441,9 +2442,6 @@ Color.Instance.Subtract = function (color2) {
 Color.Instance.Multiply = function (factor) {
     return new Color(this.R * factor, this.G * factor, this.B * factor, this.A * factor);
 };
-Color.Instance._Translate = function () {
-    return this.toString();
-};
 Color.Instance.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
 };
@@ -2575,7 +2573,7 @@ Font.Instance._PurgeCache = function () {
     this._CachedHeight = undefined;
     this._CachedTranslation = undefined;
 };
-Font.Instance._Translate = function () {
+Font.Instance.ToHtml5Object = function () {
     if (!this._CachedTranslation)
         this._CachedTranslation = this._BuildTranslation();
     return this._CachedTranslation;
@@ -4261,17 +4259,18 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
-    ctx.CustomRender(_TextLayoutGlyphCluster.Painter, this._Text, brush, attrs.GetFont());
+    ctx.CustomRender(_TextLayoutGlyphCluster._Painter, this._Text, brush, attrs.GetFont());
     if (attrs.IsUnderlined()) {
     }
 };
-_TextLayoutGlyphCluster.Painter = function (args) {
+_TextLayoutGlyphCluster._Painter = function (args) {
     var canvasCtx = args[0];
     var text = args[1];
     var foreground = args[2];
     var font = args[3];
-    canvasCtx.fillStyle = foreground._Translate(canvasCtx);
-    canvasCtx.font = font._Translate();
+    foreground.SetupBrush(canvasCtx);
+    canvasCtx.fillStyle = foreground.ToHtml5Object();
+    canvasCtx.font = font.ToHtml5Object();
     canvasCtx.textAlign = "left";
     canvasCtx.textBaseline = "top";
     canvasCtx.fillText(text, 0, 0);
@@ -6160,7 +6159,7 @@ Surface._MeasureWidth = function (text, font) {
     if (!Surface._TestCanvas)
         Surface._TestCanvas = document.createElement('canvas');
     var ctx = Surface._TestCanvas.getContext('2d');
-    ctx.font = font._Translate();
+    ctx.font = font.ToHtml5Object();
     return ctx.measureText(text).width;
 };
 Surface._MeasureHeight = function (font) {
@@ -6170,7 +6169,7 @@ Surface._MeasureHeight = function (font) {
     var dummy = document.createElement("div");
     var dummyText = document.createTextNode("M");
     dummy.appendChild(dummyText);
-    dummy.setAttribute("style", "font: " + font._Translate() + ";");
+    dummy.setAttribute("style", "font: " + font.ToHtml5Object() + ";");
     body.appendChild(dummy);
     var result = dummy.offsetHeight;
     body.removeChild(dummy);
@@ -8558,8 +8557,10 @@ Brush.Instance.GetChanged = function () {
 Brush.Instance.SetChanged = function (value) {
     this.SetValue(Brush.ChangedProperty, value);
 };
-Brush.Instance._Translate = function (ctx) {
-    AbstractMethod("Brush._Translate()");
+Brush.Instance.SetupBrush = function (ctx, bounds) {
+};
+Brush.Instance.ToHtml5Object = function () {
+    return this._Brush;
 };
 Brush.Instance._OnSubPropertyChanged = function (sender, args) {
     var newArgs = {
@@ -8657,7 +8658,7 @@ LinearGradientBrush.Instance.GetEndPoint = function () {
 LinearGradientBrush.Instance.SetEndPoint = function (value) {
     this.SetValue(LinearGradientBrush.EndPointProperty, value);
 };
-LinearGradientBrush.Instance._Translate = function (ctx, bounds) {
+LinearGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
     var transform = this._GetMappingModeTransform(bounds);
     var start = this.GetStartPoint().Apply(transform);
     var end = this.GetEndPoint().Apply(transform);
@@ -8665,9 +8666,9 @@ LinearGradientBrush.Instance._Translate = function (ctx, bounds) {
     var stops = this.GetGradientStops();
     for (var i = 0; i < stops.GetCount(); i++) {
         var stop = stops.GetValueAt(i);
-        grd.addColorStop(stop.GetOffset(), stop.GetColor()._Translate());
+        grd.addColorStop(stop.GetOffset(), stop.GetColor().toString());
     }
-    return grd;
+    this._Brush = grd;
 };
 Nullstone.FinishCreate(LinearGradientBrush);
 
@@ -8700,8 +8701,8 @@ RadialGradientBrush.Instance.GetRadiusY = function () {
 RadialGradientBrush.Instance.SetRadiusY = function (value) {
     this.SetValue(RadialGradientBrush.RadiusYProperty, value);
 };
-RadialGradientBrush.Instance._Translate = function (ctx, bounds) {
-    NotImplemented("RadialGradientBrush._Translate");
+RadialGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
+    NotImplemented("RadialGradientBrush.SetupBrush");
 };
 Nullstone.FinishCreate(RadialGradientBrush);
 
@@ -8741,30 +8742,31 @@ SolidColorBrush.Instance.GetColor = function () {
 SolidColorBrush.Instance.SetColor = function (value) {
     this.SetValue(SolidColorBrush.ColorProperty, value);
 };
-SolidColorBrush.Instance._Translate = function (ctx) {
+SolidColorBrush.Instance.SetupBrush = function (ctx, bounds) {
     var color = this.GetColor();
     if (color == null)
-        return "#000000";
-    return color.toString();
+        this._Brush = "#000000";
+    else
+        this._Brush = color;
 };
 Nullstone.FinishCreate(SolidColorBrush);
 
 var TileBrush = Nullstone.Create("TileBrush", Brush);
-TileBrush.AlignmentXProperty = DependencyProperty.Register("AlignmentX", function () { return Number; }, TileBrush, AlignmentX.Center);
+TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return Number; }, TileBrush, AlignmentX.Center);
 TileBrush.Instance.GetAlignmentX = function () {
     return this.GetValue(TileBrush.AlignmentXProperty);
 };
 TileBrush.Instance.SetAlignmentX = function (value) {
     this.SetValue(TileBrush.AlignmentXProperty, value);
 };
-TileBrush.AlignmentYProperty = DependencyProperty.Register("AlignmentY", function () { return Number; }, TileBrush, AlignmentY.Center);
+TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return Number; }, TileBrush, AlignmentY.Center);
 TileBrush.Instance.GetAlignmentY = function () {
     return this.GetValue(TileBrush.AlignmentYProperty);
 };
 TileBrush.Instance.SetAlignmentY = function (value) {
     this.SetValue(TileBrush.AlignmentYProperty, value);
 };
-TileBrush.StretchProperty = DependencyProperty.Register("Stretch", function () { return Number; }, TileBrush, Stretch.Fill);
+TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Number; }, TileBrush, Stretch.Fill);
 TileBrush.Instance.GetStretch = function () {
     return this.GetValue(TileBrush.StretchProperty);
 };
@@ -10462,6 +10464,7 @@ Nullstone.FinishCreate(Span);
 
 var ImageBrush = Nullstone.Create("ImageBrush", TileBrush);
 ImageBrush.Instance.Init = function () {
+    this.Init$TileBrush();
     this.ImageFailed = new MulticastEvent();
     this.ImageOpened = new MulticastEvent();
 };
@@ -10491,6 +10494,8 @@ ImageBrush.Instance._OnPropertyChanged = function (args, error) {
         }
     }
     this.PropertyChanged.Raise(this, args);
+};
+ImageBrush.Instance._SetupBrush = function () {
 };
 Nullstone.FinishCreate(ImageBrush);
 
@@ -11069,12 +11074,14 @@ Border._Painter = function (args) {
             canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
     }
     if (backgroundBrush) {
-        canvasCtx.fillStyle = backgroundBrush._Translate(canvasCtx, pathRect);
+        backgroundBrush.SetupBrush(canvasCtx, pathRect);
+        canvasCtx.fillStyle = backgroundBrush.ToHtml5Object();
         canvasCtx.fill();
     }
     if (borderBrush && !thickness.IsEmpty()) {
         canvasCtx.lineWidth = thickness;
-        canvasCtx.strokeStyle = borderBrush._Translate(canvasCtx, pathRect);
+        borderBrush.SetupBrush(canvasCtx, pathRect);
+        canvasCtx.strokeStyle = borderBrush.ToHtml5Object();
         canvasCtx.stroke();
     }
     canvasCtx.closePath();
@@ -13419,7 +13426,8 @@ _TextBoxView._CursorPainter = function (args) {
     canvasCtx.moveTo(rect.X + 0.5, rect.Y);
     canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
     canvasCtx.lineWidth = 1.0;
-    canvasCtx.strokeStyle = brush._Translate();
+    brush.SetupBrush(canvasCtx, rect);
+    canvasCtx.strokeStyle = brush.ToHtml5Object();
     canvasCtx.stroke();
 };
 Nullstone.FinishCreate(_TextBoxView);

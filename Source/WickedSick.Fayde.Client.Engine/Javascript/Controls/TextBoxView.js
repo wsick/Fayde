@@ -302,7 +302,8 @@ _TextBoxView._CursorPainter = function (args) {
     canvasCtx.moveTo(rect.X + 0.5, rect.Y);
     canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
     canvasCtx.lineWidth = 1.0;
-    canvasCtx.strokeStyle = brush._Translate();
+    brush.SetupBrush(canvasCtx, rect);
+    canvasCtx.strokeStyle = brush.ToHtml5Object();
     canvasCtx.stroke();
 };
 

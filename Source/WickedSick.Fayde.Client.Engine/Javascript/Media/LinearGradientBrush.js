@@ -6,7 +6,7 @@
 //#region LinearGradientBrush
 var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", GradientBrush);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
 LinearGradientBrush.Instance.GetStartPoint = function () {
@@ -30,10 +30,7 @@ LinearGradientBrush.Instance.SetEndPoint = function (value) {
 
 //#endregion
 
-LinearGradientBrush.Instance._Translate = function (ctx, bounds) {
-    /// <param name="ctx" type="CanvasRenderingContext2D">HTML5 Canvas Context</param>
-    /// <param name="bounds" type="Rect"></param>
-    /// <returns type="CanvasGradient" />
+LinearGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
     var transform = this._GetMappingModeTransform(bounds);
     var start = this.GetStartPoint().Apply(transform);
     var end = this.GetEndPoint().Apply(transform);
@@ -42,9 +39,9 @@ LinearGradientBrush.Instance._Translate = function (ctx, bounds) {
     var stops = this.GetGradientStops();
     for (var i = 0; i < stops.GetCount(); i++) {
         var stop = stops.GetValueAt(i);
-        grd.addColorStop(stop.GetOffset(), stop.GetColor()._Translate());
+        grd.addColorStop(stop.GetOffset(), stop.GetColor().toString());
     }
-    return grd;
+    this._Brush = grd;
 };
 
 Nullstone.FinishCreate(LinearGradientBrush);

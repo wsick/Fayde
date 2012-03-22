@@ -14,7 +14,7 @@ GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
     return new ScalingMatrix(bounds.Width, bounds.Height);
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.Instance.GetGradientStops = function () {

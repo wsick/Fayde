@@ -35,6 +35,7 @@ Fayde.Image.Instance.SetSource.Converter = function (value) {
     return value;
 };
 
+// http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
 Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Number; }, Fayde.Image, Stretch.Uniform);
 Fayde.Image.Instance.GetStretch = function () {
     ///<returns type="Number"></returns>
@@ -143,6 +144,8 @@ Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
 
 //#endregion
 
+//#region Hit Testing
+
 Fayde.Image.Instance._CanFindElement = function () { return true; };
 Fayde.Image.Instance._InsideObject = function (ctx, x, y) {
     if (!this._InsideObject$FrameworkElement(ctx, x, y))
@@ -163,6 +166,8 @@ Fayde.Image.Instance._InsideObject = function (ctx, x, y) {
     this._TransformPoint(np);
     return rect.ContainsPoint(np);
 };
+
+//#endregion
 
 Fayde.Image.Instance._Render = function (ctx, region) {
     // Just to get something working, we do all the matrix transforms for stretching.
@@ -230,6 +235,8 @@ Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
     };
 };
 
+//#region Property Changed
+
 Fayde.Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (propd != null && (propd._ID === Fayde.Image.SourceProperty._ID)) {
         this._InvalidateMeasure();
@@ -263,6 +270,8 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
 
     this.PropertyChanged.Raise(this, args);
 };
+
+//#endregion
 
 Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
     /// <param name="width" type="Number"></param>

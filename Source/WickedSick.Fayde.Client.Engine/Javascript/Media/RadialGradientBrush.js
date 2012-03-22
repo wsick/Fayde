@@ -42,8 +42,8 @@ RadialGradientBrush.Instance.SetRadiusY = function (value) {
 
 //#endregion
 
-RadialGradientBrush.Instance._Translate = function (ctx, bounds) {
-    NotImplemented("RadialGradientBrush._Translate");
+RadialGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
+    NotImplemented("RadialGradientBrush.SetupBrush");
 };
 
 Nullstone.FinishCreate(RadialGradientBrush);

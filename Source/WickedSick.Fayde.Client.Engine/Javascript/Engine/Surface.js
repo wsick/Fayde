@@ -8,6 +8,7 @@
 /// <reference path="../Runtime/EventArgs.js"/>
 /// <reference path="DirtyNode.js"/>
 /// <reference path="Clock.js"/>
+/// <reference path="../Primitives/Font.js"/>
 
 //#region Surface
 var Surface = Nullstone.Create("Surface", null, 1);
@@ -670,13 +671,16 @@ Surface.MeasureText = function (text, font) {
     return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
 };
 Surface._MeasureWidth = function (text, font) {
+    /// <param name="text" type="String"></param>
+    /// <param name="font" type="Font"></param>
     if (!Surface._TestCanvas)
         Surface._TestCanvas = document.createElement('canvas');
     var ctx = Surface._TestCanvas.getContext('2d');
-    ctx.font = font._Translate();
+    ctx.font = font.ToHtml5Object();
     return ctx.measureText(text).width;
 };
 Surface._MeasureHeight = function (font) {
+    /// <param name="font" type="Font"></param>
     if (font._CachedHeight)
         return font._CachedHeight;
 
@@ -684,7 +688,7 @@ Surface._MeasureHeight = function (font) {
     var dummy = document.createElement("div");
     var dummyText = document.createTextNode("M");
     dummy.appendChild(dummyText);
-    dummy.setAttribute("style", "font: " + font._Translate() + ";");
+    dummy.setAttribute("style", "font: " + font.ToHtml5Object() + ";");
     body.appendChild(dummy);
     var result = dummy.offsetHeight;
     body.removeChild(dummy);
