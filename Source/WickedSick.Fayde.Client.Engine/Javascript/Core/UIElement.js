@@ -77,7 +77,7 @@ UIElement.Instance.Init = function () {
     this.KeyUp.Subscribe(this.OnKeyUp, this);
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 UIElement.ClipProperty = DependencyProperty.Register("Clip", function () { return Geometry; }, UIElement);
 UIElement.Instance.GetClip = function () {
@@ -163,13 +163,15 @@ UIElement.Instance.SetTag = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
-UIElement.Instance.SetVisualParent = function (/* UIElement */value) {
+UIElement.Instance.SetVisualParent = function (value) {
+    /// <param name="value" type="UIElement"></param>
     this._VisualParent = value;
 };
 UIElement.Instance.GetVisualParent = function () {
-    return this._VisualParent; //UIElement
+    /// <returns type="UIElement" />
+    return this._VisualParent;
 };
 UIElement.Instance.IsLayoutContainer = function () { return false; };
 UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
@@ -436,6 +438,9 @@ UIElement.Instance._ShiftPosition = function (point) {
     this._Bounds.X = point.X;
     this._Bounds.Y = point.Y;
 };
+
+//#region Render
+
 UIElement.Instance._DoRender = function (ctx, parentRegion) {
     var region = this._GetSubtreeExtents();
     if (!region) {
@@ -477,6 +482,9 @@ UIElement.Instance._PostRender = function (ctx, region) {
         child._DoRender(ctx, region);
     }
 };
+
+//#endregion
+
 UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
     var clip = this.GetClip();
     var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);

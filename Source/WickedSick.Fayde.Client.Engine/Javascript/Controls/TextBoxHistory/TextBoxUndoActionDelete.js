@@ -10,7 +10,7 @@ _TextBoxUndoActionDelete.Instance.Init = function (selectionAnchor, selectionCur
     this._Start = start;
     this._Length = length;
 
-    this._Text = this._Buffer._Text.substr(start, length);
+    this._Text = buffer._Text.substr(start, length);
 };
 
 Nullstone.FinishCreate(_TextBoxUndoActionDelete);

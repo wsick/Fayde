@@ -29,7 +29,7 @@ FrameworkElement.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.Instance.GetHeight = function () {
@@ -244,6 +244,8 @@ FrameworkElement.Instance._GetSubtreeBounds = function () {
     return this._SurfaceBounds;
 };
 
+//#region Measure
+
 FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
         return;
@@ -324,6 +326,11 @@ FrameworkElement.Instance._MeasureOverrideWithError = function (availableSize, e
 
     return desired.Min(availableSize);
 };
+
+//#endregion
+
+//#region Arrange
+
 FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
@@ -530,6 +537,8 @@ FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error
     return arranged;
 };
 
+//#endregion
+
 FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (!this._GetRenderVisible())
         return;
@@ -732,6 +741,8 @@ FrameworkElement.Instance._ClearImplicitStyles = function (styleMask) {
     this._Providers[_PropertyPrecedence.ImplicitStyle].ClearStyles(styleMask, error);
 };
 
+//#region Template
+
 FrameworkElement.Instance.OnApplyTemplate = function () {
     this.TemplatedApplied.Raise(this, null);
 };
@@ -760,6 +771,10 @@ FrameworkElement.Instance._GetDefaultTemplate = function () {
         return this._GetDefaultTemplateCallback(this);
     return null;
 };
+
+//#endregion
+
+//#region Property Changed
 
 FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== FrameworkElement) {
@@ -802,6 +817,10 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
 FrameworkElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 };
 
+//#endregion
+
+//#region Loaded
+
 FrameworkElement.Instance.InvokeLoaded = function () {
 };
 FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
@@ -817,6 +836,10 @@ FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
     if (this._Providers[_PropertyPrecedence.InheritedDataContext])
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
+
+//#endregion
+
+//#region Parent
 
 FrameworkElement.Instance.SetVisualParent = function (/* UIElement */value) {
     this.SetVisualParent$UIElement(value);
@@ -862,6 +885,8 @@ FrameworkElement.Instance._OnLogicalParentChanged = function (oldParent, newPare
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
     }
 };
+
+//#endregion
 
 FrameworkElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
 

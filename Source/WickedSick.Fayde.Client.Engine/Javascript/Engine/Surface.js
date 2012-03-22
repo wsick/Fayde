@@ -416,12 +416,19 @@ Surface.Instance.RegisterEvents = function () {
     var surface = this;
     var canvas = this.GetCanvas();
 
-    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(event ? event : e); });
-    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(event ? event : e); });
-    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(event ? event : e); });
-    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(event ? event : e); });
+    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(window.event ? window.event : e); });
+    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(window.event ? window.event : e); });
+    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(window.event ? window.event : e); });
+    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(window.event ? window.event : e); });
     //canvas.addEventListener("mousewheel", function (e) { surface._HandleWheel(surface._GetMousePosition(event)); });
-    document.onkeypress = function (e) { surface._HandleKeyPress(event ? event : e); };
+    document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
+    document.onkeydown = function (e) {
+        e = window.event ? window.event : e;
+        if (e.keyCode === 8 || e.keyCode === 46) {
+            surface._HandleKeyPress(e);
+            return false;
+        }
+    };
 };
 
 //#region Mouse

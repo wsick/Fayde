@@ -21,10 +21,13 @@ _TextLayoutRun.Instance._GenerateCache = function () {
 
     var len;
     var index = this._Start;
+    var cluster1;
+    var cluster2;
     //glyph before selection
     if (selectionLength === 0 || this._Start < selectionStart) {
         len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(this._Start, len), font));
+        cluster1 = new _TextLayoutGlyphCluster(text.substr(this._Start, len), font);
+        this._Clusters.push(cluster1);
         index += len;
     }
 
@@ -33,14 +36,17 @@ _TextLayoutRun.Instance._GenerateCache = function () {
     var runEnd = this._Start + this._Length;
     if (index < runEnd && index < selectionEnd) {
         len = Math.min(runEnd - index, selectionEnd - index);
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font, true));
+        cluster2 = new _TextLayoutGlyphCluster(text.substr(index, len), font, true);
+        this._Clusters.push(cluster2);
         index += len;
     }
 
+    var cluster3;
     //glyph after selection
     if (index < runEnd) {
         len = runEnd - index;
-        this._Clusters.push(new _TextLayoutGlyphCluster(text.substr(index, len), font));
+        cluster3 = new _TextLayoutGlyphCluster(text.substr(index, len), font);
+        this._Clusters.push(cluster3);
         index += len;
     }
 };
