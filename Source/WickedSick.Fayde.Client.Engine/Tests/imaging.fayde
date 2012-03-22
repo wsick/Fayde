@@ -1,5 +1,16 @@
 ﻿<Page Title="Fayde Imaging">
-    <Grid Width="360" Height="300" Background="#FFFFFF00">
+    <Grid Background="#FFFFFF00">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400" />
+            <ColumnDefinition Width="400" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="400" />
+            <RowDefinition Height="400" />
+        </Grid.RowDefinitions>
         <Image Stretch="None" Source="../Images/testing.jpg" />
+        <Image Grid.Column="1" Stretch="Fill" Source="../Images/testing.jpg" />
+        <Image Grid.Row="1" Stretch="Uniform" Source="../Images/testing.jpg" />
+        <Image Grid.Row="1" Grid.Column="1" Stretch="UniformToFill" Source="../Images/testing.jpg" />
     </Grid>
 </Page>

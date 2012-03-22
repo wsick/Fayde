@@ -2616,7 +2616,10 @@ Nullstone.FinishCreate(KeyTime);
 var Matrix = Nullstone.Create("Matrix");
 Matrix.Instance.Init = function (args) {
     if (args.length === 2) {
-        this._Elements = args[0];
+        var els = args[0];
+        this._Elements = els;
+        this._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
+            && els[3] === 0 && els[4] === 1 && els[5] === 0;
         this._Inverse = args[1];
         return;
     }
@@ -2624,6 +2627,10 @@ Matrix.Instance.Init = function (args) {
     this._Identity = true;
 };
 Matrix.Instance.GetInverse = function () {
+    if (this._Identity)
+        return new Matrix();
+    if (!this._Inverse)
+        this._Inverse = Matrix.BuildInverse(this._Elements);
     return new Matrix(this._Inverse, this._Elements);
 };
 Matrix.Instance.Apply = function (ctx) {
@@ -2674,6 +2681,24 @@ Matrix.Instance.toString = function () {
     t = t.substr(0, t.length - 2);
     t += "\n]";
     return t;
+};
+Matrix.BuildInverse = function (arr) {
+    var det = Matrix.GetDeterminant(arr);
+    if (det === 0)
+        return null;
+    var a = arr[0];
+    var b = arr[1];
+    var c = arr[2];
+    var d = arr[3];
+    var e = arr[4];
+    var f = arr[5];
+    return [
+        e / det, -b / det, (b * f - c * e) / det,
+        -d / det, a / det, (c * d - a * f) / det
+    ];
+};
+Matrix.GetDeterminant = function (arr) {
+    return (arr[0] * arr[4]) - (arr[1] * arr[3]);
 };
 Nullstone.FinishCreate(Matrix);
 var TranslationMatrix = Nullstone.Create("TranslationMatrix", Matrix, 2);
@@ -11589,7 +11614,7 @@ Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, al
     if (height === 0)
         sy = 1.0;
     if (stretch === Stretch.Fill) {
-        return new Matrix();
+        return new ScalingMatrix(sx, sy);
     }
     var scale = 1.0;
     var dx = 0.0;

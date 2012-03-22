@@ -93,7 +93,7 @@ namespace WickedSick.Server.Framework.Fayde
             sb.AppendLine("\t<body onmousedown=\"return false;\" style=\"margin: 0\">");
             sb.AppendLine("\t\t<div>");
             sb.AppendLine("\t\t\t<div id=\"container\">");
-            sb.AppendLine("\t\t\t\t<canvas id=\"canvas\" tabindex=\"1\" width=\"600\" height=\"600\"></canvas>");
+            sb.AppendLine("\t\t\t\t<canvas id=\"canvas\" tabindex=\"1\" width=\"800\" height=\"800\"></canvas>");
             sb.AppendLine("\t\t\t</div>");
             sb.AppendLine("\t\t\t<div id=\"hud-mouse\" style=\"height: 25px;\"></div>");
             sb.AppendLine("\t\t\t<div id=\"hud-els\" style=\"height: 25px;\"></div>");

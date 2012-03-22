@@ -20,6 +20,8 @@ Matrix.Instance.Init = function (args) {
 Matrix.Instance.GetInverse = function () {
     if (this._Identity)
         return new Matrix();
+    if (!this._Inverse)
+        this._Inverse = Matrix.BuildInverse(this._Elements);
     return new Matrix(this._Inverse, this._Elements);
 };
 Matrix.Instance.Apply = function (ctx) {
@@ -74,6 +76,26 @@ Matrix.Instance.toString = function () {
     t = t.substr(0, t.length - 2);
     t += "\n]";
     return t;
+};
+
+Matrix.BuildInverse = function (arr) {
+    var det = Matrix.GetDeterminant(arr);
+    if (det === 0)
+        return null;
+    var a = arr[0];
+    var b = arr[1];
+    var c = arr[2];
+    var d = arr[3];
+    var e = arr[4];
+    var f = arr[5];
+    return [
+        e / det, -b / det, (b * f - c * e) / det,
+        -d / det, a / det, (c * d - a * f) / det
+    ];
+};
+Matrix.GetDeterminant = function (arr) {
+    //ad - bc
+    return (arr[0] * arr[4]) - (arr[1] * arr[3]);
 };
 
 Nullstone.FinishCreate(Matrix);
