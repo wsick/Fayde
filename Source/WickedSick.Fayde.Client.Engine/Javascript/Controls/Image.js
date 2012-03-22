@@ -143,6 +143,27 @@ Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
 
 //#endregion
 
+Fayde.Image.Instance._CanFindElement = function () { return true; };
+Fayde.Image.Instance._InsideObject = function (ctx, x, y) {
+    if (!this._InsideObject$FrameworkElement(ctx, x, y))
+        return false;
+    var source = this.GetSource();
+    if (!source)
+        return false;
+    var stretch = this.GetStretch();
+    if (stretch === Stretch.Fill || stretch === Stretch.UniformToFill)
+        return true;
+    var metrics = this._CalculateRenderMetrics(source);
+    if (!metrics)
+        return null;
+
+    var rect = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+    rect = rect.Transform(metrics.Matrix);
+    var np = new Point(x, y);
+    this._TransformPoint(np);
+    return rect.ContainsPoint(np);
+};
+
 Fayde.Image.Instance._Render = function (ctx, region) {
     // Just to get something working, we do all the matrix transforms for stretching.
     // Eventually, we can let the html5 canvas do all the dirty work.
@@ -151,19 +172,32 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     if (source == null)
         return;
 
+    source.Lock();
+    var metrics = this._CalculateRenderMetrics(source);
+    if (!metrics) {
+        source.Unlock();
+        return;
+    }
+
+    ctx.Save();
+    if (metrics.Overlap !== RectOverlap.In || this._HasLayoutClip())
+        this._RenderLayoutClip(ctx);
+    ctx.Transform(metrics.Matrix);
+    ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
+    ctx.Restore();
+
+    source.Unlock();
+};
+Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
     var stretch = this.GetStretch();
     var specified = new Size(this.GetActualWidth(), this.GetActualHeight());
     var stretched = this._ApplySizeConstraints(specified);
     var adjust = !Rect.Equals(specified, this._GetRenderSize());
 
-    source.Lock();
-
     var pixelWidth = source.GetPixelWidth();
     var pixelHeight = source.GetPixelHeight();
-    if (pixelWidth === 0 || pixelHeight === 0) {
-        source.Unlock();
-        return;
-    }
+    if (pixelWidth === 0 || pixelHeight === 0)
+        return null;
 
     if (stretch !== Stretch.UniformToFill)
         specified = specified.Min(stretched);
@@ -190,14 +224,10 @@ Fayde.Image.Instance._Render = function (ctx, region) {
         overlap = bounds.RectIn(box);
     }
 
-    ctx.Save();
-    if (overlap !== RectOverlap.In || this._HasLayoutClip())
-        this._RenderLayoutClip(ctx);
-    ctx.Transform(matrix);
-    ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
-    ctx.Restore();
-
-    source.Unlock();
+    return {
+        Matrix: matrix,
+        Overlap: overlap
+    };
 };
 
 Fayde.Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {

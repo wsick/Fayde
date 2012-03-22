@@ -2613,18 +2613,17 @@ KeyTime.Instance.IsUniform = function () {
 };
 Nullstone.FinishCreate(KeyTime);
 
-var Matrix = Nullstone.Create("Matrix");
-Matrix.Instance.Init = function (args) {
-    if (args.length === 2) {
-        var els = args[0];
-        this._Elements = els;
-        this._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
-            && els[3] === 0 && els[4] === 1 && els[5] === 0;
-        this._Inverse = args[1];
+var Matrix = Nullstone.Create("Matrix", null, 2);
+Matrix.Instance.Init = function (els, inverse) {
+    if (els === undefined) {
+        this._Elements = [1, 0, 0, 0, 1, 0];
+        this._Identity = true;
         return;
     }
-    this._Elements = [1, 0, 0, 0, 1, 0];
-    this._Identity = true;
+    this._Elements = els;
+    this._Inverse = inverse;
+    this._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
+        && els[3] === 0 && els[4] === 1 && els[5] === 0;
 };
 Matrix.Instance.GetInverse = function () {
     if (this._Identity)
@@ -2827,6 +2826,12 @@ Rect.Instance.RectIn = function (rect2) {
     if (Rect.Equals(rect2, inter))
         return RectOverlap.In;
     return RectOverlap.Part;
+};
+Rect.Instance.ContainsPoint = function (p) {
+    return this.X <= p.X
+        && this.Y <= p.Y
+        && (this.X + this.Width) >= p.X
+        && (this.Y + this.Height) >= p.Y;
 };
 Rect.Equals = function (rect1, rect2) {
     if (rect1 == null && rect2 == null)
@@ -7265,7 +7270,7 @@ UIElement.Instance.GetClip = function () {
 UIElement.Instance.SetClip = function (value) {
     this.SetValue(UIElement.ClipProperty, value);
 };
-UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement);
+UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
 UIElement.Instance.GetIsHitTestVisible = function () {
     return this.GetValue(UIElement.IsHitTestVisibleProperty);
 };
@@ -11533,21 +11538,52 @@ Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     arranged = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
     return arranged;
 };
+Fayde.Image.Instance._CanFindElement = function () { return true; };
+Fayde.Image.Instance._InsideObject = function (ctx, x, y) {
+    if (!this._InsideObject$FrameworkElement(ctx, x, y))
+        return false;
+    var source = this.GetSource();
+    if (!source)
+        return false;
+    var stretch = this.GetStretch();
+    if (stretch === Stretch.Fill || stretch === Stretch.UniformToFill)
+        return true;
+    var metrics = this._CalculateRenderMetrics(source);
+    if (!metrics)
+        return null;
+    var rect = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+    rect = rect.Transform(metrics.Matrix);
+    var np = new Point(x, y);
+    this._TransformPoint(np);
+    return rect.ContainsPoint(np);
+};
 Fayde.Image.Instance._Render = function (ctx, region) {
     var source = this.GetSource();
     if (source == null)
         return;
+    source.Lock();
+    var metrics = this._CalculateRenderMetrics(source);
+    if (!metrics) {
+        source.Unlock();
+        return;
+    }
+    ctx.Save();
+    if (metrics.Overlap !== RectOverlap.In || this._HasLayoutClip())
+        this._RenderLayoutClip(ctx);
+    ctx.Transform(metrics.Matrix);
+    ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
+    ctx.Restore();
+    source.Unlock();
+};
+Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
     var stretch = this.GetStretch();
     var specified = new Size(this.GetActualWidth(), this.GetActualHeight());
     var stretched = this._ApplySizeConstraints(specified);
     var adjust = !Rect.Equals(specified, this._GetRenderSize());
-    source.Lock();
     var pixelWidth = source.GetPixelWidth();
     var pixelHeight = source.GetPixelHeight();
-    if (pixelWidth === 0 || pixelHeight === 0) {
-        source.Unlock();
-        return;
-    }
+    if (pixelWidth === 0 || pixelHeight === 0)
+        return null;
     if (stretch !== Stretch.UniformToFill)
         specified = specified.Min(stretched);
     var paint = new Rect(0, 0, specified.Width, specified.Height);
@@ -11567,13 +11603,10 @@ Fayde.Image.Instance._Render = function (ctx, region) {
         var box = image.Transform(matrix).RoundIn();
         overlap = bounds.RectIn(box);
     }
-    ctx.Save();
-    if (overlap !== RectOverlap.In || this._HasLayoutClip())
-        this._RenderLayoutClip(ctx);
-    ctx.Transform(matrix);
-    ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
-    ctx.Restore();
-    source.Unlock();
+    return {
+        Matrix: matrix,
+        Overlap: overlap
+    };
 };
 Fayde.Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (propd != null && (propd._ID === Fayde.Image.SourceProperty._ID)) {

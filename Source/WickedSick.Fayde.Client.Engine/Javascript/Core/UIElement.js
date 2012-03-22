@@ -91,7 +91,7 @@ UIElement.Instance.SetClip = function (value) {
 //UIElement.EffectProperty;
 //UIElement.ProjectionProperty;
 
-UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement);
+UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
 UIElement.Instance.GetIsHitTestVisible = function () {
     return this.GetValue(UIElement.IsHitTestVisibleProperty);
 };

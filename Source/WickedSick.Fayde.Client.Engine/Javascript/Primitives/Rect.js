@@ -83,6 +83,13 @@ Rect.Instance.RectIn = function (rect2) {
         return RectOverlap.In;
     return RectOverlap.Part;
 };
+Rect.Instance.ContainsPoint = function (p) {
+    /// <param name="p" type="Point"></param>
+    return this.X <= p.X
+        && this.Y <= p.Y
+        && (this.X + this.Width) >= p.X
+        && (this.Y + this.Height) >= p.Y;
+};
 Rect.Equals = function (rect1, rect2) {
     /// <returns type="Boolean" />
     if (rect1 == null && rect2 == null)

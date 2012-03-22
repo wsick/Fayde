@@ -2,19 +2,18 @@
 /// CODE
 
 //#region Matrix
-var Matrix = Nullstone.Create("Matrix");
+var Matrix = Nullstone.Create("Matrix", null, 2);
 
-Matrix.Instance.Init = function (args) {
-    if (args.length === 2) {
-        var els = args[0];
-        this._Elements = els;
-        this._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
-            && els[3] === 0 && els[4] === 1 && els[5] === 0;
-        this._Inverse = args[1];
+Matrix.Instance.Init = function (els, inverse) {
+    if (els === undefined) {
+        this._Elements = [1, 0, 0, 0, 1, 0];
+        this._Identity = true;
         return;
     }
-    this._Elements = [1, 0, 0, 0, 1, 0];
-    this._Identity = true;
+    this._Elements = els;
+    this._Inverse = inverse;
+    this._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
+        && els[3] === 0 && els[4] === 1 && els[5] === 0;
 };
 
 Matrix.Instance.GetInverse = function () {
