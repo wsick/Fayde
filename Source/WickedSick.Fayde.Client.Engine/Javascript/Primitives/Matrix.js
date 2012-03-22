@@ -6,7 +6,10 @@ var Matrix = Nullstone.Create("Matrix");
 
 Matrix.Instance.Init = function (args) {
     if (args.length === 2) {
-        this._Elements = args[0];
+        var els = args[0];
+        this._Elements = els;
+        this._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
+            && els[3] === 0 && els[4] === 1 && els[5] === 0;
         this._Inverse = args[1];
         return;
     }
@@ -15,6 +18,8 @@ Matrix.Instance.Init = function (args) {
 };
 
 Matrix.Instance.GetInverse = function () {
+    if (this._Identity)
+        return new Matrix();
     return new Matrix(this._Inverse, this._Elements);
 };
 Matrix.Instance.Apply = function (ctx) {
