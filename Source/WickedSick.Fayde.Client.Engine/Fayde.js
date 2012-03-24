@@ -5732,7 +5732,7 @@ Surface.Instance.ProcessDirtyElements = function () {
     var error = new BError();
     var dirty = this._UpdateLayout(error);
     if (error.IsErrored()) {
-        Fatal(error);
+        throw error.CreateException();
     }
     return dirty;
 };
@@ -5940,11 +5940,6 @@ Surface.Instance._IsTopLevel = function (top) {
         ret = Nullstone.RefEquals(top, layer);
     }
     return ret;
-};
-Surface.Instance._SetUserInitiatedEvent = function (val) {
-    this._EmitFocusChangeEvents();
-    this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
-    this._UserInitiatedEvent = val;
 };
 Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
@@ -6159,15 +6154,18 @@ Surface.Instance._EmitFocusList = function (type, list) {
         node.UIElement._EmitFocusChange(type);
     }
 };
+Surface.Instance._SetUserInitiatedEvent = function (val) {
+    this._EmitFocusChangeEvents();
+    this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
+    this._UserInitiatedEvent = val;
+};
 Surface.MeasureText = function (text, font) {
     return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
 };
 Surface._MeasureWidth = function (text, font) {
-    if (!Surface._TestCanvas)
-        Surface._TestCanvas = document.createElement('canvas');
-    var ctx = Surface._TestCanvas.getContext('2d');
-    ctx.font = font.ToHtml5Object();
-    return ctx.measureText(text).width;
+    var test = Surface._EnsureTestCanvas();
+    test.Context.font = font.ToHtml5Object();
+    return test.Context.measureText(text).width;
 };
 Surface._MeasureHeight = function (font) {
     if (font._CachedHeight)
@@ -6196,6 +6194,19 @@ Surface._ElementPathToRoot = function (source) {
         source = source.GetVisualParent();
     }
     return list;
+};
+Surface._EnsureTestCanvas = function () {
+    var canvas = Surface._TestCanvas;
+    var ctx = Surface._TestCanvasContext;
+    if (!ctx) {
+        if (!canvas)
+            canvas = Surface._TestCanvas = document.createElement('canvas');
+        ctx = Surface._TestCanvasContext = canvas.getContext('2d');
+    }
+    return {
+        Canvas: canvas,
+        Context: ctx
+    };
 };
 Nullstone.FinishCreate(Surface);
 
@@ -10506,7 +10517,12 @@ ImageBrush.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-ImageBrush.Instance._SetupBrush = function (ctx, bounds) {
+ImageBrush.Instance.SetupBrush = function (ctx, bounds) {
+    var source = this.GetSource();
+    if (source == null)
+        return null;
+    var pattern = ctx.createPattern(source._Image, "no-repeat");
+    NotImplemented("ImageBrush.SetupBrush");
 };
 Nullstone.FinishCreate(ImageBrush);
 

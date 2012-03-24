@@ -280,6 +280,7 @@
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
     <None Include="Tests\basic.fayde" />
+    <None Include="Tests\brush.fayde" />
     <None Include="Tests\imagebrush.fayde" />
     <None Include="Tests\imaging.fayde">
       <SubType>Designer</SubType>
@@ -294,7 +295,9 @@
       <Name>WickedSick.Server.Framework.Fayde</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Javascript\Shapes\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>

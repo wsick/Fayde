@@ -49,8 +49,14 @@ ImageBrush.Instance._OnPropertyChanged = function (args, error) {
 
     this.PropertyChanged.Raise(this, args);
 };
-ImageBrush.Instance._SetupBrush = function (ctx, bounds) {
-    
+
+ImageBrush.Instance.SetupBrush = function (ctx, bounds) {
+    var source = this.GetSource();
+    if (source == null)
+        return null;
+
+    var pattern = ctx.createPattern(source._Image, "no-repeat");
+    NotImplemented("ImageBrush.SetupBrush");
 };
 
 Nullstone.FinishCreate(ImageBrush);

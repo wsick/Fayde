@@ -159,6 +159,8 @@ Surface.Instance.Render = function (region) {
 
 //#endregion
 
+//#region Update
+
 Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
     this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded, this);
@@ -176,7 +178,7 @@ Surface.Instance.ProcessDirtyElements = function () {
     var error = new BError();
     var dirty = this._UpdateLayout(error);
     if (error.IsErrored()) {
-        Fatal(error);
+        throw error.CreateException();
     }
     return dirty;
 };
@@ -425,11 +427,7 @@ Surface.Instance._IsTopLevel = function (top) {
     return ret;
 };
 
-Surface.Instance._SetUserInitiatedEvent = function (val) {
-    this._EmitFocusChangeEvents();
-    this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
-    this._UserInitiatedEvent = val;
-};
+//#endregion
 
 //#region Cursor
 
@@ -684,17 +682,22 @@ Surface.Instance._EmitFocusList = function (type, list) {
 
 //#endregion
 
+Surface.Instance._SetUserInitiatedEvent = function (val) {
+    this._EmitFocusChangeEvents();
+    this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
+    this._UserInitiatedEvent = val;
+};
+
+
 Surface.MeasureText = function (text, font) {
     return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
 };
 Surface._MeasureWidth = function (text, font) {
     /// <param name="text" type="String"></param>
     /// <param name="font" type="Font"></param>
-    if (!Surface._TestCanvas)
-        Surface._TestCanvas = document.createElement('canvas');
-    var ctx = Surface._TestCanvas.getContext('2d');
-    ctx.font = font.ToHtml5Object();
-    return ctx.measureText(text).width;
+    var test = Surface._EnsureTestCanvas();
+    test.Context.font = font.ToHtml5Object();
+    return test.Context.measureText(text).width;
 };
 Surface._MeasureHeight = function (font) {
     /// <param name="font" type="Font"></param>
@@ -726,6 +729,19 @@ Surface._ElementPathToRoot = function (source) {
         source = source.GetVisualParent();
     }
     return list;
+};
+Surface._EnsureTestCanvas = function () {
+    var canvas = Surface._TestCanvas;
+    var ctx = Surface._TestCanvasContext;
+    if (!ctx) {
+        if (!canvas)
+            canvas = Surface._TestCanvas = document.createElement('canvas');
+        ctx = Surface._TestCanvasContext = canvas.getContext('2d');
+    }
+    return {
+        Canvas: canvas,
+        Context: ctx
+    };
 };
 
 Nullstone.FinishCreate(Surface);
