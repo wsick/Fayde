@@ -1,4 +1,6 @@
-﻿var Nullstone = {};
+﻿/// <reference path="JsEx.js"/>
+
+var Nullstone = {};
 Nullstone._LastID = 0;
 Nullstone._LastTypeID = 1;
 Nullstone.Create = function (typeName, parent, argCount) {

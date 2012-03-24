@@ -10,7 +10,7 @@ var Collection = Nullstone.Create("Collection", DependencyObject);
 
 Collection.Instance.Init = function () {
     this.Init$DependencyObject();
-    this._ht = new Array();
+    this._ht = [];
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();
 };
@@ -68,7 +68,7 @@ Collection.Instance.RemoveAt = function (index) {
 Collection.Instance.Clear = function () {
     this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
     var old = this._ht;
-    this._ht = new Array();
+    this._ht = [];
     for (var i = 0; i < old.length; i++) {
         this.RemovedFromCollection(old[i], true);
     }

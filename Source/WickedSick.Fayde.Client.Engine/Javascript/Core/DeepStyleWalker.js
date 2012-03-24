@@ -7,7 +7,7 @@
 var _DeepStyleWalker = Nullstone.Create("_DeepStyleWalker", null, 1);
 
 _DeepStyleWalker.Instance.Init = function (styles) {
-    this._Setters = new Array();
+    this._Setters = [];
     this._Offset = 0;
 
     if (styles instanceof Style)
@@ -26,7 +26,7 @@ _DeepStyleWalker.Instance.Step = function () {
     return undefined;
 };
 _DeepStyleWalker.Instance._InitializeStyle = function (style) {
-    var dps = new Array();
+    var dps = [];
     var cur = style;
     while (cur) {
         var setters = cur.GetSetters();
@@ -46,8 +46,8 @@ _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
     if (!styles)
         return;
 
-    var dps = new Array();
-    var stylesSeen = new Array();
+    var dps = [];
+    var stylesSeen = [];
     for (var i = 0; i < _StyleIndex.Count; i++) {
         var style = styles[i];
         while (style != null) {

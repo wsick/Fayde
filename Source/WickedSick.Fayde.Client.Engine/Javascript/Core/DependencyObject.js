@@ -17,12 +17,12 @@ var DependencyObject = Nullstone.Create("DependencyObject");
 
 DependencyObject.Instance.Init = function () {
     this._IsAttached = false;
-    this._Providers = new Array();
+    this._Providers = [];
     this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
     this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
     this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
-    this._ProviderBitmasks = new Array();
-    this._SecondaryParents = new Array();
+    this._ProviderBitmasks = [];
+    this._SecondaryParents = [];
     this.PropertyChanged = new MulticastEvent();
     this._SubPropertyListeners = [];
 };
@@ -851,7 +851,7 @@ DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
 DependencyObject.Instance._AttachAnimationStorage = function (propd, storage) {
     var attachedStorage = null;
     if (this._StorageRepo == null)
-        this._StorageRepo = new Array();
+        this._StorageRepo = [];
 
     var list = this._StorageRepo[propd];
     if (list == null) {

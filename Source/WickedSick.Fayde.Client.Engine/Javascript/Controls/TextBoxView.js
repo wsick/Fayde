@@ -1,8 +1,8 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
-/// <reference path="../Primitives/Rect.js"/>
-/// <reference path="../TextLayout/TextLayout.js"/>
 /// CODE
+/// <reference path="../Primitives/Rect.js"/>
+/// <reference path="../Text/TextLayout.js"/>
 /// <reference path="TextBoxBase.js"/>
 /// <reference path="../Primitives/Enums.js"/>
 

@@ -10,7 +10,7 @@ _ImplicitStylePropertyValueProvider.Instance.Init = function (obj, propPrecedenc
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._Styles = null;
     this._StyleMask = _StyleMask.None;
-    this._ht = new Array();
+    this._ht = [];
 }
 
 _ImplicitStylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
@@ -105,7 +105,7 @@ _ImplicitStylePropertyValueProvider.Instance.SetStyles = function (styleMask, st
     if (!styles)
         return;
 
-    var newStyles = new Array();
+    var newStyles = [];
     if (this._Styles) {
         newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
         newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];

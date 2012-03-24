@@ -6,7 +6,7 @@
 var Clock = Nullstone.Create("Clock");
 
 Clock.Instance.Init = function () {
-    this._Timers = new Array();
+    this._Timers = [];
 };
 
 Clock.Instance.RegisterTimer = function (timer) {

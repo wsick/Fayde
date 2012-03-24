@@ -9,7 +9,7 @@ var _InheritedPropertyValueProvider = Nullstone.Create("_InheritedPropertyValueP
 
 _InheritedPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
-    this._ht = new Array();
+    this._ht = [];
 };
 
 _InheritedPropertyValueProvider.Instance.GetPropertyValue = function (propd) {

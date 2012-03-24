@@ -9,7 +9,7 @@ var KeyFrameCollection = Nullstone.Create("KeyFrameCollection", DependencyObject
 KeyFrameCollection.Instance.Init = function () {
     this.Init$DependencyObjectCollection();
     this._Resolved = false;
-    this._SortedList = new Array();
+    this._SortedList = [];
 };
 
 KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
@@ -175,7 +175,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
 
     // XXX resolve remaining KeyTime::Paced frames */
 
-    this._SortedList = new Array();
+    this._SortedList = [];
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);

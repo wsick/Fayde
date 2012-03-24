@@ -4,8 +4,8 @@
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// <reference path="../Primitives/Font.js"/>
 /// <reference path="Enums.js"/>
-/// <reference path="../TextLayout/TextBuffer.js"/>
-/// <reference path="TextBoxHistory/TextBoxUndoStack.js"/>
+/// <reference path="../Text/TextBuffer.js"/>
+/// <reference path="../Text/History/TextBoxUndoStack.js"/>
 
 //#region TextBoxBase
 var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
@@ -36,6 +36,8 @@ TextBoxBase.Instance.Init = function () {
     this._SettingValue = true;
 };
 
+//#region Properties
+
 TextBoxBase.Instance.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
 };
@@ -63,6 +65,8 @@ TextBoxBase.Instance.SetSelectionLength = function (value) {
 TextBoxBase.Instance.GetCaretBrush = function () {
     return null;
 };
+
+//#endregion
 
 TextBoxBase.Instance.OnApplyTemplate = function () {
     this._ContentElement = this.GetTemplateChild("ContentElement");
@@ -97,82 +101,7 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$Control();
 };
 
-TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
-    //TODO: Set handled (routed event)
-    this.Focus();
-
-    if (this._View) {
-        var p = args.GetPosition(this._View);
-        var cursor = this._View.GetCursorFromXY(p.X, p.Y);
-
-        this._ResetIMContext();
-
-        this._Captured = this.CaptureMouse();
-        this._Selecting = true;
-
-        this._BatchPush();
-        this._Emit = _TextBoxEmitChanged.NOTHING;
-        this.SetSelectionStart(cursor);
-        this.SetSelectionLength(0);
-        this._BatchPop();
-
-        this._SyncAndEmit();
-    }
-};
-TextBoxBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
-    if (this._Captured)
-        this.ReleaseMouseCapture();
-
-    //TODO: Set handled (routed event)
-    this._Selecting = false;
-    this._Captured = false;
-};
-TextBoxBase.Instance.OnMouseMove = function (sender, args) {
-    var anchor = this._SelectionAnchor;
-    var cursor = this._SelectionCursor;
-
-    if (this._Selecting) {
-        var p = args.GetPosition(this._View);
-        //TODO: Set handled (routed event)
-
-        cursor = this._View.GetCursorFromXY(p.X, p.Y);
-
-        this._BatchPush();
-        this._Emit = _TextBoxEmitChanged.NOTHING;
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
-        this._SelectionAnchor = anchor;
-        this._SelectionCursor = cursor;
-        this._BatchPop();
-
-        this._SyncAndEmit();
-
-        //TODO: 
-        //if (!this._Secret && (clipboard = this.GetClipboard(this, Primary))) {
-        //  clipboard.SetText(this.GetSelectedText());
-        //}
-    }
-};
-
-TextBoxBase.Instance.OnLostFocus = function (sender, args) {
-    this._IsFocused = false;
-    if (this._View)
-        this._View.OnLostFocus();
-
-    if (!this._IsReadOnly) {
-        //this._IMCtx.FocusOut();
-        this._NeedIMReset = true;
-    }
-};
-TextBoxBase.Instance.OnGotFocus = function (sender, args) {
-    this._IsFocused = true;
-    if (this._View)
-        this._View.OnGotFocus();
-    if (!this._IsReadOnly) {
-        //this._IMCtx.FocusIn();
-        this._NeedIMReset = true;
-    }
-};
+//#region Batch Operations
 
 TextBoxBase.Instance._BatchPush = function () {
     this._Batch++;
@@ -208,10 +137,18 @@ TextBoxBase.Instance._SyncAndEmit = function (syncText) {
     this._Emit = _TextBoxEmitChanged.NOTHING;
 };
 
+//#endregion
+
+//#region Text
+
 TextBoxBase.Instance._SyncText = function () {
     AbstractMethod("TextBoxBase._SyncText");
 };
 TextBoxBase.Instance._EmitTextChanged = function () { };
+
+//#endregion
+
+//#region Selected Text
 
 TextBoxBase.Instance.SelectAll = function () {
     this._Select(0, this._Buffer.GetLength());
@@ -250,12 +187,16 @@ TextBoxBase.Instance._SyncSelectedText = function () {
 };
 TextBoxBase.Instance._EmitSelectionChanged = function () { };
 
+//#endregion
+
 TextBoxBase.Instance._ResetIMContext = function () {
     if (this._NeedIMReset) {
         //this._IMCtx.Reset();
         this._NeedIMReset = false;
     }
 };
+
+//#region Undo/Redo
 
 TextBoxBase.Instance.CanUndo = function () {
     return !this._Undo.IsEmpty();
@@ -323,6 +264,8 @@ TextBoxBase.Instance.Redo = function () {
     this._SyncAndEmit();
 };
 
+//#endregion
+
 //#region Property Changed
 
 TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
@@ -363,6 +306,67 @@ TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 
     if (propd != null && propd.OwnerType !== TextBoxBase)
         this._OnSubPropertyChanged$Control(propd, sender, args);
+};
+
+//#endregion
+
+//#region Mouse
+
+TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
+    //TODO: Set handled (routed event)
+    this.Focus();
+
+    if (this._View) {
+        var p = args.GetPosition(this._View);
+        var cursor = this._View.GetCursorFromXY(p.X, p.Y);
+
+        this._ResetIMContext();
+
+        this._Captured = this.CaptureMouse();
+        this._Selecting = true;
+
+        this._BatchPush();
+        this._Emit = _TextBoxEmitChanged.NOTHING;
+        this.SetSelectionStart(cursor);
+        this.SetSelectionLength(0);
+        this._BatchPop();
+
+        this._SyncAndEmit();
+    }
+};
+TextBoxBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
+    if (this._Captured)
+        this.ReleaseMouseCapture();
+
+    //TODO: Set handled (routed event)
+    this._Selecting = false;
+    this._Captured = false;
+};
+TextBoxBase.Instance.OnMouseMove = function (sender, args) {
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+
+    if (this._Selecting) {
+        var p = args.GetPosition(this._View);
+        //TODO: Set handled (routed event)
+
+        cursor = this._View.GetCursorFromXY(p.X, p.Y);
+
+        this._BatchPush();
+        this._Emit = _TextBoxEmitChanged.NOTHING;
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._BatchPop();
+
+        this._SyncAndEmit();
+
+        //TODO: 
+        //if (!this._Secret && (clipboard = this.GetClipboard(this, Primary))) {
+        //  clipboard.SetText(this.GetSelectedText());
+        //}
+    }
 };
 
 //#endregion
@@ -912,6 +916,30 @@ TextBoxBase.Instance._KeyDownChar = function (c) {
     }
 
     return true;
+};
+
+//#endregion
+
+//#region Focus
+
+TextBoxBase.Instance.OnLostFocus = function (sender, args) {
+    this._IsFocused = false;
+    if (this._View)
+        this._View.OnLostFocus();
+
+    if (!this._IsReadOnly) {
+        //this._IMCtx.FocusOut();
+        this._NeedIMReset = true;
+    }
+};
+TextBoxBase.Instance.OnGotFocus = function (sender, args) {
+    this._IsFocused = true;
+    if (this._View)
+        this._View.OnGotFocus();
+    if (!this._IsReadOnly) {
+        //this._IMCtx.FocusIn();
+        this._NeedIMReset = true;
+    }
 };
 
 //#endregion

@@ -11,7 +11,7 @@ var _StylePropertyValueProvider = Nullstone.Create("_StylePropertyValueProvider"
 
 _StylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
-    this._ht = new Array();
+    this._ht = [];
 };
 
 _StylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {

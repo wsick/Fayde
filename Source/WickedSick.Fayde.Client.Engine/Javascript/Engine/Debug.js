@@ -9,7 +9,7 @@ var DebugLevel = {
 //#region Console
 
 function Console(level) {
-    this._Queue = new Array();
+    this._Queue = [];
     this._Level = level;
 }
 
@@ -76,14 +76,13 @@ HUD.prototype.SetMessage = function (message) {
     $(this._Selector)[0].innerText = message;
 };
 
-var HUDs = new Array();
+var HUDs = [];
 
 //#endregion
 
 function AbstractMethod(method) {
     Warn("Abstract Method [" + method + "]");
 }
-
 function NotImplemented(method) {
     Warn("Not Implemented [" + method + "]");
 }

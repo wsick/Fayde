@@ -1,9 +1,9 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextBoxBase.js"/>
+/// CODE
 /// <reference path="../Core/PropertyValueProviders/Enums.js"/>
 /// <reference path="PropertyValueProviders/PasswordBoxDynamicPropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
-/// CODE
 
 //#region PasswordBox
 var PasswordBox = Nullstone.Create("PasswordBox", TextBoxBase);

@@ -1,6 +1,6 @@
 ﻿/// <reference path="TextBoxUndoAction.js"/>
 /// CODE
-/// <reference path="../../TextLayout/TextBuffer.js"/>
+/// <reference path="../TextBuffer.js"/>
 
 //#region _TextBoxUndoActionInsert
 var _TextBoxUndoActionInsert = Nullstone.Create("_TextBoxUndoActionInsert", _TextBoxUndoAction, 5);

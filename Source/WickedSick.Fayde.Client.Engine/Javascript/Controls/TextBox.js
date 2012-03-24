@@ -10,11 +10,11 @@
 /// <reference path="ContentPresenter.js"/>
 /// <reference path="ContentControl.js"/>
 /// <reference path="Border.js"/>
-/// <reference path="../TextLayout/TextBuffer.js"/>
-/// <reference path="TextBoxHistory/TextBoxUndoAction.js"/>
-/// <reference path="TextBoxHistory/TextBoxUndoActionDelete.js"/>
-/// <reference path="TextBoxHistory/TextBoxUndoActionInsert.js"/>
-/// <reference path="TextBoxHistory/TextBoxUndoActionReplace.js"/>
+/// <reference path="../Text/TextBuffer.js"/>
+/// <reference path="../Text/History/TextBoxUndoAction.js"/>
+/// <reference path="../Text/History/TextBoxUndoActionDelete.js"/>
+/// <reference path="../Text/History/TextBoxUndoActionInsert.js"/>
+/// <reference path="../Text/History/TextBoxUndoActionReplace.js"/>
 
 //#region TextBox
 var TextBox = Nullstone.Create("TextBox", TextBoxBase);

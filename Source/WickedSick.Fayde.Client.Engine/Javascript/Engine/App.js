@@ -14,7 +14,7 @@ App.Instance.Init = function () {
     this.Init$DependencyObject();
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
-    this._Storyboards = new Array();
+    this._Storyboards = [];
 
     this.Loaded = new MulticastEvent();
 };
@@ -135,7 +135,7 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
         }
     }
 
-    var styles = new Array();
+    var styles = [];
     styles[_StyleIndex.GenericXaml] = genericXamlStyle;
     styles[_StyleIndex.ApplicationResources] = appResourcesStyle;
     styles[_StyleIndex.VisualTree] = visualTreeStyle;
