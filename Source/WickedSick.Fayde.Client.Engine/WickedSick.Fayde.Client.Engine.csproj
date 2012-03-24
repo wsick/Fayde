@@ -280,7 +280,10 @@
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
     <None Include="Tests\basic.fayde" />
-    <None Include="Tests\imaging.fayde" />
+    <None Include="Tests\imagebrush.fayde" />
+    <None Include="Tests\imaging.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Tests\smoke.fayde">
       <SubType>Designer</SubType>
     </None>
