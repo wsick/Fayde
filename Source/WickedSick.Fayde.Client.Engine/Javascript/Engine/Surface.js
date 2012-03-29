@@ -23,6 +23,8 @@ Surface.Instance.Init = function (app) {
     this._Cursor = CursorType.Default;
 };
 
+//#region Initialization
+
 Surface.Instance.Register = function (jCanvas) {
     Surface._TestCanvas = document.createElement('canvas');
     this._Layers = new Collection();
@@ -34,33 +36,28 @@ Surface.Instance.Register = function (jCanvas) {
     this._CanvasOffset = this._jCanvas.offset();
     this.RegisterEvents();
 };
-Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
-Surface.Instance.GetExtents = function () {
-    return new Size(this.GetWidth(), this.GetHeight());
-};
-Surface.Instance.GetWidth = function () {
-    return this._jCanvas.width();
-};
-Surface.Instance.GetHeight = function () {
-    return this._jCanvas.height();
-};
-Surface.Instance.Render = function (region) {
-    var ctx = new _RenderContext(this);
+Surface.Instance.RegisterEvents = function () {
+    var surface = this;
+    var canvas = this.GetCanvas();
 
-    var layerCount = 0;
-    if (this._Layers)
-        layerCount = this._Layers.GetCount();
-
-    ctx.Clear(region);
-    for (var i = 0; i < layerCount; i++) {
-        var layer = this._Layers.GetValueAt(i);
-        layer._DoRender(ctx, region);
-    }
+    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(window.event ? window.event : e); });
+    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(window.event ? window.event : e); });
+    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(window.event ? window.event : e); });
+    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(window.event ? window.event : e); });
+    //canvas.addEventListener("mousewheel", function (e) { surface._HandleWheel(surface._GetMousePosition(event)); });
+    document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
+    document.onkeydown = function (e) {
+        e = window.event ? window.event : e;
+        if (e.keyCode === 8 || e.keyCode === 46) {
+            surface._HandleKeyPress(e);
+            return false;
+        }
+    };
 };
 Surface.Instance._Attach = function (element) {
     /// <param name="element" type="UIElement"></param>
     if (this._TopLevel) {
-        //TODO: Detach previous layer
+        this._DetachLayer(this._TopLevel);
     }
 
     if (!element) {
@@ -77,11 +74,7 @@ Surface.Instance._Attach = function (element) {
         NameScope.SetNameScope(element, new NameScope());
     }
 
-    //TODO: Enable events
-
     this._TopLevel = element;
-
-    //TODO: Subscribe Loaded event
 
     this._TopLevel.Loaded.Subscribe(this._HandleTopLevelLoaded, this);
     this._AttachLayer(this._TopLevel);
@@ -89,7 +82,7 @@ Surface.Instance._Attach = function (element) {
     var postAttach = function () {
         surface._TopLevel._SetIsAttached(true);
         surface._TopLevel._SetIsLoaded(true);
-        //TODO: App Loaded event
+        surface._App.OnLoaded();
     };
     setTimeout(postAttach, 1);
 };
@@ -104,41 +97,31 @@ Surface.Instance._AttachLayer = function (layer) {
     layer._InvalidateMeasure();
     layer._SetIsAttached(true);
     layer._SetIsLoaded(true);
-    //TODO: App Loaded event
 };
-Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
-    var element = sender;
-    this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
-    if (Nullstone.RefEquals(element, this._TopLevel)) {
-        //TODO: this.Resize.Raise(this, null);
+Surface.Instance._DetachLayer = function (layer) {
+    /// <param name="layer" type="UIElement"></param>
+    //TODO: Implement
+};
 
-        element._UpdateTotalRenderVisibility();
-        element._UpdateTotalHitTestVisibility();
-        element._FullInvalidate(true);
+//#endregion
 
-        element._InvalidateMeasure();
-    }
+//#region Properties
+
+Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
+Surface.Instance.GetExtents = function () {
+    return new Size(this.GetWidth(), this.GetHeight());
 };
-Surface.Instance._IsTopLevel = function (top) {
-    /// <param name="top" type="UIElement"></param>
-    if (!top || !this._Layers)
-        return false;
-    var ret = false; //TODO: full-screen message
-    var count = this._Layers.GetCount();
-    for (var i = 0; i < count && !ret; i++) {
-        var layer = this._Layers.GetValueAt(i);
-        ret = Nullstone.RefEquals(top, layer);
-    }
-    return ret;
+Surface.Instance.GetWidth = function () {
+    return this._jCanvas.width();
 };
-Surface.Instance.ProcessDirtyElements = function () {
-    var error = new BError();
-    var dirty = this._UpdateLayout(error);
-    if (error.IsErrored()) {
-        Fatal(error);
-    }
-    return dirty;
+Surface.Instance.GetHeight = function () {
+    return this._jCanvas.height();
 };
+
+//#endregion
+
+//#region Render
+
 Surface.Instance._Invalidate = function (rect) {
     if (!rect)
         rect = new Rect(0, 0, this.GetWidth(), this.GetHeight());
@@ -160,7 +143,45 @@ Surface.Instance._QueueRender = function () {
         surface.Render(rect2);
     }, 1);
 };
+Surface.Instance.Render = function (region) {
+    var ctx = new _RenderContext(this);
 
+    var layerCount = 0;
+    if (this._Layers)
+        layerCount = this._Layers.GetCount();
+
+    ctx.Clear(region);
+    for (var i = 0; i < layerCount; i++) {
+        var layer = this._Layers.GetValueAt(i);
+        layer._DoRender(ctx, region);
+    }
+};
+
+//#endregion
+
+//#region Update
+
+Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
+    var element = sender;
+    this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded, this);
+    if (Nullstone.RefEquals(element, this._TopLevel)) {
+        //TODO: Resize canvas based on top level
+
+        element._UpdateTotalRenderVisibility();
+        element._UpdateTotalHitTestVisibility();
+        element._FullInvalidate(true);
+
+        element._InvalidateMeasure();
+    }
+};
+Surface.Instance.ProcessDirtyElements = function () {
+    var error = new BError();
+    var dirty = this._UpdateLayout(error);
+    if (error.IsErrored()) {
+        throw error.CreateException();
+    }
+    return dirty;
+};
 Surface.Instance._UpdateLayout = function (error) {
     if (!this._Layers)
         return false;
@@ -393,12 +414,23 @@ Surface.Instance._RemoveDirtyElement = function (element) {
     element._UpDirtyNode = null;
     element._DownDirtyNode = null;
 };
-
-Surface.Instance._SetUserInitiatedEvent = function (val) {
-    this._EmitFocusChangeEvents();
-    this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
-    this._UserInitiatedEvent = val;
+Surface.Instance._IsTopLevel = function (top) {
+    /// <param name="top" type="UIElement"></param>
+    if (!top || !this._Layers)
+        return false;
+    var ret = false; //TODO: full-screen message
+    var count = this._Layers.GetCount();
+    for (var i = 0; i < count && !ret; i++) {
+        var layer = this._Layers.GetValueAt(i);
+        ret = Nullstone.RefEquals(top, layer);
+    }
+    return ret;
 };
+
+//#endregion
+
+//#region Cursor
+
 Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
     for (var node = this._InputList.First(); node; node = node.Next) {
@@ -413,24 +445,7 @@ Surface.Instance._SetCursor = function (cursor) {
     this._jCanvas.css("cursor", cursor);
 };
 
-Surface.Instance.RegisterEvents = function () {
-    var surface = this;
-    var canvas = this.GetCanvas();
-
-    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(window.event ? window.event : e); });
-    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(window.event ? window.event : e); });
-    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(window.event ? window.event : e); });
-    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(window.event ? window.event : e); });
-    //canvas.addEventListener("mousewheel", function (e) { surface._HandleWheel(surface._GetMousePosition(event)); });
-    document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
-    document.onkeydown = function (e) {
-        e = window.event ? window.event : e;
-        if (e.keyCode === 8 || e.keyCode === 46) {
-            surface._HandleKeyPress(e);
-            return false;
-        }
-    };
-};
+//#endregion
 
 //#region Mouse
 
@@ -667,17 +682,22 @@ Surface.Instance._EmitFocusList = function (type, list) {
 
 //#endregion
 
+Surface.Instance._SetUserInitiatedEvent = function (val) {
+    this._EmitFocusChangeEvents();
+    this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
+    this._UserInitiatedEvent = val;
+};
+
+
 Surface.MeasureText = function (text, font) {
     return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
 };
 Surface._MeasureWidth = function (text, font) {
     /// <param name="text" type="String"></param>
     /// <param name="font" type="Font"></param>
-    if (!Surface._TestCanvas)
-        Surface._TestCanvas = document.createElement('canvas');
-    var ctx = Surface._TestCanvas.getContext('2d');
-    ctx.font = font.ToHtml5Object();
-    return ctx.measureText(text).width;
+    var test = Surface._EnsureTestCanvas();
+    test.Context.font = font.ToHtml5Object();
+    return test.Context.measureText(text).width;
 };
 Surface._MeasureHeight = function (font) {
     /// <param name="font" type="Font"></param>
@@ -709,6 +729,19 @@ Surface._ElementPathToRoot = function (source) {
         source = source.GetVisualParent();
     }
     return list;
+};
+Surface._EnsureTestCanvas = function () {
+    var canvas = Surface._TestCanvas;
+    var ctx = Surface._TestCanvasContext;
+    if (!ctx) {
+        if (!canvas)
+            canvas = Surface._TestCanvas = document.createElement('canvas');
+        ctx = Surface._TestCanvasContext = canvas.getContext('2d');
+    }
+    return {
+        Canvas: canvas,
+        Context: ctx
+    };
 };
 
 Nullstone.FinishCreate(Surface);

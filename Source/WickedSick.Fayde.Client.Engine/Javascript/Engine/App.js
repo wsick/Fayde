@@ -14,10 +14,12 @@ App.Instance.Init = function () {
     this.Init$DependencyObject();
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
-    this._Storyboards = new Array();
+    this._Storyboards = [];
+
+    this.Loaded = new MulticastEvent();
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
 App.Instance.GetResources = function () {
@@ -29,7 +31,7 @@ App.Instance.SetResources = function (value) {
 
 //#endregion
 
-//#region PROPERTIES
+//#region Properties
 
 App.Instance.GetAddress = function () {
     ///<returns type="Uri"></returns>
@@ -50,6 +52,9 @@ App.Instance.Load = function (element, containerId, width, height) {
         return;
     this.MainSurface._Attach(element);
     this.Start();
+};
+App.Instance.OnLoaded = function () {
+    this.Loaded.RaiseAsync(this, new EventArgs());
 };
 
 App.Instance.Start = function () {
@@ -130,7 +135,7 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
         }
     }
 
-    var styles = new Array();
+    var styles = [];
     styles[_StyleIndex.GenericXaml] = genericXamlStyle;
     styles[_StyleIndex.ApplicationResources] = appResourcesStyle;
     styles[_StyleIndex.VisualTree] = visualTreeStyle;

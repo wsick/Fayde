@@ -24,7 +24,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
         }
 
         // 1 Check for circular references in the BasedOn tree
-        var cycles = new Array();
+        var cycles = [];
         root = style;
         while (root != null) {
             if (cycles[root._ID]) {

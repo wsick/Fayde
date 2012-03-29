@@ -1,4 +1,4 @@
-﻿ var _VisualTreeWalkerDirection = {
+﻿var _VisualTreeWalkerDirection = {
     Logical: 0,
     LogicalReverse: 1,
     ZForward: 2,

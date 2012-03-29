@@ -23,7 +23,7 @@ TextLayout.Instance.Init = function () {
     this._ActualWidth = NaN;
     this._LineHeight = NaN;
     this._Attributes = null;
-    this._Lines = new Array();
+    this._Lines = [];
     this._IsWrapped = true;
     this._Text = null;
     this._Length = 0;
@@ -343,7 +343,7 @@ TextLayout.Instance.Layout = function () {
 
     var word = new _LayoutWord();
     if (this._Wrapping === TextWrapping.Wrap)
-        word._BreakOps = new Array();
+        word._BreakOps = [];
     else
         word._BreakOps = null;
 
@@ -578,7 +578,7 @@ TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
     return false;
     var lineStart = word._LineAdvance == 0.0;
     if (!word._BreakOps)
-        word._BreakOps = new Array();
+        word._BreakOps = [];
     word._BreakOps.splice(0, word._BreakOps.length);
     word._Type = _LayoutWordType.Unknown;
     word._Advance = 0.0;

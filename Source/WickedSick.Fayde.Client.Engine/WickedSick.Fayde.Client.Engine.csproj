@@ -73,12 +73,12 @@
     <Content Include="Javascript\Controls\RowDefinitionCollection.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBlockDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\TextBoxBase.js" />
-    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoAction.js" />
-    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoActionDelete.js" />
-    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoActionInsert.js" />
-    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoActionReplace.js" />
+    <Content Include="Javascript\Text\History\TextBoxUndoAction.js" />
+    <Content Include="Javascript\Text\History\TextBoxUndoActionDelete.js" />
+    <Content Include="Javascript\Text\History\TextBoxUndoActionInsert.js" />
+    <Content Include="Javascript\Text\History\TextBoxUndoActionReplace.js" />
     <Content Include="Javascript\Controls\TextBoxModelChangedEventArgs.js" />
-    <Content Include="Javascript\Controls\TextBoxHistory\TextBoxUndoStack.js" />
+    <Content Include="Javascript\Text\History\TextBoxUndoStack.js" />
     <Content Include="Javascript\Controls\TextBoxView.js" />
     <Content Include="Javascript\Core\BindingOperations.js" />
     <Content Include="Javascript\Core\Collections\CollectionChangedArgs.js" />
@@ -238,18 +238,18 @@
     <Content Include="Javascript\Documents\TextElement.js" />
     <Content Include="Javascript\Runtime\RoutedEvent.js" />
     <Content Include="Javascript\Runtime\RoutedEventArgs.js" />
-    <Content Include="Javascript\TextLayout\Enums.js" />
-    <Content Include="Javascript\TextLayout\LayoutWord.js" />
-    <Content Include="Javascript\TextLayout\TextBuffer.js" />
-    <Content Include="Javascript\TextLayout\TextLayout.js" />
+    <Content Include="Javascript\Text\Enums.js" />
+    <Content Include="Javascript\Text\LayoutWord.js" />
+    <Content Include="Javascript\Text\TextBuffer.js" />
+    <Content Include="Javascript\Text\TextLayout.js" />
     <Content Include="Javascript\Media\Animation\Timeline.js" />
     <Content Include="Javascript\Core\UIElement.js" />
     <Content Include="Javascript\Controls\UserControl.js" />
-    <Content Include="Javascript\TextLayout\TextLayoutAttributes.js" />
-    <Content Include="Javascript\TextLayout\TextLayoutGlyphCluster.js" />
-    <Content Include="Javascript\TextLayout\TextLayoutLine.js" />
-    <Content Include="Javascript\TextLayout\TextLayoutRun.js" />
-    <Content Include="Javascript\TextLayout\WordBreakOp.js" />
+    <Content Include="Javascript\Text\TextLayoutAttributes.js" />
+    <Content Include="Javascript\Text\TextLayoutGlyphCluster.js" />
+    <Content Include="Javascript\Text\TextLayoutLine.js" />
+    <Content Include="Javascript\Text\TextLayoutRun.js" />
+    <Content Include="Javascript\Text\WordBreakOp.js" />
     <Content Include="Javascript\Core\Validators.js" />
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
@@ -280,7 +280,11 @@
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
     <None Include="Tests\basic.fayde" />
-    <None Include="Tests\imaging.fayde" />
+    <None Include="Tests\brush.fayde" />
+    <None Include="Tests\imagebrush.fayde" />
+    <None Include="Tests\imaging.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Tests\smoke.fayde">
       <SubType>Designer</SubType>
     </None>
@@ -291,7 +295,9 @@
       <Name>WickedSick.Server.Framework.Fayde</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Javascript\Shapes\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>

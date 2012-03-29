@@ -6,7 +6,7 @@
 //#region RadialGradientBrush
 var RadialGradientBrush = Nullstone.Create("RadialGradientBrush", GradientBrush);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 RadialGradientBrush.CenterProperty = DependencyProperty.RegisterFull("Center", function () { return Point; }, RadialGradientBrush, new Point(0.5, 0.5));
 RadialGradientBrush.Instance.GetCenter = function () {

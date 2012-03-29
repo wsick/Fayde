@@ -1,4 +1,6 @@
-﻿var Nullstone = {};
+﻿/// <reference path="JsEx.js"/>
+
+var Nullstone = {};
 Nullstone._LastID = 0;
 Nullstone._LastTypeID = 1;
 Nullstone.Create = function (typeName, parent, argCount) {
@@ -79,7 +81,7 @@ Nullstone.DoesInheritFrom = function (t, type) {
     }
     return temp != null;
 };
-Nullstone.DoesImplement = function (ns, interface) {
+Nullstone.DoesImplement = function (ns, interfaces) {
     if (!ns.constructor._IsNullstone)
         return false;
 

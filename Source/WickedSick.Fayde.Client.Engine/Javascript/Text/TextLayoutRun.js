@@ -5,7 +5,7 @@
 var _TextLayoutRun = Nullstone.Create("_TextLayoutRun", null, 3);
 
 _TextLayoutRun.Instance.Init = function (line, attrs, start) {
-    this._Clusters = new Array();
+    this._Clusters = [];
     this._Attrs = attrs;
     this._Start = start;
     this._Line = line;

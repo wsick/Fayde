@@ -7,7 +7,7 @@ var UIElementCollection = Nullstone.Create("UIElementCollection", DependencyObje
 
 UIElementCollection.Instance.Init = function () {
     this.Init$DependencyObjectCollection();
-    this._ZSorted = new Array();
+    this._ZSorted = [];
 };
 
 UIElementCollection.Instance.GetValueAtZIndex = function (index) {

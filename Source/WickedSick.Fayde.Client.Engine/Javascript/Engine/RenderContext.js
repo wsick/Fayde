@@ -7,7 +7,7 @@ var _RenderContext = Nullstone.Create("_RenderContext", null, 1);
 
 _RenderContext.Instance.Init = function (surface) {
     this._Surface = surface;
-    this._Transforms = new Array();
+    this._Transforms = [];
 };
 
 _RenderContext.Instance.GetSurface = function () {
@@ -73,7 +73,7 @@ _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
 };
 
 _RenderContext.ToArray = function (args) {
-    var arr = new Array();
+    var arr = [];
     for (var i in args)
         arr.push(args[i]);
     return arr;

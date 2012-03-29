@@ -40,7 +40,7 @@ NameScope.Instance.RegisterName = function (name, obj) {
     if (this.GetIsLocked())
         return;
     if (!this._Names)
-        this._Names = new Array();
+        this._Names = [];
 
     var existingObj = this._Names[name];
     if (existingObj == obj)

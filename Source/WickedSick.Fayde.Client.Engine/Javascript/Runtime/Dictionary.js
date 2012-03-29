@@ -5,7 +5,7 @@
 var Dictionary = Nullstone.Create("Dictionary");
 
 Dictionary.Instance.Init = function () {
-    this._ht = new Array();
+    this._ht = [];
 };
 
 Dictionary.Instance.TryGetValue = function (key, data) {

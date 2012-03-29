@@ -42,7 +42,7 @@ var Stretch = {
     UniformToFill: 3
 };
 
- var _VisualTreeWalkerDirection = {
+var _VisualTreeWalkerDirection = {
     Logical: 0,
     LogicalReverse: 1,
     ZForward: 2,
@@ -137,7 +137,7 @@ var DebugLevel = {
     Fatal: 4
 };
 function Console(level) {
-    this._Queue = new Array();
+    this._Queue = [];
     this._Level = level;
 }
 Console.prototype.Init = function (selector) {
@@ -196,7 +196,7 @@ function HUD(jSelector) {
 HUD.prototype.SetMessage = function (message) {
     $(this._Selector)[0].innerText = message;
 };
-var HUDs = new Array();
+var HUDs = [];
 function AbstractMethod(method) {
     Warn("Abstract Method [" + method + "]");
 }
@@ -370,6 +370,134 @@ var RectOverlap = {
     Part: 2
 }
 
+Object.Clone = function (o) {
+    return eval(uneval(o));
+};
+/*
+Function.prototype.Implement = function (interface) {
+    var interfaceName = (new interface())._TypeName;
+    for (var i in interface.prototype) {
+        if (!this.prototype[i])
+            this.prototype[i] = new Function("throw new NotImplementedException();");
+    }
+    if (this._Interfaces == null)
+        this._Interfaces = [];
+    this._Interfaces[interfaceName] = true;
+    return this;
+};
+Function.prototype.DoesImplement = function (interface) {
+    if (!this._Interfaces)
+        return false;
+    var interfaceName = (new interface())._TypeName;
+    return this._Interfaces[interfaceName] === true;
+};
+*/
+Function.prototype.Clone = function () {
+    return eval(uneval(this));
+};
+String.prototype.indexOfAny = function (carr, start) {
+    if (!(carr instanceof Array))
+        return -1;
+    if (start == null)
+        start = 0;
+    for (var cur = start; cur < this.length; cur++) {
+        var c = this.charAt(c);
+        for (var i = 0; i < carr.length; i++) {
+            if (c === carr[i])
+                return cur;
+        }
+    }
+    return -1;
+};
+Array.indexOfNullstone = function (arr, ns) {
+    for (var i = 0; i < arr.length; i++) {
+        if (Nullstone.RefEquals(arr[i], ns))
+            return i;
+    }
+    return -1;
+};
+Array.containsNullstone = function (arr, ns) {
+    return Array.indexOfNullstone(arr, ns) > -1;
+};
+Array.addDistinctNullstone = function (arr, ns) {
+    if (Array.containsNullstone(arr, ns))
+        return false;
+    arr.push(ns);
+    return true;
+};
+Array.removeNullstone = function (arr, ns) {
+    var index = Array.indexOfNullstone(arr, ns);
+    if (index > -1)
+        arr.splice(index, 1);
+};
+Number.isNumber = function (o) {
+    return typeof o == "number";
+};
+String.isString = function (o) {
+    return typeof o == "string";
+};
+String.contains = function (str, match) {
+    if (!str)
+        return false;
+    if (!match)
+        return false;
+    var j = 0;
+    for (var i = 0; i < str.length && j < match.length; i++) {
+        if (str.charAt(i) === match.charAt(j))
+            j++;
+        else
+            j = 0;
+    }
+    return j >= match.length;
+};
+String.format = function (culture, format, str) {
+    return str;
+};
+window.onerror = function (msg, url, line) {
+    alert("Error (" + url + ") @ " + line + "\n" + msg);
+};
+window.requestAnimFrame = (function () {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (callback) {
+            window.setTimeout(callback, 1000 / 200);
+        };
+    })();
+
+var _BreakType = {
+    Unknown: 0,
+    Space: 1,
+    OpenPunctuation: 2,
+    ClosePunctuation: 3,
+    InFixSeparator: 4,
+    Numeric: 5,
+    Alphabetic: 6,
+    WordJoiner: 7,
+    ZeroWidthSpace: 8,
+    BeforeAndAfter: 9,
+    NonBreakingGlue: 10,
+    Inseparable: 11,
+    Before: 12,
+    Ideographic: 13,
+    CombiningMark: 14,
+    Contingent: 15,
+    Ambiguous: 16,
+    Quotation: 17,
+    Prefix: 18
+};
+var _LayoutWordType = {
+    Unknown: 0,
+    Numeric: 1,
+    Alphabetic: 2,
+    Ideographic: 3,
+    Inseparable: 4
+};
+var _CharType = {
+};
+
 var Nullstone = {};
 Nullstone._LastID = 0;
 Nullstone._LastTypeID = 1;
@@ -445,58 +573,1102 @@ Nullstone.DoesInheritFrom = function (t, type) {
     }
     return temp != null;
 };
-Nullstone.DoesImplement = function (ns, interface) {
+Nullstone.DoesImplement = function (ns, interfaces) {
     if (!ns.constructor._IsNullstone)
         return false;
 };
 
-var _BreakType = {
-    Unknown: 0,
-    Space: 1,
-    OpenPunctuation: 2,
-    ClosePunctuation: 3,
-    InFixSeparator: 4,
-    Numeric: 5,
-    Alphabetic: 6,
-    WordJoiner: 7,
-    ZeroWidthSpace: 8,
-    BeforeAndAfter: 9,
-    NonBreakingGlue: 10,
-    Inseparable: 11,
-    Before: 12,
-    Ideographic: 13,
-    CombiningMark: 14,
-    Contingent: 15,
-    Ambiguous: 16,
-    Quotation: 17,
-    Prefix: 18
+var PropertyInfo = Nullstone.Create("PropertyInfo");
+PropertyInfo.Find = function (typeOrObj, name) {
+    var isType = typeOrObj instanceof Function;
+    var type = isType ? typeOrObj : typeOrObj.constructor;
+    var setFunc;
+    var getFunc;
+    for (var i in type.Instance) {
+        if (i.toString() === ("Set" + name))
+            setFunc = type.Instance[i];
+        if (i.toString() === ("Get" + name))
+            getFunc = type.Instance[i];
+        if (getFunc && setFunc) {
+            var pi = new PropertyInfo();
+            pi.Type = type;
+            pi.SetFunc = setFunc;
+            pi.GetFunc = getFunc;
+            return pi;
+        }
+    }
 };
-var _LayoutWordType = {
-    Unknown: 0,
-    Numeric: 1,
-    Alphabetic: 2,
-    Ideographic: 3,
-    Inseparable: 4
+PropertyInfo.Instance.GetValue = function (ro) {
+    if (!this.GetFunc)
+        return undefined;
+    return this.GetFunc.call(ro);
 };
-var _CharType = {
+PropertyInfo.Instance.SetValue = function (ro, value) {
+    if (this.SetFunc)
+        this.SetFunc.call(ro, value);
 };
+Nullstone.FinishCreate(PropertyInfo);
 
-var GridLength = Nullstone.Create("GridLength", null, 2);
-GridLength.Instance.Init = function (value, unitType) {
-    this.Value = value == null ? 0 : value;
-    this.Type = unitType == null ? GridUnitType.Auto : unitType;
+var RoutedEvent = Nullstone.Create("RoutedEvent");
+RoutedEvent.Instance.Init = function () {
+    this._Listeners = [];
 };
-GridLength.Equals = function (gl1, gl2) {
-    return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
+RoutedEvent.Instance.Subscribe = function (pre, on, post, closure) {
+    this._Listeners.push({
+        PreCallback: pre,
+        Callback: on,
+        PostCallback: post,
+        Closure: closure
+    });
 };
-Nullstone.FinishCreate(GridLength);
+RoutedEvent.Instance.Raise = function () {
+};
+Nullstone.FinishCreate(RoutedEvent);
 
-var _TextBoxModelChangedEventArgs = Nullstone.Create("_TextBoxModelChangedEventArgs", null, 2);
-_TextBoxModelChangedEventArgs.Instance.Init = function (changed, propArgs) {
-    this.Changed = changed;
-    this.PropArgs = propArgs;
+var _LayoutWord = Nullstone.Create("_LayoutWord");
+_LayoutWord.Instance.Init = function () {
+    this._Advance = 0.0;
+    this._LineAdvance = 0.0;
+    this._Length = 0;
+    this._BreakOps = null;
+    this._Font = new Font();
 };
-Nullstone.FinishCreate(_TextBoxModelChangedEventArgs);
+Nullstone.FinishCreate(_LayoutWord);
+
+var _TextBuffer = Nullstone.Create("_TextBuffer", Object);
+_TextBuffer.Instance.Init = function () {
+    this._Text = null;
+};
+_TextBuffer.Instance.GetLength = function () {
+    if (this._Text == null)
+        return 0;
+    return this._Text.length;
+};
+_TextBuffer.Instance.Reset = function () {
+    this._Text = null;
+};
+_TextBuffer.Instance.Prepend = function (str) {
+    if (!this._Text)
+        this._Text = str;
+    else
+        this._Text = str + this._Text;
+};
+_TextBuffer.Instance.Append = function (str) {
+    if (!this._Text)
+        this._Text = str;
+    else
+        this._Text += str;
+};
+_TextBuffer.Instance.Cut = function (start, len) {
+    if (!this._Text) {
+        this._Text = null;
+        return;
+    }
+    this._Text = this._Text.slice(0, start) + this._Text.slice(start + len);
+};
+_TextBuffer.Instance.Insert = function (index, str) {
+    if (!this._Text)
+        this._Text = str;
+    else
+        this._Text = [this._Text.slice(0, index), str, this._Text.slice(index)].join('');
+};
+_TextBuffer.Instance.Replace = function (start, len, str) {
+    if (!this._Text) {
+        this._Text = str;
+        return;
+    }
+    this._Text = [this._Text.slice(0, start), str, this._Text.slice(start + len)].join('');
+};
+Nullstone.FinishCreate(_TextBuffer);
+
+var TextLayout = Nullstone.Create("TextLayout");
+TextLayout.Instance.Init = function () {
+    this._SelectionStart = 0;
+    this._SelectionLength = 0;
+    this._Strategy = LineStackingStrategy.MaxHeight;
+    this._Alignment = TextAlignment.Left;
+    this._Trimming = TextTrimming.None;
+    this._Wrapping = TextWrapping.NoWrap;
+    this._AvailableWidth = Number.POSITIVE_INFINITY;
+    this._MaxHeight = Number.POSITIVE_INFINITY;
+    this._MaxWidth = Number.POSITIVE_INFINITY;
+    this._BaseDescent = 0.0;
+    this._BaseHeight = 0.0;
+    this._ActualHeight = NaN;
+    this._ActualWidth = NaN;
+    this._LineHeight = NaN;
+    this._Attributes = null;
+    this._Lines = [];
+    this._IsWrapped = true;
+    this._Text = null;
+    this._Length = 0;
+};
+TextLayout.Instance.GetSelectionLength = function () {
+    return this._SelectionLength;
+};
+TextLayout.Instance.GetSelectionStart = function () {
+    return this._SelectionStart;
+};
+TextLayout.Instance.GetLineStackingStrategy = function () {
+    return this._Strategy;
+};
+TextLayout.Instance.SetLineStackingStrategy = function (value) {
+    if (this._Strategy == value)
+        return false;
+    this._Strategy = value;
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetTextAttributes = function () {
+    return this._Attributes;
+};
+TextLayout.Instance.SetTextAttributes = function (value) {
+    if (this._Attributes) {
+        this._Attributes._Clear(true);
+    }
+    this._Attributes = value;
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetTextAlignment = function () {
+    return this._Alignment;
+};
+TextLayout.Instance.SetTextAlignment = function (value) {
+    if (this._Alignment == value)
+        return false;
+    this._Alignment = value;
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetTextTrimming = function () {
+    return this._Trimming;
+};
+TextLayout.Instance.SetTextTrimming = function (value) {
+    if (this._Trimming == value)
+        return false;
+    this._Trimming = value;
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetTextWrapping = function () {
+    return this._Wrapping;
+};
+TextLayout.Instance.SetTextWrapping = function (value) {
+    switch (value) {
+        case TextWrapping.NoWrap:
+        case TextWrapping.Wrap:
+            break;
+        default:
+            value = TextWrapping.Wrap;
+            break;
+    }
+    if (this._Wrapping == value)
+        return false;
+    this._Wrapping = value;
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetLineHeight = function () {
+    return this._LineHeight;
+};
+TextLayout.Instance.SetLineHeight = function (value) {
+    if (this._LineHeight == value)
+        return false;
+    this._LineHeight = value;
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetMaxHeight = function () {
+    return this._MaxHeight;
+};
+TextLayout.Instance.SetMaxHeight = function (value) {
+    if (this._MaxHeight == value)
+        return false;
+    this._MaxHeight = value;
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetMaxWidth = function () {
+    return this._MaxWidth;
+};
+TextLayout.Instance.SetMaxWidth = function (value) {
+    if (value === 0.0)
+        value = Number.POSITIVE_INFINITY;
+    if (this._MaxWidth === value)
+        return false;
+    if (!this._IsWrapped && (!isFinite(value) || value > this._ActualWidth)) {
+        this._MaxWidth = value;
+        return false;
+    }
+    this._MaxWidth = value;
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetAvailableWidth = function () {
+    return this._AvailableWidth;
+};
+TextLayout.Instance.SetAvailableWidth = function (value) {
+    this._AvailableWidth = value;
+    return false;
+};
+TextLayout.Instance.GetText = function () {
+    return this._Text;
+};
+TextLayout.Instance.SetText = function (value, length) {
+    if (value) {
+        this._Text = value;
+        this._Length = length == -1 ? value.length : length;
+    } else {
+        this._Text = null;
+        this._Length = 0;
+    }
+    this._ResetState();
+    return true;
+};
+TextLayout.Instance.GetBaselineOffset = function () {
+    if (this._Lines.length === 0)
+        return 0;
+    var line = this._Lines[0];
+    return line._Height + line._Descend;
+};
+TextLayout.Instance.OverrideLineHeight = function () {
+    return this.GetLineStackingStrategy() === LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
+};
+TextLayout.Instance.GetLineHeightOverride = function () {
+    if (isNaN(this.GetLineHeight()))
+        return this._BaseHeight;
+    return this.GetLineHeight();
+};
+TextLayout.Instance.GetDescendOverride = function () {
+    if (isNaN(this.GetLineHeight()))
+        return this._BaseDescent;
+    if (this._BaseHeight == 0.0)
+        return 0.0;
+    return this.GetLineHeight() * (this._BaseDescent / this._BaseHeight);
+}
+TextLayout.Instance.GetLineFromY = function (offset, y, refIndex) {
+    var line = null;
+    var y0 = offset.Y;
+    var y1;
+    for (var i = 0; i < this._Lines.length; i++) {
+        line = this._Lines[i];
+        y1 = y0 + line._Height; //set y1 to top of next line
+        if (y < y1) {
+            if (refIndex)
+                refIndex.Value = i;
+            return line;
+        }
+        y0 = y1;
+    }
+    return null;
+};
+TextLayout.Instance.GetLineFromIndex = function (index) {
+    if (index >= this._Lines.length || index < 0)
+        return null;
+    return this._Lines[index];
+};
+TextLayout.Instance.GetCursorFromXY = function (offset, x, y) {
+    var line;
+    if (y < offset.Y) {
+        line = this._Lines[0];
+    } else if (!(line = this.GetLineFromY(offset, y))) {
+        line = this._Lines[this._Lines.length - 1];
+    }
+    return line.GetCursorFromX(offset, x);
+};
+TextLayout.Instance.GetSelectionCursor = function (offset, pos) {
+    var x0 = offset.X;
+    var y0 = offset.Y;
+    var height = 0.0;
+    var y1 = 0.0;
+    var cursor = 0;
+    for (var i = 0; i < this._Lines.length; i++) {
+        var line = this._Lines[i];
+        x0 = offset.X + this._HorizontalAlignment(line._Advance);
+        y1 = y0 + line._Height + line._Descend;
+        height = line._Height;
+        if (pos >= cursor + line._Length) {
+            if ((i + 1) === this._Lines.length) {
+                if (TextLayout._IsLineBreak(this._Text.substr(line._Start + line._Length - 1, 2))) {
+                    x0 = offset.X + this._HorizontalAlignment(0.0);
+                    y0 += line._Height;
+                } else {
+                    x0 += line._Advance;
+                }
+                break;
+            }
+            cursor += line._Length;
+            y0 += line._Height;
+            continue;
+        }
+        for (var j = 0; j < line._Runs.length; j++) {
+            var run = line._Runs[j];
+            end = run._Start + run._Length;
+            if (pos >= cursor + run._Length) {
+                cursor += run._Length;
+                x0 += run._Advance;
+                continue;
+            }
+            if (run._Start === pos)
+                break;
+            var font = run._Attrs.GetFont();
+            x0 += Surface._MeasureWidth(this._Text.slice(run._Start, pos), font);
+            break;
+        }
+        break;
+    }
+    return new Rect(x0, y0, 1.0, height);
+};
+TextLayout.Instance._FindLineWithIndex = function (index) {
+    var cursor = 0;
+    for (var i = 0; i < this._Lines.length; i++) {
+        var line = this._Lines[i];
+        if (index < cursor + line._Length)
+            return line;
+        cursor += line._Length;
+    }
+    return null;
+};
+TextLayout.Instance.Select = function (start, length) {
+    if (!this._Text) {
+        this._SelectionLength = 0;
+        this._SelectionStart = 0;
+        return;
+    }
+    var newSelectionStart;
+    var newSelectionLength;
+    var index;
+    var end;
+    if (!false) {
+        newSelectionStart = index = start;
+        end = index + length;
+        newSelectionLength = length;
+    } else {
+        newSelectionLength = length;
+        newSelectionStart = start;
+    }
+    if (this._SelectionStart === newSelectionStart && this._SelectionLength === newSelectionLength)
+        return;
+    if (this._SelectionLength > 0 || newSelectionLength > 0)
+        this._ClearCache();
+    this._SelectionLength = newSelectionLength;
+    this._SelectionStart = newSelectionStart;
+};
+TextLayout.Instance._ClearCache = function () {
+    var line;
+    for (var i = 0; i < this._Lines.length; i++) {
+        line = this._Lines[i];
+        for (var j = 0; j < line._Runs.length; j++) {
+            line._Runs[i]._ClearCache();
+        }
+    }
+};
+TextLayout.Instance._ClearLines = function () {
+    this._Lines = [];
+};
+TextLayout.Instance._ResetState = function () {
+    this._ActualHeight = NaN;
+    this._ActualWidth = NaN;
+};
+TextLayout.Instance.GetRenderExtents = function () {
+    this.Layout();
+    return new Rect(this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
+};
+TextLayout.Instance.GetActualExtents = function () {
+    return new Size(this._ActualWidth, this._ActualHeight);
+};
+TextLayout.Instance.Layout = function () {
+    if (!isNaN(this._ActualWidth))
+        return;
+    this._ActualHeight = 0.0;
+    this._ActualWidth = 0.0;
+    this._IsWrapped = false;
+    this._ClearLines();
+    if (this._Text == null || !TextLayout._ValidateAttrs(this._Attributes))
+        return;
+    var word = new _LayoutWord();
+    if (this._Wrapping === TextWrapping.Wrap)
+        word._BreakOps = [];
+    else
+        word._BreakOps = null;
+    var layoutWordFunc = this._Wrapping === TextWrapping.NoWrap ? TextLayout._LayoutWordNoWrap : TextLayout._LayoutWordWrap;
+    var line = new _TextLayoutLine(this, 0, 0);
+    if (this.OverrideLineHeight()) {
+        line._Descend = this.GetDescendOverride();
+        line._Height = this.GetLineHeightOverride();
+    }
+    this._Lines.push(line);
+    var index = 0;
+    var attrs = this._Attributes.First();
+    var nattrs;
+    var end;
+    var run;
+    var font;
+    do {
+        nattrs = attrs.Next;
+        end = nattrs ? nattrs._Start : this._Length;
+        run = new _TextLayoutRun(line, attrs, index);
+        line._Runs.push(run);
+        word._Font = font = attrs.GetFont();
+        if (end - index <= 0) {
+            if (!this.OverrideLineHeight()) {
+                line._Descend = Math.min(line._Descend, font._Descender());
+                line._Height = Math.max(line._Height, font.GetActualHeight());
+            }
+            this._ActualHeight += line._Height;
+            break;
+        }
+        while (index < end) {
+            var linebreak = false;
+            var wrapped = false;
+            while (index < end) {
+                var lineBreakLength = TextLayout._IsLineBreak(this._Text.slice(index, end));
+                if (lineBreakLength > 0) {
+                    if (line._Length == 0 && !this.OverrideLineHeight()) {
+                        line._Descend = font._Descender();
+                        line._Height = font.GetActualHeight();
+                    }
+                    line._Length += lineBreakLength;
+                    run._Length += lineBreakLength;
+                    index += lineBreakLength;
+                    linebreak = true;
+                    break;
+                }
+                word._LineAdvance = line._Advance;
+                if (layoutWordFunc(word, this._Text.slice(index, end), this.GetMaxWidth())) {
+                    this._IsWrapped = true;
+                    wrapped = true;
+                }
+                if (word._Length > 0) {
+                    if (!this.OverrideLineHeight()) {
+                        line._Descend = Math.min(line._Descend, font._Descender());
+                        line._Height = Math.max(line._Height, font.GetActualHeight());
+                    }
+                    line._Advance += word._Advance;
+                    run._Advance += word._Advance;
+                    line._Width = line._Advance;
+                    line._Length += word._Length;
+                    run._Length += word._Length;
+                    index += word._Length;
+                }
+                if (wrapped)
+                    break;
+                word._LineAdvance = line._Advance;
+                TextLayout._LayoutLwsp(word, this._Text.slice(index, end), font);
+                if (word._Length > 0) {
+                    if (!this.OverrideLineHeight()) {
+                        line._Descend = Math.min(line._Descend, font._Descender());
+                        line._Height = Math.max(line._Height, font.GetActualHeight());
+                    }
+                    line._Advance += word._Advance;
+                    run._Advance += word._Advance;
+                    line._Width = line._Advance;
+                    line._Length += word._Length;
+                    run._Length += word._Length;
+                    index += word._Length;
+                }
+            }
+            var atend = index >= end;
+            if (linebreak || wrapped || atend) {
+                this._ActualWidth = Math.max(this._ActualWidth, atend ? line._Advance : line._Width);
+                this._ActualHeight += line._Height;
+                if (linebreak || wrapped) {
+                    line = new _TextLayoutLine(this, index, index);
+                    if (!this.OverrideLineHeight()) {
+                        if (end - index < 1) {
+                            line._Descend = font._Descender();
+                            line._Height = font.GetActualHeight();
+                        }
+                    } else {
+                        line._Descend = this.GetDescendOverride();
+                        line._Height = this.GetLineHeightOverride();
+                    }
+                    if (linebreak && (end - index < 1))
+                        this._ActualHeight += line._Height;
+                    this._Lines.push(line);
+                }
+                if (index < end) {
+                    run = new _TextLayoutRun(line, attrs, index);
+                    line._Runs.push(run);
+                }
+            }
+        }
+        attrs = nattrs;
+    } while (end - index > 0);
+};
+TextLayout.Instance._HorizontalAlignment = function (lineWidth) {
+    var deltax = 0.0;
+    var width;
+    switch (this._Alignment) {
+        case TextAlignment.Center:
+            width = TextLayout._GetWidthConstraint(this._AvailableWidth, this._MaxWidth, this._ActualWidth);
+            if (lineWidth < width)
+                deltax = (width - lineWidth) / 2.0;
+            break;
+        case TextAlignment.Right:
+            width = TextLayout._GetWidthConstraint(this._AvailableWidth, this._MaxWidth, this._ActualWidth);
+            if (lineWidth < width)
+                deltax = width - lineWidth;
+            break;
+    }
+    return deltax;
+};
+TextLayout.Instance._Render = function (ctx, origin, offset) {
+    var line;
+    var x;
+    var y = offset.Y;
+    this.Layout();
+    for (var i = 0; i < this._Lines.length; i++) {
+        line = this._Lines[i];
+        x = offset.X + this._HorizontalAlignment(line._Advance);
+        line._Render(ctx, origin, x, y);
+        y += line._Height;
+    }
+};
+TextLayout.Instance.__Debug = function () {
+    var allText = this.GetText();
+    var t = "";
+    t += "Lines: " + this._Lines.length.toString() + "\n";
+    for (var i = 0; i < this._Lines.length; i++) {
+        t += "\tLine " + i.toString() + ":\n";
+        t += this._Lines[i].__Debug(allText);
+    }
+    return t;
+};
+TextLayout._ValidateAttrs = function (attributes) {
+    var attrs;
+    if (!(attrs = attributes.First()) || attrs._Start != 0)
+        return false;
+    while (attrs != null) {
+        if (!attrs.GetFont()) //WTF: This whole method may not be valid in our case
+            return false;
+        attrs = attrs.Next;
+    }
+    return true;
+};
+TextLayout._IsLineBreak = function (text) {
+    var c0 = text.charAt(0);
+    if (c0 === '\n')
+        return 1;
+    var c1 = text.charAt(1);
+    if (c0 === '\r' && c1 === '\n')
+        return 2;
+    return 0;
+};
+TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
+    if (!isFinite(availWidth)) {
+        if (!isFinite(maxWidth))
+            return actualWidth;
+        else
+            return Math.min(actualWidth, maxWidth);
+    }
+    return availWidth;
+};
+TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
+    word._Length = 0;
+    word._Advance = 0.0;
+    var measuredIndex = 0;
+    var measuredText = "";
+    while (true) {
+        var index = text.indexOf(" ", measuredIndex);
+        if (index === -1)
+            break;
+        index += 1; //include " "
+        var tempText = text.slice(measuredIndex, index);
+        var advance = Surface._MeasureWidth(tempText, word._Font);
+        if (isFinite(maxWidth) && (word._LineAdvance + advance) > maxWidth) {
+            return true;
+        }
+        measuredIndex = index;
+        measuredText = tempText;
+        word._Advance += advance;
+        word._LineAdvance += advance;
+        word._Length += measuredText.length;
+    }
+    word._Length = text.length;
+    return false;
+};
+TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
+    return false;
+    var lineStart = word._LineAdvance == 0.0;
+    if (!word._BreakOps)
+        word._BreakOps = [];
+    word._BreakOps.splice(0, word._BreakOps.length);
+    word._Type = _LayoutWordType.Unknown;
+    word._Advance = 0.0;
+    var op = new _WordBreakOp();
+    var ctype;
+    var btype = _BreakType.Unknown;
+    var fixed = false;
+    var newGlyph = false;
+    var glyphs = 0;
+    var wrap = false;
+    var index = 0;
+    var end = text.length;
+    var start;
+    var c;
+    while (index < end) {
+        start = index;
+        c = text.charAt(index);
+        index++;
+        if (TextLayout._IsLineBreak(text)) {
+            index = start;
+            break;
+        }
+        if (btype === _BreakType.ClosePunctuation) {
+            btype = TextLayout._GetBreakType(c);
+            if (btype !== _BreakType.InFixSeparator) {
+                index = start;
+                break;
+            }
+        } else if (btype === _BreakType.InFixSeparator) {
+            btype = TextLayout._GetBreakType(c);
+            if (word._Type === _LayoutWordType.Numeric) {
+                if (btype !== _BreakType.Numeric) {
+                    index = start;
+                    break;
+                }
+            } else if (word._Type === _LayoutWordType.Unknown) {
+                if (btype !== _BreakType.Alphabetic && btype !== _BreakType.Numeric) {
+                    index = start;
+                    break;
+                }
+                fixed = true;
+            }
+        } else if (btype === _BreakType.WordJoiner) {
+            btype = TextLayout._GetBreakType(c);
+            fixed = true;
+        } else {
+            btype = TextLayout._GetBreakType(c);
+        }
+        if (TextLayout._BreakSpace(c, btype)) {
+            index = start;
+            break;
+        }
+        ctype = TextLayout._GetCharType(c);
+        if (word._Type === _LayoutWordType.Unknown) {
+            word._Type = TextLayout._GetWordType(ctype, btype);
+        } else if (btype === _BreakType.OpenPunctuation) {
+            index = start;
+            break;
+        } else if (TextLayout._WordTypeChanged(word._Type, c, ctype, btype)) {
+            index = start;
+            break;
+        }
+        var newGlyph = true;
+        glyphs++;
+        var advance = Surface.MeasureText(c, word._Font).Width;
+        word._LineAdvance += advance;
+        word._Advance += advance;
+        if (newGlyph) {
+            op.advance = word._Advance;
+            op.index = index;
+            op.btype = btype;
+            op.c = c;
+        }
+        word._BreakOps.push(op);
+        op = op.Copy();
+        if (Number.isFinite(maxWidth) && word._LineAdvance > maxWidth) {
+            wrap = true;
+            break;
+        }
+    }
+    if (!wrap) {
+        word._Length = index;
+        return false;
+    }
+    if (index === end)
+        btype = _BreakType.Space;
+    while (index < end) {
+        start = index;
+        c = text.charAt(index);
+        index++;
+        if (TextLayout._IsLineBreak(text)) {
+            btype = _BreakType.Space;
+            index = start;
+            break;
+        }
+        btype = TextLayout._GetBreakType(c);
+        if (TextLayout._BreakSpace(c, btype)) {
+            index = start;
+            break;
+        }
+        var advance = Surface.MeasureText(c, word._Font).Width;
+        word._LineAdvance += advance;
+        word._Advance += advance;
+        word._BreakOps.pop();
+        op.advance += advance;
+        op.index = index;
+        op.count++;
+        word._BreakOps.push(op);
+        op = op.Copy();
+    }
+    if (lineStart && glyphs === 1) {
+        word._Length = index;
+        return true;
+    }
+    var data = {
+        index: index,
+        lineStart: lineStart,
+        fixed: fixed,
+        btype: btype,
+        force: false
+    };
+    while (true) {
+        for (var i = word._BreakOps.Length; i > 0; i--) {
+            data.op = word._BreakOps[i - 1];
+            data.i = i;
+            if (TextLayout._LayoutWordWrapSearch(word, data) == true)
+                return true;
+            btype = data.op._Btype;
+            c = data.op._C;
+            i = data.i;
+            index = data.index;
+        }
+        if (lineStart && !data.force) {
+            data.force = true;
+            continue;
+        }
+        break;
+    }
+    word._Advance = 0.0;
+    word._Length = 0;
+    return true;
+};
+TextLayout._LayoutWordWrapSearch = function (word, data) {
+    switch (data.op.btype) {
+        case _BreakType.BeforeAndAfter:
+            if (i > 1 && i === word._BreakOps.length) {
+                data.op = word._BreakOps[data.i - 2];
+                data.op.SetWordBasics(word);
+                return true;
+            } else if (i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+        case _BreakType.NonBreakingGlue:
+        case _BreakType.WordJoiner:
+            if (data.force && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1) {
+                data.op = this._BreakOps[data.i - 2];
+                data.i--;
+            }
+            break;
+        case _BreakType.Inseparable:
+            if (data.lineStart && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Before:
+            if (data.i > 1) {
+                data.op = word._BreakOps[data.i - 2];
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.ClosePunctuation:
+            if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1 && !data.force) {
+                data.op = word._BreakOps[data.i - 2];
+                i--;
+            }
+            break;
+        case _BreakType.InFixSeparator:
+            if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.Numeric)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            if (data.i > 1 && !data.force) {
+                data.op = word._BreakOps[data.i - 2];
+                if (data.op._Btype === _BreakType.InFixSeparator ||
+                    data.op._Btype === _BreakType.ClosePunctuation) {
+                    data.op = word._BreakOps[data.i - 1];
+                } else {
+                    i--;
+                }
+            }
+            break;
+        case _BreakType.Alphabetic:
+            if ((data.lineStart || data.fixed || data.force) && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Ideographic:
+            if (data.i < word._BreakOps.length && data.btype !== _BreakType.NonStarter) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.Numeric:
+            if (data.lineStart && data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        case _BreakType.OpenPunctuation:
+        case _BreakType.CombiningMark:
+        case _BreakType.Contingent:
+        case _BreakType.Ambiguous:
+        case _BreakType.Quotation:
+        case _BreakType.Prefix:
+            if (data.force && data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+        default:
+            if (data.i < word._BreakOps.length) {
+                data.op.SetWordBasics(word);
+                return true;
+            }
+            break;
+    }
+    return false;
+};
+TextLayout._LayoutWordNoWrap = function (word, text) {
+    var advance = Surface.MeasureText(text, word._Font).Width;
+    word._Advance = advance;
+    word._LineAdvance += advance;
+    word._Length = text.length;
+    return false;
+};
+TextLayout._LayoutLwsp = function (word, text, font) {
+    var advance = Surface.MeasureText(text, font).Width;
+    word._Advance = advance;
+    word._LineAdvance += advance;
+    word._Length = text.length;
+};
+TextLayout._GetBreakType = function (c) {
+    NotImplemented("TextLayout._GetBreakType");
+};
+TextLayout._GetCharType = function (c) {
+    NotImplemented("TextLayout._GetCharType");
+};
+TextLayout._GetWordType = function (ctype, btype) {
+    NotImplemented("TextLayout._GetWordType");
+};
+TextLayout._BreakSpace = function (c, btype) {
+    NotImplemented("TextLayout._BreakSpace");
+};
+TextLayout._UpdateSelection = function (lines, pre, post) {
+};
+Nullstone.FinishCreate(TextLayout);
+
+var _TextLayoutGlyphCluster = Nullstone.Create("_TextLayoutGlyphCluster", null, 3);
+_TextLayoutGlyphCluster.Instance.Init = function (text, font, selected) {
+    this._Text = text;
+    this._Selected = selected == true;
+    this._Advance = Surface.MeasureText(text, font).Width;
+};
+_TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
+    if (this._Text.length == 0 || this._Advance == 0.0)
+        return;
+    var font = attrs.GetFont();
+    var y0 = font._Ascender();
+    ctx.Transform(new TranslationMatrix(x, y - y0));
+    var brush;
+    var area;
+    if (this._Selected && (brush = attrs.GetBackground(true))) {
+        area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
+        ctx.Fill(area, brush); //selection background
+    }
+    if (!(brush = attrs.GetForeground(this._Selected)))
+        return;
+    ctx.CustomRender(_TextLayoutGlyphCluster._Painter, this._Text, brush, attrs.GetFont());
+    if (attrs.IsUnderlined()) {
+    }
+};
+_TextLayoutGlyphCluster._Painter = function (args) {
+    var canvasCtx = args[0];
+    var text = args[1];
+    var foreground = args[2];
+    var font = args[3];
+    foreground.SetupBrush(canvasCtx);
+    canvasCtx.fillStyle = foreground.ToHtml5Object();
+    canvasCtx.font = font.ToHtml5Object();
+    canvasCtx.textAlign = "left";
+    canvasCtx.textBaseline = "top";
+    canvasCtx.fillText(text, 0, 0);
+};
+Nullstone.FinishCreate(_TextLayoutGlyphCluster);
+
+var _TextLayoutLine = Nullstone.Create("_TextLayoutLine", null, 3);
+_TextLayoutLine.Instance.Init = function (layout, start, offset) {
+    this._Runs = [];
+    this._Layout = layout;
+    this._Start = start;
+    this._Offset = offset;
+    this._Advance = 0.0; //after layout, will contain horizontal distance this line advances
+    this._Descend = 0.0;
+    this._Height = 0.0;
+    this._Width = 0.0;
+    this._Length = 0;
+};
+_TextLayoutLine.Instance.GetCursorFromX = function (offset, x) {
+    var run = null;
+    var x0 = offset.X + this._Layout._HorizontalAlignment(this._Advance);
+    var cursor = this._Offset;
+    var text = this._Layout.GetText();
+    var index = this._Start;
+    var end;
+    var c;
+    var i;
+    for (i = 0; i < this._Runs.length; i++) {
+        run = this._Runs[i];
+        if (x < (x0 + run._Advance))
+            break; // x is somewhere inside this run
+        cursor += run._Length;
+        index += run._Length;
+        x0 += run._Advance;
+        run = null;
+    }
+    if (run != null) {
+        index = run._Start;
+        end = run._Start + run._Length;
+        var font = run._Attrs.GetFont();
+        var m;
+        var ch;
+        while (index < end) {
+            ch = index;
+            cursor++;
+            c = text.charAt(index);
+            index++;
+            if (c === '\t')
+                c = ' ';
+            m = Surface._MeasureWidth(c, font);
+            if (x <= x0 + (m / 2.0)) {
+                index = ch;
+                cursor--;
+                break;
+            }
+            x0 += m;
+        }
+    } else if (i > 0) {
+        run = this._Runs[i - 1];
+        end = run._Start + run._Length;
+        index = run._Start;
+        c = end - 1 < 0 ? null : text.charAt(end - 1);
+        if (c == '\n') {
+            cursor--;
+            end--;
+            c = end - 1 < 0 ? null : text.charAt(end - 1);
+            if (c == '\r') {
+                cursor--;
+                end--;
+            }
+        }
+    }
+    return cursor;
+};
+_TextLayoutLine.Instance._Render = function (ctx, origin, left, top) {
+    var run;
+    var x0 = left;
+    var y0 = top;
+    for (var i = 0; i < this._Runs.length; i++) {
+        run = this._Runs[i];
+        run._Render(ctx, origin, x0, y0);
+        x0 += run._Advance;
+    }
+};
+_TextLayoutLine.Instance.__Debug = function (allText) {
+    var t = "";
+    t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
+    for (var i = 0; i < this._Runs.length; i++) {
+        t += "\t\t\tRun " + i.toString() + ": ";
+        t += this._Runs[i].__Debug(allText);
+        t += "\n";
+    }
+    return t;
+};
+Nullstone.FinishCreate(_TextLayoutLine);
+
+var _TextLayoutRun = Nullstone.Create("_TextLayoutRun", null, 3);
+_TextLayoutRun.Instance.Init = function (line, attrs, start) {
+    this._Clusters = [];
+    this._Attrs = attrs;
+    this._Start = start;
+    this._Line = line;
+    this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
+    this._Length = 0;
+};
+_TextLayoutRun.Instance._GenerateCache = function () {
+    var selectionLength = this._Line._Layout.GetSelectionLength();
+    var selectionStart = this._Line._Layout.GetSelectionStart();
+    var text = this._Line._Layout.GetText();
+    var font = this._Attrs.GetFont();
+    var len;
+    var index = this._Start;
+    var cluster1;
+    var cluster2;
+    if (selectionLength === 0 || this._Start < selectionStart) {
+        len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
+        cluster1 = new _TextLayoutGlyphCluster(text.substr(this._Start, len), font);
+        this._Clusters.push(cluster1);
+        index += len;
+    }
+    var selectionEnd = selectionStart + selectionLength;
+    var runEnd = this._Start + this._Length;
+    if (index < runEnd && index < selectionEnd) {
+        len = Math.min(runEnd - index, selectionEnd - index);
+        cluster2 = new _TextLayoutGlyphCluster(text.substr(index, len), font, true);
+        this._Clusters.push(cluster2);
+        index += len;
+    }
+    var cluster3;
+    if (index < runEnd) {
+        len = runEnd - index;
+        cluster3 = new _TextLayoutGlyphCluster(text.substr(index, len), font);
+        this._Clusters.push(cluster3);
+        index += len;
+    }
+};
+_TextLayoutRun.Instance._ClearCache = function () {
+    this._Clusters = [];
+};
+_TextLayoutRun.Instance._Render = function (ctx, origin, x, y) {
+    var x0 = x;
+    if (this._Clusters.length === 0)
+        this._GenerateCache();
+    for (var i = 0; i < this._Clusters.length; i++) {
+        var cluster = this._Clusters[i];
+        ctx.Save();
+        cluster._Render(ctx, origin, this._Attrs, x0, y);
+        ctx.Restore();
+        x0 += cluster._Advance;
+    }
+};
+_TextLayoutRun.Instance.__Debug = function (allText) {
+    return allText.substr(this._Start, this._Length);
+};
+Nullstone.FinishCreate(_TextLayoutRun);
+
+var _WordBreakOp = Nullstone.Create("_WordBreakOp");
+_WordBreakOp.Instance.Init = function () {
+    this._Advance = 0.0;
+    this._Index = 0;
+    this._Btype = 0;
+    this._C = '';
+};
+_WordBreakOp.Instance.Copy = function () {
+    var newOp = new _WordBreakOp();
+    newOp._Advance = this._Advance;
+    newOp._Btype = this._Btype;
+    newOp._C = this._C;
+    newOp._Index = this._Index;
+};
+_WordBreakOp.Instance.SetWordBasics = function (word) {
+    word._Length = this._Index;
+    word._Advance = this._Advance;
+};
+Nullstone.FinishCreate(_WordBreakOp);
 
 var _TextBoxUndoStack = Nullstone.Create("_TextBoxUndoStack", null, 1);
 _TextBoxUndoStack.Instance.Init = function (maxCount) {
@@ -525,6 +1697,23 @@ _TextBoxUndoStack.Instance.Pop = function () {
     return this._ht.pop();
 };
 Nullstone.FinishCreate(_TextBoxUndoStack);
+
+var GridLength = Nullstone.Create("GridLength", null, 2);
+GridLength.Instance.Init = function (value, unitType) {
+    this.Value = value == null ? 0 : value;
+    this.Type = unitType == null ? GridUnitType.Auto : unitType;
+};
+GridLength.Equals = function (gl1, gl2) {
+    return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
+};
+Nullstone.FinishCreate(GridLength);
+
+var _TextBoxModelChangedEventArgs = Nullstone.Create("_TextBoxModelChangedEventArgs", null, 2);
+_TextBoxModelChangedEventArgs.Instance.Init = function (changed, propArgs) {
+    this.Changed = changed;
+    this.PropArgs = propArgs;
+};
+Nullstone.FinishCreate(_TextBoxModelChangedEventArgs);
 
 var BindingOperations = {
     SetBinding: function (target, dp, binding) {
@@ -560,7 +1749,7 @@ var Fayde = {
 
 var _DeepStyleWalker = Nullstone.Create("_DeepStyleWalker", null, 1);
 _DeepStyleWalker.Instance.Init = function (styles) {
-    this._Setters = new Array();
+    this._Setters = [];
     this._Offset = 0;
     if (styles instanceof Style)
         this._InitializeStyle(styles);
@@ -576,7 +1765,7 @@ _DeepStyleWalker.Instance.Step = function () {
     return undefined;
 };
 _DeepStyleWalker.Instance._InitializeStyle = function (style) {
-    var dps = new Array();
+    var dps = [];
     var cur = style;
     while (cur) {
         var setters = cur.GetSetters();
@@ -595,8 +1784,8 @@ _DeepStyleWalker.Instance._InitializeStyle = function (style) {
 _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
     if (!styles)
         return;
-    var dps = new Array();
-    var stylesSeen = new Array();
+    var dps = [];
+    var stylesSeen = [];
     for (var i = 0; i < _StyleIndex.Count; i++) {
         var style = styles[i];
         while (style != null) {
@@ -713,18 +1902,18 @@ DependencyProperty.RegisterCore = function (name, getTargetType, ownerType, defa
 };
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
     if (!DependencyProperty._Registered)
-        DependencyProperty._Registered = new Array();
+        DependencyProperty._Registered = [];
     if (!DependencyProperty._Registered[ownerType._TypeName])
-        DependencyProperty._Registered[ownerType._TypeName] = new Array();
+        DependencyProperty._Registered[ownerType._TypeName] = [];
     var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
     DependencyProperty._Registered[ownerType._TypeName][name] = propd;
     return propd;
 }
 DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue) {
     if (!DependencyProperty._Registered)
-        DependencyProperty._Registered = new Array();
+        DependencyProperty._Registered = [];
     if (!DependencyProperty._Registered[ownerType._TypeName])
-        DependencyProperty._Registered[ownerType._TypeName] = new Array();
+        DependencyProperty._Registered[ownerType._TypeName] = [];
     var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue);
     propd._IsAttached = true;
     DependencyProperty._Registered[ownerType._TypeName][name] = propd;
@@ -1044,7 +2233,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
             }
             return true;
         }
-        var cycles = new Array();
+        var cycles = [];
         root = style;
         while (root != null) {
             if (cycles[root._ID]) {
@@ -1323,7 +2512,7 @@ Nullstone.FinishCreate(_PropertyValueProvider);
 var _StylePropertyValueProvider = Nullstone.Create("_StylePropertyValueProvider", _PropertyValueProvider, 2);
 _StylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
-    this._ht = new Array();
+    this._ht = [];
 };
 _StylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
@@ -2036,7 +3225,7 @@ Nullstone.FinishCreate(RelativeSource);
 
 var Clock = Nullstone.Create("Clock");
 Clock.Instance.Init = function () {
-    this._Timers = new Array();
+    this._Timers = [];
 };
 Clock.Instance.RegisterTimer = function (timer) {
     if (!Array.addDistinctNullstone(this._Timers, timer))
@@ -2124,7 +3313,7 @@ Nullstone.FinishCreate(_DirtyList);
 var _RenderContext = Nullstone.Create("_RenderContext", null, 1);
 _RenderContext.Instance.Init = function (surface) {
     this._Surface = surface;
-    this._Transforms = new Array();
+    this._Transforms = [];
 };
 _RenderContext.Instance.GetSurface = function () {
     return this._Surface;
@@ -2188,7 +3377,7 @@ _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;
 };
 _RenderContext.ToArray = function (args) {
-    var arr = new Array();
+    var arr = [];
     for (var i in args)
         arr.push(args[i]);
     return arr;
@@ -3079,7 +4268,7 @@ Nullstone.FinishCreate(Closure);
 
 var Dictionary = Nullstone.Create("Dictionary");
 Dictionary.Instance.Init = function () {
-    this._ht = new Array();
+    this._ht = [];
 };
 Dictionary.Instance.TryGetValue = function (key, data) {
     data.Value = this._ht[key];
@@ -3118,100 +4307,6 @@ KeyEventArgs.Instance.Init = function (modifiers, keyCode) {
     this.KeyCode = keyCode;
 };
 Nullstone.FinishCreate(KeyEventArgs);
-
-Object.Clone = function (o) {
-    return eval(uneval(o));
-};
-/*
-Function.prototype.Implement = function (interface) {
-    var interfaceName = (new interface())._TypeName;
-    for (var i in interface.prototype) {
-        if (!this.prototype[i])
-            this.prototype[i] = new Function("throw new NotImplementedException();");
-    }
-    if (this._Interfaces == null)
-        this._Interfaces = new Array();
-    this._Interfaces[interfaceName] = true;
-    return this;
-};
-Function.prototype.DoesImplement = function (interface) {
-    if (!this._Interfaces)
-        return false;
-    var interfaceName = (new interface())._TypeName;
-    return this._Interfaces[interfaceName] === true;
-};
-*/
-Function.prototype.Clone = function () {
-    return eval(uneval(this));
-};
-String.prototype.indexOfAny = function (carr, start) {
-    if (!(carr instanceof Array))
-        return -1;
-    if (start == null)
-        start = 0;
-    for (var cur = start; cur < this.length; cur++) {
-        var c = this.charAt(c);
-        for (var i = 0; i < carr.length; i++) {
-            if (c === carr[i])
-                return cur;
-        }
-    }
-    return -1;
-};
-Array.indexOfNullstone = function (arr, ns) {
-    for (var i = 0; i < arr.length; i++) {
-        if (Nullstone.RefEquals(arr[i], ns))
-            return i;
-    }
-    return -1;
-};
-Array.containsNullstone = function (arr, ns) {
-    return Array.indexOfNullstone(arr, ns) > -1;
-};
-Array.addDistinctNullstone = function (arr, ns) {
-    if (Array.containsNullstone(arr, ns))
-        return false;
-    arr.push(ns);
-    return true;
-};
-Array.removeNullstone = function (arr, ns) {
-    var index = Array.indexOfNullstone(arr, ns);
-    if (index > -1)
-        arr.splice(index, 1);
-};
-Number.isNumber = function (o) {
-    return typeof o == "number";
-};
-String.isString = function (o) {
-    return typeof o == "string";
-};
-String.contains = function (str, match) {
-    if (!str)
-        return false;
-    if (!match)
-        return false;
-    var j = 0;
-    for (var i = 0; i < str.length && j < match.length; i++) {
-        if (str.charAt(i) === match.charAt(j))
-            j++;
-        else
-            j = 0;
-    }
-    return j >= match.length;
-};
-String.format = function (culture, format, str) {
-    return str;
-};
-window.requestAnimFrame = (function () {
-    return window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function (callback) {
-            window.setTimeout(callback, 1000 / 200);
-        };
-})();
 
 var LinkedList = Nullstone.Create("LinkedList");
 LinkedList.Instance.Init = function () {
@@ -3329,895 +4424,11 @@ MulticastEvent.Instance.RaiseAsync = function (sender, args) {
 };
 Nullstone.FinishCreate(MulticastEvent);
 
-var PropertyInfo = Nullstone.Create("PropertyInfo");
-PropertyInfo.Find = function (typeOrObj, name) {
-    var isType = typeOrObj instanceof Function;
-    var type = isType ? typeOrObj : typeOrObj.constructor;
-    var setFunc;
-    var getFunc;
-    for (var i in type.Instance) {
-        if (i.toString() === ("Set" + name))
-            setFunc = type.Instance[i];
-        if (i.toString() === ("Get" + name))
-            getFunc = type.Instance[i];
-        if (getFunc && setFunc) {
-            var pi = new PropertyInfo();
-            pi.Type = type;
-            pi.SetFunc = setFunc;
-            pi.GetFunc = getFunc;
-            return pi;
-        }
-    }
-};
-PropertyInfo.Instance.GetValue = function (ro) {
-    if (!this.GetFunc)
-        return undefined;
-    return this.GetFunc.call(ro);
-};
-PropertyInfo.Instance.SetValue = function (ro, value) {
-    if (this.SetFunc)
-        this.SetFunc.call(ro, value);
-};
-Nullstone.FinishCreate(PropertyInfo);
-
-var RoutedEvent = Nullstone.Create("RoutedEvent");
-RoutedEvent.Instance.Init = function () {
-    this._Listeners = [];
-};
-RoutedEvent.Instance.Subscribe = function (pre, on, post, closure) {
-    this._Listeners.push({
-        PreCallback: pre,
-        Callback: on,
-        PostCallback: post,
-        Closure: closure
-    });
-};
-RoutedEvent.Instance.Raise = function () {
-};
-Nullstone.FinishCreate(RoutedEvent);
-
 var RoutedEventArgs = Nullstone.Create("RoutedEventArgs", EventArgs);
 RoutedEventArgs.Instance.Init = function () {
     this.Handled = false;
 };
 Nullstone.FinishCreate(RoutedEventArgs);
-
-var _LayoutWord = Nullstone.Create("_LayoutWord");
-_LayoutWord.Instance.Init = function () {
-    this._Advance = 0.0;
-    this._LineAdvance = 0.0;
-    this._Length = 0;
-    this._BreakOps = null;
-    this._Font = new Font();
-};
-Nullstone.FinishCreate(_LayoutWord);
-
-var _TextBuffer = Nullstone.Create("_TextBuffer", Object);
-_TextBuffer.Instance.Init = function () {
-    this._Text = null;
-};
-_TextBuffer.Instance.GetLength = function () {
-    if (this._Text == null)
-        return 0;
-    return this._Text.length;
-};
-_TextBuffer.Instance.Reset = function () {
-    this._Text = null;
-};
-_TextBuffer.Instance.Prepend = function (str) {
-    if (!this._Text)
-        this._Text = str;
-    else
-        this._Text = str + this._Text;
-};
-_TextBuffer.Instance.Append = function (str) {
-    if (!this._Text)
-        this._Text = str;
-    else
-        this._Text += str;
-};
-_TextBuffer.Instance.Cut = function (start, len) {
-    if (!this._Text) {
-        this._Text = null;
-        return;
-    }
-    this._Text = this._Text.slice(0, start) + this._Text.slice(start + len);
-};
-_TextBuffer.Instance.Insert = function (index, str) {
-    if (!this._Text)
-        this._Text = str;
-    else
-        this._Text = [this._Text.slice(0, index), str, this._Text.slice(index)].join('');
-};
-_TextBuffer.Instance.Replace = function (start, len, str) {
-    if (!this._Text) {
-        this._Text = str;
-        return;
-    }
-    this._Text = [this._Text.slice(0, start), str, this._Text.slice(start + len)].join('');
-};
-Nullstone.FinishCreate(_TextBuffer);
-
-var TextLayout = Nullstone.Create("TextLayout");
-TextLayout.Instance.Init = function () {
-    this._SelectionStart = 0;
-    this._SelectionLength = 0;
-    this._Strategy = LineStackingStrategy.MaxHeight;
-    this._Alignment = TextAlignment.Left;
-    this._Trimming = TextTrimming.None;
-    this._Wrapping = TextWrapping.NoWrap;
-    this._AvailableWidth = Number.POSITIVE_INFINITY;
-    this._MaxHeight = Number.POSITIVE_INFINITY;
-    this._MaxWidth = Number.POSITIVE_INFINITY;
-    this._BaseDescent = 0.0;
-    this._BaseHeight = 0.0;
-    this._ActualHeight = NaN;
-    this._ActualWidth = NaN;
-    this._LineHeight = NaN;
-    this._Attributes = null;
-    this._Lines = new Array();
-    this._IsWrapped = true;
-    this._Text = null;
-    this._Length = 0;
-};
-TextLayout.Instance.GetSelectionLength = function () {
-    return this._SelectionLength;
-};
-TextLayout.Instance.GetSelectionStart = function () {
-    return this._SelectionStart;
-};
-TextLayout.Instance.GetLineStackingStrategy = function () {
-    return this._Strategy;
-};
-TextLayout.Instance.SetLineStackingStrategy = function (value) {
-    if (this._Strategy == value)
-        return false;
-    this._Strategy = value;
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetTextAttributes = function () {
-    return this._Attributes;
-};
-TextLayout.Instance.SetTextAttributes = function (value) {
-    if (this._Attributes) {
-        this._Attributes._Clear(true);
-    }
-    this._Attributes = value;
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetTextAlignment = function () {
-    return this._Alignment;
-};
-TextLayout.Instance.SetTextAlignment = function (value) {
-    if (this._Alignment == value)
-        return false;
-    this._Alignment = value;
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetTextTrimming = function () {
-    return this._Trimming;
-};
-TextLayout.Instance.SetTextTrimming = function (value) {
-    if (this._Trimming == value)
-        return false;
-    this._Trimming = value;
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetTextWrapping = function () {
-    return this._Wrapping;
-};
-TextLayout.Instance.SetTextWrapping = function (value) {
-    switch (value) {
-        case TextWrapping.NoWrap:
-        case TextWrapping.Wrap:
-            break;
-        default:
-            value = TextWrapping.Wrap;
-            break;
-    }
-    if (this._Wrapping == value)
-        return false;
-    this._Wrapping = value;
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetLineHeight = function () {
-    return this._LineHeight;
-};
-TextLayout.Instance.SetLineHeight = function (value) {
-    if (this._LineHeight == value)
-        return false;
-    this._LineHeight = value;
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetMaxHeight = function () {
-    return this._MaxHeight;
-};
-TextLayout.Instance.SetMaxHeight = function (value) {
-    if (this._MaxHeight == value)
-        return false;
-    this._MaxHeight = value;
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetMaxWidth = function () {
-    return this._MaxWidth;
-};
-TextLayout.Instance.SetMaxWidth = function (value) {
-    if (value === 0.0)
-        value = Number.POSITIVE_INFINITY;
-    if (this._MaxWidth === value)
-        return false;
-    if (!this._IsWrapped && (!isFinite(value) || value > this._ActualWidth)) {
-        this._MaxWidth = value;
-        return false;
-    }
-    this._MaxWidth = value;
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetAvailableWidth = function () {
-    return this._AvailableWidth;
-};
-TextLayout.Instance.SetAvailableWidth = function (value) {
-    this._AvailableWidth = value;
-    return false;
-};
-TextLayout.Instance.GetText = function () {
-    return this._Text;
-};
-TextLayout.Instance.SetText = function (value, length) {
-    if (value) {
-        this._Text = value;
-        this._Length = length == -1 ? value.length : length;
-    } else {
-        this._Text = null;
-        this._Length = 0;
-    }
-    this._ResetState();
-    return true;
-};
-TextLayout.Instance.GetBaselineOffset = function () {
-    if (this._Lines.length === 0)
-        return 0;
-    var line = this._Lines[0];
-    return line._Height + line._Descend;
-};
-TextLayout.Instance.OverrideLineHeight = function () {
-    return this.GetLineStackingStrategy() === LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
-};
-TextLayout.Instance.GetLineHeightOverride = function () {
-    if (isNaN(this.GetLineHeight()))
-        return this._BaseHeight;
-    return this.GetLineHeight();
-};
-TextLayout.Instance.GetDescendOverride = function () {
-    if (isNaN(this.GetLineHeight()))
-        return this._BaseDescent;
-    if (this._BaseHeight == 0.0)
-        return 0.0;
-    return this.GetLineHeight() * (this._BaseDescent / this._BaseHeight);
-}
-TextLayout.Instance.GetLineFromY = function (offset, y, refIndex) {
-    var line = null;
-    var y0 = offset.Y;
-    var y1;
-    for (var i = 0; i < this._Lines.length; i++) {
-        line = this._Lines[i];
-        y1 = y0 + line._Height; //set y1 to top of next line
-        if (y < y1) {
-            if (refIndex)
-                refIndex.Value = i;
-            return line;
-        }
-        y0 = y1;
-    }
-    return null;
-};
-TextLayout.Instance.GetLineFromIndex = function (index) {
-    if (index >= this._Lines.length || index < 0)
-        return null;
-    return this._Lines[index];
-};
-TextLayout.Instance.GetCursorFromXY = function (offset, x, y) {
-    var line;
-    if (y < offset.Y) {
-        line = this._Lines[0];
-    } else if (!(line = this.GetLineFromY(offset, y))) {
-        line = this._Lines[this._Lines.length - 1];
-    }
-    return line.GetCursorFromX(offset, x);
-};
-TextLayout.Instance.GetSelectionCursor = function (offset, pos) {
-    var x0 = offset.X;
-    var y0 = offset.Y;
-    var height = 0.0;
-    var y1 = 0.0;
-    var cursor = 0;
-    for (var i = 0; i < this._Lines.length; i++) {
-        var line = this._Lines[i];
-        x0 = offset.X + this._HorizontalAlignment(line._Advance);
-        y1 = y0 + line._Height + line._Descend;
-        height = line._Height;
-        if (pos >= cursor + line._Length) {
-            if ((i + 1) === this._Lines.length) {
-                if (TextLayout._IsLineBreak(this._Text.substr(line._Start + line._Length - 1, 2))) {
-                    x0 = offset.X + this._HorizontalAlignment(0.0);
-                    y0 += line._Height;
-                } else {
-                    x0 += line._Advance;
-                }
-                break;
-            }
-            cursor += line._Length;
-            y0 += line._Height;
-            continue;
-        }
-        for (var j = 0; j < line._Runs.length; j++) {
-            var run = line._Runs[j];
-            end = run._Start + run._Length;
-            if (pos >= cursor + run._Length) {
-                cursor += run._Length;
-                x0 += run._Advance;
-                continue;
-            }
-            if (run._Start === pos)
-                break;
-            var font = run._Attrs.GetFont();
-            x0 += Surface._MeasureWidth(this._Text.slice(run._Start, pos), font);
-            break;
-        }
-        break;
-    }
-    return new Rect(x0, y0, 1.0, height);
-};
-TextLayout.Instance._FindLineWithIndex = function (index) {
-    var cursor = 0;
-    for (var i = 0; i < this._Lines.length; i++) {
-        var line = this._Lines[i];
-        if (index < cursor + line._Length)
-            return line;
-        cursor += line._Length;
-    }
-    return null;
-};
-TextLayout.Instance.Select = function (start, length) {
-    if (!this._Text) {
-        this._SelectionLength = 0;
-        this._SelectionStart = 0;
-        return;
-    }
-    var newSelectionStart;
-    var newSelectionLength;
-    var index;
-    var end;
-    if (!false) {
-        newSelectionStart = index = start;
-        end = index + length;
-        newSelectionLength = length;
-    } else {
-        newSelectionLength = length;
-        newSelectionStart = start;
-    }
-    if (this._SelectionStart === newSelectionStart && this._SelectionLength === newSelectionLength)
-        return;
-    if (this._SelectionLength > 0 || newSelectionLength > 0)
-        this._ClearCache();
-    this._SelectionLength = newSelectionLength;
-    this._SelectionStart = newSelectionStart;
-};
-TextLayout.Instance._ClearCache = function () {
-    var line;
-    for (var i = 0; i < this._Lines.length; i++) {
-        line = this._Lines[i];
-        for (var j = 0; j < line._Runs.length; j++) {
-            line._Runs[i]._ClearCache();
-        }
-    }
-};
-TextLayout.Instance._ClearLines = function () {
-    this._Lines = [];
-};
-TextLayout.Instance._ResetState = function () {
-    this._ActualHeight = NaN;
-    this._ActualWidth = NaN;
-};
-TextLayout.Instance.GetRenderExtents = function () {
-    this.Layout();
-    return new Rect(this._HorizontalAlignment(this._ActualWidth), 0.0, this._ActualWidth, this._ActualHeight);
-};
-TextLayout.Instance.GetActualExtents = function () {
-    return new Size(this._ActualWidth, this._ActualHeight);
-};
-TextLayout.Instance.Layout = function () {
-    if (!isNaN(this._ActualWidth))
-        return;
-    this._ActualHeight = 0.0;
-    this._ActualWidth = 0.0;
-    this._IsWrapped = false;
-    this._ClearLines();
-    if (this._Text == null || !TextLayout._ValidateAttrs(this._Attributes))
-        return;
-    var word = new _LayoutWord();
-    if (this._Wrapping === TextWrapping.Wrap)
-        word._BreakOps = new Array();
-    else
-        word._BreakOps = null;
-    var layoutWordFunc = this._Wrapping === TextWrapping.NoWrap ? TextLayout._LayoutWordNoWrap : TextLayout._LayoutWordWrap;
-    var line = new _TextLayoutLine(this, 0, 0);
-    if (this.OverrideLineHeight()) {
-        line._Descend = this.GetDescendOverride();
-        line._Height = this.GetLineHeightOverride();
-    }
-    this._Lines.push(line);
-    var index = 0;
-    var attrs = this._Attributes.First();
-    var nattrs;
-    var end;
-    var run;
-    var font;
-    do {
-        nattrs = attrs.Next;
-        end = nattrs ? nattrs._Start : this._Length;
-        run = new _TextLayoutRun(line, attrs, index);
-        line._Runs.push(run);
-        word._Font = font = attrs.GetFont();
-        if (end - index <= 0) {
-            if (!this.OverrideLineHeight()) {
-                line._Descend = Math.min(line._Descend, font._Descender());
-                line._Height = Math.max(line._Height, font.GetActualHeight());
-            }
-            this._ActualHeight += line._Height;
-            break;
-        }
-        while (index < end) {
-            var linebreak = false;
-            var wrapped = false;
-            while (index < end) {
-                var lineBreakLength = TextLayout._IsLineBreak(this._Text.slice(index, end));
-                if (lineBreakLength > 0) {
-                    if (line._Length == 0 && !this.OverrideLineHeight()) {
-                        line._Descend = font._Descender();
-                        line._Height = font.GetActualHeight();
-                    }
-                    line._Length += lineBreakLength;
-                    run._Length += lineBreakLength;
-                    index += lineBreakLength;
-                    linebreak = true;
-                    break;
-                }
-                word._LineAdvance = line._Advance;
-                if (layoutWordFunc(word, this._Text.slice(index, end), this.GetMaxWidth())) {
-                    this._IsWrapped = true;
-                    wrapped = true;
-                }
-                if (word._Length > 0) {
-                    if (!this.OverrideLineHeight()) {
-                        line._Descend = Math.min(line._Descend, font._Descender());
-                        line._Height = Math.max(line._Height, font.GetActualHeight());
-                    }
-                    line._Advance += word._Advance;
-                    run._Advance += word._Advance;
-                    line._Width = line._Advance;
-                    line._Length += word._Length;
-                    run._Length += word._Length;
-                    index += word._Length;
-                }
-                if (wrapped)
-                    break;
-                word._LineAdvance = line._Advance;
-                TextLayout._LayoutLwsp(word, this._Text.slice(index, end), font);
-                if (word._Length > 0) {
-                    if (!this.OverrideLineHeight()) {
-                        line._Descend = Math.min(line._Descend, font._Descender());
-                        line._Height = Math.max(line._Height, font.GetActualHeight());
-                    }
-                    line._Advance += word._Advance;
-                    run._Advance += word._Advance;
-                    line._Width = line._Advance;
-                    line._Length += word._Length;
-                    run._Length += word._Length;
-                    index += word._Length;
-                }
-            }
-            var atend = index >= end;
-            if (linebreak || wrapped || atend) {
-                this._ActualWidth = Math.max(this._ActualWidth, atend ? line._Advance : line._Width);
-                this._ActualHeight += line._Height;
-                if (linebreak || wrapped) {
-                    line = new _TextLayoutLine(this, index, index);
-                    if (!this.OverrideLineHeight()) {
-                        if (end - index < 1) {
-                            line._Descend = font._Descender();
-                            line._Height = font.GetActualHeight();
-                        }
-                    } else {
-                        line._Descend = this.GetDescendOverride();
-                        line._Height = this.GetLineHeightOverride();
-                    }
-                    if (linebreak && (end - index < 1))
-                        this._ActualHeight += line._Height;
-                    this._Lines.push(line);
-                }
-                if (index < end) {
-                    run = new _TextLayoutRun(line, attrs, index);
-                    line._Runs.push(run);
-                }
-            }
-        }
-        attrs = nattrs;
-    } while (end - index > 0);
-};
-TextLayout.Instance._HorizontalAlignment = function (lineWidth) {
-    var deltax = 0.0;
-    var width;
-    switch (this._Alignment) {
-        case TextAlignment.Center:
-            width = TextLayout._GetWidthConstraint(this._AvailableWidth, this._MaxWidth, this._ActualWidth);
-            if (lineWidth < width)
-                deltax = (width - lineWidth) / 2.0;
-            break;
-        case TextAlignment.Right:
-            width = TextLayout._GetWidthConstraint(this._AvailableWidth, this._MaxWidth, this._ActualWidth);
-            if (lineWidth < width)
-                deltax = width - lineWidth;
-            break;
-    }
-    return deltax;
-};
-TextLayout.Instance._Render = function (ctx, origin, offset) {
-    var line;
-    var x;
-    var y = offset.Y;
-    this.Layout();
-    for (var i = 0; i < this._Lines.length; i++) {
-        line = this._Lines[i];
-        x = offset.X + this._HorizontalAlignment(line._Advance);
-        line._Render(ctx, origin, x, y);
-        y += line._Height;
-    }
-};
-TextLayout.Instance.__Debug = function () {
-    var allText = this.GetText();
-    var t = "";
-    t += "Lines: " + this._Lines.length.toString() + "\n";
-    for (var i = 0; i < this._Lines.length; i++) {
-        t += "\tLine " + i.toString() + ":\n";
-        t += this._Lines[i].__Debug(allText);
-    }
-    return t;
-};
-TextLayout._ValidateAttrs = function (attributes) {
-    var attrs;
-    if (!(attrs = attributes.First()) || attrs._Start != 0)
-        return false;
-    while (attrs != null) {
-        if (!attrs.GetFont()) //WTF: This whole method may not be valid in our case
-            return false;
-        attrs = attrs.Next;
-    }
-    return true;
-};
-TextLayout._IsLineBreak = function (text) {
-    var c0 = text.charAt(0);
-    if (c0 === '\n')
-        return 1;
-    var c1 = text.charAt(1);
-    if (c0 === '\r' && c1 === '\n')
-        return 2;
-    return 0;
-};
-TextLayout._GetWidthConstraint = function (availWidth, maxWidth, actualWidth) {
-    if (!isFinite(availWidth)) {
-        if (!isFinite(maxWidth))
-            return actualWidth;
-        else
-            return Math.min(actualWidth, maxWidth);
-    }
-    return availWidth;
-};
-TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
-    word._Length = 0;
-    word._Advance = 0.0;
-    var measuredIndex = 0;
-    var measuredText = "";
-    while (true) {
-        var index = text.indexOf(" ", measuredIndex);
-        if (index === -1)
-            break;
-        index += 1; //include " "
-        var tempText = text.slice(measuredIndex, index);
-        var advance = Surface._MeasureWidth(tempText, word._Font);
-        if (isFinite(maxWidth) && (word._LineAdvance + advance) > maxWidth) {
-            return true;
-        }
-        measuredIndex = index;
-        measuredText = tempText;
-        word._Advance += advance;
-        word._LineAdvance += advance;
-        word._Length += measuredText.length;
-    }
-    word._Length = text.length;
-    return false;
-};
-TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
-    return false;
-    var lineStart = word._LineAdvance == 0.0;
-    if (!word._BreakOps)
-        word._BreakOps = new Array();
-    word._BreakOps.splice(0, word._BreakOps.length);
-    word._Type = _LayoutWordType.Unknown;
-    word._Advance = 0.0;
-    var op = new _WordBreakOp();
-    var ctype;
-    var btype = _BreakType.Unknown;
-    var fixed = false;
-    var newGlyph = false;
-    var glyphs = 0;
-    var wrap = false;
-    var index = 0;
-    var end = text.length;
-    var start;
-    var c;
-    while (index < end) {
-        start = index;
-        c = text.charAt(index);
-        index++;
-        if (TextLayout._IsLineBreak(text)) {
-            index = start;
-            break;
-        }
-        if (btype === _BreakType.ClosePunctuation) {
-            btype = TextLayout._GetBreakType(c);
-            if (btype !== _BreakType.InFixSeparator) {
-                index = start;
-                break;
-            }
-        } else if (btype === _BreakType.InFixSeparator) {
-            btype = TextLayout._GetBreakType(c);
-            if (word._Type === _LayoutWordType.Numeric) {
-                if (btype !== _BreakType.Numeric) {
-                    index = start;
-                    break;
-                }
-            } else if (word._Type === _LayoutWordType.Unknown) {
-                if (btype !== _BreakType.Alphabetic && btype !== _BreakType.Numeric) {
-                    index = start;
-                    break;
-                }
-                fixed = true;
-            }
-        } else if (btype === _BreakType.WordJoiner) {
-            btype = TextLayout._GetBreakType(c);
-            fixed = true;
-        } else {
-            btype = TextLayout._GetBreakType(c);
-        }
-        if (TextLayout._BreakSpace(c, btype)) {
-            index = start;
-            break;
-        }
-        ctype = TextLayout._GetCharType(c);
-        if (word._Type === _LayoutWordType.Unknown) {
-            word._Type = TextLayout._GetWordType(ctype, btype);
-        } else if (btype === _BreakType.OpenPunctuation) {
-            index = start;
-            break;
-        } else if (TextLayout._WordTypeChanged(word._Type, c, ctype, btype)) {
-            index = start;
-            break;
-        }
-        var newGlyph = true;
-        glyphs++;
-        var advance = Surface.MeasureText(c, word._Font).Width;
-        word._LineAdvance += advance;
-        word._Advance += advance;
-        if (newGlyph) {
-            op.advance = word._Advance;
-            op.index = index;
-            op.btype = btype;
-            op.c = c;
-        }
-        word._BreakOps.push(op);
-        op = op.Copy();
-        if (Number.isFinite(maxWidth) && word._LineAdvance > maxWidth) {
-            wrap = true;
-            break;
-        }
-    }
-    if (!wrap) {
-        word._Length = index;
-        return false;
-    }
-    if (index === end)
-        btype = _BreakType.Space;
-    while (index < end) {
-        start = index;
-        c = text.charAt(index);
-        index++;
-        if (TextLayout._IsLineBreak(text)) {
-            btype = _BreakType.Space;
-            index = start;
-            break;
-        }
-        btype = TextLayout._GetBreakType(c);
-        if (TextLayout._BreakSpace(c, btype)) {
-            index = start;
-            break;
-        }
-        var advance = Surface.MeasureText(c, word._Font).Width;
-        word._LineAdvance += advance;
-        word._Advance += advance;
-        word._BreakOps.pop();
-        op.advance += advance;
-        op.index = index;
-        op.count++;
-        word._BreakOps.push(op);
-        op = op.Copy();
-    }
-    if (lineStart && glyphs === 1) {
-        word._Length = index;
-        return true;
-    }
-    var data = {
-        index: index,
-        lineStart: lineStart,
-        fixed: fixed,
-        btype: btype,
-        force: false
-    };
-    while (true) {
-        for (var i = word._BreakOps.Length; i > 0; i--) {
-            data.op = word._BreakOps[i - 1];
-            data.i = i;
-            if (TextLayout._LayoutWordWrapSearch(word, data) == true)
-                return true;
-            btype = data.op._Btype;
-            c = data.op._C;
-            i = data.i;
-            index = data.index;
-        }
-        if (lineStart && !data.force) {
-            data.force = true;
-            continue;
-        }
-        break;
-    }
-    word._Advance = 0.0;
-    word._Length = 0;
-    return true;
-};
-TextLayout._LayoutWordWrapSearch = function (word, data) {
-    switch (data.op.btype) {
-        case _BreakType.BeforeAndAfter:
-            if (i > 1 && i === word._BreakOps.length) {
-                data.op = word._BreakOps[data.i - 2];
-                data.op.SetWordBasics(word);
-                return true;
-            } else if (i < word._BreakOps.length) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-        case _BreakType.NonBreakingGlue:
-        case _BreakType.WordJoiner:
-            if (data.force && data.i < word._BreakOps.length) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            if (data.i > 1) {
-                data.op = this._BreakOps[data.i - 2];
-                data.i--;
-            }
-            break;
-        case _BreakType.Inseparable:
-            if (data.lineStart && data.i < word._BreakOps.length) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            break;
-        case _BreakType.Before:
-            if (data.i > 1) {
-                data.op = word._BreakOps[data.i - 2];
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            break;
-        case _BreakType.ClosePunctuation:
-            if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            if (data.i > 1 && !data.force) {
-                data.op = word._BreakOps[data.i - 2];
-                i--;
-            }
-            break;
-        case _BreakType.InFixSeparator:
-            if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.Numeric)) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            if (data.i > 1 && !data.force) {
-                data.op = word._BreakOps[data.i - 2];
-                if (data.op._Btype === _BreakType.InFixSeparator ||
-                    data.op._Btype === _BreakType.ClosePunctuation) {
-                    data.op = word._BreakOps[data.i - 1];
-                } else {
-                    i--;
-                }
-            }
-            break;
-        case _BreakType.Alphabetic:
-            if ((data.lineStart || data.fixed || data.force) && data.i < word._BreakOps.length) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            break;
-        case _BreakType.Ideographic:
-            if (data.i < word._BreakOps.length && data.btype !== _BreakType.NonStarter) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            break;
-        case _BreakType.Numeric:
-            if (data.lineStart && data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            break;
-        case _BreakType.OpenPunctuation:
-        case _BreakType.CombiningMark:
-        case _BreakType.Contingent:
-        case _BreakType.Ambiguous:
-        case _BreakType.Quotation:
-        case _BreakType.Prefix:
-            if (data.force && data.i < word._BreakOps.length) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            break;
-        default:
-            if (data.i < word._BreakOps.length) {
-                data.op.SetWordBasics(word);
-                return true;
-            }
-            break;
-    }
-    return false;
-};
-TextLayout._LayoutWordNoWrap = function (word, text) {
-    var advance = Surface.MeasureText(text, word._Font).Width;
-    word._Advance = advance;
-    word._LineAdvance += advance;
-    word._Length = text.length;
-    return false;
-};
-TextLayout._LayoutLwsp = function (word, text, font) {
-    var advance = Surface.MeasureText(text, font).Width;
-    word._Advance = advance;
-    word._LineAdvance += advance;
-    word._Length = text.length;
-};
-TextLayout._GetBreakType = function (c) {
-    NotImplemented("TextLayout._GetBreakType");
-};
-TextLayout._GetCharType = function (c) {
-    NotImplemented("TextLayout._GetCharType");
-};
-TextLayout._GetWordType = function (ctype, btype) {
-    NotImplemented("TextLayout._GetWordType");
-};
-TextLayout._BreakSpace = function (c, btype) {
-    NotImplemented("TextLayout._BreakSpace");
-};
-TextLayout._UpdateSelection = function (lines, pre, post) {
-};
-Nullstone.FinishCreate(TextLayout);
 
 var _TextLayoutAttributes = Nullstone.Create("_TextLayoutAttributes", null, 2);
 _TextLayoutAttributes.Instance.Init = function (source, start) {
@@ -4238,214 +4449,6 @@ _TextLayoutAttributes.Instance.GetFont = function () { return this._Source.GetFo
 _TextLayoutAttributes.Instance.GetDirection = function () { return this._Source.GetDirection(); };
 _TextLayoutAttributes.Instance.IsUnderlined = function () { return this._Source.GetTextDecorations() & TextDecorations.Underline; };
 Nullstone.FinishCreate(_TextLayoutAttributes);
-
-var _TextLayoutGlyphCluster = Nullstone.Create("_TextLayoutGlyphCluster", null, 3);
-_TextLayoutGlyphCluster.Instance.Init = function (text, font, selected) {
-    this._Text = text;
-    this._Selected = selected == true;
-    this._Advance = Surface.MeasureText(text, font).Width;
-};
-_TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
-    if (this._Text.length == 0 || this._Advance == 0.0)
-        return;
-    var font = attrs.GetFont();
-    var y0 = font._Ascender();
-    ctx.Transform(new TranslationMatrix(x, y - y0));
-    var brush;
-    var area;
-    if (this._Selected && (brush = attrs.GetBackground(true))) {
-        area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
-        ctx.Fill(area, brush); //selection background
-    }
-    if (!(brush = attrs.GetForeground(this._Selected)))
-        return;
-    ctx.CustomRender(_TextLayoutGlyphCluster._Painter, this._Text, brush, attrs.GetFont());
-    if (attrs.IsUnderlined()) {
-    }
-};
-_TextLayoutGlyphCluster._Painter = function (args) {
-    var canvasCtx = args[0];
-    var text = args[1];
-    var foreground = args[2];
-    var font = args[3];
-    foreground.SetupBrush(canvasCtx);
-    canvasCtx.fillStyle = foreground.ToHtml5Object();
-    canvasCtx.font = font.ToHtml5Object();
-    canvasCtx.textAlign = "left";
-    canvasCtx.textBaseline = "top";
-    canvasCtx.fillText(text, 0, 0);
-};
-Nullstone.FinishCreate(_TextLayoutGlyphCluster);
-
-var _TextLayoutLine = Nullstone.Create("_TextLayoutLine", null, 3);
-_TextLayoutLine.Instance.Init = function (layout, start, offset) {
-    this._Runs = [];
-    this._Layout = layout;
-    this._Start = start;
-    this._Offset = offset;
-    this._Advance = 0.0; //after layout, will contain horizontal distance this line advances
-    this._Descend = 0.0;
-    this._Height = 0.0;
-    this._Width = 0.0;
-    this._Length = 0;
-};
-_TextLayoutLine.Instance.GetCursorFromX = function (offset, x) {
-    var run = null;
-    var x0 = offset.X + this._Layout._HorizontalAlignment(this._Advance);
-    var cursor = this._Offset;
-    var text = this._Layout.GetText();
-    var index = this._Start;
-    var end;
-    var c;
-    var i;
-    for (i = 0; i < this._Runs.length; i++) {
-        run = this._Runs[i];
-        if (x < (x0 + run._Advance))
-            break; // x is somewhere inside this run
-        cursor += run._Length;
-        index += run._Length;
-        x0 += run._Advance;
-        run = null;
-    }
-    if (run != null) {
-        index = run._Start;
-        end = run._Start + run._Length;
-        var font = run._Attrs.GetFont();
-        var m;
-        var ch;
-        while (index < end) {
-            ch = index;
-            cursor++;
-            c = text.charAt(index);
-            index++;
-            if (c === '\t')
-                c = ' ';
-            m = Surface._MeasureWidth(c, font);
-            if (x <= x0 + (m / 2.0)) {
-                index = ch;
-                cursor--;
-                break;
-            }
-            x0 += m;
-        }
-    } else if (i > 0) {
-        run = this._Runs[i - 1];
-        end = run._Start + run._Length;
-        index = run._Start;
-        c = end - 1 < 0 ? null : text.charAt(end - 1);
-        if (c == '\n') {
-            cursor--;
-            end--;
-            c = end - 1 < 0 ? null : text.charAt(end - 1);
-            if (c == '\r') {
-                cursor--;
-                end--;
-            }
-        }
-    }
-    return cursor;
-};
-_TextLayoutLine.Instance._Render = function (ctx, origin, left, top) {
-    var run;
-    var x0 = left;
-    var y0 = top;
-    for (var i = 0; i < this._Runs.length; i++) {
-        run = this._Runs[i];
-        run._Render(ctx, origin, x0, y0);
-        x0 += run._Advance;
-    }
-};
-_TextLayoutLine.Instance.__Debug = function (allText) {
-    var t = "";
-    t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
-    for (var i = 0; i < this._Runs.length; i++) {
-        t += "\t\t\tRun " + i.toString() + ": ";
-        t += this._Runs[i].__Debug(allText);
-        t += "\n";
-    }
-    return t;
-};
-Nullstone.FinishCreate(_TextLayoutLine);
-
-var _TextLayoutRun = Nullstone.Create("_TextLayoutRun", null, 3);
-_TextLayoutRun.Instance.Init = function (line, attrs, start) {
-    this._Clusters = new Array();
-    this._Attrs = attrs;
-    this._Start = start;
-    this._Line = line;
-    this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
-    this._Length = 0;
-};
-_TextLayoutRun.Instance._GenerateCache = function () {
-    var selectionLength = this._Line._Layout.GetSelectionLength();
-    var selectionStart = this._Line._Layout.GetSelectionStart();
-    var text = this._Line._Layout.GetText();
-    var font = this._Attrs.GetFont();
-    var len;
-    var index = this._Start;
-    var cluster1;
-    var cluster2;
-    if (selectionLength === 0 || this._Start < selectionStart) {
-        len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
-        cluster1 = new _TextLayoutGlyphCluster(text.substr(this._Start, len), font);
-        this._Clusters.push(cluster1);
-        index += len;
-    }
-    var selectionEnd = selectionStart + selectionLength;
-    var runEnd = this._Start + this._Length;
-    if (index < runEnd && index < selectionEnd) {
-        len = Math.min(runEnd - index, selectionEnd - index);
-        cluster2 = new _TextLayoutGlyphCluster(text.substr(index, len), font, true);
-        this._Clusters.push(cluster2);
-        index += len;
-    }
-    var cluster3;
-    if (index < runEnd) {
-        len = runEnd - index;
-        cluster3 = new _TextLayoutGlyphCluster(text.substr(index, len), font);
-        this._Clusters.push(cluster3);
-        index += len;
-    }
-};
-_TextLayoutRun.Instance._ClearCache = function () {
-    this._Clusters = [];
-};
-_TextLayoutRun.Instance._Render = function (ctx, origin, x, y) {
-    var x0 = x;
-    if (this._Clusters.length === 0)
-        this._GenerateCache();
-    for (var i = 0; i < this._Clusters.length; i++) {
-        var cluster = this._Clusters[i];
-        ctx.Save();
-        cluster._Render(ctx, origin, this._Attrs, x0, y);
-        ctx.Restore();
-        x0 += cluster._Advance;
-    }
-};
-_TextLayoutRun.Instance.__Debug = function (allText) {
-    return allText.substr(this._Start, this._Length);
-};
-Nullstone.FinishCreate(_TextLayoutRun);
-
-var _WordBreakOp = Nullstone.Create("_WordBreakOp");
-_WordBreakOp.Instance.Init = function () {
-    this._Advance = 0.0;
-    this._Index = 0;
-    this._Btype = 0;
-    this._C = '';
-};
-_WordBreakOp.Instance.Copy = function () {
-    var newOp = new _WordBreakOp();
-    newOp._Advance = this._Advance;
-    newOp._Btype = this._Btype;
-    newOp._C = this._C;
-    newOp._Index = this._Index;
-};
-_WordBreakOp.Instance.SetWordBasics = function (word) {
-    word._Length = this._Index;
-    word._Advance = this._Advance;
-};
-Nullstone.FinishCreate(_WordBreakOp);
 
 var _TextBoxUndoAction = Nullstone.Create("_TextBoxUndoAction", LinkedListNode);
 Nullstone.FinishCreate(_TextBoxUndoAction);
@@ -4585,7 +4588,7 @@ Nullstone.FinishCreate(UIElementNode);
 var _AutoCreatePropertyValueProvider = Nullstone.Create("_AutoCreatePropertyValueProvider", _PropertyValueProvider, 2);
 _AutoCreatePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
-    this._ht = new Array();
+    this._ht = [];
 }
 _AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);
@@ -4626,7 +4629,7 @@ _ImplicitStylePropertyValueProvider.Instance.Init = function (obj, propPrecedenc
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
     this._Styles = null;
     this._StyleMask = _StyleMask.None;
-    this._ht = new Array();
+    this._ht = [];
 }
 _ImplicitStylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
@@ -4706,7 +4709,7 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
 _ImplicitStylePropertyValueProvider.Instance.SetStyles = function (styleMask, styles, error) {
     if (!styles)
         return;
-    var newStyles = new Array();
+    var newStyles = [];
     if (this._Styles) {
         newStyles[_StyleIndex.GenericXaml] = this._Styles[_StyleIndex.GenericXaml];
         newStyles[_StyleIndex.ApplicationResources] = this._Styles[_StyleIndex.ApplicationResources];
@@ -4848,7 +4851,7 @@ Nullstone.FinishCreate(_InheritedIsEnabledPropertyValueProvider);
 var _InheritedPropertyValueProvider = Nullstone.Create("_InheritedPropertyValueProvider", _PropertyValueProvider, 2);
 _InheritedPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
-    this._ht = new Array();
+    this._ht = [];
 };
 _InheritedPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
@@ -5179,7 +5182,7 @@ Nullstone.FinishCreate(_InheritedPropertyValueProvider);
 var _LocalValuePropertyValueProvider = Nullstone.Create("_LocalValuePropertyValueProvider", _PropertyValueProvider, 2);
 _LocalValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
-    this._ht = new Array();
+    this._ht = [];
 };
 _LocalValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
@@ -5619,29 +5622,25 @@ Surface.Instance.Register = function (jCanvas) {
     this._CanvasOffset = this._jCanvas.offset();
     this.RegisterEvents();
 };
-Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
-Surface.Instance.GetExtents = function () {
-    return new Size(this.GetWidth(), this.GetHeight());
-};
-Surface.Instance.GetWidth = function () {
-    return this._jCanvas.width();
-};
-Surface.Instance.GetHeight = function () {
-    return this._jCanvas.height();
-};
-Surface.Instance.Render = function (region) {
-    var ctx = new _RenderContext(this);
-    var layerCount = 0;
-    if (this._Layers)
-        layerCount = this._Layers.GetCount();
-    ctx.Clear(region);
-    for (var i = 0; i < layerCount; i++) {
-        var layer = this._Layers.GetValueAt(i);
-        layer._DoRender(ctx, region);
-    }
+Surface.Instance.RegisterEvents = function () {
+    var surface = this;
+    var canvas = this.GetCanvas();
+    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(window.event ? window.event : e); });
+    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(window.event ? window.event : e); });
+    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(window.event ? window.event : e); });
+    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(window.event ? window.event : e); });
+    document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
+    document.onkeydown = function (e) {
+        e = window.event ? window.event : e;
+        if (e.keyCode === 8 || e.keyCode === 46) {
+            surface._HandleKeyPress(e);
+            return false;
+        }
+    };
 };
 Surface.Instance._Attach = function (element) {
     if (this._TopLevel) {
+        this._DetachLayer(this._TopLevel);
     }
     if (!element) {
         this._Invalidate();
@@ -5661,6 +5660,7 @@ Surface.Instance._Attach = function (element) {
     var postAttach = function () {
         surface._TopLevel._SetIsAttached(true);
         surface._TopLevel._SetIsLoaded(true);
+        surface._App.OnLoaded();
     };
     setTimeout(postAttach, 1);
 };
@@ -5674,34 +5674,17 @@ Surface.Instance._AttachLayer = function (layer) {
     layer._SetIsAttached(true);
     layer._SetIsLoaded(true);
 };
-Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
-    var element = sender;
-    this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded);
-    if (Nullstone.RefEquals(element, this._TopLevel)) {
-        element._UpdateTotalRenderVisibility();
-        element._UpdateTotalHitTestVisibility();
-        element._FullInvalidate(true);
-        element._InvalidateMeasure();
-    }
+Surface.Instance._DetachLayer = function (layer) {
 };
-Surface.Instance._IsTopLevel = function (top) {
-    if (!top || !this._Layers)
-        return false;
-    var ret = false; //TODO: full-screen message
-    var count = this._Layers.GetCount();
-    for (var i = 0; i < count && !ret; i++) {
-        var layer = this._Layers.GetValueAt(i);
-        ret = Nullstone.RefEquals(top, layer);
-    }
-    return ret;
+Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
+Surface.Instance.GetExtents = function () {
+    return new Size(this.GetWidth(), this.GetHeight());
 };
-Surface.Instance.ProcessDirtyElements = function () {
-    var error = new BError();
-    var dirty = this._UpdateLayout(error);
-    if (error.IsErrored()) {
-        Fatal(error);
-    }
-    return dirty;
+Surface.Instance.GetWidth = function () {
+    return this._jCanvas.width();
+};
+Surface.Instance.GetHeight = function () {
+    return this._jCanvas.height();
 };
 Surface.Instance._Invalidate = function (rect) {
     if (!rect)
@@ -5723,6 +5706,35 @@ Surface.Instance._QueueRender = function () {
         surface._InvalidatedRect = null;
         surface.Render(rect2);
     }, 1);
+};
+Surface.Instance.Render = function (region) {
+    var ctx = new _RenderContext(this);
+    var layerCount = 0;
+    if (this._Layers)
+        layerCount = this._Layers.GetCount();
+    ctx.Clear(region);
+    for (var i = 0; i < layerCount; i++) {
+        var layer = this._Layers.GetValueAt(i);
+        layer._DoRender(ctx, region);
+    }
+};
+Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
+    var element = sender;
+    this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded, this);
+    if (Nullstone.RefEquals(element, this._TopLevel)) {
+        element._UpdateTotalRenderVisibility();
+        element._UpdateTotalHitTestVisibility();
+        element._FullInvalidate(true);
+        element._InvalidateMeasure();
+    }
+};
+Surface.Instance.ProcessDirtyElements = function () {
+    var error = new BError();
+    var dirty = this._UpdateLayout(error);
+    if (error.IsErrored()) {
+        throw error.CreateException();
+    }
+    return dirty;
 };
 Surface.Instance._UpdateLayout = function (error) {
     if (!this._Layers)
@@ -5918,10 +5930,16 @@ Surface.Instance._RemoveDirtyElement = function (element) {
     element._UpDirtyNode = null;
     element._DownDirtyNode = null;
 };
-Surface.Instance._SetUserInitiatedEvent = function (val) {
-    this._EmitFocusChangeEvents();
-    this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
-    this._UserInitiatedEvent = val;
+Surface.Instance._IsTopLevel = function (top) {
+    if (!top || !this._Layers)
+        return false;
+    var ret = false; //TODO: full-screen message
+    var count = this._Layers.GetCount();
+    for (var i = 0; i < count && !ret; i++) {
+        var layer = this._Layers.GetValueAt(i);
+        ret = Nullstone.RefEquals(top, layer);
+    }
+    return ret;
 };
 Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
@@ -5935,22 +5953,6 @@ Surface.Instance._UpdateCursorFromInputList = function () {
 Surface.Instance._SetCursor = function (cursor) {
     this._Cursor = cursor;
     this._jCanvas.css("cursor", cursor);
-};
-Surface.Instance.RegisterEvents = function () {
-    var surface = this;
-    var canvas = this.GetCanvas();
-    canvas.addEventListener("mousedown", function (e) { surface._HandleButtonPress(window.event ? window.event : e); });
-    canvas.addEventListener("mouseup", function (e) { surface._HandleButtonRelease(window.event ? window.event : e); });
-    canvas.addEventListener("mouseout", function (e) { surface._HandleOut(window.event ? window.event : e); });
-    canvas.addEventListener("mousemove", function (e) { surface._HandleMove(window.event ? window.event : e); });
-    document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
-    document.onkeydown = function (e) {
-        e = window.event ? window.event : e;
-        if (e.keyCode === 8 || e.keyCode === 46) {
-            surface._HandleKeyPress(e);
-            return false;
-        }
-    };
 };
 Surface.Instance._HandleButtonRelease = function (evt) {
     var button = evt.which ? evt.which : evt.button;
@@ -6152,15 +6154,18 @@ Surface.Instance._EmitFocusList = function (type, list) {
         node.UIElement._EmitFocusChange(type);
     }
 };
+Surface.Instance._SetUserInitiatedEvent = function (val) {
+    this._EmitFocusChangeEvents();
+    this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
+    this._UserInitiatedEvent = val;
+};
 Surface.MeasureText = function (text, font) {
     return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
 };
 Surface._MeasureWidth = function (text, font) {
-    if (!Surface._TestCanvas)
-        Surface._TestCanvas = document.createElement('canvas');
-    var ctx = Surface._TestCanvas.getContext('2d');
-    ctx.font = font.ToHtml5Object();
-    return ctx.measureText(text).width;
+    var test = Surface._EnsureTestCanvas();
+    test.Context.font = font.ToHtml5Object();
+    return test.Context.measureText(text).width;
 };
 Surface._MeasureHeight = function (font) {
     if (font._CachedHeight)
@@ -6189,6 +6194,19 @@ Surface._ElementPathToRoot = function (source) {
         source = source.GetVisualParent();
     }
     return list;
+};
+Surface._EnsureTestCanvas = function () {
+    var canvas = Surface._TestCanvas;
+    var ctx = Surface._TestCanvasContext;
+    if (!ctx) {
+        if (!canvas)
+            canvas = Surface._TestCanvas = document.createElement('canvas');
+        ctx = Surface._TestCanvasContext = canvas.getContext('2d');
+    }
+    return {
+        Canvas: canvas,
+        Context: ctx
+    };
 };
 Nullstone.FinishCreate(Surface);
 
@@ -6293,12 +6311,12 @@ Nullstone.FinishCreate(_TextBoxDynamicPropertyValueProvider);
 var DependencyObject = Nullstone.Create("DependencyObject");
 DependencyObject.Instance.Init = function () {
     this._IsAttached = false;
-    this._Providers = new Array();
+    this._Providers = [];
     this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
     this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
     this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
-    this._ProviderBitmasks = new Array();
-    this._SecondaryParents = new Array();
+    this._ProviderBitmasks = [];
+    this._SecondaryParents = [];
     this.PropertyChanged = new MulticastEvent();
     this._SubPropertyListeners = [];
 };
@@ -7001,7 +7019,7 @@ DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
 DependencyObject.Instance._AttachAnimationStorage = function (propd, storage) {
     var attachedStorage = null;
     if (this._StorageRepo == null)
-        this._StorageRepo = new Array();
+        this._StorageRepo = [];
     var list = this._StorageRepo[propd];
     if (list == null) {
         list = new LinkedList();
@@ -7076,7 +7094,7 @@ NameScope.Instance.RegisterName = function (name, obj) {
     if (this.GetIsLocked())
         return;
     if (!this._Names)
-        this._Names = new Array();
+        this._Names = [];
     var existingObj = this._Names[name];
     if (existingObj == obj)
         return;
@@ -7856,7 +7874,7 @@ Nullstone.FinishCreate(UIElement);
 var Collection = Nullstone.Create("Collection", DependencyObject);
 Collection.Instance.Init = function () {
     this.Init$DependencyObject();
-    this._ht = new Array();
+    this._ht = [];
     this.Changed = new MulticastEvent();
     this.ItemChanged = new MulticastEvent();
 };
@@ -7905,7 +7923,7 @@ Collection.Instance.RemoveAt = function (index) {
 Collection.Instance.Clear = function () {
     this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
     var old = this._ht;
-    this._ht = new Array();
+    this._ht = [];
     for (var i = 0; i < old.length; i++) {
         this.RemovedFromCollection(old[i], true);
     }
@@ -8010,7 +8028,7 @@ Nullstone.FinishCreate(DependencyObjectCollection);
 var ResourceDictionary = Nullstone.Create("ResourceDictionary", Collection);
 ResourceDictionary.Instance.Init = function () {
     this.Init$Collection();
-    this._KeyIndex = new Array();
+    this._KeyIndex = [];
 };
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 ResourceDictionary.Instance.GetMergedDictionaries = function () {
@@ -8176,7 +8194,7 @@ Nullstone.FinishCreate(ResourceDictionaryCollection);
 var UIElementCollection = Nullstone.Create("UIElementCollection", DependencyObjectCollection);
 UIElementCollection.Instance.Init = function () {
     this.Init$DependencyObjectCollection();
-    this._ZSorted = new Array();
+    this._ZSorted = [];
 };
 UIElementCollection.Instance.GetValueAtZIndex = function (index) {
     return this._ZSorted[index];
@@ -8444,7 +8462,8 @@ App.Instance.Init = function () {
     this.Init$DependencyObject();
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
-    this._Storyboards = new Array();
+    this._Storyboards = [];
+    this.Loaded = new MulticastEvent();
 };
 App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
 App.Instance.GetResources = function () {
@@ -8466,6 +8485,9 @@ App.Instance.Load = function (element, containerId, width, height) {
         return;
     this.MainSurface._Attach(element);
     this.Start();
+};
+App.Instance.OnLoaded = function () {
+    this.Loaded.RaiseAsync(this, new EventArgs());
 };
 App.Instance.Start = function () {
     this._Clock.RegisterTimer(this);
@@ -8535,7 +8557,7 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
             el = el.GetVisualParent();
         }
     }
-    var styles = new Array();
+    var styles = [];
     styles[_StyleIndex.GenericXaml] = genericXamlStyle;
     styles[_StyleIndex.ApplicationResources] = appResourcesStyle;
     styles[_StyleIndex.VisualTree] = visualTreeStyle;
@@ -8808,7 +8830,7 @@ var KeyFrameCollection = Nullstone.Create("KeyFrameCollection", DependencyObject
 KeyFrameCollection.Instance.Init = function () {
     this.Init$DependencyObjectCollection();
     this._Resolved = false;
-    this._SortedList = new Array();
+    this._SortedList = [];
 };
 KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
     var currentKeyFrame = null;
@@ -8937,7 +8959,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
             keyFrame._Resolved = true;
         }
     }
-    this._SortedList = new Array();
+    this._SortedList = [];
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
@@ -10495,7 +10517,12 @@ ImageBrush.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-ImageBrush.Instance._SetupBrush = function (ctx, bounds) {
+ImageBrush.Instance.SetupBrush = function (ctx, bounds) {
+    var source = this.GetSource();
+    if (source == null)
+        return null;
+    var pattern = ctx.createPattern(source._Image, "no-repeat");
+    NotImplemented("ImageBrush.SetupBrush");
 };
 Nullstone.FinishCreate(ImageBrush);
 
@@ -12491,60 +12518,6 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
     }
     this.OnApplyTemplate$Control();
 };
-TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
-    this.Focus();
-    if (this._View) {
-        var p = args.GetPosition(this._View);
-        var cursor = this._View.GetCursorFromXY(p.X, p.Y);
-        this._ResetIMContext();
-        this._Captured = this.CaptureMouse();
-        this._Selecting = true;
-        this._BatchPush();
-        this._Emit = _TextBoxEmitChanged.NOTHING;
-        this.SetSelectionStart(cursor);
-        this.SetSelectionLength(0);
-        this._BatchPop();
-        this._SyncAndEmit();
-    }
-};
-TextBoxBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
-    if (this._Captured)
-        this.ReleaseMouseCapture();
-    this._Selecting = false;
-    this._Captured = false;
-};
-TextBoxBase.Instance.OnMouseMove = function (sender, args) {
-    var anchor = this._SelectionAnchor;
-    var cursor = this._SelectionCursor;
-    if (this._Selecting) {
-        var p = args.GetPosition(this._View);
-        cursor = this._View.GetCursorFromXY(p.X, p.Y);
-        this._BatchPush();
-        this._Emit = _TextBoxEmitChanged.NOTHING;
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
-        this._SelectionAnchor = anchor;
-        this._SelectionCursor = cursor;
-        this._BatchPop();
-        this._SyncAndEmit();
-    }
-};
-TextBoxBase.Instance.OnLostFocus = function (sender, args) {
-    this._IsFocused = false;
-    if (this._View)
-        this._View.OnLostFocus();
-    if (!this._IsReadOnly) {
-        this._NeedIMReset = true;
-    }
-};
-TextBoxBase.Instance.OnGotFocus = function (sender, args) {
-    this._IsFocused = true;
-    if (this._View)
-        this._View.OnGotFocus();
-    if (!this._IsReadOnly) {
-        this._NeedIMReset = true;
-    }
-};
 TextBoxBase.Instance._BatchPush = function () {
     this._Batch++;
 };
@@ -12703,6 +12676,44 @@ TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     }
     if (propd != null && propd.OwnerType !== TextBoxBase)
         this._OnSubPropertyChanged$Control(propd, sender, args);
+};
+TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
+    this.Focus();
+    if (this._View) {
+        var p = args.GetPosition(this._View);
+        var cursor = this._View.GetCursorFromXY(p.X, p.Y);
+        this._ResetIMContext();
+        this._Captured = this.CaptureMouse();
+        this._Selecting = true;
+        this._BatchPush();
+        this._Emit = _TextBoxEmitChanged.NOTHING;
+        this.SetSelectionStart(cursor);
+        this.SetSelectionLength(0);
+        this._BatchPop();
+        this._SyncAndEmit();
+    }
+};
+TextBoxBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
+    if (this._Captured)
+        this.ReleaseMouseCapture();
+    this._Selecting = false;
+    this._Captured = false;
+};
+TextBoxBase.Instance.OnMouseMove = function (sender, args) {
+    var anchor = this._SelectionAnchor;
+    var cursor = this._SelectionCursor;
+    if (this._Selecting) {
+        var p = args.GetPosition(this._View);
+        cursor = this._View.GetCursorFromXY(p.X, p.Y);
+        this._BatchPush();
+        this._Emit = _TextBoxEmitChanged.NOTHING;
+        this.SetSelectionStart(Math.min(anchor, cursor));
+        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this._SelectionAnchor = anchor;
+        this._SelectionCursor = cursor;
+        this._BatchPop();
+        this._SyncAndEmit();
+    }
 };
 TextBoxBase.Instance.CursorDown = function (cursor, isPage) {
     return cursor;
@@ -13158,6 +13169,22 @@ TextBoxBase.Instance._KeyDownChar = function (c) {
         this._Emit |= _TextBoxEmitChanged.SELECTION;
     }
     return true;
+};
+TextBoxBase.Instance.OnLostFocus = function (sender, args) {
+    this._IsFocused = false;
+    if (this._View)
+        this._View.OnLostFocus();
+    if (!this._IsReadOnly) {
+        this._NeedIMReset = true;
+    }
+};
+TextBoxBase.Instance.OnGotFocus = function (sender, args) {
+    this._IsFocused = true;
+    if (this._View)
+        this._View.OnGotFocus();
+    if (!this._IsReadOnly) {
+        this._NeedIMReset = true;
+    }
 };
 Nullstone.FinishCreate(TextBoxBase);
 
@@ -13909,12 +13936,12 @@ Grid.Instance._CreateMatrices = function (rowCount, colCount) {
     if (this._RowMatrix == null || this._ColMatrix == null || this._RowMatrixDim !== rowCount || this._ColMatrixDim !== colCount) {
         this._DestroyMatrices();
         this._RowMatrixDim = rowCount;
-        this._RowMatrix = new Array();
+        this._RowMatrix = [];
         for (var i = 0; i < rowCount; i++) {
             this._RowMatrix.push(new Array());
         }
         this._ColMatrixDim = colCount;
-        this._ColMatrix = new Array();
+        this._ColMatrix = [];
         for (var j = 0; j < colCount; j++) {
             this._ColMatrix.push(new Array());
         }

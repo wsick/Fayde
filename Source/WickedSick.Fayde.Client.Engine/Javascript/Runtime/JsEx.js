@@ -1,6 +1,4 @@
-﻿/// <reference path="Nullstone.js"/>
-
-Object.Clone = function (o) {
+﻿Object.Clone = function (o) {
     return eval(uneval(o));
 };
 
@@ -12,7 +10,7 @@ Function.prototype.Implement = function (interface) {
             this.prototype[i] = new Function("throw new NotImplementedException();");
     }
     if (this._Interfaces == null)
-        this._Interfaces = new Array();
+        this._Interfaces = [];
     this._Interfaces[interfaceName] = true;
     return this;
 };
@@ -97,6 +95,9 @@ String.format = function (culture, format, str) {
     return str;
 };
 
+window.onerror = function (msg, url, line) {
+    alert("Error (" + url + ") @ " + line + "\n" + msg);
+};
 window.requestAnimFrame = (function () {
     return window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -106,4 +107,4 @@ window.requestAnimFrame = (function () {
         function (callback) {
             window.setTimeout(callback, 1000 / 200);
         };
-})();
+    })();

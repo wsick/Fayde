@@ -7,7 +7,7 @@ var ResourceDictionary = Nullstone.Create("ResourceDictionary", Collection);
 
 ResourceDictionary.Instance.Init = function () {
     this.Init$Collection();
-    this._KeyIndex = new Array();
+    this._KeyIndex = [];
 };
 
 //#region DEPENDENCY PROPERTIES

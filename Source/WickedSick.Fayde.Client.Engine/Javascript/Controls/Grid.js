@@ -452,13 +452,13 @@ Grid.Instance._CreateMatrices = function (rowCount, colCount) {
         this._DestroyMatrices();
 
         this._RowMatrixDim = rowCount;
-        this._RowMatrix = new Array();
+        this._RowMatrix = [];
         for (var i = 0; i < rowCount; i++) {
             this._RowMatrix.push(new Array());
         }
 
         this._ColMatrixDim = colCount;
-        this._ColMatrix = new Array();
+        this._ColMatrix = [];
         for (var j = 0; j < colCount; j++) {
             this._ColMatrix.push(new Array());
         }
