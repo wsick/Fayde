@@ -9,19 +9,8 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class LinearGradientBrush : Brush
     {
-        [Property]
-        [PointConverter]
-        public Point StartPoint { get; set; }
-        
-        [Property]
-        [PointConverter]
-        public Point EndPoint { get; set; }
-
-        private IList<GradientStop> _gradientStops = new List<GradientStop>();
-        [Content]
-        public IList<GradientStop> GradientStops
-        {
-            get { return _gradientStops; }
-        }
+        public static readonly PropertyDescription StartPoint = PropertyDescription.Register("StartPoint", typeof(Point), typeof(LinearGradientBrush));
+        public static readonly PropertyDescription EndPoint = PropertyDescription.Register("EndPoint", typeof(Point), typeof(LinearGradientBrush));
+        public static readonly PropertyDescription GradientStops = PropertyDescription.Register("GradientStops", typeof(List<GradientStop>), typeof(LinearGradientBrush), true);
     }
 }

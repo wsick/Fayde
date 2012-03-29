@@ -9,7 +9,6 @@ namespace WickedSick.Server.XamlParser.Elements.Media.VSM
     [Element]
     public class VisualState
     {
-        [Content]
-        public Storyboard Storyboard { get; set; }
+        public static readonly PropertyDescription Storyboard = PropertyDescription.Register("Storyboard", typeof(Storyboard), typeof(VisualState), true);
     }
 }

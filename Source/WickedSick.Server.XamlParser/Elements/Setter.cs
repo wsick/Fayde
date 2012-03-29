@@ -9,12 +9,8 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class Setter: DependencyObject
     {
-        [Property]
-        [SetterValueConverter]
-        public string Property { get; set; }
-
-        [Property]
-        [SetterValueConverter]
-        public object Value { get; set; }
+        //TODO: Rewire specific SetterValueConverter
+        public static readonly PropertyDescription Property = PropertyDescription.Register("Property", typeof(string), typeof(Setter));
+        public static readonly PropertyDescription Value = PropertyDescription.Register("Value", typeof(object), typeof(Setter));
     }
 }

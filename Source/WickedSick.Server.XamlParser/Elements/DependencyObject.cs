@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using WickedSick.Server.XamlParser.TypeConverters;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
@@ -15,73 +16,136 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             get { return _attachedProperties; }
         }
-        public string NameProperty { get; set; }
+
+        private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
+        static DependencyObject()
+        {
+            var converters = from t in Assembly.GetCallingAssembly().GetTypes()
+                             where typeof(ITypeConverter).IsAssignableFrom(t)
+                             && !t.IsInterface
+                             select t;
+
+            foreach (Type t in converters)
+            {
+                ITypeConverter tc = (ITypeConverter)Activator.CreateInstance(t);
+                _converters.Add(tc.ConversionType, tc);
+            }
+        }
+
+        private IDictionary<PropertyDescription, object> _dependencyValues = new Dictionary<PropertyDescription, object>();
+        public void SetValue(string name, string value)
+        {
+            //first check to see if it is a dependency property
+            PropertyDescription dp = PropertyDescription.Get(name, GetType());
+            if (dp == null)
+                throw new ArgumentException(string.Format("An unregistered dependency property/dependency object set has been passed. {0}.{1}", GetType().Name, name));
+
+            if (_dependencyValues.ContainsKey(dp))
+                throw new Exception(string.Format("The dependency property value has already been set. {0}.{1}", GetType().Name, name));
+
+            object newValue = value;
+            if (_converters.ContainsKey(dp.Type))
+            {
+                ITypeConverter tc = _converters[dp.Type];
+                newValue = tc.Convert(value);
+            }
+
+            _dependencyValues.Add(dp, newValue);
+        }
+
+        public void SetValue(string name, object value)
+        {
+            PropertyDescription dp = PropertyDescription.Get(name, GetType());
+            IList valueList;
+            if (_dependencyValues.ContainsKey(dp))
+            {
+                valueList = (IList)_dependencyValues[dp];
+            }
+            else
+            {
+                valueList = (IList)Activator.CreateInstance(dp.Type);
+                _dependencyValues.Add(dp, valueList);
+            }
+            valueList.Add(value);
+        }
+
+        public object GetValue(string name)
+        {
+            PropertyDescription dp = PropertyDescription.Get(name, GetType());
+            if (dp == null) return null;
+            if (!_dependencyValues.ContainsKey(dp))
+                return null;
+            return _dependencyValues[dp];
+        }
+
+        public void AddContent(object value)
+        {
+            //if type contains a content property (marked with content attribute), then parse the child nodes
+            //if no content property but child nodes exist, throw error
+            //PropertyInfo cp = GetContentProperty(t);
+            //if (cp == null && node.ChildNodes.Count > 0)
+            //throw new Exception(string.Format("Child nodes exist, however, the element [{0}] has not been marked to contain content.", t.Name));
+
+            PropertyDescription contentProperty = PropertyDescription.GetContent(GetType());
+            //TODO: check and make sure the property type is correct
+            if (contentProperty.Type.IsGenericType && contentProperty.Type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                if (!_dependencyValues.Keys.Contains(contentProperty))
+                {
+                    object list = Activator.CreateInstance(contentProperty.Type);
+                    _dependencyValues.Add(contentProperty, list);
+                }
+                ((IList)_dependencyValues[contentProperty]).Add(value);
+            }
+            else
+            {
+                if (_dependencyValues.Keys.Contains(contentProperty))
+                    throw new Exception(string.Format("The content property value has already been set. {0}.{1}", GetType().Name, contentProperty.Name));
+
+                _dependencyValues.Add(contentProperty, value);
+            }
+        }
+
+        public static readonly PropertyDescription Name = PropertyDescription.Register("Name", typeof(string), typeof(DependencyObject));
         public DependencyObject Parent { get; set; }
 
         private IDictionary<string, object> GetProperties()
         {
             IDictionary<string, object> properties = new Dictionary<string, object>();
-            foreach (PropertyInfo pi in GetType().GetProperties())
+            foreach (PropertyDescription dp in _dependencyValues.Keys)
             {
-                PropertyAttribute[] atts = (PropertyAttribute[])pi.GetCustomAttributes(typeof(PropertyAttribute), false);
-                if (atts.Count() > 1)
-                    throw new Exception("More than one PropertyAttribute may not be placed on a property.");
-                if (atts.Count() == 1)
+                if (!dp.IsContent || _dependencyValues[dp] is string)
                 {
-                    string propName = atts[0].PropertyName;
-                    if (propName == null)
-                        propName = pi.Name;
-                    object value = pi.GetValue(this, null);
-                    properties.Add(propName, value);
+                    properties.Add(dp.Name, _dependencyValues[dp]);
                 }
             }
             return properties;
         }
 
-        private IList<DependencyObject> GetChildren()
+        private IList GetChildren()
         {
-            IList<DependencyObject> result = new List<DependencyObject>();
-            foreach (PropertyInfo pi in GetType().GetProperties())
-            {
-                ContentAttribute[] atts = (ContentAttribute[])pi.GetCustomAttributes(typeof(ContentAttribute), false);
-                if (atts.Count() > 1)
-                    throw new Exception("More than one ContentAttribute may not be placed on any property.");
-                if (atts.Count() == 1)
-                {
-                    if (pi.PropertyType.IsGenericType && pi.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
-                    {
-                        IList values = (IList)pi.GetValue(this, null);
-                        foreach (DependencyObject d in values)
-                        {
-                            result.Add(d);
-                        }
-                        return result;
-                    }
-                }
-            }
-            return result;
+            PropertyDescription dp = PropertyDescription.GetContent(GetType());
+            if (dp == null)
+                return null;
+            if (!dp.Type.IsGenericType || !(dp.Type.GetGenericTypeDefinition() == typeof(List<>)))
+                return null;
+            return (IList)_dependencyValues[dp];
         }
 
         private IJsonSerializable GetContent()
         {
-            foreach (PropertyInfo pi in GetType().GetProperties())
-            {
-                ContentAttribute[] atts = (ContentAttribute[])pi.GetCustomAttributes(typeof(ContentAttribute), false);
-                if (atts.Count() > 1)
-                    throw new Exception("More than one ContentAttribute may not be placed on any property.");
-                if (atts.Count() == 1)
-                {
-                    if (!pi.PropertyType.IsGenericType || !(pi.PropertyType.GetGenericTypeDefinition() == typeof(IList<>)))
-                    {
-                        object value = pi.GetValue(this, null);
-                        if (value is IJsonSerializable)
-                            return (IJsonSerializable)pi.GetValue(this, null);
-                        else
-                            return null;
-                    }
-                }
-            }
-            return null;
+            PropertyDescription dp = PropertyDescription.GetContent(GetType());
+            if (dp == null)
+                return null;
+            if (dp.Type.IsGenericType && dp.Type.GetGenericTypeDefinition() ==  typeof(List<>))
+                return null;
+            if (!_dependencyValues.ContainsKey(dp))
+                return null;
+            object value = _dependencyValues[dp];
+            if (value is IJsonSerializable)
+                return (IJsonSerializable)value;
+            else
+                return null;
         }
 
         public virtual string toJson(int tabIndent)
@@ -89,9 +153,10 @@ namespace WickedSick.Server.XamlParser.Elements
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
             sb.AppendLine(string.Format("Type: {0},", GetTypeName()));
-            if (NameProperty != null && NameProperty.Length > 0)
+            string name = GetValue("Name") as string;
+            if (name != null)
             {
-                sb.Append(string.Format("Name: {0},", NameProperty));
+                sb.Append(string.Format("Name: {0},", name));
             }
 
             IDictionary<string, object> properties = GetProperties();
@@ -115,8 +180,8 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.AppendLine("],");
             }
 
-            IList<DependencyObject> children = GetChildren();
-            if (children.Count > 0)
+            IList children = GetChildren();
+            if (children != null && children.Count > 0)
             {
                 sb.AppendLine("Children: [");
                 foreach (DependencyObject d in children)
@@ -160,7 +225,7 @@ namespace WickedSick.Server.XamlParser.Elements
 
                 if (this is Setter && propName.Equals("Property"))
                 {
-                    string typeName = ((Style)this.Parent).TargetType;
+                    string typeName = (string)((Style)this.Parent).GetValue("TargetType");
                     sb.Append(propName);
                     sb.Append(": ");
                     sb.Append(string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, value));
@@ -224,8 +289,5 @@ namespace WickedSick.Server.XamlParser.Elements
             }
             return sb.ToString();
         }
-
-        [Property]
-        public string Name { get; set; }
     }
 }

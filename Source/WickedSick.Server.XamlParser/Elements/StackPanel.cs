@@ -10,8 +10,6 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class StackPanel: Panel
     {
-        [Property]
-        [OrientationConverter]
-        public Orientation Orientation { get; set; }
+        public static readonly PropertyDescription Orientation = PropertyDescription.Register("Orientation", typeof(Orientation), typeof(StackPanel));
     }
 }

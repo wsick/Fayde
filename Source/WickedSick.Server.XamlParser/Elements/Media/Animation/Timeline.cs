@@ -7,7 +7,6 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
     public abstract class Timeline: DependencyObject
     {
-        [Property]
-        public object Duration { get; set; }
+        public static readonly PropertyDescription Duration = PropertyDescription.Register("Duration", typeof(object), typeof(Timeline));
     }
 }

@@ -9,8 +9,6 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class SolidColorBrush : Brush
     {
-        [Property]
-        [ColorTypeConverter]
-        public Color Color { get; set; }
+        public static readonly PropertyDescription Color = PropertyDescription.Register("Color", typeof(Color), typeof(SolidColorBrush));
     }
 }

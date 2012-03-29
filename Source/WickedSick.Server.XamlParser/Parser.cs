@@ -35,24 +35,15 @@ namespace WickedSick.Server.XamlParser
                 }
 
                 //regular property
-                PropertyInfo pi = FindProperty(a.Name, t);
-                if (pi == null)
-                    throw new Exception(string.Format("An unexpected attribute was found. {0}", a.Name));
-
-                SetProperty(element, pi, a.Value);
+                element.SetValue(a.Name, a.Value);
             }
 
-            //if type contains a content property (marked with content attribute), then parse the child nodes
-            //if no content property but child nodes exist, throw error
-            PropertyInfo cp = GetContentProperty(t);
-            //if (cp == null && node.ChildNodes.Count > 0)
-                //throw new Exception(string.Format("Child nodes exist, however, the element [{0}] has not been marked to contain content.", t.Name));
-            ProcessChildNodes(node.ChildNodes, element, cp);
+            ProcessChildNodes(node.ChildNodes, element, null);
 
             return element;
         }
 
-        private static void ProcessChildNodes(XmlNodeList children, DependencyObject element, PropertyInfo cp)
+        private static void ProcessChildNodes(XmlNodeList children, DependencyObject element, string propertyName)
         {
             foreach (XmlNode n in children)
             {
@@ -73,76 +64,29 @@ namespace WickedSick.Server.XamlParser
                     else
                     {
                         //the sub-element is a regular property
-                        PropertyInfo subp = FindProperty(parts[1], element.GetType());
                         if (n.NodeType == XmlNodeType.Text)
                         {
                             //this sub-property is a string
-                            SetProperty(element, subp, n.InnerText);
-                        }
-                        else if (subp.PropertyType.IsGenericType && subp.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
-                        {
-                            //this sub-property has children
-                            ProcessChildNodes(n.ChildNodes, element, subp);
+                            element.SetValue(parts[1], n.InnerText);
                         }
                         else
-                        {
-                            //this sub-property is a single object, set the value
-                            MethodInfo mi = subp.GetSetMethod();
-                            if (n.FirstChild.NodeType == XmlNodeType.Text)
-                            {
-                                mi.Invoke(element, new object[] { n.FirstChild.InnerText });
-                            }
-                            else
-                            {
-                                DependencyObject prop = ParseXmlNode(n.FirstChild, element);
-                                mi.Invoke(element, new object[] { prop });
-                            }
-                        }
+                            ProcessChildNodes(n.ChildNodes, element, parts[1]);
                     }
                 }
                 else
                 {
                     //parsing a child element
-                    if (n.NodeType == XmlNodeType.Text)
+                    object child = n.InnerText;
+                    if (n.NodeType != XmlNodeType.Text)
                     {
-                        PropertyInfo subp = GetContentProperty(element.GetType());
-                        SetProperty(element, subp, n.InnerText);
+                        child = ParseXmlNode(n, element);
                     }
+                    if (propertyName == null)
+                        element.AddContent(child);
                     else
-                    {
-                        DependencyObject content = ParseXmlNode(n, element);
-                        if (cp.PropertyType.IsGenericType && cp.PropertyType.GetGenericTypeDefinition() == typeof(IList<>))
-                        {
-                            //the content property is a list so add to the list
-                            IList list = (IList)cp.GetValue(element, null);
-                            list.Add(content);
-                        }
-                        else
-                        {
-                            //the content property is a single object, set the value
-                            MethodInfo mi = cp.GetSetMethod();
-                            mi.Invoke(element, new object[] { content });
-                        }
-                    }
+                        element.SetValue(propertyName, child);
                 }
             }
-        }
-
-        private static void SetProperty(DependencyObject element, PropertyInfo pi, object value)
-        {
-            TypeConverterAttribute converter = null;
-            TypeConverterAttribute[] atts = (TypeConverterAttribute[])pi.GetCustomAttributes(typeof(TypeConverterAttribute), false);
-            if (atts.Count() > 1)
-                throw new Exception("More than one TypeConverterAttribute may not be placed on a property.");
-            if (atts.Count() == 1)
-            {
-                converter = atts[0];
-            }
-
-            if (converter != null)
-                value = converter.Convert(element, pi, (string)value);
-            MethodInfo mi = pi.GetSetMethod();
-            mi.Invoke(element, new object[] { value });
         }
 
         private static void AddAttachedProperty(DependencyObject element, string owner, string property, string value)
@@ -174,37 +118,6 @@ namespace WickedSick.Server.XamlParser
                     }
                     else if (atts[0].ElementName.Equals(elementName)) return t;
                 }
-            }
-            return null;
-        }
-
-        internal static PropertyInfo FindProperty(string attributeName, Type t)
-        {
-            foreach (PropertyInfo pi in t.GetProperties())
-            {
-                PropertyAttribute[] atts = (PropertyAttribute[])pi.GetCustomAttributes(typeof(PropertyAttribute), false);
-                if (atts.Count() > 1)
-                    throw new Exception("More than one PropertyAttribute may not be placed on a property.");
-                if (atts.Count() == 1)
-                {
-                    if (atts[0].PropertyName == null)
-                    {
-                        if (pi.Name.Equals(attributeName)) return pi;
-                    }
-                    else if (atts[0].PropertyName.Equals(attributeName)) return pi;
-                }
-            }
-            return null;
-        }
-
-        internal static PropertyInfo GetContentProperty(Type t)
-        {
-            foreach (PropertyInfo pi in t.GetProperties())
-            {
-                ContentAttribute[] atts = (ContentAttribute[])pi.GetCustomAttributes(typeof(ContentAttribute), false);
-                if (atts.Count() > 1)
-                    throw new Exception("More than one ContentAttribute may not be placed on a property.");
-                if (atts.Count() == 1) return pi;
             }
             return null;
         }

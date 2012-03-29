@@ -9,20 +9,9 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class TextBlock: FrameworkElement
     {
-        [Property]
-        [TextWrappingConverter]
-        public TextWrapping TextWrapping { get; set; }
-
-        [Property]
-        [BrushTypeConverter]
-        public Brush Foreground { get; set; }
-
-        [Property]
-        [Content]
-        public string Text { get; set; }
-
-        [Property]
-        [FontSizeConverter]
-        public FontSize FontSize { get; set; }
+        public static readonly PropertyDescription TextWrapping = PropertyDescription.Register("TextWrapping", typeof(TextWrapping), typeof(TextBlock));
+        public static readonly PropertyDescription Foreground = PropertyDescription.Register("Foreground", typeof(Brush), typeof(TextBlock));
+        public static readonly PropertyDescription FontSize = PropertyDescription.Register("FontSize", typeof(FontSize), typeof(TextBlock));
+        public static readonly PropertyDescription Text = PropertyDescription.Register("Text", typeof(string), typeof(TextBlock), true);
     }
 }

@@ -4,12 +4,7 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Imaging
 {
     public class BitmapSource : ImageSource
     {
-        [Property]
-        [DoubleConverter]
-        public double PixelWidth { get; set; }
-
-        [Property]
-        [DoubleConverter]
-        public double PixelHeight { get; set; }
+        public static readonly PropertyDescription PixelWidth = PropertyDescription.Register("PixelWidth", typeof(double), typeof(BitmapSource));
+        public static readonly PropertyDescription PixelHeight = PropertyDescription.Register("PixelHeight", typeof(double), typeof(BitmapSource));
     }
 }

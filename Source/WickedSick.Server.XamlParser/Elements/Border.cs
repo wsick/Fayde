@@ -9,23 +9,10 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class Border : FrameworkElement
     {
-        [Property]
-        [BrushTypeConverter]
-        public Brush Background { get; set; }
-
-        [Property]
-        [BrushTypeConverter]
-        public Brush BorderBrush { get; set; }
-        
-        [Property]
-        [ThicknessConverter]
-        public Thickness BorderThickness { get; set; }
-        
-        [Property]
-        [CornerRadiusConverter]
-        public CornerRadius CornerRadius { get; set; }
-        
-        [Content]
-        public UIElement Child { get; set; }
+        public static readonly PropertyDescription Background = PropertyDescription.Register("Background", typeof(Brush), typeof(Border));
+        public static readonly PropertyDescription BorderBrush = PropertyDescription.Register("BorderBrush", typeof(Brush), typeof(Border));
+        public static readonly PropertyDescription BorderThickness = PropertyDescription.Register("BorderThickness", typeof(Thickness), typeof(Border));
+        public static readonly PropertyDescription CornerRadius = PropertyDescription.Register("CornerRadius", typeof(CornerRadius), typeof(Border));
+        public static readonly PropertyDescription Child = PropertyDescription.Register("Child", typeof(UIElement), typeof(Border), true);
     }
 }

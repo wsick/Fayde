@@ -26,11 +26,16 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class StretchConverter : TypeConverterAttribute
+    public class StretchConverter : ITypeConverter
     {
-        public override object Convert(DependencyObject element, System.Reflection.PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             return new Stretch((StretchEnum)Enum.Parse(typeof(StretchEnum), from));
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(Stretch); }
         }
     }
 }

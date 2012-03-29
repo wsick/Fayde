@@ -8,15 +8,7 @@ namespace WickedSick.Server.XamlParser.Elements
 {
     public abstract class Panel: FrameworkElement
     {
-        [Property]
-        [BrushTypeConverter]
-        public Brush Background { get; set; }
-
-        private IList<UIElement> _children = new List<UIElement>();
-        [Content]
-        public IList<UIElement> Children
-        {
-            get { return _children; }
-        }
+        public static readonly PropertyDescription Background = PropertyDescription.Register("Background", typeof(Brush), typeof(Panel));
+        public static readonly PropertyDescription Children = PropertyDescription.Register("Children", typeof(List<UIElement>), typeof(Panel), true);
     }
 }

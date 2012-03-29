@@ -7,7 +7,6 @@ namespace WickedSick.Server.XamlParser.Elements
 {
     public abstract class UIElement : DependencyObject
     {
-        [Property]
-        public string Cursor { get; set; }
+        public static readonly PropertyDescription Cursor = PropertyDescription.Register("Cursor", typeof(string), typeof(UIElement));
     }
 }

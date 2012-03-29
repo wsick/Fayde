@@ -82,9 +82,9 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class DurationConverter: TypeConverterAttribute
+    public class DurationConverter: ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             if (from.Equals("Automatic"))
                 return Duration.Automatic;
@@ -126,6 +126,11 @@ namespace WickedSick.Server.XamlParser.TypeConverters
                 seconds = int.Parse(parts[2]);
 
             return new Duration(new TimeSpan(hours, minutes, seconds, days, milliseconds));
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(Duration); }
         }
     }
 }

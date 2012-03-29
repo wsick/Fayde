@@ -10,8 +10,6 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class ColumnDefinition : DependencyObject
     {
-        [Property]
-        [GridLengthConverter]
-        public GridLength Width { get; set; }
+        public static readonly PropertyDescription Width = PropertyDescription.Register("Width", typeof(GridLength), typeof(ColumnDefinition));
     }
 }

@@ -30,11 +30,16 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class VerticalAlignmentConverter : TypeConverterAttribute
+    public class VerticalAlignmentConverter : ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             return new VerticalAlignment((VerticalAlignmentEnum)Enum.Parse(typeof(VerticalAlignmentEnum), from));
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(VerticalAlignment); }
         }
     }
 }

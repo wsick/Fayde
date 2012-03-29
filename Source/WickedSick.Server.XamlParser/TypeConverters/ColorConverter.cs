@@ -27,11 +27,16 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class ColorTypeConverter: TypeConverterAttribute
+    public class ColorConverter: ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             return Color.FromHex(from);
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(Color); }
         }
     }
 }

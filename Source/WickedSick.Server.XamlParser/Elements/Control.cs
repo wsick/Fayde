@@ -8,24 +8,10 @@ namespace WickedSick.Server.XamlParser.Elements
 {
     public abstract class Control : FrameworkElement
     {
-        [Property]
-        [BrushTypeConverter]
-        public Brush Background { get; set; }
-
-        [Property]
-        [BrushTypeConverter]
-        public Brush Foreground { get; set; }
-
-        [Property]
-        [BrushTypeConverter]
-        public Brush BorderBrush { get; set; }
-
-        [Property]
-        [ThicknessConverter]
-        public Thickness BorderThickness { get; set; }
-
-        [Property]
-        [ThicknessConverter]
-        public Thickness Padding { get; set; }
+        public static readonly PropertyDescription Background = PropertyDescription.Register("Background", typeof(Brush), typeof(Control));
+        public static readonly PropertyDescription Foreground = PropertyDescription.Register("Foreground", typeof(Brush), typeof(Control));
+        public static readonly PropertyDescription BorderBrush = PropertyDescription.Register("BorderBrush", typeof(Brush), typeof(Control));
+        public static readonly PropertyDescription BorderThickness = PropertyDescription.Register("BorderThickness", typeof(Thickness), typeof(Control));
+        public static readonly PropertyDescription Template = PropertyDescription.Register("Template", typeof(ControlTemplate), typeof(Control));
     }
 }

@@ -10,18 +10,7 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class Grid: Panel
     {
-        private IList<ColumnDefinition> _columnDefinitions = new List<ColumnDefinition>();
-        [Property]
-        public IList<ColumnDefinition> ColumnDefinitions
-        {
-            get { return _columnDefinitions; }
-        }
-
-        private IList<RowDefinition> _rowDefinitions = new List<RowDefinition>();
-        [Property]
-        public IList<RowDefinition> RowDefinitions
-        {
-            get { return _rowDefinitions; }
-        }
+        public static readonly PropertyDescription ColumnDefinitions = PropertyDescription.Register("ColumnDefinitions", typeof(List<ColumnDefinition>), typeof(Grid));
+        public static readonly PropertyDescription RowDefinitions = PropertyDescription.Register("RowDefinitions", typeof(List<RowDefinition>), typeof(Grid));
     }
 }

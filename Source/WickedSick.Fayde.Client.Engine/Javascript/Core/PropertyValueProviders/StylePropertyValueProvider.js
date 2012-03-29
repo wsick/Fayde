@@ -54,9 +54,9 @@ _StylePropertyValueProvider.Instance._UpdateStyle = function (style, error) {
 
     while (oldSetter || newSetter) {
         if (oldSetter)
-            oldProp = oldSetter.GetProperty();
+            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
         if (newSetter)
-            newProp = newSetter.GetProperty();
+            newProp = newSetter.GetValue(Setter.PropertyProperty);
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
             //Property in old style, not in new style
             oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);

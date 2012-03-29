@@ -28,11 +28,16 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class OrientationConverterAttribute: TypeConverterAttribute
+    public class OrientationConverter: ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             return new Orientation((OrientationEnum)Enum.Parse(typeof(OrientationEnum), from));
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(Orientation); }
         }
     }
 }

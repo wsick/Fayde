@@ -32,7 +32,7 @@ _DeepStyleWalker.Instance._InitializeStyle = function (style) {
         var setters = cur.GetSetters();
         for (var i = setters.GetCount() - 1; i >= 0; i--) {
             var setter = setters.GetValueAt(i);
-            var propd = setter.GetProperty();
+            var propd = setter.GetValue(Setter.PropertyProperty);
             if (!dps[propd]) {
                 dps[propd] = true;
                 this._Setters.push(setter);

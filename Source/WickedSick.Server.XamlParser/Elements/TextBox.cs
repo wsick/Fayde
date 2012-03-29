@@ -8,8 +8,6 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class TextBox: FrameworkElement
     {
-        [Property]
-        [Content]
-        public string Text { get; set; }
+        public static readonly PropertyDescription Text = PropertyDescription.Register("Text", typeof(string), typeof(TextBox), true);
     }
 }

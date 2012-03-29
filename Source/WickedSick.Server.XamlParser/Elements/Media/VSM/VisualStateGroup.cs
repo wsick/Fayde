@@ -8,11 +8,6 @@ namespace WickedSick.Server.XamlParser.Elements.Media.VSM
     [Element]
     public class VisualStateGroup: DependencyObject
     {
-        private IList<VisualState> _visualStates = new List<VisualState>();
-        [Content]
-        public IList<VisualState> VisualStates
-        {
-            get { return _visualStates; }
-        }
+        public static readonly PropertyDescription VisualStates = PropertyDescription.Register("VisualStates", typeof(IList<VisualState>), typeof(VisualStateGroup), true);
     }
 }

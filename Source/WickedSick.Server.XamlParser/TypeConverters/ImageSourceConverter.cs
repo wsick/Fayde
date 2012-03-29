@@ -1,17 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using WickedSick.Server.XamlParser.Elements.Media.Imaging;
+using WickedSick.Server.XamlParser.Elements.Media;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class ImageSourceConverter : TypeConverterAttribute
+    public class ImageSourceConverter : ITypeConverter
     {
-        public override object Convert(Elements.DependencyObject element, System.Reflection.PropertyInfo pi, string from)
+        public Type ConversionType
         {
-            Uri uri;
-            if (!Uri.TryCreate(from, UriKind.RelativeOrAbsolute, out uri))
-                return null;
+            get { return typeof(ImageSource); }
+        }
 
-            return new BitmapImage { UriSource = uri, };
+        public object Convert(string from)
+        {
+            BitmapImage bi = new BitmapImage();
+            bi.SetValue("UriSource", from);
+            return bi;
         }
     }
 }

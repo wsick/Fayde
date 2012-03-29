@@ -10,11 +10,8 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class Page: FrameworkElement
     {
-        [Property]
-        public string Title { get; set; }
-
-        [Content]
-        public UIElement Content { get; set; }
+        public static readonly PropertyDescription Title = PropertyDescription.Register("Title", typeof(string), typeof(Page));
+        public static readonly PropertyDescription Content = PropertyDescription.Register("Content", typeof(UIElement), typeof(Page), true);
 
         public override string ToString()
         {
@@ -23,7 +20,7 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
             sb.AppendLine("\t<head>");
             sb.Append("\t\t<title>");
-            sb.Append(Title);
+            sb.Append(GetValue("Title"));
             sb.AppendLine("</title>");
 
             sb.AppendLine("\t\t<script src=\"../Packages/jquery-1.7.js\" type=\"text/javascript\"></script>");
@@ -62,7 +59,7 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("\t\t\t\tvar namescope = new NameScope();");
             sb.AppendLine("\t\t\t\tvar parser = new JsonParser();");
             sb.Append("var json = ");
-            sb.Append(Content.toJson(0));
+            sb.Append(((UIElement)GetValue("Content")).toJson(0));
             sb.AppendLine(";");
             sb.AppendLine("\t\t\t\tvar top = parser.CreateObject(json, namescope);");
             sb.AppendLine("\t\t\t\treturn top;");

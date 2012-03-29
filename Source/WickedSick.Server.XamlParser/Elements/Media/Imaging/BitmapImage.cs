@@ -5,13 +5,11 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Imaging
 {
     public class BitmapImage : BitmapSource
     {
-        [Property]
-        [UriConverter]
-        public Uri UriSource { get; set; }
+        public static readonly PropertyDescription UriSource = PropertyDescription.Register("UriSource", typeof(Uri), typeof(BitmapImage));
 
-        public override string toJson(int tabIndent)
+        public override string toJson(int tabIndents)
         {
-            return string.Format("new Uri(\"{0}\")", UriSource.OriginalString);
+            return string.Format("new Uri(\"{0}\")", ((Uri)GetValue("UriSource")).OriginalString);
         }
     }
 }

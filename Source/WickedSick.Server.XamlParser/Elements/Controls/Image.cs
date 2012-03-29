@@ -6,12 +6,7 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
     [Element(NullstoneName = "Fayde.Image")]
     public class Image : FrameworkElement
     {
-        [Property]
-        [StretchConverter]
-        public Stretch Stretch { get; set; }
-
-        [Property]
-        [ImageSourceConverter]
-        public ImageSource Source { get; set; }
+        public static readonly PropertyDescription Stretch = PropertyDescription.Register("Stretch", typeof(Stretch), typeof(Image));
+        public static readonly PropertyDescription Source = PropertyDescription.Register("Source", typeof(ImageSource), typeof(Image));
     }
 }

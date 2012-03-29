@@ -7,8 +7,6 @@ namespace WickedSick.Server.XamlParser.Elements
 {
     public abstract class ContentControl : Control
     {
-        [Property]
-        [Content]
-        public object Content { get; set; }
+        public static readonly PropertyDescription Content = PropertyDescription.Register("Content", typeof(object), typeof(ContentControl), true);
     }
 }

@@ -39,9 +39,9 @@ namespace WickedSick.Server.Framework.Fayde
             }
             catch (Exception ex)
             {
-                res.Write("An unexpected exception has occurred.");
-                res.Write(ex.Message);
-                res.Write(ex.StackTrace);
+                res.Write("<p>An unexpected exception has occurred.</p>");
+                res.Write("<p>" + ex.Message + "</p>");
+                res.Write("<p>" + ex.StackTrace + "</p>");
             }
         }
 
@@ -52,7 +52,7 @@ namespace WickedSick.Server.Framework.Fayde
             sb.AppendLine("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
             sb.AppendLine("\t<head>");
             sb.Append("\t\t<title>");
-            sb.Append(p.Title);
+            sb.Append(p.GetValue("Title"));
             sb.AppendLine("</title>");
 
             var prependResolver = "../";
@@ -82,7 +82,7 @@ namespace WickedSick.Server.Framework.Fayde
             sb.AppendLine("\t\t\t\tvar namescope = new NameScope();");
             sb.AppendLine("\t\t\t\tvar parser = new JsonParser();");
             sb.Append("var json = ");
-            sb.Append(p.Content.toJson(0));
+            sb.Append(((IJsonSerializable)p.GetValue("Content")).toJson(0));
             sb.AppendLine(";");
             sb.AppendLine("\t\t\t\tvar top = parser.CreateObject(json, namescope);");
             sb.AppendLine("\t\t\t\treturn top;");

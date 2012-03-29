@@ -7,7 +7,8 @@ using System.Reflection;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class SetterValueConverter: TypeConverterAttribute
+    /*
+    public class SetterValueConverter: ITypeConverter
     {
         /// <summary>
         /// There are two scenarios where this can be used: Property or Value on the Setter object
@@ -19,11 +20,11 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         /// <param name="pi">The Property that will be set on the Dependency Object.</param>
         /// <param name="from">The string value to be converted.</param>
         /// <returns>An object representing the converted value.</returns>
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(DependencyObject element, string from)
         {
 
             Setter s = (Setter)element;
-            TypeConverterAttribute converter = null;
+            ITypeConverter converter = null;
 
             //the property in question is the Value property
             if (pi.Name.Equals("Value"))
@@ -54,7 +55,7 @@ namespace WickedSick.Server.XamlParser.TypeConverters
             return null;
         }
 
-        private TypeConverterAttribute GetConverter(Setter s, string property)
+        private ITypeConverter GetConverter(Setter s, string property)
         {
             Style style = (Style)s.Parent;
             Type t = Parser.GetElementType(style.TargetType);
@@ -65,4 +66,5 @@ namespace WickedSick.Server.XamlParser.TypeConverters
             return null;
         }
     }
+    */
 }

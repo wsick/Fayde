@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class BrushTypeConverterAttribute : TypeConverterAttribute
+    public class BrushConverter : ITypeConverter
     {
         internal string MatchColor(string colorString, out bool isKnownColor, out bool isNumericColor, out bool isContextColor, out bool isScRgbColor)
         {
@@ -44,7 +44,7 @@ namespace WickedSick.Server.XamlParser.TypeConverters
             return str;
         }
 
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             bool flag;
             bool flag2;
@@ -58,18 +58,18 @@ namespace WickedSick.Server.XamlParser.TypeConverters
             if (flag3)
             {
                 SolidColorBrush result = new SolidColorBrush();
-                result.Color = Color.FromHex(from);
+                result.SetValue("Color", from);
                 return result;
             }
             if (flag2)
             {
                 //return new SolidColorBrush(ParseContextColor(trimmedColor, formatProvider, context));
-                throw new NotImplementedException("Context colors have not yet been implemented.");
+                throw new NotImplementedException(string.Format("Context colors have not yet been implemented. {0}", from));
             }
             if (flag)
             {
                 //return new SolidColorBrush(ParseScRgbColor(trimmedColor, formatProvider));
-                throw new NotImplementedException("ScRgb colors have not yet been implemented.");
+                throw new NotImplementedException(string.Format("ScRgb colors have not yet been implemented. {0}", from));
             }
             if (flag4)
             {
@@ -78,9 +78,14 @@ namespace WickedSick.Server.XamlParser.TypeConverters
                 //{
                 //    return brush2;
                 //}
-                throw new NotImplementedException("Known colors have not yet been implemented.");
+                throw new NotImplementedException(string.Format("Known colors have not yet been implemented. {0}", from));
             }
             throw new FormatException("An illegal brush value has been provided.");
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(Brush); }
         }
     }
 }

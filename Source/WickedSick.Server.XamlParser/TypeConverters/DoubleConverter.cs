@@ -7,11 +7,16 @@ using System.Reflection;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class DoubleConverterAttribute : TypeConverterAttribute
+    public class DoubleConverter : ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             return double.Parse(from);
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(double); }
         }
     }
 }

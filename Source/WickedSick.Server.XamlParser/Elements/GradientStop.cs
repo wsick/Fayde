@@ -9,12 +9,7 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class GradientStop: DependencyObject
     {
-        [Property]
-        [ColorTypeConverter]
-        public Color Color { get; set; }
-
-        [Property]
-        [DoubleConverter]
-        public double Offset { get; set; }
+        public static readonly PropertyDescription Color = PropertyDescription.Register("Color", typeof(Color), typeof(GradientStop));
+        public static readonly PropertyDescription Offset = PropertyDescription.Register("Offset", typeof(double), typeof(GradientStop));
     }
 }

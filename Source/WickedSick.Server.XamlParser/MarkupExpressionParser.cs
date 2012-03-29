@@ -1,173 +1,17 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Data;
 using System.Collections.Generic;
-using System.Windows.Markup;
+using WickedSick.Server.XamlParser.Elements.Bindings;
+using WickedSick.Server.XamlParser;
 
-namespace Parser
+namespace WickedSick.Server.XamlParser
 {
-    internal sealed class SL3MarkupExpressionParser : MarkupExpressionParser
+    internal class MarkupExpressionParser
     {
-        private IntPtr parser;
-        private IntPtr target_data;
+        private delegate object ExpressionHandler(string expression);
 
-        public SL3MarkupExpressionParser(object target, string attribute_name, IntPtr parser, IntPtr target_data)
-            : base(target, attribute_name)
-        {
-            this.parser = parser;
-            this.target_data = target_data;
-        }
-
-        protected override bool ThrowOnNullConverter
-        {
-            get { return false; }
-        }
-
-        protected override object LookupNamedResource(DependencyObject dob, string name)
-        {
-            if (name == null)
-                throw new XamlParseException("you must specify a key in {StaticResource}");
-
-            IntPtr value_ptr = NativeMethods.xaml_lookup_named_item(parser, target_data, name);
-            object o = Value.ToObject(null, value_ptr);
-            if (value_ptr != IntPtr.Zero)
-                NativeMethods.value_delete_value2(value_ptr);
-
-            if (o == null && !parsingBinding)
-                throw new XamlParseException(String.Format("Resource '{0}' must be available as a static resource", name));
-            return o;
-        }
-
-        protected override PropertyPath ParsePropertyPath(string piece)
-        {
-            Kind k = Deployment.Current.Types.TypeToKind(typeof(PropertyPath));
-
-            bool v_set;
-            IntPtr unmanaged_value = IntPtr.Zero;
-            try
-            {
-                if (!NativeMethods.xaml_value_from_str_with_parser(parser, k, AttributeName, piece, out unmanaged_value, out v_set) || !v_set)
-                {
-                    Console.Error.WriteLine("Unable to parse property path: '{0}'", piece);
-                    return null;
-                }
-
-                object obj_value = Value.ToObject(typeof(PropertyPath), unmanaged_value);
-                PropertyPath path = obj_value as PropertyPath;
-
-                if (path != null)
-                    return path;
-
-                Console.Error.WriteLine("Unable to convert property path value: '{0}'", piece);
-            }
-            finally
-            {
-                if (unmanaged_value != IntPtr.Zero)
-                    Mono.NativeMethods.value_delete_value2(unmanaged_value);
-            }
-
-            return null;
-        }
-    }
-
-    internal sealed class SL4MarkupExpressionParser : MarkupExpressionParser
-    {
-
-        private XamlParser parser;
-        private XamlObjectElement target_element;
-
-        public SL4MarkupExpressionParser(object target, string attribute_name, XamlParser parser, XamlObjectElement target_element)
-            : base(target, attribute_name)
-        {
-            this.parser = parser;
-            this.target_element = target_element;
-        }
-
-        protected override bool ThrowOnNullConverter
-        {
-            get { return true; }
-        }
-
-        protected override object LookupNamedResource(DependencyObject dob, string name)
-        {
-            if (name == null)
-                throw new XamlParseException("you must specify a key in {StaticResource}");
-
-            object o = parser.LookupNamedItem(target_element, name);
-            if (o == null && !parsingBinding)
-                throw new XamlParseException(String.Format("Resource '{0}' must be available as a static resource", name));
-            return o;
-        }
-
-        protected override PropertyPath ParsePropertyPath(string piece)
-        {
-            var converter = new XamlTypeConverter(parser, target_element, AttributeName, typeof(PropertyPath));
-            var path = converter.ConvertFrom(piece) as PropertyPath;
-
-            if (path == null)
-            {
-                Console.Error.WriteLine("Error parsing property path: '{0}'.", piece);
-                return null;
-            }
-
-            return path;
-        }
-    }
-
-    internal abstract class MarkupExpressionParser
-    {
-
-        private StringBuilder piece;
-        private object target;
-        private string attribute_name;
-
-        protected bool parsingBinding;
-
-        public MarkupExpressionParser()
-        {
-        }
-
-        public MarkupExpressionParser(object target, string attribute_name)
-        {
-            this.target = target;
-            this.attribute_name = attribute_name;
-        }
-
-        public string AttributeName
-        {
-            get { return attribute_name; }
-        }
-
-        protected abstract bool ThrowOnNullConverter
-        {
-            get;
-        }
-
-        public static bool IsTemplateBinding(string expression)
-        {
-            return MatchExpression("TemplateBinding", expression);
-        }
-
-        public static bool IsStaticResource(string expression)
-        {
-            return MatchExpression("StaticResource", expression);
-        }
-
-        public static bool IsBinding(string expression)
-        {
-            return MatchExpression("Binding", expression);
-        }
-
-        public static bool IsExplicitNull(string expression)
-        {
-            return MatchExpression("x:Null", expression);
-        }
-
-        public delegate object ExpressionHandler(ref string expression);
-
-        public object ParseExpression(ref string expression)
+        public static object ParseExpression(string expression)
         {
             if (expression.StartsWith("{}"))
                 return expression.Substring(2);
@@ -188,12 +32,6 @@ namespace Parser
                 rv = TryHandler("RelativeSource", ParseRelativeSource, ref expression, out result);
 
             return result;
-        }
-
-        private static bool MatchExpression(string match, string expression)
-        {
-            int dummy;
-            return MatchExpression(match, expression, out dummy);
         }
 
         private static bool MatchExpression(string match, string expression, out int end)
@@ -251,7 +89,7 @@ namespace Parser
             return true;
         }
 
-        private bool TryHandler(string match, ExpressionHandler handler, ref string expression, out object result)
+        private static bool TryHandler(string match, ExpressionHandler handler, ref string expression, out object result)
         {
             int len;
             if (!MatchExpression(match, expression, out len))
@@ -263,63 +101,54 @@ namespace Parser
             expression = expression.Substring(len).TrimStart();
             if (expression.Length == 0)
                 throw new Exception("Expression did not end in '}'");
-            result = handler(ref expression);
+            result = handler(expression);
             return true;
         }
 
-        public Binding ParseBinding(ref string expression)
+        public static Binding ParseBinding(string expression)
         {
             Binding binding = new Binding();
-            parsingBinding = true;
             char next;
 
             if (expression == "}")
                 return binding;
 
             string remaining = expression;
-            string piece = GetNextPiece(ref remaining, out next);
+            string piece = GetNextPiece(remaining, out next);
 
             if (piece.StartsWith("{"))
                 throw new Exception("{{ not permissible in this context");
 
             if (next == '=')
-                HandleProperty(binding, piece, ref remaining);
+                HandleProperty(binding, piece, remaining);
             else
-                binding.Path = ParsePropertyPath(piece);
+                binding.Path = piece;
 
-            while ((piece = GetNextPiece(ref remaining, out next)) != null)
+            while ((piece = GetNextPiece(remaining, out next)) != null)
             {
-                HandleProperty(binding, piece, ref remaining);
+                HandleProperty(binding, piece, remaining);
             };
 
-            parsingBinding = false;
             return binding;
         }
 
-        public object ParseStaticResource(ref string expression)
+        public static StaticResource ParseStaticResource(string expression)
         {
             if (!expression.EndsWith("}"))
                 throw new Exception("Whitespace is not allowed after the end of the expression");
 
             char next;
-            string name = GetNextPiece(ref expression, out next);
+            string name = GetNextPiece(expression, out next);
 
-            object o = LookupNamedResource(null, name);
-
-#if !__TESTING
-            if (o == null)
-                o = Application.Current.Resources[name];
-#endif
-
-            return o;
+            return new StaticResource(name);
         }
 
-        public object ParseTemplateBinding(ref string expression)
+        public static TemplateBinding ParseTemplateBinding(string expression)
         {
-            TemplateBindingExpression tb = new TemplateBindingExpression();
+            TemplateBinding tb = new TemplateBinding();
 
             char next;
-            string prop = GetNextPiece(ref expression, out next);
+            string prop = GetNextPiece(expression, out next);
 
             tb.SourcePropertyName = prop;
             // tb.Source will be filled in elsewhere between attaching the change handler.
@@ -327,10 +156,10 @@ namespace Parser
             return tb;
         }
 
-        public object ParseRelativeSource(ref string expression)
+        public static RelativeSource ParseRelativeSource(string expression)
         {
             char next;
-            string mode_str = GetNextPiece(ref expression, out next);
+            string mode_str = GetNextPiece(expression, out next);
 
             try
             {
@@ -338,11 +167,11 @@ namespace Parser
             }
             catch
             {
-                throw new XamlParseException(String.Format("MarkupExpressionParser:  Error parsing RelativeSource, unknown mode: {0}", mode_str));
+                throw new XamlParseException(String.Format("MarkupExpressionParser: Error parsing RelativeSource, unknown mode: {0}", mode_str));
             }
         }
 
-        private void HandleProperty(Binding b, string prop, ref string remaining)
+        private static void HandleProperty(Binding b, string prop, string remaining)
         {
             char next;
             object value = null;
@@ -350,7 +179,7 @@ namespace Parser
 
             if (remaining.StartsWith("{"))
             {
-                value = ParseExpression(ref remaining);
+                value = ParseExpression(remaining);
                 remaining = remaining.TrimStart();
 
                 if (remaining.Length > 0 && remaining[0] == ',')
@@ -361,7 +190,7 @@ namespace Parser
             }
             else
             {
-                str_value = GetNextPiece(ref remaining, out next);
+                str_value = GetNextPiece(remaining, out next);
             }
 
             switch (prop)
@@ -378,7 +207,7 @@ namespace Parser
                 case "Path":
                     if (str_value == null)
                         throw new XamlParseException(String.Format("Invalid type '{0}' for Path.", value == null ? "null" : value.GetType().ToString()));
-                    b.Path = ParsePropertyPath(str_value);
+                    b.Path = str_value;
                     break;
                 case "Source":
                     // if the expression was: Source="{StaticResource xxx}" then 'value' will be populated
@@ -398,7 +227,7 @@ namespace Parser
                     IValueConverter value_converter = value as IValueConverter;
                     if (value_converter == null && value != null)
                         throw new Exception("A Binding Converter must be of type IValueConverter.");
-                    if (value == null && ThrowOnNullConverter)
+                    if (value == null)
                         throw new Exception("Binding Converter not found.");
                     b.Converter = value_converter;
                     break;
@@ -446,11 +275,10 @@ namespace Parser
                     break;
                 default:
                     throw new Exception(string.Format("Property {0} is not valid for this Expression", prop));
-                    break;
             }
         }
 
-        private string GetNextPiece(ref string remaining, out char next)
+        private static string GetNextPiece(string remaining, out char next)
         {
             bool inString = false;
             int end = 0;
@@ -462,8 +290,7 @@ namespace Parser
                 return null;
             }
 
-            piece = piece ?? new StringBuilder();
-            piece.Length = 0;
+            StringBuilder piece = new StringBuilder();
             // If we're inside a quoted string we append all chars to our piece until we hit the ending quote.
             while (end < remaining.Length && (inString || (remaining[end] != '}' && remaining[end] != ',' && remaining[end] != '=')))
             {
@@ -531,8 +358,5 @@ namespace Parser
 
             return piece.ToString();
         }
-
-        protected abstract object LookupNamedResource(DependencyObject dob, string name);
-        protected abstract PropertyPath ParsePropertyPath(string piece);
     }
 }

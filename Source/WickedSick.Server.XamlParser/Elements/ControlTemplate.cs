@@ -4,10 +4,7 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class ControlTemplate: DependencyObject
     {
-        [Property]
-        public string TargetType { get; set; }
-
-        [Content]
-        public UIElement Content { get; set; }
+        public static readonly PropertyDescription Content = PropertyDescription.Register("Content", typeof(UIElement), typeof(ControlTemplate), true);
+        public static readonly PropertyDescription TargetType = PropertyDescription.Register("TargetType", typeof(string), typeof(ControlTemplate));
     }
 }

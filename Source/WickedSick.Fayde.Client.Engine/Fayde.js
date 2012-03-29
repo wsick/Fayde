@@ -582,7 +582,7 @@ _DeepStyleWalker.Instance._InitializeStyle = function (style) {
         var setters = cur.GetSetters();
         for (var i = setters.GetCount() - 1; i >= 0; i--) {
             var setter = setters.GetValueAt(i);
-            var propd = setter.GetProperty();
+            var propd = setter.GetValue(Setter.PropertyProperty);
             if (!dps[propd]) {
                 dps[propd] = true;
                 this._Setters.push(setter);
@@ -1359,9 +1359,9 @@ _StylePropertyValueProvider.Instance._UpdateStyle = function (style, error) {
     var newProp;
     while (oldSetter || newSetter) {
         if (oldSetter)
-            oldProp = oldSetter.GetProperty();
+            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
         if (newSetter)
-            newProp = newSetter.GetProperty();
+            newProp = newSetter.GetValue(Setter.PropertyProperty);
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
             oldValue = oldSetter.GetValue(Setter.ConvertedValueProperty);
             newValue = null;
@@ -8747,7 +8747,7 @@ SolidColorBrush.Instance.SetupBrush = function (ctx, bounds) {
     if (color == null)
         this._Brush = "#000000";
     else
-        this._Brush = color;
+        this._Brush = color.toString();
 };
 Nullstone.FinishCreate(SolidColorBrush);
 
@@ -10495,7 +10495,7 @@ ImageBrush.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-ImageBrush.Instance._SetupBrush = function () {
+ImageBrush.Instance._SetupBrush = function (ctx, bounds) {
 };
 Nullstone.FinishCreate(ImageBrush);
 

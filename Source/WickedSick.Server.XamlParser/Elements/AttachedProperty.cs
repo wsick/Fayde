@@ -9,7 +9,7 @@ namespace WickedSick.Server.XamlParser.Elements
     {
         public string Owner { get; set; }
         public string Property { get; set; }
-        public string Value { get; set; }
+        public object Value { get; set; }
 
         public string toJson(int tabIndents)
         {

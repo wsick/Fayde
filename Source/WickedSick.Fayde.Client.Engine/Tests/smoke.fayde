@@ -31,7 +31,7 @@
                 web application development. Spend your time developing your application and not fighting with web technology.
             </TextBlock>
             <TextBox Margin="20" Text="This is a sample textbox."></TextBox>
-            <Button Margin="20,0,20,20" Content="This is a sample button." />
+            <Button Margin="20,0,20,20" Content="This is a sample button."/>
         </StackPanel>
         <Border Grid.ColumnSpan="2" Grid.Row="2" Margin="5" CornerRadius="10" Background="#2C4B63">
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5" Foreground="#FFFFFF">Copyright WickedSick 2012</TextBlock>

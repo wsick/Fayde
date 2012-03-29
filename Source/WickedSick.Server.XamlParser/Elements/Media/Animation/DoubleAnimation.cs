@@ -9,16 +9,8 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Animation
     [Element]
     public class DoubleAnimation: Timeline
     {
-        [Property]
-        [DoubleConverter]
-        public double From { get; set; }
-
-        [Property]
-        [DoubleConverter]
-        public double To { get; set; }
-
-        [Property]
-        [DoubleConverter]
-        public double By { get; set; }
+        public static readonly PropertyDescription From = PropertyDescription.Register("From", typeof(double), typeof(DoubleAnimation));
+        public static readonly PropertyDescription To = PropertyDescription.Register("To", typeof(double), typeof(DoubleAnimation));
+        public static readonly PropertyDescription By = PropertyDescription.Register("By", typeof(double), typeof(DoubleAnimation));
     }
 }

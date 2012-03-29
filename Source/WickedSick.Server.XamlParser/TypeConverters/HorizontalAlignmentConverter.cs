@@ -31,11 +31,16 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class HorizontalAlignmentConverter : TypeConverterAttribute
+    public class HorizontalAlignmentConverter : ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             return new HorizontalAlignment((HorizontalAlignmentEnum)Enum.Parse(typeof(HorizontalAlignmentEnum), from));
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(HorizontalAlignment); }
         }
     }
 }

@@ -28,11 +28,16 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class TextWrappingConverterAttribute : TypeConverterAttribute
+    public class TextWrappingConverter : ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             return new TextWrapping((TextWrappingEnum)Enum.Parse(typeof(TextWrappingEnum), from));
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(TextWrapping); }
         }
     }
 }

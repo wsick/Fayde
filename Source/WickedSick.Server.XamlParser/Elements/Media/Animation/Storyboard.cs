@@ -8,11 +8,6 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Animation
     [Element]
     public class Storyboard
     {
-        private IList<Timeline> _animations = new List<Timeline>();
-        [Content]
-        public IList<Timeline> Animations
-        {
-            get { return _animations; }
-        }
+        public static readonly PropertyDescription Animations = PropertyDescription.Register("Animations", typeof(IList<Timeline>), typeof(Storyboard), true);
     }
 }

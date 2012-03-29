@@ -25,9 +25,9 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class GridLengthConverterAttribute : TypeConverterAttribute
+    public class GridLengthConverter : ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             if (from.EndsWith("*"))
             {
@@ -55,6 +55,11 @@ namespace WickedSick.Server.XamlParser.TypeConverters
                     Value = double.Parse(from)
                 };
             }
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(GridLength); }
         }
     }
 }

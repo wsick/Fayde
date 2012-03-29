@@ -20,9 +20,9 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
 
-    public class ThicknessConverter: TypeConverterAttribute
+    public class ThicknessConverter: ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             string[] parts = from.Split(',');
             if (parts.Count() == 1)
@@ -48,6 +48,11 @@ namespace WickedSick.Server.XamlParser.TypeConverters
             }
             else
                 throw new Exception(string.Format("An invalid value has been set for Thickness. {0}", from));
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(Thickness); }
         }
     }
 }

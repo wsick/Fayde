@@ -17,42 +17,4 @@ namespace WickedSick.Server.XamlParser
         public string ElementName { get; set; }
         public string NullstoneName { get; set; }
     }
-
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public sealed class PropertyAttribute : Attribute
-    {
-        private string _propertyName;
-
-        public PropertyAttribute()
-        {
-        }
-
-        public PropertyAttribute(string propertyName)
-        {
-            _propertyName = propertyName;
-        }
-
-        public string PropertyName { get { return _propertyName; } }
-    }
-
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public sealed class ContentAttribute : Attribute
-    {
-        private string _elementName;
-
-        public ContentAttribute()
-        {
-        }
-
-        public ContentAttribute(string elementName)
-        {
-            _elementName = elementName;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public abstract class TypeConverterAttribute : Attribute
-    {
-        public abstract object Convert(DependencyObject element, PropertyInfo pi, string from);
-    }
 }

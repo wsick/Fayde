@@ -18,9 +18,9 @@ namespace WickedSick.Server.XamlParser.TypeConverters
         }
     }
     
-    public class PointConverter: TypeConverterAttribute
+    public class PointConverter: ITypeConverter
     {
-        public override object Convert(DependencyObject element, PropertyInfo pi, string from)
+        public object Convert(string from)
         {
             string[] parts = from.Split(',');
             return new Point()
@@ -28,6 +28,11 @@ namespace WickedSick.Server.XamlParser.TypeConverters
                 X = double.Parse(parts[0].Trim()),
                 Y = double.Parse(parts[1].Trim())
             };
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(Point); }
         }
     }
 }

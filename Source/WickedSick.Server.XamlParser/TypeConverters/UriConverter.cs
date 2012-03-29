@@ -2,11 +2,16 @@
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class UriConverter : TypeConverterAttribute
+    public class UriConverter : ITypeConverter
     {
-        public override object Convert(Elements.DependencyObject element, System.Reflection.PropertyInfo pi, string from)
+        public object Convert(string from)
         {
-            return new Uri(from);
+            return new Uri(from, UriKind.RelativeOrAbsolute);
+        }
+
+        public Type ConversionType
+        {
+            get { return typeof(Uri); }
         }
     }
 }
