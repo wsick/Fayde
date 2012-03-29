@@ -1,5 +1,5 @@
 ﻿<Page>
-    <Grid Background="White">
+    <Grid Background="#FFFFFF">
         <Grid.RowDefinitions>
             <RowDefinition Height="400" />
             <RowDefinition Height="400" />

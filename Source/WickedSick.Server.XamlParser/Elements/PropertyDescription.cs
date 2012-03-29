@@ -41,7 +41,7 @@ namespace WickedSick.Server.XamlParser.Elements
             {
                 foreach (string key in _dependencyProperties.Keys)
                 {
-                    if (key.StartsWith(checkType.Name) && _dependencyProperties[key].IsContent)
+                    if (key.StartsWith(checkType.Name + ".") && _dependencyProperties[key].IsContent)
                         return _dependencyProperties[key];
                 }
                 checkType = checkType.BaseType;

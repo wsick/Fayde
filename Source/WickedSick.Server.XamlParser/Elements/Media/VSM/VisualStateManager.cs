@@ -9,6 +9,6 @@ namespace WickedSick.Server.XamlParser.Elements.Media.VSM
     [Element]
     public class VisualStateManager: DependencyObject
     {
-        public static readonly PropertyDescription Storyboard = PropertyDescription.Register("Storyboard", typeof(Storyboard), typeof(VisualStateManager), true);
+        public static readonly AttachedPropertyDescription VisualStateGroups = AttachedPropertyDescription.Register("VisualStateGroups", typeof(List<VisualStateGroup>), typeof(VisualStateManager));
     }
 }

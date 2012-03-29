@@ -7,6 +7,7 @@ using System.Text;
 using System.Xml;
 using WickedSick.Server.XamlParser.Elements;
 using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Media.VSM;
 
 namespace WickedSick.Server.XamlParser
 {
@@ -14,7 +15,7 @@ namespace WickedSick.Server.XamlParser
     {
         public static DependencyObject ParseXmlNode(XmlNode node, DependencyObject parent)
         {
-            Type t = GetElementType(node.Name);
+            Type t = DependencyObject.GetElementType(node.Name);
             if (t == null)
                 throw new Exception("Unknown element: " + node.Name);
             DependencyObject element = (DependencyObject)Activator.CreateInstance(t);
@@ -30,7 +31,16 @@ namespace WickedSick.Server.XamlParser
                     string[] parts = a.Name.Split('.');
                     if (parts.Count() != 2)
                         throw new Exception(string.Format("An invalid element has been encountered. {0}", a.Name));
-                    AddAttachedProperty(element, parts[0], parts[1], a.Value);
+
+                    Type ownerType = DependencyObject.GetElementType(parts[0]);
+                    element.AddAttachedProperty(ownerType, parts[1], a.Value);
+                    continue;
+                }
+
+                if (a.Value.StartsWith("{"))
+                {
+                    object expression = MarkupExpressionParser.ParseExpression(a.Value);
+                    element.SetValue(a.Name, expression);
                     continue;
                 }
 
@@ -59,7 +69,15 @@ namespace WickedSick.Server.XamlParser
                     if (!parts[0].Equals(element.GetType().Name))
                     {
                         //the sub-element is an attached property
-                        AddAttachedProperty(element, parts[0], parts[1], n.InnerText);
+                        if (n.NodeType == XmlNodeType.Text)
+                        {
+                            Type ownerType = DependencyObject.GetElementType(parts[0]);
+                            element.AddAttachedProperty(ownerType, parts[1], n.InnerText);
+                        }
+                        else
+                        {
+                            ProcessChildNodes(n.ChildNodes, element, n.Name);
+                        }
                     }
                     else
                     {
@@ -83,43 +101,17 @@ namespace WickedSick.Server.XamlParser
                     }
                     if (propertyName == null)
                         element.AddContent(child);
+                    else if (propertyName.Contains("."))
+                    {
+                        string[] parts = propertyName.Split('.');
+                        Type ownerType = DependencyObject.GetElementType(parts[0]);
+                        var test = new VisualStateManager();
+                        element.AddAttachedProperty(ownerType, parts[1], child);
+                    }
                     else
                         element.SetValue(propertyName, child);
                 }
             }
-        }
-
-        private static void AddAttachedProperty(DependencyObject element, string owner, string property, string value)
-        {
-            AttachedProperty ap = new AttachedProperty()
-            {
-                Owner = owner,
-                Property = property,
-                Value = value
-            };
-            ((UIElement)element).AttachedProperties.Add(ap);
-        }
-
-        internal static Type GetElementType(string elementName)
-        {
-            var types = from t in Assembly.GetAssembly(typeof(Parser)).GetTypes()
-                        where t.IsClass && !t.IsAbstract
-                        select t;
-            foreach (Type t in types)
-            {
-                ElementAttribute[] atts = (ElementAttribute[])t.GetCustomAttributes(typeof(ElementAttribute), false);
-                if (atts.Count() > 1)
-                    throw new Exception("More than one ElementAttribute may not be placed on a class.");
-                if (atts.Count() == 1)
-                {
-                    if (atts[0].ElementName == null)
-                    {
-                        if (t.Name.Equals(elementName)) return t;
-                    }
-                    else if (atts[0].ElementName.Equals(elementName)) return t;
-                }
-            }
-            return null;
         }
     }
 }

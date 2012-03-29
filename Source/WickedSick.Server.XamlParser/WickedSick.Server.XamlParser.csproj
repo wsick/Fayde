@@ -61,9 +61,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Elements\AttachedProperty.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="AttachedPropertyDescription.cs" />
     <Compile Include="Elements\Bindings\Binding.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -214,6 +212,7 @@
     <Compile Include="TypeConverters\ITypeConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
+    <Compile Include="TypeConverters\PropertyPathConverter.cs" />
     <Compile Include="TypeConverters\SetterValueConverter.cs" />
     <Compile Include="TypeConverters\StretchConverter.cs" />
     <Compile Include="TypeConverters\TextWrappingConverter.cs">

@@ -11,7 +11,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
 
         public string toJson(int tabIndents)
         {
-            throw new NotImplementedException();
+            return string.Format("new TemplateBindingMarkup(\"{0}\")", SourcePropertyName);
         }
     }
 }

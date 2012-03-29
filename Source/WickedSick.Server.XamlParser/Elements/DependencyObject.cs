@@ -11,13 +11,29 @@ namespace WickedSick.Server.XamlParser.Elements
 {
     public abstract class DependencyObject : IJsonSerializable
     {
-        private IList<AttachedProperty> _attachedProperties = new List<AttachedProperty>();
-        public IList<AttachedProperty> AttachedProperties
+        private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
+        public static Type GetElementType(string elementName)
         {
-            get { return _attachedProperties; }
+            var types = from t in Assembly.GetAssembly(typeof(Parser)).GetTypes()
+                        where t.IsClass && !t.IsAbstract
+                        select t;
+            foreach (Type t in types)
+            {
+                ElementAttribute[] atts = (ElementAttribute[])t.GetCustomAttributes(typeof(ElementAttribute), false);
+                if (atts.Count() > 1)
+                    throw new Exception("More than one ElementAttribute may not be placed on a class.");
+                if (atts.Count() == 1)
+                {
+                    if (atts[0].ElementName == null)
+                    {
+                        if (t.Name.Equals(elementName)) return t;
+                    }
+                    else if (atts[0].ElementName.Equals(elementName)) return t;
+                }
+            }
+            return null;
         }
 
-        private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
         static DependencyObject()
         {
             var converters = from t in Assembly.GetCallingAssembly().GetTypes()
@@ -31,51 +47,54 @@ namespace WickedSick.Server.XamlParser.Elements
                 _converters.Add(tc.ConversionType, tc);
             }
         }
-
+        
+        private IDictionary<AttachedPropertyDescription, object> _attachedValues = new Dictionary<AttachedPropertyDescription, object>();
         private IDictionary<PropertyDescription, object> _dependencyValues = new Dictionary<PropertyDescription, object>();
-        public void SetValue(string name, string value)
-        {
-            //first check to see if it is a dependency property
-            PropertyDescription dp = PropertyDescription.Get(name, GetType());
-            if (dp == null)
-                throw new ArgumentException(string.Format("An unregistered dependency property/dependency object set has been passed. {0}.{1}", GetType().Name, name));
-
-            if (_dependencyValues.ContainsKey(dp))
-                throw new Exception(string.Format("The dependency property value has already been set. {0}.{1}", GetType().Name, name));
-
-            object newValue = value;
-            if (_converters.ContainsKey(dp.Type))
-            {
-                ITypeConverter tc = _converters[dp.Type];
-                newValue = tc.Convert(value);
-            }
-
-            _dependencyValues.Add(dp, newValue);
-        }
 
         public void SetValue(string name, object value)
         {
-            PropertyDescription dp = PropertyDescription.Get(name, GetType());
-            IList valueList;
-            if (_dependencyValues.ContainsKey(dp))
+            //first check to see if the property is defined
+            PropertyDescription pd = PropertyDescription.Get(name, GetType());
+            if (pd == null)
+                throw new ArgumentException(string.Format("An unregistered property has been passed. {0}.{1}", GetType().Name, name));
+
+            if (pd.Type.IsGenericType && pd.Type.GetGenericTypeDefinition() == typeof(List<>))
             {
-                valueList = (IList)_dependencyValues[dp];
+                IList valueList;
+                if (_dependencyValues.ContainsKey(pd))
+                {
+                    valueList = (IList)_dependencyValues[pd];
+                }
+                else
+                {
+                    valueList = (IList)Activator.CreateInstance(pd.Type);
+                    _dependencyValues.Add(pd, valueList);
+                }
+                valueList.Add(value);
             }
             else
             {
-                valueList = (IList)Activator.CreateInstance(dp.Type);
-                _dependencyValues.Add(dp, valueList);
+                if (_dependencyValues.ContainsKey(pd))
+                    throw new Exception(string.Format("The property has already been set. {0}.{1}", GetType().Name, name));
+
+                object newValue = value;
+                if (value is string && _converters.ContainsKey(pd.Type))
+                {
+                    ITypeConverter tc = _converters[pd.Type];
+                    newValue = tc.Convert((string)value);
+                }
+
+                _dependencyValues.Add(pd, newValue);
             }
-            valueList.Add(value);
         }
 
         public object GetValue(string name)
         {
-            PropertyDescription dp = PropertyDescription.Get(name, GetType());
-            if (dp == null) return null;
-            if (!_dependencyValues.ContainsKey(dp))
+            PropertyDescription pd = PropertyDescription.Get(name, GetType());
+            if (pd == null) return null;
+            if (!_dependencyValues.ContainsKey(pd))
                 return null;
-            return _dependencyValues[dp];
+            return _dependencyValues[pd];
         }
 
         public void AddContent(object value)
@@ -106,17 +125,51 @@ namespace WickedSick.Server.XamlParser.Elements
             }
         }
 
+        public void AddAttachedProperty(Type ownerType, string name, object value)
+        {
+            AttachedPropertyDescription apd = AttachedPropertyDescription.Get(name, ownerType);
+            if (apd == null)
+                throw new ArgumentException(string.Format("An unregistered attached property has been passed for the element {0}. {1}.{2}", GetType(), ownerType.Name, name));
+
+            if (apd.Type.IsGenericType && apd.Type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                IList valueList;
+                if (_attachedValues.ContainsKey(apd))
+                    valueList = (IList)_attachedValues[apd];
+                else
+                {
+                    valueList = (IList)Activator.CreateInstance(apd.Type);
+                    _attachedValues.Add(apd, valueList);
+                }
+                valueList.Add(value);
+            }
+            else
+            {
+                if (_attachedValues.ContainsKey(apd))
+                    throw new Exception(string.Format("The attached property has already been set on the element {0}. {1}.{2}", GetType(), ownerType.Name, name));
+
+                object newValue = value;
+                if (value is string && _converters.ContainsKey(apd.Type))
+                {
+                    ITypeConverter tc = _converters[apd.Type];
+                    newValue = tc.Convert((string)value);
+                }
+
+                _attachedValues.Add(apd, newValue);
+            }
+        }
+
         public static readonly PropertyDescription Name = PropertyDescription.Register("Name", typeof(string), typeof(DependencyObject));
         public DependencyObject Parent { get; set; }
 
-        private IDictionary<string, object> GetProperties()
+        private IDictionary<PropertyDescription, object> GetProperties()
         {
-            IDictionary<string, object> properties = new Dictionary<string, object>();
-            foreach (PropertyDescription dp in _dependencyValues.Keys)
+            IDictionary<PropertyDescription, object> properties = new Dictionary<PropertyDescription, object>();
+            foreach (PropertyDescription pd in _dependencyValues.Keys)
             {
-                if (!dp.IsContent || _dependencyValues[dp] is string)
+                if (!pd.IsContent || _dependencyValues[pd] is string)
                 {
-                    properties.Add(dp.Name, _dependencyValues[dp]);
+                    properties.Add(pd, _dependencyValues[pd]);
                 }
             }
             return properties;
@@ -159,8 +212,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.Append(string.Format("Name: {0},", name));
             }
 
-            IDictionary<string, object> properties = GetProperties();
-            string propJson = propsToJson();
+            string propJson = propsToJson(GetProperties());
             if (propJson.Length > 0)
             {
                 sb.AppendLine("Props:");
@@ -169,14 +221,12 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.AppendLine("},");
             }
 
-            if (AttachedProperties.Count() > 0)
+            string attachedJson = attachedPropsToJson(_attachedValues);
+            if (attachedJson.Length > 0)
             {
-                sb.AppendLine("AttachedProps: [");
-                foreach (AttachedProperty ap in AttachedProperties)
-                {
-                    sb.Append(ap.toJson(0));
-                    sb.AppendLine(",");
-                }
+                sb.AppendLine("AttachedProps:");
+                sb.AppendLine("[");
+                sb.Append(attachedJson);
                 sb.AppendLine("],");
             }
 
@@ -214,19 +264,57 @@ namespace WickedSick.Server.XamlParser.Elements
             return elAttr.NullstoneName;
         }
 
-        private string propsToJson()
+        private string attachedPropsToJson(IDictionary<AttachedPropertyDescription, object> properties)
         {
             StringBuilder sb = new StringBuilder();
-            IDictionary<string, object> properties = GetProperties();
-            foreach (string propName in properties.Keys)
+            foreach (AttachedPropertyDescription apd in properties.Keys)
             {
-                object value = properties[propName];
+                sb.AppendLine("{");
+                sb.AppendLine(string.Format("Owner: {0},", apd.OwnerType.Name));
+                sb.AppendLine(string.Format("Prop: \"{0}\",", apd.Name));
+                sb.Append("Value: ");
+                object value = properties[apd];
+                if (value is IJsonSerializable)
+                {
+                    sb.AppendLine(((IJsonSerializable)value).toJson(0));
+                }
+                else if (typeof(IList).IsAssignableFrom(value.GetType()))
+                {
+                    string json = listpropToJson((IList)value);
+                    if (json.Length > 0)
+                    {
+                        sb.AppendLine("[");
+                        sb.Append(json);
+                        sb.Append("],");
+                    }
+                }
+                else
+                {
+                    if (value is string)
+                        sb.Append("\"");
+                    sb.Append(CleanseText(value.ToString()));
+                    if (value is string)
+                        sb.Append("\"");
+                }
+
+                sb.Append("}"); 
+                sb.AppendLine(",");
+            }
+            return sb.ToString();
+        }
+
+        private string propsToJson(IDictionary<PropertyDescription, object> properties)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (PropertyDescription pd in properties.Keys)
+            {
+                object value = properties[pd];
                 if (value == null) continue;
 
-                if (this is Setter && propName.Equals("Property"))
+                if (this is Setter && pd.Name.Equals("Property"))
                 {
                     string typeName = (string)((Style)this.Parent).GetValue("TargetType");
-                    sb.Append(propName);
+                    sb.Append(pd.Name);
                     sb.Append(": ");
                     sb.Append(string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, value));
                     sb.AppendLine(",");
@@ -235,7 +323,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 
                 if (value is IJsonSerializable)
                 {
-                    sb.Append(propName);
+                    sb.Append(pd.Name);
                     sb.Append(": ");
                     sb.Append(((IJsonSerializable)value).toJson(0));
                     sb.AppendLine(",");
@@ -247,7 +335,7 @@ namespace WickedSick.Server.XamlParser.Elements
                     string json = listpropToJson((IList)value);
                     if (json.Length > 0)
                     {
-                        sb.Append(propName);
+                        sb.Append(pd.Name);
                         sb.AppendLine(": [");
                         sb.Append(json);
                         sb.Append("],");
@@ -255,7 +343,7 @@ namespace WickedSick.Server.XamlParser.Elements
                     continue;
                 }
 
-                sb.Append(propName);
+                sb.Append(pd.Name);
                 sb.Append(": ");
                 if (value is string)
                     sb.Append("\"");

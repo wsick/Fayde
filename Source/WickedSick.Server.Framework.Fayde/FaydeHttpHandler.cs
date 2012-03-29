@@ -41,7 +41,7 @@ namespace WickedSick.Server.Framework.Fayde
             {
                 res.Write("<p>An unexpected exception has occurred.</p>");
                 res.Write("<p>" + ex.Message + "</p>");
-                res.Write("<p>" + ex.StackTrace + "</p>");
+                res.Write("<p>" + ex.StackTrace.Replace(Environment.NewLine, "<br>") + "</p>");
             }
         }
 
