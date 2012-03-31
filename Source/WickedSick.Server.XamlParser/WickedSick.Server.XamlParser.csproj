@@ -111,6 +111,7 @@
     <Compile Include="Elements\DependencyObject.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="Elements\PropertyDescription.cs" />
     <Compile Include="Elements\Drawing\Rectangle.cs" />
     <Compile Include="Elements\Drawing\Shape.cs" />
@@ -174,6 +175,13 @@
     <Compile Include="Elements\Setter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\Shapes\Ellipse.cs" />
+    <Compile Include="Elements\Shapes\Line.cs" />
+    <Compile Include="Elements\Shapes\Path.cs" />
+    <Compile Include="Elements\Shapes\Polygon.cs" />
+    <Compile Include="Elements\Shapes\Polyline.cs" />
+    <Compile Include="Elements\Shapes\Rectangle.cs" />
+    <Compile Include="Elements\Shapes\Shape.cs" />
     <Compile Include="Elements\SolidColorBrush.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -205,12 +213,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TypeConverters\DurationConverter.cs" />
+    <Compile Include="TypeConverters\FillRuleConverter.cs" />
     <Compile Include="TypeConverters\FontSizeConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
     <Compile Include="TypeConverters\HorizontalAlignmentConverter.cs" />
     <Compile Include="TypeConverters\ImageSourceConverter.cs" />
     <Compile Include="TypeConverters\ITypeConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />
+    <Compile Include="TypeConverters\PenLineCapConverter.cs" />
+    <Compile Include="TypeConverters\PenLineJoinConverter.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
     <Compile Include="TypeConverters\PropertyPathConverter.cs" />
     <Compile Include="TypeConverters\SetterValueConverter.cs" />
