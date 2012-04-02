@@ -36,6 +36,13 @@ Size.Instance.toString = function () {
 Size.Instance.Copy = function () {
     return new Size(this.Width, this.Height);
 };
+Size.Equals = function (size1, size2) {
+    if (size1 == null && size2 == null)
+        return true;
+    if (size1 == null && size2 == null)
+        return false;
+    return size1.Width === size2.Width && size1.Height === size2.Height;
+};
 
 Nullstone.FinishCreate(Size);
 //#endregion
