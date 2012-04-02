@@ -21,3 +21,16 @@ var BrushMappingMode = {
     Absolute: 0,
     RelativeToBoundingBox: 1
 };
+
+var PenLineCap = {
+    Flat: 0,
+    Square: 1,
+    Round: 2,
+    Triangle: 3
+};
+
+var PenLineJoin = {
+    Miter: 0,
+    Bevel: 1,
+    Round: 2
+};
