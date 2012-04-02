@@ -6,7 +6,7 @@
 //#region ContentPresenter
 var ContentPresenter = Nullstone.Create("ContentPresenter", FrameworkElement);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter);
 ContentPresenter.Instance.GetContent = function () {
@@ -27,7 +27,7 @@ ContentPresenter.Instance.SetContentTemplate = function (value) {
 
 //#endregion
 
-//#region PROPERTIES
+//#region Properties
 
 ContentPresenter.Instance.GetFallbackRoot = function () {
     /// <returns type="UIElement" />
@@ -38,7 +38,7 @@ ContentPresenter.Instance.GetFallbackRoot = function () {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 ContentPresenter.Instance._GetDefaultTemplate = function () {
     /// <returns type="UIElement" />
@@ -101,7 +101,7 @@ ContentPresenter.Instance.InvokeLoaded = function () {
 
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 ContentPresenter.Annotations = {
     ContentProperty: ContentPresenter.ContentProperty

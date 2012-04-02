@@ -104,9 +104,7 @@ Border.Instance._Render = function (ctx, region) {
 
     //BorderBrush or CornerRadius?
     if (borderBrush || !this.GetCornerRadius().IsZero()) {
-        ctx.Save();
         this._RenderImpl(ctx, region);
-        ctx.Restore();
         return;
     }
 
@@ -116,9 +114,7 @@ Border.Instance._Render = function (ctx, region) {
         //var paintBackground = paintBorder.GrowByThickness(this.GetBorderThickness().Negate());
 
     } else {
-        ctx.Save();
         this._RenderImpl(ctx, region);
-        ctx.Restore();
     }
 };
 Border.Instance._RenderImpl = function (ctx, region) {
