@@ -63,6 +63,7 @@ UIElement.Instance.Init = function () {
     this.MouseLeave.Subscribe(this.OnMouseLeave, this);
 
     this.LostMouseCapture = new MulticastEvent();
+    this.LostMouseCapture.Subscribe(this.OnLostMouseCapture, this);
 
     this.GotFocus = new MulticastEvent();
     this.GotFocus.Subscribe(this.OnGotFocus, this);
@@ -781,6 +782,7 @@ UIElement.Instance.OnMouseLeave = function (sender, args) { };
 UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
     this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
 };
+UIElement.Instance.OnLostMouseCapture = function (sender, args) { };
 
 //#endregion
 

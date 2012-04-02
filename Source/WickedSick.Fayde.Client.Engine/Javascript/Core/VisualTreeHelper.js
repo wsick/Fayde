@@ -37,5 +37,11 @@ VisualTreeHelper.GetChildrenCount = function (d) {
 
     return 0;
 };
+VisualTreeHelper.GetParent = function (d) {
+    var fw = Nullstone.As(d, FrameworkElement);
+    if (fw == null)
+        throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+    return Nullstone.As(fw.GetVisualParent(), DependencyObject);
+};
 
 //#endregion

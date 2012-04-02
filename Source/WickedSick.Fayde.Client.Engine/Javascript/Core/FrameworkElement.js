@@ -9,6 +9,7 @@
 /// CODE
 /// <reference path="../Runtime/BError.js"/>
 /// <reference path="Style.js"/>
+/// <reference path="VisualTreeHelper.js"/>
 
 //#region FrameworkElement
 var FrameworkElement = Nullstone.Create("FrameworkElement", UIElement);
@@ -896,6 +897,18 @@ FrameworkElement.Instance._OnLogicalParentChanged = function (oldParent, newPare
         if (this._IsLoaded)
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
     }
+};
+
+//#endregion
+
+//#region Focus
+
+FrameworkElement.Instance._HasFocus = function () {
+    for (var doh = Nullstone.As(FocusManager.GetFocusedElement(), DependencyObject); doh != null; doh = VisualTreeHelper.GetParent(doh)) {
+        if (Nullstone.RefEquals(doh, this))
+            return true;
+    }
+    return false;
 };
 
 //#endregion

@@ -84,6 +84,7 @@
     <Content Include="Javascript\Controls\ScrollViewer.js" />
     <Content Include="Javascript\Controls\Styles.xml" />
     <Content Include="Javascript\Controls\TextBoxBase.js" />
+    <Content Include="Javascript\Engine\FocusManager.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />

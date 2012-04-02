@@ -257,6 +257,11 @@ function HUDUpdate(id, message) {
     hud.SetMessage(message);
 }
 
+var FocusManager = {};
+FocusManager.GetFocusedElement = function () {
+    return App.Instance.MainSurface._FocusedElement;
+};
+
 var AlignmentX = {
     Left: 0,
     Center: 1,
@@ -2376,6 +2381,12 @@ VisualTreeHelper.GetChildrenCount = function (d) {
         return 1;
     return 0;
 };
+VisualTreeHelper.GetParent = function (d) {
+    var fw = Nullstone.As(d, FrameworkElement);
+    if (fw == null)
+        throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
+    return Nullstone.As(fw.GetVisualParent(), DependencyObject);
+};
 
 var _VisualTreeWalker = Nullstone.Create("_VisualTreeWalker", null, 2);
 _VisualTreeWalker.Instance.Init = function (obj, direction) {
@@ -4089,6 +4100,13 @@ Point.Instance.Apply = function (matrix) {
 };
 Point.Instance.toString = function () {
     return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
+};
+Point.Equals = function (p1, p2) {
+    if (p1 == null && p2 == null)
+        return true;
+    if (p1 == null || p2 == null)
+        return false;
+    return p1.X === p2.X && p1.Y === p2.Y;
 };
 Nullstone.FinishCreate(Point);
 
@@ -7452,6 +7470,7 @@ UIElement.Instance.Init = function () {
     this.MouseLeave = new MulticastEvent();
     this.MouseLeave.Subscribe(this.OnMouseLeave, this);
     this.LostMouseCapture = new MulticastEvent();
+    this.LostMouseCapture.Subscribe(this.OnLostMouseCapture, this);
     this.GotFocus = new MulticastEvent();
     this.GotFocus.Subscribe(this.OnGotFocus, this);
     this.LostFocus = new MulticastEvent();
@@ -8016,6 +8035,7 @@ UIElement.Instance.OnMouseLeave = function (sender, args) { };
 UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
     this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
 };
+UIElement.Instance.OnLostMouseCapture = function (sender, args) { };
 UIElement.Instance._EmitKeyDown = function (args) {
     this.KeyDown.Raise(this, args);
 };
@@ -10479,6 +10499,13 @@ FrameworkElement.Instance._OnLogicalParentChanged = function (oldParent, newPare
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
     }
 };
+FrameworkElement.Instance._HasFocus = function () {
+    for (var doh = Nullstone.As(FocusManager.GetFocusedElement(), DependencyObject); doh != null; doh = VisualTreeHelper.GetParent(doh)) {
+        if (Nullstone.RefEquals(doh, this))
+            return true;
+    }
+    return false;
+};
 FrameworkElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
 Nullstone.FinishCreate(FrameworkElement);
 
@@ -12107,6 +12134,9 @@ Control.Instance._DoApplyTemplateWithError = function (error) {
     return true;
 };
 Control.Instance.OnMouseLeftButtonDown = function (sender, args) { };
+Control.Instance._GoToState = function (useTransitions, stateName) {
+    return VisualStateManager.GoToState(this, stateName, useTransitions);
+};
 Control.Instance.Focus = function (recurse) {
     recurse = recurse === undefined || recurse === true;
     if (!this._IsAttached)
@@ -14449,6 +14479,323 @@ Nullstone.FinishCreate(ScrollBar);
 
 var Thumb = Nullstone.Create("Thumb", Control);
 Thumb.Instance.Init = function () {
+    this.Init$Control();
+    this.DragCompleted = new MulticastEvent();
+    this.DragDelta = new MulticastEvent();
+    this.DragStarted = new MulticastEvent();
+};
+Thumb.IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", function () { return Boolean; }, Thumb, false, function (d, args) { d.OnDraggingChanged(args); });
+Thumb.Instance.GetIsDragging = function () {
+    return this.GetValue(Thumb.IsDraggingProperty);
+};
+Thumb.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, Thumb);
+Thumb.Instance.GetIsFocused = function () {
+    return this.GetValue(Thumb.IsFocusedProperty);
+};
+Thumb.Instance.CancelDrag = function () {
+    if (this.GetIsDragging()) {
+        this._SetValueInternal(Thumb.IsDraggingProperty, false);
+        this._RaiseDragCompleted(true);
+    }
+};
+Thumb.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$Control();
+    this.UpdateVisualState(false);
+};
+Thumb.Instance._FocusChanged = function (hasFocus) {
+    this._SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
+    this.UpdateVisualState();
+};
+Thumb.Instance.OnDraggingChanged = function (args) {
+    this.UpdateVisualState();
+};
+Thumb.Instance.OnIsEnabledChanged = function (args) {
+    this.OnIsEnabledChanged$Control(args);
+    if (!this.GetIsEnabled())
+        this._IsMouseOver = false;
+    this.UpdateVisualState();
+};
+Thumb.Instance.OnGotFocus = function (sender, args) {
+    this.OnGotFocus$Control(sender, args);
+    this._FocusChanged(this._HasFocus());
+};
+Thumb.Instance.OnLostFocus = function (sender, args) {
+    this.OnLostFocus$Control(sender, args);
+    this._FocusChanged(this._HasFocus());
+};
+Thumb.Instance.OnLostMouseCapture = function (sender, args) {
+    if (this.GetIsDragging() && this.GetIsEnabled()) {
+        this._SetValueInternal(Thumb.IsDraggingProperty, false);
+        this.ReleaseMouseCapture();
+        this._RaiseDragCompleted(false);
+    }
+};
+Thumb.Instance.OnMouseEnter = function (sender, args) {
+    this.OnMouseEnter$Control(sender, args);
+    if (this.GetIsEnabled()) {
+        this._IsMouseOver = true;
+        this.UpdateVisualState();
+    }
+};
+Thumb.Instance.OnMouseLeave = function (sender, args) {
+    this.OnMouseLeave$Control(sender, args);
+    if (this.GetIsEnabled()) {
+        this._IsMouseOver = false;
+        this.UpdateVisualState();
+    }
+};
+Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
+    this.OnMouseLeftButtonDown$Control(sender, args);
+    if (args.Handled)
+        return;
+    if (!this.GetIsDragging() && this.GetIsEnabled()) {
+        args.Handled = true;
+        this.CaptureMouse();
+        this._SetValueInternal(Thumb.IsDraggingProperty, true);
+        this._Origin = this._PreviousPosition = args.GetPosition(this._Parent);
+        try {
+            this._RaiseDragStarted();
+        } finally {
+            this.CancelDrag();
+        }
+    }
+};
+Thumb.Instance.OnMouseMove = function (sender, args) {
+    this.OnMouseMove$Control(sender, args);
+    if (!this.GetIsDragging())
+        return;
+    var p = args.GetPosition(this._Parent);
+    if (!Point.Equals(p, this._PreviousPosition)) {
+        this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
+        this._PreviousPosition = p;
+    }
+};
+Thumb.Instance.UpdateVisualState = function (useTransitions) {
+    if (useTransitions === undefined) useTransitions = true;
+    if (!this.GetIsEnabled()) {
+        this._GoToState(useTransitions, "Disabled");
+    } else if (this.GetIsDragging()) {
+        this._GoToState(useTransitions, "Pressed");
+    } else if (this._IsMouseOver) {
+        this._GoToState(useTransitions, "MouseOver");
+    } else {
+        this._GoToState(useTransitions, "Normal");
+    }
+    if (this.GetIsFocused() && this.GetIsEnabled())
+        this._GoToState(useTransitions, "Focused");
+    else
+        this._GoToState(useTransitions, "Unfocused");
+};
+Thumb.Instance._RaiseDragStarted = function () {
+    this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.X, this._Origin.Y));
+};
+Thumb.Instance._RaiseDragDelta = function (x, y) {
+    this.DragDelta.Raise(this, new DragDeltaEventArgs(x, y));
+};
+Thumb.Instance._RaiseDragCompleted = function (cancelled) {
+    this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, cancelled));
+};
+Thumb.Instance.GetDefaultStyle = function () {
+    var styleJson = {
+        Type: Style,
+        Props: {
+            TargetType: "Thumb"
+        },
+        Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Thumb, "Background"),
+                    Value: "#FF1F3B53"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Thumb, "BorderThickness"),
+                    Value: "1"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Thumb, "IsTabStop"),
+                    Value: "False"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Thumb, "BorderBrush"),
+                    Value: {
+                        Type: LinearGradientBrush,
+                        Props: {
+                            EndPoint: new Point(0.5, 1),
+                            StartPoint: new Point(0.5, 0)
+                        },
+                        Children: [
+                            {
+                                Type: GradientStop,
+                                Props: {
+                                    Color: Color.FromHex("#FFA3AEB9"),
+                                    Offset: 0
+                                }
+                            },
+                            {
+                                Type: GradientStop,
+                                Props: {
+                                    Color: Color.FromHex("#FF8399A9"),
+                                    Offset: 0.375
+                                }
+                            },
+                            {
+                                Type: GradientStop,
+                                Props: {
+                                    Color: Color.FromHex("#FF718597"),
+                                    Offset: 0.375
+                                }
+                            },
+                            {
+                                Type: GradientStop,
+                                Props: {
+                                    Color: Color.FromHex("#FF617584"),
+                                    Offset: 1
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Thumb, "Template"),
+                    Value: {
+                        Type: ControlTemplate,
+                        Props: {
+                            TargetType: "Thumb"
+                        },
+                        Content: {
+                            Type: Grid,
+                            Children: [
+                                {
+                                    Type: Border,
+                                    Props: {
+                                        CornerRadius: new CornerRadius(2, 2, 2, 2),
+                                        Background: {
+                                            Type: SolidColorBrush,
+                                            Props: {
+                                                Color: Color.FromHex("#FFFFFFFF")
+                                            }
+                                        },
+                                        BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                        BorderBrush: new TemplateBindingMarkup("BorderBrush")
+                                    },
+                                    Content: {
+                                        Type: Grid,
+                                        Props: {
+                                            Background: new TemplateBindingMarkup("Background"),
+                                            Margin: new Thickness(1, 1, 1, 1)
+                                        },
+                                        Children: [
+                                            {
+                                                Type: Border,
+                                                Props: {
+                                                    Opacity: 0,
+                                                    Background: {
+                                                        Type: SolidColorBrush,
+                                                        Props: {
+                                                            Color: Color.FromHex("#FF448DCA")
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                Type: Rectangle,
+                                                Props: {
+                                                    Fill: {
+                                                        Type: LinearGradientBrush,
+                                                        Props: {
+                                                            StartPoint: new Point(0.7, 0),
+                                                            EndPoint: new Point(0.7, 1)
+                                                        },
+                                                        Children: [
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#FFFFFFFF"),
+                                                                    Offset: 0
+                                                                }
+                                                            },
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#F9FFFFFF"),
+                                                                    Offset: 0.375
+                                                                }
+                                                            },
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#E5FFFFFF"),
+                                                                    Offset: 0.625
+                                                                }
+                                                            },
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#C6FFFFFF"),
+                                                                    Offset: 1
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    Type: Rectangle,
+                                    Props: {
+                                        RadiusX: 2,
+                                        RadiusY: 2,
+                                        Fill: {
+                                            Type: SolidColorBrush,
+                                            Props: {
+                                                Color: Color.FromHex("#FFFFFFFF")
+                                            }
+                                        },
+                                        Opacity: 0,
+                                        IsHitTestVisible: "false"
+                                    }
+                                },
+                                {
+                                    Type: Rectangle,
+                                    Props: {
+                                        RadiusX: 1,
+                                        RadiusY: 1,
+                                        Margin: new Thickness(1, 1, 1, 1),
+                                        Stroke: {
+                                            Type: SolidColorBrush,
+                                            Props: {
+                                                Color: Color.FromHex("#FF6DBDD1")
+                                            }
+                                        },
+                                        StrokeThickness: 1,
+                                        Opacity: 0,
+                                        IsHitTestVisible: "false"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    };
+    var parser = new JsonParser();
+    return parser.CreateObject(styleJson, new NameScope());
 };
 Nullstone.FinishCreate(Thumb);
 
@@ -16185,9 +16532,6 @@ ButtonBase.Instance.UpdateVisualState = function (useTransitions) {
     this._ChangeVisualState(useTransitions === true);
 };
 ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
-};
-ButtonBase.Instance._GoToState = function (useTransitions, stateName) {
-    return VisualStateManager.GoToState(this, stateName, useTransitions);
 };
 ButtonBase.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$ContentControl(sender, args);

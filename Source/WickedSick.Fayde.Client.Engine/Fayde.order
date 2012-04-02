@@ -4,6 +4,7 @@ Core/Enums.js
 Core/PropertyValueProviders/Enums.js
 Data/Enums.js
 Engine/Debug.js
+Engine/FocusManager.js
 Media/Enums.js
 Primitives/Enums.js
 Runtime/JsEx.js

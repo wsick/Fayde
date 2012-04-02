@@ -205,51 +205,60 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
-            sb.AppendLine(string.Format("Type: {0},", GetTypeName()));
+            sb.AppendFormat("Type: {0}", GetTypeName());
+
             string name = GetValue("Name") as string;
             if (name != null)
             {
-                sb.Append(string.Format("Name: {0},", name));
+                sb.AppendLine(",");
+                sb.AppendFormat("Name: {0}", name);
             }
 
             string propJson = propsToJson(GetProperties());
-            if (propJson.Length > 0)
+            if (!string.IsNullOrWhiteSpace(propJson))
             {
-                sb.AppendLine("Props:");
-                sb.AppendLine("{");
+                sb.AppendLine(",");
+                sb.AppendLine("Props: {");
                 sb.Append(propJson);
-                sb.AppendLine("},");
+                sb.Append("}");
             }
 
             string attachedJson = attachedPropsToJson(_attachedValues);
-            if (attachedJson.Length > 0)
+            if (!string.IsNullOrWhiteSpace(attachedJson))
             {
-                sb.AppendLine("AttachedProps:");
-                sb.AppendLine("[");
-                sb.Append(attachedJson);
-                sb.AppendLine("],");
+                sb.AppendLine(",");
+                sb.Append("AttachedProps: [");
+                sb.AppendLine(attachedJson);
+                sb.Append("]");
             }
 
             IList children = GetChildren();
             if (children != null && children.Count > 0)
             {
+                sb.AppendLine(",");
                 sb.AppendLine("Children: [");
+                bool needsComma = false;
                 foreach (DependencyObject d in children)
                 {
+                    if (needsComma)
+                        sb.AppendLine(",");
+                    else
+                        needsComma = true;
                     sb.Append(d.toJson(0));
-                    sb.AppendLine(",");
                 }
-                sb.AppendLine("],");
+                sb.AppendLine();
+                sb.Append("]");
             }
 
             IJsonSerializable content = GetContent();
             if (content != null)
             {
+                sb.AppendLine(",");
                 sb.Append("Content: ");
-                sb.AppendLine(content.toJson(0));
+                sb.Append(content.toJson(0));
             }
-
-            sb.AppendLine("}");
+            sb.AppendLine();
+            sb.Append("}");
             return sb.ToString();
         }
 
@@ -266,12 +275,17 @@ namespace WickedSick.Server.XamlParser.Elements
 
         private string attachedPropsToJson(IDictionary<AttachedPropertyDescription, object> properties)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
+            var needsComma = false;
             foreach (AttachedPropertyDescription apd in properties.Keys)
             {
+                if (needsComma)
+                    sb.AppendLine(",");
                 sb.AppendLine("{");
-                sb.AppendLine(string.Format("Owner: {0},", apd.OwnerType.Name));
-                sb.AppendLine(string.Format("Prop: \"{0}\",", apd.Name));
+                sb.AppendFormat("Owner: {0}", apd.OwnerType.Name);
+                sb.AppendLine(",");
+                sb.AppendFormat("Prop: \"{0}\"", apd.Name);
+                sb.AppendLine(",");
                 sb.Append("Value: ");
                 object value = properties[apd];
                 if (value is IJsonSerializable)
@@ -284,8 +298,8 @@ namespace WickedSick.Server.XamlParser.Elements
                     if (json.Length > 0)
                     {
                         sb.AppendLine("[");
-                        sb.Append(json);
-                        sb.Append("],");
+                        sb.AppendLine(json);
+                        sb.Append("]");
                     }
                 }
                 else
@@ -296,62 +310,64 @@ namespace WickedSick.Server.XamlParser.Elements
                     if (value is string)
                         sb.Append("\"");
                 }
-
-                sb.Append("}"); 
-                sb.AppendLine(",");
+                sb.AppendLine();
+                sb.Append("}");
+                needsComma = true;
             }
             return sb.ToString();
         }
 
         private string propsToJson(IDictionary<PropertyDescription, object> properties)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
+            var needsComma = false;
             foreach (PropertyDescription pd in properties.Keys)
             {
                 object value = properties[pd];
                 if (value == null) continue;
 
+                if (needsComma)
+                    sb.AppendLine(",");
                 if (this is Setter && pd.Name.Equals("Property"))
                 {
                     string typeName = (string)((Style)this.Parent).GetValue("TargetType");
                     sb.Append(pd.Name);
                     sb.Append(": ");
                     sb.Append(string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, value));
-                    sb.AppendLine(",");
-                    continue;
+                    needsComma = true;
                 }
-                
-                if (value is IJsonSerializable)
+                else if (value is IJsonSerializable)
                 {
                     sb.Append(pd.Name);
                     sb.Append(": ");
                     sb.Append(((IJsonSerializable)value).toJson(0));
-                    sb.AppendLine(",");
-                    continue;
+                    needsComma = true;
                 }
-                
-                if (typeof(IList).IsAssignableFrom(value.GetType()))
+                else if (typeof(IList).IsAssignableFrom(value.GetType()))
                 {
                     string json = listpropToJson((IList)value);
                     if (json.Length > 0)
                     {
                         sb.Append(pd.Name);
                         sb.AppendLine(": [");
-                        sb.Append(json);
-                        sb.Append("],");
+                        sb.AppendLine(json);
+                        sb.Append("]");
+                        needsComma = true;
                     }
-                    continue;
                 }
-
-                sb.Append(pd.Name);
-                sb.Append(": ");
-                if (value is string)
-                    sb.Append("\"");
-                sb.Append(CleanseText(value.ToString()));
-                if (value is string)
-                    sb.Append("\"");
-                sb.AppendLine(",");
+                else
+                {
+                    sb.Append(pd.Name);
+                    sb.Append(": ");
+                    if (value is string)
+                        sb.Append("\"");
+                    sb.Append(CleanseText(value.ToString()));
+                    if (value is string)
+                        sb.Append("\"");
+                    needsComma = true;
+                }
             }
+            sb.AppendLine();
             return sb.ToString();
         }
 
@@ -369,11 +385,14 @@ namespace WickedSick.Server.XamlParser.Elements
 
         private string listpropToJson(IList values)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
+            var needsComma = false;
             foreach (DependencyObject d in values)
             {
+                if (needsComma)
+                    sb.AppendLine(",");
                 sb.Append(d.toJson(0));
-                sb.AppendLine(",");
+                needsComma = true;
             }
             return sb.ToString();
         }

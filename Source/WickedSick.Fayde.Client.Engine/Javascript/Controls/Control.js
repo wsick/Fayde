@@ -10,7 +10,7 @@ Control.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Control.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Control);
 Control.Instance.GetBackground = function () {
@@ -166,7 +166,7 @@ Control.SetIsTemplateItem = function (d, value) {
 
 //#endregion
 
-//#region PROPERTIES
+//#region Properties
 
 Control.Instance.GetIsFocused = function () {
     ///<returns type="Boolean"></returns>
@@ -175,7 +175,7 @@ Control.Instance.GetIsFocused = function () {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 Control.Instance.GetDefaultStyle = function () {
     return null;
@@ -290,9 +290,16 @@ Control.Instance._DoApplyTemplateWithError = function (error) {
 
 Control.Instance.OnMouseLeftButtonDown = function (sender, args) { };
 
+Control.Instance._GoToState = function (useTransitions, stateName) {
+    /// <param name="useTransitions" type="Boolean"></param>
+    /// <param name="stateName" type="String"></param>
+    /// <returns type="Boolean" />
+    return VisualStateManager.GoToState(this, stateName, useTransitions);
+};
+
 //#endregion
 
-//#region FOCUS
+//#region Focus
 
 Control.Instance.Focus = function (recurse) {
     recurse = recurse === undefined || recurse === true;

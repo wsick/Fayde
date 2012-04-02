@@ -102,6 +102,7 @@
     <Compile Include="Elements\Controls\Image.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\Controls\Primitives\Thumb.cs" />
     <Compile Include="Elements\ControlTemplate.cs">
       <SubType>Code</SubType>
     </Compile>
