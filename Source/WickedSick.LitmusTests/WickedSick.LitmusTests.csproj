@@ -73,38 +73,45 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BrushTest.xaml.cs">
+    <Compile Include="Tests\BrushTest.xaml.cs">
       <DependentUpon>BrushTest.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ImageBrushTest.xaml.cs">
+    <Compile Include="Tests\ImageBrushTest.xaml.cs">
       <DependentUpon>ImageBrushTest.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ImageTest.xaml.cs">
+    <Compile Include="Tests\ImageTest.xaml.cs">
       <DependentUpon>ImageTest.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\ShapesTest.xaml.cs">
+      <DependentUpon>ShapesTest.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
-    <Page Include="BrushTest.xaml">
+    <Page Include="Tests\BrushTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ImageBrushTest.xaml">
+    <Page Include="Tests\ImageBrushTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ImageTest.xaml">
+    <Page Include="Tests\ImageTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tests\ShapesTest.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
