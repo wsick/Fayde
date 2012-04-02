@@ -111,6 +111,7 @@
     <Compile Include="Elements\DependencyObject.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\FaydeApplication.cs" />
     <Compile Include="Elements\PropertyDescription.cs" />
     <Compile Include="Elements\Drawing\Rectangle.cs" />
     <Compile Include="Elements\Drawing\Shape.cs" />
