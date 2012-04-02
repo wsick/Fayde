@@ -3,7 +3,7 @@
 var Nullstone = {};
 Nullstone._LastID = 0;
 Nullstone._LastTypeID = 1;
-Nullstone.Create = function (typeName, parent, argCount) {
+Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     var s;
     if (argCount) {
         s = "";
@@ -33,15 +33,28 @@ Nullstone.Create = function (typeName, parent, argCount) {
     f.prototype.constructor = f;
     Nullstone.IsReady = true;
     f.Instance = {};
+    f.Interfaces = interfaces;
     return f;
 }
 Nullstone.FinishCreate = function (f) {
+    if (f.Interfaces) {
+        for (var i = 0; i < f.Interfaces.length; i++) {
+            var it = f.Interfaces[i].Instance;
+            for (var m in it) {
+                if (!(m in f.prototype))
+                    throw new NotImplementedException(f, it, m);
+            }
+        }
+    }
+
     for (var k in f.Instance) {
         if ((k in f.prototype) && f._BaseClass != null) {
             f.prototype[k + '$' + f._BaseClass._TypeName] = f.prototype[k];
         }
         f.prototype[k] = f.Instance[k];
     }
+
+
     delete f['Instance'];
 };
 
@@ -70,8 +83,8 @@ Nullstone.As = function (obj, type) {
         return null;
     if (obj instanceof type)
         return obj;
-    //if (obj.constructor.DoesImplement(type))
-        //return obj;
+    if (Nullstone.DoesImplement(obj, type))
+        return obj;
     return null;
 };
 Nullstone.DoesInheritFrom = function (t, type) {
@@ -81,8 +94,10 @@ Nullstone.DoesInheritFrom = function (t, type) {
     }
     return temp != null;
 };
-Nullstone.DoesImplement = function (ns, interfaces) {
-    if (!ns.constructor._IsNullstone)
+Nullstone.DoesImplement = function (obj, interfaceType) {
+    if (!obj.constructor._IsNullstone)
         return false;
-
+    if (!obj.constructor.Interfaces)
+        return false;
+    return interfaceType in obj.constructor.Interfaces;
 };

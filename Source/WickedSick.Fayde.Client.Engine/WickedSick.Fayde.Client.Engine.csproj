@@ -73,6 +73,8 @@
     <Content Include="Javascript\Controls\RowDefinitionCollection.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBlockDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\TextBoxBase.js" />
+    <Content Include="Javascript\Runtime\Exception.js" />
+    <Content Include="Javascript\Runtime\NotImplementedException.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />
