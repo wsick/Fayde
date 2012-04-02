@@ -1,4 +1,5 @@
 ﻿/// <reference path="Nullstone.js"/>
+/// CODE
 
 //#region BError
 var BError = Nullstone.Create("BError");
@@ -23,7 +24,16 @@ BError.Instance.toString = function () {
     return "[" + this._Number + "] " + this.Message;
 };
 BError.Instance.CreateException = function () {
-    return new Exception();
+    switch (this._Number) {
+        case BError.Argument:
+            return new ArgumentException(this.Message, this.CharPosition, this.LineNumber);
+        case BError.InvalidOperation:
+            return new InvalidOperationException(this.Message, this.CharPosition, this.LineNumber);
+        case BError.XamlParseException:
+            return new XamlParseException(this.Message, this.CharPosition, this.LineNumber);
+        default:
+            return new Exception(this.Message, this.CharPosition, this.LineNumber);
+    }
 };
 BError.UnauthorizedAccess = 1;
 BError.Argument = 2;

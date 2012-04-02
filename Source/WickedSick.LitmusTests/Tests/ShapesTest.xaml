@@ -1,0 +1,18 @@
+﻿<UserControl 
+    x:Class="WickedSick.LitmusTests.Tests.ShapesTest"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Width="800" Height="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="200" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Rectangle RadiusX="5" RadiusY="10" Fill="Yellow" Stroke="Black" StrokeThickness="5" />
+        <Ellipse Grid.Column="1" Fill="Yellow" Stroke="Black" StrokeThickness="5" />
+    </Grid>
+</UserControl>

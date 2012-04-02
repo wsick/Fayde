@@ -147,7 +147,7 @@ FrameworkElement.Instance.SetFlowDirection = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 FrameworkElement.Instance.SetTemplateBinding = function (propd, tb) {
     /// <param name="propd" type="DependencyProperty"></param>
@@ -246,6 +246,12 @@ FrameworkElement.Instance._GetSubtreeBounds = function () {
 
 //#region Measure
 
+FrameworkElement.Instance.Measure = function (availableSize) {
+    var error = new BError();
+    this._MeasureWithError(availableSize, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
 FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
         return;
@@ -331,6 +337,12 @@ FrameworkElement.Instance._MeasureOverrideWithError = function (availableSize, e
 
 //#region Arrange
 
+FrameworkElement.Instance.Arrange = function (finalRect) {
+    var error = new BError();
+    this._ArrangeWithError(finalRect, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
 FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;

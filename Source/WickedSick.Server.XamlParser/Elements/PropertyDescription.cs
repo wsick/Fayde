@@ -14,7 +14,7 @@ namespace WickedSick.Server.XamlParser.Elements
             string key = string.Format("{0}.{1}", ownerType.Name, name);
             PropertyDescription dp = new PropertyDescription(name, type, isContent);
             if (_dependencyProperties.Keys.Contains(key))
-                throw new ArgumentException(string.Format("The DependencyProperty ({0}) has already been registered."));
+                throw new ArgumentException(string.Format("The DependencyProperty ({0}) has already been registered.", key));
             //TODO: check and make sure more than one content property is not registered
             _dependencyProperties.Add(key, dp);
             return dp;

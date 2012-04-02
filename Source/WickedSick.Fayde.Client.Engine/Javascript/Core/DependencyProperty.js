@@ -9,7 +9,7 @@
 var DependencyProperty = Nullstone.Create("DependencyProperty", null, 10);
 
 DependencyProperty._LastID = 0;
-DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
+DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
     this.Name = name;
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
@@ -22,6 +22,8 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this._Validator = validator;
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
+    this._IsReadOnly = isReadOnly === true;
+    this._IsAttached = isAttached;
     DependencyProperty._LastID = this._ID = DependencyProperty._LastID + 1;
 };
 
@@ -55,25 +57,29 @@ DependencyProperty.Instance._Validate = function (instance, propd, value, error)
 DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback);
 };
+DependencyProperty.RegisterReadOnly = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback, true);
+};
+DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback, false, true);
+}
+
 DependencyProperty.RegisterCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback);
 };
-DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
-    if (!DependencyProperty._Registered)
-        DependencyProperty._Registered = [];
-    if (!DependencyProperty._Registered[ownerType._TypeName])
-        DependencyProperty._Registered[ownerType._TypeName] = [];
-    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
-    DependencyProperty._Registered[ownerType._TypeName][name] = propd;
-    return propd;
+DependencyProperty.RegisterReadOnlyCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback, true);
+};
+DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback, false, true);
 }
-DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue) {
+
+DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = [];
     if (!DependencyProperty._Registered[ownerType._TypeName])
         DependencyProperty._Registered[ownerType._TypeName] = [];
-    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue);
-    propd._IsAttached = true;
+    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached);
     DependencyProperty._Registered[ownerType._TypeName][name] = propd;
     return propd;
 }

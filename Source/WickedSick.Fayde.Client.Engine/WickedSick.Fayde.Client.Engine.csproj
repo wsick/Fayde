@@ -66,13 +66,30 @@
     <Content Include="Javascript\Controls\MediaElement.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />
     <Content Include="Javascript\Controls\Popup.js" />
+    <Content Include="Javascript\Controls\Primitives\ButtonBase.js" />
+    <Content Include="Javascript\Controls\Primitives\IScrollInfo.js" />
+    <Content Include="Javascript\Controls\Primitives\RangeBase.js" />
+    <Content Include="Javascript\Controls\Primitives\RepeatButton.js" />
+    <Content Include="Javascript\Controls\Primitives\ScrollBar.js" />
+    <Content Include="Javascript\Controls\Primitives\Selector.js" />
+    <Content Include="Javascript\Controls\Primitives\Thumb.js" />
+    <Content Include="Javascript\Controls\Primitives\ToggleButton.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\PasswordBoxDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxBaseDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\RowDefinition.js" />
     <Content Include="Javascript\Controls\RowDefinitionCollection.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBlockDynamicPropertyValueProvider.js" />
+    <Content Include="Javascript\Controls\ScrollContentPresenter.js" />
+    <Content Include="Javascript\Controls\ScrollViewer.js" />
+    <Content Include="Javascript\Controls\Styles.xml" />
     <Content Include="Javascript\Controls\TextBoxBase.js" />
+    <Content Include="Javascript\Runtime\Exception.js" />
+    <Content Include="Javascript\Runtime\NotImplementedException.js" />
+    <Content Include="Javascript\Shapes\Ellipse.js" />
+    <Content Include="Javascript\Shapes\Enums.js" />
+    <Content Include="Javascript\Shapes\Rectangle.js" />
+    <Content Include="Javascript\Shapes\Shape.js" />
     <Content Include="Javascript\Text\History\TextBoxUndoAction.js" />
     <Content Include="Javascript\Text\History\TextBoxUndoActionDelete.js" />
     <Content Include="Javascript\Text\History\TextBoxUndoActionInsert.js" />
@@ -174,7 +191,6 @@
     <Content Include="Javascript\Media\Animation\TimelineCollection.js" />
     <Content Include="Javascript\Media\Brush.js" />
     <Content Include="Javascript\Controls\Button.js" />
-    <Content Include="Javascript\Controls\ButtonBase.js" />
     <Content Include="Javascript\Controls\Canvas.js" />
     <Content Include="Javascript\Controls\ContentControl.js" />
     <Content Include="Javascript\Controls\ContentPresenter.js" />
@@ -286,6 +302,7 @@
     <None Include="Tests\imaging.fayde">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Tests\shapes.fayde" />
     <None Include="Tests\smoke.fayde">
       <SubType>Designer</SubType>
     </None>
@@ -296,9 +313,7 @@
       <Name>WickedSick.Server.Framework.Fayde</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Javascript\Shapes\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>

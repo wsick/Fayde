@@ -93,6 +93,7 @@ Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
     return result;
 };
 Panel.Instance._Render = function (ctx, region) {
+    /// <param name="ctx" type="_RenderContext"></param>
     var background = this.GetBackground();
     if (!background)
         return;
@@ -107,7 +108,7 @@ Panel.Instance._Render = function (ctx, region) {
     } else {
         ctx.Save();
         this._RenderLayoutClip(ctx);
-        ctx.Fill(area, background);
+        ctx.FillRect(background, area);
         ctx.Restore();
     }
 };

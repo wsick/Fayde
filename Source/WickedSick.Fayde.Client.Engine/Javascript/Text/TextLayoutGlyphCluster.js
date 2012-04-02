@@ -21,7 +21,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     var area;
     if (this._Selected && (brush = attrs.GetBackground(true))) {
         area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
-        ctx.Fill(area, brush); //selection background
+        ctx.FillRect(brush, area); //selection background
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
@@ -35,7 +35,7 @@ _TextLayoutGlyphCluster._Painter = function (args) {
     var text = args[1];
     var foreground = args[2];
     var font = args[3];
-
+    
     foreground.SetupBrush(canvasCtx);
     canvasCtx.fillStyle = foreground.ToHtml5Object();
     canvasCtx.font = font.ToHtml5Object();

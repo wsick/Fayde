@@ -175,9 +175,11 @@ UIElement.Instance.GetVisualParent = function () {
 };
 UIElement.Instance.IsLayoutContainer = function () { return false; };
 UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
+
+//#region Invalidation
+
 UIElement.Instance._CacheInvalidateHint = function () {
 };
-
 UIElement.Instance._FullInvalidate = function (renderTransform) {
     this._Invalidate();
     if (renderTransform) {
@@ -225,6 +227,10 @@ UIElement.Instance._InvalidateParent = function (r) {
         App.Instance.MainSurface._Invalidate(r);
 };
 
+//#endregion
+
+//#region Updates/Computes
+
 UIElement.Instance._UpdateBounds = function (forceRedraw) {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
@@ -251,6 +257,10 @@ UIElement.Instance._ComputeLocalTransform = function () {
 UIElement.Instance._ComputeLocalProjection = function () {
     //NotImplemented("UIElement._ComputeLocalProjection");
 };
+
+//#endregion
+
+//#region Render Visibility
 
 UIElement.Instance._ComputeTotalRenderVisibility = function () {
     if (this._GetActualTotalRenderVisibility())
@@ -280,6 +290,10 @@ UIElement.Instance._GetRenderVisible = function () {
     return (this._Flags & UIElementFlags.TotalRenderVisible) != 0;
 };
 
+//#endregion
+
+//#region Total Hit Test Visibility
+
 UIElement.Instance._ComputeTotalHitTestVisibility = function () {
     if (this._GetActualTotalHitTestVisibility())
         this._Flags |= UIElementFlags.TotalHitTestVisible;
@@ -299,10 +313,14 @@ UIElement.Instance._GetActualTotalHitTestVisibility = function () {
     }
     return visible;
 };
+
+//#endregion
+
+//#region Hit Testing
+
 UIElement.Instance._GetIsHitTestVisible = function () {
     return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
 };
-
 UIElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     uielist.Prepend(new UIElementNode(this));
 };
@@ -325,6 +343,9 @@ UIElement.Instance._InsideClip = function (ctx, x, y) {
 UIElement.Instance._CanFindElement = function () {
     return false;
 };
+
+//#endregion
+
 UIElement.Instance._TransformPoint = function (p) {
     /// <param name="p" type="Point"></param>
     var inverse;
@@ -337,6 +358,10 @@ UIElement.Instance._TransformPoint = function (p) {
 
 UIElement.Instance._GetGlobalBounds = function () {
     return this._GlobalBounds;
+};
+UIElement.Instance._GetCoverageBounds = function () {
+    /// <returns type="Rect" />
+    return new Rect();
 };
 UIElement.Instance._GetSubtreeObject = function () {
     return this._SubtreeObject;
@@ -601,8 +626,8 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
 
-    //HACK:
-    this._InvalidateVisibility();
+
+    this._InvalidateVisibility(); //HACK
     this._OnIsAttachedChanged$DependencyObject(value);
 
     if (!value) {
@@ -611,9 +636,8 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
         var surface = App.Instance.MainSurface;
         if (surface) {
             surface._RemoveDirtyElement(this);
-            //TODO: Focus Element
-            //if (surface.GetFocusedElement() === this)
-            //    surface.FocusElement(null);
+            if (surface._FocusedElement === this)
+                surface._FocusElement(null);
         }
     }
 };

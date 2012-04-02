@@ -2,8 +2,8 @@
     x:Class="WickedSick.LitmusTests.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:WickedSick.LitmusTests">
+    xmlns:tests="clr-namespace:WickedSick.LitmusTests.Tests">
     <Grid x:Name="LayoutRoot">
-        <local:ImageTest />
+        <tests:ShapesTest HorizontalAlignment="Left" VerticalAlignment="Top" />
     </Grid>
 </UserControl>

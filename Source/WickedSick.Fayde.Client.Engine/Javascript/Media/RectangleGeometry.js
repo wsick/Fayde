@@ -6,13 +6,15 @@
 //#region RectangleGeometry
 var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 RectangleGeometry.RectProperty = DependencyProperty.Register("Rect", function () { return Rect; }, RectangleGeometry);
 RectangleGeometry.Instance.GetRect = function () {
+    /// <returns type="Rect" />
     return this.GetValue(RectangleGeometry.RectProperty);
 };
 RectangleGeometry.Instance.SetRect = function (value) {
+    /// <param name="value" type="Rect"></param>
     this.SetValue(RectangleGeometry.RectProperty, value);
 };
 
@@ -29,6 +31,7 @@ RectangleGeometry.Instance.Draw = function (canvasCtx) {
     var rect = this.GetRect();
     canvasCtx.beginPath();
     canvasCtx.rect(rect.X, rect.Y, rect.Width, rect.Height);
+    canvasCtx.closePath();
 };
 
 Nullstone.FinishCreate(RectangleGeometry);

@@ -41,6 +41,13 @@ var Stretch = {
     Uniform: 2,
     UniformToFill: 3
 };
+var ScrollBarVisibility = {
+    Disabled: 0,
+    Auto: 1,
+    Hidden: 2,
+    Visible: 3
+};
+
 
 var _VisualTreeWalkerDirection = {
     Logical: 0,
@@ -270,6 +277,17 @@ var BrushMappingMode = {
     Absolute: 0,
     RelativeToBoundingBox: 1
 };
+var PenLineCap = {
+    Flat: 0,
+    Square: 1,
+    Round: 2,
+    Triangle: 3
+};
+var PenLineJoin = {
+    Miter: 0,
+    Bevel: 1,
+    Round: 2
+};
 
 var Visibility = {
     Visible: 0,
@@ -467,6 +485,22 @@ window.requestAnimFrame = (function () {
         };
     })();
 
+var PathEntryType = {
+    Move: 0,
+    Line: 1,
+    Rect: 2,
+    Quadratic: 3,
+    Bezier: 4,
+    Arc: 5,
+    ArcTo: 6
+};
+var ShapeFlags = {
+    Empty: 1,
+    Normal: 2,
+    Degenerate: 4,
+    Radii: 8
+};
+
 var _BreakType = {
     Unknown: 0,
     Space: 1,
@@ -501,7 +535,7 @@ var _CharType = {
 var Nullstone = {};
 Nullstone._LastID = 0;
 Nullstone._LastTypeID = 1;
-Nullstone.Create = function (typeName, parent, argCount) {
+Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     var s;
     if (argCount) {
         s = "";
@@ -528,9 +562,19 @@ Nullstone.Create = function (typeName, parent, argCount) {
     f.prototype.constructor = f;
     Nullstone.IsReady = true;
     f.Instance = {};
+    f.Interfaces = interfaces;
     return f;
 }
 Nullstone.FinishCreate = function (f) {
+    if (f.Interfaces) {
+        for (var i = 0; i < f.Interfaces.length; i++) {
+            var it = f.Interfaces[i].Instance;
+            for (var m in it) {
+                if (!(m in f.prototype))
+                    throw new NotImplementedException(f, it, m);
+            }
+        }
+    }
     for (var k in f.Instance) {
         if ((k in f.prototype) && f._BaseClass != null) {
             f.prototype[k + '$' + f._BaseClass._TypeName] = f.prototype[k];
@@ -564,6 +608,8 @@ Nullstone.As = function (obj, type) {
         return null;
     if (obj instanceof type)
         return obj;
+    if (Nullstone.DoesImplement(obj, type))
+        return obj;
     return null;
 };
 Nullstone.DoesInheritFrom = function (t, type) {
@@ -573,9 +619,12 @@ Nullstone.DoesInheritFrom = function (t, type) {
     }
     return temp != null;
 };
-Nullstone.DoesImplement = function (ns, interfaces) {
-    if (!ns.constructor._IsNullstone)
+Nullstone.DoesImplement = function (obj, interfaceType) {
+    if (!obj.constructor._IsNullstone)
         return false;
+    if (!obj.constructor.Interfaces)
+        return false;
+    return interfaceType in obj.constructor.Interfaces;
 };
 
 var PropertyInfo = Nullstone.Create("PropertyInfo");
@@ -1478,7 +1527,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     var area;
     if (this._Selected && (brush = attrs.GetBackground(true))) {
         area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
-        ctx.Fill(area, brush); //selection background
+        ctx.FillRect(brush, area); //selection background
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
@@ -1715,6 +1764,35 @@ _TextBoxModelChangedEventArgs.Instance.Init = function (changed, propArgs) {
 };
 Nullstone.FinishCreate(_TextBoxModelChangedEventArgs);
 
+var IScrollInfo = Nullstone.Create("IScrollInfo");
+IScrollInfo.Instance.GetCanHorizontallyScroll = function () { };
+IScrollInfo.Instance.SetCanHorizontallyScroll = function () { };
+IScrollInfo.Instance.GetCanVerticallyScroll = function () { };
+IScrollInfo.Instance.SetCanVerticallyScroll = function () { };
+IScrollInfo.Instance.GetExtentWidth = function () { };
+IScrollInfo.Instance.GetExtentHeight = function () { };
+IScrollInfo.Instance.GetViewportWidth = function () { };
+IScrollInfo.Instance.GetViewportHeight = function () { };
+IScrollInfo.Instance.GetHorizontalOffset = function () { };
+IScrollInfo.Instance.SetHorizontalOffset = function (value) { };
+IScrollInfo.Instance.GetVerticalOffset = function () { };
+IScrollInfo.Instance.SetVerticalOffset = function (value) { };
+IScrollInfo.Instance.GetScrollOwner = function () { };
+IScrollInfo.Instance.SetScrollOwner = function (value) { };
+IScrollInfo.Instance.LineUp = function () { };
+IScrollInfo.Instance.LineDown = function () { };
+IScrollInfo.Instance.LineLeft = function () { };
+IScrollInfo.Instance.LineRight = function () { };
+IScrollInfo.Instance.MouseWheelUp = function () { };
+IScrollInfo.Instance.MouseWheelDown = function () { };
+IScrollInfo.Instance.MouseWheelLeft = function () { };
+IScrollInfo.Instance.MouseWheelRight = function () { };
+IScrollInfo.Instance.PageUp = function () { };
+IScrollInfo.Instance.PageDown = function () { };
+IScrollInfo.Instance.PageLeft = function () { };
+IScrollInfo.Instance.PageRight = function () { };
+Nullstone.FinishCreate(IScrollInfo);
+
 var BindingOperations = {
     SetBinding: function (target, dp, binding) {
         if (target == null)
@@ -1855,7 +1933,7 @@ Nullstone.FinishCreate(_DeepTreeWalker);
 
 var DependencyProperty = Nullstone.Create("DependencyProperty", null, 10);
 DependencyProperty._LastID = 0;
-DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
+DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
     this.Name = name;
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
@@ -1868,6 +1946,8 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this._Validator = validator;
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
+    this._IsReadOnly = isReadOnly === true;
+    this._IsAttached = isAttached;
     DependencyProperty._LastID = this._ID = DependencyProperty._LastID + 1;
 };
 DependencyProperty.Instance.toString = function () {
@@ -1897,25 +1977,27 @@ DependencyProperty.Instance._Validate = function (instance, propd, value, error)
 DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback);
 };
+DependencyProperty.RegisterReadOnly = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback, true);
+};
+DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback, false, true);
+}
 DependencyProperty.RegisterCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback);
 };
-DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback) {
-    if (!DependencyProperty._Registered)
-        DependencyProperty._Registered = [];
-    if (!DependencyProperty._Registered[ownerType._TypeName])
-        DependencyProperty._Registered[ownerType._TypeName] = [];
-    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback);
-    DependencyProperty._Registered[ownerType._TypeName][name] = propd;
-    return propd;
+DependencyProperty.RegisterReadOnlyCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback, true);
+};
+DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback, false, true);
 }
-DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue) {
+DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = [];
     if (!DependencyProperty._Registered[ownerType._TypeName])
         DependencyProperty._Registered[ownerType._TypeName] = [];
-    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue);
-    propd._IsAttached = true;
+    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached);
     DependencyProperty._Registered[ownerType._TypeName][name] = propd;
     return propd;
 }
@@ -3318,6 +3400,9 @@ _RenderContext.Instance.Init = function (surface) {
 _RenderContext.Instance.GetSurface = function () {
     return this._Surface;
 };
+_RenderContext.Instance.GetCanvasContext = function () {
+    return this._Surface._Ctx;
+};
 _RenderContext.Instance.Clip = function (clip) {
     this._DrawClip(clip);
     this._Surface._Ctx.clip();
@@ -3357,12 +3442,21 @@ _RenderContext.Instance.Restore = function () {
     this._InverseTransform = temp.Inverse;
     this._Surface._Ctx.restore();
 };
-_RenderContext.Instance.Fill = function (region, brush) {
-    if (region instanceof Rect) {
-        brush.SetupBrush(this._Surface._Ctx, region);
-        this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
-        this._Surface._Ctx.fillRect(region.X, region.Y, region.Width, region.Height);
-    }
+_RenderContext.Instance.Fill = function (brush, region) {
+    brush.SetupBrush(this._Surface._Ctx, region);
+    this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
+    this._Surface._Ctx.fill();
+};
+_RenderContext.Instance.FillRect = function (brush, rect) {
+    brush.SetupBrush(this._Surface._Ctx, rect);
+    this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
+    this._Surface._Ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
+};
+_RenderContext.Instance.Stroke = function (stroke, thickness, region) {
+    stroke.SetupBrush(this._Surface._Ctx, region);
+    this._Surface._Ctx.strokeStyle = stroke.ToHtml5Object();
+    this._Surface._Ctx.lineWidth = thickness;
+    this._Surface._Ctx.stroke();
 };
 _RenderContext.Instance.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
@@ -3802,6 +3896,7 @@ Nullstone.FinishCreate(KeyTime);
 
 var Matrix = Nullstone.Create("Matrix", null, 2);
 Matrix.Instance.Init = function (els, inverse) {
+    this._IsCustom = true;
     if (els === undefined) {
         this._Elements = [1, 0, 0, 0, 1, 0];
         this._Identity = true;
@@ -3820,6 +3915,8 @@ Matrix.Instance.GetInverse = function () {
     return new Matrix(this._Inverse, this._Elements);
 };
 Matrix.Instance.Apply = function (ctx) {
+    if (this._Identity)
+        return;
     var els = this._Elements;
     ctx.transform(els[0], els[3], els[1], els[4], els[2], els[5]);
 };
@@ -3868,6 +3965,42 @@ Matrix.Instance.toString = function () {
     t += "\n]";
     return t;
 };
+Matrix.Translate = function (matrix, x, y) {
+    if (x === 0 && y === 0)
+        return this;
+    var els = matrix._Elements;
+    if (!matrix._IsCustom) {
+        return new Matrix([
+            els[0], els[1], els[2] + x,
+            els[3], els[4], els[5] + y
+        ]);
+    }
+    els[2] += x;
+    els[5] += y;
+    matrix._Inverse = undefined;
+    matrix._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
+        && els[3] === 0 && els[4] === 1 && els[5] === 0;
+    return matrix;
+};
+Matrix.Scale = function (matrix, scaleX, scaleY) {
+    if (x === 1 && y === 1)
+        return matrix;
+    var els = matrix._Elements;
+    if (!matrix._IsCustom) {
+        return new Matrix([
+            els[0] * scaleX, els[1] * scaleY, els[2],
+            els[3] * scaleX, els[4] * scaleY, els[5]
+        ]);
+    }
+    els[0] *= scaleX;
+    els[3] *= scaleX;
+    els[1] *= scaleY;
+    els[4] *= scaleY;
+    matrix._Inverse = undefined;
+    matrix._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
+        && els[3] === 0 && els[4] === 1 && els[5] === 0;
+    return matrix;
+};
 Matrix.BuildInverse = function (arr) {
     var det = Matrix.GetDeterminant(arr);
     if (det === 0)
@@ -3892,23 +4025,29 @@ TranslationMatrix.Instance.Init = function (x, y) {
     if (!x) x = 0;
     if (!y) y = 0;
     this._Elements = [1, 0, x, 0, 1, y];
+    this._Identity = (x === 0 && y === 0);
 };
 TranslationMatrix.Instance.GetInverse = function () {
     return new TranslationMatrix(-this._Elements[2], -this._Elements[5]);
 };
 TranslationMatrix.Instance.Apply = function (ctx) {
+    if (this._Identity)
+        return;
     ctx.translate(this._Elements[2], this._Elements[5]);
 };
 Nullstone.FinishCreate(TranslationMatrix);
 var RotationMatrix = Nullstone.Create("RotationMatrix", Matrix, 1);
 RotationMatrix.Instance.Init = function (angleRad) {
     this.Angle = angleRad == null ? 0 : angleRad;
-    this._Elements = [Math.cos(this.Angle), -1 * Math.sin(this.Angle),  0, Math.sin(this.Angle), Math.cos(this.Angle), 0];
+    this._Elements = [Math.cos(this.Angle), -1 * Math.sin(this.Angle), 0, Math.sin(this.Angle), Math.cos(this.Angle), 0];
+    this._Identity = angleRad === 0;
 };
 RotationMatrix.Instance.GetInverse = function () {
     return new RotationMatrix(-this.Angle);
 };
 RotationMatrix.Instance.Apply = function (ctx) {
+    if (this._Identity)
+        return;
     ctx.rotate(this.Angle);
 };
 Nullstone.FinishCreate(RotationMatrix);
@@ -3916,12 +4055,15 @@ var ScalingMatrix = Nullstone.Create("ScalingMatrix", Matrix, 2);
 ScalingMatrix.Instance.Init = function (x, y) {
     if (!x) x = 0;
     if (!y) y = 0;
-    this._Elements = [x, 0, 0,  0, y, 0];
+    this._Elements = [x, 0, 0, 0, y, 0];
+    this._Identity = (x === 1 && y === 1);
 };
 ScalingMatrix.Instance.GetInverse = function () {
     return new ScalingMatrix(-this._Elements[0], -this._Elements[4]);
 };
 ScalingMatrix.Instance.Apply = function (ctx) {
+    if (this._Identity)
+        return;
     ctx.scale(this._Elements[0], this._Elements[4]);
 };
 Nullstone.FinishCreate(ScalingMatrix);
@@ -3929,7 +4071,8 @@ var ShearingMatrix = Nullstone.Create("ShearingMatrix", Matrix, 2);
 ShearingMatrix.Instance.Init = function (x, y) {
     if (!x) x = 0;
     if (!y) y = 0;
-    this._Elements = [1, x, 0,  y, 1, 0];
+    this._Elements = [1, x, 0, y, 1, 0];
+    this._Identity = (x === 0 && y === 0);
 };
 ShearingMatrix.Instance.GetInverse = function () {
     return new ShearingMatrix(-this._Elements[1], -this._Elements[3]);
@@ -4020,6 +4163,12 @@ Rect.Instance.ContainsPoint = function (p) {
         && (this.X + this.Width) >= p.X
         && (this.Y + this.Height) >= p.Y;
 };
+Rect.Instance.ContainsPointXY = function (x, y) {
+    return this.X <= x
+        && this.Y <= y
+        && (this.X + this.Width) >= x
+        && (this.Y + this.Height) >= y;
+};
 Rect.Equals = function (rect1, rect2) {
     if (rect1 == null && rect2 == null)
         return true;
@@ -4060,6 +4209,13 @@ Size.Instance.toString = function () {
 };
 Size.Instance.Copy = function () {
     return new Size(this.Width, this.Height);
+};
+Size.Equals = function (size1, size2) {
+    if (size1 == null && size2 == null)
+        return true;
+    if (size1 == null && size2 == null)
+        return false;
+    return size1.Width === size2.Width && size1.Height === size2.Height;
 };
 Nullstone.FinishCreate(Size);
 
@@ -4254,7 +4410,16 @@ BError.Instance.toString = function () {
     return "[" + this._Number + "] " + this.Message;
 };
 BError.Instance.CreateException = function () {
-    return new Exception();
+    switch (this._Number) {
+        case BError.Argument:
+            return new ArgumentException(this.Message, this.CharPosition, this.LineNumber);
+        case BError.InvalidOperation:
+            return new InvalidOperationException(this.Message, this.CharPosition, this.LineNumber);
+        case BError.XamlParseException:
+            return new XamlParseException(this.Message, this.CharPosition, this.LineNumber);
+        default:
+            return new Exception(this.Message, this.CharPosition, this.LineNumber);
+    }
 };
 BError.UnauthorizedAccess = 1;
 BError.Argument = 2;
@@ -4307,6 +4472,9 @@ KeyEventArgs.Instance.Init = function (modifiers, keyCode) {
     this.KeyCode = keyCode;
 };
 Nullstone.FinishCreate(KeyEventArgs);
+
+var Exception = Nullstone.Create("Exception");
+Nullstone.FinishCreate(Exception);
 
 var LinkedList = Nullstone.Create("LinkedList");
 LinkedList.Instance.Init = function () {
@@ -4424,6 +4592,19 @@ MulticastEvent.Instance.RaiseAsync = function (sender, args) {
 };
 Nullstone.FinishCreate(MulticastEvent);
 
+var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 2);
+NotImplementedException.Instance.Init = function (type, parentType, methodName) {
+    this.Type = type;
+    this.ParentType = parentType;
+    this.MethodName = methodName;
+};
+NotImplementedException.Instance.toString = function () {
+    if (this.MethodName)
+        return this.Type._TypeName + " does not implement " + this.ParentType._TypeName + "." + this.MethodName;
+    return this.Type._TypeName + " does not implement " + this.ParentType._TypeName;
+};
+Nullstone.FinishCreate(NotImplementedException);
+
 var RoutedEventArgs = Nullstone.Create("RoutedEventArgs", EventArgs);
 RoutedEventArgs.Instance.Init = function () {
     this.Handled = false;
@@ -4500,7 +4681,7 @@ FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecede
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 };
 FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (propd !== FrameworkElement.ActualHeightProperty && propd !== FrameworkElement.ActualWidthProperty)
+    if (propd._ID !== FrameworkElement.ActualHeightProperty._ID && propd._ID !== FrameworkElement.ActualWidthProperty._ID)
         return undefined;
     var actual = this._Object._ComputeActualSize();
     if (!this._Last.Equals(actual)) {
@@ -7495,6 +7676,9 @@ UIElement.Instance._TransformPoint = function (p) {
 UIElement.Instance._GetGlobalBounds = function () {
     return this._GlobalBounds;
 };
+UIElement.Instance._GetCoverageBounds = function () {
+    return new Rect();
+};
 UIElement.Instance._GetSubtreeObject = function () {
     return this._SubtreeObject;
 };
@@ -7703,13 +7887,15 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
 UIElement.Instance._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
-    this._InvalidateVisibility();
+    this._InvalidateVisibility(); //HACK
     this._OnIsAttachedChanged$DependencyObject(value);
     if (!value) {
         this._CacheInvalidateHint();
         var surface = App.Instance.MainSurface;
         if (surface) {
             surface._RemoveDirtyElement(this);
+            if (surface._FocusedElement === this)
+                surface._FocusElement(null);
         }
     }
 };
@@ -8746,6 +8932,7 @@ RectangleGeometry.Instance.Draw = function (canvasCtx) {
     var rect = this.GetRect();
     canvasCtx.beginPath();
     canvasCtx.rect(rect.X, rect.Y, rect.Width, rect.Height);
+    canvasCtx.closePath();
 };
 Nullstone.FinishCreate(RectangleGeometry);
 
@@ -9762,6 +9949,12 @@ FrameworkElement.Instance._GetSubtreeBounds = function () {
         return this._SurfaceBoundsWithChildren;
     return this._SurfaceBounds;
 };
+FrameworkElement.Instance.Measure = function (availableSize) {
+    var error = new BError();
+    this._MeasureWithError(availableSize, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
 FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     if (error.IsErrored())
         return;
@@ -9820,6 +10013,12 @@ FrameworkElement.Instance._MeasureOverrideWithError = function (availableSize, e
         desired = child._DesiredSize;
     }
     return desired.Min(availableSize);
+};
+FrameworkElement.Instance.Arrange = function (finalRect) {
+    var error = new BError();
+    this._ArrangeWithError(finalRect, error);
+    if (error.IsErrored())
+        throw error.CreateException();
 };
 FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
@@ -10920,6 +11119,486 @@ BitmapImage.Instance._OnLoad = function (e) {
 };
 Nullstone.FinishCreate(BitmapImage);
 
+var Shape = Nullstone.Create("Shape", FrameworkElement);
+Shape.Instance.Init = function () {
+    this.Init$FrameworkElement();
+    this._ShapeFlags = 0;
+    this._StretchTransform = new Matrix();
+};
+Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Brush; }, Shape);
+Shape.Instance.GetFill = function () {
+    return this.GetValue(Shape.FillProperty);
+};
+Shape.Instance.SetFill = function (value) {
+    this.SetValue(Shape.FillProperty, value);
+};
+Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return Number; }, Shape, Stretch.None);
+Shape.Instance.GetStretch = function () {
+    return this.GetValue(Shape.StretchProperty);
+};
+Shape.Instance.SetStretch = function (value) {
+    this.SetValue(Shape.StretchProperty, value);
+};
+Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Brush; }, Shape);
+Shape.Instance.GetStroke = function () {
+    return this.GetValue(Shape.StrokeProperty);
+};
+Shape.Instance.SetStroke = function (value) {
+    this.SetValue(Shape.StrokeProperty, value);
+};
+Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () { return Number; }, Shape, 1.0);
+Shape.Instance.GetStrokeThickness = function () {
+    return this.GetValue(Shape.StrokeThicknessProperty);
+};
+Shape.Instance.SetStrokeThickness = function (value) {
+    this.SetValue(Shape.StrokeThicknessProperty, value);
+};
+Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return DoubleCollection; }, Shape);
+Shape.Instance.GetStrokeDashArray = function () {
+    return this.GetValue(Shape.StrokeDashArrayProperty);
+};
+Shape.Instance.SetStrokeDashArray = function (value) {
+    this.SetValue(Shape.StrokeDashArrayProperty, value);
+};
+Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return Number; }, Shape, PenLineCap.Flat);
+Shape.Instance.GetStrokeDashCap = function () {
+    return this.GetValue(Shape.StrokeDashCapProperty);
+};
+Shape.Instance.SetStrokeDashCap = function (value) {
+    this.SetValue(Shape.StrokeDashCapProperty, value);
+};
+Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () { return Number; }, Shape, 0.0);
+Shape.Instance.GetStrokeDashOffset = function () {
+    return this.GetValue(Shape.StrokeDashOffsetProperty);
+};
+Shape.Instance.SetStrokeDashOffset = function (value) {
+    this.SetValue(Shape.StrokeDashOffsetProperty, value);
+};
+Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return Number; }, Shape, PenLineCap.Flat);
+Shape.Instance.GetStrokeEndLineCap = function () {
+    return this.GetValue(Shape.StrokeEndLineCapProperty);
+};
+Shape.Instance.SetStrokeEndLineCap = function (value) {
+    this.SetValue(Shape.StrokeEndLineCapProperty, value);
+};
+Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return Number; }, Shape, PenLineJoin.Miter);
+Shape.Instance.GetStrokeLineJoin = function () {
+    return this.GetValue(Shape.StrokeLineJoinProperty);
+};
+Shape.Instance.SetStrokeLineJoin = function (value) {
+    this.SetValue(Shape.StrokeLineJoinProperty, value);
+};
+Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () { return Number; }, Shape, 10.0);
+Shape.Instance.GetStrokeMiterLimit = function () {
+    return this.GetValue(Shape.StrokeMiterLimitProperty);
+};
+Shape.Instance.SetStrokeMiterLimit = function (value) {
+    this.SetValue(Shape.StrokeMiterLimitProperty, value);
+};
+Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return Number; }, Shape, PenLineCap.Flat);
+Shape.Instance.GetStrokeStartLineCap = function () {
+    return this.GetValue(Shape.StrokeStartLineCapProperty);
+};
+Shape.Instance.SetStrokeStartLineCap = function (value) {
+    this.SetValue(Shape.StrokeStartLineCapProperty, value);
+};
+Shape.Instance._IsEmpty = function () { return this._ShapeFlags & ShapeFlags.Empty; };
+Shape.Instance._IsNormal = function () { return this._ShapeFlags & ShapeFlags.Normal; };
+Shape.Instance._IsDegenerate = function () { return this._ShapeFlags & ShapeFlags.Degenerate; };
+Shape.Instance._HasRadii = function () { return this._ShapeFlags & ShapeFlags.Radii; };
+Shape.Instance._SetShapeFlags = function (sf) { this._ShapeFlags = sf; };
+Shape.Instance._AddShapeFlags = function (sf) { this._ShapeFlags |= sf; };
+Shape.Instance._IsStroked = function () { return this._Stroke != null; };
+Shape.Instance._IsFilled = function () { return this._Fill != null; };
+Shape.Instance._CanFill = function () { return false; };
+Shape.Instance._CanFindElement = function () { return this._IsFilled() || this._IsStroked(); };
+Shape.Instance._ShiftPosition = function (point) {
+    var dx = this._Bounds.X - point.X;
+    var dy = this._Bounds.Y - point.Y;
+    this._ShiftPosition$FrameworkElement(point);
+};
+Shape.Instance._MeasureOverrideWithError = function (availableSize, error) {
+    var desired = availableSize;
+    var shapeBounds = this._GetNaturalBounds();
+    var sx = 0.0;
+    var sy = 0.0;
+    if (this instanceof Rectangle || this instanceof Ellipse) {
+        desired = new Size(0, 0);
+    }
+    var stretch = this.GetStretch();
+    if (stretch === Stretch.None)
+        return new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
+    if (!isFinite(availableSize.Width))
+        desired.Width = shapeBounds.Width;
+    if (!isFinite(availableSize.Height))
+        desired.Height = shapeBounds.Height;
+    if (shapeBounds.Width > 0)
+        sx = desired.Width / shapeBounds.Width;
+    if (shapeBounds.Height > 0)
+        sy = desired.Height / shapeBounds.Height;
+    if (!isFinite(availableSize.Width))
+        sx = sy;
+    if (!isFinite(availableSize.Height))
+        sy = sx;
+    switch (stretch) {
+        case Stretch.Uniform:
+            sx = sy = Math.min(sx, sy);
+            break;
+        case Stretch.UniformToFill:
+            sx = sy = Math.max(sx, sy);
+            break;
+        case Stretch.Fill:
+            if (!isFinite(availableSize.Width))
+                sx = 1.0;
+            if (!isFinite(availableSize.Height))
+                sy = 1.0;
+            break;
+        default:
+            break;
+    }
+    desired = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
+    return desired;
+};
+Shape.Instance._ArrangeOverrideWithError = function (finalSize, error) {
+    var arranged = finalSize;
+    var sx = 1.0;
+    var sy = 1.0;
+    var shapeBounds = this._GetNaturalBounds();
+    this._InvalidateStretch();
+    var stretch = this.GetStretch();
+    if (stretch === Stretch.None)
+        return arranged.Max(new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height));
+    if (shapeBounds.Width === 0)
+        shapeBounds.Width = arranged.Width;
+    if (shapeBounds.Height === 0)
+        shapeBounds.Height = arranged.Height;
+    if (shapeBounds.Width !== arranged.Width)
+        sx = arranged.Width / shapeBounds.Width;
+    if (shapeBounds.Height !== arranged.Height)
+        sy = arranged.Height / shapeBounds.Height;
+    switch (stretch) {
+        case Stretch.Uniform:
+            sx = sy = Math.min(sx, sy);
+            break;
+        case Stretch.UniformToFill:
+            sx = sy = Math.max(sx, sy);
+            break;
+        default:
+            break;
+    }
+    arranged = new Size(shapeBounds.Width * sx, shapeBounds.Height * sy);
+    return arranged;
+};
+Shape.Instance._InvalidateNaturalBounds = function () {
+    this._NaturalBounds = new Rect();
+    this._InvalidateStretch();
+};
+Shape.Instance._InvalidateStretch = function () {
+    this._ExtentsWithChildren = this._Extents = new Rect();
+    this._StretchTransform = new Matrix();
+    this._InvalidatePathCache();
+};
+Shape.Instance._InvalidatePathCache = function (free) {
+    this._Path = null;
+    if (!free) {
+        this._UpdateBounds(true);
+    }
+    this._InvalidateSurfaceCache();
+};
+Shape.Instance._InvalidateSurfaceCache = function () {
+};
+Shape.Instance._InvalidateStrokeBounds = function () {
+    this._InvalidateFillBounds();
+};
+Shape.Instance._InvalidateFillBounds = function () {
+    this._InvalidateNaturalBounds();
+};
+Shape.Instance._CacheInvalidateHint = function () {
+    this._InvalidatePathCache();
+};
+Shape.Instance._GetStretchExtents = function () {
+    if (this._Extents.IsEmpty()) {
+        this._ExtentsWithChildren = this._Extents = this._ComputeStretchBounds();
+    }
+    return this._Extents;
+};
+Shape.Instance._ComputeActualSize = function () {
+    var desired = this._ComputeActualSize$FrameworkElement();
+    var shapeBounds = this._GetNaturalBounds();
+    var sx = 1.0;
+    var sy = 1.0;
+    var parent = this.GetVisualParent();
+    if (parent != null && !(parent instanceof Canvas)) {
+        if (LayoutInformation.GetPreviousConstraint(this) != null || this.ReadLocalValue(LayoutInformation.LayoutSlotProperty)) {
+            return desired;
+        }
+    }
+    if (!this._IsAttached)
+        return desired;
+    if (shapeBounds.Width <= 0 && shapeBounds.Height <= 0)
+        return desired;
+    var stretch = this.GetStretch();
+    if (stretch === Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
+        return new Size(shapeBounds.Width, shapeBounds.Height);
+    if (!isFinite(desired.Width))
+        desired.Width = shapeBounds.Width;
+    if (!isFinite(desired.Height))
+        desired.Height = shapeBounds.Height;
+    if (shapeBounds.Width > 0)
+        sx = desired.Width / shapeBounds.Width;
+    if (shapeBounds.Height > 0)
+        sy = desired.Height / shapeBounds.Height;
+    switch (stretch) {
+        case Stretch.Uniform:
+            sx = sy = Math.min(sx, sy);
+            break;
+        case Stretch.UniformToFill:
+            sx = sy = Math.max(sx, sy);
+            break;
+        default:
+            break;
+    }
+    desired = desired.Min(shapeBounds.Width * sx, shapeBounds.Height * sy);
+    return desired;
+};
+Shape.Instance._GetSizeForBrush = function (ctx) {
+    var se = this._GetStretchExtents();
+    return new Size(se.Width, se.Height);
+};
+Shape.Instance._GetNaturalBounds = function () {
+    if (this._NaturalBounds.IsEmpty())
+        this._NaturalBounds = this._ComputeShapeBoundsImpl(false, null);
+    return this._NaturalBounds;
+};
+Shape.Instance._TransformBounds = function () {
+};
+Shape.Instance._ComputeBounds = function () {
+    this._BoundsWithChildren = this._Bounds = this._IntersectBoundsWithClipPath(this._GetStretchExtents()/*.GrowBy(this._EffectPadding)*/, false); //.Transform(this._AbsoluteXform);
+    this._ComputeGlobalBounds();
+    this._ComputeSurfaceBounds();
+};
+Shape.Instance._ComputeStretchBounds = function () {
+    var autoDim = isNaN(this.GetWidth());
+    var stretch = this.GetStretch();
+    var shapeBounds = this._GetNaturalBounds();
+    if (shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return new Rect();
+    }
+    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var specified = new Size(this.GetWidth(), this.GetHeight());
+    if (specified.Width <= 0.0 || specified.Height <= 0.0) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return new Rect();
+    }
+    var visualParent = this.GetVisualParent();
+    if (visualParent != null && visualParent instanceof Canvas) {
+        framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
+        framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
+        if (!isNaN(specified.Width))
+            framework.Width = specified.Width;
+        if (!isNaN(specified.Height))
+            framework.Height = specified.Height;
+    } else if (!LayoutInformation.GetPreviousConstraint(this)) {
+        framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
+        framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
+    }
+    if (stretch === Stretch.None) {
+        shapeBounds = shapeBounds.Transform(this._StretchTransform);
+        return shapeBounds;
+    }
+    if (framework.Width === 0.0 || framework.Height === 0.0) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return new Rect();
+    }
+    var logicalBounds = this._ComputeShapeBoundsImpl(true, null);
+    var adjX = logicalBounds.Width !== 0.0;
+    var adjY = logicalBounds.Height !== 0.0;
+    var diffX = shapeBounds.Width - logicalBounds.Width;
+    var diffY = shapeBounds.Height - logicalBounds.Height;
+    var sw = adjX ? (framework.Width - diffX) / logicalBounds.Width : 1.0;
+    var sh = adjY ? (framework.Height - diffY) / logicalBounds.Height : 1.0;
+    var center = false;
+    switch (stretch) {
+        case Stretch.Fill:
+            center = true;
+            break;
+        case Stretch.Uniform:
+            sw = sh = (sw < sh) ? sw : sh;
+            center = true;
+            break;
+        case Stretch.UniformToFill:
+            sw = sh = (sw > sh) ? sw : sh;
+            break;
+    }
+    if ((adjX && Shape.IsSignificant(sw - 1, shapeBounds.Width)) || (adjY && Shape.IsSignificant(sh - 1, shapeBounds.Height))) {
+        var temp = new Matrix();
+        temp = Matrix.Scale(temp, adjX ? sw : 1.0, adjY ? sh : 1.0);
+        var stretchBounds = this._ComputeShapeBoundsImpl(false, temp);
+        if (stretchBounds.Width !== shapeBounds.Width && stretchBounds.Height !== shapeBounds.Height) {
+            sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
+            sh *= adjY ? (framework.Height - stretchBounds.Height + logicalBounds.Height * sh) / (logicalBounds.Height * sh) : 1.0;
+            switch (stretch) {
+                case Stretch.Uniform:
+                    sw = sh = (sw < sh) ? sw : sh;
+                    break;
+                case Stretch.UniformToFill:
+                    sw = sh = (sw > sh) ? sw : sh;
+                    break;
+            }
+        }
+    }
+    var x = (!autoDim || adjX) ? shapeBounds.X : 0;
+    var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
+    var st = this._StretchTransform;
+    if (center) {
+        st = Matrix.Translate(st,
+            adjX ? framework.Width * 0.5 : 0,
+            adjY ? framework.Height * 0.5 : 0);
+    } else {
+        st = Matrix.Translate(st,
+            adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0,
+            adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
+    }
+    st = Matrix.Scale(st,
+        adjX ? sw : 1.0,
+        adjY ? sh : 1.0);
+    st = Matrix.Translate(st,
+        adjX ? -shapeBounds.Width * 0.5 : 0.0,
+        adjY ? -shapeBounds.Height * 0.5 : 0.0);
+    if (!(this instanceof Line) || !autoDim)
+        st = Matrix.Translate(st, -x, -y);
+    this._StretchTransform = st;
+    shapeBounds = shapeBounds.Transform(this._StretchTransform);
+    return shapeBounds;
+};
+Shape.IsSignificant = function (dx, x) {
+    return Math.abs(x) < 0.000019 && (Math.abs(dx) * x - x) > 1.0;
+};
+Shape.Instance._ComputeShapeBounds = function (logical) {
+    this._ComputeShapeBoundsImpl(logical, null);
+};
+Shape.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
+    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
+    if (this._Path == null)
+        this._BuildPath();
+    if (this._IsEmpty())
+        return new Rect();
+    if (logical) {
+    } else if (thickness > 0) {
+    } else {
+    }
+    NotImplemented("Shape._ComputeShapeBoundsImpl");
+};
+Shape.Instance._InsideObject = function (ctx, x, y) {
+    var ret = false;
+    if (!this._InsideLayoutClip(x, y))
+        return false;
+    if (!this._InsideClip(ctx, x, y))
+        return false;
+    var p = new Point(x, y);
+    this._TransformPoint(p);
+    x = p.X;
+    y = p.Y;
+    if (!this._GetStretchExtents().ContainsPointXY(x, y))
+        return false;
+    ctx.Save();
+    ctx.Restore();
+    return ret;
+};
+Shape.Instance._Render = function (ctx, region) {
+    if (this._IsEmpty())
+        return;
+    var area = this._GetStretchExtents();
+    ctx.Save();
+    this._DrawPath(ctx);
+    if (this._Fill != null)
+        ctx.Fill(this._Fill, area);
+    if (this._Stroke != null)
+        ctx.Stroke(this._Stroke, this.GetStrokeThickness(), area);
+    ctx.Restore();
+};
+Shape.Instance._BuildPath = function () { };
+Shape.Instance._DrawPath = function (ctx) {
+    var canvasCtx = ctx.GetCanvasContext();
+    canvasCtx.beginPath();
+    for (var i = 0; i < this._Path.length; i++) {
+        var p = this._Path[i];
+        switch (p.type) {
+            case PathEntryType.Move:
+                canvasCtx.moveTo(p.x, p.y);
+                break;
+            case PathEntryType.Line:
+                canvasCtx.lineTo(p.x, p.y);
+                break;
+            case PathEntryType.Rect:
+                canvasCtx.rect(p.x, p.y, p.width, p.height);
+                break;
+            case PathEntryType.Quadratic:
+                canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
+                break;
+            case PathEntryType.Bezier:
+                canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
+                break;
+            case PathEntryType.Arc:
+                canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
+                break;
+            case PathEntryType.ArcTo:
+                canvasCtx.arcTo(p.x1, p.y1, p.x2, p.y2, p.radius);
+                break;
+        }
+    }
+    canvasCtx.closePath();
+};
+Shape.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Shape) {
+        if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty)
+            this._InvalidateStretch();
+        this._OnPropertyChanged$FrameworkElement(args, error);
+        return;
+    }
+    if (args.Property._ID === Shape.StretchProperty._ID) {
+        this._InvalidateMeasure();
+        this._InvalidateStretch();
+    } else if (args.Property._ID === Shape.StrokeProperty._ID) {
+        var newStroke = Nullstone.As(args.NewValue, Brush);
+        if (this._Stroke == null || newStroke == null) {
+            this._InvalidateStrokeBounds();
+        } else {
+            this._InvalidateSurfaceCache();
+        }
+        this._Stroke = newStroke;
+    } else if (args.Property._ID === Shape.FillProperty._ID) {
+        var newFill = Nullstone.As(args.NewValue, Brush);
+        if (this._Fill == null || newFill == null) {
+            this._InvalidateFillBounds();
+        } else {
+            this._InvalidateSurfaceCache();
+        }
+        this._Fill = newFill;
+    } else if (args.Property._ID === Shape.StrokeThicknessProperty._ID) {
+        this._InvalidateStrokeBounds();
+    } else if (args.Property._ID === Shape.StrokeDashCapProperty._ID
+        || args.Property._ID === Shape.StrokeDashArrayProperty._ID
+        || args.Property._ID === Shape.StrokeEndLineProperty._ID
+        || args.Property._ID === Shape.StrokeLineJoinProperty._ID
+        || args.Property._ID === Shape.StrokeMiterLimitProperty._ID
+        || args.Property._ID === Shape.StrokeStartLineCapProperty._ID) {
+        this._InvalidateStrokeBounds();
+    }
+    this._Invalidate();
+    this.PropertyChanged.Raise(this, args);
+};
+Shape.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && (propd._ID === Shape.FillProperty._ID || propd._ID === Shape.StrokeProperty._ID)) {
+        this._Invalidate();
+        this._InvalidateSurfaceCache();
+    } else {
+        this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+    }
+};
+Nullstone.FinishCreate(Shape);
+
 var Border = Nullstone.Create("Border", FrameworkElement);
 Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
 Border.Instance.GetBackground = function () {
@@ -10999,16 +11678,12 @@ Border.Instance._Render = function (ctx, region) {
     if (paintBorder.IsEmpty())
         return;
     if (borderBrush || !this.GetCornerRadius().IsZero()) {
-        ctx.Save();
         this._RenderImpl(ctx, region);
-        ctx.Restore();
         return;
     }
     if (!this._HasLayoutClip() && false /* TODO: IsIntegerTranslation  */) {
     } else {
-        ctx.Save();
         this._RenderImpl(ctx, region);
-        ctx.Restore();
     }
 };
 Border.Instance._RenderImpl = function (ctx, region) {
@@ -11844,7 +12519,7 @@ Panel.Instance._Render = function (ctx, region) {
     } else {
         ctx.Save();
         this._RenderLayoutClip(ctx);
-        ctx.Fill(area, background);
+        ctx.FillRect(background, area);
         ctx.Restore();
     }
 };
@@ -11956,6 +12631,165 @@ Nullstone.FinishCreate(Panel);
 
 var Popup = Nullstone.Create("Popup", FrameworkElement);
 Nullstone.FinishCreate(Popup);
+
+var ScrollContentPresenter = Nullstone.Create("ScrollContentPresenter", ContentPresenter, null, [IScrollInfo]);
+ScrollContentPresenter.Instance.Init = function () {
+    this.$LineDelta = 16.0;
+    this.$CachedOffset = new Point();
+    this.$Viewport = new Size();
+    this.$Extents = new Size();
+};
+ScrollContentPresenter.Instance.GetScrollOwner = function () {
+    return this._ScrollOwner;
+};
+ScrollContentPresenter.Instance.SetScrollOwner = function (value) {
+    this._ScrollOwner = value;
+};
+ScrollContentPresenter.Instance.GetClippingRectangle = function () {
+    if (!this._ClippingRectangle) {
+        this._ClippingRectangle = new RectangleGeometry();
+        this.SetClip(this._ClippingRectangle);
+    }
+    return this._ClippingRectangle;
+};
+ScrollContentPresenter.Instance.GetCanHorizontallyScroll = function () {
+    return this.$CanHorizontallyScroll;
+};
+ScrollContentPresenter.Instance.SetCanHorizontallyScroll = function (value) {
+    this.$CanHorizontallyScroll = value;
+};
+ScrollContentPresenter.Instance.GetCanVerticallyScroll = function () {
+    return this.$CanVerticallyScroll;
+};
+ScrollContentPresenter.Instance.SetCanVerticallyScroll = function (value) {
+    this.$CanVerticallyScroll = value;
+};
+ScrollContentPresenter.Instance.GetHorizontalOffset = function () {
+    return this.$HorizontalOffset;
+};
+ScrollContentPresenter.Instance.SetHorizontalOffset = function (value) {
+    if (!this.GetCanHorizontallyScroll() || this.$CachedOffset.X === value)
+        return;
+    this.$CachedOffset.X = value;
+    this._InvalidateArrange();
+};
+ScrollContentPresenter.Instance.GetVerticalOffset = function () {
+    return this.$VerticalOffset;
+};
+ScrollContentPresenter.Instance.SetVerticalOffset = function (value) {
+    if (!this.GetCanVerticallyScroll() || this.$CachedOffset.Y === value)
+        return;
+    this.$CachedOffset.Y = value;
+    this._InvalidateArrange();
+};
+ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
+    if (this.GetScrollOwner() == null || this._ContentRoot == null)
+        return this._MeasureOverrideWithError(constraint, new BError());
+    var ideal = new Size(
+        this.SetCanHorizontallyScroll() ? Number.POSITIVE_INFINITY : constraint.Width,
+        this.SetCanVerticallyScroll() ? Number.POSITIVE_INFINITY : constraint.Height);
+    this._ContentRoot.Measure(ideal);
+    this._UpdateExtents(constraint, this._ContentRoot._DesiredSize);
+    return constraint.Min(this.$Extents);
+};
+ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
+    if (this.GetScrollOwner() == null || this._ContentRoot == null)
+        return this._ArrangeOverrideWithError(arrangeSize, new BError());
+    if (this._ClampOffsets())
+        this.GetScrollOwner().InvalidateScrollInfo();
+    var desired = this._ContentRoot._DesiredSize;
+    var start = new Point(-this.$HorizontalOffset, -this.$VerticalOffset);
+    var ars = desired.Max(arrangeSize);
+    this._ContentRoot.Arrange(new Rect(start.X, start.Y, ars.Width, ars.Height));
+    this.GetClippingRectangle().SetRect(new Rect(0, 0, arrangeSize.Width, arrangeSize.Height));
+    this._UpdateExtents(arrangeSize, this.$Extents);
+    return arrangeSize;
+};
+ScrollContentPresenter.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$ContentPresenter();
+    var sv = Nullstone.As(this.GetTemplateOwner(), ScrollViewer);
+    if (sv == null)
+        return;
+    var content = this.GetContent();
+    var info = Nullstone.As(content, IScrollInfo);
+    if (info == null) {
+        var presenter = Nullstone.As(content, ItemsPresenter);
+        if (presenter != null) {
+            if (presenter._ElementRoot == null) {
+                presenter.ApplyTemplate();
+            }
+            info = Nullstone.As(presenter._ElementRoot, IScrollInfo);
+        }
+    }
+    if (!info)
+        info = this;
+    info.SetCanHorizontallyScroll(sv.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+    info.SetCanVerticallyScroll(sv.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+    info.SetScrollOwner(sv);
+    sv.SetScrollInfo(info);
+    sv.InvalidateScrollInfo();
+};
+ScrollContentPresenter.Instance._ClampOffsets = function () {
+    var changed = false;
+    var result = this.GetCanHorizontallyScroll() ? Math.min(this.$CachedOffset.X, this.$Extents.Width - this.$Viewport.Width) : 0;
+    result = Math.max(0, result);
+    if (result !== this.$HorizontalOffset) {
+        this.$HorizontalOffset = result;
+        changed = true;
+    }
+    result = this.GetCanVerticallyScroll() ? Math.min(this.$CachedOffset.Y, this.$Extents.Height - this.$Viewport.Height) : 0;
+    result = Math.max(0, result);
+    if (result !== this.$VerticalOffset) {
+        this.$VerticalOffset = result;
+        changed = true;
+    }
+    return changed;
+};
+ScrollContentPresenter.Instance._UpdateExtents = function (viewport, extents) {
+    var changed = !Size.Equals(this.$Viewport, viewport) || !Size.Equals(this.$Extents, extents);
+    this.$Viewport = viewport;
+    this.$Extents = extents;
+    changed |= this._ClampOffsets();
+    if (changed)
+        this.GetScrollOwner().InvalidateScrollInfo();
+};
+ScrollContentPresenter.Instance.LineUp = function () {
+    this.SetVerticalOffset(this.GetVerticalOffset() + this.$LineDelta);
+};
+ScrollContentPresenter.Instance.LineDown = function () {
+    this.SetVerticalOffset(this.GetVerticalOffset() - this.$LineDelta);
+};
+ScrollContentPresenter.Instance.LineLeft = function () {
+    this.SetHorizontalOffset(this.GetHorizontalOffset() - this.$LineDelta);
+};
+ScrollContentPresenter.Instance.LineRight = function () {
+    this.SetHorizontalOffset(this.GetHorizontalOffset() + this.$LineDelta);
+};
+ScrollContentPresenter.Instance.MouseWheelUp = function () {
+    this.SetVerticalOffset(this.GetVerticalOffset() + this.$LineDelta);
+};
+ScrollContentPresenter.Instance.MouseWheelDown = function () {
+    this.SetVerticalOffset(this.GetVerticalOffset() - this.$LineDelta);
+};
+ScrollContentPresenter.Instance.MouseWheelLeft = function () {
+    this.SetHorizontalOffset(this.GetHorizontalOffset() - this.$LineDelta);
+};
+ScrollContentPresenter.Instance.MouseWheelRight = function () {
+    this.SetHorizontalOffset(this.GetHorizontalOffset() + this.$LineDelta);
+};
+ScrollContentPresenter.Instance.PageUp = function () {
+    this.SetVerticalOffset(this.GetVerticalOffset() - this.$Viewport.Height);
+};
+ScrollContentPresenter.Instance.PageDown = function () {
+    this.SetVerticalOffset(this.GetVerticalOffset() + this.$Viewport.Height);
+};
+ScrollContentPresenter.Instance.PageLeft = function () {
+    this.SetHorizontalOffset(this.GetHorizontalOffset() - this.$Viewport.Width);
+};
+ScrollContentPresenter.Instance.PageRight = function () {
+    this.SetHorizontalOffset(this.GetHorizontalOffset() + this.$Viewport.Width);
+};
+Nullstone.FinishCreate(ScrollContentPresenter);
 
 var StackPanel = Nullstone.Create("StackPanel", Panel);
 StackPanel._OrientationChanged = function (d, args) {
@@ -13524,8 +14358,353 @@ UserControl.Annotations = {
 };
 Nullstone.FinishCreate(UserControl);
 
+var RangeBase = Nullstone.Create("RangeBase", Control);
+RangeBase.Instance.Init = function () {
+    this.SetMinimum(0);
+    this.SetMaximum(1);
+    this.SetCurrentValue(0);
+    this.SetSmallChange(0.1);
+    this.SetLargeChange(1);
+};
+RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () { return Number; }, RangeBase, 0, RangeBase._OnMinimumPropertyChanged);
+RangeBase.Instance.GetMinimum = function () {
+    return this.GetValue(RangeBase.MinimumProperty);
+};
+RangeBase.Instance.SetMinimum = function (value) {
+    this.SetValue(RangeBase.MinimumProperty, value);
+};
+RangeBase._OnMinimumPropertyChanged = function (d, args) {
+};
+RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () { return Number; }, RangeBase, 1, RangeBase._OnMaximumPropertyChanged);
+RangeBase.Instance.GetMaximum = function () {
+    return this.GetValue(RangeBase.MaximumProperty);
+};
+RangeBase.Instance.SetMaximum = function (value) {
+    this.SetValue(RangeBase.MaximumProperty, value);
+};
+RangeBase._OnMaximumPropertyChanged = function (d, args) {
+};
+RangeBase.LargeChangeProperty = DependencyProperty.Register("LargeChange", function () { return Number; }, RangeBase, 1, RangeBase._OnLargeChangePropertyChanged);
+RangeBase.Instance.GetLargeChange = function () {
+    return this.GetValue(RangeBase.LargeChangeProperty);
+};
+RangeBase.Instance.SetLargeChange = function (value) {
+    this.SetValue(RangeBase.LargeChangeProperty, value);
+};
+RangeBase._OnLargeChangePropertyChanged = function (d, args) {
+    if (!RangeBase._IsValidChange(args.NewValue)) {
+        throw new ArgumentException("Invalid Large Change Value.");
+    }
+};
+RangeBase.SmallChangeProperty = DependencyProperty.Register("SmallChange", function () { return Number; }, RangeBase, 0.1, RangeBase._OnSmallChangePropertyChanged);
+RangeBase.Instance.GetSmallChange = function () {
+    return this.GetValue(RangeBase.SmallChangeProperty);
+};
+RangeBase.Instance.SetSmallChange = function (value) {
+    this.SetValue(RangeBase.SmallChangeProperty, value);
+};
+RangeBase._OnSmallChangePropertyChanged = function (d, args) {
+    if (!RangeBase._IsValidChange(args.NewValue)) {
+        throw new ArgumentException("Invalid Small Change Value.");
+    }
+};
+RangeBase.CurrentValueProperty = DependencyProperty.Register("CurrentValue", function () { return Number; }, RangeBase, 0, RangeBase._OnCurrentValuePropertyChanged);
+RangeBase.Instance.GetCurrentValue = function () {
+    return this.GetValue(RangeBase.CurrentValueProperty);
+};
+RangeBase.Instance.SetCurrentValue = function (value) {
+    this.SetValue(RangeBase.CurrentValueProperty, value);
+};
+RangeBase._OnCurrentValuePropertyChanged = function (d, args) {
+};
+RangeBase.Instance._CoerceMaximum = function () {
+    var min = this.GetMinimum();
+    var max = this.GetMaximum();
+};
+RangeBase.Instance._CoerceValue = function () {
+};
+RangeBase._IsValidChange = function (value) {
+    if (!RangeBase._IsValidDoubleValue(value))
+        return false;
+    return value >= 0;
+};
+RangeBase._IsValidDoubleValue = function (value) {
+    if (typeof value !== "number")
+        return false;
+    if (isNaN(value))
+        return false;
+    if (!isFinite(value))
+        return false;
+    return true;
+};
+RangeBase.Instance._OnMaximumChanged = function (oldMax, newMax) { };
+RangeBase.Instance._OnMinimumChanged = function (oldMin, newMin) { };
+RangeBase.Instance._OnCurrentValueChanged = function (oldValue, newValue) { };
+Nullstone.FinishCreate(RangeBase);
+
+var ScrollBar = Nullstone.Create("ScrollBar", RangeBase);
+ScrollBar.Instance.Init = function () {
+};
+Nullstone.FinishCreate(ScrollBar);
+
+var Thumb = Nullstone.Create("Thumb", Control);
+Thumb.Instance.Init = function () {
+};
+Nullstone.FinishCreate(Thumb);
+
 var Hyperlink = Nullstone.Create("Hyperlink", Span);
 Nullstone.FinishCreate(Hyperlink);
+
+var Ellipse = Nullstone.Create("Ellipse", Shape);
+Ellipse.Instance.Init = function () {
+    this.Init$Shape();
+    this.SetStretch(Stretch.Fill);
+};
+Ellipse.Instance._DrawPath = function (ctx) {
+    if (this._Path == null)
+        this._BuildPath();
+    this._DrawPath$Shape(ctx);
+};
+Ellipse.Instance._BuildPath = function () {
+    var stretch = this.GetStretch();
+    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
+    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    switch (stretch) {
+        case Stretch.None:
+            rect.Width = rect.Height = 0;
+            break;
+        case Stretch.Uniform:
+            rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
+            break;
+        case Stretch.UniformToFill:
+            rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
+            break;
+        case Stretch.Fill:
+            break;
+    }
+    if (t >= rect.Width || t >= rect.Height) {
+        rect.Width = Math.max(rect.Width, t + t * 0.001);
+        rect.Height = Math.max(rect.Height, t + t * 0.001);
+        this._SetShapeFlags(ShapeFlags.Degenerate);
+    } else {
+        this._SetShapeFlags(ShapeFlags.Normal);
+    }
+    var ht = -t / 2;
+    rect = rect.GrowBy(ht, ht, ht, ht);
+    var kappa = .5522848; // 4 * ((sqrt(2) - 1) / 3)
+    var ox = rect.Width / 2 * kappa;
+    var oy = rect.Height / 2 * kappa;
+    var right = rect.X + rect.Width;
+    var bottom = rect.Y + rect.Height;
+    var centerX = rect.X + rect.Width / 2;
+    var centerY = rect.Y + rect.Height / 2;
+    this._Path = [];
+    this._Path.push({ type: PathEntryType.Move, x: rect.X, y: centerY });
+    this._Path.push({ type: PathEntryType.Bezier, cp1x: rect.X,         cp1y: centerY - oy, cp2x: centerX - ox, cp2y: rect.Y,       x: centerX, y: rect.Y });
+    this._Path.push({ type: PathEntryType.Bezier, cp1x: centerX + ox,   cp1y: rect.Y,       cp2x: right,        cp2y: centerY - oy, x: right,   y: centerY });
+    this._Path.push({ type: PathEntryType.Bezier, cp1x: right,          cp1y: centerY + oy, cp2x: centerX + ox, cp2y: bottom,       x: centerX, y: bottom });
+    this._Path.push({ type: PathEntryType.Bezier, cp1x: centerX - ox,   cp1y: bottom,       cp2x: rect.X,       cp2y: centerY + oy, x: rect.X,  y: centerY });
+};
+Ellipse.Instance._ComputeStretchBounds = function () {
+    return this._ComputeShapeBounds(false);
+};
+Ellipse.Instance._ComputeShapeBounds = function (logical) {
+    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    this._SetShapeFlags(ShapeFlags.Normal);
+    var width = this.GetWidth();
+    var height = this.GetHeight();
+    if (rect.Width < 0.0 || rect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return new Rect();
+    }
+    var visualParent = this.GetVisualParent();
+    if (visualParent != null && visualParent instanceof Canvas) {
+        if (isNaN(width) !== isNaN(height)) {
+            this._SetShapeFlags(ShapeFlags.Empty);
+            return new Rect();
+        }
+    }
+    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
+    switch (this.GetStretch()) {
+        case Stretch.None:
+            rect.Width = rect.Height = 0.0;
+            break;
+        case Stretch.Uniform:
+            rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
+            break;
+        case Stretch.UniformToFill:
+            rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
+            break;
+        case Stretch.Fill:
+            break;
+    }
+    if (t >= rect.Width || t >= rect.Height) {
+        rect.Width = Math.max(rect.Width, t + t * 0.001);
+        rect.Height = Math.max(rect.Height, t + t * 0.001);
+        this._SetShapeFlags(ShapeFlags.Degenerate);
+    } else {
+        this._SetShapeFlags(ShapeFlags.Normal);
+    }
+    return rect;
+};
+Ellipse.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
+    return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
+};
+Nullstone.FinishCreate(Ellipse);
+
+var Rectangle = Nullstone.Create("Rectangle", Shape);
+Rectangle.Instance.Init = function () {
+    this.Init$Shape();
+    this.SetStretch(Stretch.Fill);
+};
+Rectangle.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, Rectangle, 0.0);
+Rectangle.Instance.GetRadiusX = function () {
+    return this.GetValue(Rectangle.RadiusXProperty);
+};
+Rectangle.Instance.SetRadiusX = function (value) {
+    this.SetValue(Rectangle.RadiusXProperty, value);
+};
+Rectangle.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, Rectangle, 0.0);
+Rectangle.Instance.GetRadiusY = function () {
+    return this.GetValue(Rectangle.RadiusYProperty);
+};
+Rectangle.Instance.SetRadiusY = function (value) {
+    this.SetValue(Rectangle.RadiusYProperty, value);
+};
+Rectangle.Instance._DrawPath = function (ctx) {
+    if (this._Path == null)
+        this._BuildPath();
+    this._DrawPath$Shape(ctx);
+};
+Rectangle.Instance._BuildPath = function () {
+    var stretch = this.GetStretch();
+    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
+    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    var radiusX = this.GetRadiusX();
+    var radiusY = this.GetRadiusY();
+    switch (stretch) {
+        case Stretch.None:
+            rect.Width = rect.Height = 0;
+            break;
+        case Stretch.Uniform:
+            rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
+            break;
+        case Stretch.UniformToFill:
+            rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
+            break;
+        case Stretch.Fill:
+            break;
+    }
+    if (rect.Width === 0)
+        rect.X = t * 0.5;
+    if (rect.Height === 0)
+        rect.Y = t * 0.5;
+    var ta;
+    if (t >= rect.Width || t >= rect.Height) {
+        ta = t * 0.001;
+        rect = rect.GrowBy(ta, ta, ta, ta);
+        this._SetShapeFlags(ShapeFlags.Degenerate);
+    } else {
+        ta = -t * 0.5;
+        rect = rect.GrowBy(ta, ta, ta, ta);
+        this._SetShapeFlags(ShapeFlags.Normal);
+    }
+    this._Path = [];
+    if (radiusX === 0.0 && radiusY === 0.0) {
+        this._Path.push({ type: PathEntryType.Rect, x: rect.X, y: rect.Y, width: rect.Width, height: rect.Height });
+        return;
+    }
+    if (radiusX === radiusY) {
+        var left = rect.X;
+        var top = rect.Y;
+        var right = rect.X + rect.Width;
+        var bottom = rect.Y + rect.Height;
+        this._Path.push({ type: PathEntryType.Move, x: left + radiusX, y: top });
+        this._Path.push({ type: PathEntryType.Line, x: right - radiusX, y: top });
+        this._Path.push({ type: PathEntryType.Quadratic, cpx: right, cpy: top, x: right, y: top + radiusY });
+        this._Path.push({ type: PathEntryType.Line, x: right, y: bottom - radiusY });
+        this._Path.push({ type: PathEntryType.Quadratic, cpx: right, cpy: bottom, x: right - radiusX, y: bottom });
+        this._Path.push({ type: PathEntryType.Line, x: left + radiusX, y: bottom });
+        this._Path.push({ type: PathEntryType.Quadratic, cpx: left, cpy: bottom, x: left, y: bottom - radiusY });
+        this._Path.push({ type: PathEntryType.Line, x: left, y: top + radiusY });
+        this._Path.push({ type: PathEntryType.Quadratic, cpx: left, cpy: top, x: left + radiusX, y: top });
+        return;
+    }
+    NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
+    return;
+};
+Rectangle.Instance._ComputeStretchBounds = function () {
+    return this._ComputeShapeBounds(false);
+};
+Rectangle.Instance._ComputeShapeBounds = function (logical) {
+    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    this._SetShapeFlags(ShapeFlags.Normal);
+    var width = this.GetWidth();
+    var height = this.GetHeight();
+    if (rect.Width < 0.0 || rect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return new Rect();
+    }
+    var visualParent = this.GetVisualParent();
+    if (visualParent != null && visualParent instanceof Canvas) {
+        if (isNaN(width) !== isNaN(height)) {
+            this._SetShapeFlags(ShapeFlags.Empty);
+            return new Rect();
+        }
+    }
+    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
+    switch (this.GetStretch()) {
+        case Stretch.None:
+            rect.Width = rect.Height = 0.0;
+            break;
+        case Stretch.Uniform:
+            rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
+            break;
+        case Stretch.UniformToFill:
+            rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
+            break;
+        case Stretch.Fill:
+            break;
+    }
+    if (rect.Width === 0)
+        rect.X = t * 0.5;
+    if (rect.Height === 0)
+        rect.Y = t * 0.5;
+    if (t >= rect.Width || t >= rect.Height) {
+        var g = t * 0.5005;
+        rect = rect.GrowBy(g, g, g, g);
+        this._SetShapeFlags(ShapeFlags.Degenerate);
+    } else {
+        this._SetShapeFlags(ShapeFlags.Normal);
+    }
+    return rect;
+};
+Rectangle.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
+    return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
+};
+Rectangle.Instance._GetCoverageBounds = function () {
+    var fill = this.GetFill();
+    if (fill != null && fill.IsOpaque()) {
+        var halfST = this.GetStrokeThickness / 2.0;
+        var xr = this.GetRadiusX() + halfST;
+        var yr = this.GetRadiusY() + halfST;
+        return this._Bounds.GrowBy(-xr, -yr).RoundIn();
+    }
+    return new Rect();
+}
+Rectangle.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Rectangle) {
+        this._OnPropertyChanged$Shape(args, error);
+        return;
+    }
+    if (args.Property._ID === Rectangle.RadiusXProperty || args.Property._ID === Rectangle.RadiusYProperty) {
+        this._InvalidateMeasure();
+        this._InvalidatePathCache();
+    }
+    this._Invalidate();
+    this.PropertyChanged.Raise(this, args);
+};
+Nullstone.FinishCreate(Rectangle);
 
 var Canvas = Nullstone.Create("Canvas", Panel);
 Canvas.LeftProperty = DependencyProperty.RegisterAttached("Left", function () { return Number; }, Canvas, 0.0);
@@ -14785,6 +15964,162 @@ ContentControl.Annotations = {
 };
 Nullstone.FinishCreate(ContentControl);
 
+var ScrollViewer = Nullstone.Create("ScrollViewer", ContentControl);
+ScrollViewer.Instance.Init = function () {
+};
+ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return ScrollBarVisibility; }, ScrollViewer, ScrollBarVisibility.Disabled);
+ScrollViewer.Instance.GetHorizontalScrollBarVisibility = function () {
+    return this.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
+};
+ScrollViewer.Instance.SetHorizontalScrollBarVisibility = function (value) {
+    this.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
+};
+ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return ScrollBarVisibility; }, ScrollViewer, ScrollBarVisibility.Disabled);
+ScrollViewer.Instance.GetVerticalScrollBarVisibility = function () {
+    return this.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty);
+};
+ScrollViewer.Instance.SetVerticalScrollBarVisibility = function (value) {
+    this.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
+};
+ScrollViewer.HorizontalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", function () { return Number; }, ScrollViewer);
+ScrollViewer.Instance.GetHorizontalOffset = function () {
+    return this.GetValue(ScrollViewer.HorizontalOffsetProperty);
+};
+ScrollViewer.Instance.SetHorizontalOffset = function (value) {
+    this.SetValue(ScrollViewer.HorizontalOffsetProperty, value);
+};
+ScrollViewer.ViewportWidthProperty = DependencyProperty.RegisterReadOnlyCore("ViewportWidth", function () { return Number; }, ScrollViewer);
+ScrollViewer.Instance.GetViewportWidth = function () {
+    return this.GetValue(ScrollViewer.ViewportWidthProperty);
+};
+ScrollViewer.Instance.SetViewportWidth = function (value) {
+    this.SetValue(ScrollViewer.ViewportWidthProperty, value);
+};
+ScrollViewer.ScrollableWidthProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableWidth", function () { return Number; }, ScrollViewer);
+ScrollViewer.Instance.GetScrollableWidth = function () {
+    return this.GetValue(ScrollViewer.ScrollableWidthProperty);
+};
+ScrollViewer.Instance.SetScrollableWidth = function (value) {
+    this.SetValue(ScrollViewer.ScrollableWidthProperty, value);
+};
+ScrollViewer.ExtentWidthProperty = DependencyProperty.RegisterReadOnlyCore("ExtentWidth", function () { return Number; }, ScrollViewer);
+ScrollViewer.Instance.GetExtentWidth = function () {
+    return this.GetValue(ScrollViewer.ExtentWidthProperty);
+};
+ScrollViewer.Instance.SetExtentWidth = function (value) {
+    this.SetValue(ScrollViewer.ExtentWidthProperty, value);
+};
+ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", function () { return Visibility; }, ScrollViewer);
+ScrollViewer.Instance.GetComputedHorizontalScrollBarVisibility = function () {
+    return this.GetValue(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty);
+};
+ScrollViewer.Instance.SetComputedHorizontalScrollBarVisibility = function (value) {
+    this.SetValue(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, value);
+};
+ScrollViewer.VerticalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("VerticalOffset", function () { return Number; }, ScrollViewer);
+ScrollViewer.Instance.GetVerticalOffset = function () {
+    return this.GetValue(ScrollViewer.VerticalOffsetProperty);
+};
+ScrollViewer.Instance.SetVerticalOffset = function (value) {
+    this.SetValue(ScrollViewer.VerticalOffsetProperty, value);
+};
+ScrollViewer.ViewportHeightProperty = DependencyProperty.RegisterReadOnlyCore("ViewportHeight", function () { return Number; }, ScrollViewer);
+ScrollViewer.Instance.GetViewportHeight = function () {
+    return this.GetValue(ScrollViewer.ViewportHeightProperty);
+};
+ScrollViewer.Instance.SetViewportHeight = function (value) {
+    this.SetValue(ScrollViewer.ViewportHeightProperty, value);
+};
+ScrollViewer.ScrollableHeightProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableHeight", function () { return Number; }, ScrollViewer);
+ScrollViewer.Instance.GetScrollableHeight = function () {
+    return this.GetValue(ScrollViewer.ScrollableHeightProperty);
+};
+ScrollViewer.Instance.SetScrollableHeight = function (value) {
+    this.SetValue(ScrollViewer.ScrollableHeightProperty, value);
+};
+ScrollViewer.ExtentHeightProperty = DependencyProperty.RegisterReadOnlyCore("ExtentHeight", function () { return Number; }, ScrollViewer);
+ScrollViewer.Instance.GetExtentHeight = function () {
+    return this.GetValue(ScrollViewer.ExtentHeightProperty);
+};
+ScrollViewer.Instance.SetExtentHeight = function (value) {
+    this.SetValue(ScrollViewer.ExtentHeightProperty, value);
+};
+ScrollViewer.ComputedVerticalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", function () { return Visibility; }, ScrollViewer);
+ScrollViewer.Instance.GetComputedVerticalScrollBarVisibility = function () {
+    return this.GetValue(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty);
+};
+ScrollViewer.Instance.SetComputedVerticalScrollBarVisibility = function (value) {
+    this.SetValue(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, value);
+};
+ScrollViewer.Instance.GetScrollInfo = function () {
+    return this._ScrollInfo;
+};
+ScrollViewer.Instance.SetScrollInfo = function (value) {
+    this._ScrollInfo = value;
+};
+ScrollViewer.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$ContentControl();
+    this.$ElementScrollContentPresenter = Nullstone.As(this.GetTemplateChild(ScrollViewer.ElementScrollContentPresenterName), ScrollContentPresenter);
+    this.$ElementHorizontalScrollBar = Nullstone.As(this.GetTemplateChild(ScrollViewer.ElementHorizontalScrollBarName), ScrollBar);
+    if (this.$ElementHorizontalScrollBar != null) {
+        this.$ElementHorizontalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Horizontal, e); }, this);
+    }
+    this.$ElementVerticalScrollBar = Nullstone.As(this.GetTemplateChild(ScrollViewer.ElementVerticalScrollBarName), ScrollBar);
+    if (this.$ElementVerticalScrollBar != null) {
+        this.$ElementVerticalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Vertical, e); }, this);
+    }
+    this._UpdateScrollBarVisibility();
+};
+ScrollViewer.Instance.ScrollToHorizontalOffset = function (offset) {
+    this._SetScrollOffset(Orientation.Horizontal, offset);
+};
+ScrollViewer.Instance.ScrollToVerticalOffset = function (offset) {
+    this._SetScrollOffset(Orientation.Vertical, offset);
+};
+ScrollViewer.Instance._ScrollInDirection = function (key) {
+    var info = this.GetScrollInfo();
+    if (info == null)
+        return;
+    switch (key) {
+        case Keys.Up:
+            info.LineUp();
+            break;
+        case Keys.Down:
+            info.LineDown();
+            break;
+        case Keys.Left:
+            info.LineLeft();
+            break;
+        case Keys.Right:
+            info.LineRight();
+            break;
+    }
+};
+ScrollViewer.Instance._SetScrollOffset = function (orientation, value) {
+    var info = this.GetScrollInfo();
+    if (info == null)
+        return;
+    var scrollable = (orientation === Orientation.Horizontal) ? this.GetScrollableWidth() : this.GetScrollableHeight();
+    var clamped = Math.min(scrollable, Math.max(value, 0));
+    if (orientation === Orientation.Horizontal)
+        info.SetHorizontalOffset(clamped);
+    else
+        info.SetVerticalOffset(clamped);
+    this._UpdateScrollBar(orientation, clamped);
+};
+ScrollViewer.Instance._UpdateScrollBar = function (orientation, value) {
+    if (orientation === Orientation.Horizontal) {
+        this.SetHorizontalOffset(value);
+    } else {
+        this.SetVerticalOffset(value);
+    }
+};
+ScrollViewer.Instance._InvalidateScrollInfo = function () {
+};
+ScrollViewer.Instance._UpdateScrollBarVisibility = function () {
+};
+Nullstone.FinishCreate(ScrollViewer);
+
 var ButtonBase = Nullstone.Create("ButtonBase", ContentControl);
 ButtonBase.Instance.Init = function () {
     this.Init$ContentControl();
@@ -14968,6 +16303,408 @@ ButtonBase._GetVisualRoot = function (d) {
     return d;
 };
 Nullstone.FinishCreate(ButtonBase);
+
+var RepeatButton = Nullstone.Create("RepeatButton", ButtonBase);
+RepeatButton.Instance.Init = function () {
+};
+Nullstone.FinishCreate(RepeatButton);
+
+var ToggleButton = Nullstone.Create("ToggleButton", ButtonBase);
+ToggleButton.Instance.Init = function () {
+};
+Nullstone.FinishCreate(ToggleButton);
+
+var Button = Nullstone.Create("Button", ButtonBase);
+Button.StateDisabled = "Disabled";
+Button.StatePressed = "Pressed";
+Button.StateMouseOver = "MouseOver";
+Button.StateNormal = "Normal";
+Button.StateFocused = "Focused";
+Button.StateUnfocused = "Unfocused";
+Button.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$ButtonBase();
+    this.UpdateVisualState(false);
+};
+Button.Instance._ChangeVisualState = function (useTransitions) {
+    if (!this.GetIsEnabled()) {
+        this._GoToState(useTransitions, Button.StateDisabled);
+    } else if (this.GetIsPressed()) {
+        this._GoToState(useTransitions, Button.StatePressed);
+    } else if (this.GetIsMouseOver()) {
+        this._GoToState(useTransitions, Button.StateMouseOver);
+    } else {
+        this._GoToState(useTransitions, Button.StateNormal);
+    }
+    if (this.GetIsFocused() && this.GetIsEnabled()) {
+        this._GoToState(useTransitions, Button.StateFocused);
+    } else {
+        this._GoToState(useTransitions, Button.StateUnfocused);
+    }
+};
+Button.Instance.OnIsEnabledChanged = function (e) {
+    this.OnIsEnabledChanged$ButtonBase(e);
+    this.SetIsTabStop(e.NewValue);
+};
+Button.Instance.GetDefaultStyle = function () {
+    var styleJson = {
+        Type: Style,
+        Props: {
+            TargetType: Button
+        },
+        Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Background"),
+                    Value: new SolidColorBrush(Color.FromHex("#FF1F3B53"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Foreground"),
+                    Value: new SolidColorBrush(Color.FromHex("#FF000000"))
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Padding"),
+                    Value: new Thickness(3, 3, 3, 3)
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "BorderThickness"),
+                    Value: new Thickness(1, 1, 1, 1)
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "BorderBrush"),
+                    Value: {
+                        Type: LinearGradientBrush,
+                        Props: {
+                            StartPoint: new Point(0.5, 0.0),
+                            EndPoint: new Point(0.5, 1.0),
+                            GradientStops: [
+                                {
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FFA3AEB9"),
+                                        Offset: 0.0
+                                    }
+                                },
+                                {
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FF8399A9"),
+                                        Offset: 0.375
+                                    }
+                                },
+                                {
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FF718597"),
+                                        Offset: 0.375
+                                    }
+                                },
+                                {   
+                                    Type: GradientStop,
+                                    Props: {
+                                        Color: Color.FromHex("#FF617584"),
+                                        Offset: 1.0
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(Button, "Template"),
+                    Value: new ControlTemplate(Button, {
+                        Type: Grid,
+                        AttachedProps: [
+                            {
+                                Owner: VisualStateManager,
+                                Prop: "VisualStateGroups",
+                                Value: [
+                                    {
+                                        Type: VisualStateGroup,
+                                        Name: "CommonStates",
+                                        Children: [
+                                            {
+                                                Type: VisualState,
+                                                Name: "Normal"
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "MouseOver",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundAnimation" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#F2FFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#CCFFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#7FFFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "Pressed",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#FF6DBDD1") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "Background" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(SolidColorBrush.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundAnimation" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#D8FFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#C6FFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#8CFFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
+                                                            ]
+                                                        },
+                                                        {
+                                                            Type: ColorAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#3FFFFFFF") },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "Disabled",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 0.55 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "DisabledVisualElement" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        Type: VisualStateGroup,
+                                        Name: "FocusStates",
+                                        Children: [
+                                            {
+                                                Type: VisualState,
+                                                Name: "Focused",
+                                                Content: {
+                                                    Type: Storyboard,
+                                                    Children: [
+                                                        {
+                                                            Type: DoubleAnimation,
+                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
+                                                            AttachedProps: [
+                                                                { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                Type: VisualState,
+                                                Name: "Unfocused"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ],
+                        Children: [
+                            {
+                                Type: Border,
+                                Name: "Background",
+                                Props: {
+                                    CornerRadius: new CornerRadius(3, 3, 3, 3),
+                                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
+                                    BorderThickness: new TemplateBindingMarkup("BorderThickness"),
+                                    BorderBrush: new TemplateBindingMarkup("BorderBrush")
+                                },
+                                Content: {
+                                    Type: Grid,
+                                    Props: {
+                                        Background: new TemplateBindingMarkup("Background"),
+                                        Margin: new Thickness(1, 1, 1, 1)
+                                    },
+                                    Children: [
+                                        {
+                                            Type: Border,
+                                            Name: "BackgroundAnimation",
+                                            Props: {
+                                                Opacity: 0.0,
+                                                Background: new SolidColorBrush(Color.FromHex("#FF448DCA"))
+                                            }
+                                        },
+                                        {
+                                            Type: Rectangle,
+                                            Name: "BackgroundGradient",
+                                            Props: {
+                                                Fill: {
+                                                    Type: LinearGradientBrush,
+                                                    Props: {
+                                                        StartPoint: new Point(0.7, 0.0),
+                                                        EndPoint: new Point(0.7, 1.0),
+                                                        GradientStops: [
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#FFFFFFFF"),
+                                                                    Offset: 0.0
+                                                                }
+                                                            },
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#F9FFFFFF"),
+                                                                    Offset: 0.375
+                                                                }
+                                                            },
+                                                            {
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#E5FFFFFF"),
+                                                                    Offset: 0.625
+                                                                }
+                                                            },
+                                                            {   
+                                                                Type: GradientStop,
+                                                                Props: {
+                                                                    Color: Color.FromHex("#C6FFFFFF"),
+                                                                    Offset: 1.0
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                Type: ContentPresenter,
+                                Name: "contentPresenter",
+                                Props: {
+                                    Content: new TemplateBindingMarkup("Content"),
+                                    ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
+                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+                                    Margin: new TemplateBindingMarkup("Padding")
+                                }
+                            },
+                            {
+                                Type: Rectangle,
+                                Name: "DisabledVisualElement",
+                                Props: {
+                                    Fill: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
+                                    IsHitTestVisible: false,
+                                    Opacity: 0.0,
+                                    RadiusX: 3,
+                                    RadiusY: 3
+                                }
+                            },
+                            {
+                                Type: Rectangle,
+                                Name: "FocusVisualElement",
+                                Props: {
+                                    IsHitTestVisible: false,
+                                    Margin: new Thickness(1, 1, 1, 1),
+                                    Opacity: 0.0,
+                                    RadiusX: 2,
+                                    RadiusY: 2,
+                                    Stroke: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                                    StrokeThickness: 1
+                                }
+                            }
+                        ]
+                    })
+                }
+            }
+        ]
+    };
+    var parser = new JsonParser();
+    return parser.CreateObject(styleJson, new NameScope());
+};
+Nullstone.FinishCreate(Button);
 
 var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
 HyperlinkButton.StateDisabled = "Disabled";
@@ -15271,394 +17008,4 @@ HyperlinkButton.Instance.GetDefaultStyle = function () {
     return parser.CreateObject(styleJson, new NameScope());
 };
 Nullstone.FinishCreate(HyperlinkButton);
-
-var Button = Nullstone.Create("Button", ButtonBase);
-Button.StateDisabled = "Disabled";
-Button.StatePressed = "Pressed";
-Button.StateMouseOver = "MouseOver";
-Button.StateNormal = "Normal";
-Button.StateFocused = "Focused";
-Button.StateUnfocused = "Unfocused";
-Button.Instance.OnApplyTemplate = function () {
-    this.OnApplyTemplate$ButtonBase();
-    this.UpdateVisualState(false);
-};
-Button.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
-        this._GoToState(useTransitions, Button.StateDisabled);
-    } else if (this.GetIsPressed()) {
-        this._GoToState(useTransitions, Button.StatePressed);
-    } else if (this.GetIsMouseOver()) {
-        this._GoToState(useTransitions, Button.StateMouseOver);
-    } else {
-        this._GoToState(useTransitions, Button.StateNormal);
-    }
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
-        this._GoToState(useTransitions, Button.StateFocused);
-    } else {
-        this._GoToState(useTransitions, Button.StateUnfocused);
-    }
-};
-Button.Instance.OnIsEnabledChanged = function (e) {
-    this.OnIsEnabledChanged$ButtonBase(e);
-    this.SetIsTabStop(e.NewValue);
-};
-Button.Instance.GetDefaultStyle = function () {
-    var styleJson = {
-        Type: Style,
-        Props: {
-            TargetType: Button
-        },
-        Children: [
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(Button, "Background"),
-                    Value: new SolidColorBrush(Color.FromHex("#FF1F3B53"))
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(Button, "Foreground"),
-                    Value: new SolidColorBrush(Color.FromHex("#FF000000"))
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(Button, "Padding"),
-                    Value: new Thickness(3, 3, 3, 3)
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(Button, "BorderThickness"),
-                    Value: new Thickness(1, 1, 1, 1)
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(Button, "BorderBrush"),
-                    Value: {
-                        Type: LinearGradientBrush,
-                        Props: {
-                            StartPoint: new Point(0.5, 0.0),
-                            EndPoint: new Point(0.5, 1.0),
-                            GradientStops: [
-                                {
-                                    Type: GradientStop,
-                                    Props: {
-                                        Color: Color.FromHex("#FFA3AEB9"),
-                                        Offset: 0.0
-                                    }
-                                },
-                                {
-                                    Type: GradientStop,
-                                    Props: {
-                                        Color: Color.FromHex("#FF8399A9"),
-                                        Offset: 0.375
-                                    }
-                                },
-                                {
-                                    Type: GradientStop,
-                                    Props: {
-                                        Color: Color.FromHex("#FF718597"),
-                                        Offset: 0.375
-                                    }
-                                },
-                                {   
-                                    Type: GradientStop,
-                                    Props: {
-                                        Color: Color.FromHex("#FF617584"),
-                                        Offset: 1.0
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(Button, "Template"),
-                    Value: new ControlTemplate(Button, {
-                        Type: Grid,
-                        AttachedProps: [
-                            {
-                                Owner: VisualStateManager,
-                                Prop: "VisualStateGroups",
-                                Value: [
-                                    {
-                                        Type: VisualStateGroup,
-                                        Name: "CommonStates",
-                                        Children: [
-                                            {
-                                                Type: VisualState,
-                                                Name: "Normal"
-                                            },
-                                            {
-                                                Type: VisualState,
-                                                Name: "MouseOver",
-                                                Content: {
-                                                    Type: Storyboard,
-                                                    Children: [
-                                                        {
-                                                            Type: DoubleAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundAnimation" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
-                                                            ]
-                                                        },
-                                                        {
-                                                            Type: ColorAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#F2FFFFFF") },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
-                                                            ]
-                                                        },
-                                                        {
-                                                            Type: ColorAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#CCFFFFFF") },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
-                                                            ]
-                                                        },
-                                                        {
-                                                            Type: ColorAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#7FFFFFFF") },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            },
-                                            {
-                                                Type: VisualState,
-                                                Name: "Pressed",
-                                                Content: {
-                                                    Type: Storyboard,
-                                                    Children: [
-                                                        {
-                                                            Type: ColorAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#FF6DBDD1") },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "Background" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(SolidColorBrush.Color)") }
-                                                            ]
-                                                        },
-                                                        {
-                                                            Type: DoubleAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundAnimation" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
-                                                            ]
-                                                        },
-                                                        {
-                                                            Type: ColorAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#D8FFFFFF") },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[0].(GradientStop.Color)") }
-                                                            ]
-                                                        },
-                                                        {
-                                                            Type: ColorAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#C6FFFFFF") },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
-                                                            ]
-                                                        },
-                                                        {
-                                                            Type: ColorAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#8CFFFFFF") },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
-                                                            ]
-                                                        },
-                                                        {
-                                                            Type: ColorAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: Color.FromHex("#3FFFFFFF") },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            },
-                                            {
-                                                Type: VisualState,
-                                                Name: "Disabled",
-                                                Content: {
-                                                    Type: Storyboard,
-                                                    Children: [
-                                                        {
-                                                            Type: DoubleAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: 0.55 },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "DisabledVisualElement" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        Type: VisualStateGroup,
-                                        Name: "FocusStates",
-                                        Children: [
-                                            {
-                                                Type: VisualState,
-                                                Name: "Focused",
-                                                Content: {
-                                                    Type: Storyboard,
-                                                    Children: [
-                                                        {
-                                                            Type: DoubleAnimation,
-                                                            Props: { Duration: new Duration(0.0), To: 1.0 },
-                                                            AttachedProps: [
-                                                                { Owner: Storyboard, Prop: "TargetName", Value: "FocusVisualElement" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("Opacity") }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            },
-                                            {
-                                                Type: VisualState,
-                                                Name: "Unfocused"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ],
-                        Children: [
-                            {
-                                Type: Border,
-                                Name: "Background",
-                                Props: {
-                                    CornerRadius: new CornerRadius(3, 3, 3, 3),
-                                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
-                                    BorderThickness: new TemplateBindingMarkup("BorderThickness"),
-                                    BorderBrush: new TemplateBindingMarkup("BorderBrush")
-                                },
-                                Content: {
-                                    Type: Grid,
-                                    Props: {
-                                        Background: new TemplateBindingMarkup("Background"),
-                                        Margin: new Thickness(1, 1, 1, 1)
-                                    },
-                                    Children: [
-                                        {
-                                            Type: Border,
-                                            Name: "BackgroundAnimation",
-                                            Props: {
-                                                Opacity: 0.0,
-                                                Background: new SolidColorBrush(Color.FromHex("#FF448DCA"))
-                                            }
-                                        },
-                                        {
-                                            Type: Border,
-                                            Name: "BackgroundGradient",
-                                            Props: {
-                                                Background: {
-                                                    Type: LinearGradientBrush,
-                                                    Props: {
-                                                        StartPoint: new Point(0.7, 0.0),
-                                                        EndPoint: new Point(0.7, 1.0),
-                                                        GradientStops: [
-                                                            {
-                                                                Type: GradientStop,
-                                                                Props: {
-                                                                    Color: Color.FromHex("#FFFFFFFF"),
-                                                                    Offset: 0.0
-                                                                }
-                                                            },
-                                                            {
-                                                                Type: GradientStop,
-                                                                Props: {
-                                                                    Color: Color.FromHex("#F9FFFFFF"),
-                                                                    Offset: 0.375
-                                                                }
-                                                            },
-                                                            {
-                                                                Type: GradientStop,
-                                                                Props: {
-                                                                    Color: Color.FromHex("#E5FFFFFF"),
-                                                                    Offset: 0.625
-                                                                }
-                                                            },
-                                                            {   
-                                                                Type: GradientStop,
-                                                                Props: {
-                                                                    Color: Color.FromHex("#C6FFFFFF"),
-                                                                    Offset: 1.0
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                Type: ContentPresenter,
-                                Name: "contentPresenter",
-                                Props: {
-                                    Content: new TemplateBindingMarkup("Content"),
-                                    ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
-                                    VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
-                                    HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
-                                    Margin: new TemplateBindingMarkup("Padding")
-                                }
-                            },
-                            {
-                                Type: Border,
-                                Name: "DisabledVisualElement",
-                                Props: {
-                                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
-                                    Opacity: 0.0,
-                                    CornerRadius: new CornerRadius(3, 3, 3, 3),
-                                    IsHitTestVisible: false
-                                }
-                            },
-                            {
-                                Type: Border,
-                                Name: "FocusVisualElement",
-                                Props: {
-                                    Margin: new Thickness(1, 1, 1, 1),
-                                    BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
-                                    BorderThickness: new Thickness(1, 1, 1, 1),
-                                    Opacity: 0.0,
-                                    CornerRadius: new CornerRadius(2, 2, 2, 2),
-                                    IsHitTestVisible: false
-                                }
-                            }
-                        ]
-                    })
-                }
-            }
-        ]
-    };
-    var parser = new JsonParser();
-    return parser.CreateObject(styleJson, new NameScope());
-};
-Nullstone.FinishCreate(Button);
 

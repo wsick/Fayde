@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
+/// <reference path="Enums.js"/>
 /// <reference path="Surface.js"/>
 
 //#region _RenderContext
@@ -12,6 +13,9 @@ _RenderContext.Instance.Init = function (surface) {
 
 _RenderContext.Instance.GetSurface = function () {
     return this._Surface;
+};
+_RenderContext.Instance.GetCanvasContext = function () {
+    return this._Surface._Ctx;
 };
 _RenderContext.Instance.Clip = function (clip) {
     this._DrawClip(clip);
@@ -29,6 +33,7 @@ _RenderContext.Instance._DrawClip = function (clip) {
         clip.Draw(this._Surface._Ctx);
     }
 };
+
 _RenderContext.Instance.Transform = function (matrix) {
     matrix.Apply(this._Surface._Ctx);
     this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
@@ -52,13 +57,28 @@ _RenderContext.Instance.Restore = function () {
     this._InverseTransform = temp.Inverse;
     this._Surface._Ctx.restore();
 };
-_RenderContext.Instance.Fill = function (region, brush) {
-    if (region instanceof Rect) {
-        brush.SetupBrush(this._Surface._Ctx, region);
-        this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
-        this._Surface._Ctx.fillRect(region.X, region.Y, region.Width, region.Height);
-    }
+
+_RenderContext.Instance.Fill = function (brush, region) {
+    /// <param name="brush" type="Brush"></param>
+    brush.SetupBrush(this._Surface._Ctx, region);
+    this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
+    this._Surface._Ctx.fill();
 };
+_RenderContext.Instance.FillRect = function (brush, rect) {
+    /// <param name="brush" type="Brush"></param>
+    /// <param name="rect" type="Rect"></param>
+    brush.SetupBrush(this._Surface._Ctx, rect);
+    this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
+    this._Surface._Ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
+};
+_RenderContext.Instance.Stroke = function (stroke, thickness, region) {
+    /// <param name="stroke" type="Brush"></param>
+    stroke.SetupBrush(this._Surface._Ctx, region);
+    this._Surface._Ctx.strokeStyle = stroke.ToHtml5Object();
+    this._Surface._Ctx.lineWidth = thickness;
+    this._Surface._Ctx.stroke();
+};
+
 _RenderContext.Instance.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
 };

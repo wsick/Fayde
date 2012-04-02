@@ -15,7 +15,7 @@ FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecede
 };
 
 FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (propd !== FrameworkElement.ActualHeightProperty && propd !== FrameworkElement.ActualWidthProperty)
+    if (propd._ID !== FrameworkElement.ActualHeightProperty._ID && propd._ID !== FrameworkElement.ActualWidthProperty._ID)
         return undefined;
 
     var actual = this._Object._ComputeActualSize();

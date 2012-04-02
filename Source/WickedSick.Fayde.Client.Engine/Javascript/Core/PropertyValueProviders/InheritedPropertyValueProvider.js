@@ -257,7 +257,6 @@ _InheritedPropertyValueProvider._DeriveInheritable = function (obj, propd) {
         }
     }
     switch (propd._ID) {
-
         case FrameworkElement.LanguageProperty._ID:
             return _Inheritable.Language;
         case FrameworkElement.FlowDirectionProperty._ID:

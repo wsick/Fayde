@@ -1,0 +1,14 @@
+﻿<Page Title="Shapes Test">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="200" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Rectangle RadiusX="5" RadiusY="10" Fill="#FFFFFF00" Stroke="#FF000000" StrokeThickness="5" />
+        <Ellipse Grid.Column="1" Fill="#FFFFFF00" Stroke="#FF000000" StrokeThickness="5" />
+    </Grid>
+</Page>

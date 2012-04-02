@@ -90,6 +90,14 @@ Rect.Instance.ContainsPoint = function (p) {
         && (this.X + this.Width) >= p.X
         && (this.Y + this.Height) >= p.Y;
 };
+Rect.Instance.ContainsPointXY = function (x, y) {
+    /// <param name="x" type="Number"></param>
+    /// <param name="y" type="Number"></param>
+    return this.X <= x
+        && this.Y <= y
+        && (this.X + this.Width) >= x
+        && (this.Y + this.Height) >= y;
+};
 Rect.Equals = function (rect1, rect2) {
     /// <returns type="Boolean" />
     if (rect1 == null && rect2 == null)

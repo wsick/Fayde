@@ -1,5 +1,5 @@
 /// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="ButtonBase.js"/>
+/// <reference path="Primitives/ButtonBase.js"/>
 /// CODE
 /// <reference path="Style.js"/>
 /// <reference path="JsonParser.js"/>
@@ -162,7 +162,7 @@ Button.Instance.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#F2FFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -170,7 +170,7 @@ Button.Instance.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#CCFFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -178,7 +178,7 @@ Button.Instance.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#7FFFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
                                                             ]
                                                         }
                                                     ]
@@ -211,7 +211,7 @@ Button.Instance.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#D8FFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[0].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -219,7 +219,7 @@ Button.Instance.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#C6FFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -227,7 +227,7 @@ Button.Instance.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#8CFFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)") }
                                                             ]
                                                         },
                                                         {
@@ -235,7 +235,7 @@ Button.Instance.GetDefaultStyle = function () {
                                                             Props: { Duration: new Duration(0.0), To: Color.FromHex("#3FFFFFFF") },
                                                             AttachedProps: [
                                                                 { Owner: Storyboard, Prop: "TargetName", Value: "BackgroundGradient" },
-                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
+                                                                { Owner: Storyboard, Prop: "TargetProperty", Value: new _PropertyPath("(Rectangle.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)") }
                                                             ]
                                                         }
                                                     ]
@@ -316,10 +316,10 @@ Button.Instance.GetDefaultStyle = function () {
                                             }
                                         },
                                         {
-                                            Type: Border,
+                                            Type: Rectangle,
                                             Name: "BackgroundGradient",
                                             Props: {
-                                                Background: {
+                                                Fill: {
                                                     Type: LinearGradientBrush,
                                                     Props: {
                                                         StartPoint: new Point(0.7, 0.0),
@@ -373,25 +373,27 @@ Button.Instance.GetDefaultStyle = function () {
                                 }
                             },
                             {
-                                Type: Border,
+                                Type: Rectangle,
                                 Name: "DisabledVisualElement",
                                 Props: {
-                                    Background: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
+                                    Fill: new SolidColorBrush(Color.FromHex("#FFFFFFFF")),
+                                    IsHitTestVisible: false,
                                     Opacity: 0.0,
-                                    CornerRadius: new CornerRadius(3, 3, 3, 3),
-                                    IsHitTestVisible: false
+                                    RadiusX: 3,
+                                    RadiusY: 3
                                 }
                             },
                             {
-                                Type: Border,
+                                Type: Rectangle,
                                 Name: "FocusVisualElement",
                                 Props: {
+                                    IsHitTestVisible: false,
                                     Margin: new Thickness(1, 1, 1, 1),
-                                    BorderBrush: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
-                                    BorderThickness: new Thickness(1, 1, 1, 1),
                                     Opacity: 0.0,
-                                    CornerRadius: new CornerRadius(2, 2, 2, 2),
-                                    IsHitTestVisible: false
+                                    RadiusX: 2,
+                                    RadiusY: 2,
+                                    Stroke: new SolidColorBrush(Color.FromHex("#FF6DBDD1")),
+                                    StrokeThickness: 1
                                 }
                             }
                         ]
