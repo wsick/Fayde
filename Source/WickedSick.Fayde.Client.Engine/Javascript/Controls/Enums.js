@@ -50,3 +50,10 @@ var Stretch = {
     Uniform: 2,
     UniformToFill: 3
 };
+
+var ScrollBarVisibility = {
+    Disabled: 0,
+    Auto: 1,
+    Hidden: 2,
+    Visible: 3
+};
