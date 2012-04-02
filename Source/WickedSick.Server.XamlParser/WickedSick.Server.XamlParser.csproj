@@ -113,8 +113,6 @@
     </Compile>
     <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="Elements\PropertyDescription.cs" />
-    <Compile Include="Elements\Drawing\Rectangle.cs" />
-    <Compile Include="Elements\Drawing\Shape.cs" />
     <Compile Include="Elements\FrameworkElement.cs">
       <SubType>Code</SubType>
     </Compile>
