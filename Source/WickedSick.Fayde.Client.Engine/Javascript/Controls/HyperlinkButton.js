@@ -1,5 +1,5 @@
 /// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="ButtonBase.js"/>
+/// <reference path="Primitives/ButtonBase.js"/>
 /// CODE
 
 //#region HyperlinkButton

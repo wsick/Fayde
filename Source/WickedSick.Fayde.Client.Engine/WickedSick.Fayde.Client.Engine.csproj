@@ -66,6 +66,7 @@
     <Content Include="Javascript\Controls\MediaElement.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />
     <Content Include="Javascript\Controls\Popup.js" />
+    <Content Include="Javascript\Controls\Primitives\ButtonBase.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\PasswordBoxDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxBaseDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxDynamicPropertyValueProvider.js" />
@@ -180,7 +181,6 @@
     <Content Include="Javascript\Media\Animation\TimelineCollection.js" />
     <Content Include="Javascript\Media\Brush.js" />
     <Content Include="Javascript\Controls\Button.js" />
-    <Content Include="Javascript\Controls\ButtonBase.js" />
     <Content Include="Javascript\Controls\Canvas.js" />
     <Content Include="Javascript\Controls\ContentControl.js" />
     <Content Include="Javascript\Controls\ContentPresenter.js" />

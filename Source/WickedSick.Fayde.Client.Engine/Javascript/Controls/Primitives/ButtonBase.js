@@ -1,5 +1,5 @@
-/// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="ContentControl.js"/>
+/// <reference path="../../Runtime/Nullstone.js" />
+/// <reference path="../ContentControl.js"/>
 /// CODE
 
 //#region ButtonBase
