@@ -86,12 +86,6 @@ ButtonBase.Instance.UpdateVisualState = function (useTransitions) {
 ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
     //Nothing to do in ButtonBase
 };
-ButtonBase.Instance._GoToState = function (useTransitions, stateName) {
-    /// <param name="useTransitions" type="Boolean"></param>
-    /// <param name="stateName" type="String"></param>
-    /// <returns type="Boolean" />
-    return VisualStateManager.GoToState(this, stateName, useTransitions);
-};
 
 //#endregion
 

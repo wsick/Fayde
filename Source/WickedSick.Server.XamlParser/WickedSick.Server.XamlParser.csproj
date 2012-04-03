@@ -102,6 +102,7 @@
     <Compile Include="Elements\Controls\Image.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\Controls\Primitives\Thumb.cs" />
     <Compile Include="Elements\ControlTemplate.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -112,6 +113,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\FaydeApplication.cs" />
+    <Compile Include="Elements\Media\Colors.cs" />
     <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="PropertyDescription.cs" />
     <Compile Include="Elements\FrameworkElement.cs">
