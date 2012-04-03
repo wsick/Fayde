@@ -14,6 +14,11 @@ namespace WickedSick.Server.XamlParser.TypeConverters
             return new Color(hexString);
         }
 
+        public static Color FromUInt32(UInt32 uint32)
+        {
+            return null;
+        }
+
         private string HexString { get; set; }
 
         private Color(string hexString)

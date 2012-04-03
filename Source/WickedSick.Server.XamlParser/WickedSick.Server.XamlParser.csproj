@@ -112,6 +112,7 @@
     <Compile Include="Elements\DependencyObject.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\Media\Colors.cs" />
     <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="Elements\PropertyDescription.cs" />
     <Compile Include="Elements\FrameworkElement.cs">
