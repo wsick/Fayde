@@ -360,11 +360,11 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.Append(pd.Name);
                     sb.Append(": ");
                     sb.Append(value.ToString().ToLower());
-                    sb.AppendLine(",");
+                    needsComma = true;
                     continue;
                 }
-else
-{
+                else
+                {
                     sb.Append(pd.Name);
                     sb.Append(": ");
                     if (value is string)
