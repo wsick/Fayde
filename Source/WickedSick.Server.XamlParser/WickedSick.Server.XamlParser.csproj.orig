@@ -111,9 +111,12 @@
     <Compile Include="Elements\DependencyObject.cs">
       <SubType>Code</SubType>
     </Compile>
+<<<<<<< HEAD
     <Compile Include="Elements\FaydeApplication.cs" />
+=======
     <Compile Include="Elements\Media\Geometry.cs" />
-    <Compile Include="PropertyDescription.cs" />
+>>>>>>> a46ad010e477a69f7f64275631bfa9c63a7781ba
+    <Compile Include="Elements\PropertyDescription.cs" />
     <Compile Include="Elements\FrameworkElement.cs">
       <SubType>Code</SubType>
     </Compile>

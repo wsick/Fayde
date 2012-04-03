@@ -24,16 +24,6 @@ namespace WickedSick.Server.Framework.Fayde
             try
             {
                 XmlDocument doc = new XmlDocument();
-
-                if (req.AppRelativeCurrentExecutionFilePath.EndsWith("/"))
-                {
-                    string[] appFiles = Directory.GetFiles(req.MapPath(req.CurrentExecutionFilePath), "*.fa", SearchOption.AllDirectories);
-                    if (appFiles.Count() == 0)
-                        return;
-                    if (appFiles.Count() > 1)
-                        throw new Exception("More than one fayde application file has been defined.");
-                }
-
                 string filePath = req.MapPath(req.CurrentExecutionFilePath);
                 if (!File.Exists(filePath))
                 {
@@ -44,10 +34,12 @@ namespace WickedSick.Server.Framework.Fayde
                 if (!doc.DocumentElement.Name.ToLower().Equals("page"))
                     throw new Exception("We currently only support the Page element as the document root.");
 
-                FaydeApplication fa = new FaydeApplication();
-
-                Page p = Parser.ParseXmlNode(doc.DocumentElement, null) as Page;
-                res.Write(fa.BuildPage(p, CollectIncludes(FindOrderFile(filePath))));
+                FaydeApplication fa = context.Items[FaydeHttpModule.FAYDE_APPLICATION] as FaydeApplication;
+                if (fa != null)
+                {
+                    Page p = Parser.ParseXmlNode(doc.DocumentElement, null) as Page;
+                    res.Write(fa.BuildPage(p, CollectIncludes(FindOrderFile(filePath))));
+                }
             }
             catch (Exception ex)
             {

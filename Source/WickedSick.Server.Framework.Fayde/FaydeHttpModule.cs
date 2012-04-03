@@ -4,33 +4,60 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.IO;
+using WickedSick.Server.XamlParser;
+using System.Xml;
+using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.Framework.Fayde
 {
     public class FaydeHttpModule: IHttpModule
     {
+        public static readonly string FAYDE_APPLICATION = "FaydeApplication";
+
         public void Dispose() { }
 
         public void Init(HttpApplication context)
         {
-            context.MapRequestHandler += new EventHandler(context_MapRequestHandler);
             context.BeginRequest += new EventHandler(context_BeginRequest);
         }
 
         private void context_BeginRequest(object sender, EventArgs e)
         {
             HttpApplication app = sender as HttpApplication;
-            string rootPath = app.Server.MapPath("/");
-            string[] appFiles = Directory.GetFiles(rootPath, "*.fa", SearchOption.AllDirectories);
-            if (appFiles.Count() > 1)
-                throw new Exception("Only one fayde application can be defined.");
-            
-            throw new NotImplementedException();
+            if (!app.Context.Items.Contains(FAYDE_APPLICATION))
+            {
+                XmlDocument doc = GetApplicationDocument(app.Request);
+                if (doc != null)
+                {
+                    FaydeApplication fa = (FaydeApplication)Parser.ParseXmlNode(doc.DocumentElement, null);
+                    app.Context.Items.Add(FAYDE_APPLICATION, fa);
+                }
+            }
+
+            string filePath = app.Context.Request.AppRelativeCurrentExecutionFilePath;
+            FaydeApplication fapp = app.Context.Items[FAYDE_APPLICATION] as FaydeApplication;
+            if (filePath.Equals("~/") && fapp != null)
+            {
+                string defaultUri = (string)fapp.GetValue("DefaultPageUri");
+                app.Context.RewritePath(defaultUri);
+            }
         }
 
-        private void context_MapRequestHandler(object sender, EventArgs e)
+        private XmlDocument GetApplicationDocument(HttpRequest req)
         {
-            throw new NotImplementedException();
+            string[] appFiles = Directory.GetFiles(req.MapPath("~/"), "*.fa", SearchOption.AllDirectories);
+            if (appFiles.Count() == 0)
+                return null;
+
+            if (appFiles.Count() > 1)
+                throw new Exception("More than one fayde application file has been defined.");
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(appFiles[0]);
+            if (doc.DocumentElement.Name.ToLower().Equals("faydeapplication"))
+                return doc;
+
+            return null;
         }
     }
 }

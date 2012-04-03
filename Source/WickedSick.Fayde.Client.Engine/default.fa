@@ -1,1 +1,1 @@
-﻿<FaydeApplication DefaultPage="Tests/smoke.fayde"></FaydeApplication>
+﻿<FaydeApplication DefaultPageUri="Tests/smoke.fayde"></FaydeApplication>

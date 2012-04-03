@@ -91,21 +91,21 @@
                                         <Border x:Name="Background" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="#FFFFFF" CornerRadius="3">
                                             <Grid Background="{TemplateBinding Background}" Margin="1">
                                                 <Border x:Name="BackgroundAnimation" Background="#FF448DCA" Opacity="0"/>
-                                                <Border x:Name="BackgroundGradient">
-                                                    <Border.Background>
+                                                <Rectangle x:Name="BackgroundGradient">
+                                                    <Rectangle.Fill>
                                                         <LinearGradientBrush EndPoint=".7,1" StartPoint=".7,0">
                                                             <GradientStop Color="#FFFFFFFF" Offset="0"/>
                                                             <GradientStop Color="#F9FFFFFF" Offset="0.375"/>
                                                             <GradientStop Color="#E5FFFFFF" Offset="0.625"/>
                                                             <GradientStop Color="#C6FFFFFF" Offset="1"/>
                                                         </LinearGradientBrush>
-                                                    </Border.Background>
-                                                </Border>
+                                                    </Rectangle.Fill>
+                                                </Rectangle>
                                             </Grid>
                                         </Border>
                                         <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                        <Border x:Name="DisabledVisualElement" Background="#FFFFFFFF" IsHitTestVisible="false" Opacity="0" CornerRadius="3"/>
-                                        <Border x:Name="FocusVisualElement" IsHitTestVisible="false" Margin="1" Opacity="0" CornerRadius="2" BorderBrush="#FF6DBDD1" BorderThickness="1"/>
+                                        <Rectangle x:Name="DisabledVisualElement" Fill="#FFFFFFFF" IsHitTestVisible="false" Opacity="0" RadiusY="3" RadiusX="3"/>
+                                        <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Margin="1" Opacity="0" RadiusY="2" RadiusX="2" Stroke="#FF6DBDD1" StrokeThickness="1"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Setter.Value>

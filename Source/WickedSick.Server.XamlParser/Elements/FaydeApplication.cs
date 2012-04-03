@@ -5,8 +5,11 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public class FaydeApplication
+    [Element]
+    public class FaydeApplication: DependencyObject
     {
+        public static readonly PropertyDescription DefaultPageUri = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));
+
         public string BuildPage(Page p, IEnumerable<string> includes)
         {
             StringBuilder sb = new StringBuilder();
