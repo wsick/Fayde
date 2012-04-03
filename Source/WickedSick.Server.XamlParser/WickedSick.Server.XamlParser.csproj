@@ -203,6 +203,7 @@
     <Compile Include="ParserAttributes.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeConverters\BoolConverter.cs" />
     <Compile Include="TypeConverters\BrushConverter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -217,6 +218,7 @@
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
     <Compile Include="TypeConverters\HorizontalAlignmentConverter.cs" />
     <Compile Include="TypeConverters\ImageSourceConverter.cs" />
+    <Compile Include="TypeConverters\IntConverter.cs" />
     <Compile Include="TypeConverters\ITypeConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />
     <Compile Include="TypeConverters\PenLineCapConverter.cs" />

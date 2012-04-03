@@ -343,6 +343,15 @@ namespace WickedSick.Server.XamlParser.Elements
                     continue;
                 }
 
+                if (value is bool)
+                {
+                    sb.Append(pd.Name);
+                    sb.Append(": ");
+                    sb.Append(value.ToString().ToLower());
+                    sb.AppendLine(",");
+                    continue;
+                }
+
                 sb.Append(pd.Name);
                 sb.Append(": ");
                 if (value is string)

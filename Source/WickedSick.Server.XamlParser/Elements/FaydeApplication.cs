@@ -8,7 +8,17 @@ namespace WickedSick.Server.XamlParser.Elements
     [Element]
     public class FaydeApplication: DependencyObject
     {
+        public FaydeApplication()
+        {
+            //SetValue("Width", 800);
+            //SetValue("Height", 800);
+            //SetValue("Debug", true);
+        }
+
         public static readonly PropertyDescription DefaultPageUri = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));
+        public static readonly PropertyDescription Width = PropertyDescription.Register("Width", typeof(int), typeof(FaydeApplication));
+        public static readonly PropertyDescription Height = PropertyDescription.Register("Height", typeof(int), typeof(FaydeApplication));
+        public static readonly PropertyDescription Debug = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
 
         public string BuildPage(Page p, IEnumerable<string> includes)
         {
@@ -36,9 +46,12 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("\t\t\t$(document).ready(function () {");
             sb.AppendLine("\t\t\t\twindow.IsDocumentReady = function () { return true; }");
             sb.AppendLine("\t\t\t\tApp.Instance = new App();");
-            sb.AppendLine("\t\t\t\t_Console.Init(\"#console\");");
-            sb.AppendLine("\t\t\t\tRegisterHUD(\"mouse\", \"#hud-mouse\");");
-            sb.AppendLine("\t\t\t\tRegisterHUD(\"els\", \"#hud-els\");");
+            if ((bool)GetValue("Debug"))
+            {
+                sb.AppendLine("\t\t\t\t_Console.Init(\"#console\");");
+                sb.AppendLine("\t\t\t\tRegisterHUD(\"mouse\", \"#hud-mouse\");");
+                sb.AppendLine("\t\t\t\tRegisterHUD(\"els\", \"#hud-els\");");
+            }
             sb.AppendLine("\t\t\t\troot = buildTestView();");
             sb.AppendLine("\t\t\t\tApp.Instance.Load(root, $(\"#canvas\"));");
             sb.AppendLine("\t\t\t});");
@@ -58,11 +71,14 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("\t<body onmousedown=\"return false;\" style=\"margin: 0\">");
             sb.AppendLine("\t\t<div>");
             sb.AppendLine("\t\t\t<div id=\"container\">");
-            sb.AppendLine("\t\t\t\t<canvas id=\"canvas\" tabindex=\"1\" width=\"800\" height=\"800\"></canvas>");
+            sb.AppendLine("\t\t\t\t<canvas id=\"canvas\" tabindex=\"1\" width=\"" + (int)GetValue("Width") + "\" height=\"" + (int)GetValue("Height") + "\"></canvas>");
             sb.AppendLine("\t\t\t</div>");
-            sb.AppendLine("\t\t\t<div id=\"hud-mouse\" style=\"height: 25px;\"></div>");
-            sb.AppendLine("\t\t\t<div id=\"hud-els\" style=\"height: 25px;\"></div>");
-            sb.AppendLine("\t\t\t<div id=\"console\" style=\"margin-top: 10px; font-size: 12px; font-family: Consolas; overflow-y: scroll; height: 200px; border: solid 1px black;\"></div>");
+            if ((bool)GetValue("Debug"))
+            {
+                sb.AppendLine("\t\t\t<div id=\"hud-mouse\" style=\"height: 25px;\"></div>");
+                sb.AppendLine("\t\t\t<div id=\"hud-els\" style=\"height: 25px;\"></div>");
+                sb.AppendLine("\t\t\t<div id=\"console\" style=\"margin-top: 10px; font-size: 12px; font-family: Consolas; overflow-y: scroll; height: 200px; border: solid 1px black;\"></div>");
+            }
             sb.AppendLine("\t\t</div>");
             sb.AppendLine("\t</body>");
             sb.AppendLine("</html>");
