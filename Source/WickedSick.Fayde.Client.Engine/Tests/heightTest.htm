@@ -1,0 +1,20 @@
+﻿<!DOCTYPE>
+<html>
+<head>
+    <title>Testing Percentage Heights</title>
+    <script src="../jquery-1.7.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            resize_canvas();
+        });
+        function resize_canvas() {
+            canvas = document.getElementById("canvas");
+            canvas.width = $(window).width();
+            canvas.height = $(window).height();
+        }
+    </script>
+</head>
+<body style="margin: 0;" onresize="resize_canvas()">
+    <canvas id="canvas" style="background: silver;" />
+</body>
+</html>

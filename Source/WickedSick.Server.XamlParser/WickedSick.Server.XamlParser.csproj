@@ -223,6 +223,7 @@
     <Compile Include="TypeConverters\IntConverter.cs" />
     <Compile Include="TypeConverters\ITypeConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />
+    <Compile Include="TypeConverters\PageLengthConverter.cs" />
     <Compile Include="TypeConverters\PenLineCapConverter.cs" />
     <Compile Include="TypeConverters\PenLineJoinConverter.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
