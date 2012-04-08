@@ -10,7 +10,7 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <Border Grid.ColumnSpan="2" Grid.Row="0" Background="#2C4B63" CornerRadius="10" Margin="5">
-            <TextBlock Margin="10" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30">Welcome to Fayde</TextBlock>
+            <TextBlock Margin="10" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30">Welcome to Fayde</TextBlock>
         </Border>
         <Border Grid.Column="0" Grid.Row="1" Margin="10,0,10,0" Background="#F0F0F0" CornerRadius="5" BorderBrush="#000000" BorderThickness="1">
             <StackPanel Grid.Column="0" Grid.Row="1" Margin="5" Orientation="Vertical">
@@ -88,7 +88,7 @@
                                                 <VisualState x:Name="Unfocused"/>
                                             </VisualStateGroup>
                                         </VisualStateManager.VisualStateGroups>
-                                        <Border x:Name="Background" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="#FFFFFF" CornerRadius="3">
+                                        <Border x:Name="Background" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="White" CornerRadius="3">
                                             <Grid Background="{TemplateBinding Background}" Margin="1">
                                                 <Border x:Name="BackgroundAnimation" Background="#FF448DCA" Opacity="0"/>
                                                 <Rectangle x:Name="BackgroundGradient">

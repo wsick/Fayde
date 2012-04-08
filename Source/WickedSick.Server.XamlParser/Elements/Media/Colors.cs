@@ -3,11 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.TypeConverters;
+using System.Reflection;
 
 namespace WickedSick.Server.XamlParser.Elements.Media
 {
     public sealed class Colors
     {
+        public static Color FindColor(string colorName)
+        {
+            foreach (PropertyInfo pi in typeof(Colors).GetProperties())
+            {
+                if (pi.Name.Equals(colorName))
+                {
+                    return (Color)pi.GetValue(null, null);
+                }
+            }
+            return null;
+        }
+
         public static Color AliceBlue
         {
             get
