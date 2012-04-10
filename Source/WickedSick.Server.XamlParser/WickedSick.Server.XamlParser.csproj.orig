@@ -112,8 +112,11 @@
     <Compile Include="Elements\DependencyObject.cs">
       <SubType>Code</SubType>
     </Compile>
+<<<<<<< HEAD
     <Compile Include="Elements\FaydeApplication.cs" />
+=======
     <Compile Include="Elements\Media\Colors.cs" />
+>>>>>>> a3e321ccf9450e8a3305be302239c008dc806d35
     <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="PropertyDescription.cs" />
     <Compile Include="Elements\FrameworkElement.cs">
@@ -223,7 +226,6 @@
     <Compile Include="TypeConverters\IntConverter.cs" />
     <Compile Include="TypeConverters\ITypeConverter.cs" />
     <Compile Include="TypeConverters\OrientationConverter.cs" />
-    <Compile Include="TypeConverters\PageLengthConverter.cs" />
     <Compile Include="TypeConverters\PenLineCapConverter.cs" />
     <Compile Include="TypeConverters\PenLineJoinConverter.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />

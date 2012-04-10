@@ -280,6 +280,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Styles\Button.xml" />
+    <Content Include="Tests\heightTest.htm" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -294,6 +295,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="default.fa" />
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
     <None Include="Tests\basic.fayde" />

@@ -11,15 +11,15 @@ namespace WickedSick.Server.XamlParser.TypeConverters
     {
         public static Color FromHex(string hexString)
         {
-            return new Color(hexString);
+            return new Color() { HexString = hexString };
+        }
+
+        public static Color FromUInt32(UInt32 uint32)
+        {
+            return new Color() { HexString = string.Format("#{0:x2}", uint32).ToUpper() };
         }
 
         private string HexString { get; set; }
-
-        private Color(string hexString)
-        {
-            HexString = hexString;
-        }
 
         public string toJson(int tabIndents)
         {

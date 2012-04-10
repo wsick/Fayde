@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.Elements;
 using System.Reflection;
+using WickedSick.Server.XamlParser.Elements.Media;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
@@ -73,14 +74,13 @@ namespace WickedSick.Server.XamlParser.TypeConverters
             }
             if (flag4)
             {
-                //SolidColorBrush brush2 = KnownColors.ColorStringToKnownBrush(trimmedColor);
-                //if (brush2 != null)
-                //{
-                //    return brush2;
-                //}
-                throw new NotImplementedException(string.Format("Known colors have not yet been implemented. {0}", from));
+                SolidColorBrush result = new SolidColorBrush();
+                Color c = Colors.FindColor(from);
+                if (c == null) throw new XamlParseException(string.Format("An illegal brush value has been provided. {0}", from));
+                result.SetValue("Color", c);
+                return result;
             }
-            throw new FormatException("An illegal brush value has been provided.");
+            throw new FormatException(string.Format("An illegal brush value has been provided. {0}", from));
         }
 
         public Type ConversionType
