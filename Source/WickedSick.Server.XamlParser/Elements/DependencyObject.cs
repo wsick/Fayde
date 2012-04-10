@@ -46,6 +46,9 @@ namespace WickedSick.Server.XamlParser.Elements
                 ITypeConverter tc = (ITypeConverter)Activator.CreateInstance(t);
                 _converters.Add(tc.ConversionType, tc);
             }
+
+            new Elements.Media.VSM.VisualStateManager();
+            new Elements.ToolTipService();
         }
         
         private IDictionary<AttachedPropertyDescription, object> _attachedValues = new Dictionary<AttachedPropertyDescription, object>();
@@ -129,7 +132,10 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             AttachedPropertyDescription apd = AttachedPropertyDescription.Get(name, ownerType);
             if (apd == null)
-                throw new ArgumentException(string.Format("An unregistered attached property has been passed for the element {0}. {1}.{2}", GetType(), ownerType.Name, name));
+            {
+                string ownerName = ownerType == null ? "null" : ownerType.Name;
+                throw new ArgumentException(string.Format("An unregistered attached property has been passed for the element {0}. {1}.{2}", GetType(), ownerName, name));
+            }
 
             if (apd.Type.IsGenericType && apd.Type.GetGenericTypeDefinition() == typeof(List<>))
             {

@@ -36,6 +36,16 @@ namespace WickedSick.Server.XamlParser.TypeConverters
                     Bottom = value
                 };
             }
+            else if (parts.Count() == 2)
+            {
+                return new Thickness()
+                {
+                    Left = double.Parse(parts[0]),
+                    Top = double.Parse(parts[1]),
+                    Right = double.Parse(parts[0]),
+                    Bottom = double.Parse(parts[1])
+                };
+            }
             else if (parts.Count() == 4)
             {
                 return new Thickness()

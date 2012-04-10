@@ -105,7 +105,6 @@ namespace WickedSick.Server.XamlParser
                     {
                         string[] parts = propertyName.Split('.');
                         Type ownerType = DependencyObject.GetElementType(parts[0]);
-                        var test = new VisualStateManager();
                         element.AddAttachedProperty(ownerType, parts[1], child);
                     }
                     else

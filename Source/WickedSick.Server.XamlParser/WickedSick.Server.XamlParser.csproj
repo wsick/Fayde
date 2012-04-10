@@ -115,6 +115,11 @@
     <Compile Include="Elements\FaydeApplication.cs" />
     <Compile Include="Elements\Media\Colors.cs" />
     <Compile Include="Elements\Media\Geometry.cs" />
+    <Compile Include="Elements\ResourceDictionary.cs" />
+    <Compile Include="Elements\Tooltip.cs" />
+    <Compile Include="Elements\ToolTipService.cs" />
+    <Compile Include="Elements\Transform.cs" />
+    <Compile Include="Elements\TranslateTransform.cs" />
     <Compile Include="PropertyDescription.cs" />
     <Compile Include="Elements\FrameworkElement.cs">
       <SubType>Code</SubType>
@@ -226,10 +231,12 @@
     <Compile Include="TypeConverters\PageLengthConverter.cs" />
     <Compile Include="TypeConverters\PenLineCapConverter.cs" />
     <Compile Include="TypeConverters\PenLineJoinConverter.cs" />
+    <Compile Include="TypeConverters\PlacementModeConverter.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
     <Compile Include="TypeConverters\PropertyPathConverter.cs" />
     <Compile Include="TypeConverters\SetterValueConverter.cs" />
     <Compile Include="TypeConverters\StretchConverter.cs" />
+    <Compile Include="TypeConverters\TextDecorationConverter.cs" />
     <Compile Include="TypeConverters\TextWrappingConverter.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -237,6 +244,7 @@
     <Compile Include="TypeConverters\UriConverter.cs" />
     <Compile Include="TypeConverters\JsonUriConverter.cs" />
     <Compile Include="TypeConverters\VerticalAlignmentConverter.cs" />
+    <Compile Include="TypeConverters\VisibilityConverter.cs" />
     <Compile Include="XamlParseException.cs" />
   </ItemGroup>
   <ItemGroup />

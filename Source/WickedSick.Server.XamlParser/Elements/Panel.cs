@@ -6,9 +6,11 @@ using WickedSick.Server.XamlParser.TypeConverters;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public abstract class Panel: FrameworkElement
+    [Element]
+    public class Panel: FrameworkElement
     {
         public static readonly PropertyDescription Background = PropertyDescription.Register("Background", typeof(Brush), typeof(Panel));
         public static readonly PropertyDescription Children = PropertyDescription.Register("Children", typeof(List<UIElement>), typeof(Panel), true);
+        public static readonly AttachedPropertyDescription ZIndex = AttachedPropertyDescription.Register("ZIndex", typeof(int), typeof(Panel));
     }
 }

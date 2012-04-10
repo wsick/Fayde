@@ -13,5 +13,6 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription Foreground = PropertyDescription.Register("Foreground", typeof(Brush), typeof(TextBlock));
         public static readonly PropertyDescription FontSize = PropertyDescription.Register("FontSize", typeof(FontSize), typeof(TextBlock));
         public static readonly PropertyDescription Text = PropertyDescription.Register("Text", typeof(string), typeof(TextBlock), true);
+        public static readonly PropertyDescription TextDecorations = PropertyDescription.Register("TextDecorations", typeof(List<TextDecoration>), typeof(TextBlock));
     }
 }
