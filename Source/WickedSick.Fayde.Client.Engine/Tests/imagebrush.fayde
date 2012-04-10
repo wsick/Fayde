@@ -1,4 +1,4 @@
-﻿<Page>
+﻿<Page xmlns="http://schemas.wsick.com/fayde/">
     <Grid Background="#FFFFFF">
         <Grid.RowDefinitions>
             <RowDefinition Height="400" />

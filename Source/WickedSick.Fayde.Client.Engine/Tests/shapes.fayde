@@ -1,4 +1,4 @@
-﻿<Page Title="Shapes Test">
+﻿<Page Title="Shapes Test" xmlns="http://schemas.wsick.com/fayde/">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />

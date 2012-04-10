@@ -1,4 +1,4 @@
-﻿<Page Title="Fayde Imaging">
+﻿<Page Title="Fayde Imaging" xmlns="http://schemas.wsick.com/fayde/">
     <Grid Background="#FFFFFF00">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400" />
