@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Types;
+using WickedSick.Server.XamlParser.Elements.Media;
 
 namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
-    [Element]
     public class Shape : FrameworkElement
     {
         public static readonly PropertyDescription FillProperty = PropertyDescription.Register("Fill", typeof(Brush), typeof(Shape));

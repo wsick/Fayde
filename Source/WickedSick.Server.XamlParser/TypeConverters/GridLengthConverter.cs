@@ -4,27 +4,10 @@ using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.Elements;
 using System.Reflection;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public enum GridUnitType
-    {
-        Auto,
-        Pixel,
-        Star
-    }
-
-    public class GridLength : IJsonSerializable
-    {
-        public double Value { get; set; }
-        public GridUnitType UnitType { get; set; }
-
-        public string toJson(int tabIndents)
-        {
-            return string.Format("new GridLength({0}, {1}.{2})", Value, UnitType.GetType().Name, UnitType.ToString());
-        }
-    }
-
     public class GridLengthConverter : ITypeConverter
     {
         public object Convert(string from)

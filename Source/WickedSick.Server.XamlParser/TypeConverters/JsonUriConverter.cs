@@ -1,24 +1,10 @@
 ﻿using System;
 using WickedSick.Server.XamlParser.Elements;
 using System.Reflection;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class JsonUri : IJsonSerializable
-    {
-        private Uri _Uri;
-
-        public JsonUri(Uri uri)
-        {
-            _Uri = uri;
-        }
-
-        public string toJson(int tabIndents)
-        {
-            return string.Format("new Uri(\"{0}\")", _Uri);
-        }
-    }
-
     public class JsonUriConverter : ITypeConverter
     {
         public object Convert(string from)

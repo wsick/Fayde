@@ -5,7 +5,6 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element]
     public class DataTemplate: DependencyObject
     {
     }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Controls;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element]
     public class FaydeApplication: DependencyObject
     {
         public static readonly PropertyDescription DefaultPageUri = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));

@@ -7,14 +7,13 @@ using System.Reflection;
 
 namespace WickedSick.Server.XamlParser
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple=false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Enum, AllowMultiple=false)]
     public sealed class ElementAttribute : Attribute
     {
         public ElementAttribute()
         {
         }
 
-        public string ElementName { get; set; }
         public string NullstoneName { get; set; }
     }
 }

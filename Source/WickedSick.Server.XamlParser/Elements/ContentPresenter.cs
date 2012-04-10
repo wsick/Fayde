@@ -5,7 +5,6 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element]
     public class ContentPresenter: FrameworkElement
     {
         public static readonly PropertyDescription Content = PropertyDescription.Register("Content", typeof(object), typeof(ContentPresenter));

@@ -295,7 +295,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.fa" />
+    <None Include="default.fa">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
     <None Include="Tests\basic.fayde" />

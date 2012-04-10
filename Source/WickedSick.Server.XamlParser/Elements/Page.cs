@@ -7,7 +7,6 @@ using System.Xml.Serialization;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element]
     public class Page: FrameworkElement
     {
         public static readonly PropertyDescription Title = PropertyDescription.Register("Title", typeof(string), typeof(Page));

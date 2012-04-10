@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Media;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element]
     public class Border : FrameworkElement
     {
         public static readonly PropertyDescription Background = PropertyDescription.Register("Background", typeof(Brush), typeof(Border));

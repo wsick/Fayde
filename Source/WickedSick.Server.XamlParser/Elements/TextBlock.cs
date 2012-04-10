@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Types;
+using WickedSick.Server.XamlParser.Elements.Media;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element]
     public class TextBlock: FrameworkElement
     {
         public static readonly PropertyDescription TextWrapping = PropertyDescription.Register("TextWrapping", typeof(TextWrapping), typeof(TextBlock));

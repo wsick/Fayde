@@ -12,24 +12,24 @@ namespace WickedSick.Server.XamlParser.Elements
     public abstract class DependencyObject : IJsonSerializable
     {
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
-        public static Type GetElementType(string elementName)
+        public static Type GetElementType(string nameSpace, string elementName)
         {
+            string faydeNs;
+            switch (nameSpace)
+            {
+                case "http://schemas.wsick.com/fayde/":
+                    faydeNs = typeof(DependencyObject).Namespace;
+                    break;
+                default:
+                    throw new XamlParseException(string.Format("Unable to resolve the namespace: {0}", nameSpace));
+            }
+
             var types = from t in Assembly.GetAssembly(typeof(Parser)).GetTypes()
-                        where t.IsClass && !t.IsAbstract
+                        where !t.IsAbstract && t.Namespace != null && t.Namespace.StartsWith(faydeNs)
                         select t;
             foreach (Type t in types)
             {
-                ElementAttribute[] atts = (ElementAttribute[])t.GetCustomAttributes(typeof(ElementAttribute), false);
-                if (atts.Count() > 1)
-                    throw new Exception("More than one ElementAttribute may not be placed on a class.");
-                if (atts.Count() == 1)
-                {
-                    if (atts[0].ElementName == null)
-                    {
-                        if (t.Name.Equals(elementName)) return t;
-                    }
-                    else if (atts[0].ElementName.Equals(elementName)) return t;
-                }
+                if (t.Name.Equals(elementName)) return t;
             }
             return null;
         }
@@ -49,6 +49,7 @@ namespace WickedSick.Server.XamlParser.Elements
 
             new Elements.Media.VSM.VisualStateManager();
             new Elements.ToolTipService();
+            new Elements.Canvas();
         }
         
         private IDictionary<AttachedPropertyDescription, object> _attachedValues = new Dictionary<AttachedPropertyDescription, object>();
@@ -73,6 +74,16 @@ namespace WickedSick.Server.XamlParser.Elements
                     valueList = (IList)Activator.CreateInstance(pd.Type);
                     _dependencyValues.Add(pd, valueList);
                 }
+
+                //support the case:
+                //the property type is a list
+                //but the value is set as a single string
+                //e.g. TextDecorations="Underline"
+                Type genericType = pd.Type.GetGenericArguments()[0];
+                if (value is string && genericType != typeof(string))
+                {
+                    value = GetConvertedValue((string)value, genericType);
+                }
                 valueList.Add(value);
             }
             else
@@ -80,15 +91,27 @@ namespace WickedSick.Server.XamlParser.Elements
                 if (_dependencyValues.ContainsKey(pd))
                     throw new Exception(string.Format("The property has already been set. {0}.{1}", GetType().Name, name));
 
-                object newValue = value;
-                if (value is string && _converters.ContainsKey(pd.Type))
+                if (value is string)
                 {
-                    ITypeConverter tc = _converters[pd.Type];
-                    newValue = tc.Convert((string)value);
+                    value = GetConvertedValue((string)value, pd.Type);
                 }
 
-                _dependencyValues.Add(pd, newValue);
+                _dependencyValues.Add(pd, value);
             }
+        }
+
+        private object GetConvertedValue(string value, Type convertedType)
+        {
+            if (convertedType.IsEnum)
+            {
+                return Enum.Parse(convertedType, (string)value);
+            }
+            else if (_converters.ContainsKey(convertedType))
+            {
+                ITypeConverter tc = _converters[convertedType];
+                return tc.Convert((string)value);
+            }
+            return value;
         }
 
         public object GetValue(string name)
@@ -110,6 +133,8 @@ namespace WickedSick.Server.XamlParser.Elements
 
             PropertyDescription contentProperty = PropertyDescription.GetContent(GetType());
             //TODO: check and make sure the property type is correct
+            if (contentProperty == null)
+                throw new XamlParseException(string.Format("Content cannot be added to an element with no content property definition. {0}", GetType().Name));
             if (contentProperty.Type.IsGenericType && contentProperty.Type.GetGenericTypeDefinition() == typeof(List<>))
             {
                 if (!_dependencyValues.Keys.Contains(contentProperty))
@@ -154,14 +179,12 @@ namespace WickedSick.Server.XamlParser.Elements
                 if (_attachedValues.ContainsKey(apd))
                     throw new Exception(string.Format("The attached property has already been set on the element {0}. {1}.{2}", GetType(), ownerType.Name, name));
 
-                object newValue = value;
-                if (value is string && _converters.ContainsKey(apd.Type))
+                if (value is string)
                 {
-                    ITypeConverter tc = _converters[apd.Type];
-                    newValue = tc.Convert((string)value);
+                    value = GetConvertedValue((string)value, apd.Type);
                 }
 
-                _attachedValues.Add(apd, newValue);
+                _attachedValues.Add(apd, value);
             }
         }
 
@@ -366,6 +389,14 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.Append(pd.Name);
                     sb.Append(": ");
                     sb.Append(value.ToString().ToLower());
+                    needsComma = true;
+                    continue;
+                }
+                else if (value is Enum)
+                {
+                    sb.Append(pd.Name);
+                    sb.Append(": ");
+                    sb.Append(string.Format("{0}.{1}", value.GetType().Name, value.ToString()));
                     needsComma = true;
                     continue;
                 }

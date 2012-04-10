@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
@@ -20,5 +21,7 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription Style = PropertyDescription.Register("Style", typeof(Style), typeof(FrameworkElement));
         public static readonly PropertyDescription MaxWidth = PropertyDescription.Register("MaxWidth", typeof(double), typeof(FrameworkElement));
         public static readonly PropertyDescription MaxHeight = PropertyDescription.Register("MaxHeight", typeof(double), typeof(FrameworkElement));
+        public static readonly PropertyDescription FlowDirection = PropertyDescription.Register("FlowDirection", typeof(FlowDirection), typeof(FrameworkElement));
+        public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FrameworkElement));
     }
 }

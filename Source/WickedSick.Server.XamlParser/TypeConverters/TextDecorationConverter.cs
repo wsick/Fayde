@@ -3,24 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.Elements;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class TextDecoration: IJsonSerializable
-    {
-        private string Decoration { get; set; }
-
-        public TextDecoration(string decoration)
-        {
-            Decoration = decoration;
-        }
-
-        public string toJson(int tabIndents)
-        {
-            return Decoration;
-        }
-    }
-
     public class TextDecorationConverter : ITypeConverter
     {
         public Type ConversionType

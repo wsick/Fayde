@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
-    [Element]
     public class Storyboard: Timeline
     {
         public static readonly PropertyDescription Animations = PropertyDescription.Register("Animations", typeof(List<Timeline>), typeof(Storyboard), true);

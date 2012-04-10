@@ -6,7 +6,6 @@ using WickedSick.Server.XamlParser.Elements.Media.Animation;
 
 namespace WickedSick.Server.XamlParser.Elements.Media.VSM
 {
-    [Element]
     public class VisualStateManager: DependencyObject
     {
         public static readonly AttachedPropertyDescription VisualStateGroups = AttachedPropertyDescription.Register("VisualStateGroups", typeof(List<VisualStateGroup>), typeof(VisualStateManager));

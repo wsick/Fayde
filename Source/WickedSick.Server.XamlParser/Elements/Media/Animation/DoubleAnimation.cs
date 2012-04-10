@@ -6,7 +6,6 @@ using WickedSick.Server.XamlParser.TypeConverters;
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
-    [Element]
     public class DoubleAnimation: Timeline
     {
         public static readonly PropertyDescription From = PropertyDescription.Register("From", typeof(double), typeof(DoubleAnimation));

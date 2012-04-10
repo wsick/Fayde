@@ -6,7 +6,6 @@ using WickedSick.Server.XamlParser.TypeConverters;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element]
     public class Setter: DependencyObject
     {
         //TODO: Rewire specific SetterValueConverter

@@ -5,7 +5,6 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    [Element]
     public class TranslateTransform: Transform
     {
         public static readonly PropertyDescription X = PropertyDescription.Register("X", typeof(double), typeof(TranslateTransform));

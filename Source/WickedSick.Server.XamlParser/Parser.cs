@@ -13,16 +13,26 @@ namespace WickedSick.Server.XamlParser
 {
     public static class Parser
     {
-        public static DependencyObject ParseXmlNode(XmlNode node, DependencyObject parent)
+        public static object ParseXmlNode(XmlNode node, DependencyObject parent)
         {
-            Type t = DependencyObject.GetElementType(node.Name);
+            if (node.NodeType == XmlNodeType.Comment)
+                return null;
+
+            Type t = DependencyObject.GetElementType(node.NamespaceURI, node.Name);
             if (t == null)
-                throw new Exception("Unknown element: " + node.Name);
+                throw new XamlParseException("Unknown element: " + node.Name);
+            if (t.IsEnum)
+            {
+                return Enum.Parse(t, node.InnerText);
+            }
+
             DependencyObject element = (DependencyObject)Activator.CreateInstance(t);
             element.Parent = parent;
 
             foreach (XmlAttribute a in node.Attributes)
             {
+                if (a.Name.ToLower().Equals("xmlns"))
+                    continue;
                 if (a.Name.Contains(":"))
                     continue;
                 if (a.Name.Contains("."))
@@ -30,9 +40,9 @@ namespace WickedSick.Server.XamlParser
                     //inline attached property
                     string[] parts = a.Name.Split('.');
                     if (parts.Count() != 2)
-                        throw new Exception(string.Format("An invalid element has been encountered. {0}", a.Name));
+                        throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", a.Name));
 
-                    Type ownerType = DependencyObject.GetElementType(parts[0]);
+                    Type ownerType = DependencyObject.GetElementType(node.NamespaceURI, parts[0]);
                     element.AddAttachedProperty(ownerType, parts[1], a.Value);
                     continue;
                 }
@@ -62,16 +72,16 @@ namespace WickedSick.Server.XamlParser
                     //a property has been set as a sub-element
                     string[] parts = n.Name.Split('.');
                     if (parts.Count() != 2)
-                        throw new Exception(string.Format("An invalid element has been encountered. {0}", n.Name));
+                        throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", n.Name));
                     if (n.Attributes.Count > 0)
-                        throw new Exception(string.Format("A sub-element used for setting a property can not contain attributes. {0}", n.Name));
+                        throw new XamlParseException(string.Format("A sub-element used for setting a property can not contain attributes. {0}", n.Name));
 
                     if (!parts[0].Equals(element.GetType().Name))
                     {
                         //the sub-element is an attached property
                         if (n.NodeType == XmlNodeType.Text)
                         {
-                            Type ownerType = DependencyObject.GetElementType(parts[0]);
+                            Type ownerType = DependencyObject.GetElementType(n.NamespaceURI, parts[0]);
                             element.AddAttachedProperty(ownerType, parts[1], n.InnerText);
                         }
                         else
@@ -98,13 +108,15 @@ namespace WickedSick.Server.XamlParser
                     if (n.NodeType != XmlNodeType.Text)
                     {
                         child = ParseXmlNode(n, element);
+                        if (child == null)
+                            continue;
                     }
                     if (propertyName == null)
                         element.AddContent(child);
                     else if (propertyName.Contains("."))
                     {
                         string[] parts = propertyName.Split('.');
-                        Type ownerType = DependencyObject.GetElementType(parts[0]);
+                        Type ownerType = DependencyObject.GetElementType(n.NamespaceURI, parts[0]);
                         element.AddAttachedProperty(ownerType, parts[1], child);
                     }
                     else

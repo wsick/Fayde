@@ -4,22 +4,10 @@ using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.Elements;
 using System.Reflection;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class CornerRadius : IJsonSerializable
-    {
-        public double Left { get; set; }
-        public double Top { get; set; }
-        public double Right { get; set; }
-        public double Bottom { get; set; }
-
-        public string toJson(int tabIndents)
-        {
-            return string.Format("new CornerRadius({0}, {1}, {2}, {3})", Left, Top, Right, Bottom);
-        }
-    }
-
     public class CornerRadiusConverter : ITypeConverter
     {
         public object Convert(string from)

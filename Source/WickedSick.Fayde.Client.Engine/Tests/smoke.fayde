@@ -1,4 +1,6 @@
-﻿<Page Title="Fayde Home" xmlns:x="http://schemas.wsick.com/fayde/">
+﻿<Page xmlns="http://schemas.wsick.com/fayde/"
+      xmlns:x="http://schemas.wsick.com"
+      Title="Fayde Home">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>

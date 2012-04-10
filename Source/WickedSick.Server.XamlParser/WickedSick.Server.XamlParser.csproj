@@ -80,30 +80,33 @@
     <Compile Include="Elements\Border.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Brush.cs">
+    <Compile Include="Elements\Canvas.cs" />
+    <Compile Include="Elements\Controls\ScrollViewer.cs" />
+    <Compile Include="Elements\ItemsPresenter.cs" />
+    <Compile Include="Elements\Media\Brush.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Button.cs">
+    <Compile Include="Elements\Controls\Button.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\ButtonBase.cs">
+    <Compile Include="Elements\Controls\ButtonBase.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\ColumnDefinition.cs">
+    <Compile Include="Elements\Controls\ColumnDefinition.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\ContentControl.cs">
+    <Compile Include="Elements\Controls\ContentControl.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\ContentPresenter.cs" />
-    <Compile Include="Elements\Control.cs">
+    <Compile Include="Elements\Controls\Control.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Controls\Image.cs">
+    <Compile Include="Elements\Media\Image.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Primitives\Thumb.cs" />
-    <Compile Include="Elements\ControlTemplate.cs">
+    <Compile Include="Elements\Controls\ControlTemplate.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\DataTemplate.cs">
@@ -113,13 +116,22 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\FaydeApplication.cs" />
+    <Compile Include="Elements\Media\Animation\DiscreteObjectKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\ObjectAnimationUsingKeyFrames.cs" />
+    <Compile Include="Elements\Media\Animation\ObjectKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\PointAnimation.cs" />
     <Compile Include="Elements\Media\Colors.cs" />
     <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="Elements\ResourceDictionary.cs" />
-    <Compile Include="Elements\Tooltip.cs" />
+    <Compile Include="Elements\Controls\Tooltip.cs" />
     <Compile Include="Elements\ToolTipService.cs" />
     <Compile Include="Elements\Transform.cs" />
     <Compile Include="Elements\TranslateTransform.cs" />
+    <Compile Include="Elements\Types\FlowDirection.cs" />
+    <Compile Include="Elements\Types\KeyboardNavigationMode.cs" />
+    <Compile Include="ParserAttributes.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PropertyDescription.cs" />
     <Compile Include="Elements\FrameworkElement.cs">
       <SubType>Code</SubType>
@@ -127,16 +139,16 @@
     <Compile Include="Elements\GradientStop.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Grid.cs">
+    <Compile Include="Elements\Controls\Grid.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\HyperlinkButton.cs">
+    <Compile Include="Elements\Controls\HyperlinkButton.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\IJsonSerializable.cs">
+    <Compile Include="IJsonSerializable.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\LinearGradientBrush.cs">
+    <Compile Include="Elements\Media\LinearGradientBrush.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Media\Animation\ColorAnimation.cs">
@@ -154,10 +166,10 @@
     <Compile Include="Elements\Media\ImageSource.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\Imaging\BitmapImage.cs">
+    <Compile Include="Elements\Media\BitmapImage.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\Imaging\BitmapSource.cs">
+    <Compile Include="Elements\Media\BitmapSource.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Media\VSM\VisualState.cs">
@@ -172,10 +184,10 @@
     <Compile Include="Elements\Page.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Panel.cs">
+    <Compile Include="Elements\Controls\Panel.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\RowDefinition.cs">
+    <Compile Include="Elements\Controls\RowDefinition.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Setter.cs">
@@ -188,10 +200,10 @@
     <Compile Include="Elements\Shapes\Polyline.cs" />
     <Compile Include="Elements\Shapes\Rectangle.cs" />
     <Compile Include="Elements\Shapes\Shape.cs" />
-    <Compile Include="Elements\SolidColorBrush.cs">
+    <Compile Include="Elements\Media\SolidColorBrush.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\StackPanel.cs">
+    <Compile Include="Elements\Controls\StackPanel.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Style.cs">
@@ -207,7 +219,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="MarkupExpressionParser.cs" />
-    <Compile Include="ParserAttributes.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeConverters\BoolConverter.cs" />
@@ -220,31 +231,46 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TypeConverters\DurationConverter.cs" />
-    <Compile Include="TypeConverters\FillRuleConverter.cs" />
+    <Compile Include="Elements\Types\Color.cs" />
+    <Compile Include="Elements\Types\CornerRadius.cs" />
+    <Compile Include="Elements\Types\Duration.cs" />
+    <Compile Include="Elements\Types\FillRule.cs" />
     <Compile Include="TypeConverters\FontSizeConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
-    <Compile Include="TypeConverters\HorizontalAlignmentConverter.cs" />
+    <Compile Include="Elements\Types\FontSize.cs" />
+    <Compile Include="Elements\Types\GridLength.cs" />
+    <Compile Include="Elements\Types\HorizontalAlignment.cs" />
     <Compile Include="TypeConverters\ImageSourceConverter.cs" />
     <Compile Include="TypeConverters\IntConverter.cs" />
     <Compile Include="TypeConverters\ITypeConverter.cs" />
-    <Compile Include="TypeConverters\OrientationConverter.cs" />
+    <Compile Include="TypeConverters\KeyTimeConverter.cs" />
+    <Compile Include="Elements\Types\JsonUri.cs" />
+    <Compile Include="Elements\Types\KeyTime.cs" />
+    <Compile Include="Elements\Types\Orientation.cs" />
     <Compile Include="TypeConverters\PageLengthConverter.cs" />
-    <Compile Include="TypeConverters\PenLineCapConverter.cs" />
-    <Compile Include="TypeConverters\PenLineJoinConverter.cs" />
-    <Compile Include="TypeConverters\PlacementModeConverter.cs" />
+    <Compile Include="Elements\Types\PageLength.cs" />
+    <Compile Include="Elements\Types\PenLineCap.cs" />
+    <Compile Include="Elements\Types\PenLineJoin.cs" />
+    <Compile Include="Elements\Types\PlacementMode.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
     <Compile Include="TypeConverters\PropertyPathConverter.cs" />
     <Compile Include="TypeConverters\SetterValueConverter.cs" />
-    <Compile Include="TypeConverters\StretchConverter.cs" />
+    <Compile Include="Elements\Types\Point.cs" />
+    <Compile Include="Elements\Types\PropertyPath.cs" />
+    <Compile Include="Elements\Types\Stretch.cs" />
     <Compile Include="TypeConverters\TextDecorationConverter.cs" />
-    <Compile Include="TypeConverters\TextWrappingConverter.cs">
+    <Compile Include="Elements\Types\TextDecoration.cs" />
+    <Compile Include="Elements\Types\TextWrapping.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TypeConverters\ThicknessConverter.cs" />
+    <Compile Include="TypeConverters\TimeSpanConverter.cs" />
     <Compile Include="TypeConverters\UriConverter.cs" />
     <Compile Include="TypeConverters\JsonUriConverter.cs" />
-    <Compile Include="TypeConverters\VerticalAlignmentConverter.cs" />
-    <Compile Include="TypeConverters\VisibilityConverter.cs" />
+    <Compile Include="Elements\Types\Thickness.cs" />
+    <Compile Include="Elements\Types\TimeSpan.cs" />
+    <Compile Include="Elements\Types\VerticalAlignment.cs" />
+    <Compile Include="Elements\Types\Visibility.cs" />
     <Compile Include="XamlParseException.cs" />
   </ItemGroup>
   <ItemGroup />

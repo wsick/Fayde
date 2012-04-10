@@ -7,6 +7,7 @@ using System.Web;
 using System.Xml;
 using WickedSick.Server.XamlParser;
 using WickedSick.Server.XamlParser.Elements;
+using WickedSick.Server.XamlParser.Elements.Controls;
 
 namespace WickedSick.Server.Framework.Fayde
 {
