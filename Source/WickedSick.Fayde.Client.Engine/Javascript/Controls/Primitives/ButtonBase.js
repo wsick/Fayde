@@ -75,7 +75,7 @@ ButtonBase.Instance.OnIsPressedChanged = function (e) {
     this.UpdateVisualState();
 };
 
-//#region VISUAL STATE
+//#region Visual State
 
 ButtonBase.Instance.UpdateVisualState = function (useTransitions) {
     /// <param name="useTransitions" type="Boolean"></param>

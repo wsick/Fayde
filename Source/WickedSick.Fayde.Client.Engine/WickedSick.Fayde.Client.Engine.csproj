@@ -82,11 +82,14 @@
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBlockDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\ScrollContentPresenter.js" />
     <Content Include="Javascript\Controls\ScrollViewer.js" />
-    <Content Include="Javascript\Controls\Styles.xml" />
+    <Content Include="Javascript\Controls\Styles.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Javascript\Controls\TextBoxBase.js" />
     <Content Include="Javascript\Engine\FocusManager.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
+    <Content Include="Javascript\Runtime\Timer.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />

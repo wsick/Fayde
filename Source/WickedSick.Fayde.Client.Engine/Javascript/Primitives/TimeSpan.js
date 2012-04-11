@@ -39,7 +39,7 @@ TimeSpan.Instance.Init = function (args) {
         + (seconds * TimeSpan._TicksPerSecond) + (milliseconds * TimeSpan._TicksPerMillisecond);
 };
 
-//#region PROPERTIES
+//#region Properties
 
 TimeSpan.Instance.GetDays = function () {
     ///<returns type="Number"></returns>
@@ -138,6 +138,10 @@ TimeSpan.Instance.CompareTo = function (ts2) {
 TimeSpan.Instance.IsZero = function () {
     /// <returns type="Boolean" />
     return this._Ticks === 0;
+};
+
+TimeSpan.Instance.GetJsDelay = function () {
+    return this._Ticks * TimeSpan._TicksPerMillisecond;
 };
 
 TimeSpan._TicksPerMillisecond = 1;
