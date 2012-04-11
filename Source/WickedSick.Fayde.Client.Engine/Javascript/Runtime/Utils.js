@@ -8,3 +8,10 @@ DoubleUtil.AreClose = function (val1, val2) {
     var num2 = val1 - val2;
     return -num1 < num2 && num1 > num2;
 };
+
+var PointUtil = {};
+PointUtil.AreClose = function (p1, p2) {
+    if (!DoubleUtil.AreClose(p1.X, p2.X))
+        return false;
+    return DoubleUtil.AreClose(p1.Y, p2.Y);
+};

@@ -75,6 +75,7 @@
     <Content Include="Javascript\Controls\Primitives\RangeBase.js" />
     <Content Include="Javascript\Controls\Primitives\RepeatButton.js" />
     <Content Include="Javascript\Controls\Primitives\ScrollBar.js" />
+    <Content Include="Javascript\Controls\Primitives\ScrollData.js" />
     <Content Include="Javascript\Controls\Primitives\ScrollEventArgs.js" />
     <Content Include="Javascript\Controls\Primitives\Selector.js" />
     <Content Include="Javascript\Controls\Primitives\Thumb.js" />
