@@ -7,6 +7,7 @@
 var ScrollViewer = Nullstone.Create("ScrollViewer", ContentControl);
 
 ScrollViewer.Instance.Init = function () {
+    this.Init$ContentControl();
 };
 
 //#region Dependency Properties
