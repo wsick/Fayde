@@ -89,6 +89,7 @@
     <Content Include="Javascript\Engine\FocusManager.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
+    <Content Include="Javascript\Runtime\RoutedPropertyChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\Timer.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
@@ -295,6 +296,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Javascript\Media\VSM\VisualStateChangedEventArgs.js" />
+    <Content Include="Javascript\Runtime\Utils.js" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

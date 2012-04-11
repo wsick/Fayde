@@ -1,5 +1,7 @@
 ﻿/// <reference path="../Control.js"/>
 /// CODE
+/// <reference path="../../Runtime/Utils.js"/>
+/// <reference path="../../Runtime/RoutedPropertyChangedEventArgs.js"/>
 
 //#region RangeBase
 var RangeBase = Nullstone.Create("RangeBase", Control);
@@ -10,6 +12,8 @@ RangeBase.Instance.Init = function () {
     this.SetCurrentValue(0);
     this.SetSmallChange(0.1);
     this.SetLargeChange(1);
+    this.CurrentValueChanged = new MulticastEvent();
+    this._LevelsFromRootCall = 0;
 };
 
 //#region Dependency Properties
@@ -24,6 +28,27 @@ RangeBase.Instance.SetMinimum = function (value) {
     this.SetValue(RangeBase.MinimumProperty, value);
 };
 RangeBase._OnMinimumPropertyChanged = function (d, args) {
+    if (!RangeBase._IsValidDoubleValue(args.NewValue))
+        throw new ArgumentException("Invalid double value for Minimum property.");
+    if (d._LevelsFromRootCall === 0) {
+        d._InitialMax = args.GetMaximum();
+        d._InitialVal = d.GetCurrentValue();
+    }
+    d._LevelsFromRootCall++;
+    d._CoerceMaximum();
+    d._CoerceCurrentValue();
+    d._LevelsFromRootCall--;
+    if (d._LevelsFromRootCall === 0) {
+        d._OnMinimumChanged(args.OldValue, args.OldValue);
+        var max = d.GetMaximum();
+        if (!DoubleUtil.AreClose(d._InitialMax, max)) {
+            d._OnMaximumChanged(d._InitialMax, max);
+        }
+        var val = d.GetCurrentValue();
+        if (!DoubleUtil.AreClose(d._InitialVal, val)) {
+            d._OnCurrentValueChanged(d._InitialVal, val);
+        }
+    }
 };
 
 RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () { return Number; }, RangeBase, 1, RangeBase._OnMaximumPropertyChanged);
@@ -33,9 +58,32 @@ RangeBase.Instance.GetMaximum = function () {
 };
 RangeBase.Instance.SetMaximum = function (value) {
     ///<param name="value" type="Number"></param>
+    if (this._LevelsFromRootCall === 0)
+        this._RequestedMax = value;
     this.SetValue(RangeBase.MaximumProperty, value);
 };
 RangeBase._OnMaximumPropertyChanged = function (d, args) {
+    if (!RangeBase._IsValidDoubleValue(args.NewValue))
+        throw new ArgumentException("Invalid double value for Maximum property.");
+    if (d._LevelsFromRootCall === 0) {
+        d._RequestedMax = args.NewValue;
+        d._InitialMax = args.OldValue;
+        d._InitialVal = d.GetCurrentValue();
+    }
+    d._LevelsFromRootCall++;
+    d._CoerceMaximum();
+    d._CoerceCurrentValue();
+    d._LevelsFromRootCall--;
+    if (d._LevelsFromRootCall === 0) {
+        var max = d.GetMaximum();
+        if (!DoubleUtil.AreClose(d._InitialMax, max)) {
+            d._OnMaximumChanged(d._InitialMax, max);
+        }
+        var val = d.GetCurrentValue();
+        if (!DoubleUtil.AreClose(d._InitialVal, val)) {
+            d._OnCurrentValueChanged(d._InitialVal, val);
+        }
+    }
 };
 
 RangeBase.LargeChangeProperty = DependencyProperty.Register("LargeChange", function () { return Number; }, RangeBase, 1, RangeBase._OnLargeChangePropertyChanged);
@@ -75,10 +123,27 @@ RangeBase.Instance.GetCurrentValue = function () {
 };
 RangeBase.Instance.SetCurrentValue = function (value) {
     ///<param name="value" type="Number"></param>
+    if (this._LevelsFromRootCall === 0)
+        this._RequestedVal = value;
     this.SetValue(RangeBase.CurrentValueProperty, value);
 };
 RangeBase._OnCurrentValuePropertyChanged = function (d, args) {
-    //TODO: this.ValueChanged.Raise(this, new EventArgs());
+    if (!RangeBase._IsValidDoubleValue(args.NewValue))
+        throw new ArgumentException("Invalid double value for CurrentValue property.");
+    if (d._LevelsFromRootCall === 0) {
+        d._RequestedVal = args.NewValue;
+        d._InitialVal = args.OldValue;
+    }
+    d._LevelsFromRootCall++;
+    d._CoerceCurrentValue();
+    d._LevelsFromRootCall--;
+    if (d._LevelsFromRootCall === 0) {
+        var val = d.GetCurrentValue();
+        if (!DoubleUtil.AreClose(d._InitialVal, val)) {
+            d._OnCurrentValueChanged(d._InitialVal, val);
+        }
+    }
+
 };
 
 //#endregion
@@ -86,9 +151,25 @@ RangeBase._OnCurrentValuePropertyChanged = function (d, args) {
 RangeBase.Instance._CoerceMaximum = function () {
     var min = this.GetMinimum();
     var max = this.GetMaximum();
-    ///....
+    if (!DoubleUtil.AreClose(this._RequestedMax, max) && this._RequestedMax >= min) {
+        this.SetValue(RangeBase.MaximumProperty, this._RequestedMax);
+        return;
+    }
+    if (max < min)
+        this.SetValue(RangeBase.MaximumProperty, min);
 };
-RangeBase.Instance._CoerceValue = function () {
+RangeBase.Instance._CoerceCurrentValue = function () {
+    var min = this.GetMinimum();
+    var max = this.GetMaximum();
+    var val = this.GetCurrentValue();
+    if (!DoubleUtil.AreClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max) {
+        this.SetValue(RangeBase.CurrentValueProperty, this._RequestedVal);
+        return;
+    }
+    if (val < min)
+        this.SetValue(RangeBase.CurrentValueProperty, min);
+    if (val > max)
+        this.SetValue(RangeBase.CurrentValueProperty, max);
 };
 
 RangeBase._IsValidChange = function (value) {
@@ -106,9 +187,11 @@ RangeBase._IsValidDoubleValue = function (value) {
     return true;
 };
 
-RangeBase.Instance._OnMaximumChanged = function (oldMax, newMax) { };
 RangeBase.Instance._OnMinimumChanged = function (oldMin, newMin) { };
-RangeBase.Instance._OnCurrentValueChanged = function (oldValue, newValue) { };
+RangeBase.Instance._OnMaximumChanged = function (oldMax, newMax) { };
+RangeBase.Instance._OnCurrentValueChanged = function (oldValue, newValue) {
+    d.CurrentValueChanged.Raise(d, new RoutedPropertyChangedEventArgs(oldValue, newValue));
+};
 
 Nullstone.FinishCreate(RangeBase);
 //#endregion
