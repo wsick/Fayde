@@ -8,6 +8,7 @@
 var ScrollContentPresenter = Nullstone.Create("ScrollContentPresenter", ContentPresenter, null, [IScrollInfo]);
 
 ScrollContentPresenter.Instance.Init = function () {
+    this.Init$ContentPresenter();
     this.$LineDelta = 16.0;
     this.$CachedOffset = new Point();
     this.$Viewport = new Size();
