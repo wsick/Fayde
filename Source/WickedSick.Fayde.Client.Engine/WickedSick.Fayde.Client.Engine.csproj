@@ -67,10 +67,15 @@
     <Content Include="Javascript\Controls\PasswordBox.js" />
     <Content Include="Javascript\Controls\Popup.js" />
     <Content Include="Javascript\Controls\Primitives\ButtonBase.js" />
+    <Content Include="Javascript\Controls\Primitives\DragCompletedEventArgs.js" />
+    <Content Include="Javascript\Controls\Primitives\DragDeltaEventArgs.js" />
+    <Content Include="Javascript\Controls\Primitives\DragStartedEventArgs.js" />
+    <Content Include="Javascript\Controls\Primitives\Enums.js" />
     <Content Include="Javascript\Controls\Primitives\IScrollInfo.js" />
     <Content Include="Javascript\Controls\Primitives\RangeBase.js" />
     <Content Include="Javascript\Controls\Primitives\RepeatButton.js" />
     <Content Include="Javascript\Controls\Primitives\ScrollBar.js" />
+    <Content Include="Javascript\Controls\Primitives\ScrollEventArgs.js" />
     <Content Include="Javascript\Controls\Primitives\Selector.js" />
     <Content Include="Javascript\Controls\Primitives\Thumb.js" />
     <Content Include="Javascript\Controls\Primitives\ToggleButton.js" />

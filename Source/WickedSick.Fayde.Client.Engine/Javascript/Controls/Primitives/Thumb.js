@@ -1,5 +1,8 @@
 ﻿/// <reference path="../Control.js"/>
 /// CODE
+/// <reference path="DragStartedEventArgs.js"/>
+/// <reference path="DragDeltaEventArgs.js"/>
+/// <reference path="DragCompletedEventArgs.js"/>
 
 //#region Thumb
 var Thumb = Nullstone.Create("Thumb", Control);
@@ -145,8 +148,8 @@ Thumb.Instance._RaiseDragStarted = function () {
 Thumb.Instance._RaiseDragDelta = function (x, y) {
     this.DragDelta.Raise(this, new DragDeltaEventArgs(x, y));
 };
-Thumb.Instance._RaiseDragCompleted = function (cancelled) {
-    this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, cancelled));
+Thumb.Instance._RaiseDragCompleted = function (canceled) {
+    this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
 };
 
 Thumb.Instance.GetDefaultStyle = function () {
