@@ -13,6 +13,13 @@ Rect.Instance.Init = function (x, y, width, height) {
     this.Height = height == null ? 0 : height;
 };
 
+Rect.Instance.GetRight = function () {
+    return this.X + this.Width;
+};
+Rect.Instance.GetBottom = function () {
+    return this.Y + this.Height;
+};
+
 Rect.Instance.IsEmpty = function () {
     /// <returns type="Boolean" />
     return this.Width <= 0.0 || this.Height <= 0.0;

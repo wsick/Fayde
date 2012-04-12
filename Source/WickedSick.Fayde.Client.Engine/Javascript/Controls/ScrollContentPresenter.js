@@ -62,13 +62,13 @@ ScrollContentPresenter.Instance.SetCanVerticallyScroll = function (value) {
     }
 };
 
-ScrollContentPresenter.prototype.GetExtentWidth = function () {
+ScrollContentPresenter.Instance.GetExtentWidth = function () {
     ///<returns type="Number"></returns>
     if (this.GetIsScrollClient())
         return this.$ScrollData.Extent.Width;
     return 0;
 };
-ScrollContentPresenter.prototype.GetExtentHeight = function () {
+ScrollContentPresenter.Instance.GetExtentHeight = function () {
     ///<returns type="Number"></returns>
     if (this.GetIsScrollClient())
         return this.$ScrollData.Extent.Height;
@@ -88,13 +88,13 @@ ScrollContentPresenter.Instance.GetVerticalOffset = function () {
     return 0;
 };
 
-ScrollContentPresenter.prototype.GetViewportHeight = function () {
+ScrollContentPresenter.Instance.GetViewportHeight = function () {
     ///<returns type="Number"></returns>
     if (this.GetIsScrollClient())
         return this.$ScrollData.Viewport.Height;
     return 0;
 };
-ScrollContentPresenter.prototype.GetViewportWidth = function () {
+ScrollContentPresenter.Instance.GetViewportWidth = function () {
     ///<returns type="Number"></returns>
     if (this.GetIsScrollClient())
         return this.$ScrollData.Viewport.Width;
@@ -179,7 +179,31 @@ ScrollContentPresenter.Instance.OnApplyTemplate = function () {
 ScrollContentPresenter.Instance.MakeVisible = function (visual, rectangle) {
     /// <param name="visual" type="UIElement"></param>
     /// <param name="rectangle" type="Rect">Description</param>
-    NotImplemented("ScrollContentPresenter.Instance.MakeVisible");
+    if (rectangle.IsEmpty() || visual == null || Nullstone.RefEquals(visual, this) || !this.IsAncestorOf(visual))
+        return new Rect();
+
+    var generalTransform = visual.TransformToVisual(this);
+    var point = generalTransform.Transform(new Point(rectangle.X, rectangle.Y));
+    rectangle.X = point.X;
+    rectangle.Y = point.Y;
+    if (!this.GetIsScrollClient())
+        return rectangle;
+
+    var rect = new Rect(this.GetHorizontalOffset(), this.GetVerticalOffset(), this.GetViewportWidth(), this.GetViewportHeight());
+    rectangle.X += rect.X;
+    rectangle.Y += rect.Y;
+    var num = ScrollContentPresenter._ComputeScrollOffsetWithMinimalScroll(rect.X, rect.GetRight(), rectangle.X, rectangle.GetRight());
+    var num1 = ScrollContentPresenter._ComputeScrollOffsetWithMinimalScroll(rect.Y, rect.GetBottom(), rectangle.Y, rectangle.GetBottom());
+    this.SetHorizontalOffset(num);
+    this.SetVerticalOffset(num1);
+    rect.X = num;
+    rect.Y = num1;
+    rectangle = rectangle.Intersection(rect)
+    if (!rectangle.IsEmpty()) {
+        rectangle.X -= rect.X;
+        rectangle.Y -= rect.Y;
+    }
+    return rectangle;
 };
 
 //#region Line
@@ -376,7 +400,16 @@ ScrollContentPresenter.Instance._CoerceOffsets = function () {
 };
 
 ScrollContentPresenter._ComputeScrollOffsetWithMinimalScroll = function (topView, bottomView, topChild, bottomChild) {
-    NotImplemented("ScrollContentPresenter._ComputeScrollOffsetWithMinimalScroll");
+    var flag = DoubleUtil.LessThan(topChild, topView) && DoubleUtil.LessThan(bottomChild, bottomView);
+    var flag1 = DoubleUtil.GreaterThan(topChild, topView) && DoubleUtil.GreaterThan(bottomChild, bottomView);
+    
+    var flag4 = (bottomChild - topChild) > (bottomView - topView);
+    if ((!flag || flag4) && (!flag1 || !flag4)) {
+        if (flag || flag1)
+            return bottomChild - bottomView - topView;
+        return topView;
+    }
+    return topChild;
 };
 ScrollContentPresenter._CoerceOffset = function (offset, extent, viewport) {
     offset = Math.min(offset, extent - viewport);

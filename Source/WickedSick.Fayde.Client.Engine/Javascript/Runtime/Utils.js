@@ -8,6 +8,19 @@ DoubleUtil.AreClose = function (val1, val2) {
     var num2 = val1 - val2;
     return -num1 < num2 && num1 > num2;
 };
+DoubleUtil.LessThan = function (val1, val2) {
+    if (val1 >= val2)
+        return false;
+    return !DoubleUtil.AreClose(val1, val2);
+};
+DoubleUtil.GreaterThan = function (val1, val2) {
+    if (val1 <= val2)
+        return false;
+    return !DoubleUtil.AreClose(val1, val2);
+};
+DoubleUtil.IsZero = function (val) {
+    return Math.abs(val) < 1.11022302462516E-15;
+};
 
 var PointUtil = {};
 PointUtil.AreClose = function (p1, p2) {
