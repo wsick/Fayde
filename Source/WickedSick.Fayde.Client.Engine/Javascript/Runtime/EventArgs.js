@@ -38,6 +38,7 @@ Nullstone.FinishCreate(MouseButtonEventArgs);
 //#region KeyEventArgs
 var KeyEventArgs = Nullstone.Create("KeyEventArgs", EventArgs, 2);
 
+///Modifers = { Shift: <bool>, Ctrl: <bool>, Alt: <bool> }
 KeyEventArgs.Instance.Init = function (modifiers, keyCode) {
     this.Modifiers = modifiers;
     this.KeyCode = keyCode;

@@ -41,7 +41,9 @@ var Keys = {
 
     Shift: 16,
     Ctrl: 17,
-    Alt: 18
+    Alt: 18,
+
+    Space: 32
 };
 
 var Stretch = {

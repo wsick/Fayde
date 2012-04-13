@@ -92,6 +92,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Javascript\Controls\TextBoxBase.js" />
+    <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Engine\FocusManager.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />

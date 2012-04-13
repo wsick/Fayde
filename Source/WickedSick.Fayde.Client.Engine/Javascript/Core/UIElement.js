@@ -8,6 +8,7 @@
 /// <reference path="../Core/Collections/Collection.js"/>
 /// <reference path="../Media/Geometry.js"/>
 /// <reference path="../Media/Brush.js"/>
+/// <reference path="RequestBringIntoViewEventArgs.js"/>
 
 //#region UIElement
 var UIElement = Nullstone.Create("UIElement", DependencyObject);
@@ -76,6 +77,8 @@ UIElement.Instance.Init = function () {
 
     this.KeyUp = new MulticastEvent();
     this.KeyUp.Subscribe(this.OnKeyUp, this);
+
+    this.RequestBringIntoView = new MulticastEvent();
 };
 
 //#region Dependency Properties
@@ -176,6 +179,13 @@ UIElement.Instance.GetVisualParent = function () {
 };
 UIElement.Instance.IsLayoutContainer = function () { return false; };
 UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
+UIElement.Instance.IsAncestorOf = function (el) {
+    /// <param name="el" type="UIElement"></param>
+    var parent = el;
+    while (parent != null && !Nullstone.RefEquals(parent, this))
+        parent = VisualTreeHelper.GetParent(parent);
+    return Nullstone.RefEquals(parent, this);
+};
 
 //#region Invalidation
 
@@ -706,6 +716,17 @@ UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 
 //#endregion
 
+UIElement.Instance.BringIntoView = function (rect) {
+    if (rect == null) rect = new Rect();
+    var args = new RequestBringIntoViewEventArgs(this, rect);
+
+    var cur = this;
+    while (cur != null && !args.Handled) {
+        cur.RequestBringIntoView.Raise(this, args);
+        cur = VisualTreeHelper.GetParent(cur);
+    }
+};
+
 //#region Mouse
 
 UIElement.Instance.CanCaptureMouse = function () { return true; };
@@ -808,6 +829,9 @@ UIElement.Instance.OnLostMouseCapture = function (sender, args) { };
 
 UIElement.Instance._EmitKeyDown = function (args) {
     this.KeyDown.Raise(this, args);
+};
+UIElement.Instance._EmitKeyUp = function (args) {
+    this.KeyUp.Raise(this, args);
 };
 
 UIElement.Instance.OnKeyDown = function (sender, args) {
