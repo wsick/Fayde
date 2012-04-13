@@ -77,19 +77,23 @@
     <Compile Include="Elements\Bindings\TemplateBinding.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Border.cs">
+    <Compile Include="Elements\Controls\Border.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Canvas.cs" />
+    <Compile Include="Elements\Controls\Canvas.cs" />
+    <Compile Include="Elements\Controls\ScrollContentPresenter.cs" />
+    <Compile Include="Elements\Controls\Primitives\RangeBase.cs" />
+    <Compile Include="Elements\Controls\Primitives\RepeatButton.cs" />
+    <Compile Include="Elements\Controls\Primitives\ScrollBar.cs" />
     <Compile Include="Elements\Controls\ScrollViewer.cs" />
-    <Compile Include="Elements\ItemsPresenter.cs" />
+    <Compile Include="Elements\Controls\ItemsPresenter.cs" />
     <Compile Include="Elements\Media\Brush.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Button.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Controls\ButtonBase.cs">
+    <Compile Include="Elements\Controls\Primitives\ButtonBase.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\ColumnDefinition.cs">
@@ -98,7 +102,7 @@
     <Compile Include="Elements\Controls\ContentControl.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\ContentPresenter.cs" />
+    <Compile Include="Elements\Controls\ContentPresenter.cs" />
     <Compile Include="Elements\Controls\Control.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -125,10 +129,12 @@
     <Compile Include="Elements\ResourceDictionary.cs" />
     <Compile Include="Elements\Controls\Tooltip.cs" />
     <Compile Include="Elements\ToolTipService.cs" />
-    <Compile Include="Elements\Transform.cs" />
-    <Compile Include="Elements\TranslateTransform.cs" />
+    <Compile Include="Elements\Media\Transform.cs" />
+    <Compile Include="Elements\Media\TranslateTransform.cs" />
+    <Compile Include="Elements\Types\ClickMode.cs" />
     <Compile Include="Elements\Types\FlowDirection.cs" />
     <Compile Include="Elements\Types\KeyboardNavigationMode.cs" />
+    <Compile Include="Elements\Types\ScrollBarVisibility.cs" />
     <Compile Include="ParserAttributes.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -209,10 +215,10 @@
     <Compile Include="Elements\Style.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\TextBlock.cs">
+    <Compile Include="Elements\Controls\TextBlock.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\TextBox.cs">
+    <Compile Include="Elements\Controls\TextBox.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\UIElement.cs">

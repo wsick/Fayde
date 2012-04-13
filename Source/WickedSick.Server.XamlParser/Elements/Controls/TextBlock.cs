@@ -6,9 +6,9 @@ using WickedSick.Server.XamlParser.TypeConverters;
 using WickedSick.Server.XamlParser.Elements.Types;
 using WickedSick.Server.XamlParser.Elements.Media;
 
-namespace WickedSick.Server.XamlParser.Elements
+namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    public class TextBlock: FrameworkElement
+    public class TextBlock : FrameworkElement
     {
         public static readonly PropertyDescription TextWrapping = PropertyDescription.Register("TextWrapping", typeof(TextWrapping), typeof(TextBlock));
         public static readonly PropertyDescription Foreground = PropertyDescription.Register("Foreground", typeof(Brush), typeof(TextBlock));

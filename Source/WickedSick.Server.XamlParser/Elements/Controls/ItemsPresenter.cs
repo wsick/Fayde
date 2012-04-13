@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    public class ButtonBase : ContentControl
+    public class ItemsPresenter : FrameworkElement
     {
     }
 }

@@ -49,7 +49,7 @@ namespace WickedSick.Server.XamlParser.Elements
 
             new Elements.Media.VSM.VisualStateManager();
             new Elements.ToolTipService();
-            new Elements.Canvas();
+            new Elements.Controls.Canvas();
         }
         
         private IDictionary<AttachedPropertyDescription, object> _attachedValues = new Dictionary<AttachedPropertyDescription, object>();

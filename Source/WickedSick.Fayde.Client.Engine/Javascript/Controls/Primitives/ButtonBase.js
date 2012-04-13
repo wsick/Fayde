@@ -18,7 +18,7 @@ ButtonBase.Instance.Init = function () {
     this.SetIsTabStop(true);
 }
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return Number; }, ButtonBase, ClickMode.Release);
 ButtonBase.Instance.GetClickMode = function () {
@@ -28,7 +28,7 @@ ButtonBase.Instance.SetClickMode = function (value) {
     this.SetValue(ButtonBase.ClickModeProperty, value);
 };
 
-ButtonBase.IsPressedProperty = DependencyProperty.Register("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
+ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
 ButtonBase.Instance.GetIsPressed = function () {
 	return this.GetValue(ButtonBase.IsPressedProperty);
 };
@@ -36,7 +36,7 @@ ButtonBase.Instance.SetIsPressed = function (value) {
 	this.SetValue(ButtonBase.IsPressedProperty, value);
 };
 
-ButtonBase.IsFocusedProperty = DependencyProperty.Register("IsFocused", function () { return Boolean; }, ButtonBase, false);
+ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
 ButtonBase.Instance.GetIsFocused = function () {
     return this.GetValue(ButtonBase.IsFocusedProperty);
 };
@@ -44,7 +44,7 @@ ButtonBase.Instance.SetIsFocused = function (value) {
     this.SetValue(ButtonBase.IsFocusedProperty, value);
 };
 
-ButtonBase.IsMouseOverProperty = DependencyProperty.Register("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
+ButtonBase.IsMouseOverProperty = DependencyProperty.RegisterReadOnly("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
 ButtonBase.Instance.GetIsMouseOver = function () {
     return this.GetValue(ButtonBase.IsMouseOverProperty);
 };

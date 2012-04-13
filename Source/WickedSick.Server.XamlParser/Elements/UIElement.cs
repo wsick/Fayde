@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.TypeConverters;
 using WickedSick.Server.XamlParser.Elements.Types;
+using WickedSick.Server.XamlParser.Elements.Media;
 
 namespace WickedSick.Server.XamlParser.Elements
 {

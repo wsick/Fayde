@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace WickedSick.Server.XamlParser.Elements
+namespace WickedSick.Server.XamlParser.Elements.Media
 {
-    public class Transform: DependencyObject
+    public class Transform : DependencyObject
     {
     }
 }

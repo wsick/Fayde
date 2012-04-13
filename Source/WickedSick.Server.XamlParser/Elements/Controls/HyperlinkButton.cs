@@ -1,6 +1,7 @@
 ﻿using System;
 using WickedSick.Server.XamlParser.TypeConverters;
 using WickedSick.Server.XamlParser.Elements.Types;
+using WickedSick.Server.XamlParser.Elements.Controls.Primitives;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {

@@ -79,10 +79,10 @@ var FontStretches = {
 };
 
 var ScrollBarVisibility = {
-    Auto: 0,
-    Disabled: 1,
-    Hidden: 2,
-    Visible: 3
+	Disabled: 0,
+	Auto: 1,
+	Hidden: 2,
+	Visible: 3
 };
 
 var ClickMode = {
