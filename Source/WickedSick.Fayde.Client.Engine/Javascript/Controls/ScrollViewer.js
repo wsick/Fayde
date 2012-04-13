@@ -129,16 +129,16 @@ ScrollViewer.Instance.SetScrollInfo = function (value) {
 
 //#region Line
 
-ScrollContentPresenter.Instance.LineUp = function () {
+ScrollViewer.Instance.LineUp = function () {
     this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.SmallDecrement, 0));
 };
-ScrollContentPresenter.Instance.LineDown = function () {
+ScrollViewer.Instance.LineDown = function () {
     this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.SmallIncrement, 0));
 };
-ScrollContentPresenter.Instance.LineLeft = function () {
+ScrollViewer.Instance.LineLeft = function () {
     this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.SmallDecrement, 0));
 };
-ScrollContentPresenter.Instance.LineRight = function () {
+ScrollViewer.Instance.LineRight = function () {
     this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.SmallIncrement, 0));
 };
 
@@ -146,23 +146,23 @@ ScrollContentPresenter.Instance.LineRight = function () {
 
 //#region Page
 
-ScrollContentPresenter.Instance.PageHome = function () {
+ScrollViewer.Instance.PageHome = function () {
     this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.First, 0));
 };
-ScrollContentPresenter.Instance.PageEnd = function () {
+ScrollViewer.Instance.PageEnd = function () {
     this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.Last, 0));
 };
 
-ScrollContentPresenter.Instance.PageUp = function () {
+ScrollViewer.Instance.PageUp = function () {
     this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.LargeDecrement, 0));
 };
-ScrollContentPresenter.Instance.PageDown = function () {
+ScrollViewer.Instance.PageDown = function () {
     this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.LargeIncrement, 0));
 };
-ScrollContentPresenter.Instance.PageLeft = function () {
+ScrollViewer.Instance.PageLeft = function () {
     this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.LargeDecrement, 0));
 };
-ScrollContentPresenter.Instance.PageRight = function () {
+ScrollViewer.Instance.PageRight = function () {
     this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.LargeIncrement, 0));
 };
 
