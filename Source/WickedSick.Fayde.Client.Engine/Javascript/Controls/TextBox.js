@@ -33,31 +33,31 @@ TextBox.Instance.Init = function () {
 //#region Dependency Properties
 
 TextBox.AcceptsReturnProperty = DependencyProperty.RegisterCore("AcceptsReturn", function () { return Boolean; }, TextBox, false);
-TextBox.prototype.GetAcceptsReturn = function () {
+TextBox.Instance.GetAcceptsReturn = function () {
     ///<returns type="Boolean"></returns>
     return this.GetValue(TextBox.AcceptsReturnProperty);
 };
-TextBox.prototype.SetAcceptsReturn = function (value) {
+TextBox.Instance.SetAcceptsReturn = function (value) {
     ///<param name="value" type="Boolean"></param>
     this.SetValue(TextBox.AcceptsReturnProperty, value);
 };
 
 TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () { return Brush; }, TextBox);
-TextBox.prototype.GetCaretBrush = function () {
+TextBox.Instance.GetCaretBrush = function () {
     ///<returns type="Brush"></returns>
     return this.GetValue(TextBox.CaretBrushProperty);
 };
-TextBox.prototype.SetCaretBrush = function (value) {
+TextBox.Instance.SetCaretBrush = function (value) {
     ///<param name="value" type="Brush"></param>
     this.SetValue(TextBox.CaretBrushProperty, value);
 };
 
 TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBox, 0, null, null, null, TextBox.PositiveIntValidator);
-TextBox.prototype.GetMaxLength = function () {
+TextBox.Instance.GetMaxLength = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(TextBox.MaxLengthProperty);
 };
-TextBox.prototype.SetMaxLength = function (value) {
+TextBox.Instance.SetMaxLength = function (value) {
     ///<param name="value" type="Number"></param>
     this.SetValue(TextBox.MaxLengthProperty, value);
 };

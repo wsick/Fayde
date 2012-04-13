@@ -4,7 +4,7 @@
 //#region CollectionChangedArgs
 var CollectionChangedArgs = Nullstone.Create("CollectionChangedArgs", null, 4);
 
-CollectionChangedArgs.prototype.Init = function (action, oldValue, newValue, index) {
+CollectionChangedArgs.Instance.Init = function (action, oldValue, newValue, index) {
     this.Action = action;
     this.OldValue = oldValue;
     this.NewValue = newValue;
