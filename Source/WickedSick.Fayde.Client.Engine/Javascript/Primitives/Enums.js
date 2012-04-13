@@ -119,7 +119,7 @@ var MatrixTypes = {
     Identity: 0,
     Unknown: 1,
     Translate: 2,
-    Scale: 3,
-    Rotate: 4,
-    Shear: 5
+    Scale: 4,
+    Rotate: 8,
+    Shear: 16
 };

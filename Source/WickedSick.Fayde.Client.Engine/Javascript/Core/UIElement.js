@@ -9,6 +9,7 @@
 /// <reference path="../Media/Geometry.js"/>
 /// <reference path="../Media/Brush.js"/>
 /// <reference path="RequestBringIntoViewEventArgs.js"/>
+/// <reference path="../Media/MatrixTransform.js"/>
 
 //#region UIElement
 var UIElement = Nullstone.Create("UIElement", DependencyObject);
@@ -196,7 +197,56 @@ UIElement.Instance.IsAncestorOf = function (el) {
 };
 UIElement.Instance.TransformToVisual = function (uie) {
     /// <param name="uie" type="UIElement"></param>
-    NotImplemented("UIElement.Instance.TransformToVisual");
+    var visual = this;
+    var ok = false;
+    var surface = App.Instance.MainSurface;
+    if (this._IsAttached) {
+        while (visual != null) {
+            if (surface._IsTopLevel(visual))
+                ok = true;
+            visual = visual.GetVisualParent();
+        }
+    }
+
+    if (!ok || (uie != null && !uie._IsAttached)) {
+        throw new ArgumentException("UIElement not attached.");
+        return null;
+    }
+
+    if (uie != null && !surface._IsTopLevel(uie)) {
+        ok = false;
+        visual = uie.GetVisualParent();
+        if (visual != null && uie._IsAttached) {
+            while (visual != null) {
+                if (surface._IsTopLevel(visual))
+                    ok = true;
+                visual = visual.GetVisualParent();
+            }
+        }
+        if (!ok) {
+            throw new ArgumentException("UIElement not attached.");
+            return null;
+        }
+    }
+
+    //1. invert transform from input element to top level
+    //2. transform back down to this element
+    var result;
+    var thisProjection;
+    if (!this._CachedTransform || !(thisProjection = this._CachedTransform.Normal))
+        throw new Exception("Cannot find transform.");
+    if (uie != null) {
+        var inverse;
+        if (!uie._CachedTransform || !(inverse = uie._CachedTransform.Inverse))
+            throw new Exception("Cannot find transform.");
+        result = inverse.MultiplyMatrix(thisProjection);
+    } else {
+        result = thisProjection.Copy();
+    }
+
+    var mt = new MatrixTransform();
+    mt.SetMatrix(result);
+    return mt;
 };
 
 //#region Invalidation

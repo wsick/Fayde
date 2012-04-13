@@ -17,6 +17,100 @@ Matrix.Instance.Init = function (els, inverse) {
     this._DeriveType();
 };
 
+//#region Properties
+
+Matrix.prototype.GetM11 = function () {
+    ///<returns type="Number"></returns>
+    if (this._Type === MatrixTypes.Identity)
+        return 1;
+    return this._Elements[0];
+};
+Matrix.prototype.SetM11 = function (value) {
+    ///<param name="value" type="Number"></param>
+    if (this._Elements[0] !== value) {
+        this._Elements[0] = value;
+        this._DeriveType();
+        this._OnChanged();
+    }
+};
+
+Matrix.prototype.GetM12 = function () {
+    ///<returns type="Number"></returns>
+    if (this._Type === MatrixTypes.Identity)
+        return 0;
+    return this._Elements[1];
+};
+Matrix.prototype.SetM12 = function (value) {
+    ///<param name="value" type="Number"></param>
+    if (this._Elements[1] !== value) {
+        this._Elements[1] = value;
+        this._DeriveType();
+        this._OnChanged();
+    }
+};
+
+Matrix.prototype.GetM21 = function () {
+    ///<returns type="Number"></returns>
+    if (this._Type === MatrixTypes.Identity)
+        return 0;
+    return this._Elements[3];
+};
+Matrix.prototype.SetM21 = function (value) {
+    ///<param name="value" type="Number"></param>
+    if (this._Elements[3] !== value) {
+        this._Elements[3] = value;
+        this._DeriveType();
+        this._OnChanged();
+    }
+};
+
+Matrix.prototype.GetM22 = function () {
+    ///<returns type="Number"></returns>
+    if (this._Type === MatrixTypes.Identity)
+        return 1;
+    return this._Elements[4];
+};
+Matrix.prototype.SetM22 = function (value) {
+    ///<param name="value" type="Number"></param>
+    if (this._Elements[4] !== value) {
+        this._Elements[4] = value;
+        this._DeriveType();
+        this._OnChanged();
+    }
+};
+
+Matrix.prototype.GetOffsetX = function () {
+    ///<returns type="Number"></returns>
+    if (this._Type === MatrixTypes.Identity)
+        return 0;
+    return this._Elements[2];
+};
+Matrix.prototype.SetOffsetX = function (value) {
+    ///<param name="value" type="Number"></param>
+    if (this._Elements[2] !== value) {
+        this._Elements[2] = value;
+        this._DeriveType();
+        this._OnChanged();
+    }
+};
+
+Matrix.prototype.GetOffsetY = function () {
+    ///<returns type="Number"></returns>
+    if (this._Type === MatrixTypes.Identity)
+        return 0;
+    return this._Elements[5];
+};
+Matrix.prototype.SetOffsetY = function (value) {
+    ///<param name="value" type="Number"></param>
+    if (this._Elements[5] !== value) {
+        this._Elements[5] = value;
+        this._DeriveType();
+        this._OnChanged();
+    }
+};
+
+//#endregion
+
 Matrix.Instance.GetInverse = function () {
     if (this._Type === MatrixTypes.Identity)
         return new Matrix();
@@ -78,6 +172,7 @@ Matrix.Instance.MultiplyPoint = function (val) {
 Matrix.Instance.Copy = function () {
     return new Matrix(this._Elements.slice(0));
 };
+
 Matrix.Instance.toString = function () {
     var t = new String();
     t += "[\n";
@@ -111,6 +206,10 @@ Matrix.Instance._DeriveType = function () {
     } else {
         this._Type = MatrixTypes.Unknown;
     }
+};
+Matrix.Instance._OnChanged = function () {
+    if (this._ChangedCallback)
+        this._ChangedCallback();
 };
 
 Matrix.Translate = function (matrix, x, y) {
@@ -168,6 +267,8 @@ Matrix.GetDeterminant = function (arr) {
     return (arr[0] * arr[4]) - (arr[1] * arr[3]);
 };
 
+//#region Factory
+
 Matrix.CreateTranslate = function (x, y) {
     /// <returns type="Matrix" />
     if (x == null) x = 0;
@@ -197,6 +298,8 @@ Matrix.CreateShear = function (x, y) {
     if (y == null) y = 0;
     return new Matrix([1, x, 0, y, 1, 0], [1, -x, 0, -y, 1, 0]);
 };
+
+//#endregion
 
 Nullstone.FinishCreate(Matrix);
 //#endregion

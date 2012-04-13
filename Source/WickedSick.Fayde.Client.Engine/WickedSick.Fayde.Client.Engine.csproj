@@ -94,6 +94,9 @@
     <Content Include="Javascript\Controls\TextBoxBase.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Engine\FocusManager.js" />
+    <Content Include="Javascript\Media\GeneralTransform.js" />
+    <Content Include="Javascript\Media\MatrixTransform.js" />
+    <Content Include="Javascript\Media\Transform.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
     <Content Include="Javascript\Runtime\RoutedPropertyChangedEventArgs.js" />
