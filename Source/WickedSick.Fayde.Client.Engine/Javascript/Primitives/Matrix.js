@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
+/// <reference path="Enums.js"/>
 
 //#region Matrix
 var Matrix = Nullstone.Create("Matrix", null, 2);
@@ -8,34 +9,49 @@ Matrix.Instance.Init = function (els, inverse) {
     this._IsCustom = true;
     if (els === undefined) {
         this._Elements = [1, 0, 0, 0, 1, 0];
-        this._Identity = true;
+        this._Type = MatrixTypes.Identity;
         return;
     }
     this._Elements = els;
     this._Inverse = inverse;
-    this._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
-        && els[3] === 0 && els[4] === 1 && els[5] === 0;
+    this._DeriveType();
 };
 
 Matrix.Instance.GetInverse = function () {
-    if (this._Identity)
+    if (this._Type === MatrixTypes.Identity)
         return new Matrix();
     if (!this._Inverse)
         this._Inverse = Matrix.BuildInverse(this._Elements);
+    if (this._Inverse == null)
+        return null;
     return new Matrix(this._Inverse, this._Elements);
 };
 Matrix.Instance.Apply = function (ctx) {
-    if (this._Identity)
+    if (this._Type === MatrixTypes.Identity)
         return;
     var els = this._Elements;
-    ctx.transform(els[0], els[3], els[1], els[4], els[2], els[5]);
+    switch (this._Type) {
+        case MatrixTypes.Translate:
+            ctx.translate(els[2], els[5]);
+            break;
+        case MatrixTypes.Scale:
+            ctx.scale(els[0], els[4]);
+            break;
+        case MatrixTypes.Rotate:
+            ctx.rotate(this._Angle);
+            break;
+        default:
+            ctx.transform(els[0], els[3], els[1], els[4], els[2], els[5]);
+            break;
+    }
 };
 Matrix.Instance.MultiplyMatrix = function (val) {
-    if (this._Identity === true && val._Identity === true)
-        return new Matrix();
-    if (this._Identity === true)
+    if (this._Type === MatrixTypes.Identity) {
+        if (val._Type === MatrixTypes.Identity)
+            return new Matrix();
         return new Matrix(val._Elements.slice(0));
-    if (val._Identity === true)
+    }
+    if (val._Type === MatrixTypes.Identity)
         return new Matrix(this._Elements.slice(0));
 
     var e1 = this._Elements;
@@ -80,28 +96,37 @@ Matrix.Instance.toString = function () {
     return t;
 };
 
+Matrix.Instance._DeriveType = function () {
+    this._Angle = undefined;
+    var els = this._Elements;
+    if (els[1] === 0 && els[3] === 0) {
+        if (els[0] === 1 && els[4] === 1) {
+            if (els[2] === 0 && els[5] === 0)
+                this._Type = MatrixTypes.Identity;
+            else
+                this._Type = MatrixTypes.Translate;
+        } else {
+            this._Type = MatrixTypes.Scale;
+        }
+    } else {
+        this._Type = MatrixTypes.Unknown;
+    }
+};
+
 Matrix.Translate = function (matrix, x, y) {
     /// <param name="matrix" type="Matrix"></param>
     /// <param name="x" type="Number"></param>
     /// <param name="y" type="Number"></param>
     /// <returns type="Matrix" />
     if (x === 0 && y === 0)
-        return this;
+        return matrix;
 
     var els = matrix._Elements;
-    if (!matrix._IsCustom) {
-        return new Matrix([
-            els[0], els[1], els[2] + x,
-            els[3], els[4], els[5] + y
-        ]);
-    }
-
     els[2] += x;
     els[5] += y;
 
     matrix._Inverse = undefined;
-    matrix._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
-        && els[3] === 0 && els[4] === 1 && els[5] === 0;
+    matrix._DeriveType();
     return matrix;
 };
 Matrix.Scale = function (matrix, scaleX, scaleY) {
@@ -113,21 +138,13 @@ Matrix.Scale = function (matrix, scaleX, scaleY) {
         return matrix;
 
     var els = matrix._Elements;
-    if (!matrix._IsCustom) {
-        return new Matrix([
-            els[0] * scaleX, els[1] * scaleY, els[2],
-            els[3] * scaleX, els[4] * scaleY, els[5]
-        ]);
-    }
-
     els[0] *= scaleX;
     els[3] *= scaleX;
     els[1] *= scaleY;
     els[4] *= scaleY;
 
     matrix._Inverse = undefined;
-    matrix._Identity = els[0] === 1 && els[1] === 0 && els[2] === 0
-        && els[3] === 0 && els[4] === 1 && els[5] === 0;
+    matrix._DeriveType();
     return matrix;
 };
 
@@ -151,86 +168,35 @@ Matrix.GetDeterminant = function (arr) {
     return (arr[0] * arr[4]) - (arr[1] * arr[3]);
 };
 
+Matrix.CreateTranslate = function (x, y) {
+    /// <returns type="Matrix" />
+    if (x == null) x = 0;
+    if (y == null) y = 0;
+    return new Matrix([1, 0, x, 0, 1, y], [1, 0, -x, 0, 1, -y]);
+};
+Matrix.CreateScale = function (x, y) {
+    /// <returns type="Matrix" />
+    if (x == null) x = 1;
+    if (y == null) y = 1;
+    var ix = x === 0 ? 0 : 1 / x;
+    var iy = y === 0 ? 0 : 1 / y;
+    return new Matrix([x, 0, 0, 0, y, 0], [ix, 0, 0, 0, iy, 0]);
+};
+Matrix.CreateRotate = function (angleRad) {
+    /// <returns type="Matrix" />
+    if (angleRad == null)
+        return new Matrix();
+    var mt = new Matrix([Math.cos(this.Angle), -1 * Math.sin(this.Angle), 0, Math.sin(this.Angle), Math.cos(this.Angle), 0]);
+    mt._Type = MatrixTypes.Rotate;
+    mt._Angle = angleRad;
+    return mt;
+};
+Matrix.CreateShear = function (x, y) {
+    /// <returns type="Matrix" />
+    if (x == null) x = 0;
+    if (y == null) y = 0;
+    return new Matrix([1, x, 0, y, 1, 0], [1, -x, 0, -y, 1, 0]);
+};
+
 Nullstone.FinishCreate(Matrix);
-//#endregion
-
-//#region TranslationMatrix
-var TranslationMatrix = Nullstone.Create("TranslationMatrix", Matrix, 2);
-
-TranslationMatrix.Instance.Init = function (x, y) {
-    if (!x) x = 0;
-    if (!y) y = 0;
-    this._Elements = [1, 0, x, 0, 1, y];
-    this._Identity = (x === 0 && y === 0);
-};
-
-TranslationMatrix.Instance.GetInverse = function () {
-    return new TranslationMatrix(-this._Elements[2], -this._Elements[5]);
-};
-TranslationMatrix.Instance.Apply = function (ctx) {
-    if (this._Identity)
-        return;
-    ctx.translate(this._Elements[2], this._Elements[5]);
-};
-
-Nullstone.FinishCreate(TranslationMatrix);
-//#endregion
-
-//#region RotationMatrix
-var RotationMatrix = Nullstone.Create("RotationMatrix", Matrix, 1);
-
-RotationMatrix.Instance.Init = function (angleRad) {
-    this.Angle = angleRad == null ? 0 : angleRad;
-    this._Elements = [Math.cos(this.Angle), -1 * Math.sin(this.Angle), 0, Math.sin(this.Angle), Math.cos(this.Angle), 0];
-    this._Identity = angleRad === 0;
-};
-
-RotationMatrix.Instance.GetInverse = function () {
-    return new RotationMatrix(-this.Angle);
-};
-RotationMatrix.Instance.Apply = function (ctx) {
-    if (this._Identity)
-        return;
-    ctx.rotate(this.Angle);
-};
-
-Nullstone.FinishCreate(RotationMatrix);
-//#endregion
-
-//#region ScalingMatrix
-var ScalingMatrix = Nullstone.Create("ScalingMatrix", Matrix, 2);
-
-ScalingMatrix.Instance.Init = function (x, y) {
-    if (!x) x = 0;
-    if (!y) y = 0;
-    this._Elements = [x, 0, 0, 0, y, 0];
-    this._Identity = (x === 1 && y === 1);
-};
-ScalingMatrix.Instance.GetInverse = function () {
-    return new ScalingMatrix(-this._Elements[0], -this._Elements[4]);
-};
-ScalingMatrix.Instance.Apply = function (ctx) {
-    if (this._Identity)
-        return;
-    ctx.scale(this._Elements[0], this._Elements[4]);
-};
-
-Nullstone.FinishCreate(ScalingMatrix);
-//#endregion
-
-//#region ShearingMatrix
-var ShearingMatrix = Nullstone.Create("ShearingMatrix", Matrix, 2);
-
-ShearingMatrix.Instance.Init = function (x, y) {
-    if (!x) x = 0;
-    if (!y) y = 0;
-    this._Elements = [1, x, 0, y, 1, 0];
-    this._Identity = (x === 0 && y === 0);
-};
-
-ShearingMatrix.Instance.GetInverse = function () {
-    return new ShearingMatrix(-this._Elements[1], -this._Elements[3]);
-};
-
-Nullstone.FinishCreate(ShearingMatrix);
 //#endregion

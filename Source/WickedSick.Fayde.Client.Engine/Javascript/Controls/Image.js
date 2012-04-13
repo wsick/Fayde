@@ -291,7 +291,7 @@ Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, al
         sy = 1.0;
 
     if (stretch === Stretch.Fill) {
-        return new ScalingMatrix(sx, sy);
+        return new Matrix.CreateScale(sx, sy);
     }
 
     var scale = 1.0;

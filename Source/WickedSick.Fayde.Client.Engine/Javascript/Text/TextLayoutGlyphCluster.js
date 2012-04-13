@@ -15,7 +15,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
         return;
     var font = attrs.GetFont();
     var y0 = font._Ascender();
-    ctx.Transform(new TranslationMatrix(x, y - y0));
+    ctx.Transform(Matrix.CreateTranslate(x, y - y0));
 
     var brush;
     var area;

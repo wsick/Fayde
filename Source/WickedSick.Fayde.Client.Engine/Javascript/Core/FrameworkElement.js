@@ -431,7 +431,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     else
     flipHoriz = this.GetFlowDirection() == FlowDirection.RightToLeft;
 
-    var layoutXform = Matrix.BuildIdentity();
+    var layoutXform = new Matrix();
     layoutXform = layoutXform.Translate(childRect.X, childRect.Y);
     if (flipHoriz)  {
     layoutXform = layoutXform.Translate(offer.Width, 0);
@@ -618,14 +618,14 @@ FrameworkElement.Instance._RenderLayoutClip = function (ctx) {
             break;
         var visualOffset = LayoutInformation.GetVisualOffset(element);
         if (visualOffset) {
-            ctx.Transform(new TranslationMatrix(-visualOffset.X, -visualOffset.Y));
+            ctx.Transform(Matrix.CreateTranslate(-visualOffset.X, -visualOffset.Y));
             iX += visualOffset.X;
             iY += visualOffset.Y;
         }
 
         element = element.GetVisualParent();
     }
-    ctx.Transform(new TranslationMatrix(iX, iY));
+    ctx.Transform(Matrix.CreateTranslate(iX, iY));
 };
 
 FrameworkElement.Instance._ElementRemoved = function (value) {

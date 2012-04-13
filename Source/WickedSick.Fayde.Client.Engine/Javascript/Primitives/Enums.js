@@ -113,4 +113,13 @@ var RectOverlap = {
     Out: 0,
     In: 1,
     Part: 2
-}
+};
+
+var MatrixTypes = {
+    Identity: 0,
+    Unknown: 1,
+    Translate: 2,
+    Scale: 3,
+    Rotate: 4,
+    Shear: 5
+};

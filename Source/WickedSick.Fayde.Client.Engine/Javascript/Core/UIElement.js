@@ -167,8 +167,16 @@ UIElement.Instance.SetTag = function (value) {
 
 //#endregion
 
-//#region Instance Methods
+UIElement.Instance.BringIntoView = function (rect) {
+    if (rect == null) rect = new Rect();
+    var args = new RequestBringIntoViewEventArgs(this, rect);
 
+    var cur = this;
+    while (cur != null && !args.Handled) {
+        cur.RequestBringIntoView.Raise(this, args);
+        cur = VisualTreeHelper.GetParent(cur);
+    }
+};
 UIElement.Instance.SetVisualParent = function (value) {
     /// <param name="value" type="UIElement"></param>
     this._VisualParent = value;
@@ -185,6 +193,10 @@ UIElement.Instance.IsAncestorOf = function (el) {
     while (parent != null && !Nullstone.RefEquals(parent, this))
         parent = VisualTreeHelper.GetParent(parent);
     return Nullstone.RefEquals(parent, this);
+};
+UIElement.Instance.TransformToVisual = function (uie) {
+    /// <param name="uie" type="UIElement"></param>
+    NotImplemented("UIElement.Instance.TransformToVisual");
 };
 
 //#region Invalidation
@@ -267,6 +279,29 @@ UIElement.Instance._ComputeLocalTransform = function () {
 };
 UIElement.Instance._ComputeLocalProjection = function () {
     //NotImplemented("UIElement._ComputeLocalProjection");
+};
+UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
+    var clip = this.GetClip();
+    var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);
+    var box;
+
+    if (!clip && !layoutClip)
+        return unclipped;
+    if (clip)
+        box = clip.GetBounds();
+    else
+        box = layoutClip.GetBounds();
+
+    if (layoutClip)
+        box = box.Intersection(layoutClip.GetBounds());
+
+    if (!this._GetRenderVisible())
+        box = new Rect(0, 0, 0, 0);
+
+    //if (transform)
+    //    box = box.Transform(this._AbsoluteTransform);
+
+    return box.Intersection(unclipped);
 };
 
 //#endregion
@@ -351,12 +386,6 @@ UIElement.Instance._InsideClip = function (ctx, x, y) {
 
     return ctx.IsPointInClipPath(clip, np);
 };
-UIElement.Instance._CanFindElement = function () {
-    return false;
-};
-
-//#endregion
-
 UIElement.Instance._TransformPoint = function (p) {
     /// <param name="p" type="Point"></param>
     var inverse;
@@ -366,6 +395,13 @@ UIElement.Instance._TransformPoint = function (p) {
     p.X = np.X;
     p.Y = np.Y;
 };
+UIElement.Instance._CanFindElement = function () {
+    return false;
+};
+
+//#endregion
+
+//#region Measurements
 
 UIElement.Instance._GetGlobalBounds = function () {
     return this._GlobalBounds;
@@ -395,6 +431,8 @@ UIElement.Instance._GetRenderSize = function () {
 UIElement.Instance._GetOriginPoint = function () {
     return new Point(0.0, 0.0);
 };
+
+//#endregion
 
 //#region Measure
 
@@ -503,7 +541,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     var visualOffset = LayoutInformation.GetVisualOffset(this);
     ctx.Save();
     if (visualOffset.X !== 0 || visualOffset.Y !== 0)
-        ctx.Transform(new TranslationMatrix(visualOffset.X, visualOffset.Y));
+        ctx.Transform(Matrix.CreateTranslate(visualOffset.X, visualOffset.Y));
     this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
     this._Render(ctx, region);
@@ -520,74 +558,6 @@ UIElement.Instance._PostRender = function (ctx, region) {
 };
 
 //#endregion
-
-UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
-    var clip = this.GetClip();
-    var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);
-    var box;
-
-    if (!clip && !layoutClip)
-        return unclipped;
-    if (clip)
-        box = clip.GetBounds();
-    else
-        box = layoutClip.GetBounds();
-
-    if (layoutClip)
-        box = box.Intersection(layoutClip.GetBounds());
-
-    if (!this._GetRenderVisible())
-        box = new Rect(0, 0, 0, 0);
-
-    //if (transform)
-    //    box = box.Transform(this._AbsoluteTransform);
-
-    return box.Intersection(unclipped);
-};
-UIElement.Instance._ElementRemoved = function (item) {
-    this._Invalidate(item._GetSubtreeBounds());
-    item.SetVisualParent(null);
-    item._SetIsLoaded(false);
-    item._SetIsAttached(false);
-    item.SetMentor(null);
-
-    var emptySlot = new Rect();
-    LayoutInformation.SetLayoutSlot(item, emptySlot);
-    item.ClearValue(LayoutInformation.LayoutClipProperty);
-
-    this._InvalidateMeasure();
-
-    this._Providers[_PropertyPrecedence.Inherited].ClearInheritedPropertiesOnRemovingFromTree(item);
-}
-UIElement.Instance._ElementAdded = function (item) {
-    item.SetVisualParent(this);
-    item._UpdateTotalRenderVisibility();
-    item._UpdateTotalHitTestVisibility();
-    item._Invalidate();
-
-    this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(item);
-    item._SetIsAttached(this._IsAttached);
-    item._SetIsLoaded(this._IsLoaded);
-    var o = this;
-    while (o != null && !(o instanceof FrameworkElement))
-        o = o.GetMentor();
-    item.SetMentor(o);
-
-    this._UpdateBounds(true);
-
-    this._InvalidateMeasure();
-    this.ClearValue(LayoutInformation.LayoutClipProperty);
-    this.ClearValue(LayoutInformation.PreviousConstraintProperty);
-    item._SetRenderSize(new Size(0, 0));
-    item._UpdateTransform();
-    item._UpdateProjection();
-    item._InvalidateMeasure();
-    item._InvalidateArrange();
-    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
-        item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
-}
-UIElement.Instance._UpdateLayer = function (pass, error) {
-};
 
 //#region Loaded
 
@@ -633,6 +603,8 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
 
 //#endregion
 
+//#region Visual State Changes
+
 UIElement.Instance._OnIsAttachedChanged = function (value) {
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
@@ -655,7 +627,55 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
 UIElement.Instance._OnInvalidated = function () {
     this.Invalidated.Raise(this, null);
 };
+UIElement.Instance._ElementRemoved = function (item) {
+    this._Invalidate(item._GetSubtreeBounds());
+    item.SetVisualParent(null);
+    item._SetIsLoaded(false);
+    item._SetIsAttached(false);
+    item.SetMentor(null);
 
+    var emptySlot = new Rect();
+    LayoutInformation.SetLayoutSlot(item, emptySlot);
+    item.ClearValue(LayoutInformation.LayoutClipProperty);
+
+    this._InvalidateMeasure();
+
+    this._Providers[_PropertyPrecedence.Inherited].ClearInheritedPropertiesOnRemovingFromTree(item);
+}
+UIElement.Instance._ElementAdded = function (item) {
+    item.SetVisualParent(this);
+    item._UpdateTotalRenderVisibility();
+    item._UpdateTotalHitTestVisibility();
+    item._Invalidate();
+
+    this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(item);
+    item._SetIsAttached(this._IsAttached);
+    item._SetIsLoaded(this._IsLoaded);
+    var o = this;
+    while (o != null && !(o instanceof FrameworkElement))
+        o = o.GetMentor();
+    item.SetMentor(o);
+
+    this._UpdateBounds(true);
+
+    this._InvalidateMeasure();
+    this.ClearValue(LayoutInformation.LayoutClipProperty);
+    this.ClearValue(LayoutInformation.PreviousConstraintProperty);
+    item._SetRenderSize(new Size(0, 0));
+    item._UpdateTransform();
+    item._UpdateProjection();
+    item._InvalidateMeasure();
+    item._InvalidateArrange();
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+        item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
+}
+
+//#endregion
+
+//#region Dirty Updates
+
+UIElement.Instance._UpdateLayer = function (pass, error) {
+};
 UIElement.Instance._HasFlag = function (flag) { return (this._Flags & flag) == flag; };
 UIElement.Instance._ClearFlag = function (flag) { this._Flags &= ~flag; };
 UIElement.Instance._SetFlag = function (flag) { this._Flags |= flag; };
@@ -685,6 +705,8 @@ UIElement.Instance.__DebugDirtyFlags = function () {
     return t;
 };
 
+//#endregion
+
 //#region Property Changed
 
 UIElement.Instance._OnPropertyChanged = function (args, error) {
@@ -713,19 +735,6 @@ UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 };
 
 //#endregion
-
-//#endregion
-
-UIElement.Instance.BringIntoView = function (rect) {
-    if (rect == null) rect = new Rect();
-    var args = new RequestBringIntoViewEventArgs(this, rect);
-
-    var cur = this;
-    while (cur != null && !args.Handled) {
-        cur.RequestBringIntoView.Raise(this, args);
-        cur = VisualTreeHelper.GetParent(cur);
-    }
-};
 
 //#region Mouse
 

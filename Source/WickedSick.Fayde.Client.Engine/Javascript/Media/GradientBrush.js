@@ -11,7 +11,7 @@ GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
     /// <returns type="Matrix" />
     if (this.GetMappingMode() === BrushMappingMode.Absolute)
         return new Matrix();
-    return new ScalingMatrix(bounds.Width, bounds.Height);
+    return new Matrix.CreateScale(bounds.Width, bounds.Height);
 };
 
 //#region Dependency Properties
