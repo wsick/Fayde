@@ -142,7 +142,7 @@
     <Compile Include="Elements\FrameworkElement.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\GradientStop.cs">
+    <Compile Include="Elements\Media\GradientStop.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Grid.cs">
