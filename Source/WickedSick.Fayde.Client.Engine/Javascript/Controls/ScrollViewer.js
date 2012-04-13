@@ -384,7 +384,6 @@ ScrollViewer.Instance.OnApplyTemplate = function () {
     if (this.$ElementVerticalScrollBar != null) {
         this.$ElementVerticalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Vertical, e); }, this);
     }
-    this._UpdateScrollBarVisibility();
 };
 
 ScrollViewer.Instance.MakeVisible = function (uie, targetRect) {
@@ -430,11 +429,11 @@ ScrollViewer.Instance.MeasureOverride = function (constraint) {
         this.$InMeasure = true;
         if (this.$ScrollVisibilityY !== visibility) {
             this.$ScrollVisibilityY = visibility;
-            this.SetComputedVerticalScrollBarVisibility(this.$ScrollVisibilityY);
+            this._SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, this.$ScrollVisibilityY);
         }
         if (this.$ScrollVisibilityX !== visibility1) {
             this.$ScrollVisibilityX = visibility1;
-            this.SetComputedHorizontalScrollBarVisibility(this.$ScrollVisibilityX);
+            this._SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, this.$ScrollVisibilityX);
         }
         if (scrollInfo != null) {
             scrollInfo.SetCanHorizontallyScroll(horizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
@@ -447,11 +446,11 @@ ScrollViewer.Instance.MeasureOverride = function (constraint) {
 
             if (flag4 && this.$ScrollVisibilityX !== Visibility.Visible) {
                 this.$ScrollVisibilityX = Visibility.Visible;
-                this.SetComputedHorizontalScrollBarVisibility(this.$ScrollVisibilityX);
+                this._SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, this.$ScrollVisibilityX);
             }
             if (flag5 && this.$ScrollVisibilityY !== Visibility.Visible) {
                 this.$ScrollVisibilityY = Visibility.Visible;
-                this.SetComputedVerticalScrollBarVisibility(this.$ScrollVisibilityY);
+                this._SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, this.$ScrollVisibilityY);
             }
             if (flag4 || flag5) {
                 this.$InChildInvalidateMeasure = true;
@@ -464,12 +463,12 @@ ScrollViewer.Instance.MeasureOverride = function (constraint) {
                 if (!flag6) {
                     if (flag7 && this.$ScrollVisibilityY !== Visibility.Visible) {
                         this.$ScrollVisibilityY = Visibility.Visible;
-                        this.SetComputedVerticalScrollBarVisibility(this.$ScrollVisibilityY);
+                        this._SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, this.$ScrollVisibilityY);
                     }
                 } else {
                     if (this.$ScrollVisibilityX !== Visibility.Visible) {
                         this.$ScrollVisibilityX = Visibility.Visible;
-                        this.SetComputedHorizontalScrollBarVisibility(this.$ScrollVisibilityX);
+                        this._SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, this.$ScrollVisibilityX);
                     }
                 }
                 if (flag6 || flag7) {
