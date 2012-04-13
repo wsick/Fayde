@@ -103,6 +103,7 @@
     <Content Include="Javascript\Runtime\Timer.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
+    <Content Include="Javascript\Shapes\Path.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />
     <Content Include="Javascript\Shapes\Shape.js" />
     <Content Include="Javascript\Text\History\TextBoxUndoAction.js" />
@@ -290,10 +291,14 @@
     <Content Include="Silo\silo3.html" />
     <Content Include="Silverlight.js" />
     <Content Include="Styles\HyperlinkButton.xml" />
+    <Content Include="Styles\RepeatButton.xml" />
+    <Content Include="Styles\ScrollBar.xml" />
+    <Content Include="Styles\ScrollViewer.xml" />
     <Content Include="Styles\TextBox.xml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Styles\Button.xml" />
+    <Content Include="Styles\Thumb.xml" />
     <Content Include="Tests\heightTest.htm" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
