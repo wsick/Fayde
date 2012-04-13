@@ -11,19 +11,19 @@
             <RowDefinition Height="400" />
         </Grid.RowDefinitions>
         <Grid>
-            <Image Stretch="None" Source="testing.jpg" />
+            <Image Stretch="None" Source="/WickedSick.LitmusTests;component/testing.jpg" />
             <TextBlock Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Text="None" />
         </Grid>
         <Grid Grid.Column="1">
-            <Image Stretch="Fill" Source="testing.jpg" />
+            <Image Stretch="Fill" Source="/WickedSick.LitmusTests;component/testing.jpg" />
             <TextBlock Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Fill" />
         </Grid>
         <Grid Grid.Row="1">
-            <Image Stretch="Uniform" Source="testing.jpg" />
+            <Image Stretch="Uniform" Source="/WickedSick.LitmusTests;component/testing.jpg" />
             <TextBlock Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Uniform" />
         </Grid>
         <Grid Grid.Row="1" Grid.Column="1">
-            <Image Stretch="UniformToFill" Source="testing.jpg" />
+            <Image Stretch="UniformToFill" Source="/WickedSick.LitmusTests;component/testing.jpg" />
             <TextBlock Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Text="UniformToFill" />
         </Grid>
     </Grid>

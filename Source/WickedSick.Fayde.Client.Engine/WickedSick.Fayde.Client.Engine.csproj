@@ -321,6 +321,7 @@
     <None Include="Tests\imaging.fayde">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Tests\scrollviewer.fayde" />
     <None Include="Tests\shapes.fayde" />
     <None Include="Tests\smoke.fayde">
       <SubType>Designer</SubType>

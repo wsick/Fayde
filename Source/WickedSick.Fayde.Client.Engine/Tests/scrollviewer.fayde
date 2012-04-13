@@ -1,0 +1,9 @@
+﻿<Page xmlns="http://schemas.wsick.com/fayde/"
+      xmlns:x="http://schemas.wsick.com"
+      Title="Fayde Home">
+    <Grid>
+        <ScrollViewer Width="300" Height="300">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="../Images/testing.jpg" />
+        </ScrollViewer>
+    </Grid>
+</Page>
