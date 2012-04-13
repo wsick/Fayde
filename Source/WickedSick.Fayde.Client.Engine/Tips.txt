@@ -1,0 +1,7 @@
+﻿Converters:
+	- Example: 
+		Setter -> SomeClass.Instance.SetSomething = function(value) { this.SetValue(SomethingProperty, value); };
+		Converter -> SomeClass.Instance.SetSomething.Converter = function(value) { ... };
+	
+PropertyChanged args:
+	Property, OldValue, NewValue

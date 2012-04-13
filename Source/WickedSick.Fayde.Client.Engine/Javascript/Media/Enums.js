@@ -34,3 +34,8 @@ var PenLineJoin = {
     Bevel: 1,
     Round: 2
 };
+
+var SweepDirection = {
+    Counterclockwise: 0,
+    Clockwise: 1
+};

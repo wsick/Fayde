@@ -27,7 +27,7 @@ DependencyObject.Instance.Init = function () {
     this._SubPropertyListeners = [];
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 DependencyObject.Instance.GetName = function () {
@@ -39,7 +39,7 @@ DependencyObject.Instance.SetName = function (value) {
 
 //#endregion
 
-//#region PROPERTIES
+//#region Properties
 
 DependencyObject.Instance.GetTemplateOwner = function () {
     return this._TemplateOwner;

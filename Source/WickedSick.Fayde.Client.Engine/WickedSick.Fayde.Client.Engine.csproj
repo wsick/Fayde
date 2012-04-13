@@ -94,8 +94,14 @@
     <Content Include="Javascript\Controls\TextBoxBase.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Engine\FocusManager.js" />
+    <Content Include="Javascript\Media\ArcSegment.js" />
     <Content Include="Javascript\Media\GeneralTransform.js" />
     <Content Include="Javascript\Media\MatrixTransform.js" />
+    <Content Include="Javascript\Media\PathFigure.js" />
+    <Content Include="Javascript\Media\PathFigureCollection.js" />
+    <Content Include="Javascript\Media\PathGeometry.js" />
+    <Content Include="Javascript\Media\PathSegment.js" />
+    <Content Include="Javascript\Media\PathSegmentCollection.js" />
     <Content Include="Javascript\Media\Transform.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
@@ -300,6 +306,7 @@
     <Content Include="Styles\Button.xml" />
     <Content Include="Styles\Thumb.xml" />
     <Content Include="Tests\heightTest.htm" />
+    <Content Include="Tips.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

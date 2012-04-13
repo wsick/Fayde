@@ -568,9 +568,11 @@ Shape.Instance._DrawPath = function (ctx) {
             case PathEntryType.ArcTo:
                 canvasCtx.arcTo(p.x1, p.y1, p.x2, p.y2, p.radius);
                 break;
+            case PathEntryType.Close:
+                canvasCtx.closePath();
+                break;
         }
     }
-    canvasCtx.closePath();
 };
 
 //#region Property Changed

@@ -27,11 +27,11 @@
       </Literal>
     </Declarations>
     <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.Register("$name$", function() { return $type$; }, $owner$);
-$owner$.prototype.Get$name$ = function () {
+$owner$.Instance.Get$name$ = function () {
 	///<returns type="$type$"></returns>
 	return this.GetValue($owner$.$name$Property);
 };
-$owner$.prototype.Set$name$ = function (value) {
+$owner$.Instance.Set$name$ = function (value) {
 	///<param name="value" type="$type$"></param>
 	this.SetValue($owner$.$name$Property, value);
 };$end$]]></Code>
