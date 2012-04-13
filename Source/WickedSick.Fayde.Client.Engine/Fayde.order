@@ -1,4 +1,5 @@
 Controls/Enums.js
+Controls/Primitives/Enums.js
 Controls/Primitives/Selector.js
 Core/Enums.js
 Core/PropertyValueProviders/Enums.js
@@ -8,11 +9,13 @@ Engine/FocusManager.js
 Media/Enums.js
 Primitives/Enums.js
 Runtime/JsEx.js
+Runtime/Utils.js
 Shapes/Enums.js
 Text/Enums.js
 Runtime/Nullstone.js
 Runtime/PropertyInfo.js
 Runtime/RoutedEvent.js
+Runtime/Timer.js
 Text/LayoutWord.js
 Text/TextBuffer.js
 Text/TextLayout.js
@@ -24,6 +27,7 @@ Text/History/TextBoxUndoStack.js
 Controls/GridLength.js
 Controls/TextBoxModelChangedEventArgs.js
 Controls/Primitives/IScrollInfo.js
+Controls/Primitives/ScrollData.js
 Core/BindingOperations.js
 Core/Core.js
 Core/DeepStyleWalker.js
@@ -81,14 +85,20 @@ Runtime/LinkedListNode.js
 Runtime/MulticastEvent.js
 Runtime/NotImplementedException.js
 Runtime/RoutedEventArgs.js
+Runtime/RoutedPropertyChangedEventArgs.js
 Text/TextLayoutAttributes.js
 Text/History/TextBoxUndoAction.js
 Text/History/TextBoxUndoActionDelete.js
 Text/History/TextBoxUndoActionInsert.js
 Text/History/TextBoxUndoActionReplace.js
+Controls/Primitives/DragCompletedEventArgs.js
+Controls/Primitives/DragDeltaEventArgs.js
+Controls/Primitives/DragStartedEventArgs.js
+Controls/Primitives/ScrollEventArgs.js
 Core/FrameworkElementPropertyValueProvider.js
 Core/LayoutInformation.js
 Core/LayoutPass.js
+Core/RequestBringIntoViewEventArgs.js
 Core/UIElementNode.js
 Core/PropertyValueProviders/AutoCreatePropertyValueProvider.js
 Core/PropertyValueProviders/DefaultValuePropertyValueProvider.js
@@ -131,6 +141,7 @@ Documents/TextElement.js
 Documents/TextElementCollection.js
 Engine/App.js
 Media/Brush.js
+Media/GeneralTransform.js
 Media/Geometry.js
 Media/GradientBrush.js
 Media/GradientStop.js
@@ -141,6 +152,7 @@ Media/RadialGradientBrush.js
 Media/RectangleGeometry.js
 Media/SolidColorBrush.js
 Media/TileBrush.js
+Media/Transform.js
 Media/Animation/KeyFrame.js
 Media/Animation/KeyFrameCollection.js
 Media/Animation/ObjectKeyFrame.js
@@ -172,6 +184,7 @@ Documents/Run.js
 Documents/Section.js
 Documents/Span.js
 Media/ImageBrush.js
+Media/MatrixTransform.js
 Media/Animation/Animation.js
 Media/Animation/ColorAnimation.js
 Media/Animation/DiscreteObjectKeyFrame.js
