@@ -233,7 +233,7 @@ Matrix.Scale = function (matrix, scaleX, scaleY) {
     /// <param name="scaleX" type="Number"></param>
     /// <param name="scaleY" type="Number"></param>
     /// <returns type="Matrix" />
-    if (x === 1 && y === 1)
+    if (scaleX === 1 && scaleY === 1)
         return matrix;
 
     var els = matrix._Elements;
