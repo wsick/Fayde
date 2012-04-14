@@ -73,23 +73,25 @@ Fayde._GeometryParser.prototype.ParseImpl = function () {
         while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
             this.index++;
         }
+        this.index++
         var relative = false;
         switch (c) {
             case 'f':
             case 'F':
+                c = this.str.charAt(this.index);
                 if (c === '0')
                     fillRule = FillRule.EvenOdd;
                 else if (c === '1')
                     fillRule = FillRule.Nonzero;
                 else
                     return null;
-                this.index++;
+                this.index++
                 c = this.str.charAt(this.index);
                 break;
             case 'm':
                 relative = true;
             case 'M':
-                cp1 = Geometry._ParsePoint(this);
+                cp1 = this.ParsePoint(this);
                 if (cp1 == null)
                     break;
                 if (relative) {
@@ -358,7 +360,7 @@ Fayde._GeometryParser.prototype.ParseImpl = function () {
 };
 Fayde._GeometryParser.prototype.ParsePoint = function () {
     /// <returns type="Point" />
-    var x = Geometry.ParseDouble();
+    var x = this.ParseDouble();
     if (x == null)
         return null;
 
@@ -369,7 +371,7 @@ Fayde._GeometryParser.prototype.ParsePoint = function () {
     if (this.index >= this.len)
         return null;
 
-    var y = Geometry.ParseDouble();
+    var y = this.ParseDouble();
     if (y == null)
         return null;
 
@@ -377,6 +379,7 @@ Fayde._GeometryParser.prototype.ParsePoint = function () {
 };
 Fayde._GeometryParser.prototype.ParseDouble = function () {
     /// <returns type="Number" />
+    this.Advance();
     var isNegative = false;
     if (this.Match('-')) {
         isNegative = true;
@@ -402,10 +405,8 @@ Fayde._GeometryParser.prototype.ParseDouble = function () {
             temp += c;
         else if (c === 'E' || c === 'e')
             temp += c;
-        else {
-            this.index--;
+        else
             break;
-        }
         this.index++;
     }
     if (temp.length === 0)
@@ -440,7 +441,7 @@ Fayde._GeometryParser.prototype.Advance = function () {
             break;
         if (c === '+')
             break;
-        index++;
+        this.index++;
     }
 };
 Fayde._GeometryParser.prototype.MorePointsAvailable = function () {

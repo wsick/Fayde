@@ -96,7 +96,7 @@ RawPath.Instance.Ellipse = function (x, y, width, height) {
     //bottom left bezier curve
     this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
 };
-RawPath.Instance.EllipticalArc = function (width, height, roationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
+RawPath.Instance.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
 };
 RawPath.Instance.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
     this._Path.push({

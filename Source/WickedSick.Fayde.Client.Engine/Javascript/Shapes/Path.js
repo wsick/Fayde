@@ -7,6 +7,7 @@
 var Path = Nullstone.Create("Path", Shape);
 
 Path.Instance.Init = function () {
+    this.Init$Shape();
 };
 
 //#region Dependency Properties
@@ -30,6 +31,13 @@ Path.Instance.SetData.Converter = function (value) {
 };
 
 //#endregion
+
+Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
+    /// <param name="logical" type="Boolean"></param>
+    /// <param name="matrix" type="Matrix"></param>
+    /// <returns type="Rect" />
+
+};
 
 Nullstone.FinishCreate(Path);
 //#endregion

@@ -6,6 +6,7 @@
 var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
 
 PathGeometry.Instance.Init = function () {
+    this.Init$Geometry();
     this.$Path = null;
 };
 

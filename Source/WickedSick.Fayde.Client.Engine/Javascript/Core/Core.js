@@ -34,7 +34,7 @@ var Fayde = {
             //return tc.ConvertFrom(val);
         },
         GeometryFromString: function (val) {
-            return Fayde._GeometryParser.Parse(str);
+            return Fayde._GeometryParser.Parse(val);
         }
     }
 };
