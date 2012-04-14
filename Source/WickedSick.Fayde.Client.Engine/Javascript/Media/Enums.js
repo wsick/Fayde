@@ -39,3 +39,8 @@ var SweepDirection = {
     Counterclockwise: 0,
     Clockwise: 1
 };
+
+var FillRule = {
+    EvenOdd: 0,
+    Nonzero: 1
+};

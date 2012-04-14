@@ -76,39 +76,12 @@ Rectangle.Instance._BuildPath = function () {
         this._SetShapeFlags(ShapeFlags.Normal);
     }
 
-    this._Path = [];
-    if (radiusX === 0.0 && radiusY === 0.0) {
-        this._Path.push({ type: PathEntryType.Rect, x: rect.X, y: rect.Y, width: rect.Width, height: rect.Height });
-        return;
-    }
-    if (radiusX === radiusY) {
-        var left = rect.X;
-        var top = rect.Y;
-        var right = rect.X + rect.Width;
-        var bottom = rect.Y + rect.Height;
-
-        this._Path.push({ type: PathEntryType.Move, x: left + radiusX, y: top });
-        //top edge
-        this._Path.push({ type: PathEntryType.Line, x: right - radiusX, y: top });
-        //top right arc
-        this._Path.push({ type: PathEntryType.Quadratic, cpx: right, cpy: top, x: right, y: top + radiusY });
-        //right edge
-        this._Path.push({ type: PathEntryType.Line, x: right, y: bottom - radiusY });
-        //bottom right arc
-        this._Path.push({ type: PathEntryType.Quadratic, cpx: right, cpy: bottom, x: right - radiusX, y: bottom });
-        //bottom edge
-        this._Path.push({ type: PathEntryType.Line, x: left + radiusX, y: bottom });
-        //bottom left arc
-        this._Path.push({ type: PathEntryType.Quadratic, cpx: left, cpy: bottom, x: left, y: bottom - radiusY });
-        //left edge
-        this._Path.push({ type: PathEntryType.Line, x: left, y: top + radiusY });
-        //top left arc
-        this._Path.push({ type: PathEntryType.Quadratic, cpx: left, cpy: top, x: left + radiusX, y: top });
-        return;
-    }
-
-    NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
-    return;
+    var path = new RawPath();
+    if ((radiusX === 0.0 && radiusY === 0.0) || (radiusX === radiusY))
+        path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
+    else
+        NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
+    this._Path = path;
 };
 
 Rectangle.Instance._ComputeStretchBounds = function () {

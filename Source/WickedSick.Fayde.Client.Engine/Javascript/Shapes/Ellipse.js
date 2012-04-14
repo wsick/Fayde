@@ -44,24 +44,9 @@ Ellipse.Instance._BuildPath = function () {
     var ht = -t / 2;
     rect = rect.GrowBy(ht, ht, ht, ht);
 
-    var kappa = .5522848; // 4 * ((sqrt(2) - 1) / 3)
-    var ox = rect.Width / 2 * kappa;
-    var oy = rect.Height / 2 * kappa;
-    var right = rect.X + rect.Width;
-    var bottom = rect.Y + rect.Height;
-    var centerX = rect.X + rect.Width / 2;
-    var centerY = rect.Y + rect.Height / 2;
-    this._Path = [];
-    //move to left edge, halfway down
-    this._Path.push({ type: PathEntryType.Move, x: rect.X, y: centerY });
-    //top left bezier curve
-    this._Path.push({ type: PathEntryType.Bezier, cp1x: rect.X,         cp1y: centerY - oy, cp2x: centerX - ox, cp2y: rect.Y,       x: centerX, y: rect.Y });
-    //top right bezier curve
-    this._Path.push({ type: PathEntryType.Bezier, cp1x: centerX + ox,   cp1y: rect.Y,       cp2x: right,        cp2y: centerY - oy, x: right,   y: centerY });
-    //bottom right bezier curve
-    this._Path.push({ type: PathEntryType.Bezier, cp1x: right,          cp1y: centerY + oy, cp2x: centerX + ox, cp2y: bottom,       x: centerX, y: bottom });
-    //bottom left bezier curve
-    this._Path.push({ type: PathEntryType.Bezier, cp1x: centerX - ox,   cp1y: bottom,       cp2x: rect.X,       cp2y: centerY + oy, x: rect.X,  y: centerY });
+    var path = new RawPath();
+    path.Ellipse(rect.X, rect.Y, rect.Width, rect.Height);
+    this._Path = path;
 };
 
 Ellipse.Instance._ComputeStretchBounds = function () {

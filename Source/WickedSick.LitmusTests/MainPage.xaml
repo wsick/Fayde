@@ -4,6 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:tests="clr-namespace:WickedSick.LitmusTests.Tests">
     <Grid x:Name="LayoutRoot">
-        <tests:ScrollViewerTest HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <tests:ShapesTest HorizontalAlignment="Left" VerticalAlignment="Top" />
     </Grid>
 </UserControl>

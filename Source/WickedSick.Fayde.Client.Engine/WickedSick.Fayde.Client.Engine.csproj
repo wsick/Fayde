@@ -96,6 +96,7 @@
     <Content Include="Javascript\Engine\FocusManager.js" />
     <Content Include="Javascript\Media\ArcSegment.js" />
     <Content Include="Javascript\Media\GeneralTransform.js" />
+    <Content Include="Javascript\Media\GeometryParser.js" />
     <Content Include="Javascript\Media\MatrixTransform.js" />
     <Content Include="Javascript\Media\PathFigure.js" />
     <Content Include="Javascript\Media\PathFigureCollection.js" />
@@ -110,6 +111,7 @@
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
     <Content Include="Javascript\Shapes\Path.js" />
+    <Content Include="Javascript\Shapes\RawPath.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />
     <Content Include="Javascript\Shapes\Shape.js" />
     <Content Include="Javascript\Text\History\TextBoxUndoAction.js" />

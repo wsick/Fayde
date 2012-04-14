@@ -1,5 +1,7 @@
 ﻿/// <reference path="Shape.js"/>
 /// CODE
+/// <reference path="../Media/Geometry.js"/>
+/// <reference path="../Core/Core.js"/>
 
 //#region Path
 var Path = Nullstone.Create("Path", Shape);
@@ -23,15 +25,11 @@ Path.Instance.SetData.Converter = function (value) {
     if (value instanceof Geometry)
         return value;
     if (typeof value === "string")
-        return Path._ParseMarkup(value);
+        return Fayde.TypeConverter.GeometryFromString(value);
     return value;
 };
 
 //#endregion
-
-// Path Markup Syntax: http://msdn.microsoft.com/en-us/library/cc189041(v=vs.95).aspx
-Path._ParseMarkup = function (str) {
-};
 
 Nullstone.FinishCreate(Path);
 //#endregion

@@ -30,8 +30,11 @@ var Fayde = {
 
             //TODO: Default to basic type converter, return
             //if (tc == null)
-                //tc = new TypeConverter();
+            //tc = new TypeConverter();
             //return tc.ConvertFrom(val);
+        },
+        GeometryFromString: function (val) {
+            return Fayde._GeometryParser.Parse(str);
         }
     }
 };

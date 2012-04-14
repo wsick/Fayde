@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
-/// <reference path="../Primitives/Rect.js"/>
 /// CODE
+/// <reference path="../Primitives/Rect.js"/>
 
 //#region Geometry
 var Geometry = Nullstone.Create("Geometry", DependencyObject);

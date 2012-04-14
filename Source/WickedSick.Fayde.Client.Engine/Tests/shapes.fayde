@@ -1,4 +1,5 @@
-﻿<Page Title="Shapes Test" xmlns="http://schemas.wsick.com/fayde/">
+﻿<Page Title="Shapes Test"
+      xmlns="http://schemas.wsick.com/fayde/">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
@@ -10,5 +11,6 @@
         </Grid.RowDefinitions>
         <Rectangle RadiusX="5" RadiusY="10" Fill="#FFFFFF00" Stroke="#FF000000" StrokeThickness="5" />
         <Ellipse Grid.Column="1" Fill="#FFFFFF00" Stroke="#FF000000" StrokeThickness="5" />
+        <Rectangle Grid.Row="1" RadiusX="5" RadiusY="5" Fill="#FFFFFF00" Stroke="#FF000000" StrokeThickness="5" />
     </Grid>
 </Page>

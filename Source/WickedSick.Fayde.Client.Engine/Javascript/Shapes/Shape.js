@@ -542,37 +542,7 @@ Shape.Instance._Render = function (ctx, region) {
 Shape.Instance._BuildPath = function () { };
 Shape.Instance._DrawPath = function (ctx) {
     /// <param name="ctx" type="_RenderContext"></param>
-    var canvasCtx = ctx.GetCanvasContext();
-    canvasCtx.beginPath();
-    for (var i = 0; i < this._Path.length; i++) {
-        var p = this._Path[i];
-        switch (p.type) {
-            case PathEntryType.Move:
-                canvasCtx.moveTo(p.x, p.y);
-                break;
-            case PathEntryType.Line:
-                canvasCtx.lineTo(p.x, p.y);
-                break;
-            case PathEntryType.Rect:
-                canvasCtx.rect(p.x, p.y, p.width, p.height);
-                break;
-            case PathEntryType.Quadratic:
-                canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
-                break;
-            case PathEntryType.Bezier:
-                canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
-                break;
-            case PathEntryType.Arc:
-                canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
-                break;
-            case PathEntryType.ArcTo:
-                canvasCtx.arcTo(p.x1, p.y1, p.x2, p.y2, p.radius);
-                break;
-            case PathEntryType.Close:
-                canvasCtx.closePath();
-                break;
-        }
-    }
+    this._Path.Draw(ctx);
 };
 
 //#region Property Changed
