@@ -32,6 +32,18 @@ Path.Instance.SetData.Converter = function (value) {
 
 //#endregion
 
+Path.Instance._DrawPath = function (ctx) {
+    /// <param name="ctx" type="_RenderContext"></param>
+    var geom = this.GetData();
+    if (geom == null)
+        return;
+
+    ctx.Save();
+    //TODO: this._StretchTransform?
+    geom.Draw(ctx);
+    ctx.Restore();
+};
+
 Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     /// <param name="logical" type="Boolean"></param>
     /// <param name="matrix" type="Matrix"></param>
@@ -44,9 +56,17 @@ Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     if (logical)
         return geom.GetBounds();
 
+    //TEMP:
+    return geom.GetBounds();
+
     var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
 
     var shapeBounds = new Rect();
+    if (thickness > 0) {
+        // stroke extents
+    } else {
+        // fill extents
+    }
     NotImplemented("Path._ComputeShapeBoundsImpl");
     return shapeBounds;
 };

@@ -112,6 +112,7 @@
     <Content Include="Javascript\Runtime\Timer.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
+    <Content Include="Javascript\Shapes\Line.js" />
     <Content Include="Javascript\Shapes\Path.js" />
     <Content Include="Javascript\Shapes\RawPath.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />

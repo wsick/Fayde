@@ -12,6 +12,35 @@ Geometry.Instance.Init = function () {
     this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 };
 
+//#region Dependency Properties
+
+Geometry.TransformProperty = DependencyProperty.Register("Transform", function () { return Transform; }, Geometry);
+Geometry.Instance.GetTransform = function () {
+    ///<returns type="Transform"></returns>
+    return this.GetValue(Geometry.TransformProperty);
+};
+Geometry.Instance.SetTransform = function (value) {
+    ///<param name="value" type="Transform"></param>
+    this.SetValue(Geometry.TransformProperty, value);
+};
+
+//#endregion
+
+Geometry.Instance.Draw = function (ctx) {
+    /// <param name="ctx" type="_RenderContext"></param>
+    if (this.$Path == null)
+        return;
+
+    var transform = this.GetTransform();
+    if (transform != null) {
+        ctx.Save();
+        ctx.Transform(transform);
+    }
+    this.$Path.Draw(ctx);
+    if (transform != null)
+        ctx.Restore();
+};
+
 Geometry.Instance.GetBounds = function () {
     var compute = this._LocalBounds.IsEmpty();
 
@@ -24,7 +53,10 @@ Geometry.Instance.GetBounds = function () {
         this._LocalBounds = this.ComputePathBounds();
     var bounds = this._LocalBounds;
 
-    //TODO: Transform
+    var transform = this.GetTransform();
+    if (transform != null) {
+        bounds = transform.TransformBounds(bounds);
+    }
 
     return bounds;
 };
