@@ -36,7 +36,19 @@ Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     /// <param name="logical" type="Boolean"></param>
     /// <param name="matrix" type="Matrix"></param>
     /// <returns type="Rect" />
+    var geom = this.GetData();
+    if (geom == null) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return new Rect();
+    }
+    if (logical)
+        return geom.GetBounds();
 
+    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
+
+    var shapeBounds = new Rect();
+    NotImplemented("Path._ComputeShapeBoundsImpl");
+    return shapeBounds;
 };
 
 Nullstone.FinishCreate(Path);

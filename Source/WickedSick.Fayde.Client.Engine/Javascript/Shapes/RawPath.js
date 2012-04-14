@@ -160,6 +160,58 @@ RawPath.Instance.Draw = function (ctx) {
         }
     }
 };
+RawPath.Instance.CalculateBounds = function () {
+    /// <returns type="Rect" />
+    var backing = this._Path;
+    var xMin = xMax = yMin = yMax = null;
+    for (var i = 0; i < backing.length; i++) {
+        var p = backing[i];
+        switch (p.type) {
+            case PathEntryType.Move:
+                if (xMin == null && yMin == null) {
+                    xMin = xMax = p.x;
+                    yMin = yMax = p.y;
+                } else {
+                    xMin = Math.min(p.x, xMin);
+                    yMin = Math.min(p.y, yMin);
+                    xMax = Math.max(p.x, xMax);
+                    yMax = Math.max(p.y, yMax);
+                }
+                break;
+            case PathEntryType.Line:
+                xMin = Math.min(p.x, xMin);
+                yMin = Math.min(p.y, yMin);
+                xMax = Math.max(p.x, xMax);
+                yMax = Math.max(p.y, yMax);
+                break;
+            case PathEntryType.Rect:
+                xMin = Math.min(p.x, xMin);
+                yMin = Math.min(p.y, yMin);
+                xMax = Math.max(p.x + p.width, xMax);
+                yMax = Math.max(p.y + p.height, yMax);
+                break;
+            case PathEntryType.Quadratic:
+                NotImplemented("RawPath.CalculateBounds-Quadratic");
+                break;
+            case PathEntryType.Bezier:
+                NotImplemented("RawPath.CalculateBounds-Bezier");
+                break;
+            case PathEntryType.Arc:
+                NotImplemented("RawPath.CalculateBounds-Arc");
+                break;
+            case PathEntryType.ArcTo:
+                NotImplemented("RawPath.CalculateBounds-ArcTo");
+                break;
+        }
+    }
+    return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
+};
+
+RawPath.Merge = function (path1, path2) {
+    /// <param name="path1" type="RawPath"></param>
+    /// <param name="path2" type="RawPath"></param>
+    NotImplemented("RawPath.Merge");
+};
 
 Nullstone.FinishCreate(RawPath);
 //#endregion

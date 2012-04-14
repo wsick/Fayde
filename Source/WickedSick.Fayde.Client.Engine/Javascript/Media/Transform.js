@@ -32,6 +32,9 @@ Transform.Instance.TryTransform = function (inPoint, outPointOut) {
     outPointOut.Value = this._TransformPoint(inPoint);
     return true;
 };
+Transform.Instance.GetMatrix = function () {
+    AbstractMethod("Transform.GetMatrix");
+};
 
 Nullstone.FinishCreate(Transform);
 //#endregion

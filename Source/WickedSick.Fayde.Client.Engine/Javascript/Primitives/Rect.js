@@ -37,12 +37,17 @@ Rect.Instance.GrowByThickness = function (thickness) {
     /// <returns type="Rect" />
     return this.GrowBy(thickness.Left, thickness.Top, thickness.Right, thickness.Bottom);
 };
-Rect.Instance.Union = function (rect2) {
+Rect.Instance.Union = function (rect2, logical) {
     /// <returns type="Rect" />
     if (this.IsEmpty())
         return new Rect(rect2.X, rect2.Y, rect2.Width, rect2.Height);
-    if (rect2.Width <= 0 || rect2.Height <= 0)
-        return new Rect(this.X, this.Y, this.Width, this.Height);
+    if (logical) {
+        if (rect2.Width <= 0 && rect2.Height <= 0)
+            return new Rect(this.X, this.Y, this.Width, this.Height);
+    } else {
+        if (rect2.Width <= 0 || rect2.Height <= 0)
+            return new Rect(this.X, this.Y, this.Width, this.Height);
+    }
 
     var result = new Rect(0, 0, 0, 0);
     result.X = Math.min(this.X, rect2.X);

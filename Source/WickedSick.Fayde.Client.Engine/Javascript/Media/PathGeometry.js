@@ -1,14 +1,10 @@
 ﻿/// <reference path="Geometry.js"/>
 /// CODE
 /// <reference path="PathFigureCollection.js"/>
+/// <reference path="../Shapes/RawPath.js"/>
 
 //#region PathGeometry
 var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
-
-PathGeometry.Instance.Init = function () {
-    this.Init$Geometry();
-    this.$Path = null;
-};
 
 //#region Dependency Properties
 
@@ -41,6 +37,46 @@ PathGeometry.Annotations = {
 };
 
 //#endregion
+
+PathGeometry.prototype._OnCollectionChanged = function (sender, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathGeometry.FiguresProperty, sender)) {
+        this._OnCollectionChanged$Geometry(sender, args);
+        return;
+    }
+    this._InvalidateCache();
+    this.PropertyChanged.Raise(this, {
+        Property: PathGeometry.FiguresProperty,
+        OldValue: null,
+        NewValue: this.GetFigures()
+    });
+};
+PathGeometry.prototype._OnCollectionItemChanged = function (sender, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathGeometry.FiguresProperty, sender)) {
+        this._OnCollectionItemChanged$Geometry(sender, args);
+        return;
+    }
+    this._InvalidateCache();
+    this.PropertyChanged.Raise(this, {
+        Property: PathGeometry.FiguresProperty,
+        OldValue: null,
+        NewValue: this.GetFigures()
+    });
+};
+
+PathGeometry.Instance._Build = function () {
+    this.$Path = new RawPath();
+    var figures = this.GetFigures();
+    if (figures == null)
+        return;
+
+    var count = figures.GetCount();
+    var f;
+    for (var i = 0; i < count; i++) {
+        f = figures.GetValueAt(i);
+        f._EnsureBuilt();
+        RawPath.Merge(this.$Path, f.$Path);
+    }
+};
 
 Nullstone.FinishCreate(PathGeometry);
 //#endregion

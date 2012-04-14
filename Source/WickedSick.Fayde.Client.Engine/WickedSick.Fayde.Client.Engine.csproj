@@ -96,6 +96,8 @@
     <Content Include="Javascript\Engine\FocusManager.js" />
     <Content Include="Javascript\Media\ArcSegment.js" />
     <Content Include="Javascript\Media\GeneralTransform.js" />
+    <Content Include="Javascript\Media\GeometryCollection.js" />
+    <Content Include="Javascript\Media\GeometryGroup.js" />
     <Content Include="Javascript\Media\GeometryParser.js" />
     <Content Include="Javascript\Media\MatrixTransform.js" />
     <Content Include="Javascript\Media\PathFigure.js" />
@@ -305,7 +307,9 @@
     <Content Include="Styles\TextBox.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Styles\Button.xml" />
+    <Content Include="Styles\Button.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\Thumb.xml" />
     <Content Include="Tests\heightTest.htm" />
     <Content Include="Tips.txt" />
