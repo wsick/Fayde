@@ -297,9 +297,11 @@
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
+    <Content Include="Silo\silo5.html" />
     <Content Include="Silo\silo1.html" />
     <Content Include="Silo\silo2.html" />
     <Content Include="Silo\silo3.html" />
+    <Content Include="Silo\silo4.html" />
     <Content Include="Silverlight.js" />
     <Content Include="Styles\HyperlinkButton.xml" />
     <Content Include="Styles\RepeatButton.xml" />

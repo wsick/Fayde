@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="../jquery-1.7.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var range = function (a, b, c) {
+            var min = Math.min(a, c);
+            var max = Math.max(a, c);
+
+            // if control point lies between start/end, the bezier curve is bound by the start/end
+            if (min <= b && b <= max) {
+                return {
+                    min: min,
+                    max: max
+                };
+            }
+
+            // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
+            // find "change of direction" point (dx/dt = 0)
+            var t = (a - b) / (a - 2 * b + c);
+            var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
+            if (min > b) {
+                //control point is expanding the bounding box to the left
+                min = Math.min(min, xt);
+            } else {
+                //control point is expanding the bounding box to the right
+                max = Math.max(max, xt);
+            }
+            return {
+                min: min,
+                max: max
+            };
+        };
+        var drawPoint = function (ctx, x, y) {
+            ctx.beginPath();
+            ctx.fillRect(x - 2, y - 2, 4, 4);
+        };
+        $(document).ready(function () {
+            var ctx = document.getElementById("canvas").getContext("2d");
+            var xMin, xMax, yMin, yMax;
+
+            // These are set to where the path starts, i start them at 10,10
+            var x1 = 10;
+            var y1 = 10;
+            xMin = xMax = x1;
+            yMin = yMax = y1;
+
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            var x2 = Math.floor(Math.random() * 600);
+            var y2 = Math.floor(Math.random() * 600);
+            var x3 = Math.floor(Math.random() * 600);
+            var y3 = Math.floor(Math.random() * 600);
+            ctx.quadraticCurveTo(x2, y2, x3, y3);
+            ctx.strokeStyle = "rgb(0,0,0)";
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.fillStyle = "rgb(0,0,255)";
+            drawPoint(ctx, x2, y2);
+
+            var xr = range(x1, x2, x3);
+            var yr = range(y1, y2, y3);
+
+            xMin = Math.min(xr.min, xMin);
+            xMax = Math.max(xr.max, xMax);
+            yMin = Math.min(yr.min, yMin);
+            yMax = Math.max(yr.max, yMax);
+
+            ctx.strokeStyle = "rgb(255,0,0)";
+            ctx.strokeRect(xMin, yMin, xMax - xMin, yMax - yMin);
+        });
+    </script>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600" style="background: #eeeeee;">
+    </canvas>
+</body>
+</html>

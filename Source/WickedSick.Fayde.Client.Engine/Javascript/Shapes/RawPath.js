@@ -163,7 +163,9 @@ RawPath.Instance.Draw = function (ctx) {
 RawPath.Instance.CalculateBounds = function () {
     /// <returns type="Rect" />
     var backing = this._Path;
+    var startX, startY;
     var xMin = xMax = yMin = yMax = null;
+    var xRange, yRange;
     for (var i = 0; i < backing.length; i++) {
         var p = backing[i];
         switch (p.type) {
@@ -177,12 +179,16 @@ RawPath.Instance.CalculateBounds = function () {
                     xMax = Math.max(p.x, xMax);
                     yMax = Math.max(p.y, yMax);
                 }
+                startX = p.x;
+                startY = p.y;
                 break;
             case PathEntryType.Line:
                 xMin = Math.min(p.x, xMin);
                 yMin = Math.min(p.y, yMin);
                 xMax = Math.max(p.x, xMax);
                 yMax = Math.max(p.y, yMax);
+                startX = p.x;
+                startY = p.y;
                 break;
             case PathEntryType.Rect:
                 xMin = Math.min(p.x, xMin);
@@ -191,10 +197,24 @@ RawPath.Instance.CalculateBounds = function () {
                 yMax = Math.max(p.y + p.height, yMax);
                 break;
             case PathEntryType.Quadratic:
-                NotImplemented("RawPath.CalculateBounds-Quadratic");
+                xRange = RawPath._CalculateQuadraticBezierRange(startX, p.cpx, p.x);
+                xMin = Math.min(xMin, xRange.min);
+                xMax = Math.max(xMax, xRange.max);
+                yRange = RawPath._CalculateQuadraticBezierRange(startY, p.cpy, p.y);
+                yMin = Math.min(yMin, yRange.min);
+                yMax = Math.max(yMax, yRange.max);
+                startX = p.x;
+                startY = p.y;
                 break;
             case PathEntryType.Bezier:
-                NotImplemented("RawPath.CalculateBounds-Bezier");
+                xRange = RawPath._CalculateCubicBezierRange(startX, p.cp1x, p.cp2x, p.x);
+                xMin = Math.min(xMin, xRange.min);
+                xMax = Math.max(xMax, xRange.max);
+                yRange = RawPath._CalculateCubicBezierRange(startY, p.cp1y, p.cp2y, p.y);
+                yMin = Math.min(yMin, yRange.min);
+                yMax = Math.max(yMax, yRange.max);
+                startX = p.x;
+                startY = p.y;
                 break;
             case PathEntryType.Arc:
                 NotImplemented("RawPath.CalculateBounds-Arc");
@@ -205,6 +225,82 @@ RawPath.Instance.CalculateBounds = function () {
         }
     }
     return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
+};
+
+//http://pomax.nihongoresources.com/pages/bezier/
+RawPath._CalculateQuadraticBezierRange = function (a, b, c) {
+    var min = Math.min(a, c);
+    var max = Math.max(a, c);
+
+    // if control point lies between start/end, the bezier curve is bound by the start/end
+    if (min <= b && b <= max) {
+        return {
+            min: min,
+            max: max
+        };
+    }
+
+    // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
+    // find "change of direction" point (dx/dt = 0)
+    var t = (a - b) / (a - 2 * b + c);
+    var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
+    if (min > b) {
+        //control point is expanding the bounding box to the left
+        min = Math.min(min, xt);
+    } else {
+        //control point is expanding the bounding box to the right
+        max = Math.max(max, xt);
+    }
+    return {
+        min: min,
+        max: max
+    };
+};
+//http://pomax.nihongoresources.com/pages/bezier/
+RawPath._CalculateCubicBezierRange = function (a, b, c, d) {
+    var min = Math.min(a, d);
+    var max = Math.max(a, d);
+
+    // if control points lie between start/end, the bezier curve is bound by the start/end
+    if ((min <= b && b <= max) && (min <= c && c <= max)) {
+        return {
+            min: min,
+            max: max
+        };
+    }
+
+    // find "change of direction" points (dx/dt = 0)
+    //xt = a(1-t)^3 + 3b(t)(1-t)^2 + 3c(1-t)(t)^2 + dt^3
+    var u = 2 * a - 4 * b + 2 * c;
+    var v = b - a;
+    var w = -a + 3 * b + d - 3 * c;
+    var rt = Math.sqrt(u * u - 4 * v * w);
+    if (!isNaN(rt)) {
+        var t;
+
+        t = (-u + rt) / (2 * w);
+        //f(t) is only defined in [0,1]
+        if (t >= 0 && t <= 1) {
+            var ot = 1 - t;
+            var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+            min = Math.min(min, xt);
+            max = Math.max(max, xt);
+        }
+
+        t = (-u - rt) / (2 * w);
+        //f(t) is only defined in [0,1]
+        if (t >= 0 && t <= 1) {
+            var ot = 1 - t;
+            var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+            min = Math.min(min, xt);
+            max = Math.max(max, xt);
+        }
+    }
+
+    return {
+        min: min,
+        max: max
+    };
 };
 
 RawPath.Merge = function (path1, path2) {
