@@ -297,6 +297,8 @@
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
+    <Content Include="Silo\silo7.html" />
+    <Content Include="Silo\silo6.html" />
     <Content Include="Silo\silo5.html" />
     <Content Include="Silo\silo1.html" />
     <Content Include="Silo\silo2.html" />

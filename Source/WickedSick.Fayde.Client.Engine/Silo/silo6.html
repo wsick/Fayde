@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="../jquery-1.7.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var range = function (cx, cy, r, sa, ea, cc) {
+            if (sa === ea)
+                return {
+                    minX: cx,
+                    maxX: cx,
+                    minY: cy,
+                    maxY: cy
+                };
+
+            var sx = cx + (r * Math.cos(sa));
+            var sy = cy + (r * Math.sin(sa));
+            var ex = cx + (r * Math.cos(ea));
+            var ey = cy + (r * Math.sin(ea));
+
+            var minX = Math.min(sx, ex);
+            var maxX = Math.max(sx, ex);
+            var minY = Math.min(sy, ey);
+            var maxY = Math.max(sy, ey);
+
+            var leftX = cx - r;
+            var rightX = cx + r;
+            var topY = cy - r;
+            var bottomY = cy + r;
+
+            if (arcContainsPoint(sx, sy, ex, ey, leftX, cy, cc)) {
+                //contains left edge of circle
+                minX = Math.min(minX, leftX);
+            }
+            if (arcContainsPoint(sx, sy, ex, ey, rightX, cy, cc)) {
+                //contains right edge of circle
+                maxX = Math.max(maxX, rightX);
+            }
+            if (arcContainsPoint(sx, sy, ex, ey, cx, topY, cc)) {
+                //contains top edge of circle
+                minY = Math.min(minY, topY);
+            }
+            if (arcContainsPoint(sx, sy, ex, ey, cx, bottomY, cc)) {
+                //contains bottom edge of circle
+                maxY = Math.max(maxY, bottomY);
+            }
+
+            return {
+                minX: minX,
+                maxX: maxX,
+                minY: minY,
+                maxY: maxY
+            };
+        };
+        var arcContainsPoint = function (sx, sy, ex, ey, cpx, cpy, cc) {
+            // var a = ex - sx;
+            // var b = cpx - sx;
+            // var c = ey - sy;
+            // var d = cpy - sy;
+            // det = ad - bc;
+            var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
+            if (n === 0)
+                return true;
+            if (n > 0 && cc)
+                return true;
+            if (n < 0 && !cc)
+                return true;
+            return false;
+        };
+        var drawPoint = function (ctx, x, y) {
+            ctx.beginPath();
+            ctx.fillRect(x - 2, y - 2, 4, 4);
+        };
+        $(document).ready(function () {
+            var ctx = document.getElementById("canvas").getContext("2d");
+            var xMin, xMax, yMin, yMax;
+
+            var centerX = Math.floor(Math.random() * 600);
+            var centerY = Math.floor(Math.random() * 600);
+            var rem = Math.min(
+                Math.min(centerX, Math.max(0, 600 - centerX)),
+                Math.min(centerY, Math.max(0, 600 - centerY)));
+            var radius = Math.max(10, Math.floor(Math.random() * rem));
+
+            var f = Math.PI * 2;
+            var startingAngle = Math.floor(Math.random() * f);
+            var endingAngle = Math.floor(Math.random() * f);
+            var counterclockwise = Math.floor(Math.random() * 2) === 0;
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startingAngle, endingAngle, counterclockwise);
+            ctx.strokeStyle = "rgb(0,0,0)";
+            ctx.stroke();
+
+            ctx.fillStyle = "rgb(0,0,255)";
+            drawPoint(ctx, centerX, centerY);
+            ctx.fillStyle = "rgb(0,255,0)";
+            drawPoint(ctx, centerX + radius * Math.cos(startingAngle), centerY + radius * Math.sin(startingAngle));
+
+            var r = range(centerX, centerY, radius, startingAngle, endingAngle, counterclockwise);
+
+            xMin = r.minX;
+            xMax = r.maxX;
+            yMin = r.minY;
+            yMax = r.maxY;
+
+            ctx.strokeStyle = "rgb(255,0,0)";
+            ctx.strokeRect(xMin, yMin, xMax - xMin, yMax - yMin);
+        });
+    </script>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600" style="background: #eeeeee;">
+    </canvas>
+</body>
+</html>

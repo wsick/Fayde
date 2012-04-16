@@ -109,14 +109,14 @@ RawPath.Instance.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
         aClockwise: aClockwise
     });
 };
-RawPath.Instance.ArcTo = function (x1, y1, x2, y2, radius) {
+RawPath.Instance.ArcTo = function (cpx, cpy, x, y, radius) {
     this._Path.push({
         type: PathEntryType.ArcTo,
-        x1: x1,
-        y1: y1,
-        x2: x2,
-        y2: y2,
-        radius: radius
+        cpx: cpx,
+        cpy: cpy,
+        x: x,
+        y: y,
+        r: radius
     });
 };
 RawPath.Instance.Close = function () {
@@ -152,7 +152,7 @@ RawPath.Instance.Draw = function (ctx) {
                 canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
                 break;
             case PathEntryType.ArcTo:
-                canvasCtx.arcTo(p.x1, p.y1, p.x2, p.y2, p.radius);
+                canvasCtx.arcTo(p.cpx, p.cpy, p.x, p.y, p.r);
                 break;
             case PathEntryType.Close:
                 canvasCtx.closePath();
@@ -190,7 +190,7 @@ RawPath.Instance.CalculateBounds = function () {
                 startX = p.x;
                 startY = p.y;
                 break;
-            case PathEntryType.Rect:
+            case PathEntryType.Rect: //does not use current x,y
                 xMin = Math.min(p.x, xMin);
                 yMin = Math.min(p.y, yMin);
                 xMax = Math.max(p.x + p.width, xMax);
@@ -216,11 +216,23 @@ RawPath.Instance.CalculateBounds = function () {
                 startX = p.x;
                 startY = p.y;
                 break;
-            case PathEntryType.Arc:
-                NotImplemented("RawPath.CalculateBounds-Arc");
+            case PathEntryType.Arc: //does not use current x,y
+                if (p.sAngle !== p.eAngle) {
+                    var r = RawPath._CalculateArcRange(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
+                    xMin = Math.min(xMin, r.xMin);
+                    xMax = Math.max(xMax, r.xMax);
+                    yMin = Math.min(yMin, r.yMin);
+                    yMax = Math.max(yMax, r.yMax);
+                }
                 break;
             case PathEntryType.ArcTo:
-                NotImplemented("RawPath.CalculateBounds-ArcTo");
+                var r = RawPath._CalculateArcToRange(startX, startY, p.cpx, p.cpy, p.x, p.y, p.r);
+                xMin = Math.min(xMin, r.xMin);
+                xMax = Math.max(xMax, r.xMax);
+                yMin = Math.min(yMin, r.yMin);
+                yMax = Math.max(yMax, r.yMax);
+                startX = p.x;
+                startY = p.y;
                 break;
         }
     }
@@ -301,6 +313,111 @@ RawPath._CalculateCubicBezierRange = function (a, b, c, d) {
         min: min,
         max: max
     };
+};
+RawPath._CalculateArcRange = function (cx, cy, r, sa, ea, cc) {
+    //start point
+    var sx = cx + (r * Math.cos(sa));
+    var sy = cy + (r * Math.sin(sa));
+    //end point
+    var ex = cx + (r * Math.cos(ea));
+    var ey = cy + (r * Math.sin(ea));
+    return RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+};
+RawPath._CalculateArcToRange = function (sx, sy, cpx, cpy, ex, ey, r) {
+    NotImplemented("RawPath._CalculateArcToRange");
+    return {
+        xMin: sx,
+        xMax: sx,
+        yMin: sy,
+        yMax: sy
+    };
+
+    var v1x = cpx - sx;
+    var v1y = cpy - sy;
+    var v2x = ex - cpx;
+    var v2y = ey - cpy;
+
+    var theta_outer1 = Math.atan2(Math.abs(v1y), Math.abs(v1x));
+    var theta_outer2 = Math.atan2(Math.abs(v2y), Math.abs(v2x));
+    var inner_theta = Math.PI - theta_outer1 - theta_outer2;
+
+    //distance to center of imaginary circle
+    var h = r / Math.sin(inner_theta / 2);
+    //cx, cy -> center of imaginary circle
+    var cx = cpx + h * Math.cos(inner_theta / 2 + theta_outer2);
+    var cy = cpy + h * Math.sin(inner_theta / 2 + theta_outer2);
+    //distance from cp -> tangent points on imaginary circle
+    var a = r / Math.tan(inner_theta / 2);
+    //tangent point at start of arc
+    var sx = cpx + a * Math.cos(theta_outer2 + inner_theta);
+    var sy = cpy + a * Math.sin(theta_outer2 + inner_theta);
+    //tangent point at end of arc
+    var ex = cpx + a * Math.cos(theta_outer2);
+    var ey = cpy + a * Math.sin(theta_outer2);
+
+    var cc = true;
+
+    var r = RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+    return {
+        xMin: Math.min(sx, r.xMin),
+        xMax: Math.max(sx, r.xMax),
+        yMin: Math.min(sy, r.yMin),
+        yMax: Math.max(sy, r.yMax)
+    };
+};
+RawPath._CalculateArcPointsRange = function (cx, cy, sx, sy, ex, ey, r, cc) {
+    var xMin = Math.min(sx, ex);
+    var xMax = Math.max(sx, ex);
+    var yMin = Math.min(sy, ey);
+    var yMax = Math.max(sy, ey);
+
+    var xLeft = cx - r;
+    if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xLeft, cy, cc)) {
+        //arc contains left edge of circle
+        xMin = Math.min(xMin, xLeft);
+    }
+
+    var xRight = cx + r;
+    if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xRight, cy, cc)) {
+        //arc contains right edge of circle
+        xMax = Math.max(xMax, xRight);
+    }
+
+    var yTop = cy - r;
+    if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yTop, cc)) {
+        //arc contains top edge of circle
+        yMin = Math.min(yMin, yTop);
+    }
+
+    var yBottom = cy + r;
+    if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yBottom, cc)) {
+        //arc contains bottom edge of circle
+        yMax = Math.max(yMax, yBottom);
+    }
+
+    return {
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
+    };
+};
+RawPath._ArcContainsPoint = function (sx, sy, ex, ey, cpx, cpy, cc) {
+    // var a = ex - sx;
+    // var b = cpx - sx;
+    // var c = ey - sy;
+    // var d = cpy - sy;
+    // det = ad - bc;
+    var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
+    if (n === 0)
+        return true;
+    // if det > 0 && counterclockwise arc --> point is on the arc
+    if (n > 0 && cc)
+        return true;
+    // if det < 0 && clockwise arc --> point is on the arc
+    if (n < 0 && !cc)
+        return true;
+    return false;
 };
 
 RawPath.Merge = function (path1, path2) {
