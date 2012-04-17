@@ -11,10 +11,11 @@ BindingMarkup.Instance.Init = function (data) {
     this._Data = data;
 };
 
-BindingMarkup.Instance.Transmute = function (target, propd, templateBindingSource) {
+BindingMarkup.Instance.Transmute = function (target, propd, propName, templateBindingSource) {
     /// <param name="target" type="DependencyObject"></param>
-    /// <param name="templateBindingSource" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="propName" type="String"></param>
+    /// <param name="templateBindingSource" type="DependencyObject"></param>
     return new BindingExpression(this._BuildBinding(), target, propd);
 };
 BindingMarkup.Instance._BuildBinding = function () {

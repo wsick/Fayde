@@ -9,10 +9,11 @@ TemplateBindingMarkup.Instance.Init = function (path) {
     this.Path = path;
 };
 
-TemplateBindingMarkup.Instance.Transmute = function (target, propd, templateBindingSource) {
+TemplateBindingMarkup.Instance.Transmute = function (target, propd, propName, templateBindingSource) {
     /// <param name="target" type="DependencyObject"></param>
-    /// <param name="templateBindingSource" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
+    /// <param name="propName" type="String"></param>
+    /// <param name="templateBindingSource" type="DependencyObject"></param>
     var sourcePropd = DependencyProperty.GetDependencyProperty(templateBindingSource.constructor, this.Path);
     return new TemplateBindingExpression(sourcePropd, propd);
 };

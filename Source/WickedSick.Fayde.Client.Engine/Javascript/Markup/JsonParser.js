@@ -69,7 +69,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
     }
 
     if (propValue instanceof Markup)
-        propValue = propValue.Transmute(dobj, propd, this._TemplateBindingSource);
+        propValue = propValue.Transmute(dobj, propd, propName, this._TemplateBindingSource);
 
     //Set property value
     if (propd) {
