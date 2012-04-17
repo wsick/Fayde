@@ -2,31 +2,48 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <script src="../jquery-1.7.js" type="text/javascript"></script>
+    <script src="../../jquery-1.7.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var range = function (a, b, c) {
-            var min = Math.min(a, c);
-            var max = Math.max(a, c);
+        var range = function (a, b, c, d) {
+            var min = Math.min(a, d);
+            var max = Math.max(a, d);
 
-            // if control point lies between start/end, the bezier curve is bound by the start/end
-            if (min <= b && b <= max) {
+            // if control points lie between start/end, the bezier curve is bound by the start/end
+            if ((min <= b && b <= max) && (min <= c && c <= max)) {
                 return {
                     min: min,
                     max: max
                 };
             }
 
-            // x(t) = a(1-t)^2 + 2*b(1-t)t + c*t^2
-            // find "change of direction" point (dx/dt = 0)
-            var t = (a - b) / (a - 2 * b + c);
-            var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
-            if (min > b) {
-                //control point is expanding the bounding box to the left
-                min = Math.min(min, xt);
-            } else {
-                //control point is expanding the bounding box to the right
-                max = Math.max(max, xt);
+            // find "change of direction" points (dx/dt = 0)
+            //xt = a(1-t)^3 + 3b(t)(1-t)^2 + 3c(1-t)(t)^2 + dt^3
+            var u = 2 * a - 4 * b + 2 * c;
+            var v = b - a;
+            var w = -a + 3 * b + d - 3 * c;
+            var rt = Math.sqrt(u * u - 4 * v * w);
+            if (!isNaN(rt)) {
+                var t;
+
+                t = (-u + rt) / (2 * w);
+                //f(t) is only defined in [0,1]
+                if (t >= 0 && t <= 1) {
+                    var ot = 1 - t;
+                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+                    min = Math.min(min, xt);
+                    max = Math.max(max, xt);
+                }
+
+                t = (-u - rt) / (2 * w);
+                //f(t) is only defined in [0,1]
+                if (t >= 0 && t <= 1) {
+                    var ot = 1 - t;
+                    var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+                    min = Math.min(min, xt);
+                    max = Math.max(max, xt);
+                }
             }
+
             return {
                 min: min,
                 max: max
@@ -52,16 +69,20 @@
             var y2 = Math.floor(Math.random() * 600);
             var x3 = Math.floor(Math.random() * 600);
             var y3 = Math.floor(Math.random() * 600);
-            ctx.quadraticCurveTo(x2, y2, x3, y3);
+            var x4 = Math.floor(Math.random() * 600);
+            var y4 = Math.floor(Math.random() * 600);
+            ctx.bezierCurveTo(x2, y2, x3, y3, x4, y4);
             ctx.strokeStyle = "rgb(0,0,0)";
             ctx.stroke();
             ctx.closePath();
 
             ctx.fillStyle = "rgb(0,0,255)";
             drawPoint(ctx, x2, y2);
+            ctx.fillStyle = "rgb(0,255,0)";
+            drawPoint(ctx, x3, y3);
 
-            var xr = range(x1, x2, x3);
-            var yr = range(y1, y2, y3);
+            var xr = range(x1, x2, x3, x4);
+            var yr = range(y1, y2, y3, y4);
 
             xMin = Math.min(xr.min, xMin);
             xMax = Math.max(xr.max, xMax);
