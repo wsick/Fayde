@@ -141,6 +141,10 @@ Shape.Instance._IsFilled = function () { return this._Fill != null; };
 Shape.Instance._CanFill = function () { return false; };
 Shape.Instance._CanFindElement = function () { return this._IsFilled() || this._IsStroked(); };
 
+Shape.Instance._GetFillRule = function () {
+    return FillRule.Nonzero;
+};
+
 //#endregion
 
 Shape.Instance._ShiftPosition = function (point) {
@@ -446,6 +450,14 @@ Shape.Instance._ComputeStretchBounds = function () {
     var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
 
     var st = this._StretchTransform;
+    if (!(this instanceof Line) || !autoDim)
+        st = Matrix.Translate(st, -x, -y);
+    st = Matrix.Translate(st,
+        adjX ? -shapeBounds.Width * 0.5 : 0.0,
+        adjY ? -shapeBounds.Height * 0.5 : 0.0);
+    st = Matrix.Scale(st,
+        adjX ? sw : 1.0,
+        adjY ? sh : 1.0);
     if (center) {
         st = Matrix.Translate(st,
             adjX ? framework.Width * 0.5 : 0,
@@ -455,14 +467,6 @@ Shape.Instance._ComputeStretchBounds = function () {
             adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0,
             adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
     }
-    st = Matrix.Scale(st,
-        adjX ? sw : 1.0,
-        adjY ? sh : 1.0);
-    st = Matrix.Translate(st,
-        adjX ? -shapeBounds.Width * 0.5 : 0.0,
-        adjY ? -shapeBounds.Height * 0.5 : 0.0);
-    if (!(this instanceof Line) || !autoDim)
-        st = Matrix.Translate(st, -x, -y);
     this._StretchTransform = st;
 
     shapeBounds = shapeBounds.Transform(this._StretchTransform);

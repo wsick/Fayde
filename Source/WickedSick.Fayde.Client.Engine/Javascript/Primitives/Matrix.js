@@ -238,9 +238,12 @@ Matrix.Scale = function (matrix, scaleX, scaleY) {
 
     var els = matrix._Elements;
     els[0] *= scaleX;
-    els[3] *= scaleX;
-    els[1] *= scaleY;
+    els[1] *= scaleX;
+    els[2] *= scaleX;
+
+    els[3] *= scaleY;
     els[4] *= scaleY;
+    els[5] *= scaleY;
 
     matrix._Inverse = undefined;
     matrix._DeriveType();
