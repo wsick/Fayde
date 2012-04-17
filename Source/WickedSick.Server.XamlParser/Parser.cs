@@ -18,9 +18,9 @@ namespace WickedSick.Server.XamlParser
             if (node.NodeType == XmlNodeType.Comment)
                 return null;
 
-            Type t = DependencyObject.GetElementType(node.NamespaceURI, node.Name);
+            Type t = DependencyObject.GetElementType(node.NamespaceURI, node.LocalName);
             if (t == null)
-                throw new XamlParseException("Unknown element: " + node.Name);
+                throw new XamlParseException("Unknown element: " + node.LocalName);
             if (t.IsEnum)
             {
                 return Enum.Parse(t, node.InnerText);
@@ -38,7 +38,7 @@ namespace WickedSick.Server.XamlParser
                 if (a.Name.Contains("."))
                 {
                     //inline attached property
-                    string[] parts = a.Name.Split('.');
+                    string[] parts = a.LocalName.Split('.');
                     if (parts.Count() != 2)
                         throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", a.Name));
 
@@ -67,14 +67,14 @@ namespace WickedSick.Server.XamlParser
         {
             foreach (XmlNode n in children)
             {
-                if (n.Name.Contains("."))
+                if (n.LocalName.Contains("."))
                 {
                     //a property has been set as a sub-element
-                    string[] parts = n.Name.Split('.');
+                    string[] parts = n.LocalName.Split('.');
                     if (parts.Count() != 2)
-                        throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", n.Name));
+                        throw new XamlParseException(string.Format("An invalid element has been encountered. {0}", n.LocalName));
                     if (n.Attributes.Count > 0)
-                        throw new XamlParseException(string.Format("A sub-element used for setting a property can not contain attributes. {0}", n.Name));
+                        throw new XamlParseException(string.Format("A sub-element used for setting a property can not contain attributes. {0}", n.LocalName));
 
                     if (!parts[0].Equals(element.GetType().Name))
                     {
@@ -86,7 +86,7 @@ namespace WickedSick.Server.XamlParser
                         }
                         else
                         {
-                            ProcessChildNodes(n.ChildNodes, element, n.Name);
+                            ProcessChildNodes(n.ChildNodes, element, n.LocalName);
                         }
                     }
                     else
