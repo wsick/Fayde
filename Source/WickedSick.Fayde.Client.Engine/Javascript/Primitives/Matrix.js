@@ -140,6 +140,7 @@ Matrix.Instance.Apply = function (ctx) {
     }
 };
 Matrix.Instance.MultiplyMatrix = function (val) {
+    /// <param name="val" type="Matrix"></param>
     if (this._Type === MatrixTypes.Identity) {
         if (val._Type === MatrixTypes.Identity)
             return new Matrix();
@@ -152,12 +153,31 @@ Matrix.Instance.MultiplyMatrix = function (val) {
     var e2 = val._Elements;
     var e3 = [];
 
-    e3[0] = e1[0] * e2[0] + e1[1] * e2[3];
-    e3[1] = e1[0] * e2[1] + e1[1] * e2[4];
-    e3[2] = e1[0] * e2[2] + e1[1] * e2[5] + e1[2];
+    // Matrix e1:
+    //  a1              b1              c1
+    //  d1              e1              f1
+    //  0               0               1
 
+    // Matrix e2:
+    //  a2              b2              c2
+    //  d2              e2              f2
+    //  0               0               1
+
+    // Matrix e3:
+    // a1a2 + b1d2      a1b2 + b1e2     a1c2 + b1f2 + c1
+    // d1a2 + e1d2      d1b2 + e1e2     d1c2 + e1f2 + f1
+    // 0                0               1
+
+    //Column 1
+    e3[0] = e1[0] * e2[0] + e1[1] * e2[3];
     e3[3] = e1[3] * e2[0] + e1[4] * e2[3]
+
+    //Column 2
+    e3[1] = e1[0] * e2[1] + e1[1] * e2[4];
     e3[4] = e1[3] * e2[1] + e1[4] * e2[4]
+
+    //Column 3
+    e3[2] = e1[0] * e2[2] + e1[1] * e2[5] + e1[2];
     e3[5] = e1[3] * e2[2] + e1[4] * e2[5] + e1[5];
 
     return new Matrix(e3);
@@ -174,20 +194,21 @@ Matrix.Instance.Copy = function () {
 };
 
 Matrix.Instance.toString = function () {
-    var t = new String();
-    t += "[\n";
-    var arr = this.GetElements();
-    for (var i = 0; i < arr.length; i++) {
-        t += "[";
-        for (var j = 0; j < arr[i].length; j++) {
-            t += arr[i][j].toString();
-            t += ",";
-        }
-        t = t.substr(0, t.length - 1)
-        t += "],\n";
-    }
-    t = t.substr(0, t.length - 2);
-    t += "\n]";
+    var arr = this._Elements;
+    var t = "";
+    t += arr[0];
+    t += ",";
+    t += arr[1];
+    t += ",";
+    t += arr[2];
+    t += "\n";
+    t += arr[3];
+    t += ",";
+    t += arr[4];
+    t += ",";
+    t += arr[5];
+    t += "\n";
+    t += "0,0,1";
     return t;
 };
 
@@ -228,15 +249,23 @@ Matrix.Translate = function (matrix, x, y) {
     matrix._DeriveType();
     return matrix;
 };
-Matrix.Scale = function (matrix, scaleX, scaleY) {
+Matrix.Scale = function (matrix, scaleX, scaleY, centerX, centerY) {
     /// <param name="matrix" type="Matrix"></param>
     /// <param name="scaleX" type="Number"></param>
     /// <param name="scaleY" type="Number"></param>
+    /// <param name="centerX" type="Number"></param>
+    /// <param name="centerY" type="Number"></param>
     /// <returns type="Matrix" />
     if (scaleX === 1 && scaleY === 1)
         return matrix;
 
-    var els = matrix._Elements;
+    var m1 = matrix;
+    var translationExists = !((centerX == null || centerX === 0) && (centerY == null || centerY === 0));
+
+    var els = m1._Elements;
+    if (translationExists)
+        m1 = Matrix.Translate(m1, -centerX, -centerY);
+
     els[0] *= scaleX;
     els[1] *= scaleX;
     els[2] *= scaleX;
@@ -245,9 +274,13 @@ Matrix.Scale = function (matrix, scaleX, scaleY) {
     els[4] *= scaleY;
     els[5] *= scaleY;
 
-    matrix._Inverse = undefined;
-    matrix._DeriveType();
-    return matrix;
+    if (translationExists)
+        m1 = Matrix.Translate(m1, centerX, centerY);
+
+    m1._Inverse = undefined;
+    m1._DeriveType();
+
+    return m1;
 };
 
 Matrix.BuildInverse = function (arr) {

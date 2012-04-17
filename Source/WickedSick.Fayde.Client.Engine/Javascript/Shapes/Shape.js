@@ -535,6 +535,7 @@ Shape.Instance._Render = function (ctx, region) {
         return;
     var area = this._GetStretchExtents();
     ctx.Save();
+    ctx.PreTransform(this._StretchTransform);
     this._DrawPath(ctx);
     if (this._Fill != null)
         ctx.Fill(this._Fill, area);

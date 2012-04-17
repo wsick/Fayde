@@ -160,7 +160,8 @@ RawPath.Instance.Draw = function (ctx) {
         }
     }
 };
-RawPath.Instance.CalculateBounds = function () {
+RawPath.Instance.CalculateBounds = function (thickness) {
+    /// <param name="thickness" type="Number">Stroke Thickness</param>
     /// <returns type="Rect" />
     var backing = this._Path;
     var startX, startY;
