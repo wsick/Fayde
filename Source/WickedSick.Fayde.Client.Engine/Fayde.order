@@ -16,6 +16,7 @@ Runtime/Nullstone.js
 Runtime/PropertyInfo.js
 Runtime/RoutedEvent.js
 Runtime/Timer.js
+Shapes/RawPath.js
 Text/LayoutWord.js
 Text/TextBuffer.js
 Text/TextLayout.js
@@ -61,6 +62,7 @@ Markup/JsonParser.js
 Markup/Markup.js
 Markup/StaticResourceMarkup.js
 Markup/TemplateBindingMarkup.js
+Media/GeometryParser.js
 Media/Animation/AnimationStorage.js
 Media/VSM/VisualStateChangedEventArgs.js
 Primitives/Color.js
@@ -143,11 +145,18 @@ Engine/App.js
 Media/Brush.js
 Media/GeneralTransform.js
 Media/Geometry.js
+Media/GeometryCollection.js
+Media/GeometryGroup.js
 Media/GradientBrush.js
 Media/GradientStop.js
 Media/GradientStopCollection.js
 Media/ImageSource.js
 Media/LinearGradientBrush.js
+Media/PathFigure.js
+Media/PathFigureCollection.js
+Media/PathGeometry.js
+Media/PathSegment.js
+Media/PathSegmentCollection.js
 Media/RadialGradientBrush.js
 Media/RectangleGeometry.js
 Media/SolidColorBrush.js
@@ -183,6 +192,7 @@ Documents/Paragraph.js
 Documents/Run.js
 Documents/Section.js
 Documents/Span.js
+Media/ArcSegment.js
 Media/ImageBrush.js
 Media/MatrixTransform.js
 Media/Animation/Animation.js
@@ -213,6 +223,8 @@ Controls/Primitives/ScrollBar.js
 Controls/Primitives/Thumb.js
 Documents/Hyperlink.js
 Shapes/Ellipse.js
+Shapes/Line.js
+Shapes/Path.js
 Shapes/Rectangle.js
 Controls/Canvas.js
 Controls/Grid.js

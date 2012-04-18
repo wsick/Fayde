@@ -7,6 +7,6 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
     public class ObjectAnimationUsingKeyFrames: Timeline
     {
-        public static readonly PropertyDescription KeyFrames = PropertyDescription.Register("KeyFrames", typeof(List<ObjectKeyFrame>), typeof(ObjectAnimationUsingKeyFrames), true);
+        public static readonly PropertyDescription KeyFrames = PropertyDescription.Register("KeyFrames", typeof(DependencyObjectCollection<ObjectKeyFrame>), typeof(ObjectAnimationUsingKeyFrames), true);
     }
 }

@@ -326,8 +326,16 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <Content Include="LitmusTests.html" />
+    <Content Include="xaml.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="xaml.aspx.cs">
+      <DependentUpon>xaml.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="xaml.aspx.designer.cs">
+      <DependentUpon>xaml.aspx</DependentUpon>
+    </Compile>
     <Content Include="Javascript\Media\VSM\VisualStateChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\Utils.js" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -354,6 +362,10 @@
     <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">
       <Project>{40645861-EE77-480A-B389-0F2857DA682D}</Project>
       <Name>WickedSick.Server.Framework.Fayde</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WickedSick.Server.XamlParser\WickedSick.Server.XamlParser.csproj">
+      <Project>{8853F726-F37C-47C6-B153-33F1000E748E}</Project>
+      <Name>WickedSick.Server.XamlParser</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

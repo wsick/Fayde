@@ -306,6 +306,14 @@ var PenLineJoin = {
     Bevel: 1,
     Round: 2
 };
+var SweepDirection = {
+    Counterclockwise: 0,
+    Clockwise: 1
+};
+var FillRule = {
+    EvenOdd: 0,
+    Nonzero: 1
+};
 
 var Visibility = {
     Visible: 0,
@@ -375,10 +383,10 @@ var FontStretches = {
     UltraExpanded: "ultra-expanded"
 };
 var ScrollBarVisibility = {
-    Auto: 0,
-    Disabled: 1,
-    Hidden: 2,
-    Visible: 3
+	Disabled: 0,
+	Auto: 1,
+	Hidden: 2,
+	Visible: 3
 };
 var ClickMode = {
     Release: 0,
@@ -546,7 +554,8 @@ var PathEntryType = {
     Quadratic: 3,
     Bezier: 4,
     Arc: 5,
-    ArcTo: 6
+    ArcTo: 6,
+    Close: 7
 };
 var ShapeFlags = {
     Empty: 1,
@@ -758,6 +767,361 @@ Timer.Instance.Stop = function () {
     clearInterval(this._IntervalID);
 };
 Nullstone.FinishCreate(Timer);
+
+var RawPath = Nullstone.Create("RawPath");
+RawPath.Instance.Init = function () {
+    this._Path = [];
+};
+RawPath.Instance.Move = function (x, y) {
+    this._Path.push({
+        type: PathEntryType.Move,
+        x: x,
+        y: y
+    });
+};
+RawPath.Instance.Line = function (x, y) {
+    this._Path.push({
+        type: PathEntryType.Line,
+        x: x,
+        y: y
+    });
+};
+RawPath.Instance.Rect = function (x, y, width, height) {
+    this._Path.push({
+        type: PathEntryType.Rect,
+        x: x,
+        y: y,
+        width: width,
+        height: height
+    });
+};
+RawPath.Instance.RoundedRect = function (left, top, width, height, radiusX, radiusY) {
+    if (radiusX === 0.0 && radiusY === 0.0) {
+        this.Rect(left, top, width, height);
+        return;
+    }
+    var right = left + width;
+    var bottom = top + height;
+    this.Move(left + radiusX, top);
+    this.Line(right - radiusX, top);
+    this.Quadratic(right, top, right, top + radiusY);
+    this.Line(right, bottom - radiusY);
+    this.Quadratic(right, bottom, right - radiusX, bottom);
+    this.Line(left + radiusX, bottom);
+    this.Quadratic(left, bottom, left, bottom - radiusY);
+    this.Line(left, top + radiusY);
+    this.Quadratic(left, top, left + radiusX, top);
+};
+RawPath.Instance.Quadratic = function (cpx, cpy, x, y) {
+    this._Path.push({
+        type: PathEntryType.Quadratic,
+        cpx: cpx,
+        cpy: cpy,
+        x: x,
+        y: y
+    });
+};
+RawPath.Instance.Bezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
+    this._Path.push({
+        type: PathEntryType.Bezier,
+        cp1x: cp1x,
+        cp1y: cp1y,
+        cp2x: cp2x,
+        cp2y: cp2y,
+        x: x,
+        y: y
+    });
+};
+RawPath.Instance.Ellipse = function (x, y, width, height) {
+    var kappa = .5522848; // 4 * ((sqrt(2) - 1) / 3)
+    var ox = width / 2 * kappa;
+    var oy = height / 2 * kappa;
+    var right = x + width;
+    var bottom = y + height;
+    var centerX = x + width / 2;
+    var centerY = y + height / 2;
+    this.Move(x, centerY);
+    this.Bezier(x, centerY - oy, centerX - ox, y, centerX, y);
+    this.Bezier(centerX + ox, y, right, centerY - oy, right, centerY);
+    this.Bezier(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
+    this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
+};
+RawPath.Instance.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
+};
+RawPath.Instance.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
+    this._Path.push({
+        type: PathEntryType.Arc,
+        x: x,
+        y: y,
+        r: r,
+        sAngle: sAngle,
+        eAngle: eAngle,
+        aClockwise: aClockwise
+    });
+};
+RawPath.Instance.ArcTo = function (cpx, cpy, x, y, radius) {
+    this._Path.push({
+        type: PathEntryType.ArcTo,
+        cpx: cpx,
+        cpy: cpy,
+        x: x,
+        y: y,
+        r: radius
+    });
+};
+RawPath.Instance.Close = function () {
+    this._Path.push({
+        type: PathEntryType.Close
+    });
+};
+RawPath.Instance.Draw = function (ctx) {
+    var canvasCtx = ctx.GetCanvasContext();
+    canvasCtx.beginPath();
+    var backing = this._Path;
+    for (var i = 0; i < backing.length; i++) {
+        var p = backing[i];
+        switch (p.type) {
+            case PathEntryType.Move:
+                canvasCtx.moveTo(p.x, p.y);
+                break;
+            case PathEntryType.Line:
+                canvasCtx.lineTo(p.x, p.y);
+                break;
+            case PathEntryType.Rect:
+                canvasCtx.rect(p.x, p.y, p.width, p.height);
+                break;
+            case PathEntryType.Quadratic:
+                canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
+                break;
+            case PathEntryType.Bezier:
+                canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
+                break;
+            case PathEntryType.Arc:
+                canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
+                break;
+            case PathEntryType.ArcTo:
+                canvasCtx.arcTo(p.cpx, p.cpy, p.x, p.y, p.r);
+                break;
+            case PathEntryType.Close:
+                canvasCtx.closePath();
+                break;
+        }
+    }
+};
+RawPath.Instance.CalculateBounds = function () {
+    var backing = this._Path;
+    var startX, startY;
+    var xMin = xMax = yMin = yMax = null;
+    var xRange, yRange;
+    for (var i = 0; i < backing.length; i++) {
+        var p = backing[i];
+        switch (p.type) {
+            case PathEntryType.Move:
+                if (xMin == null && yMin == null) {
+                    xMin = xMax = p.x;
+                    yMin = yMax = p.y;
+                } else {
+                    xMin = Math.min(p.x, xMin);
+                    yMin = Math.min(p.y, yMin);
+                    xMax = Math.max(p.x, xMax);
+                    yMax = Math.max(p.y, yMax);
+                }
+                startX = p.x;
+                startY = p.y;
+                break;
+            case PathEntryType.Line:
+                xMin = Math.min(p.x, xMin);
+                yMin = Math.min(p.y, yMin);
+                xMax = Math.max(p.x, xMax);
+                yMax = Math.max(p.y, yMax);
+                startX = p.x;
+                startY = p.y;
+                break;
+            case PathEntryType.Rect: //does not use current x,y
+                xMin = Math.min(p.x, xMin);
+                yMin = Math.min(p.y, yMin);
+                xMax = Math.max(p.x + p.width, xMax);
+                yMax = Math.max(p.y + p.height, yMax);
+                break;
+            case PathEntryType.Quadratic:
+                xRange = RawPath._CalculateQuadraticBezierRange(startX, p.cpx, p.x);
+                xMin = Math.min(xMin, xRange.min);
+                xMax = Math.max(xMax, xRange.max);
+                yRange = RawPath._CalculateQuadraticBezierRange(startY, p.cpy, p.y);
+                yMin = Math.min(yMin, yRange.min);
+                yMax = Math.max(yMax, yRange.max);
+                startX = p.x;
+                startY = p.y;
+                break;
+            case PathEntryType.Bezier:
+                xRange = RawPath._CalculateCubicBezierRange(startX, p.cp1x, p.cp2x, p.x);
+                xMin = Math.min(xMin, xRange.min);
+                xMax = Math.max(xMax, xRange.max);
+                yRange = RawPath._CalculateCubicBezierRange(startY, p.cp1y, p.cp2y, p.y);
+                yMin = Math.min(yMin, yRange.min);
+                yMax = Math.max(yMax, yRange.max);
+                startX = p.x;
+                startY = p.y;
+                break;
+            case PathEntryType.Arc: //does not use current x,y
+                if (p.sAngle !== p.eAngle) {
+                    var r = RawPath._CalculateArcRange(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
+                    xMin = Math.min(xMin, r.xMin);
+                    xMax = Math.max(xMax, r.xMax);
+                    yMin = Math.min(yMin, r.yMin);
+                    yMax = Math.max(yMax, r.yMax);
+                }
+                break;
+            case PathEntryType.ArcTo:
+                var r = RawPath._CalculateArcToRange(startX, startY, p.cpx, p.cpy, p.x, p.y, p.r);
+                xMin = Math.min(xMin, r.xMin);
+                xMax = Math.max(xMax, r.xMax);
+                yMin = Math.min(yMin, r.yMin);
+                yMax = Math.max(yMax, r.yMax);
+                startX = p.x;
+                startY = p.y;
+                break;
+        }
+    }
+    return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
+};
+RawPath._CalculateQuadraticBezierRange = function (a, b, c) {
+    var min = Math.min(a, c);
+    var max = Math.max(a, c);
+    if (min <= b && b <= max) {
+        return {
+            min: min,
+            max: max
+        };
+    }
+    var t = (a - b) / (a - 2 * b + c);
+    var xt = (a * Math.pow(1 - t, 2)) + (2 * b * (1 - t) * t) + (c * Math.pow(t, 2));
+    if (min > b) {
+        min = Math.min(min, xt);
+    } else {
+        max = Math.max(max, xt);
+    }
+    return {
+        min: min,
+        max: max
+    };
+};
+RawPath._CalculateCubicBezierRange = function (a, b, c, d) {
+    var min = Math.min(a, d);
+    var max = Math.max(a, d);
+    if ((min <= b && b <= max) && (min <= c && c <= max)) {
+        return {
+            min: min,
+            max: max
+        };
+    }
+    var u = 2 * a - 4 * b + 2 * c;
+    var v = b - a;
+    var w = -a + 3 * b + d - 3 * c;
+    var rt = Math.sqrt(u * u - 4 * v * w);
+    if (!isNaN(rt)) {
+        var t;
+        t = (-u + rt) / (2 * w);
+        if (t >= 0 && t <= 1) {
+            var ot = 1 - t;
+            var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+            min = Math.min(min, xt);
+            max = Math.max(max, xt);
+        }
+        t = (-u - rt) / (2 * w);
+        if (t >= 0 && t <= 1) {
+            var ot = 1 - t;
+            var xt = (a * ot * ot * ot) + (3 * b * t * ot * ot) + (3 * c * ot * t * t) + (d * t * t * t);
+            min = Math.min(min, xt);
+            max = Math.max(max, xt);
+        }
+    }
+    return {
+        min: min,
+        max: max
+    };
+};
+RawPath._CalculateArcRange = function (cx, cy, r, sa, ea, cc) {
+    var sx = cx + (r * Math.cos(sa));
+    var sy = cy + (r * Math.sin(sa));
+    var ex = cx + (r * Math.cos(ea));
+    var ey = cy + (r * Math.sin(ea));
+    return RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+};
+RawPath._CalculateArcToRange = function (sx, sy, cpx, cpy, ex, ey, r) {
+    NotImplemented("RawPath._CalculateArcToRange");
+    return {
+        xMin: sx,
+        xMax: sx,
+        yMin: sy,
+        yMax: sy
+    };
+    var v1x = cpx - sx;
+    var v1y = cpy - sy;
+    var v2x = ex - cpx;
+    var v2y = ey - cpy;
+    var theta_outer1 = Math.atan2(Math.abs(v1y), Math.abs(v1x));
+    var theta_outer2 = Math.atan2(Math.abs(v2y), Math.abs(v2x));
+    var inner_theta = Math.PI - theta_outer1 - theta_outer2;
+    var h = r / Math.sin(inner_theta / 2);
+    var cx = cpx + h * Math.cos(inner_theta / 2 + theta_outer2);
+    var cy = cpy + h * Math.sin(inner_theta / 2 + theta_outer2);
+    var a = r / Math.tan(inner_theta / 2);
+    var sx = cpx + a * Math.cos(theta_outer2 + inner_theta);
+    var sy = cpy + a * Math.sin(theta_outer2 + inner_theta);
+    var ex = cpx + a * Math.cos(theta_outer2);
+    var ey = cpy + a * Math.sin(theta_outer2);
+    var cc = true;
+    var r = RawPath._CalculateArcPointsRange(cx, cy, sx, sy, ex, ey, r, cc);
+    return {
+        xMin: Math.min(sx, r.xMin),
+        xMax: Math.max(sx, r.xMax),
+        yMin: Math.min(sy, r.yMin),
+        yMax: Math.max(sy, r.yMax)
+    };
+};
+RawPath._CalculateArcPointsRange = function (cx, cy, sx, sy, ex, ey, r, cc) {
+    var xMin = Math.min(sx, ex);
+    var xMax = Math.max(sx, ex);
+    var yMin = Math.min(sy, ey);
+    var yMax = Math.max(sy, ey);
+    var xLeft = cx - r;
+    if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xLeft, cy, cc)) {
+        xMin = Math.min(xMin, xLeft);
+    }
+    var xRight = cx + r;
+    if (RawPath._ArcContainsPoint(sx, sy, ex, ey, xRight, cy, cc)) {
+        xMax = Math.max(xMax, xRight);
+    }
+    var yTop = cy - r;
+    if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yTop, cc)) {
+        yMin = Math.min(yMin, yTop);
+    }
+    var yBottom = cy + r;
+    if (RawPath._ArcContainsPoint(sx, sy, ex, ey, cx, yBottom, cc)) {
+        yMax = Math.max(yMax, yBottom);
+    }
+    return {
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
+    };
+};
+RawPath._ArcContainsPoint = function (sx, sy, ex, ey, cpx, cpy, cc) {
+    var n = (ex - sx) * (cpy - sy) - (cpx - sx) * (ey - sy);
+    if (n === 0)
+        return true;
+    if (n > 0 && cc)
+        return true;
+    if (n < 0 && !cc)
+        return true;
+    return false;
+};
+RawPath.Merge = function (path1, path2) {
+    NotImplemented("RawPath.Merge");
+};
+Nullstone.FinishCreate(RawPath);
 
 var _LayoutWord = Nullstone.Create("_LayoutWord");
 _LayoutWord.Instance.Init = function () {
@@ -1922,6 +2286,9 @@ var Fayde = {
             } else {
             }
             return val;
+        },
+        GeometryFromString: function (val) {
+            return Fayde._GeometryParser.Parse(val);
         }
     }
 };
@@ -3527,6 +3894,9 @@ _RenderContext.Instance._DrawClip = function (clip) {
     }
 };
 _RenderContext.Instance.Transform = function (matrix) {
+    if (matrix instanceof Transform) {
+        matrix = matrix.GetMatrix();
+    }
     matrix.Apply(this._Surface._Ctx);
     this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
     this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
@@ -3728,6 +4098,373 @@ TemplateBindingMarkup.Instance.Transmute = function (target, propd, templateBind
     return new TemplateBindingExpression(sourcePropd, propd);
 };
 Nullstone.FinishCreate(TemplateBindingMarkup);
+
+Fayde._GeometryParser = function (str) {
+    this.str = str;
+    this.len = str.length;
+    this.index = 0;
+};
+Fayde._GeometryParser.Parse = function (str) {
+    return (new Fayde._GeometryParser(str)).ParseImpl();
+};
+Fayde._GeometryParser.prototype.ParseImpl = function () {
+    var cp = new Point();
+    var cp1, cp2, cp3;
+    var start = new Point();
+    var fillRule = FillRule.EvenOdd;
+    var cbz = false; // last figure is a cubic bezier curve
+    var qbz = false; // last figure is a quadratic bezier curve
+    var cbzp, qbzp; // points needed to create "smooth" beziers
+    var path = new RawPath();
+    while (this.index < this.len) {
+        var c;
+        while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {
+            this.index++;
+        }
+        this.index++
+        var relative = false;
+        switch (c) {
+            case 'f':
+            case 'F':
+                c = this.str.charAt(this.index);
+                if (c === '0')
+                    fillRule = FillRule.EvenOdd;
+                else if (c === '1')
+                    fillRule = FillRule.Nonzero;
+                else
+                    return null;
+                this.index++
+                c = this.str.charAt(this.index);
+                break;
+            case 'm':
+                relative = true;
+            case 'M':
+                cp1 = this.ParsePoint(this);
+                if (cp1 == null)
+                    break;
+                if (relative) {
+                    cp1.X += cp.X;
+                    cp1.Y += cp.Y;
+                }
+                path.Move(cp1.X, cp1.Y);
+                start.X = cp.X = cp1.X;
+                start.Y = cp.Y = cp1.Y;
+                this.Advance();
+                while (this.MorePointsAvailable()) {
+                    if ((cp1 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp1.X += cp.X;
+                        cp1.Y += cp.Y;
+                    }
+                    path.Line(cp1.X, cp1.Y);
+                }
+                cp.X = cp1.X;
+                cp.Y = cp1.Y;
+                cbz = qbz = false;
+                break;
+            case 'l':
+                relative = true;
+            case 'L':
+                while (this.MorePointsAvailable()) {
+                    if ((cp1 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp1.X += cp.X;
+                        cp1.Y += cp.Y;
+                    }
+                    path.Line(cp1.X, cp1.Y);
+                    cp.X = cp1.X;
+                    cp.Y = cp1.Y;
+                    this.Advance();
+                }
+                cbz = qbz = false;
+                break;
+            case 'h':
+                relative = true;
+            case 'H':
+                var x = this.ParseDouble();
+                if (x == null)
+                    break;
+                if (relative)
+                    x += cp.X;
+                cp = new Point(x, cp.Y);
+                path.Line(cp.X, cp.Y);
+                cbz = qbz = false;
+                break;
+            case 'v':
+                relative = true;
+            case 'V':
+                var y = this.ParseDouble();
+                if (y == null)
+                    break;
+                if (relative)
+                    y += cp.Y;
+                cp = new Point(cp.X, y);
+                path.Line(cp.X, cp.Y);
+                cbz = qbz = false;
+                break;
+            case 'c':
+                relative = true;
+            case 'C':
+                while (this.MorePointsAvailable()) {
+                    if ((cp1 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp1.X += cp.X;
+                        cp1.Y += cp.Y;
+                    }
+                    this.Advance();
+                    if ((cp2 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp2.X += cp.X;
+                        cp2.Y += cp.Y;
+                    }
+                    this.Advance();
+                    if ((cp3 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp3.X += cp.X;
+                        cp3.Y += cp.Y;
+                    }
+                    this.Advance();
+                    path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                    cp1.X = cp3.X;
+                    cp1.Y = cp3.Y;
+                }
+                cp.X = cp3.X;
+                cp.Y = cp3.Y;
+                cbz = true;
+                cbzp.X = cp2.X;
+                cbzp.Y = cp2.Y;
+                qbz = false;
+                break;
+            case 's':
+                relative = true;
+            case 'S':
+                while (this.MorePointsAvailable()) {
+                    if ((cp2 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp2.X += cp.X;
+                        cp2.Y += cp.Y;
+                    }
+                    this.Advance();
+                    if ((cp3 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp3.X += cp.X;
+                        cp3.Y += cp.Y;
+                    }
+                    if (cbz) {
+                        cp1.X = 2 * cp.X - cbzp.X;
+                        cp1.Y = 2 * cp.Y - cbzp.Y;
+                    } else
+                        cp1 = cp;
+                    path.Bezier(cp1.X, cp1.Y, cp2.X, cp2.Y, cp3.X, cp3.Y);
+                    cbz = true;
+                    cbzp.X = cp2.X;
+                    cbzp.Y = cp2.Y;
+                    cp.X = cp3.X;
+                    cp.Y = cp3.Y;
+                    this.Advance();
+                }
+                qbz = false;
+                break;
+            case 'q':
+                relative = true;
+            case 'Q':
+                while (this.MorePointsAvailable()) {
+                    if ((cp1 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp1.X += cp.X;
+                        cp1.Y += cp.Y;
+                    }
+                    this.Advance();
+                    if ((cp2 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp2.X += cp.X;
+                        cp2.Y += cp.Y;
+                    }
+                    this.Advance();
+                    path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                    cp.X = cp2.X;
+                    cp.Y = cp2.Y;
+                }
+                qbz = true;
+                qbzp.X = cp1.X;
+                qbzp.Y = cp1.Y;
+                cbz = false;
+                break;
+            case 't':
+                relative = true;
+            case 'T':
+                while (this.MorePointsAvailable()) {
+                    if ((cp2 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp2.X += cp.X;
+                        cp2.Y += cp.Y;
+                    }
+                    if (qbz) {
+                        cp1.X = 2 * cp.X - qbzp.X;
+                        cp1.Y = 2 * cp.Y - qbzp.Y;
+                    } else
+                        cp1 = cp;
+                    path.Quadratic(cp1.X, cp1.Y, cp2.X, cp2.Y);
+                    qbz = true;
+                    qbzp.X = cp1.X;
+                    qbzp.Y = cp1.Y;
+                    cp.X = cp2.X;
+                    cp.Y = cp2.Y;
+                    this.Advance();
+                }
+                cbz = false;
+                break;
+            case 'a':
+                relative = true;
+            case 'A':
+                while (this.MorePointsAvailable()) {
+                    if ((cp1 = this.ParsePoint()) == null)
+                        break;
+                    this.Advance();
+                    var angle = g_ascii_strtod(inptr, end);
+                    if (end == inptr)
+                        break;
+                    inptr = end;
+                    this.Advance();
+                    var is_large = strtol(inptr, end, 10);
+                    if (end == inptr)
+                        break;
+                    inptr = end;
+                    this.Advance();
+                    var sweep = strtol(inptr, end, 10);
+                    if (end == inptr)
+                        break;
+                    inptr = end;
+                    this.Advance();
+                    if ((cp2 = this.ParsePoint()) == null)
+                        break;
+                    if (relative) {
+                        cp2.X += cp.X;
+                        cp2.Y += cp.Y;
+                    }
+                    path.EllipticalArc(cp1.X, cp1.Y, angle, is_large, sweep, cp2.X, cp2.Y);
+                    cp.X = cp2.X;
+                    cp.Y = cp2.Y;
+                    this.Advance();
+                }
+                cbz = qbz = false;
+                break;
+            case 'z':
+            case 'Z':
+                path.Line(start.X, start.Y);
+                path.Close();
+                path.Move(start.X, start.Y);
+                cp.X = start.X;
+                cp.Y = start.Y;
+                cbz = qbz = false;
+                break;
+            default:
+                break;
+        }
+    }
+    var pg = new PathGeometry();
+    pg.$Path = path;
+    pg.SetFillRule(fillRule);
+    return pg;
+};
+Fayde._GeometryParser.prototype.ParsePoint = function () {
+    var x = this.ParseDouble();
+    if (x == null)
+        return null;
+    var c;
+    while (this.index < this.len && ((c = this.str.charAt(this.index)) === ' ' || c === ',')) {
+        this.index++;
+    }
+    if (this.index >= this.len)
+        return null;
+    var y = this.ParseDouble();
+    if (y == null)
+        return null;
+    return new Point(x, y);
+};
+Fayde._GeometryParser.prototype.ParseDouble = function () {
+    this.Advance();
+    var isNegative = false;
+    if (this.Match('-')) {
+        isNegative = true;
+        this.index++;
+    } else if (this.Match('+')) {
+        this.index++;
+    }
+    if (this.Match('Infinity')) {
+        this.index += 8;
+        return isNegative ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+    }
+    if (this.Match('NaN'))
+        return NaN;
+    var temp = '';
+    while (this.index < this.len) {
+        var code = this.str.charCodeAt(this.index);
+        var c = String.fromCharCode(code);
+        if (code >= 48 && code <= 57)
+            temp += c;
+        else if (code === 46)
+            temp += c;
+        else if (c === 'E' || c === 'e')
+            temp += c;
+        else
+            break;
+        this.index++;
+    }
+    if (temp.length === 0)
+        return null;
+    var f = parseFloat(temp);
+    return isNegative ? -f : f;
+};
+Fayde._GeometryParser.prototype.Match = function (matchStr) {
+    var c1;
+    var c2;
+    for (var i = 0; i < matchStr.length && (this.index + i) < this.len; i++) {
+        c1 = matchStr.charAt(i);
+        c2 = this.str.charAt(this.index + i);
+        if (c1 !== c2)
+            return false;
+    }
+    return true;
+};
+Fayde._GeometryParser.prototype.Advance = function () {
+    var code;
+    while (this.index < this.len) {
+        code = this.str.charCodeAt(this.index);
+        if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122) || (code >= 48 && code <= 57))
+            break;
+        c = String.fromCharCode(code);
+        if (c === '.')
+            break;
+        if (c === '-')
+            break;
+        if (c === '+')
+            break;
+        this.index++;
+    }
+};
+Fayde._GeometryParser.prototype.MorePointsAvailable = function () {
+    var c;
+    while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
+        this.index++;
+    }
+    if (this.index >= this.len)
+        return false;
+    if (c === '.' || c === '-' || c === '+')
+        return true;
+    var code = this.str.charCodeAt(this.index);
+    return code >= 48 && code <= 57;
+};
 
 var AnimationStorage = Nullstone.Create("AnimationStorage", null, 3);
 AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
@@ -4190,7 +4927,7 @@ Matrix.Translate = function (matrix, x, y) {
     return matrix;
 };
 Matrix.Scale = function (matrix, scaleX, scaleY) {
-    if (x === 1 && y === 1)
+    if (scaleX === 1 && scaleY === 1)
         return matrix;
     var els = matrix._Elements;
     els[0] *= scaleX;
@@ -4293,11 +5030,16 @@ Rect.Instance.GrowBy = function (left, top, right, bottom) {
 Rect.Instance.GrowByThickness = function (thickness) {
     return this.GrowBy(thickness.Left, thickness.Top, thickness.Right, thickness.Bottom);
 };
-Rect.Instance.Union = function (rect2) {
+Rect.Instance.Union = function (rect2, logical) {
     if (this.IsEmpty())
         return new Rect(rect2.X, rect2.Y, rect2.Width, rect2.Height);
-    if (rect2.Width <= 0 || rect2.Height <= 0)
-        return new Rect(this.X, this.Y, this.Width, this.Height);
+    if (logical) {
+        if (rect2.Width <= 0 && rect2.Height <= 0)
+            return new Rect(this.X, this.Y, this.Width, this.Height);
+    } else {
+        if (rect2.Width <= 0 || rect2.Height <= 0)
+            return new Rect(this.X, this.Y, this.Width, this.Height);
+    }
     var result = new Rect(0, 0, 0, 0);
     result.X = Math.min(this.X, rect2.X);
     result.Y = Math.min(this.Y, rect2.Y);
@@ -9120,18 +9862,155 @@ Nullstone.FinishCreate(GeneralTransform);
 var Geometry = Nullstone.Create("Geometry", DependencyObject);
 Geometry.Instance.Init = function () {
     this.Init$DependencyObject();
+    this.$Path = null;
     this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+};
+Geometry.TransformProperty = DependencyProperty.Register("Transform", function () { return Transform; }, Geometry);
+Geometry.Instance.GetTransform = function () {
+    return this.GetValue(Geometry.TransformProperty);
+};
+Geometry.Instance.SetTransform = function (value) {
+    this.SetValue(Geometry.TransformProperty, value);
+};
+Geometry.Instance.Draw = function (ctx) {
+    if (this.$Path == null)
+        return;
+    var transform = this.GetTransform();
+    if (transform != null) {
+        ctx.Save();
+        ctx.Transform(transform);
+    }
+    this.$Path.Draw(ctx);
+    if (transform != null)
+        ctx.Restore();
 };
 Geometry.Instance.GetBounds = function () {
     var compute = this._LocalBounds.IsEmpty();
+    if (this.$Path == null) {
+        this._Build();
+        compute = true;
+    }
     if (compute)
         this._LocalBounds = this.ComputePathBounds();
     var bounds = this._LocalBounds;
+    var transform = this.GetTransform();
+    if (transform != null) {
+        bounds = transform.TransformBounds(bounds);
+    }
     return bounds;
 };
 Geometry.Instance.ComputePathBounds = function () {
+    this._EnsureBuilt();
+    if (this.$Path == null)
+        return new Rect();
+    return this.$Path.CalculateBounds();
+};
+Geometry.Instance._EnsureBuilt = function () {
+    if (this.$Path == null)
+        this._Build();
+};
+Geometry.Instance._Build = function () {
+};
+Geometry.Instance._InvalidateCache = function () {
+    this.$Path = null;
+    this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+};
+Geometry.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Geometry
+        && args.Property._ID !== PathGeometry.FillRuleProperty
+        && args.Property._ID !== GeometryGroup.FillRuleProperty) {
+        this._OnPropertyChanged$DependencyObject(args, error);
+        return;
+    }
+    this._InvalidateCache();
+    this.PropertyChanged.Raise(this, args);
+};
+Geometry.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    this.PropertyChanged.Raise(this, {
+        Property: propd,
+        OldValue: null,
+        NewValue: this.GetValue(propd)
+    });
+    this._OnSubPropertyChanged$DependencyObject();
 };
 Nullstone.FinishCreate(Geometry);
+
+var GeometryCollection = Nullstone.Create("GeometryCollection", DependencyObjectCollection);
+GeometryCollection.Instance.IsElementType = function (value) {
+    return val instanceof Geometry;
+};
+Nullstone.FinishCreate(GeometryCollection);
+
+var GeometryGroup = Nullstone.Create("GeometryGroup", Geometry);
+GeometryGroup.Instance.Init = function () {
+    this.Init$Geometry();
+};
+GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return Number; }, GeometryGroup, FillRule.EvenOdd);
+GeometryGroup.Instance.GetFillRule = function () {
+    return this.GetValue(GeometryGroup.FillRuleProperty);
+};
+GeometryGroup.Instance.SetFillRule = function (value) {
+    this.SetValue(GeometryGroup.FillRuleProperty, value);
+};
+GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, null, { GetValue: function () { return new GeometryCollection(); } });
+GeometryGroup.Instance.GetChildren = function () {
+    return this.GetValue(GeometryGroup.ChildrenProperty);
+};
+GeometryGroup.Instance.SetChildren = function (value) {
+    this.SetValue(GeometryGroup.ChildrenProperty, value);
+};
+GeometryGroup.Instance.ComputePathBounds = function () {
+    var bounds = new Rect();
+    var children = this.GetChildren();
+    var count = children.GetCount();
+    var g;
+    for (var i = 0; i < count; i++) {
+        g = children.GetValueAt(i);
+        bounds = bounds.Union(g.GetBounds(), true);
+    }
+    return bounds;
+};
+GeometryGroup.Instance.Draw = function (ctx) {
+    var transform = this.GetTransform();
+    if (transform != null) {
+        ctx.Save();
+        ctx.Transform(transform);
+    }
+    var children = this.GetChildren();
+    var count = children.GetCount();
+    var g;
+    for (var i = 0; i < count; i++) {
+        g = children.GetValueAt(i);
+        g.Draw(ctx);
+    }
+    if (transform != null)
+        ctx.Restore();
+};
+GeometryGroup.prototype._OnCollectionChanged = function (sender, args) {
+    this._InvalidateCache();
+    if (!this._PropertyHasValueNoAutoCreate(GeometryGroup.ChildrenProperty, sender)) {
+        this._OnCollectionChanged(sender, args);
+        return;
+    }
+    this.PropertyChanged.Raise(this, {
+        Property: GeometryGroup.ChildrenProperty,
+        OldValue: null,
+        NewValue: this.GetChildren()
+    });
+};
+GeometryGroup.prototype._OnCollectionItemChanged = function (sender, args) {
+    this._InvalidateCache();
+    if (!this._PropertyHasValueNoAutoCreate(GeometryGroup.ChildrenProperty, sender)) {
+        this._OnCollectionItemChanged(sender, args);
+        return;
+    }
+    this.PropertyChanged.Raise(this, {
+        Property: GeometryGroup.ChildrenProperty,
+        OldValue: null,
+        NewValue: this.GetChildren()
+    });
+};
+Nullstone.FinishCreate(GeometryGroup);
 
 var GradientBrush = Nullstone.Create("GradientBrush", Brush);
 GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
@@ -9216,6 +10095,168 @@ LinearGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
 };
 Nullstone.FinishCreate(LinearGradientBrush);
 
+var PathFigure = Nullstone.Create("PathFigure", DependencyObject);
+PathFigure.Instance.Init = function () {
+    this._Path = null;
+};
+PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () { return Boolean; }, PathFigure, false);
+PathFigure.Instance.GetIsClosed = function () {
+    return this.GetValue(PathFigure.IsClosedProperty);
+};
+PathFigure.Instance.SetIsClosed = function (value) {
+    this.SetValue(PathFigure.IsClosedProperty, value);
+};
+PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, null, { GetValue: function () { return new PathSegmentCollection(); } });
+PathFigure.Instance.GetSegments = function () {
+    return this.GetValue(PathFigure.SegmentsProperty);
+};
+PathFigure.Instance.SetSegments = function (value) {
+    this.SetValue(PathFigure.SegmentsProperty, value);
+};
+PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, PathFigure, new Point());
+PathFigure.Instance.GetStartPoint = function () {
+    return this.GetValue(PathFigure.StartPointProperty);
+};
+PathFigure.Instance.SetStartPoint = function (value) {
+    this.SetValue(PathFigure.StartPointProperty, value);
+};
+PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () { return Boolean; }, PathFigure, true);
+PathFigure.Instance.GetIsFilled = function () {
+    return this.GetValue(PathFigure.IsFilledProperty);
+};
+PathFigure.Instance.SetIsFilled = function (value) {
+    this.SetValue(PathFigure.IsFilledProperty, value);
+};
+PathFigure.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== PathFigure) {
+        this._OnPropertyChanged$DependencyObject(args, error);
+        return;
+    }
+    this._Path = null;
+    this.PropertyChanged.Raise(this, args);
+};
+PathFigure.Instance._OnCollectionChanged = function (sender, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathFigure.SegmentsProperty, sender)) {
+        this._OnCollectionChanged$DependencyObject(sender, args);
+        return;
+    }
+    this._Path = null;
+    var newArgs = {
+        Property: PathFigure.SegmentsProperty,
+        OldValue: null,
+        NewValue: this.GetValue(PathFigure.SegmentsProperty)
+    };
+    this.PropertyChanged.Raise(this, newArgs);
+};
+PathFigure.Instance._OnCollectionItemChanged = function (sender, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathFigure.SegmentsProperty, sender)) {
+        this._OnCollectionItemChanged$DependencyObject(sender, args);
+        return;
+    }
+    this._Path = null;
+    var newArgs = {
+        Property: PathFigure.SegmentsProperty,
+        OldValue: null,
+        NewValue: this.GetValue(PathFigure.SegmentsProperty)
+    };
+    this.PropertyChanged.Raise(this, newArgs);
+};
+PathFigure.Instance._Build = function () {
+    this._Path = [];
+    var start = this.GetStartPoint();
+    this._Path.push({ type: PathEntryType.Move, x: start.X, y: start.Y });
+    var segments = this.GetSegments();
+    var segmentCount = segments.GetCount();
+    for (var i = 0; i < segmentCount; i++) {
+        var segment = segments[i];
+        segment._Append(this._Path);
+    }
+    if (this.GetIsClosed())
+        this._Path.push({ type: PathEntryType.Close });
+};
+Nullstone.FinishCreate(PathFigure);
+
+var PathFigureCollection = Nullstone.Create("PathFigureCollection", DependencyObjectCollection);
+PathFigureCollection.Instance.Init = function () {
+};
+PathFigureCollection.Instance.IsElementType = function (value) {
+    return value instanceof PathFigure;
+};
+Nullstone.FinishCreate(PathFigureCollection);
+
+var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
+PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return Number; }, PathGeometry);
+PathGeometry.Instance.GetFillRule = function () {
+    return this.GetValue(PathGeometry.FillRuleProperty);
+};
+PathGeometry.Instance.SetFillRule = function (value) {
+    this.SetValue(PathGeometry.FillRuleProperty, value);
+};
+PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, null, { GetValue: function () { return new PathFigureCollection(); } });
+PathGeometry.Instance.GetFigures = function () {
+    return this.GetValue(PathGeometry.FiguresProperty);
+};
+PathGeometry.Instance.SetFigures = function (value) {
+    this.SetValue(PathGeometry.FiguresProperty, value);
+};
+PathGeometry.Annotations = {
+    ContentProperty: PathGeometry.FiguresProperty
+};
+PathGeometry.prototype._OnCollectionChanged = function (sender, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathGeometry.FiguresProperty, sender)) {
+        this._OnCollectionChanged$Geometry(sender, args);
+        return;
+    }
+    this._InvalidateCache();
+    this.PropertyChanged.Raise(this, {
+        Property: PathGeometry.FiguresProperty,
+        OldValue: null,
+        NewValue: this.GetFigures()
+    });
+};
+PathGeometry.prototype._OnCollectionItemChanged = function (sender, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathGeometry.FiguresProperty, sender)) {
+        this._OnCollectionItemChanged$Geometry(sender, args);
+        return;
+    }
+    this._InvalidateCache();
+    this.PropertyChanged.Raise(this, {
+        Property: PathGeometry.FiguresProperty,
+        OldValue: null,
+        NewValue: this.GetFigures()
+    });
+};
+PathGeometry.Instance._Build = function () {
+    this.$Path = new RawPath();
+    var figures = this.GetFigures();
+    if (figures == null)
+        return;
+    var count = figures.GetCount();
+    var f;
+    for (var i = 0; i < count; i++) {
+        f = figures.GetValueAt(i);
+        f._EnsureBuilt();
+        RawPath.Merge(this.$Path, f.$Path);
+    }
+};
+Nullstone.FinishCreate(PathGeometry);
+
+var PathSegment = Nullstone.Create("PathSegment", DependencyObject);
+PathSegment.Instance.Init = function () {
+};
+PathSegment.Instance._Append = function (path) {
+    AbstractMethod("PathSegment._Append");
+};
+Nullstone.FinishCreate(PathSegment);
+
+var PathSegmentCollection = Nullstone.Create("PathSegmentCollection", DependencyObjectCollection);
+PathSegmentCollection.Instance.Init = function () {
+};
+PathSegmentCollection.Instance.IsElementType = function (value) {
+    return value instanceof PathSegment;
+};
+Nullstone.FinishCreate(PathSegmentCollection);
+
 var RadialGradientBrush = Nullstone.Create("RadialGradientBrush", GradientBrush);
 RadialGradientBrush.CenterProperty = DependencyProperty.RegisterFull("Center", function () { return Point; }, RadialGradientBrush, new Point(0.5, 0.5));
 RadialGradientBrush.Instance.GetCenter = function () {
@@ -9251,12 +10292,26 @@ RadialGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
 Nullstone.FinishCreate(RadialGradientBrush);
 
 var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
-RectangleGeometry.RectProperty = DependencyProperty.Register("Rect", function () { return Rect; }, RectangleGeometry);
+RectangleGeometry.RectProperty = DependencyProperty.Register("Rect", function () { return Rect; }, RectangleGeometry, new Rect());
 RectangleGeometry.Instance.GetRect = function () {
     return this.GetValue(RectangleGeometry.RectProperty);
 };
 RectangleGeometry.Instance.SetRect = function (value) {
     this.SetValue(RectangleGeometry.RectProperty, value);
+};
+RectangleGeometry.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, RectangleGeometry, 0);
+RectangleGeometry.Instance.GetRadiusX = function () {
+    return this.GetValue(RectangleGeometry.RadiusXProperty);
+};
+RectangleGeometry.Instance.SetRadiusX = function (value) {
+    this.SetValue(RectangleGeometry.RadiusXProperty, value);
+};
+RectangleGeometry.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, RectangleGeometry, 0);
+RectangleGeometry.Instance.GetRadiusY = function () {
+    return this.GetValue(RectangleGeometry.RadiusYProperty);
+};
+RectangleGeometry.Instance.SetRadiusY = function (value) {
+    this.SetValue(RectangleGeometry.RadiusYProperty, value);
 };
 RectangleGeometry.Instance.ComputePathBounds = function () {
     var rect = this.GetRect();
@@ -9264,11 +10319,14 @@ RectangleGeometry.Instance.ComputePathBounds = function () {
         return rect;
     return new Rect(0.0, 0.0, 0.0, 0.0);
 };
-RectangleGeometry.Instance.Draw = function (canvasCtx) {
+RectangleGeometry.Instance._Build = function () {
     var rect = this.GetRect();
-    canvasCtx.beginPath();
-    canvasCtx.rect(rect.X, rect.Y, rect.Width, rect.Height);
-    canvasCtx.closePath();
+    if (rect == null)
+        return;
+    var radiusX = this.GetRadiusX();
+    var radiusY = this.GetRadiusY();
+    this.$Path = new RawPath();
+    this.$Path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
 };
 Nullstone.FinishCreate(RectangleGeometry);
 
@@ -9344,6 +10402,9 @@ Transform.Instance.TryTransform = function (inPoint, outPointOut) {
     this._MaybeUpdateTransform();
     outPointOut.Value = this._TransformPoint(inPoint);
     return true;
+};
+Transform.Instance.GetMatrix = function () {
+    AbstractMethod("Transform.GetMatrix");
 };
 Nullstone.FinishCreate(Transform);
 
@@ -11053,6 +12114,49 @@ Span.Instance._OnCollectionChanged = function (sender, args) {
 };
 Nullstone.FinishCreate(Span);
 
+var ArcSegment = Nullstone.Create("ArcSegment", PathSegment);
+ArcSegment.Instance.Init = function () {
+};
+ArcSegment.IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", function () { return Boolean; }, ArcSegment, false);
+ArcSegment.Instance.GetIsLargeArc = function () {
+    return this.GetValue(ArcSegment.IsLargeArcProperty);
+};
+ArcSegment.Instance.SetIsLargeArc = function (value) {
+    this.SetValue(ArcSegment.IsLargeArcProperty, value);
+};
+ArcSegment.PointProperty = DependencyProperty.Register("Point", function () { return Point; }, ArcSegment, new Point());
+ArcSegment.Instance.GetPoint = function () {
+    return this.GetValue(ArcSegment.PointProperty);
+};
+ArcSegment.Instance.SetPoint = function (value) {
+    this.SetValue(ArcSegment.PointProperty, value);
+};
+ArcSegment.RotationAngleProperty = DependencyProperty.Register("RotationAngle", function () { return Number; }, ArcSegment, 0.0);
+ArcSegment.Instance.GetRotationAngle = function () {
+    return this.GetValue(ArcSegment.RotationAngleProperty);
+};
+ArcSegment.Instance.SetRotationAngle = function (value) {
+    this.SetValue(ArcSegment.RotationAngleProperty, value);
+};
+ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () { return Size; }, ArcSegment, new Size());
+ArcSegment.Instance.GetSize = function () {
+    return this.GetValue(ArcSegment.SizeProperty);
+};
+ArcSegment.Instance.SetSize = function (value) {
+    this.SetValue(ArcSegment.SizeProperty, value);
+};
+ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return Number; }, ArcSegment, SweepDirection.Counterclockwise);
+ArcSegment.Instance.GetSweepDirection = function () {
+    return this.GetValue(ArcSegment.SweepDirectionProperty);
+};
+ArcSegment.Instance.SetSweepDirection = function (value) {
+    this.SetValue(ArcSegment.SweepDirectionProperty, value);
+};
+ArcSegment.Instance._Append = function (path) {
+    NotImplemented("ArcSegment._Append");
+};
+Nullstone.FinishCreate(ArcSegment);
+
 var ImageBrush = Nullstone.Create("ImageBrush", TileBrush);
 ImageBrush.Instance.Init = function () {
     this.Init$TileBrush();
@@ -11927,35 +13031,7 @@ Shape.Instance._Render = function (ctx, region) {
 };
 Shape.Instance._BuildPath = function () { };
 Shape.Instance._DrawPath = function (ctx) {
-    var canvasCtx = ctx.GetCanvasContext();
-    canvasCtx.beginPath();
-    for (var i = 0; i < this._Path.length; i++) {
-        var p = this._Path[i];
-        switch (p.type) {
-            case PathEntryType.Move:
-                canvasCtx.moveTo(p.x, p.y);
-                break;
-            case PathEntryType.Line:
-                canvasCtx.lineTo(p.x, p.y);
-                break;
-            case PathEntryType.Rect:
-                canvasCtx.rect(p.x, p.y, p.width, p.height);
-                break;
-            case PathEntryType.Quadratic:
-                canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
-                break;
-            case PathEntryType.Bezier:
-                canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
-                break;
-            case PathEntryType.Arc:
-                canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
-                break;
-            case PathEntryType.ArcTo:
-                canvasCtx.arcTo(p.x1, p.y1, p.x2, p.y2, p.radius);
-                break;
-        }
-    }
-    canvasCtx.closePath();
+    this._Path.Draw(ctx);
 };
 Shape.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Shape) {
@@ -15787,19 +16863,9 @@ Ellipse.Instance._BuildPath = function () {
     }
     var ht = -t / 2;
     rect = rect.GrowBy(ht, ht, ht, ht);
-    var kappa = .5522848; // 4 * ((sqrt(2) - 1) / 3)
-    var ox = rect.Width / 2 * kappa;
-    var oy = rect.Height / 2 * kappa;
-    var right = rect.X + rect.Width;
-    var bottom = rect.Y + rect.Height;
-    var centerX = rect.X + rect.Width / 2;
-    var centerY = rect.Y + rect.Height / 2;
-    this._Path = [];
-    this._Path.push({ type: PathEntryType.Move, x: rect.X, y: centerY });
-    this._Path.push({ type: PathEntryType.Bezier, cp1x: rect.X,         cp1y: centerY - oy, cp2x: centerX - ox, cp2y: rect.Y,       x: centerX, y: rect.Y });
-    this._Path.push({ type: PathEntryType.Bezier, cp1x: centerX + ox,   cp1y: rect.Y,       cp2x: right,        cp2y: centerY - oy, x: right,   y: centerY });
-    this._Path.push({ type: PathEntryType.Bezier, cp1x: right,          cp1y: centerY + oy, cp2x: centerX + ox, cp2y: bottom,       x: centerX, y: bottom });
-    this._Path.push({ type: PathEntryType.Bezier, cp1x: centerX - ox,   cp1y: bottom,       cp2x: rect.X,       cp2y: centerY + oy, x: rect.X,  y: centerY });
+    var path = new RawPath();
+    path.Ellipse(rect.X, rect.Y, rect.Width, rect.Height);
+    this._Path = path;
 };
 Ellipse.Instance._ComputeStretchBounds = function () {
     return this._ComputeShapeBounds(false);
@@ -15847,6 +16913,132 @@ Ellipse.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
 };
 Nullstone.FinishCreate(Ellipse);
+
+var Line = Nullstone.Create("Line", Shape);
+Line.Instance.Init = function () {
+    this.Init$Shape();
+};
+Line.X1Property = DependencyProperty.Register("X1", function () { return Number; }, Line, 0);
+Line.Instance.GetX1 = function () {
+    return this.GetValue(Line.X1Property);
+};
+Line.Instance.SetX1 = function (value) {
+    this.SetValue(Line.X1Property, value);
+};
+Line.Y1Property = DependencyProperty.Register("Y1", function () { return Number; }, Line, 0);
+Line.Instance.GetY1 = function () {
+    return this.GetValue(Line.Y1Property);
+};
+Line.Instance.SetY1 = function (value) {
+    this.SetValue(Line.Y1Property, value);
+};
+Line.X2Property = DependencyProperty.Register("X2", function () { return Number; }, Line, 0);
+Line.Instance.GetX2 = function () {
+    return this.GetValue(Line.X2Property);
+};
+Line.Instance.SetX2 = function (value) {
+    this.SetValue(Line.X2Property, value);
+};
+Line.Y2Property = DependencyProperty.Register("Y2", function () { return Number; }, Line, 0);
+Line.Instance.GetY2 = function () {
+    return this.GetValue(Line.Y2Property);
+};
+Line.Instance.SetY2 = function (value) {
+    this.SetValue(Line.Y2Property, value);
+};
+Line.Instance._DrawPath = function (ctx) {
+    if (this._Path == null)
+        this._BuildPath();
+    this._DrawPath$Shape(ctx);
+};
+Line.Instance._BuildPath = function () {
+    this._SetShapeFlags(ShapeFlags.Normal);
+    this._Path = new RawPath();
+    var x1 = this.GetX1();
+    var y1 = this.GetY1();
+    var x2 = this.GetX2();
+    var y2 = this.GetY2();
+    this._Path.Move(x1, y1);
+    this._Path.Line(x2, y2);
+};
+Line.Instance._ComputeShapeBoundsImpl = function (logical) {
+    var shapeBounds = new Rect();
+    var thickness = 0;
+    if (!logical)
+        thickness = this.GetStrokeThickness();
+    if (thickness <= 0.0 && !logical)
+        return shapeBounds;
+    var x1 = this.GetX1();
+    var y1 = this.GetY1();
+    var x2 = this.GetX2();
+    var y2 = this.GetY2();
+    shapeBounds = new Rect(
+        Math.min(x1, x2),
+        Math.min(y1, y2),
+        Math.abs(x2 - x1),
+        Math.abs(y2 - y1)
+    );
+    return shapeBounds;
+};
+Line.prototype._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Line) {
+        this._OnPropertyChanged$Shape(args, error);
+        return;
+    }
+    if (args.Property._ID == Line.X1Property._ID
+        || args.Property._ID == Line.X2Property._ID
+        || args.Property._ID == Line.Y1Property._ID
+        || args.Property._ID == Line.Y2Property._ID) {
+        this._InvalidateNaturalBounds();
+    }
+    this.PropertyChanged.Raise(this, args);
+};
+Nullstone.FinishCreate(Line);
+
+var Path = Nullstone.Create("Path", Shape);
+Path.Instance.Init = function () {
+    this.Init$Shape();
+};
+Path.DataProperty = DependencyProperty.RegisterCore("Data", function () { return Geometry; }, Path);
+Path.Instance.GetData = function () {
+    return this.GetValue(Path.DataProperty);
+};
+Path.Instance.SetData = function (value) {
+    this.SetValue(Path.DataProperty, value);
+};
+Path.Instance.SetData.Converter = function (value) {
+    if (value instanceof Geometry)
+        return value;
+    if (typeof value === "string")
+        return Fayde.TypeConverter.GeometryFromString(value);
+    return value;
+};
+Path.Instance._DrawPath = function (ctx) {
+    var geom = this.GetData();
+    if (geom == null)
+        return;
+    ctx.Save();
+    geom.Draw(ctx);
+    ctx.Restore();
+};
+Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
+    var geom = this.GetData();
+    if (geom == null) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return new Rect();
+    }
+    if (logical)
+        return geom.GetBounds();
+    return geom.GetBounds();
+    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
+    var shapeBounds = new Rect();
+    if (thickness > 0) {
+    } else {
+    }
+    NotImplemented("Path._ComputeShapeBoundsImpl");
+    return shapeBounds;
+};
+Nullstone.FinishCreate(Path);
 
 var Rectangle = Nullstone.Create("Rectangle", Shape);
 Rectangle.Instance.Init = function () {
@@ -15905,29 +17097,12 @@ Rectangle.Instance._BuildPath = function () {
         rect = rect.GrowBy(ta, ta, ta, ta);
         this._SetShapeFlags(ShapeFlags.Normal);
     }
-    this._Path = [];
-    if (radiusX === 0.0 && radiusY === 0.0) {
-        this._Path.push({ type: PathEntryType.Rect, x: rect.X, y: rect.Y, width: rect.Width, height: rect.Height });
-        return;
-    }
-    if (radiusX === radiusY) {
-        var left = rect.X;
-        var top = rect.Y;
-        var right = rect.X + rect.Width;
-        var bottom = rect.Y + rect.Height;
-        this._Path.push({ type: PathEntryType.Move, x: left + radiusX, y: top });
-        this._Path.push({ type: PathEntryType.Line, x: right - radiusX, y: top });
-        this._Path.push({ type: PathEntryType.Quadratic, cpx: right, cpy: top, x: right, y: top + radiusY });
-        this._Path.push({ type: PathEntryType.Line, x: right, y: bottom - radiusY });
-        this._Path.push({ type: PathEntryType.Quadratic, cpx: right, cpy: bottom, x: right - radiusX, y: bottom });
-        this._Path.push({ type: PathEntryType.Line, x: left + radiusX, y: bottom });
-        this._Path.push({ type: PathEntryType.Quadratic, cpx: left, cpy: bottom, x: left, y: bottom - radiusY });
-        this._Path.push({ type: PathEntryType.Line, x: left, y: top + radiusY });
-        this._Path.push({ type: PathEntryType.Quadratic, cpx: left, cpy: top, x: left + radiusX, y: top });
-        return;
-    }
-    NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
-    return;
+    var path = new RawPath();
+    if ((radiusX === 0.0 && radiusY === 0.0) || (radiusX === radiusY))
+        path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
+    else
+        NotImplemented("Rectangle._BuildPath with RadiusX !== RadiusY");
+    this._Path = path;
 };
 Rectangle.Instance._ComputeStretchBounds = function () {
     return this._ComputeShapeBounds(false);
@@ -17574,7 +18749,6 @@ ScrollViewer.Instance.OnApplyTemplate = function () {
     if (this.$ElementVerticalScrollBar != null) {
         this.$ElementVerticalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Vertical, e); }, this);
     }
-    this._UpdateScrollBarVisibility();
 };
 ScrollViewer.Instance.MakeVisible = function (uie, targetRect) {
     var escp = this.$ElementScrollContentPresenter;
@@ -17609,11 +18783,11 @@ ScrollViewer.Instance.MeasureOverride = function (constraint) {
         this.$InMeasure = true;
         if (this.$ScrollVisibilityY !== visibility) {
             this.$ScrollVisibilityY = visibility;
-            this.SetComputedVerticalScrollBarVisibility(this.$ScrollVisibilityY);
+            this._SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, this.$ScrollVisibilityY);
         }
         if (this.$ScrollVisibilityX !== visibility1) {
             this.$ScrollVisibilityX = visibility1;
-            this.SetComputedHorizontalScrollBarVisibility(this.$ScrollVisibilityX);
+            this._SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, this.$ScrollVisibilityX);
         }
         if (scrollInfo != null) {
             scrollInfo.SetCanHorizontallyScroll(horizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
@@ -17625,11 +18799,11 @@ ScrollViewer.Instance.MeasureOverride = function (constraint) {
             var flag5 = flag2 && scrollInfo.GetExtentHeight() > scrollInfo.GetViewportHeight();
             if (flag4 && this.$ScrollVisibilityX !== Visibility.Visible) {
                 this.$ScrollVisibilityX = Visibility.Visible;
-                this.SetComputedHorizontalScrollBarVisibility(this.$ScrollVisibilityX);
+                this._SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, this.$ScrollVisibilityX);
             }
             if (flag5 && this.$ScrollVisibilityY !== Visibility.Visible) {
                 this.$ScrollVisibilityY = Visibility.Visible;
-                this.SetComputedVerticalScrollBarVisibility(this.$ScrollVisibilityY);
+                this._SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, this.$ScrollVisibilityY);
             }
             if (flag4 || flag5) {
                 this.$InChildInvalidateMeasure = true;
@@ -17642,12 +18816,12 @@ ScrollViewer.Instance.MeasureOverride = function (constraint) {
                 if (!flag6) {
                     if (flag7 && this.$ScrollVisibilityY !== Visibility.Visible) {
                         this.$ScrollVisibilityY = Visibility.Visible;
-                        this.SetComputedVerticalScrollBarVisibility(this.$ScrollVisibilityY);
+                        this._SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, this.$ScrollVisibilityY);
                     }
                 } else {
                     if (this.$ScrollVisibilityX !== Visibility.Visible) {
                         this.$ScrollVisibilityX = Visibility.Visible;
-                        this.SetComputedHorizontalScrollBarVisibility(this.$ScrollVisibilityX);
+                        this._SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, this.$ScrollVisibilityX);
                     }
                 }
                 if (flag6 || flag7) {
@@ -17759,21 +18933,21 @@ ButtonBase.Instance.GetClickMode = function () {
 ButtonBase.Instance.SetClickMode = function (value) {
     this.SetValue(ButtonBase.ClickModeProperty, value);
 };
-ButtonBase.IsPressedProperty = DependencyProperty.Register("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
+ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
 ButtonBase.Instance.GetIsPressed = function () {
 	return this.GetValue(ButtonBase.IsPressedProperty);
 };
 ButtonBase.Instance.SetIsPressed = function (value) {
 	this.SetValue(ButtonBase.IsPressedProperty, value);
 };
-ButtonBase.IsFocusedProperty = DependencyProperty.Register("IsFocused", function () { return Boolean; }, ButtonBase, false);
+ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
 ButtonBase.Instance.GetIsFocused = function () {
     return this.GetValue(ButtonBase.IsFocusedProperty);
 };
 ButtonBase.Instance.SetIsFocused = function (value) {
     this.SetValue(ButtonBase.IsFocusedProperty, value);
 };
-ButtonBase.IsMouseOverProperty = DependencyProperty.Register("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
+ButtonBase.IsMouseOverProperty = DependencyProperty.RegisterReadOnly("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
 ButtonBase.Instance.GetIsMouseOver = function () {
     return this.GetValue(ButtonBase.IsMouseOverProperty);
 };

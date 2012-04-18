@@ -62,29 +62,25 @@ namespace WickedSick.Server.XamlParser.Elements
             if (pd == null)
                 throw new ArgumentException(string.Format("An unregistered property has been passed. {0}.{1}", GetType().Name, name));
 
-            if (pd.Type.IsGenericType && pd.Type.GetGenericTypeDefinition() == typeof(List<>))
+            if (pd.Type.IsGenericType && pd.Type.GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
             {
-                IList valueList;
+                DependencyObject doc;
                 if (_dependencyValues.ContainsKey(pd))
                 {
-                    valueList = (IList)_dependencyValues[pd];
+                    doc = (DependencyObject)_dependencyValues[pd];
                 }
                 else
                 {
-                    valueList = (IList)Activator.CreateInstance(pd.Type);
-                    _dependencyValues.Add(pd, valueList);
+                    doc = (DependencyObject)Activator.CreateInstance(pd.Type);
+                    _dependencyValues.Add(pd, doc);
                 }
 
-                //support the case:
-                //the property type is a list
-                //but the value is set as a single string
-                //e.g. TextDecorations="Underline"
                 Type genericType = pd.Type.GetGenericArguments()[0];
                 if (value is string && genericType != typeof(string))
                 {
                     value = GetConvertedValue((string)value, genericType);
                 }
-                valueList.Add(value);
+                doc.AddContent(value);
             }
             else
             {
@@ -123,7 +119,7 @@ namespace WickedSick.Server.XamlParser.Elements
             return _dependencyValues[pd];
         }
 
-        public void AddContent(object value)
+        public virtual void AddContent(object value)
         {
             //if type contains a content property (marked with content attribute), then parse the child nodes
             //if no content property but child nodes exist, throw error
@@ -135,14 +131,15 @@ namespace WickedSick.Server.XamlParser.Elements
             //TODO: check and make sure the property type is correct
             if (contentProperty == null)
                 throw new XamlParseException(string.Format("Content cannot be added to an element with no content property definition. {0}", GetType().Name));
-            if (contentProperty.Type.IsGenericType && contentProperty.Type.GetGenericTypeDefinition() == typeof(List<>))
+            
+            if (contentProperty.Type.IsGenericType && contentProperty.Type.GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
             {
                 if (!_dependencyValues.Keys.Contains(contentProperty))
                 {
-                    object list = Activator.CreateInstance(contentProperty.Type);
-                    _dependencyValues.Add(contentProperty, list);
+                    object doc = Activator.CreateInstance(contentProperty.Type);
+                    _dependencyValues.Add(contentProperty, doc);
                 }
-                ((IList)_dependencyValues[contentProperty]).Add(value);
+                ((DependencyObject)_dependencyValues[contentProperty]).AddContent(value);
             }
             else
             {
@@ -162,17 +159,19 @@ namespace WickedSick.Server.XamlParser.Elements
                 throw new ArgumentException(string.Format("An unregistered attached property has been passed for the element {0}. {1}.{2}", GetType(), ownerName, name));
             }
 
-            if (apd.Type.IsGenericType && apd.Type.GetGenericTypeDefinition() == typeof(List<>))
+            if (apd.Type.IsGenericType && apd.Type.GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
             {
-                IList valueList;
+                DependencyObject doc;
                 if (_attachedValues.ContainsKey(apd))
-                    valueList = (IList)_attachedValues[apd];
+                {
+                    doc = (DependencyObject)_attachedValues[apd];
+                }
                 else
                 {
-                    valueList = (IList)Activator.CreateInstance(apd.Type);
-                    _attachedValues.Add(apd, valueList);
+                    doc = (DependencyObject)Activator.CreateInstance(apd.Type);
+                    _attachedValues.Add(apd, doc);
                 }
-                valueList.Add(value);
+                doc.AddContent(value);
             }
             else
             {
@@ -204,22 +203,10 @@ namespace WickedSick.Server.XamlParser.Elements
             return properties;
         }
 
-        private IList GetChildren()
-        {
-            PropertyDescription dp = PropertyDescription.GetContent(GetType());
-            if (dp == null)
-                return null;
-            if (!dp.Type.IsGenericType || !(dp.Type.GetGenericTypeDefinition() == typeof(List<>)))
-                return null;
-            return (IList)_dependencyValues[dp];
-        }
-
         private IJsonSerializable GetContent()
         {
             PropertyDescription dp = PropertyDescription.GetContent(GetType());
             if (dp == null)
-                return null;
-            if (dp.Type.IsGenericType && dp.Type.GetGenericTypeDefinition() ==  typeof(List<>))
                 return null;
             if (!_dependencyValues.ContainsKey(dp))
                 return null;
@@ -261,29 +248,14 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.Append("]");
             }
 
-            IList children = GetChildren();
-            if (children != null && children.Count > 0)
-            {
-                sb.AppendLine(",");
-                sb.AppendLine("Children: [");
-                bool needsComma = false;
-                foreach (DependencyObject d in children)
-                {
-                    if (needsComma)
-                        sb.AppendLine(",");
-                    else
-                        needsComma = true;
-                    sb.Append(d.toJson(0));
-                }
-                sb.AppendLine();
-                sb.Append("]");
-            }
-
             IJsonSerializable content = GetContent();
             if (content != null)
             {
                 sb.AppendLine(",");
-                sb.Append("Content: ");
+                if (content.GetType().IsGenericType && content.GetType().GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
+                    sb.Append("Children: ");
+                else
+                    sb.Append("Content: ");
                 sb.Append(content.toJson(0));
             }
             sb.AppendLine();

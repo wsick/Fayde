@@ -10,6 +10,6 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
     public class Panel: FrameworkElement
     {
         public static readonly PropertyDescription Background = PropertyDescription.Register("Background", typeof(Brush), typeof(Panel));
-        public static readonly PropertyDescription Children = PropertyDescription.Register("Children", typeof(List<UIElement>), typeof(Panel), true);
+        public static readonly PropertyDescription Children = PropertyDescription.Register("Children", typeof(DependencyObjectCollection<UIElement>), typeof(Panel), true);
     }
 }

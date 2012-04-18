@@ -16,5 +16,8 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
         public static readonly PropertyDescription BorderThickness = PropertyDescription.Register("BorderThickness", typeof(Thickness), typeof(Control));
         public static readonly PropertyDescription Template = PropertyDescription.Register("Template", typeof(ControlTemplate), typeof(Control));
         public static readonly PropertyDescription TabNavigation = PropertyDescription.Register("TabNavigation", typeof(KeyboardNavigationMode), typeof(Control));
+        public static readonly PropertyDescription IsTabStop = PropertyDescription.Register("IsTabStop", typeof(bool), typeof(Control));
+        public static readonly PropertyDescription HorizontalContentAlignment = PropertyDescription.Register("HorizontalContentAlignment", typeof(HorizontalAlignment), typeof(Control));
+        public static readonly PropertyDescription VerticalContentAlignment = PropertyDescription.Register("VerticalContentAlignment", typeof(VerticalAlignment), typeof(Control));
     }
 }

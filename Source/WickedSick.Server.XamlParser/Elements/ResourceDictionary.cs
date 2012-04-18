@@ -5,8 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public class ResourceDictionary: DependencyObject
+    public class ResourceDictionary: DependencyObjectCollection<DependencyObject>
     {
-        public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(List<DependencyObject>), typeof(ResourceDictionary), true);
     }
 }

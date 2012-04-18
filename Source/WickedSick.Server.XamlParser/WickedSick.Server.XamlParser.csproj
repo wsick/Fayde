@@ -81,12 +81,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Canvas.cs" />
+    <Compile Include="Elements\Controls\Primitives\Popup.cs" />
     <Compile Include="Elements\Controls\ScrollContentPresenter.cs" />
     <Compile Include="Elements\Controls\Primitives\RangeBase.cs" />
     <Compile Include="Elements\Controls\Primitives\RepeatButton.cs" />
     <Compile Include="Elements\Controls\Primitives\ScrollBar.cs" />
     <Compile Include="Elements\Controls\ScrollViewer.cs" />
     <Compile Include="Elements\Controls\ItemsPresenter.cs" />
+    <Compile Include="Elements\Controls\Primitives\ToggleButton.cs" />
+    <Compile Include="Elements\DependencyObjectCollection.cs" />
     <Compile Include="Elements\Media\Brush.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -106,6 +109,7 @@
     <Compile Include="Elements\Controls\Control.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\Media\GradientBrush.cs" />
     <Compile Include="Elements\Media\Image.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -126,14 +130,20 @@
     <Compile Include="Elements\Media\Animation\PointAnimation.cs" />
     <Compile Include="Elements\Media\Colors.cs" />
     <Compile Include="Elements\Media\Geometry.cs" />
-    <Compile Include="Elements\ResourceDictionary.cs" />
     <Compile Include="Elements\Controls\Tooltip.cs" />
+    <Compile Include="Elements\Media\SkewTransform.cs" />
+    <Compile Include="Elements\Media\TransformGroup.cs" />
+    <Compile Include="Elements\ResourceDictionary.cs" />
     <Compile Include="Elements\ToolTipService.cs" />
     <Compile Include="Elements\Media\Transform.cs" />
     <Compile Include="Elements\Media\TranslateTransform.cs" />
+    <Compile Include="Elements\Types\BrushMappingMode.cs" />
     <Compile Include="Elements\Types\ClickMode.cs" />
     <Compile Include="Elements\Types\FlowDirection.cs" />
+    <Compile Include="Elements\Types\GradientSpreadMethod.cs" />
     <Compile Include="Elements\Types\KeyboardNavigationMode.cs" />
+    <Compile Include="Elements\Types\Length.cs" />
+    <Compile Include="Elements\Types\RepeatBehavior.cs" />
     <Compile Include="Elements\Types\ScrollBarVisibility.cs" />
     <Compile Include="ParserAttributes.cs">
       <SubType>Code</SubType>
@@ -253,6 +263,7 @@
     <Compile Include="Elements\Types\JsonUri.cs" />
     <Compile Include="Elements\Types\KeyTime.cs" />
     <Compile Include="Elements\Types\Orientation.cs" />
+    <Compile Include="TypeConverters\LengthConverter.cs" />
     <Compile Include="TypeConverters\PageLengthConverter.cs" />
     <Compile Include="Elements\Types\PageLength.cs" />
     <Compile Include="Elements\Types\PenLineCap.cs" />
@@ -260,6 +271,7 @@
     <Compile Include="Elements\Types\PlacementMode.cs" />
     <Compile Include="TypeConverters\PointConverter.cs" />
     <Compile Include="TypeConverters\PropertyPathConverter.cs" />
+    <Compile Include="TypeConverters\RepeatBehaviorConverter.cs" />
     <Compile Include="TypeConverters\SetterValueConverter.cs" />
     <Compile Include="Elements\Types\Point.cs" />
     <Compile Include="Elements\Types\PropertyPath.cs" />

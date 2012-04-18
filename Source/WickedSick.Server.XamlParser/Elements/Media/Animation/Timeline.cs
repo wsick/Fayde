@@ -10,5 +10,6 @@ namespace WickedSick.Server.XamlParser.Elements.Media.Animation
     public abstract class Timeline: DependencyObject
     {
         public static readonly PropertyDescription Duration = PropertyDescription.Register("Duration", typeof(Duration), typeof(Timeline));
+        public static readonly PropertyDescription RepeatBehavior = PropertyDescription.Register("RepeatBehavior", typeof(RepeatBehavior), typeof(Timeline));
     }
 }

@@ -18,7 +18,7 @@ namespace WickedSick.Server.XamlParser
             if (node.NodeType == XmlNodeType.Comment)
                 return null;
 
-            Type t = DependencyObject.GetElementType(node.NamespaceURI, node.Name);
+            Type t = DependencyObject.GetElementType(node.NamespaceURI, node.LocalName);
             if (t == null)
                 throw new XamlParseException("Unknown element: " + node.Name);
             if (t.IsEnum)
@@ -86,7 +86,7 @@ namespace WickedSick.Server.XamlParser
                         }
                         else
                         {
-                            ProcessChildNodes(n.ChildNodes, element, n.Name);
+                            ProcessChildNodes(n.ChildNodes, element, n.LocalName);
                         }
                     }
                     else

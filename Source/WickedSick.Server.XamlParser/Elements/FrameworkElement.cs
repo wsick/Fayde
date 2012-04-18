@@ -16,12 +16,12 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription VerticalAlignment = PropertyDescription.Register("VerticalAlignment", typeof(VerticalAlignment), typeof(FrameworkElement));
         public static readonly PropertyDescription MinWidth = PropertyDescription.Register("MinWidth", typeof(double), typeof(FrameworkElement));
         public static readonly PropertyDescription MinHeight = PropertyDescription.Register("MinHeight", typeof(double), typeof(FrameworkElement));
-        public static readonly PropertyDescription Width = PropertyDescription.Register("Width", typeof(double), typeof(FrameworkElement));
-        public static readonly PropertyDescription Height = PropertyDescription.Register("Height", typeof(double), typeof(FrameworkElement));
+        public static readonly PropertyDescription Width = PropertyDescription.Register("Width", typeof(Length), typeof(FrameworkElement));
+        public static readonly PropertyDescription Height = PropertyDescription.Register("Height", typeof(Length), typeof(FrameworkElement));
         public static readonly PropertyDescription Style = PropertyDescription.Register("Style", typeof(Style), typeof(FrameworkElement));
         public static readonly PropertyDescription MaxWidth = PropertyDescription.Register("MaxWidth", typeof(double), typeof(FrameworkElement));
         public static readonly PropertyDescription MaxHeight = PropertyDescription.Register("MaxHeight", typeof(double), typeof(FrameworkElement));
         public static readonly PropertyDescription FlowDirection = PropertyDescription.Register("FlowDirection", typeof(FlowDirection), typeof(FrameworkElement));
-        public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FrameworkElement));
+        public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(DependencyObjectCollection<DependencyObject>), typeof(FrameworkElement));
     }
 }
