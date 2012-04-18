@@ -41,7 +41,7 @@ Geometry.Instance.Draw = function (ctx) {
         ctx.Restore();
 };
 
-Geometry.Instance.GetBounds = function () {
+Geometry.Instance.GetBounds = function (thickness) {
     var compute = this._LocalBounds.IsEmpty();
 
     if (this.$Path == null) {
@@ -50,7 +50,7 @@ Geometry.Instance.GetBounds = function () {
     }
 
     if (compute)
-        this._LocalBounds = this.ComputePathBounds();
+        this._LocalBounds = this.ComputePathBounds(thickness);
     var bounds = this._LocalBounds;
 
     var transform = this.GetTransform();
@@ -60,11 +60,11 @@ Geometry.Instance.GetBounds = function () {
 
     return bounds;
 };
-Geometry.Instance.ComputePathBounds = function () {
+Geometry.Instance.ComputePathBounds = function (thickness) {
     this._EnsureBuilt();
     if (this.$Path == null)
         return new Rect();
-    return this.$Path.CalculateBounds();
+    return this.$Path.CalculateBounds(thickness);
 };
 Geometry.Instance._EnsureBuilt = function () {
     if (this.$Path == null)

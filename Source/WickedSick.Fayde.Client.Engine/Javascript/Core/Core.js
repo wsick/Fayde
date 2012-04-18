@@ -1,5 +1,6 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
+/// <reference path="../Media/MediaParser.js"/>
 
 //#region Fayde
 
@@ -34,7 +35,10 @@ var Fayde = {
             //return tc.ConvertFrom(val);
         },
         GeometryFromString: function (val) {
-            return Fayde._GeometryParser.Parse(val);
+            return Fayde._MediaParser.ParseGeometry(val);
+        },
+        PointCollectionFromString: function (val) {
+            return Fayde._MediaParser.ParsePointCollection(val);
         }
     }
 };

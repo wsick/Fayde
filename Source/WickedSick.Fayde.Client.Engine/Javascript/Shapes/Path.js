@@ -32,16 +32,19 @@ Path.Instance.SetData.Converter = function (value) {
 
 //#endregion
 
+Path.Instance._GetFillRule = function () {
+    var geom = this.GetData();
+    if (geom == null)
+        return this._GetFillRule$Shape();
+    return geom.GetFillRule();
+};
+
 Path.Instance._DrawPath = function (ctx) {
     /// <param name="ctx" type="_RenderContext"></param>
     var geom = this.GetData();
     if (geom == null)
         return;
-
-    ctx.Save();
-    //TODO: this._StretchTransform?
     geom.Draw(ctx);
-    ctx.Restore();
 };
 
 Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
@@ -56,19 +59,23 @@ Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     if (logical)
         return geom.GetBounds();
 
-    //TEMP:
-    return geom.GetBounds();
-
     var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
-
-    var shapeBounds = new Rect();
-    if (thickness > 0) {
-        // stroke extents
-    } else {
-        // fill extents
-    }
-    NotImplemented("Path._ComputeShapeBoundsImpl");
+    return geom.GetBounds(thickness);
     return shapeBounds;
+};
+
+Path.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Path) {
+        this._OnPropertyChanged$Shape(args, error);
+        return;
+    }
+};
+Path.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && propd._ID === Path.DataProperty._ID) {
+        this._InvalidateNaturalBounds();
+        return;
+    }
+    this._OnSubPropertyChanged$Shape(propd, sender, args);
 };
 
 Nullstone.FinishCreate(Path);

@@ -15,5 +15,10 @@
         <Rectangle RadiusX="5" RadiusY="10" Fill="Yellow" Stroke="Black" StrokeThickness="5" />
         <Ellipse Grid.Column="1" Fill="Yellow" Stroke="Black" StrokeThickness="5" />
         <Rectangle Grid.Row="1" RadiusX="5" RadiusY="5" Fill="#FFFFFF00" Stroke="#FF000000" StrokeThickness="5" />
+        <Path Grid.Row="1" Grid.Column="1" Stretch="Uniform" Height="8" Width="4" Data="F1 M 511.047,352.682L 511.047,342.252L 517.145,347.467L 511.047,352.682 Z ">
+            <Path.Fill>
+                <SolidColorBrush x:Name="ButtonColor" Color="#FF333333" />
+            </Path.Fill>
+        </Path>
     </Grid>
 </UserControl>

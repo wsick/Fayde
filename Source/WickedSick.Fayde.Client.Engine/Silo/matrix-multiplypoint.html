@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="../jquery-1.7.js" type="text/javascript"></script>
+    <script src="../Javascript/Runtime/Nullstone.js" type="text/javascript"></script>
+    <script src="../Javascript/Primitives/Enums.js" type="text/javascript"></script>
+    <script src="../Javascript/Primitives/Matrix.js" type="text/javascript"></script>
+    <script src="../Javascript/Primitives/Point.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var ctx = document.getElementById("canvas").getContext("2d");
+
+            var m = new Matrix([0.6559527714004638, 0, -186.1196142997681, 0, 0.6559527714004638, -85.08589143981453]);
+            var p = new Point(511.047, 342.252);
+            var f = m.MultiplyPoint(p);
+            var valid = f.X === 149.10308166612475 && f.Y === 139.415256477537;
+        });
+    </script>
+</head>
+<body>
+    <canvas id="canvas" width="600" height="600" style="background: #eeeeee;">
+    </canvas>
+</body>
+</html>

@@ -38,9 +38,19 @@ _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.GetMatrix();
     }
-    matrix.Apply(this._Surface._Ctx);
     this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
     this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
+    var els = this._CurrentTransform._Elements;
+    this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
+};
+_RenderContext.Instance.PreTransform = function (matrix) {
+    if (matrix instanceof Transform) {
+        matrix = matrix.GetMatrix();
+    }
+    this._CurrentTransform = this._CurrentTransform.MultiplyMatrix(matrix);
+    this._InverseTransform = matrix.GetInverse().MultiplyMatrix(this._InverseTransform);
+    var els = this._CurrentTransform._Elements;
+    this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
 _RenderContext.Instance.GetCurrentTransform = function () {
     return this._CurrentTransform;
