@@ -4,8 +4,9 @@
 /// <reference path="../Primitives/Point.js"/>
 /// <reference path="PathGeometry.js"/>
 /// <reference path="../Shapes/RawPath.js"/>
+/// <reference path="../Shapes/PointCollection.js"/>
 
-//#region _GeometryParser
+//#region _MediaParser
 
 // Path Markup Syntax: http://msdn.microsoft.com/en-us/library/cc189041(v=vs.95).aspx
 
@@ -47,17 +48,24 @@
 //
 //      Find "Z" or "z"? - CloseCommand
 
-Fayde._GeometryParser = function (str) {
+Fayde._MediaParser = function (str) {
     this.str = str;
     this.len = str.length;
     this.index = 0;
 };
-Fayde._GeometryParser.Parse = function (str) {
+
+Fayde._MediaParser.ParseGeometry = function (str) {
     /// <param name="str" type="String"></param>
     /// <returns type="Geometry" />
-    return (new Fayde._GeometryParser(str)).ParseImpl();
+    return (new Fayde._GeometryParser(str)).ParseGeometryImpl();
 };
-Fayde._GeometryParser.prototype.ParseImpl = function () {
+Fayde._MediaParser.ParsePointCollection = function (str) {
+    /// <param name="str" type="String"></param>
+    /// <returns type="PointCollection" />
+    return (new Fayde._GeometryParser(str)).ParsePointCollectionImpl();
+};
+
+Fayde._MediaParser.prototype.ParseGeometryImpl = function () {
     /// <returns type="Geometry" />
     var cp = new Point();
     var cp1, cp2, cp3;
@@ -358,7 +366,17 @@ Fayde._GeometryParser.prototype.ParseImpl = function () {
     pg.SetFillRule(fillRule);
     return pg;
 };
-Fayde._GeometryParser.prototype.ParsePoint = function () {
+Fayde._MediaParser.prototype.ParsePointCollectionImpl = function () {
+    /// <returns type="PointCollection" />
+    var p;
+    var points = new PointCollection();
+    while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
+        points.Add(p);
+    }
+    return points;
+};
+
+Fayde._MediaParser.prototype.ParsePoint = function () {
     /// <returns type="Point" />
     var x = this.ParseDouble();
     if (x == null)
@@ -377,7 +395,7 @@ Fayde._GeometryParser.prototype.ParsePoint = function () {
 
     return new Point(x, y);
 };
-Fayde._GeometryParser.prototype.ParseDouble = function () {
+Fayde._MediaParser.prototype.ParseDouble = function () {
     /// <returns type="Number" />
     this.Advance();
     var isNegative = false;
@@ -414,7 +432,7 @@ Fayde._GeometryParser.prototype.ParseDouble = function () {
     var f = parseFloat(temp);
     return isNegative ? -f : f;
 };
-Fayde._GeometryParser.prototype.Match = function (matchStr) {
+Fayde._MediaParser.prototype.Match = function (matchStr) {
     /// <param name="matchStr" type="String"></param>
     /// <returns type="Boolean" />
     var c1;
@@ -427,7 +445,7 @@ Fayde._GeometryParser.prototype.Match = function (matchStr) {
     }
     return true;
 };
-Fayde._GeometryParser.prototype.Advance = function () {
+Fayde._MediaParser.prototype.Advance = function () {
     var code;
     while (this.index < this.len) {
         code = this.str.charCodeAt(this.index);
@@ -444,7 +462,7 @@ Fayde._GeometryParser.prototype.Advance = function () {
         this.index++;
     }
 };
-Fayde._GeometryParser.prototype.MorePointsAvailable = function () {
+Fayde._MediaParser.prototype.MorePointsAvailable = function () {
     var c;
     while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
         this.index++;

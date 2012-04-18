@@ -15,7 +15,7 @@ Collection.Instance.Init = function () {
     this.ItemChanged = new MulticastEvent();
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Collection.CountProperty = DependencyProperty.RegisterFull("Count", function () { return Number; }, Collection, 0);
 Collection.Instance.GetCount = function () {

@@ -98,8 +98,8 @@
     <Content Include="Javascript\Media\GeneralTransform.js" />
     <Content Include="Javascript\Media\GeometryCollection.js" />
     <Content Include="Javascript\Media\GeometryGroup.js" />
-    <Content Include="Javascript\Media\GeometryParser.js" />
     <Content Include="Javascript\Media\MatrixTransform.js" />
+    <Content Include="Javascript\Media\MediaParser.js" />
     <Content Include="Javascript\Media\PathFigure.js" />
     <Content Include="Javascript\Media\PathFigureCollection.js" />
     <Content Include="Javascript\Media\PathGeometry.js" />
@@ -114,6 +114,8 @@
     <Content Include="Javascript\Shapes\Enums.js" />
     <Content Include="Javascript\Shapes\Line.js" />
     <Content Include="Javascript\Shapes\Path.js" />
+    <Content Include="Javascript\Shapes\PointCollection.js" />
+    <Content Include="Javascript\Shapes\Polyline.js" />
     <Content Include="Javascript\Shapes\RawPath.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />
     <Content Include="Javascript\Shapes\Shape.js" />
@@ -350,6 +352,7 @@
     <None Include="Tests\smoke.fayde">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Tests\style.fayde" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">

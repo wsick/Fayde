@@ -72,7 +72,7 @@ Line.Instance._BuildPath = function () {
     this._Path.Line(x2, y2);
 };
 
-Line.Instance._ComputeShapeBoundsImpl = function (logical) {
+Line.Instance._ComputeShapeBounds = function (logical) {
     var shapeBounds = new Rect();
 
     var thickness = 0;
