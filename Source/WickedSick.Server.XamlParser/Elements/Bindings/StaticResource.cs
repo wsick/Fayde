@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace WickedSick.Server.XamlParser.Elements.Bindings
 {
     public class StaticResource: IJsonSerializable
     {
-        public StaticResource(string name)
-        {
+        public string Key { get; protected set; }
 
+        public StaticResource(string key)
+        {
+            Key = key;
         }
 
         public string toJson(int tabIndents)
         {
-            throw new NotImplementedException();
+            return string.Format("new StaticResourceMarkup(\"{0}\")", Key);
         }
     }
 }
