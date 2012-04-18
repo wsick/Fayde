@@ -115,6 +115,7 @@
     <Content Include="Javascript\Shapes\Line.js" />
     <Content Include="Javascript\Shapes\Path.js" />
     <Content Include="Javascript\Shapes\PointCollection.js" />
+    <Content Include="Javascript\Shapes\Polygon.js" />
     <Content Include="Javascript\Shapes\Polyline.js" />
     <Content Include="Javascript\Shapes\RawPath.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />

@@ -31,6 +31,13 @@ Polyline.Instance.SetPoints = function (value) {
     ///<param name="value" type="PointCollection"></param>
     this.SetValue(Polyline.PointsProperty, value);
 };
+Polyline.Instance.SetPoints.Converter = function (value) {
+    if (value instanceof PointCollection)
+        return value;
+    if (typeof value === "string")
+        return Fayde.TypeConverter.PointCollectionFromString(value);
+    return value;
+};
 
 //#endregion
 
