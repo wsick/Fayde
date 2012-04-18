@@ -9,8 +9,8 @@
 <body>
     <form id="form1" runat="server">
     <div>
-        <asp:TextBox runat="server" ID="tb1" Height="200" Width="800" /><br />
-        <asp:TextBox runat="server" ID="tb2" Height="200" Width="800" /><br />
+        <asp:TextBox runat="server" TextMode="MultiLine" Wrap="true" ID="tb1" Height="200" Width="800" /><br />
+        <asp:TextBox runat="server" TextMode="MultiLine" ID="tb2" Height="200" Width="800" /><br />
         <asp:Button runat="server" ID="submit" onclick="submit_Click" Text="Convert"/>
     </div>
     </form>
