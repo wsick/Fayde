@@ -5,7 +5,6 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
     {
         public string Key { get; protected set; }
 
-            ResourceKey = name;
         public StaticResource(string key)
         {
             Key = key;
