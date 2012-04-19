@@ -319,7 +319,10 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Styles\Thumb.xml" />
+    <None Include="Tests\allstyles.fayde" />
+    <None Include="Tests\binding.fayde" />
     <Content Include="Tests\heightTest.htm" />
+    <None Include="Tests\scrollbar.fayde" />
     <Content Include="Tips.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
