@@ -7,6 +7,7 @@
 var RangeBase = Nullstone.Create("RangeBase", Control);
 
 RangeBase.Instance.Init = function () {
+    this.Init$Control();
     this.SetMinimum(0);
     this.SetMaximum(1);
     this.SetCurrentValue(0);
