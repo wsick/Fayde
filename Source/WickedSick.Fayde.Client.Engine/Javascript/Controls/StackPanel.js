@@ -16,7 +16,7 @@ StackPanel._OrientationChanged = function (d, args) {
     d._InvalidateMeasure();
     d._InvalidateArrange();
 };
-StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return Number; }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
+StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
 StackPanel.Instance.GetOrientation = function () {
     return this.GetValue(StackPanel.OrientationProperty);
 };

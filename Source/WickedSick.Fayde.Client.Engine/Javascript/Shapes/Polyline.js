@@ -12,7 +12,7 @@ Polyline.Instance.Init = function () {
 
 //#region Dependency Properties
 
-Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return Number; }, Polyline, FillRule.EvenOdd);
+Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
 Polyline.Instance.GetFillRule = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(Polyline.FillRuleProperty);

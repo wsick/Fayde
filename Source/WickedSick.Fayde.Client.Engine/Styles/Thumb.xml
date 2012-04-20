@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Style TargetType="Thumb"
+       xmlns="http://schemas.wsick.com/fayde/"
        xmlns:x="http://schemas.wsick.com/fayde/"
-       xmlns:vsm="http://schemas.wsick.com/fayde/vsm/">
+       xmlns:vsm="http://schemas.wsick.com/fayde/">
     <Setter Property="Background" Value="#FF1F3B53" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="IsTabStop" Value="False" />

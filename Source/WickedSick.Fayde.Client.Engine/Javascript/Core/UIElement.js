@@ -123,7 +123,7 @@ UIElement.Instance.SetOpacity = function (value) {
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
 
-UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return Number; }, UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
+UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
 UIElement.Instance.GetCursor = function () {
     return this.GetValue(UIElement.CursorProperty);
 };
@@ -150,7 +150,7 @@ UIElement.Instance.SetUseLayoutRounding = function (value) {
     this.SetValue(UIElement.UseLayoutRoundingProperty, value);
 };
 
-UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", function () { return Number; }, UIElement, Visibility.Visible);
+UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
 UIElement.Instance.GetVisibility = function () {
     return this.GetValue(UIElement.VisibilityProperty);
 };

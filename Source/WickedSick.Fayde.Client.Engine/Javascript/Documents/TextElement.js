@@ -71,7 +71,7 @@ TextElement.Instance.SetLanguage = function (value) {
     this.SetValue(TextElement.LanguageProperty, value);
 };
 
-TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return Number; }, TextElement, TextDecorations.None);
+TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return new Enum(TextDecorations); }, TextElement, TextDecorations.None);
 TextElement.Instance.GetTextDecorations = function () {
     return this.GetValue(TextElement.TextDecorationsProperty);
 };

@@ -20,7 +20,7 @@ ButtonBase.Instance.Init = function () {
 
 //#region Dependency Properties
 
-ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return Number; }, ButtonBase, ClickMode.Release);
+ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Enum(ClickMode); }, ButtonBase, ClickMode.Release);
 ButtonBase.Instance.GetClickMode = function () {
     return this.GetValue(ButtonBase.ClickModeProperty);
 };

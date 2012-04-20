@@ -22,7 +22,7 @@ GradientBrush.Instance.GetGradientStops = function () {
     return this.GetValue(GradientBrush.GradientStopsProperty);
 };
 
-GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return Number; }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
+GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Enum(BrushMappingMode); }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
 GradientBrush.Instance.GetMappingMode = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(GradientBrush.MappingModeProperty);

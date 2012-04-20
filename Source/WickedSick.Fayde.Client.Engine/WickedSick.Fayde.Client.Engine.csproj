@@ -92,7 +92,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Javascript\Controls\TextBoxBase.js" />
+    <Content Include="Javascript\Runtime\Enum.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
+    <Content Include="Javascript\Core\StaticResourceExpression.js" />
     <Content Include="Javascript\Engine\FocusManager.js" />
     <Content Include="Javascript\Media\ArcSegment.js" />
     <Content Include="Javascript\Media\GeneralTransform.js" />
@@ -110,6 +112,7 @@
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
     <Content Include="Javascript\Runtime\RoutedPropertyChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\Timer.js" />
+    <Content Include="Javascript\Runtime\XamlParseException.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
     <Content Include="Javascript\Shapes\Line.js" />
@@ -356,6 +359,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Tests\path.fayde" />
+    <None Include="Tests\scrollbar.fayde" />
     <None Include="Tests\scrollviewer.fayde" />
     <None Include="Tests\shapes.fayde" />
     <None Include="Tests\smoke.fayde">

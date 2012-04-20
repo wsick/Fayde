@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Style TargetType="ScrollBar"
+       xmlns="http://schemas.wsick.com/fayde/"
        xmlns:x="http://schemas.wsick.com/fayde/"
-       xmlns:vsm="http://schemas.wsick.com/fayde/vsm/">
+       xmlns:vsm="http://schemas.wsick.com/fayde/">
     <Setter Property="MinWidth" Value="17" />
     <Setter Property="MinHeight" Value="17" />
     <Setter Property="IsTabStop" Value="False" />

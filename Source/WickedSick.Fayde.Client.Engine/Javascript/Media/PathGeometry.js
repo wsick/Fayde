@@ -8,7 +8,7 @@ var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
 
 //#region Dependency Properties
 
-PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return Number; }, PathGeometry);
+PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, PathGeometry);
 PathGeometry.Instance.GetFillRule = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(PathGeometry.FillRuleProperty);

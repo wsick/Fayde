@@ -7,7 +7,7 @@ var Run = Nullstone.Create("Run", Inline);
 
 //#region DEPENDENCY PROPERTIES
 
-Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return Number; }, Run, FlowDirection.LeftToRight);
+Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return new Enum(FlowDirection); }, Run, FlowDirection.LeftToRight);
 Run.Instance.GetFlowDirection = function () {
     return this.GetValue(Run.FlowDirectionProperty);
 };

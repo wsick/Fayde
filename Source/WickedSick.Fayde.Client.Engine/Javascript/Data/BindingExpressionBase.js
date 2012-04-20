@@ -485,7 +485,8 @@ BindingExpressionBase.Instance.GetTarget = function () {
     /// <returns type="DependencyObject"></returns>
     return this._Target;
 };
-BindingExpressionBase.Instance.SetTarget = function (/* DependencyObject */value) {
+BindingExpressionBase.Instance.SetTarget = function (value) {
+    /// <param name="value" type="DependencyObject"></param>
     this._Target = value;
 };
 
@@ -493,7 +494,8 @@ BindingExpressionBase.Instance.GetProperty = function () {
     /// <returns type="DependencyProperty"></returns>
     return this._Property;
 };
-BindingExpressionBase.Instance.SetProperty = function (/* DependencyProperty */value) {
+BindingExpressionBase.Instance.SetProperty = function (value) {
+    /// <param name="value" type="DependencyProperty"></param>
     this._Property = value;
 };
 
@@ -501,7 +503,8 @@ BindingExpressionBase.Instance.GetPropertyPathWalker = function () {
     /// <returns type="_PropertyPathWalker"></returns>
     return this._PropertyPathWalker;
 };
-BindingExpressionBase.Instance.SetPropertyPathWalker = function (/* _PropertyPathWalker */value) {
+BindingExpressionBase.Instance.SetPropertyPathWalker = function (value) {
+    /// <param name="value" type="_PropertyPathWalker"></param>
     this._PropertyPathWalker = value;
 };
 

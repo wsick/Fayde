@@ -130,7 +130,7 @@ TextBox.Instance.SetText = function (value) {
     this.SetValue(TextBox.TextProperty, value);
 };
 
-TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return Number; }, TextBox, TextAlignment.Left);
+TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBox, TextAlignment.Left);
 TextBox.Instance.GetTextAlignment = function () {
     return this.GetValue(TextBox.TextAlignmentProperty);
 };
@@ -138,7 +138,7 @@ TextBox.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBox.TextAlignmentProperty, value);
 };
 
-TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return Number; }, TextBox, TextWrapping.NoWrap);
+TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBox, TextWrapping.NoWrap);
 TextBox.Instance.GetTextWrapping = function () {
     return this.GetValue(TextBox.TextWrappingProperty);
 };
@@ -146,7 +146,7 @@ TextBox.Instance.SetTextWrapping = function (value) {
     this.SetValue(TextBox.TextWrappingProperty, value);
 };
 
-TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
+TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.Instance.GetHorizontalScrollBarVisibility = function () {
     return this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
 };
@@ -154,7 +154,7 @@ TextBox.Instance.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
 };
 
-TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return Number; }, TextBox, ScrollBarVisibility.Hidden);
+TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.Instance.GetVerticalScrollBarVisibility = function () {
     return this.GetValue(TextBox.VerticalScrollBarVisibilityProperty);
 };

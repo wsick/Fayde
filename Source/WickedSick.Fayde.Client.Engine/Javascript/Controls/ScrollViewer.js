@@ -16,7 +16,7 @@ ScrollViewer.Instance.Init = function () {
 
 //#region Dependency Properties
 
-ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return ScrollBarVisibility; }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
+ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
 ScrollViewer.Instance.GetHorizontalScrollBarVisibility = function () {
     ///<returns type="ScrollBarVisibility"></returns>
     return this.GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
@@ -26,7 +26,7 @@ ScrollViewer.Instance.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
 };
 
-ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return ScrollBarVisibility; }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
+ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
 ScrollViewer.Instance.GetVerticalScrollBarVisibility = function () {
     ///<returns type="ScrollBarVisibility"></returns>
     return this.GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty);
@@ -48,13 +48,13 @@ ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {
 };
 
 
-ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", function () { return Visibility; }, ScrollViewer);
+ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", function () { return new Enum(Visibility); }, ScrollViewer);
 ScrollViewer.Instance.GetComputedHorizontalScrollBarVisibility = function () {
     ///<returns type="Visibility"></returns>
     return this.GetValue(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty);
 };
 
-ScrollViewer.ComputedVerticalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", function () { return Visibility; }, ScrollViewer);
+ScrollViewer.ComputedVerticalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", function () { return new Enum(Visibility); }, ScrollViewer);
 ScrollViewer.Instance.GetComputedVerticalScrollBarVisibility = function () {
     ///<returns type="Visibility"></returns>
     return this.GetValue(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty);
@@ -576,6 +576,239 @@ ScrollViewer.Instance._OnRequestBringIntoView = function (sender, args) {
         sv.MakeVisible(targetObj, args.TargetRect);
         args.Handled = true;
     }
+};
+
+ScrollViewer.Instance.GetDefaultStyle = function () {
+    var styleJson = {
+        Type: Style,
+        Props: {
+            TargetType: ScrollViewer
+        },
+        Children: [
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "HorizontalContentAlignment"),
+        Value: "Left"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "VerticalContentAlignment"),
+        Value: "Top"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "VerticalScrollBarVisibility"),
+        Value: "Visible"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "Padding"),
+        Value: "4"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "BorderThickness"),
+        Value: "1"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "BorderBrush"),
+        Value: {
+            Type: LinearGradientBrush,
+            Props: {
+                EndPoint: new Point(0.5, 1),
+                StartPoint: new Point(0.5, 0)
+            },
+            Children: [
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FFA3AEB9"),
+        Offset: 0
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FF8399A9"),
+        Offset: 0.375
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FF718597"),
+        Offset: 0.375
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FF617584"),
+        Offset: 1
+    }
+}]
+
+        }
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "Template"),
+        Value: {
+            Type: ControlTemplate,
+            Props: {
+                TargetType: "ScrollViewer"
+            },
+            Content: {
+                Type: Border,
+                Props: {
+                    CornerRadius: new CornerRadius(2, 2, 2, 2),
+                    BorderBrush: new TemplateBindingMarkup("BorderBrush"),
+                    BorderThickness: new TemplateBindingMarkup("BorderThickness")
+                },
+                Content: {
+                    Type: Grid,
+                    Props: {
+                        Background: new TemplateBindingMarkup("Background"),
+                        RowDefinitions: [
+{
+    Type: RowDefinition,
+    Props: {
+        Height: new GridLength(1, GridUnitType.Star)
+    }
+},
+{
+    Type: RowDefinition,
+    Props: {
+        Height: new GridLength(1, GridUnitType.Auto)
+    }
+}]
+,
+                        ColumnDefinitions: [
+{
+    Type: ColumnDefinition,
+    Props: {
+        Width: new GridLength(1, GridUnitType.Star)
+    }
+},
+{
+    Type: ColumnDefinition,
+    Props: {
+        Width: new GridLength(1, GridUnitType.Auto)
+    }
+}]
+
+                    },
+                    Children: [
+{
+    Type: ScrollContentPresenter,
+    Name: "ScrollContentPresenter",
+    Props: {
+        Name: "ScrollContentPresenter",
+        Cursor: new TemplateBindingMarkup("Cursor"),
+        Margin: new TemplateBindingMarkup("Padding"),
+        ContentTemplate: new TemplateBindingMarkup("ContentTemplate")
+    }
+},
+{
+    Type: Rectangle,
+    Props: {
+        Fill: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FFE9EEF4")
+            }
+        }
+    },
+    AttachedProps: [{
+        Owner: Grid,
+        Prop: "Column",
+        Value: 1
+    },
+{
+    Owner: Grid,
+    Prop: "Row",
+    Value: 1
+}
+]
+},
+{
+    Type: ScrollBar,
+    Name: "VerticalScrollBar",
+    Props: {
+        Name: "VerticalScrollBar",
+        Width: 18,
+        IsTabStop: false,
+        Visibility: new TemplateBindingMarkup("ComputedVerticalScrollBarVisibility"),
+        Orientation: Orientation.Vertical,
+        ViewportSize: new TemplateBindingMarkup("ViewportHeight"),
+        Maximum: new TemplateBindingMarkup("ScrollableHeight"),
+        Minimum: 0,
+        Value: new TemplateBindingMarkup("VerticalOffset"),
+        Margin: new Thickness(0, -1, -1, -1)
+    },
+    AttachedProps: [{
+        Owner: Grid,
+        Prop: "Column",
+        Value: 1
+    },
+{
+    Owner: Grid,
+    Prop: "Row",
+    Value: 0
+}
+]
+},
+{
+    Type: ScrollBar,
+    Name: "HorizontalScrollBar",
+    Props: {
+        Name: "HorizontalScrollBar",
+        Height: 18,
+        IsTabStop: false,
+        Visibility: new TemplateBindingMarkup("ComputedHorizontalScrollBarVisibility"),
+        Orientation: Orientation.Horizontal,
+        ViewportSize: new TemplateBindingMarkup("ViewportWidth"),
+        Maximum: new TemplateBindingMarkup("ScrollableWidth"),
+        Minimum: 0,
+        Value: new TemplateBindingMarkup("HorizontalOffset"),
+        Margin: new Thickness(-1, 0, -1, -1)
+    },
+    AttachedProps: [{
+        Owner: Grid,
+        Prop: "Column",
+        Value: 0
+    },
+{
+    Owner: Grid,
+    Prop: "Row",
+    Value: 1
+}
+]
+}]
+
+                }
+            }
+        }
+    }
+}]
+
+    };
+    var parser = new JsonParser();
+    return parser.CreateObject(styleJson, new NameScope());
 };
 
 Nullstone.FinishCreate(ScrollViewer);

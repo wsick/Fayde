@@ -36,7 +36,7 @@ Fayde.Image.Instance.SetSource.Converter = function (value) {
 };
 
 // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
-Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Number; }, Fayde.Image, Stretch.Uniform);
+Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Fayde.Image, Stretch.Uniform);
 Fayde.Image.Instance.GetStretch = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(Fayde.Image.StretchProperty);

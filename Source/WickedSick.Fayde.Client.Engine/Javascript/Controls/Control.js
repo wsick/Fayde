@@ -84,7 +84,7 @@ Control.Instance.SetForeground = function (value) {
     this.SetValue(Control.ForegroundProperty, value);
 };
 
-Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return Number; }, Control, HorizontalAlignment.Center);
+Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return new Enum(HorizontalAlignment); }, Control, HorizontalAlignment.Center);
 Control.Instance.GetHorizontalContentAlignment = function () {
     return this.GetValue(Control.HorizontalContentAlignmentProperty);
 };
@@ -140,7 +140,7 @@ Control.Instance.SetTemplate = function (value) {
     this.SetValue(Control.TemplateProperty, value);
 };
 
-Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return Number; }, Control, VerticalAlignment.Center);
+Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return new Enum(VerticalAlignment); }, Control, VerticalAlignment.Center);
 Control.Instance.GetVerticalContentAlignment = function () {
     return this.GetValue(Control.VerticalContentAlignmentProperty);
 };

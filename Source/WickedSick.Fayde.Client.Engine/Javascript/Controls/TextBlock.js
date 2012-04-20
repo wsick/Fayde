@@ -82,7 +82,7 @@ TextBlock.Instance.SetFontSize = function (value) {
     this.SetValue(TextBlock.FontSizeProperty, value);
 };
 
-TextBlock.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return Number; }, TextBlock, TextDecorations.None);
+TextBlock.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None);
 TextBlock.Instance.GetTextDecorations = function () {
     return this.GetValue(TextBlock.TextDecorationsProperty);
 };
@@ -119,7 +119,7 @@ TextBlock.Instance.GetInlines = function () {
     return this.GetValue(TextBlock.InlinesProperty);
 };
 
-TextBlock.LineStackingStrategyProperty = DependencyProperty.Register("LineStackingStrategy", function () { return Number; }, TextBlock);
+TextBlock.LineStackingStrategyProperty = DependencyProperty.Register("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
 TextBlock.Instance.GetLineStackingStrategy = function () {
     return this.GetValue(TextBlock.LineStackingStrategyProperty);
 };
@@ -135,7 +135,7 @@ TextBlock.Instance.SetLineHeight = function (value) {
     this.SetValue(TextBlock.LineHeightProperty, value);
 };
 
-TextBlock.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return Number; }, TextBlock, TextAlignment.Left);
+TextBlock.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
 TextBlock.Instance.GetTextAlignment = function () {
     return this.GetValue(TextBlock.TextAlignmentProperty);
 };
@@ -143,7 +143,7 @@ TextBlock.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBlock.TextAlignmentProperty, value);
 };
 
-TextBlock.TextTrimmingProperty = DependencyProperty.Register("TextTrimming", function () { return Number; }, TextBlock, TextTrimming.None);
+TextBlock.TextTrimmingProperty = DependencyProperty.Register("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
 TextBlock.Instance.GetTextTrimming = function () {
     return this.GetValue(TextBlock.TextTrimmingProperty);
 };
@@ -151,7 +151,7 @@ TextBlock.Instance.SetTextTrimming = function (value) {
     this.SetValue(TextBlock.TextTrimmingProperty, value);
 };
 
-TextBlock.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return Number; }, TextBlock, TextWrapping.NoWrap);
+TextBlock.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
 TextBlock.Instance.GetTextWrapping = function () {
     return this.GetValue(TextBlock.TextWrappingProperty);
 };

@@ -66,7 +66,7 @@ FrameworkElement.Instance.SetDataContext = function (value) {
     this.SetValue(FrameworkElement.DataContextProperty, value);
 };
 
-FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return Number; }, FrameworkElement, HorizontalAlignment.Stretch);
+FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return new Enum(HorizontalAlignment); }, FrameworkElement, HorizontalAlignment.Stretch);
 FrameworkElement.Instance.GetHorizontalAlignment = function () {
     return this.GetValue(FrameworkElement.HorizontalAlignmentProperty);
 };
@@ -122,7 +122,7 @@ FrameworkElement.Instance.SetMinWidth = function (value) {
     this.SetValue(FrameworkElement.MinWidthProperty, value);
 };
 
-FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return Number; }, FrameworkElement, VerticalAlignment.Stretch);
+FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return new Enum(VerticalAlignment); }, FrameworkElement, VerticalAlignment.Stretch);
 FrameworkElement.Instance.GetVerticalAlignment = function () {
     return this.GetValue(FrameworkElement.VerticalAlignmentProperty);
 };
@@ -138,7 +138,7 @@ FrameworkElement.Instance.SetStyle = function (value) {
     this.SetValue(FrameworkElement.StyleProperty, value);
 };
 
-FrameworkElement.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return Number; }, FrameworkElement);
+FrameworkElement.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement);
 FrameworkElement.Instance.GetFlowDirection = function () {
     return this.GetValue(FrameworkElement.FlowDirectionProperty);
 };
@@ -741,7 +741,7 @@ FrameworkElement.Instance._SetImplicitStyles = function (styleMask, styles) {
             if (!style)
                 continue;
             if (!Validators.StyleValidator(this, FrameworkElement.StyleProperty, style, error)) {
-                Warn("Style validation failed.");
+                Warn("Style validation failed. [" + error.Message + "]");
                 return;
             }
         }

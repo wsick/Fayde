@@ -15,10 +15,17 @@ var Fayde = {
             if (val == null)
                 return val;
 
-            if (val instanceof propd.GetTargetType())
-                return val;
+            var targetType = propd.GetTargetType();
+            if (typeof targetType === "function") {
+                if (val instanceof targetType)
+                    return val;
+            } else if (targetType instanceof Enum) {
+                if (typeof val === "string") {
+                    return targetType.Object[val];
+                }
+            }
 
-            if (propd.GetTargetType() === String)
+            if (typeof targetType === "string")
                 return doStringConversion ? val.toString() : "";
 
             var tc;

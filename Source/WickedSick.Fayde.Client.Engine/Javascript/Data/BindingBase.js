@@ -12,7 +12,7 @@ BindingBase.Instance.Seal = function () {
     this.SetSealed(true);
 };
 
-//#region PROPERTIES
+//#region Properties
 
 BindingBase.Instance.GetFallbackValue = function () {
     return this._FallbackValue;

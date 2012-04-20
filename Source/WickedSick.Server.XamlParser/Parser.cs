@@ -31,6 +31,17 @@ namespace WickedSick.Server.XamlParser
 
             foreach (XmlAttribute a in node.Attributes)
             {
+                if (a.Name == "x:Key")
+                {
+                    element.SetValue("Key", a.Value);
+                    continue;
+                }
+                if (a.Name == "x:Name")
+                {
+                    element.SetValue("Name", a.Value);
+                    continue;
+                }
+
                 if (a.Name.ToLower().Equals("xmlns"))
                     continue;
                 if (a.Name.Contains(":"))

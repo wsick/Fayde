@@ -50,7 +50,7 @@ ArcSegment.Instance.SetSize = function (value) {
     this.SetValue(ArcSegment.SizeProperty, value);
 };
 
-ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return Number; }, ArcSegment, SweepDirection.Counterclockwise);
+ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return new Enum(SweepDirection); }, ArcSegment, SweepDirection.Counterclockwise);
 ArcSegment.Instance.GetSweepDirection = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(ArcSegment.SweepDirectionProperty);

@@ -6,7 +6,14 @@
 //#region JsonParser
 var JsonParser = Nullstone.Create("JsonParser");
 
-JsonParser.Instance.CreateObject = function (json, namescope) {
+JsonParser.Instance.Init = function () {
+    this.$SRExpressions = [];
+};
+
+JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
+    if (json.Type === ControlTemplate) {
+        return new json.Type(json.Props.TargetType, json.Content);
+    }
     var dobj = new json.Type();
     dobj.SetTemplateOwner(this._TemplateBindingSource);
     if (json.Name)
@@ -42,22 +49,26 @@ JsonParser.Instance.CreateObject = function (json, namescope) {
         if (json.Children) {
             this.TrySetCollectionProperty(json.Children, dobj, contentPropd, namescope);
         } else if (json.Content) {
-            dobj.SetValue(contentPropd, this.CreateObject(json.Content, namescope));
+            dobj.SetValue(contentPropd, this.CreateObject(json.Content, namescope, true));
         }
     } else if (contentPropd != null && contentPropd.constructor === String) {
         var setFunc = dobj["Set" + contentPropd];
         var getFunc = dobj["Get" + contentPropd];
         if (setFunc) {
-            setFunc.call(dobj, this.CreateObject(json.Content, namescope));
+            setFunc.call(dobj, this.CreateObject(json.Content, namescope, true));
         } else if (getFunc) {
             var coll = getFunc.call(dobj);
             for (var j in json.Children) {
-                var fobj = this.CreateObject(json.Children[j], namescope);
+                var fobj = this.CreateObject(json.Children[j], namescope, true);
                 if (fobj instanceof DependencyObject)
                     fobj._AddParent(coll, true);
                 coll.Add(fobj);
             }
         }
+    }
+
+    if (!ignoreResolve) {
+        this.ResolveStaticResourceExpressions();
     }
     return dobj;
 };
@@ -70,6 +81,11 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
 
     if (propValue instanceof Markup)
         propValue = propValue.Transmute(dobj, propd, propName, this._TemplateBindingSource);
+
+    if (propValue instanceof StaticResourceExpression) {
+        this.$SRExpressions.push(propValue);
+        return;
+    }
 
     //Set property value
     if (propd) {
@@ -112,14 +128,32 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
         dobj.SetValue(propd, coll);
     }
 
+    var rd = Nullstone.As(coll, ResourceDictionary);
     for (var i in subJson) {
-        var fobj = this.CreateObject(subJson[i], namescope);
+        var fobj = this.CreateObject(subJson[i], namescope, true);
         if (fobj instanceof DependencyObject)
             fobj._AddParent(coll, true);
-        coll.Add(fobj);
+        if (rd == null) {
+            coll.Add(fobj);
+        } else {
+            var key = subJson[i].Key;
+            if (key)
+                rd.Set(key, fobj);
+        }
     }
 
     return true;
+};
+JsonParser.Instance.ResolveStaticResourceExpressions = function () {
+    var srs = this.$SRExpressions;
+    if (srs == null)
+        return;
+    if (srs.length > 0) {
+        for (var i = 0; i < srs.length; i++) {
+            srs[i].Resolve(this);
+        }
+    }
+    this.$SRExpressions = [];
 };
 
 JsonParser.Instance.GetAnnotationMember = function (type, member) {

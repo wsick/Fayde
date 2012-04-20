@@ -10,7 +10,7 @@ ResourceDictionary.Instance.Init = function () {
     this._KeyIndex = [];
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 ResourceDictionary.Instance.GetMergedDictionaries = function () {

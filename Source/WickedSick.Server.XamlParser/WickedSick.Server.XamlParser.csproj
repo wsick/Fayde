@@ -141,6 +141,7 @@
     <Compile Include="Elements\Types\ClickMode.cs" />
     <Compile Include="Elements\Types\FlowDirection.cs" />
     <Compile Include="Elements\Types\GradientSpreadMethod.cs" />
+    <Compile Include="Elements\Types\JsType.cs" />
     <Compile Include="Elements\Types\KeyboardNavigationMode.cs" />
     <Compile Include="Elements\Types\Length.cs" />
     <Compile Include="Elements\Types\RepeatBehavior.cs" />
@@ -259,6 +260,7 @@
     <Compile Include="TypeConverters\ImageSourceConverter.cs" />
     <Compile Include="TypeConverters\IntConverter.cs" />
     <Compile Include="TypeConverters\ITypeConverter.cs" />
+    <Compile Include="TypeConverters\JsTypeConverter.cs" />
     <Compile Include="TypeConverters\KeyTimeConverter.cs" />
     <Compile Include="Elements\Types\JsonUri.cs" />
     <Compile Include="Elements\Types\KeyTime.cs" />

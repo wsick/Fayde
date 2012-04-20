@@ -13,7 +13,7 @@ ControlTemplate.Instance.Init = function (targetType, json) {
     this._TempJson = json;
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, ControlTemplate);
 ControlTemplate.Instance.GetTargetType = function () {

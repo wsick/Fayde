@@ -1,8 +1,8 @@
 ﻿<ResourceDictionary 
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:vsm="clr-namespace:System.Windows;assembly=System.Windows">
+    xmlns="http://schemas.wsick.com/fayde/"
+    xmlns:x="http://schemas.wsick.com/fayde/"
+    xmlns:vsm="http://schemas.wsick.com/fayde/"
+    xmlns:sys="http://schemas.wsick.com/fayde/">
     <!--
     <ControlTemplate x:Key="ValidationToolTipTemplate">
         <Grid x:Name="Root" Margin="5,0" RenderTransformOrigin="0,0" Opacity="0">

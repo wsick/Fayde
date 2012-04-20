@@ -6,6 +6,7 @@ using System.Collections;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using WickedSick.Server.XamlParser.TypeConverters;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
@@ -188,6 +189,7 @@ namespace WickedSick.Server.XamlParser.Elements
         }
 
         public static readonly PropertyDescription Name = PropertyDescription.Register("Name", typeof(string), typeof(DependencyObject));
+        public static readonly PropertyDescription Key = PropertyDescription.Register("Key", typeof(string), typeof(DependencyObject));
         public DependencyObject Parent { get; set; }
 
         private IDictionary<PropertyDescription, object> GetProperties()
@@ -224,10 +226,17 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendFormat("Type: {0}", GetTypeName());
 
             string name = GetValue("Name") as string;
-            if (name != null)
+            if (!string.IsNullOrWhiteSpace(name))
             {
                 sb.AppendLine(",");
-                sb.AppendFormat("Name: {0}", name);
+                sb.AppendFormat("Name: \"{0}\"", name);
+            }
+
+            string key = GetValue("Key") as string;
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                sb.AppendLine(",");
+                sb.AppendFormat("Key: \"{0}\"", key);
             }
 
             string propJson = propsToJson(GetProperties());
@@ -331,7 +340,7 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.AppendLine(",");
                 if (this is Setter && pd.Name.Equals("Property"))
                 {
-                    string typeName = (string)((Style)this.Parent).GetValue("TargetType");
+                    string typeName = ((IJsonSerializable)Parent.GetValue("TargetType")).toJson(0);
                     sb.Append(pd.Name);
                     sb.Append(": ");
                     sb.Append(string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, value));

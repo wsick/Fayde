@@ -11,7 +11,7 @@ Polygon.Instance.Init = function () {
 
 //#region Dependency Properties
 
-Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return Number; }, Polygon, FillRule.EvenOdd);
+Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polygon, FillRule.EvenOdd);
 Polygon.Instance.GetFillRule = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(Polygon.FillRuleProperty);

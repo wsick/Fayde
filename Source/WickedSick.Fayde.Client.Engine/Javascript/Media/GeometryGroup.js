@@ -11,7 +11,7 @@ GeometryGroup.Instance.Init = function () {
 
 //#region Dependency Properties
 
-GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return Number; }, GeometryGroup, FillRule.EvenOdd);
+GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, GeometryGroup, FillRule.EvenOdd);
 GeometryGroup.Instance.GetFillRule = function () {
     ///<returns type="Number"></returns>
     return this.GetValue(GeometryGroup.FillRuleProperty);

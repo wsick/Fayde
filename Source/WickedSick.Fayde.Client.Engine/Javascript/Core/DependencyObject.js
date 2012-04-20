@@ -75,7 +75,7 @@ DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 DependencyObject.Instance.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);

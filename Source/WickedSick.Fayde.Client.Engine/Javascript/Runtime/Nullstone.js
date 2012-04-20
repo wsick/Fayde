@@ -1,4 +1,5 @@
 ﻿/// <reference path="JsEx.js"/>
+/// <reference path="Enum.js"/>
 
 var Nullstone = {};
 Nullstone._LastID = 0;
