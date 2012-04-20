@@ -57,6 +57,8 @@ var Fayde = {
 
             var targetType = propd.GetTargetType();
             if (typeof targetType === "function" && targetType._IsNullstone) {
+                if (val instanceof targetType)
+                    return val;
                 var converter = Fayde.TypeConverters[targetType._TypeName];
                 if (converter != null)
                     return converter(val);
