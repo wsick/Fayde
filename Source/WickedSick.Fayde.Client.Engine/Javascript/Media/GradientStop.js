@@ -11,7 +11,7 @@ var GradientStop = Nullstone.Create("GradientStop", DependencyObject);
 GradientStop.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, GradientStop, new Color());
 GradientStop.Instance.GetColor = function () {
     /// <returns type="Color" />
-    return this.GetValue(GradientStop.ColorProperty);
+    return this.$GetValue(GradientStop.ColorProperty);
 };
 GradientStop.Instance.SetColor = function (value) {
     /// <param name="value" type="Color"></param>
@@ -20,7 +20,7 @@ GradientStop.Instance.SetColor = function (value) {
 
 GradientStop.OffsetProperty = DependencyProperty.Register("Offset", function () { return Number; }, GradientStop, 0.0);
 GradientStop.Instance.GetOffset = function () {
-    return this.GetValue(GradientStop.OffsetProperty);
+    return this.$GetValue(GradientStop.OffsetProperty);
 };
 GradientStop.Instance.SetOffset = function (value) {
     this.SetValue(GradientStop.OffsetProperty, value);

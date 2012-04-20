@@ -19,13 +19,13 @@ GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
 GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.Instance.GetGradientStops = function () {
     /// <returns type="GradientStopCollection" />
-    return this.GetValue(GradientBrush.GradientStopsProperty);
+    return this.$GetValue(GradientBrush.GradientStopsProperty);
 };
 
 GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Enum(BrushMappingMode); }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
 GradientBrush.Instance.GetMappingMode = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(GradientBrush.MappingModeProperty);
+    return this.$GetValue(GradientBrush.MappingModeProperty);
 };
 GradientBrush.Instance.SetMappingMode = function (value) {
     ///<param name="value" type="Number"></param>

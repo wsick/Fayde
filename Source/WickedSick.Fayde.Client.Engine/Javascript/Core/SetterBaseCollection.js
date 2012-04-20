@@ -11,7 +11,7 @@ var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", DependencyOb
 SetterBaseCollection.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBaseCollection);
 SetterBaseCollection.Instance.GetIsSealed = function () {
     /// <returns type="Boolean" />
-    return this.GetValue(SetterBaseCollection.IsSealedProperty);
+    return this.$GetValue(SetterBaseCollection.IsSealedProperty);
 };
 SetterBaseCollection.Instance.SetIsSealed = function (value) {
     /// <param name="value" type="Boolean"></param>
@@ -56,7 +56,7 @@ SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
     var s;
     if (value instanceof Setter) {
         s = Nullstone.As(value, Setter);
-        if (s.GetValue(Setter.PropertyProperty) == null) {
+        if (s.$GetValue(Setter.PropertyProperty) == null) {
             error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
             return false;
         }

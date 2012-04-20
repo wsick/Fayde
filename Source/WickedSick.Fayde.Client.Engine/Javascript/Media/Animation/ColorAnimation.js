@@ -11,7 +11,7 @@ var ColorAnimation = Nullstone.Create("ColorAnimation", Animation);
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
 ColorAnimation.Instance.GetBy = function () {
     ///<returns type="Color"></returns>
-    return this.GetValue(ColorAnimation.ByProperty);
+    return this.$GetValue(ColorAnimation.ByProperty);
 };
 ColorAnimation.Instance.SetBy = function (value) {
     ///<param name="value" type="Color"></param>
@@ -22,7 +22,7 @@ ColorAnimation.Instance.SetBy = function (value) {
 ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
 ColorAnimation.Instance.GetEasingFunction = function () {
 ///<returns type="EasingFunction"></returns>
-return this.GetValue(ColorAnimation.EasingFunctionProperty);
+return this.$GetValue(ColorAnimation.EasingFunctionProperty);
 };
 ColorAnimation.Instance.SetEasingFunction = function (value) {
 ///<param name="value" type="EasingFunction"></param>
@@ -33,7 +33,7 @@ this.SetValue(ColorAnimation.EasingFunctionProperty, value);
 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
 ColorAnimation.Instance.GetFrom = function () {
     ///<returns type="Color"></returns>
-    return this.GetValue(ColorAnimation.FromProperty);
+    return this.$GetValue(ColorAnimation.FromProperty);
 };
 ColorAnimation.Instance.SetFrom = function (value) {
     ///<param name="value" type="Color"></param>
@@ -43,7 +43,7 @@ ColorAnimation.Instance.SetFrom = function (value) {
 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
 ColorAnimation.Instance.GetTo = function () {
     ///<returns type="Color"></returns>
-    return this.GetValue(ColorAnimation.ToProperty);
+    return this.$GetValue(ColorAnimation.ToProperty);
 };
 ColorAnimation.Instance.SetTo = function (value) {
     ///<param name="value" type="Color"></param>

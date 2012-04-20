@@ -86,7 +86,7 @@ UIElement.Instance.Init = function () {
 
 UIElement.ClipProperty = DependencyProperty.Register("Clip", function () { return Geometry; }, UIElement);
 UIElement.Instance.GetClip = function () {
-    return this.GetValue(UIElement.ClipProperty);
+    return this.$GetValue(UIElement.ClipProperty);
 };
 UIElement.Instance.SetClip = function (value) {
     this.SetValue(UIElement.ClipProperty, value);
@@ -98,7 +98,7 @@ UIElement.Instance.SetClip = function (value) {
 
 UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
 UIElement.Instance.GetIsHitTestVisible = function () {
-    return this.GetValue(UIElement.IsHitTestVisibleProperty);
+    return this.$GetValue(UIElement.IsHitTestVisibleProperty);
 };
 UIElement.Instance.SetIsHitTestVisible = function (value) {
     this.SetValue(UIElement.IsHitTestVisibleProperty, value);
@@ -106,7 +106,7 @@ UIElement.Instance.SetIsHitTestVisible = function (value) {
 
 UIElement.OpacityMaskProperty = DependencyProperty.Register("OpacityMask", function () { return Brush; }, UIElement);
 UIElement.Instance.GetOpacityMask = function () {
-    return this.GetValue(UIElement.OpacityMaskProperty);
+    return this.$GetValue(UIElement.OpacityMaskProperty);
 };
 UIElement.Instance.SetOpacityMask = function (value) {
     this.SetValue(UIElement.OpacityMaskProperty, value);
@@ -114,7 +114,7 @@ UIElement.Instance.SetOpacityMask = function (value) {
 
 UIElement.OpacityProperty = DependencyProperty.Register("Opacity", function () { return Number; }, UIElement, 1.0);
 UIElement.Instance.GetOpacity = function () {
-    return this.GetValue(UIElement.OpacityProperty);
+    return this.$GetValue(UIElement.OpacityProperty);
 };
 UIElement.Instance.SetOpacity = function (value) {
     this.SetValue(UIElement.OpacityProperty, value);
@@ -125,7 +125,7 @@ UIElement.Instance.SetOpacity = function (value) {
 
 UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
 UIElement.Instance.GetCursor = function () {
-    return this.GetValue(UIElement.CursorProperty);
+    return this.$GetValue(UIElement.CursorProperty);
 };
 UIElement.Instance.SetCursor = function (value) {
     this.SetValue(UIElement.CursorProperty, value);
@@ -134,17 +134,17 @@ UIElement.Instance.SetCursor = function (value) {
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.Instance.GetResources = function () {
     /// <returns type="ResourceDictionary" />
-    return this.GetValue(UIElement.ResourcesProperty);
+    return this.$GetValue(UIElement.ResourcesProperty);
 };
 
 UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, null, { GetValue: function () { } }*/);
 UIElement.Instance.GetTriggers = function () {
-    return this.GetValue(UIElement.TriggersProperty);
+    return this.$GetValue(UIElement.TriggersProperty);
 };
 
 UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", function () { return Boolean; }, UIElement);
 UIElement.Instance.GetUseLayoutRounding = function () {
-    return this.GetValue(UIElement.UseLayoutRoundingProperty);
+    return this.$GetValue(UIElement.UseLayoutRoundingProperty);
 };
 UIElement.Instance.SetUseLayoutRounding = function (value) {
     this.SetValue(UIElement.UseLayoutRoundingProperty, value);
@@ -152,7 +152,7 @@ UIElement.Instance.SetUseLayoutRounding = function (value) {
 
 UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
 UIElement.Instance.GetVisibility = function () {
-    return this.GetValue(UIElement.VisibilityProperty);
+    return this.$GetValue(UIElement.VisibilityProperty);
 };
 UIElement.Instance.SetVisibility = function (value) {
     this.SetValue(UIElement.VisibilityProperty, value);
@@ -160,7 +160,7 @@ UIElement.Instance.SetVisibility = function (value) {
 
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
 UIElement.Instance.GetTag = function () {
-    return this.GetValue(UIElement.TagProperty);
+    return this.$GetValue(UIElement.TagProperty);
 };
 UIElement.Instance.SetTag = function (value) {
     this.SetValue(UIElement.TagProperty, value);

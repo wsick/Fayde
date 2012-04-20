@@ -15,7 +15,7 @@ Rectangle.Instance.Init = function () {
 Rectangle.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, Rectangle, 0.0);
 Rectangle.Instance.GetRadiusX = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(Rectangle.RadiusXProperty);
+    return this.$GetValue(Rectangle.RadiusXProperty);
 };
 Rectangle.Instance.SetRadiusX = function (value) {
     ///<param name="value" type="Number"></param>
@@ -25,7 +25,7 @@ Rectangle.Instance.SetRadiusX = function (value) {
 Rectangle.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, Rectangle, 0.0);
 Rectangle.Instance.GetRadiusY = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(Rectangle.RadiusYProperty);
+    return this.$GetValue(Rectangle.RadiusYProperty);
 };
 Rectangle.Instance.SetRadiusY = function (value) {
     ///<param name="value" type="Number"></param>

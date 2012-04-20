@@ -19,7 +19,7 @@ SolidColorBrush.Instance.Init = function (args) {
 SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush);
 SolidColorBrush.Instance.GetColor = function () {
     ///<returns type="Color"></returns>
-    return this.GetValue(SolidColorBrush.ColorProperty);
+    return this.$GetValue(SolidColorBrush.ColorProperty);
 };
 SolidColorBrush.Instance.SetColor = function (value) {
     ///<param name="value" type="Color"></param>

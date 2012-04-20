@@ -28,7 +28,7 @@ TextBlock.Instance.Init = function () {
 
 TextBlock.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, TextBlock, new Thickness());
 TextBlock.Instance.GetPadding = function () {
-    return this.GetValue(TextBlock.PaddingProperty);
+    return this.$GetValue(TextBlock.PaddingProperty);
 };
 TextBlock.Instance.SetPadding = function (value) {
     this.SetValue(TextBlock.PaddingProperty, value);
@@ -36,7 +36,7 @@ TextBlock.Instance.SetPadding = function (value) {
 
 TextBlock.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextBlock, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
 TextBlock.Instance.GetForeground = function () {
-    return this.GetValue(TextBlock.ForegroundProperty);
+    return this.$GetValue(TextBlock.ForegroundProperty);
 };
 TextBlock.Instance.SetForeground = function (value) {
     this.SetValue(TextBlock.ForegroundProperty, value);
@@ -44,7 +44,7 @@ TextBlock.Instance.SetForeground = function (value) {
 
 TextBlock.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY);
 TextBlock.Instance.GetFontFamily = function () {
-    return this.GetValue(TextBlock.FontFamilyProperty);
+    return this.$GetValue(TextBlock.FontFamilyProperty);
 };
 TextBlock.Instance.SetFontFamily = function (value) {
     this.SetValue(TextBlock.FontFamilyProperty, value);
@@ -52,7 +52,7 @@ TextBlock.Instance.SetFontFamily = function (value) {
 
 TextBlock.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH);
 TextBlock.Instance.GetFontStretch = function () {
-    return this.GetValue(TextBlock.FontStretchProperty);
+    return this.$GetValue(TextBlock.FontStretchProperty);
 };
 TextBlock.Instance.SetFontStretch = function (value) {
     this.SetValue(TextBlock.FontStretchProperty, value);
@@ -60,7 +60,7 @@ TextBlock.Instance.SetFontStretch = function (value) {
 
 TextBlock.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE);
 TextBlock.Instance.GetFontStyle = function () {
-    return this.GetValue(TextBlock.FontStyleProperty);
+    return this.$GetValue(TextBlock.FontStyleProperty);
 };
 TextBlock.Instance.SetFontStyle = function (value) {
     this.SetValue(TextBlock.FontStyleProperty, value);
@@ -68,7 +68,7 @@ TextBlock.Instance.SetFontStyle = function (value) {
 
 TextBlock.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextBlock, Font.DEFAULT_WEIGHT);
 TextBlock.Instance.GetFontWeight = function () {
-    return this.GetValue(TextBlock.FontWeightProperty);
+    return this.$GetValue(TextBlock.FontWeightProperty);
 };
 TextBlock.Instance.SetFontWeight = function (value) {
     this.SetValue(TextBlock.FontWeightProperty, value);
@@ -76,7 +76,7 @@ TextBlock.Instance.SetFontWeight = function (value) {
 
 TextBlock.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextBlock, Font.DEFAULT_SIZE);
 TextBlock.Instance.GetFontSize = function () {
-    return this.GetValue(TextBlock.FontSizeProperty);
+    return this.$GetValue(TextBlock.FontSizeProperty);
 };
 TextBlock.Instance.SetFontSize = function (value) {
     this.SetValue(TextBlock.FontSizeProperty, value);
@@ -84,7 +84,7 @@ TextBlock.Instance.SetFontSize = function (value) {
 
 TextBlock.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None);
 TextBlock.Instance.GetTextDecorations = function () {
-    return this.GetValue(TextBlock.TextDecorationsProperty);
+    return this.$GetValue(TextBlock.TextDecorationsProperty);
 };
 TextBlock.Instance.SetTextDecorations = function (value) {
     this.SetValue(TextBlock.TextDecorationsProperty, value);
@@ -92,7 +92,7 @@ TextBlock.Instance.SetTextDecorations = function (value) {
 
 TextBlock.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextBlock);
 TextBlock.Instance.GetFontResource = function () {
-    return this.GetValue(TextBlock.FontResourceProperty);
+    return this.$GetValue(TextBlock.FontResourceProperty);
 };
 TextBlock.Instance.SetFontResource = function (value) {
     this.SetValue(TextBlock.FontResourceProperty, value);
@@ -100,7 +100,7 @@ TextBlock.Instance.SetFontResource = function (value) {
 
 TextBlock.FontSourceProperty = DependencyProperty.Register("FontSource", function () { return Object; }, TextBlock);
 TextBlock.Instance.GetFontSource = function () {
-    return this.GetValue(TextBlock.FontSourceProperty);
+    return this.$GetValue(TextBlock.FontSourceProperty);
 };
 TextBlock.Instance.SetFontSource = function (value) {
     this.SetValue(TextBlock.FontSourceProperty, value);
@@ -108,7 +108,7 @@ TextBlock.Instance.SetFontSource = function (value) {
 
 TextBlock.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBlock, "");
 TextBlock.Instance.GetText = function () {
-    return this.GetValue(TextBlock.TextProperty);
+    return this.$GetValue(TextBlock.TextProperty);
 };
 TextBlock.Instance.SetText = function (value) {
     this.SetValue(TextBlock.TextProperty, value);
@@ -116,12 +116,12 @@ TextBlock.Instance.SetText = function (value) {
 
 TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, null, { GetValue: function () { return new InlineCollection(); } });
 TextBlock.Instance.GetInlines = function () {
-    return this.GetValue(TextBlock.InlinesProperty);
+    return this.$GetValue(TextBlock.InlinesProperty);
 };
 
 TextBlock.LineStackingStrategyProperty = DependencyProperty.Register("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
 TextBlock.Instance.GetLineStackingStrategy = function () {
-    return this.GetValue(TextBlock.LineStackingStrategyProperty);
+    return this.$GetValue(TextBlock.LineStackingStrategyProperty);
 };
 TextBlock.Instance.SetLineStackingStrategy = function (value) {
     this.SetValue(TextBlock.LineStackingStrategyProperty, value);
@@ -129,7 +129,7 @@ TextBlock.Instance.SetLineStackingStrategy = function (value) {
 
 TextBlock.LineHeightProperty = DependencyProperty.Register("LineHeight", function () { return Number; }, TextBlock, 0.0);
 TextBlock.Instance.GetLineHeight = function () {
-    return this.GetValue(TextBlock.LineHeightProperty);
+    return this.$GetValue(TextBlock.LineHeightProperty);
 };
 TextBlock.Instance.SetLineHeight = function (value) {
     this.SetValue(TextBlock.LineHeightProperty, value);
@@ -137,7 +137,7 @@ TextBlock.Instance.SetLineHeight = function (value) {
 
 TextBlock.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
 TextBlock.Instance.GetTextAlignment = function () {
-    return this.GetValue(TextBlock.TextAlignmentProperty);
+    return this.$GetValue(TextBlock.TextAlignmentProperty);
 };
 TextBlock.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBlock.TextAlignmentProperty, value);
@@ -145,7 +145,7 @@ TextBlock.Instance.SetTextAlignment = function (value) {
 
 TextBlock.TextTrimmingProperty = DependencyProperty.Register("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
 TextBlock.Instance.GetTextTrimming = function () {
-    return this.GetValue(TextBlock.TextTrimmingProperty);
+    return this.$GetValue(TextBlock.TextTrimmingProperty);
 };
 TextBlock.Instance.SetTextTrimming = function (value) {
     this.SetValue(TextBlock.TextTrimmingProperty, value);
@@ -153,7 +153,7 @@ TextBlock.Instance.SetTextTrimming = function (value) {
 
 TextBlock.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
 TextBlock.Instance.GetTextWrapping = function () {
-    return this.GetValue(TextBlock.TextWrappingProperty);
+    return this.$GetValue(TextBlock.TextWrappingProperty);
 };
 TextBlock.Instance.SetTextWrapping = function (value) {
     this.SetValue(TextBlock.TextWrappingProperty, value);
@@ -323,7 +323,7 @@ TextBlock.Instance._SetTextInternal = function (text) {
     this._SetsValue = false;
 
     var value;
-    var inlines = this.GetValue(TextBlock.InlinesProperty);
+    var inlines = this.$GetValue(TextBlock.InlinesProperty);
     if (text) {
         var count = inlines.GetCount();
         var run = null;

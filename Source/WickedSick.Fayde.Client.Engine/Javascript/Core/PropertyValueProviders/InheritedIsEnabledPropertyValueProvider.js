@@ -9,7 +9,7 @@ var _InheritedIsEnabledPropertyValueProvider = Nullstone.Create("_InheritedIsEna
 _InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
     this._Source = null;
-    this._CurrentValue = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+    this._CurrentValue = this._Object.$GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
 };
 
 _InheritedIsEnabledPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
@@ -60,8 +60,8 @@ _InheritedIsEnabledPropertyValueProvider.Instance.LocalValueChanged = function (
     if (propd && propd !== Control.IsEnabledProperty)
         return false;
 
-    var localEnabled = this._Object.GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source.GetValue(Control.IsEnabledProperty) : null;
+    var localEnabled = this._Object.$GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source.$GetValue(Control.IsEnabledProperty) : null;
     var newValue = localEnabled == true && (parentEnabled == null || parentEnabled == true);
     if (newValue != this._CurrentValue) {
         var oldValue = this._CurrentValue;

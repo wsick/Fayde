@@ -16,7 +16,7 @@ Path.Instance.Init = function () {
 Path.DataProperty = DependencyProperty.RegisterCore("Data", function () { return Geometry; }, Path);
 Path.Instance.GetData = function () {
     ///<returns type="Geometry"></returns>
-    return this.GetValue(Path.DataProperty);
+    return this.$GetValue(Path.DataProperty);
 };
 Path.Instance.SetData = function (value) {
     ///<param name="value" type="Geometry"></param>

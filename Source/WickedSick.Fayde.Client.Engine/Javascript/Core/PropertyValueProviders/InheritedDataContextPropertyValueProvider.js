@@ -15,14 +15,14 @@ _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPr
 _InheritedDataContextPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (!this._Source || propd !== FrameworkElement.DataContextProperty)
         return null;
-    return this._Source.GetValue(propd);
+    return this._Source.$GetValue(propd);
 };
 _InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (source) {
     if (Nullstone.RefEquals(this._Source, source))
         return;
 
-    var oldValue = this._Source != null ? this._Source.GetValue(FrameworkElement.DataContextProperty) : null;
-    var newValue = source != null ? source.GetValue(FrameworkElement.DataContextProperty) : null;
+    var oldValue = this._Source != null ? this._Source.$GetValue(FrameworkElement.DataContextProperty) : null;
+    var newValue = source != null ? source.$GetValue(FrameworkElement.DataContextProperty) : null;
 
     this._DetachListener(this._Source);
     this._Source = source;
@@ -55,7 +55,7 @@ _InheritedDataContextPropertyValueProvider.Instance._SourceDataContextChanged = 
 _InheritedDataContextPropertyValueProvider.Instance.EmitChanged = function () {
     if (this._Source != null) {
         var error = new BError();
-        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.$GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
     }
 };
 

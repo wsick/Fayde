@@ -17,7 +17,7 @@ Timeline.Instance.Init = function () {
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
 Timeline.Instance.GetBeginTime = function () {
     ///<returns type="TimeSpan"></returns>
-    return this.GetValue(Timeline.BeginTimeProperty);
+    return this.$GetValue(Timeline.BeginTimeProperty);
 };
 Timeline.Instance.SetBeginTime = function (value) {
     ///<param name="value" type="TimeSpan"></param>
@@ -27,7 +27,7 @@ Timeline.Instance.SetBeginTime = function (value) {
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
 Timeline.Instance.GetDuration = function () {
     ///<returns type="Duration"></returns>
-    return this.GetValue(Timeline.DurationProperty);
+    return this.$GetValue(Timeline.DurationProperty);
 };
 Timeline.Instance.SetDuration = function (value) {
     ///<param name="value" type="Duration"></param>

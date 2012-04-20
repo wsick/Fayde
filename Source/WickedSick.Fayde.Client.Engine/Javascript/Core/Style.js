@@ -11,17 +11,17 @@ var Style = Nullstone.Create("Style", DependencyObject);
 
 Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
 Style.Instance.GetSetters = function () {
-    return this.GetValue(Style.SettersProperty);
+    return this.$GetValue(Style.SettersProperty);
 };
 
 Style.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, Style);
 Style.Instance.GetIsSealed = function () {
-    return this.GetValue(Style.IsSealedProperty);
+    return this.$GetValue(Style.IsSealedProperty);
 };
 
 Style.BasedOnProperty = DependencyProperty.Register("BasedOn", function () { return Function; }, Style);
 Style.Instance.GetBasedOn = function () {
-    return this.GetValue(Style.BasedOnProperty);
+    return this.$GetValue(Style.BasedOnProperty);
 };
 Style.Instance.SetBasedOn = function (value) {
     this.SetValue(Style.BasedOnProperty, value);
@@ -29,7 +29,7 @@ Style.Instance.SetBasedOn = function (value) {
 
 Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, Style);
 Style.Instance.GetTargetType = function () {
-    return this.GetValue(Style.TargetTypeProperty);
+    return this.$GetValue(Style.TargetTypeProperty);
 };
 Style.Instance.SetTargetType = function (value) {
     this.SetValue(Style.TargetTypeProperty, value);
@@ -65,8 +65,8 @@ Style.Instance._ConvertSetterValues = function () {
 };
 Style.Instance._ConvertSetterValue = function (setter) {
     /// <param name="setter" type="Setter"></param>
-    var propd = setter.GetValue(Setter.PropertyProperty);
-    var val = setter.GetValue(Setter.ValueProperty);
+    var propd = setter.$GetValue(Setter.PropertyProperty);
+    var val = setter.$GetValue(Setter.ValueProperty);
 
     if (propd.GetTargetType() === String) {
         //if (val == null)

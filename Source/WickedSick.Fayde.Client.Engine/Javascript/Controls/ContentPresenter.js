@@ -10,7 +10,7 @@ var ContentPresenter = Nullstone.Create("ContentPresenter", FrameworkElement);
 
 ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter);
 ContentPresenter.Instance.GetContent = function () {
-    return this.GetValue(ContentPresenter.ContentProperty);
+    return this.$GetValue(ContentPresenter.ContentProperty);
 };
 ContentPresenter.Instance.SetContent = function (value) {
     this.SetValue(ContentPresenter.ContentProperty, value);
@@ -19,7 +19,7 @@ ContentPresenter.Instance.SetContent = function (value) {
 ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
 ContentPresenter.Instance.GetContentTemplate = function () {
     /// <returns type="ControlTemplate" />
-    return this.GetValue(ContentPresenter.ContentTemplateProperty);
+    return this.$GetValue(ContentPresenter.ContentTemplateProperty);
 };
 ContentPresenter.Instance.SetContentTemplate = function (value) {
     this.SetValue(ContentPresenter.ContentTemplateProperty, value);

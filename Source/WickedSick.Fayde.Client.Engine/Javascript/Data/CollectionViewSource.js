@@ -11,7 +11,7 @@ var CollectionViewSource = Nullstone.Create("CollectionViewSource", DependencyOb
 CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
 CollectionViewSource.Instance.GetSource = function () {
     ///<returns type="Object"></returns>
-    return this.GetValue(CollectionViewSource.SourceProperty);
+    return this.$GetValue(CollectionViewSource.SourceProperty);
 };
 CollectionViewSource.Instance.SetSource = function (value) {
     ///<param name="value" type="Object"></param>
@@ -21,7 +21,7 @@ CollectionViewSource.Instance.SetSource = function (value) {
 CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
 CollectionViewSource.Instance.GetView = function () {
     ///<returns type="ICollectionView"></returns>
-    return this.GetValue(CollectionViewSource.ViewProperty);
+    return this.$GetValue(CollectionViewSource.ViewProperty);
 };
 CollectionViewSource.Instance.SetView = function (value) {
     ///<param name="value" type="ICollectionView"></param>

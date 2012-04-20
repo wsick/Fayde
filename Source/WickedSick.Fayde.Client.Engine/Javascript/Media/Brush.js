@@ -14,7 +14,7 @@ Brush.Instance.Init = function () {
 Brush.ChangedProperty = DependencyProperty.Register("Changed", function () { return Boolean; }, Brush);
 Brush.Instance.GetChanged = function () {
     ///<returns type="Boolean"></returns>
-    return this.GetValue(Brush.ChangedProperty);
+    return this.$GetValue(Brush.ChangedProperty);
 };
 Brush.Instance.SetChanged = function (value) {
     ///<param name="value" type="Boolean"></param>

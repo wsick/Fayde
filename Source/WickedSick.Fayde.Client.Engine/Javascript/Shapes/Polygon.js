@@ -14,7 +14,7 @@ Polygon.Instance.Init = function () {
 Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polygon, FillRule.EvenOdd);
 Polygon.Instance.GetFillRule = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(Polygon.FillRuleProperty);
+    return this.$GetValue(Polygon.FillRuleProperty);
 };
 Polygon.Instance.SetFillRule = function (value) {
     ///<param name="value" type="Number"></param>
@@ -24,7 +24,7 @@ Polygon.Instance.SetFillRule = function (value) {
 Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, null, { GetValue: function () { return new PointCollection(); } });
 Polygon.Instance.GetPoints = function () {
     ///<returns type="PointCollection"></returns>
-    return this.GetValue(Polygon.PointsProperty);
+    return this.$GetValue(Polygon.PointsProperty);
 };
 Polygon.Instance.SetPoints = function (value) {
     ///<param name="value" type="PointCollection"></param>

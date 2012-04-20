@@ -14,7 +14,7 @@ GeometryGroup.Instance.Init = function () {
 GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, GeometryGroup, FillRule.EvenOdd);
 GeometryGroup.Instance.GetFillRule = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(GeometryGroup.FillRuleProperty);
+    return this.$GetValue(GeometryGroup.FillRuleProperty);
 };
 GeometryGroup.Instance.SetFillRule = function (value) {
     ///<param name="value" type="Number"></param>
@@ -24,7 +24,7 @@ GeometryGroup.Instance.SetFillRule = function (value) {
 GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, null, { GetValue: function () { return new GeometryCollection(); } });
 GeometryGroup.Instance.GetChildren = function () {
     ///<returns type="GeometryCollection"></returns>
-    return this.GetValue(GeometryGroup.ChildrenProperty);
+    return this.$GetValue(GeometryGroup.ChildrenProperty);
 };
 GeometryGroup.Instance.SetChildren = function (value) {
     ///<param name="value" type="GeometryCollection"></param>

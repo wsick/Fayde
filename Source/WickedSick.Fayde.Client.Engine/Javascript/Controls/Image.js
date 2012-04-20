@@ -22,7 +22,7 @@ Fayde.Image.Instance.Init = function () {
 Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, null, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 Fayde.Image.Instance.GetSource = function () {
     ///<returns type="ImageSource"></returns>
-    return this.GetValue(Fayde.Image.SourceProperty);
+    return this.$GetValue(Fayde.Image.SourceProperty);
 };
 Fayde.Image.Instance.SetSource = function (value) {
     ///<param name="value" type="ImageSource"></param>
@@ -39,7 +39,7 @@ Fayde.Image.Instance.SetSource.Converter = function (value) {
 Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Fayde.Image, Stretch.Uniform);
 Fayde.Image.Instance.GetStretch = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(Fayde.Image.StretchProperty);
+    return this.$GetValue(Fayde.Image.StretchProperty);
 };
 Fayde.Image.Instance.SetStretch = function (value) {
     ///<param name="value" type="Number"></param>

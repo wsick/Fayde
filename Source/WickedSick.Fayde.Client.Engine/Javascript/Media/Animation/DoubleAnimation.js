@@ -12,7 +12,7 @@ var DoubleAnimation = Nullstone.Create("DoubleAnimation", Animation);
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
 DoubleAnimation.Instance.GetBy = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(DoubleAnimation.ByProperty);
+    return this.$GetValue(DoubleAnimation.ByProperty);
 };
 DoubleAnimation.Instance.SetBy = function (value) {
     ///<param name="value" type="Number"></param>
@@ -23,7 +23,7 @@ DoubleAnimation.Instance.SetBy = function (value) {
 DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, DoubleAnimation);
 DoubleAnimation.Instance.GetEasingFunction = function () {
 ///<returns type="EasingFunction"></returns>
-return this.GetValue(DoubleAnimation.EasingFunctionProperty);
+return this.$GetValue(DoubleAnimation.EasingFunctionProperty);
 };
 DoubleAnimation.Instance.SetEasingFunction = function (value) {
 ///<param name="value" type="EasingFunction"></param>
@@ -34,7 +34,7 @@ this.SetValue(DoubleAnimation.EasingFunctionProperty, value);
 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
 DoubleAnimation.Instance.GetFrom = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(DoubleAnimation.FromProperty);
+    return this.$GetValue(DoubleAnimation.FromProperty);
 };
 DoubleAnimation.Instance.SetFrom = function (value) {
     ///<param name="value" type="Number"></param>
@@ -44,7 +44,7 @@ DoubleAnimation.Instance.SetFrom = function (value) {
 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
 DoubleAnimation.Instance.GetTo = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(DoubleAnimation.ToProperty);
+    return this.$GetValue(DoubleAnimation.ToProperty);
 };
 DoubleAnimation.Instance.SetTo = function (value) {
     ///<param name="value" type="Number"></param>

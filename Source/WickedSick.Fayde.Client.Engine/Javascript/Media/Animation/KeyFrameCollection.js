@@ -38,7 +38,7 @@ KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
     for (; i >= 0; i--) {
         keyFrame = this._SortedList[i];
         valuePropd = keyFrame.GetDependencyProperty("Value");
-        if (keyFrame.GetValue(valuePropd) != null) {
+        if (keyFrame.$GetValue(valuePropd) != null) {
             currentKeyFrame = keyFrame;
             break;
         }
@@ -48,7 +48,7 @@ KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
     for (i--; i >= 0; i--) {
         keyFrame = this._SortedList[i];
         valuePropd = keyFrame.GetDependencyProperty("Value");
-        if (keyFrame.GetValue(valuePropd) != null) {
+        if (keyFrame.$GetValue(valuePropd) != null) {
             previousKeyFrame = keyFrame;
             break;
         }

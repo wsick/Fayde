@@ -11,7 +11,7 @@ var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", GradientBrush)
 LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
 LinearGradientBrush.Instance.GetStartPoint = function () {
     /// <returns type="Point" />
-    return this.GetValue(LinearGradientBrush.StartPointProperty);
+    return this.$GetValue(LinearGradientBrush.StartPointProperty);
 };
 LinearGradientBrush.Instance.SetStartPoint = function (value) {
     /// <param name="value" type="Point"></param>
@@ -21,7 +21,7 @@ LinearGradientBrush.Instance.SetStartPoint = function (value) {
 LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterFull("EndPoint", function () { return Point; }, LinearGradientBrush, new Point(1, 1));
 LinearGradientBrush.Instance.GetEndPoint = function () {
     /// <returns type="Point" />
-    return this.GetValue(LinearGradientBrush.EndPointProperty);
+    return this.$GetValue(LinearGradientBrush.EndPointProperty);
 };
 LinearGradientBrush.Instance.SetEndPoint = function (value) {
     /// <param name="value" type="Point"></param>

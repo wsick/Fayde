@@ -16,7 +16,7 @@ Span._CreateInlineCollection = function (obj) {
 Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, null, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
 Span.Instance.GetInlines = function () {
     /// <returns type="InlineCollection" />
-    return this.GetValue(Span.InlinesProperty);
+    return this.$GetValue(Span.InlinesProperty);
 };
 
 //#endregion

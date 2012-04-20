@@ -19,7 +19,7 @@ ScrollBar.Instance.Init = function () {
 ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, ScrollBar, Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
 ScrollBar.Instance.GetOrientation = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(ScrollBar.OrientationProperty);
+    return this.$GetValue(ScrollBar.OrientationProperty);
 };
 ScrollBar.Instance.SetOrientation = function (value) {
     ///<param name="value" type="Number"></param>
@@ -32,7 +32,7 @@ ScrollBar._OnOrientationPropertyChanged = function (d, args) {
 ScrollBar.ViewportSizeProperty = DependencyProperty.Register("ViewportSize", function () { return Number; }, ScrollBar, 0, ScrollBar._OnViewportSizePropertyChanged);
 ScrollBar.Instance.GetViewportSize = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(ScrollBar.ViewportSizeProperty);
+    return this.$GetValue(ScrollBar.ViewportSizeProperty);
 };
 ScrollBar.Instance.SetViewportSize = function (value) {
     ///<param name="value" type="Number"></param>

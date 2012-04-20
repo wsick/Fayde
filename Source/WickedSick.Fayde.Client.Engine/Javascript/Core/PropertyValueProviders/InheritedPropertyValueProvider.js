@@ -24,7 +24,7 @@ _InheritedPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var ancestorPropd = _InheritedPropertyValueProvider.GetProperty(inheritable, ancestor);
     if (!ancestorPropd)
         return undefined;
-    var v = ancestor.GetValue(ancestorPropd);
+    var v = ancestor.$GetValue(ancestorPropd);
     if (v)
         return v;
     return undefined;
@@ -115,7 +115,7 @@ _InheritedPropertyValueProvider.Instance.MaybePropagateInheritedValue = function
     if ((props & prop) == 0) return;
 
     var sourceProperty = _InheritedPropertyValueProvider.GetProperty(prop, source);
-    var value = source.GetValue(sourceProperty);
+    var value = source.$GetValue(sourceProperty);
     if (value)
         element._PropagateInheritedValue(prop, source, value);
 };

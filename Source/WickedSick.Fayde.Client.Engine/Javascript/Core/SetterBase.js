@@ -15,7 +15,7 @@ SetterBase.Instance.Init = function () {
 SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBase, false);
 SetterBase.Instance.GetIsSealed = function () {
     /// <returns type="Boolean" />
-    return this.GetValue(SetterBase.IsSealedProperty);
+    return this.$GetValue(SetterBase.IsSealedProperty);
 };
 
 //#endregion

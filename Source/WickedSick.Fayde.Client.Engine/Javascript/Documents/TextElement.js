@@ -17,7 +17,7 @@ TextElement.Instance.Init = function () {
 
 TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
 TextElement.Instance.GetForeground = function () {
-    return this.GetValue(TextElement.ForegroundProperty);
+    return this.$GetValue(TextElement.ForegroundProperty);
 };
 TextElement.Instance.SetForeground = function (value) {
     this.SetValue(TextElement.ForegroundProperty, value);
@@ -25,7 +25,7 @@ TextElement.Instance.SetForeground = function (value) {
 
 TextElement.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY);
 TextElement.Instance.GetFontFamily = function () {
-    return this.GetValue(TextElement.FontFamilyProperty);
+    return this.$GetValue(TextElement.FontFamilyProperty);
 };
 TextElement.Instance.SetFontFamily = function (value) {
     this.SetValue(TextElement.FontFamilyProperty, value);
@@ -33,7 +33,7 @@ TextElement.Instance.SetFontFamily = function (value) {
 
 TextElement.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH);
 TextElement.Instance.GetFontStretch = function () {
-    return this.GetValue(TextElement.FontStretchProperty);
+    return this.$GetValue(TextElement.FontStretchProperty);
 };
 TextElement.Instance.SetFontStretch = function (value) {
     this.SetValue(TextElement.FontStretchProperty, value);
@@ -41,7 +41,7 @@ TextElement.Instance.SetFontStretch = function (value) {
 
 TextElement.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE);
 TextElement.Instance.GetFontStyle = function () {
-    return this.GetValue(TextElement.FontStyleProperty);
+    return this.$GetValue(TextElement.FontStyleProperty);
 };
 TextElement.Instance.SetFontStyle = function (value) {
     this.SetValue(TextElement.FontStyleProperty, value);
@@ -49,7 +49,7 @@ TextElement.Instance.SetFontStyle = function (value) {
 
 TextElement.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextElement, Font.DEFAULT_WEIGHT);
 TextElement.Instance.GetFontWeight = function () {
-    return this.GetValue(TextElement.FontWeightProperty);
+    return this.$GetValue(TextElement.FontWeightProperty);
 };
 TextElement.Instance.SetFontWeight = function (value) {
     this.SetValue(TextElement.FontWeightProperty, value);
@@ -57,7 +57,7 @@ TextElement.Instance.SetFontWeight = function (value) {
 
 TextElement.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextElement, Font.DEFAULT_SIZE);
 TextElement.Instance.GetFontSize = function () {
-    return this.GetValue(TextElement.FontSizeProperty);
+    return this.$GetValue(TextElement.FontSizeProperty);
 };
 TextElement.Instance.SetFontSize = function (value) {
     this.SetValue(TextElement.FontSizeProperty, value);
@@ -65,7 +65,7 @@ TextElement.Instance.SetFontSize = function (value) {
 
 TextElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, TextElement);
 TextElement.Instance.GetLanguage = function () {
-    return this.GetValue(TextElement.LanguageProperty);
+    return this.$GetValue(TextElement.LanguageProperty);
 };
 TextElement.Instance.SetLanguage = function (value) {
     this.SetValue(TextElement.LanguageProperty, value);
@@ -73,7 +73,7 @@ TextElement.Instance.SetLanguage = function (value) {
 
 TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return new Enum(TextDecorations); }, TextElement, TextDecorations.None);
 TextElement.Instance.GetTextDecorations = function () {
-    return this.GetValue(TextElement.TextDecorationsProperty);
+    return this.$GetValue(TextElement.TextDecorationsProperty);
 };
 TextElement.Instance.SetTextDecorations = function (value) {
     this.SetValue(TextElement.TextDecorationsProperty, value);
@@ -81,7 +81,7 @@ TextElement.Instance.SetTextDecorations = function (value) {
 
 TextElement.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextElement);
 TextElement.Instance.GetFontResource = function () {
-    return this.GetValue(TextElement.FontResourceProperty);
+    return this.$GetValue(TextElement.FontResourceProperty);
 };
 TextElement.Instance.SetFontResource = function (value) {
     this.SetValue(TextElement.FontResourceProperty, value);

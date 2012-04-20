@@ -17,7 +17,7 @@ HyperlinkButton.StateUnfocused = "Unfocused";
 HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton, null);
 HyperlinkButton.Instance.GetNavigateUri = function () {
     ///<returns type="Uri"></returns>
-    return this.GetValue(HyperlinkButton.NavigateUriProperty);
+    return this.$GetValue(HyperlinkButton.NavigateUriProperty);
 };
 HyperlinkButton.Instance.SetNavigateUri = function (value) {
     ///<param name="value" type="Uri"></param>
@@ -27,7 +27,7 @@ HyperlinkButton.Instance.SetNavigateUri = function (value) {
 HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, null);
 HyperlinkButton.Instance.GetTargetName = function () {
     ///<returns type="String"></returns>
-    return this.GetValue(HyperlinkButton.TargetNameProperty);
+    return this.$GetValue(HyperlinkButton.TargetNameProperty);
 };
 HyperlinkButton.Instance.SetTargetName = function (value) {
     ///<param name="value" type="String"></param>

@@ -13,7 +13,7 @@ var Border = Nullstone.Create("Border", FrameworkElement);
 
 Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
 Border.Instance.GetBackground = function () {
-    return this.GetValue(Border.BackgroundProperty);
+    return this.$GetValue(Border.BackgroundProperty);
 };
 Border.Instance.SetBackground = function (value) {
     this.SetValue(Border.BackgroundProperty, value);
@@ -21,7 +21,7 @@ Border.Instance.SetBackground = function (value) {
 
 Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Border);
 Border.Instance.GetBorderBrush = function () {
-    return this.GetValue(Border.BorderBrushProperty);
+    return this.$GetValue(Border.BorderBrushProperty);
 };
 Border.Instance.SetBorderBrush = function (value) {
     this.SetValue(Border.BorderBrushProperty, value);
@@ -29,7 +29,7 @@ Border.Instance.SetBorderBrush = function (value) {
 
 Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
 Border.Instance.GetBorderThickness = function () {
-    return this.GetValue(Border.BorderThicknessProperty);
+    return this.$GetValue(Border.BorderThicknessProperty);
 };
 Border.Instance.SetBorderThickness = function (value) {
     this.SetValue(Border.BorderThicknessProperty, value);
@@ -37,7 +37,7 @@ Border.Instance.SetBorderThickness = function (value) {
 
 Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Border);
 Border.Instance.GetChild = function () {
-    return this.GetValue(Border.ChildProperty);
+    return this.$GetValue(Border.ChildProperty);
 };
 Border.Instance.SetChild = function (value) {
     this.SetValue(Border.ChildProperty, value);
@@ -45,7 +45,7 @@ Border.Instance.SetChild = function (value) {
 
 Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
 Border.Instance.GetCornerRadius = function () {
-    return this.GetValue(Border.CornerRadiusProperty);
+    return this.$GetValue(Border.CornerRadiusProperty);
 };
 Border.Instance.SetCornerRadius = function (value) {
     this.SetValue(Border.CornerRadiusProperty, value);
@@ -53,7 +53,7 @@ Border.Instance.SetCornerRadius = function (value) {
 
 Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
 Border.Instance.GetPadding = function () {
-    return this.GetValue(Border.PaddingProperty);
+    return this.$GetValue(Border.PaddingProperty);
 };
 Border.Instance.SetPadding = function (value) {
     this.SetValue(Border.PaddingProperty, value);

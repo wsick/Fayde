@@ -14,7 +14,7 @@ TemplateBindingExpression.Instance.GetValue = function (propd) {
     var source = this.Target.GetTemplateOwner();
     var value = null;
     if (source != null)
-        value = source.GetValue(this.SourceProperty);
+        value = source.$GetValue(this.SourceProperty);
     return value; //TODO: Send through TypeConverter
 };
 TemplateBindingExpression.Instance._OnAttached = function (element) {
@@ -29,7 +29,7 @@ TemplateBindingExpression.Instance._OnAttached = function (element) {
     }
 
     var c = Nullstone.As(this.Target, ContentControl);
-    if (this.TargetProperty === ContentControl.ContentProperty && c != null) {
+    if (this.TargetProperty._ID === ContentControl.ContentProperty._ID && c != null) {
         this.SetsParent = c._ContentSetsParent;
         c._ContentSetsParent = false;
     }

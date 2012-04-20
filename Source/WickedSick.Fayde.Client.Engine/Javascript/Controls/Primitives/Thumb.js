@@ -19,13 +19,13 @@ Thumb.Instance.Init = function () {
 Thumb.IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", function () { return Boolean; }, Thumb, false, function (d, args) { d.OnDraggingChanged(args); });
 Thumb.Instance.GetIsDragging = function () {
     ///<returns type="Boolean"></returns>
-    return this.GetValue(Thumb.IsDraggingProperty);
+    return this.$GetValue(Thumb.IsDraggingProperty);
 };
 
 Thumb.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, Thumb);
 Thumb.Instance.GetIsFocused = function () {
     ///<returns type="Boolean"></returns>
-    return this.GetValue(Thumb.IsFocusedProperty);
+    return this.$GetValue(Thumb.IsFocusedProperty);
 };
 
 //#endregion

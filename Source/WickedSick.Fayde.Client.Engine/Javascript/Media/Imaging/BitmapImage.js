@@ -19,7 +19,7 @@ BitmapImage.Instance.Init = function (uri) {
 BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Uri; }, BitmapImage, new Uri(), null, null, true);
 BitmapImage.Instance.GetUriSource = function () {
     ///<returns type="Uri"></returns>
-    return this.GetValue(BitmapImage.UriSourceProperty);
+    return this.$GetValue(BitmapImage.UriSourceProperty);
 };
 BitmapImage.Instance.SetUriSource = function (value) {
     ///<param name="value" type="Uri"></param>

@@ -23,7 +23,7 @@ ItemsControl.GetItemsOwner = function (ele) {
 
 ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl);
 ItemsControl.Instance.GetItems = function () {
-    return this.GetValue(ItemsControl.ItemsProperty);
+    return this.$GetValue(ItemsControl.ItemsProperty);
 };
 ItemsControl.Instance.SetItems = function (value) {
     this.SetValue(ItemsControl.ItemsProperty, value);

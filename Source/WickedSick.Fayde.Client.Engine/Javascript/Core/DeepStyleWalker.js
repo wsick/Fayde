@@ -32,7 +32,7 @@ _DeepStyleWalker.Instance._InitializeStyle = function (style) {
         var setters = cur.GetSetters();
         for (var i = setters.GetCount() - 1; i >= 0; i--) {
             var setter = setters.GetValueAt(i);
-            var propd = setter.GetValue(Setter.PropertyProperty);
+            var propd = setter.$GetValue(Setter.PropertyProperty);
             if (!dps[propd]) {
                 dps[propd] = true;
                 this._Setters.push(setter);
@@ -61,7 +61,7 @@ _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
                 if (!setter || !(setter instanceof Setter))
                     continue;
 
-                var dpVal = setter.GetValue(Setter.PropertyProperty);
+                var dpVal = setter.$GetValue(Setter.PropertyProperty);
                 if (!dpVal)
                     continue;
 
@@ -81,8 +81,8 @@ _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
 _DeepStyleWalker.SetterSort = function (setter1, setter2) {
     /// <param name="setter1" type="Setter"></param>
     /// <param name="setter2" type="Setter"></param>
-    var a = setter1.GetValue(Setter.PropertyProperty);
-    var b = setter2.GetValue(Setter.PropertyProperty);
+    var a = setter1.$GetValue(Setter.PropertyProperty);
+    var b = setter2.$GetValue(Setter.PropertyProperty);
     return (a === b) ? 0 : ((a > b) ? 1 : -1);
 };
 

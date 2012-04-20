@@ -12,7 +12,7 @@ MatrixTransform.Instance.Init = function () {
 MatrixTransform.MatrixProperty = DependencyProperty.RegisterCore("Matrix", function() { return Matrix; }, MatrixTransform, new Matrix());
 MatrixTransform.Instance.GetMatrix = function () {
 	///<returns type="Matrix"></returns>
-	return this.GetValue(MatrixTransform.MatrixProperty);
+	return this.$GetValue(MatrixTransform.MatrixProperty);
 };
 MatrixTransform.Instance.SetMatrix = function (value) {
     ///<param name="value" type="Matrix"></param>
@@ -43,7 +43,7 @@ MatrixTransform.prototype._OnSubPropertyChanged = function (propd, sender, args)
     var newArgs = {
         Property: propd,
         OldValue: null,
-        NewValue: this.GetValue(propd)
+        NewValue: this.$GetValue(propd)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };

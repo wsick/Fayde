@@ -15,13 +15,13 @@ var Storyboard = Nullstone.Create("Storyboard", Timeline);
 Storyboard.ChildrenProperty = DependencyProperty.Register("Children", function () { return TimelineCollection; }, Storyboard);
 Storyboard.Instance.GetChildren = function () {
     ///<returns type="TimelineCollection"></returns>
-    return this.GetValue(Storyboard.ChildrenProperty);
+    return this.$GetValue(Storyboard.ChildrenProperty);
 };
 
 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () { return String }, Storyboard);
 Storyboard.GetTargetName = function (d) {
     ///<returns type="String"></returns>
-    return d.GetValue(Storyboard.TargetNameProperty);
+    return d.$GetValue(Storyboard.TargetNameProperty);
 };
 Storyboard.SetTargetName = function (d, value) {
     ///<param name="value" type="String"></param>
@@ -31,7 +31,7 @@ Storyboard.SetTargetName = function (d, value) {
 Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return _PropertyPath }, Storyboard);
 Storyboard.GetTargetProperty = function (d) {
     ///<returns type="_PropertyPath"></returns>
-    return d.GetValue(Storyboard.TargetPropertyProperty);
+    return d.$GetValue(Storyboard.TargetPropertyProperty);
 };
 Storyboard.SetTargetProperty = function (d, value) {
     ///<param name="value" type="_PropertyPath"></param>

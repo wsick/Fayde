@@ -24,7 +24,7 @@ Grid.Instance.Init = function () {
 
 Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0);
 Grid.GetColumn = function (d) {
-    return d.GetValue(Grid.ColumnProperty);
+    return d.$GetValue(Grid.ColumnProperty);
 };
 Grid.SetColumn = function (d, value) {
     d.SetValue(Grid.ColumnProperty, value);
@@ -32,7 +32,7 @@ Grid.SetColumn = function (d, value) {
 
 Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () { return Number; }, Grid, 1);
 Grid.GetColumnSpan = function (d) {
-    return d.GetValue(Grid.ColumnSpanProperty);
+    return d.$GetValue(Grid.ColumnSpanProperty);
 };
 Grid.SetColumnSpan = function (d, value) {
     d.SetValue(Grid.ColumnSpanProperty, value);
@@ -40,7 +40,7 @@ Grid.SetColumnSpan = function (d, value) {
 
 Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () { return Number; }, Grid, 0);
 Grid.GetRow = function (d) {
-    return d.GetValue(Grid.RowProperty);
+    return d.$GetValue(Grid.RowProperty);
 };
 Grid.SetRow = function (d, value) {
     d.SetValue(Grid.RowProperty, value);
@@ -48,7 +48,7 @@ Grid.SetRow = function (d, value) {
 
 Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", function () { return Number; }, Grid, 1);
 Grid.GetRowSpan = function (d) {
-    return d.GetValue(Grid.RowSpanProperty);
+    return d.$GetValue(Grid.RowSpanProperty);
 };
 Grid.SetRowSpan = function (d, value) {
     d.SetValue(Grid.RowSpanProperty, value);
@@ -60,7 +60,7 @@ Grid.SetRowSpan = function (d, value) {
 
 Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
 Grid.Instance.GetShowGridLines = function () {
-    return this.GetValue(Grid.ShowGridLinesProperty);
+    return this.$GetValue(Grid.ShowGridLinesProperty);
 };
 Grid.Instance.SetShowGridLines = function (value) {
     this.SetValue(Grid.ShowGridLinesProperty, value);
@@ -68,12 +68,12 @@ Grid.Instance.SetShowGridLines = function (value) {
 
 Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
 Grid.Instance.GetColumnDefinitions = function () {
-    return this.GetValue(Grid.ColumnDefinitionsProperty);
+    return this.$GetValue(Grid.ColumnDefinitionsProperty);
 };
 
 Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
 Grid.Instance.GetRowDefinitions = function () {
-    return this.GetValue(Grid.RowDefinitionsProperty);
+    return this.$GetValue(Grid.RowDefinitionsProperty);
 };
 
 //#endregion

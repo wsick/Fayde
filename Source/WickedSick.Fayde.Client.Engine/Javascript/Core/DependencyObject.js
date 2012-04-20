@@ -31,7 +31,7 @@ DependencyObject.Instance.Init = function () {
 
 DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", null, null, false, DependencyObject._NameValidator);
 DependencyObject.Instance.GetName = function () {
-    return this.GetValue(DependencyObject.NameProperty);
+    return this.$GetValue(DependencyObject.NameProperty);
 };
 DependencyObject.Instance.SetName = function (value) {
     this.SetValue(DependencyObject.NameProperty, value);
@@ -129,7 +129,7 @@ DependencyObject.Instance.SetValue = function (propd, value) {
             expression._OnAttached(this);
         }
         addingExpression = true;
-        value = expression.GetValue(propd);
+        value = expression.$GetValue(propd);
     } else if (existing != null) {
         if (existing instanceof BindingExpressionBase) {
             if (existing.GetBinding().GetMode() === BindingMode.TwoWay) {
@@ -284,7 +284,7 @@ DependencyObject.Instance.ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
 DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
-    var v = this.GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
+    var v = this.$GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
     if (v == null && propd._IsAutoCreated)
         v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     return v;
@@ -341,7 +341,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     var newValue = undefined;
 
     if (oldProviderValue == null || newProviderValue == null) {
-        var lowerPriorityValue = this.GetValue(propd, providerPrecedence + 1);
+        var lowerPriorityValue = this.$GetValue(propd, providerPrecedence + 1);
         if (newProviderValue == null) {
             oldValue = oldProviderValue;
             newValue = lowerPriorityValue;

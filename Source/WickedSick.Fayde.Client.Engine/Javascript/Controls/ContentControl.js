@@ -25,7 +25,7 @@ ContentControl._FallbackTemplate = (function () {
 
 ContentControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentControl);
 ContentControl.Instance.GetContent = function () {
-    return this.GetValue(ContentControl.ContentProperty);
+    return this.$GetValue(ContentControl.ContentProperty);
 };
 ContentControl.Instance.SetContent = function (value) {
     this.SetValue(ContentControl.ContentProperty, value);
@@ -33,7 +33,7 @@ ContentControl.Instance.SetContent = function (value) {
 
 ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentControl);
 ContentControl.Instance.GetContentTemplate = function () {
-    return this.GetValue(ContentControl.ContentTemplateProperty);
+    return this.$GetValue(ContentControl.ContentTemplateProperty);
 };
 ContentControl.Instance.SetContentTemplate = function (value) {
     this.SetValue(ContentControl.ContentTemplateProperty, value);

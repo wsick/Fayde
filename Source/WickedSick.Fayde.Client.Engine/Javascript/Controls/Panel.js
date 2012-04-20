@@ -10,7 +10,7 @@ var Panel = Nullstone.Create("Panel", FrameworkElement);
 
 Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
 Panel.Instance.GetBackground = function () {
-    return this.GetValue(Panel.BackgroundProperty);
+    return this.$GetValue(Panel.BackgroundProperty);
 };
 Panel.Instance.SetBackground = function (value) {
     this.SetValue(Panel.BackgroundProperty, value);
@@ -27,7 +27,7 @@ Panel._CreateChildren = {
 };
 Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, null, Panel._CreateChildren);
 Panel.Instance.GetChildren = function () {
-    return this.GetValue(Panel.ChildrenProperty);
+    return this.$GetValue(Panel.ChildrenProperty);
 };
 Panel.Instance.SetChildren = function (value) {
     this.SetValue(Panel.ChildrenProperty, value);
@@ -35,7 +35,7 @@ Panel.Instance.SetChildren = function (value) {
 
 Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
 Panel.Instance.GetIsItemsHost = function () {
-    return this.GetValue(Panel.IsItemsHostProperty);
+    return this.$GetValue(Panel.IsItemsHostProperty);
 };
 Panel.Instance.SetIsItemsHost = function (value) {
     this.SetValue(Panel.IsItemsHostProperty, value);

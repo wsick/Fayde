@@ -14,7 +14,7 @@ ResourceDictionary.Instance.Init = function () {
 
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 ResourceDictionary.Instance.GetMergedDictionaries = function () {
-    return this.GetValue(ResourceDictionary.MergedDictionariesProperty);
+    return this.$GetValue(ResourceDictionary.MergedDictionariesProperty);
 };
 
 //#endregion

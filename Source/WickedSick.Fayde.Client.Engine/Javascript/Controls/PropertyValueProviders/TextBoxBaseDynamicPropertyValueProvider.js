@@ -28,11 +28,11 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValue = funct
 _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var v;
     if (propd == this._BackgroundPropd) {
-        v = this._Object.GetValue(propd, this._PropertyPrecedence + 1);
+        v = this._Object.$GetValue(propd, this._PropertyPrecedence + 1);
         if (!v)
             v = this._SelectionBackground;
     } else if (propd == this._ForegroundPropd) {
-        v = this._Object.GetValue(propd, this._PropertyPrecedence + 1);
+        v = this._Object.$GetValue(propd, this._PropertyPrecedence + 1);
         if (!v)
             v = this._SelectionForeground;
     } else if (propd == this._BaselineOffsetPropd) {

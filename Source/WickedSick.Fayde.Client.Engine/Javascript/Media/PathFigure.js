@@ -15,7 +15,7 @@ PathFigure.Instance.Init = function () {
 PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () { return Boolean; }, PathFigure, false);
 PathFigure.Instance.GetIsClosed = function () {
     ///<returns type="Boolean"></returns>
-    return this.GetValue(PathFigure.IsClosedProperty);
+    return this.$GetValue(PathFigure.IsClosedProperty);
 };
 PathFigure.Instance.SetIsClosed = function (value) {
     ///<param name="value" type="Boolean"></param>
@@ -25,7 +25,7 @@ PathFigure.Instance.SetIsClosed = function (value) {
 PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, null, { GetValue: function () { return new PathSegmentCollection(); } });
 PathFigure.Instance.GetSegments = function () {
     ///<returns type="PathSegmentCollection"></returns>
-    return this.GetValue(PathFigure.SegmentsProperty);
+    return this.$GetValue(PathFigure.SegmentsProperty);
 };
 PathFigure.Instance.SetSegments = function (value) {
     ///<param name="value" type="PathSegmentCollection"></param>
@@ -35,7 +35,7 @@ PathFigure.Instance.SetSegments = function (value) {
 PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, PathFigure, new Point());
 PathFigure.Instance.GetStartPoint = function () {
     ///<returns type="Point"></returns>
-    return this.GetValue(PathFigure.StartPointProperty);
+    return this.$GetValue(PathFigure.StartPointProperty);
 };
 PathFigure.Instance.SetStartPoint = function (value) {
     ///<param name="value" type="Point"></param>
@@ -45,7 +45,7 @@ PathFigure.Instance.SetStartPoint = function (value) {
 PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () { return Boolean; }, PathFigure, true);
 PathFigure.Instance.GetIsFilled = function () {
     ///<returns type="Boolean"></returns>
-    return this.GetValue(PathFigure.IsFilledProperty);
+    return this.$GetValue(PathFigure.IsFilledProperty);
 };
 PathFigure.Instance.SetIsFilled = function (value) {
     ///<param name="value" type="Boolean"></param>
@@ -71,7 +71,7 @@ PathFigure.Instance._OnCollectionChanged = function (sender, args) {
     var newArgs = {
         Property: PathFigure.SegmentsProperty,
         OldValue: null,
-        NewValue: this.GetValue(PathFigure.SegmentsProperty)
+        NewValue: this.$GetValue(PathFigure.SegmentsProperty)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };
@@ -84,7 +84,7 @@ PathFigure.Instance._OnCollectionItemChanged = function (sender, args) {
     var newArgs = {
         Property: PathFigure.SegmentsProperty,
         OldValue: null,
-        NewValue: this.GetValue(PathFigure.SegmentsProperty)
+        NewValue: this.$GetValue(PathFigure.SegmentsProperty)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };

@@ -120,7 +120,7 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
 
     var coll;
     if (propd._IsAutoCreated) {
-        coll = dobj.GetValue(propd);
+        coll = dobj.$GetValue(propd);
     } else {
         coll = new targetType();
         if (coll instanceof DependencyObject)

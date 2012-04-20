@@ -17,7 +17,7 @@ Geometry.Instance.Init = function () {
 Geometry.TransformProperty = DependencyProperty.Register("Transform", function () { return Transform; }, Geometry);
 Geometry.Instance.GetTransform = function () {
     ///<returns type="Transform"></returns>
-    return this.GetValue(Geometry.TransformProperty);
+    return this.$GetValue(Geometry.TransformProperty);
 };
 Geometry.Instance.SetTransform = function (value) {
     ///<param name="value" type="Transform"></param>
@@ -91,7 +91,7 @@ Geometry.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: propd,
         OldValue: null,
-        NewValue: this.GetValue(propd)
+        NewValue: this.$GetValue(propd)
     });
     this._OnSubPropertyChanged$DependencyObject();
 };

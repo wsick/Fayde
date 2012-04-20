@@ -14,7 +14,7 @@ AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
 
     var prevStorage = targetobj._AttachAnimationStorage(targetprop, this);
 
-    this._BaseValue = this._TargetObj.GetValue(this._TargetProp);
+    this._BaseValue = this._TargetObj.$GetValue(this._TargetProp);
     if (this._BaseValue === undefined) {
         var targetType = this._TargetProp.GetTargetType();
         if (targetType === Number)

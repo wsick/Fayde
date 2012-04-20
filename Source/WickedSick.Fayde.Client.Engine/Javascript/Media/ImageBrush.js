@@ -18,7 +18,7 @@ ImageBrush.Instance.Init = function () {
 ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, null, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 ImageBrush.Instance.GetImageSource = function () {
     ///<returns type="ImageBrush"></returns>
-    return this.GetValue(ImageBrush.ImageSourceProperty);
+    return this.$GetValue(ImageBrush.ImageSourceProperty);
 };
 ImageBrush.Instance.SetImageSource = function (value) {
     ///<param name="value" type="ImageBrush"></param>

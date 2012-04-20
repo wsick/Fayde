@@ -11,7 +11,7 @@ var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
 PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, PathGeometry);
 PathGeometry.Instance.GetFillRule = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(PathGeometry.FillRuleProperty);
+    return this.$GetValue(PathGeometry.FillRuleProperty);
 };
 PathGeometry.Instance.SetFillRule = function (value) {
     ///<param name="value" type="Number"></param>
@@ -21,7 +21,7 @@ PathGeometry.Instance.SetFillRule = function (value) {
 PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, null, { GetValue: function () { return new PathFigureCollection(); } });
 PathGeometry.Instance.GetFigures = function () {
     ///<returns type="PathFigureCollection"></returns>
-    return this.GetValue(PathGeometry.FiguresProperty);
+    return this.$GetValue(PathGeometry.FiguresProperty);
 };
 PathGeometry.Instance.SetFigures = function (value) {
     ///<param name="value" type="PathFigureCollection"></param>

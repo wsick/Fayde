@@ -10,7 +10,7 @@ var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFra
 ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, null, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
 ObjectAnimationUsingKeyFrames.Instance.GetKeyFrames = function () {
     ///<returns type="ObjectKeyFrameCollection"></returns>
-    return this.GetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty);
+    return this.$GetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty);
 };
 ObjectAnimationUsingKeyFrames.Instance.SetKeyFrames = function (value) {
     ///<param name="value" type="ObjectKeyFrameCollection"></param>
@@ -26,7 +26,7 @@ ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
     var count = frames.GetCount();
     for (var i = 0; i < count; i++) {
         var frame = Nullstone.As(frames.GetValueAt(i), ObjectKeyFrame);
-        var value = frame.GetValue(ObjectKeyFrame.ValueProperty);
+        var value = frame.$GetValue(ObjectKeyFrame.ValueProperty);
         if (value == null) {
             frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
         } else {

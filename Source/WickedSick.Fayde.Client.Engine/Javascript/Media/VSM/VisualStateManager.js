@@ -19,7 +19,7 @@ VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttach
 VisualStateManager.GetVisualStateGroups = function (d) {
     /// <param name="d" type="DependencyObject"></param>
     /// <returns type="VisualStateGroupCollection" />
-    return d.GetValue(VisualStateManager.VisualStateGroupsProperty);
+    return d.$GetValue(VisualStateManager.VisualStateGroupsProperty);
 };
 VisualStateManager.SetVisualStateGroups = function (d, value) {
     /// <param name="d" type="DependencyObject"></param>
@@ -39,7 +39,7 @@ VisualStateManager._GetVisualStateGroupsInternal = function (d) {
 VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttached("CustomVisualStateManager", function () { return VisualStateManager }, VisualStateManager, null);
 VisualStateManager.GetCustomVisualStateManager = function (d) {
     ///<returns type="VisualStateManager"></returns>
-    return d.GetValue(VisualStateManager.CustomVisualStateManagerProperty);
+    return d.$GetValue(VisualStateManager.CustomVisualStateManagerProperty);
 };
 VisualStateManager.SetCustomVisualStateManager = function (d, value) {
     ///<param name="value" type="VisualStateManager"></param>

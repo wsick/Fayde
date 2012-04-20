@@ -13,7 +13,7 @@ ArcSegment.Instance.Init = function () {
 ArcSegment.IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", function () { return Boolean; }, ArcSegment, false);
 ArcSegment.Instance.GetIsLargeArc = function () {
     ///<returns type="Boolean"></returns>
-    return this.GetValue(ArcSegment.IsLargeArcProperty);
+    return this.$GetValue(ArcSegment.IsLargeArcProperty);
 };
 ArcSegment.Instance.SetIsLargeArc = function (value) {
     ///<param name="value" type="Boolean"></param>
@@ -23,7 +23,7 @@ ArcSegment.Instance.SetIsLargeArc = function (value) {
 ArcSegment.PointProperty = DependencyProperty.Register("Point", function () { return Point; }, ArcSegment, new Point());
 ArcSegment.Instance.GetPoint = function () {
     ///<returns type="Point"></returns>
-    return this.GetValue(ArcSegment.PointProperty);
+    return this.$GetValue(ArcSegment.PointProperty);
 };
 ArcSegment.Instance.SetPoint = function (value) {
     ///<param name="value" type="Point"></param>
@@ -33,7 +33,7 @@ ArcSegment.Instance.SetPoint = function (value) {
 ArcSegment.RotationAngleProperty = DependencyProperty.Register("RotationAngle", function () { return Number; }, ArcSegment, 0.0);
 ArcSegment.Instance.GetRotationAngle = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(ArcSegment.RotationAngleProperty);
+    return this.$GetValue(ArcSegment.RotationAngleProperty);
 };
 ArcSegment.Instance.SetRotationAngle = function (value) {
     ///<param name="value" type="Number"></param>
@@ -43,7 +43,7 @@ ArcSegment.Instance.SetRotationAngle = function (value) {
 ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () { return Size; }, ArcSegment, new Size());
 ArcSegment.Instance.GetSize = function () {
     ///<returns type="Size"></returns>
-    return this.GetValue(ArcSegment.SizeProperty);
+    return this.$GetValue(ArcSegment.SizeProperty);
 };
 ArcSegment.Instance.SetSize = function (value) {
     ///<param name="value" type="Size"></param>
@@ -53,7 +53,7 @@ ArcSegment.Instance.SetSize = function (value) {
 ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return new Enum(SweepDirection); }, ArcSegment, SweepDirection.Counterclockwise);
 ArcSegment.Instance.GetSweepDirection = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(ArcSegment.SweepDirectionProperty);
+    return this.$GetValue(ArcSegment.SweepDirectionProperty);
 };
 ArcSegment.Instance.SetSweepDirection = function (value) {
     ///<param name="value" type="Number"></param>

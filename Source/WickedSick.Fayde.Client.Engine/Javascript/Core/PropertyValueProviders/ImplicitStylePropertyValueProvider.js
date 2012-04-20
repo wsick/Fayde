@@ -30,11 +30,11 @@ _ImplicitStylePropertyValueProvider.Instance.RecomputePropertyValue = function (
     var walker = new _DeepStyleWalker(this._Styles);
     var setter;
     while (setter = walker.Step()) {
-        propd = setter.GetValue(Setter.PropertyProperty);
+        propd = setter.$GetValue(Setter.PropertyProperty);
         if (propd != propd)
             continue;
 
-        newValue = setter.GetValue(Setter.ValueProperty); //DIV: ConvertedValueProperty
+        newValue = setter.$GetValue(Setter.ValueProperty); //DIV: ConvertedValueProperty
         oldValue = this._ht[propd];
         this._ht[propd] = newValue;
         this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
@@ -68,13 +68,13 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
         var oldProp;
         var newProp;
         if (oldSetter)
-            oldProp = oldSetter.GetValue(Setter.PropertyProperty);
+            oldProp = oldSetter.$GetValue(Setter.PropertyProperty);
         if (newSetter)
-            newProp = newSetter.GetValue(Setter.PropertyProperty);
+            newProp = newSetter.$GetValue(Setter.PropertyProperty);
 
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
             //Property in old style, not in new style
-            oldValue = oldSetter.GetValue(Setter.ValueProperty);
+            oldValue = oldSetter.$GetValue(Setter.ValueProperty);
             newValue = null;
             delete this._ht[oldProp];
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
@@ -82,8 +82,8 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
         }
         else if (oldProp == newProp) {
             //Property in both styles
-            oldValue = oldSetter.GetValue(Setter.ValueProperty);
-            newValue = newSetter.GetValue(Setter.ValueProperty);
+            oldValue = oldSetter.$GetValue(Setter.ValueProperty);
+            newValue = newSetter.$GetValue(Setter.ValueProperty);
             this._ht[oldProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
@@ -91,7 +91,7 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
         } else {
             //Property in new style, not in old style
             oldValue = null;
-            newValue = newSetter.GetValue(Setter.ValueProperty);
+            newValue = newSetter.$GetValue(Setter.ValueProperty);
             this._ht[newProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
             newSetter = newWalker.Step();

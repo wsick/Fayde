@@ -11,7 +11,7 @@ var Section = Nullstone.Create("Section", TextElement);
 Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return BlockCollection; }, Section);
 Section.Instance.GetBlocks = function () {
     /// <returns type="BlockCollection" />
-    return this.GetValue(Section.BlocksProperty);
+    return this.$GetValue(Section.BlocksProperty);
 };
 Section.Instance.SetBlocks = function (value) {
     /// <param name="value" type="BlockCollection"></param>

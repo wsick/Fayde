@@ -18,7 +18,7 @@ NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", f
 NameScope.GetNameScope = function (d) {
     /// <param name="d" type="DependencyObject"></param>
     /// <returns type="NameScope" />
-    return d.GetValue(NameScope.NameScopeProperty);
+    return d.$GetValue(NameScope.NameScopeProperty);
 };
 NameScope.SetNameScope = function (d, value) {
     /// <param name="d" type="DependencyObject"></param>

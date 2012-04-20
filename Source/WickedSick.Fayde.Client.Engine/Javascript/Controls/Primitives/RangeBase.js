@@ -22,7 +22,7 @@ RangeBase.Instance.Init = function () {
 RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () { return Number; }, RangeBase, 0, RangeBase._OnMinimumPropertyChanged);
 RangeBase.Instance.GetMinimum = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(RangeBase.MinimumProperty);
+    return this.$GetValue(RangeBase.MinimumProperty);
 };
 RangeBase.Instance.SetMinimum = function (value) {
     ///<param name="value" type="Number"></param>
@@ -55,7 +55,7 @@ RangeBase._OnMinimumPropertyChanged = function (d, args) {
 RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () { return Number; }, RangeBase, 1, RangeBase._OnMaximumPropertyChanged);
 RangeBase.Instance.GetMaximum = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(RangeBase.MaximumProperty);
+    return this.$GetValue(RangeBase.MaximumProperty);
 };
 RangeBase.Instance.SetMaximum = function (value) {
     ///<param name="value" type="Number"></param>
@@ -90,7 +90,7 @@ RangeBase._OnMaximumPropertyChanged = function (d, args) {
 RangeBase.LargeChangeProperty = DependencyProperty.Register("LargeChange", function () { return Number; }, RangeBase, 1, RangeBase._OnLargeChangePropertyChanged);
 RangeBase.Instance.GetLargeChange = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(RangeBase.LargeChangeProperty);
+    return this.$GetValue(RangeBase.LargeChangeProperty);
 };
 RangeBase.Instance.SetLargeChange = function (value) {
     ///<param name="value" type="Number"></param>
@@ -105,7 +105,7 @@ RangeBase._OnLargeChangePropertyChanged = function (d, args) {
 RangeBase.SmallChangeProperty = DependencyProperty.Register("SmallChange", function () { return Number; }, RangeBase, 0.1, RangeBase._OnSmallChangePropertyChanged);
 RangeBase.Instance.GetSmallChange = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(RangeBase.SmallChangeProperty);
+    return this.$GetValue(RangeBase.SmallChangeProperty);
 };
 RangeBase.Instance.SetSmallChange = function (value) {
     ///<param name="value" type="Number"></param>
@@ -120,7 +120,7 @@ RangeBase._OnSmallChangePropertyChanged = function (d, args) {
 RangeBase.CurrentValueProperty = DependencyProperty.Register("CurrentValue", function () { return Number; }, RangeBase, 0, RangeBase._OnCurrentValuePropertyChanged);
 RangeBase.Instance.GetCurrentValue = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(RangeBase.CurrentValueProperty);
+    return this.$GetValue(RangeBase.CurrentValueProperty);
 };
 RangeBase.Instance.SetCurrentValue = function (value) {
     ///<param name="value" type="Number"></param>

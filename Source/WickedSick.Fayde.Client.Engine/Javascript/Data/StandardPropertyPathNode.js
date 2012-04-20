@@ -20,7 +20,7 @@ _StandardPropertyPathNode.Instance.SetValue = function (value) {
 _StandardPropertyPathNode.Instance.UpdateValue = function () {
     if (this.GetDependencyProperty() != null) {
         this.SetValueType(this.GetDependencyProperty().GetTargetType());
-        this._UpdateValueAndIsBroken(this.GetSource().GetValue(this.GetDependencyProperty()), this._CheckIsBroken());
+        this._UpdateValueAndIsBroken(this.GetSource().$GetValue(this.GetDependencyProperty()), this._CheckIsBroken());
     } else if (this.GetPropertyInfo() != null) {
         //TODO: this.SetValueType(PropertyInfo.PropertyType);
         this.SetValueType(null);

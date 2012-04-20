@@ -15,7 +15,7 @@ Polyline.Instance.Init = function () {
 Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
 Polyline.Instance.GetFillRule = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(Polyline.FillRuleProperty);
+    return this.$GetValue(Polyline.FillRuleProperty);
 };
 Polyline.Instance.SetFillRule = function (value) {
     ///<param name="value" type="Number"></param>
@@ -25,7 +25,7 @@ Polyline.Instance.SetFillRule = function (value) {
 Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, null, { GetValue: function () { return new PointCollection(); } });
 Polyline.Instance.GetPoints = function () {
     ///<returns type="PointCollection"></returns>
-    return this.GetValue(Polyline.PointsProperty);
+    return this.$GetValue(Polyline.PointsProperty);
 };
 Polyline.Instance.SetPoints = function (value) {
     ///<param name="value" type="PointCollection"></param>

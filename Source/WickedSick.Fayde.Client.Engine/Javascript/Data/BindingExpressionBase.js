@@ -60,7 +60,7 @@ BindingExpressionBase.Instance._OnAttached = function (element) {
         var updateDataSourceCallback = function () {
             try {
                 if (!this.GetUpdating())
-                    this._TryUpdateSourceObject(this.GetTarget().GetValue(this.GetProperty()));
+                    this._TryUpdateSourceObject(this.GetTarget().$GetValue(this.GetProperty()));
             } catch (err) {
                 //ignore
             }
@@ -113,7 +113,7 @@ BindingExpressionBase.Instance._TryUpdateSourceObject = function (value) {
 };
 BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
     if (value === undefined)
-        value = GetTarget().GetValue(GetProperty());
+        value = GetTarget().$GetValue(GetProperty());
     if (force === undefined)
         force = false;
     if (this.GetBinding().Mode !== BindingMode.TwoWay)

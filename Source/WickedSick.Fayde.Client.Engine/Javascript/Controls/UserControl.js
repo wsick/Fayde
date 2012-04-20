@@ -9,7 +9,7 @@ var UserControl = Nullstone.Create("UserControl", Control);
 
 UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
 UserControl.Instance.GetContent = function () {
-    return this.GetValue(UserControl.ContentProperty);
+    return this.$GetValue(UserControl.ContentProperty);
 };
 UserControl.Instance.SetContent = function (value) {
     this.SetValue(UserControl.ContentProperty, value);

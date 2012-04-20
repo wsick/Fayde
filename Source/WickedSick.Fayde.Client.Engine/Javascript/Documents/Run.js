@@ -9,7 +9,7 @@ var Run = Nullstone.Create("Run", Inline);
 
 Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return new Enum(FlowDirection); }, Run, FlowDirection.LeftToRight);
 Run.Instance.GetFlowDirection = function () {
-    return this.GetValue(Run.FlowDirectionProperty);
+    return this.$GetValue(Run.FlowDirectionProperty);
 };
 Run.Instance.SetFlowDirection = function (value) {
     this.SetValue(Run.FlowDirectionProperty, value);
@@ -18,7 +18,7 @@ Run.Instance.SetFlowDirection = function (value) {
 Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
 Run.Instance.GetText = function () {
     /// <returns type="String" />
-    return this.GetValue(Run.TextProperty);
+    return this.$GetValue(Run.TextProperty);
 };
 Run.Instance.SetText = function (value) {
     /// <param name="value" type="String"></param>

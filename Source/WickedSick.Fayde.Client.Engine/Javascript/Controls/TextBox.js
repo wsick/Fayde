@@ -35,7 +35,7 @@ TextBox.Instance.Init = function () {
 TextBox.AcceptsReturnProperty = DependencyProperty.RegisterCore("AcceptsReturn", function () { return Boolean; }, TextBox, false);
 TextBox.Instance.GetAcceptsReturn = function () {
     ///<returns type="Boolean"></returns>
-    return this.GetValue(TextBox.AcceptsReturnProperty);
+    return this.$GetValue(TextBox.AcceptsReturnProperty);
 };
 TextBox.Instance.SetAcceptsReturn = function (value) {
     ///<param name="value" type="Boolean"></param>
@@ -45,7 +45,7 @@ TextBox.Instance.SetAcceptsReturn = function (value) {
 TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () { return Brush; }, TextBox);
 TextBox.Instance.GetCaretBrush = function () {
     ///<returns type="Brush"></returns>
-    return this.GetValue(TextBox.CaretBrushProperty);
+    return this.$GetValue(TextBox.CaretBrushProperty);
 };
 TextBox.Instance.SetCaretBrush = function (value) {
     ///<param name="value" type="Brush"></param>
@@ -55,7 +55,7 @@ TextBox.Instance.SetCaretBrush = function (value) {
 TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBox, 0, null, null, null, TextBox.PositiveIntValidator);
 TextBox.Instance.GetMaxLength = function () {
     ///<returns type="Number"></returns>
-    return this.GetValue(TextBox.MaxLengthProperty);
+    return this.$GetValue(TextBox.MaxLengthProperty);
 };
 TextBox.Instance.SetMaxLength = function (value) {
     ///<param name="value" type="Number"></param>
@@ -70,7 +70,7 @@ TextBox.PositiveIntValidator = function (instance, propd, value, error) {
 TextBox.IsReadOnlyProperty = DependencyProperty.RegisterCore("IsReadOnly", function () { return Boolean; }, TextBox);
 TextBox.Instance.GetIsReadOnly = function () {
     ///<returns type="Boolean"></returns>
-    return this.GetValue(TextBox.IsReadOnlyProperty);
+    return this.$GetValue(TextBox.IsReadOnlyProperty);
 };
 TextBox.Instance.SetIsReadOnly = function (value) {
     ///<param name="value" type="Boolean"></param>
@@ -79,7 +79,7 @@ TextBox.Instance.SetIsReadOnly = function (value) {
 
 TextBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () { return Brush; }, TextBox);
 TextBox.Instance.GetSelectionForeground = function () {
-    return this.GetValue(TextBox.SelectionForegroundProperty);
+    return this.$GetValue(TextBox.SelectionForegroundProperty);
 };
 TextBox.Instance.SetSelectionForeground = function (value) {
     this.SetValue(TextBox.SelectionForegroundProperty, value);
@@ -87,7 +87,7 @@ TextBox.Instance.SetSelectionForeground = function (value) {
 
 TextBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () { return Brush; }, TextBox);
 TextBox.Instance.GetSelectionBackground = function () {
-    return this.GetValue(TextBox.SelectionBackgroundProperty);
+    return this.$GetValue(TextBox.SelectionBackgroundProperty);
 };
 TextBox.Instance.SetSelectionBackground = function (value) {
     this.SetValue(TextBox.SelectionBackgroundProperty, value);
@@ -95,7 +95,7 @@ TextBox.Instance.SetSelectionBackground = function (value) {
 
 TextBox.BaselineOffsetProperty = DependencyProperty.RegisterCore("BaselineOffset", function () { return Number; }, TextBox);
 TextBox.Instance.GetBaselineOffset = function () {
-    return this.GetValue(TextBox.BaselineOffsetProperty);
+    return this.$GetValue(TextBox.BaselineOffsetProperty);
 };
 TextBox.Instance.SetBaselineOffset = function (value) {
     this.SetValue(TextBox.BaselineOffsetProperty, value);
@@ -103,12 +103,12 @@ TextBox.Instance.SetBaselineOffset = function (value) {
 
 TextBox.SelectedTextProperty = DependencyProperty.RegisterFull("SelectedText", function () { return String; }, TextBox, "", null, null, true);
 TextBox.Instance.GetSelectedText = function () {
-    return this.GetValue(TextBox.SelectedTextProperty);
+    return this.$GetValue(TextBox.SelectedTextProperty);
 };
 
 TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () { return Number; }, TextBox, 0, null, null, true, TextBox.PositiveIntValidator);
 TextBox.Instance.GetSelectionLength = function () {
-    return this.GetValue(TextBox.SelectionLengthProperty);
+    return this.$GetValue(TextBox.SelectionLengthProperty);
 };
 TextBox.Instance.SetSelectionLength = function (value) {
     this.SetValue(TextBox.SelectionLengthProperty, value);
@@ -116,7 +116,7 @@ TextBox.Instance.SetSelectionLength = function (value) {
 
 TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBox, 0, null, null, true, TextBox.PositiveIntValidator);
 TextBox.Instance.GetSelectionStart = function () {
-    return this.GetValue(TextBox.SelectionStartProperty);
+    return this.$GetValue(TextBox.SelectionStartProperty);
 };
 TextBox.Instance.SetSelectionStart = function (value) {
     this.SetValue(TextBox.SelectionStartProperty, value);
@@ -124,7 +124,7 @@ TextBox.Instance.SetSelectionStart = function (value) {
 
 TextBox.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBox);
 TextBox.Instance.GetText = function () {
-    return this.GetValue(TextBox.TextProperty);
+    return this.$GetValue(TextBox.TextProperty);
 };
 TextBox.Instance.SetText = function (value) {
     this.SetValue(TextBox.TextProperty, value);
@@ -132,7 +132,7 @@ TextBox.Instance.SetText = function (value) {
 
 TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBox, TextAlignment.Left);
 TextBox.Instance.GetTextAlignment = function () {
-    return this.GetValue(TextBox.TextAlignmentProperty);
+    return this.$GetValue(TextBox.TextAlignmentProperty);
 };
 TextBox.Instance.SetTextAlignment = function (value) {
     this.SetValue(TextBox.TextAlignmentProperty, value);
@@ -140,7 +140,7 @@ TextBox.Instance.SetTextAlignment = function (value) {
 
 TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBox, TextWrapping.NoWrap);
 TextBox.Instance.GetTextWrapping = function () {
-    return this.GetValue(TextBox.TextWrappingProperty);
+    return this.$GetValue(TextBox.TextWrappingProperty);
 };
 TextBox.Instance.SetTextWrapping = function (value) {
     this.SetValue(TextBox.TextWrappingProperty, value);
@@ -148,7 +148,7 @@ TextBox.Instance.SetTextWrapping = function (value) {
 
 TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.Instance.GetHorizontalScrollBarVisibility = function () {
-    return this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
+    return this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
 };
 TextBox.Instance.SetHorizontalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
@@ -156,7 +156,7 @@ TextBox.Instance.SetHorizontalScrollBarVisibility = function (value) {
 
 TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
 TextBox.Instance.GetVerticalScrollBarVisibility = function () {
-    return this.GetValue(TextBox.VerticalScrollBarVisibilityProperty);
+    return this.$GetValue(TextBox.VerticalScrollBarVisibilityProperty);
 };
 TextBox.Instance.SetVerticalScrollBarVisibility = function (value) {
     this.SetValue(TextBox.VerticalScrollBarVisibilityProperty, value);
@@ -182,13 +182,13 @@ TextBox.Instance.OnApplyTemplate = function () {
         return;
     var prop;
     if ((prop = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
-        this._ContentElement.SetValue(prop, this.GetValue(TextBox.VerticalScrollBarVisibilityProperty));
+        this._ContentElement.SetValue(prop, this.$GetValue(TextBox.VerticalScrollBarVisibilityProperty));
 
     if ((prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
         if (this.GetTextWrapping() === TextWrapping.Wrap)
             this._ContentElement.SetValue(prop, ScrollBarVisibility.Disabled);
         else
-            this._ContentElement.SetValue(prop, this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+            this._ContentElement.SetValue(prop, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
     }
 };
 
@@ -375,7 +375,7 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
                 if (args.NewValue === TextWrapping.Wrap)
                     this._ContentElement.SetValue(propd, ScrollBarVisibility.Disabled);
                 else
-                    this._ContentElement.SetValue(propd, this.GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+                    this._ContentElement.SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
             }
         }
         changed = _TextBoxModelChanged.TextWrapping
