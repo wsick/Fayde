@@ -111,6 +111,7 @@
     <Content Include="Javascript\Media\Transform.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
+    <Content Include="Javascript\Runtime\NotSupportedException.js" />
     <Content Include="Javascript\Runtime\RoutedPropertyChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\Timer.js" />
     <Content Include="Javascript\Runtime\XamlParseException.js" />

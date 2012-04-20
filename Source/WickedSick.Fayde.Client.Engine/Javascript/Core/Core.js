@@ -43,6 +43,16 @@ var Fayde = {
             } else {
                 throw new ParseException("Cannot parse CornerRadius value '" + str + "'");
             }
+        },
+        Brush: function (str) {
+            return new SolidColorBrush(Fayde.TypeConverters.Color(str));
+        },
+        Color: function (str) {
+            if (!str)
+                return new Color(0, 0, 0, 1.0);
+            if (str.substr(0, 1) !== "#")
+                throw new NotSupportedException("Known Colors are not supported.");
+            return Color.FromHex(str);
         }
     },
     TypeConverter: {
