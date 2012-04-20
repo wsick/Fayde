@@ -4,9 +4,9 @@
 //#region ScrollEventArgs
 var ScrollEventArgs = Nullstone.Create("ScrollEventArgs", EventArgs, 2);
 
-ScrollEventArgs.Instance.Init = function (scrollEventType, currentValue) {
+ScrollEventArgs.Instance.Init = function (scrollEventType, value) {
     this.ScrollEventType = scrollEventType;
-    this.CurrentValue = currentValue;
+    this.Value = value;
 };
 
 Nullstone.FinishCreate(ScrollEventArgs);

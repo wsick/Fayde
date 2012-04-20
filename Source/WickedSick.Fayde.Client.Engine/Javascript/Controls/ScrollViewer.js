@@ -315,7 +315,7 @@ ScrollViewer.Instance._HandleHorizontalScroll = function (e) {
             break;
         case ScrollEventType.ThumbPosition:
         case ScrollEventType.ThumbTrack:
-            newValue = e.CurrentValue;
+            newValue = e.Value;
             break;
         case ScrollEventType.First:
             newValue = -1.79769313486232E+308;
@@ -351,7 +351,7 @@ ScrollViewer.Instance._HandleVerticalScroll = function (e) {
             break;
         case ScrollEventType.ThumbPosition:
         case ScrollEventType.ThumbTrack:
-            newValue = e.CurrentValue;
+            newValue = e.Value;
             break;
         case ScrollEventType.First:
             newValue = -1.79769313486232E+308;
