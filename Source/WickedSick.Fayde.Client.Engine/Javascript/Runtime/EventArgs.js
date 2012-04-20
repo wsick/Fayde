@@ -1,4 +1,6 @@
 ﻿/// <reference path="Nullstone.js"/>
+/// CODE
+/// <reference path="../Primitives/Point.js"/>
 
 //#region EventArgs
 var EventArgs = Nullstone.Create("EventArgs");
@@ -15,9 +17,11 @@ MouseEventArgs.Instance.Init = function (absolutePos) {
 
 MouseEventArgs.Instance.GetPosition = function (relativeTo) {
     /// <param name="relativeTo" type="UIElement"></param>
+    var p = new Point(this._AbsolutePosition.X, this._AbsolutePosition.Y);
+    if (relativeTo == null)
+        return p;
     if (relativeTo._IsAttached)
         "".toString(); //TODO: ProcessDirtyElements on surface
-    var p = new Point(this._AbsolutePosition.X, this._AbsolutePosition.Y);
     relativeTo._TransformPoint(p);
     return p;
 };

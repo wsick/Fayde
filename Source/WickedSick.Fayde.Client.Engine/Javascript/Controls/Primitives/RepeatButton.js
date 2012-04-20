@@ -79,13 +79,14 @@ RepeatButton.Instance.OnMouseEnter = function (sender, args) {
     }
     this.UpdateVisualState();
 
-    var obj = this;
+    var parent = this;
     while (true) {
-        if (!(obj instanceof FrameworkElement))
+        var fe = Nullstone.As(parent, FrameworkElement);
+        if (fe == null)
             break;
-        obj = obj._Parent;
+        parent = fe._GetLogicalParent();
     }
-    this._MousePosition = args.GetPosition(obj);
+    this._MousePosition = args.GetPosition(parent);
 };
 RepeatButton.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$ButtonBase(sender, args);
@@ -115,13 +116,14 @@ RepeatButton.Instance.OnMouseLeftButtonUp = function (sender, args) {
     this.UpdateVisualState();
 };
 RepeatButton.Instance.OnMouseMove = function (sender, args) {
-    var obj = this;
+    var parent = this;
     while (true) {
-        if (!(obj instanceof FrameworkElement))
+        var fe = Nullstone.As(parent, FrameworkElement);
+        if (fe == null)
             break;
-        obj = obj._Parent;
+        parent = fe._GetLogicalParent();
     }
-    this._MousePosition = args.GetPosition(obj);
+    this._MousePosition = args.GetPosition(parent);
 };
 
 RepeatButton.Instance._UpdateRepeatState = function () {
