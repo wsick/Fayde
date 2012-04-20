@@ -89,7 +89,7 @@ ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
 
 //#endregion
 
-//#region MOUSE
+//#region Mouse
 
 ButtonBase.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$ContentControl(sender, args);
@@ -197,7 +197,7 @@ ButtonBase.Instance._IsValidMousePosition = function () {
 
 //#endregion
 
-//#region FOCUS
+//#region Focus
 
 ButtonBase.Instance.OnGotFocus = function (sender, args) {
     this.OnGotFocus$ContentControl(sender, args);
