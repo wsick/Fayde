@@ -431,7 +431,7 @@ UIElement.Instance._InsideClip = function (ctx, x, y) {
     var np = new Point(x, y);
     this._TransformPoint(np);
 
-    if (!clip.GetBounds().PointInside(np))
+    if (!clip.GetBounds().ContainsPoint(np))
         return false;
 
     return ctx.IsPointInClipPath(clip, np);

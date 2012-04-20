@@ -146,7 +146,7 @@ ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
     /// <param name="arrangeSize" type="Size"></param>
 
     var child;
-    if (this.GetTemplatedParent() != null)
+    if (this.GetTemplateOwner() != null)
         this._UpdateClip(arrangeSize);
     if (VisualTreeHelper.GetChildrenCount(this) === 0)
         child = null;
@@ -292,7 +292,7 @@ ScrollContentPresenter.Instance._UpdateClip = function (arrangeSize) {
         this.$IsClipPropertySet = true;
     }
 
-    if (Nullstone.As(this.GetTemplatedParent(), ScrollViewer) == null || Nullstone.As(this.GetContent(), _TextBoxView) == null && Nullstone.As(this.GetContent(), _RichTextBoxView) == null) {
+    if (Nullstone.As(this.GetTemplateOwner(), ScrollViewer) == null || Nullstone.As(this.GetContent(), _TextBoxView) == null && Nullstone.As(this.GetContent(), _RichTextBoxView) == null) {
         //owned by ScrollViewer, TextBoxView, or RichTextBoxView
         this.$ClippingRectangle.SetRect(new Rect(0, 0, arrangeSize.Width, arrangeSize.Height));
     } else {
@@ -304,12 +304,12 @@ ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSiz
     /// <returns type="Rect" />
     var left = 0;
     var right = 0;
-    var templatedParent = Nullstone.As(this.GetTemplatedParent(), ScrollViewer);
+    var templatedParent = Nullstone.As(this.GetTemplateOwner(), ScrollViewer);
     var width = this.$ScrollData.Extent.Width;
     var num = this.$ScrollData.Viewport.Width;
     var x = this.$ScrollData.Offset.X;
-    var textbox = Nullstone.As(templatedParent.GetTemplatedParent(), TextBox);
-    var richtextbox = Nullstone.As(templatedParent.GetTemplatedParent(), RichTextBox);
+    var textbox = Nullstone.As(templatedParent.GetTemplateOwner(), TextBox);
+    var richtextbox = Nullstone.As(templatedParent.GetTemplateOwner(), RichTextBox);
     var textWrapping = TextWrapping.NoWrap;
     var horizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
 
@@ -337,7 +337,7 @@ ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSiz
 };
 
 ScrollContentPresenter.Instance._HookupScrollingComponents = function () {
-    var templatedParent = Nullstone.As(this.GetTemplatedParent(), ScrollViewer);
+    var templatedParent = Nullstone.As(this.GetTemplateOwner(), ScrollViewer);
     if (templatedParent == null) {
         if (this.$ScrollInfo != null) {
             if (this.$ScrollInfo.GetScrollOwner() != null) {

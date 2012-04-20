@@ -83,6 +83,7 @@
     <Content Include="Javascript\Controls\PropertyValueProviders\PasswordBoxDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxBaseDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxDynamicPropertyValueProvider.js" />
+    <Content Include="Javascript\Controls\RichTextBoxView.js" />
     <Content Include="Javascript\Controls\RowDefinition.js" />
     <Content Include="Javascript\Controls\RowDefinitionCollection.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBlockDynamicPropertyValueProvider.js" />
