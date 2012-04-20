@@ -63,7 +63,7 @@ Grid.Instance.GetShowGridLines = function () {
     return this.$GetValue(Grid.ShowGridLinesProperty);
 };
 Grid.Instance.SetShowGridLines = function (value) {
-    this.SetValue(Grid.ShowGridLinesProperty, value);
+    this.$SetValue(Grid.ShowGridLinesProperty, value);
 };
 
 Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });

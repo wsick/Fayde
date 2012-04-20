@@ -20,7 +20,7 @@ Path.Instance.GetData = function () {
 };
 Path.Instance.SetData = function (value) {
     ///<param name="value" type="Geometry"></param>
-    this.SetValue(Path.DataProperty, value);
+    this.$SetValue(Path.DataProperty, value);
 };
 Path.Instance.SetData.Converter = function (value) {
     if (value instanceof Geometry)

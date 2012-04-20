@@ -16,7 +16,7 @@ DoubleAnimation.Instance.GetBy = function () {
 };
 DoubleAnimation.Instance.SetBy = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(DoubleAnimation.ByProperty, value);
+    this.$SetValue(DoubleAnimation.ByProperty, value);
 };
 
 /*
@@ -27,7 +27,7 @@ return this.$GetValue(DoubleAnimation.EasingFunctionProperty);
 };
 DoubleAnimation.Instance.SetEasingFunction = function (value) {
 ///<param name="value" type="EasingFunction"></param>
-this.SetValue(DoubleAnimation.EasingFunctionProperty, value);
+this.$SetValue(DoubleAnimation.EasingFunctionProperty, value);
 };
 */
 
@@ -38,7 +38,7 @@ DoubleAnimation.Instance.GetFrom = function () {
 };
 DoubleAnimation.Instance.SetFrom = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(DoubleAnimation.FromProperty, value);
+    this.$SetValue(DoubleAnimation.FromProperty, value);
 };
 
 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
@@ -48,7 +48,7 @@ DoubleAnimation.Instance.GetTo = function () {
 };
 DoubleAnimation.Instance.SetTo = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(DoubleAnimation.ToProperty, value);
+    this.$SetValue(DoubleAnimation.ToProperty, value);
 };
 
 //#endregion

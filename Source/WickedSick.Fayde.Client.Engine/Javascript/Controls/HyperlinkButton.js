@@ -21,7 +21,7 @@ HyperlinkButton.Instance.GetNavigateUri = function () {
 };
 HyperlinkButton.Instance.SetNavigateUri = function (value) {
     ///<param name="value" type="Uri"></param>
-    this.SetValue(HyperlinkButton.NavigateUriProperty, value);
+    this.$SetValue(HyperlinkButton.NavigateUriProperty, value);
 };
 
 HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, null);
@@ -31,7 +31,7 @@ HyperlinkButton.Instance.GetTargetName = function () {
 };
 HyperlinkButton.Instance.SetTargetName = function (value) {
     ///<param name="value" type="String"></param>
-    this.SetValue(HyperlinkButton.TargetNameProperty, value);
+    this.$SetValue(HyperlinkButton.TargetNameProperty, value);
 };
 
 //#endregion

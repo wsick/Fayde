@@ -19,7 +19,7 @@ Polyline.Instance.GetFillRule = function () {
 };
 Polyline.Instance.SetFillRule = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Polyline.FillRuleProperty, value);
+    this.$SetValue(Polyline.FillRuleProperty, value);
 };
 
 Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, null, { GetValue: function () { return new PointCollection(); } });
@@ -29,7 +29,7 @@ Polyline.Instance.GetPoints = function () {
 };
 Polyline.Instance.SetPoints = function (value) {
     ///<param name="value" type="PointCollection"></param>
-    this.SetValue(Polyline.PointsProperty, value);
+    this.$SetValue(Polyline.PointsProperty, value);
 };
 Polyline.Instance.SetPoints.Converter = function (value) {
     if (value instanceof PointCollection)

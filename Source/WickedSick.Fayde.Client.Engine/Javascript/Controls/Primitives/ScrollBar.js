@@ -23,7 +23,7 @@ ScrollBar.Instance.GetOrientation = function () {
 };
 ScrollBar.Instance.SetOrientation = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(ScrollBar.OrientationProperty, value);
+    this.$SetValue(ScrollBar.OrientationProperty, value);
 };
 ScrollBar._OnOrientationPropertyChanged = function (d, args) {
     d._OnOrientationChanged();
@@ -36,7 +36,7 @@ ScrollBar.Instance.GetViewportSize = function () {
 };
 ScrollBar.Instance.SetViewportSize = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(ScrollBar.ViewportSizeProperty, value);
+    this.$SetValue(ScrollBar.ViewportSizeProperty, value);
 };
 ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
     d._UpdateTrackLayout(d._GetTrackLength());

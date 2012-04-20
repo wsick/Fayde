@@ -15,7 +15,7 @@ SetterBaseCollection.Instance.GetIsSealed = function () {
 };
 SetterBaseCollection.Instance.SetIsSealed = function (value) {
     /// <param name="value" type="Boolean"></param>
-    this.SetValue(SetterBaseCollection.IsSealedProperty, value);
+    this.$SetValue(SetterBaseCollection.IsSealedProperty, value);
 };
 
 //#endregion

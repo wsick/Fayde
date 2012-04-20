@@ -31,7 +31,7 @@ SetterBase.Instance.SetAttached = function (value) {
 SetterBase.Instance._Seal = function () {
     if (this.GetIsSealed())
         return;
-    this.SetValue(SetterBase.IsSealedProperty, true);
+    this.$SetValue(SetterBase.IsSealedProperty, true);
 };
 
 Nullstone.FinishCreate(SetterBase);

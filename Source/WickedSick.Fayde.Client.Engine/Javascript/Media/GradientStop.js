@@ -15,7 +15,7 @@ GradientStop.Instance.GetColor = function () {
 };
 GradientStop.Instance.SetColor = function (value) {
     /// <param name="value" type="Color"></param>
-    this.SetValue(GradientStop.ColorProperty, value);
+    this.$SetValue(GradientStop.ColorProperty, value);
 };
 
 GradientStop.OffsetProperty = DependencyProperty.Register("Offset", function () { return Number; }, GradientStop, 0.0);
@@ -23,7 +23,7 @@ GradientStop.Instance.GetOffset = function () {
     return this.$GetValue(GradientStop.OffsetProperty);
 };
 GradientStop.Instance.SetOffset = function (value) {
-    this.SetValue(GradientStop.OffsetProperty, value);
+    this.$SetValue(GradientStop.OffsetProperty, value);
 };
 
 //#endregion

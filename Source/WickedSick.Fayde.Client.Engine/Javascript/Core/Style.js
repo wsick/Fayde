@@ -24,7 +24,7 @@ Style.Instance.GetBasedOn = function () {
     return this.$GetValue(Style.BasedOnProperty);
 };
 Style.Instance.SetBasedOn = function (value) {
-    this.SetValue(Style.BasedOnProperty, value);
+    this.$SetValue(Style.BasedOnProperty, value);
 };
 
 Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, Style);
@@ -32,7 +32,7 @@ Style.Instance.GetTargetType = function () {
     return this.$GetValue(Style.TargetTypeProperty);
 };
 Style.Instance.SetTargetType = function (value) {
-    this.SetValue(Style.TargetTypeProperty, value);
+    this.$SetValue(Style.TargetTypeProperty, value);
 };
 
 //#endregion
@@ -50,7 +50,7 @@ Style.Instance._Seal = function () {
         return;
 
     this._ConvertSetterValues();
-    this.SetValue(Style.IsSealedProperty, true);
+    this.$SetValue(Style.IsSealedProperty, true);
     this.GetSetters()._Seal();
 
     var base = this.GetBasedOn();

@@ -18,7 +18,7 @@ RepeatButton.Instance.GetDelay = function () {
 };
 RepeatButton.Instance.SetDelay = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(RepeatButton.DelayProperty, value);
+    this.$SetValue(RepeatButton.DelayProperty, value);
 };
 
 RepeatButton.IntervalProperty = DependencyProperty.Register("Interval", function () { return Number; }, RepeatButton, 33, function (d, args) { d.OnIntervalChanged(args); });
@@ -28,7 +28,7 @@ RepeatButton.Instance.GetInterval = function () {
 };
 RepeatButton.Instance.SetInterval = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(RepeatButton.IntervalProperty, value);
+    this.$SetValue(RepeatButton.IntervalProperty, value);
 };
 
 //#endregion

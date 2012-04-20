@@ -13,7 +13,7 @@ VisualState.Instance.GetStoryboard = function () {
     return this.$GetValue(VisualState.StoryboardProperty);
 };
 VisualState.Instance.SetStoryboard = function (value) {
-    this.SetValue(VisualState.StoryboardProperty, value);
+    this.$SetValue(VisualState.StoryboardProperty, value);
 };
 
 //#endregion

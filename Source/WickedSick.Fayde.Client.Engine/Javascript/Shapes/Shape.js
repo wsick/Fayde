@@ -22,7 +22,7 @@ Shape.Instance.GetFill = function () {
 };
 Shape.Instance.SetFill = function (value) {
     ///<param name="value" type="Brush"></param>
-    this.SetValue(Shape.FillProperty, value);
+    this.$SetValue(Shape.FillProperty, value);
 };
 
 Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Stretch); }, Shape, Stretch.None);
@@ -32,7 +32,7 @@ Shape.Instance.GetStretch = function () {
 };
 Shape.Instance.SetStretch = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Shape.StretchProperty, value);
+    this.$SetValue(Shape.StretchProperty, value);
 };
 
 Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Brush; }, Shape);
@@ -42,7 +42,7 @@ Shape.Instance.GetStroke = function () {
 };
 Shape.Instance.SetStroke = function (value) {
     ///<param name="value" type="Brush"></param>
-    this.SetValue(Shape.StrokeProperty, value);
+    this.$SetValue(Shape.StrokeProperty, value);
 };
 
 Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () { return Number; }, Shape, 1.0);
@@ -52,7 +52,7 @@ Shape.Instance.GetStrokeThickness = function () {
 };
 Shape.Instance.SetStrokeThickness = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Shape.StrokeThicknessProperty, value);
+    this.$SetValue(Shape.StrokeThicknessProperty, value);
 };
 
 Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return DoubleCollection; }, Shape);
@@ -62,7 +62,7 @@ Shape.Instance.GetStrokeDashArray = function () {
 };
 Shape.Instance.SetStrokeDashArray = function (value) {
     ///<param name="value" type="DoubleCollection"></param>
-    this.SetValue(Shape.StrokeDashArrayProperty, value);
+    this.$SetValue(Shape.StrokeDashArrayProperty, value);
 };
 
 Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
@@ -72,7 +72,7 @@ Shape.Instance.GetStrokeDashCap = function () {
 };
 Shape.Instance.SetStrokeDashCap = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Shape.StrokeDashCapProperty, value);
+    this.$SetValue(Shape.StrokeDashCapProperty, value);
 };
 
 Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () { return Number; }, Shape, 0.0);
@@ -82,7 +82,7 @@ Shape.Instance.GetStrokeDashOffset = function () {
 };
 Shape.Instance.SetStrokeDashOffset = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Shape.StrokeDashOffsetProperty, value);
+    this.$SetValue(Shape.StrokeDashOffsetProperty, value);
 };
 
 Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
@@ -92,7 +92,7 @@ Shape.Instance.GetStrokeEndLineCap = function () {
 };
 Shape.Instance.SetStrokeEndLineCap = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Shape.StrokeEndLineCapProperty, value);
+    this.$SetValue(Shape.StrokeEndLineCapProperty, value);
 };
 
 Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Enum(PenLineJoin); }, Shape, PenLineJoin.Miter);
@@ -102,7 +102,7 @@ Shape.Instance.GetStrokeLineJoin = function () {
 };
 Shape.Instance.SetStrokeLineJoin = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Shape.StrokeLineJoinProperty, value);
+    this.$SetValue(Shape.StrokeLineJoinProperty, value);
 };
 
 Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () { return Number; }, Shape, 10.0);
@@ -112,7 +112,7 @@ Shape.Instance.GetStrokeMiterLimit = function () {
 };
 Shape.Instance.SetStrokeMiterLimit = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Shape.StrokeMiterLimitProperty, value);
+    this.$SetValue(Shape.StrokeMiterLimitProperty, value);
 };
 
 Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
@@ -122,7 +122,7 @@ Shape.Instance.GetStrokeStartLineCap = function () {
 };
 Shape.Instance.SetStrokeStartLineCap = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Shape.StrokeStartLineCapProperty, value);
+    this.$SetValue(Shape.StrokeStartLineCapProperty, value);
 };
 
 //#endregion

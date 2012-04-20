@@ -29,7 +29,7 @@ GradientBrush.Instance.GetMappingMode = function () {
 };
 GradientBrush.Instance.SetMappingMode = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(GradientBrush.MappingModeProperty, value);
+    this.$SetValue(GradientBrush.MappingModeProperty, value);
 };
 
 //#endregion

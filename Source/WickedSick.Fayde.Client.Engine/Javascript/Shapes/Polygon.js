@@ -18,7 +18,7 @@ Polygon.Instance.GetFillRule = function () {
 };
 Polygon.Instance.SetFillRule = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Polygon.FillRuleProperty, value);
+    this.$SetValue(Polygon.FillRuleProperty, value);
 };
 
 Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, null, { GetValue: function () { return new PointCollection(); } });
@@ -28,7 +28,7 @@ Polygon.Instance.GetPoints = function () {
 };
 Polygon.Instance.SetPoints = function (value) {
     ///<param name="value" type="PointCollection"></param>
-    this.SetValue(Polygon.PointsProperty, value);
+    this.$SetValue(Polygon.PointsProperty, value);
 };
 Polygon.Instance.SetPoints.Converter = function (value) {
     if (value instanceof PointCollection)

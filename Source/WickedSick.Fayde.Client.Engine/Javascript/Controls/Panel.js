@@ -13,7 +13,7 @@ Panel.Instance.GetBackground = function () {
     return this.$GetValue(Panel.BackgroundProperty);
 };
 Panel.Instance.SetBackground = function (value) {
-    this.SetValue(Panel.BackgroundProperty, value);
+    this.$SetValue(Panel.BackgroundProperty, value);
 };
 
 Panel._CreateChildren = {
@@ -30,7 +30,7 @@ Panel.Instance.GetChildren = function () {
     return this.$GetValue(Panel.ChildrenProperty);
 };
 Panel.Instance.SetChildren = function (value) {
-    this.SetValue(Panel.ChildrenProperty, value);
+    this.$SetValue(Panel.ChildrenProperty, value);
 };
 
 Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
@@ -38,7 +38,7 @@ Panel.Instance.GetIsItemsHost = function () {
     return this.$GetValue(Panel.IsItemsHostProperty);
 };
 Panel.Instance.SetIsItemsHost = function (value) {
-    this.SetValue(Panel.IsItemsHostProperty, value);
+    this.$SetValue(Panel.IsItemsHostProperty, value);
 };
 
 //#endregion

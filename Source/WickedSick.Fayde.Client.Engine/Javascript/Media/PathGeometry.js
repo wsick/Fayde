@@ -15,7 +15,7 @@ PathGeometry.Instance.GetFillRule = function () {
 };
 PathGeometry.Instance.SetFillRule = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(PathGeometry.FillRuleProperty, value);
+    this.$SetValue(PathGeometry.FillRuleProperty, value);
 };
 
 PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, null, { GetValue: function () { return new PathFigureCollection(); } });
@@ -25,7 +25,7 @@ PathGeometry.Instance.GetFigures = function () {
 };
 PathGeometry.Instance.SetFigures = function (value) {
     ///<param name="value" type="PathFigureCollection"></param>
-    this.SetValue(PathGeometry.FiguresProperty, value);
+    this.$SetValue(PathGeometry.FiguresProperty, value);
 };
 
 //#endregion

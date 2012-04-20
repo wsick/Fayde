@@ -15,7 +15,7 @@ Section.Instance.GetBlocks = function () {
 };
 Section.Instance.SetBlocks = function (value) {
     /// <param name="value" type="BlockCollection"></param>
-    this.SetValue(Section.BlocksProperty, value);
+    this.$SetValue(Section.BlocksProperty, value);
 };
 
 //#endregion

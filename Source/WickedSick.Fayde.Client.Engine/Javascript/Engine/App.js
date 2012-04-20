@@ -26,7 +26,7 @@ App.Instance.GetResources = function () {
     return this.$GetValue(App.ResourcesProperty);
 };
 App.Instance.SetResources = function (value) {
-    this.SetValue(App.ResourcesProperty, value);
+    this.$SetValue(App.ResourcesProperty, value);
 };
 
 //#endregion

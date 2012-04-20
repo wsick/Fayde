@@ -28,7 +28,7 @@ ContentControl.Instance.GetContent = function () {
     return this.$GetValue(ContentControl.ContentProperty);
 };
 ContentControl.Instance.SetContent = function (value) {
-    this.SetValue(ContentControl.ContentProperty, value);
+    this.$SetValue(ContentControl.ContentProperty, value);
 };
 
 ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentControl);
@@ -36,7 +36,7 @@ ContentControl.Instance.GetContentTemplate = function () {
     return this.$GetValue(ContentControl.ContentTemplateProperty);
 };
 ContentControl.Instance.SetContentTemplate = function (value) {
-    this.SetValue(ContentControl.ContentTemplateProperty, value);
+    this.$SetValue(ContentControl.ContentTemplateProperty, value);
 };
 
 //#endregion

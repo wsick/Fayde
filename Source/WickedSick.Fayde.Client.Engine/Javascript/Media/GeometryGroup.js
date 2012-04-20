@@ -18,7 +18,7 @@ GeometryGroup.Instance.GetFillRule = function () {
 };
 GeometryGroup.Instance.SetFillRule = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(GeometryGroup.FillRuleProperty, value);
+    this.$SetValue(GeometryGroup.FillRuleProperty, value);
 };
 
 GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, null, { GetValue: function () { return new GeometryCollection(); } });
@@ -28,7 +28,7 @@ GeometryGroup.Instance.GetChildren = function () {
 };
 GeometryGroup.Instance.SetChildren = function (value) {
     ///<param name="value" type="GeometryCollection"></param>
-    this.SetValue(GeometryGroup.ChildrenProperty, value);
+    this.$SetValue(GeometryGroup.ChildrenProperty, value);
 };
 
 //#endregion

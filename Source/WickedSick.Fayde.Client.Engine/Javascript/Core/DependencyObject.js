@@ -34,7 +34,7 @@ DependencyObject.Instance.GetName = function () {
     return this.$GetValue(DependencyObject.NameProperty);
 };
 DependencyObject.Instance.SetName = function (value) {
-    this.SetValue(DependencyObject.NameProperty, value);
+    this.$SetValue(DependencyObject.NameProperty, value);
 };
 
 //#endregion
@@ -81,7 +81,7 @@ DependencyObject.Instance.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);
 };
 
-DependencyObject.Instance.SetValue = function (propd, value) {
+DependencyObject.Instance.$SetValue = function (propd, value) {
     if (propd == null)
         throw new ArgumentException("No property specified.");
     if (propd.IsReadOnly) {
@@ -208,7 +208,7 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
     return true;
 };
 
-DependencyObject.Instance.GetValue = function (propd, startingPrecedence, endingPrecedence) {
+DependencyObject.Instance.$GetValue = function (propd, startingPrecedence, endingPrecedence) {
     if (startingPrecedence === undefined)
         startingPrecedence = _PropertyPrecedence.Highest;
     if (endingPrecedence === undefined)
@@ -643,7 +643,7 @@ DependencyObject.Instance.SetNameOnScope = function (name, scope) {
     if (scope.FindName(name))
         return false;
 
-    this.SetValue(DependencyObject.NameProperty, name);
+    this.$SetValue(DependencyObject.NameProperty, name);
     scope.RegisterName(name, this);
     return true;
 };

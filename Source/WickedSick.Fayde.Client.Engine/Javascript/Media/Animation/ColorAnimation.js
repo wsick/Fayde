@@ -15,7 +15,7 @@ ColorAnimation.Instance.GetBy = function () {
 };
 ColorAnimation.Instance.SetBy = function (value) {
     ///<param name="value" type="Color"></param>
-    this.SetValue(ColorAnimation.ByProperty, value);
+    this.$SetValue(ColorAnimation.ByProperty, value);
 };
 
 /*
@@ -26,7 +26,7 @@ return this.$GetValue(ColorAnimation.EasingFunctionProperty);
 };
 ColorAnimation.Instance.SetEasingFunction = function (value) {
 ///<param name="value" type="EasingFunction"></param>
-this.SetValue(ColorAnimation.EasingFunctionProperty, value);
+this.$SetValue(ColorAnimation.EasingFunctionProperty, value);
 };
 */
 
@@ -37,7 +37,7 @@ ColorAnimation.Instance.GetFrom = function () {
 };
 ColorAnimation.Instance.SetFrom = function (value) {
     ///<param name="value" type="Color"></param>
-    this.SetValue(ColorAnimation.FromProperty, value);
+    this.$SetValue(ColorAnimation.FromProperty, value);
 };
 
 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
@@ -47,7 +47,7 @@ ColorAnimation.Instance.GetTo = function () {
 };
 ColorAnimation.Instance.SetTo = function (value) {
     ///<param name="value" type="Color"></param>
-    this.SetValue(ColorAnimation.ToProperty, value);
+    this.$SetValue(ColorAnimation.ToProperty, value);
 };
 
 //#endregion

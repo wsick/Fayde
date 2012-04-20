@@ -20,7 +20,7 @@ ControlTemplate.Instance.GetTargetType = function () {
     return this.$GetValue(ControlTemplate.TargetTypeProperty);
 };
 ControlTemplate.Instance.SetTargetType = function (value) {
-    this.SetValue(ControlTemplate.TargetTypeProperty, value);
+    this.$SetValue(ControlTemplate.TargetTypeProperty, value);
 };
 
 //#endregion

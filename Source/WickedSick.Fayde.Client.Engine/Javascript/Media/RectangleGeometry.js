@@ -16,7 +16,7 @@ RectangleGeometry.Instance.GetRect = function () {
 };
 RectangleGeometry.Instance.SetRect = function (value) {
     /// <param name="value" type="Rect"></param>
-    this.SetValue(RectangleGeometry.RectProperty, value);
+    this.$SetValue(RectangleGeometry.RectProperty, value);
 };
 
 RectangleGeometry.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, RectangleGeometry, 0);
@@ -26,7 +26,7 @@ RectangleGeometry.Instance.GetRadiusX = function () {
 };
 RectangleGeometry.Instance.SetRadiusX = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(RectangleGeometry.RadiusXProperty, value);
+    this.$SetValue(RectangleGeometry.RadiusXProperty, value);
 };
 
 RectangleGeometry.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, RectangleGeometry, 0);
@@ -36,7 +36,7 @@ RectangleGeometry.Instance.GetRadiusY = function () {
 };
 RectangleGeometry.Instance.SetRadiusY = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(RectangleGeometry.RadiusYProperty, value);
+    this.$SetValue(RectangleGeometry.RadiusYProperty, value);
 };
 
 //#endregion

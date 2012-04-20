@@ -18,7 +18,7 @@ Line.Instance.GetX1 = function () {
 };
 Line.Instance.SetX1 = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Line.X1Property, value);
+    this.$SetValue(Line.X1Property, value);
 };
 
 Line.Y1Property = DependencyProperty.Register("Y1", function () { return Number; }, Line, 0);
@@ -28,7 +28,7 @@ Line.Instance.GetY1 = function () {
 };
 Line.Instance.SetY1 = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Line.Y1Property, value);
+    this.$SetValue(Line.Y1Property, value);
 };
 
 Line.X2Property = DependencyProperty.Register("X2", function () { return Number; }, Line, 0);
@@ -38,7 +38,7 @@ Line.Instance.GetX2 = function () {
 };
 Line.Instance.SetX2 = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Line.X2Property, value);
+    this.$SetValue(Line.X2Property, value);
 };
 
 Line.Y2Property = DependencyProperty.Register("Y2", function () { return Number; }, Line, 0);
@@ -48,7 +48,7 @@ Line.Instance.GetY2 = function () {
 };
 Line.Instance.SetY2 = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Line.Y2Property, value);
+    this.$SetValue(Line.Y2Property, value);
 };
 
 //#endregion

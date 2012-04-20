@@ -15,7 +15,7 @@ CollectionViewSource.Instance.GetSource = function () {
 };
 CollectionViewSource.Instance.SetSource = function (value) {
     ///<param name="value" type="Object"></param>
-    this.SetValue(CollectionViewSource.SourceProperty, value);
+    this.$SetValue(CollectionViewSource.SourceProperty, value);
 };
 
 CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
@@ -25,7 +25,7 @@ CollectionViewSource.Instance.GetView = function () {
 };
 CollectionViewSource.Instance.SetView = function (value) {
     ///<param name="value" type="ICollectionView"></param>
-    this.SetValue(CollectionViewSource.ViewProperty, value);
+    this.$SetValue(CollectionViewSource.ViewProperty, value);
 };
 
 //#endregion

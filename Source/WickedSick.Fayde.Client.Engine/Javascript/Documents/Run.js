@@ -12,7 +12,7 @@ Run.Instance.GetFlowDirection = function () {
     return this.$GetValue(Run.FlowDirectionProperty);
 };
 Run.Instance.SetFlowDirection = function (value) {
-    this.SetValue(Run.FlowDirectionProperty, value);
+    this.$SetValue(Run.FlowDirectionProperty, value);
 };
 
 Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
@@ -22,7 +22,7 @@ Run.Instance.GetText = function () {
 };
 Run.Instance.SetText = function (value) {
     /// <param name="value" type="String"></param>
-    this.SetValue(Run.TextProperty, value);
+    this.$SetValue(Run.TextProperty, value);
 };
 
 //#endregion

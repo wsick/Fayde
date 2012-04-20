@@ -27,7 +27,7 @@ Fayde.Image.Instance.GetSource = function () {
 Fayde.Image.Instance.SetSource = function (value) {
     ///<param name="value" type="ImageSource"></param>
     value = this.SetSource.Converter(value);
-    this.SetValue(Fayde.Image.SourceProperty, value);
+    this.$SetValue(Fayde.Image.SourceProperty, value);
 };
 Fayde.Image.Instance.SetSource.Converter = function (value) {
     if (value instanceof Uri)
@@ -43,7 +43,7 @@ Fayde.Image.Instance.GetStretch = function () {
 };
 Fayde.Image.Instance.SetStretch = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(Fayde.Image.StretchProperty, value);
+    this.$SetValue(Fayde.Image.StretchProperty, value);
 };
 
 //#endregion

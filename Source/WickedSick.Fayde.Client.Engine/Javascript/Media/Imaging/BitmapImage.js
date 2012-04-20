@@ -23,7 +23,7 @@ BitmapImage.Instance.GetUriSource = function () {
 };
 BitmapImage.Instance.SetUriSource = function (value) {
     ///<param name="value" type="Uri"></param>
-    this.SetValue(BitmapImage.UriSourceProperty, value);
+    this.$SetValue(BitmapImage.UriSourceProperty, value);
 };
 
 //#endregion

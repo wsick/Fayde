@@ -19,7 +19,7 @@ PathFigure.Instance.GetIsClosed = function () {
 };
 PathFigure.Instance.SetIsClosed = function (value) {
     ///<param name="value" type="Boolean"></param>
-    this.SetValue(PathFigure.IsClosedProperty, value);
+    this.$SetValue(PathFigure.IsClosedProperty, value);
 };
 
 PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, null, { GetValue: function () { return new PathSegmentCollection(); } });
@@ -29,7 +29,7 @@ PathFigure.Instance.GetSegments = function () {
 };
 PathFigure.Instance.SetSegments = function (value) {
     ///<param name="value" type="PathSegmentCollection"></param>
-    this.SetValue(PathFigure.SegmentsProperty, value);
+    this.$SetValue(PathFigure.SegmentsProperty, value);
 };
 
 PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, PathFigure, new Point());
@@ -39,7 +39,7 @@ PathFigure.Instance.GetStartPoint = function () {
 };
 PathFigure.Instance.SetStartPoint = function (value) {
     ///<param name="value" type="Point"></param>
-    this.SetValue(PathFigure.StartPointProperty, value);
+    this.$SetValue(PathFigure.StartPointProperty, value);
 };
 
 PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () { return Boolean; }, PathFigure, true);
@@ -49,7 +49,7 @@ PathFigure.Instance.GetIsFilled = function () {
 };
 PathFigure.Instance.SetIsFilled = function (value) {
     ///<param name="value" type="Boolean"></param>
-    this.SetValue(PathFigure.IsFilledProperty, value);
+    this.$SetValue(PathFigure.IsFilledProperty, value);
 };
 
 //#endregion

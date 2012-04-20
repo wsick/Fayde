@@ -23,7 +23,7 @@ SolidColorBrush.Instance.GetColor = function () {
 };
 SolidColorBrush.Instance.SetColor = function (value) {
     ///<param name="value" type="Color"></param>
-    this.SetValue(SolidColorBrush.ColorProperty, value);
+    this.$SetValue(SolidColorBrush.ColorProperty, value);
 };
 
 //#endregion

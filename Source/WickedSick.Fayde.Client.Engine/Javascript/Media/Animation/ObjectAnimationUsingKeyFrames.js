@@ -14,7 +14,7 @@ ObjectAnimationUsingKeyFrames.Instance.GetKeyFrames = function () {
 };
 ObjectAnimationUsingKeyFrames.Instance.SetKeyFrames = function (value) {
     ///<param name="value" type="ObjectKeyFrameCollection"></param>
-    this.SetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty, value);
+    this.$SetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty, value);
 };
 
 //#endregion

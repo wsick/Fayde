@@ -18,7 +18,7 @@ Brush.Instance.GetChanged = function () {
 };
 Brush.Instance.SetChanged = function (value) {
     ///<param name="value" type="Boolean"></param>
-    this.SetValue(Brush.ChangedProperty, value);
+    this.$SetValue(Brush.ChangedProperty, value);
 };
 
 //#endregion

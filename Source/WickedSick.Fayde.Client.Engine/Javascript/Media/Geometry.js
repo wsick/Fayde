@@ -21,7 +21,7 @@ Geometry.Instance.GetTransform = function () {
 };
 Geometry.Instance.SetTransform = function (value) {
     ///<param name="value" type="Transform"></param>
-    this.SetValue(Geometry.TransformProperty, value);
+    this.$SetValue(Geometry.TransformProperty, value);
 };
 
 //#endregion

@@ -18,7 +18,7 @@ BitmapSource.Instance.GetPixelWidth = function () {
 };
 BitmapSource.Instance.SetPixelWidth = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(BitmapSource.PixelWidthProperty, value);
+    this.$SetValue(BitmapSource.PixelWidthProperty, value);
 };
 
 BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
@@ -28,7 +28,7 @@ BitmapSource.Instance.GetPixelHeight = function () {
 };
 BitmapSource.Instance.SetPixelHeight = function (value) {
     ///<param name="value" type="Number"></param>
-    this.SetValue(BitmapSource.PixelHeightProperty, value);
+    this.$SetValue(BitmapSource.PixelHeightProperty, value);
 };
 
 BitmapSource.IntGreaterThanZeroValidator = function (instance, propd, value, error) {

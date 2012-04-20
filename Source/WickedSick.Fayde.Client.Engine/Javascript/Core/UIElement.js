@@ -89,7 +89,7 @@ UIElement.Instance.GetClip = function () {
     return this.$GetValue(UIElement.ClipProperty);
 };
 UIElement.Instance.SetClip = function (value) {
-    this.SetValue(UIElement.ClipProperty, value);
+    this.$SetValue(UIElement.ClipProperty, value);
 };
 
 //UIElement.CacheModeProperty;
@@ -101,7 +101,7 @@ UIElement.Instance.GetIsHitTestVisible = function () {
     return this.$GetValue(UIElement.IsHitTestVisibleProperty);
 };
 UIElement.Instance.SetIsHitTestVisible = function (value) {
-    this.SetValue(UIElement.IsHitTestVisibleProperty, value);
+    this.$SetValue(UIElement.IsHitTestVisibleProperty, value);
 };
 
 UIElement.OpacityMaskProperty = DependencyProperty.Register("OpacityMask", function () { return Brush; }, UIElement);
@@ -109,7 +109,7 @@ UIElement.Instance.GetOpacityMask = function () {
     return this.$GetValue(UIElement.OpacityMaskProperty);
 };
 UIElement.Instance.SetOpacityMask = function (value) {
-    this.SetValue(UIElement.OpacityMaskProperty, value);
+    this.$SetValue(UIElement.OpacityMaskProperty, value);
 };
 
 UIElement.OpacityProperty = DependencyProperty.Register("Opacity", function () { return Number; }, UIElement, 1.0);
@@ -117,7 +117,7 @@ UIElement.Instance.GetOpacity = function () {
     return this.$GetValue(UIElement.OpacityProperty);
 };
 UIElement.Instance.SetOpacity = function (value) {
-    this.SetValue(UIElement.OpacityProperty, value);
+    this.$SetValue(UIElement.OpacityProperty, value);
 };
 
 //UIElement.RenderTransformOriginProperty;
@@ -128,7 +128,7 @@ UIElement.Instance.GetCursor = function () {
     return this.$GetValue(UIElement.CursorProperty);
 };
 UIElement.Instance.SetCursor = function (value) {
-    this.SetValue(UIElement.CursorProperty, value);
+    this.$SetValue(UIElement.CursorProperty, value);
 };
 
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
@@ -147,7 +147,7 @@ UIElement.Instance.GetUseLayoutRounding = function () {
     return this.$GetValue(UIElement.UseLayoutRoundingProperty);
 };
 UIElement.Instance.SetUseLayoutRounding = function (value) {
-    this.SetValue(UIElement.UseLayoutRoundingProperty, value);
+    this.$SetValue(UIElement.UseLayoutRoundingProperty, value);
 };
 
 UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
@@ -155,7 +155,7 @@ UIElement.Instance.GetVisibility = function () {
     return this.$GetValue(UIElement.VisibilityProperty);
 };
 UIElement.Instance.SetVisibility = function (value) {
-    this.SetValue(UIElement.VisibilityProperty, value);
+    this.$SetValue(UIElement.VisibilityProperty, value);
 };
 
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
@@ -163,7 +163,7 @@ UIElement.Instance.GetTag = function () {
     return this.$GetValue(UIElement.TagProperty);
 };
 UIElement.Instance.SetTag = function (value) {
-    this.SetValue(UIElement.TagProperty, value);
+    this.$SetValue(UIElement.TagProperty, value);
 };
 
 //#endregion

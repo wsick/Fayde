@@ -23,7 +23,7 @@ ScrollViewer.Instance.GetHorizontalScrollBarVisibility = function () {
 };
 ScrollViewer.Instance.SetHorizontalScrollBarVisibility = function (value) {
     ///<param name="value" type="ScrollBarVisibility"></param>
-    this.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
+    this.$SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
 };
 
 ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
@@ -33,7 +33,7 @@ ScrollViewer.Instance.GetVerticalScrollBarVisibility = function () {
 };
 ScrollViewer.Instance.SetVerticalScrollBarVisibility = function (value) {
     ///<param name="value" type="ScrollBarVisibility"></param>
-    this.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
+    this.$SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
 };
 
 ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {

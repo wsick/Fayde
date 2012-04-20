@@ -16,7 +16,7 @@ MatrixTransform.Instance.GetMatrix = function () {
 };
 MatrixTransform.Instance.SetMatrix = function (value) {
     ///<param name="value" type="Matrix"></param>
-	this.SetValue(MatrixTransform.MatrixProperty, value);
+	this.$SetValue(MatrixTransform.MatrixProperty, value);
 };
 
 //#endregion

@@ -12,7 +12,7 @@ UserControl.Instance.GetContent = function () {
     return this.$GetValue(UserControl.ContentProperty);
 };
 UserControl.Instance.SetContent = function (value) {
-    this.SetValue(UserControl.ContentProperty, value);
+    this.$SetValue(UserControl.ContentProperty, value);
 };
 
 //#endregion

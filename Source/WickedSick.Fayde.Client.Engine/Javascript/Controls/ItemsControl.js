@@ -26,7 +26,7 @@ ItemsControl.Instance.GetItems = function () {
     return this.$GetValue(ItemsControl.ItemsProperty);
 };
 ItemsControl.Instance.SetItems = function (value) {
-    this.SetValue(ItemsControl.ItemsProperty, value);
+    this.$SetValue(ItemsControl.ItemsProperty, value);
 };
 
 //#endregion

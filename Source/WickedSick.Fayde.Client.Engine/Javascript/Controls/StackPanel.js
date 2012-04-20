@@ -21,7 +21,7 @@ StackPanel.Instance.GetOrientation = function () {
     return this.$GetValue(StackPanel.OrientationProperty);
 };
 StackPanel.Instance.SetOrientation = function (value) {
-    this.SetValue(StackPanel.OrientationProperty, value);
+    this.$SetValue(StackPanel.OrientationProperty, value);
 };
 
 //#endregion

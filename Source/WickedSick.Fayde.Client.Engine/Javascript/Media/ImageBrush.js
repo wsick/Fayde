@@ -22,7 +22,7 @@ ImageBrush.Instance.GetImageSource = function () {
 };
 ImageBrush.Instance.SetImageSource = function (value) {
     ///<param name="value" type="ImageBrush"></param>
-    this.SetValue(ImageBrush.ImageSourceProperty, value);
+    this.$SetValue(ImageBrush.ImageSourceProperty, value);
 };
 
 //#endregion

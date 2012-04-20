@@ -15,7 +15,7 @@ Block.Instance.GetInlines = function () {
 };
 Block.Instance.SetInlines = function (value) {
     /// <param name="value" type="InlineCollection"></param>
-    this.SetValue(Block.InlinesProperty, value);
+    this.$SetValue(Block.InlinesProperty, value);
 };
 
 //#endregion

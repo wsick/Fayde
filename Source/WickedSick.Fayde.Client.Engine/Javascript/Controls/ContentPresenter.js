@@ -13,7 +13,7 @@ ContentPresenter.Instance.GetContent = function () {
     return this.$GetValue(ContentPresenter.ContentProperty);
 };
 ContentPresenter.Instance.SetContent = function (value) {
-    this.SetValue(ContentPresenter.ContentProperty, value);
+    this.$SetValue(ContentPresenter.ContentProperty, value);
 };
 
 ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
@@ -22,7 +22,7 @@ ContentPresenter.Instance.GetContentTemplate = function () {
     return this.$GetValue(ContentPresenter.ContentTemplateProperty);
 };
 ContentPresenter.Instance.SetContentTemplate = function (value) {
-    this.SetValue(ContentPresenter.ContentTemplateProperty, value);
+    this.$SetValue(ContentPresenter.ContentTemplateProperty, value);
 };
 
 //#endregion
@@ -45,11 +45,11 @@ ContentPresenter.Instance._GetDefaultTemplate = function () {
     var templateOwner = this.GetTemplateOwner();
     if (templateOwner) {
         if (this.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
-            this.SetValue(ContentPresenter.ContentProperty,
+            this.$SetValue(ContentPresenter.ContentProperty,
                 new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
         if (this.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
-            this.SetValue(ContentPresenter.ContentTemplateProperty,
+            this.$SetValue(ContentPresenter.ContentTemplateProperty,
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }
     }
@@ -76,7 +76,7 @@ ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
             this._ClearRoot();
         }
         if (args.NewValue && !(args.NewValue instanceof UIElement))
-            this.SetValue(FrameworkElement.DataContextProperty, args.NewValue);
+            this.$SetValue(FrameworkElement.DataContextProperty, args.NewValue);
         else
             this.ClearValue(FrameworkElement.DataContextProperty);
         this._InvalidateMeasure();
