@@ -64,7 +64,10 @@ var Fayde = {
                     return converter(val);
             } else if (targetType instanceof Enum) {
                 if (typeof val === "string") {
-                    return targetType.Object[val];
+                    var ret = targetType.Object[val];
+                    if (ret)
+                        return ret;
+                    return val;
                 }
             } else if (typeof targetType === "number") {
                 if (typeof val === "number")
