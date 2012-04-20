@@ -908,7 +908,7 @@ RawPath.Instance.Draw = function (ctx) {
         }
     }
 };
-RawPath.Instance.CalculateBounds = function () {
+RawPath.Instance.CalculateBounds = function (thickness) {
     var backing = this._Path;
     var startX, startY;
     var xMin = xMax = yMin = yMax = null;
@@ -2288,7 +2288,10 @@ var Fayde = {
             return val;
         },
         GeometryFromString: function (val) {
-            return Fayde._GeometryParser.Parse(val);
+            return Fayde._MediaParser.ParseGeometry(val);
+        },
+        PointCollectionFromString: function (val) {
+            return Fayde._MediaParser.ParsePointCollection(val);
         }
     }
 };
@@ -3897,9 +3900,19 @@ _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.GetMatrix();
     }
-    matrix.Apply(this._Surface._Ctx);
     this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
     this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
+    var els = this._CurrentTransform._Elements;
+    this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
+};
+_RenderContext.Instance.PreTransform = function (matrix) {
+    if (matrix instanceof Transform) {
+        matrix = matrix.GetMatrix();
+    }
+    this._CurrentTransform = this._CurrentTransform.MultiplyMatrix(matrix);
+    this._InverseTransform = matrix.GetInverse().MultiplyMatrix(this._InverseTransform);
+    var els = this._CurrentTransform._Elements;
+    this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
 _RenderContext.Instance.GetCurrentTransform = function () {
     return this._CurrentTransform;
@@ -4011,7 +4024,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         propValue = this.CreateObject(propValue, namescope);
     }
     if (propValue instanceof Markup)
-        propValue = propValue.Transmute(dobj, propd, this._TemplateBindingSource);
+        propValue = propValue.Transmute(dobj, propd, propName, this._TemplateBindingSource);
     if (propd) {
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
@@ -4075,7 +4088,7 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
 Nullstone.FinishCreate(JsonParser);
 
 var Markup = Nullstone.Create("Markup");
-Markup.Instance.Transmute = function (propd, templateBindingSource) {
+Markup.Instance.Transmute = function (target, propd, propName, templateBindingSource) {
     AbstractMethod("Markup.Transmute");
 };
 Nullstone.FinishCreate(Markup);
@@ -4084,8 +4097,25 @@ var StaticResourceMarkup = Nullstone.Create("StaticResourceMarkup", Markup, 1);
 StaticResourceMarkup.Instance.Init = function (key) {
     this.Key = key;
 };
-StaticResourceMarkup.Instance.Transmute = function (propd, templateBindingSource) {
-    NotImplemented("StaticResourceMarkup.Transmute");
+StaticResourceMarkup.Instance.Transmute = function (target, propd, propName, templateBindingSource) {
+    var o;
+    var cur = target;
+    while (cur != null) {
+        var fe = Nullstone.As(cur, FrameworkElement);
+        if (fe != null) {
+            o = fe.GetResources().Get(propName);
+            if (o != null)
+                return o;
+        }
+        var rd = Nullstone.As(cur, ResourceDictionary);
+        if (rd != null) {
+            o = rd.Get(propName);
+            if (o != null)
+                return o;
+        }
+        cur = cur._Parent;
+    }
+    return App.Instance.GetResources().Get(propName);
 };
 Nullstone.FinishCreate(StaticResourceMarkup);
 
@@ -4093,21 +4123,24 @@ var TemplateBindingMarkup = Nullstone.Create("TemplateBindingMarkup", Markup, 1)
 TemplateBindingMarkup.Instance.Init = function (path) {
     this.Path = path;
 };
-TemplateBindingMarkup.Instance.Transmute = function (target, propd, templateBindingSource) {
+TemplateBindingMarkup.Instance.Transmute = function (target, propd, propName, templateBindingSource) {
     var sourcePropd = DependencyProperty.GetDependencyProperty(templateBindingSource.constructor, this.Path);
     return new TemplateBindingExpression(sourcePropd, propd);
 };
 Nullstone.FinishCreate(TemplateBindingMarkup);
 
-Fayde._GeometryParser = function (str) {
+Fayde._MediaParser = function (str) {
     this.str = str;
     this.len = str.length;
     this.index = 0;
 };
-Fayde._GeometryParser.Parse = function (str) {
-    return (new Fayde._GeometryParser(str)).ParseImpl();
+Fayde._MediaParser.ParseGeometry = function (str) {
+    return (new Fayde._GeometryParser(str)).ParseGeometryImpl();
 };
-Fayde._GeometryParser.prototype.ParseImpl = function () {
+Fayde._MediaParser.ParsePointCollection = function (str) {
+    return (new Fayde._GeometryParser(str)).ParsePointCollectionImpl();
+};
+Fayde._MediaParser.prototype.ParseGeometryImpl = function () {
     var cp = new Point();
     var cp1, cp2, cp3;
     var start = new Point();
@@ -4377,7 +4410,15 @@ Fayde._GeometryParser.prototype.ParseImpl = function () {
     pg.SetFillRule(fillRule);
     return pg;
 };
-Fayde._GeometryParser.prototype.ParsePoint = function () {
+Fayde._MediaParser.prototype.ParsePointCollectionImpl = function () {
+    var p;
+    var points = new PointCollection();
+    while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
+        points.Add(p);
+    }
+    return points;
+};
+Fayde._MediaParser.prototype.ParsePoint = function () {
     var x = this.ParseDouble();
     if (x == null)
         return null;
@@ -4392,7 +4433,7 @@ Fayde._GeometryParser.prototype.ParsePoint = function () {
         return null;
     return new Point(x, y);
 };
-Fayde._GeometryParser.prototype.ParseDouble = function () {
+Fayde._MediaParser.prototype.ParseDouble = function () {
     this.Advance();
     var isNegative = false;
     if (this.Match('-')) {
@@ -4426,7 +4467,7 @@ Fayde._GeometryParser.prototype.ParseDouble = function () {
     var f = parseFloat(temp);
     return isNegative ? -f : f;
 };
-Fayde._GeometryParser.prototype.Match = function (matchStr) {
+Fayde._MediaParser.prototype.Match = function (matchStr) {
     var c1;
     var c2;
     for (var i = 0; i < matchStr.length && (this.index + i) < this.len; i++) {
@@ -4437,7 +4478,7 @@ Fayde._GeometryParser.prototype.Match = function (matchStr) {
     }
     return true;
 };
-Fayde._GeometryParser.prototype.Advance = function () {
+Fayde._MediaParser.prototype.Advance = function () {
     var code;
     while (this.index < this.len) {
         code = this.str.charCodeAt(this.index);
@@ -4453,7 +4494,7 @@ Fayde._GeometryParser.prototype.Advance = function () {
         this.index++;
     }
 };
-Fayde._GeometryParser.prototype.MorePointsAvailable = function () {
+Fayde._MediaParser.prototype.MorePointsAvailable = function () {
     var c;
     while (this.index < this.len && ((c = this.str.charAt(this.index)) === ',' || c === ' ')) {
         this.index++;
@@ -4862,10 +4903,10 @@ Matrix.Instance.MultiplyMatrix = function (val) {
     var e2 = val._Elements;
     var e3 = [];
     e3[0] = e1[0] * e2[0] + e1[1] * e2[3];
-    e3[1] = e1[0] * e2[1] + e1[1] * e2[4];
-    e3[2] = e1[0] * e2[2] + e1[1] * e2[5] + e1[2];
     e3[3] = e1[3] * e2[0] + e1[4] * e2[3]
+    e3[1] = e1[0] * e2[1] + e1[1] * e2[4];
     e3[4] = e1[3] * e2[1] + e1[4] * e2[4]
+    e3[2] = e1[0] * e2[2] + e1[1] * e2[5] + e1[2];
     e3[5] = e1[3] * e2[2] + e1[4] * e2[5] + e1[5];
     return new Matrix(e3);
 };
@@ -4880,20 +4921,21 @@ Matrix.Instance.Copy = function () {
     return new Matrix(this._Elements.slice(0));
 };
 Matrix.Instance.toString = function () {
-    var t = new String();
-    t += "[\n";
-    var arr = this.GetElements();
-    for (var i = 0; i < arr.length; i++) {
-        t += "[";
-        for (var j = 0; j < arr[i].length; j++) {
-            t += arr[i][j].toString();
-            t += ",";
-        }
-        t = t.substr(0, t.length - 1)
-        t += "],\n";
-    }
-    t = t.substr(0, t.length - 2);
-    t += "\n]";
+    var arr = this._Elements;
+    var t = "";
+    t += arr[0];
+    t += ",";
+    t += arr[1];
+    t += ",";
+    t += arr[2];
+    t += "\n";
+    t += arr[3];
+    t += ",";
+    t += arr[4];
+    t += ",";
+    t += arr[5];
+    t += "\n";
+    t += "0,0,1";
     return t;
 };
 Matrix.Instance._DeriveType = function () {
@@ -4926,17 +4968,25 @@ Matrix.Translate = function (matrix, x, y) {
     matrix._DeriveType();
     return matrix;
 };
-Matrix.Scale = function (matrix, scaleX, scaleY) {
+Matrix.Scale = function (matrix, scaleX, scaleY, centerX, centerY) {
     if (scaleX === 1 && scaleY === 1)
         return matrix;
-    var els = matrix._Elements;
+    var m1 = matrix;
+    var translationExists = !((centerX == null || centerX === 0) && (centerY == null || centerY === 0));
+    var els = m1._Elements;
+    if (translationExists)
+        m1 = Matrix.Translate(m1, -centerX, -centerY);
     els[0] *= scaleX;
-    els[3] *= scaleX;
-    els[1] *= scaleY;
+    els[1] *= scaleX;
+    els[2] *= scaleX;
+    els[3] *= scaleY;
     els[4] *= scaleY;
-    matrix._Inverse = undefined;
-    matrix._DeriveType();
-    return matrix;
+    els[5] *= scaleY;
+    if (translationExists)
+        m1 = Matrix.Translate(m1, centerX, centerY);
+    m1._Inverse = undefined;
+    m1._DeriveType();
+    return m1;
 };
 Matrix.BuildInverse = function (arr) {
     var det = Matrix.GetDeterminant(arr);
@@ -7366,7 +7416,7 @@ BindingMarkup.Instance.Init = function (data) {
         data = {};
     this._Data = data;
 };
-BindingMarkup.Instance.Transmute = function (target, propd, templateBindingSource) {
+BindingMarkup.Instance.Transmute = function (target, propd, propName, templateBindingSource) {
     return new BindingExpression(this._BuildBinding(), target, propd);
 };
 BindingMarkup.Instance._BuildBinding = function () {
@@ -9884,14 +9934,14 @@ Geometry.Instance.Draw = function (ctx) {
     if (transform != null)
         ctx.Restore();
 };
-Geometry.Instance.GetBounds = function () {
+Geometry.Instance.GetBounds = function (thickness) {
     var compute = this._LocalBounds.IsEmpty();
     if (this.$Path == null) {
         this._Build();
         compute = true;
     }
     if (compute)
-        this._LocalBounds = this.ComputePathBounds();
+        this._LocalBounds = this.ComputePathBounds(thickness);
     var bounds = this._LocalBounds;
     var transform = this.GetTransform();
     if (transform != null) {
@@ -9899,11 +9949,11 @@ Geometry.Instance.GetBounds = function () {
     }
     return bounds;
 };
-Geometry.Instance.ComputePathBounds = function () {
+Geometry.Instance.ComputePathBounds = function (thickness) {
     this._EnsureBuilt();
     if (this.$Path == null)
         return new Rect();
-    return this.$Path.CalculateBounds();
+    return this.$Path.CalculateBounds(thickness);
 };
 Geometry.Instance._EnsureBuilt = function () {
     if (this.$Path == null)
@@ -11053,6 +11103,12 @@ VisualTransitionCollection.Instance.IsElementType = function (obj) {
     return obj instanceof VisualTransition;
 };
 Nullstone.FinishCreate(VisualTransitionCollection);
+
+var PointCollection = Nullstone.Create("PointCollection", Collection);
+PointCollection.Instance.Init = function () {
+    this.Init$Collection();
+};
+Nullstone.FinishCreate(PointCollection);
 
 var ColumnDefinition = Nullstone.Create("ColumnDefinition", DependencyObject);
 ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () { return GridLength; }, ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
@@ -12723,6 +12779,9 @@ Shape.Instance._IsStroked = function () { return this._Stroke != null; };
 Shape.Instance._IsFilled = function () { return this._Fill != null; };
 Shape.Instance._CanFill = function () { return false; };
 Shape.Instance._CanFindElement = function () { return this._IsFilled() || this._IsStroked(); };
+Shape.Instance._GetFillRule = function () {
+    return FillRule.Nonzero;
+};
 Shape.Instance._ShiftPosition = function (point) {
     var dx = this._Bounds.X - point.X;
     var dy = this._Bounds.Y - point.Y;
@@ -12962,6 +13021,14 @@ Shape.Instance._ComputeStretchBounds = function () {
     var x = (!autoDim || adjX) ? shapeBounds.X : 0;
     var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
     var st = this._StretchTransform;
+    if (!(this instanceof Line) || !autoDim)
+        st = Matrix.Translate(st, -x, -y);
+    st = Matrix.Translate(st,
+        adjX ? -shapeBounds.Width * 0.5 : 0.0,
+        adjY ? -shapeBounds.Height * 0.5 : 0.0);
+    st = Matrix.Scale(st,
+        adjX ? sw : 1.0,
+        adjY ? sh : 1.0);
     if (center) {
         st = Matrix.Translate(st,
             adjX ? framework.Width * 0.5 : 0,
@@ -12971,14 +13038,6 @@ Shape.Instance._ComputeStretchBounds = function () {
             adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0,
             adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
     }
-    st = Matrix.Scale(st,
-        adjX ? sw : 1.0,
-        adjY ? sh : 1.0);
-    st = Matrix.Translate(st,
-        adjX ? -shapeBounds.Width * 0.5 : 0.0,
-        adjY ? -shapeBounds.Height * 0.5 : 0.0);
-    if (!(this instanceof Line) || !autoDim)
-        st = Matrix.Translate(st, -x, -y);
     this._StretchTransform = st;
     shapeBounds = shapeBounds.Transform(this._StretchTransform);
     return shapeBounds;
@@ -13022,6 +13081,7 @@ Shape.Instance._Render = function (ctx, region) {
         return;
     var area = this._GetStretchExtents();
     ctx.Save();
+    ctx.PreTransform(this._StretchTransform);
     this._DrawPath(ctx);
     if (this._Fill != null)
         ctx.Fill(this._Fill, area);
@@ -16022,6 +16082,7 @@ Nullstone.FinishCreate(UserControl);
 
 var RangeBase = Nullstone.Create("RangeBase", Control);
 RangeBase.Instance.Init = function () {
+    this.Init$Control();
     this.SetMinimum(0);
     this.SetMaximum(1);
     this.SetCurrentValue(0);
@@ -16961,7 +17022,7 @@ Line.Instance._BuildPath = function () {
     this._Path.Move(x1, y1);
     this._Path.Line(x2, y2);
 };
-Line.Instance._ComputeShapeBoundsImpl = function (logical) {
+Line.Instance._ComputeShapeBounds = function (logical) {
     var shapeBounds = new Rect();
     var thickness = 0;
     if (!logical)
@@ -17013,13 +17074,17 @@ Path.Instance.SetData.Converter = function (value) {
         return Fayde.TypeConverter.GeometryFromString(value);
     return value;
 };
+Path.Instance._GetFillRule = function () {
+    var geom = this.GetData();
+    if (geom == null)
+        return this._GetFillRule$Shape();
+    return geom.GetFillRule();
+};
 Path.Instance._DrawPath = function (ctx) {
     var geom = this.GetData();
     if (geom == null)
         return;
-    ctx.Save();
     geom.Draw(ctx);
-    ctx.Restore();
 };
 Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     var geom = this.GetData();
@@ -17029,16 +17094,228 @@ Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     }
     if (logical)
         return geom.GetBounds();
-    return geom.GetBounds();
     var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
-    var shapeBounds = new Rect();
-    if (thickness > 0) {
-    } else {
-    }
-    NotImplemented("Path._ComputeShapeBoundsImpl");
+    return geom.GetBounds(thickness);
     return shapeBounds;
 };
+Path.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Path) {
+        this._OnPropertyChanged$Shape(args, error);
+        return;
+    }
+};
+Path.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd != null && propd._ID === Path.DataProperty._ID) {
+        this._InvalidateNaturalBounds();
+        return;
+    }
+    this._OnSubPropertyChanged$Shape(propd, sender, args);
+};
 Nullstone.FinishCreate(Path);
+
+var Polygon = Nullstone.Create("Polygon", Shape);
+Polygon.Instance.Init = function () {
+    this.Init$Shape();
+};
+Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return Number; }, Polygon, FillRule.EvenOdd);
+Polygon.Instance.GetFillRule = function () {
+    return this.GetValue(Polygon.FillRuleProperty);
+};
+Polygon.Instance.SetFillRule = function (value) {
+    this.SetValue(Polygon.FillRuleProperty, value);
+};
+Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, null, { GetValue: function () { return new PointCollection(); } });
+Polygon.Instance.GetPoints = function () {
+    return this.GetValue(Polygon.PointsProperty);
+};
+Polygon.Instance.SetPoints = function (value) {
+    this.SetValue(Polygon.PointsProperty, value);
+};
+Polygon.Instance.SetPoints.Converter = function (value) {
+    if (value instanceof PointCollection)
+        return value;
+    if (typeof value === "string")
+        return Fayde.TypeConverter.PointCollectionFromString(value);
+    return value;
+};
+Polygon.Instance._BuildPath = function () {
+    var points = this.GetPoints();
+    var count;
+    if (points == null || (count = points.GetCount()) < 2) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return;
+    }
+    this.SetShapeFlags(ShapeFlags.Normal);
+    var path = new RawPath();
+    if (count === 2) {
+        var thickness = this.GetStrokeThickness();
+        var p1 = points.GetValueAt(0);
+        var p2 = points.GetValueAt(1);
+        Polygon._ExtendLine(p1, p2, thickness);
+        path.Move(p1.X, p1.Y);
+        path.Line(p2.X, p2.Y);
+    } else {
+        var p = points.GetValueAt(0);
+        path.Move(p.X, p.Y);
+        for (var i = 1; i < count; i++) {
+            p = points.GetValueAt(i);
+            path.Line(p.X, p.Y);
+        }
+    }
+    path.Close();
+    this._Path = path;
+};
+Polygon._ExtendLine = function (p1, p2, thickness) {
+    var t5 = thickness * 5.0;
+    var dx = p1.X - p2.X;
+    var dy = p1.Y - p2.Y;
+    if (dy === 0.0) {
+        t5 -= thickness / 2.0;
+        if (dx > 0.0) {
+            p1.X += t5;
+            p2.X -= t5;
+        } else {
+            p1.X -= t5;
+            p2.X += t5;
+        }
+    } else if (dx === 0.0) {
+        t5 -= thickness / 2.0;
+        if (dy > 0.0) {
+            p1.Y += t5;
+            p2.Y -= t5;
+        } else {
+            p1.Y -= t5;
+            p2.Y += t5;
+        }
+    } else {
+        var angle = Math.atan2(dy, dx);
+        var ax = Math.abs(Math.sin(angle) * t5);
+        if (dx > 0.0) {
+            p1.X += ax;
+            p2.X -= ax;
+        } else {
+            p1.X -= ax;
+            p2.X += ax;
+        }
+        var ay = Math.abs(Math.sin(Math.PI / 2 - angle)) * t5;
+        if (dy > 0.0) {
+            p1.Y += ay;
+            p2.Y -= ay;
+        } else {
+            p1.Y -= ay;
+            p2.Y += ay;
+        }
+    }
+};
+Polygon.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Polygon) {
+        this._OnPropertyChanged$Shape(args, error);
+        return;
+    }
+    if (args.Property._ID === Polygon.PointsProperty._ID) {
+        var oldPoints = args.OldValue;
+        var newPoints = args.NewValue;
+        if (newPoints != null && oldPoints != null) {
+            var nc = newPoints.GetCount();
+            var oc = oldPoints.GetCount();
+            if (nc === oc) {
+                var equal = true;
+                var np;
+                var op;
+                for (var i = 0; i < nc; i++) {
+                    np = newPoints.GetValueAt(i);
+                    op = oldPoints.GetValueAt(i);
+                    if (true) {
+                        equal = false;
+                        break;
+                    }
+                }
+                if (equal) {
+                    this.PropertyChanged.Raise(this, args);
+                    return;
+                }
+            }
+        }
+        this._InvalidateNaturalBounds();
+    }
+    this._Invalidate();
+    this.PropertyChanged.Raise(this, args);
+};
+Polygon.Instance._OnCollectionChanged = function (sender, args) {
+    this._OnCollectionChanged$Shape(sender, args);
+    this._InvalidateNaturalBounds();
+};
+Polygon.Instance._OnCollectionItemChanged = function (sender, args) {
+    this._OnCollectionItemChanged$Shape(sender, args);
+    this._InvalidateNaturalBounds();
+};
+Nullstone.FinishCreate(Polygon);
+
+var Polyline = Nullstone.Create("Polyline", Shape);
+Polyline.Instance.Init = function () {
+    this.Init$Shape();
+};
+Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return Number; }, Polyline, FillRule.EvenOdd);
+Polyline.Instance.GetFillRule = function () {
+    return this.GetValue(Polyline.FillRuleProperty);
+};
+Polyline.Instance.SetFillRule = function (value) {
+    this.SetValue(Polyline.FillRuleProperty, value);
+};
+Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, null, { GetValue: function () { return new PointCollection(); } });
+Polyline.Instance.GetPoints = function () {
+    return this.GetValue(Polyline.PointsProperty);
+};
+Polyline.Instance.SetPoints = function (value) {
+    this.SetValue(Polyline.PointsProperty, value);
+};
+Polyline.Instance.SetPoints.Converter = function (value) {
+    if (value instanceof PointCollection)
+        return value;
+    if (typeof value === "string")
+        return Fayde.TypeConverter.PointCollectionFromString(value);
+    return value;
+};
+Polyline.Instance._BuildPath = function () {
+    var points = this.GetPoints();
+    var count;
+    if (points == null || (count = points.GetCount()) < 2) {
+        this._SetShapeFlags(ShapeFlags.Empty);
+        return;
+    }
+    this._SetShapeFlags(ShapeFlags.Normal);
+    this._Path = new RawPath();
+    var p = points.GetValueAt(0);
+    this._Path.Move(p.X, p.Y);
+    for (var i = 1; i < count; i++) {
+        p = points.GetValueAt(i);
+        this._Path.Line(p.X, p.Y);
+    }
+};
+Polyline.Instance._CanFill = function () { return true; };
+Polyline.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Polyline) {
+        this._OnPropertyChanged$Shape(args, error);
+        return;
+    }
+    if (args.Property._ID === Polyline.PointsProperty._ID) {
+        this._InvalidateNaturalBounds();
+    }
+    this._Invalidate();
+    this.PropertyChanged.Raise(this, args);
+};
+Polyline.Instance._OnCollectionChanged = function (sender, args) {
+    if (!this._PropertyHasValueNoAutoCreate(Polyline.PointsProperty, sender)) {
+        this._OnCollectionChanged$Shape(sender, args);
+        return;
+    }
+    this._InvalidateNaturalBounds();
+};
+Polyline.Instance._OnCollectionItemChanged = function (sender, args) {
+    this._OnCollectionItemChanged$Shape(sender, args);
+    this._InvalidateNaturalBounds();
+};
+Nullstone.FinishCreate(Polyline);
 
 var Rectangle = Nullstone.Create("Rectangle", Shape);
 Rectangle.Instance.Init = function () {

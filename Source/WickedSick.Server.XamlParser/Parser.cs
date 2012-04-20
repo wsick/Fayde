@@ -60,7 +60,8 @@ namespace WickedSick.Server.XamlParser
 
                 if (a.Value.StartsWith("{"))
                 {
-                    object expression = MarkupExpressionParser.ParseExpression(a.Value);
+                    MarkupExpressionParser mep = new MarkupExpressionParser(a.Value);
+                    object expression = mep.ParseExpression();
                     element.SetValue(a.Name, expression);
                     continue;
                 }

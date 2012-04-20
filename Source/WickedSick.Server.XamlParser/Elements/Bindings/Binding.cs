@@ -39,9 +39,29 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
         public string ElementName { get; set; }
         public UpdateSourceTrigger UpdateSourceTrigger { get; set; }
 
+        public Binding()
+        {
+            Mode = BindingMode.TwoWay;
+        }
+
         public string toJson(int tabIndents)
         {
-            throw new NotImplementedException();
+            StringBuilder sb = new StringBuilder();
+            sb.Append("new BindingMarkup({ ");
+            sb.Append("'Path': ");
+            sb.Append(Path);
+
+            sb.Append(", 'Mode': ");
+            sb.Append(Mode.ToString());
+
+            if (FallbackValue != null)
+            {
+                sb.Append(", 'FallbackValue': ");
+                sb.Append(FallbackValue.ToString());
+            }
+
+            sb.AppendLine(" })");
+            return sb.ToString();
         }
     }
 }

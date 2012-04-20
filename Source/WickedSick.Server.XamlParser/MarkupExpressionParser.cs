@@ -9,40 +9,48 @@ namespace WickedSick.Server.XamlParser
 {
     internal class MarkupExpressionParser
     {
-        private delegate object ExpressionHandler(string expression);
+        private string _remaining;
+        private char _next;
 
-        public static object ParseExpression(string expression)
+        private delegate object ExpressionHandler();
+
+        public MarkupExpressionParser(string expression)
         {
-            if (expression.StartsWith("{}"))
-                return expression.Substring(2);
+            _remaining = expression;
+        }
 
-            if (expression[expression.Length - 1] != '}')
+        public object ParseExpression()
+        {
+            if (_remaining.StartsWith("{}"))
+                return _remaining.Substring(2);
+
+            if (_remaining[_remaining.Length - 1] != '}')
                 throw new Exception("Expression must end with '}'");
 
             object result = null;
             bool rv = false;
 
             if (!rv)
-                rv = TryHandler("Binding", ParseBinding, ref expression, out result);
+                rv = TryHandler("Binding", ParseBinding, out result);
             if (!rv)
-                rv = TryHandler("StaticResource", ParseStaticResource, ref expression, out result);
+                rv = TryHandler("StaticResource", ParseStaticResource, out result);
             if (!rv)
-                rv = TryHandler("TemplateBinding", ParseTemplateBinding, ref expression, out result);
+                rv = TryHandler("TemplateBinding", ParseTemplateBinding, out result);
             if (!rv)
-                rv = TryHandler("RelativeSource", ParseRelativeSource, ref expression, out result);
+                rv = TryHandler("RelativeSource", ParseRelativeSource, out result);
 
             return result;
         }
 
-        private static bool MatchExpression(string match, string expression, out int end)
+        private bool MatchExpression(string match, out int end)
         {
-            if (expression.Length < 2)
+            if (_remaining.Length < 2)
             {
                 end = 1;
                 return false;
             }
 
-            if (expression[0] != '{')
+            if (_remaining[0] != '{')
             {
                 end = 2;
                 return false;
@@ -50,9 +58,9 @@ namespace WickedSick.Server.XamlParser
 
             int i;
             bool found = false;
-            for (i = 1; i < expression.Length; i++)
+            for (i = 1; i < _remaining.Length; i++)
             {
-                if (expression[i] == ' ')
+                if (_remaining[i] == ' ')
                     continue;
                 found = true;
                 break;
@@ -64,7 +72,7 @@ namespace WickedSick.Server.XamlParser
                 return false;
             }
 
-            if (i + match.Length > expression.Length)
+            if (i + match.Length > _remaining.Length)
             {
                 end = 4;
                 return false;
@@ -73,7 +81,7 @@ namespace WickedSick.Server.XamlParser
             int c;
             for (c = 0; c < match.Length; c++)
             {
-                if (expression[i + c] == match[c])
+                if (_remaining[i + c] == match[c])
                     continue;
                 end = 5;
                 return false;
@@ -89,66 +97,62 @@ namespace WickedSick.Server.XamlParser
             return true;
         }
 
-        private static bool TryHandler(string match, ExpressionHandler handler, ref string expression, out object result)
+        private bool TryHandler(string match, ExpressionHandler handler, out object result)
         {
             int len;
-            if (!MatchExpression(match, expression, out len))
+            if (!MatchExpression(match, out len))
             {
                 result = null;
                 return false;
             }
 
-            expression = expression.Substring(len).TrimStart();
-            if (expression.Length == 0)
+            _remaining = _remaining.Substring(len).TrimStart();
+            if (_remaining.Length == 0)
                 throw new Exception("Expression did not end in '}'");
-            result = handler(expression);
+            result = handler();
             return true;
         }
 
-        public static Binding ParseBinding(string expression)
+        public Binding ParseBinding()
         {
             Binding binding = new Binding();
-            char next;
 
-            if (expression == "}")
+            if (_remaining == "}")
                 return binding;
 
-            string remaining = expression;
-            string piece = GetNextPiece(remaining, out next);
+            string piece = GetNextPiece();
 
             if (piece.StartsWith("{"))
                 throw new Exception("{{ not permissible in this context");
 
-            if (next == '=')
-                HandleProperty(binding, piece, remaining);
+            if (_next == '=')
+                HandleProperty(binding, piece);
             else
                 binding.Path = piece;
 
-            while ((piece = GetNextPiece(remaining, out next)) != null)
+            while ((piece = GetNextPiece()) != null)
             {
-                HandleProperty(binding, piece, remaining);
+                HandleProperty(binding, piece);
             };
 
             return binding;
         }
 
-        public static StaticResource ParseStaticResource(string expression)
+        public StaticResource ParseStaticResource()
         {
-            if (!expression.EndsWith("}"))
+            if (!_remaining.EndsWith("}"))
                 throw new Exception("Whitespace is not allowed after the end of the expression");
 
-            char next;
-            string name = GetNextPiece(expression, out next);
+            string name = GetNextPiece();
 
             return new StaticResource(name);
         }
 
-        public static TemplateBinding ParseTemplateBinding(string expression)
+        public TemplateBinding ParseTemplateBinding()
         {
             TemplateBinding tb = new TemplateBinding();
 
-            char next;
-            string prop = GetNextPiece(expression, out next);
+            string prop = GetNextPiece();
 
             tb.SourcePropertyName = prop;
             // tb.Source will be filled in elsewhere between attaching the change handler.
@@ -156,10 +160,9 @@ namespace WickedSick.Server.XamlParser
             return tb;
         }
 
-        public static RelativeSource ParseRelativeSource(string expression)
+        public RelativeSource ParseRelativeSource()
         {
-            char next;
-            string mode_str = GetNextPiece(expression, out next);
+            string mode_str = GetNextPiece();
 
             try
             {
@@ -171,26 +174,25 @@ namespace WickedSick.Server.XamlParser
             }
         }
 
-        private static void HandleProperty(Binding b, string prop, string remaining)
+        private void HandleProperty(Binding b, string prop)
         {
-            char next;
             object value = null;
             string str_value = null;
 
-            if (remaining.StartsWith("{"))
+            if (_remaining.StartsWith("{"))
             {
-                value = ParseExpression(remaining);
-                remaining = remaining.TrimStart();
+                value = ParseExpression();
+                _remaining = _remaining.TrimStart();
 
-                if (remaining.Length > 0 && remaining[0] == ',')
-                    remaining = remaining.Substring(1);
+                if (_remaining.Length > 0 && _remaining[0] == ',')
+                    _remaining = _remaining.Substring(1);
 
                 if (value is string)
                     str_value = (string)value;
             }
             else
             {
-                str_value = GetNextPiece(remaining, out next);
+                str_value = GetNextPiece();
             }
 
             switch (prop)
@@ -274,29 +276,29 @@ namespace WickedSick.Server.XamlParser
                     b.UpdateSourceTrigger = (UpdateSourceTrigger)Enum.Parse(typeof(UpdateSourceTrigger), str_value, true);
                     break;
                 default:
-                    throw new Exception(string.Format("Property {0} is not valid for this Expression", prop));
+                    throw new XamlParseException("Unknown Binding property");
             }
         }
 
-        private static string GetNextPiece(string remaining, out char next)
+        private string GetNextPiece()
         {
             bool inString = false;
             int end = 0;
             char stringTerminator = '\0';
-            remaining = remaining.TrimStart();
-            if (remaining.Length == 0)
+            _remaining = _remaining.TrimStart();
+            if (_remaining.Length == 0)
             {
-                next = Char.MaxValue;
+                _next = Char.MaxValue;
                 return null;
             }
 
             StringBuilder piece = new StringBuilder();
             // If we're inside a quoted string we append all chars to our piece until we hit the ending quote.
-            while (end < remaining.Length && (inString || (remaining[end] != '}' && remaining[end] != ',' && remaining[end] != '=')))
+            while (end < _remaining.Length && (inString || (_remaining[end] != '}' && _remaining[end] != ',' && _remaining[end] != '=')))
             {
                 if (inString)
                 {
-                    if (remaining[end] == stringTerminator)
+                    if (_remaining[end] == stringTerminator)
                     {
                         inString = false;
                         end++;
@@ -305,40 +307,40 @@ namespace WickedSick.Server.XamlParser
                 }
                 else
                 {
-                    if (remaining[end] == '\'' || remaining[end] == '"')
+                    if (_remaining[end] == '\'' || _remaining[end] == '"')
                     {
                         inString = true;
-                        stringTerminator = remaining[end];
+                        stringTerminator = _remaining[end];
                         end++;
                         continue;
                     }
                 }
 
                 // If this is an escape char, consume it and append the next char to our piece.
-                if (remaining[end] == '\\')
+                if (_remaining[end] == '\\')
                 {
                     end++;
-                    if (end == remaining.Length)
+                    if (end == _remaining.Length)
                         break; ;
                 }
-                piece.Append(remaining[end]);
+                piece.Append(_remaining[end]);
                 end++;
             }
 
-            if (inString && end == remaining.Length)
+            if (inString && end == _remaining.Length)
                 throw new Exception("Unterminated quoted string");
 
-            if (end == remaining.Length && !remaining.EndsWith("}"))
+            if (end == _remaining.Length && !_remaining.EndsWith("}"))
                 throw new Exception("Binding did not end with '}'");
 
             if (end == 0)
             {
-                next = Char.MaxValue;
+                _next = Char.MaxValue;
                 return null;
             }
 
-            next = remaining[end];
-            remaining = remaining.Substring(end + 1);
+            _next = _remaining[end];
+            _remaining = _remaining.Substring(end + 1);
 
             // Whitespace is trimmed from the end of the piece before stripping
             // quote chars from the start/end of the string. 

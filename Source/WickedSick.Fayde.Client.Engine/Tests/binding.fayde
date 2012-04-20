@@ -1,0 +1,3 @@
+﻿<Page Title="Basic Test" xmlns="http://schemas.wsick.com/fayde/">
+  <Border Width="200" Height="{Binding DefaultHeight}" BorderBrush="#000000" BorderThickness="2" Background="#000000"/>
+</Page>

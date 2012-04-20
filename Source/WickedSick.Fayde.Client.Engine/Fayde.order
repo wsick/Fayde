@@ -62,7 +62,7 @@ Markup/JsonParser.js
 Markup/Markup.js
 Markup/StaticResourceMarkup.js
 Markup/TemplateBindingMarkup.js
-Media/GeometryParser.js
+Media/MediaParser.js
 Media/Animation/AnimationStorage.js
 Media/VSM/VisualStateChangedEventArgs.js
 Primitives/Color.js
@@ -173,6 +173,7 @@ Media/VSM/VisualState.js
 Media/VSM/VisualStateGroup.js
 Media/VSM/VisualStateManager.js
 Media/VSM/VisualTransition.js
+Shapes/PointCollection.js
 Controls/ColumnDefinition.js
 Controls/ColumnDefinitionCollection.js
 Controls/ControlTemplate.js
@@ -225,6 +226,8 @@ Documents/Hyperlink.js
 Shapes/Ellipse.js
 Shapes/Line.js
 Shapes/Path.js
+Shapes/Polygon.js
+Shapes/Polyline.js
 Shapes/Rectangle.js
 Controls/Canvas.js
 Controls/Grid.js
