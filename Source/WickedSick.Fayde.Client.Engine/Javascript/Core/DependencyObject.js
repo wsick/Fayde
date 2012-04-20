@@ -129,7 +129,7 @@ DependencyObject.Instance.$SetValue = function (propd, value) {
             expression._OnAttached(this);
         }
         addingExpression = true;
-        value = expression.$GetValue(propd);
+        value = expression.GetValue(propd);
     } else if (existing != null) {
         if (existing instanceof BindingExpressionBase) {
             if (existing.GetBinding().GetMode() === BindingMode.TwoWay) {

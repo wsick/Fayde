@@ -163,7 +163,7 @@ DependencyProperty._HandlePeriod = function (data) {
     if (data.res != null) {
         var value = null;
         var newLu = null;
-        if ((value = data.lu.GetValue(data.res)) == null)
+        if ((value = data.lu.$GetValue(data.res)) == null)
             return false;
         if ((newLu = Nullstone.As(value, DependencyObject)) == null)
             return false;
@@ -173,8 +173,8 @@ DependencyProperty._HandlePeriod = function (data) {
             var clonedDo = Nullstone.As(clonedValue, DependencyObject);
             if (clonedDo != null) {
                 newLu = clonedDo;
-                data.lu.SetValue(data.res, clonedValue);
-                clonedValue = data.lu.GetValue(data.res);
+                data.lu.$SetValue(data.res, clonedValue);
+                clonedValue = data.lu.$GetValue(data.res);
                 data.promotedValues[clonedValue._ID] = clonedValue;
             }
         }
@@ -210,7 +210,7 @@ DependencyProperty._HandleLeftBracket = function (data) {
     var value = null;
     if (data.expressionFound) {
         data.expressionFound = false;
-        if ((value = data.lu.GetValue(data.res)) == null)
+        if ((value = data.lu.$GetValue(data.res)) == null)
             return false;
     }
 
