@@ -49,7 +49,12 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         if (json.Children) {
             this.TrySetCollectionProperty(json.Children, dobj, contentPropd, namescope);
         } else if (json.Content) {
-            dobj.$SetValue(contentPropd, this.CreateObject(json.Content, namescope, true));
+            var content = json.Content;
+            if (content instanceof Markup)
+                content = content.Transmute(dobj, contentPropd, "Content", this._TemplateBindingSource);
+            else
+                content = this.CreateObject(json.Content, namescope, true);
+            dobj.$SetValue(contentPropd, content);
         }
     } else if (contentPropd != null && contentPropd.constructor === String) {
         var setFunc = dobj["Set" + contentPropd];
