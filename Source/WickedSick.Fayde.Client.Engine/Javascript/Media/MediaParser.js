@@ -57,12 +57,12 @@ Fayde._MediaParser = function (str) {
 Fayde._MediaParser.ParseGeometry = function (str) {
     /// <param name="str" type="String"></param>
     /// <returns type="Geometry" />
-    return (new Fayde._GeometryParser(str)).ParseGeometryImpl();
+    return (new Fayde._MediaParser(str)).ParseGeometryImpl();
 };
 Fayde._MediaParser.ParsePointCollection = function (str) {
     /// <param name="str" type="String"></param>
     /// <returns type="PointCollection" />
-    return (new Fayde._GeometryParser(str)).ParsePointCollectionImpl();
+    return (new Fayde._MediaParser(str)).ParsePointCollectionImpl();
 };
 
 Fayde._MediaParser.prototype.ParseGeometryImpl = function () {

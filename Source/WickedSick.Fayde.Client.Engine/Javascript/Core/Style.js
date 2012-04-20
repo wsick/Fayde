@@ -68,10 +68,10 @@ Style.Instance._ConvertSetterValue = function (setter) {
     var propd = setter.$GetValue(Setter.PropertyProperty);
     var val = setter.$GetValue(Setter.ValueProperty);
 
-    if (propd.GetTargetType() === String) {
+    if (typeof propd.GetTargetType() === "string") {
         //if (val == null)
         //throw new ArgumentException("Empty value in setter.");
-        if (!String.isString(val))
+        if (typeof val !== "string")
             throw new XamlParseException("Setter value does not match property type.");
     }
 
