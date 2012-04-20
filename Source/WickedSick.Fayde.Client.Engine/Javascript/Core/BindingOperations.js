@@ -17,7 +17,7 @@ var BindingOperations = {
             throw new ArgumentNullException("binding");
 
         var e = new BindingExpression(binding, target, dp);
-        target.SetValue(dp, e);
+        target.$SetValue(dp, e);
         return e;
     }
 };

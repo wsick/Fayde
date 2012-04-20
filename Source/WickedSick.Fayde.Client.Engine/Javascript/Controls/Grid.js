@@ -27,7 +27,7 @@ Grid.GetColumn = function (d) {
     return d.$GetValue(Grid.ColumnProperty);
 };
 Grid.SetColumn = function (d, value) {
-    d.SetValue(Grid.ColumnProperty, value);
+    d.$SetValue(Grid.ColumnProperty, value);
 };
 
 Grid.ColumnSpanProperty = DependencyProperty.RegisterAttached("ColumnSpan", function () { return Number; }, Grid, 1);
@@ -35,7 +35,7 @@ Grid.GetColumnSpan = function (d) {
     return d.$GetValue(Grid.ColumnSpanProperty);
 };
 Grid.SetColumnSpan = function (d, value) {
-    d.SetValue(Grid.ColumnSpanProperty, value);
+    d.$SetValue(Grid.ColumnSpanProperty, value);
 };
 
 Grid.RowProperty = DependencyProperty.RegisterAttached("Row", function () { return Number; }, Grid, 0);
@@ -43,7 +43,7 @@ Grid.GetRow = function (d) {
     return d.$GetValue(Grid.RowProperty);
 };
 Grid.SetRow = function (d, value) {
-    d.SetValue(Grid.RowProperty, value);
+    d.$SetValue(Grid.RowProperty, value);
 };
 
 Grid.RowSpanProperty = DependencyProperty.RegisterAttached("RowSpan", function () { return Number; }, Grid, 1);
@@ -51,7 +51,7 @@ Grid.GetRowSpan = function (d) {
     return d.$GetValue(Grid.RowSpanProperty);
 };
 Grid.SetRowSpan = function (d, value) {
-    d.SetValue(Grid.RowSpanProperty, value);
+    d.$SetValue(Grid.RowSpanProperty, value);
 };
 
 //#endregion

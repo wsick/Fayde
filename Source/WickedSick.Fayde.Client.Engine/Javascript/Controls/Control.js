@@ -161,7 +161,7 @@ Control.GetIsTemplateItem = function (d) {
     return d.$GetValue(Control.IsTemplateItemProperty);
 };
 Control.SetIsTemplateItem = function (d, value) {
-    d.SetValue(Control.IsTemplateItemProperty, value);
+    d.$SetValue(Control.IsTemplateItemProperty, value);
 };
 
 //#endregion

@@ -182,13 +182,13 @@ TextBox.Instance.OnApplyTemplate = function () {
         return;
     var prop;
     if ((prop = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
-        this._ContentElement.SetValue(prop, this.$GetValue(TextBox.VerticalScrollBarVisibilityProperty));
+        this._ContentElement.$SetValue(prop, this.$GetValue(TextBox.VerticalScrollBarVisibilityProperty));
 
     if ((prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
         if (this.GetTextWrapping() === TextWrapping.Wrap)
-            this._ContentElement.SetValue(prop, ScrollBarVisibility.Disabled);
+            this._ContentElement.$SetValue(prop, ScrollBarVisibility.Disabled);
         else
-            this._ContentElement.SetValue(prop, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+            this._ContentElement.$SetValue(prop, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
     }
 };
 
@@ -373,9 +373,9 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
                 if (args.NewValue === TextWrapping.Wrap)
-                    this._ContentElement.SetValue(propd, ScrollBarVisibility.Disabled);
+                    this._ContentElement.$SetValue(propd, ScrollBarVisibility.Disabled);
                 else
-                    this._ContentElement.SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+                    this._ContentElement.$SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
             }
         }
         changed = _TextBoxModelChanged.TextWrapping
@@ -383,15 +383,15 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
                 if (this.GetTextWrapping() === TextWrapping.Wrap)
-                    this._ContentElement.SetValue(propd, ScrollBarVisibility.Disabled);
+                    this._ContentElement.$SetValue(propd, ScrollBarVisibility.Disabled);
                 else
-                    this._ContentElement.SetValue(propd, args.NewValue);
+                    this._ContentElement.$SetValue(propd, args.NewValue);
             }
         }
     } else if (args.Property._ID === TextBox.VerticalScrollBarVisibilityProperty._ID) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
-                this._ContentElement.SetValue(propd, args.NewValue);
+                this._ContentElement.$SetValue(propd, args.NewValue);
         }
 
     }

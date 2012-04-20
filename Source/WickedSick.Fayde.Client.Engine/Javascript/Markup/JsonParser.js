@@ -49,7 +49,7 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         if (json.Children) {
             this.TrySetCollectionProperty(json.Children, dobj, contentPropd, namescope);
         } else if (json.Content) {
-            dobj.SetValue(contentPropd, this.CreateObject(json.Content, namescope, true));
+            dobj.$SetValue(contentPropd, this.CreateObject(json.Content, namescope, true));
         }
     } else if (contentPropd != null && contentPropd.constructor === String) {
         var setFunc = dobj["Set" + contentPropd];
@@ -101,7 +101,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
             }
         }
 
-        dobj.SetValue(propd, propValue);
+        dobj.$SetValue(propd, propValue);
     } else if (!isAttached) {
         var func = dobj["Set" + propName];
         if (func && func instanceof Function)
@@ -125,7 +125,7 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
         coll = new targetType();
         if (coll instanceof DependencyObject)
             coll._AddParent(dobj, true);
-        dobj.SetValue(propd, coll);
+        dobj.$SetValue(propd, coll);
     }
 
     var rd = Nullstone.As(coll, ResourceDictionary);

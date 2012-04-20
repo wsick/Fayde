@@ -28,11 +28,11 @@ ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
         var frame = Nullstone.As(frames.GetValueAt(i), ObjectKeyFrame);
         var value = frame.$GetValue(ObjectKeyFrame.ValueProperty);
         if (value == null) {
-            frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
+            frame.$SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
         } else {
             var converted = value;
             //TODO: Convert - return false if error converting
-            frame.SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
+            frame.$SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
         }
     }
     KeyFrameCollection.ResolveKeyFrames(this, frames);

@@ -13,7 +13,7 @@ _StandardPropertyPathNode.Instance.Init = function (typeName, propertyName) {
 
 _StandardPropertyPathNode.Instance.SetValue = function (value) {
     if (this.GetDependencyProperty() != null)
-        this.GetSource().SetValue(this.GetDependencyProperty(), value);
+        this.GetSource().$SetValue(this.GetDependencyProperty(), value);
     else if (this.GetPropertyInfo() != null)
         this.GetPropertyInfo().SetValue(this.GetSource(), value, null);
 };

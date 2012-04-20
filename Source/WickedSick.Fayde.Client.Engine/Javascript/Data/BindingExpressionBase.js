@@ -324,7 +324,7 @@ BindingExpressionBase.Instance._InvalidateAfterMentorChanged = function (sender,
     }
 
     this._Invalidate();
-    this.GetTarget().SetValue(this.GetProperty(), this);
+    this.GetTarget().$SetValue(this.GetProperty(), this);
 };
 BindingExpressionBase.Instance._HandleFeTargetLoaded = function (sender, e) {
     var fe = sender;
@@ -335,7 +335,7 @@ BindingExpressionBase.Instance._HandleFeTargetLoaded = function (sender, e) {
         this.GetPropertyPathWalker().Update(source);
 
     this._Invalidate();
-    this.GetTarget().SetValue(this.GetProperty(), this);
+    this.GetTarget().$SetValue(this.GetProperty(), this);
 };
 BindingExpressionBase.Instance._FindSourceByElementName = function () {
     var source = null;
@@ -418,7 +418,7 @@ BindingExpressionBase.Instance.Refresh = function () {
     try {
         this.SetUpdating(true);
         this._Invalidate();
-        this.GetTarget().SetValue(this.GetProperty(), this);
+        this.GetTarget().$SetValue(this.GetProperty(), this);
     } catch (err) {
         if (this.GetBinding().GetValidatesOnExceptions()) {
             exception = err;

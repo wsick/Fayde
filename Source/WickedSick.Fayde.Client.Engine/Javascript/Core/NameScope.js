@@ -23,7 +23,7 @@ NameScope.GetNameScope = function (d) {
 NameScope.SetNameScope = function (d, value) {
     /// <param name="d" type="DependencyObject"></param>
     /// <param name="value" type="NameScope"></param>
-    d.SetValue(NameScope.NameScopeProperty, value);
+    d.$SetValue(NameScope.NameScopeProperty, value);
 };
 
 //#endregion

@@ -61,9 +61,9 @@ TemplateBindingExpression.Instance.OnPropertyChanged = function (sender, args) {
         // Type converting doesn't happen for TemplateBindings
         this.SetUpdating(true);
         try {
-            this.Target.SetValue(this.TargetProperty, this.GetValue(null));
+            this.Target.$SetValue(this.TargetProperty, this.GetValue(null));
         } catch (err2) {
-            this.Target.SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
+            this.Target.$SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
         }
     } catch (err) {
 

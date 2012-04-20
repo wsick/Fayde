@@ -60,7 +60,7 @@ AnimationStorage.Instance.DetachFromObject = function () {
 AnimationStorage.Instance.ResetPropertyValue = function () {
     if (this._TargetObj == null || this._TargetProp == null)
         return;
-    this._TargetObj.SetValue(this._TargetProp, this.GetStopValue());
+    this._TargetObj.$SetValue(this._TargetProp, this.GetStopValue());
 };
 
 AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
@@ -74,7 +74,7 @@ AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
 AnimationStorage.Instance.ApplyCurrentValue = function () {
     if (this._CurrentValue == null)
         return;
-    this._TargetObj.SetValue(this._TargetProp, this._CurrentValue);
+    this._TargetObj.$SetValue(this._TargetProp, this._CurrentValue);
 };
 
 Nullstone.FinishCreate(AnimationStorage);

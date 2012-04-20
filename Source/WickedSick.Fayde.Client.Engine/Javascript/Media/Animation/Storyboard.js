@@ -25,7 +25,7 @@ Storyboard.GetTargetName = function (d) {
 };
 Storyboard.SetTargetName = function (d, value) {
     ///<param name="value" type="String"></param>
-    d.SetValue(Storyboard.TargetNameProperty, value);
+    d.$SetValue(Storyboard.TargetNameProperty, value);
 };
 
 Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return _PropertyPath }, Storyboard);
@@ -35,7 +35,7 @@ Storyboard.GetTargetProperty = function (d) {
 };
 Storyboard.SetTargetProperty = function (d, value) {
     ///<param name="value" type="_PropertyPath"></param>
-    d.SetValue(Storyboard.TargetPropertyProperty, value);
+    d.$SetValue(Storyboard.TargetPropertyProperty, value);
 };
 
 //#endregion

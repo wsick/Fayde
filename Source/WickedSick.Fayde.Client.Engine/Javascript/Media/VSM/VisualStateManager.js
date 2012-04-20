@@ -24,7 +24,7 @@ VisualStateManager.GetVisualStateGroups = function (d) {
 VisualStateManager.SetVisualStateGroups = function (d, value) {
     /// <param name="d" type="DependencyObject"></param>
     /// <param name="value" type="VisualStateGroupCollection"></param>
-    d.SetValue(VisualStateManager.VisualStateGroupsProperty, value);
+    d.$SetValue(VisualStateManager.VisualStateGroupsProperty, value);
 };
 VisualStateManager._GetVisualStateGroupsInternal = function (d) {
     /// <param name="d" type="DependencyObject"></param>
@@ -43,7 +43,7 @@ VisualStateManager.GetCustomVisualStateManager = function (d) {
 };
 VisualStateManager.SetCustomVisualStateManager = function (d, value) {
     ///<param name="value" type="VisualStateManager"></param>
-    d.SetValue(VisualStateManager.CustomVisualStateManagerProperty, value);
+    d.$SetValue(VisualStateManager.CustomVisualStateManagerProperty, value);
 };
 
 //#endregion
@@ -109,7 +109,7 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
         group.RaiseCurrentStateChanged(element, lastState, state, control);
     } else {
         var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
-        dynamicTransition.SetValue(Control.IsTemplateItemProperty, true);
+        dynamicTransition.$SetValue(Control.IsTemplateItemProperty, true);
 
         var eventClosure = new Closure();
         transition.SetDynamicStoryboardCompleted(false);

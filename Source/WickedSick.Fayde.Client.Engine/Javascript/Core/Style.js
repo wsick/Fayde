@@ -76,7 +76,7 @@ Style.Instance._ConvertSetterValue = function (setter) {
     }
 
     try {
-        setter.SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.GetTargetType(), true));
+        setter.$SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.GetTargetType(), true));
     } catch (err) {
         throw new XamlParseException(err.message);
     }
