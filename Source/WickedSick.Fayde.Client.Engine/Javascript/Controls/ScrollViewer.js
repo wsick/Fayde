@@ -375,12 +375,12 @@ ScrollViewer.Instance._OnScrollChanged = function (horizontal, vertical) {
 
 ScrollViewer.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ContentControl();
-    this.$ElementScrollContentPresenter = Nullstone.As(this.GetTemplateChild(ScrollViewer.ElementScrollContentPresenterName), ScrollContentPresenter);
-    this.$ElementHorizontalScrollBar = Nullstone.As(this.GetTemplateChild(ScrollViewer.ElementHorizontalScrollBarName), ScrollBar);
+    this.$ElementScrollContentPresenter = Nullstone.As(this.GetTemplateChild("ScrollContentPresenter"), ScrollContentPresenter);
+    this.$ElementHorizontalScrollBar = Nullstone.As(this.GetTemplateChild("HorizontalScrollBar"), ScrollBar);
     if (this.$ElementHorizontalScrollBar != null) {
         this.$ElementHorizontalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Horizontal, e); }, this);
     }
-    this.$ElementVerticalScrollBar = Nullstone.As(this.GetTemplateChild(ScrollViewer.ElementVerticalScrollBarName), ScrollBar);
+    this.$ElementVerticalScrollBar = Nullstone.As(this.GetTemplateChild("VerticalScrollBar"), ScrollBar);
     if (this.$ElementVerticalScrollBar != null) {
         this.$ElementVerticalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Vertical, e); }, this);
     }
