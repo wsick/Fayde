@@ -558,7 +558,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -577,7 +577,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -596,7 +596,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -703,7 +703,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#6BFFFFFF"
+        To: Color.FromHex("#6BFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -722,7 +722,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -741,7 +741,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#EAFFFFFF"
+        To: Color.FromHex("#EAFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -760,7 +760,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F4FFFFFF"
+        To: Color.FromHex("#F4FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1104,7 +1104,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1123,7 +1123,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1142,7 +1142,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1249,7 +1249,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#6BFFFFFF"
+        To: Color.FromHex("#6BFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1268,7 +1268,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1287,7 +1287,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#EAFFFFFF"
+        To: Color.FromHex("#EAFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1306,7 +1306,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F4FFFFFF"
+        To: Color.FromHex("#F4FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1673,7 +1673,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1692,7 +1692,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1711,7 +1711,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1818,7 +1818,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#6BFFFFFF"
+        To: Color.FromHex("#6BFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1837,7 +1837,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1856,7 +1856,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#EAFFFFFF"
+        To: Color.FromHex("#EAFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -1875,7 +1875,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F4FFFFFF"
+        To: Color.FromHex("#F4FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2242,7 +2242,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2261,7 +2261,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2280,7 +2280,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2387,7 +2387,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#6BFFFFFF"
+        To: Color.FromHex("#6BFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2406,7 +2406,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2425,7 +2425,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#EAFFFFFF"
+        To: Color.FromHex("#EAFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2444,7 +2444,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F4FFFFFF"
+        To: Color.FromHex("#F4FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2769,7 +2769,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2788,7 +2788,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2807,7 +2807,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2876,7 +2876,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#6BFFFFFF"
+        To: Color.FromHex("#6BFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2895,7 +2895,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2914,7 +2914,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#EAFFFFFF"
+        To: Color.FromHex("#EAFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -2933,7 +2933,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F4FFFFFF"
+        To: Color.FromHex("#F4FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -3233,7 +3233,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -3252,7 +3252,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -3271,7 +3271,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -3340,7 +3340,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#6BFFFFFF"
+        To: Color.FromHex("#6BFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -3359,7 +3359,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -3378,7 +3378,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#EAFFFFFF"
+        To: Color.FromHex("#EAFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -3397,7 +3397,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F4FFFFFF"
+        To: Color.FromHex("#F4FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,

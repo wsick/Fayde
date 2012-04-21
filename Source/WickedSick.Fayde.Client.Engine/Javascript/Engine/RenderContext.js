@@ -29,7 +29,7 @@ _RenderContext.Instance._DrawClip = function (clip) {
     if (clip instanceof Rect) {
         this._Surface._Ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
     } else if (clip instanceof Geometry) {
-        clip.Draw(this._Surface._Ctx);
+        clip.Draw(this);
     }
 };
 
