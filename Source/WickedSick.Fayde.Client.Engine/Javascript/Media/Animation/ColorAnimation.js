@@ -6,7 +6,7 @@
 //#region ColorAnimation
 var ColorAnimation = Nullstone.Create("ColorAnimation", Animation);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
 ColorAnimation.Instance.GetBy = function () {

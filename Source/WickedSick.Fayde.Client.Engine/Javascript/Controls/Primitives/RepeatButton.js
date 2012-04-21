@@ -325,7 +325,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -344,7 +344,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -363,7 +363,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -394,7 +394,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#FF6DBDD1"
+        To: Color.FromHex("#FF6DBDD1")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -432,7 +432,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#D8FFFFFF"
+        To: Color.FromHex("#D8FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -451,7 +451,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -470,7 +470,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#8CFFFFFF"
+        To: Color.FromHex("#8CFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -489,7 +489,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#3FFFFFFF"
+        To: Color.FromHex("#3FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,

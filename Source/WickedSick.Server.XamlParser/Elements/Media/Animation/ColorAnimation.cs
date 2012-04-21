@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
     public class ColorAnimation: Timeline
     {
-        public static readonly PropertyDescription To = PropertyDescription.Register("To", typeof(string), typeof(ColorAnimation));
+        public static readonly PropertyDescription To = PropertyDescription.Register("To", typeof(Color), typeof(ColorAnimation));
     }
 }

@@ -9,7 +9,7 @@
 //#region Border
 var Border = Nullstone.Create("Border", FrameworkElement);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
 Border.Instance.GetBackground = function () {
@@ -61,7 +61,7 @@ Border.Instance.SetPadding = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 Border.Instance.IsLayoutContainer = function () { return true; };
 Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
