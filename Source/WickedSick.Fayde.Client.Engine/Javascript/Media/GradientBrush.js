@@ -34,5 +34,13 @@ GradientBrush.Instance.SetMappingMode = function (value) {
 
 //#endregion
 
+//#region Annotations
+
+GradientBrush.Annotations = {
+    ContentProperty: GradientBrush.GradientStopsProperty
+};
+
+//#endregion
+
 Nullstone.FinishCreate(GradientBrush);
 //#endregion
