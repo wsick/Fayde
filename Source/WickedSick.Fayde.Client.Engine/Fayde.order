@@ -8,6 +8,7 @@ Engine/Debug.js
 Engine/FocusManager.js
 Media/Enums.js
 Primitives/Enums.js
+Runtime/Enum.js
 Runtime/JsEx.js
 Runtime/Utils.js
 Shapes/Enums.js
@@ -35,6 +36,7 @@ Core/DeepStyleWalker.js
 Core/DeepTreeWalker.js
 Core/DependencyProperty.js
 Core/Expression.js
+Core/StaticResourceExpression.js
 Core/SubPropertyListener.js
 Core/TemplateBindingExpression.js
 Core/UnsetValue.js
@@ -86,8 +88,10 @@ Runtime/LinkedList.js
 Runtime/LinkedListNode.js
 Runtime/MulticastEvent.js
 Runtime/NotImplementedException.js
+Runtime/NotSupportedException.js
 Runtime/RoutedEventArgs.js
 Runtime/RoutedPropertyChangedEventArgs.js
+Runtime/XamlParseException.js
 Text/TextLayoutAttributes.js
 Text/History/TextBoxUndoAction.js
 Text/History/TextBoxUndoActionDelete.js
@@ -213,6 +217,7 @@ Controls/ItemsPresenter.js
 Controls/MediaElement.js
 Controls/Panel.js
 Controls/Popup.js
+Controls/RichTextBoxView.js
 Controls/ScrollContentPresenter.js
 Controls/StackPanel.js
 Controls/TextBlock.js
