@@ -21,6 +21,9 @@ _RenderContext.Instance.Clip = function (clip) {
     this._DrawClip(clip);
     this._Surface._Ctx.clip();
 };
+_RenderContext.Instance.IsPointInPath = function (p) {
+    return this._Surface._Ctx.isPointInPath(p.X, p.Y);
+};
 _RenderContext.Instance.IsPointInClipPath = function (clip, p) {
     this._DrawClip(clip);
     return this._Surface._Ctx.isPointInPath(p.X, p.Y);

@@ -582,10 +582,10 @@ FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
         uielist.Remove(node);
 };
 FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
     var np = new Point(x, y);
     this._TransformPoint(np);
-    if (np.X < 0 || np.Y < 0 || np.X > framework.Width || np.Y > framework.Height)
+    var extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    if (!extents.ContainsPointXY(np.X, np.Y))
         return false;
 
     if (!this._InsideLayoutClip(x, y))

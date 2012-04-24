@@ -11,6 +11,7 @@ Shape.Instance.Init = function () {
     this.Init$FrameworkElement();
     this._ShapeFlags = 0;
     this._StretchTransform = new Matrix();
+    this._NaturalBounds = new Rect();
 };
 
 //#region Dependency Properties
@@ -506,21 +507,33 @@ Shape.Instance._InsideObject = function (ctx, x, y) {
         return false;
     if (!this._InsideClip(ctx, x, y))
         return false;
-
     var p = new Point(x, y);
     this._TransformPoint(p);
     x = p.X;
     y = p.Y;
     if (!this._GetStretchExtents().ContainsPointXY(x, y))
         return false;
+    return this._InsideShape(ctx, x, y);
+};
 
-    if (this._IsFilled())
-        return this._Path.CalculateBounds(0).ContainsPointXY(x, y);
-    if (this._IsStroked()) {
-        NotImplemented("Shape._InsideObject-Stroke");
+Shape.Instance._InsideShape = function (ctx, x, y) {
+    /// <param name="ctx" type="_RenderContext"></param>
+    if (this._IsEmpty())
         return false;
+    var ret = false;
+    var area = this._GetStretchExtents();
+    ctx.Save();
+    ctx.PreTransform(this._StretchTransform);
+    if (this._Fill != null) {
+        this._DrawPath(ctx);
+        if (ctx.IsPointInPath(new Point(x, y)))
+            ret = true;
     }
-    return false;
+    if (!ret && this._Stroke != null) {
+        NotImplemented("Shape._InsideShape-Stroke");
+    }
+    ctx.Restore();
+    return ret;
 };
 
 //#endregion

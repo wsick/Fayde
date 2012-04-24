@@ -10,6 +10,7 @@
 /// <reference path="../Media/Brush.js"/>
 /// <reference path="RequestBringIntoViewEventArgs.js"/>
 /// <reference path="../Media/MatrixTransform.js"/>
+/// <reference path="Enums.js"/>
 
 //#region UIElement
 var UIElement = Nullstone.Create("UIElement", DependencyObject);
@@ -438,15 +439,39 @@ UIElement.Instance._InsideClip = function (ctx, x, y) {
 };
 UIElement.Instance._TransformPoint = function (p) {
     /// <param name="p" type="Point"></param>
+    var transform = this._CachedTransform;
+    if (!transform)
+        transform = this._GetCachedTransform();
     var inverse;
-    if (!this._CachedTransform || !(inverse = this._CachedTransform.Inverse))
+    if (!(inverse = transform.Inverse)) {
+        Warn("Could not get inverse of cached transform for UIElement.");
         return;
+    }
     var np = inverse.MultiplyPoint(p);
     p.X = np.X;
     p.Y = np.Y;
 };
 UIElement.Instance._CanFindElement = function () {
     return false;
+};
+UIElement.Instance._CreateOriginTransform = function () {
+    /// <returns type="Matrix" />
+    var visualOffset = LayoutInformation.GetVisualOffset(this);
+    return Matrix.CreateTranslate(visualOffset.X, visualOffset.Y);
+};
+UIElement.Instance._GetCachedTransform = function () {
+    if (this._CachedTransform == null) {
+        var transform = this._CreateOriginTransform();
+        var ancestor = new Matrix();
+        var parent = this.GetVisualParent();
+        if (parent)
+            ancestor = parent._GetCachedTransform();
+        this._CachedTransform = { 
+            Normal: transform.MultiplyMatrix(ancestor.Normal),
+            Inverse: ancestor.Inverse.MultiplyMatrix(transform.GetInverse())
+        };
+    }
+    return this._CachedTransform;
 };
 
 //#endregion
@@ -583,15 +608,15 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
         return;
     }
     if (region.IsEmpty()) {
-        Info("Nothing to render. [" + this.constructor._TypeName + "]");
+        //Info("Nothing to render. [" + this.constructor._TypeName + "]");
         return;
     }
 
     //TODO: render to intermediate not implemented
-    var visualOffset = LayoutInformation.GetVisualOffset(this);
     ctx.Save();
-    if (visualOffset.X !== 0 || visualOffset.Y !== 0)
-        ctx.Transform(Matrix.CreateTranslate(visualOffset.X, visualOffset.Y));
+    var transform = this._CreateOriginTransform();
+    if (transform._Type !== MatrixTypes.Identity)
+        ctx.Transform(transform);
     this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
     this._Render(ctx, region);
@@ -764,9 +789,9 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
-    if (args.Property === UIElement.OpacityProperty) {
+    if (args.Property._ID === UIElement.OpacityProperty._ID) {
         this._InvalidateVisibility();
-    } else if (args.Property === UIElement.VisibilityProperty) {
+    } else if (args.Property._ID === UIElement.VisibilityProperty._ID) {
         if (args.NewValue === Visibility.Visible)
             this._Flags |= UIElementFlags.RenderVisible;
         else
@@ -774,9 +799,17 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateVisibility();
         this._InvalidateMeasure();
         var parent = this.GetVisualParent();
-        if (parent)
+        if (parent != null)
             parent._InvalidateMeasure();
-        //TODO: change focus
+        App.Instance.MainSurface._RemoveFocus(this);
+        
+    } else if (args.Property._ID === UIElement.IsHitTestVisibleProperty._ID) {
+        if (args.NewValue === true) {
+            this._Flags |= UIElementFlags.HitTestVisible;
+        } else {
+            this._Flags &= ~UIElementFlags.HitTestVisible;
+        }
+        this._UpdateTotalHitTestVisibility();
     }
     //TODO: Check invalidation of some properties
     this.PropertyChanged.Raise(this, args);
@@ -926,7 +959,10 @@ UIElement.Instance.OnLostFocus = function (sender, args) { };
 //#endregion
 
 UIElement._IsOpacityInvisible = function (opacity) {
-    return opacity <= 0.0;
+    return opacity * 255 < .5;
+};
+UIElement._IsOpacityTranslucent = function (opacity) {
+    return opacity * 255 < 245.5;
 };
 UIElement.ZIndexComparer = function (uie1, uie2) {
     var zi1 = Canvas.GetZIndex(uie1);
@@ -950,11 +986,13 @@ UIElement.__DebugMeasure = function (uie) {
         str += "Visible";
     else
         str += "Collapsed";
+
+    str += " ";
+    var p = LayoutInformation.GetVisualOffset(uie);
+    str += p.toString();
     var size = new Size(uie.GetActualWidth(), uie.GetActualHeight());
-    if (size) {
-        str += " ";
-        str += size.toString();
-    }
+    str += " ";
+    str += size.toString();
     str += ")";
     return str;
 };

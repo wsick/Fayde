@@ -6,7 +6,6 @@
 var Matrix = Nullstone.Create("Matrix", null, 2);
 
 Matrix.Instance.Init = function (els, inverse) {
-    this._IsCustom = true;
     if (els === undefined) {
         this._Elements = [1, 0, 0, 0, 1, 0];
         this._Type = MatrixTypes.Identity;
