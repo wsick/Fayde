@@ -502,8 +502,6 @@ Shape.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
 //#region Hit Testing
 
 Shape.Instance._InsideObject = function (ctx, x, y) {
-    var ret = false;
-
     if (!this._InsideLayoutClip(x, y))
         return false;
     if (!this._InsideClip(ctx, x, y))
@@ -516,15 +514,13 @@ Shape.Instance._InsideObject = function (ctx, x, y) {
     if (!this._GetStretchExtents().ContainsPointXY(x, y))
         return false;
 
-    ctx.Save();
-    //TODO: Set ctx transform to AbsoluteXform
-    //Draw path
-    //Fill if necessary
-    //Stroke if necessary
-    //ret = isPointInPath
-    ctx.Restore();
-
-    return ret;
+    if (this._IsFilled())
+        return this._Path.CalculateBounds(0).ContainsPointXY(x, y);
+    if (this._IsStroked()) {
+        NotImplemented("Shape._InsideObject-Stroke");
+        return false;
+    }
+    return false;
 };
 
 //#endregion
