@@ -12,6 +12,7 @@ var ScrollBar = Nullstone.Create("ScrollBar", RangeBase);
 ScrollBar.Instance.Init = function () {
     this.Init$RangeBase();
     this.Scroll = new MulticastEvent();
+    this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
 };
 
 //#region Dependency Properties
@@ -120,6 +121,7 @@ ScrollBar.Instance.OnIsEnabledChanged = function (args) {
     this.UpdateVisualState();
 };
 ScrollBar.Instance.OnLostMouseCapture = function (sender, args) {
+    this.OnLostMouseCapture$RangeBase(sender, args);
     this.UpdateVisualState();
 };
 ScrollBar.Instance.OnMouseEnter = function (sender, args) {
@@ -155,7 +157,11 @@ ScrollBar.Instance.OnMouseLeftButtonDown = function (sender, args) {
 };
 ScrollBar.Instance.OnMouseLeftButtonUp = function (sender, args) {
     this.OnMouseLeftButtonUp$RangeBase(sender, args);
+    if (args.Handled)
+        return;
     args.Handled = true;
+    this.ReleaseMouseCapture();
+    this.UpdateVisualState();
 };
 
 //#endregion
@@ -254,13 +260,16 @@ ScrollBar.Instance._LargeIncrement = function (sender, args) {
 
 //#endregion
 
+ScrollBar.Instance._HandleSizeChanged = function () {
+    this._UpdateTrackLayout(this._GetTrackLength());
+};
 ScrollBar.Instance._OnOrientationChanged = function () {
     var orientation = this.GetOrientation();
     if (this.$ElementHorizontalTemplate != null) {
         this.$ElementHorizontalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed);
     }
     if (this.$ElementVerticalTemplate != null) {
-        this.$ElementHorizontalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible);
+        this.$ElementVerticalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible);
     }
     this._UpdateTrackLayout(this._GetTrackLength());
 };
@@ -268,50 +277,44 @@ ScrollBar.Instance._UpdateTrackLayout = function (trackLength) {
     var max = this.GetMaximum();
     var min = this.GetMinimum();
     var val = this.GetValue();
-    var num = (val - min) / (max - min);
-    var num1 = this._UpdateThumbSize(trackLength);
+    var multiplier = (val - min) / (max - min);
+    var thumbSize = this._UpdateThumbSize(trackLength);
+
     var orientation = this.GetOrientation();
-    if (orientation !== Orientation.Horizontal || this.$ElementHorizontalLargeDecrease == null || this.$ElementHorizontalThumb == null) {
-        if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease != null && this.$ElementVerticalThumb != null) {
-            this.$ElementVerticalLargeDecrease.SetHeight(Math.max(0, num * (trackLength - num1)));
-        }
-    } else {
-        this.$ElementHorizontalLargeDecrease.SetWidth(Math.max(0, num * (trackLength - num1)));
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease != null && this.$ElementHorizontalThumb != null) {
+        this.$ElementHorizontalLargeDecrease.SetWidth(Math.max(0, multiplier * (trackLength - thumbSize)));
+    } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease != null && this.$ElementVerticalThumb != null) {
+        this.$ElementVerticalLargeDecrease.SetHeight(Math.max(0, multiplier * (trackLength - thumbSize)));
     }
 };
 ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
-    var num = NaN;
-    var flag = trackLength <= 0;
+    var result = Number.NaN;
+    var hideThumb = trackLength <= 0;
     if (trackLength > 0) {
         var orientation = this.GetOrientation();
         var max = this.GetMaximum();
         var min = this.GetMinimum();
-        var diff = max - min;
-        if (orientation !== Orientation.Horizontal || this.$ElementHorizontalThumb == null) {
-            if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null) {
-                if (diff !== 0) {
-                    num = Math.max(this.$ElementVerticalThumb.GetMinHeight(), this._ConvertViewportSizeToDisplayUnits(trackLength));
-                }
-                if (diff === 0 || num > this.GetActualHeight() || trackLength <= this.$ElementVerticalThumb.GetMinHeight()) {
-                    flag = true;
-                } else {
-                    this.$ElementVerticalThumb.SetVisibility(Visibility.Visible);
-                    this.$ElementVerticalThumb.SetHeight(num);
-                }
-            }
-        } else {
-            if (diff !== 0) {
-                num = Math.max(this.$ElementHorizontalThumb.GetMinWidth(), this._ConvertViewportSizeToDisplayUnits(trackLength));
-            }
-            if (diff === 0 || num > this.GetActualWidth() || trackLength <= this.$ElementHorizontalThumb.GetMinWidth()) {
-                flag = true;
+        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb != null) {
+            if (max - min !== 0)
+                result = Math.max(this.$ElementHorizontalThumb.GetMinWidth(), this._ConvertViewportSizeToDisplayUnits(trackLength));
+            if (max - min === 0 || result > this.GetActualWidth() || trackLength <= this.$ElementHorizontalThumb.GetMinWidth()) {
+                hideThumb = true;
             } else {
                 this.$ElementHorizontalThumb.SetVisibility(Visibility.Visible);
-                this.$ElementHorizontalThumb.SetWidth(num);
+                this.$ElementHorizontalThumb.SetWidth(result);
+            }
+        } else if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null) {
+            if (max - min !== 0)
+                result = Math.max(this.$ElementVerticalThumb.GetMinHeight(), this._ConvertViewportSizeToDisplayUnits(trackLength));
+            if (max - min === 0 || result > this.GetActualHeight() || trackLength <= this.$ElementVerticalThumb.GetMinHeight()) {
+                hideThumb = true;
+            } else {
+                this.$ElementVerticalThumb.SetVisibility(Visibility.Visible);
+                this.$ElementVerticalThumb.SetHeight(result);
             }
         }
     }
-    if (flag) {
+    if (hideThumb) {
         if (this.$ElementHorizontalThumb != null) {
             this.$ElementHorizontalThumb.SetVisibility(Visibility.Collapsed);
         }
@@ -319,9 +322,8 @@ ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
             this.$ElementVerticalThumb.SetVisibility(Visibility.Collapsed);
         }
     }
-    return num;
+    return result;
 };
-
 ScrollBar.Instance._GetTrackLength = function () {
     var actual = NaN;
     if (this.GetOrientation() === Orientation.Horizontal) {
@@ -404,26 +406,23 @@ ScrollBar.Instance.GetDefaultStyle = function () {
         Value: {
             Type: ControlTemplate,
             Props: {
-                TargetType: "ScrollBar"
+                TargetType: ScrollBar
             },
             Content: {
                 Type: Grid,
                 Name: "Root",
                 Props: {
-                    Name: "Root",
                     Resources: [
 {
     Type: ControlTemplate,
     Key: "RepeatButtonTemplate",
     Props: {
-        Key: "RepeatButtonTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
         Props: {
-            Name: "Root",
             Background: {
                 Type: SolidColorBrush,
                 Props: {
@@ -438,16 +437,10 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 }]
 
 }]
@@ -461,15 +454,11 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "HorizontalIncrementTemplate",
     Props: {
-        Key: "HorizontalIncrementTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
-        Props: {
-            Name: "Root"
-        },
         AttachedProps: [{
             Owner: VisualStateManager,
             Prop: "VisualStateGroups",
@@ -477,23 +466,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -617,9 +597,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -781,9 +758,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -820,7 +794,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -874,7 +847,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundAnimation",
     Props: {
-        Name: "BackgroundAnimation",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -897,7 +869,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -952,7 +923,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -978,7 +948,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Type: SolidColorBrush,
             Name: "ButtonColor",
             Props: {
-                Name: "ButtonColor",
                 Color: Color.FromHex("#FF333333")
             }
         }
@@ -988,7 +957,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledElement",
     Props: {
-        Name: "DisabledElement",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -1007,15 +975,11 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "HorizontalDecrementTemplate",
     Props: {
-        Key: "HorizontalDecrementTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
-        Props: {
-            Name: "Root"
-        },
         AttachedProps: [{
             Owner: VisualStateManager,
             Prop: "VisualStateGroups",
@@ -1023,23 +987,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -1163,9 +1118,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -1327,9 +1279,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -1366,7 +1315,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -1420,7 +1368,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -1443,7 +1390,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -1466,7 +1412,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -1521,7 +1466,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -1547,7 +1491,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Type: SolidColorBrush,
             Name: "ButtonColor",
             Props: {
-                Name: "ButtonColor",
                 Color: Color.FromHex("#FF333333")
             }
         }
@@ -1557,7 +1500,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledElement",
     Props: {
-        Name: "DisabledElement",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -1576,15 +1518,11 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "VerticalIncrementTemplate",
     Props: {
-        Key: "VerticalIncrementTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
-        Props: {
-            Name: "Root"
-        },
         AttachedProps: [{
             Owner: VisualStateManager,
             Prop: "VisualStateGroups",
@@ -1592,23 +1530,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -1732,9 +1661,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -1896,9 +1822,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -1935,7 +1858,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -1989,7 +1911,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -2012,7 +1933,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -2035,7 +1955,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -2090,7 +2009,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -2116,7 +2034,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Type: SolidColorBrush,
             Name: "ButtonColor",
             Props: {
-                Name: "ButtonColor",
                 Color: Color.FromHex("#FF333333")
             }
         }
@@ -2126,7 +2043,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledElement",
     Props: {
-        Name: "DisabledElement",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -2145,15 +2061,11 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "VerticalDecrementTemplate",
     Props: {
-        Key: "VerticalDecrementTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
-        Props: {
-            Name: "Root"
-        },
         AttachedProps: [{
             Owner: VisualStateManager,
             Prop: "VisualStateGroups",
@@ -2161,23 +2073,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -2301,9 +2204,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -2465,9 +2365,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -2504,7 +2401,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -2558,7 +2454,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -2581,7 +2476,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -2604,7 +2498,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -2659,7 +2552,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -2685,7 +2577,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Type: SolidColorBrush,
             Name: "ButtonColor",
             Props: {
-                Name: "ButtonColor",
                 Color: Color.FromHex("#FF333333")
             }
         }
@@ -2695,7 +2586,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledElement",
     Props: {
-        Name: "DisabledElement",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -2714,8 +2604,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "VerticalThumbTemplate",
     Props: {
-        Key: "VerticalThumbTemplate",
-        TargetType: "Thumb"
+        TargetType: Thumb
     },
     Content: {
         Type: Grid,
@@ -2726,23 +2615,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -2828,9 +2708,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -2954,9 +2831,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -2993,7 +2867,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Grid,
     Name: "ThumbVisual",
     Props: {
-        Name: "ThumbVisual",
         Margin: new Thickness(1, 0, 1, 0)
     },
     Children: [
@@ -3001,7 +2874,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         RadiusX: 2,
         RadiusY: 2,
         Fill: {
@@ -3054,7 +2926,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -3077,7 +2948,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -3100,7 +2970,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         RadiusX: 1,
         RadiusY: 1,
         StrokeThickness: 1,
@@ -3154,7 +3023,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         RadiusX: 1,
         RadiusY: 1,
         Opacity: 0,
@@ -3178,8 +3046,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "HorizontalThumbTemplate",
     Props: {
-        Key: "HorizontalThumbTemplate",
-        TargetType: "Thumb"
+        TargetType: Thumb
     },
     Content: {
         Type: Grid,
@@ -3190,23 +3057,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -3292,9 +3150,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -3418,9 +3273,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -3457,7 +3309,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Grid,
     Name: "ThumbVisual",
     Props: {
-        Name: "ThumbVisual",
         Margin: new Thickness(0, 1, 0, 1)
     },
     Children: [
@@ -3465,7 +3316,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         RadiusX: 2,
         RadiusY: 2,
         Fill: {
@@ -3518,7 +3368,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -3541,7 +3390,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -3564,7 +3412,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         RadiusX: 1,
         RadiusY: 1,
         StrokeThickness: 1,
@@ -3618,7 +3465,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         RadiusX: 1,
         RadiusY: 1,
         Opacity: 0,
@@ -3647,30 +3493,18 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
-    Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    }
+    Name: "MouseOver"
 },
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -3707,7 +3541,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Grid,
     Name: "HorizontalRoot",
     Props: {
-        Name: "HorizontalRoot",
         ColumnDefinitions: [
 {
     Type: ColumnDefinition,
@@ -3912,7 +3745,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "HorizontalSmallDecrease",
     Props: {
-        Name: "HorizontalSmallDecrease",
         Width: 16,
         IsTabStop: false,
         Interval: 50,
@@ -3930,7 +3762,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "HorizontalLargeDecrease",
     Props: {
-        Name: "HorizontalLargeDecrease",
         Width: 0,
         Template: new StaticResourceMarkup("RepeatButtonTemplate"),
         Interval: 50,
@@ -3947,7 +3778,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Thumb,
     Name: "HorizontalThumb",
     Props: {
-        Name: "HorizontalThumb",
         Background: new TemplateBindingMarkup("Background"),
         MinWidth: 18,
         Width: 18,
@@ -3964,7 +3794,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "HorizontalLargeIncrease",
     Props: {
-        Name: "HorizontalLargeIncrease",
         Template: new StaticResourceMarkup("RepeatButtonTemplate"),
         Interval: 50,
         IsTabStop: false
@@ -3980,7 +3809,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "HorizontalSmallIncrease",
     Props: {
-        Name: "HorizontalSmallIncrease",
         Width: 16,
         IsTabStop: false,
         Interval: 50,
@@ -4000,7 +3828,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Grid,
     Name: "VerticalRoot",
     Props: {
-        Name: "VerticalRoot",
         Visibility: Visibility.Collapsed,
         RowDefinitions: [
 {
@@ -4185,7 +4012,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "VerticalSmallDecrease",
     Props: {
-        Name: "VerticalSmallDecrease",
         Height: 16,
         IsTabStop: false,
         Interval: 50,
@@ -4203,7 +4029,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "VerticalLargeDecrease",
     Props: {
-        Name: "VerticalLargeDecrease",
         Height: 0,
         Template: new StaticResourceMarkup("RepeatButtonTemplate"),
         Interval: 50,
@@ -4220,7 +4045,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Thumb,
     Name: "VerticalThumb",
     Props: {
-        Name: "VerticalThumb",
         MinHeight: 18,
         Height: 18,
         Template: new StaticResourceMarkup("VerticalThumbTemplate")
@@ -4236,7 +4060,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "VerticalLargeIncrease",
     Props: {
-        Name: "VerticalLargeIncrease",
         Template: new StaticResourceMarkup("RepeatButtonTemplate"),
         Interval: 50,
         IsTabStop: false
@@ -4252,7 +4075,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "VerticalSmallIncrease",
     Props: {
-        Name: "VerticalSmallIncrease",
         Height: 16,
         IsTabStop: false,
         Interval: 50,

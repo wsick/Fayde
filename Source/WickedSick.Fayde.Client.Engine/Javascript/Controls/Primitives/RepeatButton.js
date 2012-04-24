@@ -271,7 +271,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
         Value: {
             Type: ControlTemplate,
             Props: {
-                TargetType: "RepeatButton"
+                TargetType: RepeatButton
             },
             Content: {
                 Type: Grid,
@@ -282,23 +282,14 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -384,9 +375,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -510,9 +498,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -543,16 +528,10 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "FocusStates",
-    Props: {
-        Name: "FocusStates"
-    },
     Children: [
 {
     Type: VisualState,
     Name: "Focused",
-    Props: {
-        Name: "Focused"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -580,10 +559,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 },
 {
     Type: VisualState,
-    Name: "Unfocused",
-    Props: {
-        Name: "Unfocused"
-    }
+    Name: "Unfocused"
 }]
 
 }]
@@ -596,7 +572,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: Border,
     Name: "Background",
     Props: {
-        Name: "Background",
         CornerRadius: new CornerRadius(3, 3, 3, 3),
         Background: {
             Type: SolidColorBrush,
@@ -619,7 +594,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Name: "BackgroundAnimation",
     Props: {
         Opacity: 0,
-        Name: "BackgroundAnimation",
         Background: {
             Type: SolidColorBrush,
             Props: {
@@ -632,7 +606,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Fill: {
             Type: LinearGradientBrush,
             Props: {
@@ -679,7 +652,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ContentPresenter,
     Name: "contentPresenter",
     Props: {
-        Name: "contentPresenter",
         ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
         VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
         HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
@@ -691,7 +663,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledVisualElement",
     Props: {
-        Name: "DisabledVisualElement",
         RadiusX: 3,
         RadiusY: 3,
         Fill: {
@@ -708,7 +679,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "FocusVisualElement",
     Props: {
-        Name: "FocusVisualElement",
         RadiusX: 2,
         RadiusY: 2,
         Margin: new Thickness(1, 1, 1, 1),

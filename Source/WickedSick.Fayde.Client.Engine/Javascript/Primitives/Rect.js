@@ -110,6 +110,11 @@ Rect.Instance.ContainsPointXY = function (x, y) {
         && (this.X + this.Width) >= x
         && (this.Y + this.Height) >= y;
 };
+
+Rect.Instance.toString = function () {
+    return "[X = " + this.X + + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
+};
+
 Rect.Equals = function (rect1, rect2) {
     /// <returns type="Boolean" />
     if (rect1 == null && rect2 == null)

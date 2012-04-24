@@ -78,7 +78,7 @@ Grid.Instance.GetRowDefinitions = function () {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     //Info("Grid._MeasureOverrideWithError [" + this._TypeName + "]");

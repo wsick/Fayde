@@ -105,6 +105,7 @@ Core/FrameworkElementPropertyValueProvider.js
 Core/LayoutInformation.js
 Core/LayoutPass.js
 Core/RequestBringIntoViewEventArgs.js
+Core/SizeChangedEventArgs.js
 Core/UIElementNode.js
 Core/PropertyValueProviders/AutoCreatePropertyValueProvider.js
 Core/PropertyValueProviders/DefaultValuePropertyValueProvider.js

@@ -208,6 +208,9 @@ Control.Instance._ElementRemoved = function (item) {
     this._ElementRemoved$FrameworkElement(item);
 };
 
+Control.Instance.IsLayoutContainer = function () {
+    return true;
+};
 Control.Instance.CanCaptureMouse = function () {
     return this.GetIsEnabled();
 };

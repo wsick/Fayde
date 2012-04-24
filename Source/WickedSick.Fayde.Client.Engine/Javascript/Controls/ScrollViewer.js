@@ -670,7 +670,7 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
         Value: {
             Type: ControlTemplate,
             Props: {
-                TargetType: "ScrollViewer"
+                TargetType: ScrollViewer
             },
             Content: {
                 Type: Border,
@@ -717,7 +717,6 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
     Type: ScrollContentPresenter,
     Name: "ScrollContentPresenter",
     Props: {
-        Name: "ScrollContentPresenter",
         Cursor: new TemplateBindingMarkup("Cursor"),
         Margin: new TemplateBindingMarkup("Padding"),
         ContentTemplate: new TemplateBindingMarkup("ContentTemplate")
@@ -749,7 +748,6 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
     Type: ScrollBar,
     Name: "VerticalScrollBar",
     Props: {
-        Name: "VerticalScrollBar",
         Width: 18,
         IsTabStop: false,
         Visibility: new TemplateBindingMarkup("ComputedVerticalScrollBarVisibility"),
@@ -776,7 +774,6 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
     Type: ScrollBar,
     Name: "HorizontalScrollBar",
     Props: {
-        Name: "HorizontalScrollBar",
         Height: 18,
         IsTabStop: false,
         Visibility: new TemplateBindingMarkup("ComputedHorizontalScrollBarVisibility"),

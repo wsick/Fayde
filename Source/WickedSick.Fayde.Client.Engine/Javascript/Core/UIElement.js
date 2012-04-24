@@ -941,5 +941,23 @@ UIElement.ZIndexComparer = function (uie1, uie2) {
     return zi1 - zi2;
 };
 
+UIElement.__DebugMeasure = function (uie) {
+    if (!uie)
+        return "";
+    /// <param name="uie" type="UIElement"></param>
+    var str = "(";
+    if (uie.GetVisibility() === Visibility.Visible)
+        str += "Visible";
+    else
+        str += "Collapsed";
+    var size = new Size(uie.GetActualWidth(), uie.GetActualHeight());
+    if (size) {
+        str += " ";
+        str += size.toString();
+    }
+    str += ")";
+    return str;
+};
+
 Nullstone.FinishCreate(UIElement);
 //#endregion

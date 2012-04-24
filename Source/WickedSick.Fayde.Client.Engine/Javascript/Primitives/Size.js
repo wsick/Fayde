@@ -28,7 +28,7 @@ Size.Instance.Max = function (size2) {
     return new Size(Math.max(this.Width, size2.Width), Math.max(this.Height, size2.Height));
 };
 Size.Instance.Equals = function (size2) {
-    return this.Width == size2.Width && this.Height == size2.Height;
+    return this.Width === size2.Width && this.Height === size2.Height;
 };
 Size.Instance.toString = function () {
     return "[Width = " + this.Width + "; Height = " + this.Height + "]";
