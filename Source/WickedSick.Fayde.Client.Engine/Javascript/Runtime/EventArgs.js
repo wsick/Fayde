@@ -20,6 +20,8 @@ MouseEventArgs.Instance.GetPosition = function (relativeTo) {
     var p = new Point(this._AbsolutePosition.X, this._AbsolutePosition.Y);
     if (relativeTo == null)
         return p;
+    if (!(relativeTo instanceof UIElement))
+        throw new ArgumentException("Specified relative object must be a UIElement.");
     if (relativeTo._IsAttached)
         "".toString(); //TODO: ProcessDirtyElements on surface
     relativeTo._TransformPoint(p);

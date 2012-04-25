@@ -462,11 +462,11 @@ UIElement.Instance._CreateOriginTransform = function () {
 UIElement.Instance._GetCachedTransform = function () {
     if (this._CachedTransform == null) {
         var transform = this._CreateOriginTransform();
-        var ancestor = new Matrix();
+        var ancestor = { Normal: new Matrix(), Inverse: new Matrix() };
         var parent = this.GetVisualParent();
         if (parent)
             ancestor = parent._GetCachedTransform();
-        this._CachedTransform = { 
+        this._CachedTransform = {
             Normal: transform.MultiplyMatrix(ancestor.Normal),
             Inverse: ancestor.Inverse.MultiplyMatrix(transform.GetInverse())
         };
@@ -989,7 +989,8 @@ UIElement.__DebugMeasure = function (uie) {
 
     str += " ";
     var p = LayoutInformation.GetVisualOffset(uie);
-    str += p.toString();
+    if (p)
+        str += p.toString();
     var size = new Size(uie.GetActualWidth(), uie.GetActualHeight());
     str += " ";
     str += size.toString();
