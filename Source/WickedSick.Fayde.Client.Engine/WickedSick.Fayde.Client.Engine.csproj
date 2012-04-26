@@ -125,6 +125,7 @@
     <Content Include="Javascript\Shapes\RawPath.js" />
     <Content Include="Javascript\Shapes\Rectangle.js" />
     <Content Include="Javascript\Shapes\Shape.js" />
+    <Content Include="JavascriptTests\fayde_core.js" />
     <Content Include="Javascript\Text\History\TextBoxUndoAction.js" />
     <Content Include="Javascript\Text\History\TextBoxUndoActionDelete.js" />
     <Content Include="Javascript\Text\History\TextBoxUndoActionInsert.js" />
@@ -324,6 +325,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Styles\Thumb.xml" />
+    <None Include="jsTestDriver.conf" />
     <None Include="Tests\allstyles.fayde" />
     <None Include="Tests\binding.fayde" />
     <Content Include="Tests\heightTest.htm" />
@@ -395,6 +397,10 @@
   </ProjectExtensions>
   <PropertyGroup>
     <PreBuildEvent>"$(ProjectDir)PackageAssemblies.bat" "$(ProjectDir)"</PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
