@@ -19,15 +19,6 @@ RangeBase.Instance.Init = function () {
 
 //#region Dependency Properties
 
-RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () { return Number; }, RangeBase, 0, RangeBase._OnMinimumPropertyChanged);
-RangeBase.Instance.GetMinimum = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(RangeBase.MinimumProperty);
-};
-RangeBase.Instance.SetMinimum = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(RangeBase.MinimumProperty, value);
-};
 RangeBase._OnMinimumPropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
         throw new ArgumentException("Invalid double value for Minimum property.");
@@ -51,18 +42,16 @@ RangeBase._OnMinimumPropertyChanged = function (d, args) {
         }
     }
 };
-
-RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () { return Number; }, RangeBase, 1, RangeBase._OnMaximumPropertyChanged);
-RangeBase.Instance.GetMaximum = function () {
+RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () { return Number; }, RangeBase, 0, RangeBase._OnMinimumPropertyChanged);
+RangeBase.Instance.GetMinimum = function () {
     ///<returns type="Number"></returns>
-    return this.$GetValue(RangeBase.MaximumProperty);
+    return this.$GetValue(RangeBase.MinimumProperty);
 };
-RangeBase.Instance.SetMaximum = function (value) {
+RangeBase.Instance.SetMinimum = function (value) {
     ///<param name="value" type="Number"></param>
-    if (this._LevelsFromRootCall === 0)
-        this._RequestedMax = value;
-    this.$SetValue(RangeBase.MaximumProperty, value);
+    this.$SetValue(RangeBase.MinimumProperty, value);
 };
+
 RangeBase._OnMaximumPropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
         throw new ArgumentException("Invalid double value for Maximum property.");
@@ -86,7 +75,23 @@ RangeBase._OnMaximumPropertyChanged = function (d, args) {
         }
     }
 };
+RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () { return Number; }, RangeBase, 1, RangeBase._OnMaximumPropertyChanged);
+RangeBase.Instance.GetMaximum = function () {
+    ///<returns type="Number"></returns>
+    return this.$GetValue(RangeBase.MaximumProperty);
+};
+RangeBase.Instance.SetMaximum = function (value) {
+    ///<param name="value" type="Number"></param>
+    if (this._LevelsFromRootCall === 0)
+        this._RequestedMax = value;
+    this.$SetValue(RangeBase.MaximumProperty, value);
+};
 
+RangeBase._OnLargeChangePropertyChanged = function (d, args) {
+    if (!RangeBase._IsValidChange(args.NewValue)) {
+        throw new ArgumentException("Invalid Large Change Value.");
+    }
+};
 RangeBase.LargeChangeProperty = DependencyProperty.Register("LargeChange", function () { return Number; }, RangeBase, 1, RangeBase._OnLargeChangePropertyChanged);
 RangeBase.Instance.GetLargeChange = function () {
     ///<returns type="Number"></returns>
@@ -96,12 +101,12 @@ RangeBase.Instance.SetLargeChange = function (value) {
     ///<param name="value" type="Number"></param>
     this.$SetValue(RangeBase.LargeChangeProperty, value);
 };
-RangeBase._OnLargeChangePropertyChanged = function (d, args) {
+
+RangeBase._OnSmallChangePropertyChanged = function (d, args) {
     if (!RangeBase._IsValidChange(args.NewValue)) {
-        throw new ArgumentException("Invalid Large Change Value.");
+        throw new ArgumentException("Invalid Small Change Value.");
     }
 };
-
 RangeBase.SmallChangeProperty = DependencyProperty.Register("SmallChange", function () { return Number; }, RangeBase, 0.1, RangeBase._OnSmallChangePropertyChanged);
 RangeBase.Instance.GetSmallChange = function () {
     ///<returns type="Number"></returns>
@@ -111,21 +116,7 @@ RangeBase.Instance.SetSmallChange = function (value) {
     ///<param name="value" type="Number"></param>
     this.$SetValue(RangeBase.SmallChangeProperty, value);
 };
-RangeBase._OnSmallChangePropertyChanged = function (d, args) {
-    if (!RangeBase._IsValidChange(args.NewValue)) {
-        throw new ArgumentException("Invalid Small Change Value.");
-    }
-};
 
-RangeBase.ValueProperty = DependencyProperty.Register("Value", function () { return Number; }, RangeBase, 0, RangeBase._OnValuePropertyChanged);
-RangeBase.Instance.GetValue = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(RangeBase.ValueProperty);
-};
-RangeBase.Instance.SetValue = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(RangeBase.ValueProperty, value);
-};
 RangeBase._OnValuePropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
         throw new ArgumentException("Invalid double value for Value property.");
@@ -143,6 +134,15 @@ RangeBase._OnValuePropertyChanged = function (d, args) {
         }
     }
 
+};
+RangeBase.ValueProperty = DependencyProperty.Register("Value", function () { return Number; }, RangeBase, 0, RangeBase._OnValuePropertyChanged);
+RangeBase.Instance.GetValue = function () {
+    ///<returns type="Number"></returns>
+    return this.$GetValue(RangeBase.ValueProperty);
+};
+RangeBase.Instance.SetValue = function (value) {
+    ///<param name="value" type="Number"></param>
+    this.$SetValue(RangeBase.ValueProperty, value);
 };
 
 //#endregion
@@ -189,7 +189,7 @@ RangeBase._IsValidDoubleValue = function (value) {
 RangeBase.Instance._OnMinimumChanged = function (oldMin, newMin) { };
 RangeBase.Instance._OnMaximumChanged = function (oldMax, newMax) { };
 RangeBase.Instance._OnValueChanged = function (oldValue, newValue) {
-    d.ValueChanged.Raise(d, new RoutedPropertyChangedEventArgs(oldValue, newValue));
+    this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldValue, newValue));
 };
 
 Nullstone.FinishCreate(RangeBase);

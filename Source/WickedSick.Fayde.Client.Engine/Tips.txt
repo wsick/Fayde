@@ -5,3 +5,6 @@
 	
 PropertyChanged args:
 	Property, OldValue, NewValue
+
+DependencyProperty Gotchas:
+	If you specify a changed callback function in a DependencyProperty.Register, that function needs to be defined earlier in the javascript or "undefined" will be set as the callback.

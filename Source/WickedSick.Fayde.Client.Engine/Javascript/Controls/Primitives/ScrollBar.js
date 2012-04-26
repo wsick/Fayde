@@ -17,6 +17,9 @@ ScrollBar.Instance.Init = function () {
 
 //#region Dependency Properties
 
+ScrollBar._OnOrientationPropertyChanged = function (d, args) {
+    d._OnOrientationChanged();
+};
 ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, ScrollBar, Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
 ScrollBar.Instance.GetOrientation = function () {
     ///<returns type="Number"></returns>
@@ -26,10 +29,10 @@ ScrollBar.Instance.SetOrientation = function (value) {
     ///<param name="value" type="Number"></param>
     this.$SetValue(ScrollBar.OrientationProperty, value);
 };
-ScrollBar._OnOrientationPropertyChanged = function (d, args) {
-    d._OnOrientationChanged();
-};
 
+ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
+    d._UpdateTrackLayout(d._GetTrackLength());
+};
 ScrollBar.ViewportSizeProperty = DependencyProperty.Register("ViewportSize", function () { return Number; }, ScrollBar, 0, ScrollBar._OnViewportSizePropertyChanged);
 ScrollBar.Instance.GetViewportSize = function () {
     ///<returns type="Number"></returns>
@@ -38,9 +41,6 @@ ScrollBar.Instance.GetViewportSize = function () {
 ScrollBar.Instance.SetViewportSize = function (value) {
     ///<param name="value" type="Number"></param>
     this.$SetValue(ScrollBar.ViewportSizeProperty, value);
-};
-ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
-    d._UpdateTrackLayout(d._GetTrackLength());
 };
 
 //#endregion
