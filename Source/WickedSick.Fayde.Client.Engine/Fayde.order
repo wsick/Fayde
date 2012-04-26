@@ -84,6 +84,7 @@ Runtime/Closure.js
 Runtime/Dictionary.js
 Runtime/EventArgs.js
 Runtime/Exception.js
+Runtime/InvalidOperationException.js
 Runtime/LinkedList.js
 Runtime/LinkedListNode.js
 Runtime/MulticastEvent.js
