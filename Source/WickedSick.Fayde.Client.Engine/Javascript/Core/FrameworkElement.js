@@ -17,8 +17,6 @@ var FrameworkElement = Nullstone.Create("FrameworkElement", UIElement);
 FrameworkElement.Instance.Init = function () {
     this.Init$UIElement();
 
-    this.TemplatedApplied = new MulticastEvent();
-
     this._BoundsWithChildren = new Rect();
     this._GlobalBoundsWithChildren = new Rect();
     this._SurfaceBoundsWithChildren = new Rect();
@@ -28,6 +26,8 @@ FrameworkElement.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.ImplicitStyle] = new _ImplicitStylePropertyValueProvider(this, _PropertyPrecedence.ImplicitStyle);
     this._Providers[_PropertyPrecedence.DynamicValue] = new FrameworkElementPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
+
+    this.SizeChanged = new MulticastEvent();
 };
 
 //#region Dependency Properties
@@ -48,12 +48,12 @@ FrameworkElement.Instance.SetWidth = function (value) {
     this.$SetValue(FrameworkElement.WidthProperty, value);
 };
 
-FrameworkElement.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, FrameworkElement);
+FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
 FrameworkElement.Instance.GetActualHeight = function () {
     return this.$GetValue(FrameworkElement.ActualHeightProperty);
 };
 
-FrameworkElement.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, FrameworkElement);
+FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
 FrameworkElement.Instance.GetActualWidth = function () {
     return this.$GetValue(FrameworkElement.ActualWidthProperty);
 };
@@ -165,6 +165,8 @@ FrameworkElement.Instance.SetBinding = function (propd, binding) {
     return BindingOperations.SetBinding(this, propd, binding);
 };
 
+//#region Bounds/Size
+
 FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     var specified = new Size(this.GetWidth(), this.GetHeight());
     var constrained = new Size(this.GetMinWidth(), this.GetMinHeight());
@@ -186,11 +188,6 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     }
 
     return constrained;
-};
-FrameworkElement.Instance._GetSubtreeExtents = function () {
-    if (this._GetSubtreeObject())
-        return this._ExtentsWithChildren;
-    return this._Extents;
 };
 
 FrameworkElement.Instance._ComputeActualSize = function () {
@@ -234,6 +231,11 @@ FrameworkElement.Instance._ComputeSurfaceBounds = function () {
     this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
 };
 
+FrameworkElement.Instance._GetSubtreeExtents = function () {
+    if (this._GetSubtreeObject())
+        return this._ExtentsWithChildren;
+    return this._Extents;
+};
 FrameworkElement.Instance._GetGlobalBounds = function () {
     if (this._GetSubtreeObject())
         return this._GlobalBoundsWithChildren;
@@ -244,6 +246,8 @@ FrameworkElement.Instance._GetSubtreeBounds = function () {
         return this._SurfaceBoundsWithChildren;
     return this._SurfaceBounds;
 };
+
+//#endregion
 
 //#region Measure
 
@@ -408,6 +412,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     LayoutInformation.SetLayoutSlot(this, finalRect);
 
+    var response;
     if (this.ArrangeOverride)
         response = this.ArrangeOverride(offer);
     else
@@ -577,10 +582,10 @@ FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
         uielist.Remove(node);
 };
 FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
     var np = new Point(x, y);
     this._TransformPoint(np);
-    if (np.X < 0 || np.Y < 0 || np.X > framework.Width || np.Y > framework.Height)
+    var extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    if (!extents.ContainsPointXY(np.X, np.Y))
         return false;
 
     if (!this._InsideLayoutClip(x, y))
@@ -715,7 +720,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 var last = LayoutInformation.GetLastRenderSize(fe);
                 if (last) {
                     fe.ClearValue(LayoutInformation.LastRenderSizeProperty, false);
-                    //TODO: SizeChanged Event 
+                    fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._GetRenderSize()));
                 }
             }
             Info("Completed _SizeList Update");
@@ -724,6 +729,8 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         }
     }
 };
+
+//#region Implicit Styles
 
 FrameworkElement.Instance._SetImplicitStyles = function (styleMask, styles) {
     var app = App.Instance;
@@ -754,11 +761,11 @@ FrameworkElement.Instance._ClearImplicitStyles = function (styleMask) {
     this._Providers[_PropertyPrecedence.ImplicitStyle].ClearStyles(styleMask, error);
 };
 
+//#endregion
+
 //#region Template
 
-FrameworkElement.Instance.OnApplyTemplate = function () {
-    this.TemplatedApplied.Raise(this, null);
-};
+FrameworkElement.Instance.OnApplyTemplate = function () { };
 FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
     if (this._GetSubtreeObject())
         return false;

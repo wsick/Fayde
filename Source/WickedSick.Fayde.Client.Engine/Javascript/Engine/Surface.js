@@ -658,6 +658,10 @@ Surface.Instance._FocusElement = function (uie) {
 
     return true;
 };
+Surface.Instance._RemoveFocus = function (uie) {
+    if (Nullstone.RefEquals(this._FocusedElement, uie))
+        this._FocusElement(null);
+};
 Surface.Instance._EnsureElementFocused = function () {
 };
 Surface.Instance._EmitFocusChangeEventsAsync = function () {

@@ -73,11 +73,9 @@ Thumb.Instance.OnLostFocus = function (sender, args) {
 //#region Mouse
 
 Thumb.Instance.OnLostMouseCapture = function (sender, args) {
-    if (this.GetIsDragging() && this.GetIsEnabled()) {
-        this._SetValueInternal(Thumb.IsDraggingProperty, false);
-        this.ReleaseMouseCapture();
-        this._RaiseDragCompleted(false);
-    }
+    this.OnLostMouseCapture$Control(sender, args);
+    this._RaiseDragCompleted(false);
+    this._SetValueInternal(Thumb.IsDraggingProperty, false);
 };
 Thumb.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$Control(sender, args);
@@ -102,11 +100,14 @@ Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
         this.CaptureMouse();
         this._SetValueInternal(Thumb.IsDraggingProperty, true);
 
-        this._Origin = this._PreviousPosition = args.GetPosition(this._Parent);
+        this._Origin = this._PreviousPosition = args.GetPosition(this._GetLogicalParent());
+        var success = false;
         try {
             this._RaiseDragStarted();
+            success = true;
         } finally {
-            this.CancelDrag();
+            if (!success)
+                this.CancelDrag();
         }
     }
 };
@@ -115,7 +116,7 @@ Thumb.Instance.OnMouseMove = function (sender, args) {
     this.OnMouseMove$Control(sender, args);
     if (!this.GetIsDragging())
         return;
-    var p = args.GetPosition(this._Parent);
+    var p = args.GetPosition(this._GetLogicalParent());
     if (!Point.Equals(p, this._PreviousPosition)) {
         this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
         this._PreviousPosition = p;
@@ -230,7 +231,7 @@ Thumb.Instance.GetDefaultStyle = function () {
         Value: {
             Type: ControlTemplate,
             Props: {
-                TargetType: "Thumb"
+                TargetType: Thumb
             },
             Content: {
                 Type: Grid,
@@ -241,23 +242,14 @@ Thumb.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -284,7 +276,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -303,7 +295,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -322,7 +314,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -343,9 +335,6 @@ Thumb.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -353,7 +342,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#FF6DBDD1"
+        To: Color.FromHex("#FF6DBDD1")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -391,7 +380,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#D8FFFFFF"
+        To: Color.FromHex("#D8FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -410,7 +399,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -429,7 +418,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#8CFFFFFF"
+        To: Color.FromHex("#8CFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -448,7 +437,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#3FFFFFFF"
+        To: Color.FromHex("#3FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -469,9 +458,6 @@ Thumb.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -502,16 +488,10 @@ Thumb.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "FocusStates",
-    Props: {
-        Name: "FocusStates"
-    },
     Children: [
 {
     Type: VisualState,
     Name: "Focused",
-    Props: {
-        Name: "Focused"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -539,10 +519,7 @@ Thumb.Instance.GetDefaultStyle = function () {
 },
 {
     Type: VisualState,
-    Name: "Unfocused",
-    Props: {
-        Name: "Unfocused"
-    }
+    Name: "Unfocused"
 }]
 
 }]
@@ -555,7 +532,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: Border,
     Name: "Background",
     Props: {
-        Name: "Background",
         CornerRadius: new CornerRadius(2, 2, 2, 2),
         Background: {
             Type: SolidColorBrush,
@@ -578,7 +554,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Name: "BackgroundAnimation",
     Props: {
         Opacity: 0,
-        Name: "BackgroundAnimation",
         Background: {
             Type: SolidColorBrush,
             Props: {
@@ -591,7 +566,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Fill: {
             Type: LinearGradientBrush,
             Props: {
@@ -638,7 +612,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledVisualElement",
     Props: {
-        Name: "DisabledVisualElement",
         RadiusX: 2,
         RadiusY: 2,
         Fill: {
@@ -655,7 +628,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "FocusVisualElement",
     Props: {
-        Name: "FocusVisualElement",
         RadiusX: 1,
         RadiusY: 1,
         Margin: new Thickness(1, 1, 1, 1),

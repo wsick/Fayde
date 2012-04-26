@@ -93,6 +93,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Javascript\Controls\TextBoxBase.js" />
+    <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\Enum.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Core\StaticResourceExpression.js" />
@@ -110,6 +111,7 @@
     <Content Include="Javascript\Media\PathSegmentCollection.js" />
     <Content Include="Javascript\Media\Transform.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
+    <Content Include="Javascript\Runtime\InvalidOperationException.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
     <Content Include="Javascript\Runtime\NotSupportedException.js" />
     <Content Include="Javascript\Runtime\RoutedPropertyChangedEventArgs.js" />
@@ -316,7 +318,9 @@
     <Content Include="Silverlight.js" />
     <Content Include="Styles\HyperlinkButton.xml" />
     <Content Include="Styles\RepeatButton.xml" />
-    <Content Include="Styles\ScrollBar.xml" />
+    <Content Include="Styles\ScrollBar.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\ScrollViewer.xml" />
     <Content Include="Styles\TextBox.xml">
       <SubType>Designer</SubType>
@@ -324,12 +328,16 @@
     <Content Include="Styles\Button.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Styles\Thumb.xml" />
+    <Content Include="Styles\Thumb.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="jsTestDriver.conf" />
     <None Include="Tests\allstyles.fayde" />
     <None Include="Tests\binding.fayde" />
     <Content Include="Tests\heightTest.htm" />
-    <None Include="Tests\scrollbar.fayde" />
+    <None Include="Tests\scrollbar.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="Tips.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -359,7 +367,9 @@
     </None>
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
-    <None Include="Tests\basic.fayde" />
+    <None Include="Tests\basic.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Tests\brush.fayde" />
     <None Include="Tests\imagebrush.fayde" />
     <None Include="Tests\imaging.fayde">

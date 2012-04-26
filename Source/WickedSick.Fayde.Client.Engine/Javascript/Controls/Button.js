@@ -11,32 +11,25 @@
 //#region Button
 var Button = Nullstone.Create("Button", ButtonBase);
 
-Button.StateDisabled = "Disabled";
-Button.StatePressed = "Pressed";
-Button.StateMouseOver = "MouseOver";
-Button.StateNormal = "Normal";
-Button.StateFocused = "Focused";
-Button.StateUnfocused = "Unfocused";
-
 Button.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ButtonBase();
     this.UpdateVisualState(false);
 };
 Button.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
-        this._GoToState(useTransitions, Button.StateDisabled);
+        this._GoToState(useTransitions, "Disabled");
     } else if (this.GetIsPressed()) {
-        this._GoToState(useTransitions, Button.StatePressed);
+        this._GoToState(useTransitions, "Pressed");
     } else if (this.GetIsMouseOver()) {
-        this._GoToState(useTransitions, Button.StateMouseOver);
+        this._GoToState(useTransitions, "MouseOver");
     } else {
-        this._GoToState(useTransitions, Button.StateNormal);
+        this._GoToState(useTransitions, "Normal");
     }
 
     if (this.GetIsFocused() && this.GetIsEnabled()) {
-        this._GoToState(useTransitions, Button.StateFocused);
+        this._GoToState(useTransitions, "Focused");
     } else {
-        this._GoToState(useTransitions, Button.StateUnfocused);
+        this._GoToState(useTransitions, "Unfocused");
     }
 };
 Button.Instance.OnIsEnabledChanged = function (e) {

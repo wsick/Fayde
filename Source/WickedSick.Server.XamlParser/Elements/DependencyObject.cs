@@ -333,6 +333,8 @@ namespace WickedSick.Server.XamlParser.Elements
             var needsComma = false;
             foreach (PropertyDescription pd in properties.Keys)
             {
+                if (pd == DependencyObject.Name || pd == DependencyObject.Key)
+                    continue;
                 object value = properties[pd];
                 if (value == null) continue;
 

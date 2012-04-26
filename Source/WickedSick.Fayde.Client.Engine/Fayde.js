@@ -2963,6 +2963,96 @@ VisualTreeHelper.GetParent = function (d) {
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
     return Nullstone.As(fw.GetVisualParent(), DependencyObject);
 };
+VisualTreeHelper.__Debug = function (uie, func) {
+    var topLevel = uie;
+    if (topLevel != null) {
+        while (true) {
+            var temp = VisualTreeHelper.GetParent(topLevel);
+            if (temp == null)
+                break;
+            topLevel = temp;
+        }
+    } else {
+        topLevel = App.Instance.MainSurface._TopLevel;
+    }
+    if (!func)
+        func = VisualTreeHelper.__DebugUIElement;
+    return VisualTreeHelper.__DebugTree(topLevel, uie, 0, func);
+};
+VisualTreeHelper.__DebugTree = function (uie, uie2, tabIndex, func) {
+    var str = "";
+    for (var i = 0; i < tabIndex; i++) {
+        str += "\t";
+    }
+    if (Nullstone.RefEquals(uie, uie2))
+        str += "> ";
+    str += uie.constructor._TypeName;
+    var name = uie.GetName();
+    if (name)
+        str += " [" + name + "]";
+    if (func)
+        str += func(uie, tabIndex);
+    str += "\n";
+    var count = VisualTreeHelper.GetChildrenCount(uie);
+    var child;
+    for (var i = 0; i < count; i++) {
+        child = VisualTreeHelper.GetChild(uie, i);
+        str += VisualTreeHelper.__DebugTree(child, uie2, tabIndex + 1, func);
+    }
+    return str;
+};
+VisualTreeHelper.__DebugUIElement = function (uie, tabIndex) {
+    if (!uie)
+        return "";
+    var str = "(";
+    if (uie.GetVisibility() === Visibility.Visible)
+        str += "Visible";
+    else
+        str += "Collapsed";
+    str += " ";
+    var p = LayoutInformation.GetVisualOffset(uie);
+    if (p)
+        str += p.toString();
+    var size = new Size(uie.GetActualWidth(), uie.GetActualHeight());
+    str += " ";
+    str += size.toString();
+    str += ")";
+    var gridStr = VisualTreeHelper.__DebugGrid(uie, tabIndex);
+    if (gridStr)
+        str += "\n" + gridStr;
+    return str;
+};
+VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
+    var grid = Nullstone.As(uie, Grid);
+    if (grid == null)
+        return "";
+    var rds = grid.GetRowDefinitions();
+    var rcount = rds.GetCount();
+    var cds = grid.GetColumnDefinitions();
+    var ccount = cds.GetCount();
+    var tabs = "";
+    for (var i = 0; i < tabIndex; i++) {
+        tabs += "\t";
+    }
+    var str = "";
+    if (rcount > 0) {
+        str += tabs;
+        str += "  Rows (" + rcount + "):\n";
+        for (var i = 0; i < rcount; i++) {
+            str += tabs;
+            str += "\t[" + i + "] -> " + rds.GetValueAt(i).GetActualHeight() + "\n";
+        }
+    }
+    if (ccount > 0) {
+        str += tabs;
+        str += "  Columns (" + ccount + "):\n";
+        for (var i = 0; i < ccount; i++) {
+            str += tabs;
+            str += "\t[" + i + "] -> " + cds.GetValueAt(i).GetActualWidth() + "\n";
+        }
+    }
+    return str;
+};
 
 var _VisualTreeWalker = Nullstone.Create("_VisualTreeWalker", null, 2);
 _VisualTreeWalker.Instance.Init = function (obj, direction) {
@@ -3994,6 +4084,9 @@ _RenderContext.Instance.Clip = function (clip) {
     this._DrawClip(clip);
     this._Surface._Ctx.clip();
 };
+_RenderContext.Instance.IsPointInPath = function (p) {
+    return this._Surface._Ctx.isPointInPath(p.X, p.Y);
+};
 _RenderContext.Instance.IsPointInClipPath = function (clip, p) {
     this._DrawClip(clip);
     return this._Surface._Ctx.isPointInPath(p.X, p.Y);
@@ -4909,7 +5002,6 @@ Nullstone.FinishCreate(KeyTime);
 
 var Matrix = Nullstone.Create("Matrix", null, 2);
 Matrix.Instance.Init = function (els, inverse) {
-    this._IsCustom = true;
     if (els === undefined) {
         this._Elements = [1, 0, 0, 0, 1, 0];
         this._Type = MatrixTypes.Identity;
@@ -5269,6 +5361,9 @@ Rect.Instance.ContainsPointXY = function (x, y) {
         && (this.X + this.Width) >= x
         && (this.Y + this.Height) >= y;
 };
+Rect.Instance.toString = function () {
+    return "[X = " + this.X + + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
+};
 Rect.Equals = function (rect1, rect2) {
     if (rect1 == null && rect2 == null)
         return true;
@@ -5302,7 +5397,7 @@ Size.Instance.Max = function (size2) {
     return new Size(Math.max(this.Width, size2.Width), Math.max(this.Height, size2.Height));
 };
 Size.Instance.Equals = function (size2) {
-    return this.Width == size2.Width && this.Height == size2.Height;
+    return this.Width === size2.Width && this.Height === size2.Height;
 };
 Size.Instance.toString = function () {
     return "[Width = " + this.Width + "; Height = " + this.Height + "]";
@@ -5560,6 +5655,8 @@ MouseEventArgs.Instance.GetPosition = function (relativeTo) {
     var p = new Point(this._AbsolutePosition.X, this._AbsolutePosition.Y);
     if (relativeTo == null)
         return p;
+    if (!(relativeTo instanceof UIElement))
+        throw new ArgumentException("Specified relative object must be a UIElement.");
     if (relativeTo._IsAttached)
         "".toString(); //TODO: ProcessDirtyElements on surface
     relativeTo._TransformPoint(p);
@@ -5580,6 +5677,12 @@ Nullstone.FinishCreate(KeyEventArgs);
 
 var Exception = Nullstone.Create("Exception");
 Nullstone.FinishCreate(Exception);
+
+var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception, 1);
+InvalidOperationException.Instance.Init = function (message) {
+    this.Message = message;
+};
+Nullstone.FinishCreate(InvalidOperationException);
 
 var LinkedList = Nullstone.Create("LinkedList");
 LinkedList.Instance.Init = function () {
@@ -5803,9 +5906,9 @@ Nullstone.FinishCreate(_TextBoxUndoActionReplace);
 
 var DragCompletedEventArgs = Nullstone.Create("DragCompletedEventArgs", RoutedEventArgs, 3);
 DragCompletedEventArgs.Instance.Init = function (horizontal, vertical, canceled) {
+    this.HorizontalChange = horizontal;
+    this.VerticalChange = vertical;
     this.Canceled = canceled;
-    this.HorizontalChange = horizontalChange;
-    this.VerticalChange = verticalChange;
 };
 Nullstone.FinishCreate(DragCompletedEventArgs);
 
@@ -5841,7 +5944,7 @@ FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (prop
     if (propd._ID !== FrameworkElement.ActualHeightProperty._ID && propd._ID !== FrameworkElement.ActualWidthProperty._ID)
         return undefined;
     var actual = this._Object._ComputeActualSize();
-    if (!this._Last.Equals(actual)) {
+    if (!Size.Equals(this._Last, actual)) {
         this._Last = actual;
         this._ActualHeight = actual.Height;
         this._ActualWidth = actual.Width;
@@ -5923,6 +6026,13 @@ RequestBringIntoViewEventArgs.Instance.Init = function (targetObject, targetRect
     this.TargetRect = targetRect;
 };
 Nullstone.FinishCreate(RequestBringIntoViewEventArgs);
+
+var SizeChangedEventArgs = Nullstone.Create("SizeChangedEventArgs", RoutedEventArgs, 2);
+SizeChangedEventArgs.Instance.Init = function (prevSize, newSize) {
+    this.PreviousSize = prevSize.Copy();
+    this.NewSize = newSize.Copy();
+};
+Nullstone.FinishCreate(SizeChangedEventArgs);
 
 var UIElementNode = Nullstone.Create("UIElementNode", LinkedListNode, 1);
 UIElementNode.Instance.Init = function (element) {
@@ -7478,6 +7588,10 @@ Surface.Instance._FocusElement = function (uie) {
         this._EmitFocusChangeEventsAsync();
     return true;
 };
+Surface.Instance._RemoveFocus = function (uie) {
+    if (Nullstone.RefEquals(this._FocusedElement, uie))
+        this._FocusElement(null);
+};
 Surface.Instance._EnsureElementFocused = function () {
 };
 Surface.Instance._EmitFocusChangeEventsAsync = function () {
@@ -8906,15 +9020,38 @@ UIElement.Instance._InsideClip = function (ctx, x, y) {
     return ctx.IsPointInClipPath(clip, np);
 };
 UIElement.Instance._TransformPoint = function (p) {
+    var transform = this._CachedTransform;
+    if (!transform)
+        transform = this._GetCachedTransform();
     var inverse;
-    if (!this._CachedTransform || !(inverse = this._CachedTransform.Inverse))
+    if (!(inverse = transform.Inverse)) {
+        Warn("Could not get inverse of cached transform for UIElement.");
         return;
+    }
     var np = inverse.MultiplyPoint(p);
     p.X = np.X;
     p.Y = np.Y;
 };
 UIElement.Instance._CanFindElement = function () {
     return false;
+};
+UIElement.Instance._CreateOriginTransform = function () {
+    var visualOffset = LayoutInformation.GetVisualOffset(this);
+    return Matrix.CreateTranslate(visualOffset.X, visualOffset.Y);
+};
+UIElement.Instance._GetCachedTransform = function () {
+    if (this._CachedTransform == null) {
+        var transform = this._CreateOriginTransform();
+        var ancestor = { Normal: new Matrix(), Inverse: new Matrix() };
+        var parent = this.GetVisualParent();
+        if (parent)
+            ancestor = parent._GetCachedTransform();
+        this._CachedTransform = {
+            Normal: transform.MultiplyMatrix(ancestor.Normal),
+            Inverse: ancestor.Inverse.MultiplyMatrix(transform.GetInverse())
+        };
+    }
+    return this._CachedTransform;
 };
 UIElement.Instance._GetGlobalBounds = function () {
     return this._GlobalBounds;
@@ -9017,13 +9154,12 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
         return;
     }
     if (region.IsEmpty()) {
-        Info("Nothing to render. [" + this.constructor._TypeName + "]");
         return;
     }
-    var visualOffset = LayoutInformation.GetVisualOffset(this);
     ctx.Save();
-    if (visualOffset.X !== 0 || visualOffset.Y !== 0)
-        ctx.Transform(Matrix.CreateTranslate(visualOffset.X, visualOffset.Y));
+    var transform = this._CreateOriginTransform();
+    if (transform._Type !== MatrixTypes.Identity)
+        ctx.Transform(transform);
     this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
     this._Render(ctx, region);
@@ -9161,9 +9297,9 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
-    if (args.Property === UIElement.OpacityProperty) {
+    if (args.Property._ID === UIElement.OpacityProperty._ID) {
         this._InvalidateVisibility();
-    } else if (args.Property === UIElement.VisibilityProperty) {
+    } else if (args.Property._ID === UIElement.VisibilityProperty._ID) {
         if (args.NewValue === Visibility.Visible)
             this._Flags |= UIElementFlags.RenderVisible;
         else
@@ -9171,8 +9307,16 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateVisibility();
         this._InvalidateMeasure();
         var parent = this.GetVisualParent();
-        if (parent)
+        if (parent != null)
             parent._InvalidateMeasure();
+        App.Instance.MainSurface._RemoveFocus(this);
+    } else if (args.Property._ID === UIElement.IsHitTestVisibleProperty._ID) {
+        if (args.NewValue === true) {
+            this._Flags |= UIElementFlags.HitTestVisible;
+        } else {
+            this._Flags &= ~UIElementFlags.HitTestVisible;
+        }
+        this._UpdateTotalHitTestVisibility();
     }
     this.PropertyChanged.Raise(this, args);
 };
@@ -9272,7 +9416,10 @@ UIElement.Instance._EmitLostFocus = function () {
 };
 UIElement.Instance.OnLostFocus = function (sender, args) { };
 UIElement._IsOpacityInvisible = function (opacity) {
-    return opacity <= 0.0;
+    return opacity * 255 < .5;
+};
+UIElement._IsOpacityTranslucent = function (opacity) {
+    return opacity * 255 < 245.5;
 };
 UIElement.ZIndexComparer = function (uie1, uie2) {
     var zi1 = Canvas.GetZIndex(uie1);
@@ -11394,7 +11541,6 @@ Nullstone.FinishCreate(DataTemplate);
 var FrameworkElement = Nullstone.Create("FrameworkElement", UIElement);
 FrameworkElement.Instance.Init = function () {
     this.Init$UIElement();
-    this.TemplatedApplied = new MulticastEvent();
     this._BoundsWithChildren = new Rect();
     this._GlobalBoundsWithChildren = new Rect();
     this._SurfaceBoundsWithChildren = new Rect();
@@ -11403,6 +11549,7 @@ FrameworkElement.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.ImplicitStyle] = new _ImplicitStylePropertyValueProvider(this, _PropertyPrecedence.ImplicitStyle);
     this._Providers[_PropertyPrecedence.DynamicValue] = new FrameworkElementPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
+    this.SizeChanged = new MulticastEvent();
 };
 FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.Instance.GetHeight = function () {
@@ -11418,11 +11565,11 @@ FrameworkElement.Instance.GetWidth = function () {
 FrameworkElement.Instance.SetWidth = function (value) {
     this.$SetValue(FrameworkElement.WidthProperty, value);
 };
-FrameworkElement.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, FrameworkElement);
+FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
 FrameworkElement.Instance.GetActualHeight = function () {
     return this.$GetValue(FrameworkElement.ActualHeightProperty);
 };
-FrameworkElement.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, FrameworkElement);
+FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
 FrameworkElement.Instance.GetActualWidth = function () {
     return this.$GetValue(FrameworkElement.ActualWidthProperty);
 };
@@ -11528,11 +11675,6 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     }
     return constrained;
 };
-FrameworkElement.Instance._GetSubtreeExtents = function () {
-    if (this._GetSubtreeObject())
-        return this._ExtentsWithChildren;
-    return this._Extents;
-};
 FrameworkElement.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
     if (this.GetVisibility() !== Visibility.Visible)
@@ -11566,6 +11708,11 @@ FrameworkElement.Instance._ComputeGlobalBounds = function () {
 FrameworkElement.Instance._ComputeSurfaceBounds = function () {
     this._ComputeSurfaceBounds$UIElement();
     this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
+};
+FrameworkElement.Instance._GetSubtreeExtents = function () {
+    if (this._GetSubtreeObject())
+        return this._ExtentsWithChildren;
+    return this._Extents;
 };
 FrameworkElement.Instance._GetGlobalBounds = function () {
     if (this._GetSubtreeObject())
@@ -11692,6 +11839,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         framework.Height = Math.max(framework.Height, stretched.Height);
     offer = offer.Max(framework);
     LayoutInformation.SetLayoutSlot(this, finalRect);
+    var response;
     if (this.ArrangeOverride)
         response = this.ArrangeOverride(offer);
     else
@@ -11834,10 +11982,10 @@ FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
         uielist.Remove(node);
 };
 FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
     var np = new Point(x, y);
     this._TransformPoint(np);
-    if (np.X < 0 || np.Y < 0 || np.X > framework.Width || np.Y > framework.Height)
+    var extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    if (!extents.ContainsPointXY(np.X, np.Y))
         return false;
     if (!this._InsideLayoutClip(x, y))
         return false;
@@ -11960,6 +12108,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 var last = LayoutInformation.GetLastRenderSize(fe);
                 if (last) {
                     fe.ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                    fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._GetRenderSize()));
                 }
             }
             Info("Completed _SizeList Update");
@@ -11992,9 +12141,7 @@ FrameworkElement.Instance._ClearImplicitStyles = function (styleMask) {
     var error = new BError();
     this._Providers[_PropertyPrecedence.ImplicitStyle].ClearStyles(styleMask, error);
 };
-FrameworkElement.Instance.OnApplyTemplate = function () {
-    this.TemplatedApplied.Raise(this, null);
-};
+FrameworkElement.Instance.OnApplyTemplate = function () { };
 FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
     if (this._GetSubtreeObject())
         return false;
@@ -12839,6 +12986,7 @@ Shape.Instance.Init = function () {
     this.Init$FrameworkElement();
     this._ShapeFlags = 0;
     this._StretchTransform = new Matrix();
+    this._NaturalBounds = new Rect();
 };
 Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Brush; }, Shape);
 Shape.Instance.GetFill = function () {
@@ -13209,7 +13357,6 @@ Shape.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     NotImplemented("Shape._ComputeShapeBoundsImpl");
 };
 Shape.Instance._InsideObject = function (ctx, x, y) {
-    var ret = false;
     if (!this._InsideLayoutClip(x, y))
         return false;
     if (!this._InsideClip(ctx, x, y))
@@ -13220,7 +13367,23 @@ Shape.Instance._InsideObject = function (ctx, x, y) {
     y = p.Y;
     if (!this._GetStretchExtents().ContainsPointXY(x, y))
         return false;
+    return this._InsideShape(ctx, x, y);
+};
+Shape.Instance._InsideShape = function (ctx, x, y) {
+    if (this._IsEmpty())
+        return false;
+    var ret = false;
+    var area = this._GetStretchExtents();
     ctx.Save();
+    ctx.PreTransform(this._StretchTransform);
+    if (this._Fill != null) {
+        this._DrawPath(ctx);
+        if (ctx.IsPointInPath(new Point(x, y)))
+            ret = true;
+    }
+    if (!ret && this._Stroke != null) {
+        NotImplemented("Shape._InsideShape-Stroke");
+    }
     ctx.Restore();
     return ret;
 };
@@ -13733,6 +13896,9 @@ Control.Instance._ElementRemoved = function (item) {
     }
     item._RemoveParent(this, error);
     this._ElementRemoved$FrameworkElement(item);
+};
+Control.Instance.IsLayoutContainer = function () {
+    return true;
 };
 Control.Instance.CanCaptureMouse = function () {
     return this.GetIsEnabled();
@@ -16403,6 +16569,7 @@ var ScrollBar = Nullstone.Create("ScrollBar", RangeBase);
 ScrollBar.Instance.Init = function () {
     this.Init$RangeBase();
     this.Scroll = new MulticastEvent();
+    this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
 };
 ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, ScrollBar, Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
 ScrollBar.Instance.GetOrientation = function () {
@@ -16489,6 +16656,7 @@ ScrollBar.Instance.OnIsEnabledChanged = function (args) {
     this.UpdateVisualState();
 };
 ScrollBar.Instance.OnLostMouseCapture = function (sender, args) {
+    this.OnLostMouseCapture$RangeBase(sender, args);
     this.UpdateVisualState();
 };
 ScrollBar.Instance.OnMouseEnter = function (sender, args) {
@@ -16524,7 +16692,11 @@ ScrollBar.Instance.OnMouseLeftButtonDown = function (sender, args) {
 };
 ScrollBar.Instance.OnMouseLeftButtonUp = function (sender, args) {
     this.OnMouseLeftButtonUp$RangeBase(sender, args);
+    if (args.Handled)
+        return;
     args.Handled = true;
+    this.ReleaseMouseCapture();
+    this.UpdateVisualState();
 };
 ScrollBar.Instance._OnMaximumChanged = function (oldMax, newMax) {
     var trackLength = this._GetTrackLength();
@@ -16602,13 +16774,16 @@ ScrollBar.Instance._LargeIncrement = function (sender, args) {
         this._RaiseScroll(ScrollEventType.LargeIncrement);
     }
 };
+ScrollBar.Instance._HandleSizeChanged = function () {
+    this._UpdateTrackLayout(this._GetTrackLength());
+};
 ScrollBar.Instance._OnOrientationChanged = function () {
     var orientation = this.GetOrientation();
     if (this.$ElementHorizontalTemplate != null) {
         this.$ElementHorizontalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed);
     }
     if (this.$ElementVerticalTemplate != null) {
-        this.$ElementHorizontalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible);
+        this.$ElementVerticalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible);
     }
     this._UpdateTrackLayout(this._GetTrackLength());
 };
@@ -16616,50 +16791,43 @@ ScrollBar.Instance._UpdateTrackLayout = function (trackLength) {
     var max = this.GetMaximum();
     var min = this.GetMinimum();
     var val = this.GetValue();
-    var num = (val - min) / (max - min);
-    var num1 = this._UpdateThumbSize(trackLength);
+    var multiplier = (val - min) / (max - min);
+    var thumbSize = this._UpdateThumbSize(trackLength);
     var orientation = this.GetOrientation();
-    if (orientation !== Orientation.Horizontal || this.$ElementHorizontalLargeDecrease == null || this.$ElementHorizontalThumb == null) {
-        if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease != null && this.$ElementVerticalThumb != null) {
-            this.$ElementVerticalLargeDecrease.SetHeight(Math.max(0, num * (trackLength - num1)));
-        }
-    } else {
-        this.$ElementHorizontalLargeDecrease.SetWidth(Math.max(0, num * (trackLength - num1)));
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease != null && this.$ElementHorizontalThumb != null) {
+        this.$ElementHorizontalLargeDecrease.SetWidth(Math.max(0, multiplier * (trackLength - thumbSize)));
+    } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease != null && this.$ElementVerticalThumb != null) {
+        this.$ElementVerticalLargeDecrease.SetHeight(Math.max(0, multiplier * (trackLength - thumbSize)));
     }
 };
 ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
-    var num = NaN;
-    var flag = trackLength <= 0;
+    var result = Number.NaN;
+    var hideThumb = trackLength <= 0;
     if (trackLength > 0) {
         var orientation = this.GetOrientation();
         var max = this.GetMaximum();
         var min = this.GetMinimum();
-        var diff = max - min;
-        if (orientation !== Orientation.Horizontal || this.$ElementHorizontalThumb == null) {
-            if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null) {
-                if (diff !== 0) {
-                    num = Math.max(this.$ElementVerticalThumb.GetMinHeight(), this._ConvertViewportSizeToDisplayUnits(trackLength));
-                }
-                if (diff === 0 || num > this.GetActualHeight() || trackLength <= this.$ElementVerticalThumb.GetMinHeight()) {
-                    flag = true;
-                } else {
-                    this.$ElementVerticalThumb.SetVisibility(Visibility.Visible);
-                    this.$ElementVerticalThumb.SetHeight(num);
-                }
-            }
-        } else {
-            if (diff !== 0) {
-                num = Math.max(this.$ElementHorizontalThumb.GetMinWidth(), this._ConvertViewportSizeToDisplayUnits(trackLength));
-            }
-            if (diff === 0 || num > this.GetActualWidth() || trackLength <= this.$ElementHorizontalThumb.GetMinWidth()) {
-                flag = true;
+        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb != null) {
+            if (max - min !== 0)
+                result = Math.max(this.$ElementHorizontalThumb.GetMinWidth(), this._ConvertViewportSizeToDisplayUnits(trackLength));
+            if (max - min === 0 || result > this.GetActualWidth() || trackLength <= this.$ElementHorizontalThumb.GetMinWidth()) {
+                hideThumb = true;
             } else {
                 this.$ElementHorizontalThumb.SetVisibility(Visibility.Visible);
-                this.$ElementHorizontalThumb.SetWidth(num);
+                this.$ElementHorizontalThumb.SetWidth(result);
+            }
+        } else if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null) {
+            if (max - min !== 0)
+                result = Math.max(this.$ElementVerticalThumb.GetMinHeight(), this._ConvertViewportSizeToDisplayUnits(trackLength));
+            if (max - min === 0 || result > this.GetActualHeight() || trackLength <= this.$ElementVerticalThumb.GetMinHeight()) {
+                hideThumb = true;
+            } else {
+                this.$ElementVerticalThumb.SetVisibility(Visibility.Visible);
+                this.$ElementVerticalThumb.SetHeight(result);
             }
         }
     }
-    if (flag) {
+    if (hideThumb) {
         if (this.$ElementHorizontalThumb != null) {
             this.$ElementHorizontalThumb.SetVisibility(Visibility.Collapsed);
         }
@@ -16667,7 +16835,7 @@ ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
             this.$ElementVerticalThumb.SetVisibility(Visibility.Collapsed);
         }
     }
-    return num;
+    return result;
 };
 ScrollBar.Instance._GetTrackLength = function () {
     var actual = NaN;
@@ -16748,30 +16916,27 @@ ScrollBar.Instance.GetDefaultStyle = function () {
         Value: {
             Type: ControlTemplate,
             Props: {
-                TargetType: "ScrollBar"
+                TargetType: ScrollBar
             },
             Content: {
                 Type: Grid,
                 Name: "Root",
                 Props: {
-                    Name: "Root",
                     Resources: [
 {
     Type: ControlTemplate,
     Key: "RepeatButtonTemplate",
     Props: {
-        Key: "RepeatButtonTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
         Props: {
-            Name: "Root",
             Background: {
                 Type: SolidColorBrush,
                 Props: {
-                    Color: Color.FromHex("#FFFFFF")
+                    Color: Color.FromHex("#00FFFFFF")
                 }
             }
         },
@@ -16782,16 +16947,10 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 }]
 }]
         }
@@ -16802,15 +16961,11 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "HorizontalIncrementTemplate",
     Props: {
-        Key: "HorizontalIncrementTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
-        Props: {
-            Name: "Root"
-        },
         AttachedProps: [{
             Owner: VisualStateManager,
             Prop: "VisualStateGroups",
@@ -16818,23 +16973,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -16951,9 +17097,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -17106,9 +17249,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -17140,7 +17280,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -17193,7 +17332,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundAnimation",
     Props: {
-        Name: "BackgroundAnimation",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -17216,7 +17354,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -17270,7 +17407,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -17296,7 +17432,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Type: SolidColorBrush,
             Name: "ButtonColor",
             Props: {
-                Name: "ButtonColor",
                 Color: Color.FromHex("#FF333333")
             }
         }
@@ -17306,7 +17441,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledElement",
     Props: {
-        Name: "DisabledElement",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -17324,15 +17458,11 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "HorizontalDecrementTemplate",
     Props: {
-        Key: "HorizontalDecrementTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
-        Props: {
-            Name: "Root"
-        },
         AttachedProps: [{
             Owner: VisualStateManager,
             Prop: "VisualStateGroups",
@@ -17340,23 +17470,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -17473,9 +17594,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -17628,9 +17746,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -17662,7 +17777,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -17715,7 +17829,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -17738,7 +17851,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -17761,7 +17873,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -17815,7 +17926,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -17841,7 +17951,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Type: SolidColorBrush,
             Name: "ButtonColor",
             Props: {
-                Name: "ButtonColor",
                 Color: Color.FromHex("#FF333333")
             }
         }
@@ -17851,7 +17960,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledElement",
     Props: {
-        Name: "DisabledElement",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -17869,15 +17977,11 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "VerticalIncrementTemplate",
     Props: {
-        Key: "VerticalIncrementTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
-        Props: {
-            Name: "Root"
-        },
         AttachedProps: [{
             Owner: VisualStateManager,
             Prop: "VisualStateGroups",
@@ -17885,23 +17989,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -18018,9 +18113,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -18173,9 +18265,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -18207,7 +18296,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -18260,7 +18348,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -18283,7 +18370,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -18306,7 +18392,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -18360,7 +18445,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -18386,7 +18470,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Type: SolidColorBrush,
             Name: "ButtonColor",
             Props: {
-                Name: "ButtonColor",
                 Color: Color.FromHex("#FF333333")
             }
         }
@@ -18396,7 +18479,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledElement",
     Props: {
-        Name: "DisabledElement",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -18414,15 +18496,11 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "VerticalDecrementTemplate",
     Props: {
-        Key: "VerticalDecrementTemplate",
-        TargetType: "RepeatButton"
+        TargetType: RepeatButton
     },
     Content: {
         Type: Grid,
         Name: "Root",
-        Props: {
-            Name: "Root"
-        },
         AttachedProps: [{
             Owner: VisualStateManager,
             Prop: "VisualStateGroups",
@@ -18430,23 +18508,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -18563,9 +18632,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -18718,9 +18784,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -18752,7 +18815,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -18805,7 +18867,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -18828,7 +18889,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -18851,7 +18911,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -18905,7 +18964,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         Opacity: 0,
         RadiusX: 1,
         RadiusY: 1,
@@ -18931,7 +18989,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Type: SolidColorBrush,
             Name: "ButtonColor",
             Props: {
-                Name: "ButtonColor",
                 Color: Color.FromHex("#FF333333")
             }
         }
@@ -18941,7 +18998,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledElement",
     Props: {
-        Name: "DisabledElement",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -18959,8 +19015,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "VerticalThumbTemplate",
     Props: {
-        Key: "VerticalThumbTemplate",
-        TargetType: "Thumb"
+        TargetType: Thumb
     },
     Content: {
         Type: Grid,
@@ -18971,23 +19026,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -19068,9 +19114,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -19187,9 +19230,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -19221,7 +19261,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Grid,
     Name: "ThumbVisual",
     Props: {
-        Name: "ThumbVisual",
         Margin: new Thickness(1, 0, 1, 0)
     },
     Children: [
@@ -19229,7 +19268,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         RadiusX: 2,
         RadiusY: 2,
         Fill: {
@@ -19281,7 +19319,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -19304,7 +19341,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -19327,7 +19363,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         RadiusX: 1,
         RadiusY: 1,
         StrokeThickness: 1,
@@ -19380,7 +19415,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         RadiusX: 1,
         RadiusY: 1,
         Opacity: 0,
@@ -19402,8 +19436,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: ControlTemplate,
     Key: "HorizontalThumbTemplate",
     Props: {
-        Key: "HorizontalThumbTemplate",
-        TargetType: "Thumb"
+        TargetType: Thumb
     },
     Content: {
         Type: Grid,
@@ -19414,23 +19447,14 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -19511,9 +19535,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -19630,9 +19651,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -19664,7 +19682,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Grid,
     Name: "ThumbVisual",
     Props: {
-        Name: "ThumbVisual",
         Margin: new Thickness(0, 1, 0, 1)
     },
     Children: [
@@ -19672,7 +19689,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Background",
     Props: {
-        Name: "Background",
         RadiusX: 2,
         RadiusY: 2,
         Fill: {
@@ -19724,7 +19740,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundMouseOver",
     Props: {
-        Name: "BackgroundMouseOver",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -19747,7 +19762,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundPressed",
     Props: {
-        Name: "BackgroundPressed",
         Opacity: 0,
         RadiusX: 2,
         RadiusY: 2,
@@ -19770,7 +19784,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         RadiusX: 1,
         RadiusY: 1,
         StrokeThickness: 1,
@@ -19823,7 +19836,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "Highlight",
     Props: {
-        Name: "Highlight",
         RadiusX: 1,
         RadiusY: 1,
         Opacity: 0,
@@ -19849,30 +19861,18 @@ ScrollBar.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
-    Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    }
+    Name: "MouseOver"
 },
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -19904,7 +19904,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Grid,
     Name: "HorizontalRoot",
     Props: {
-        Name: "HorizontalRoot",
         ColumnDefinitions: [
 {
     Type: ColumnDefinition,
@@ -20105,7 +20104,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "HorizontalSmallDecrease",
     Props: {
-        Name: "HorizontalSmallDecrease",
         Width: 16,
         IsTabStop: false,
         Interval: 50,
@@ -20123,7 +20121,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "HorizontalLargeDecrease",
     Props: {
-        Name: "HorizontalLargeDecrease",
         Width: 0,
         Template: new StaticResourceMarkup("RepeatButtonTemplate"),
         Interval: 50,
@@ -20140,7 +20137,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Thumb,
     Name: "HorizontalThumb",
     Props: {
-        Name: "HorizontalThumb",
         Background: new TemplateBindingMarkup("Background"),
         MinWidth: 18,
         Width: 18,
@@ -20157,7 +20153,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "HorizontalLargeIncrease",
     Props: {
-        Name: "HorizontalLargeIncrease",
         Template: new StaticResourceMarkup("RepeatButtonTemplate"),
         Interval: 50,
         IsTabStop: false
@@ -20173,7 +20168,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "HorizontalSmallIncrease",
     Props: {
-        Name: "HorizontalSmallIncrease",
         Width: 16,
         IsTabStop: false,
         Interval: 50,
@@ -20192,7 +20186,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Grid,
     Name: "VerticalRoot",
     Props: {
-        Name: "VerticalRoot",
         Visibility: Visibility.Collapsed,
         RowDefinitions: [
 {
@@ -20373,7 +20366,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "VerticalSmallDecrease",
     Props: {
-        Name: "VerticalSmallDecrease",
         Height: 16,
         IsTabStop: false,
         Interval: 50,
@@ -20391,7 +20383,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "VerticalLargeDecrease",
     Props: {
-        Name: "VerticalLargeDecrease",
         Height: 0,
         Template: new StaticResourceMarkup("RepeatButtonTemplate"),
         Interval: 50,
@@ -20408,7 +20399,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: Thumb,
     Name: "VerticalThumb",
     Props: {
-        Name: "VerticalThumb",
         MinHeight: 18,
         Height: 18,
         Template: new StaticResourceMarkup("VerticalThumbTemplate")
@@ -20424,7 +20414,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "VerticalLargeIncrease",
     Props: {
-        Name: "VerticalLargeIncrease",
         Template: new StaticResourceMarkup("RepeatButtonTemplate"),
         Interval: 50,
         IsTabStop: false
@@ -20440,7 +20429,6 @@ ScrollBar.Instance.GetDefaultStyle = function () {
     Type: RepeatButton,
     Name: "VerticalSmallIncrease",
     Props: {
-        Name: "VerticalSmallIncrease",
         Height: 16,
         IsTabStop: false,
         Interval: 50,
@@ -20512,11 +20500,9 @@ Thumb.Instance.OnLostFocus = function (sender, args) {
     this._FocusChanged(this._HasFocus());
 };
 Thumb.Instance.OnLostMouseCapture = function (sender, args) {
-    if (this.GetIsDragging() && this.GetIsEnabled()) {
-        this._SetValueInternal(Thumb.IsDraggingProperty, false);
-        this.ReleaseMouseCapture();
-        this._RaiseDragCompleted(false);
-    }
+    this.OnLostMouseCapture$Control(sender, args);
+    this._RaiseDragCompleted(false);
+    this._SetValueInternal(Thumb.IsDraggingProperty, false);
 };
 Thumb.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$Control(sender, args);
@@ -20540,11 +20526,14 @@ Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
         args.Handled = true;
         this.CaptureMouse();
         this._SetValueInternal(Thumb.IsDraggingProperty, true);
-        this._Origin = this._PreviousPosition = args.GetPosition(this._Parent);
+        this._Origin = this._PreviousPosition = args.GetPosition(this._GetLogicalParent());
+        var success = false;
         try {
             this._RaiseDragStarted();
+            success = true;
         } finally {
-            this.CancelDrag();
+            if (!success)
+                this.CancelDrag();
         }
     }
 };
@@ -20552,7 +20541,7 @@ Thumb.Instance.OnMouseMove = function (sender, args) {
     this.OnMouseMove$Control(sender, args);
     if (!this.GetIsDragging())
         return;
-    var p = args.GetPosition(this._Parent);
+    var p = args.GetPosition(this._GetLogicalParent());
     if (!Point.Equals(p, this._PreviousPosition)) {
         this._RaiseDragDelta(p.X - this._PreviousPosition.X, p.Y - this._PreviousPosition.Y);
         this._PreviousPosition = p;
@@ -20660,7 +20649,7 @@ Thumb.Instance.GetDefaultStyle = function () {
         Value: {
             Type: ControlTemplate,
             Props: {
-                TargetType: "Thumb"
+                TargetType: Thumb
             },
             Content: {
                 Type: Grid,
@@ -20671,23 +20660,14 @@ Thumb.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -20713,7 +20693,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#F2FFFFFF"
+        To: Color.FromHex("#F2FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -20731,7 +20711,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#CCFFFFFF"
+        To: Color.FromHex("#CCFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -20749,7 +20729,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#7FFFFFFF"
+        To: Color.FromHex("#7FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -20768,9 +20748,6 @@ Thumb.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -20778,7 +20755,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#FF6DBDD1"
+        To: Color.FromHex("#FF6DBDD1")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -20814,7 +20791,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#D8FFFFFF"
+        To: Color.FromHex("#D8FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -20832,7 +20809,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#C6FFFFFF"
+        To: Color.FromHex("#C6FFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -20850,7 +20827,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#8CFFFFFF"
+        To: Color.FromHex("#8CFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -20868,7 +20845,7 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: ColorAnimation,
     Props: {
         Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
-        To: "#3FFFFFFF"
+        To: Color.FromHex("#3FFFFFFF")
     },
     AttachedProps: [{
         Owner: Storyboard,
@@ -20887,9 +20864,6 @@ Thumb.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -20917,16 +20891,10 @@ Thumb.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "FocusStates",
-    Props: {
-        Name: "FocusStates"
-    },
     Children: [
 {
     Type: VisualState,
     Name: "Focused",
-    Props: {
-        Name: "Focused"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -20952,10 +20920,7 @@ Thumb.Instance.GetDefaultStyle = function () {
 },
 {
     Type: VisualState,
-    Name: "Unfocused",
-    Props: {
-        Name: "Unfocused"
-    }
+    Name: "Unfocused"
 }]
 }]
                 }
@@ -20965,7 +20930,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: Border,
     Name: "Background",
     Props: {
-        Name: "Background",
         CornerRadius: new CornerRadius(2, 2, 2, 2),
         Background: {
             Type: SolidColorBrush,
@@ -20988,7 +20952,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Name: "BackgroundAnimation",
     Props: {
         Opacity: 0,
-        Name: "BackgroundAnimation",
         Background: {
             Type: SolidColorBrush,
             Props: {
@@ -21001,7 +20964,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Fill: {
             Type: LinearGradientBrush,
             Props: {
@@ -21046,7 +21008,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledVisualElement",
     Props: {
-        Name: "DisabledVisualElement",
         RadiusX: 2,
         RadiusY: 2,
         Fill: {
@@ -21063,7 +21024,6 @@ Thumb.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "FocusVisualElement",
     Props: {
-        Name: "FocusVisualElement",
         RadiusX: 1,
         RadiusY: 1,
         Margin: new Thickness(1, 1, 1, 1),
@@ -21808,12 +21768,12 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var node;
     var gridWalker = new _GridWalker(this, this._RowMatrix, this._RowMatrixDim, this._ColMatrix, this._ColMatrixDim);
     for (i = 0; i < 6; i++) {
-        var autoAuto = i == 0;
-        var starAuto = i == 1;
-        var autoStar = i == 2;
-        var starAutoAgain = i == 3;
-        var nonStar = i == 4;
-        var remainingStar = i == 5;
+        var autoAuto = i === 0;
+        var starAuto = i === 1;
+        var autoStar = i === 2;
+        var starAutoAgain = i === 3;
+        var nonStar = i === 4;
+        var remainingStar = i === 5;
         if (hasChildren) {
             this._ExpandStarCols(totalSize);
             this._ExpandStarRows(totalSize);
@@ -21830,13 +21790,13 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
             var row = Math.min(Grid.GetRow(child), rowCount - 1);
             var colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
             var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
-            for (r = 0; r < row + rowspan; r++) {
-                starRow = starRow || (this._RowMatrix[r][r]._Type == GridUnitType.Star);
-                autoRow = autoRow || (this._RowMatrix[r][r]._Type == GridUnitType.Auto);
+            for (r = row; r < row + rowspan; r++) {
+                starRow |= this._RowMatrix[r][r]._Type === GridUnitType.Star;
+                autoRow |= this._RowMatrix[r][r]._Type === GridUnitType.Auto;
             }
-            for (c = 0; c < col + colspan; c++) {
-                starCol = starCol || (this._ColMatrix[c][c]._Type == GridUnitType.Star);
-                autoCol = autoCol || (this._ColMatrix[c][c]._Type == GridUnitType.Auto);
+            for (c = col; c < col + colspan; c++) {
+                starCol |= this._ColMatrix[c][c]._Type === GridUnitType.Star;
+                autoCol |= this._ColMatrix[c][c]._Type === GridUnitType.Auto;
             }
             if (autoRow && autoCol && !starRow && !starCol) {
                 if (!autoAuto)
@@ -21877,10 +21837,10 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
             var desired = child._DesiredSize;
             if (!starAuto) {
                 node = new _GridNode(this._RowMatrix, row + rowspan - 1, row, desired.Height);
-                sizes.InsertBefore(node, node._Row == node._Col ? separator.Next : separator);
+                sizes.InsertBefore(node, node._Row === node._Col ? separator.Next : separator);
             }
             node = new _GridNode(this._ColMatrix, col + colspan - 1, col, desired.Width);
-            sizes.InsertBefore(node, node._Row == node._Col ? separator.Next : separator);
+            sizes.InsertBefore(node, node._Row === node._Col ? separator.Next : separator);
         }
         sizes.Remove(separator);
         while (node = sizes.Last()) {
@@ -21916,9 +21876,9 @@ Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     for (r = 0; r < this._RowMatrixDim; r++) {
         totalConsumed.Height += this._RowMatrix[r][r]._SetOfferedToDesired();
     }
-    if (totalConsumed.Width != finalSize.Width)
+    if (totalConsumed.Width !== finalSize.Width)
         this._ExpandStarCols(finalSize);
-    if (totalConsumed.Height != finalSize.Height)
+    if (totalConsumed.Height !== finalSize.Height)
         this._ExpandStarRows(finalSize);
     for (c = 0; c < colCount; c++) {
         columns.GetValueAt(c).SetActualWidth(this._ColMatrix[c][c]._OfferedSize);
@@ -22003,7 +21963,7 @@ Grid.Instance._AllocateDesiredSize = function (rowCount, colCount) {
             for (var col = row; col >= 0; col--) {
                 var spansStar = false;
                 for (var j = row; j >= col; j--) {
-                    spansStar = spansStar || (matrix[j][j]._Type === GridUnitType.Star);
+                    spansStar |= matrix[j][j]._Type === GridUnitType.Star;
                 }
                 var current = matrix[row][col]._DesiredSize;
                 var totalAllocated = 0;
@@ -22052,7 +22012,7 @@ Grid.Instance._AssignSize = function (matrix, start, end, size, unitType, desire
             var newSize = segmentSize;
             newSize += contribution * (unitType === GridUnitType.Star ? cur._Stars : 1);
             newSize = Math.min(newSize, cur._Max);
-            assigned = assigned || (newSize > segmentSize);
+            assigned |= newSize > segmentSize;
             size -= newSize - segmentSize;
             if (desiredSize)
                 cur._DesiredSize = newSize;
@@ -22068,20 +22028,22 @@ Grid.Instance._CreateMatrices = function (rowCount, colCount) {
         this._RowMatrixDim = rowCount;
         this._RowMatrix = [];
         for (var i = 0; i < rowCount; i++) {
-            this._RowMatrix.push(new Array());
+            this._RowMatrix.push([]);
         }
         this._ColMatrixDim = colCount;
         this._ColMatrix = [];
         for (var j = 0; j < colCount; j++) {
-            this._ColMatrix.push(new Array());
+            this._ColMatrix.push([]);
         }
     }
     for (var r = 0; r < rowCount; r++) {
+        this._RowMatrix[r] = [];
         for (var rr = 0; rr <= r; rr++) {
             this._RowMatrix[r].push(new _Segment());
         }
     }
     for (var c = 0; c < colCount; c++) {
+        this._ColMatrix[c] = [];
         for (var cc = 0; cc <= c; cc++) {
             this._ColMatrix[c].push(new _Segment());
         }
@@ -22143,7 +22105,7 @@ Grid.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$Panel(args, error);
         return;
     }
-    if (args.Property === Grid.ShowGridLinesProperty) {
+    if (args.Property._ID === Grid.ShowGridLinesProperty._ID) {
         this._Invalidate();
     }
     this._InvalidateMeasure();
@@ -22159,32 +22121,58 @@ Grid.Instance._OnCollectionChanged = function (sender, args) {
 };
 Grid.Instance._OnCollectionItemChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
-        if (args.Property === Grid.ColumnProperty
-            || args.Property === Grid.RowProperty
-            || args.Property === Grid.ColumnSpanProperty
-            || args.Property === Grid.RowSpanProperty) {
+        if (args.Property._ID === Grid.ColumnProperty._ID
+            || args.Property._ID === Grid.RowProperty._ID
+            || args.Property._ID === Grid.ColumnSpanProperty._ID
+            || args.Property._ID === Grid.RowSpanProperty._ID) {
             this._InvalidateMeasure();
             args.Item._InvalidateMeasure();
             return;
         }
     } else if (Nullstone.RefEquals(sender, this._GetColumnDefinitionsNoAutoCreate())
         || Nullstone.RefEquals(sender, this._GetRowDefinitionsNoAutoCreate())) {
-        if (args.Property !== ColumnDefinition.ActualWidthProperty
-            && args.Property !== RowDefinition.ActualHeightProperty) {
+        if (args.Property._ID !== ColumnDefinition.ActualWidthProperty._ID
+            && args.Property._ID !== RowDefinition.ActualHeightProperty._ID) {
             this._InvalidateMeasure();
         }
         return;
     }
     this._OnCollectionChanged$Panel(sender, args);
 };
+Grid.__DebugMatrix = function (matrix) {
+    var str = "";
+    for (var i = 0; i < matrix.length; i++) {
+        for (var j = 0; j < matrix[i].length; j++) {
+            str += "[";
+            str += matrix[i][j].toString();
+            str += "]";
+        }
+        str += "\n";
+    }
+    return str;
+};
+Grid.__DebugDiagonalMatrix = function (matrix) {
+    var str = "";
+    for (var i = 0; i < matrix.length; i++) {
+        str += "[";
+        str += matrix[i][i].toString();
+        str += "]";
+        str += "\n";
+    }
+    return str;
+};
 Nullstone.FinishCreate(Grid);
 var _Segment = Nullstone.Create("_Segment", null, 4);
 _Segment.Instance.Init = function (offered, min, max, unitType) {
+    if (offered == null) offered = 0.0;
+    if (min == null) min = 0.0;
+    if (max == null) max = Number.POSITIVE_INFINITY;
+    if (unitType == null) unitType = GridUnitType.Pixel;
     this._DesiredSize = 0;
-    this._Min = min == null ? 0.0 : min;
-    this._Max = max == null ? Number.POSITIVE_INFINITY : max;
+    this._Min = min;
+    this._Max = max;
     this._Stars = 0;
-    this._Type = unitType == null ? GridUnitType.Pixel : unitType;
+    this._Type = unitType;
     this._OfferedSize = this._Clamp(offered);
     this._OriginalSize = this._OfferedSize;
 };
@@ -22203,6 +22191,9 @@ _Segment.Instance._Clamp = function (value) {
         return this._Max;
     return value;
 }
+_Segment.Instance.toString = function () {
+    return this._OfferedSize.toString() + ";" + this._DesiredSize.toString();
+};
 Nullstone.FinishCreate(_Segment);
 var _GridNode = Nullstone.Create("_GridNode", LinkedListNode, 4);
 _GridNode.Instance.Init = function (matrix, row, col, size) {
@@ -22230,16 +22221,16 @@ _GridWalker.Instance.Init = function (grid, rowMatrix, rowCount, colMatrix, colC
         var colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
         var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
         for (var r = row; r < row + rowspan; r++) {
-            starRow = starRow || (rowMatrix[r][r].Type == GridUnitType.Star);
-            autoRow = autoRow || (rowMatrix[r][r].Type == GridUnitType.Auto);
+            starRow |= rowMatrix[r][r].Type === GridUnitType.Star;
+            autoRow |= rowMatrix[r][r].Type === GridUnitType.Auto;
         }
         for (var c = col; c < col + colspan; c++) {
-            starCol = starCol || (colMatrix[c][c].Type == GridUnitType.Star);
-            starRow = starRow || (colMatrix[c][c].Type == GridUnitType.Auto);
+            starCol |= colMatrix[c][c].Type === GridUnitType.Star;
+            autoCol |= colMatrix[c][c].Type === GridUnitType.Auto;
         }
-        this._HasAutoAuto = this._HasAutoAuto || (autoRow && autoCol && !starRow && !starCol);
-        this._HasStarAuto = this._HasStarAuto || (starRow && autoCol);
-        this._HasAutoStar = this._HasAutoStar || (autoRow && starCol);
+        this._HasAutoAuto |= autoRow && autoCol && !starRow && !starCol;
+        this._HasStarAuto |= starRow && autoCol;
+        this._HasAutoStar |= autoRow && starCol;
     }
 };
 Nullstone.FinishCreate(_GridWalker);
@@ -23484,7 +23475,7 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
         Value: {
             Type: ControlTemplate,
             Props: {
-                TargetType: "ScrollViewer"
+                TargetType: ScrollViewer
             },
             Content: {
                 Type: Border,
@@ -23530,7 +23521,6 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
     Type: ScrollContentPresenter,
     Name: "ScrollContentPresenter",
     Props: {
-        Name: "ScrollContentPresenter",
         Cursor: new TemplateBindingMarkup("Cursor"),
         Margin: new TemplateBindingMarkup("Padding"),
         ContentTemplate: new TemplateBindingMarkup("ContentTemplate")
@@ -23562,7 +23552,6 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
     Type: ScrollBar,
     Name: "VerticalScrollBar",
     Props: {
-        Name: "VerticalScrollBar",
         Width: 18,
         IsTabStop: false,
         Visibility: new TemplateBindingMarkup("ComputedVerticalScrollBarVisibility"),
@@ -23589,7 +23578,6 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
     Type: ScrollBar,
     Name: "HorizontalScrollBar",
     Props: {
-        Name: "HorizontalScrollBar",
         Height: 18,
         IsTabStop: false,
         Visibility: new TemplateBindingMarkup("ComputedHorizontalScrollBarVisibility"),
@@ -24051,7 +24039,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
         Value: {
             Type: ControlTemplate,
             Props: {
-                TargetType: "RepeatButton"
+                TargetType: RepeatButton
             },
             Content: {
                 Type: Grid,
@@ -24062,23 +24050,14 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "CommonStates",
-    Props: {
-        Name: "CommonStates"
-    },
     Children: [
 {
     Type: VisualState,
-    Name: "Normal",
-    Props: {
-        Name: "Normal"
-    }
+    Name: "Normal"
 },
 {
     Type: VisualState,
     Name: "MouseOver",
-    Props: {
-        Name: "MouseOver"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -24159,9 +24138,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Pressed",
-    Props: {
-        Name: "Pressed"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -24278,9 +24254,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 {
     Type: VisualState,
     Name: "Disabled",
-    Props: {
-        Name: "Disabled"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -24308,16 +24281,10 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 {
     Type: VisualStateGroup,
     Name: "FocusStates",
-    Props: {
-        Name: "FocusStates"
-    },
     Children: [
 {
     Type: VisualState,
     Name: "Focused",
-    Props: {
-        Name: "Focused"
-    },
     Content: {
         Type: Storyboard,
         Children: [
@@ -24343,10 +24310,7 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 },
 {
     Type: VisualState,
-    Name: "Unfocused",
-    Props: {
-        Name: "Unfocused"
-    }
+    Name: "Unfocused"
 }]
 }]
                 }
@@ -24356,7 +24320,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: Border,
     Name: "Background",
     Props: {
-        Name: "Background",
         CornerRadius: new CornerRadius(3, 3, 3, 3),
         Background: {
             Type: SolidColorBrush,
@@ -24379,7 +24342,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Name: "BackgroundAnimation",
     Props: {
         Opacity: 0,
-        Name: "BackgroundAnimation",
         Background: {
             Type: SolidColorBrush,
             Props: {
@@ -24392,7 +24354,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "BackgroundGradient",
     Props: {
-        Name: "BackgroundGradient",
         Fill: {
             Type: LinearGradientBrush,
             Props: {
@@ -24437,7 +24398,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: ContentPresenter,
     Name: "contentPresenter",
     Props: {
-        Name: "contentPresenter",
         ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
         VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
         HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
@@ -24449,7 +24409,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "DisabledVisualElement",
     Props: {
-        Name: "DisabledVisualElement",
         RadiusX: 3,
         RadiusY: 3,
         Fill: {
@@ -24466,7 +24425,6 @@ RepeatButton.Instance.GetDefaultStyle = function () {
     Type: Rectangle,
     Name: "FocusVisualElement",
     Props: {
-        Name: "FocusVisualElement",
         RadiusX: 2,
         RadiusY: 2,
         Margin: new Thickness(1, 1, 1, 1),
@@ -24497,30 +24455,24 @@ ToggleButton.Instance.Init = function () {
 Nullstone.FinishCreate(ToggleButton);
 
 var Button = Nullstone.Create("Button", ButtonBase);
-Button.StateDisabled = "Disabled";
-Button.StatePressed = "Pressed";
-Button.StateMouseOver = "MouseOver";
-Button.StateNormal = "Normal";
-Button.StateFocused = "Focused";
-Button.StateUnfocused = "Unfocused";
 Button.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ButtonBase();
     this.UpdateVisualState(false);
 };
 Button.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
-        this._GoToState(useTransitions, Button.StateDisabled);
+        this._GoToState(useTransitions, "Disabled");
     } else if (this.GetIsPressed()) {
-        this._GoToState(useTransitions, Button.StatePressed);
+        this._GoToState(useTransitions, "Pressed");
     } else if (this.GetIsMouseOver()) {
-        this._GoToState(useTransitions, Button.StateMouseOver);
+        this._GoToState(useTransitions, "MouseOver");
     } else {
-        this._GoToState(useTransitions, Button.StateNormal);
+        this._GoToState(useTransitions, "Normal");
     }
     if (this.GetIsFocused() && this.GetIsEnabled()) {
-        this._GoToState(useTransitions, Button.StateFocused);
+        this._GoToState(useTransitions, "Focused");
     } else {
-        this._GoToState(useTransitions, Button.StateUnfocused);
+        this._GoToState(useTransitions, "Unfocused");
     }
 };
 Button.Instance.OnIsEnabledChanged = function (e) {

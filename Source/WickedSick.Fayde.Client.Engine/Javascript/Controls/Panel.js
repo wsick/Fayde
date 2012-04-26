@@ -6,7 +6,7 @@
 //#region Panel
 var Panel = Nullstone.Create("Panel", FrameworkElement);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
 Panel.Instance.GetBackground = function () {
@@ -43,7 +43,7 @@ Panel.Instance.SetIsItemsHost = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 Panel.Instance.IsLayoutContainer = function () { return true; };
 Panel.Instance.IsContainer = function () { return true; };
@@ -220,7 +220,7 @@ Panel.Instance._OnIsAttachedChanged = function (value) {
 
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 Panel.Annotations = {
     ContentProperty: Panel.ChildrenProperty
