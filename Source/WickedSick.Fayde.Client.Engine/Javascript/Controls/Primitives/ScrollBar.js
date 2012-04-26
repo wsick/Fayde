@@ -426,7 +426,7 @@ ScrollBar.Instance.GetDefaultStyle = function () {
             Background: {
                 Type: SolidColorBrush,
                 Props: {
-                    Color: Color.FromHex("#FFFFFF")
+                    Color: Color.FromHex("#00FFFFFF")
                 }
             }
         },

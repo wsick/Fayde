@@ -14,7 +14,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
 
         public static Color FromUInt32(UInt32 uint32)
         {
-            return new Color() { HexString = string.Format("#{0:x2}", uint32).ToUpper() };
+            return new Color() { HexString = string.Format("#{0:x8}", uint32).ToUpper() };
         }
 
         private string HexString { get; set; }
