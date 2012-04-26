@@ -5,7 +5,20 @@
     xmlns:local="clr-namespace:WickedSick.LitmusTests"
     xmlns:tests="clr-namespace:WickedSick.LitmusTests.Tests">
     <Grid x:Name="LayoutRoot">
-        <local:ScrollTestOverride />
-        <tests:ShapesTest HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <Grid Width="100" Height="200">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Button Height="16" Margin="1" />
+            <Button Grid.Row="1" Height="0" />
+            <Button Grid.Row="2" Height="18" />
+            <Button Grid.Row="3" />
+            <Button Grid.Row="4" Height="16" Margin="1" />
+        </Grid>
+        <!--<tests:ScrollViewerTest />-->
     </Grid>
 </UserControl>

@@ -68,11 +68,13 @@ Grid.Instance.SetShowGridLines = function (value) {
 
 Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
 Grid.Instance.GetColumnDefinitions = function () {
+    /// <returns type="ColumnDefinitionCollection" />
     return this.$GetValue(Grid.ColumnDefinitionsProperty);
 };
 
 Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
 Grid.Instance.GetRowDefinitions = function () {
+    /// <returns type="RowDefinitionCollection" />
     return this.$GetValue(Grid.RowDefinitionsProperty);
 };
 
@@ -164,12 +166,12 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var node;
     var gridWalker = new _GridWalker(this, this._RowMatrix, this._RowMatrixDim, this._ColMatrix, this._ColMatrixDim);
     for (i = 0; i < 6; i++) {
-        var autoAuto = i == 0;
-        var starAuto = i == 1;
-        var autoStar = i == 2;
-        var starAutoAgain = i == 3;
-        var nonStar = i == 4;
-        var remainingStar = i == 5;
+        var autoAuto = i === 0;
+        var starAuto = i === 1;
+        var autoStar = i === 2;
+        var starAutoAgain = i === 3;
+        var nonStar = i === 4;
+        var remainingStar = i === 5;
 
         if (hasChildren) {
             this._ExpandStarCols(totalSize);
@@ -190,13 +192,13 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
             var colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
             var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
 
-            for (r = 0; r < row + rowspan; r++) {
-                starRow = starRow || (this._RowMatrix[r][r]._Type == GridUnitType.Star);
-                autoRow = autoRow || (this._RowMatrix[r][r]._Type == GridUnitType.Auto);
+            for (r = row; r < row + rowspan; r++) {
+                starRow |= this._RowMatrix[r][r]._Type === GridUnitType.Star;
+                autoRow |= this._RowMatrix[r][r]._Type === GridUnitType.Auto;
             }
-            for (c = 0; c < col + colspan; c++) {
-                starCol = starCol || (this._ColMatrix[c][c]._Type == GridUnitType.Star);
-                autoCol = autoCol || (this._ColMatrix[c][c]._Type == GridUnitType.Auto);
+            for (c = col; c < col + colspan; c++) {
+                starCol |= this._ColMatrix[c][c]._Type === GridUnitType.Star;
+                autoCol |= this._ColMatrix[c][c]._Type === GridUnitType.Auto;
             }
 
             if (autoRow && autoCol && !starRow && !starCol) {
@@ -241,10 +243,10 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
 
             if (!starAuto) {
                 node = new _GridNode(this._RowMatrix, row + rowspan - 1, row, desired.Height);
-                sizes.InsertBefore(node, node._Row == node._Col ? separator.Next : separator);
+                sizes.InsertBefore(node, node._Row === node._Col ? separator.Next : separator);
             }
             node = new _GridNode(this._ColMatrix, col + colspan - 1, col, desired.Width);
-            sizes.InsertBefore(node, node._Row == node._Col ? separator.Next : separator);
+            sizes.InsertBefore(node, node._Row === node._Col ? separator.Next : separator);
         }
 
         sizes.Remove(separator);
@@ -291,9 +293,9 @@ Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         totalConsumed.Height += this._RowMatrix[r][r]._SetOfferedToDesired();
     }
 
-    if (totalConsumed.Width != finalSize.Width)
+    if (totalConsumed.Width !== finalSize.Width)
         this._ExpandStarCols(finalSize);
-    if (totalConsumed.Height != finalSize.Height)
+    if (totalConsumed.Height !== finalSize.Height)
         this._ExpandStarRows(finalSize);
 
     for (c = 0; c < colCount; c++) {
@@ -387,7 +389,7 @@ Grid.Instance._AllocateDesiredSize = function (rowCount, colCount) {
             for (var col = row; col >= 0; col--) {
                 var spansStar = false;
                 for (var j = row; j >= col; j--) {
-                    spansStar = spansStar || (matrix[j][j]._Type === GridUnitType.Star);
+                    spansStar |= matrix[j][j]._Type === GridUnitType.Star;
                 }
                 var current = matrix[row][col]._DesiredSize;
                 var totalAllocated = 0;
@@ -436,7 +438,7 @@ Grid.Instance._AssignSize = function (matrix, start, end, size, unitType, desire
             var newSize = segmentSize;
             newSize += contribution * (unitType === GridUnitType.Star ? cur._Stars : 1);
             newSize = Math.min(newSize, cur._Max);
-            assigned = assigned || (newSize > segmentSize);
+            assigned |= newSize > segmentSize;
             size -= newSize - segmentSize;
             if (desiredSize)
                 cur._DesiredSize = newSize;
@@ -454,23 +456,25 @@ Grid.Instance._CreateMatrices = function (rowCount, colCount) {
         this._RowMatrixDim = rowCount;
         this._RowMatrix = [];
         for (var i = 0; i < rowCount; i++) {
-            this._RowMatrix.push(new Array());
+            this._RowMatrix.push([]);
         }
 
         this._ColMatrixDim = colCount;
         this._ColMatrix = [];
         for (var j = 0; j < colCount; j++) {
-            this._ColMatrix.push(new Array());
+            this._ColMatrix.push([]);
         }
     }
 
     for (var r = 0; r < rowCount; r++) {
+        this._RowMatrix[r] = [];
         for (var rr = 0; rr <= r; rr++) {
             this._RowMatrix[r].push(new _Segment());
         }
     }
 
     for (var c = 0; c < colCount; c++) {
+        this._ColMatrix[c] = [];
         for (var cc = 0; cc <= c; cc++) {
             this._ColMatrix[c].push(new _Segment());
         }
@@ -540,7 +544,7 @@ Grid.Instance._OnPropertyChanged = function (args, error) {
         return;
     }
 
-    if (args.Property === Grid.ShowGridLinesProperty) {
+    if (args.Property._ID === Grid.ShowGridLinesProperty._ID) {
         this._Invalidate();
     }
     this._InvalidateMeasure();
@@ -556,18 +560,18 @@ Grid.Instance._OnCollectionChanged = function (sender, args) {
 };
 Grid.Instance._OnCollectionItemChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
-        if (args.Property === Grid.ColumnProperty
-            || args.Property === Grid.RowProperty
-            || args.Property === Grid.ColumnSpanProperty
-            || args.Property === Grid.RowSpanProperty) {
+        if (args.Property._ID === Grid.ColumnProperty._ID
+            || args.Property._ID === Grid.RowProperty._ID
+            || args.Property._ID === Grid.ColumnSpanProperty._ID
+            || args.Property._ID === Grid.RowSpanProperty._ID) {
             this._InvalidateMeasure();
             args.Item._InvalidateMeasure();
             return;
         }
     } else if (Nullstone.RefEquals(sender, this._GetColumnDefinitionsNoAutoCreate())
         || Nullstone.RefEquals(sender, this._GetRowDefinitionsNoAutoCreate())) {
-        if (args.Property !== ColumnDefinition.ActualWidthProperty
-            && args.Property !== RowDefinition.ActualHeightProperty) {
+        if (args.Property._ID !== ColumnDefinition.ActualWidthProperty._ID
+            && args.Property._ID !== RowDefinition.ActualHeightProperty._ID) {
             this._InvalidateMeasure();
         }
         return;
@@ -577,6 +581,29 @@ Grid.Instance._OnCollectionItemChanged = function (sender, args) {
 
 //#endregion
 
+Grid.__DebugMatrix = function (matrix) {
+    var str = "";
+    for (var i = 0; i < matrix.length; i++) {
+        for (var j = 0; j < matrix[i].length; j++) {
+            str += "[";
+            str += matrix[i][j].toString();
+            str += "]";
+        }
+        str += "\n";
+    }
+    return str;
+};
+Grid.__DebugDiagonalMatrix = function (matrix) {
+    var str = "";
+    for (var i = 0; i < matrix.length; i++) {
+        str += "[";
+        str += matrix[i][i].toString();
+        str += "]";
+        str += "\n";
+    }
+    return str;
+};
+
 Nullstone.FinishCreate(Grid);
 //#endregion
 
@@ -584,11 +611,16 @@ Nullstone.FinishCreate(Grid);
 var _Segment = Nullstone.Create("_Segment", null, 4);
 
 _Segment.Instance.Init = function (offered, min, max, unitType) {
+    if (offered == null) offered = 0.0;
+    if (min == null) min = 0.0;
+    if (max == null) max = Number.POSITIVE_INFINITY;
+    if (unitType == null) unitType = GridUnitType.Pixel;
+
     this._DesiredSize = 0;
-    this._Min = min == null ? 0.0 : min;
-    this._Max = max == null ? Number.POSITIVE_INFINITY : max;
+    this._Min = min;
+    this._Max = max;
     this._Stars = 0;
-    this._Type = unitType == null ? GridUnitType.Pixel : unitType;
+    this._Type = unitType;
 
     this._OfferedSize = this._Clamp(offered);
     this._OriginalSize = this._OfferedSize;
@@ -609,6 +641,9 @@ _Segment.Instance._Clamp = function (value) {
         return this._Max;
     return value;
 }
+_Segment.Instance.toString = function () {
+    return this._OfferedSize.toString() + ";" + this._DesiredSize.toString();
+};
 
 Nullstone.FinishCreate(_Segment);
 //#endregion
@@ -649,17 +684,17 @@ _GridWalker.Instance.Init = function (grid, rowMatrix, rowCount, colMatrix, colC
         var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
 
         for (var r = row; r < row + rowspan; r++) {
-            starRow = starRow || (rowMatrix[r][r].Type == GridUnitType.Star);
-            autoRow = autoRow || (rowMatrix[r][r].Type == GridUnitType.Auto);
+            starRow |= rowMatrix[r][r].Type === GridUnitType.Star;
+            autoRow |= rowMatrix[r][r].Type === GridUnitType.Auto;
         }
         for (var c = col; c < col + colspan; c++) {
-            starCol = starCol || (colMatrix[c][c].Type == GridUnitType.Star);
-            starRow = starRow || (colMatrix[c][c].Type == GridUnitType.Auto);
+            starCol |= colMatrix[c][c].Type === GridUnitType.Star;
+            autoCol |= colMatrix[c][c].Type === GridUnitType.Auto;
         }
 
-        this._HasAutoAuto = this._HasAutoAuto || (autoRow && autoCol && !starRow && !starCol);
-        this._HasStarAuto = this._HasStarAuto || (starRow && autoCol);
-        this._HasAutoStar = this._HasAutoStar || (autoRow && starCol);
+        this._HasAutoAuto |= autoRow && autoCol && !starRow && !starCol;
+        this._HasStarAuto |= starRow && autoCol;
+        this._HasAutoStar |= autoRow && starCol;
     }
 };
 

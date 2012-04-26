@@ -111,6 +111,7 @@
     <Content Include="Javascript\Media\PathSegmentCollection.js" />
     <Content Include="Javascript\Media\Transform.js" />
     <Content Include="Javascript\Runtime\Exception.js" />
+    <Content Include="Javascript\Runtime\InvalidOperationException.js" />
     <Content Include="Javascript\Runtime\NotImplementedException.js" />
     <Content Include="Javascript\Runtime\NotSupportedException.js" />
     <Content Include="Javascript\Runtime\RoutedPropertyChangedEventArgs.js" />
@@ -316,7 +317,9 @@
     <Content Include="Silverlight.js" />
     <Content Include="Styles\HyperlinkButton.xml" />
     <Content Include="Styles\RepeatButton.xml" />
-    <Content Include="Styles\ScrollBar.xml" />
+    <Content Include="Styles\ScrollBar.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\ScrollViewer.xml" />
     <Content Include="Styles\TextBox.xml">
       <SubType>Designer</SubType>
@@ -324,7 +327,9 @@
     <Content Include="Styles\Button.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Styles\Thumb.xml" />
+    <Content Include="Styles\Thumb.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Tests\allstyles.fayde" />
     <None Include="Tests\binding.fayde" />
     <Content Include="Tests\heightTest.htm" />
