@@ -22,7 +22,7 @@ _VisualTreeWalker.Instance.Init = function (obj, direction) {
     if (this._Content) {
         if (this._Content instanceof Collection) {
             this._Collection = this._Content;
-            if (this._Content instanceof UIElementCollection)
+            if (!(this._Content instanceof UIElementCollection))
                 this._Direction = _VisualTreeWalkerDirection.Logical;
         }
     }
