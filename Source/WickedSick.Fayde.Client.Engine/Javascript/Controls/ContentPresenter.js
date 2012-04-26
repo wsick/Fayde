@@ -70,7 +70,7 @@ ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
-    if (args.Property === ContentPresenter.ContentProperty) {
+    if (args.Property._ID === ContentPresenter.ContentProperty._ID) {
         if ((args.NewValue && args.NewValue instanceof UIElement)
             || (args.OldValue && args.OldValue instanceof UIElement)) {
             this._ClearRoot();
@@ -80,7 +80,7 @@ ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
         else
             this.ClearValue(FrameworkElement.DataContextProperty);
         this._InvalidateMeasure();
-    } else if (args.Property === ContentPresenter.ContentTemplateProperty) {
+    } else if (args.Property._ID === ContentPresenter.ContentTemplateProperty._ID) {
         this._ClearRoot();
         this._InvalidateMeasure();
     }

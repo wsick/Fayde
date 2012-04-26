@@ -204,37 +204,37 @@ ScrollViewer.Instance.InvalidateScrollInfo = function () {
         var flag = false;
         try {
             if (!DoubleUtil.AreClose(num1, horizontalOffset)) {
-                this.SetHorizontalOffset(horizontalOffset);
+                this._SetValueInternal(ScrollViewer.HorizontalOffsetProperty, horizontalOffset);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(num2, verticalOffset)) {
-                this.SetVerticalOffset(verticalOffset);
+                this._SetValueInternal(ScrollViewer.VerticalOffsetProperty, verticalOffset);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$xViewport, viewportWidth)) {
-                this.SetViewportWidth(viewportWidth);
+                this._SetValueInternal(ScrollViewer.ViewportWidthProperty, viewportWidth);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$yViewport, viewportHeight)) {
-                this.SetViewportHeight(viewportHeight);
+                this._SetValueInternal(ScrollViewer.ViewportHeightProperty, viewportHeight);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$xExtent, extentWidth)) {
-                this.SetExtentWidth(extentWidth);
+                this._SetValueInternal(ScrollViewer.ExtentWidthProperty, extentWidth);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$yExtent, extentHeight)) {
-                this.SetExtentHeight(extentHeight);
+                this._SetValueInternal(ScrollViewer.ExtentHeightProperty, extentHeight);
                 flag = true;
             }
             var scrollableWidth1 = Math.max(0, this.GetExtentWidth() - this.GetViewportWidth());
             if (!DoubleUtil.AreClose(scrollableWidth, scrollableWidth1)) {
-                this.SetScrollableWidth(scrollableWidth1);
+                this._SetValueInternal(ScrollViewer.ScrollableWidthProperty, scrollableWidth1);
                 flag = true;
             }
             var scrollableHeight1 = Math.max(0, this.GetExtentHeight() - this.GetViewportHeight());
             if (!DoubleUtil.AreClose(scrollableHeight, scrollableHeight1)) {
-                this.SetScrollableHeight(scrollableHeight1);
+                this._SetValueInternal(ScrollViewer.ScrollableHeightProperty, scrollableHeight1);
                 flag = true;
             }
         } finally {

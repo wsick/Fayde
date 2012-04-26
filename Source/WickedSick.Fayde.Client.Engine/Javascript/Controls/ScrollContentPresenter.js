@@ -124,7 +124,7 @@ ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
                 size1.Height = Number.POSITIVE_INFINITY;
 
             child.Measure(size1);
-            size = child.DesiredSize;
+            size = child._DesiredSize;
         } else {
             size = base.MeasureOverride(constraint);
         }

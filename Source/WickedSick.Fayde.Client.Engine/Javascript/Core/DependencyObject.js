@@ -281,7 +281,10 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
     }
 };
 DependencyObject.Instance.ReadLocalValue = function (propd) {
-    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+    var val = this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+    if (val === undefined)
+        val = new UnsetValue();
+    return val;
 };
 DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
     var v = this.$GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
