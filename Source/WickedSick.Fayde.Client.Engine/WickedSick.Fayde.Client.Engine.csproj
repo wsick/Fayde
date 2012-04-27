@@ -56,6 +56,8 @@
     <Content Include="Fayde.js" />
     <Content Include="Images\testing.jpg" />
     <Content Include="Images\tile-test.png" />
+    <Content Include="JavascriptTests\FaydeAsserts.js" />
+    <Content Include="JavascriptTests\MatrixTests.js" />
     <Content Include="Javascript\Controls\ColumnDefinition.js" />
     <Content Include="Javascript\Controls\ColumnDefinitionCollection.js" />
     <Content Include="Javascript\Controls\ControlTemplate.js" />
@@ -308,6 +310,7 @@
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
+    <Content Include="jsTestDriverAsserts.js" />
     <Content Include="Silo\matrix-multiplypoint.html" />
     <Content Include="Silo\RawPath\arcto-bounds.html" />
     <Content Include="Silo\RawPath\arc-bounds.html" />
@@ -321,7 +324,9 @@
     <Content Include="Styles\ScrollBar.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Styles\ScrollViewer.xml" />
+    <Content Include="Styles\ScrollViewer.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Styles\TextBox.xml">
       <SubType>Designer</SubType>
     </Content>
