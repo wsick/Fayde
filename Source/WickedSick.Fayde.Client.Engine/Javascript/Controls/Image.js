@@ -187,7 +187,7 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     ctx.Save();
     if (metrics.Overlap !== RectOverlap.In || this._HasLayoutClip())
         this._RenderLayoutClip(ctx);
-    ctx.Transform(metrics.Matrix);
+    ctx.PreTransform(metrics.Matrix);
     ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
     ctx.Restore();
 
