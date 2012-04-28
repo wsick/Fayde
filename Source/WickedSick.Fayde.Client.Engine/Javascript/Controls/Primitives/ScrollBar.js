@@ -201,10 +201,11 @@ ScrollBar.Instance._OnThumbDragDelta = function (sender, args) {
     var min = this.GetMinimum();
     var diff = max - min;
     var trackLength = this._GetTrackLength();
-    if (this.$ElementVerticalThumb != null) {
+    var orientation = this.GetOrientation();
+    if (this.$ElementVerticalThumb != null && orientation === Orientation.Vertical) {
         change = num * args.VerticalChange / (trackLength - this.$ElementVerticalThumb.GetActualHeight()) * diff;
     }
-    if (this.$ElementHorizontalThumb != null) {
+    if (this.$ElementHorizontalThumb != null && orientation === Orientation.Horizontal) {
         change = num * args.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.GetActualWidth()) * diff;
     }
     if (!isNaN(change) && isFinite(change)) {
