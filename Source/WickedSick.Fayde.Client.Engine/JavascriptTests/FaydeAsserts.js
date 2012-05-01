@@ -5,12 +5,18 @@ function assertNullstoneRefEquals(msg, expected, actual) {
     /// <param name="msg" type="String"></param>
     /// <summary>Performs Nullstone.RefEquals on expected and actual. Fails if they are not the exact same object.</summary>
     assertTrue(msg, Nullstone.RefEquals(expected, actual));
-};
+}
 function assertNullstoneNotRefEquals(msg, expected, actual) {
     /// <param name="msg" type="String"></param>
     /// <summary>Performs Nullstone.RefEquals on expected and actual. Fails if they are the exact same object.</summary>
     assertFalse(msg, Nullstone.RefEquals(expected, actual));
-};
+}
+
+function assertNumberClose(msg, expected, actual) {
+    /// <param name="msg" type="String"></param>
+    /// <summary>Compares expected and actual values for numbers that are close in value. Fails if numbers are not within 0.0000001.</summary>
+    assertTrue(msg, Math.abs(expected - actual) < 0.0000001);
+}
 
 function assertMatrix(expected, actual) {
     /// <param name="expected" type="Matrix"></param>
@@ -28,4 +34,4 @@ function assertMatrix(expected, actual) {
     assertSame("Offset X is not set properly.", expected.GetOffsetX(), actual.GetOffsetX());
     assertSame("Offset Y is not set properly.", expected.GetOffsetY(), actual.GetOffsetY());
     assertSame("Matrix Type is not set properly.", expected._Type, actual._Type);
-};
+}

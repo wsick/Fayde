@@ -27,7 +27,7 @@ MatrixTest.prototype.testCreateShear = function () {
     var y = 50;
     var expected = new Matrix();
     expected._Elements = [1, x, 0, y, 1, 0];
-    expected._Type = MatrixTypes.Unknown;
+    expected._Type = MatrixTypes.Shear;
     var actual = Matrix.CreateShear(x, y);
     assertMatrix(expected, actual);
 };
@@ -43,14 +43,17 @@ MatrixTest.prototype.testCreateRotate = function () {
 };
 
 MatrixTest.prototype.testMultiplyMatrix = function () {
+    var expected = new Matrix([1.4142135623730951, -1.414213562373095, 50, 2.82842712474619, 2.8284271247461903, 100]);
+    var actual = Matrix.CreateTranslate(50, 100).MultiplyMatrix(Matrix.CreateScale(2, 4).MultiplyMatrix(Matrix.CreateRotate(Math.PI / 4)));
+    assertMatrix(expected, actual);
 };
 MatrixTest.prototype.testMultiplyPoint = function () {
     var final = Matrix.CreateScale(2, 4).MultiplyMatrix(Matrix.CreateRotate(Math.PI / 2));
     var p = new Point(1.0, 1.0);
     var pActual = final.MultiplyPoint(p);
     var pExpected = new Point(-2.0, 4.0);
-    assertSame("Expected X value is incorrect.", pExpected.X, pActual.X);
-    assertSame("Expected Y value is incorrect.", pExpected.Y, pActual.Y);
+    assertNumberClose("Expected X value is incorrect.", pExpected.X, pActual.X);
+    assertNumberClose("Expected Y value is incorrect.", pExpected.Y, pActual.Y);
 };
 
 MatrixTest.prototype.testCopy = function () {
