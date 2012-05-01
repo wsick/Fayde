@@ -3068,7 +3068,7 @@ _VisualTreeWalker.Instance.Init = function (obj, direction) {
     if (this._Content) {
         if (this._Content instanceof Collection) {
             this._Collection = this._Content;
-            if (this._Content instanceof UIElementCollection)
+            if (!(this._Content instanceof UIElementCollection))
                 this._Direction = _VisualTreeWalkerDirection.Logical;
         }
     }
@@ -5161,6 +5161,7 @@ Matrix.Instance.toString = function () {
 Matrix.Instance._DeriveType = function () {
     this._Angle = undefined;
     var els = this._Elements;
+    this._Type = MatrixTypes.Unknown;
     if (els[1] === 0 && els[3] === 0) {
         if (els[0] === 1 && els[4] === 1) {
             if (els[2] === 0 && els[5] === 0)
@@ -5171,7 +5172,8 @@ Matrix.Instance._DeriveType = function () {
             this._Type = MatrixTypes.Scale;
         }
     } else {
-        this._Type = MatrixTypes.Unknown;
+        if (els[0] === 1 && els[2] === 0 && els[4] === 1 && els[5] === 0)
+            this._Type = MatrixTypes.Shear;
     }
 };
 Matrix.Instance._OnChanged = function () {
@@ -5241,8 +5243,11 @@ Matrix.CreateScale = function (x, y) {
 Matrix.CreateRotate = function (angleRad) {
     if (angleRad == null)
         return new Matrix();
-    var mt = new Matrix([Math.cos(this.Angle), -1 * Math.sin(this.Angle), 0, Math.sin(this.Angle), Math.cos(this.Angle), 0]);
-    mt._Type = MatrixTypes.Rotate;
+    var c = Math.cos(angleRad);
+    var s = Math.sin(angleRad);
+    console.log("angleRad: " + angleRad);
+    console.log("cosine: " + c);
+    var mt = new Matrix([c, -s, 0, s, c, 0]);
     mt._Angle = angleRad;
     return mt;
 };
@@ -7991,7 +7996,10 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
     }
 };
 DependencyObject.Instance.ReadLocalValue = function (propd) {
-    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+    var val = this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+    if (val === undefined)
+        val = new UnsetValue();
+    return val;
 };
 DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
     var v = this.$GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
@@ -13694,7 +13702,7 @@ ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
-    if (args.Property === ContentPresenter.ContentProperty) {
+    if (args.Property._ID === ContentPresenter.ContentProperty._ID) {
         if ((args.NewValue && args.NewValue instanceof UIElement)
             || (args.OldValue && args.OldValue instanceof UIElement)) {
             this._ClearRoot();
@@ -13704,7 +13712,7 @@ ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
         else
             this.ClearValue(FrameworkElement.DataContextProperty);
         this._InvalidateMeasure();
-    } else if (args.Property === ContentPresenter.ContentTemplateProperty) {
+    } else if (args.Property._ID === ContentPresenter.ContentTemplateProperty._ID) {
         this._ClearRoot();
         this._InvalidateMeasure();
     }
@@ -14139,7 +14147,7 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     ctx.Save();
     if (metrics.Overlap !== RectOverlap.In || this._HasLayoutClip())
         this._RenderLayoutClip(ctx);
-    ctx.Transform(metrics.Matrix);
+    ctx.PreTransform(metrics.Matrix);
     ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
     ctx.Restore();
     source.Unlock();
@@ -14585,7 +14593,7 @@ ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
             if (this.$ScrollData.CanVerticallyScroll)
                 size1.Height = Number.POSITIVE_INFINITY;
             child.Measure(size1);
-            size = child.DesiredSize;
+            size = child._DesiredSize;
         } else {
             size = base.MeasureOverride(constraint);
         }
@@ -16411,13 +16419,6 @@ RangeBase.Instance.Init = function () {
     this.ValueChanged = new MulticastEvent();
     this._LevelsFromRootCall = 0;
 };
-RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () { return Number; }, RangeBase, 0, RangeBase._OnMinimumPropertyChanged);
-RangeBase.Instance.GetMinimum = function () {
-    return this.$GetValue(RangeBase.MinimumProperty);
-};
-RangeBase.Instance.SetMinimum = function (value) {
-    this.$SetValue(RangeBase.MinimumProperty, value);
-};
 RangeBase._OnMinimumPropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
         throw new ArgumentException("Invalid double value for Minimum property.");
@@ -16441,14 +16442,12 @@ RangeBase._OnMinimumPropertyChanged = function (d, args) {
         }
     }
 };
-RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () { return Number; }, RangeBase, 1, RangeBase._OnMaximumPropertyChanged);
-RangeBase.Instance.GetMaximum = function () {
-    return this.$GetValue(RangeBase.MaximumProperty);
+RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () { return Number; }, RangeBase, 0, RangeBase._OnMinimumPropertyChanged);
+RangeBase.Instance.GetMinimum = function () {
+    return this.$GetValue(RangeBase.MinimumProperty);
 };
-RangeBase.Instance.SetMaximum = function (value) {
-    if (this._LevelsFromRootCall === 0)
-        this._RequestedMax = value;
-    this.$SetValue(RangeBase.MaximumProperty, value);
+RangeBase.Instance.SetMinimum = function (value) {
+    this.$SetValue(RangeBase.MinimumProperty, value);
 };
 RangeBase._OnMaximumPropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
@@ -16473,6 +16472,20 @@ RangeBase._OnMaximumPropertyChanged = function (d, args) {
         }
     }
 };
+RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () { return Number; }, RangeBase, 1, RangeBase._OnMaximumPropertyChanged);
+RangeBase.Instance.GetMaximum = function () {
+    return this.$GetValue(RangeBase.MaximumProperty);
+};
+RangeBase.Instance.SetMaximum = function (value) {
+    if (this._LevelsFromRootCall === 0)
+        this._RequestedMax = value;
+    this.$SetValue(RangeBase.MaximumProperty, value);
+};
+RangeBase._OnLargeChangePropertyChanged = function (d, args) {
+    if (!RangeBase._IsValidChange(args.NewValue)) {
+        throw new ArgumentException("Invalid Large Change Value.");
+    }
+};
 RangeBase.LargeChangeProperty = DependencyProperty.Register("LargeChange", function () { return Number; }, RangeBase, 1, RangeBase._OnLargeChangePropertyChanged);
 RangeBase.Instance.GetLargeChange = function () {
     return this.$GetValue(RangeBase.LargeChangeProperty);
@@ -16480,9 +16493,9 @@ RangeBase.Instance.GetLargeChange = function () {
 RangeBase.Instance.SetLargeChange = function (value) {
     this.$SetValue(RangeBase.LargeChangeProperty, value);
 };
-RangeBase._OnLargeChangePropertyChanged = function (d, args) {
+RangeBase._OnSmallChangePropertyChanged = function (d, args) {
     if (!RangeBase._IsValidChange(args.NewValue)) {
-        throw new ArgumentException("Invalid Large Change Value.");
+        throw new ArgumentException("Invalid Small Change Value.");
     }
 };
 RangeBase.SmallChangeProperty = DependencyProperty.Register("SmallChange", function () { return Number; }, RangeBase, 0.1, RangeBase._OnSmallChangePropertyChanged);
@@ -16491,18 +16504,6 @@ RangeBase.Instance.GetSmallChange = function () {
 };
 RangeBase.Instance.SetSmallChange = function (value) {
     this.$SetValue(RangeBase.SmallChangeProperty, value);
-};
-RangeBase._OnSmallChangePropertyChanged = function (d, args) {
-    if (!RangeBase._IsValidChange(args.NewValue)) {
-        throw new ArgumentException("Invalid Small Change Value.");
-    }
-};
-RangeBase.ValueProperty = DependencyProperty.Register("Value", function () { return Number; }, RangeBase, 0, RangeBase._OnValuePropertyChanged);
-RangeBase.Instance.GetValue = function () {
-    return this.$GetValue(RangeBase.ValueProperty);
-};
-RangeBase.Instance.SetValue = function (value) {
-    this.$SetValue(RangeBase.ValueProperty, value);
 };
 RangeBase._OnValuePropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
@@ -16520,6 +16521,13 @@ RangeBase._OnValuePropertyChanged = function (d, args) {
             d._OnValueChanged(d._InitialVal, val);
         }
     }
+};
+RangeBase.ValueProperty = DependencyProperty.Register("Value", function () { return Number; }, RangeBase, 0, RangeBase._OnValuePropertyChanged);
+RangeBase.Instance.GetValue = function () {
+    return this.$GetValue(RangeBase.ValueProperty);
+};
+RangeBase.Instance.SetValue = function (value) {
+    this.$SetValue(RangeBase.ValueProperty, value);
 };
 RangeBase.Instance._CoerceMaximum = function () {
     var min = this.GetMinimum();
@@ -16561,7 +16569,7 @@ RangeBase._IsValidDoubleValue = function (value) {
 RangeBase.Instance._OnMinimumChanged = function (oldMin, newMin) { };
 RangeBase.Instance._OnMaximumChanged = function (oldMax, newMax) { };
 RangeBase.Instance._OnValueChanged = function (oldValue, newValue) {
-    d.ValueChanged.Raise(d, new RoutedPropertyChangedEventArgs(oldValue, newValue));
+    this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldValue, newValue));
 };
 Nullstone.FinishCreate(RangeBase);
 
@@ -16571,6 +16579,9 @@ ScrollBar.Instance.Init = function () {
     this.Scroll = new MulticastEvent();
     this.SizeChanged.Subscribe(this._HandleSizeChanged, this);
 };
+ScrollBar._OnOrientationPropertyChanged = function (d, args) {
+    d._OnOrientationChanged();
+};
 ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, ScrollBar, Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
 ScrollBar.Instance.GetOrientation = function () {
     return this.$GetValue(ScrollBar.OrientationProperty);
@@ -16578,8 +16589,8 @@ ScrollBar.Instance.GetOrientation = function () {
 ScrollBar.Instance.SetOrientation = function (value) {
     this.$SetValue(ScrollBar.OrientationProperty, value);
 };
-ScrollBar._OnOrientationPropertyChanged = function (d, args) {
-    d._OnOrientationChanged();
+ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
+    d._UpdateTrackLayout(d._GetTrackLength());
 };
 ScrollBar.ViewportSizeProperty = DependencyProperty.Register("ViewportSize", function () { return Number; }, ScrollBar, 0, ScrollBar._OnViewportSizePropertyChanged);
 ScrollBar.Instance.GetViewportSize = function () {
@@ -16587,9 +16598,6 @@ ScrollBar.Instance.GetViewportSize = function () {
 };
 ScrollBar.Instance.SetViewportSize = function (value) {
     this.$SetValue(ScrollBar.ViewportSizeProperty, value);
-};
-ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
-    d._UpdateTrackLayout(d._GetTrackLength());
 };
 ScrollBar.Instance.GetIsDragging = function () {
     if (this.$ElementHorizontalThumb != null)
@@ -16724,10 +16732,11 @@ ScrollBar.Instance._OnThumbDragDelta = function (sender, args) {
     var min = this.GetMinimum();
     var diff = max - min;
     var trackLength = this._GetTrackLength();
-    if (this.$ElementVerticalThumb != null) {
+    var orientation = this.GetOrientation();
+    if (this.$ElementVerticalThumb != null && orientation === Orientation.Vertical) {
         change = num * args.VerticalChange / (trackLength - this.$ElementVerticalThumb.GetActualHeight()) * diff;
     }
-    if (this.$ElementHorizontalThumb != null) {
+    if (this.$ElementHorizontalThumb != null && orientation === Orientation.Horizontal) {
         change = num * args.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.GetActualWidth()) * diff;
     }
     if (!isNaN(change) && isFinite(change)) {
@@ -22912,6 +22921,16 @@ ScrollViewer.Instance.Init = function () {
     this.RequestBringIntoView.Subscribe(this._OnRequestBringIntoView, this);
     this.$ScrollChangedCallback = null;
 };
+ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {
+    if (d == null)
+        return;
+    var scrollInfo = d.GetScrollInfo();
+    if (scrollInfo == null)
+        return;
+    scrollInfo.SetCanHorizontallyScroll(d.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+    scrollInfo.SetCanVerticallyScroll(d.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+    d._InvalidateMeasure();
+};
 ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
 ScrollViewer.Instance.GetHorizontalScrollBarVisibility = function () {
     return this.$GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
@@ -22925,16 +22944,6 @@ ScrollViewer.Instance.GetVerticalScrollBarVisibility = function () {
 };
 ScrollViewer.Instance.SetVerticalScrollBarVisibility = function (value) {
     this.$SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
-};
-ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {
-    if (d == null)
-        return;
-    var scrollInfo = d.GetScrollInfo();
-    if (scrollInfo == null)
-        return;
-    scrollInfo.SetCanHorizontallyScroll(d.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
-    scrollInfo.SetCanVerticallyScroll(d.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
-    d._InvalidateMeasure();
 };
 ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", function () { return new Enum(Visibility); }, ScrollViewer);
 ScrollViewer.Instance.GetComputedHorizontalScrollBarVisibility = function () {
@@ -23049,37 +23058,37 @@ ScrollViewer.Instance.InvalidateScrollInfo = function () {
         var flag = false;
         try {
             if (!DoubleUtil.AreClose(num1, horizontalOffset)) {
-                this.SetHorizontalOffset(horizontalOffset);
+                this._SetValueInternal(ScrollViewer.HorizontalOffsetProperty, horizontalOffset);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(num2, verticalOffset)) {
-                this.SetVerticalOffset(verticalOffset);
+                this._SetValueInternal(ScrollViewer.VerticalOffsetProperty, verticalOffset);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$xViewport, viewportWidth)) {
-                this.SetViewportWidth(viewportWidth);
+                this._SetValueInternal(ScrollViewer.ViewportWidthProperty, viewportWidth);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$yViewport, viewportHeight)) {
-                this.SetViewportHeight(viewportHeight);
+                this._SetValueInternal(ScrollViewer.ViewportHeightProperty, viewportHeight);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$xExtent, extentWidth)) {
-                this.SetExtentWidth(extentWidth);
+                this._SetValueInternal(ScrollViewer.ExtentWidthProperty, extentWidth);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$yExtent, extentHeight)) {
-                this.SetExtentHeight(extentHeight);
+                this._SetValueInternal(ScrollViewer.ExtentHeightProperty, extentHeight);
                 flag = true;
             }
             var scrollableWidth1 = Math.max(0, this.GetExtentWidth() - this.GetViewportWidth());
             if (!DoubleUtil.AreClose(scrollableWidth, scrollableWidth1)) {
-                this.SetScrollableWidth(scrollableWidth1);
+                this._SetValueInternal(ScrollViewer.ScrollableWidthProperty, scrollableWidth1);
                 flag = true;
             }
             var scrollableHeight1 = Math.max(0, this.GetExtentHeight() - this.GetViewportHeight());
             if (!DoubleUtil.AreClose(scrollableHeight, scrollableHeight1)) {
-                this.SetScrollableHeight(scrollableHeight1);
+                this._SetValueInternal(ScrollViewer.ScrollableHeightProperty, scrollableHeight1);
                 flag = true;
             }
         } finally {
