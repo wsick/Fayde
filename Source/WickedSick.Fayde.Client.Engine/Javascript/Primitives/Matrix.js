@@ -214,6 +214,7 @@ Matrix.Instance.toString = function () {
 Matrix.Instance._DeriveType = function () {
     this._Angle = undefined;
     var els = this._Elements;
+    this._Type = MatrixTypes.Unknown;
     if (els[1] === 0 && els[3] === 0) {
         if (els[0] === 1 && els[4] === 1) {
             if (els[2] === 0 && els[5] === 0)
@@ -224,7 +225,8 @@ Matrix.Instance._DeriveType = function () {
             this._Type = MatrixTypes.Scale;
         }
     } else {
-        this._Type = MatrixTypes.Unknown;
+        if (els[0] === 1 && els[2] === 0 && els[4] === 1 && els[5] === 0)
+            this._Type = MatrixTypes.Shear;
     }
 };
 Matrix.Instance._OnChanged = function () {
@@ -322,8 +324,11 @@ Matrix.CreateRotate = function (angleRad) {
     /// <returns type="Matrix" />
     if (angleRad == null)
         return new Matrix();
-    var mt = new Matrix([Math.cos(this.Angle), -1 * Math.sin(this.Angle), 0, Math.sin(this.Angle), Math.cos(this.Angle), 0]);
-    mt._Type = MatrixTypes.Rotate;
+    var c = Math.cos(angleRad);
+    var s = Math.sin(angleRad);
+    console.log("angleRad: " + angleRad);
+    console.log("cosine: " + c);
+    var mt = new Matrix([c, -s, 0, s, c, 0]);
     mt._Angle = angleRad;
     return mt;
 };
