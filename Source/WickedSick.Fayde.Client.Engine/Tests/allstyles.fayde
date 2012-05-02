@@ -1,8 +1,8 @@
 ﻿<ResourceDictionary
-    xmlns="http://schemas.wsick.com/fayde/"
-    xmlns:x="http://schemas.wsick.com/fayde/"
-    xmlns:sys="http://schemas.wsick.com/fayde/"
-    xmlns:vsm="http://schemas.wsick.com/fayde/">
+       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:sys="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
   <!--
     <ControlTemplate x:Key="ValidationToolTipTemplate">
         <Grid x:Name="Root" Margin="5,0" RenderTransformOrigin="0,0" Opacity="0">

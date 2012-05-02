@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttachedPropertyDescription.cs" />
+    <Compile Include="Core\Boolean.cs" />
     <Compile Include="Elements\Bindings\Binding.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -90,6 +91,8 @@
     <Compile Include="Elements\Controls\ItemsPresenter.cs" />
     <Compile Include="Elements\Controls\Primitives\ToggleButton.cs" />
     <Compile Include="Elements\DependencyObjectCollection.cs" />
+    <Compile Include="Elements\EventTrigger.cs" />
+    <Compile Include="Elements\Media\Animation\BeginStoryboard.cs" />
     <Compile Include="Elements\Media\Brush.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -137,6 +140,8 @@
     <Compile Include="Elements\ToolTipService.cs" />
     <Compile Include="Elements\Media\Transform.cs" />
     <Compile Include="Elements\Media\TranslateTransform.cs" />
+    <Compile Include="Elements\TriggerAction.cs" />
+    <Compile Include="Elements\TriggerBase.cs" />
     <Compile Include="Elements\Types\BrushMappingMode.cs" />
     <Compile Include="Elements\Types\ClickMode.cs" />
     <Compile Include="Elements\Types\FlowDirection.cs" />

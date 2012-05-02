@@ -48,11 +48,15 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("new BindingMarkup({ ");
-            sb.Append("'Path': ");
-            sb.Append(Path);
 
-            sb.Append(", 'Mode': ");
+            sb.Append("'Mode': ");
             sb.Append(Mode.ToString());
+
+            if (Path != null)
+            {
+                sb.Append(", 'Path': ");
+                sb.Append(Path);
+            }
 
             if (FallbackValue != null)
             {

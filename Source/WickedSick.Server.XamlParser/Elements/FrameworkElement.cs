@@ -23,5 +23,7 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription MaxHeight = PropertyDescription.Register("MaxHeight", typeof(double), typeof(FrameworkElement));
         public static readonly PropertyDescription FlowDirection = PropertyDescription.Register("FlowDirection", typeof(FlowDirection), typeof(FrameworkElement));
         public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(DependencyObjectCollection<DependencyObject>), typeof(FrameworkElement));
+        public static readonly PropertyDescription DataContext = PropertyDescription.Register("DataContext", typeof(object), typeof(FrameworkElement));
+        public static readonly PropertyDescription Triggers = PropertyDescription.Register("Triggers", typeof(DependencyObjectCollection<TriggerBase>), typeof(FrameworkElement));
     }
 }
