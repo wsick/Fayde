@@ -48,7 +48,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.AppendLine(string.Format("\t\t<script src=\"{0}Javascript/{1}\" type=\"text/javascript\"></script>", prependResolver, include));
             }
 #else
-            sb.AppendLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", prependResolve));
+            sb.AppendLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", prependResolver));
 #endif
 
             sb.AppendLine("\t\t<script type=\"text/javascript\">");

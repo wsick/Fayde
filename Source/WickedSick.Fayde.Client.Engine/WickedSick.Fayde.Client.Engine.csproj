@@ -340,6 +340,7 @@
     <None Include="Tests\allstyles.fayde" />
     <None Include="Tests\binding.fayde" />
     <Content Include="Tests\heightTest.htm" />
+    <None Include="Tests\checkbox.fayde" />
     <None Include="Tests\scrollbar.fayde">
       <SubType>Designer</SubType>
     </None>
