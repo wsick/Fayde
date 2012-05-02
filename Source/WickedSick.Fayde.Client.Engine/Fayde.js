@@ -5245,8 +5245,6 @@ Matrix.CreateRotate = function (angleRad) {
         return new Matrix();
     var c = Math.cos(angleRad);
     var s = Math.sin(angleRad);
-    console.log("angleRad: " + angleRad);
-    console.log("cosine: " + c);
     var mt = new Matrix([c, -s, 0, s, c, 0]);
     mt._Angle = angleRad;
     return mt;
@@ -22955,11 +22953,19 @@ ScrollViewer.Instance.GetComputedVerticalScrollBarVisibility = function () {
 };
 ScrollViewer.HorizontalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", function () { return Number; }, ScrollViewer);
 ScrollViewer.Instance.GetHorizontalOffset = function () {
-    return this.$GetValue(ScrollViewer.HorizontalOffsetProperty);
+    return this.$xOffset;
+};
+ScrollViewer.Instance._SetHorizontalOffset = function (value) {
+    this.$xOffset = value;
+    this._SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
 };
 ScrollViewer.VerticalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("VerticalOffset", function () { return Number; }, ScrollViewer);
 ScrollViewer.Instance.GetVerticalOffset = function () {
-    return this.$GetValue(ScrollViewer.VerticalOffsetProperty);
+    return this.$yOffset;
+};
+ScrollViewer.Instance._SetVerticalOffset = function (value) {
+    this.$yOffset = value;
+    this._SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
 };
 ScrollViewer.ScrollableWidthProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableWidth", function () { return Number; }, ScrollViewer);
 ScrollViewer.Instance.GetScrollableWidth = function () {
@@ -22971,19 +22977,35 @@ ScrollViewer.Instance.GetScrollableHeight = function () {
 };
 ScrollViewer.ViewportWidthProperty = DependencyProperty.RegisterReadOnlyCore("ViewportWidth", function () { return Number; }, ScrollViewer);
 ScrollViewer.Instance.GetViewportWidth = function () {
-    return this.$GetValue(ScrollViewer.ViewportWidthProperty);
+    return this.$xViewport;
+};
+ScrollViewer.Instance._SetViewportWidth = function (value) {
+    this.$xViewport = value;
+    this._SetValueInternal(ScrollViewer.ViewportWidthProperty, value);
 };
 ScrollViewer.ViewportHeightProperty = DependencyProperty.RegisterReadOnlyCore("ViewportHeight", function () { return Number; }, ScrollViewer);
 ScrollViewer.Instance.GetViewportHeight = function () {
-    return this.$GetValue(ScrollViewer.ViewportHeightProperty);
+    return this.$yViewport;
+};
+ScrollViewer.Instance._SetViewportHeight = function (value) {
+    this.$yViewport = value;
+    this._SetValueInternal(ScrollViewer.ViewportHeightProperty, value);
 };
 ScrollViewer.ExtentWidthProperty = DependencyProperty.RegisterReadOnlyCore("ExtentWidth", function () { return Number; }, ScrollViewer);
 ScrollViewer.Instance.GetExtentWidth = function () {
-    return this.$GetValue(ScrollViewer.ExtentWidthProperty);
+    return this.$xExtent;
+};
+ScrollViewer.Instance._SetExtentWidth = function (value) {
+    this.$xExtent = value;
+    this._SetValueInternal(ScrollViewer.ExtentWidthProperty, value);
 };
 ScrollViewer.ExtentHeightProperty = DependencyProperty.RegisterReadOnlyCore("ExtentHeight", function () { return Number; }, ScrollViewer);
 ScrollViewer.Instance.GetExtentHeight = function () {
-    return this.$GetValue(ScrollViewer.ExtentHeightProperty);
+    return this.$yExtent;
+};
+ScrollViewer.Instance._SetExtentHeight = function (value) {
+    this.$yExtent = value;
+    this._SetValueInternal(ScrollViewer.ExtentHeightProperty, value);
 };
 ScrollViewer.Instance.GetScrollInfo = function () {
     return this.$ScrollInfo;
@@ -23047,38 +23069,38 @@ ScrollViewer.Instance.InvalidateScrollInfo = function () {
         }
     }
     if (!DoubleUtil.AreClose(this.$xOffset, horizontalOffset) || !DoubleUtil.AreClose(this.$yOffset, verticalOffset) || !DoubleUtil.AreClose(this.$xViewport, viewportWidth) || !DoubleUtil.AreClose(this.$yViewport, viewportHeight) || !DoubleUtil.AreClose(this.$xExtent, extentWidth) || !DoubleUtil.AreClose(this.$yExtent, extentHeight)) {
-        var num1 = this._xOffset;
-        var num2 = this._yOffset;
-        var num3 = this._xViewport;
-        var num4 = this._yViewport;
-        var num5 = this._xExtent;
-        var num6 = this._yExtent;
+        var num1 = this.$xOffset;
+        var num2 = this.$yOffset;
+        var num3 = this.$xViewport;
+        var num4 = this.$yViewport;
+        var num5 = this.$xExtent;
+        var num6 = this.$yExtent;
         var scrollableWidth = Math.max(0, this.GetExtentWidth() - this.GetViewportWidth());
         var scrollableHeight = Math.max(0, this.GetExtentHeight() - this.GetViewportHeight());
         var flag = false;
         try {
             if (!DoubleUtil.AreClose(num1, horizontalOffset)) {
-                this._SetValueInternal(ScrollViewer.HorizontalOffsetProperty, horizontalOffset);
+                this._SetHorizontalOffset(horizontalOffset);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(num2, verticalOffset)) {
-                this._SetValueInternal(ScrollViewer.VerticalOffsetProperty, verticalOffset);
+                this._SetVerticalOffset(verticalOffset);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$xViewport, viewportWidth)) {
-                this._SetValueInternal(ScrollViewer.ViewportWidthProperty, viewportWidth);
+                this._SetViewportWidth(viewportWidth);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$yViewport, viewportHeight)) {
-                this._SetValueInternal(ScrollViewer.ViewportHeightProperty, viewportHeight);
+                this._SetViewportHeight(viewportHeight);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$xExtent, extentWidth)) {
-                this._SetValueInternal(ScrollViewer.ExtentWidthProperty, extentWidth);
+                this._SetExtentWidth(extentWidth);
                 flag = true;
             }
             if (!DoubleUtil.AreClose(this.$yExtent, extentHeight)) {
-                this._SetValueInternal(ScrollViewer.ExtentHeightProperty, extentHeight);
+                this._SetExtentHeight(extentHeight);
                 flag = true;
             }
             var scrollableWidth1 = Math.max(0, this.GetExtentWidth() - this.GetViewportWidth());
@@ -23094,10 +23116,10 @@ ScrollViewer.Instance.InvalidateScrollInfo = function () {
         } finally {
             if (flag) {
                 if (!DoubleUtil.AreClose(num1, this.$xOffset) && this.ElementHorizontalScrollBar != null && !this.$ElementHorizontalScrollBar.GetIsDragging()) {
-                    this.$ElementHorizontalScrollBar.Value = this._xOffset;
+                    this.$ElementHorizontalScrollBar.Value = this.$xOffset;
                 }
                 if (!DoubleUtil.AreClose(num2, this.$yOffset) && this.$ElementVerticalScrollBar != null && !this.$ElementVerticalScrollBar.GetIsDragging()) {
-                    this.$ElementVerticalScrollBar.Value = this._yOffset;
+                    this.$ElementVerticalScrollBar.Value = this.$yOffset;
                 }
                 this._OnScrollChanged(this.GetHorizontalOffset(), this.GetVerticalOffset());
             }

@@ -326,8 +326,6 @@ Matrix.CreateRotate = function (angleRad) {
         return new Matrix();
     var c = Math.cos(angleRad);
     var s = Math.sin(angleRad);
-    console.log("angleRad: " + angleRad);
-    console.log("cosine: " + c);
     var mt = new Matrix([c, -s, 0, s, c, 0]);
     mt._Angle = angleRad;
     return mt;
