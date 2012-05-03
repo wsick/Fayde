@@ -341,7 +341,9 @@
     <None Include="Tests\allstyles.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\binding.fayde" />
+    <None Include="Tests\binding.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <Content Include="Tests\heightTest.htm" />
     <None Include="Tests\checkbox.fayde" />
     <None Include="Tests\scrollbar.fayde">
@@ -384,13 +386,21 @@
     <None Include="Tests\imaging.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\path.fayde" />
-    <None Include="Tests\scrollviewer.fayde" />
-    <None Include="Tests\shapes.fayde" />
+    <None Include="Tests\path.fayde">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Tests\scrollviewer.fayde">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Tests\shapes.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Tests\smoke.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\style.fayde" />
+    <None Include="Tests\style.fayde">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">
@@ -402,7 +412,6 @@
       <Name>WickedSick.Server.XamlParser</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
   <ProjectExtensions>

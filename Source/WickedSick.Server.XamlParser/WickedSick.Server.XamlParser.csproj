@@ -82,6 +82,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Canvas.cs" />
+    <Compile Include="Elements\Controls\CheckBox.cs" />
     <Compile Include="Elements\Controls\Primitives\Popup.cs" />
     <Compile Include="Elements\Controls\ScrollContentPresenter.cs" />
     <Compile Include="Elements\Controls\Primitives\RangeBase.cs" />

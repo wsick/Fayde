@@ -682,7 +682,7 @@ CheckBox.Instance.GetDefaultStyle = function () {
     Props: {
         KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
         Value:
-                          True
+                          true
 
     }
 }]
@@ -950,73 +950,6 @@ CheckBox.Instance.GetDefaultStyle = function () {
         },
         Visibility: Visibility.Collapsed
     },
-    AttachedProps: [{
-        Owner: ToolTipService,
-        Prop: "PlacementTarget",
-        Value: "{Binding RelativeSource={RelativeSource TemplatedParent}}"
-    },
-{
-    Owner: ToolTipService,
-    Prop: "ToolTip",
-    Value: {
-        Type: ToolTip,
-        Name: "validationTooltip",
-        Props: {
-            Template: new StaticResourceMarkup("ValidationToolTipTemplate"),
-            DataContext: new BindingMarkup({ 'Mode': TwoWay })
-,
-            Placement: PlacementMode.Right,
-            PlacementTarget: new BindingMarkup({ 'Mode': TwoWay })
-,
-            Triggers: [
-{
-    Type: EventTrigger,
-    Props: {
-        RoutedEvent: "Canvas.Loaded",
-        Actions: [
-{
-    Type: BeginStoryboard,
-    Content: {
-        Type: Storyboard,
-        Children: [
-{
-    Type: ObjectAnimationUsingKeyFrames,
-    AttachedProps: [{
-        Owner: Storyboard,
-        Prop: "TargetName",
-        Value: "validationTooltip"
-    },
-{
-    Owner: Storyboard,
-    Prop: "TargetProperty",
-    Value: new _PropertyPath("IsHitTestVisible")
-
-}
-],
-    Children: [
-{
-    Type: DiscreteObjectKeyFrame,
-    Props: {
-        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-        Value:
-                                    true
-
-    }
-}]
-
-}]
-
-    }
-}]
-
-    }
-}]
-
-        }
-    }
-
-}
-],
     Content: {
         Type: Grid,
         Props: {

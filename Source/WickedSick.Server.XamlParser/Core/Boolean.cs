@@ -12,7 +12,7 @@ namespace WickedSick.Server.XamlParser.Core
 
         public override string toJson(int tabIndent)
         {
-            return (string)GetValue("Content");
+            return ((string)GetValue("Content")).ToLower();
         }
     }
 }
