@@ -314,23 +314,31 @@ Fayde._MediaParser.prototype.ParseGeometryImpl = function () {
                         break;
                     this.Advance();
 
+                    var angle = 0;
+                    this.ParseDouble();
+                    var is_large = false;
+                    this.ParseDouble();
+                    var sweep = false;
+                    this.ParseDouble();
+                    /*
                     var angle = g_ascii_strtod(inptr, end);
                     if (end == inptr)
-                        break;
+                    break;
                     inptr = end;
                     this.Advance();
 
                     var is_large = strtol(inptr, end, 10);
                     if (end == inptr)
-                        break;
+                    break;
                     inptr = end;
                     this.Advance();
 
                     var sweep = strtol(inptr, end, 10);
                     if (end == inptr)
-                        break;
+                    break;
                     inptr = end;
                     this.Advance();
+                    */
 
                     if ((cp2 = this.ParsePoint()) == null)
                         break;
