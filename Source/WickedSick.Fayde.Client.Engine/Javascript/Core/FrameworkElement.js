@@ -402,10 +402,10 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     var horiz = this.GetHorizontalAlignment();
     var vert = this.GetVerticalAlignment();
 
-    if (horiz == HorizontalAlignment.Stretch)
+    if (horiz === HorizontalAlignment.Stretch)
         framework.Width = Math.max(framework.Width, stretched.Width);
 
-    if (vert == VerticalAlignment.Stretch)
+    if (vert === VerticalAlignment.Stretch)
         framework.Height = Math.max(framework.Height, stretched.Height);
 
     offer = offer.Max(framework);
@@ -418,10 +418,10 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     else
         response = this._ArrangeOverrideWithError(offer, error);
 
-    if (horiz == HorizontalAlignment.Stretch)
+    if (horiz === HorizontalAlignment.Stretch)
         response.Width = Math.max(response.Width, framework.Width);
 
-    if (vert == VerticalAlignment.Stretch)
+    if (vert === VerticalAlignment.Stretch)
         response.Height = Math.max(response.Height, framework.Height);
 
     /*
