@@ -73,7 +73,8 @@ Fayde._MediaParser.prototype.ParseGeometryImpl = function () {
     var fillRule = FillRule.EvenOdd;
     var cbz = false; // last figure is a cubic bezier curve
     var qbz = false; // last figure is a quadratic bezier curve
-    var cbzp, qbzp; // points needed to create "smooth" beziers
+    var cbzp = new Point(); // points needed to create "smooth" beziers
+    var qbzp = new Point(); // points needed to create "smooth" beziers
 
     var path = new RawPath();
     while (this.index < this.len) {
