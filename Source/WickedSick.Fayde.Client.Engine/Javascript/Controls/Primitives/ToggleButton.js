@@ -4,9 +4,5 @@
 //#region ToggleButton
 var ToggleButton = Nullstone.Create("ToggleButton", ButtonBase);
 
-ToggleButton.Instance.Init = function () {
-
-};
-
 Nullstone.FinishCreate(ToggleButton);
 //#endregion

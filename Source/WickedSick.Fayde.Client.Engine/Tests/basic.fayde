@@ -1,3 +1,7 @@
-﻿<Page Title="Basic Test" xmlns="http://schemas.wsick.com/fayde/">
+﻿<Page Title="Basic Test"
+       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:sys="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
     <Border Width="200" Height="200" BorderBrush="#000000" BorderThickness="2" Background="#000000"/>
 </Page>

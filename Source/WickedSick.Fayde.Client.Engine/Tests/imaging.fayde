@@ -1,4 +1,8 @@
-﻿<Page Title="Fayde Imaging" xmlns="http://schemas.wsick.com/fayde/">
+﻿<Page Title="Fayde Imaging"
+       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:sys="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
     <Grid Background="#FFFFFF00">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400" />

@@ -15,18 +15,10 @@ namespace WickedSick.Server.XamlParser.Elements
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
         public static Type GetElementType(string nameSpace, string elementName)
         {
-            string faydeNs;
-            switch (nameSpace)
-            {
-                case "http://schemas.wsick.com/fayde/":
-                    faydeNs = typeof(DependencyObject).Namespace;
-                    break;
-                default:
-                    throw new XamlParseException(string.Format("Unable to resolve the namespace: {0}", nameSpace));
-            }
+            string[] nsParts = nameSpace.Split(';');
 
-            var types = from t in Assembly.GetAssembly(typeof(Parser)).GetTypes()
-                        where !t.IsAbstract && t.Namespace != null && t.Namespace.StartsWith(faydeNs)
+            var types = from t in Assembly.Load(nsParts[0]).GetTypes()
+                        where !t.IsAbstract && t.Namespace != null && t.Namespace.StartsWith(nsParts[1])
                         select t;
             foreach (Type t in types)
             {

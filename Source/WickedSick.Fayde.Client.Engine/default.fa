@@ -1,7 +1,4 @@
-﻿<FaydeApplication xmlns="http://schemas.wsick.com/fayde/"
-                  xmlns:x="http://schemas.wsick.com"
-                  xmlns:sys="http://schemas.wsick.com/fayde/"
-                  xmlns:vsm="http://schemas.wsick.com/fayde/"
+﻿<FaydeApplication xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
                   DefaultPageUri="Tests/smoke.fayde"
                   Width="1000"
                   Height="800"

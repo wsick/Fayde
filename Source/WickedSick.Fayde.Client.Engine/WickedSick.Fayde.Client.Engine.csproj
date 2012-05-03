@@ -58,6 +58,7 @@
     <Content Include="Images\tile-test.png" />
     <Content Include="JavascriptTests\FaydeAsserts.js" />
     <Content Include="JavascriptTests\MatrixTests.js" />
+    <Content Include="Javascript\Controls\CheckBox.js" />
     <Content Include="Javascript\Controls\ColumnDefinition.js" />
     <Content Include="Javascript\Controls\ColumnDefinitionCollection.js" />
     <Content Include="Javascript\Controls\ControlTemplate.js" />
@@ -337,9 +338,12 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="jsTestDriver.conf" />
-    <None Include="Tests\allstyles.fayde" />
+    <None Include="Tests\allstyles.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Tests\binding.fayde" />
     <Content Include="Tests\heightTest.htm" />
+    <None Include="Tests\checkbox.fayde" />
     <None Include="Tests\scrollbar.fayde">
       <SubType>Designer</SubType>
     </None>
