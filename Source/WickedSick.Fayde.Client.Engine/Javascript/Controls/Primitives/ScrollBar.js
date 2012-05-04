@@ -331,21 +331,21 @@ ScrollBar.Instance._GetTrackLength = function () {
         actual = this.GetActualWidth();
         if (this.$ElementHorizontalSmallDecrease != null) {
             var thickness = this.$ElementHorizontalSmallDecrease.GetMargin();
-            actual = actual - this.$ElementHorizontalSmallDecrease.GetActualWidth() + thickness.Left + thickness.Right;
+            actual = actual - (this.$ElementHorizontalSmallDecrease.GetActualWidth() + thickness.Left + thickness.Right);
         }
         if (this.$ElementHorizontalSmallIncrease != null) {
             var thickness = this.$ElementHorizontalSmallIncrease.GetMargin();
-            actual = actual - this.$ElementHorizontalSmallIncrease.GetActualWidth() + thickness.Left + thickness.Right;
+            actual = actual - (this.$ElementHorizontalSmallIncrease.GetActualWidth() + thickness.Left + thickness.Right);
         }
     } else {
         actual = this.GetActualHeight();
-        if (this.$ElementHorizontalSmallDecrease != null) {
-            var thickness = this.$ElementHorizontalSmallDecrease.GetMargin();
-            actual = actual - this.$ElementHorizontalSmallDecrease.GetActualWidth() + thickness.Top + thickness.Bottom;
+        if (this.$ElementVerticalSmallDecrease != null) {
+            var thickness = this.$ElementVerticalSmallDecrease.GetMargin();
+            actual = actual - (this.$ElementVerticalSmallDecrease.GetActualHeight() + thickness.Top + thickness.Bottom);
         }
-        if (this.$ElementHorizontalSmallIncrease != null) {
-            var thickness = this.$ElementHorizontalSmallIncrease.GetMargin();
-            actual = actual - this.$ElementHorizontalSmallIncrease.GetActualWidth() + thickness.Top + thickness.Bottom;
+        if (this.$ElementVerticalSmallIncrease != null) {
+            var thickness = this.$ElementVerticalSmallIncrease.GetMargin();
+            actual = actual - (this.$ElementVerticalSmallIncrease.GetActualHeight() + thickness.Top + thickness.Bottom);
         }
     }
     return actual;
