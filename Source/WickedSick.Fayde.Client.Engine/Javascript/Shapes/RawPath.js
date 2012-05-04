@@ -97,6 +97,7 @@ RawPath.Instance.Ellipse = function (x, y, width, height) {
     this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
 };
 RawPath.Instance.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
+    NotImplemented("EllipticalArc");
 };
 RawPath.Instance.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
     this._Path.push({
