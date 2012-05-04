@@ -263,35 +263,36 @@ BindingExpressionBase.Instance._NotifyErrorsChanged = function (o, e) {
 };
 
 BindingExpressionBase.Instance._CalculateDataSource = function () {
-    var source = null;
-    if (this.GetBinding().GetSource() != null) {
+    var source;
+    if (this.GetBinding().GetSource()) {
         this.GetPropertyPathWalker().Update(this.GetBinding().GetSource());
     } else if (this.GetBinding().GetElementName() != null) {
         source = this._FindSourceByElementName();
         var feTarget = Nullstone.As(this.GetTarget(), FrameworkElement);
-        if (feTarget == null)
+        if (!feTarget)
             feTarget = this.GetTarget().GetMentor();
-        if (feTarget == null) {
+        if (!feTarget) {
             this.GetTarget().MentorChanged.Subscribe(this._InvalidateAfterMentorChanged, this);
         } else {
             feTarget.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
         }
         this.GetPropertyPathWalker().Update(source);
-    } else if (this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.Self) {
+    } else if (this.GetBinding().GetRelativeSource() && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.Self) {
         this.GetPropertyPathWalker().Update(this.GetTarget());
     } else {
         var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
-        if (fe != null && (this.GetProperty() === FrameworkElement.DataContextProperty || this.GetProperty() === ContentPresenter.ContentProperty)) {
+        var propd = this.GetProperty();
+        if (fe && (propd._ID === FrameworkElement.DataContextProperty._ID || propd._ID === ContentPresenter.ContentProperty._ID)) {
             fe.VisualParentChanged.Subscribe(this._ParentChanged, this);
             fe = fe.GetVisualParent();
             this.SetDataContextSource(fe);
         } else {
-            if (fe == null) {
+            if (!fe) {
                 this.GetTarget().MentorChanged.Subscribe(this._MentorChanged, this);
                 fe = this.GetTarget().GetMentor();
             }
 
-            if (fe != null && this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
+            if (fe && this.GetBinding().GetRelativeSource() && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
                 this.GetPropertyPathWalker().Update(fe.GetTemplateOwner());
             } else {
                 this.SetDataContextSource(fe);
@@ -301,23 +302,23 @@ BindingExpressionBase.Instance._CalculateDataSource = function () {
 };
 BindingExpressionBase.Instance.SetDataContextSource = function (value) {
     ///<param name="value" type="FrameworkElement"></param>
-    if (this._DataContextSource != null && this._DataContextPropertyListener != null) {
+    if (this._DataContextSource && this._DataContextPropertyListener) {
         this._DataContextPropertyListener.Detach();
         this._DataContextPropertyListener = null;
     }
     this._DataContextSource = value;
-    if (this._DataContextSource != null) {
+    if (this._DataContextSource) {
         this._DataContextPropertyListener = new PropertyChangedListener(this._DataContextSource, FrameworkElement.DataContextProperty, this, this._DataContextChanged);
     }
 
-    if (this._DataContextSource != null || this.GetIsMentorDataContextBound())
-        this.GetPropertyPathWalker().Update(this._DataContextSource == null ? null : this._DataContextSource.GetDataContext());
+    if (this._DataContextSource || this.GetIsMentorDataContextBound())
+        this.GetPropertyPathWalker().Update(!this._DataContextSource ? null : this._DataContextSource.GetDataContext());
 };
 BindingExpressionBase.Instance._InvalidateAfterMentorChanged = function (sender, e) {
     ///<param name="e" type="EventArgs"></param>
     this.GetTarget().MentorChanged.Unsubscribe(this._InvalidateAfterMentorChanged, this);
     var source = this._FindSourceByElementName();
-    if (source == null) {
+    if (!source) {
         this.GetTarget().GetMentor().Loaded.Subscribe(this._HandleFeTargetLoaded, this);
     } else {
         this.GetPropertyPathWalker().Update(source);
@@ -331,22 +332,22 @@ BindingExpressionBase.Instance._HandleFeTargetLoaded = function (sender, e) {
     fe.Loaded.Unsubscribe(this._HandleFeTargetLoaded, this);
 
     var source = this._FindSourceByElementName();
-    if (source != null)
+    if (source)
         this.GetPropertyPathWalker().Update(source);
 
     this._Invalidate();
     this.GetTarget().$SetValue(this.GetProperty(), this);
 };
 BindingExpressionBase.Instance._FindSourceByElementName = function () {
-    var source = null;
+    var source;
     var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
     if (!fe)
         fe = this.GetTarget().GetMentor();
-    while (fe != null && source == null) {
+    while (fe && !source) {
         source = fe.FindName(this.GetBinding().GetElementName());
-        if (source == null && fe.GetTemplateOwner() != null)
+        if (!source && fe.GetTemplateOwner())
             fe = fe.GetTemplateOwner();
-        else if (fe.GetMentor() != null && ItemsControl.GetItemsOwner(fe.GetMentor()) != null)
+        else if (fe.GetMentor() && ItemsControl.GetItemsOwner(fe.GetMentor()))
             fe = fe.GetMentor();
         else
             fe = null;
@@ -362,8 +363,8 @@ BindingExpressionBase.Instance._MentorChanged = function (sender, e) {
     /// <param name="e" type="EventArgs"></param>
     try {
         var mentor = this.GetTarget().GetMentor();
-        if (this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
-            if (mentor == null)
+        if (this.GetBinding().GetRelativeSource() && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
+            if (!mentor)
                 this.GetPropertyPathWalker().Update(null);
             else
                 this.GetPropertyPathWalker().Update(menotr.GetTemplateOwner());
@@ -398,8 +399,8 @@ BindingExpressionBase.Instance._PropertyPathValueChanged = function () {
     this.Refresh();
 };
 BindingExpressionBase.Instance.Refresh = function () {
-    var dataError = null;
-    var exception = null;
+    var dataError;
+    var exception;
 
     if (!this.GetAttached())
         return;
@@ -411,7 +412,7 @@ BindingExpressionBase.Instance.Refresh = function () {
     //this._AttachToNotifyError(source);
 
     //source = Nullstone.As(node.GetSource(), IDataErrorInfo);
-    //if (!this.GetUpdating() && this.GetBinding().GetValidatesOnDataErrors() && source != null && node.GetPropertyInfo() != null)
+    //if (!this.GetUpdating() && this.GetBinding().GetValidatesOnDataErrors() && source && node.GetPropertyInfo())
     //dataError = source[node.GetPropertyInfo().Name];
 
     var oldUpdating = this.GetUpdating();
@@ -468,7 +469,7 @@ BindingExpressionBase.Instance.GetDataSource = function () {
 };
 
 BindingExpressionBase.Instance.GetIsBoundToAnyDataContext = function () {
-    return !this.GetBinding().GetElementName() && this.GetBinding().GetSource() == null;
+    return !this.GetBinding().GetElementName() && !this.GetBinding().GetSource();
 };
 BindingExpressionBase.Instance.GetIsSelfDataContextBound = function () {
     return this.GetIsBoundToAnyDataContext()

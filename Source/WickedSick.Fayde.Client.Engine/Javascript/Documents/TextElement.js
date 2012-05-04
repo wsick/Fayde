@@ -13,9 +13,9 @@ TextElement.Instance.Init = function () {
     this._UpdateFont(true);
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
-TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
+TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
 TextElement.Instance.GetForeground = function () {
     return this.$GetValue(TextElement.ForegroundProperty);
 };

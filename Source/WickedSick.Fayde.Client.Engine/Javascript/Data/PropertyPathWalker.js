@@ -21,7 +21,7 @@ _PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsT
     this.SetPath(path);
     this.SetIsDataContextBound(isDataContextBound);
 
-    var lastCVNode = null;
+    var lastCVNode;
 
     if (!path || path === ".") {
         lastCVNode = new _CollectionViewNode(bindDirectlyToSource, bindsToView);
@@ -51,7 +51,7 @@ _PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsT
                     break;
             }
 
-            if (this.GetFinalNode() != null)
+            if (this.GetFinalNode())
                 this.GetFinalNode().SetNext(node);
             else
                 this.SetNode(node);
@@ -138,11 +138,11 @@ _PropertyPathWalker.Instance.SetFinalNode = function (value) {
 _PropertyPathWalker.Instance.GetIsPathBroken = function () {
     /// <returns type="Boolean" />
     var path = this.GetPath();
-    if (this.GetIsDataContextBound() && (path == null || path.length < 1))
+    if (this.GetIsDataContextBound() && (!path || path.length < 1))
         return false;
 
     var node = this.GetNode();
-    while (node != null) {
+    while (node) {
         if (node.GetIsBroken())
             return true;
         node = node.GetNext();

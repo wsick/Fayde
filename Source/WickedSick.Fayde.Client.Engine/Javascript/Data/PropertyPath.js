@@ -26,9 +26,8 @@ _PropertyPath.Instance.TryResolveDependencyProperty = function (dobj) {
     /// <param name="dobj" type="DependencyObject"></param>
     if (this.HasDependencyProperty())
         return;
-    if (dobj == null)
-        return;
-    this._Propd = dobj.GetDependencyProperty(this.GetPath());
+    if (dobj)
+        this._Propd = dobj.GetDependencyProperty(this.GetPath());
 };
 
 //#region PROPERTIES
@@ -39,15 +38,15 @@ _PropertyPath.Instance.GetDependencyProperty = function () {
 };
 _PropertyPath.Instance.GetPath = function () {
     /// <returns type="String" />
-    return this._Propd == null ? this._Path : "(0)";
+    return !this._Propd ? this._Path : "(0)";
 };
 _PropertyPath.Instance.GetExpandedPath = function () {
-    return this._Propd == null ? this._ExpandedPath : "(0)";
+    return !this._Propd ? this._ExpandedPath : "(0)";
 };
 _PropertyPath.Instance.GetParsePath = function () {
-    if (this._Propd != null)
+    if (this._Propd)
         return "(0)";
-    if (this._ExpandedPath != null)
+    if (this._ExpandedPath)
         return this._ExpandedPath;
     return this._Path;
 };

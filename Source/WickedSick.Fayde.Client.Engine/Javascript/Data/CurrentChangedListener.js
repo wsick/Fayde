@@ -15,7 +15,7 @@ CurrentChangedListener.Instance.Init = function (source, closure, func) {
 };
 
 CurrentChangedListener.Instance.Detach = function () {
-    if (this._Source != null) {
+    if (this._Source) {
         this._Source.CurrentChanged.Unsubscribe(this, this.OnCurrentChangedInternal);
         this._Source = null;
         this._Closure = null;
@@ -23,7 +23,7 @@ CurrentChangedListener.Instance.Detach = function () {
     }
 };
 CurrentChangedListener.Instance.OnCurrentChangedInternal = function (s, e) {
-    if (this._Closure != null && this._Func != null)
+    if (this._Closure && this._Func)
         this._Func.call(this._Closure, s, e);
 };
 

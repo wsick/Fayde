@@ -25,7 +25,7 @@ _CollectionViewNode.Instance.ViewChanged = function (sender, e) {
 };
 _CollectionViewNode.Instance.ViewCurrentChanged = function (sender, e) {
     this.UpdateValue();
-    if (this.GetNext() != null)
+    if (this.GetNext())
         this.GetNext().SetSource(this.GetValue());
 };
 _CollectionViewNode.Instance.SetValue = function () {
@@ -33,11 +33,11 @@ _CollectionViewNode.Instance.SetValue = function () {
 };
 _CollectionViewNode.Instance.UpdateValue = function () {
     if (this.GetBindsDirectlyToSource()) {
-        this.SetValueType(this.GetSource() == null ? null : this.GetSource().constructor);
+        this.SetValueType(!this.GetSource() ? null : this.GetSource().constructor);
         this._UpdateValueAndIsBroken(this.GetSource(), this._CheckIsBroken());
     } else {
         var usableSource = this.GetSource();
-        var view = null;
+        var view;
         if (this.GetSource() instanceof CollectionViewSource) {
             usableSource = null;
             view = this.GetSource().GetView();
@@ -45,15 +45,15 @@ _CollectionViewNode.Instance.UpdateValue = function () {
             view = this.GetSource();
         }
 
-        if (view == null) {
-            this.SetValueType(usableSource == null ? null : usableSource.constructor);
+        if (!view) {
+            this.SetValueType(!usableSource ? null : usableSource.constructor);
             this._UpdateValueAndIsBroken(usableSource, this._CheckIsBroken());
         } else {
             if (this.GetBindToView()) {
                 this.SetValueType(view.constructor);
                 this._UpdateValueAndIsBroken(view, this._CheckIsBroken());
             } else {
-                this.SetValueType(view.GetCurrentItem() == null ? null : view.GetCurrentItem().constructor);
+                this.SetValueType(!view.GetCurrentItem() ? null : view.GetCurrentItem().constructor);
                 this._UpdateValueAndIsBroken(view.GetCurrentItem(), this._CheckIsBroken());
             }
         }
@@ -66,23 +66,23 @@ _CollectionViewNode.Instance._CheckIsBroken = function () {
 _CollectionViewNode.Instance.ConnectViewHandlers = function (source, view) {
     /// <param name="source" type="CollectionViewSource"></param>
     /// <param name="view" type="ICollectionView"></param>
-    if (source != null) {
+    if (source) {
         this._ViewPropertyListener = new PropertyChangedListener(source, source.constructor.ViewProperty, this, this.ViewChanged);
         view = source.GetView();
     }
-    if (view != null)
+    if (view)
         this._ViewListener = new CurrentChangedListener(view, this, this.ViewCurrentChanged);
 
 };
 _CollectionViewNode.Instance.DisconnectViewHandlers = function (onlyView) {
     /// <param name="onlyView" type="Boolean"></param>
-    if (onlyView == null)
+    if (!onlyView)
         onlyView = false;
-    if (this._ViewPropertyListener != null && !onlyView) {
+    if (this._ViewPropertyListener && !onlyView) {
         this._ViewPropertyListener.Detach();
         this._ViewPropertyListener = null;
     }
-    if (this._ViewListener != null) {
+    if (this._ViewListener) {
         this._ViewListener.Detach();
         this._ViewListener = null;
     }

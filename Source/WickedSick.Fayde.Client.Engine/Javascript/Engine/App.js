@@ -21,7 +21,7 @@ App.Instance.Init = function () {
 
 //#region Dependency Properties
 
-App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
+App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, { GetValue: function () { return new ResourceDictionary(); } });
 App.Instance.GetResources = function () {
     return this.$GetValue(App.ResourcesProperty);
 };

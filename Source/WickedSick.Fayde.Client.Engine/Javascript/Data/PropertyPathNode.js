@@ -26,21 +26,21 @@ _PropertyPathNode.Instance.SetSource = function (value) {
     if (value == null || !Nullstone.Equals(value, this._Source)) {
         var oldSource = this._Source;
         var listener = this.GetListener();
-        if (listener != null) {
+        if (listener) {
             listener.Detach();
             listener = null;
             this.SetListener(listener);
         }
 
         this._Source = value;
-        if (this._Source != null && Nullstone.DoesImplement(this._Source, INotifyPropertyChanged)) {
+        if (this._Source && Nullstone.DoesImplement(this._Source, INotifyPropertyChanged)) {
             listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
             this.SetListener(listener);
         }
 
         this.OnSourceChanged(oldSource, this._Source);
         this.UpdateValue();
-        if (this.GetNext() != null)
+        if (this.GetNext())
             this.GetNext().SetSource(this._Value);
     }
 };
@@ -59,7 +59,7 @@ _PropertyPathNode.Instance._UpdateValueAndIsBroken = function (newValue, isBroke
     }
 };
 _PropertyPathNode.Instance._CheckIsBroken = function () {
-    return this.GetSource() == null || (this.GetPropertyInfo() == null && this.GetDependencyProperty() == null);
+    return !this.GetSource() || (!this.GetPropertyInfo() && !this.GetDependencyProperty());
 };
 
 //#region PROPERTIES

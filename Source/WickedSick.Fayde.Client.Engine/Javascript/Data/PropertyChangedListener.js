@@ -18,7 +18,7 @@ PropertyChangedListener.Instance.Init = function (source, propd, closure, func) 
 };
 
 PropertyChangedListener.Instance.Detach = function () {
-    if (this._Source != null) {
+    if (this._Source) {
         this._Source.PropertyChanged.Unsubscribe(this, this.OnPropertyChangedInternal);
         this._Source = null;
         this._Closure = null;
@@ -28,7 +28,7 @@ PropertyChangedListener.Instance.Detach = function () {
 PropertyChangedListener.Instance.OnPropertyChangedInternal = function (s, e) {
     if (e.Property !== this._Property)
         return;
-    if (this._Closure != null && this._Func != null)
+    if (this._Closure && this._Func)
         this._Func.call(this._Closure, s, e);
 };
 
