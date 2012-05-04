@@ -21,9 +21,12 @@ ContentControl._FallbackTemplate = (function () {
     });
 })();
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
-ContentControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentControl);
+ContentControl._OnContentPropertyChanged = function (d, args) {
+    d.OnContentChanged(args.OldValue, args.NewValue);
+};
+ContentControl.ContentProperty = DependencyProperty.RegisterCore("Content", function () { return Object; }, ContentControl, undefined, ContentControl._OnContentPropertyChanged);
 ContentControl.Instance.GetContent = function () {
     return this.$GetValue(ContentControl.ContentProperty);
 };
@@ -31,7 +34,10 @@ ContentControl.Instance.SetContent = function (value) {
     this.$SetValue(ContentControl.ContentProperty, value);
 };
 
-ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentControl);
+ContentControl._OnContentTemplatePropertyChanged = function (d, args) {
+    d.OnContentTemplateChanged(args.OldValue, args.NewValue);
+};
+ContentControl.ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return ControlTemplate; }, ContentControl, undefined, ContentControl._OnContentTemplatePropertyChanged);
 ContentControl.Instance.GetContentTemplate = function () {
     return this.$GetValue(ContentControl.ContentTemplateProperty);
 };
@@ -41,7 +47,7 @@ ContentControl.Instance.SetContentTemplate = function (value) {
 
 //#endregion
 
-//#region PROPERTIES
+//#region Properties
 
 ContentControl.Instance.GetFallbackRoot = function () {
     if (this._FallbackRoot == null)
@@ -51,7 +57,12 @@ ContentControl.Instance.GetFallbackRoot = function () {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
+
+ContentControl.Instance.OnContentChanged = function (oldContent, newContent) {
+};
+ContentControl.Instance.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
+};
 
 ContentControl.Instance._GetDefaultTemplate = function () {
     return this.GetFallbackRoot();
@@ -59,7 +70,7 @@ ContentControl.Instance._GetDefaultTemplate = function () {
 
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 ContentControl.Annotations = {
     ContentProperty: ContentControl.ContentProperty

@@ -72,6 +72,30 @@ DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
         this._MentorChangedCallback(this, newValue);
     }
 };
+DependencyObject._PropagateMentor = function (propd, value, newMentor) {
+    if (value != null && value instanceof DependencyObject) {
+        value.SetMentor(newMentor);
+    }
+};
+
+DependencyObject.Instance._SetIsAttached = function (value) {
+    if (this._IsAttached == value)
+        return;
+    this._IsAttached = value;
+    this._OnIsAttachedChanged(value);
+};
+DependencyObject.Instance._OnIsAttachedChanged = function (value) {
+    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
+    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
+};
+DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
+    if (propd._IsCustom)
+        return;
+
+    if (value != null && value instanceof DependencyObject) {
+        value._SetIsAttached(newIsAttached);
+    }
+};
 
 //#endregion
 
@@ -542,16 +566,6 @@ DependencyObject.Instance._SetResourceBase = function (value) {
     this._ResourceBase = value;
 };
 
-DependencyObject.Instance._SetIsAttached = function (value) {
-    if (this._IsAttached == value)
-        return;
-    this._IsAttached = value;
-    this._OnIsAttachedChanged(value);
-};
-DependencyObject.Instance._OnIsAttachedChanged = function (value) {
-    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
-    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
-};
 
 DependencyObject.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property === DependencyObject.NameProperty) {
@@ -600,21 +614,8 @@ DependencyObject.Instance._OnCollectionItemChangedEH = function (sender, args) {
 };
 DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) { };
 
-DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
-    if (propd._IsCustom)
-        return;
 
-    if (value != null && value instanceof DependencyObject) {
-        value._SetIsAttached(newIsAttached);
-    }
-};
-DependencyObject._PropagateMentor = function (propd, value, newMentor) {
-    if (value != null && value instanceof DependencyObject) {
-        value.SetMentor(newMentor);
-    }
-};
-
-//#region NAME
+//#region Name
 
 DependencyObject.Instance.FindName = function (name, isTemplateItem) {
     /// <param name="name" type="String"></param>
@@ -704,7 +705,7 @@ DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
 
 //#endregion
 
-//#region PARENT USAGE
+//#region Parent Usage
 
 DependencyObject.Instance._GetParent = function () {
     return this._Parent;
@@ -721,7 +722,7 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
     var current = parent;
     while (current != null) {
         if (Nullstone.RefEquals(current, this)) {
-            //Warn: cycle found
+            Warn("DependencyObject._AddParent - Cycle found.");
             return;
         }
         current = current._GetParent();
@@ -842,7 +843,7 @@ DependencyObject.Instance._HasSecondaryParents = function () {
 
 //#endregion
 
-//#region ANIMATION STORAGE
+//#region Animation Storage
 
 DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
     if (this._StorageRepo == null)
