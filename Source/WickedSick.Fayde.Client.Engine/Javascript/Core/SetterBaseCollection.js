@@ -55,11 +55,11 @@ SetterBaseCollection.Instance.IsElementType = function (value) {
 SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
     var s = Nullstone.As(value, Setter);
     if (s) {
-        if (s.$GetValue(Setter.PropertyProperty) === undefined) {
+        if (s.$GetValue(Setter.PropertyProperty) == null) {
             error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
             return false;
         }
-        if (s._ReadLocalValueImpl(Setter.ValueProperty) === undefined) {
+        if (s._ReadLocalValueImpl(Setter.ValueProperty) == null) {
             error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
             return false;
         }
