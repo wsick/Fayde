@@ -86,6 +86,7 @@
     <Content Include="Javascript\Controls\PropertyValueProviders\PasswordBoxDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxBaseDynamicPropertyValueProvider.js" />
     <Content Include="Javascript\Controls\PropertyValueProviders\TextBoxDynamicPropertyValueProvider.js" />
+    <Content Include="Javascript\Controls\RadioButton.js" />
     <Content Include="Javascript\Controls\RichTextBoxView.js" />
     <Content Include="Javascript\Controls\RowDefinition.js" />
     <Content Include="Javascript\Controls\RowDefinitionCollection.js" />
@@ -348,6 +349,7 @@
     <None Include="Tests\checkbox.fayde">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Tests\radiobutton.fayde" />
     <None Include="Tests\scrollbar.fayde">
       <SubType>Designer</SubType>
     </None>
