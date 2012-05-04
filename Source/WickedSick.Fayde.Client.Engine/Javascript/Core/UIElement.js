@@ -543,7 +543,7 @@ UIElement.Instance._MeasureWithError = function (availableSize, error) { };
 //#region Arrange
 
 UIElement.Instance._DoArrangeWithError = function (error) {
-    var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var last = this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty);
     var parent = this.GetVisualParent();
 
     if (!parent) {
@@ -741,7 +741,7 @@ UIElement.Instance._ElementAdded = function (item) {
     item._UpdateProjection();
     item._InvalidateMeasure();
     item._InvalidateArrange();
-    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValueImpl(LayoutInformation.LastRenderSizeProperty))
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 

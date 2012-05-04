@@ -183,7 +183,7 @@ TextBlock.Instance._ComputeActualSize = function () {
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
 
-    if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
+    if (this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
         this._Layout.Layout();
         var actuals = this._Layout.GetActualExtents();
         this._ActualWidth = actuals.Width;

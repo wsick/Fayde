@@ -7900,7 +7900,7 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
     }
     var currentValue;
     var equal = false;
-    if ((currentValue = this.ReadLocalValue(propd)) == null)
+    if ((currentValue = this._ReadLocalValueImpl(propd)) == null)
         if (propd._IsAutoCreated)
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     if (currentValue != null && value != null)
@@ -7956,7 +7956,7 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
         return;
     }
     var oldLocalValue;
-    if ((oldLocalValue = this.ReadLocalValue(propd)) == null) {
+    if ((oldLocalValue = this._ReadLocalValueImpl(propd)) == null) {
         if (propd._IsAutoCreated)
             oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     }
@@ -7983,10 +7983,13 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
     }
 };
 DependencyObject.Instance.ReadLocalValue = function (propd) {
-    var val = this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+    var val = this._ReadLocalValueImpl(propd);
     if (val === undefined)
-        val = new UnsetValue();
+        val = DependencyProperty.UnsetValue;
     return val;
+};
+DependencyObject.Instance._ReadLocalValueImpl = function (propd) {
+    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
 DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
     var v = this.$GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
@@ -9098,7 +9101,7 @@ UIElement.Instance.Measure = function (availableSize) {
 };
 UIElement.Instance._MeasureWithError = function (availableSize, error) { };
 UIElement.Instance._DoArrangeWithError = function (error) {
-    var last = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var last = this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty);
     var parent = this.GetVisualParent();
     if (!parent) {
         var desired = new Size();
@@ -9255,7 +9258,7 @@ UIElement.Instance._ElementAdded = function (item) {
     item._UpdateProjection();
     item._InvalidateMeasure();
     item._InvalidateArrange();
-    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValueImpl(LayoutInformation.LastRenderSizeProperty))
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 UIElement.Instance._UpdateLayer = function (pass, error) {
@@ -11793,7 +11796,7 @@ FrameworkElement.Instance.Arrange = function (finalRect) {
 FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
-    var slot = this.ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    var slot = this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty);
     var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
     if (this.GetUseLayoutRounding()) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
@@ -12071,7 +12074,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                             pass._ArrangeList.Append(new UIElementNode(child));
                         break;
                     case UIElementFlags.DirtySizeHint:
-                        if (child.ReadLocalValue(LayoutInformation.LastRenderSizeProperty))
+                        if (child._ReadLocalValueImpl(LayoutInformation.LastRenderSizeProperty))
                             pass._SizeList.Append(new UIElementNode(child));
                         break;
                     default:
@@ -12309,7 +12312,7 @@ SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
             error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
             return false;
         }
-        if (s.ReadLocalValue(Setter.ValueProperty) == null) {
+        if (s._ReadLocalValueImpl(Setter.ValueProperty) == null) {
             error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
             return false;
         }
@@ -13190,7 +13193,7 @@ Shape.Instance._ComputeActualSize = function () {
     var sy = 1.0;
     var parent = this.GetVisualParent();
     if (parent != null && !(parent instanceof Canvas)) {
-        if (LayoutInformation.GetPreviousConstraint(this) != null || this.ReadLocalValue(LayoutInformation.LayoutSlotProperty)) {
+        if (LayoutInformation.GetPreviousConstraint(this) != null || this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty)) {
             return desired;
         }
     }
@@ -14981,7 +14984,7 @@ TextBlock.Instance._ComputeActualSize = function () {
     var padding = this.GetPadding();
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
-    if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
+    if (this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
         this._Layout.Layout();
         var actuals = this._Layout.GetActualExtents();
         this._ActualWidth = actuals.Width;
@@ -16124,7 +16127,7 @@ _TextBoxView.Instance._UpdateText = function () {
     this._Layout.SetText(text ? text : "", -1);
 };
 _TextBoxView.Instance._ComputeActualSize = function () {
-    if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty))
+    if (this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty))
         return this._ComputeActualSize$FrameworkElement();
     this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     return this._Layout.GetActualExtents();
