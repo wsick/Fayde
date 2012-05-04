@@ -179,7 +179,7 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
     var currentValue;
     var equal = false;
 
-    if ((currentValue = this.ReadLocalValue(propd)) == null)
+    if ((currentValue = this._ReadLocalValueImpl(propd)) == null)
         if (propd._IsAutoCreated)
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
 
@@ -247,7 +247,7 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
     }
 
     var oldLocalValue;
-    if ((oldLocalValue = this.ReadLocalValue(propd)) == null) {
+    if ((oldLocalValue = this._ReadLocalValueImpl(propd)) == null) {
         if (propd._IsAutoCreated)
             oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     }
@@ -281,10 +281,13 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
     }
 };
 DependencyObject.Instance.ReadLocalValue = function (propd) {
-    var val = this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+    var val = this._ReadLocalValueImpl(propd);
     if (val === undefined)
         val = new UnsetValue();
     return val;
+};
+DependencyObject.Instance._ReadLocalValueImpl = function (propd) {
+    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
 DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
     var v = this.$GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);

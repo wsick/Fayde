@@ -246,4 +246,5 @@ Controls/Primitives/ButtonBase.js
 Controls/Primitives/RepeatButton.js
 Controls/Primitives/ToggleButton.js
 Controls/Button.js
+Controls/CheckBox.js
 Controls/HyperlinkButton.js

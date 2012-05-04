@@ -24,7 +24,7 @@ TextBlock.Instance.Init = function () {
     this._Font = new Font();
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 TextBlock.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, TextBlock, new Thickness());
 TextBlock.Instance.GetPadding = function () {
@@ -183,7 +183,7 @@ TextBlock.Instance._ComputeActualSize = function () {
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
 
-    if (this.ReadLocalValue(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
+    if (this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
         this._Layout.Layout();
         var actuals = this._Layout.GetActualExtents();
         this._ActualWidth = actuals.Width;
@@ -196,6 +196,9 @@ TextBlock.Instance._ComputeActualSize = function () {
     result = result.GrowByThickness(padding);
     return result;
 };
+
+//#region Measure
+
 TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var padding = this.GetPadding();
     var constraint = availableSize.GrowByThickness(padding.Negate());
@@ -203,6 +206,9 @@ TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
     desired = new Size(this._ActualWidth, this._ActualHeight).GrowByThickness(padding);
     return desired;
 };
+
+//#endregion
+
 TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var padding = this.GetPadding();
     var constraint = finalSize.GrowByThickness(padding.Negate());
@@ -226,7 +232,8 @@ TextBlock.Instance._Render = function (ctx, region) {
     ctx.Restore();
 };
 
-TextBlock.Instance.Layout = function (/* Size */constraint) {
+TextBlock.Instance.Layout = function (constraint) {
+    /// <param name="constraint" type="Size"></param>
     if (this._WasSet && this._GetValueNoDefault(TextBlock.TextProperty) == null) {
         this._ActualHeight = this._Font.GetActualHeight();
         this._ActualWidth = 0.0;
@@ -368,13 +375,13 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
             return;
     }
 
-    if (args.Property === TextBlock.FontFamilyProperty
-        || args.Property === TextBlock.FontSizeProperty
-        || args.Property === TextBlock.FontStretchProperty
-        || args.Property === TextBlock.FontStyleProperty
-        || args.Property === TextBlock.FontWeightProperty) {
+    if (args.Property._ID === TextBlock.FontFamilyProperty._ID
+        || args.Property._ID === TextBlock.FontSizeProperty._ID
+        || args.Property._ID === TextBlock.FontStretchProperty._ID
+        || args.Property._ID === TextBlock.FontStyleProperty._ID
+        || args.Property._ID === TextBlock.FontWeightProperty._ID) {
         this._UpdateFonts(false);
-    } else if (args.Property === TextBlock.TextProperty) {
+    } else if (args.Property._ID === TextBlock.TextProperty._ID) {
         if (this._SetsValue) {
             this._SetTextInternal(args.NewValue)
 
@@ -384,7 +391,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
             this._UpdateLayoutAttributes();
             invalidate = false;
         }
-    } else if (args.Property === TextBlock.InlinesProperty) {
+    } else if (args.Property._ID === TextBlock.InlinesProperty._ID) {
         if (this._SetsValue) {
             this._SetsValue = false;
             this.$SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
@@ -396,21 +403,21 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
             this._UpdateLayoutAttributes();
             invalidate = false;
         }
-    } else if (args.Property === TextBlock.LineStackingStrategyProperty) {
+    } else if (args.Property._ID === TextBlock.LineStackingStrategyProperty._ID) {
         this._Dirty = this._Layout.SetLineStackingStrategy(args.NewValue);
-    } else if (args.Property === TextBlock.LineHeightProperty) {
+    } else if (args.Property._ID === TextBlock.LineHeightProperty._ID) {
         this._Dirty = this._Layout.SetLineHeight(args.NewValue);
-    } else if (args.Property === TextBlock.TextDecorationsProperty) {
+    } else if (args.Property._ID === TextBlock.TextDecorationsProperty._ID) {
         this._Dirty = true;
-    } else if (args.Property === TextBlock.TextAlignmentProperty) {
+    } else if (args.Property._ID === TextBlock.TextAlignmentProperty._ID) {
         this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
-    } else if (args.Property === TextBlock.TextTrimmingProperty) {
+    } else if (args.Property._ID === TextBlock.TextTrimmingProperty._ID) {
         this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
-    } else if (args.Property === TextBlock.TextWrappingProperty) {
+    } else if (args.Property._ID === TextBlock.TextWrappingProperty._ID) {
         this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
-    } else if (args.Property === TextBlock.PaddingProperty) {
+    } else if (args.Property._ID === TextBlock.PaddingProperty._ID) {
         this._Dirty = true;
-    } else if (args.Property === TextBlock.FontSourceProperty) {
+    } else if (args.Property._ID === TextBlock.FontSourceProperty._ID) {
     }
 
     if (invalidate) {
@@ -459,7 +466,7 @@ TextBlock.Instance._OnCollectionChanged = function (sender, args) {
 
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 TextBlock.Annotations = {
     ContentProperty: TextBlock.InlinesProperty

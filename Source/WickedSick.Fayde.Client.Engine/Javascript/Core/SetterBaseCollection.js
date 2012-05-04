@@ -60,7 +60,7 @@ SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
             error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
             return false;
         }
-        if (s.ReadLocalValue(Setter.ValueProperty) == null) {
+        if (s._ReadLocalValueImpl(Setter.ValueProperty) == null) {
             error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
             return false;
         }
