@@ -308,6 +308,10 @@ DependencyObject.Instance._ReadLocalValueImpl = function (propd) {
 //#endregion
 
 DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) {
+    this._RemoveExpression(propd);
+    this._ClearValueImpl(propd, notifyListeners, error);
+};
+DependencyObject.Instance._ClearValueImpl = function (propd, notifyListeners, error) {
     if (notifyListeners === undefined)
         notifyListeners = true;
     if (!error)
