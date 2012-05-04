@@ -53,22 +53,21 @@ SetterBaseCollection.Instance.IsElementType = function (value) {
 };
 
 SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
-    var s;
-    if (value instanceof Setter) {
-        s = Nullstone.As(value, Setter);
-        if (s.$GetValue(Setter.PropertyProperty) == null) {
+    var s = Nullstone.As(value, Setter);
+    if (s) {
+        if (s.$GetValue(Setter.PropertyProperty) === undefined) {
             error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
             return false;
         }
-        if (s._ReadLocalValueImpl(Setter.ValueProperty) == null) {
+        if (s._ReadLocalValueImpl(Setter.ValueProperty) === undefined) {
             error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
             return false;
         }
     }
 
-    if (value instanceof SetterBase) {
-        s = Nullstone.As(value, SetterBase);
-        if (s.GetAttached()) {
+    var sb = Nullstone.As(value, SetterBase);
+    if (sb) {
+        if (sb.GetAttached()) {
             error.SetErrored(BError.InvalidOperation, "Setter is currently attached to another style");
             return false;
         }

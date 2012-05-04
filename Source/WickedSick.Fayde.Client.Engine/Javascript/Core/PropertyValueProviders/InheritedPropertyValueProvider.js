@@ -120,11 +120,13 @@ _InheritedPropertyValueProvider.Instance.MaybePropagateInheritedValue = function
         element._PropagateInheritedValue(prop, source, value);
 };
 _InheritedPropertyValueProvider.Instance.MaybeRemoveInheritedValue = function (source, prop, props, element) {
+    /// <param name="source" type="DependencyObject"></param>
+    /// <param name="element" type="DependencyObject"></param>
     if (!source) return;
     if ((props & prop) == 0) return;
 
-    if (source == element._GetInheritedValueSource(prop))
-        element._PropagateInheritedValue(prop, null, null);
+    if (Nullstone.RefEquals(source, element._GetInheritedValueSource(prop)))
+        element._PropagateInheritedValue(prop, undefined, undefined);
 };
 _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
     var baseContext = new _InheritedContext(
@@ -144,7 +146,7 @@ _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToT
 };
 _InheritedPropertyValueProvider.Instance.PropagateInheritedProperty = function (propd, source, subtree) {
     var inheritable = _InheritedPropertyValueProvider.GetInheritable(source, propd);
-    var objContext = new _InheritedContext(this._Object, null);
+    var objContext = new _InheritedContext(this._Object);
     this.WalkSubtree(source, subtree, objContext, inheritable, true);
 };
 _InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
@@ -183,7 +185,7 @@ _InheritedPropertyValueProvider.IsInherited = function (obj, propd) {
 };
 _InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
     var inh = propd._CachedInheritable;
-    if (inh == null) {
+    if (!inh) {
         inh = _InheritedPropertyValueProvider._DeriveInheritable(obj, propd);
         //don't cache this property, object type dependent
         if (propd._ID !== FrameworkElement.FlowDirectionProperty._ID)
@@ -328,7 +330,7 @@ _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
         case _Inheritable.FlowDirection:
             if (ancestor instanceof FrameworkElement) {
                 if (ancestor instanceof Image || ancestor instanceof MediaElement)
-                    return null;
+                    return undefined;
                 return FrameworkElement.FlowDirectionProperty;
             } else if (ancestor instanceof Run)
                 return Run.FlowDirectionProperty;
@@ -350,7 +352,7 @@ _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
                 return TextBlock.FontResourceProperty;
             break;
     }
-    return null;
+    return undefined;
 };
 
 //#endregion

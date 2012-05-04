@@ -227,7 +227,7 @@ ButtonBase.Instance.OnLostFocus = function (sender, args) {
 
 ButtonBase._GetVisualRoot = function (d) {
     var parent = d;
-    while (parent != null) {
+    while (parent) {
         d = parent;
         parent = VisualTreeHelper.GetParent(parent);
     }

@@ -52,7 +52,7 @@ TextBox.Instance.SetCaretBrush = function (value) {
     this.$SetValue(TextBox.CaretBrushProperty, value);
 };
 
-TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBox, 0, null, null, null, TextBox.PositiveIntValidator);
+TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBox, 0, undefined, undefined, undefined, TextBox.PositiveIntValidator);
 TextBox.Instance.GetMaxLength = function () {
     ///<returns type="Number"></returns>
     return this.$GetValue(TextBox.MaxLengthProperty);
@@ -101,12 +101,12 @@ TextBox.Instance.SetBaselineOffset = function (value) {
     this.$SetValue(TextBox.BaselineOffsetProperty, value);
 };
 
-TextBox.SelectedTextProperty = DependencyProperty.RegisterFull("SelectedText", function () { return String; }, TextBox, "", null, null, true);
+TextBox.SelectedTextProperty = DependencyProperty.RegisterFull("SelectedText", function () { return String; }, TextBox, "", undefined, undefined, true);
 TextBox.Instance.GetSelectedText = function () {
     return this.$GetValue(TextBox.SelectedTextProperty);
 };
 
-TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () { return Number; }, TextBox, 0, null, null, true, TextBox.PositiveIntValidator);
+TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () { return Number; }, TextBox, 0, undefined, undefined, true, TextBox.PositiveIntValidator);
 TextBox.Instance.GetSelectionLength = function () {
     return this.$GetValue(TextBox.SelectionLengthProperty);
 };
@@ -114,7 +114,7 @@ TextBox.Instance.SetSelectionLength = function (value) {
     this.$SetValue(TextBox.SelectionLengthProperty, value);
 };
 
-TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBox, 0, null, null, true, TextBox.PositiveIntValidator);
+TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBox, 0, undefined, undefined, true, TextBox.PositiveIntValidator);
 TextBox.Instance.GetSelectionStart = function () {
     return this.$GetValue(TextBox.SelectionStartProperty);
 };
@@ -200,7 +200,7 @@ TextBox.Instance._SyncSelectedText = function () {
     if (this._SelectionCursor !== this._SelectionAnchor) {
         var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
         var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
-        var text = this._Buffer._Text == null ? '' : this._Buffer._Text.substr(start, len);
+        var text = !this._Buffer._Text ? '' : this._Buffer._Text.substr(start, len);
 
         this._SettingValue = false;
         this._SetValueInternal(TextBox.SelectedTextProperty, text);
@@ -285,7 +285,7 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
                     action = new _TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
                     this._Buffer.Insert(start, text);
                 }
-                if (action != null) {
+                if (action) {
                     this._Emit |= _TextBoxEmitChanged.TEXT;
                     this._Undo.Push(action);
                     this._Redo.Clear();
@@ -401,13 +401,13 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && (propd._ID === TextBox.SelectionBackgroundProperty._ID
+    if (propd && (propd._ID === TextBox.SelectionBackgroundProperty._ID
         || propd._ID === TextBox.SelectionForegroundProperty._ID)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
         this._Invalidate();
     }
 
-    if (propd == null || propd.OwnerType !== TextBox)
+    if (!propd || propd.OwnerType !== TextBox)
         this._OnSubPropertyChanged$TextBoxBase(propd, sender, args);
 };
 

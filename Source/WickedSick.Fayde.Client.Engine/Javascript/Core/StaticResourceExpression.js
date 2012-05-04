@@ -15,17 +15,17 @@ StaticResourceExpression.Instance.GetValue = function () {
     var o;
     var key = this.Key;
     var cur = this.Target;
-    while (cur != null) {
+    while (cur) {
         var fe = Nullstone.As(cur, FrameworkElement);
-        if (fe != null) {
+        if (fe) {
             o = fe.GetResources().Get(key);
-            if (o != null)
+            if (o)
                 return o;
         }
         var rd = Nullstone.As(cur, ResourceDictionary);
-        if (rd != null) {
+        if (rd) {
             o = rd.Get(key);
-            if (o != null)
+            if (o)
                 return o;
         }
         cur = cur._Parent;
@@ -36,9 +36,9 @@ StaticResourceExpression.Instance.GetValue = function () {
 StaticResourceExpression.Instance.Resolve = function (parser) {
     /// <param name="parser" type="JsonParser"></param>
     var isAttached = false;
-    var ownerType = null;
+    var ownerType;
     var prop = this.Property;
-    if (prop != null) {
+    if (prop) {
         isAttached = prop._IsAttached;
         ownerType = prop.OwnerType;
     }

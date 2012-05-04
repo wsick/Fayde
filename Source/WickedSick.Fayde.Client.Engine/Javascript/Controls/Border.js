@@ -27,7 +27,7 @@ Border.Instance.SetBorderBrush = function (value) {
     this.$SetValue(Border.BorderBrushProperty, value);
 };
 
-Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
+Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, Border._ThicknessValidator);
 Border.Instance.GetBorderThickness = function () {
     return this.$GetValue(Border.BorderThicknessProperty);
 };
@@ -43,7 +43,7 @@ Border.Instance.SetChild = function (value) {
     this.$SetValue(Border.ChildProperty, value);
 };
 
-Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
+Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), undefined, undefined, undefined, Border._CornerRadiusValidator);
 Border.Instance.GetCornerRadius = function () {
     return this.$GetValue(Border.CornerRadiusProperty);
 };
@@ -51,7 +51,7 @@ Border.Instance.SetCornerRadius = function (value) {
     this.$SetValue(Border.CornerRadiusProperty, value);
 };
 
-Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
+Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, Border._ThicknessValidator);
 Border.Instance.GetPadding = function () {
     return this.$GetValue(Border.PaddingProperty);
 };
@@ -148,7 +148,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
             this._ElementAdded(args.NewValue);
             if (args.NewValue instanceof FrameworkElement) {
                 var logicalParent = args.NewValue._GetLogicalParent();
-                if (logicalParent && logicalParent !== this) {
+                if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
                     error.SetErrored(BError.Argument, "Content is already a child of another element.");
                     return;
                 }
@@ -170,7 +170,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID))
+    if (propd && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID))
         this._Invalidate();
     else
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);

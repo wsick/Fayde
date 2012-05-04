@@ -70,7 +70,7 @@ var Fayde = {
                 if (val instanceof targetType)
                     return val;
                 var converter = Fayde.TypeConverters[targetType._TypeName];
-                if (converter != null)
+                if (converter)
                     return converter(val);
             } else if (targetType instanceof Enum) {
                 if (typeof val === "string") {

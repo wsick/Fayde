@@ -16,13 +16,13 @@ _AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (value !== undefined)
         return value;
 
-    value = propd._IsAutoCreated ? propd._GetAutoCreatedValue(this._Object) : null;
-    if (value == null)
-        return null;
+    value = propd._IsAutoCreated ? propd._GetAutoCreatedValue(this._Object) : undefined;
+    if (value === undefined)
+        return undefined;
 
     this._ht[propd] = value;
     var error = new BError();
-    this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
+    this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, undefined, value, false, true, false, error);
     return value;
 };
 _AutoCreatePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
@@ -38,4 +38,4 @@ _AutoCreatePropertyValueProvider.Instance.ClearValue = function (propd) {
 };
 
 Nullstone.FinishCreate(_AutoCreatePropertyValueProvider);
-//#endregio
+//#endregion

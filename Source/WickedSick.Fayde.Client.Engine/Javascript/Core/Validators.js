@@ -10,9 +10,9 @@ Validators.StyleValidator = function (instance, propd, value, error) {
     /// <returns type="Boolean" />
 
     var parentType = instance.constructor;
-    var errorMessage = null;
-    if (value != null) {
-        var root = null;
+    var errorMessage;
+    if (value) {
+        var root;
         var style = Nullstone.As(value, Style);
 
         if (style.GetIsSealed()) {
@@ -26,7 +26,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
         // 1 Check for circular references in the BasedOn tree
         var cycles = [];
         root = style;
-        while (root != null) {
+        while (root) {
             if (cycles[root._ID]) {
                 error.SetErrored(BError.InvalidOperation, "Circular reference in Style.BasedOn");
                 return false;
@@ -39,17 +39,17 @@ Validators.StyleValidator = function (instance, propd, value, error) {
         // 2 Check that the instance is a subclass of Style::TargetType and also all the styles TargetTypes are
         //   subclasses of their BasedOn styles TargetType.
         root = style;
-        while (root != null) {
+        while (root) {
             var targetType = root.GetTargetType();
             if (Nullstone.RefEquals(root, style)) {
-                if (targetType == null) {
+                if (!targetType) {
                     error.SetErrored(BError.InvalidOperation, "TargetType cannot be null");
                     return false;
                 } else if (!Nullstone.DoesInheritFrom(parentType, targetType)) {
                     error.SetErrored(BError.XamlParseException, "Style.TargetType (" + targetType._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
                     return false;
                 }
-            } else if (targetType == null || !Nullstone.DoesInheritFrom(parentType, targetType)) {
+            } else if (!targetType || !Nullstone.DoesInheritFrom(parentType, targetType)) {
                 error.SetErrored(BError.InvalidOperation, "Style.TargetType (" + (targetType ? targetType._TypeName : "<Not Specified>") + ") is not a subclass of (" + parentType._TypeName + ")");
                 return false;
             }

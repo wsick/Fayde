@@ -13,16 +13,16 @@ _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPr
 };
 
 _InheritedDataContextPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (!this._Source || propd !== FrameworkElement.DataContextProperty)
-        return null;
+    if (!this._Source || propd._ID !== FrameworkElement.DataContextProperty._ID)
+        return undefined;
     return this._Source.$GetValue(propd);
 };
 _InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (source) {
     if (Nullstone.RefEquals(this._Source, source))
         return;
 
-    var oldValue = this._Source != null ? this._Source.$GetValue(FrameworkElement.DataContextProperty) : null;
-    var newValue = source != null ? source.$GetValue(FrameworkElement.DataContextProperty) : null;
+    var oldValue = this._Source ? this._Source.$GetValue(FrameworkElement.DataContextProperty) : undefined;
+    var newValue = source ? source.$GetValue(FrameworkElement.DataContextProperty) : undefined;
 
     this._DetachListener(this._Source);
     this._Source = source;
@@ -34,17 +34,17 @@ _InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (so
     }
 };
 _InheritedDataContextPropertyValueProvider.Instance._AttachListener = function (source) {
-    if (source != null) {
+    if (source) {
         this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
         //TODO: Add Handler - Destroyed Event
     }
 };
 _InheritedDataContextPropertyValueProvider.Instance._DetachListener = function (source) {
-    if (this._DataContextListener != null) {
+    if (this._DataContextListener) {
         this._DataContextListener.Detach();
-        this._DataContextListener = null;
+        delete this._DataContextListener;
     }
-    if (source != null) {
+    if (source) {
         //TODO: Remove Handler - Destroyed Event
     }
 };
@@ -53,9 +53,9 @@ _InheritedDataContextPropertyValueProvider.Instance._SourceDataContextChanged = 
     this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
 };
 _InheritedDataContextPropertyValueProvider.Instance.EmitChanged = function () {
-    if (this._Source != null) {
+    if (this._Source) {
         var error = new BError();
-        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.$GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, undefined, this._Source.$GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
     }
 };
 

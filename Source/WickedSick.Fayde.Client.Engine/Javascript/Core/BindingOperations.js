@@ -9,11 +9,11 @@ var BindingOperations = {
         /// <param name="dp" type="DependencyProperty"></param>
         /// <param name="binding" type="BindingBase"></param>
         /// <returns type="BindingExpressionBase" />
-        if (target == null)
+        if (!target)
             throw new ArgumentNullException("target");
-        if (dp == null)
+        if (!dp)
             throw new ArgumentNullException("dp");
-        if (binding == null)
+        if (!binding)
             throw new ArgumentNullException("binding");
 
         var e = new BindingExpression(binding, target, dp);

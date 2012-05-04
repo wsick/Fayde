@@ -19,7 +19,7 @@ Fayde.Image.Instance.Init = function () {
 
 //#region Dependency Properties
 
-Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, null, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 Fayde.Image.Instance.GetSource = function () {
     ///<returns type="ImageSource"></returns>
     return this.$GetValue(Fayde.Image.SourceProperty);
@@ -174,7 +174,7 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     // Eventually, we can let the html5 canvas do all the dirty work.
 
     var source = this.GetSource();
-    if (source == null)
+    if (!source)
         return;
 
     source.Lock();
@@ -238,7 +238,7 @@ Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
 //#region Property Changed
 
 Fayde.Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && (propd._ID === Fayde.Image.SourceProperty._ID)) {
+    if (propd && (propd._ID === Fayde.Image.SourceProperty._ID)) {
         this._InvalidateMeasure();
         this._Invalidate();
         return;
@@ -252,12 +252,12 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
 
     if (args.Property._ID === Fayde.Image.SourceProperty._ID) {
         var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
-        if (oldBmpSrc != null) {
+        if (oldBmpSrc) {
             oldBmpSrc._ErroredCallback = null;
             oldBmpSrc._LoadedCallback = null;
         }
         var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
-        if (newBmpSrc != null) {
+        if (newBmpSrc) {
             var i = this;
             newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
             newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };

@@ -66,13 +66,13 @@ Grid.Instance.SetShowGridLines = function (value) {
     this.$SetValue(Grid.ShowGridLinesProperty, value);
 };
 
-Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
+Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new ColumnDefinitionCollection(); } });
 Grid.Instance.GetColumnDefinitions = function () {
     /// <returns type="ColumnDefinitionCollection" />
     return this.$GetValue(Grid.ColumnDefinitionsProperty);
 };
 
-Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
+Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new RowDefinitionCollection(); } });
 Grid.Instance.GetRowDefinitions = function () {
     /// <returns type="RowDefinitionCollection" />
     return this.$GetValue(Grid.RowDefinitionsProperty);
@@ -531,11 +531,11 @@ Grid.Instance._ComputeBounds = function () {
 
 Grid.Instance._GetRowDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.RowDefinitionsProperty);
-    return value === undefined ? null : value;
+    return value === undefined ? undefined : value;
 }
 Grid.Instance._GetColumnDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.ColumnDefinitionsProperty);
-    return value === undefined ? null : value;
+    return value === undefined ? undefined : value;
 }
 
 Grid.Instance._OnPropertyChanged = function (args, error) {

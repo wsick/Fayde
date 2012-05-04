@@ -16,11 +16,11 @@ ScrollViewer.Instance.Init = function () {
 //#region Dependency Properties
 
 ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {
-    if (d == null)
+    if (!d)
         return;
     d._InvalidateMeasure();
     var scrollInfo = d.GetScrollInfo();
-    if (scrollInfo != null) {
+    if (scrollInfo) {
         scrollInfo.SetCanHorizontallyScroll(d.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
         scrollInfo.SetCanVerticallyScroll(d.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
     }
@@ -120,7 +120,7 @@ ScrollViewer.Instance.GetScrollInfo = function () {
 ScrollViewer.Instance.SetScrollInfo = function (value) {
     ///<param name="value" type="IScrollInfo"></param>
     this.$ScrollInfo = value;
-    if (value != null) {
+    if (value) {
         value.SetCanHorizontallyScroll(this.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
         value.SetCanVerticallyScroll(this.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
     }
@@ -217,7 +217,7 @@ ScrollViewer.Instance._HandleScroll = function (orientation, e) {
 ScrollViewer.Instance._HandleHorizontalScroll = function (e) {
     /// <param name="e" type="ScrollEventArgs"></param>
     var scrollInfo = this.GetScrollInfo();
-    if (scrollInfo == null)
+    if (!scrollInfo)
         return;
     var offset = scrollInfo.GetHorizontalOffset();
     var newValue = offset;
@@ -253,7 +253,7 @@ ScrollViewer.Instance._HandleHorizontalScroll = function (e) {
 ScrollViewer.Instance._HandleVerticalScroll = function (e) {
     /// <param name="e" type="ScrollEventArgs"></param>
     var scrollInfo = this.GetScrollInfo();
-    if (scrollInfo == null)
+    if (!scrollInfo)
         return;
     var offset = scrollInfo.GetVerticalOffset();
     var newValue = offset;
@@ -302,7 +302,7 @@ ScrollViewer.Instance.OnMouseWheel = function (sender, args) {
     if (args.Handled)
         return;
     var scrollInfo = this.GetScrollInfo();
-    if (scrollInfo == null)
+    if (!scrollInfo)
         return;
     if ((args.Delta > 0 && scrollInfo.GetVerticalOffset() !== 0) || (args.Delta < 0 && scrollInfo.GetVerticalOffset() < this.GetScrollableHeight())) {
         if (args.Delta >= 0)
@@ -373,11 +373,11 @@ ScrollViewer.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ContentControl();
     this.$ElementScrollContentPresenter = Nullstone.As(this.GetTemplateChild("ScrollContentPresenter"), ScrollContentPresenter);
     this.$ElementHorizontalScrollBar = Nullstone.As(this.GetTemplateChild("HorizontalScrollBar"), ScrollBar);
-    if (this.$ElementHorizontalScrollBar != null) {
+    if (this.$ElementHorizontalScrollBar) {
         this.$ElementHorizontalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Horizontal, e); }, this);
     }
     this.$ElementVerticalScrollBar = Nullstone.As(this.GetTemplateChild("VerticalScrollBar"), ScrollBar);
-    if (this.$ElementVerticalScrollBar != null) {
+    if (this.$ElementVerticalScrollBar) {
         this.$ElementVerticalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Vertical, e); }, this);
     }
     this._UpdateScrollBarVisibility();
@@ -387,7 +387,7 @@ ScrollViewer.Instance.MakeVisible = function (uie, targetRect) {
     /// <param name="uie" type="UIElement"></param>
     /// <param name="targetRect" type="Rect"></param>
     var escp = this.$ElementScrollContentPresenter;
-    if (uie != null && escp != null && (Nullstone.RefEquals(escp, uie) || escp.IsAncestorOf(uie)) && this.IsAncestorOf(escp) && this._IsAttached) {
+    if (uie && escp && (Nullstone.RefEquals(escp, uie) || escp.IsAncestorOf(uie)) && this.IsAncestorOf(escp) && this._IsAttached) {
         if (targetRect.IsEmpty()) {
             targetRect = new Rect(0, 0, uie._RenderSize.Width, uie._RenderSize.Height);
         }
@@ -405,7 +405,7 @@ ScrollViewer.Instance.MakeVisible = function (uie, targetRect) {
 
 ScrollViewer.Instance._InvalidateScrollInfo = function () {
     var scrollInfo = this.GetScrollInfo();
-    if (scrollInfo != null) {
+    if (scrollInfo) {
         this._SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.GetExtentWidth());
         this._SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.GetExtentHeight());
         this._SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.GetViewportWidth());
@@ -442,7 +442,7 @@ ScrollViewer.Instance._UpdateScrollBarVisibility = function () {
             break;
         case ScrollBarVisibility.Auto:
         default:
-            horizontalVisibility = (scrollInfo == null || scrollInfo.GetExtentWidth() <= scrollInfo.GetViewportWidth()) ? Visibility.Collapsed : Visibility.Visible;
+            horizontalVisibility = (!scrollInfo || scrollInfo.GetExtentWidth() <= scrollInfo.GetViewportWidth()) ? Visibility.Collapsed : Visibility.Visible;
             break;
     }
 
@@ -463,7 +463,7 @@ ScrollViewer.Instance._UpdateScrollBarVisibility = function () {
             break;
         case ScrollBarVisibility.Auto:
         default:
-            verticalVisibility = (scrollInfo == null || scrollInfo.GetExtentHeight() <= scrollInfo.GetViewportHeight()) ? Visibility.Collapsed : Visibility.Visible;
+            verticalVisibility = (!scrollInfo || scrollInfo.GetExtentHeight() <= scrollInfo.GetViewportHeight()) ? Visibility.Collapsed : Visibility.Visible;
             break;
     }
 
@@ -479,13 +479,13 @@ ScrollViewer.Instance._UpdateScrollBar = function (orientation, value) {
         if (orientation === Orientation.Horizontal) {
             this._SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
             this._RaiseOffsetChanged(scrollInfo.GetHorizontalOffset(), Orientation.Horizontal);
-            if (this.$ElementHorizontalScrollBar != null) {
+            if (this.$ElementHorizontalScrollBar) {
                 this.$ElementHorizontalScrollBar.SetValue(value);
             }
         } else {
             this._SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
             this._RaiseOffsetChanged(scrollInfo.GetVerticalOffset(), Orientation.Vertical);
-            if (this.$ElementVerticalScrollBar != null) {
+            if (this.$ElementVerticalScrollBar) {
                 this.$ElementVerticalScrollBar.SetValue(value);
             }
         }
@@ -510,7 +510,7 @@ ScrollViewer.Instance._OnRequestBringIntoView = function (sender, args) {
     /// <param name="args" type="RequestBringIntoViewEventArgs"></param>
     var sv = Nullstone.As(sender, ScrollViewer);
     var targetObj = args.TargetObject;
-    if (targetObj != null && sv != null && !Nullstone.RefEquals(sv, targetObj) && sv.IsAncestorOf(targetObj)) {
+    if (targetObj && sv && !Nullstone.RefEquals(sv, targetObj) && sv.IsAncestorOf(targetObj)) {
         sv.MakeVisible(targetObj, args.TargetRect);
         args.Handled = true;
     }

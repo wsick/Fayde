@@ -298,13 +298,13 @@ TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && (propd._ID === Control.BackgroundProperty._ID
+    if (propd && (propd._ID === Control.BackgroundProperty._ID
         || propd._ID === Control.ForegroundProperty._ID)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
         this._Invalidate();
     }
 
-    if (propd != null && propd.OwnerType !== TextBoxBase)
+    if (propd && propd.OwnerType !== TextBoxBase)
         this._OnSubPropertyChanged$Control(propd, sender, args);
 };
 

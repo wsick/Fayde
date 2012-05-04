@@ -11,10 +11,10 @@ var ItemsControl = Nullstone.Create("ItemsControl", Control);
 
 ItemsControl.GetItemsOwner = function (ele) {
     var panel = Nullstone.As(ele, Panel);
-    if (panel == null || !panel.GetIsItemsHost())
+    if (!panel || !panel.GetIsItemsHost())
         return null;
     var owner = Nullstone.As(panel.GetTemplateOwner(), ItemsPresenter);
-    if (owner != null)
+    if (owner)
         return Nullstone.As(owner.GetTemplateOwner(), ItemsControl);
     return null;
 };

@@ -7,7 +7,7 @@
 /// <reference path="../Runtime/Utils.js"/>
 
 //#region ScrollContentPresenter
-var ScrollContentPresenter = Nullstone.Create("ScrollContentPresenter", ContentPresenter, null, [IScrollInfo]);
+var ScrollContentPresenter = Nullstone.Create("ScrollContentPresenter", ContentPresenter, 0, [IScrollInfo]);
 
 ScrollContentPresenter.Instance.Init = function () {
     this.Init$ContentPresenter();
@@ -129,7 +129,7 @@ ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
 ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
     /// <param name="arrangeSize" type="Size"></param>
     var scrollOwner = this.GetScrollOwner();
-    if (scrollOwner == null || this._ContentRoot == null)
+    if (!scrollOwner || !this._ContentRoot)
         return this._ArrangeOverrideWithError(arrangeSize);
 
     if (this._ClampOffsets())
@@ -151,21 +151,21 @@ ScrollContentPresenter.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ContentPresenter();
 
     var sv = Nullstone.As(this.GetTemplateOwner(), ScrollViewer);
-    if (sv == null)
+    if (!sv)
         return;
 
     var content = this.GetContent();
     var info = Nullstone.As(content, IScrollInfo);
-    if (info == null) {
+    if (!info) {
         var presenter = Nullstone.As(content, ItemsPresenter);
-        if (presenter != null) {
-            if (presenter._ElementRoot == null)
+        if (presenter) {
+            if (!presenter._ElementRoot)
                 presenter.ApplyTemplate();
             info = Nullstone.As(presenter._ElementRoot, IScrollInfo);
         }
     }
 
-    if (info == null)
+    if (!info)
         info = this;
 
     info.SetCanHorizontallyScroll(sv.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
@@ -178,7 +178,7 @@ ScrollContentPresenter.Instance.OnApplyTemplate = function () {
 ScrollContentPresenter.Instance.MakeVisible = function (visual, rectangle) {
     /// <param name="visual" type="UIElement"></param>
     /// <param name="rectangle" type="Rect">Description</param>
-    if (rectangle.IsEmpty() || visual == null || Nullstone.RefEquals(visual, this) || !this.IsAncestorOf(visual))
+    if (rectangle.IsEmpty() || !visual || Nullstone.RefEquals(visual, this) || !this.IsAncestorOf(visual))
         return new Rect();
 
     var generalTransform = visual.TransformToVisual(this);
@@ -255,8 +255,9 @@ ScrollContentPresenter.Instance._UpdateClip = function (arrangeSize) {
         this.$IsClipPropertySet = true;
     }
 
-    if (Nullstone.As(this.GetTemplateOwner(), ScrollViewer) == null || Nullstone.As(this.GetContent(), _TextBoxView) == null && Nullstone.As(this.GetContent(), _RichTextBoxView) == null) {
-        //owned by ScrollViewer, TextBoxView, or RichTextBoxView
+    var content;
+    if (Nullstone.Is(this.GetTemplateOwner(), ScrollViewer) && (content = this.GetContent()) && (Nullstone.Is(content, _TextBoxView) || Nullstone.Is(content, _RichTextBoxView))) {
+        //ScrollViewer inside TextBox/RichTextBox
         this.$ClippingRectangle.SetRect(new Rect(0, 0, arrangeSize.Width, arrangeSize.Height));
     } else {
         this.$ClippingRectangle.SetRect(this._CalculateTextBoxClipRect(arrangeSize));
@@ -276,10 +277,10 @@ ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSiz
     var textWrapping = TextWrapping.NoWrap;
     var horizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
 
-    if (richtextbox != null) {
+    if (richtextbox) {
         textWrapping = richtextbox.GetTextWrapping();
         horizontalScrollBarVisibility = richtextbox.GetHorizontalScrollBarVisibility();
-    } else if (textbox != null) {
+    } else if (textbox) {
         textWrapping = textbox.GetTextWrapping();
         horizontalScrollBarVisibility = textbox.GetHorizontalScrollBarVisibility();
     }

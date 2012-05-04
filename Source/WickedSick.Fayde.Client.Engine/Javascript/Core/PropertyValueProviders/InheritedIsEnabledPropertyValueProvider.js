@@ -13,9 +13,9 @@ _InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj, propPrec
 };
 
 _InheritedIsEnabledPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (propd === Control.IsEnabledProperty)
+    if (propd._ID === Control.IsEnabledProperty._ID)
         return this._CurrentValue;
-    return null;
+    return undefined;
 };
 _InheritedIsEnabledPropertyValueProvider.Instance.SetDataSource = function (source) {
     if (source) {
@@ -29,14 +29,14 @@ _InheritedIsEnabledPropertyValueProvider.Instance.SetDataSource = function (sour
         }
     }
 
-    if (this._Source != source) {
+    if (!Nullstone.RefEquals(this._Source, source)) {
         this._DetachListener(this._Source);
         this._Source = source;
         this._AttachListener(this._Source);
     }
 
     if (!source || this._Object.IsAttached())
-        this.LocalValueChanged(null);
+        this.LocalValueChanged();
 };
 _InheritedIsEnabledPropertyValueProvider.Instance._AttachListener = function (obj) {
     if (source) {
@@ -57,13 +57,13 @@ _InheritedIsEnabledPropertyValueProvider.Instance._IsEnabledChanged = function (
     this.LocalValueChanged(args.Property);
 };
 _InheritedIsEnabledPropertyValueProvider.Instance.LocalValueChanged = function (propd) {
-    if (propd && propd !== Control.IsEnabledProperty)
+    if (propd && propd._ID !== Control.IsEnabledProperty._ID)
         return false;
 
     var localEnabled = this._Object.$GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source.$GetValue(Control.IsEnabledProperty) : null;
-    var newValue = localEnabled == true && (parentEnabled == null || parentEnabled == true);
-    if (newValue != this._CurrentValue) {
+    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source.$GetValue(Control.IsEnabledProperty) : undefined;
+    var newValue = localEnabled === true && (!parentEnabled || parentEnabled === true);
+    if (newValue !== this._CurrentValue) {
         var oldValue = this._CurrentValue;
         this._CurrentValue = newValue;
 

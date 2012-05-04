@@ -4,7 +4,7 @@
 /// <reference path="Enums.js"/>
 
 //#region _InheritedContext
-var _InheritedContext = Nullstone.Create("_InheritedContext", null);
+var _InheritedContext = Nullstone.Create("_InheritedContext");
 
 _InheritedContext.Instance.Init = function (args) {
     if (args.length > 2) {
@@ -91,7 +91,7 @@ _InheritedContext.Instance.Compare = function (withContext, props) {
     return rv;
 };
 _InheritedContext.Instance.GetLocalSource = function (obj, prop) {
-    var source = null;
+    var source;
     var propd = _InheritedPropertyValueProvider.GetProperty(prop, obj);
     if (propd && obj._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited)
         source = obj;

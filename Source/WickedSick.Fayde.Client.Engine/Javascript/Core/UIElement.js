@@ -124,7 +124,7 @@ UIElement.Instance.SetOpacity = function (value) {
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
 
-UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
+UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, UIElement, CursorType.Default, undefined); //, UIElement._CoerceCursor);
 UIElement.Instance.GetCursor = function () {
     return this.$GetValue(UIElement.CursorProperty);
 };
@@ -132,13 +132,13 @@ UIElement.Instance.SetCursor = function (value) {
     this.$SetValue(UIElement.CursorProperty, value);
 };
 
-UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
+UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.Instance.GetResources = function () {
     /// <returns type="ResourceDictionary" />
     return this.$GetValue(UIElement.ResourcesProperty);
 };
 
-UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, null, { GetValue: function () { } }*/);
+UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, undefined, { GetValue: function () { } }*/);
 UIElement.Instance.GetTriggers = function () {
     return this.$GetValue(UIElement.TriggersProperty);
 };
@@ -170,11 +170,11 @@ UIElement.Instance.SetTag = function (value) {
 //#endregion
 
 UIElement.Instance.BringIntoView = function (rect) {
-    if (rect == null) rect = new Rect();
+    if (!rect) rect = new Rect();
     var args = new RequestBringIntoViewEventArgs(this, rect);
 
     var cur = this;
-    while (cur != null && !args.Handled) {
+    while (cur && !args.Handled) {
         cur.RequestBringIntoView.Raise(this, args);
         cur = VisualTreeHelper.GetParent(cur);
     }
@@ -192,7 +192,7 @@ UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); 
 UIElement.Instance.IsAncestorOf = function (el) {
     /// <param name="el" type="UIElement"></param>
     var parent = el;
-    while (parent != null && !Nullstone.RefEquals(parent, this))
+    while (parent && !Nullstone.RefEquals(parent, this))
         parent = VisualTreeHelper.GetParent(parent);
     return Nullstone.RefEquals(parent, this);
 };
@@ -202,23 +202,23 @@ UIElement.Instance.TransformToVisual = function (uie) {
     var ok = false;
     var surface = App.Instance.MainSurface;
     if (this._IsAttached) {
-        while (visual != null) {
+        while (visual) {
             if (surface._IsTopLevel(visual))
                 ok = true;
             visual = visual.GetVisualParent();
         }
     }
 
-    if (!ok || (uie != null && !uie._IsAttached)) {
+    if (!ok || (uie && !uie._IsAttached)) {
         throw new ArgumentException("UIElement not attached.");
         return null;
     }
 
-    if (uie != null && !surface._IsTopLevel(uie)) {
+    if (uie && !surface._IsTopLevel(uie)) {
         ok = false;
         visual = uie.GetVisualParent();
-        if (visual != null && uie._IsAttached) {
-            while (visual != null) {
+        if (visual && uie._IsAttached) {
+            while (visual) {
                 if (surface._IsTopLevel(visual))
                     ok = true;
                 visual = visual.GetVisualParent();
@@ -236,7 +236,7 @@ UIElement.Instance.TransformToVisual = function (uie) {
     var thisProjection;
     if (!this._CachedTransform || !(thisProjection = this._CachedTransform.Normal))
         throw new Exception("Cannot find transform.");
-    if (uie != null) {
+    if (uie) {
         var inverse;
         if (!uie._CachedTransform || !(inverse = uie._CachedTransform.Inverse))
             throw new Exception("Cannot find transform.");
@@ -333,7 +333,7 @@ UIElement.Instance._ComputeLocalProjection = function () {
 };
 UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
     var clip = this.GetClip();
-    var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);
+    var layoutClip = transform ? undefined : LayoutInformation.GetLayoutClip(this);
     var box;
 
     if (!clip && !layoutClip)
@@ -460,7 +460,7 @@ UIElement.Instance._CreateOriginTransform = function () {
     return Matrix.CreateTranslate(visualOffset.X, visualOffset.Y);
 };
 UIElement.Instance._GetCachedTransform = function () {
-    if (this._CachedTransform == null) {
+    if (!this._CachedTransform) {
         var transform = this._CreateOriginTransform();
         var ancestor = { Normal: new Matrix(), Inverse: new Matrix() };
         var parent = this.GetVisualParent();
@@ -652,7 +652,7 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
         while (iter.Next()) {
             v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
-            if (v != null)
+            if (v)
                 v._SetIsLoaded(loaded);
         }
     }
@@ -668,7 +668,7 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
         while (iter.Next()) {
             v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
-            if (v != null)
+            if (v)
                 v._SetIsLoaded(loaded);
         }
         //WTF: AddAllLoadedHandlers
@@ -727,7 +727,7 @@ UIElement.Instance._ElementAdded = function (item) {
     item._SetIsAttached(this._IsAttached);
     item._SetIsLoaded(this._IsLoaded);
     var o = this;
-    while (o != null && !(o instanceof FrameworkElement))
+    while (o && !(o instanceof FrameworkElement))
         o = o.GetMentor();
     item.SetMentor(o);
 
@@ -799,7 +799,7 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateVisibility();
         this._InvalidateMeasure();
         var parent = this.GetVisualParent();
-        if (parent != null)
+        if (parent)
             parent._InvalidateMeasure();
         App.Instance.MainSurface._RemoveFocus(this);
         

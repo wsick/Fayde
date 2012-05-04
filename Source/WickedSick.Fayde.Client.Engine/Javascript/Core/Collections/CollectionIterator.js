@@ -22,7 +22,7 @@ CollectionIterator.Instance.Reset = function () {
 CollectionIterator.Instance.GetCurrent = function (error) {
     if (this._Index < 0 || this._Index >= this._Collection.GetCount()) {
         error.SetErrored(BError.InvalidOperation, "Index out of bounds.");
-        return null;
+        return undefined;
     }
     return this._Collection.GetValueAt(this._Index);
 };

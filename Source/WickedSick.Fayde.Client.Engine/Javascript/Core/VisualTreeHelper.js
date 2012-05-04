@@ -7,39 +7,38 @@
 var VisualTreeHelper = {};
 VisualTreeHelper.GetChild = function (d, childIndex) {
     var fw = Nullstone.As(d, FrameworkElement);
-    if (fw == null)
+    if (!fw)
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
     var subtree = fw._GetSubtreeObject();
     var coll = Nullstone.As(subtree, UIElementCollection);
-    if (coll != null)
+    if (coll)
         return coll.GetValueAt(childIndex);
 
     var item = Nullstone.As(subtree, UIElement);
-    if (item != null && childIndex === 0)
+    if (item && childIndex === 0)
         return item;
 
     throw new ArgumentOutOfRangeException();
 };
 VisualTreeHelper.GetChildrenCount = function (d) {
     var fw = Nullstone.As(d, FrameworkElement);
-    if (fw == null)
+    if (!fw)
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
     var subtree = fw._GetSubtreeObject();
     var coll = Nullstone.As(subtree, UIElementCollection);
-    if (coll != null)
+    if (coll)
         return coll.GetCount();
 
-    var item = Nullstone.As(subtree, UIElement);
-    if (item != null)
+    if (Nullstone.Is(subtree, UIElement))
         return 1;
 
     return 0;
 };
 VisualTreeHelper.GetParent = function (d) {
     var fw = Nullstone.As(d, FrameworkElement);
-    if (fw == null)
+    if (!fw)
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
     return Nullstone.As(fw.GetVisualParent(), DependencyObject);
 };
@@ -49,10 +48,10 @@ VisualTreeHelper.__Debug = function (uie, func) {
 
     //Find top level
     var topLevel = uie;
-    if (topLevel != null) {
+    if (topLevel) {
         while (true) {
             var temp = VisualTreeHelper.GetParent(topLevel);
-            if (temp == null)
+            if (!temp)
                 break;
             topLevel = temp;
         }
@@ -113,7 +112,7 @@ VisualTreeHelper.__DebugUIElement = function (uie, tabIndex) {
 };
 VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
     var grid = Nullstone.As(uie, Grid);
-    if (grid == null)
+    if (!grid)
         return "";
     var rds = grid.GetRowDefinitions();
     var rcount = rds.GetCount();

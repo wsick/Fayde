@@ -14,7 +14,7 @@ HyperlinkButton.StateUnfocused = "Unfocused";
 
 //#region DEPENDENCY PROPERTIES
 
-HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton, null);
+HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton, undefined);
 HyperlinkButton.Instance.GetNavigateUri = function () {
     ///<returns type="Uri"></returns>
     return this.$GetValue(HyperlinkButton.NavigateUriProperty);
@@ -24,7 +24,7 @@ HyperlinkButton.Instance.SetNavigateUri = function (value) {
     this.$SetValue(HyperlinkButton.NavigateUriProperty, value);
 };
 
-HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, null);
+HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, undefined);
 HyperlinkButton.Instance.GetTargetName = function () {
     ///<returns type="String"></returns>
     return this.$GetValue(HyperlinkButton.TargetNameProperty);

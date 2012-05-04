@@ -88,6 +88,15 @@ Nullstone.As = function (obj, type) {
         return obj;
     return null;
 };
+Nullstone.Is = function (obj, type) {
+    if (obj == null)
+        return false;
+    if (obj instanceof type)
+        return true;
+    if (Nullstone.DoesImplement(obj, type))
+        return true;
+    return false;
+};
 Nullstone.DoesInheritFrom = function (t, type) {
     var temp = t;
     while (temp != null && temp._TypeName !== type._TypeName) {

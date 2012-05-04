@@ -25,7 +25,7 @@ Panel._CreateChildren = {
         return col;
     }
 };
-Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, null, Panel._CreateChildren);
+Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, undefined, Panel._CreateChildren);
 Panel.Instance.GetChildren = function () {
     return this.$GetValue(Panel.ChildrenProperty);
 };
@@ -165,7 +165,7 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 Panel.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && propd._ID === Panel.BackgroundProperty._ID) {
+    if (propd && propd._ID === Panel.BackgroundProperty._ID) {
         this._Invalidate();
     } else {
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);

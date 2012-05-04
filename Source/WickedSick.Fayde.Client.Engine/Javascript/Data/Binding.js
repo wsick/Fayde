@@ -18,10 +18,13 @@ Binding.Instance.Init = function (path) {
     this.SetUpdateSourceTrigger(UpdateSourceTrigger.Default);
 };
 
-//#region PROPERTIES
+//#region Properties
 
 Binding.Instance.GetBindsDirectlyToSource = function () { return this._BindsDirectlyToSource; };
-Binding.Instance.SetBindsDirectlyToSource = function (/* Boolean */value) { this.CheckSealed(); this._BindsDirectlyToSource = value; };
+Binding.Instance.SetBindsDirectlyToSource = function (value) {
+    /// <param name="value" type="Boolean"></param>
+    this.CheckSealed(); this._BindsDirectlyToSource = value;
+};
 
 Binding.Instance.GetConverter = function () { return this._Converter; };
 Binding.Instance.SetConverter = function (/* IValueConverter */value) { this.CheckSealed(); this._Converter = value; };
@@ -30,21 +33,28 @@ Binding.Instance.GetConverterCulture = function () { return this._ConverterCultu
 Binding.Instance.SetConverterCulture = function (/* Culture */value) { this.CheckSealed(); this._ConverterCulture = value; };
 
 Binding.Instance.GetConverterParameter = function () { return this._ConverterParameter; };
-Binding.Instance.SetConverterParameter = function (/* Object */value) { this.CheckSealed(); this._ConverterParameter = value; };
+Binding.Instance.SetConverterParameter = function (value) { this.CheckSealed(); this._ConverterParameter = value; };
 
 Binding.Instance.GetElementName = function () { return this._ElementName; };
-Binding.Instance.SetElementName = function (/* String */value) {
+Binding.Instance.SetElementName = function (value) {
+    /// <param name="value" type="String"></param>
     this.CheckSealed();
-    if (this.GetSource() != null || this.GetRelativeSource() != null)
+    if (this.GetSource() || this.GetRelativeSource())
         throw new InvalidOperationException("ElementName cannot be set if either RelativeSource or Source is set");
     this._ElementName = value;
 };
 
 Binding.Instance.GetMode = function () { return this._Mode; };
-Binding.Instance.SetMode = function (/* Number */value) { this.CheckSealed(); this._Mode = value; };
+Binding.Instance.SetMode = function (value) {
+    /// <param name="value" type="Number"></param>
+    this.CheckSealed(); this._Mode = value;
+};
 
 Binding.Instance.GetNotifyOnValidationError = function () { return this._NotifyOnValidationError; };
-Binding.Instance.SetNotifyOnValidationError = function (/* Boolean */value) { this.CheckSealed(); this._NotifyOnValidationError = value; };
+Binding.Instance.SetNotifyOnValidationError = function (value) {
+    /// <param name="value" type="Boolean"></param>
+    this.CheckSealed(); this._NotifyOnValidationError = value;
+};
 
 Binding.Instance.GetRelativeSource = function () {
     ///<returns type="RelativeSource"></returns>
@@ -52,7 +62,7 @@ Binding.Instance.GetRelativeSource = function () {
 };
 Binding.Instance.SetRelativeSource = function (/* RelativeSource */value) {
     this.CheckSealed();
-    if (this.GetSource() != null || this.GetElementName() != null)
+    if (this.GetSource() || this.GetElementName())
         throw new InvalidOperationException("RelativeSource cannot be set if either ElementName or Source is set");
     this._RelativeSource = value;
 };
@@ -71,24 +81,36 @@ Binding.Instance.SetPath = function (value) {
 };
 
 Binding.Instance.GetSource = function () { return this._Source; };
-Binding.Instance.SetSource = function (/* Object */value) {
+Binding.Instance.SetSource = function (value) {
     this.CheckSealed();
-    if (this.GetElementName() != null || this.GetRelativeSource() != null)
+    if (this.GetElementName() || this.GetRelativeSource())
         throw new InvalidOperationException("Source cannot be set if either ElementName or RelativeSource is set");
     this._Source = value;
 };
 
 Binding.Instance.GetUpdateSourceTrigger = function () { return this._UpdateSourceTrigger; };
-Binding.Instance.SetUpdateSourceTrigger = function (/* Number */value) { this.CheckSealed(); this._UpdateSourceTrigger = value; };
+Binding.Instance.SetUpdateSourceTrigger = function (value) {
+    /// <param name="value" type="Number"></param>
+    this.CheckSealed(); this._UpdateSourceTrigger = value;
+};
 
 Binding.Instance.GetValidatesOnExceptions = function () { return this._ValidatesOnExceptions; };
-Binding.Instance.SetValidatesOnExceptions = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnExceptions = value; };
+Binding.Instance.SetValidatesOnExceptions = function (value) {
+    /// <param name="value" type="Boolean"></param>
+    this.CheckSealed(); this._ValidatesOnExceptions = value; 
+};
 
 Binding.Instance.GetValidatesOnDataErrors = function () { return this._ValidatesOnDataErrors; };
-Binding.Instance.SetValidatesOnDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnDataErrors = value; };
+Binding.Instance.SetValidatesOnDataErrors = function (value) {
+    /// <param name="value" type="Boolean"></param>
+    this.CheckSealed(); this._ValidatesOnDataErrors = value; 
+};
 
 Binding.Instance.GetValidatesOnNotifyDataErrors = function () { return this._ValidatesOnNotifyDataErrors; };
-Binding.Instance.SetValidatesOnNotifyDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnNotifyDataErrors = value; };
+Binding.Instance.SetValidatesOnNotifyDataErrors = function (value) {
+    /// <param name="value" type="Boolean"></param>
+    this.CheckSealed(); this._ValidatesOnNotifyDataErrors = value; 
+};
 
 //#endregion
 

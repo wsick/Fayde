@@ -13,7 +13,7 @@ _TextBlockDynamicPropertyValueProvider.Instance.Init = function (obj, propPreced
 _TextBlockDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (propd == TextBlock.BaselineOffsetProperty) {
         var layout = this._Object._Layout;
-        if (layout == null)
+        if (!layout)
             return 0;
         return layout.GetBaselineOffset();
     }

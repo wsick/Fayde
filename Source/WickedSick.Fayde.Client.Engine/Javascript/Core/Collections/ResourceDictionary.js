@@ -12,7 +12,7 @@ ResourceDictionary.Instance.Init = function () {
 
 //#region Dependency Properties
 
-ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 ResourceDictionary.Instance.GetMergedDictionaries = function () {
     return this.$GetValue(ResourceDictionary.MergedDictionariesProperty);
 };
@@ -65,12 +65,12 @@ ResourceDictionary.Instance.Remove = function (key) {
 };
 
 ResourceDictionary.Instance.AddedToCollection = function (value, error) {
-    var obj = null;
+    var obj;
     var rv = false;
 
     if (value instanceof DependencyObject) {
         obj = Nullstone.As(value, DependencyObject);
-        if (obj._GetParent() != null && !ResourceDictionary._CanBeAddedTwice(value)) {
+        if (obj._GetParent() && !ResourceDictionary._CanBeAddedTwice(value)) {
             error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
             return false;
         }
@@ -85,8 +85,8 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
 
     rv = this.AddedToCollection$Collection(value, error);
 
-    if (rv /* && !from_resource_dictionary_api */ && obj != null) {
-        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, obj, obj.GetName());
+    if (rv /* && !from_resource_dictionary_api */ && obj) {
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, obj, obj.GetName());
     }
 
     return rv;
@@ -94,7 +94,7 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
 ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe && value instanceof DependencyObject) {
         var obj = Nullstone.As(value, DependencyObject);
-        if (obj != null) {
+        if (obj) {
             this.RemovePropertyChangedListener(obj);
             obj._RemoveParent(this, null);
             obj._SetIsAttached(false);
@@ -124,7 +124,7 @@ ResourceDictionary.Instance._RegisterAllNamesRootedAt = function (namescope, err
     /// <param name="error" type="BError"></param>
     for (var i = 0; i < this.GetCount(); i++) {
         var obj = this.GetValueAt(i);
-        if (obj != null && obj instanceof DependencyObject)
+        if (obj && obj instanceof DependencyObject)
             obj._RegisterAllNamesRootedAt(namescope, error);
     }
     this._RegisterAllNamesRootedAt$Collection(namescope, error);
@@ -133,7 +133,7 @@ ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
     /// <param name="fromNs" type="NameScope"></param>
     for (var i = 0; i < this.GetCount(); i++) {
         var obj = this.GetValueAt(i);
-        if (obj != null && obj instanceof DependencyObject)
+        if (obj && obj instanceof DependencyObject)
             obj._UnregisterAllNamesRootedAt(fromNs);
     }
     this._UnregisterAllNamesRootedAt$Collection(fromNs);

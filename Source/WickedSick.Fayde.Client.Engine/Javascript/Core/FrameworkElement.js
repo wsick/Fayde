@@ -360,7 +360,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
 
-    shouldArrange = shouldArrange || (slot != null ? !Rect.Equals(slot, finalRect) : true);
+    shouldArrange |= !Rect.Equals(slot, finalRect)
 
     if (finalRect.Width < 0 || finalRect.Height < 0
             || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
@@ -381,7 +381,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         return;
 
     var measure = LayoutInformation.GetPreviousConstraint(this);
-    if (this.IsContainer() && measure == null)
+    if (this.IsContainer() && !measure)
         this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
     measure = LayoutInformation.GetPreviousConstraint(this);
 
@@ -461,7 +461,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     this._SetRenderSize(response);
     var constrainedResponse = response.Min(this._ApplySizeConstraints(response));
 
-    if (parent == null || parent instanceof Canvas) {
+    if (!parent || parent instanceof Canvas) {
         if (!this.IsLayoutContainer()) {
             this._SetRenderSize(new Size(0, 0));
             return;
@@ -737,7 +737,7 @@ FrameworkElement.Instance._SetImplicitStyles = function (styleMask, styles) {
     if (!app)
         return;
 
-    if (styles == null)
+    if (!styles)
         styles = app._GetImplicitStyles(this, styleMask);
 
     var error = new BError();
@@ -861,10 +861,11 @@ FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
 
 //#region Parent
 
-FrameworkElement.Instance.SetVisualParent = function (/* UIElement */value) {
+FrameworkElement.Instance.SetVisualParent = function (value) {
+    /// <param name="value" type="UIElement"></param>
     this.SetVisualParent$UIElement(value);
 
-    if (!this._LogicalParent && (this._VisualParent == null || this._VisualParent instanceof FrameworkElement)) {
+    if (!this._LogicalParent && (!this._VisualParent || this._VisualParent instanceof FrameworkElement)) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(this._VisualParent);
         if (this._IsLoaded)
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();

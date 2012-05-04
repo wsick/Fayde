@@ -82,7 +82,7 @@ RepeatButton.Instance.OnMouseEnter = function (sender, args) {
     var parent = this;
     while (true) {
         var fe = Nullstone.As(parent, FrameworkElement);
-        if (fe == null)
+        if (!fe)
             break;
         parent = fe._GetLogicalParent();
     }
@@ -119,7 +119,7 @@ RepeatButton.Instance.OnMouseMove = function (sender, args) {
     var parent = this;
     while (true) {
         var fe = Nullstone.As(parent, FrameworkElement);
-        if (fe == null)
+        if (!fe)
             break;
         parent = fe._GetLogicalParent();
     }
@@ -134,7 +134,7 @@ RepeatButton.Instance._UpdateRepeatState = function () {
 };
 
 RepeatButton.Instance._StartTimer = function () {
-    if (this._Timer == null) {
+    if (!this._Timer) {
         this._Timer = new Timer();
         this._Timer.Tick.Subscribe(this._OnTimeout, this);
     } else if (this._Timer.IsEnabled) {
@@ -144,7 +144,7 @@ RepeatButton.Instance._StartTimer = function () {
     this._Timer.Start();
 };
 RepeatButton.Instance._StopTimer = function () {
-    if (this._Timer != null)
+    if (this._Timer)
         this._Timer.Stop();
 };
 RepeatButton.Instance._OnTimeout = function (sender, e) {

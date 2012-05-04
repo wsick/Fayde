@@ -37,7 +37,7 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (p
             v = this._SelectionForeground;
     } else if (propd == this._BaselineOffsetPropd) {
         var _TextBoxView = this._Object._View;
-        this._BaselineOffset = _TextBoxView == null ? 0 : _TextBoxView.GetBaselineOffset();
+        this._BaselineOffset = !_TextBoxView ? 0 : _TextBoxView.GetBaselineOffset();
         v = this._BaselineOffset;
     }
     if (v != undefined)
@@ -46,9 +46,9 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (p
 };
 
 _TextBoxBaseDynamicPropertyValueProvider.Instance._InitializeSelectionBrushes = function () {
-    if (this._SelectionBackground == null)
+    if (!this._SelectionBackground)
         this._SelectionBackground = new SolidColorBrush(Color.FromHex("#FF444444"));
-    if (this._SelectionForeground == null)
+    if (!this._SelectionForeground)
         this._SelectionForeground = new SolidColorBrush(Color.FromHex("#FFFFFFFF"));
 };
 

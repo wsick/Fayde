@@ -88,15 +88,15 @@ BindingExpressionBase.Instance._OnDetached = function (element) {
         this.SetDataContextSource(null);
     }
 
-    if (targetFE == null)
+    if (!targetFE)
         targetFE = this.GetTarget().GetMentor();
 
-    if (targetFE != null && this.GetCurrentError() != null) {
+    if (targetFE && this.GetCurrentError() != null) {
         //TODO: Validation.RemoveError(targetFE, this.GetCurrentError());
         this.SetCurrentError(null);
     }
 
-    if (this._PropertyListener != null) {
+    if (this._PropertyListener) {
         this._PropertyListener.Detach();
         this._PropertyListener = null;
     }
@@ -119,8 +119,8 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
     if (this.GetBinding().Mode !== BindingMode.TwoWay)
         return;
 
-    var dataError = null;
-    var exception = null;
+    var dataError;
+    var exception;
     var oldUpdating = this.GetUpdating();
     var node = this.GetPropertyPathWalker().GetFinalNode();
 
@@ -134,7 +134,7 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         if (this.GetPropertyPathWalker().GetFinalNode().GetIsPathBroken())
             return;
 
-        if (this.GetBinding().GetTargetNullValue() != null) {
+        if (this.GetBinding().GetTargetNullValue()) {
             try {
                 if (Nullstone.RefEquals(this.GetBinding().GetTargetNullValue(), value))
                     value = null;
@@ -144,7 +144,7 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         }
 
         var converter = this.GetBinding().GetConverter();
-        if (converter != null) {
+        if (converter) {
             value = converter.ConvertBack(value, node.GetValueType(), this.GetBinding().GetConverterParameter(), /* TODO: Culture */null);
         }
 
@@ -153,13 +153,13 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         }
 
         try {
-            if (value != null)
+            if (value)
                 value = this._ConvertFromTargetToSource(value);
         } catch (err) {
             return;
         }
 
-        if (this._CachedValue == null && value == null)
+        if (!this._CachedValue && !value)
             return;
 
         this.SetUpdating(true);
@@ -174,7 +174,7 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
     } finally {
         this.SetUpdating(oldUpdating);
         //TODO: IDataErrorInfo
-        //if (this.GetBinding().GetValidatesOnDataErrors() && exception == null && node.GetSource().DoesImplement(IDataErrorInfo) && node.GetPropertyInfo() != null) {
+        //if (this.GetBinding().GetValidatesOnDataErrors() && !exception && node.GetSource().DoesImplement(IDataErrorInfo) && node.GetPropertyInfo() != null) {
         //dataError = node.GetSource()[node.GetPropertyInfo().Name];
         //}
     }
@@ -184,9 +184,9 @@ BindingExpressionBase.Instance._MaybeEmitError = function (message, exception) {
     /// <param name="message" type="String"></param>
     /// <param name="exception" type="Exception"></param>
     var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
-    if (fe == null)
+    if (!fe)
         fe = this.GetTarget().GetMentor();
-    if (fe == null)
+    if (!fe)
         return;
 
     if (String.isString(message) && message === "")
@@ -195,23 +195,23 @@ BindingExpressionBase.Instance._MaybeEmitError = function (message, exception) {
     var oldError = this.GetCurrentError();
     if (message != null)
         this.SetCurrentError(new ValidationError(message, null));
-    else if (exception != null)
+    else if (exception)
         this.SetCurrentError(new ValidationError(null, exception));
     else
         this.SetCurrentError(null);
 
-    if (oldError != null && this.GetCurrentError() != null) {
+    if (oldError && this.GetCurrentError()) {
         Validation.AddError(fe, this.GetCurrentError());
         Validation.RemoveError(fe, oldError);
         if (this.GetBinding().GetNotifyOnValidationError()) {
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
         }
-    } else if (oldError != null) {
+    } else if (oldError) {
         Validation.RemoveError(fe, oldError);
         if (this.GetBinding().GetNotifyOnValidationError())
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
-    } else if (this.GetCurrentError() != null) {
+    } else if (this.GetCurrentError()) {
         Validation.AddError(fe, this.GetCurrentError());
         if (this.GetBinding().GetNotifyOnValidationError())
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
@@ -228,12 +228,12 @@ BindingExpressionBase.Instance._ConvertFromSourceToTarget = function (value) {
 };
 BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
     try {
-        if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter() != null) {
+        if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter()) {
             value = this.GetBinding().GetConverter().Convert(value, this.GetProperty().GetTargetType(), this.GetBinding().GetConverterParameter(), {});
         }
         if (value === DependencyProperty.UnsetValue || this.GetPropertyPathWalker().GetIsPathBroken()) {
             value = this.GetBinding().GetFallbackValue();
-            if (value == null)
+            if (value === undefined)
                 value = propd.GetDefaultValue(this.GetTarget());
         } else if (value == null) {
             value = this.GetBinding().GetTargetNullValue();
@@ -431,7 +431,7 @@ BindingExpressionBase.Instance.Refresh = function () {
     this._MaybeEmitError(dataError, exception);
 };
 
-//#region PROPERTIES
+//#region Properties
 
 BindingExpressionBase.Instance.GetBinding = function () {
     /// <returns type="Binding"></returns>
@@ -440,16 +440,20 @@ BindingExpressionBase.Instance.GetBinding = function () {
 
 //NOT USED YET
 BindingExpressionBase.Instance.GetCurrentError = function () {
+    /// <returns type="ValidationError" />
     return this._CurrentError;
 };
-BindingExpressionBase.Instance.SetCurrentError = function (/* ValidationError */value) {
+BindingExpressionBase.Instance.SetCurrentError = function (value) {
+    /// <param name="value" type="ValidationError"></param>
     this._CurrentError = value;
 };
 
 BindingExpressionBase.Instance.GetCurrentNotifyError = function () {
+    /// <returns type="INotifyDataErrorInfo" />
     return this._CurrentNotifyError;
 };
-BindingExpressionBase.Instance.SetCurrentNotifyError = function (/* INotifyDataErrorInfo */value) {
+BindingExpressionBase.Instance.SetCurrentNotifyError = function (value) {
+    /// <param name="value" type="INotifyDataErrorInfo"></param>
     this._CurrentNotifyError = value;
 };
 //NOT USED YET

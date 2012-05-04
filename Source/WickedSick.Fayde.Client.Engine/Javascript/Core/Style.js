@@ -9,7 +9,7 @@ var Style = Nullstone.Create("Style", DependencyObject);
 
 //#region DEPENDENCY PROPERTIES
 
-Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
+Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, undefined, { GetValue: function () { return new SetterBaseCollection(); } });
 Style.Instance.GetSetters = function () {
     return this.$GetValue(Style.SettersProperty);
 };
@@ -54,7 +54,7 @@ Style.Instance._Seal = function () {
     this.GetSetters()._Seal();
 
     var base = this.GetBasedOn();
-    if (base != null)
+    if (base)
         base._Seal();
 };
 Style.Instance._ConvertSetterValues = function () {
@@ -69,7 +69,7 @@ Style.Instance._ConvertSetterValue = function (setter) {
     var val = setter.$GetValue(Setter.ValueProperty);
 
     if (typeof propd.GetTargetType() === "string") {
-        //if (val == null)
+        //if (val === undefined)
         //throw new ArgumentException("Empty value in setter.");
         if (typeof val !== "string")
             throw new XamlParseException("Setter value does not match property type.");

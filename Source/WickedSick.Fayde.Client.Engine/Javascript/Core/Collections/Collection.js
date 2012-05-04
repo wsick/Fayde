@@ -43,7 +43,7 @@ Collection.Instance.Insert = function (index, value) {
     var error = new BError();
     if (this.AddedToCollection(value, error)) {
         this._ht.splice(index, 0, value);
-        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, value, index);
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, value, index);
         return true;
     }
     return false;
@@ -62,17 +62,17 @@ Collection.Instance.RemoveAt = function (index) {
     var value = this._ht[index];
     this._ht.splice(index, 1);
     this.RemovedFromCollection(value, true);
-    this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, null, index);
+    this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, undefined, index);
     return true;
 };
 Collection.Instance.Clear = function () {
-    this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
+    this._RaiseChanged(CollectionChangedArgs.Action.Clearing, undefined, undefined, -1);
     var old = this._ht;
     this._ht = [];
     for (var i = 0; i < old.length; i++) {
         this.RemovedFromCollection(old[i], true);
     }
-    this._RaiseChanged(CollectionChangedArgs.Action.Cleared, null, null, -1);
+    this._RaiseChanged(CollectionChangedArgs.Action.Cleared, undefined, undefined, -1);
     return true;
 };
 Collection.Instance.IndexOf = function (value) {

@@ -11,7 +11,7 @@ var StackPanel = Nullstone.Create("StackPanel", Panel);
 
 StackPanel._OrientationChanged = function (d, args) {
     var sp = Nullstone.As(d, StackPanel);
-    if (sp == null)
+    if (!sp)
         return;
     d._InvalidateMeasure();
     d._InvalidateArrange();

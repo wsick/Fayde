@@ -10,7 +10,7 @@ var _VisualTreeWalker = Nullstone.Create("_VisualTreeWalker", null, 2);
 _VisualTreeWalker.Instance.Init = function (obj, direction) {
     /// <param name="obj" type="UIElement"></param>
     /// <param name="direction" type="Number">_VisualTreeWalkerDirection</param>
-    if (obj == null)
+    if (!obj)
         return;
     this._Offset = 0;
     this._Collection = null;
@@ -29,7 +29,7 @@ _VisualTreeWalker.Instance.Init = function (obj, direction) {
 };
 
 _VisualTreeWalker.Instance.Step = function () {
-    var result = null;
+    var result;
     if (this._Collection) {
         var count = this.GetCount();
         if (count < 0 || this._Offset >= count)

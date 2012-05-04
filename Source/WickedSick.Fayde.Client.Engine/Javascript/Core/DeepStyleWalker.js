@@ -50,7 +50,7 @@ _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
     var stylesSeen = [];
     for (var i = 0; i < _StyleIndex.Count; i++) {
         var style = styles[i];
-        while (style != null) {
+        while (style) {
             if (stylesSeen[style]) //FIX: NOT GONNA WORK
                 continue;
 

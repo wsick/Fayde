@@ -49,9 +49,9 @@ ScrollBar.Instance.SetViewportSize = function (value) {
 
 ScrollBar.Instance.GetIsDragging = function () {
     ///<returns type="Boolean"></returns>
-    if (this.$ElementHorizontalThumb != null)
+    if (this.$ElementHorizontalThumb)
         return this.$ElementHorizontalThumb.GetIsDragging();
-    if (this.$ElementVerticalThumb != null)
+    if (this.$ElementVerticalThumb)
         return this.$ElementVerticalThumb.GetIsDragging();
     return false;
 };
@@ -73,38 +73,38 @@ ScrollBar.Instance.OnApplyTemplate = function () {
     this.$ElementVerticalSmallDecrease = Nullstone.As(this.GetTemplateChild("VerticalSmallDecrease"), RepeatButton);
     this.$ElementVerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), Thumb);
 
-    if (this.$ElementHorizontalThumb != null) {
+    if (this.$ElementHorizontalThumb) {
         this.$ElementHorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
         this.$ElementHorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
         this.$ElementHorizontalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
     }
-    if (this.$ElementHorizontalLargeIncrease != null) {
+    if (this.$ElementHorizontalLargeIncrease) {
         this.$ElementHorizontalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
     }
-    if (this.$ElementHorizontalLargeDecrease != null) {
+    if (this.$ElementHorizontalLargeDecrease) {
         this.$ElementHorizontalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
     }
-    if (this.$ElementHorizontalSmallIncrease != null) {
+    if (this.$ElementHorizontalSmallIncrease) {
         this.$ElementHorizontalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
     }
-    if (this.$ElementHorizontalSmallDecrease != null) {
+    if (this.$ElementHorizontalSmallDecrease) {
         this.$ElementHorizontalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
     }
-    if (this.$ElementVerticalThumb != null) {
+    if (this.$ElementVerticalThumb) {
         this.$ElementVerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
         this.$ElementVerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
         this.$ElementVerticalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
     }
-    if (this.$ElementVerticalLargeIncrease != null) {
+    if (this.$ElementVerticalLargeIncrease) {
         this.$ElementVerticalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
     }
-    if (this.$ElementVerticalLargeDecrease != null) {
+    if (this.$ElementVerticalLargeDecrease) {
         this.$ElementVerticalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
     }
-    if (this.$ElementVerticalSmallIncrease != null) {
+    if (this.$ElementVerticalSmallIncrease) {
         this.$ElementVerticalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
     }
-    if (this.$ElementVerticalSmallDecrease != null) {
+    if (this.$ElementVerticalSmallDecrease) {
         this.$ElementVerticalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
     }
 
@@ -129,9 +129,9 @@ ScrollBar.Instance.OnMouseEnter = function (sender, args) {
     this._IsMouseOver = true;
     var orientation = this.GetOrientation();
     var shouldUpdate = false;
-    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb != null && !this.$ElementHorizontalThumb.GetIsDragging())
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.GetIsDragging())
         shouldUpdate = true;
-    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null && !this.$ElementVerticalThumb.GetIsDragging())
+    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.GetIsDragging())
         shouldUpdate = true;
     if (shouldUpdate)
         this.UpdateVisualState();
@@ -141,9 +141,9 @@ ScrollBar.Instance.OnMouseLeave = function (sender, args) {
     this._IsMouseOver = false;
     var orientation = this.GetOrientation();
     var shouldUpdate = false;
-    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb != null && !this.$ElementHorizontalThumb.GetIsDragging())
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.GetIsDragging())
         shouldUpdate = true;
-    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null && !this.$ElementVerticalThumb.GetIsDragging())
+    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.GetIsDragging())
         shouldUpdate = true;
     if (shouldUpdate)
         this.UpdateVisualState();
@@ -202,10 +202,10 @@ ScrollBar.Instance._OnThumbDragDelta = function (sender, args) {
     var diff = max - min;
     var trackLength = this._GetTrackLength();
     var orientation = this.GetOrientation();
-    if (this.$ElementVerticalThumb != null && orientation === Orientation.Vertical) {
+    if (this.$ElementVerticalThumb && orientation === Orientation.Vertical) {
         change = num * args.VerticalChange / (trackLength - this.$ElementVerticalThumb.GetActualHeight()) * diff;
     }
-    if (this.$ElementHorizontalThumb != null && orientation === Orientation.Horizontal) {
+    if (this.$ElementHorizontalThumb && orientation === Orientation.Horizontal) {
         change = num * args.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.GetActualWidth()) * diff;
     }
     if (!isNaN(change) && isFinite(change)) {
@@ -266,10 +266,10 @@ ScrollBar.Instance._HandleSizeChanged = function () {
 };
 ScrollBar.Instance._OnOrientationChanged = function () {
     var orientation = this.GetOrientation();
-    if (this.$ElementHorizontalTemplate != null) {
+    if (this.$ElementHorizontalTemplate) {
         this.$ElementHorizontalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed);
     }
-    if (this.$ElementVerticalTemplate != null) {
+    if (this.$ElementVerticalTemplate) {
         this.$ElementVerticalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible);
     }
     this._UpdateTrackLayout(this._GetTrackLength());
@@ -282,9 +282,9 @@ ScrollBar.Instance._UpdateTrackLayout = function (trackLength) {
     var thumbSize = this._UpdateThumbSize(trackLength);
 
     var orientation = this.GetOrientation();
-    if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease != null && this.$ElementHorizontalThumb != null) {
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
         this.$ElementHorizontalLargeDecrease.SetWidth(Math.max(0, multiplier * (trackLength - thumbSize)));
-    } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease != null && this.$ElementVerticalThumb != null) {
+    } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
         this.$ElementVerticalLargeDecrease.SetHeight(Math.max(0, multiplier * (trackLength - thumbSize)));
     }
 };
@@ -295,7 +295,7 @@ ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
         var orientation = this.GetOrientation();
         var max = this.GetMaximum();
         var min = this.GetMinimum();
-        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb != null) {
+        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb) {
             if (max - min !== 0)
                 result = Math.max(this.$ElementHorizontalThumb.GetMinWidth(), this._ConvertViewportSizeToDisplayUnits(trackLength));
             if (max - min === 0 || result > this.GetActualWidth() || trackLength <= this.$ElementHorizontalThumb.GetMinWidth()) {
@@ -304,7 +304,7 @@ ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
                 this.$ElementHorizontalThumb.SetVisibility(Visibility.Visible);
                 this.$ElementHorizontalThumb.SetWidth(result);
             }
-        } else if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null) {
+        } else if (orientation === Orientation.Vertical && this.$ElementVerticalThumb) {
             if (max - min !== 0)
                 result = Math.max(this.$ElementVerticalThumb.GetMinHeight(), this._ConvertViewportSizeToDisplayUnits(trackLength));
             if (max - min === 0 || result > this.GetActualHeight() || trackLength <= this.$ElementVerticalThumb.GetMinHeight()) {
@@ -316,10 +316,10 @@ ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
         }
     }
     if (hideThumb) {
-        if (this.$ElementHorizontalThumb != null) {
+        if (this.$ElementHorizontalThumb) {
             this.$ElementHorizontalThumb.SetVisibility(Visibility.Collapsed);
         }
-        if (this.$ElementVerticalThumb != null) {
+        if (this.$ElementVerticalThumb) {
             this.$ElementVerticalThumb.SetVisibility(Visibility.Collapsed);
         }
     }
@@ -329,21 +329,21 @@ ScrollBar.Instance._GetTrackLength = function () {
     var actual = NaN;
     if (this.GetOrientation() === Orientation.Horizontal) {
         actual = this.GetActualWidth();
-        if (this.$ElementHorizontalSmallDecrease != null) {
+        if (this.$ElementHorizontalSmallDecrease) {
             var thickness = this.$ElementHorizontalSmallDecrease.GetMargin();
             actual = actual - (this.$ElementHorizontalSmallDecrease.GetActualWidth() + thickness.Left + thickness.Right);
         }
-        if (this.$ElementHorizontalSmallIncrease != null) {
+        if (this.$ElementHorizontalSmallIncrease) {
             var thickness = this.$ElementHorizontalSmallIncrease.GetMargin();
             actual = actual - (this.$ElementHorizontalSmallIncrease.GetActualWidth() + thickness.Left + thickness.Right);
         }
     } else {
         actual = this.GetActualHeight();
-        if (this.$ElementVerticalSmallDecrease != null) {
+        if (this.$ElementVerticalSmallDecrease) {
             var thickness = this.$ElementVerticalSmallDecrease.GetMargin();
             actual = actual - (this.$ElementVerticalSmallDecrease.GetActualHeight() + thickness.Top + thickness.Bottom);
         }
-        if (this.$ElementVerticalSmallIncrease != null) {
+        if (this.$ElementVerticalSmallIncrease) {
             var thickness = this.$ElementVerticalSmallIncrease.GetMargin();
             actual = actual - (this.$ElementVerticalSmallIncrease.GetActualHeight() + thickness.Top + thickness.Bottom);
         }

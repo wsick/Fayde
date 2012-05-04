@@ -18,18 +18,18 @@ _StylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
 _StylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, reason, error) {
-    if ((reason & _ProviderFlags.RecomputesOnClear) == 0)
+    if ((reason & _ProviderFlags.RecomputesOnClear) === 0)
         return;
 
-    var oldValue = undefined;
-    var newValue = undefined;
-    var walkPropd = null;
+    var oldValue;
+    var newValue;
+    var walkPropd;
 
     var walker = new _DeepStyleWalker(this._Style);
     var setter;
     while (setter = walker.Step()) {
         walkPropd = setter.$GetValue(Setter.PropertyProperty);
-        if (walkPropd != propd)
+        if (walkPropd._ID !== propd._ID)
             continue;
 
         newValue = setter.$GetValue(Setter.ConvertedValueProperty);
@@ -60,7 +60,7 @@ _StylePropertyValueProvider.Instance._UpdateStyle = function (style, error) {
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
             //Property in old style, not in new style
             oldValue = oldSetter.$GetValue(Setter.ConvertedValueProperty);
-            newValue = null;
+            newValue = undefined;
             delete this._ht[oldProp];
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
@@ -74,7 +74,7 @@ _StylePropertyValueProvider.Instance._UpdateStyle = function (style, error) {
             newSetter = newWalker.Step();
         } else {
             //Property in new style, not in old style
-            oldValue = null;
+            oldValue = undefined;
             newValue = newSetter.$GetValue(Setter.ConvertedValueProperty);
             this._ht[newProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
