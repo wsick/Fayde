@@ -92,7 +92,6 @@ ToggleButton.Instance.OnClick = function () {
         this.SetIsChecked(false);
     }
 
-    alert(this.GetIsChecked());
     this.OnClick$ButtonBase();
 };
 
