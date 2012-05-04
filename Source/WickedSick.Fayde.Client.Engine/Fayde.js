@@ -7985,7 +7985,7 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
 DependencyObject.Instance.ReadLocalValue = function (propd) {
     var val = this._ReadLocalValueImpl(propd);
     if (val === undefined)
-        val = DependencyProperty.UnsetValue;
+        val = new UnsetValue();
     return val;
 };
 DependencyObject.Instance._ReadLocalValueImpl = function (propd) {
