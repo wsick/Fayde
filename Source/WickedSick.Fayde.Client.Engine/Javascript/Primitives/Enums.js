@@ -53,20 +53,20 @@ var LineStackingStrategy = {
     BlockLineHeight: 1
 };
 
-var FontWeights = {
+var FontWeight = {
     Normal: "normal",
     Bold: "bold",
     Bolder: "bolder",
     Lighter: "lighter"
 };
 
-var FontStyles = {
+var FontStyle = {
     Normal: "normal",
     Italic: "italic",
     Oblique: "oblique"
 };
 
-var FontStretches = {
+var FontStretch = {
     UltraCondensed: "ultra-condensed",
     ExtraCondensed: "extra-condensed",
     Condensed: "condensed",

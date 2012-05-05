@@ -87,9 +87,9 @@ Font.Instance._BuildTranslation = function () {
     var s = "";
     var style = this.GetStyle();
     var weight = this.GetWeight();
-    if (style && style !== FontStyles.Normal)
+    if (style && style !== FontStyle.Normal)
         s += style.toString() + " ";
-    if (weight && weight !== FontWeights.Normal)
+    if (weight && weight !== FontWeight.Normal)
         s += weight.toString() + " ";
     s += this.GetSize() + " ";
     s += this.GetFamily() + " ";
@@ -97,9 +97,9 @@ Font.Instance._BuildTranslation = function () {
 };
 
 Font.DEFAULT_FAMILY = "Verdana";
-Font.DEFAULT_STRETCH = FontStretches.Normal;
-Font.DEFAULT_STYLE = FontStyles.Normal;
-Font.DEFAULT_WEIGHT = FontWeights.Normal;
+Font.DEFAULT_STRETCH = FontStretch.Normal;
+Font.DEFAULT_STYLE = FontStyle.Normal;
+Font.DEFAULT_WEIGHT = FontWeight.Normal;
 Font.DEFAULT_SIZE = "11px";
 
 Nullstone.FinishCreate(Font);

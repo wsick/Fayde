@@ -142,7 +142,7 @@ TextLayout.Instance.GetText = function () {
     return this._Text;
 };
 TextLayout.Instance.SetText = function (value, length) {
-    if (value) {
+    if (value != null) {
         this._Text = value;
         this._Length = length == -1 ? value.length : length;
     } else {
