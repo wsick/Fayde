@@ -146,6 +146,9 @@
     <Compile Include="Elements\Types\BrushMappingMode.cs" />
     <Compile Include="Elements\Types\ClickMode.cs" />
     <Compile Include="Elements\Types\FlowDirection.cs" />
+    <Compile Include="Elements\Types\FontStretch.cs" />
+    <Compile Include="Elements\Types\FontStyle.cs" />
+    <Compile Include="Elements\Types\FontWeight.cs" />
     <Compile Include="Elements\Types\GradientSpreadMethod.cs" />
     <Compile Include="Elements\Types\JsType.cs" />
     <Compile Include="Elements\Types\KeyboardNavigationMode.cs" />
