@@ -4,6 +4,83 @@
 //#region CheckBox
 var RadioButton = Nullstone.Create("RadioButton", ToggleButton);
 
+RadioButton.GroupNameProperty = DependencyProperty.RegisterReadOnly("GroupName", function () { return RadioButton; }, RadioButton, false, function (d, args) { d.OnGroupNameChanged(args); });
+RadioButton.Instance.GetGroupName = function () {
+    return this.$GetValue(RadioButton.GroupNameProperty);
+};
+RadioButton.Instance.SetGroupName = function (value) {
+    this.$SetValue(RadioButton.GroupNameProperty, value);
+};
+
+RadioButton.Instance.OnGroupNameChanged = function (e) {
+    RadioButton.Unregister(e.OldValue, this);
+    RadioButton.Register(e.NewValue, this);
+};
+
+RadioButton._GroupNameToElements = [];
+
+RadioButton.Register = function(groupName, radioButton) {
+    // Treat null as being string.Empty
+    if (!groupName) groupName = "";
+
+    var list = RadioButton._GroupNameToElements[groupName];
+    if (!list) {
+        list = [];
+        RadioButton._GroupNameToElements[groupName] = list;
+    }
+    list.push(radioButton);
+};
+ 
+RadioButton.Unregister = function (groupName, radioButton) {
+    // Treat null as being string.Empty
+    if (!groupName) groupName = "";
+
+    var list = RadioButton._GroupNameToElements[groupName];
+    if (list) {
+        for (var i = 0; i < list.length; i++) {
+            if (Nullstone.RefEquals(radioButton, list[i])) {
+                list.splice(i, 1);
+                break;
+            }
+        }
+    }
+};
+
+RadioButton.Instance.OnIsCheckedChanged = function (e) {
+    this.UpdateRadioButtonGroup();
+    this.OnIsCheckedChanged$ToggleButton(e);
+};
+
+RadioButton.Instance.UpdateRadioButtonGroup = function () {
+    var groupName = this.GetGroupName();
+    if (!groupName) groupName = "";
+
+    //if this RadioButton has been assigned a group
+    if (groupName) {
+        var visualRoot = this.GetVisualRoot();
+        var elements = RadioButton._GroupNameToElements[groupName];
+        for (var i = 0; i < elements.length; i++) {
+            if (!Nullstone.RefEquals(elements[i], this) &&
+                elements[i].GetIsChecked() &&
+                Nullstone.RefEquals(visualRoot, elements[i].GetVisualRoot())) {
+                elements[i].SetIsChecked(false);
+            }
+        }
+    } else {
+        //no group has been assigned
+        //it is automatically groups with all RadioButtons with no group and with the same visual root
+        var elements = RadioButton._GroupNameToElements[groupName];
+        var visualParent = this.GetVisualParent();
+        for (var i = 0; i < elements.length; i++) {
+            if (!Nullstone.RefEquals(elements[i], this) &&
+                elements[i].GetIsChecked() &&
+                Nullstone.RefEquals(visualParent, elements[i].GetVisualParent())) {
+                elements[i].SetIsChecked(false);
+            }
+        }
+    }
+};
+
 RadioButton.Instance.GetDefaultStyle = function () {
     var styleJson = {
         Type: Style,

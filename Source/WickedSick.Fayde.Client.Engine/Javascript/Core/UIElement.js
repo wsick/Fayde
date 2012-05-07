@@ -187,6 +187,15 @@ UIElement.Instance.GetVisualParent = function () {
     /// <returns type="UIElement" />
     return this._VisualParent;
 };
+UIElement.Instance.GetVisualRoot = function () {
+    var visualParent = this.GetVisualParent();
+    if (visualParent) {
+        return visualParent.GetVisualRoot();
+    }
+    else {
+        return visualParent;
+    }
+};
 UIElement.Instance.IsLayoutContainer = function () { return false; };
 UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
 UIElement.Instance.IsAncestorOf = function (el) {
