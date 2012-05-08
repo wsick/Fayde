@@ -121,7 +121,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     }
 
     // calculate total animation interpolation time
-    var d = animation.GetDuration();
+    var d = animation._GetValue(Timeline.DurationProperty);
     if (d.HasTimeSpan()) {
         totalInterpolationTime = d.GetTimeSpan();
     } else if (hasTimeSpanKeyFrame) {
