@@ -43,7 +43,7 @@ MatrixTransform.prototype._OnSubPropertyChanged = function (propd, sender, args)
     var newArgs = {
         Property: propd,
         OldValue: null,
-        NewValue: this.$GetValue(propd)
+        NewValue: this._GetValue(propd)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };

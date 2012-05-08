@@ -14,7 +14,7 @@ AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
 
     var prevStorage = targetobj._AttachAnimationStorage(targetprop, this);
 
-    this._BaseValue = this._TargetObj.$GetValue(this._TargetProp);
+    this._BaseValue = this._TargetObj._GetValue(this._TargetProp);
     if (this._BaseValue === undefined) {
         var targetType = this._TargetProp.GetTargetType();
         if (targetType === Number)
@@ -28,7 +28,7 @@ AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
     if (prevStorage != null)
         this.SetStopValue(prevStorage.GetStopValue());
     else
-        this.SetStopValue(targetobj.ReadLocalValue(targetprop));
+        this.SetStopValue(targetobj._ReadLocalValue(targetprop));
 };
 
 AnimationStorage.Instance.GetStopValue = function () {
@@ -60,7 +60,7 @@ AnimationStorage.Instance.DetachFromObject = function () {
 AnimationStorage.Instance.ResetPropertyValue = function () {
     if (this._TargetObj == null || this._TargetProp == null)
         return;
-    this._TargetObj.$SetValue(this._TargetProp, this.GetStopValue());
+    this._TargetObj._SetValue(this._TargetProp, this.GetStopValue());
 };
 
 AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
@@ -74,7 +74,7 @@ AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
 AnimationStorage.Instance.ApplyCurrentValue = function () {
     if (this._CurrentValue == null)
         return;
-    this._TargetObj.$SetValue(this._TargetProp, this._CurrentValue);
+    this._TargetObj._SetValue(this._TargetProp, this._CurrentValue);
 };
 
 Nullstone.FinishCreate(AnimationStorage);

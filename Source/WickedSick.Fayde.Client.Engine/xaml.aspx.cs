@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using WickedSick.Server.XamlParser;
-using System.Xml;
-using WickedSick.Server.XamlParser.Elements;
 using System.IO;
+using System.Linq;
+using System.Xml;
+using WickedSick.Server.XamlParser;
+using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Fayde.Client.Engine
 {
@@ -17,8 +13,9 @@ namespace WickedSick.Fayde.Client.Engine
         {
             base.OnInit(e);
 
-            IEnumerable<string> files = Directory.EnumerateFiles(Request.MapPath("Tests"), "*.fayde");
-            faydeFiles.DataSource = files;
+            var styleFiles = Directory.EnumerateFiles(Request.MapPath("Styles"), "*.xml");
+            var testFiles = Directory.EnumerateFiles(Request.MapPath("Tests"), "*.fayde");
+            faydeFiles.DataSource = styleFiles.Concat(testFiles);
             faydeFiles.DataBind();
         }
 

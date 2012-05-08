@@ -14,7 +14,7 @@ TemplateBindingExpression.Instance.GetValue = function (propd) {
     var source = this.Target.GetTemplateOwner();
     var value;
     if (source)
-        value = source.$GetValue(this.SourceProperty);
+        value = source._GetValue(this.SourceProperty);
     return value; //TODO: Send through TypeConverter
 };
 TemplateBindingExpression.Instance._OnAttached = function (element) {
@@ -61,9 +61,9 @@ TemplateBindingExpression.Instance.OnPropertyChanged = function (sender, args) {
         // Type converting doesn't happen for TemplateBindings
         this.SetUpdating(true);
         try {
-            this.Target.$SetValue(this.TargetProperty, this.GetValue());
+            this.Target._SetValue(this.TargetProperty, this.GetValue());
         } catch (err2) {
-            this.Target.$SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
+            this.Target._SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
         }
     } catch (err) {
 

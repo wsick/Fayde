@@ -109,16 +109,21 @@ DependencyObject.Instance.$SetValue = function (propd, value) {
     if (!propd)
         throw new ArgumentException("No property specified.");
     if (propd.IsReadOnly) {
-        throw new InvalidOperationException();
+        if (propd._IsCustom)
+            throw new InvalidOperationException();
+        else
+            throw new ArgumentException();
     }
-
+    this.$SetValueInternal(propd, value);
+};
+DependencyObject.Instance.$SetValueInternal = function (propd, value) {
     if (value instanceof UnsetValue) {
-        this.ClearValue(propd);
+        this.$ClearValue(propd);
         return;
     }
 
     var expression = Nullstone.As(value, Expression);
-    var bindingExpression = Nullstone.As(value, BindingExpressionBase);
+    var bindingExpression = Nullstone.As(expression, BindingExpressionBase);
     if (bindingExpression) {
         var path = bindingExpression.GetBinding().GetPath().GetPath();
         if ((!path || path === ".") && bindingExpression.GetBinding().GetMode() === BindingMode.TwoWay)
@@ -127,21 +132,19 @@ DependencyObject.Instance.$SetValue = function (propd, value) {
     }
 
     var existing;
-    if (this._Expressions) {
-        var data = {};
-        if (this._Expressions.TryGetValue(propd, data))
-            existing = data.Value
-    }
+    var data = {};
+    if (this._Expressions && this._Expressions.TryGetValue(propd, data))
+        existing = data.Value;
 
-    var addingExpression = false;
     var updateTwoWay = false;
+    var addingExpression = false;
     if (expression) {
         if (!Nullstone.RefEquals(expression, existing)) {
             if (expression.GetAttached())
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
 
             if (existing)
-                this._RemoveExpression(propd);
+                this.$RemoveExpression(propd);
             if (!this._Expressions)
                 this._Expressions = new Dictionary();
             this._Expressions.Add(propd, expression);
@@ -150,30 +153,54 @@ DependencyObject.Instance.$SetValue = function (propd, value) {
         addingExpression = true;
         value = expression.GetValue(propd);
     } else if (existing) {
-        if (existing instanceof BindingExpressionBase) {
-            if (existing.GetBinding().GetMode() === BindingMode.TwoWay) {
-                updateTwoWay = !existing.GetUpdating() && !propd._IsCustom;
-            } else if (!existing.GetUpdating() || existing.GetBinding().GetMode() === BindingMode.OneTime) {
-                this._RemoveExpression(propd);
+        var beb = Nullstone.As(existing, BindingExpressionBase);
+        if (beb) {
+            if (beb.GetBinding().GetMode() === BindingMode.TwoWay) {
+                updateTwoWay = !beb.GetUpdating() && !propd._IsCustom;
+            } else if (!beb.GetUpdating() || beb.GetBinding().GetMode() === BindingMode.OneTime) {
+                this.$RemoveExpression(propd);
             }
         } else if (!existing.GetUpdating()) {
-            this._RemoveExpression(propd);
+            this.$RemoveExpression(propd);
         }
     }
 
     try {
-        this._SetValueInternal(propd, value);
+        this._SetValue(propd, value);
         if (updateTwoWay)
             existing._TryUpdateSourceObject(value);
     } catch (err) {
         if (!addingExpression)
             throw err;
-        this._SetValueInternal(propd, propd.DefaultValue);
+        this._SetValue(propd, propd.DefaultValue);
         if (updateTwoWay)
             existing._TryUpdateSourceObject(value);
     }
 };
-DependencyObject.Instance._SetValueInternal = function (propd, value, error) {
+DependencyObject.Instance._SetValue = function (propd, value) {
+    if (!propd)
+        throw new ArgumentException("Null dependency property.");
+
+    var error = new BError();
+    if (value === null) {
+        this._SetValueWithError(propd, null, error);
+        if (error.IsErrored())
+            throw error.CreateException();
+        return;
+    }
+
+    if (value instanceof UnsetValue) {
+        this._ClearValue(propd, true);
+        return;
+    }
+
+    //TODO: Type checks
+
+    this._SetValueWithError(propd, value, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
+DependencyObject.Instance._SetValueWithError = function (propd, value, error) {
     if (!error)
         error = new BError();
     var hasCoercer = propd._HasCoercer();
@@ -185,12 +212,12 @@ DependencyObject.Instance._SetValueInternal = function (propd, value, error) {
             throw new error.CreateException();
         return false;
     }
-    var retVal = this._SetValueImpl(propd, coerced, error);
+    var retVal = this._SetValueWithErrorImpl(propd, coerced, error);
     if (error.IsErrored())
         throw new error.CreateException();
     return retVal;
 };
-DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
+DependencyObject.Instance._SetValueWithErrorImpl = function (propd, value, error) {
     if (this._IsFrozen) {
         error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
         return false;
@@ -198,7 +225,7 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
     var currentValue;
     var equal = false;
 
-    if ((currentValue = this._ReadLocalValueImpl(propd)) === undefined)
+    if ((currentValue = this._ReadLocalValue(propd)) === undefined)
         if (propd._IsAutoCreated)
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
 
@@ -231,19 +258,28 @@ DependencyObject.Instance._IsValueValid = function (propd, coerced, error) {
     //TODO: Handle type problems
     return true;
 };
-DependencyObject.Instance._RemoveExpression = function (propd) {
-    var data = {};
-    if (this._Expressions && this._Expressions.TryGetValue(propd, data)) {
-        this._Expressions.Remove(propd);
-        data.Value._OnDetached(this);
-    }
-};
 
 //#endregion
 
 //#region Get Value
 
-DependencyObject.Instance.$GetValue = function (propd, startingPrecedence, endingPrecedence) {
+DependencyObject.Instance.$GetValue = function (propd) {
+    if (!propd)
+        throw new ArgumentException("Null dependency property.");
+    var error = new BError();
+    var value = this._GetValueWithError(propd, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+    return value;
+};
+DependencyObject.Instance._GetValueWithError = function (propd, error) {
+    if (!this._HasProperty(propd)) {
+        error.SetErrored(BError.Exception, "Cannot get the DependencyProperty " + propd.Name + " on an object of type " + propd.OwnerType._TypeName);
+        return undefined;
+    }
+    return this._GetValue(propd);
+};
+DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endingPrecedence) {
     if (startingPrecedence === undefined)
         startingPrecedence = _PropertyPrecedence.Highest;
     if (endingPrecedence === undefined)
@@ -272,7 +308,7 @@ DependencyObject.Instance.$GetValue = function (propd, startingPrecedence, endin
     return undefined;
 };
 DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
-    var v = this.$GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
+    var v = this._GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
     if (v === undefined && propd._IsAutoCreated)
         v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     return v;
@@ -284,34 +320,67 @@ DependencyObject.Instance._GetValueNoDefault = function (propd) {
         if (!provider)
             continue;
         value = provider.GetPropertyValue(propd);
-        if (value === undefined)
-            continue;
-        return value;
+        if (value !== undefined)
+            break;
     }
-    return undefined;
+    return value;
 };
 
 //#endregion
 
 //#region Read Local Value
 
-DependencyObject.Instance.ReadLocalValue = function (propd) {
-    var val = this._ReadLocalValueImpl(propd);
-    if (val === undefined)
-        val = new UnsetValue();
-    return val;
+DependencyObject.Instance.$ReadLocalValue = function (propd) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data))
+        return data.Value;
+    return this.$ReadLocalValueInternal(propd);
 };
-DependencyObject.Instance._ReadLocalValueImpl = function (propd) {
+DependencyObject.Instance.$ReadLocalValueInternal = function (propd) {
+    if (propd == null)
+        throw new ArgumentException("You must specify a dependency property.");
+
+    var error = new BError();
+    var value = this._ReadLocalValueWithError(propd, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+    if (value === undefined)
+        return new UnsetValue();
+    return value;
+};
+DependencyObject.Instance._ReadLocalValueWithError = function (propd, error) {
+    if (!this._HasProperty(propd)) {
+        error.SetErrored(BError.Exception, "Cannot get the DependencyProperty " + propd.Name + " on an object of type " + propd.OwnerType);
+        return undefined;
+    }
+    return this._ReadLocalValue(propd);
+};
+DependencyObject.Instance._ReadLocalValue = function (propd) {
     return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
 };
 
 //#endregion
 
-DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) {
-    this._RemoveExpression(propd);
-    this._ClearValueImpl(propd, notifyListeners, error);
+//#region Clear Value
+
+DependencyObject.Instance.$ClearValue = function (propd) {
+    if (!propd)
+        throw new ArgumentException("Null dependency property.");
+    if (propd.IsReadOnly && !propd._IsCustom)
+        throw new ArgumentException("This property is readonly.");
+    this.$ClearValueInternal(propd);
 };
-DependencyObject.Instance._ClearValueImpl = function (propd, notifyListeners, error) {
+DependencyObject.Instance.$ClearValueInternal = function (propd) {
+    this.$RemoveExpression(propd);
+    this._ClearValue(propd, true);
+};
+DependencyObject.Instance._ClearValue = function (propd, notifyListeners) {
+    var error = new BError();
+    this._ClearValueWithError(propd, true, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
+DependencyObject.Instance._ClearValueWithError = function (propd, notifyListeners, error) {
     if (notifyListeners === undefined)
         notifyListeners = true;
     if (!error)
@@ -322,19 +391,19 @@ DependencyObject.Instance._ClearValueImpl = function (propd, notifyListeners, er
     }
 
     var oldLocalValue;
-    if ((oldLocalValue = this._ReadLocalValueImpl(propd)) === undefined) {
+    if ((oldLocalValue = this._ReadLocalValue(propd)) === undefined) {
         if (propd._IsAutoCreated)
             oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
     }
 
     if (oldLocalValue !== undefined) {
-        if (oldLocalValue && oldLocalValue instanceof DependencyObject) {
+        var dob;
+        if (oldLocalValue && (dob = Nullstone.As(oldLocalValue, DependencyObject)) != null) {
             if (!propd._IsCustom) {
-                oldLocalValue._RemoveParent(this, null);
-
-                //TODO: RemovePropertyChangeListener
-                oldLocalValue._SetIsAttached(false);
-                if (oldLocalValue instanceof Collection) {
+                dob._RemoveParent(this, null);
+                dob.RemovePropertyChangedListener(this, propd);
+                dob._SetIsAttached(false);
+                if (Nullstone.Is(dob, Collection)) {
                     //TODO: Changed Event - Remove Handler
                     //TODO: Item Changed Event - Remove Handler
                 }
@@ -354,6 +423,25 @@ DependencyObject.Instance._ClearValueImpl = function (propd, notifyListeners, er
     if (oldLocalValue !== undefined) {
         this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, undefined, notifyListeners, true, false, error);
     }
+};
+
+//#endregion
+
+DependencyObject.Instance.$RemoveExpression = function (propd) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
+        this._Expressions.Remove(propd);
+        data.Value._OnDetached(this);
+    }
+};
+DependencyObject.Instance._HasProperty = function (propd) {
+    if (propd == null)
+        return false;
+    if (propd._IsAttached)
+        return true;
+    if (this instanceof propd.OwnerType)
+        return true;
+    return false;
 };
 
 DependencyObject.Instance._PropertyHasValueNoAutoCreate = function (propd, obj) {
@@ -395,7 +483,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     var newValue;
 
     if (oldProviderValue === undefined || newProviderValue === undefined) {
-        var lowerPriorityValue = this.$GetValue(propd, providerPrecedence + 1);
+        var lowerPriorityValue = this._GetValue(propd, providerPrecedence + 1);
         if (newProviderValue === undefined) {
             oldValue = oldProviderValue;
             newValue = lowerPriorityValue;
@@ -409,7 +497,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     }
 
     var equal = (oldValue === null && newValue === null) || (oldValue === undefined && newValue === undefined);
-    if (oldValue && newValue) {
+    if (oldValue != null && newValue != null) {
         equal = !propd._AlwaysChange && Nullstone.Equals(oldValue, newValue);
     }
 
@@ -677,7 +765,7 @@ DependencyObject.Instance.SetNameOnScope = function (name, scope) {
     if (scope.FindName(name))
         return false;
 
-    this.$SetValue(DependencyObject.NameProperty, name);
+    this._SetValue(DependencyObject.NameProperty, name);
     scope.RegisterName(name, this);
     return true;
 };
@@ -776,7 +864,7 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
         if (thisScope._GetTemporary()) {
             if (parentScope) {
                 parentScope._MergeTemporaryScope(thisScope, error);
-                this.ClearValue(NameScope.NameScopeProperty, false);
+                this._ClearValue(NameScope.NameScopeProperty, false);
             }
         } else {
             if (true /* TODO: this._IsHydratedFromXaml()*/) {

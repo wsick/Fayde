@@ -17,7 +17,7 @@ BindingExpressionBase.Instance.Init = function (binding, target, propd) {
     this.SetTarget(target);
     this.SetProperty(propd);
 
-    var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
+    var bindsToView = propd._ID === FrameworkElement.DataContextProperty._ID; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
     this.SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
     if (binding.GetMode() !== BindingMode.OneTime) {
         var walker = this.GetPropertyPathWalker();

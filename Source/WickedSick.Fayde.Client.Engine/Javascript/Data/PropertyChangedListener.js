@@ -26,7 +26,7 @@ PropertyChangedListener.Instance.Detach = function () {
     }
 };
 PropertyChangedListener.Instance.OnPropertyChangedInternal = function (s, e) {
-    if (e.Property !== this._Property)
+    if (e.Property._ID !== this._Property._ID)
         return;
     if (this._Closure && this._Func)
         this._Func.call(this._Closure, s, e);

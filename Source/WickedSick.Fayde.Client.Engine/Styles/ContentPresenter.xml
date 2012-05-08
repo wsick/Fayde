@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ControlTemplate
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+    <Grid x:Name="RootGrid" Cursor="{TemplateBinding Cursor}" Background="{TemplateBinding Background}">
+        <TextBlock x:Name="ElementTextBlock"
+            FontFamily="{TemplateBinding FontFamily}"
+            FontSize="{TemplateBinding FontSize}"
+            FontStretch="{TemplateBinding FontStretch}"
+            FontStyle="{TemplateBinding FontStyle}"
+            FontWeight="{TemplateBinding FontWeight}"
+            Foreground="{TemplateBinding Foreground}"
+            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+            Padding="{TemplateBinding Padding}"
+            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+            Visibility="Collapsed" />
+    </Grid>
+</ControlTemplate>

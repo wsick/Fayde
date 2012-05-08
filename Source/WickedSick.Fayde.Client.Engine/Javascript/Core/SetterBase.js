@@ -10,7 +10,7 @@ SetterBase.Instance.Init = function () {
     this.SetAttached(false);
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBase, false);
 SetterBase.Instance.GetIsSealed = function () {

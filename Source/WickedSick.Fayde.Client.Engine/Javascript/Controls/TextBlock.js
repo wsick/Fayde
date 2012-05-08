@@ -161,7 +161,7 @@ TextBlock.Instance.SetTextWrapping = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 TextBlock.Instance._ComputeBounds = function () {
     this._Extents = this._Layout.GetRenderExtents();
@@ -183,7 +183,7 @@ TextBlock.Instance._ComputeActualSize = function () {
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
 
-    if (this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
+    if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
         this._Layout.Layout();
         var actuals = this._Layout.GetActualExtents();
         this._ActualWidth = actuals.Width;
@@ -330,7 +330,7 @@ TextBlock.Instance._SetTextInternal = function (text) {
     this._SetsValue = false;
 
     var value;
-    var inlines = this.$GetValue(TextBlock.InlinesProperty);
+    var inlines = this._GetValue(TextBlock.InlinesProperty);
     if (text) {
         var count = inlines.GetCount();
         var run = null;
@@ -369,7 +369,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {
         this._OnPropertyChanged$FrameworkElement(args, error);
-        if (args.Property !== FrameworkElement.LanguageProperty)
+        if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
             return;
         if (!this._UpdateFonts(false))
             return;
@@ -383,7 +383,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
         this._UpdateFonts(false);
     } else if (args.Property._ID === TextBlock.TextProperty._ID) {
         if (this._SetsValue) {
-            this._SetTextInternal(args.NewValue)
+            this._SetTextInternal(args.NewValue);
 
             this._UpdateLayoutAttributes();
             this._Dirty = true;
@@ -394,7 +394,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
     } else if (args.Property._ID === TextBlock.InlinesProperty._ID) {
         if (this._SetsValue) {
             this._SetsValue = false;
-            this.$SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
+            this._SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
             this._SetsValue = true;
 
             this._UpdateLayoutAttributes();
@@ -454,7 +454,7 @@ TextBlock.Instance._OnCollectionChanged = function (sender, args) {
         this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
 
     this._SetsValue = false;
-    this.$SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+    this._SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
     this._SetsValue = true;
 
     this._UpdateLayoutAttributes();

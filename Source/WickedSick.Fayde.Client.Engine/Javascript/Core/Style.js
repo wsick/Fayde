@@ -7,7 +7,7 @@
 //#region Style
 var Style = Nullstone.Create("Style", DependencyObject);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, undefined, { GetValue: function () { return new SetterBaseCollection(); } });
 Style.Instance.GetSetters = function () {
@@ -37,7 +37,7 @@ Style.Instance.SetTargetType = function (value) {
 
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 Style.Annotations = {
     ContentProperty: Style.SettersProperty
@@ -65,8 +65,8 @@ Style.Instance._ConvertSetterValues = function () {
 };
 Style.Instance._ConvertSetterValue = function (setter) {
     /// <param name="setter" type="Setter"></param>
-    var propd = setter.$GetValue(Setter.PropertyProperty);
-    var val = setter.$GetValue(Setter.ValueProperty);
+    var propd = setter._GetValue(Setter.PropertyProperty);
+    var val = setter._GetValue(Setter.ValueProperty);
 
     if (typeof propd.GetTargetType() === "string") {
         //if (val === undefined)
@@ -76,7 +76,7 @@ Style.Instance._ConvertSetterValue = function (setter) {
     }
 
     try {
-        setter.$SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.GetTargetType(), true));
+        setter._SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.GetTargetType(), true));
     } catch (err) {
         throw new XamlParseException(err.message);
     }

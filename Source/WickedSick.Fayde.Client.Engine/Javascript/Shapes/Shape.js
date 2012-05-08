@@ -301,7 +301,7 @@ Shape.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
 
     if (parent != null && !(parent instanceof Canvas)) {
-        if (LayoutInformation.GetPreviousConstraint(this) != null || this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty)) {
+        if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
             return desired;
         }
     }

@@ -6,6 +6,9 @@
 /// <reference path="Enums.js"/>
 /// <reference path="../Text/TextBuffer.js"/>
 /// <reference path="../Text/History/TextBoxUndoStack.js"/>
+/// <reference path="ContentPresenter.js"/>
+/// <reference path="ContentControl.js"/>
+/// <reference path="Border.js"/>
 
 //#region TextBoxBase
 var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
@@ -86,11 +89,11 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
     this._View.SetTextBox(this);
 
     if (this._ContentElement instanceof ContentPresenter) {
-        this._ContentElement.SetContent(this._View);
+        this._ContentElement._SetValue(ContentPresenter.ContentProperty, this._View);
     } else if (this._ContentElement instanceof ContentControl) {
-        this._ContentElement.SetContent(this._View);
+        this._ContentElement._SetValue(ContentControl.ContentProperty, this._View);
     } else if (this._ContentElement instanceof Border) {
-        this._ContentElement.SetChild(this._View);
+        this._ContentElement._SetValue(Border.ChildProperty, this._View);
     } else if (this._ContentElement instanceof Panel) {
         this._ContentElement.GetChildren().Add(this._View);
     } else {

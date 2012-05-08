@@ -71,7 +71,7 @@ PathFigure.Instance._OnCollectionChanged = function (sender, args) {
     var newArgs = {
         Property: PathFigure.SegmentsProperty,
         OldValue: null,
-        NewValue: this.$GetValue(PathFigure.SegmentsProperty)
+        NewValue: this._GetValue(PathFigure.SegmentsProperty)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };
@@ -84,7 +84,7 @@ PathFigure.Instance._OnCollectionItemChanged = function (sender, args) {
     var newArgs = {
         Property: PathFigure.SegmentsProperty,
         OldValue: null,
-        NewValue: this.$GetValue(PathFigure.SegmentsProperty)
+        NewValue: this._GetValue(PathFigure.SegmentsProperty)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };

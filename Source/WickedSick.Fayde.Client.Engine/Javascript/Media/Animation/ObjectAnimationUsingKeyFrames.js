@@ -5,7 +5,7 @@
 //#region ObjectAnimationUsingKeyFrames
 var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFrames", Animation);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, null, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
 ObjectAnimationUsingKeyFrames.Instance.GetKeyFrames = function () {
@@ -26,13 +26,13 @@ ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
     var count = frames.GetCount();
     for (var i = 0; i < count; i++) {
         var frame = Nullstone.As(frames.GetValueAt(i), ObjectKeyFrame);
-        var value = frame.$GetValue(ObjectKeyFrame.ValueProperty);
+        var value = frame.GetValue();
         if (value == null) {
-            frame.$SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
+            frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, undefined);
         } else {
             var converted = value;
             //TODO: Convert - return false if error converting
-            frame.$SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
+            frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
         }
     }
     KeyFrameCollection.ResolveKeyFrames(this, frames);

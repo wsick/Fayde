@@ -352,7 +352,9 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
 
-    var slot = this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty);
+    var slot = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    if (slot === null)
+        slot = undefined;
 
     var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
 
@@ -360,7 +362,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
 
-    shouldArrange |= !Rect.Equals(slot, finalRect)
+    shouldArrange |= slot ? !Rect.Equals(slot, finalRect) : true;
 
     if (finalRect.Width < 0 || finalRect.Height < 0
             || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
@@ -385,7 +387,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
     measure = LayoutInformation.GetPreviousConstraint(this);
 
-    this.ClearValue(LayoutInformation.LayoutClipProperty);
+    this._ClearValue(LayoutInformation.LayoutClipProperty);
 
     var margin = this.GetMargin();
     var childRect = finalRect.GrowByThickness(margin.Negate());
@@ -687,7 +689,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                             pass._ArrangeList.Append(new UIElementNode(child));
                         break;
                     case UIElementFlags.DirtySizeHint:
-                        if (child._ReadLocalValueImpl(LayoutInformation.LastRenderSizeProperty))
+                        if (child._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
                             pass._SizeList.Append(new UIElementNode(child));
                         break;
                     default:
@@ -719,7 +721,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 pass._Updated = true;
                 var last = LayoutInformation.GetLastRenderSize(fe);
                 if (last) {
-                    fe.ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                    fe._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
                     fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._GetRenderSize()));
                 }
             }
@@ -776,19 +778,19 @@ FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
     return result;
 };
 FrameworkElement.Instance._DoApplyTemplateWithError = function (error) {
-    var d = this._GetDefaultTemplate();
-    if (d) {
-        d._AddParent(this, true, error);
+    var uie = this._GetDefaultTemplate();
+    if (uie) {
+        uie._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
-        this._SetSubtreeObject(d);
-        this._ElementAdded(d);
+        this._SetSubtreeObject(uie);
+        this._ElementAdded(uie);
     }
-    return d != null;
+    return uie != null;
 };
 FrameworkElement.Instance._GetDefaultTemplate = function () {
     if (this._GetDefaultTemplateCallback)
-        return this._GetDefaultTemplateCallback(this);
+        return this._GetDefaultTemplateCallback();
     return null;
 };
 
@@ -802,14 +804,14 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         return;
     }
 
-    if (args.Property === FrameworkElement.WidthProperty
-        || args.Property === FrameworkElement.MaxWidthProperty
-        || args.Property === FrameworkElement.MinWidthProperty
-        || args.Property === FrameworkElement.HeightProperty
-        || args.Property === FrameworkElement.MaxHeightProperty
-        || args.Property === FrameworkElement.MinHeightProperty
-        || args.Property === FrameworkElement.MarginProperty
-        || args.Property === FrameworkElement.FlowDirectionProperty) {
+    if (args.Property._ID === FrameworkElement.WidthProperty._ID
+        || args.Property._ID === FrameworkElement.MaxWidthProperty._ID
+        || args.Property._ID === FrameworkElement.MinWidthProperty._ID
+        || args.Property._ID === FrameworkElement.HeightProperty._ID
+        || args.Property._ID === FrameworkElement.MaxHeightProperty._ID
+        || args.Property._ID === FrameworkElement.MinHeightProperty._ID
+        || args.Property._ID === FrameworkElement.MarginProperty._ID
+        || args.Property._ID === FrameworkElement.FlowDirectionProperty._ID) {
         //var p = this._GetRenderTransformOrigin();
         //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
         this._FullInvalidate(false);
@@ -821,14 +823,14 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateMeasure();
         this._InvalidateArrange();
         this._UpdateBounds();
-    } else if (args.Property === FrameworkElement.StyleProperty) {
+    } else if (args.Property._ID === FrameworkElement.StyleProperty._ID) {
         var newStyle = args.NewValue;
         if (!error.IsErrored())
             this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
         if (error.IsErrored())
             return;
-    } else if (args.Property === FrameworkElement.HorizontalAlignmentProperty
-        || args.Property == FrameworkElement.VerticalAlignmentProperty) {
+    } else if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
+        || args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID) {
         this._InvalidateArrange();
         this._FullInvalidate(true);
     }

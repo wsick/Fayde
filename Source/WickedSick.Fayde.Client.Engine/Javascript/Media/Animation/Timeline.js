@@ -12,27 +12,11 @@ Timeline.Instance.Init = function () {
     this.Reset();
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
-Timeline.Instance.GetBeginTime = function () {
-    ///<returns type="TimeSpan"></returns>
-    return this.$GetValue(Timeline.BeginTimeProperty);
-};
-Timeline.Instance.SetBeginTime = function (value) {
-    ///<param name="value" type="TimeSpan"></param>
-    this.$SetValue(Timeline.BeginTimeProperty, value);
-};
 
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
-Timeline.Instance.GetDuration = function () {
-    ///<returns type="Duration"></returns>
-    return this.$GetValue(Timeline.DurationProperty);
-};
-Timeline.Instance.SetDuration = function (value) {
-    ///<param name="value" type="Duration"></param>
-    this.$SetValue(Timeline.DurationProperty, value);
-};
 
 //#endregion
 
@@ -49,7 +33,7 @@ Timeline.Instance.Reset = function () {
     this._HasReachedBeg = false;
 };
 Timeline.Instance.IsAfterBeginTime = function (nowTime) {
-    var beginTime = this.GetBeginTime();
+    var beginTime = this._GetValue(Timeline.BeginTimeProperty);
     if (beginTime == null || beginTime.IsZero())
         return true;
     var ts = new TimeSpan();
@@ -66,7 +50,7 @@ Timeline.Instance.CreateClockData = function (nowTime) {
         Progress: 1.0
     };
 
-    var duration = this.GetDuration();
+    var duration = this._GetValue(Timeline.DurationProperty);
     if (duration != null && duration.HasTimeSpan()) {
         var elapsedMs = nowTime - this._BeginStep;
         var durMs = duration.GetTimeSpan().GetMilliseconds();

@@ -246,7 +246,7 @@ UIElement.Instance.TransformToVisual = function (uie) {
     }
 
     var mt = new MatrixTransform();
-    mt.SetMatrix(result);
+    mt._SetValue(MatrixTransform.MatrixProperty, result);
     return mt;
 };
 
@@ -543,7 +543,9 @@ UIElement.Instance._MeasureWithError = function (availableSize, error) { };
 //#region Arrange
 
 UIElement.Instance._DoArrangeWithError = function (error) {
-    var last = this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty);
+    var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    if (last === null)
+        last = undefined;
     var parent = this.GetVisualParent();
 
     if (!parent) {
@@ -637,7 +639,7 @@ UIElement.Instance._PostRender = function (ctx, region) {
 //#region Loaded
 
 UIElement.Instance._SetIsLoaded = function (value) {
-    if (this._IsLoaded != value) {
+    if (this._IsLoaded !== value) {
         this._IsLoaded = value;
         this._OnIsLoadedChanged(value);
     }
@@ -711,7 +713,7 @@ UIElement.Instance._ElementRemoved = function (item) {
 
     var emptySlot = new Rect();
     LayoutInformation.SetLayoutSlot(item, emptySlot);
-    item.ClearValue(LayoutInformation.LayoutClipProperty);
+    item._ClearValue(LayoutInformation.LayoutClipProperty);
 
     this._InvalidateMeasure();
 
@@ -734,14 +736,14 @@ UIElement.Instance._ElementAdded = function (item) {
     this._UpdateBounds(true);
 
     this._InvalidateMeasure();
-    this.ClearValue(LayoutInformation.LayoutClipProperty);
-    this.ClearValue(LayoutInformation.PreviousConstraintProperty);
+    this._ClearValue(LayoutInformation.LayoutClipProperty);
+    this._ClearValue(LayoutInformation.PreviousConstraintProperty);
     item._SetRenderSize(new Size(0, 0));
     item._UpdateTransform();
     item._UpdateProjection();
     item._InvalidateMeasure();
     item._InvalidateArrange();
-    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValueImpl(LayoutInformation.LastRenderSizeProperty))
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 

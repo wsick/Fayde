@@ -54,7 +54,7 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
                 content = content.Transmute(dobj, contentPropd, "Content", this._TemplateBindingSource);
             else
                 content = this.CreateObject(json.Content, namescope, true);
-            dobj.$SetValue(contentPropd, content);
+            this.SetValue(dobj, contentPropd, content);
         }
     } else if (contentPropd != null && contentPropd.constructor === String) {
         var setFunc = dobj["Set" + contentPropd];
@@ -94,6 +94,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
 
     //Set property value
     if (propd) {
+        //TODO: TrySetCollectionProperty expects json ??
         if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
             return;
 
@@ -105,8 +106,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
                     propValue = setFunc.Converter(propValue);
             }
         }
-
-        dobj.$SetValue(propd, propValue);
+        this.SetValue(dobj, propd, propValue);
     } else if (!isAttached) {
         var func = dobj["Set" + propName];
         if (func && func instanceof Function)
@@ -159,6 +159,12 @@ JsonParser.Instance.ResolveStaticResourceExpressions = function () {
         }
     }
     this.$SRExpressions = [];
+};
+JsonParser.Instance.SetValue = function (dobj, propd, value) {
+    if (value instanceof Expression)
+        dobj.$SetValueInternal(propd, value);
+    else
+        dobj._SetValue(propd, value);
 };
 
 JsonParser.Instance.GetAnnotationMember = function (type, member) {

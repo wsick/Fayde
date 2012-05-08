@@ -36,7 +36,7 @@ ControlTemplate.Instance._GetVisualTreeWithError = function (templateBindingSour
         NameScope.SetNameScope(root, namescope);
         return root;
     }
-    this._GetVisualTreeWithError$FrameworkTemplate(templateBindingSource, error);
+    return this._GetVisualTreeWithError$FrameworkTemplate(templateBindingSource, error);
 };
 
 Nullstone.FinishCreate(ControlTemplate);

@@ -27,15 +27,15 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValue = funct
 };
 _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var v;
-    if (propd == this._BackgroundPropd) {
-        v = this._Object.$GetValue(propd, this._PropertyPrecedence + 1);
+    if (propd._ID === this._BackgroundPropd._ID) {
+        v = this._Object._GetValue(propd, this._PropertyPrecedence + 1);
         if (!v)
             v = this._SelectionBackground;
-    } else if (propd == this._ForegroundPropd) {
-        v = this._Object.$GetValue(propd, this._PropertyPrecedence + 1);
+    } else if (propd._ID === this._ForegroundPropd._ID) {
+        v = this._Object._GetValue(propd, this._PropertyPrecedence + 1);
         if (!v)
             v = this._SelectionForeground;
-    } else if (propd == this._BaselineOffsetPropd) {
+    } else if (propd._ID === this._BaselineOffsetPropd._ID) {
         var _TextBoxView = this._Object._View;
         this._BaselineOffset = !_TextBoxView ? 0 : _TextBoxView.GetBaselineOffset();
         v = this._BaselineOffset;

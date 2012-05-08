@@ -321,6 +321,8 @@
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
     <Content Include="Silverlight.js" />
+    <Content Include="Styles\CheckBox.xml" />
+    <Content Include="Styles\ContentPresenter.xml" />
     <Content Include="Styles\HyperlinkButton.xml" />
     <Content Include="Styles\RepeatButton.xml" />
     <Content Include="Styles\ScrollBar.xml">
@@ -399,9 +401,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Tests\smoke.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\style.fayde">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>

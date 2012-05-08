@@ -91,7 +91,7 @@ Geometry.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: propd,
         OldValue: null,
-        NewValue: this.$GetValue(propd)
+        NewValue: this._GetValue(propd)
     });
     this._OnSubPropertyChanged$DependencyObject();
 };

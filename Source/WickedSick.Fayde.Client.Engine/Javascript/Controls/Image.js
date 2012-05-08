@@ -169,6 +169,27 @@ Fayde.Image.Instance._InsideObject = function (ctx, x, y) {
 
 //#endregion
 
+Fayde.Image.Instance._ComputeActualSize = function () {
+    var result = this._ComputeActualSize$FrameworkElement();
+
+    var parent = this.GetVisualParent();
+    var source = this.GetSource();
+
+    if (parent && !Nullstone.Is(parent, Canvas))
+        if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined)
+            return result;
+
+    if (source) {
+        var available = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+        available = this._ApplySizeConstraints(available);
+        var error = new BError();
+        result = this._MeasureOverrideWithError(available, error);
+        result = this._ApplySizeConstraints(result);
+    }
+
+    return result;
+};
+
 Fayde.Image.Instance._Render = function (ctx, region) {
     // Just to get something working, we do all the matrix transforms for stretching.
     // Eventually, we can let the html5 canvas do all the dirty work.

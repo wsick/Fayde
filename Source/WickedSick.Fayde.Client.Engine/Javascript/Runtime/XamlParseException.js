@@ -2,14 +2,10 @@
 /// CODE
 
 //#region XamlParseException
-var XamlParseException = Nullstone.Create("XamlParseException", Exception, 1);
-
-XamlParseException.Instance.Init = function (message) {
-    this.Message = message;
-};
+var XamlParseException = Nullstone.Create("XamlParseException", Exception);
 
 XamlParseException.Instance.toString = function () {
-    return "Xaml Parse Exception: " + this.Message;
+    return "XamlParseException: " + this.toString();
 };
 
 Nullstone.FinishCreate(XamlParseException);

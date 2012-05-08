@@ -9,7 +9,10 @@ FrameworkTemplate.Instance.GetVisualTree = function (bindingSource) {
     /// <param name="bindingSource" type="DependencyObject"></param>
     /// <returns type="DependencyObject" />
     var error = new BError();
-    return this._GetVisualTreeWithError(bindingSource, error);
+    var vt = this._GetVisualTreeWithError(bindingSource, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+    return vt;
 };
 FrameworkTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
     /// <param name="templateBindingSource" type="FrameworkElement"></param>

@@ -2,10 +2,10 @@
 /// CODE
 
 //#region InvalidOperationException
-var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception, 1);
+var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception);
 
-InvalidOperationException.Instance.Init = function (message) {
-    this.Message = message;
+InvalidOperationException.Instance.toString = function () {
+    return "InvalidOperationException: " + this.toString();
 };
 
 Nullstone.FinishCreate(InvalidOperationException);

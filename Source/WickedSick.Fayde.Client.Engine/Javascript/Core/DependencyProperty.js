@@ -6,7 +6,7 @@
 /// <reference path="UnsetValue.js"/>
 
 //#region DependencyProperty
-var DependencyProperty = Nullstone.Create("DependencyProperty", null, 10);
+var DependencyProperty = Nullstone.Create("DependencyProperty", null, 12);
 
 DependencyProperty._LastID = 0;
 DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
@@ -165,7 +165,7 @@ DependencyProperty._HandlePeriod = function (data) {
     if (data.res != null) {
         var value = null;
         var newLu = null;
-        if ((value = data.lu.$GetValue(data.res)) == null)
+        if ((value = data.lu._GetValue(data.res)) == null)
             return false;
         if ((newLu = Nullstone.As(value, DependencyObject)) == null)
             return false;
@@ -175,8 +175,8 @@ DependencyProperty._HandlePeriod = function (data) {
             var clonedDo = Nullstone.As(clonedValue, DependencyObject);
             if (clonedDo != null) {
                 newLu = clonedDo;
-                data.lu.$SetValue(data.res, clonedValue);
-                clonedValue = data.lu.$GetValue(data.res);
+                data.lu._SetValue(data.res, clonedValue);
+                clonedValue = data.lu._GetValue(data.res);
                 data.promotedValues[clonedValue._ID] = clonedValue;
             }
         }

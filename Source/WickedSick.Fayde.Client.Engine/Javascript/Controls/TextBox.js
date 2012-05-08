@@ -182,13 +182,13 @@ TextBox.Instance.OnApplyTemplate = function () {
         return;
     var prop;
     if ((prop = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
-        this._ContentElement.$SetValue(prop, this.$GetValue(TextBox.VerticalScrollBarVisibilityProperty));
+        this._ContentElement._SetValue(prop, this._GetValue(TextBox.VerticalScrollBarVisibilityProperty));
 
     if ((prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
         if (this.GetTextWrapping() === TextWrapping.Wrap)
-            this._ContentElement.$SetValue(prop, ScrollBarVisibility.Disabled);
+            this._ContentElement._SetValue(prop, ScrollBarVisibility.Disabled);
         else
-            this._ContentElement.$SetValue(prop, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+            this._ContentElement._SetValue(prop, this._GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
     }
 };
 
@@ -203,11 +203,11 @@ TextBox.Instance._SyncSelectedText = function () {
         var text = !this._Buffer._Text ? '' : this._Buffer._Text.substr(start, len);
 
         this._SettingValue = false;
-        this._SetValueInternal(TextBox.SelectedTextProperty, text);
+        this._SetValue(TextBox.SelectedTextProperty, text);
         this._SettingValue = true;
     } else {
         this._SettingValue = false;
-        this._SetValueInternal(TextBox.SelectedTextProperty, "");
+        this._SetValue(TextBox.SelectedTextProperty, "");
         this._SettingValue = true;
     }
 };
@@ -225,7 +225,7 @@ TextBox.Instance.GetDisplayText = function () {
 
 TextBox.Instance._SyncText = function () {
     this._SettingValue = false;
-    this._SetValueInternal(TextBox.TextProperty, this._Buffer._Text);
+    this._SetValue(TextBox.TextProperty, this._Buffer._Text);
     this._SettingValue = true;
 };
 TextBox.Instance._EmitTextChanged = function () {
@@ -373,9 +373,9 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
                 if (args.NewValue === TextWrapping.Wrap)
-                    this._ContentElement.$SetValue(propd, ScrollBarVisibility.Disabled);
+                    this._ContentElement._SetValue(propd, ScrollBarVisibility.Disabled);
                 else
-                    this._ContentElement.$SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+                    this._ContentElement._SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
             }
         }
         changed = _TextBoxModelChanged.TextWrapping
@@ -383,15 +383,15 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
                 if (this.GetTextWrapping() === TextWrapping.Wrap)
-                    this._ContentElement.$SetValue(propd, ScrollBarVisibility.Disabled);
+                    this._ContentElement._SetValue(propd, ScrollBarVisibility.Disabled);
                 else
-                    this._ContentElement.$SetValue(propd, args.NewValue);
+                    this._ContentElement._SetValue(propd, args.NewValue);
             }
         }
     } else if (args.Property._ID === TextBox.VerticalScrollBarVisibilityProperty._ID) {
         if (this._ContentElement) {
             if ((propd = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
-                this._ContentElement.$SetValue(propd, args.NewValue);
+                this._ContentElement._SetValue(propd, args.NewValue);
         }
 
     }
