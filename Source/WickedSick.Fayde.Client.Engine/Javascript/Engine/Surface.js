@@ -525,8 +525,8 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
 
 Surface.Instance._GetMousePosition = function (evt) {
     return new Point(
-        evt.clientX - this._CanvasOffset.left,
-        evt.clientY - this._CanvasOffset.top);
+        evt.clientX + window.pageXOffset - this._CanvasOffset.left,
+        evt.clientY + window.pageYOffset - this._CanvasOffset.top);
 };
 Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
     var ui1 = list1.Last();
