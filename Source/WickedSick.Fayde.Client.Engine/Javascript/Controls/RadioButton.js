@@ -52,7 +52,9 @@ RadioButton.Unregister = function (groupName, radioButton) {
 };
 
 RadioButton.Instance.OnIsCheckedChanged = function (e) {
-    this.UpdateRadioButtonGroup();
+    if (e.NewValue === true) {
+        this.UpdateRadioButtonGroup();
+    }
     this.OnIsCheckedChanged$ToggleButton(e);
 };
 
