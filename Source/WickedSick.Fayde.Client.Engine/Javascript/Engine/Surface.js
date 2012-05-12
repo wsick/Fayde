@@ -109,7 +109,12 @@ Surface.Instance._DetachLayer = function (layer) {
 
 Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
 Surface.Instance.GetExtents = function () {
-    return new Size(this.GetWidth(), this.GetHeight());
+    if (!this._Extents)
+        this._Extents = new Size(this.GetWidth(), this.GetHeight());
+    return this._Extents;
+};
+Surface.Instance.InvalidateExtents = function () {
+    delete this._Extents;
 };
 Surface.Instance.GetWidth = function () {
     return this._jCanvas.width();
@@ -123,37 +128,43 @@ Surface.Instance.GetHeight = function () {
 //#region Render
 
 Surface.Instance._Invalidate = function (rect) {
-    if (!rect)
-        rect = new Rect(0, 0, this.GetWidth(), this.GetHeight());
+    if (!rect) {
+        var extents = this.GetExtents();
+        rect = new Rect(0, 0, extents.Width, extents.Height);
+    }
+
     if (!this._InvalidatedRect)
         this._InvalidatedRect = rect;
     else
         this._InvalidatedRect = this._InvalidatedRect.Union(rect);
-    this._QueueRender();
-};
-Surface.Instance._QueueRender = function () {
+
     if (this._IsRenderQueued)
         return;
-    var surface = this;
     this._IsRenderQueued = true;
-    setTimeout(function () {
-        surface._IsRenderQueued = false;
-        var rect2 = surface._InvalidatedRect;
-        surface._InvalidatedRect = null;
-        surface.Render(rect2);
-    }, 1);
+
+    if (!Surface._Invalidations)
+        Surface._Invalidations = [];
+    Surface._Invalidations.push(this);
+    setTimeout(Surface.StaticRender, 1);
+};
+Surface.StaticRender = function () {
+    var cur;
+    while (cur = Surface._Invalidations.pop()) {
+        var rect2 = cur._InvalidatedRect;
+        cur._InvalidatedRect = null;
+        cur._IsRenderQueued = false;
+        cur.Render(rect2);
+    }
 };
 Surface.Instance.Render = function (region) {
     var ctx = new _RenderContext(this);
 
-    var layerCount = 0;
-    if (this._Layers)
-        layerCount = this._Layers.GetCount();
+    var layers = this._Layers;
+    var layerCount = layers ? layers.GetCount() : 0;
 
     ctx.Clear(region);
     for (var i = 0; i < layerCount; i++) {
-        var layer = this._Layers.GetValueAt(i);
-        layer._DoRender(ctx, region);
+        layers.GetValueAt(i)._DoRender(ctx, region);
     }
 };
 
