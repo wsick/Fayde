@@ -61,12 +61,13 @@ DependencyObject.Instance.SetMentor = function (value) {
 };
 DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
     if (!(this instanceof FrameworkElement)) {
-        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.LocalStyle])
-            this._Providers[_PropertyPrecedence.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.ImplicitStyle])
-            this._Providers[_PropertyPrecedence.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        var propPrecEnum = _PropertyPrecedence;
+        this._Providers[propPrecEnum.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        this._Providers[propPrecEnum.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[propPrecEnum.LocalStyle])
+            this._Providers[propPrecEnum.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[propPrecEnum.ImplicitStyle])
+            this._Providers[propPrecEnum.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
     }
     if (this._MentorChangedCallback != null) {
         this._MentorChangedCallback(this, newValue);
@@ -196,6 +197,7 @@ DependencyObject.Instance._SetValueInternal = function (propd, value, error) {
     return retVal;
 };
 DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
+    var propPrecEnum = _PropertyPrecedence;
     if (this._IsFrozen) {
         error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
         return false;
@@ -205,7 +207,7 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
 
     if ((currentValue = this._ReadLocalValueImpl(propd)) == null)
         if (propd._IsAutoCreated)
-            currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+            currentValue = this._Providers[propPrecEnum.AutoCreate].ReadLocalValue(propd);
 
     if (currentValue != null && value != null)
         equal = !propd._AlwaysChange && Nullstone.Equals(currentValue, value);
@@ -214,9 +216,9 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
 
     if (!equal) {
         var newValue;
-        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+        this._Providers[propPrecEnum.LocalValue].ClearValue(propd);
         if (propd._IsAutoCreated)
-            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
+            this._Providers[propPrecEnum.AutoCreate].ClearValue(propd);
 
         if (value != null && (!propd._IsAutoCreated || !(value instanceof DependencyObject) || Nullstone.As(value, DependencyObject) != null))
             newValue = value;
@@ -224,27 +226,28 @@ DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
             newValue = null;
 
         if (newValue != null) {
-            this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
+            this._Providers[propPrecEnum.LocalValue].SetValue(propd, newValue);
         }
-        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
+        this._ProviderValueChanged(propPrecEnum.LocalValue, propd, currentValue, newValue, true, true, true, error);
     }
 
     return true;
 };
 
 DependencyObject.Instance.$GetValue = function (propd, startingPrecedence, endingPrecedence) {
+    var propPrecEnum = _PropertyPrecedence;
     if (startingPrecedence === undefined)
-        startingPrecedence = _PropertyPrecedence.Highest;
+        startingPrecedence = propPrecEnum.Highest;
     if (endingPrecedence === undefined)
-        endingPrecedence = _PropertyPrecedence.Lowest;
+        endingPrecedence = propPrecEnum.Lowest;
 
     //Establish providers used
     var bitmask = this._ProviderBitmasks[propd._ID] || 0;
-    bitmask |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
+    bitmask |= (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
     if (propd._IsAutoCreated)
-        bitmask |= 1 << _PropertyPrecedence.AutoCreate;
+        bitmask |= 1 << propPrecEnum.AutoCreate;
     if (propd._HasDefaultValue)
-        bitmask |= 1 << _PropertyPrecedence.DefaultValue;
+        bitmask |= 1 << propPrecEnum.DefaultValue;
 
     //Loop through providers and find the first provider that is on and contains the property value
     for (var i = startingPrecedence; i <= endingPrecedence; i++) {
@@ -261,6 +264,7 @@ DependencyObject.Instance.$GetValue = function (propd, startingPrecedence, endin
     return null;
 };
 DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) {
+    var propPrecEnum = _PropertyPrecedence;
     if (notifyListeners == undefined)
         notifyListeners = true;
     if (error == undefined)
@@ -273,7 +277,7 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
     var oldLocalValue;
     if ((oldLocalValue = this._ReadLocalValueImpl(propd)) == null) {
         if (propd._IsAutoCreated)
-            oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+            oldLocalValue = this._Providers[propPrecEnum.AutoCreate].ReadLocalValue(propd);
     }
 
     if (oldLocalValue != null) {
@@ -289,19 +293,19 @@ DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) 
                 }
             }
         }
-        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+        this._Providers[propPrecEnum.LocalValue].ClearValue(propd);
         if (propd._IsAutoCreated)
-            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
+            this._Providers[propPrecEnum.AutoCreate].ClearValue(propd);
     }
 
-    for (var i = _PropertyPrecedence.LocalValue + 1; i < _PropertyPrecedence.Count; i++) {
+    for (var i = propPrecEnum.LocalValue + 1; i < propPrecEnum.Count; i++) {
         var provider = this._Providers[i];
         if (provider != null && provider._HasFlag(_ProviderFlags.RecomputesOnClear))
             provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnClear, error);
     }
 
     if (oldLocalValue != null) {
-        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
+        this._ProviderValueChanged(propPrecEnum.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
     }
 };
 DependencyObject.Instance.ReadLocalValue = function (propd) {
@@ -337,6 +341,7 @@ DependencyObject.Instance._PropertyHasValueNoAutoCreate = function (propd, obj) 
     return v == null ? obj == null : v == obj;
 };
 DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
+    var propPrecEnum = _PropertyPrecedence;
     var bitmask = this._ProviderBitmasks[propd._ID] || 0;
     if (newProviderValue != null)
         bitmask |= 1 << providerPrecedence;
@@ -345,17 +350,17 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     this._ProviderBitmasks[propd._ID] = bitmask;
 
     var higher = 0;
-    for (var i = providerPrecedence; i >= _PropertyPrecedence.LocalValue; i--) {
+    for (var i = providerPrecedence; i >= propPrecEnum.LocalValue; i--) {
         higher |= 1 << i;
     }
     higher &= bitmask;
-    higher |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
+    higher |= (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
     if (propd._IsAutoCreated)
-        higher |= 1 << _PropertyPrecedence.AutoCreate;
+        higher |= 1 << propPrecEnum.AutoCreate;
     if (propd._HasDefaultValue)
-        higher |= 1 << _PropertyPrecedence.DefaultValue;
+        higher |= 1 << propPrecEnum.DefaultValue;
 
-    for (var j = providerPrecedence; j >= _PropertyPrecedence.Highest; j--) {
+    for (var j = providerPrecedence; j >= propPrecEnum.Highest; j--) {
         if (!(higher & (1 << j)))
             continue;
         var provider = this._Providers[i];
@@ -392,7 +397,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     if (equal)
         return;
 
-    if (providerPrecedence !== _PropertyPrecedence.IsEnabled && this._Providers[_PropertyPrecedence.IsEnabled] && this._Providers[_PropertyPrecedence.IsEnabled].LocalValueChanged(propd))
+    if (providerPrecedence !== propPrecEnum.IsEnabled && this._Providers[propPrecEnum.IsEnabled] && this._Providers[propPrecEnum.IsEnabled].LocalValueChanged(propd))
         return;
 
     this._CallRecomputePropertyValueForProviders(propd, providerPrecedence, error);
@@ -458,12 +463,12 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
         if (propd != null && propd._ChangedCallback != null)
             propd._ChangedCallback(this, args, error);
 
-        var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
+        var inheritedProvider = this._Providers[propPrecEnum.Inherited];
         if (inheritedProvider != null) {
-            if (providerPrecedence == _PropertyPrecedence.Inherited) {
+            if (providerPrecedence === propPrecEnum.Inherited) {
             } else {
-                if (_InheritedPropertyValueProvider.IsInherited(this, propd)
-                         && this._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited) {
+                if (_InheritedPropertyValueProvider.GetInheritable(this, propd) > 0
+                         && this._GetPropertyValueProvider(propd) < propPrecEnum.Inherited) {
                     inheritedProvider.PropagateInheritedProperty(propd, this, this);
                 }
             }
@@ -488,18 +493,19 @@ DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (pr
     }
 };
 DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {
-    var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
+    var propPrecEnumInherited = _PropertyPrecedence.Inherited;
+    var inheritedProvider = this._Providers[propPrecEnumInherited];
     if (inheritedProvider == null)
         return true;
 
     inheritedProvider._SetPropertySource(inheritable, source);
-    var propd = _InheritedPropertyValueProvider.GetProperty(inheritable, this);
+    var propd = inheritedProvider._GetPropertyFunc(inheritable, this);
     if (!propd)
         return false;
 
     var error = new BError();
-    this._ProviderValueChanged(_PropertyPrecedence.Inherited, propd, null, newValue, true, false, false, error);
-    return this._GetPropertyValueProvider(propd) == _PropertyPrecedence.Inherited;
+    this._ProviderValueChanged(propPrecEnumInherited, propd, null, newValue, true, false, false, error);
+    return this._GetPropertyValueProvider(propd) === propPrecEnumInherited;
 };
 DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
@@ -508,29 +514,31 @@ DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
     return inheritedProvider._GetPropertySource(inheritable);
 };
 DependencyObject.Instance._SetInheritedValueSource = function (inheritable, source) {
-    var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
+    var propPrecEnumInherited = _PropertyPrecedence.Inherited;
+    var inheritedProvider = this._Providers[propPrecEnumInherited];
     if (inheritedProvider == null)
         return;
 
     if (!source) {
-        var propd = _InheritedPropertyValueProvider.GetProperty(inheritable, this);
+        var propd = inheritedProvider._GetPropertyFunc(inheritable, this);
         if (propd)
             return;
         var bitmask = this._ProviderBitmasks[propd._ID];
-        bitmask &= ~(1 << _PropertyPrecedence.Inherited);
+        bitmask &= ~(1 << propPrecEnumInherited);
         this._ProviderBitmasks[propd._ID] = bitmask;
     }
     inheritedProvider._SetPropertySource(inheritable, source);
 };
 DependencyObject.Instance._GetPropertyValueProvider = function (propd) {
+    var propPrecEnum = _PropertyPrecedence;
     var bitmask = this._ProviderBitmasks[propd._ID];
-    for (var i = 0; i < _PropertyPrecedence.Lowest; i++) {
+    for (var i = 0; i < propPrecEnum.Lowest; i++) {
         var p = 1 << i;
         if ((bitmask & p) == p)
             return i;
-        if (i == _PropertyPrecedence.DefaultValue && propd._HasDefaultValue)
+        if (i === propPrecEnum.DefaultValue && propd._HasDefaultValue)
             return i;
-        if (i == _PropertyPrecedence.AutoCreate && propd._IsAutoCreated)
+        if (i === propPrecEnum.AutoCreate && propd._IsAutoCreated)
             return i;
     }
     return -1;
