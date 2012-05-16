@@ -483,12 +483,12 @@ Surface.Instance._HandleWheel = function (pos) {
     this._UpdateCursorFromInputList();
 };
 Surface.Instance._HandleMove = function (evt) {
-    var pos = this._GetMousePosition(event);
+    var pos = this._GetMousePosition(evt);
     this._HandleMouseEvent("move", null, pos);
     this._UpdateCursorFromInputList();
 };
 Surface.Instance._HandleOut = function (evt) {
-    var pos = this._GetMousePosition(event);
+    var pos = this._GetMousePosition(evt);
     this._HandleMouseEvent("out", null, pos);
 };
 Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
