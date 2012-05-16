@@ -50,4 +50,4 @@ var _Inheritable = {
     FontResource: 1 << 10
 };
 _Inheritable.All = 0x7ff;
-_Inheritable.None = 0;
+_Inheritable.None = 0; //None must always be 0

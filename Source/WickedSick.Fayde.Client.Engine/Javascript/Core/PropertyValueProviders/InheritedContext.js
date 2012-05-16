@@ -28,65 +28,67 @@ _InheritedContext.Instance._InitFull = function (args) {
     this.FontResourceSource = args[10];
 };
 _InheritedContext.Instance._InitFromObj = function (obj, parentContext) {
-    this.ForegroundSource = this.GetLocalSource(obj, _Inheritable.Foreground);
+    var inhEnum = _Inheritable;
+    this.ForegroundSource = this.GetLocalSource(obj, inhEnum.Foreground);
     if (!this.ForegroundSource && parentContext) this.ForegroundSource = parentContext.ForegroundSource;
 
-    this.FontFamilySource = this.GetLocalSource(obj, _Inheritable.FontFamily);
+    this.FontFamilySource = this.GetLocalSource(obj, inhEnum.FontFamily);
     if (!this.FontFamilySource && parentContext) this.FontFamilySource = parentContext.FontFamilySource;
 
-    this.FontStretchSource = this.GetLocalSource(obj, _Inheritable.FontStretch);
+    this.FontStretchSource = this.GetLocalSource(obj, inhEnum.FontStretch);
     if (!this.FontStretchSource && parentContext) this.FontStretchSource = parentContext.FontStretchSource;
 
-    this.FontStyleSource = this.GetLocalSource(obj, _Inheritable.FontStyle);
+    this.FontStyleSource = this.GetLocalSource(obj, inhEnum.FontStyle);
     if (!this.FontStretchSource && parentContext) this.FontStretchSource = parentContext.FontStretchSource;
 
-    this.FontWeightSource = this.GetLocalSource(obj, _Inheritable.FontWeight);
+    this.FontWeightSource = this.GetLocalSource(obj, inhEnum.FontWeight);
     if (!this.FontWeightSource && parentContext) this.FontWeightSource = parentContext.FontWeightSource;
 
-    this.FontSizeSource = this.GetLocalSource(obj, _Inheritable.FontSize);
+    this.FontSizeSource = this.GetLocalSource(obj, inhEnum.FontSize);
     if (!this.FontSizeSource && parentContext) this.FontSizeSource = parentContext.FontSizeSource;
 
-    this.LanguageSource = this.GetLocalSource(obj, _Inheritable.Language);
+    this.LanguageSource = this.GetLocalSource(obj, inhEnum.Language);
     if (!this.LanguageSource && parentContext) this.LanguageSource = parentContext.LanguageSource;
 
-    this.FlowDirectionSource = this.GetLocalSource(obj, _Inheritable.FlowDirection);
+    this.FlowDirectionSource = this.GetLocalSource(obj, inhEnum.FlowDirection);
     if (!this.FlowDirectionSource && parentContext) this.FlowDirectionSource = parentContext.FlowDirectionSource;
 
-    this.UseLayoutRoundingSource = this.GetLocalSource(obj, _Inheritable.UseLayoutRounding);
+    this.UseLayoutRoundingSource = this.GetLocalSource(obj, inhEnum.UseLayoutRounding);
     if (!this.UseLayoutRoundingSource && parentContext) this.UseLayoutRoundingSource = parentContext.UseLayoutRoundingSource;
 
-    this.TextDecorationsSource = this.GetLocalSource(obj, _Inheritable.TextDecorations);
+    this.TextDecorationsSource = this.GetLocalSource(obj, inhEnum.TextDecorations);
     if (!this.TextDecorationsSource && parentContext) this.TextDecorationsSource = parentContext.TextDecorationsSource;
 
-    this.FontResourceSource = this.GetLocalSource(obj, _Inheritable.FontResource);
+    this.FontResourceSource = this.GetLocalSource(obj, inhEnum.FontResource);
     if (!this.FontResourceSource && parentContext) this.FontResourceSource = parentContext.FontResourceSource;
 };
 
 _InheritedContext.Instance.Compare = function (withContext, props) {
-    var rv = _Inheritable.None;
+    var inhEnum = _Inheritable;
+    var rv = inhEnum.None;
 
-    if (props & _Inheritable.Foreground && withContext.ForegroundSource == this.ForegroundSource)
-        rv |= _Inheritable.Foreground;
-    if (props & _Inheritable.FontFamily && withContext.FontFamilySource == this.FontFamilySource)
-        rv |= _Inheritable.FontFamily;
-    if (props & _Inheritable.FontStretch && withContext.FontStretchSource == this.FontStretchSource)
-        rv |= _Inheritable.FontStretch;
-    if (props & _Inheritable.FontStyle && withContext.FontStyleSource == this.FontStyleSource)
-        rv |= _Inheritable.FontStyle;
-    if (props & _Inheritable.FontWeight && withContext.FontWeightSource == this.FontWeightSource)
-        rv |= _Inheritable.FontWeight;
-    if (props & _Inheritable.FontSize && withContext.FontSizeSource == this.FontSizeSource)
-        rv |= _Inheritable.FontSize;
-    if (props & _Inheritable.Language && withContext.LanguageSource == this.LanguageSource)
-        rv |= _Inheritable.Language;
-    if (props & _Inheritable.FlowDirection && withContext.FlowDirectionSource == this.FlowDirectionSource)
-        rv |= _Inheritable.FlowDirection;
-    if (props & _Inheritable.UseLayoutRounding && withContext.UseLayoutRoundingSource == this.UseLayoutRoundingSource)
-        rv |= _Inheritable.UseLayoutRounding;
-    if (props & _Inheritable.TextDecorations && withContext.TextDecorationsSource == this.TextDecorationsSource)
-        rv |= _Inheritable.TextDecorations;
-    if (props & _Inheritable.FontResource && withContext.FontResourceSource == this.FontResourceSource)
-        rv |= _Inheritable.FontResource;
+    if (props & inhEnum.Foreground && Nullstone.RefEquals(withContext.ForegroundSource, this.ForegroundSource))
+        rv |= inhEnum.Foreground;
+    if (props & inhEnum.FontFamily && Nullstone.RefEquals(withContext.FontFamilySource, this.FontFamilySource))
+        rv |= inhEnum.FontFamily;
+    if (props & inhEnum.FontStretch && Nullstone.RefEquals(withContext.FontStretchSource, this.FontStretchSource))
+        rv |= inhEnum.FontStretch;
+    if (props & inhEnum.FontStyle && Nullstone.RefEquals(withContext.FontStyleSource, this.FontStyleSource))
+        rv |= inhEnum.FontStyle;
+    if (props & inhEnum.FontWeight && Nullstone.RefEquals(withContext.FontWeightSource, this.FontWeightSource))
+        rv |= inhEnum.FontWeight;
+    if (props & inhEnum.FontSize && Nullstone.RefEquals(withContext.FontSizeSource, this.FontSizeSource))
+        rv |= inhEnum.FontSize;
+    if (props & inhEnum.Language && Nullstone.RefEquals(withContext.LanguageSource, this.LanguageSource))
+        rv |= inhEnum.Language;
+    if (props & inhEnum.FlowDirection && Nullstone.RefEquals(withContext.FlowDirectionSource, this.FlowDirectionSource))
+        rv |= inhEnum.FlowDirection;
+    if (props & inhEnum.UseLayoutRounding && Nullstone.RefEquals(withContext.UseLayoutRoundingSource, this.UseLayoutRoundingSource))
+        rv |= inhEnum.UseLayoutRounding;
+    if (props & inhEnum.TextDecorations && Nullstone.RefEquals(withContext.TextDecorationsSource, this.TextDecorationsSource))
+        rv |= inhEnum.TextDecorations;
+    if (props & inhEnum.FontResource && Nullstone.RefEquals(withContext.FontResourceSource, this.FontResourceSource))
+        rv |= inhEnum.FontResource;
 
     return rv;
 };
