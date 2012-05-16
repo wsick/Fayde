@@ -177,7 +177,7 @@ ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
 
 ButtonBase.Instance.OnClick = function () {
     //TODO: Execute Command
-    this.Click.Raise(this, null);
+    this.Click.Raise(this, new EventArgs());
 };
 
 ButtonBase.Instance._CaptureMouseInternal = function () {
