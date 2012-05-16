@@ -153,11 +153,13 @@ App.Instance._GetGenericXamlStyleFor = function (type) {
 
 App.Instance._SubscribeDebugService = function (id, func) {
     var i = this._GetInternalDebugServiceID(id);
-    this._DebugFunc[i] = func;
+    if (i)
+        this._DebugFunc[i] = func;
 };
 App.Instance._UnsubscribeDebugService = function (id) {
     var i = this._GetInternalDebugServiceID(id);
-    delete this._DebugFunc[i];
+    if (i)
+        delete this._DebugFunc[i];
 };
 App.Instance._GetInternalDebugServiceID = function (id) {
     if (id === "Coordinates")
