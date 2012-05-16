@@ -1,0 +1,9 @@
+﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+      Title="Fayde Radio Button Test">
+    <StackPanel>
+        <RadioButton>Radio 1</RadioButton>
+        <RadioButton>Radio 2</RadioButton>
+        <RadioButton>Radio 3</RadioButton>
+    </StackPanel>
+</Page>

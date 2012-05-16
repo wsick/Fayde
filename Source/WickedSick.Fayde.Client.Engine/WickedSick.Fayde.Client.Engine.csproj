@@ -322,9 +322,11 @@
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
     <Content Include="Silverlight.js" />
+    <Content Include="Styles\AllControls.xml" />
     <Content Include="Styles\CheckBox.xml" />
     <Content Include="Styles\ContentPresenter.xml" />
     <Content Include="Styles\HyperlinkButton.xml" />
+    <Content Include="Styles\RadioButton.xml" />
     <Content Include="Styles\RepeatButton.xml" />
     <Content Include="Styles\ScrollBar.xml">
       <SubType>Designer</SubType>
@@ -342,18 +344,15 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="jsTestDriver.conf" />
-    <None Include="Tests\allstyles.fayde">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Tests\binding.fayde">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Tests\heightTest.htm" />
-    <None Include="Tests\checkbox.fayde">
+    <Content Include="Silo\heightTest.htm" />
+    <None Include="Tests\Controls\checkbox.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\radiobutton.fayde" />
-    <None Include="Tests\scrollbar.fayde">
+    <None Include="Tests\Controls\radiobutton.fayde" />
+    <None Include="Tests\Controls\scrollbar.fayde">
       <SubType>Designer</SubType>
     </None>
     <Content Include="Tips.txt" />
@@ -388,18 +387,18 @@
     <None Include="Tests\basic.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\brush.fayde" />
-    <None Include="Tests\imagebrush.fayde" />
-    <None Include="Tests\imaging.fayde">
+    <None Include="Tests\Media\brush.fayde" />
+    <None Include="Tests\Media\imagebrush.fayde" />
+    <None Include="Tests\Media\imaging.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\path.fayde">
+    <None Include="Tests\Shapes\path.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\scrollviewer.fayde">
+    <None Include="Tests\Controls\scrollviewer.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\shapes.fayde">
+    <None Include="Tests\Shapes\shapes.fayde">
       <SubType>Designer</SubType>
     </None>
     <None Include="Tests\smoke.fayde">
