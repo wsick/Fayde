@@ -1,5 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
+/// <reference path="../Engine/RenderContext.js"/>
 
 //#region _TextLayoutGlyphCluster
 var _TextLayoutGlyphCluster = Nullstone.Create("_TextLayoutGlyphCluster", null, 3);
@@ -11,6 +12,7 @@ _TextLayoutGlyphCluster.Instance.Init = function (text, font, selected) {
 };
 
 _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
+    /// <param name="ctx" type="_RenderContext"></param>
     if (this._Text.length == 0 || this._Advance == 0.0)
         return;
     var font = attrs.GetFont();
@@ -25,23 +27,18 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
-    ctx.CustomRender(_TextLayoutGlyphCluster._Painter, this._Text, brush, attrs.GetFont());
-    if (attrs.IsUnderlined()) {
-        //TODO: Underline
-    }
-};
-_TextLayoutGlyphCluster._Painter = function (args) {
-    var canvasCtx = args[0];
-    var text = args[1];
-    var foreground = args[2];
-    var font = args[3];
-    
-    foreground.SetupBrush(canvasCtx);
-    canvasCtx.fillStyle = foreground.ToHtml5Object();
+
+    var canvasCtx = ctx.GetCanvasContext();
+    brush.SetupBrush(canvasCtx);
+    canvasCtx.fillStyle = brush.ToHtml5Object();
     canvasCtx.font = font.ToHtml5Object();
     canvasCtx.textAlign = "left";
     canvasCtx.textBaseline = "top";
-    canvasCtx.fillText(text, 0, 0);
+    canvasCtx.fillText(this._Text, 0, 0);
+
+    if (attrs.IsUnderlined()) {
+        //TODO: Underline
+    }
 };
 
 Nullstone.FinishCreate(_TextLayoutGlyphCluster);

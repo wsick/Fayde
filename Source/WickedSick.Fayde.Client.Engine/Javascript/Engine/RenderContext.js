@@ -97,12 +97,6 @@ _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
 _RenderContext.Instance.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
 };
-_RenderContext.Instance.CustomRender = function (painterFunc) {
-    var args = _RenderContext.ToArray(arguments);
-    args.shift(); //remove painterFunc
-    args.unshift(this._Surface._Ctx); //prepend canvas context
-    painterFunc(args);
-};
 _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;
 };

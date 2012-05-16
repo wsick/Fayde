@@ -7,6 +7,7 @@
 /// <reference path="../Media/Enums.js"/>
 /// <reference path="../Primitives/Uri.js"/>
 /// <reference path="../Media/Imaging/BitmapImage.js"/>
+/// <reference path="../Engine/RenderContext.js"/>
 
 //#region Image
 Fayde.Image = Nullstone.Create("Image", FrameworkElement);
@@ -191,6 +192,7 @@ Fayde.Image.Instance._ComputeActualSize = function () {
 };
 
 Fayde.Image.Instance._Render = function (ctx, region) {
+    /// <param name="ctx" type="_RenderContext"></param>
     // Just to get something working, we do all the matrix transforms for stretching.
     // Eventually, we can let the html5 canvas do all the dirty work.
 
@@ -209,7 +211,8 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     if (metrics.Overlap !== RectOverlap.In || this._HasLayoutClip())
         this._RenderLayoutClip(ctx);
     ctx.PreTransform(metrics.Matrix);
-    ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
+    var canvasCtx = ctx.GetCanvasContext();
+    canvasCtx.drawImage(source._Image, 0, 0);
     ctx.Restore();
 
     source.Unlock();
@@ -356,11 +359,6 @@ Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, al
     }
     return new Matrix([scale, 0, dx, 0, scale, dy],
         [1 / scale, 0, -dx, 0, 1 / scale, -dy]);
-};
-Fayde.Image._ImagePainter = function (args) {
-    var ctx = args[0];
-    var img = args[1];
-    ctx.drawImage(img, 0, 0);
 };
 
 Nullstone.FinishCreate(Fayde.Image);

@@ -5,6 +5,7 @@
 /// <reference path="../Text/TextLayout.js"/>
 /// <reference path="TextBoxBase.js"/>
 /// <reference path="../Primitives/Enums.js"/>
+/// <reference path="../Engine/RenderContext.js"/>
 
 //#region _TextBoxView
 var _TextBoxView = Nullstone.Create("_TextBoxView", FrameworkElement);
@@ -221,6 +222,7 @@ _TextBoxView.Instance._Render = function (ctx, region) {
     ctx.Restore();
 };
 _TextBoxView.Instance._RenderImpl = function (ctx, region) {
+    /// <param name="ctx" type="_RenderContext"></param>
     ctx.Save();
     if (this.GetFlowDirection() === FlowDirection.RightToLeft) {
         //TODO: Invert
@@ -230,7 +232,15 @@ _TextBoxView.Instance._RenderImpl = function (ctx, region) {
         var caretBrush = this._TextBox.GetCaretBrush();
         if (!caretBrush)
             caretBrush = new SolidColorBrush(new Color(0, 0, 0));
-        ctx.CustomRender(_TextBoxView._CursorPainter, this._Cursor, caretBrush);
+
+        var canvasCtx = ctx.GetCanvasContext();
+        var rect = this._Cursor;
+        canvasCtx.moveTo(rect.X + 0.5, rect.Y);
+        canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
+        canvasCtx.lineWidth = 1.0;
+        caretBrush.SetupBrush(canvasCtx, rect);
+        canvasCtx.strokeStyle = caretBrush.ToHtml5Object();
+        canvasCtx.stroke();
     }
     ctx.Restore();
 };
@@ -293,19 +303,6 @@ _TextBoxView.CURSOR_BLINK_OFF_MULTIPLIER = 2;
 _TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER = 3;
 _TextBoxView.CURSOR_BLINK_ON_MULTIPLIER = 4;
 _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
-
-_TextBoxView._CursorPainter = function (args) {
-    var canvasCtx = args[0];
-    var rect = args[1];
-    var brush = args[2];
-
-    canvasCtx.moveTo(rect.X + 0.5, rect.Y);
-    canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
-    canvasCtx.lineWidth = 1.0;
-    brush.SetupBrush(canvasCtx, rect);
-    canvasCtx.strokeStyle = brush.ToHtml5Object();
-    canvasCtx.stroke();
-};
 
 Nullstone.FinishCreate(_TextBoxView);
 //#endregion
