@@ -70,7 +70,7 @@ Surface.Instance._Attach = function (element) {
         return;
     }
 
-    if (NameScope.GetNameScope(element) == null) {
+    if (!NameScope.GetNameScope(element)) {
         NameScope.SetNameScope(element, new NameScope());
     }
 
@@ -132,7 +132,6 @@ Surface.Instance._Invalidate = function (rect) {
         var extents = this.GetExtents();
         rect = new Rect(0, 0, extents.Width, extents.Height);
     }
-
     if (!this._InvalidatedRect)
         this._InvalidatedRect = rect;
     else
@@ -141,7 +140,6 @@ Surface.Instance._Invalidate = function (rect) {
     if (this._IsRenderQueued)
         return;
     this._IsRenderQueued = true;
-
     if (!Surface._Invalidations)
         Surface._Invalidations = [];
     Surface._Invalidations.push(this);
@@ -536,8 +534,8 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
 
 Surface.Instance._GetMousePosition = function (evt) {
     return new Point(
-        evt.clientX + window.pageXOffset - this._CanvasOffset.left,
-        evt.clientY + window.pageYOffset - this._CanvasOffset.top);
+        evt.clientX + this._CanvasOffset.left,
+        evt.clientY + this._CanvasOffset.top);
 };
 Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
     var ui1 = list1.Last();
