@@ -406,10 +406,10 @@ ScrollViewer.Instance.MakeVisible = function (uie, targetRect) {
 ScrollViewer.Instance._InvalidateScrollInfo = function () {
     var scrollInfo = this.GetScrollInfo();
     if (scrollInfo) {
-        this._SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.GetExtentWidth());
-        this._SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.GetExtentHeight());
-        this._SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.GetViewportWidth());
-        this._SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.GetViewportHeight());
+        this.$SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.GetExtentWidth());
+        this.$SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.GetExtentHeight());
+        this.$SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.GetViewportWidth());
+        this.$SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.GetViewportHeight());
         this._UpdateScrollBar(Orientation.Horizontal, scrollInfo.GetHorizontalOffset());
         this._UpdateScrollBar(Orientation.Vertical, scrollInfo.GetVerticalOffset());
         this._UpdateScrollBarVisibility();
@@ -418,13 +418,13 @@ ScrollViewer.Instance._InvalidateScrollInfo = function () {
 
     var w = Math.max(0, this.GetExtentWidth() - this.GetViewportWidth());
     if (w !== this.GetScrollableWidth()) {
-        this._SetValueInternal(ScrollViewer.ScrollableWidthProperty, w);
+        this.$SetValueInternal(ScrollViewer.ScrollableWidthProperty, w);
         this._InvalidateMeasure();
     }
 
     var h = Math.max(0, this.GetExtentHeight() - this.GetViewportHeight());
     if (h !== this.GetScrollableHeight()) {
-        this._SetValueInternal(ScrollViewer.ScrollableHeightProperty, h);
+        this.$SetValueInternal(ScrollViewer.ScrollableHeightProperty, h);
         this._InvalidateMeasure();
     }
 };
@@ -447,7 +447,7 @@ ScrollViewer.Instance._UpdateScrollBarVisibility = function () {
     }
 
     if (horizontalVisibility !== this.GetComputedHorizontalScrollBarVisibility()) {
-        this._SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
+        this.$SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
         this._RaiseVisibilityChanged(horizontalVisibility, Orientation.Horizontal);
         this._InvalidateMeasure();
     }
@@ -468,7 +468,7 @@ ScrollViewer.Instance._UpdateScrollBarVisibility = function () {
     }
 
     if (verticalVisibility !== this.GetComputedVerticalScrollBarVisibility()) {
-        this._SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
+        this.$SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
         this._RaiseVisibilityChanged(verticalVisibility, Orientation.Vertical);
         this._InvalidateMeasure();
     }
@@ -477,13 +477,13 @@ ScrollViewer.Instance._UpdateScrollBar = function (orientation, value) {
     try {
         var scrollInfo = this.GetScrollInfo();
         if (orientation === Orientation.Horizontal) {
-            this._SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
+            this.$SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
             this._RaiseOffsetChanged(scrollInfo.GetHorizontalOffset(), Orientation.Horizontal);
             if (this.$ElementHorizontalScrollBar) {
                 this.$ElementHorizontalScrollBar.SetValue(value);
             }
         } else {
-            this._SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
+            this.$SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
             this._RaiseOffsetChanged(scrollInfo.GetVerticalOffset(), Orientation.Vertical);
             if (this.$ElementVerticalScrollBar) {
                 this.$ElementVerticalScrollBar.SetValue(value);

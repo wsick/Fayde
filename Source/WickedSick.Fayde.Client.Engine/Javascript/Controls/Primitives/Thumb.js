@@ -32,7 +32,7 @@ Thumb.Instance.GetIsFocused = function () {
 
 Thumb.Instance.CancelDrag = function () {
     if (this.GetIsDragging()) {
-        this._SetValueInternal(Thumb.IsDraggingProperty, false);
+        this.$SetValueInternal(Thumb.IsDraggingProperty, false);
         this._RaiseDragCompleted(true);
     }
 };
@@ -43,7 +43,7 @@ Thumb.Instance.OnApplyTemplate = function () {
 };
 
 Thumb.Instance._FocusChanged = function (hasFocus) {
-    this._SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
+    this.$SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
     this.UpdateVisualState();
 };
 
@@ -75,7 +75,7 @@ Thumb.Instance.OnLostFocus = function (sender, args) {
 Thumb.Instance.OnLostMouseCapture = function (sender, args) {
     this.OnLostMouseCapture$Control(sender, args);
     this._RaiseDragCompleted(false);
-    this._SetValueInternal(Thumb.IsDraggingProperty, false);
+    this.$SetValueInternal(Thumb.IsDraggingProperty, false);
 };
 Thumb.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$Control(sender, args);
@@ -98,7 +98,7 @@ Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
     if (!this.GetIsDragging() && this.GetIsEnabled()) {
         args.Handled = true;
         this.CaptureMouse();
-        this._SetValueInternal(Thumb.IsDraggingProperty, true);
+        this.$SetValueInternal(Thumb.IsDraggingProperty, true);
 
         this._Origin = this._PreviousPosition = args.GetPosition(this._GetLogicalParent());
         var success = false;
