@@ -152,20 +152,29 @@ App.Instance._GetGenericXamlStyleFor = function (type) {
 //#region Debug Service
 
 App.Instance._SubscribeDebugService = function (id, func) {
-    this._DebugFunc[id] = func;
+    var i = this._GetInternalDebugServiceID(id);
+    this._DebugFunc[i] = func;
 };
 App.Instance._UnsubscribeDebugService = function (id) {
-    delete this._DebugFunc[id];
+    var i = this._GetInternalDebugServiceID(id);
+    delete this._DebugFunc[i];
+};
+App.Instance._GetInternalDebugServiceID = function (id) {
+    if (id === "Coordinates")
+        return 1;
+    else if (id === "HitTest")
+        return 2;
+    return null;
 };
 
 App.Instance._NotifyDebugCoordinates = function (position) {
-    var func = this._DebugFunc["Coordinates"];
+    var func = this._DebugFunc[1];
     if (!func)
         return;
     func(position);
 };
 App.Instance._NotifyDebugHitTest = function (inputList) {
-    var func = this._DebugFunc["HitTest"];
+    var func = this._DebugFunc[2];
     if (!func)
         return;
     func(inputList);
