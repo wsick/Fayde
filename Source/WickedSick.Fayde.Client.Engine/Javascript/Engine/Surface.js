@@ -21,6 +21,8 @@ Surface.Instance.Init = function (app) {
     this._FirstUserInitiatedEvent = false;
     this._UserInitiatedEvent = false;
     this._Cursor = CursorType.Default;
+    if (Surface._Invalidations == null)
+        Surface._Invalidations = [];
 };
 
 //#region Initialization
@@ -132,22 +134,23 @@ Surface.Instance._Invalidate = function (rect) {
         var extents = this.GetExtents();
         rect = new Rect(0, 0, extents.Width, extents.Height);
     }
-    if (!this._InvalidatedRect)
-        this._InvalidatedRect = rect;
+    var invalidated = this._InvalidatedRect;
+    if (!invalidated)
+        invalidated = rect;
     else
-        this._InvalidatedRect = this._InvalidatedRect.Union(rect);
+        invalidated = invalidated.Union(rect);
+    this._InvalidatedRect = invalidated;
 
     if (this._IsRenderQueued)
         return;
     this._IsRenderQueued = true;
-    if (!Surface._Invalidations)
-        Surface._Invalidations = [];
     Surface._Invalidations.push(this);
     setTimeout(Surface.StaticRender, 1);
 };
 Surface.StaticRender = function () {
     var cur;
-    while (cur = Surface._Invalidations.pop()) {
+    var invalidations = Surface._Invalidations;
+    while (cur = invalidations.pop()) {
         var rect2 = cur._InvalidatedRect;
         cur._InvalidatedRect = null;
         cur._IsRenderQueued = false;
@@ -492,7 +495,7 @@ Surface.Instance._HandleOut = function (evt) {
     this._HandleMouseEvent("out", null, pos);
 };
 Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
-    HUDUpdate("mouse", pos.toString());
+    this._App._NotifyDebugCoordinates(pos);
     this._CurrentPos = pos;
     if (this._EmittingMouseEvent)
         return false;
@@ -506,9 +509,10 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
         this.ProcessDirtyElements();
         var ctx = new _RenderContext(this);
         var newInputList = new LinkedList();
-        var layerCount = this._Layers.GetCount();
+        var layers = this._Layers;
+        var layerCount = layers.GetCount();
         for (var i = layerCount - 1; i >= 0 && newInputList.IsEmpty(); i--) {
-            var layer = this._Layers.GetValueAt(i);
+            var layer = layers.GetValueAt(i);
             layer._HitTestPoint(ctx, pos, newInputList);
         }
 
@@ -521,7 +525,7 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
         if (type !== "noop")
             this._EmitMouseList(type, button, pos, newInputList);
 
-        HUDUpdate("els", "Elements Found: " + newInputList._Count.toString());
+        this._App._NotifyDebugHitTest(newInputList);
         this._InputList = newInputList;
     }
 

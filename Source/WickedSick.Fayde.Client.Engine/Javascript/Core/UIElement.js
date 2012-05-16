@@ -274,7 +274,7 @@ UIElement.Instance._FullInvalidate = function (renderTransform) {
 UIElement.Instance._Invalidate = function (rect) {
     if (!rect)
         rect = this._SurfaceBounds;
-    if (!this._GetRenderVisible() || UIElement._IsOpacityInvisible(this._TotalOpacity))
+    if (!this._GetRenderVisible() || this._IsOpacityInvisible())
         return;
 
     if (this._IsAttached) {
@@ -610,7 +610,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     //region = region.Transform(this._RenderTransform);
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
-    if (UIElement._IsOpacityInvisible(this._TotalOpacity)) {
+    if (this._IsOpacityInvisible()) {
         // Info("No opacity. [" + this.constructor._TypeName + ":" + this.GetName() + "]");
         return;
     }
@@ -968,18 +968,19 @@ UIElement.Instance.OnLostFocus = function (sender, args) { };
 
 //#endregion
 
-UIElement._IsOpacityInvisible = function (opacity) {
-    return opacity * 255 < .5;
+UIElement.Instance._IsOpacityInvisible = function () {
+    return this._TotalOpacity * 255 < .5;
 };
-UIElement._IsOpacityTranslucent = function (opacity) {
-    return opacity * 255 < 245.5;
+UIElement.Instance._IsOpacityTranslucent = function () {
+    return this._TotalOpacity * 255 < 245.5;
 };
 UIElement.ZIndexComparer = function (uie1, uie2) {
-    var zi1 = Canvas.GetZIndex(uie1);
-    var zi2 = Canvas.GetZIndex(uie2);
+    var c = Canvas;
+    var zi1 = c.GetZIndex(uie1);
+    var zi2 = c.GetZIndex(uie2);
     if (zi1 == zi2) {
-        var z1 = Canvas.GetZ(uie1);
-        var z2 = Canvas.GetZ(uie2);
+        var z1 = c.GetZ(uie1);
+        var z2 = c.GetZ(uie2);
         if (isNaN(z1) || isNaN(z2))
             return 0;
         return z1 > z2 ? 1 : (z1 < z2 ? -1 : 0);

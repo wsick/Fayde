@@ -15,8 +15,12 @@ App.Instance.Init = function () {
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
     this._Storyboards = [];
+    this._DebugFunc = {};
 
     this.Loaded = new MulticastEvent();
+
+    this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
+    this._SubscribeDebugService("HitTest", function (inputList) { HUDUpdate("els", "Elements Found: " + inputList._Count.toString()); });
 };
 
 //#region Dependency Properties
@@ -144,6 +148,30 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
 App.Instance._GetGenericXamlStyleFor = function (type) {
     NotImplemented("App._GetGenericXamlStyleFor");
 };
+
+//#region Debug Service
+
+App.Instance._SubscribeDebugService = function (id, func) {
+    this._DebugFunc[id] = func;
+};
+App.Instance._UnsubscribeDebugService = function (id) {
+    delete this._DebugFunc[id];
+};
+
+App.Instance._NotifyDebugCoordinates = function (position) {
+    var func = this._DebugFunc["Coordinates"];
+    if (!func)
+        return;
+    func(position);
+};
+App.Instance._NotifyDebugHitTest = function (inputList) {
+    var func = this._DebugFunc["HitTest"];
+    if (!func)
+        return;
+    func(inputList);
+};
+
+//#endregion
 
 Nullstone.FinishCreate(App);
 //#endregion

@@ -186,5 +186,11 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
     return setter;
 };
 
+JsonParser.CreateRoot = function (json) {
+    var namescope = new NameScope();
+    var parser = new JsonParser();
+    return parser.CreateObject(json, namescope);
+}
+
 Nullstone.FinishCreate(JsonParser);
 //#endregion

@@ -53,27 +53,17 @@ namespace WickedSick.Server.XamlParser.Elements
 
             sb.AppendLine("\t\t<script type=\"text/javascript\">");
             sb.AppendLine("\t\t\t$(document).ready(function () {");
-            sb.AppendLine("\t\t\t\twindow.IsDocumentReady = function () { return true; }");
             sb.AppendLine("\t\t\t\tApp.Instance = new App();");
             if (pageDebug)
             {
-                sb.AppendLine("\t\t\t\t_Console.Init(\"#console\");");
                 sb.AppendLine("\t\t\t\tRegisterHUD(\"mouse\", \"#hud-mouse\");");
                 sb.AppendLine("\t\t\t\tRegisterHUD(\"els\", \"#hud-els\");");
             }
-            sb.AppendLine("\t\t\t\troot = buildTestView();");
-            sb.AppendLine("\t\t\t\tApp.Instance.Load(root, $(\"#canvas\"));");
-            sb.AppendLine("\t\t\t});");
-
-            sb.AppendLine("\t\t\tfunction buildTestView() {");
-            sb.AppendLine("\t\t\t\tvar namescope = new NameScope();");
-            sb.AppendLine("\t\t\t\tvar parser = new JsonParser();");
             sb.Append("var json = ");
             sb.Append(((IJsonSerializable)p.GetValue("Content")).toJson(0));
             sb.AppendLine(";");
-            sb.AppendLine("\t\t\t\tvar top = parser.CreateObject(json, namescope);");
-            sb.AppendLine("\t\t\t\treturn top;");
-            sb.AppendLine("\t\t\t}");
+            sb.AppendLine("\t\t\t\tApp.Instance.Load(JsonParser.CreateRoot(json), $(\"#canvas\"));");
+            sb.AppendLine("\t\t\t});");
             sb.AppendLine("\t\t</script>");
 
             sb.AppendLine("\t\t</head>");
@@ -83,7 +73,6 @@ namespace WickedSick.Server.XamlParser.Elements
             {
                 sb.AppendLine("\t\t<div id=\"hud-mouse\" style=\"height: 25px;\"></div>");
                 sb.AppendLine("\t\t<div id=\"hud-els\" style=\"height: 25px;\"></div>");
-                sb.AppendLine("\t\t<div id=\"console\" style=\"margin-top: 10px; font-size: 12px; font-family: Consolas; overflow-y: scroll; height: 200px; border: solid 1px black;\"></div>");
             }
             sb.AppendLine("\t</body>");
             sb.AppendLine("</html>");
