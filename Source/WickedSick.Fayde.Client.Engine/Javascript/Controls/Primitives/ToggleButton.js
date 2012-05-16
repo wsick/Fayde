@@ -77,6 +77,11 @@ ToggleButton.Instance._ChangeVisualState = function (useTransitions) {
 };
 
 ToggleButton.Instance.OnClick = function () {
+    this.OnToggle();
+    this.OnClick$ButtonBase();
+};
+
+ToggleButton.Instance.OnToggle = function () {
     var isChecked = this.GetIsChecked();
     if (isChecked == true) {
         if (this.GetIsThreeState()) {
@@ -91,8 +96,6 @@ ToggleButton.Instance.OnClick = function () {
     else {
         this.SetIsChecked(false);
     }
-
-    this.OnClick$ButtonBase();
 };
 
 Nullstone.FinishCreate(ToggleButton);

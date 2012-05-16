@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Untitled Page</title>
+    <script type="text/javascript">
+        function showTree() {
+			showTreeRecursively(App.Instance.MainSurface._TopLevel);
+        }
+		function showTreeRecursively(visual) {
+			var count = VisualTreeHelper.GetChildrenCount(visual);
+			for (var i = 0; i < count; i++) {
+				var child = VisualTreeHelper.GetChild(visual, i);
+				handleVisual(child);
+				showTreeRecursively(child);
+			}
+		}
+		function handleVisual(visual) {
+            var registered = DependencyProperty._Registered[cur.constructor._TypeName];
+		    if (!registered)
+				continue;
+			for (var i = 0; i < registered.length; i++) {
+				var propd = registered[i];
+				var name = propd.Name;
+				var value = cur.$GetValue(propd);
+				//do stuff
+			}
+		}
+    </script>
+</head>
+<body>
+
+</body>
+</html>

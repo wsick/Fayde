@@ -187,6 +187,15 @@ UIElement.Instance.GetVisualParent = function () {
     /// <returns type="UIElement" />
     return this._VisualParent;
 };
+UIElement.Instance.GetVisualRoot = function () {
+    var visualParent = this.GetVisualParent();
+    if (visualParent) {
+        return visualParent.GetVisualRoot();
+    }
+    else {
+        return visualParent;
+    }
+};
 UIElement.Instance.IsLayoutContainer = function () { return false; };
 UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
 UIElement.Instance.IsAncestorOf = function (el) {
@@ -622,17 +631,16 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
     this._Render(ctx, region);
-    this._PostRender(ctx, region);
-    ctx.Restore();
-};
-UIElement.Instance._Render = function (ctx, region) { };
-UIElement.Instance._PostRender = function (ctx, region) {
+
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
     var child;
     while (child = walker.Step()) {
         child._DoRender(ctx, region);
     }
+
+    ctx.Restore();
 };
+UIElement.Instance._Render = function (ctx, region) { };
 
 //#endregion
 

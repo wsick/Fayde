@@ -1,0 +1,180 @@
+﻿<Style TargetType="RadioButton"
+       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:sys="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+       xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
+  <Setter Property="Background" Value="#FF448DCA" />
+  <Setter Property="Foreground" Value="#FF000000" />
+  <Setter Property="HorizontalContentAlignment" Value="Left" />
+  <Setter Property="VerticalContentAlignment" Value="Top" />
+  <Setter Property="Padding" Value="4,1,0,0" />
+  <Setter Property="BorderThickness" Value="1" />
+  <Setter Property="BorderBrush">
+    <Setter.Value>
+      <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+        <GradientStop Color="#FFA3AEB9" Offset="0" />
+        <GradientStop Color="#FF8399A9" Offset="0.375" />
+        <GradientStop Color="#FF718597" Offset="0.375" />
+        <GradientStop Color="#FF617584" Offset="1" />
+      </LinearGradientBrush>
+    </Setter.Value>
+  </Setter>
+  <Setter Property="Template">
+    <Setter.Value>
+      <ControlTemplate TargetType="RadioButton">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <vsm:VisualStateManager.VisualStateGroups>
+            <vsm:VisualStateGroup x:Name="CommonStates">
+              <vsm:VisualState x:Name="Normal" />
+              <vsm:VisualState x:Name="MouseOver">
+                <Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="BackgroundOverlay" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
+                  <DoubleAnimation Storyboard.TargetName="BoxMiddleBackground" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)" Duration="0" To="#7FFFFFFF" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)" Duration="0" To="#CCFFFFFF" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Duration="0" To="#F2FFFFFF" />
+                </Storyboard>
+              </vsm:VisualState>
+              <vsm:VisualState x:Name="Pressed">
+                <Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="BackgroundOverlay" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
+                  <DoubleAnimation Storyboard.TargetName="BoxMiddleBackground" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)" Duration="0" To="#6BFFFFFF" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)" Duration="0" To="#C6FFFFFF" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Duration="0" To="#EAFFFFFF" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)" Duration="0" To="#F4FFFFFF" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Stroke).(GradientBrush.GradientStops)[3].(GradientStop.Color)" Duration="0" To="#FF6DBDD1" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Stroke).(GradientBrush.GradientStops)[0].(GradientStop.Color)" Duration="0" To="#FF6DBDD1" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Stroke).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Duration="0" To="#FF6DBDD1" />
+                  <ColorAnimation Storyboard.TargetName="BoxMiddle" Storyboard.TargetProperty="(Shape.Stroke).(GradientBrush.GradientStops)[2].(GradientStop.Color)" Duration="0" To="#FF6DBDD1" />
+                </Storyboard>
+              </vsm:VisualState>
+              <vsm:VisualState x:Name="Disabled">
+                <Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="contentPresenter" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="0" To=".55" />
+                  <DoubleAnimation Storyboard.TargetName="DisabledVisualElement" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="0" To="0.55" />
+                </Storyboard>
+              </vsm:VisualState>
+            </vsm:VisualStateGroup>
+            <vsm:VisualStateGroup x:Name="CheckStates">
+              <vsm:VisualState x:Name="Checked">
+                <Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="CheckIcon" Storyboard.TargetProperty="(UIElement.Opacity)" Duration="0" To="1" />
+                </Storyboard>
+              </vsm:VisualState>
+              <vsm:VisualState x:Name="Unchecked" />
+            </vsm:VisualStateGroup>
+            <vsm:VisualStateGroup x:Name="FocusStates">
+              <vsm:VisualState x:Name="Focused">
+                <Storyboard>
+                  <DoubleAnimation Storyboard.TargetName="ContentFocusVisualElement" Storyboard.TargetProperty="Opacity" Duration="0" To="1" />
+                </Storyboard>
+              </vsm:VisualState>
+              <vsm:VisualState x:Name="Unfocused" />
+            </vsm:VisualStateGroup>
+            <vsm:VisualStateGroup x:Name="ValidationStates">
+              <vsm:VisualState x:Name="Valid" />
+              <vsm:VisualState x:Name="InvalidUnfocused">
+                <Storyboard>
+                  <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ValidationErrorElement" Storyboard.TargetProperty="Visibility">
+                    <DiscreteObjectKeyFrame KeyTime="0">
+                      <DiscreteObjectKeyFrame.Value>
+                        <Visibility>
+                          Visible
+                        </Visibility>
+                      </DiscreteObjectKeyFrame.Value>
+                    </DiscreteObjectKeyFrame>
+                  </ObjectAnimationUsingKeyFrames>
+                </Storyboard>
+              </vsm:VisualState>
+              <vsm:VisualState x:Name="InvalidFocused">
+                <Storyboard>
+                  <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ValidationErrorElement" Storyboard.TargetProperty="Visibility">
+                    <DiscreteObjectKeyFrame KeyTime="0">
+                      <DiscreteObjectKeyFrame.Value>
+                        <Visibility>
+                          Visible
+                        </Visibility>
+                      </DiscreteObjectKeyFrame.Value>
+                    </DiscreteObjectKeyFrame>
+                  </ObjectAnimationUsingKeyFrames>
+                  <ObjectAnimationUsingKeyFrames Storyboard.TargetName="validationTooltip" Storyboard.TargetProperty="IsOpen">
+                    <DiscreteObjectKeyFrame KeyTime="0">
+                      <DiscreteObjectKeyFrame.Value>
+                        <sys:Boolean>
+                          True
+                        </sys:Boolean>
+                      </DiscreteObjectKeyFrame.Value>
+                    </DiscreteObjectKeyFrame>
+                  </ObjectAnimationUsingKeyFrames>
+                </Storyboard>
+              </vsm:VisualState>
+            </vsm:VisualStateGroup>
+          </vsm:VisualStateManager.VisualStateGroups>
+          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Ellipse x:Name="Background" Width="14" Height="14" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="{TemplateBinding BorderThickness}" Fill="#FFFFFFFF" Margin="1" />
+            <Ellipse x:Name="BackgroundOverlay" Fill="#FFC4DBEE" Opacity="0" Width="14" Height="14" StrokeThickness="1" Margin="1" Stroke="#00000000" />
+            <Ellipse x:Name="BoxMiddleBackground" Width="10" Height="10" Fill="{TemplateBinding Background}" Stroke="#00000000" StrokeThickness="1" />
+            <Ellipse x:Name="BoxMiddle" Width="10" Height="10" StrokeThickness="1">
+              <Ellipse.Stroke>
+                <LinearGradientBrush EndPoint=".5,1" StartPoint=".5,0">
+                  <GradientStop Color="#FFFFFFFF" Offset="1" />
+                  <GradientStop Color="#FFFFFFFF" Offset="0" />
+                  <GradientStop Color="#FFFFFFFF" Offset="0.375" />
+                  <GradientStop Color="#FFFFFFFF" Offset="0.375" />
+                </LinearGradientBrush>
+              </Ellipse.Stroke>
+              <Ellipse.Fill>
+                <LinearGradientBrush StartPoint="0.62,0.15" EndPoint="0.64,0.88">
+                  <GradientStop Color="#FFFFFFFF" Offset="0.013" />
+                  <GradientStop Color="#F9FFFFFF" Offset="0.375" />
+                  <GradientStop Color="#EAFFFFFF" Offset="0.603" />
+                  <GradientStop Color="#D8FFFFFF" Offset="1" />
+                </LinearGradientBrush>
+              </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse x:Name="BoxMiddleLine" Width="10" Height="10" Stroke="#FF333333" StrokeThickness="1" Opacity=".2" />
+            <Ellipse x:Name="CheckIcon" Fill="#FF333333" Width="4" Height="4" Opacity="0" />
+            <Ellipse x:Name="DisabledVisualElement" Width="14" Height="14" Opacity="0" Fill="#FFFFFFFF" />
+            <Ellipse x:Name="ContentFocusVisualElement" Stroke="#FF6DBDD1" StrokeThickness="1" Opacity="0" IsHitTestVisible="false" Width="16" Height="16" />
+            <Grid x:Name="ValidationErrorElement" Visibility="Collapsed">
+              <!-- ToolTipService.PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <ToolTipService.ToolTip>
+                <ToolTip x:Name="validationTooltip" Template="{StaticResource ValidationToolTipTemplate}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Placement="Right" PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <ToolTip.Triggers>
+                    <EventTrigger RoutedEvent="Canvas.Loaded">
+                      <EventTrigger.Actions>
+                        <BeginStoryboard>
+                          <Storyboard>
+                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="validationTooltip" Storyboard.TargetProperty="IsHitTestVisible">
+                              <DiscreteObjectKeyFrame KeyTime="0">
+                                <DiscreteObjectKeyFrame.Value>
+                                  <sys:Boolean>
+                                    true
+                                  </sys:Boolean>
+                                </DiscreteObjectKeyFrame.Value>
+                              </DiscreteObjectKeyFrame>
+                            </ObjectAnimationUsingKeyFrames>
+                          </Storyboard>
+                        </BeginStoryboard>
+                      </EventTrigger.Actions>
+                    </EventTrigger>
+                  </ToolTip.Triggers>
+                </ToolTip>
+              </ToolTipService.ToolTip>
+              -->
+              <Ellipse Stroke="#FFDB000C" StrokeThickness="1" Width="14" Height="14" />
+              <Ellipse HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-2,-1,0" Fill="#FFDB000C" Width="4" Height="4" />
+              <Ellipse HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-5,-4,0" Fill="Transparent" Width="10" Height="10" />
+            </Grid>
+          </Grid>
+          <ContentPresenter Grid.Column="1" x:Name="contentPresenter" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter.Value>
+  </Setter>
+</Style>
