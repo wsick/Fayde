@@ -4,18 +4,27 @@
     <title>Untitled Page</title>
     <script type="text/javascript">
         function showTree() {
-            var cur = App.Instance.MainSurface._TopLevel;
-            do {
-                var registered = DependencyProperty._Registered[cur.constructor._TypeName];
-                if (!registered)
-                    continue;
-                for (var i = 0; i < registered.length; i++) {
-                    var propd = registered[i];
-                    var name = propd.Name;
-                    var value = cur.$GetValue(propd);
-                }
-            } while (cur = VisualTreeHelper.GetParent(cur));
+			showTreeRecursively(App.Instance.MainSurface._TopLevel);
         }
+		function showTreeRecursively(visual) {
+			var count = VisualTreeHelper.GetChildrenCount(visual);
+			for (var i = 0; i < count; i++) {
+				var child = VisualTreeHelper.GetChild(visual, i);
+				handleVisual(child);
+				showTreeRecursively(child);
+			}
+		}
+		function handleVisual(visual) {
+            var registered = DependencyProperty._Registered[cur.constructor._TypeName];
+		    if (!registered)
+				continue;
+			for (var i = 0; i < registered.length; i++) {
+				var propd = registered[i];
+				var name = propd.Name;
+				var value = cur.$GetValue(propd);
+				//do stuff
+			}
+		}
     </script>
 </head>
 <body>
