@@ -27,14 +27,30 @@ Surface.Instance.Init = function (app) {
 
 //#region Initialization
 
-Surface.Instance.Register = function (jCanvas) {
+Surface.Instance.Register = function (jCanvas, width, widthType, height, heightType) {
     Surface._TestCanvas = document.createElement('canvas');
     this._Layers = new Collection();
     this._DownDirty = new _DirtyList();
     this._UpDirty = new _DirtyList();
 
     this._jCanvas = jCanvas;
-    this._Ctx = this._jCanvas[0].getContext('2d');
+    var canvas = jCanvas[0];
+
+    if (!width) {
+        width = 100;
+        widthType = "Percentage";
+    } else if (!widthType) {
+        widthType = "Percentage";
+    }
+    if (!height) {
+        height = 100;
+        heightType = "Percentage";
+    } else if (!heightType) {
+        heightType = "Percentage";
+    }
+    this._InitializeCanvas(canvas, width, widthType, height, heightType);
+
+    this._Ctx = canvas.getContext('2d');
     this._CanvasOffset = this._jCanvas.offset();
     this.RegisterEvents();
 };
@@ -104,6 +120,29 @@ Surface.Instance._DetachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
     //TODO: Implement
 };
+Surface.Instance._InitializeCanvas = function (canvas, width, widthType, height, heightType) {
+    var resizesWithWindow = false;
+
+    if (widthType === "Percentage") {
+        resizesWithWindow = true;
+        this._PercentageWidth = width;
+    } else {
+        canvas.width = width;
+    }
+
+    if (heightType === "Percentage") {
+        resizesWithWindow = true;
+        this._PercentageHeight = height;
+    } else {
+        canvas.height = height;
+    }
+
+    if (resizesWithWindow) {
+        this._ResizeCanvas();
+        var surface = this;
+        document.body.onresize = function (e) { surface._HandleResize(window.event ? window.event : e); };
+    }
+};
 
 //#endregion
 
@@ -115,7 +154,7 @@ Surface.Instance.GetExtents = function () {
         this._Extents = new Size(this.GetWidth(), this.GetHeight());
     return this._Extents;
 };
-Surface.Instance.InvalidateExtents = function () {
+Surface.Instance._InvalidateExtents = function () {
     delete this._Extents;
 };
 Surface.Instance.GetWidth = function () {
@@ -647,6 +686,41 @@ Surface.Instance._EmitKeyDown = function (list, modifiers, keyCode, endIndex) {
     for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
         node.UIElement._EmitKeyDown(args);
     }
+};
+
+//#endregion
+
+//#region Resize
+
+var resizeTimeout;
+Surface.Instance._HandleResize = function (evt) {
+    var surface = this;
+    if (resizeTimeout)
+        clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function () { surface._HandleResizeTimeout(evt); }, 50);
+};
+Surface.Instance._HandleResizeTimeout = function (evt) {
+    this._InvalidateExtents();
+    this._ResizeCanvas();
+
+    var layers = this._Layers;
+    var layersCount = layers.GetCount();
+    var layer;
+    for (var i = 0; i < layersCount; i++) {
+        layer = layers.GetValueAt(i);
+        //layer._FullInvalidate(true);
+        layer._InvalidateMeasure();
+    }
+    resizeTimeout = null;
+};
+Surface.Instance._ResizeCanvas = function () {
+    var width = this._PercentageWidth;
+    var height = this._PercentageHeight;
+    var canvas = this._jCanvas[0];
+    if (width != null)
+        canvas.width = window.innerWidth * width / 100.0;
+    if (height != null)
+        canvas.height = window.innerHeight * height / 100.0;
 };
 
 //#endregion

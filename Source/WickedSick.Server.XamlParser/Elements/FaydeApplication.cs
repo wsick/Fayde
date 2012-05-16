@@ -17,19 +17,29 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FaydeApplication));
 
         public string BuildPage(Page p, IEnumerable<string> includes)
-        {
-            string pageWidth = "800";
-            object oWidth = GetValue("Width");
-            if (oWidth != null)
-                pageWidth = ((PageLength)oWidth).Value.ToString();
-            string pageHeight = "700";
-            object oHeight = GetValue("Height");
-            if (oHeight != null)
-                pageHeight = ((PageLength)oHeight).Value.ToString();
+        {   
             bool pageDebug = false;
             object oDebug = GetValue("Debug");
             if (oDebug != null)
                 pageDebug = (bool)oDebug;
+
+            var width = "null";
+            var widthType = "null";
+            var plWidth = GetValue("Width") as PageLength;
+            if (plWidth != null)
+            {
+                width = plWidth.Value.ToString();
+                widthType = "\"" + plWidth.LengthType.ToString() + "\"";
+            }
+
+            var height = "null";
+            var heightType = "null";
+            var plHeight = GetValue("Height") as PageLength;
+            if (plHeight != null)
+            {
+                height = plHeight.Value.ToString();
+                heightType = "\"" + plHeight.LengthType.ToString() + "\"";
+            }
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("<!DOCTYPE html>");
@@ -56,26 +66,29 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("\t\t\t\tApp.Instance = new App();");
             if (pageDebug)
             {
-                sb.AppendLine("\t\t\t\tRegisterHUD(\"mouse\", \"#hud-mouse\");");
-                sb.AppendLine("\t\t\t\tRegisterHUD(\"els\", \"#hud-els\");");
+                //sb.AppendLine("\t\t\t\tRegisterHUD(\"mouse\", \"#hud-mouse\");");
+                //sb.AppendLine("\t\t\t\tRegisterHUD(\"els\", \"#hud-els\");");
             }
             sb.Append("var json = ");
             sb.Append(((IJsonSerializable)p.GetValue("Content")).toJson(0));
             sb.AppendLine(";");
-            sb.AppendLine("\t\t\t\tApp.Instance.Load(JsonParser.CreateRoot(json), $(\"#canvas\"));");
+            sb.AppendLine(string.Format("\t\t\t\tApp.Instance.Load(JsonParser.CreateRoot(json), $(\"#canvas\"), {0}, {1}, {2}, {3});", width, widthType, height, heightType));
             sb.AppendLine("\t\t\t});");
             sb.AppendLine("\t\t</script>");
 
             sb.AppendLine("\t\t</head>");
-            sb.AppendLine("\t<body onmousedown=\"return false;\" style=\"margin: 0\">");
-            sb.AppendLine("\t\t<canvas id=\"canvas\" tabindex=\"1\" width=\"" + pageWidth + "\" height=\"" + pageHeight + "\"></canvas>");
+            sb.Append("\t<body onmousedown=\"return false;\" style=\"margin: 0;\">");
+            sb.Append("<canvas id=\"canvas\" tabindex=\"1\" style=\"position: absolute;\"></canvas>");
+
+            /*
             if (pageDebug)
             {
-                sb.AppendLine("\t\t<div id=\"hud-mouse\" style=\"height: 25px;\"></div>");
-                sb.AppendLine("\t\t<div id=\"hud-els\" style=\"height: 25px;\"></div>");
+                //sb.AppendLine("\t\t<div id=\"hud-mouse\" style=\"height: 25px;\"></div>");
+                //sb.AppendLine("\t\t<div id=\"hud-els\" style=\"height: 25px;\"></div>");
             }
-            sb.AppendLine("\t</body>");
-            sb.AppendLine("</html>");
+            */
+            sb.Append("</body>");
+            sb.Append("</html>");
             return sb.ToString();
         }
     }

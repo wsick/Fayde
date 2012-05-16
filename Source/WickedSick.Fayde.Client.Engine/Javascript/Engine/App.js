@@ -19,8 +19,8 @@ App.Instance.Init = function () {
 
     this.Loaded = new MulticastEvent();
 
-    this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
-    this._SubscribeDebugService("HitTest", function (inputList) { HUDUpdate("els", "Elements Found: " + inputList._Count.toString()); });
+    //this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
+    //this._SubscribeDebugService("HitTest", function (inputList) { HUDUpdate("els", "Elements Found: " + inputList._Count.toString()); });
 };
 
 //#region Dependency Properties
@@ -48,10 +48,10 @@ App.Instance.SetAddress = function (value) {
 
 //#endregion
 
-App.Instance.Load = function (element, containerId, width, height) {
+App.Instance.Load = function (element, containerId, width, widthType, height, heightType) {
     /// <param name="element" type="UIElement"></param>
     this.SetAddress(new Uri(document.URL));
-    this.MainSurface.Register(containerId, width, height);
+    this.MainSurface.Register(containerId, width, widthType, height, heightType);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);
