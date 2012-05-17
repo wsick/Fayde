@@ -1,0 +1,1 @@
+chrome.devtools.panels.create("Fayde", "FontPicker.png", "index.html");
