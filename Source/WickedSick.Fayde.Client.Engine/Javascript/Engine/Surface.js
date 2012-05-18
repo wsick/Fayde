@@ -140,7 +140,7 @@ Surface.Instance._InitializeCanvas = function (canvas, width, widthType, height,
     if (resizesWithWindow) {
         this._ResizeCanvas();
         var surface = this;
-        document.body.onresize = function (e) { surface._HandleResize(window.event ? window.event : e); };
+        window.onresize = function (e) { surface._HandleResize(window.event ? window.event : e); };
     }
 };
 
