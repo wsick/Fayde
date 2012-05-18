@@ -80,15 +80,24 @@ App.Instance.ProcessStoryboards = function (lastTime, nowTime) {
 App.Instance.ProcessDirty = function () {
     if (this._IsRunning)
         return;
+
+    var startLayoutTime;
+    var isLayoutPassTimed;
+    if (isLayoutPassTimed = (this._DebugFunc[3] != null))
+        startLayoutTime = new Date().getTime();
+
     this._IsRunning = true;
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
     //try {
-        this.MainSurface.ProcessDirtyElements(region);
+    this.MainSurface.ProcessDirtyElements(region);
     //} catch (err) {
-        //Fatal("An error occurred processing dirty elements: " + err.toString());
+    //Fatal("An error occurred processing dirty elements: " + err.toString());
     //}
     this._IsRunning = false;
+
+    if (isLayoutPassTimed)
+        this._NotifyDebugLayoutPass(new Date().getTime() - startLayoutTime);
 };
 
 App.Instance.RegisterStoryboard = function (storyboard) {
@@ -166,6 +175,10 @@ App.Instance._GetInternalDebugServiceID = function (id) {
         return 1;
     else if (id === "HitTest")
         return 2;
+    else if (id === "LayoutTime")
+        return 3;
+    else if (id === "RenderTime")
+        return 4;
     return null;
 };
 
@@ -180,6 +193,18 @@ App.Instance._NotifyDebugHitTest = function (inputList) {
     if (!func)
         return;
     func(inputList);
+};
+App.Instance._NotifyDebugLayoutPass = function (elapsedTime) {
+    var func = this._DebugFunc[3];
+    if (!func)
+        return;
+    func(elapsedTime);
+};
+App.Instance._NotifyDebugRenderPass = function (elapsedTime) {
+    var func = this._DebugFunc[4];
+    if (!func)
+        return;
+    func(elapsedTime);
 };
 
 //#endregion

@@ -1,0 +1,42 @@
+﻿=================COORDINATES DEBUG SERVICE=================
+var app = App.Instance;
+var callback = function(position) {
+	/// <param name="position" type="Point">Position of mouse relative to (0,0) on Fayde Application.</param>
+};
+//Subscribe syntax
+app._SubscribeDebugService("Coordinates", callback);
+//Unsubscribe syntax
+app._UnsubscribeDebugService("Coordinates");
+
+
+==================HIT TEST DEBUG SERVICE===================
+var app = App.Instance;
+var callback = function(inputList) {
+	/// <param name="inputList" type="LinkedList">LinkedList containing all elements found.</param>
+};
+//Subscribe syntax
+app._SubscribeDebugService("HitTest", callback);
+//Unsubscribe syntax
+app._UnsubscribeDebugService("HitTest");
+
+
+=================LAYOUT TIME DEBUG SERVICE=================
+var app = App.Instance;
+var callback = function(elapsedTime) {
+	/// <param name="elapsedTime" type="Number">Number of milliseconds elapsed.</param>
+};
+//Subscribe syntax
+app._SubscribeDebugService("LayoutTime", callback);
+//Unsubscribe syntax
+app._UnsubscribeDebugService("LayoutTime");
+
+
+==================HIT TEST DEBUG SERVICE===================
+var app = App.Instance;
+var callback = function(elapsedTime) {
+	/// <param name="elapsedTime" type="Number">Number of milliseconds elapsed.</param>
+};
+//Subscribe syntax
+app._SubscribeDebugService("RenderTime", callback);
+//Unsubscribe syntax
+app._UnsubscribeDebugService("RenderTime");

@@ -197,6 +197,11 @@ Surface.StaticRender = function () {
     }
 };
 Surface.Instance.Render = function (region) {
+    var startRenderTime;
+    var isRenderPassTimed;
+    if (isRenderPassTimed = (this._App._DebugFunc[4] != null))
+        startRenderTime = new Date().getTime();
+
     var ctx = new _RenderContext(this);
 
     var layers = this._Layers;
@@ -206,6 +211,9 @@ Surface.Instance.Render = function (region) {
     for (var i = 0; i < layerCount; i++) {
         layers.GetValueAt(i)._DoRender(ctx, region);
     }
+
+    if (isRenderPassTimed)
+        this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
 };
 
 //#endregion

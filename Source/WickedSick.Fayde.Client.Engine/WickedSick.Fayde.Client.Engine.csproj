@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
+    <Content Include="Docs\DebugServices.txt" />
     <Content Include="Fayde.js" />
     <Content Include="Images\testing.jpg" />
     <Content Include="Images\tile-test.png" />
@@ -355,7 +356,7 @@
     <None Include="Tests\Controls\scrollbar.fayde">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="Tips.txt" />
+    <Content Include="Docs\Tips.txt" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
