@@ -1,0 +1,13 @@
+{
+  "name": "Fayde Debugger",
+  "version": "1.0",
+  "description": "Extends the Developer Tools, adding a panel for debugging fayde content.",
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "devtools_page": "devtools.html",
+  "permissions":  [
+    "debugger"
+  ],
+  "manifest_version": 1
+}
