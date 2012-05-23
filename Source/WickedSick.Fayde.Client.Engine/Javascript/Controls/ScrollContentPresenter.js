@@ -305,10 +305,10 @@ ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSiz
 //#region Line
 
 ScrollContentPresenter.Instance.LineUp = function () {
-    this.ChangeVerticalOffset(this.GetVerticalOffset() + 16);
+    this.ChangeVerticalOffset(this.GetVerticalOffset() - 16);
 };
 ScrollContentPresenter.Instance.LineDown = function () {
-    this.ChangeVerticalOffset(this.GetVerticalOffset() - 16);
+    this.ChangeVerticalOffset(this.GetVerticalOffset() + 16);
 };
 ScrollContentPresenter.Instance.LineLeft = function () {
     this.ChangeHorizontalOffset(this.GetHorizontalOffset() - 16);
