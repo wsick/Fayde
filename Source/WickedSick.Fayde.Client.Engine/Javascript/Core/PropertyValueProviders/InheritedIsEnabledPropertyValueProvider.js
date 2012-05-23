@@ -35,10 +35,10 @@ _InheritedIsEnabledPropertyValueProvider.Instance.SetDataSource = function (sour
         this._AttachListener(this._Source);
     }
 
-    if (!source || this._Object.IsAttached())
+    if (!source || this._Object._IsAttached)
         this.LocalValueChanged();
 };
-_InheritedIsEnabledPropertyValueProvider.Instance._AttachListener = function (obj) {
+_InheritedIsEnabledPropertyValueProvider.Instance._AttachListener = function (source) {
     if (source) {
         var matchFunc = function (sender, args) {
             return this === args.Property; //Closure - Control.IsEnabledProperty

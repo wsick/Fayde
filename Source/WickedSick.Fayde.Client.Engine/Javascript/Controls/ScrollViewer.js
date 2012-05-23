@@ -27,7 +27,7 @@ ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {
     d._UpdateScrollBarVisibility();
 };
 
-ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Hidden, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
+ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
 ScrollViewer.Instance.GetHorizontalScrollBarVisibility = function () {
     ///<returns type="ScrollBarVisibility"></returns>
     return this.$GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
@@ -37,7 +37,7 @@ ScrollViewer.Instance.SetHorizontalScrollBarVisibility = function (value) {
     this.$SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
 };
 
-ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Visible, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
+ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
 ScrollViewer.Instance.GetVerticalScrollBarVisibility = function () {
     ///<returns type="ScrollBarVisibility"></returns>
     return this.$GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty);
@@ -542,13 +542,6 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
     Props: {
         Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "VerticalScrollBarVisibility"),
         Value: "Visible"
-    }
-},
-{
-    Type: Setter,
-    Props: {
-        Property: DependencyProperty.GetDependencyProperty(ScrollViewer, "HorizontalScrollBarVisibility"),
-        Value: "Auto"
     }
 },
 {

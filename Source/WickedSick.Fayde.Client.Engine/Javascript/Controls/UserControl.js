@@ -5,7 +5,7 @@
 //#region UserControl
 var UserControl = Nullstone.Create("UserControl", Control);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
 UserControl.Instance.GetContent = function () {
@@ -17,7 +17,7 @@ UserControl.Instance.SetContent = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 UserControl.Instance.IsLayoutContainer = function () { return true; };
 
@@ -59,7 +59,7 @@ UserControl.Instance._OnPropertyChanged = function (args, error) {
         return;
     }
 
-    if (args.Property == UserControl.ContentProperty) {
+    if (args.Property._ID === UserControl.ContentProperty._ID) {
         if (args.OldValue && args.OldValue instanceof UIElement) {
             if (args.OldValue instanceof FrameworkElement) {
                 args.OldValue._SetLogicalParent(null, error);
@@ -83,7 +83,7 @@ UserControl.Instance._OnPropertyChanged = function (args, error) {
 
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 UserControl.Annotations = {
     ContentProperty: UserControl.ContentProperty
