@@ -5,7 +5,7 @@
        xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
     <Grid>
         <ScrollViewer Width="300" Height="300">
-            <Image Width="600" Height="480" Stretch="UniformToFill" Source="../Images/testing.jpg" />
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="../../Images/testing.jpg" />
         </ScrollViewer>
     </Grid>
 </Page>

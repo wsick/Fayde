@@ -39,7 +39,7 @@ namespace WickedSick.Server.Framework.Fayde
                 if (fa != null)
                 {
                     Page p = Parser.ParseXmlNode(doc.DocumentElement, null) as Page;
-                    res.Write(fa.BuildPage(p, CollectIncludes(FindOrderFile(filePath))));
+                    res.Write(fa.BuildPage(p, CollectIncludes(FindOrderFile(filePath)), GetJsPrefix(req)));
                 }
             }
             catch (Exception ex)
@@ -48,6 +48,27 @@ namespace WickedSick.Server.Framework.Fayde
                 res.Write("<p>" + ex.Message + "</p>");
                 res.Write("<p>" + ex.StackTrace.Replace(Environment.NewLine, "<br>") + "</p>");
             }
+        }
+
+        private string GetJsPrefix(HttpRequest request)
+        {
+            var path = request.AppRelativeCurrentExecutionFilePath.TrimStart('~', '/');
+            return string.Join("", Enumerable.Repeat("../", Occurrences(path, "/")));
+        }
+
+        private static int Occurrences(string s, string match)
+        {
+            int count = 0;
+            for (int i = 0; i < s.Length; i++)
+            {
+                var cur = s.Substring(i);
+                if (cur.StartsWith(match))
+                {
+                    count++;
+                    i += match.Length - 1;
+                }
+            }
+            return count;
         }
 
         private string FindOrderFile(string execPath)

@@ -8,7 +8,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public class FaydeApplication: DependencyObject
+    public class FaydeApplication : DependencyObject
     {
         public static readonly PropertyDescription DefaultPageUri = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));
         public static readonly PropertyDescription Width = PropertyDescription.Register("Width", typeof(PageLength), typeof(FaydeApplication));
@@ -16,7 +16,7 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription Debug = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
         public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FaydeApplication));
 
-        public string BuildPage(Page p, IEnumerable<string> includes)
+        public string BuildPage(Page p, IEnumerable<string> includes, string baseDirResolution)
         {   
             bool pageDebug = false;
             object oDebug = GetValue("Debug");
@@ -49,13 +49,11 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.Append(p.GetValue("Title"));
             sb.AppendLine("</title>");
 
-            var prependResolver = "../";
-
-            sb.AppendLine(string.Format("\t\t<script src=\"{0}jquery-1.7.js\" type=\"text/javascript\"></script>", prependResolver));
+            sb.AppendLine(string.Format("\t\t<script src=\"{0}jquery-1.7.js\" type=\"text/javascript\"></script>", baseDirResolution));
 #if DEBUG
             foreach (var include in includes)
             {
-                sb.AppendLine(string.Format("\t\t<script src=\"{0}Javascript/{1}\" type=\"text/javascript\"></script>", prependResolver, include));
+                sb.AppendLine(string.Format("\t\t<script src=\"{0}Javascript/{1}\" type=\"text/javascript\"></script>", baseDirResolution, include));
             }
 #else
             sb.AppendLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", prependResolver));
