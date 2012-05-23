@@ -11,6 +11,7 @@
 /// <reference path="RequestBringIntoViewEventArgs.js"/>
 /// <reference path="../Media/MatrixTransform.js"/>
 /// <reference path="Enums.js"/>
+/// <reference path="../Engine/RenderContext.js"/>
 
 //#region UIElement
 var UIElement = Nullstone.Create("UIElement", DependencyObject);
@@ -602,6 +603,7 @@ UIElement.Instance._ShiftPosition = function (point) {
 //#region Render
 
 UIElement.Instance._DoRender = function (ctx, parentRegion) {
+    /// <param name="ctx" type="_RenderContext"></param>
     var region = this._GetSubtreeExtents();
     if (!region) {
         Warn("Render Extents are empty. [" + this.constructor._TypeName + "]");
@@ -630,6 +632,14 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
         ctx.Transform(transform);
     this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
+
+    var clip = this.GetClip();
+    if (clip) {
+        clip.Draw(ctx);
+        var canvasCtx = ctx.GetCanvasContext();
+        canvasCtx.clip();
+    }
+
     this._Render(ctx, region);
 
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);

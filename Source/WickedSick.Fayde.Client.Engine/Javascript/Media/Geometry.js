@@ -14,7 +14,7 @@ Geometry.Instance.Init = function () {
 
 //#region Dependency Properties
 
-Geometry.TransformProperty = DependencyProperty.Register("Transform", function () { return Transform; }, Geometry);
+Geometry.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Transform; }, Geometry);
 Geometry.Instance.GetTransform = function () {
     ///<returns type="Transform"></returns>
     return this.$GetValue(Geometry.TransformProperty);

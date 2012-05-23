@@ -9,7 +9,7 @@ var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
 
 //#region Dependency Properties
 
-RectangleGeometry.RectProperty = DependencyProperty.Register("Rect", function () { return Rect; }, RectangleGeometry, new Rect());
+RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () { return Rect; }, RectangleGeometry, new Rect());
 RectangleGeometry.Instance.GetRect = function () {
     /// <returns type="Rect" />
     return this.$GetValue(RectangleGeometry.RectProperty);
@@ -19,7 +19,7 @@ RectangleGeometry.Instance.SetRect = function (value) {
     this.$SetValue(RectangleGeometry.RectProperty, value);
 };
 
-RectangleGeometry.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, RectangleGeometry, 0);
+RectangleGeometry.RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", function () { return Number; }, RectangleGeometry, 0);
 RectangleGeometry.Instance.GetRadiusX = function () {
     ///<returns type="Number"></returns>
     return this.$GetValue(RectangleGeometry.RadiusXProperty);
@@ -29,7 +29,7 @@ RectangleGeometry.Instance.SetRadiusX = function (value) {
     this.$SetValue(RectangleGeometry.RadiusXProperty, value);
 };
 
-RectangleGeometry.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, RectangleGeometry, 0);
+RectangleGeometry.RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", function () { return Number; }, RectangleGeometry, 0);
 RectangleGeometry.Instance.GetRadiusY = function () {
     ///<returns type="Number"></returns>
     return this.$GetValue(RectangleGeometry.RadiusYProperty);
