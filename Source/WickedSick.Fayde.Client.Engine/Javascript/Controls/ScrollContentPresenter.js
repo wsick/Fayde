@@ -85,7 +85,7 @@ ScrollContentPresenter.Instance.ChangeHorizontalOffset = function (offset) {
     if (DoubleUtil.AreClose(this.$ScrollData.Offset.X, valid))
         return;
 
-    this.$ScrollData.CachedOffset.X = num;
+    this.$ScrollData.CachedOffset.X = valid;
     this._InvalidateArrange();
 };
 ScrollContentPresenter.Instance.ChangeVerticalOffset = function (offset) {
