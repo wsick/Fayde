@@ -27,6 +27,25 @@ Collection.Instance.GetCount = function () {
 Collection.Instance.GetValueAt = function (index) {
     return this._ht[index];
 };
+Collection.Instance.SetValueAt = function (index, value) {
+    if (!this.CanAdd(value))
+        return false;
+
+    if (index < 0 || index >= this._ht.length)
+        return false;
+
+    var removed = this._ht[index];
+    var added = value;
+
+    var error = new BError();
+    if (this.AddedToCollection(added, error)) {
+        this._ht[index] = added;
+        this.RemovedFromCollection(removed, true);
+        this._RaiseChanged(CollectionChangedArgs.Action.Replace, removed, added, index);
+        return true;
+    }
+    return false;
+};
 Collection.Instance.Add = function (value) {
     var rv = this.Insert(this._ht.length, value);
     return rv ? this._ht.length - 1 : -1;

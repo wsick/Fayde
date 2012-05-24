@@ -60,6 +60,9 @@
     <Content Include="JavascriptTests\DependencyObjectTests.js" />
     <Content Include="JavascriptTests\FaydeAsserts.js" />
     <Content Include="JavascriptTests\MatrixTests.js" />
+    <Content Include="Javascript\Collections\Enums.js" />
+    <Content Include="Javascript\Collections\INotifyCollectionChanged.js" />
+    <Content Include="Javascript\Collections\NotifyCollectionChangedEventArgs.js" />
     <Content Include="Javascript\Controls\CheckBox.js" />
     <Content Include="Javascript\Controls\ColumnDefinition.js" />
     <Content Include="Javascript\Controls\ColumnDefinitionCollection.js" />
@@ -101,6 +104,7 @@
     <Content Include="Javascript\Controls\TextBoxBase.js" />
     <Content Include="Javascript\Core\Collections\IListenCollectionChanged.js" />
     <Content Include="Javascript\Core\Collections\ItemCollection.js" />
+    <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Data\INotifyCollectionChanged.js" />
     <Content Include="Javascript\Runtime\Enum.js" />
