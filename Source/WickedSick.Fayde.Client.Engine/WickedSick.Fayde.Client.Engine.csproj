@@ -106,7 +106,6 @@
     <Content Include="Javascript\Core\Collections\ItemCollection.js" />
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
-    <Content Include="Javascript\Data\INotifyCollectionChanged.js" />
     <Content Include="Javascript\Runtime\Enum.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Core\StaticResourceExpression.js" />
