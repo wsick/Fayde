@@ -7,7 +7,15 @@
 var ItemCollection = {};//TODO: Implement
 
 //#region ItemsControl
-var ItemsControl = Nullstone.Create("ItemsControl", Control);
+var ItemsControl = Nullstone.Create("ItemsControl", Control, 0, [IListenCollectionChanged]);
+
+ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterReadOnly("DisplayMemberPath", function () { return ItemsControl; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
+ItemsControl.Instance.GetDisplayMemberPath = function () {
+    return this.$GetValue(ItemsControl.DisplayMemberPathProperty);
+};
+ItemsControl.Instance.SetDisplayMemberPath = function (value) {
+    this.$SetValue(ItemsControl.DisplayMemberPathProperty, value);
+};
 
 ItemsControl.GetItemsOwner = function (ele) {
     var panel = Nullstone.As(ele, Panel);

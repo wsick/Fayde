@@ -77,7 +77,7 @@ Collection.Instance.Clear = function () {
 };
 Collection.Instance.IndexOf = function (value) {
     for (var i = 0; i < this.GetCount(); i++) {
-        if (value == this._ht[i])
+        if (Nullstone.Equals(value, this._ht[i]))
             return i;
     }
     return -1;
