@@ -28,6 +28,5 @@ Animation.Instance.UpdateInternal = function (clockData) {
 Animation.Instance._GetTargetValue = function (defaultOriginValue) { return null; };
 Animation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) { return null; };
 
-
 Nullstone.FinishCreate(Animation);
 //#endregion

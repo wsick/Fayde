@@ -109,7 +109,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyTime = keyFrame.GetKeyTime();
+        keyTime = keyFrame.KeyTime;
         if (keyTime.HasTimeSpan()) {
             hasTimeSpanKeyFrame = true;
             var ts = keyTime.GetTimeSpan();
@@ -134,7 +134,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyTime = keyFrame.GetKeyTime();
+        keyTime = keyFrame.KeyTime;
         if (keyTime.HasPercent()) {
             keyFrame._ResolvedTime = totalInterpolationTime.Multiply(keyTime.GetPercent())
             keyFrame._Resolved = true;
@@ -145,7 +145,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     if (count > 0) {
         value = coll.GetValueAt(count - 1);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyTime = keyFrame.GetKeyTime();
+        keyTime = keyFrame.KeyTime;
         if (keyTime.IsPaced() || keyTime.IsUniform()) {
             keyFrame._ResolvedKeyTime = totalInterpolationTime;
             keyFrame._Resolved = true;
@@ -162,7 +162,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     if (count > 0) {
         value = coll.GetValueAt(count - 1);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyTime = keyFrame.GetKeyTime();
+        keyTime = keyFrame.KeyTime;
         if (!keyFrame._Resolved && keyTime.IsPaced()) {
             keyFrame._ResolvedKeyTime = new TimeSpan(0);
             keyFrame._Resolved = true;

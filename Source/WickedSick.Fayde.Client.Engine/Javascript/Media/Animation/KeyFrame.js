@@ -10,18 +10,12 @@ KeyFrame.Instance.Init = function () {
     this._Resolved = false;
 };
 
-KeyFrame.Instance.GetKeyTime = function () {
-    /// <returns type="KeyTime" />
-    throw new AbstractMethodException();
-};
-KeyFrame.Instance.SetKeyTime = function (value) {
-    /// <param name="value" type="KeyTime"></param>
-    throw new AbstractMethodException();
-};
+//TODO: Create abstract properties
+//      - Key Time
 
 KeyFrame.Instance.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
     if (value == null)
-        coerced.Value = this.GetKeyTime();
+        coerced.Value = this.KeyTime;
     else
         coerced.Value = value;
     return true;

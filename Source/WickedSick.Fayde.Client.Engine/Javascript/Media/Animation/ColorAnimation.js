@@ -9,46 +9,15 @@ var ColorAnimation = Nullstone.Create("ColorAnimation", Animation);
 //#region Dependency Properties
 
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
-ColorAnimation.Instance.GetBy = function () {
-    ///<returns type="Color"></returns>
-    return this.$GetValue(ColorAnimation.ByProperty);
-};
-ColorAnimation.Instance.SetBy = function (value) {
-    ///<param name="value" type="Color"></param>
-    this.$SetValue(ColorAnimation.ByProperty, value);
-};
-
-/*
-ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
-ColorAnimation.Instance.GetEasingFunction = function () {
-///<returns type="EasingFunction"></returns>
-return this.$GetValue(ColorAnimation.EasingFunctionProperty);
-};
-ColorAnimation.Instance.SetEasingFunction = function (value) {
-///<param name="value" type="EasingFunction"></param>
-this.$SetValue(ColorAnimation.EasingFunctionProperty, value);
-};
-*/
-
+//ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
-ColorAnimation.Instance.GetFrom = function () {
-    ///<returns type="Color"></returns>
-    return this.$GetValue(ColorAnimation.FromProperty);
-};
-ColorAnimation.Instance.SetFrom = function (value) {
-    ///<param name="value" type="Color"></param>
-    this.$SetValue(ColorAnimation.FromProperty, value);
-};
-
 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
-ColorAnimation.Instance.GetTo = function () {
-    ///<returns type="Color"></returns>
-    return this.$GetValue(ColorAnimation.ToProperty);
-};
-ColorAnimation.Instance.SetTo = function (value) {
-    ///<param name="value" type="Color"></param>
-    this.$SetValue(ColorAnimation.ToProperty, value);
-};
+
+Nullstone.AutoProperties(ColorAnimation, [
+    ColorAnimation.ByProperty,
+    ColorAnimation.FromProperty,
+    ColorAnimation.ToProperty
+]);
 
 //#endregion
 
@@ -93,9 +62,9 @@ ColorAnimation.Instance._GetCurrentValue = function (defaultOriginValue, default
 ColorAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
         return;
-    this._FromCached = this.GetFrom();
-    this._ToCached = this.GetTo();
-    this._ByCached = this.GetBy();
+    this._FromCached = this.From;
+    this._ToCached = this.To;
+    this._ByCached = this.By;
     this._HasCached = true;
 };
 
