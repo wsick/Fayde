@@ -12,24 +12,12 @@ RepeatButton.Instance.Init = function () {
 //#region Dependency Properties
 
 RepeatButton.DelayProperty = DependencyProperty.Register("Delay", function () { return Number; }, RepeatButton, 500, function (d, args) { d.OnDelayChanged(args); });
-RepeatButton.Instance.GetDelay = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(RepeatButton.DelayProperty);
-};
-RepeatButton.Instance.SetDelay = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(RepeatButton.DelayProperty, value);
-};
-
 RepeatButton.IntervalProperty = DependencyProperty.Register("Interval", function () { return Number; }, RepeatButton, 33, function (d, args) { d.OnIntervalChanged(args); });
-RepeatButton.Instance.GetInterval = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(RepeatButton.IntervalProperty);
-};
-RepeatButton.Instance.SetInterval = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(RepeatButton.IntervalProperty, value);
-};
+
+Nullstone.AutoProperties(RepeatButton, [
+    RepeatButton.DelayProperty,
+    RepeatButton.IntervalProperty
+]);
 
 //#endregion
 
@@ -140,7 +128,7 @@ RepeatButton.Instance._StartTimer = function () {
     } else if (this._Timer.IsEnabled) {
         return;
     }
-    this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, this.GetDelay()));
+    this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, this.Delay));
     this._Timer.Start();
 };
 RepeatButton.Instance._StopTimer = function () {
@@ -148,7 +136,7 @@ RepeatButton.Instance._StopTimer = function () {
         this._Timer.Stop();
 };
 RepeatButton.Instance._OnTimeout = function (sender, e) {
-    var interval = this.GetInterval();
+    var interval = this.Interval;
     var timespan = this._Timer.GetInterval();
     if (timespan.Milliseconds !== interval) {
         this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, interval));
