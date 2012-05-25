@@ -190,15 +190,15 @@ ScrollBar.Instance._OnValueChanged = function (oldValue, newValue) {
 
 ScrollBar.Instance._OnThumbDragStarted = function (sender, args) {
     /// <param name="args" type="DragStartedEventArgs"></param>
-    this._DragValue = this.GetValue();
+    this._DragValue = this.Value;
 };
 ScrollBar.Instance._OnThumbDragDelta = function (sender, args) {
     /// <param name="args" type="DragDeltaEventArgs"></param>
     var change = 0;
     var zoomFactor = 1; //TODO: FullScreen?
     var num = zoomFactor;
-    var max = this.GetMaximum();
-    var min = this.GetMinimum();
+    var max = this.Maximum;
+    var min = this.Minimum;
     var diff = max - min;
     var trackLength = this._GetTrackLength();
     var orientation = this.GetOrientation();
@@ -211,8 +211,8 @@ ScrollBar.Instance._OnThumbDragDelta = function (sender, args) {
     if (!isNaN(change) && isFinite(change)) {
         this._DragValue += change;
         var num1 = Math.min(max, Math.max(min, this._DragValue));
-        if (num1 !== this.GetValue()) {
-            this.SetValue(num1);
+        if (num1 !== this.Value) {
+            this.Value = num1;
             this._RaiseScroll(ScrollEventType.ThumbTrack);
         }
     }
@@ -227,34 +227,34 @@ ScrollBar.Instance._OnThumbDragCompleted = function (sender, args) {
 //#region Movement
 
 ScrollBar.Instance._SmallDecrement = function (sender, args) {
-    var curValue = this.GetValue();
-    var num = Math.max(curValue - this.GetSmallChange(), this.GetMinimum());
+    var curValue = this.Value;
+    var num = Math.max(curValue - this.SmallChange, this.Minimum);
     if (curValue !== num) {
-        this.SetValue(num);
+        this.Value = num;
         this._RaiseScroll(ScrollEventType.SmallDecrement);
     }
 };
 ScrollBar.Instance._SmallIncrement = function (sender, args) {
-    var curValue = this.GetValue();
-    var num = Math.min(curValue + this.GetSmallChange(), this.GetMaximum());
+    var curValue = this.Value;
+    var num = Math.min(curValue + this.SmallChange, this.Maximum);
     if (curValue !== num) {
-        this.SetValue(num);
+        this.Value = num;
         this._RaiseScroll(ScrollEventType.SmallIncrement);
     }
 };
 ScrollBar.Instance._LargeDecrement = function (sender, args) {
-    var curValue = this.GetValue();
-    var num = Math.max(curValue - this.GetLargeChange(), this.GetMinimum());
+    var curValue = this.Value;
+    var num = Math.max(curValue - this.LargeChange, this.Minimum);
     if (curValue !== num) {
-        this.SetValue(num);
+        this.Value = num;
         this._RaiseScroll(ScrollEventType.LargeDecrement);
     }
 };
 ScrollBar.Instance._LargeIncrement = function (sender, args) {
-    var curValue = this.GetValue();
-    var num = Math.min(curValue + this.GetLargeChange(), this.GetMaximum());
+    var curValue = this.Value;
+    var num = Math.min(curValue + this.LargeChange, this.Maximum);
     if (curValue !== num) {
-        this.SetValue(num);
+        this.Value = num;
         this._RaiseScroll(ScrollEventType.LargeIncrement);
     }
 };
@@ -275,9 +275,9 @@ ScrollBar.Instance._OnOrientationChanged = function () {
     this._UpdateTrackLayout(this._GetTrackLength());
 };
 ScrollBar.Instance._UpdateTrackLayout = function (trackLength) {
-    var max = this.GetMaximum();
-    var min = this.GetMinimum();
-    var val = this.GetValue();
+    var max = this.Maximum;
+    var min = this.Minimum;
+    var val = this.Value;
     var multiplier = (val - min) / (max - min);
     var thumbSize = this._UpdateThumbSize(trackLength);
 
@@ -293,8 +293,8 @@ ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
     var hideThumb = trackLength <= 0;
     if (trackLength > 0) {
         var orientation = this.GetOrientation();
-        var max = this.GetMaximum();
-        var min = this.GetMinimum();
+        var max = this.Maximum;
+        var min = this.Minimum;
         if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb) {
             if (max - min !== 0)
                 result = Math.max(this.$ElementHorizontalThumb.MinWidth, this._ConvertViewportSizeToDisplayUnits(trackLength));
@@ -352,11 +352,11 @@ ScrollBar.Instance._GetTrackLength = function () {
 };
 ScrollBar.Instance._ConvertViewportSizeToDisplayUnits = function (trackLength) {
     var viewportSize = this.GetViewportSize();
-    return trackLength * viewportSize / (viewportSize + this.GetMaximum() - this.GetMinimum());
+    return trackLength * viewportSize / (viewportSize + this.Maximum - this.Minimum);
 };
 
 ScrollBar.Instance._RaiseScroll = function (scrollEvtType) {
-    var args = new ScrollEventArgs(scrollEvtType, this.GetValue());
+    var args = new ScrollEventArgs(scrollEvtType, this.Value);
     args.OriginalSource = this;
     this.Scroll.Raise(this, args);
 };

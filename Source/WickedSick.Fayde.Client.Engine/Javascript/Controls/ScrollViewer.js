@@ -480,13 +480,13 @@ ScrollViewer.Instance._UpdateScrollBar = function (orientation, value) {
             this.$SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
             this._RaiseOffsetChanged(scrollInfo.GetHorizontalOffset(), Orientation.Horizontal);
             if (this.$ElementHorizontalScrollBar) {
-                this.$ElementHorizontalScrollBar.SetValue(value);
+                this.$ElementHorizontalScrollBar.Value = value;
             }
         } else {
             this.$SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
             this._RaiseOffsetChanged(scrollInfo.GetVerticalOffset(), Orientation.Vertical);
             if (this.$ElementVerticalScrollBar) {
-                this.$ElementVerticalScrollBar.SetValue(value);
+                this.$ElementVerticalScrollBar.Value = value;
             }
         }
     } finally {
