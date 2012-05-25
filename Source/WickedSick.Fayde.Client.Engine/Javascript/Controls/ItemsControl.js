@@ -19,7 +19,7 @@ ItemsControl.Instance.SetDisplayMemberPath = function (value) {
 
 ItemsControl.GetItemsOwner = function (ele) {
     var panel = Nullstone.As(ele, Panel);
-    if (!panel || !panel.GetIsItemsHost())
+    if (!panel || !panel.IsItemsHost)
         return null;
     var owner = Nullstone.As(panel.TemplateOwner, ItemsPresenter);
     if (owner)

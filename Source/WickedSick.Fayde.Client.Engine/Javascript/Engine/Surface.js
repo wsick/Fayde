@@ -346,10 +346,10 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 
         if (uie._DirtyFlags & _Dirty.ChildrenZIndices) {
             uie._DirtyFlags &= ~_Dirty.ChildrenZIndices;
-            if (~(uie instanceof Panel)) {
+            if (!(uie instanceof Panel)) {
                 //Warning: Only applicable to Panel subclasses
             } else {
-                uie.GetChildren().ResortByZIndex();
+                uie.Children.ResortByZIndex();
             }
         }
 

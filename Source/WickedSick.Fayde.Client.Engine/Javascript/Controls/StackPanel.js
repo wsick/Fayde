@@ -49,7 +49,7 @@ StackPanel.Instance.MeasureOverride = function (constraint) {
         childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
     }
 
-    var children = this.GetChildren();
+    var children = this.Children;
     for (var i = 0; i < children.GetCount(); i++) {
         var child = children.GetValueAt(i);
         child.Measure(childAvailable);
@@ -75,7 +75,7 @@ StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     else
         arranged.Width = 0;
 
-    var children = this.GetChildren();
+    var children = this.Children;
     for (var i = 0; i < children.GetCount(); i++) {
         var child = children.GetValueAt(i);
         var size = child._DesiredSize;

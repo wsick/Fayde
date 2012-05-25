@@ -95,7 +95,7 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
     } else if (this._ContentElement instanceof Border) {
         this._ContentElement._SetValue(Border.ChildProperty, this._View);
     } else if (this._ContentElement instanceof Panel) {
-        this._ContentElement.GetChildren().Add(this._View);
+        this._ContentElement.Children.Add(this._View);
     } else {
         Warn("Can't handle ContentElement.");
         this._View.SetTextBox(null);

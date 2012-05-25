@@ -9,13 +9,6 @@ var Panel = Nullstone.Create("Panel", FrameworkElement);
 //#region Dependency Properties
 
 Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
-Panel.Instance.GetBackground = function () {
-    return this.$GetValue(Panel.BackgroundProperty);
-};
-Panel.Instance.SetBackground = function (value) {
-    this.$SetValue(Panel.BackgroundProperty, value);
-};
-
 Panel._CreateChildren = {
     GetValue: function (propd, obj) {
         var col = new UIElementCollection();
@@ -26,20 +19,13 @@ Panel._CreateChildren = {
     }
 };
 Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, undefined, Panel._CreateChildren);
-Panel.Instance.GetChildren = function () {
-    return this.$GetValue(Panel.ChildrenProperty);
-};
-Panel.Instance.SetChildren = function (value) {
-    this.$SetValue(Panel.ChildrenProperty, value);
-};
-
 Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
-Panel.Instance.GetIsItemsHost = function () {
-    return this.$GetValue(Panel.IsItemsHostProperty);
-};
-Panel.Instance.SetIsItemsHost = function (value) {
-    this.$SetValue(Panel.IsItemsHostProperty, value);
-};
+
+Nullstone.AutoProperties(Panel, [
+    Panel.BackgroundProperty,
+    Panel.ChildrenProperty,
+    Panel.IsItemsHostProperty
+]);
 
 //#endregion
 
@@ -58,7 +44,7 @@ Panel.Instance._ComputeBounds = function () {
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
     }
 
-    if (this.GetBackground()) {
+    if (this.Background) {
         this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
     }
@@ -70,7 +56,7 @@ Panel.Instance._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 Panel.Instance._GetCoverageBounds = function () {
-    var background = this.GetBackground();
+    var background = this.Background;
     if (background && background.IsOpaque())
         return this._Bounds;
     return new Rect();
@@ -85,7 +71,7 @@ Panel.Instance._ShiftPosition = function (point) {
     this._BoundsWithChildren.Y += dy;
 };
 Panel.Instance._EmptyBackground = function () {
-    return this.GetBackground() == null;
+    return this.Background == null;
 };
 Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
     Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
@@ -94,7 +80,7 @@ Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
 };
 Panel.Instance._Render = function (ctx, region) {
     /// <param name="ctx" type="_RenderContext"></param>
-    var background = this.GetBackground();
+    var background = this.Background;
     if (!background)
         return;
     var framework = new Size(this.ActualWidth, this.ActualHeight);
@@ -113,9 +99,9 @@ Panel.Instance._Render = function (ctx, region) {
     }
 };
 
-Panel.Instance._CanFindElement = function () { return this.GetBackground() != null; }
+Panel.Instance._CanFindElement = function () { return this.Background != null; }
 Panel.Instance._InsideObject = function (ctx, x, y) {
-    if (this.GetBackground())
+    if (this.Background)
         return this._InsideObject$FrameworkElement(ctx, x, y);
     return false;
 };

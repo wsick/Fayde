@@ -92,7 +92,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var totalStars = new Size(0, 0);
     var emptyRows = rowCount === 0;
     var emptyCols = colCount === 0;
-    var hasChildren = this.GetChildren().GetCount() > 0;
+    var hasChildren = this.Children.GetCount() > 0;
 
     if (emptyRows) rowCount = 1;
     if (emptyCols) colCount = 1;
