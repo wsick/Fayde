@@ -6,7 +6,7 @@ var Ellipse = Nullstone.Create("Ellipse", Shape);
 
 Ellipse.Instance.Init = function () {
     this.Init$Shape();
-    this.SetStretch(Stretch.Fill);
+    this.Stretch = Stretch.Fill;
 };
 
 Ellipse.Instance._DrawPath = function (ctx) {
@@ -16,7 +16,7 @@ Ellipse.Instance._DrawPath = function (ctx) {
 };
 Ellipse.Instance._BuildPath = function () {
     var stretch = this.Stretch;
-    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
+    var t = this._IsStroked() ? this.StrokeThickness : 0.0;
     var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
 
     switch (stretch) {
@@ -72,7 +72,7 @@ Ellipse.Instance._ComputeShapeBounds = function (logical) {
         }
     }
 
-    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
+    var t = this._IsStroked() ? this.StrokeThickness : 0.0;
     switch (this.Stretch) {
         case Stretch.None:
             rect.Width = rect.Height = 0.0;

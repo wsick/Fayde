@@ -39,7 +39,7 @@ Polygon.Instance._BuildPath = function () {
 
     var path = new RawPath();
     if (count === 2) {
-        var thickness = this.GetStrokeThickness();
+        var thickness = this.StrokeThickness;
         var p1 = points.GetValueAt(0);
         var p2 = points.GetValueAt(1);
         Polygon._ExtendLine(p1, p2, thickness);

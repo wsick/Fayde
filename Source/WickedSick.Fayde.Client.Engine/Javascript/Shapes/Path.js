@@ -52,7 +52,7 @@ Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     if (logical)
         return geom.GetBounds();
 
-    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
+    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.StrokeThickness;
     return geom.GetBounds(thickness);
     return shapeBounds;
 };
