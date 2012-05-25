@@ -6,17 +6,13 @@
 //#region Section
 var Section = Nullstone.Create("Section", TextElement);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return BlockCollection; }, Section);
-Section.Instance.GetBlocks = function () {
-    /// <returns type="BlockCollection" />
-    return this.$GetValue(Section.BlocksProperty);
-};
-Section.Instance.SetBlocks = function (value) {
-    /// <param name="value" type="BlockCollection"></param>
-    this.$SetValue(Section.BlocksProperty, value);
-};
+
+Nullstone.AutoProperties(Section, [
+    Section.BlocksProperty
+]);
 
 //#endregion
 
