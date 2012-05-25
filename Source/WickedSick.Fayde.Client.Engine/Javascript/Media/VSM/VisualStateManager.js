@@ -15,7 +15,7 @@ var VisualStateManager = Nullstone.Create("VisualStateManager", DependencyObject
 
 //#region Dependency Properties
 
-VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttached("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
+VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
 VisualStateManager.GetVisualStateGroups = function (d) {
     /// <param name="d" type="DependencyObject"></param>
     /// <returns type="VisualStateGroupCollection" />
@@ -36,7 +36,7 @@ VisualStateManager._GetVisualStateGroupsInternal = function (d) {
     return groups;
 };
 
-VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttached("CustomVisualStateManager", function () { return VisualStateManager }, VisualStateManager, null);
+VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", function () { return VisualStateManager }, VisualStateManager, null);
 VisualStateManager.GetCustomVisualStateManager = function (d) {
     ///<returns type="VisualStateManager"></returns>
     return d.$GetValue(VisualStateManager.CustomVisualStateManagerProperty);
@@ -94,16 +94,17 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
     /// <param name="useTransitions" type="Boolean"></param>
     /// <returns type="Boolean" />
 
-    var lastState = group.GetCurrentState();
+    var lastState = group.CurrentState;
     if (Nullstone.RefEquals(lastState, state))
         return true;
 
     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
-    if (transition == null || (transition.GetGeneratedDuration().IsZero() && (transition.GetStoryboard() == null || transition.GetStoryboard().GetDuration().IsZero()))) {
-        if (transition != null && transition.GetStoryboard() != null) {
-            group.StartNewThenStopOld(element, [transition.GetStoryboard(), state.GetStoryboard()]);
+    var storyboard;
+    if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.GetDuration().IsZero()))) {
+        if (transition != null && storyboard != null) {
+            group.StartNewThenStopOld(element, [storyboard, state.Storyboard]);
         } else {
-            group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+            group.StartNewThenStopOld(element, [state.Storyboard]);
         }
         group.RaiseCurrentStateChanging(element, lastState, state, control);
         group.RaiseCurrentStateChanged(element, lastState, state, control);
@@ -112,33 +113,33 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
         dynamicTransition.$SetValue(Control.IsTemplateItemProperty, true);
 
         var eventClosure = new Closure();
-        transition.SetDynamicStoryboardCompleted(false);
+        transition.DynamicStoryboardCompleted = false;
         var dynamicCompleted = function (sender, e) {
-            if (transition.GetStoryboard() == null || transition.GetExplicitStoryboardCompleted() === true) {
-                group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+            if (transition.Storyboard == null || transition.ExplicitStoryboardCompleted === true) {
+                group.StartNewThenStopOld(element, [state.Storyboard]);
                 group.RaiseCurrentStateChanged(element, lastState, state, control);
             }
-            transition.SetDynamicStoryboardCompleted(true);
+            transition.DynamicStoryboardCompleted = true;
         };
         dynamicTransition.Completed.Subscribe(dynamicCompleted, eventClosure);
 
-        if (transition.GetStoryboard() != null && transition.GetExplicitStoryboardCompleted() === true) {
+        if (transition.Storyboard != null && transition.ExplicitStoryboardCompleted === true) {
             var transitionCompleted = function (sender, e) {
-                if (transition.GetDynamicStoryboardCompleted() === true) {
-                    group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+                if (transition.DynamicStoryboardCompleted === true) {
+                    group.StartNewThenStopOld(element, [state.Storyboard]);
                     group.RaiseCurrentStateChanged(element, lastState, state, control);
                 }
-                transition.GetStoryboard().Completed.Unsubscribe(transitionCompleted, eventClosure);
-                transition.SetExplicitStoryboardCompleted(true);
+                transition.Storyboard.Completed.Unsubscribe(transitionCompleted, eventClosure);
+                transition.ExplicitStoryboardCompleted = true;
             };
-            transition.SetExplicitStoryboardCompleted(false);
-            transition.GetStoryboard().Completed.Subscribe(transitionCompleted, eventClosure);
+            transition.ExplicitStoryboardCompleted = false;
+            transition.Storyboard.Completed.Subscribe(transitionCompleted, eventClosure);
         }
-        group.StartNewThenStopOld(element, [transition.GetStoryboard(), dynamicTransition]);
+        group.StartNewThenStopOld(element, [transition.Storyboard, dynamicTransition]);
         group.RaiseCurrentStateChanging(element, lastState, state, control);
     }
 
-    group.SetCurrentState(state);
+    group.CurrentState = state;
     return true;
 };
 
@@ -194,8 +195,8 @@ VisualStateManager._GetTransition = function (element, group, from, to) {
                 continue;
             }
             var score = -1;
-            var transFromState = group.GetState(transition.GetFrom());
-            var transToState = group.GetState(transition.GetTo());
+            var transFromState = group.GetState(transition.From);
+            var transToState = group.GetState(transition.To);
             if (Nullstone.RefEquals(from, transFromState))
                 score += 1;
             else if (transFromState != null)
@@ -225,7 +226,7 @@ VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group,
 
     var dynamic = new Storyboard();
     if (transition != null) {
-        dynamic.SetDuration(transition.GetGeneratedDuration());
+        dynamic.SetDuration(transition.GeneratedDuration);
     } else {
         dynamic.SetDuration(new Duration(0));
     }

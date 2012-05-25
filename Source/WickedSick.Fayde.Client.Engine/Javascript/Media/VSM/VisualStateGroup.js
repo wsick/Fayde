@@ -16,7 +16,7 @@ VisualStateGroup.Instance.Init = function () {
     this.CurrentStateChanged = new MulticastEvent();
 };
 
-//#region PROPERTIES
+//#region Properties
 
 VisualStateGroup.Instance.GetStates = function () {
     /// <returns type="VisualStateCollection" />
@@ -35,15 +35,6 @@ VisualStateGroup.Instance.GetTransitions = function () {
     if (this._Transitions == null)
         this._Transitions = new VisualTransitionCollection();
     return this._Transitions;
-};
-
-VisualStateGroup.Instance.GetCurrentState = function () {
-    ///<returns type="VisualState"></returns>
-    return this._CurrentState;
-};
-VisualStateGroup.Instance.SetCurrentState = function (value) {
-    ///<param name="value" type="VisualState"></param>
-    this._CurrentState = value;
 };
 
 //#endregion
@@ -112,7 +103,7 @@ VisualStateGroup.Instance.RaiseCurrentStateChanged = function (element, oldState
     this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
 };
 
-//#region ANNOTATIONS
+//#region Annotations
 
 VisualStateGroup.Annotations = {
     ContentProperty: "States"
