@@ -455,7 +455,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         var frameworkClip = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
         layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
         var rectangle = new RectangleGeometry();
-        rectangle.SetRect(layoutClip);
+        rectangle.Rect = layoutClip;
         LayoutInformation.SetLayoutClip(this, rectangle);
     }
 

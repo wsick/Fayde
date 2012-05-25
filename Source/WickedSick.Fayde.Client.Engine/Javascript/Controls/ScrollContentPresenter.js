@@ -258,9 +258,9 @@ ScrollContentPresenter.Instance._UpdateClip = function (arrangeSize) {
     var content;
     if (Nullstone.Is(this.TemplateOwner, ScrollViewer) && (content = this.Content) && (Nullstone.Is(content, _TextBoxView) || Nullstone.Is(content, _RichTextBoxView))) {
         //ScrollViewer inside TextBox/RichTextBox
-        this.$ClippingRectangle.SetRect(this._CalculateTextBoxClipRect(arrangeSize));
+        this.$ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
     } else {
-        this.$ClippingRectangle.SetRect(new Rect(0, 0, arrangeSize.Width, arrangeSize.Height));
+        this.$ClippingRectangle.Rect = new Rect(0, 0, arrangeSize.Width, arrangeSize.Height);
     }
 };
 ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSize) {
