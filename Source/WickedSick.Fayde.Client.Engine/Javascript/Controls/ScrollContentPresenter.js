@@ -154,7 +154,7 @@ ScrollContentPresenter.Instance.OnApplyTemplate = function () {
     if (!sv)
         return;
 
-    var content = this.GetContent();
+    var content = this.Content;
     var info = Nullstone.As(content, IScrollInfo);
     if (!info) {
         var presenter = Nullstone.As(content, ItemsPresenter);
@@ -256,7 +256,7 @@ ScrollContentPresenter.Instance._UpdateClip = function (arrangeSize) {
     }
 
     var content;
-    if (Nullstone.Is(this.TemplateOwner, ScrollViewer) && (content = this.GetContent()) && (Nullstone.Is(content, _TextBoxView) || Nullstone.Is(content, _RichTextBoxView))) {
+    if (Nullstone.Is(this.TemplateOwner, ScrollViewer) && (content = this.Content) && (Nullstone.Is(content, _TextBoxView) || Nullstone.Is(content, _RichTextBoxView))) {
         //ScrollViewer inside TextBox/RichTextBox
         this.$ClippingRectangle.SetRect(this._CalculateTextBoxClipRect(arrangeSize));
     } else {
