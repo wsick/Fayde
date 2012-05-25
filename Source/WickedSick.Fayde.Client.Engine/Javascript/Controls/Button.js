@@ -18,15 +18,15 @@ Button.Instance.OnApplyTemplate = function () {
 Button.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         this._GoToState(useTransitions, "Disabled");
-    } else if (this.GetIsPressed()) {
+    } else if (this.IsPressed) {
         this._GoToState(useTransitions, "Pressed");
-    } else if (this.GetIsMouseOver()) {
+    } else if (this.IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");
     } else {
         this._GoToState(useTransitions, "Normal");
     }
 
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
+    if (this.IsFocused && this.GetIsEnabled()) {
         this._GoToState(useTransitions, "Focused");
     } else {
         this._GoToState(useTransitions, "Unfocused");
@@ -37,7 +37,7 @@ Button.Instance.OnIsEnabledChanged = function (e) {
     this.SetIsTabStop(e.NewValue);
 };
 
-//#region DEFAULT STYLE
+//#region Default Style
 
 Button.Instance.GetDefaultStyle = function () {
     var styleJson = {

@@ -12,7 +12,7 @@ HyperlinkButton.StateNormal = "Normal";
 HyperlinkButton.StateFocused = "Focused";
 HyperlinkButton.StateUnfocused = "Unfocused";
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton, undefined);
 HyperlinkButton.Instance.GetNavigateUri = function () {
@@ -62,15 +62,15 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
 HyperlinkButton.Instance._ChangeVisualState = function (useTransitions) {
     if (!this.GetIsEnabled()) {
         this._GoToState(useTransitions, HyperlinkButton.StateDisabled);
-    } else if (this.GetIsPressed()) {
+    } else if (this.IsPressed) {
         this._GoToState(useTransitions, HyperlinkButton.StatePressed);
-    } else if (this.GetIsMouseOver()) {
+    } else if (this.IsMouseOver) {
         this._GoToState(useTransitions, HyperlinkButton.StateMouseOver);
     } else {
         this._GoToState(useTransitions, HyperlinkButton.StateNormal);
     }
 
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
+    if (this.IsFocused && this.GetIsEnabled()) {
         this._GoToState(useTransitions, HyperlinkButton.StateFocused);
     } else {
         this._GoToState(useTransitions, HyperlinkButton.StateUnfocused);
@@ -81,7 +81,7 @@ HyperlinkButton.Instance._Navigate = function () {
     //NotImplemented("HyperlinkButton._Navigate (" + this.GetNavigateUri().toString() + ")");
 };
 
-//#region DEFAULT STYLE
+//#region Default Style
 
 HyperlinkButton.Instance.GetDefaultStyle = function () {
     var styleJson = {

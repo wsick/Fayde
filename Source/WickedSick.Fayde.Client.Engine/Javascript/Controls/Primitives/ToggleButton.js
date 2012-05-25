@@ -35,14 +35,11 @@ ToggleButton.Instance._ChangeVisualState = function (useTransitions) {
     // Update the Interaction state group 
     if (!isEnabled) {
         this._GoToState(useTransitions, "Disabled");
-    }
-    else if (this.GetIsPressed()) {
+    } else if (this.IsPressed) {
         this._GoToState(useTransitions, "Pressed");
-    }
-    else if (this.GetIsMouseOver()) {
+    } else if (this.IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");
-    }
-    else {
+    } else {
         this._GoToState(useTransitions, "Normal");
     }
 
@@ -57,21 +54,18 @@ ToggleButton.Instance._ChangeVisualState = function (useTransitions) {
     // Update the Check state group 
     if (isChecked == true) {
         this._GoToState(useTransitions, "Checked");
-    }
-    else if (isChecked == false) {
+    } else if (isChecked == false) {
         this._GoToState(useTransitions, "Unchecked");
-    }
-    else {
+    } else {
         // isChecked is null
         if (!this._GoToState(useTransitions, "Indeterminate")) {
             this._GoToState(useTransitions, "Unchecked");
         }
     }
 
-    if (this.GetIsFocused() && isEnabled) {
+    if (this.IsFocused && isEnabled) {
         this._GoToState(useTransitions, "Focused");
-    }
-    else {
+    } else {
         this._GoToState(useTransitions, "Unfocused");
     }
 };
