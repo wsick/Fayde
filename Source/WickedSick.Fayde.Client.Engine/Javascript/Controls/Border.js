@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="../Core/DependencyObject.js" />
@@ -13,52 +12,20 @@ var Border = Nullstone.Create("Border", FrameworkElement);
 //#region Dependency Properties
 
 Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
-Border.Instance.GetBackground = function () {
-    return this.$GetValue(Border.BackgroundProperty);
-};
-Border.Instance.SetBackground = function (value) {
-    this.$SetValue(Border.BackgroundProperty, value);
-};
-
 Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Border);
-Border.Instance.GetBorderBrush = function () {
-    return this.$GetValue(Border.BorderBrushProperty);
-};
-Border.Instance.SetBorderBrush = function (value) {
-    this.$SetValue(Border.BorderBrushProperty, value);
-};
-
 Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, Border._ThicknessValidator);
-Border.Instance.GetBorderThickness = function () {
-    return this.$GetValue(Border.BorderThicknessProperty);
-};
-Border.Instance.SetBorderThickness = function (value) {
-    this.$SetValue(Border.BorderThicknessProperty, value);
-};
-
 Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Border);
-Border.Instance.GetChild = function () {
-    return this.$GetValue(Border.ChildProperty);
-};
-Border.Instance.SetChild = function (value) {
-    this.$SetValue(Border.ChildProperty, value);
-};
-
 Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), undefined, undefined, undefined, Border._CornerRadiusValidator);
-Border.Instance.GetCornerRadius = function () {
-    return this.$GetValue(Border.CornerRadiusProperty);
-};
-Border.Instance.SetCornerRadius = function (value) {
-    this.$SetValue(Border.CornerRadiusProperty, value);
-};
-
 Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, Border._ThicknessValidator);
-Border.Instance.GetPadding = function () {
-    return this.$GetValue(Border.PaddingProperty);
-};
-Border.Instance.SetPadding = function (value) {
-    this.$SetValue(Border.PaddingProperty, value);
-};
+
+Nullstone.AutoProperties(Border, [
+    Border.BackgroundProperty,
+    Border.BorderBrushProperty,
+    Border.BorderThicknessProperty,
+    Border.ChildProperty,
+    Border.CornerRadiusProperty,
+    Border.PaddingProperty
+]);
 
 //#endregion
 
@@ -67,7 +34,7 @@ Border.Instance.SetPadding = function (value) {
 Border.Instance.IsLayoutContainer = function () { return true; };
 Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var border = this.Padding.Plus(this.BorderThickness);
 
     var walker = new _VisualTreeWalker(this);
     var child;
@@ -80,7 +47,7 @@ Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
     return desired;
 };
 Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var border = this.Padding.Plus(this.BorderThickness);
     var arranged = finalSize;
 
     var walker = new _VisualTreeWalker(this);
@@ -95,16 +62,16 @@ Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     return finalSize;
 };
 Border.Instance._Render = function (ctx, region) {
-    var borderBrush = this.GetBorderBrush();
+    var borderBrush = this.BorderBrush;
     var paintBorder = this._Extents;
 
-    if (!this.GetBackground() && !borderBrush)
+    if (!this.Background && !borderBrush)
         return;
     if (paintBorder.IsEmpty())
         return;
 
     //BorderBrush or CornerRadius?
-    if (borderBrush || !this.GetCornerRadius().IsZero()) {
+    if (borderBrush || !this.CornerRadius.IsZero()) {
         this._RenderImpl(ctx, region);
         return;
     }
@@ -112,7 +79,7 @@ Border.Instance._Render = function (ctx, region) {
     //If we got this far, all we have left to paint is the background
     if (!this._HasLayoutClip() && false /* TODO: IsIntegerTranslation  */) {
         //TODO:
-        //var paintBackground = paintBorder.GrowByThickness(this.GetBorderThickness().Negate());
+        //var paintBackground = paintBorder.GrowByThickness(this.BorderThickness.Negate());
 
     } else {
         this._RenderImpl(ctx, region);
@@ -124,11 +91,11 @@ Border.Instance._RenderImpl = function (ctx, region) {
     this._RenderLayoutClip(ctx);
     {
         var canvasCtx = ctx.GetCanvasContext();
-        var backgroundBrush = this.GetBackground();
-        var borderBrush = this.GetBorderBrush();
+        var backgroundBrush = this.Background;
+        var borderBrush = this.BorderBrush;
         var boundingRect = this._Extents;
-        var thickness = this.GetBorderThickness();
-        var cornerRadius = this.GetCornerRadius();
+        var thickness = this.BorderThickness;
+        var cornerRadius = this.CornerRadius;
 
         var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
         canvasCtx.beginPath();
@@ -179,7 +146,7 @@ Border.Instance._RenderImpl = function (ctx, region) {
 };
 
 Border.Instance._CanFindElement = function () {
-    return this.GetBackground() != null || this.GetBorderBrush() != null;
+    return this.Background != null || this.BorderBrush != null;
 };
 
 Border.Instance._OnPropertyChanged = function (args, error) {
