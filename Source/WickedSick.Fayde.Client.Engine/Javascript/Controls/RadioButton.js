@@ -59,7 +59,7 @@ RadioButton.Instance.OnIsCheckedChanged = function (e) {
 };
 
 RadioButton.Instance.OnToggle = function () {
-    this.SetIsChecked(true);
+    this.IsChecked = true;
 };
 
 RadioButton.Instance.UpdateRadioButtonGroup = function () {
@@ -73,9 +73,9 @@ RadioButton.Instance.UpdateRadioButtonGroup = function () {
         if (elements) {
             for (var i = 0; i < elements.length; i++) {
                 if (!Nullstone.RefEquals(elements[i], this) &&
-                elements[i].GetIsChecked() &&
+                elements[i].IsChecked &&
                 Nullstone.RefEquals(visualRoot, elements[i].GetVisualRoot())) {
-                    elements[i].SetIsChecked(false);
+                    elements[i].IsChecked = false;
                 }
             }
         }
@@ -87,9 +87,9 @@ RadioButton.Instance.UpdateRadioButtonGroup = function () {
         if (elements) {
             for (var i = 0; i < elements.length; i++) {
                 if (!Nullstone.RefEquals(elements[i], this) &&
-                elements[i].GetIsChecked() &&
+                elements[i].IsChecked &&
                 Nullstone.RefEquals(visualParent, elements[i].GetVisualParent())) {
-                    elements[i].SetIsChecked(false);
+                    elements[i].IsChecked = false;
                 }
             }
         }
