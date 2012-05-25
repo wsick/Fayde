@@ -46,7 +46,7 @@ Fayde.Image.Instance._MeasureOverrideWithError = function (availableSize, error)
     var sx = sy = 0.0;
 
     if (source != null)
-        shapeBounds = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+        shapeBounds = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
 
     if (!isFinite(desired.Width))
         desired.Width = shapeBounds.Width;
@@ -99,7 +99,7 @@ Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var sy = 1.0;
 
     if (source != null)
-        shapeBounds = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+        shapeBounds = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
 
     if (shapeBounds.Width === 0)
         shapeBounds.Width = arranged.Width;
@@ -148,7 +148,7 @@ Fayde.Image.Instance._InsideObject = function (ctx, x, y) {
     if (!metrics)
         return null;
 
-    var rect = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+    var rect = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
     rect = rect.Transform(metrics.Matrix);
     var np = new Point(x, y);
     this._TransformPoint(np);
@@ -210,8 +210,8 @@ Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
     var stretched = this._ApplySizeConstraints(specified);
     var adjust = !Rect.Equals(specified, this._GetRenderSize());
 
-    var pixelWidth = source.GetPixelWidth();
-    var pixelHeight = source.GetPixelHeight();
+    var pixelWidth = source.PixelWidth;
+    var pixelHeight = source.PixelHeight;
     if (pixelWidth === 0 || pixelHeight === 0)
         return null;
 

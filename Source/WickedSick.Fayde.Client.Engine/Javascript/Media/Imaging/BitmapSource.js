@@ -11,31 +11,19 @@ BitmapSource.Instance.Init = function () {
 
 //#region Dependency Properties
 
-BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
-BitmapSource.Instance.GetPixelWidth = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(BitmapSource.PixelWidthProperty);
-};
-BitmapSource.Instance.SetPixelWidth = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(BitmapSource.PixelWidthProperty, value);
-};
-
-BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
-BitmapSource.Instance.GetPixelHeight = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(BitmapSource.PixelHeightProperty);
-};
-BitmapSource.Instance.SetPixelHeight = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(BitmapSource.PixelHeightProperty, value);
-};
-
 BitmapSource.IntGreaterThanZeroValidator = function (instance, propd, value, error) {
     if (typeof value !== "number")
         return false;
     return value > 0;
 };
+
+BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
+BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
+
+Nullstone.AutoProperties(BitmapSource, [
+    BitmapSource.PixelWidthProperty,
+    BitmapSource.PixelHeightProperty
+]);
 
 //#endregion
 
@@ -44,8 +32,8 @@ BitmapSource.Instance.ResetImage = function () {
     var bs = this;
     this._Image.onerror = function (e) { bs._OnErrored(e); };
     this._Image.onload = function (e) { bs._OnLoad(e); };
-    this.SetPixelWidth(0);
-    this.SetPixelHeight(0);
+    this.PixelWidth = 0;
+    this.PixelHeight = 0;
 };
 BitmapSource.Instance.UriSourceChanged = function (oldValue, newValue) {
     this._Image.src = newValue.toString();
@@ -57,8 +45,8 @@ BitmapSource.Instance._OnErrored = function (e) {
         this._ErroredCallback(e);
 };
 BitmapSource.Instance._OnLoad = function (e) {
-    this.SetPixelWidth(this._Image.naturalWidth);
-    this.SetPixelHeight(this._Image.naturalHeight);
+    this.PixelWidth = this._Image.naturalWidth;
+    this.PixelHeight = this._Image.naturalHeight;
     if (this._LoadedCallback)
         this._LoadedCallback(e);
 };
