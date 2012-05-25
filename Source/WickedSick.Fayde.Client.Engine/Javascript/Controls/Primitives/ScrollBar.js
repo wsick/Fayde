@@ -50,9 +50,9 @@ ScrollBar.Instance.SetViewportSize = function (value) {
 ScrollBar.Instance.GetIsDragging = function () {
     ///<returns type="Boolean"></returns>
     if (this.$ElementHorizontalThumb)
-        return this.$ElementHorizontalThumb.GetIsDragging();
+        return this.$ElementHorizontalThumb.IsDragging;
     if (this.$ElementVerticalThumb)
-        return this.$ElementVerticalThumb.GetIsDragging();
+        return this.$ElementVerticalThumb.IsDragging;
     return false;
 };
 
@@ -129,9 +129,9 @@ ScrollBar.Instance.OnMouseEnter = function (sender, args) {
     this._IsMouseOver = true;
     var orientation = this.GetOrientation();
     var shouldUpdate = false;
-    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.GetIsDragging())
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
         shouldUpdate = true;
-    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.GetIsDragging())
+    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
         shouldUpdate = true;
     if (shouldUpdate)
         this.UpdateVisualState();
@@ -141,9 +141,9 @@ ScrollBar.Instance.OnMouseLeave = function (sender, args) {
     this._IsMouseOver = false;
     var orientation = this.GetOrientation();
     var shouldUpdate = false;
-    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.GetIsDragging())
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
         shouldUpdate = true;
-    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.GetIsDragging())
+    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
         shouldUpdate = true;
     if (shouldUpdate)
         this.UpdateVisualState();

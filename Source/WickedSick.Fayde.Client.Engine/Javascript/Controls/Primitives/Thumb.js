@@ -17,21 +17,17 @@ Thumb.Instance.Init = function () {
 //#region Dependency Properties
 
 Thumb.IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", function () { return Boolean; }, Thumb, false, function (d, args) { d.OnDraggingChanged(args); });
-Thumb.Instance.GetIsDragging = function () {
-    ///<returns type="Boolean"></returns>
-    return this.$GetValue(Thumb.IsDraggingProperty);
-};
-
 Thumb.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, Thumb);
-Thumb.Instance.GetIsFocused = function () {
-    ///<returns type="Boolean"></returns>
-    return this.$GetValue(Thumb.IsFocusedProperty);
-};
+
+Nullstone.AutoPropertiesReadOnly(Thumb, [
+    Thumb.IsDraggingProperty,
+    Thumb.IsFocusedProperty
+]);
 
 //#endregion
 
 Thumb.Instance.CancelDrag = function () {
-    if (this.GetIsDragging()) {
+    if (this.IsDragging) {
         this.$SetValueInternal(Thumb.IsDraggingProperty, false);
         this._RaiseDragCompleted(true);
     }
@@ -95,7 +91,7 @@ Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this.OnMouseLeftButtonDown$Control(sender, args);
     if (args.Handled)
         return;
-    if (!this.GetIsDragging() && this.IsEnabled) {
+    if (!this.IsDragging && this.IsEnabled) {
         args.Handled = true;
         this.CaptureMouse();
         this.$SetValueInternal(Thumb.IsDraggingProperty, true);
@@ -114,7 +110,7 @@ Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
 Thumb.Instance.OnMouseMove = function (sender, args) {
     /// <param name="args" type="MouseEventArgs"></param>
     this.OnMouseMove$Control(sender, args);
-    if (!this.GetIsDragging())
+    if (!this.IsDragging)
         return;
     var p = args.GetPosition(this._GetLogicalParent());
     if (!Point.Equals(p, this._PreviousPosition)) {
@@ -129,7 +125,7 @@ Thumb.Instance.UpdateVisualState = function (useTransitions) {
     if (useTransitions === undefined) useTransitions = true;
     if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
-    } else if (this.GetIsDragging()) {
+    } else if (this.IsDragging) {
         this._GoToState(useTransitions, "Pressed");
     } else if (this._IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");
@@ -137,7 +133,7 @@ Thumb.Instance.UpdateVisualState = function (useTransitions) {
         this._GoToState(useTransitions, "Normal");
     }
 
-    if (this.GetIsFocused() && this.IsEnabled)
+    if (this.IsFocused && this.IsEnabled)
         this._GoToState(useTransitions, "Focused");
     else
         this._GoToState(useTransitions, "Unfocused");
