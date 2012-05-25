@@ -62,7 +62,7 @@ ContentPresenter.Instance._GetDefaultTemplateCallback = function () {
         }
     }
 
-    var template = Nullstone.As(this.GetContentTemplate(), DataTemplate);
+    var template = Nullstone.As(this.ContentTemplate, DataTemplate);
     if (template != null) {
         this._ContentRoot = Nullstone.As(template.GetVisualTree(this), UIElement);
     } else {
