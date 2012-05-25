@@ -15,27 +15,13 @@ ContentControl.Instance.Init = function () {
 
 //#region Dependency Properties
 
-ContentControl._OnContentPropertyChanged = function (d, args) {
-    d.OnContentChanged(args.OldValue, args.NewValue);
-};
-ContentControl.ContentProperty = DependencyProperty.RegisterCore("Content", function () { return Object; }, ContentControl, undefined, ContentControl._OnContentPropertyChanged);
-ContentControl.Instance.GetContent = function () {
-    return this.$GetValue(ContentControl.ContentProperty);
-};
-ContentControl.Instance.SetContent = function (value) {
-    this.$SetValue(ContentControl.ContentProperty, value);
-};
+ContentControl.ContentProperty = DependencyProperty.RegisterCore("Content", function () { return Object; }, ContentControl, undefined, function (d, args) { d.OnContentChanged(args.OldValue, args.NewValue); });
+ContentControl.ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return ControlTemplate; }, ContentControl, undefined, function (d, args) { d.OnContentTemplateChanged(args.OldValue, args.NewValue); });
 
-ContentControl._OnContentTemplatePropertyChanged = function (d, args) {
-    d.OnContentTemplateChanged(args.OldValue, args.NewValue);
-};
-ContentControl.ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return ControlTemplate; }, ContentControl, undefined, ContentControl._OnContentTemplatePropertyChanged);
-ContentControl.Instance.GetContentTemplate = function () {
-    return this.$GetValue(ContentControl.ContentTemplateProperty);
-};
-ContentControl.Instance.SetContentTemplate = function (value) {
-    this.$SetValue(ContentControl.ContentTemplateProperty, value);
-};
+Nullstone.AutoProperties(ContentControl, [
+    ContentControl.ContentProperty,
+    ContentControl.ContentTemplateProperty
+]);
 
 //#endregion
 
@@ -75,7 +61,7 @@ ContentControl.Instance.OnContentTemplateChanged = function (oldContentTemplate,
 };
 
 ContentControl.Instance._GetDefaultTemplate = function () {
-    var content = this.GetContent();
+    var content = this.Content;
     if (!content)
         return null;
     var uie = Nullstone.As(content, UIElement);
