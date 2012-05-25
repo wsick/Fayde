@@ -21,27 +21,16 @@ ScrollBar._OnOrientationPropertyChanged = function (d, args) {
     d._OnOrientationChanged();
 };
 ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, ScrollBar, Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
-ScrollBar.Instance.GetOrientation = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(ScrollBar.OrientationProperty);
-};
-ScrollBar.Instance.SetOrientation = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(ScrollBar.OrientationProperty, value);
-};
 
 ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
     d._UpdateTrackLayout(d._GetTrackLength());
 };
 ScrollBar.ViewportSizeProperty = DependencyProperty.Register("ViewportSize", function () { return Number; }, ScrollBar, 0, ScrollBar._OnViewportSizePropertyChanged);
-ScrollBar.Instance.GetViewportSize = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(ScrollBar.ViewportSizeProperty);
-};
-ScrollBar.Instance.SetViewportSize = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(ScrollBar.ViewportSizeProperty, value);
-};
+
+Nullstone.AutoProperties(ScrollBar, [
+    ScrollBar.OrientationProperty,
+    ScrollBar.ViewportSizeProperty
+]);
 
 //#endregion
 
@@ -127,7 +116,7 @@ ScrollBar.Instance.OnLostMouseCapture = function (sender, args) {
 ScrollBar.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$RangeBase(sender, args);
     this._IsMouseOver = true;
-    var orientation = this.GetOrientation();
+    var orientation = this.Orientation;
     var shouldUpdate = false;
     if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
         shouldUpdate = true;
@@ -139,7 +128,7 @@ ScrollBar.Instance.OnMouseEnter = function (sender, args) {
 ScrollBar.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$RangeBase(sender, args);
     this._IsMouseOver = false;
-    var orientation = this.GetOrientation();
+    var orientation = this.Orientation;
     var shouldUpdate = false;
     if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
         shouldUpdate = true;
@@ -201,7 +190,7 @@ ScrollBar.Instance._OnThumbDragDelta = function (sender, args) {
     var min = this.Minimum;
     var diff = max - min;
     var trackLength = this._GetTrackLength();
-    var orientation = this.GetOrientation();
+    var orientation = this.Orientation;
     if (this.$ElementVerticalThumb && orientation === Orientation.Vertical) {
         change = num * args.VerticalChange / (trackLength - this.$ElementVerticalThumb.ActualHeight) * diff;
     }
@@ -265,7 +254,7 @@ ScrollBar.Instance._HandleSizeChanged = function () {
     this._UpdateTrackLayout(this._GetTrackLength());
 };
 ScrollBar.Instance._OnOrientationChanged = function () {
-    var orientation = this.GetOrientation();
+    var orientation = this.Orientation;
     if (this.$ElementHorizontalTemplate) {
         this.$ElementHorizontalTemplate.Visibility = orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -281,7 +270,7 @@ ScrollBar.Instance._UpdateTrackLayout = function (trackLength) {
     var multiplier = (val - min) / (max - min);
     var thumbSize = this._UpdateThumbSize(trackLength);
 
-    var orientation = this.GetOrientation();
+    var orientation = this.Orientation;
     if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
         this.$ElementHorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
     } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
@@ -292,7 +281,7 @@ ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
     var result = Number.NaN;
     var hideThumb = trackLength <= 0;
     if (trackLength > 0) {
-        var orientation = this.GetOrientation();
+        var orientation = this.Orientation;
         var max = this.Maximum;
         var min = this.Minimum;
         if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb) {
@@ -327,7 +316,7 @@ ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
 };
 ScrollBar.Instance._GetTrackLength = function () {
     var actual = NaN;
-    if (this.GetOrientation() === Orientation.Horizontal) {
+    if (this.Orientation === Orientation.Horizontal) {
         actual = this.ActualWidth;
         if (this.$ElementHorizontalSmallDecrease) {
             var thickness = this.$ElementHorizontalSmallDecrease.Margin;
@@ -351,7 +340,7 @@ ScrollBar.Instance._GetTrackLength = function () {
     return actual;
 };
 ScrollBar.Instance._ConvertViewportSizeToDisplayUnits = function (trackLength) {
-    var viewportSize = this.GetViewportSize();
+    var viewportSize = this.ViewportSize;
     return trackLength * viewportSize / (viewportSize + this.Maximum - this.Minimum);
 };
 
