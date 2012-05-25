@@ -135,18 +135,20 @@ Nullstone.AutoProperties = function (type, arr) {
         Nullstone.AutoProperty(type, arr[i]);
     }
 };
-Nullstone.AutoProperty = function (type, nameOrDp) {
+Nullstone.AutoProperty = function (type, nameOrDp, converter) {
     if (nameOrDp instanceof DependencyProperty) {
         type.Instance[nameOrDp.Name] = null;
         type.Properties.push({
             Auto: true,
-            DP: nameOrDp
+            DP: nameOrDp,
+            Converter: converter
         });
     } else {
         type.Instance[nameOrDp] = null;
         type.Properties.push({
             Auto: true,
-            Name: nameOrDp
+            Name: nameOrDp,
+            Converter: converter
         });
     }
 };
@@ -179,7 +181,7 @@ Nullstone._CreateProps = function (ns) {
     for (var i = 0; i < props.length; i++) {
         var p = props[i];
         if (p.DP) {
-            Nullstone._CreateDP(ns, p.DP);
+            Nullstone._CreateDP(ns, p.DP, p.Converter);
         } else {
             Object.defineProperty(ns, p, {
                 value: null,
@@ -188,15 +190,23 @@ Nullstone._CreateProps = function (ns) {
         }
     }
 };
-Nullstone._CreateDP = function (ns, dp) {
+Nullstone._CreateDP = function (ns, dp, converter) {
+    var getFunc = function () { return this.$GetValue(dp); };
     if (dp._IsReadOnly) {
         Object.defineProperty(ns, dp.Name, {
-            get: function () { return this.$GetValue(dp); }
+            get: getFunc
         });
     } else {
+        var setFunc;
+        if (converter) {
+            setFunc = function (value) { value = converter(value); this.$SetValue(dp, value); };
+            setFunc.Converter = converter;
+        }
+        else
+            setFunc = function (value) { this.$SetValue(dp, value); };
         Object.defineProperty(ns, dp.Name, {
-            get: function () { return this.$GetValue(dp); },
-            set: function (value) { this.$SetValue(dp, value); }
+            get: getFunc,
+            set: setFunc
         });
     }
 };

@@ -101,9 +101,12 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         if (!(propValue instanceof Expression)) {
             var targetType = propd.GetTargetType();
             if (targetType._IsNullstone && !(propValue instanceof targetType)) {
-                var setFunc = dobj["Set" + propName];
-                if (setFunc && setFunc.Converter && setFunc.Converter instanceof Function)
-                    propValue = setFunc.Converter(propValue);
+                var propDesc = Object.getOwnPropertyDescriptor(dobj, propName);
+                if (propDesc) {
+                    var setFunc = propDesc.set;
+                    if (setFunc && setFunc.Converter && setFunc.Converter instanceof Function)
+                        propValue = setFunc.Converter(propValue);
+                }
             }
         }
         this.SetValue(dobj, propd, propValue);

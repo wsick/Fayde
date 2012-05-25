@@ -13,36 +13,23 @@ Polyline.Instance.Init = function () {
 //#region Dependency Properties
 
 Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
-Polyline.Instance.GetFillRule = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Polyline.FillRuleProperty);
-};
-Polyline.Instance.SetFillRule = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Polyline.FillRuleProperty, value);
-};
-
 Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, null, { GetValue: function () { return new PointCollection(); } });
-Polyline.Instance.GetPoints = function () {
-    ///<returns type="PointCollection"></returns>
-    return this.$GetValue(Polyline.PointsProperty);
-};
-Polyline.Instance.SetPoints = function (value) {
-    ///<param name="value" type="PointCollection"></param>
-    this.$SetValue(Polyline.PointsProperty, value);
-};
-Polyline.Instance.SetPoints.Converter = function (value) {
+
+Nullstone.AutoProperties(Polyline, [
+    Polyline.FillRuleProperty
+]);
+Nullstone.AutoProperty(Polyline, Polyline.PointsProperty, function (value) {
     if (value instanceof PointCollection)
         return value;
     if (typeof value === "string")
         return Fayde.TypeConverter.PointCollectionFromString(value);
     return value;
-};
+});
 
 //#endregion
 
 Polyline.Instance._BuildPath = function () {
-    var points = this.GetPoints();
+    var points = this.Points;
     var count;
     if (points == null || (count = points.GetCount()) < 2) {
         this._SetShapeFlags(ShapeFlags.Empty);

@@ -15,7 +15,7 @@ Ellipse.Instance._DrawPath = function (ctx) {
     this._DrawPath$Shape(ctx);
 };
 Ellipse.Instance._BuildPath = function () {
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
     var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
 
@@ -73,7 +73,7 @@ Ellipse.Instance._ComputeShapeBounds = function (logical) {
     }
 
     var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
-    switch (this.GetStretch()) {
+    switch (this.Stretch) {
         case Stretch.None:
             rect.Width = rect.Height = 0.0;
             break;
