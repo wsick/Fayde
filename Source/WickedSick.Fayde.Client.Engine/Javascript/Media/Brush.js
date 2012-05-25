@@ -12,14 +12,10 @@ Brush.Instance.Init = function () {
 //#region Dependency Properties
 
 Brush.ChangedProperty = DependencyProperty.Register("Changed", function () { return Boolean; }, Brush);
-Brush.Instance.GetChanged = function () {
-    ///<returns type="Boolean"></returns>
-    return this.$GetValue(Brush.ChangedProperty);
-};
-Brush.Instance.SetChanged = function (value) {
-    ///<param name="value" type="Boolean"></param>
-    this.$SetValue(Brush.ChangedProperty, value);
-};
+
+Nullstone.AutoProperties(Brush, [
+    Brush.ChangedProperty
+]);
 
 //#endregion
 
