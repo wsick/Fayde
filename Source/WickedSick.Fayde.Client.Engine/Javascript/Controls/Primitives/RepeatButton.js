@@ -154,7 +154,7 @@ RepeatButton.Instance._OnTimeout = function (sender, e) {
         this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, interval));
     }
 
-    if (this.GetIsPressed() || this._KeyboardCausingRepeat) {
+    if (this.IsPressed || this._KeyboardCausingRepeat) {
         this.OnClick();
         return;
     }
