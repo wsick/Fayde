@@ -9,13 +9,15 @@ RadioButton.Instance.Init = function () {
     RadioButton.Register("", this);
 };
 
+//#region Dependency Properties
+
 RadioButton.GroupNameProperty = DependencyProperty.RegisterReadOnly("GroupName", function () { return RadioButton; }, RadioButton, false, function (d, args) { d.OnGroupNameChanged(args); });
-RadioButton.Instance.GetGroupName = function () {
-    return this.$GetValue(RadioButton.GroupNameProperty);
-};
-RadioButton.Instance.SetGroupName = function (value) {
-    this.$SetValue(RadioButton.GroupNameProperty, value);
-};
+
+Nullstone.AutoProperties(RadioButton, [
+    RadioButton.GroupNameProperty
+]);
+
+//#endregion
 
 RadioButton.Instance.OnGroupNameChanged = function (e) {
     RadioButton.Unregister(e.OldValue, this);
@@ -63,7 +65,7 @@ RadioButton.Instance.OnToggle = function () {
 };
 
 RadioButton.Instance.UpdateRadioButtonGroup = function () {
-    var groupName = this.GetGroupName();
+    var groupName = this.GroupName;
     if (!groupName) groupName = "";
 
     //if this RadioButton has been assigned a group
