@@ -1,5 +1,4 @@
-/// <reference path="../../Runtime/Nullstone.js" />
-/// <reference path="../../Core/FrameworkElementPropertyValueProvider.js"/>
+/// <reference path="../../Core/PropertyValueProviders/FrameworkElementPropertyValueProvider.js"/>
 /// CODE
 
 //#region _TextBlockDynamicPropertyValueProvider

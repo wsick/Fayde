@@ -159,7 +159,7 @@
     <Content Include="Javascript\Core\DeepStyleWalker.js" />
     <Content Include="Javascript\Core\DeepTreeWalker.js" />
     <Content Include="Javascript\Core\Enums.js" />
-    <Content Include="Javascript\Core\FrameworkElementPropertyValueProvider.js" />
+    <Content Include="Javascript\Core\PropertyValueProviders\FrameworkElementPropertyValueProvider.js" />
     <Content Include="Javascript\Core\FrameworkTemplate.js" />
     <Content Include="Javascript\Core\LayoutPass.js" />
     <Content Include="Javascript\Core\NameScope.js" />

@@ -4,7 +4,7 @@
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="PropertyValueProviders/StylePropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/ImplicitStylePropertyValueProvider.js"/>
-/// <reference path="FrameworkElementPropertyValueProvider.js"/>
+/// <reference path="PropertyValueProviders/FrameworkElementPropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/InheritedDataContextPropertyValueProvider.js"/>
 /// CODE
 /// <reference path="../Runtime/BError.js"/>
