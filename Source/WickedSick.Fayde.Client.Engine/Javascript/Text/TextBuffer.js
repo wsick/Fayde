@@ -2,7 +2,7 @@
 /// CODE
 
 //#region _TextBuffer
-var _TextBuffer = Nullstone.Create("_TextBuffer", Object);
+var _TextBuffer = Nullstone.Create("_TextBuffer", null);
 
 _TextBuffer.Instance.Init = function () {
     this._Text = null;

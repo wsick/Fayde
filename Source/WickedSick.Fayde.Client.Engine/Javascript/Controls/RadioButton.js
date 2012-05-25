@@ -1,7 +1,7 @@
 ﻿/// <reference path="Primitives/ToggleButton.js"/>
 /// CODE
 
-//#region CheckBox
+//#region RadioButton
 var RadioButton = Nullstone.Create("RadioButton", ToggleButton);
 
 RadioButton.Instance.Init = function () {
