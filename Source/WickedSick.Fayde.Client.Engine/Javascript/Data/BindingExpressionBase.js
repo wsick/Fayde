@@ -312,7 +312,7 @@ BindingExpressionBase.Instance.SetDataContextSource = function (value) {
     }
 
     if (this._DataContextSource || this.GetIsMentorDataContextBound())
-        this.GetPropertyPathWalker().Update(!this._DataContextSource ? null : this._DataContextSource.GetDataContext());
+        this.GetPropertyPathWalker().Update(!this._DataContextSource ? null : this._DataContextSource.DataContext);
 };
 BindingExpressionBase.Instance._InvalidateAfterMentorChanged = function (sender, e) {
     ///<param name="e" type="EventArgs"></param>
@@ -388,7 +388,7 @@ BindingExpressionBase.Instance._ParentChanged = function (sender, e) {
 BindingExpressionBase.Instance._DataContextChanged = function (sender, e) {
     try {
         var fe = sender;
-        this.GetPropertyPathWalker().Update(fe.GetDataContext());
+        this.GetPropertyPathWalker().Update(fe.DataContext);
         if (this.GetBinding().GetMode() === BindingMode.OneTime)
             this.Refresh();
     } catch (err) {

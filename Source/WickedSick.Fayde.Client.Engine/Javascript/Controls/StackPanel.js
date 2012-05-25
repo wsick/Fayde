@@ -7,7 +7,7 @@
 //#region StackPanel
 var StackPanel = Nullstone.Create("StackPanel", Panel);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 StackPanel._OrientationChanged = function (d, args) {
     var sp = Nullstone.As(d, StackPanel);
@@ -26,7 +26,7 @@ StackPanel.Instance.SetOrientation = function (value) {
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 StackPanel.Instance.MeasureOverride = function (constraint) {
     //Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
@@ -35,16 +35,18 @@ StackPanel.Instance.MeasureOverride = function (constraint) {
 
     if (this.GetOrientation() === Orientation.Vertical) {
         childAvailable.Width = constraint.Width;
-        if (!isNaN(this.GetWidth()))
-            childAvailable.Width = this.GetWidth();
-        childAvailable.Width = Math.min(childAvailable.Width, this.GetMaxWidth());
-        childAvailable.Width = Math.max(childAvailable.Width, this.GetMinWidth());
+        var width = this.Width;
+        if (!isNaN(width))
+            childAvailable.Width = width;
+        childAvailable.Width = Math.min(childAvailable.Width, this.MaxWidth);
+        childAvailable.Width = Math.max(childAvailable.Width, this.MinWidth);
     } else {
         childAvailable.Height = constraint.Height;
-        if (!isNaN(this.GetHeight()))
-            childAvailable.Height = this.GetHeight();
-        childAvailable.Height = Math.min(childAvailable.Height, this.GetMaxHeight());
-        childAvailable.Height = Math.max(childAvailable.Height, this.GetMinHeight());
+        var height = this.Height;
+        if (!isNaN(height))
+            childAvailable.Height = height;
+        childAvailable.Height = Math.min(childAvailable.Height, this.MaxHeight);
+        childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
     }
 
     var children = this.GetChildren();

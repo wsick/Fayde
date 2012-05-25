@@ -225,7 +225,7 @@ TextBlock.Instance._Render = function (ctx, region) {
     this._RenderLayoutClip(ctx);
     var padding = this.GetPadding();
     var offset = new Point(padding.Left, padding.Top);
-    if (this.GetFlowDirection() === FlowDirection.RightToLeft) {
+    if (this.FlowDirection === FlowDirection.RightToLeft) {
         NotImplemented("TextBlock._Render: Right to left");
     }
     this._Layout._Render(ctx, this._GetOriginPoint(), offset);

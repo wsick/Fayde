@@ -173,7 +173,7 @@ ScrollViewer.Instance.PageRight = function () {
 
 ScrollViewer.Instance._ScrollInDirection = function (key) {
     //TODO: FlowDirection
-    //var flowDirection = this.GetFlowDirection() === FlowDirection.RightToLeft;
+    //var flowDirection = this.FlowDirection === FlowDirection.RightToLeft;
     switch (key) {
         case Key.PageUp:
             this.PageUp();

@@ -219,7 +219,7 @@ Fayde.Image.Instance._Render = function (ctx, region) {
 };
 Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
     var stretch = this.GetStretch();
-    var specified = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var specified = new Size(this.ActualWidth, this.ActualHeight);
     var stretched = this._ApplySizeConstraints(specified);
     var adjust = !Rect.Equals(specified, this._GetRenderSize());
 

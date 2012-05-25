@@ -91,7 +91,7 @@ ContentPresenter.Instance.InvokeLoaded = function () {
     if (Nullstone.Is(this.GetContent(), UIElement))
         this.$ClearValue(FrameworkElement.DataContextProperty);
     else
-        this.SetDataContext(this.GetContent());
+        this.DataContext = this.GetContent();
     this.InvokeLoaded$FrameworkElement();
 };
 

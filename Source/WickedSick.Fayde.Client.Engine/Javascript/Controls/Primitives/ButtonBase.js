@@ -174,8 +174,8 @@ ButtonBase.Instance._ReleaseMouseCaptureInternal = function () {
 ButtonBase.Instance._IsValidMousePosition = function () {
     /// <returns type="Boolean" />
     var pos = this._MousePosition;
-    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
-        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
+    return pos.X >= 0.0 && pos.X <= this.ActualWidth
+        && pos.Y >= 0.0 && pos.Y <= this.ActualHeight;
 };
 
 //#endregion

@@ -519,7 +519,7 @@ UIElement.Instance._DoArrangeWithError = function (error) {
                     desired = new Size(surface.GetWidth(), surface.GetHeight());
             }
         } else {
-            desired = new Size(this.GetActualWidth(), this.GetActualHeight());
+            desired = new Size(this.ActualWidth, this.ActualHeight);
         }
 
         viewport = new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), desired.Width, desired.Height)

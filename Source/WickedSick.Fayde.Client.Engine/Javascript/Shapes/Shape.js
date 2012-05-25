@@ -363,18 +363,15 @@ Shape.Instance._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 Shape.Instance._ComputeStretchBounds = function () {
-    var autoDim = isNaN(this.GetWidth());
-
-    var stretch = this.GetStretch();
     var shapeBounds = this._GetNaturalBounds();
-
     if (shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
     }
 
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
-    var specified = new Size(this.GetWidth(), this.GetHeight());
+    var specified = new Size(this.Width, this.Height);
+    var autoDim = isNaN(specified.Width);
+    var framework = new Size(this.ActualWidth, this.ActualHeight);
 
     if (specified.Width <= 0.0 || specified.Height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
@@ -395,6 +392,7 @@ Shape.Instance._ComputeStretchBounds = function () {
         framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
     }
 
+    var stretch = this.GetStretch();
     if (stretch === Stretch.None) {
         shapeBounds = shapeBounds.Transform(this._StretchTransform);
         return shapeBounds;

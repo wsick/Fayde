@@ -59,7 +59,7 @@ Panel.Instance._ComputeBounds = function () {
     }
 
     if (this.GetBackground()) {
-        this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+        this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
     }
 
@@ -97,7 +97,7 @@ Panel.Instance._Render = function (ctx, region) {
     var background = this.GetBackground();
     if (!background)
         return;
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var framework = new Size(this.ActualWidth, this.ActualHeight);
     framework = this._ApplySizeConstraints(framework);
     if (framework.Width <= 0 || framework.Height <= 0)
         return;

@@ -519,7 +519,7 @@ Grid.Instance._ComputeBounds = function () {
     this._ComputeBounds$Panel();
 
     if (this.GetShowGridLines()) {
-        this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+        this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
         this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/* .GrowByThickness(this._EffectPadding) */, false); //.Transform(this._AbsoluteTransform);
         this._BoundsWithChildren = this._BoundsWithChildren.Union(this._Bounds);
