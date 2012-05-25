@@ -86,7 +86,7 @@ UIElement.Instance.Init = function () {
 
 //#region Dependency Properties
 
-UIElement.ClipProperty = DependencyProperty.Register("Clip", function () { return Geometry; }, UIElement);
+UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
 UIElement.Instance.GetClip = function () {
     return this.$GetValue(UIElement.ClipProperty);
 };
@@ -98,7 +98,7 @@ UIElement.Instance.SetClip = function (value) {
 //UIElement.EffectProperty;
 //UIElement.ProjectionProperty;
 
-UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
+UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
 UIElement.Instance.GetIsHitTestVisible = function () {
     return this.$GetValue(UIElement.IsHitTestVisibleProperty);
 };
@@ -106,7 +106,7 @@ UIElement.Instance.SetIsHitTestVisible = function (value) {
     this.$SetValue(UIElement.IsHitTestVisibleProperty, value);
 };
 
-UIElement.OpacityMaskProperty = DependencyProperty.Register("OpacityMask", function () { return Brush; }, UIElement);
+UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);
 UIElement.Instance.GetOpacityMask = function () {
     return this.$GetValue(UIElement.OpacityMaskProperty);
 };
@@ -114,7 +114,7 @@ UIElement.Instance.SetOpacityMask = function (value) {
     this.$SetValue(UIElement.OpacityMaskProperty, value);
 };
 
-UIElement.OpacityProperty = DependencyProperty.Register("Opacity", function () { return Number; }, UIElement, 1.0);
+UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
 UIElement.Instance.GetOpacity = function () {
     return this.$GetValue(UIElement.OpacityProperty);
 };
@@ -144,7 +144,7 @@ UIElement.Instance.GetTriggers = function () {
     return this.$GetValue(UIElement.TriggersProperty);
 };
 
-UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", function () { return Boolean; }, UIElement);
+UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterCore("UseLayoutRounding", function () { return Boolean; }, UIElement);
 UIElement.Instance.GetUseLayoutRounding = function () {
     return this.$GetValue(UIElement.UseLayoutRoundingProperty);
 };
@@ -152,7 +152,7 @@ UIElement.Instance.SetUseLayoutRounding = function (value) {
     this.$SetValue(UIElement.UseLayoutRoundingProperty, value);
 };
 
-UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
+UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
 UIElement.Instance.GetVisibility = function () {
     return this.$GetValue(UIElement.VisibilityProperty);
 };
@@ -160,7 +160,7 @@ UIElement.Instance.SetVisibility = function (value) {
     this.$SetValue(UIElement.VisibilityProperty, value);
 };
 
-UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
+UIElement.TagProperty = DependencyProperty.RegisterCore("Tag", function () { return Object; }, UIElement);
 UIElement.Instance.GetTag = function () {
     return this.$GetValue(UIElement.TagProperty);
 };
