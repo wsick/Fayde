@@ -81,7 +81,7 @@ ButtonBase.Instance.OnMouseEnter = function (sender, args) {
 
     this._SuspendStateChanges = true;
     try {
-        if (this.ClickMode === ClickMode.Hover && this.GetIsEnabled()) {
+        if (this.ClickMode === ClickMode.Hover && this.IsEnabled) {
             this.$SetValueInternal(ButtonBase.IsPressedProperty, true);
             this.OnClick();
         }
@@ -97,7 +97,7 @@ ButtonBase.Instance.OnMouseLeave = function (sender, args) {
 
     this._SuspendStateChanges = true;
     try {
-        if (this.ClickMode === ClickMode.Hover && this.GetIsEnabled())
+        if (this.ClickMode === ClickMode.Hover && this.IsEnabled)
             this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
     } finally {
         this._SuspendStateChanges = false;
@@ -109,7 +109,7 @@ ButtonBase.Instance.OnMouseMove = function (sender, args) {
 
     this._MousePosition = args.GetPosition(this);
 
-    if (this._IsMouseLeftButtonDown && this.GetIsEnabled() && this.ClickMode !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
+    if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
         this.$SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
     }
 };
@@ -117,7 +117,7 @@ ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this.OnMouseLeftButtonDown$ContentControl(sender, args);
 
     this._IsMouseLeftButtonDown = true;
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         return;
     var clickMode = this.ClickMode;
     if (clickMode === ClickMode.Hover)
@@ -142,7 +142,7 @@ ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
     this.OnMouseLeftButtonDown$ContentControl(sender, args);
 
     this._IsMouseLeftButtonDown = false;
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         return;
     var clickMode = this.ClickMode;
     if (clickMode === ClickMode.Hover)

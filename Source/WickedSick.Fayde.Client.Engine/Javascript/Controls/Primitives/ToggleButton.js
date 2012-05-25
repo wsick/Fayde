@@ -26,7 +26,7 @@ ToggleButton.Instance.OnIsCheckedChanged = function (e) {
 ToggleButton.Instance._ChangeVisualState = function (useTransitions) {
     // Cache dependency properties we'll check more than once
     var isChecked = this.IsChecked;
-    var isEnabled = this.GetIsEnabled();
+    var isEnabled = this.IsEnabled;
 
     // Update the Interaction state group 
     if (!isEnabled) {

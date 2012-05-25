@@ -116,7 +116,7 @@ ScrollBar.Instance.OnApplyTemplate = function () {
 
 ScrollBar.Instance.OnIsEnabledChanged = function (args) {
     this.OnIsEnabledChanged$RangeBase(args);
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         this._IsMouseOver = false;
     this.UpdateVisualState();
 };
@@ -363,7 +363,7 @@ ScrollBar.Instance._RaiseScroll = function (scrollEvtType) {
 
 ScrollBar.Instance.UpdateVisualState = function (useTransitions) {
     if (useTransitions === undefined) useTransitions = true;
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
     } else if (this._IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");

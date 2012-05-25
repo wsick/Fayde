@@ -41,7 +41,7 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
     return destination;
 };
 HyperlinkButton.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
     } else if (this.IsPressed) {
         this._GoToState(useTransitions, "Pressed");
@@ -51,7 +51,7 @@ HyperlinkButton.Instance._ChangeVisualState = function (useTransitions) {
         this._GoToState(useTransitions, "Normal");
     }
 
-    if (this.IsFocused && this.GetIsEnabled()) {
+    if (this.IsFocused && this.IsEnabled) {
         this._GoToState(useTransitions, "Focused");
     } else {
         this._GoToState(useTransitions, "Unfocused");

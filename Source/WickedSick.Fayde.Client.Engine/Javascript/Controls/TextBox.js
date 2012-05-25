@@ -434,7 +434,7 @@ TextBox.Instance.OnLostFocus = function (sender, args) {
 
 TextBox.Instance._ChangeVisualState = function (useTransitions) {
     /// <param name="useTransitions" type="Boolean"></param>
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         VisualStateManager.GoToState(this, "Disabled", useTransitions);
     } else if (this.GetIsReadOnly()) {
         VisualStateManager.GoToState(this, "ReadOnly", useTransitions);

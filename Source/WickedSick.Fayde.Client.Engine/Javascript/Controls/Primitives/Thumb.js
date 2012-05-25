@@ -52,7 +52,7 @@ Thumb.Instance.OnDraggingChanged = function (args) {
 };
 Thumb.Instance.OnIsEnabledChanged = function (args) {
     this.OnIsEnabledChanged$Control(args);
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         this._IsMouseOver = false;
     this.UpdateVisualState();
 };
@@ -79,14 +79,14 @@ Thumb.Instance.OnLostMouseCapture = function (sender, args) {
 };
 Thumb.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$Control(sender, args);
-    if (this.GetIsEnabled()) {
+    if (this.IsEnabled) {
         this._IsMouseOver = true;
         this.UpdateVisualState();
     }
 };
 Thumb.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$Control(sender, args);
-    if (this.GetIsEnabled()) {
+    if (this.IsEnabled) {
         this._IsMouseOver = false;
         this.UpdateVisualState();
     }
@@ -95,7 +95,7 @@ Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this.OnMouseLeftButtonDown$Control(sender, args);
     if (args.Handled)
         return;
-    if (!this.GetIsDragging() && this.GetIsEnabled()) {
+    if (!this.GetIsDragging() && this.IsEnabled) {
         args.Handled = true;
         this.CaptureMouse();
         this.$SetValueInternal(Thumb.IsDraggingProperty, true);
@@ -127,7 +127,7 @@ Thumb.Instance.OnMouseMove = function (sender, args) {
 
 Thumb.Instance.UpdateVisualState = function (useTransitions) {
     if (useTransitions === undefined) useTransitions = true;
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
     } else if (this.GetIsDragging()) {
         this._GoToState(useTransitions, "Pressed");
@@ -137,7 +137,7 @@ Thumb.Instance.UpdateVisualState = function (useTransitions) {
         this._GoToState(useTransitions, "Normal");
     }
 
-    if (this.GetIsFocused() && this.GetIsEnabled())
+    if (this.GetIsFocused() && this.IsEnabled)
         this._GoToState(useTransitions, "Focused");
     else
         this._GoToState(useTransitions, "Unfocused");

@@ -16,7 +16,7 @@ Button.Instance.OnApplyTemplate = function () {
     this.UpdateVisualState(false);
 };
 Button.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
     } else if (this.IsPressed) {
         this._GoToState(useTransitions, "Pressed");
@@ -26,7 +26,7 @@ Button.Instance._ChangeVisualState = function (useTransitions) {
         this._GoToState(useTransitions, "Normal");
     }
 
-    if (this.IsFocused && this.GetIsEnabled()) {
+    if (this.IsFocused && this.IsEnabled) {
         this._GoToState(useTransitions, "Focused");
     } else {
         this._GoToState(useTransitions, "Unfocused");

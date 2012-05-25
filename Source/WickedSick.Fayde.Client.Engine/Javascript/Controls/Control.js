@@ -93,12 +93,6 @@ Control.Instance.SetHorizontalContentAlignment = function (value) {
 };
 
 Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
-Control.Instance.GetIsEnabled = function () {
-    return this.$GetValue(Control.IsEnabledProperty);
-};
-Control.Instance.SetIsEnabled = function (value) {
-    this.$SetValue(Control.IsEnabledProperty, value);
-};
 
 Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () { return Boolean; }, Control, true);
 Control.Instance.GetIsTabStop = function () {
@@ -164,6 +158,10 @@ Control.SetIsTemplateItem = function (d, value) {
     d.$SetValue(Control.IsTemplateItemProperty, value);
 };
 
+Nullstone.AutoProperties(Control, [
+    Control.IsEnabledProperty
+]);
+
 //#endregion
 
 //#region Properties
@@ -212,17 +210,17 @@ Control.Instance.IsLayoutContainer = function () {
     return true;
 };
 Control.Instance.CanCaptureMouse = function () {
-    return this.GetIsEnabled();
+    return this.IsEnabled;
 };
 
 Control.Instance._CanFindElement = function () {
-    return this.GetIsEnabled();
+    return this.IsEnabled;
 };
 Control.Instance._InsideObject = function (x, y) {
     return false;
 };
 Control.Instance._HitTestPoint = function (ctx, p, uielist) {
-    if (this.GetIsEnabled())
+    if (this.IsEnabled)
         this._HitTestPoint$FrameworkElement(ctx, p, uielist);
 };
 
@@ -322,7 +320,7 @@ Control.Instance.Focus = function (recurse) {
         if (c == null)
             continue;
 
-        if (!c.GetIsEnabled()) {
+        if (!c.IsEnabled) {
             if (!recurse)
                 return false;
             walker.SkipBranch();
