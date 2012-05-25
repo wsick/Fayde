@@ -59,24 +59,14 @@ Grid.SetRowSpan = function (d, value) {
 //#region Dependency Properties
 
 Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
-Grid.Instance.GetShowGridLines = function () {
-    return this.$GetValue(Grid.ShowGridLinesProperty);
-};
-Grid.Instance.SetShowGridLines = function (value) {
-    this.$SetValue(Grid.ShowGridLinesProperty, value);
-};
-
 Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new ColumnDefinitionCollection(); } });
-Grid.Instance.GetColumnDefinitions = function () {
-    /// <returns type="ColumnDefinitionCollection" />
-    return this.$GetValue(Grid.ColumnDefinitionsProperty);
-};
-
 Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new RowDefinitionCollection(); } });
-Grid.Instance.GetRowDefinitions = function () {
-    /// <returns type="RowDefinitionCollection" />
-    return this.$GetValue(Grid.RowDefinitionsProperty);
-};
+
+Nullstone.AutoProperties(Grid, [
+    Grid.ShowGridLinesProperty,
+    Grid.ColumnDefinitionsProperty,
+    Grid.RowDefinitionsProperty
+]);
 
 //#endregion
 
@@ -518,7 +508,7 @@ Grid.Instance._RestoreMeasureResults = function () {
 Grid.Instance._ComputeBounds = function () {
     this._ComputeBounds$Panel();
 
-    if (this.GetShowGridLines()) {
+    if (this.ShowGridLines) {
         this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
         this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/* .GrowByThickness(this._EffectPadding) */, false); //.Transform(this._AbsoluteTransform);

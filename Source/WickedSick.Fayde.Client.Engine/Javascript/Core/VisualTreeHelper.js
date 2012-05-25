@@ -114,9 +114,9 @@ VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
     var grid = Nullstone.As(uie, Grid);
     if (!grid)
         return "";
-    var rds = grid.GetRowDefinitions();
+    var rds = grid.RowDefinitions;
     var rcount = rds.GetCount();
-    var cds = grid.GetColumnDefinitions();
+    var cds = grid.ColumnDefinitions;
     var ccount = cds.GetCount();
 
     var tabs = "";
