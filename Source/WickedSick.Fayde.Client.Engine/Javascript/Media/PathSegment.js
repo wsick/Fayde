@@ -4,11 +4,8 @@
 //#region PathSegment
 var PathSegment = Nullstone.Create("PathSegment", DependencyObject);
 
-PathSegment.Instance.Init = function () {
-};
-
 PathSegment.Instance._Append = function (path) {
-    AbstractMethod("PathSegment._Append");
+    throw new AbstractMethodException("PathSegment._Append");
 };
 
 Nullstone.FinishCreate(PathSegment);
