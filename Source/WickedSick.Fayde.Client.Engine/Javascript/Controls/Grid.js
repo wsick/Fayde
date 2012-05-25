@@ -20,7 +20,7 @@ Grid.Instance.Init = function () {
     this._ColMatrix = null;
 };
 
-//#region ATTACHED DEPENDENCY PROPERTIES
+//#region Attached Dependency Properties
 
 Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0);
 Grid.GetColumn = function (d) {
@@ -56,7 +56,7 @@ Grid.SetRowSpan = function (d, value) {
 
 //#endregion
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
 Grid.Instance.GetShowGridLines = function () {
@@ -109,14 +109,14 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     } else {
         for (i = 0; i < rowCount; i++) {
             var rowdef = rows.GetValueAt(i);
-            var height = rowdef.GetHeight();
+            var height = rowdef.Height;
 
-            rowdef.SetActualHeight(Number.POSITIVE_INFINITY);
-            cell = new _Segment(0.0, rowdef.GetMinHeight(), rowdef.GetMaxHeight(), height.Type);
+            rowdef.ActualHeight = Number.POSITIVE_INFINITY;
+            cell = new _Segment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
 
             if (height.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(height.Value);
-                rowdef.SetActualHeight(cell._SetDesiredToOffered());
+                rowdef.ActualHeight = cell._SetDesiredToOffered();
             } else if (height.Type === GridUnitType.Star) {
                 cell._Stars = height.Value;
                 totalStars.Height += height.Value;
@@ -137,14 +137,14 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     } else {
         for (i = 0; i < colCount; i++) {
             var coldef = cols.GetValueAt(i);
-            var width = coldef.GetWidth();
+            var width = coldef.Width;
 
-            coldef.SetActualWidth(Number.POSITIVE_INFINITY);
-            cell = new _Segment(0.0, coldef.GetMinWidth(), coldef.GetMaxWidth(), width.Type);
+            coldef.ActualWidth = Number.POSITIVE_INFINITY;
+            cell = new _Segment(0.0, coldef.MinWidth, coldef.MaxWidth, width.Type);
 
             if (width.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(width.Value);
-                coldef.SetActualWidth(cell._SetDesiredToOffered());
+                coldef.ActualWidth = cell._SetDesiredToOffered();
             } else if (width.Type === GridUnitType.Star) {
                 cell._Stars = width.Value;
                 totalStars.Width += width.Value;
@@ -299,10 +299,10 @@ Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         this._ExpandStarRows(finalSize);
 
     for (c = 0; c < colCount; c++) {
-        columns.GetValueAt(c).SetActualWidth(this._ColMatrix[c][c]._OfferedSize);
+        columns.GetValueAt(c).ActualWidth = this._ColMatrix[c][c]._OfferedSize;
     }
     for (r = 0; r < rowCount; r++) {
-        rows.GetValueAt(r).SetActualHeight(this._RowMatrix[r][r]._OfferedSize);
+        rows.GetValueAt(r).ActualHeight = this._RowMatrix[r][r]._OfferedSize;
     }
 
     var walker = new _VisualTreeWalker(this);
@@ -352,7 +352,7 @@ Grid.Instance._ExpandStarRows = function (availableSize) {
         for (i = 0; i < this._RowMatrixDim; i++) {
             cur = this._RowMatrix[i][i];
             if (cur._Type === GridUnitType.Star)
-                rows.GetValueAt(i).SetActualHeight(cur._OfferedSize);
+                rows.GetValueAt(i).ActualHeight = cur._OfferedSize;
         }
     }
 };
@@ -375,7 +375,7 @@ Grid.Instance._ExpandStarCols = function (availableSize) {
         for (i = 0; i < this._ColMatrixDim; i++) {
             cur = this._ColMatrix[i][i];
             if (cur._Type === GridUnitType.Star) {
-                columns.GetValueAt(i).SetActualWidth(cur._OfferedSize);
+                columns.GetValueAt(i).ActualWidth = cur._OfferedSize;
             }
         }
     }
