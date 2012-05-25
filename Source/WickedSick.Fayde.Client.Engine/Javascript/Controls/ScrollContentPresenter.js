@@ -168,8 +168,8 @@ ScrollContentPresenter.Instance.OnApplyTemplate = function () {
     if (!info)
         info = this;
 
-    info.SetCanHorizontallyScroll(sv.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
-    info.SetCanVerticallyScroll(sv.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+    info.SetCanHorizontallyScroll(sv.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+    info.SetCanVerticallyScroll(sv.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
     info.SetScrollOwner(sv);
     sv.SetScrollInfo(info);
     sv._InvalidateScrollInfo();
