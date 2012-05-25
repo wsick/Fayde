@@ -40,7 +40,7 @@ _CollectionViewNode.Instance.UpdateValue = function () {
         var view;
         if (this.GetSource() instanceof CollectionViewSource) {
             usableSource = null;
-            view = this.GetSource().GetView();
+            view = this.GetSource().View;
         } else if (this.GetSource().DoesImplement(ICollectionView)) {
             view = this.GetSource();
         }
@@ -67,8 +67,8 @@ _CollectionViewNode.Instance.ConnectViewHandlers = function (source, view) {
     /// <param name="source" type="CollectionViewSource"></param>
     /// <param name="view" type="ICollectionView"></param>
     if (source) {
-        this._ViewPropertyListener = new PropertyChangedListener(source, source.constructor.ViewProperty, this, this.ViewChanged);
-        view = source.GetView();
+        this._ViewPropertyListener = new PropertyChangedListener(source, CollectionViewSource.ViewProperty, this, this.ViewChanged);
+        view = source.View;
     }
     if (view)
         this._ViewListener = new CurrentChangedListener(view, this, this.ViewCurrentChanged);
