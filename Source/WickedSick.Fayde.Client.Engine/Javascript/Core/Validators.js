@@ -15,9 +15,9 @@ Validators.StyleValidator = function (instance, propd, value, error) {
         var root;
         var style = Nullstone.As(value, Style);
 
-        if (style.GetIsSealed()) {
-            if (Nullstone.DoesInheritFrom(parentType, style.GetTargetType())) {
-                error.SetErrored(BError.XamlParseException, "Style.TargetType (" + style.GetTargetType()._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
+        if (style.IsSealed) {
+            if (Nullstone.DoesInheritFrom(parentType, style.TargetType)) {
+                error.SetErrored(BError.XamlParseException, "Style.TargetType (" + style.TargetType._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
                 return false;
             }
             return true;
@@ -32,7 +32,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
                 return false;
             }
             cycles[root._ID] = true;
-            root = root.GetBasedOn();
+            root = root.BasedOn;
         }
         cycles = null;
 
@@ -40,7 +40,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
         //   subclasses of their BasedOn styles TargetType.
         root = style;
         while (root) {
-            var targetType = root.GetTargetType();
+            var targetType = root.TargetType;
             if (Nullstone.RefEquals(root, style)) {
                 if (!targetType) {
                     error.SetErrored(BError.InvalidOperation, "TargetType cannot be null");
@@ -54,7 +54,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
                 return false;
             }
             parentType = targetType;
-            root = root.GetBasedOn();
+            root = root.BasedOn;
         }
 
         // 3 This style is now OK and never needs to be checked again.

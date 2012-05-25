@@ -10,30 +10,16 @@ var Style = Nullstone.Create("Style", DependencyObject);
 //#region Dependency Properties
 
 Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, undefined, { GetValue: function () { return new SetterBaseCollection(); } });
-Style.Instance.GetSetters = function () {
-    return this.$GetValue(Style.SettersProperty);
-};
+Style.IsSealedProperty = DependencyProperty.RegisterCore("IsSealed", function () { return Boolean; }, Style);
+Style.BasedOnProperty = DependencyProperty.RegisterCore("BasedOn", function () { return Function; }, Style);
+Style.TargetTypeProperty = DependencyProperty.RegisterCore("TargetType", function () { return Function; }, Style);
 
-Style.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, Style);
-Style.Instance.GetIsSealed = function () {
-    return this.$GetValue(Style.IsSealedProperty);
-};
-
-Style.BasedOnProperty = DependencyProperty.Register("BasedOn", function () { return Function; }, Style);
-Style.Instance.GetBasedOn = function () {
-    return this.$GetValue(Style.BasedOnProperty);
-};
-Style.Instance.SetBasedOn = function (value) {
-    this.$SetValue(Style.BasedOnProperty, value);
-};
-
-Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, Style);
-Style.Instance.GetTargetType = function () {
-    return this.$GetValue(Style.TargetTypeProperty);
-};
-Style.Instance.SetTargetType = function (value) {
-    this.$SetValue(Style.TargetTypeProperty, value);
-};
+Nullstone.AutoProperties(Style, [
+    Style.SettersProperty,
+    Style.IsSealedProperty,
+    Style.BasedOnProperty,
+    Style.TargetTypeProperty
+]);
 
 //#endregion
 
@@ -46,20 +32,21 @@ Style.Annotations = {
 //#endregion
 
 Style.Instance._Seal = function () {
-    if (this.GetIsSealed())
+    if (this.IsSealed)
         return;
 
     this._ConvertSetterValues();
-    this.$SetValue(Style.IsSealedProperty, true);
-    this.GetSetters()._Seal();
+    this.$SetValueInternal(Style.IsSealedProperty, true);
+    this.Setters._Seal();
 
-    var base = this.GetBasedOn();
+    var base = this.BasedOn;
     if (base)
         base._Seal();
 };
 Style.Instance._ConvertSetterValues = function () {
-    var setters = this.GetSetters();
-    for (var i = 0; i < setters.GetCount(); i++) {
+    var setters = this.Setters;
+    var count = setters.GetCount();
+    for (var i = 0; i < count; i++) {
         this._ConvertSetterValue(setters.GetValueAt(i));
     }
 };
@@ -76,14 +63,14 @@ Style.Instance._ConvertSetterValue = function (setter) {
     }
 
     try {
-        setter._SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.GetTargetType(), true));
+        setter._SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.TargetType, true));
     } catch (err) {
         throw new XamlParseException(err.message);
     }
 };
 
 Style.Instance._AddSetter = function (dobj, propName, value) {
-    this.GetSetters().Add(JsonParser.CreateSetter(dobj, propName, value));
+    this.Setters.Add(JsonParser.CreateSetter(dobj, propName, value));
 };
 Style.Instance._AddSetterJson = function (dobj, propName, json) {
     var parser = new JsonParser();

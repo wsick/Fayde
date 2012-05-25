@@ -13,9 +13,10 @@ ResourceDictionary.Instance.Init = function () {
 //#region Dependency Properties
 
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
-ResourceDictionary.Instance.GetMergedDictionaries = function () {
-    return this.$GetValue(ResourceDictionary.MergedDictionariesProperty);
-};
+
+Nullstone.AutoProperties(ResourceDictionary, [
+    ResourceDictionary.MergedDictionariesProperty
+]);
 
 //#endregion
 
@@ -31,7 +32,7 @@ ResourceDictionary.Instance.Get = function (key) {
     return this._GetFromMergedDictionaries(key);
 };
 ResourceDictionary.Instance._GetFromMergedDictionaries = function (key) {
-    var merged = this.GetMergedDictionaries();
+    var merged = this.MergedDictionaries;
 
     if (!merged)
         return undefined;

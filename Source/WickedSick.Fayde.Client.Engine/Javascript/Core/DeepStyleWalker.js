@@ -29,8 +29,9 @@ _DeepStyleWalker.Instance._InitializeStyle = function (style) {
     var dps = [];
     var cur = style;
     while (cur) {
-        var setters = cur.GetSetters();
-        for (var i = setters.GetCount() - 1; i >= 0; i--) {
+        var setters = cur.Setters;
+        var count = setters.GetCount();
+        for (var i = count - 1; i >= 0; i--) {
             var setter = Nullstone.As(setters.GetValueAt(i), Setter);
             if (!setter)
                 continue;
@@ -42,7 +43,7 @@ _DeepStyleWalker.Instance._InitializeStyle = function (style) {
             dps[propd] = setter;
             this._Setters.push(setter);
         }
-        cur = cur.GetBasedOn();
+        cur = cur.BasedOn;
     }
     this._Setters.sort(_DeepStyleWalker.SetterSort);
 };
@@ -58,7 +59,7 @@ _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
             if (stylesSeen[style._ID])
                 continue;
 
-            var setters = style.GetSetters();
+            var setters = style.Setters;
             var count = setters ? setters.GetCount() : 0;
             for (var j = count - 1; j >= 0; j--) {
                 var setter = Nullstone.As(setters.GetValueAt(j), Setter);
@@ -74,7 +75,7 @@ _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
             }
 
             stylesSeen[style._ID] = true;
-            style = style.GetBasedOn();
+            style = style.BasedOn;
         }
     }
     this._Setters.sort(_DeepStyleWalker.SetterSort);

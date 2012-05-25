@@ -7,29 +7,21 @@ var SetterBase = Nullstone.Create("SetterBase", DependencyObject);
 
 SetterBase.Instance.Init = function () {
     this.Init$DependencyObject();
-    this.SetAttached(false);
+    this._Attached = false;
 };
 
 //#region Dependency Properties
 
 SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBase, false);
-SetterBase.Instance.GetIsSealed = function () {
-    /// <returns type="Boolean" />
-    return this.$GetValue(SetterBase.IsSealedProperty);
-};
+
+Nullstone.AutoProperties(SetterBase, [
+    SetterBase.IsSealedProperty
+]);
 
 //#endregion
 
-SetterBase.Instance.GetAttached = function () {
-    /// <returns type="Boolean" />
-    return this._Attached;
-};
-SetterBase.Instance.SetAttached = function (value) {
-    /// <param name="value" type="Boolean"></param>
-    this._Attached = value;
-};
 SetterBase.Instance._Seal = function () {
-    if (this.GetIsSealed())
+    if (this.IsSealed)
         return;
     this.$SetValue(SetterBase.IsSealedProperty, true);
 };
