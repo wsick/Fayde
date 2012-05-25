@@ -201,9 +201,9 @@ Nullstone._CreateDP = function (ns, dp, converter) {
         if (converter) {
             setFunc = function (value) { value = converter(value); this.$SetValue(dp, value); };
             setFunc.Converter = converter;
-        }
-        else
+        } else {
             setFunc = function (value) { this.$SetValue(dp, value); };
+        }
         Object.defineProperty(ns, dp.Name, {
             get: getFunc,
             set: setFunc
