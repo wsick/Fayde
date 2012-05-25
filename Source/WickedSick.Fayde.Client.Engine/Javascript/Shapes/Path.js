@@ -29,7 +29,7 @@ Path.Instance._GetFillRule = function () {
     var geom = this.Data;
     if (geom == null)
         return this._GetFillRule$Shape();
-    return geom.GetFillRule();
+    return geom.FillRule;
 };
 
 Path.Instance._DrawPath = function (ctx) {

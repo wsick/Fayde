@@ -349,7 +349,7 @@ Fayde._MediaParser.prototype.ParseGeometryImpl = function () {
     }
     var pg = new PathGeometry();
     pg.$Path = path;
-    pg.SetFillRule(fillRule);
+    pg.FillRule = fillRule;
     return pg;
 };
 Fayde._MediaParser.prototype.ParsePointCollectionImpl = function () {
