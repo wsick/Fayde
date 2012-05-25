@@ -18,8 +18,9 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     else
         s = "arguments";
 
-    var code = "if (!Nullstone.IsReady) return;" +
-        "Nullstone._LastID = this._ID = Nullstone._LastID + 1;" +
+    var code = "var n = Nullstone; if (!n.IsReady) return;" +
+        "n._LastID = this._ID = n._LastID + 1;" +
+        "n._CreateProps(this);" +
         "if (this.Init) this.Init(" + s + ");"
 
     var f = new Function(code);
@@ -34,10 +35,12 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     f.prototype.constructor = f;
     Nullstone.IsReady = true;
     f.Instance = {};
+    f.Properties = [];
     f.Interfaces = interfaces;
     return f;
 }
 Nullstone.FinishCreate = function (f) {
+    //Crash if interface is not implemented
     if (f.Interfaces) {
         for (var i = 0; i < f.Interfaces.length; i++) {
             var it = f.Interfaces[i].Instance;
@@ -48,6 +51,7 @@ Nullstone.FinishCreate = function (f) {
         }
     }
 
+    //Set up 'this.Method$BaseClass();' construct
     for (var k in f.Instance) {
         if ((k in f.prototype) && f._BaseClass != null) {
             f.prototype[k + '$' + f._BaseClass._TypeName] = f.prototype[k];
@@ -55,6 +59,20 @@ Nullstone.FinishCreate = function (f) {
         f.prototype[k] = f.Instance[k];
     }
 
+    //Bring up properties defined in base class
+    var props;
+    if (f._BaseClass) {
+        props = f._BaseClass.Properties;
+        for (var i = 0; i < props.length; i++) {
+            var p = props[i];
+            if (p.DP) {
+                f.prototype[p.DP.Name] = null;
+            } else {
+                f.prototype[p.Name] = null;
+            }
+            f.Properties.push(p);
+        }
+    }
 
     delete f['Instance'];
 };
@@ -110,4 +128,75 @@ Nullstone.DoesImplement = function (obj, interfaceType) {
     if (!obj.constructor.Interfaces)
         return false;
     return interfaceType in obj.constructor.Interfaces;
+};
+
+Nullstone.AutoProperties = function (type, arr) {
+    for (var i = 0; i < arr.length; i++) {
+        Nullstone.AutoProperty(type, arr[i]);
+    }
+};
+Nullstone.AutoProperty = function (type, nameOrDp) {
+    if (nameOrDp instanceof DependencyProperty) {
+        type.Instance[nameOrDp.Name] = null;
+        type.Properties.push({
+            Auto: true,
+            DP: nameOrDp
+        });
+    } else {
+        type.Instance[nameOrDp] = null;
+        type.Properties.push({
+            Auto: true,
+            Name: nameOrDp
+        });
+    }
+};
+Nullstone.AutoPropertiesReadOnly = function (type, arr) {
+    for (var i = 0; i < arr.length; i++) {
+        Nullstone.AutoPropertyReadOnly(type, arr[i]);
+    }
+};
+Nullstone.AutoPropertyReadOnly = function (type, nameOrDp) {
+    if (nameOrDp instanceof DependencyProperty) {
+        type.Instance[nameOrDp.Name] = null;
+        type.Properties.push({
+            Auto: true,
+            DP: nameOrDp
+        });
+    } else {
+        type.Instance[nameOrDp] = null;
+        type.Properties.push({
+            Auto: true,
+            Name: nameOrDp,
+            IsReadOnly: true
+        });
+    }
+};
+
+Nullstone._CreateProps = function (ns) {
+    var f = ns.constructor;
+    //Define Properties on prototype
+    props = f.Properties;
+    for (var i = 0; i < props.length; i++) {
+        var p = props[i];
+        if (p.DP) {
+            Nullstone._CreateDP(ns, p.DP);
+        } else {
+            Object.defineProperty(ns, p, {
+                value: null,
+                writable: p.IsReadOnly
+            });
+        }
+    }
+};
+Nullstone._CreateDP = function (ns, dp) {
+    if (dp._IsReadOnly) {
+        Object.defineProperty(ns, dp.Name, {
+            get: function () { return this.$GetValue(dp); }
+        });
+    } else {
+        Object.defineProperty(ns, dp.Name, {
+            get: function () { return this.$GetValue(dp); },
+            set: function (value) { this.$SetValue(dp, value); }
+        });
+    }
 };
