@@ -17,12 +17,10 @@ StackPanel._OrientationChanged = function (d, args) {
     d._InvalidateArrange();
 };
 StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
-StackPanel.Instance.GetOrientation = function () {
-    return this.$GetValue(StackPanel.OrientationProperty);
-};
-StackPanel.Instance.SetOrientation = function (value) {
-    this.$SetValue(StackPanel.OrientationProperty, value);
-};
+
+Nullstone.AutoProperties(StackPanel, [
+    StackPanel.OrientationProperty
+]);
 
 //#endregion
 
@@ -33,7 +31,8 @@ StackPanel.Instance.MeasureOverride = function (constraint) {
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
 
-    if (this.GetOrientation() === Orientation.Vertical) {
+    var orientation = this.Orientation;
+    if (orientation === Orientation.Vertical) {
         childAvailable.Width = constraint.Width;
         var width = this.Width;
         if (!isNaN(width))
@@ -55,7 +54,7 @@ StackPanel.Instance.MeasureOverride = function (constraint) {
         child.Measure(childAvailable);
         var size = child._DesiredSize;
 
-        if (this.GetOrientation() === Orientation.Vertical) {
+        if (orientation === Orientation.Vertical) {
             measured.Height += size.Height;
             measured.Width = Math.max(measured.Width, size.Width);
         } else {
@@ -69,8 +68,9 @@ StackPanel.Instance.MeasureOverride = function (constraint) {
 StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     //Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
     var arranged = arrangeSize;
+    var orientation = this.Orientation;
 
-    if (this.GetOrientation() === Orientation.Vertical)
+    if (orientation === Orientation.Vertical)
         arranged.Height = 0;
     else
         arranged.Width = 0;
@@ -80,7 +80,7 @@ StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
         var child = children.GetValueAt(i);
         var size = child._DesiredSize;
         var childFinal;
-        if (this.GetOrientation() === Orientation.Vertical) {
+        if (orientation === Orientation.Vertical) {
             size.Width = arrangeSize.Width;
 
             childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
@@ -106,7 +106,7 @@ StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
         }
     }
 
-    if (this.GetOrientation() === Orientation.Vertical)
+    if (orientation === Orientation.Vertical)
         arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
     else
         arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
