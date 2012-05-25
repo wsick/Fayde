@@ -5,7 +5,7 @@
 //#region Span
 var Span = Nullstone.Create("Span", Inline);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Span._CreateInlineCollection = function (obj) {
     var inlines = new InlineCollection();
@@ -14,15 +14,15 @@ Span._CreateInlineCollection = function (obj) {
     return inlines;
 };
 Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
-Span.Instance.GetInlines = function () {
-    /// <returns type="InlineCollection" />
-    return this.$GetValue(Span.InlinesProperty);
-};
+
+Nullstone.AutoProperties(Span, [
+    Span.InlinesProperty
+]);
 
 //#endregion
 
 Span.Instance._SerializeText = function (str) {
-    var inlines = this.GetInlines();
+    var inlines = this.Inlines;
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
         str = inlines.GetValueAt(i)._SerializeText(str);

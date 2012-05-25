@@ -12,154 +12,54 @@ Control.Instance.Init = function () {
 
 //#region Dependency Properties
 
-Control.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Control);
-Control.Instance.GetBackground = function () {
-    return this.$GetValue(Control.BackgroundProperty);
-};
-Control.Instance.SetBackground = function (value) {
-    this.$SetValue(Control.BackgroundProperty, value);
-};
+Control.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Control);
+Control.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Control);
+Control.BorderThicknessProperty = DependencyProperty.RegisterCore("BorderThickness", function () { return Thickness; }, Control, new Thickness());
+Control.FontFamilyProperty = DependencyProperty.RegisterCore("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
+Control.FontSizeProperty = DependencyProperty.RegisterCore("FontSize", function () { return String; }, Control, Font.DEFAULT_SIZE);
+Control.FontStretchProperty = DependencyProperty.RegisterCore("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
+Control.FontStyleProperty = DependencyProperty.RegisterCore("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
+Control.FontWeightProperty = DependencyProperty.RegisterCore("FontWeight", function () { return String; }, Control, Font.DEFAULT_WEIGHT);
+Control.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, Control, undefined, { GetValue: function () { return new Color(255, 255, 255, 1.0); } });
+Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () { return new Enum(HorizontalAlignment); }, Control, HorizontalAlignment.Center);
+Control.IsEnabledProperty = DependencyProperty.RegisterCore("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
+Control.IsTabStopProperty = DependencyProperty.RegisterCore("IsTabStop", function () { return Boolean; }, Control, true);
+Control.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, Control, new Thickness());
+Control.TabIndexProperty = DependencyProperty.RegisterCore("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
+Control.TabNavigationProperty = DependencyProperty.RegisterCore("TabNavigation", function () { return Number; }, Control);
+Control.TemplateProperty = DependencyProperty.RegisterCore("Template", function () { return ControlTemplate; }, Control);
+Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () { return new Enum(VerticalAlignment); }, Control, VerticalAlignment.Center);
+Control.DefaultStyleKeyProperty = DependencyProperty.RegisterCore("DefaultStyleKey", function () { return Function; }, Control);
 
-Control.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Control);
-Control.Instance.GetBorderBrush = function () {
-    return this.$GetValue(Control.BorderBrushProperty);
-};
-Control.Instance.SetBorderBrush = function (value) {
-    this.$SetValue(Control.BorderBrushProperty, value);
-};
-
-Control.BorderThicknessProperty = DependencyProperty.Register("BorderThickness", function () { return Thickness; }, Control, new Thickness());
-Control.Instance.GetBorderThickness = function () {
-    return this.$GetValue(Control.BorderThicknessProperty);
-};
-Control.Instance.SetBorderThickness = function (value) {
-    this.$SetValue(Control.BorderThicknessProperty, value);
-};
-
-Control.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
-Control.Instance.GetFontFamily = function () {
-    return this.$GetValue(Control.FontFamilyProperty);
-};
-Control.Instance.SetFontFamily = function (value) {
-    this.$SetValue(Control.FontFamilyProperty, value);
-};
-
-Control.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, Control, Font.DEFAULT_SIZE);
-Control.Instance.GetFontSize = function () {
-    return this.$GetValue(Control.FontSizeProperty);
-};
-Control.Instance.SetFontSize = function (value) {
-    this.$SetValue(Control.FontSizeProperty, value);
-};
-
-Control.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
-Control.Instance.GetFontStretch = function () {
-    return this.$GetValue(Control.FontStretchProperty);
-};
-Control.Instance.SetFontStretch = function (value) {
-    this.$SetValue(Control.FontStretchProperty, value);
-};
-
-Control.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
-Control.Instance.GetFontStyle = function () {
-    return this.$GetValue(Control.FontStyleProperty);
-};
-Control.Instance.SetFontStyle = function (value) {
-    this.$SetValue(Control.FontStyleProperty, value);
-};
-
-Control.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, Control, Font.DEFAULT_WEIGHT);
-Control.Instance.GetFontWeight = function () {
-    return this.$GetValue(Control.FontWeightProperty);
-};
-Control.Instance.SetFontWeight = function (value) {
-    this.$SetValue(Control.FontWeightProperty, value);
-};
-
-Control.ForegroundProperty = DependencyProperty.Register("Foreground", function () { return Brush; }, Control);
-Control.Instance.GetForeground = function () {
-    return this.$GetValue(Control.ForegroundProperty);
-};
-Control.Instance.SetForeground = function (value) {
-    this.$SetValue(Control.ForegroundProperty, value);
-};
-
-Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return new Enum(HorizontalAlignment); }, Control, HorizontalAlignment.Center);
-Control.Instance.GetHorizontalContentAlignment = function () {
-    return this.$GetValue(Control.HorizontalContentAlignmentProperty);
-};
-Control.Instance.SetHorizontalContentAlignment = function (value) {
-    this.$SetValue(Control.HorizontalContentAlignmentProperty, value);
-};
-
-Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
-
-Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () { return Boolean; }, Control, true);
-Control.Instance.GetIsTabStop = function () {
-    return this.$GetValue(Control.IsTabStopProperty);
-};
-Control.Instance.SetIsTabStop = function (value) {
-    this.$SetValue(Control.IsTabStopProperty, value);
-};
-
-Control.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, Control, new Thickness());
-Control.Instance.GetPadding = function () {
-    return this.$GetValue(Control.PaddingProperty);
-};
-Control.Instance.SetPadding = function (value) {
-    this.$SetValue(Control.PaddingProperty, value);
-};
-
-Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
-Control.Instance.GetTabIndex = function () {
-    return this.$GetValue(Control.TabIndexProperty);
-};
-Control.Instance.SetTabIndex = function (value) {
-    this.$SetValue(Control.TabIndexProperty, value);
-};
-
-Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () { return Number; }, Control);
-Control.Instance.GetTabNavigation = function () {
-    return this.$GetValue(Control.TabNavigationProperty);
-};
-Control.Instance.SetTabNavigation = function (value) {
-    this.$SetValue(Control.TabNavigationProperty, value);
-};
-
-Control.TemplateProperty = DependencyProperty.Register("Template", function () { return ControlTemplate; }, Control);
-Control.Instance.GetTemplate = function () {
-    return this.$GetValue(Control.TemplateProperty);
-};
-Control.Instance.SetTemplate = function (value) {
-    this.$SetValue(Control.TemplateProperty, value);
-};
-
-Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return new Enum(VerticalAlignment); }, Control, VerticalAlignment.Center);
-Control.Instance.GetVerticalContentAlignment = function () {
-    return this.$GetValue(Control.VerticalContentAlignmentProperty);
-};
-Control.Instance.SetVerticalContentAlignment = function (value) {
-    this.$SetValue(Control.VerticalContentAlignmentProperty, value);
-};
-
-Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () { return Function; }, Control);
-Control.Instance.GetDefaultStyleKey = function () {
-    return this.$GetValue(Control.DefaultStyleKeyProperty);
-};
-Control.Instance.SetDefaultStyleKey = function (value) {
-    this.$SetValue(Control.DefaultStyleKeyProperty, value);
-};
-
-Control.IsTemplateItemProperty = DependencyProperty.RegisterAttached("IsTemplateItem", function () { return Boolean; }, Control, false);
+Control.IsTemplateItemProperty = DependencyProperty.RegisterAttachedCore("IsTemplateItem", function () { return Boolean; }, Control, false);
 Control.GetIsTemplateItem = function (d) {
+    ///<returns type="Boolean"></returns>
     return d.$GetValue(Control.IsTemplateItemProperty);
 };
 Control.SetIsTemplateItem = function (d, value) {
+    ///<param name="value" type="Boolean"></param>
     d.$SetValue(Control.IsTemplateItemProperty, value);
 };
 
 Nullstone.AutoProperties(Control, [
-    Control.IsEnabledProperty
+    Control.BackgroundProperty,
+    Control.BorderBrushProperty,
+    Control.BorderThicknessProperty,
+    Control.FontFamilyProperty,
+    Control.FontSizeProperty,
+    Control.FontStretchProperty,
+    Control.FontStyleProperty,
+    Control.FontWeightProperty,
+    Control.ForegroundProperty,
+    Control.HorizontalContentAlignmentProperty,
+    Control.IsEnabledProperty,
+    Control.IsTabStopProperty,
+    Control.PaddingProperty,
+    Control.TabIndexProperty,
+    Control.TabNavigationProperty,
+    Control.TemplateProperty,
+    Control.VerticalContentAlignmentProperty,
+    Control.DefaultStyleKeyProperty
 ]);
 
 //#endregion
@@ -260,7 +160,7 @@ Control.Instance._OnIsAttachedChanged = function (value) {
 };
 
 Control.Instance._DoApplyTemplateWithError = function (error) {
-    var t = this.GetTemplate();
+    var t = this.Template;
     if (!t)
         return this._DoApplyTemplateWithError$FrameworkElement(error);
 
@@ -331,7 +231,7 @@ Control.Instance.Focus = function (recurse) {
         for (var check = this; !loaded && check != null; check = check.GetVisualParent())
             loaded = loaded || check._IsLoaded;
 
-        if (loaded && c._GetRenderVisible() && c.GetIsTabStop())
+        if (loaded && c._GetRenderVisible() && c.IsTabStop)
             return surface._FocusElement(c);
 
         if (!recurse)

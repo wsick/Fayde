@@ -12,19 +12,19 @@ Inline.Instance.Init = function () {
 
 Inline.Instance.Equals = function (inline) {
     /// <returns type="Boolean" />
-    if (this.GetFontFamily() != inline.GetFontFamily())
+    if (this.FontFamily !== inline.FontFamily)
         return false;
-    if (this.GetFontSize() != inline.GetFontSize())
+    if (this.FontSize() !== inline.FontSize)
         return false;
-    if (this.GetFontStyle() != inline.GetFontStyle())
+    if (this.FontStyle() !== inline.FontStyle)
         return false;
-    if (this.GetFontWeight() != inline.GetFontWeight())
+    if (this.FontWeight() !== inline.FontWeight)
         return false;
-    if (this.GetFontStretch() != inline.GetFontStretch())
+    if (this.FontStretch() !== inline.FontStretch)
         return false;
-    if (this.GetTextDecorations() != inline.GetTextDecorations())
+    if (this.TextDecorations !== inline.TextDecorations)
         return false;
-    if (this.GetForeground() != inline.GetForeground()) //TODO: Equals?
+    if (!Nullstone.Equals(this.Foreground, inline.Foreground))
         return false;
     return true;
 };

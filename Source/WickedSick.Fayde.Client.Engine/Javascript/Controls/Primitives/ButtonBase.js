@@ -15,7 +15,7 @@ ButtonBase.Instance.Init = function () {
     this.Click = new MulticastEvent();
 
     this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
-    this.SetIsTabStop(true);
+    this.IsTabStop = true;
 }
 
 //#region Dependency Properties

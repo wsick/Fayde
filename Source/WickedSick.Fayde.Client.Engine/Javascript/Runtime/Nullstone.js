@@ -40,9 +40,10 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     return f;
 }
 Nullstone.FinishCreate = function (f) {
+    var i;
     //Crash if interface is not implemented
     if (f.Interfaces) {
-        for (var i = 0; i < f.Interfaces.length; i++) {
+        for (i = 0; i < f.Interfaces.length; i++) {
             var it = f.Interfaces[i].Instance;
             for (var m in it) {
                 if (!(m in f.prototype))
@@ -63,7 +64,7 @@ Nullstone.FinishCreate = function (f) {
     var props;
     if (f._BaseClass) {
         props = f._BaseClass.Properties;
-        for (var i = 0; i < props.length; i++) {
+        for (i = 0; i < props.length; i++) {
             var p = props[i];
             if (p.DP) {
                 f.prototype[p.DP.Name] = null;

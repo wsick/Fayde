@@ -6,17 +6,13 @@
 //#region Block
 var Block = Nullstone.Create("Block", TextElement);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Block.InlinesProperty = DependencyProperty.Register("Inlines", function () { return InlineCollection; }, Block);
-Block.Instance.GetInlines = function () {
-    /// <returns type="InlineCollection" />
-    return this.$GetValue(Block.InlinesProperty);
-};
-Block.Instance.SetInlines = function (value) {
-    /// <param name="value" type="InlineCollection"></param>
-    this.$SetValue(Block.InlinesProperty, value);
-};
+
+Nullstone.AutoProperties(Block, [
+    Block.InlinesProperty
+]);
 
 //#endregion
 

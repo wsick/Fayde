@@ -21,8 +21,8 @@ ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {
     d._InvalidateMeasure();
     var scrollInfo = d.GetScrollInfo();
     if (scrollInfo) {
-        scrollInfo.SetCanHorizontallyScroll(d.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
-        scrollInfo.SetCanVerticallyScroll(d.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+        scrollInfo.SetCanHorizontallyScroll(d.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+        scrollInfo.SetCanVerticallyScroll(d.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
     }
     d._UpdateScrollBarVisibility();
 };

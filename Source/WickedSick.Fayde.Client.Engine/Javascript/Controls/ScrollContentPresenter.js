@@ -278,14 +278,14 @@ ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSiz
     var horizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
 
     if (richtextbox) {
-        textWrapping = richtextbox.GetTextWrapping();
-        horizontalScrollBarVisibility = richtextbox.GetHorizontalScrollBarVisibility();
+        textWrapping = richtextbox.TextWrapping;
+        horizontalScrollBarVisibility = richtextbox.HorizontalScrollBarVisibility;
     } else if (textbox) {
-        textWrapping = textbox.GetTextWrapping();
-        horizontalScrollBarVisibility = textbox.GetHorizontalScrollBarVisibility();
+        textWrapping = textbox.TextWrapping;
+        horizontalScrollBarVisibility = textbox.HorizontalScrollBarVisibility;
     }
 
-    var padding = templatedParent.GetPadding();
+    var padding = templatedParent.Padding;
     if (textWrapping !== TextWrapping.Wrap) {
         if (num > width || x === 0)
             left = padding.Left + 1;

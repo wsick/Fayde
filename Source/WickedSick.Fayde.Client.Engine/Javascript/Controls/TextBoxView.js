@@ -42,8 +42,8 @@ _TextBoxView.Instance.SetTextBox = function (value) {
         var attrs = new _TextLayoutAttributes(this._TextBox, 0);
         this._Layout.GetTextAttributes().Append(attrs);
 
-        this._Layout.SetTextAlignment(this._TextBox.GetTextAlignment());
-        this._Layout.SetTextWrapping(this._TextBox.GetTextWrapping());
+        this._Layout.SetTextAlignment(this._TextBox.TextAlignment);
+        this._Layout.SetTextWrapping(this._TextBox.TextWrapping);
         this._HadSelectedText = this._TextBox.HasSelectedText();
         this._SelectionChanged = true;
         this._UpdateText();
@@ -212,7 +212,7 @@ _TextBoxView.Instance._Render = function (ctx, region) {
     this._UpdateCursor(false);
 
     if (this._SelectionChanged) {
-        this._Layout.Select(this._TextBox.GetSelectionStart(), this._TextBox.GetSelectionLength());
+        this._Layout.Select(this._TextBox.SelectionStart, this._TextBox.SelectionLength);
         this._SelectionChanged = false;
     }
     ctx.Save();
@@ -229,7 +229,7 @@ _TextBoxView.Instance._RenderImpl = function (ctx, region) {
     }
     this._Layout._Render(ctx, this._GetOriginPoint(), new Point());
     if (this._CursorVisible) {
-        var caretBrush = this._TextBox.GetCaretBrush();
+        var caretBrush = this._TextBox.CaretBrush;
         if (!caretBrush)
             caretBrush = new SolidColorBrush(new Color(0, 0, 0));
 

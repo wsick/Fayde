@@ -101,7 +101,7 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
         if (fe instanceof Control) {
             genericXamlStyle = fe.GetDefaultStyle();
             if (!genericXamlStyle) {
-                var styleKey = fe.GetDefaultStyleKey();
+                var styleKey = fe.DefaultStyleKey;
                 if (styleKey != null)
                     genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
             }

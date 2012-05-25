@@ -34,7 +34,7 @@ Button.Instance._ChangeVisualState = function (useTransitions) {
 };
 Button.Instance.OnIsEnabledChanged = function (e) {
     this.OnIsEnabledChanged$ButtonBase(e);
-    this.SetIsTabStop(e.NewValue);
+    this.IsTabStop = e.NewValue;
 };
 
 //#region Default Style
