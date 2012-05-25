@@ -55,7 +55,7 @@ _InheritedPropertyValueProvider.Instance.WalkSubtree = function (rootParent, ele
         }
     }
     if (element instanceof Popup) {
-        var child = element.GetChild();
+        var child = element.Child;
         if (child)
             this.WalkTree(rootParent, element, conte, props, adding);
     }
