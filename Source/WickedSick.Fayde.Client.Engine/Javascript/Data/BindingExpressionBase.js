@@ -293,7 +293,7 @@ BindingExpressionBase.Instance._CalculateDataSource = function () {
             }
 
             if (fe && this.GetBinding().GetRelativeSource() && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
-                this.GetPropertyPathWalker().Update(fe.GetTemplateOwner());
+                this.GetPropertyPathWalker().Update(fe.TemplateOwner);
             } else {
                 this.SetDataContextSource(fe);
             }
@@ -345,7 +345,7 @@ BindingExpressionBase.Instance._FindSourceByElementName = function () {
         fe = this.GetTarget().GetMentor();
     while (fe && !source) {
         source = fe.FindName(this.GetBinding().GetElementName());
-        if (!source && fe.GetTemplateOwner())
+        if (!source && fe.TemplateOwner)
             fe = fe.GetTemplateOwner();
         else if (fe.GetMentor() && ItemsControl.GetItemsOwner(fe.GetMentor()))
             fe = fe.GetMentor();
@@ -367,7 +367,7 @@ BindingExpressionBase.Instance._MentorChanged = function (sender, e) {
             if (!mentor)
                 this.GetPropertyPathWalker().Update(null);
             else
-                this.GetPropertyPathWalker().Update(menotr.GetTemplateOwner());
+                this.GetPropertyPathWalker().Update(mentor.TemplateOwner);
             this.Refresh();
         } else {
             this.SetDataContextSource(mentor);

@@ -150,7 +150,7 @@ ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
 ScrollContentPresenter.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ContentPresenter();
 
-    var sv = Nullstone.As(this.GetTemplateOwner(), ScrollViewer);
+    var sv = Nullstone.As(this.TemplateOwner, ScrollViewer);
     if (!sv)
         return;
 
@@ -256,7 +256,7 @@ ScrollContentPresenter.Instance._UpdateClip = function (arrangeSize) {
     }
 
     var content;
-    if (Nullstone.Is(this.GetTemplateOwner(), ScrollViewer) && (content = this.GetContent()) && (Nullstone.Is(content, _TextBoxView) || Nullstone.Is(content, _RichTextBoxView))) {
+    if (Nullstone.Is(this.TemplateOwner, ScrollViewer) && (content = this.GetContent()) && (Nullstone.Is(content, _TextBoxView) || Nullstone.Is(content, _RichTextBoxView))) {
         //ScrollViewer inside TextBox/RichTextBox
         this.$ClippingRectangle.SetRect(this._CalculateTextBoxClipRect(arrangeSize));
     } else {
@@ -268,12 +268,12 @@ ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSiz
     /// <returns type="Rect" />
     var left = 0;
     var right = 0;
-    var templatedParent = Nullstone.As(this.GetTemplateOwner(), ScrollViewer);
+    var templatedParent = Nullstone.As(this.TemplateOwner, ScrollViewer);
     var width = this.$ScrollData.Extent.Width;
     var num = this.$ScrollData.Viewport.Width;
     var x = this.$ScrollData.Offset.X;
-    var textbox = Nullstone.As(templatedParent.GetTemplateOwner(), TextBox);
-    var richtextbox = Nullstone.As(templatedParent.GetTemplateOwner(), RichTextBox);
+    var textbox = Nullstone.As(templatedParent.TemplateOwner, TextBox);
+    var richtextbox = Nullstone.As(templatedParent.TemplateOwner, RichTextBox);
     var textWrapping = TextWrapping.NoWrap;
     var horizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
 

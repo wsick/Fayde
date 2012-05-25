@@ -613,11 +613,11 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
     if (this._IsOpacityInvisible()) {
-        // Info("No opacity. [" + this.constructor._TypeName + ":" + this.GetName() + "]");
+        // Info("No opacity. [" + this.constructor._TypeName + ":" + this.Name + "]");
         return;
     }
     if (!this._GetRenderVisible()) {
-        //Info("Render invisible. [" + this.constructor._TypeName + ":" + this.GetName() + "]");
+        //Info("Render invisible. [" + this.constructor._TypeName + ":" + this.Name + "]");
         return;
     }
     if (region.IsEmpty()) {

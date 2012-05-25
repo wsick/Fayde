@@ -59,7 +59,7 @@ ContentPresenter.Instance._GetFallbackRoot = function () {
 
 ContentPresenter.Instance._GetDefaultTemplateCallback = function () {
     /// <returns type="UIElement" />
-    var templateOwner = Nullstone.As(this.GetTemplateOwner(), ContentControl);
+    var templateOwner = Nullstone.As(this.TemplateOwner, ContentControl);
     if (templateOwner != null) {
         if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
             this.$SetValue(ContentPresenter.ContentProperty,

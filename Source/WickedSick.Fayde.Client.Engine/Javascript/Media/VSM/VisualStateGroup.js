@@ -52,7 +52,7 @@ VisualStateGroup.Instance.GetState = function (stateName) {
     var states = this.GetStates();
     for (var i = 0; i < states.GetCount(); i++) {
         var state = states.GetValueAt(i);
-        if (state.GetName() === stateName)
+        if (state.Name === stateName)
             return state;
     }
     return null;

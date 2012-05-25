@@ -65,11 +65,9 @@ ResourceDictionary.Instance.Remove = function (key) {
 };
 
 ResourceDictionary.Instance.AddedToCollection = function (value, error) {
-    var obj;
     var rv = false;
-
-    if (value instanceof DependencyObject) {
-        obj = Nullstone.As(value, DependencyObject);
+    var obj = Nullstone.As(value, DependencyObject);
+    if (obj) {
         if (obj._GetParent() && !ResourceDictionary._CanBeAddedTwice(value)) {
             error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
             return false;
@@ -86,7 +84,7 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
     rv = this.AddedToCollection$Collection(value, error);
 
     if (rv /* && !from_resource_dictionary_api */ && obj) {
-        this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, obj, obj.GetName());
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, obj, obj.Name);
     }
 
     return rv;

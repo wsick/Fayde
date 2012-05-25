@@ -15,7 +15,7 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         return new json.Type(json.Props.TargetType, json.Content);
     }
     var dobj = new json.Type();
-    dobj.SetTemplateOwner(this._TemplateBindingSource);
+    dobj.TemplateOwner = this._TemplateBindingSource;
     if (json.Name)
         dobj.SetNameOnScope(json.Name, namescope);
 

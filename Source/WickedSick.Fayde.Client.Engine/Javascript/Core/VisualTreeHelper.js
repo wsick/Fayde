@@ -72,7 +72,7 @@ VisualTreeHelper.__DebugTree = function (uie, uie2, tabIndex, func) {
     if (Nullstone.RefEquals(uie, uie2))
         str += "> ";
     str += uie.constructor._TypeName;
-    var name = uie.GetName();
+    var name = uie.Name;
     if (name)
         str += " [" + name + "]";
     if (func)

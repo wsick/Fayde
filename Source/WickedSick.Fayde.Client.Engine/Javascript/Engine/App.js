@@ -130,11 +130,11 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
         var isControl = fe instanceof Control;
         var el = fe;
         while (el != null) {
-            if (el.GetTemplateOwner() != null && fe.GetTemplateOwner() == null) {
-                el = el.GetTemplateOwner();
+            if (el.TemplateOwner != null && fe.TemplateOwner == null) {
+                el = el.TemplateOwner;
                 continue;
             }
-            if (!isControl && el == fe.GetTemplateOwner())
+            if (!isControl && Nullstone.RefEquals(el, fe.TemplateOwner))
                 break;
 
             visualTreeStyle = el.GetResources().Get(fe.constructor);

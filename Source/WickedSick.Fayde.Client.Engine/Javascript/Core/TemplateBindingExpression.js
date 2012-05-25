@@ -11,7 +11,7 @@ TemplateBindingExpression.Instance.Init = function (sourcePropd, targetPropd) {
 };
 
 TemplateBindingExpression.Instance.GetValue = function (propd) {
-    var source = this.Target.GetTemplateOwner();
+    var source = this.Target.TemplateOwner;
     var value;
     if (source)
         value = source._GetValue(this.SourceProperty);
@@ -34,7 +34,7 @@ TemplateBindingExpression.Instance._OnAttached = function (element) {
         c._ContentSetsParent = false;
     }
 
-    var source = this.Target.GetTemplateOwner();
+    var source = this.Target.TemplateOwner;
     if (source) {
         listener = new PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
         this.SetListener(listener);

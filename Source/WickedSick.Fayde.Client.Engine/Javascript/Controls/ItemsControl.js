@@ -21,9 +21,9 @@ ItemsControl.GetItemsOwner = function (ele) {
     var panel = Nullstone.As(ele, Panel);
     if (!panel || !panel.GetIsItemsHost())
         return null;
-    var owner = Nullstone.As(panel.GetTemplateOwner(), ItemsPresenter);
+    var owner = Nullstone.As(panel.TemplateOwner, ItemsPresenter);
     if (owner)
-        return Nullstone.As(owner.GetTemplateOwner(), ItemsControl);
+        return Nullstone.As(owner.TemplateOwner, ItemsControl);
     return null;
 };
 
