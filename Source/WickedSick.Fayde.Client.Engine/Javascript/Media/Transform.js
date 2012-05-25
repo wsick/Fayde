@@ -6,6 +6,7 @@
 var Transform = Nullstone.Create("Transform", GeneralTransform);
 
 Transform.Instance.Init = function () {
+    this.Init$GeneralTransform();
 };
 
 Transform.Instance.GetInverse = function () {
@@ -13,7 +14,7 @@ Transform.Instance.GetInverse = function () {
     if (inv == null)
         throw new InvalidOperationException("Transform is not invertible");
     var mt = new MatrixTransform();
-    mt.SetMatrix(inv);
+    mt.Matrix = inv;
     return mt;
 };
 Transform.Instance.TransformBounds = function (rect) {
@@ -32,9 +33,9 @@ Transform.Instance.TryTransform = function (inPoint, outPointOut) {
     outPointOut.Value = this._TransformPoint(inPoint);
     return true;
 };
-Transform.Instance.GetMatrix = function () {
-    AbstractMethod("Transform.GetMatrix");
-};
+
+// TODO: Create abstract readonly property
+//       - Matrix
 
 Nullstone.FinishCreate(Transform);
 //#endregion

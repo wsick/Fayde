@@ -5,19 +5,16 @@
 var MatrixTransform = Nullstone.Create("MatrixTransform", Transform);
 
 MatrixTransform.Instance.Init = function () {
+    this.Init$Transform();
 };
 
 //#region Dependency Properties
 
 MatrixTransform.MatrixProperty = DependencyProperty.RegisterCore("Matrix", function() { return Matrix; }, MatrixTransform, new Matrix());
-MatrixTransform.Instance.GetMatrix = function () {
-	///<returns type="Matrix"></returns>
-	return this.$GetValue(MatrixTransform.MatrixProperty);
-};
-MatrixTransform.Instance.SetMatrix = function (value) {
-    ///<param name="value" type="Matrix"></param>
-	this.$SetValue(MatrixTransform.MatrixProperty, value);
-};
+
+Nullstone.AutoProperties(MatrixTransform, [
+    MatrixTransform.MatrixProperty
+]);
 
 //#endregion
 

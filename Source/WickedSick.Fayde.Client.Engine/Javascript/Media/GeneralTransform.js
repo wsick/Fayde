@@ -6,6 +6,7 @@
 var GeneralTransform = Nullstone.Create("GeneralTransform", DependencyObject);
 
 GeneralTransform.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._NeedUpdate = true;
     this._Matrix = new Matrix();
 };

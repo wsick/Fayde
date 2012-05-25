@@ -38,7 +38,7 @@ _RenderContext.Instance._DrawClip = function (clip) {
 
 _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
-        matrix = matrix.GetMatrix();
+        matrix = matrix.Matrix;
     }
     this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
     this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
@@ -47,7 +47,7 @@ _RenderContext.Instance.Transform = function (matrix) {
 };
 _RenderContext.Instance.PreTransform = function (matrix) {
     if (matrix instanceof Transform) {
-        matrix = matrix.GetMatrix();
+        matrix = matrix.Matrix;
     }
     this._CurrentTransform = this._CurrentTransform.MultiplyMatrix(matrix);
     this._InverseTransform = matrix.GetInverse().MultiplyMatrix(this._InverseTransform);
