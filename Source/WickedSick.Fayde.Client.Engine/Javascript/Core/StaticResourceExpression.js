@@ -18,7 +18,7 @@ StaticResourceExpression.Instance.GetValue = function () {
     while (cur) {
         var fe = Nullstone.As(cur, FrameworkElement);
         if (fe) {
-            o = fe.GetResources().Get(key);
+            o = fe.Resources.Get(key);
             if (o)
                 return o;
         }
@@ -30,7 +30,7 @@ StaticResourceExpression.Instance.GetValue = function () {
         }
         cur = cur._Parent;
     }
-    return App.Instance.GetResources().Get(key);
+    return App.Instance.Resources.Get(key);
 };
 
 StaticResourceExpression.Instance.Resolve = function (parser) {

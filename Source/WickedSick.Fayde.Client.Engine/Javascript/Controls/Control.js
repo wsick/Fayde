@@ -311,7 +311,7 @@ Control.Instance.Focus = function (recurse) {
     var walker = new _DeepTreeWalker(this);
     var uie;
     while (uie = walker.Step()) {
-        if (uie.GetVisibility() !== Visibility.Visible) {
+        if (uie.Visibility !== Visibility.Visible) {
             walker.SkipBranch();
             continue;
         }

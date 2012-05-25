@@ -68,14 +68,14 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
         storyboard = newStoryboards[i];
         if (storyboard == null)
             continue;
-        element.GetResources().Add(storyboard._ID, storyboard);
+        element.Resources.Add(storyboard._ID, storyboard);
         try {
             storyboard.Begin();
         } catch (err) {
             //clear storyboards on error
             for (var j = 0; j <= i; j++) {
                 if (newStoryboards[i] != null)
-                    element.GetResources().Remove(newStoryboards[i]._ID);
+                    element.Resources.Remove(newStoryboards[i]._ID);
             }
             throw err;
         }
@@ -86,7 +86,7 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
         storyboard = currentStoryboards.GetValueAt(i);
         if (storyboard == null)
             continue;
-        element.GetResources().Remove(storyboard._ID);
+        element.Resources.Remove(storyboard._ID);
         storyboard.Stop();
     }
 

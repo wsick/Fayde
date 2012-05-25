@@ -146,6 +146,9 @@ FrameworkElement.Instance.SetFlowDirection = function (value) {
     this.$SetValue(FrameworkElement.FlowDirectionProperty, value);
 };
 
+Nullstone.AutoProperties(FrameworkElement, [
+]);
+
 //#endregion
 
 //#region Instance Methods
@@ -182,7 +185,7 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     constrained = constrained.Min(new Size(this.GetMaxWidth(), this.GetMaxHeight()));
     constrained = constrained.Max(new Size(this.GetMinWidth(), this.GetMinHeight()));
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         constrained.Width = Math.round(constrained.Width);
         constrained.Height = Math.round(constrained.Height);
     }
@@ -192,7 +195,7 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
 
 FrameworkElement.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
-    if (this.GetVisibility() !== Visibility.Visible)
+    if (this.Visibility !== Visibility.Visible)
         return new Size(0.0, 0.0);
 
     if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
@@ -271,7 +274,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
     shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
 
-    if (this.GetVisibility() !== Visibility.Visible) {
+    if (this.Visibility !== Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
         this._DesiredSize = new Size(0, 0);
         return;
@@ -317,7 +320,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     size = size.GrowByThickness(margin);
     size = size.Min(availableSize);
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         size.Width = Math.round(size.Width);
         size.Height = Math.round(size.Height);
     }
@@ -358,7 +361,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
 
@@ -374,7 +377,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     var parent = this.GetVisualParent();
 
-    if (this.GetVisibility() !== Visibility.Visible) {
+    if (this.Visibility !== Visibility.Visible) {
         LayoutInformation.SetLayoutSlot(this, finalRect);
         return;
     }
@@ -455,7 +458,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     var oldSize = this._RenderSize;
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         response.Width = Math.round(response.Width);
         response.Height = Math.round(response.Height);
     }
@@ -502,7 +505,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         }
     }
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         visualOffset.X = Math.round(visualOffset.X);
         visualOffset.Y = Math.round(visualOffset.Y);
     }
@@ -523,7 +526,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     var layoutClip = childRect;
     layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
     layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         layoutClip.X = Math.round(layoutClip.X);
         layoutClip.Y = Math.round(layoutClip.Y);
     }
@@ -661,7 +664,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         pass._Count = pass._Count + 1;
 
         var flag = UIElementFlags.None;
-        if (element.GetVisibility() === Visibility.Visible) {
+        if (element.Visibility === Visibility.Visible) {
             if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                 flag = UIElementFlags.DirtyMeasureHint;
             else if (element._HasFlag(UIElementFlags.DirtyArrangeHint))
@@ -674,7 +677,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
             var measureWalker = new _DeepTreeWalker(element);
             var child;
             while (child = measureWalker.Step()) {
-                if (child.GetVisibility() !== Visibility.Visible || !child._HasFlag(flag)) {
+                if (child.Visibility !== Visibility.Visible || !child._HasFlag(flag)) {
                     measureWalker.SkipBranch();
                     continue;
                 }

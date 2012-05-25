@@ -92,7 +92,7 @@ VisualTreeHelper.__DebugUIElement = function (uie, tabIndex) {
         return "";
     /// <param name="uie" type="UIElement"></param>
     var str = "(";
-    if (uie.GetVisibility() === Visibility.Visible)
+    if (uie.Visibility === Visibility.Visible)
         str += "Visible";
     else
         str += "Collapsed";

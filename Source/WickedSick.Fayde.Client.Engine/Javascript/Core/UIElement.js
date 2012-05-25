@@ -87,86 +87,33 @@ UIElement.Instance.Init = function () {
 //#region Dependency Properties
 
 UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
-UIElement.Instance.GetClip = function () {
-    return this.$GetValue(UIElement.ClipProperty);
-};
-UIElement.Instance.SetClip = function (value) {
-    this.$SetValue(UIElement.ClipProperty, value);
-};
-
 //UIElement.CacheModeProperty;
 //UIElement.EffectProperty;
 //UIElement.ProjectionProperty;
-
 UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
-UIElement.Instance.GetIsHitTestVisible = function () {
-    return this.$GetValue(UIElement.IsHitTestVisibleProperty);
-};
-UIElement.Instance.SetIsHitTestVisible = function (value) {
-    this.$SetValue(UIElement.IsHitTestVisibleProperty, value);
-};
-
 UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);
-UIElement.Instance.GetOpacityMask = function () {
-    return this.$GetValue(UIElement.OpacityMaskProperty);
-};
-UIElement.Instance.SetOpacityMask = function (value) {
-    this.$SetValue(UIElement.OpacityMaskProperty, value);
-};
-
 UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
-UIElement.Instance.GetOpacity = function () {
-    return this.$GetValue(UIElement.OpacityProperty);
-};
-UIElement.Instance.SetOpacity = function (value) {
-    this.$SetValue(UIElement.OpacityProperty, value);
-};
-
 //UIElement.RenderTransformOriginProperty;
 //UIElement.AllowDropProperty;
-
 UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, UIElement, CursorType.Default, undefined); //, UIElement._CoerceCursor);
-UIElement.Instance.GetCursor = function () {
-    return this.$GetValue(UIElement.CursorProperty);
-};
-UIElement.Instance.SetCursor = function (value) {
-    this.$SetValue(UIElement.CursorProperty, value);
-};
-
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, { GetValue: function () { return new ResourceDictionary(); } });
-UIElement.Instance.GetResources = function () {
-    /// <returns type="ResourceDictionary" />
-    return this.$GetValue(UIElement.ResourcesProperty);
-};
-
 UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, undefined, { GetValue: function () { } }*/);
-UIElement.Instance.GetTriggers = function () {
-    return this.$GetValue(UIElement.TriggersProperty);
-};
-
 UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterCore("UseLayoutRounding", function () { return Boolean; }, UIElement);
-UIElement.Instance.GetUseLayoutRounding = function () {
-    return this.$GetValue(UIElement.UseLayoutRoundingProperty);
-};
-UIElement.Instance.SetUseLayoutRounding = function (value) {
-    this.$SetValue(UIElement.UseLayoutRoundingProperty, value);
-};
-
 UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
-UIElement.Instance.GetVisibility = function () {
-    return this.$GetValue(UIElement.VisibilityProperty);
-};
-UIElement.Instance.SetVisibility = function (value) {
-    this.$SetValue(UIElement.VisibilityProperty, value);
-};
+UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
 
-UIElement.TagProperty = DependencyProperty.RegisterCore("Tag", function () { return Object; }, UIElement);
-UIElement.Instance.GetTag = function () {
-    return this.$GetValue(UIElement.TagProperty);
-};
-UIElement.Instance.SetTag = function (value) {
-    this.$SetValue(UIElement.TagProperty, value);
-};
+Nullstone.AutoProperties(UIElement, [
+    UIElement.ClipProperty,
+    UIElement.IsHitTestVisibleProperty,
+    UIElement.OpacityMaskProperty,
+    UIElement.OpacityProperty,
+    UIElement.CursorProperty,
+    UIElement.ResourcesProperty,
+    UIElement.TriggersProperty,
+    UIElement.UseLayoutRoundingProperty,
+    UIElement.VisibilityProperty,
+    UIElement.TagProperty
+]);
 
 //#endregion
 
@@ -342,7 +289,7 @@ UIElement.Instance._ComputeLocalProjection = function () {
     //NotImplemented("UIElement._ComputeLocalProjection");
 };
 UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
-    var clip = this.GetClip();
+    var clip = this.Clip;
     var layoutClip = transform ? undefined : LayoutInformation.GetLayoutClip(this);
     var box;
 
@@ -382,7 +329,7 @@ UIElement.Instance._UpdateTotalRenderVisibility = function () {
 UIElement.Instance._GetActualTotalRenderVisibility = function () {
     var visible = (this._Flags & UIElementFlags.RenderVisible) != 0;
     var parentVisible = true;
-    this._TotalOpacity = this.GetOpacity();
+    this._TotalOpacity = this.Opacity;
 
     var visualParent = this.GetVisualParent();
     if (visualParent) {
@@ -435,7 +382,7 @@ UIElement.Instance._InsideObject = function (ctx, x, y) {
     return this._InsideClip(ctx, x, y);
 };
 UIElement.Instance._InsideClip = function (ctx, x, y) {
-    var clip = this.GetClip();
+    var clip = this.Clip;
     if (!clip)
         return true;
 
@@ -633,7 +580,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
 
-    var clip = this.GetClip();
+    var clip = this.Clip;
     if (clip) {
         clip.Draw(ctx);
         var canvasCtx = ctx.GetCanvasContext();
@@ -668,7 +615,7 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
     if (!this._IsLoaded) {
         //WTF: ClearForeachGeneration(Loaded)
         this.Unloaded.Raise(this, new EventArgs());
-        iter = new CollectionIterator(this.GetResources());
+        iter = new CollectionIterator(this.Resources);
         while (iter.Next()) {
             v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
@@ -684,7 +631,7 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
     }
 
     if (this._IsLoaded) {
-        iter = new CollectionIterator(this.GetResources());
+        iter = new CollectionIterator(this.Resources);
         while (iter.Next()) {
             v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);

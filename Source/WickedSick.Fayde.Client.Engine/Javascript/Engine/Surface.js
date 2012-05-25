@@ -493,7 +493,7 @@ Surface.Instance._IsTopLevel = function (top) {
 Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
     for (var node = this._InputList.First(); node; node = node.Next) {
-        newCursor = node.UIElement.GetCursor();
+        newCursor = node.UIElement.Cursor;
         if (newCursor !== CursorType.Default)
             break;
     }

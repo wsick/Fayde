@@ -21,7 +21,7 @@ _TextBoxView.Instance.Init = function () {
     this._BlinkTimeout = 0;
     this._TextBox = null;
     this._Dirty = false;
-    this.SetCursor(CursorType.IBeam);
+    this.Cursor = CursorType.IBeam;
 };
 
 _TextBoxView.Instance.SetTextBox = function (value) {
