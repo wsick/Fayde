@@ -13,7 +13,7 @@
 //#region VisualStateManager
 var VisualStateManager = Nullstone.Create("VisualStateManager", DependencyObject);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttached("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
 VisualStateManager.GetVisualStateGroups = function (d) {
@@ -147,7 +147,7 @@ VisualStateManager._GetTemplateRoot = function (control) {
     /// <returns type="FrameworkElement" />
     var userControl = Nullstone.As(control, UserControl);
     if (userControl != null)
-        return Nullstone.As(userControl.GetContent(), FrameworkElement);
+        return Nullstone.As(userControl.Content, FrameworkElement);
     if (VisualTreeHelper.GetChildrenCount(control) > 0)
         return Nullstone.As(VisualTreeHelper.GetChild(control, 0), FrameworkElement);
     return null;

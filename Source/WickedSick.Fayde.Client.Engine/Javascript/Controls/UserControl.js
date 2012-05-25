@@ -8,12 +8,10 @@ var UserControl = Nullstone.Create("UserControl", Control);
 //#region Dependency Properties
 
 UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
-UserControl.Instance.GetContent = function () {
-    return this.$GetValue(UserControl.ContentProperty);
-};
-UserControl.Instance.SetContent = function (value) {
-    this.$SetValue(UserControl.ContentProperty, value);
-};
+
+Nullstone.AutoProperties(UserControl, [
+    UserControl.ContentProperty
+]);
 
 //#endregion
 
