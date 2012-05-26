@@ -20,10 +20,8 @@ BitmapSource.IntGreaterThanZeroValidator = function (instance, propd, value, err
 BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
 BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
 
-Nullstone.AutoProperties(BitmapSource, [
-    BitmapSource.PixelWidthProperty,
-    BitmapSource.PixelHeightProperty
-]);
+Nullstone.AutoProperty(BitmapSource, BitmapSource.PixelWidthProperty, undefined, true);
+Nullstone.AutoProperty(BitmapSource, BitmapSource.PixelHeightProperty, undefined, true);
 
 //#endregion
 

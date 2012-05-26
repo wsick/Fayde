@@ -61,19 +61,7 @@ Nullstone.FinishCreate = function (f) {
     }
 
     //Bring up properties defined in base class
-    var props;
-    if (f._BaseClass) {
-        props = f._BaseClass.Properties;
-        for (i = 0; i < props.length; i++) {
-            var p = props[i];
-            if (p.DP) {
-                f.prototype[p.DP.Name] = null;
-            } else {
-                f.prototype[p.Name] = null;
-            }
-            f.Properties.push(p);
-        }
-    }
+    Nullstone._PropagateBaseProperties(f, f._BaseClass);
 
     delete f['Instance'];
 };
@@ -136,20 +124,22 @@ Nullstone.AutoProperties = function (type, arr) {
         Nullstone.AutoProperty(type, arr[i]);
     }
 };
-Nullstone.AutoProperty = function (type, nameOrDp, converter) {
+Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
     if (nameOrDp instanceof DependencyProperty) {
         type.Instance[nameOrDp.Name] = null;
         type.Properties.push({
             Auto: true,
             DP: nameOrDp,
-            Converter: converter
+            Converter: converter,
+            Override: isOverride === true
         });
     } else {
         type.Instance[nameOrDp] = null;
         type.Properties.push({
             Auto: true,
             Name: nameOrDp,
-            Converter: converter
+            Converter: converter,
+            Override: isOverride === true
         });
     }
 };
@@ -174,26 +164,45 @@ Nullstone.AutoPropertyReadOnly = function (type, nameOrDp) {
         });
     }
 };
+Nullstone.AbstractProperty = function (type, name, isReadOnly) {
+    type.Instance[name] = null;
+    type.Properties.push({
+        Name: name,
+        IsAbstract: true,
+        IsReadOnly: isReadOnly === true
+    });
+};
+Nullstone.Property = function (type, name, data) {
+    type.Instance[name] = null;
+    type.Properties.push({
+        Custom: true,
+        Name: name,
+        Data: data
+    });
+};
 
 Nullstone._CreateProps = function (ns) {
-    var f = ns.constructor;
     //Define Properties on prototype
-    props = f.Properties;
+    var props = ns.constructor.Properties;
     for (var i = 0; i < props.length; i++) {
         var p = props[i];
-        if (p.DP) {
+        if (p.IsAbstract) {
+            continue;
+        } else if (p.Custom) {
+            Object.defineProperty(ns, p.Name, data);
+        } else if (p.DP) {
             Nullstone._CreateDP(ns, p.DP, p.Converter);
         } else {
-            Object.defineProperty(ns, p, {
+            Object.defineProperty(ns, p.Name, {
                 value: null,
-                writable: p.IsReadOnly
+                writable: p.IsReadOnly !== true
             });
         }
     }
 };
 Nullstone._CreateDP = function (ns, dp, converter) {
     var getFunc = function () { return this.$GetValue(dp); };
-    if (dp._IsReadOnly) {
+    if (dp.IsReadOnly) {
         Object.defineProperty(ns, dp.Name, {
             get: getFunc
         });
@@ -210,4 +219,41 @@ Nullstone._CreateDP = function (ns, dp, converter) {
             set: setFunc
         });
     }
+};
+Nullstone._PropagateBaseProperties = function (targetNs, baseNs) {
+    if (!baseNs)
+        return;
+    var props = baseNs.Properties;
+    var count = props.length;
+    for (i = 0; i < count; i++) {
+        var p = props[i];
+        var name = p.DP ? p.DP.Name : p.Name;
+
+        var curNsProp = Nullstone._FindProperty(targetNs.Properties, name);
+
+        //If base nullstone has abstract property, ensure exists on current nullstone
+        if (p.IsAbstract) {
+            if (!curNsProp)
+                throw new PropertyNotImplementedException(baseNs, targetNs, name);
+            continue;
+        } else {
+            //If base nullstone has property that collides with current nullstone...
+            //Ensure property has explicit override
+            if (curNsProp && !curNsProp.Override)
+                throw new PropertyCollisionException(baseNs, targetNs, name);
+        }
+
+        targetNs.prototype[name] = null;
+        targetNs.Properties.push(p);
+    }
+};
+
+Nullstone._FindProperty = function (props, name) {
+    var count = props.length;
+    for (var i = 0; i < count; i++) {
+        var p = props[i];
+        if (name === (p.DP ? p.DP.Name : p.Name))
+            return p;
+    }
+    return null;
 };

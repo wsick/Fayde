@@ -85,16 +85,12 @@ Runtime/BError.js
 Runtime/Closure.js
 Runtime/Dictionary.js
 Runtime/EventArgs.js
-Runtime/Exception.js
-Runtime/InvalidOperationException.js
+Runtime/Exceptions.js
 Runtime/LinkedList.js
 Runtime/LinkedListNode.js
 Runtime/MulticastEvent.js
-Runtime/NotImplementedException.js
-Runtime/NotSupportedException.js
 Runtime/RoutedEventArgs.js
 Runtime/RoutedPropertyChangedEventArgs.js
-Runtime/XamlParseException.js
 Text/TextLayoutAttributes.js
 Text/History/TextBoxUndoAction.js
 Text/History/TextBoxUndoActionDelete.js

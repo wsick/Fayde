@@ -8,9 +8,10 @@ ImageSource.Instance.Init = function () {
     this.Init$DependencyObject();
 };
 
-// TODO: Create virtual properties
-//      - Pixel Width  
-//      - Pixel Height
+Nullstone.AutoProperties(ImageSource, [
+    "PixelWidth",
+    "PixelHeight"
+]);
 
 ImageSource.Instance.Lock = function () { };
 ImageSource.Instance.Unlock = function () { };

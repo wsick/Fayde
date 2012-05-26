@@ -34,8 +34,7 @@ Transform.Instance.TryTransform = function (inPoint, outPointOut) {
     return true;
 };
 
-// TODO: Create abstract readonly property
-//       - Matrix
+Nullstone.AbstractProperty(Transform, "Matrix", true);
 
 Nullstone.FinishCreate(Transform);
 //#endregion

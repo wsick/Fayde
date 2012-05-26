@@ -14,5 +14,14 @@ PasswordBox.Instance.Init = function () {
     this._EventsMask = _TextBoxEmitChanged.TEXT;
 };
 
+//#region Dependency Properties
+
+Nullstone.AutoProperties(PasswordBox, [
+    "SelectionStart",
+    "SelectionLength"
+]);
+
+//#endregion
+
 Nullstone.FinishCreate(PasswordBox);
 //#endregion

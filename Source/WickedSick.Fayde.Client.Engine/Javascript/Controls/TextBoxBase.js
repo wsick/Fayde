@@ -39,9 +39,8 @@ TextBoxBase.Instance.Init = function () {
     this._SettingValue = true;
 };
 
-//TODO: Create abstract properties:
-//      - SelectionStart
-//      - SelectionLength
+Nullstone.AbstractProperty(TextBoxBase, "SelectionStart");
+Nullstone.AbstractProperty(TextBoxBase, "SelectionLength");
 
 //#region Properties
 

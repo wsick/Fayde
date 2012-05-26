@@ -10,8 +10,7 @@ KeyFrame.Instance.Init = function () {
     this._Resolved = false;
 };
 
-//TODO: Create abstract properties
-//      - Key Time
+Nullstone.AbstractProperty(KeyFrame, "KeyTime");
 
 KeyFrame.Instance.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
     if (value == null)
