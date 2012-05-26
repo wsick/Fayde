@@ -71,11 +71,12 @@ Nullstone.FinishCreate(PropertyNotImplementedException);
 var PropertyCollisionException = Nullstone.Create("PropertyCollisionException", Exception, 3);
 
 PropertyCollisionException.Instance.Init = function (baseClass, targetClass, propertyName) {
+    var msg = "The requested property definition '" + targetClass._TypeName + "." + propertyName + "' is already defined on '" + baseClass._TypeName + "'. You must explicitly override this property.";
+    this.Init$Exception(msg);
+
     this.BaseClass = baseClass;
     this.TargetClass = targetClass;
     this.PropertyName = propertyName;
-
-    this.Message = "The requested property definition '" + targetClass._TypeName + "." + propertyName + "' is already defined on '" + baseClass._TypeName + "'. You must explicitly override this property.";
 };
 
 Nullstone.FinishCreate(PropertyCollisionException);

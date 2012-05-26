@@ -236,11 +236,12 @@ Nullstone._PropagateBaseProperties = function (targetNs, baseNs) {
             if (!curNsProp)
                 throw new PropertyNotImplementedException(baseNs, targetNs, name);
             continue;
-        } else {
+        } else if (curNsProp) {
             //If base nullstone has property that collides with current nullstone...
-            //Ensure property has explicit override
-            if (curNsProp && !curNsProp.Override)
+            //Ensure property has explicit override, 
+            if (!curNsProp.Override)
                 throw new PropertyCollisionException(baseNs, targetNs, name);
+            continue;
         }
 
         targetNs.prototype[name] = null;
