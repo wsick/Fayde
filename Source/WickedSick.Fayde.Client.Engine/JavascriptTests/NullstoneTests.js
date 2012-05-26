@@ -5,20 +5,20 @@
 var NullstoneTests = TestCase("NullstoneTests");
 
 NullstoneTests.prototype.testAutoProperty = function () {
-    var Mock = Nullstone.Create("Mock", DependencyObject);
-    Mock.SomeDProperty = DependencyProperty.Register("SomeD", function () { return Number; }, Mock, null);
-    Nullstone.AutoProperties(Mock, [
+    var Mock1 = Nullstone.Create("Mock1", DependencyObject);
+    Mock1.SomeDProperty = DependencyProperty.Register("SomeD", function () { return Number; }, Mock1, null);
+    Nullstone.AutoProperties(Mock1, [
         "Test",
-        Mock.SomeDProperty
+        Mock1.SomeDProperty
     ]);
-    Nullstone.FinishCreate(Mock);
+    Nullstone.FinishCreate(Mock1);
 
-    var m = new Mock();
+    var m = new Mock1();
 
     //Test basic property
     var propDesc = Object.getOwnPropertyDescriptor(m, "Test");
-    assertNotUndefined("Property Descriptor should exist on Mock object.", propDesc);
-    assertNotNull("Property Descriptor should exist on Mock object.", propDesc);
+    assertNotUndefined("Property Descriptor should exist on Mock1 object.", propDesc);
+    assertNotNull("Property Descriptor should exist on Mock1 object.", propDesc);
     assertNull("Initial property value should be null.", propDesc.value);
     assertTrue("Property should be writable.", propDesc.writable);
     m.Test = 54;
@@ -26,8 +26,8 @@ NullstoneTests.prototype.testAutoProperty = function () {
 
     //Test dependency property
     propDesc = Object.getOwnPropertyDescriptor(m, "SomeD");
-    assertNotUndefined("Property Descriptor should exist on Mock object.", propDesc);
-    assertNotNull("Property Descriptor should exist on Mock object.", propDesc);
+    assertNotUndefined("Property Descriptor should exist on Mock1 object.", propDesc);
+    assertNotNull("Property Descriptor should exist on Mock1 object.", propDesc);
     assertFunction("Property Descriptor should contain a get method.", propDesc.get);
     assertFunction("Property Descriptor should contain a set method.", propDesc.set);
 
@@ -66,6 +66,31 @@ NullstoneTests.prototype.testAutoPropertyReadOnly = function () {
     assertSame("SomeD", 27, m.SomeD);
 };
 NullstoneTests.prototype.testAbstractProperty = function () {
+    var MockBase1 = Nullstone.Create("MockBase1", DependencyObject);
+    Nullstone.AbstractProperty(MockBase1, "IsNoisy");
+    Nullstone.FinishCreate(MockBase1);
+
+    //Test implementing abstract property
+    var Mock3 = Nullstone.Create("Mock3", MockBase1);
+    Nullstone.AutoProperty(Mock3, "IsNoisy");
+    assertNoException("Creation of Mock3 object should not error.", function () { Nullstone.FinishCreate(Mock3); });
+
+    //Test invalid non-implementation of abstract property
+    var Mock4 = Nullstone.Create("Mock4", MockBase1);
+    assertException("Creation of Mock4 object should error because the abstract property was not overriden.", function () { Nullstone.FinishCreate(Mock4); }, "PropertyNotImplementedException");
+};
+NullstoneTests.prototype.testPropertyCollision = function () {
+    var MockBase2 = Nullstone.Create("MockBase2");
+    Nullstone.AutoProperty(MockBase2, "IsMetal");
+    Nullstone.FinishCreate(MockBase2);
+
+    var Mock5 = Nullstone.Create("Mock5", MockBase2);
+    Nullstone.AutoProperty(Mock5, "IsMetal");
+    assertException("Creation of Mock5 object should error because 'IsMetal' property was NOT specified as override.", function () { Nullstone.FinishCreate(Mock5); }, "PropertyCollisionException");
+
+    var Mock6 = Nullstone.Create("Mock6", MockBase2);
+    Nullstone.AutoProperty(Mock6, "IsMetal", undefined, true);
+    assertNoException("Creation of Mock6 object should NOT error because 'IsMetal' property was specified as override.", function () { Nullstone.FinishCreate(Mock6); });
 };
 NullstoneTests.prototype.testProperty = function () {
 };

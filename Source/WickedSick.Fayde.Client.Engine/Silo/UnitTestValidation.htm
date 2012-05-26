@@ -6,24 +6,13 @@
     <script src="../Fayde.js" type="text/javascript"></script>
     <script type="text/javascript">
         function test() {
-            var Mock2 = Nullstone.Create("Mock2", DependencyObject);
-            Mock2.SomeDProperty = DependencyProperty.RegisterReadOnly("SomeD", function () { return Number; }, Mock2, null);
-            Nullstone.AutoPropertiesReadOnly(Mock2, [
-                "Test",
-                Mock2.SomeDProperty
-            ]);
-            Nullstone.FinishCreate(Mock2);
+            var MockBase2 = Nullstone.Create("MockBase2");
+            Nullstone.AutoProperty(MockBase2, "IsMetal");
+            Nullstone.FinishCreate(MockBase2);
 
-            var m = new Mock2();
-
-            //Test basic property
-            var propDesc = Object.getOwnPropertyDescriptor(m, "Test");
-            m.Test = 54;
-
-            //Test dependency property
-            propDesc = Object.getOwnPropertyDescriptor(m, "SomeD");
-            m.SomeD.toString();
-            m.$SetValueInternal(Mock2.SomeDProperty, 27);
+            var Mock5 = Nullstone.Create("Mock5", MockBase2);
+            Nullstone.AutoProperty(Mock5, "IsMetal");
+            Nullstone.FinishCreate(Mock5);
         }
         test();
     </script>
