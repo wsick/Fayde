@@ -14,7 +14,48 @@ ItemsControl.Instance.Init = function () {
     this._itemContainerGenerator.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
 };
 
-ItemsControl.Instance.OnItemContainerGeneratorChanged = function(sender, e) {
+ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
+    if (!this._presenter || Nullstone.Is(_presenter._GetElementRoot(), VirtualizingPanel)) {
+        return;
+    }
+
+    var panel = this._presenter._GetElementRoot();
+    switch (e.GetAction()) {
+        case NotifyCollectionChangedAction.Reset:
+            if (panel.GetChildren().GetCount() > 0) {
+                this.RemoveItemsFromPresenter(new GeneratorPosition(0, 0), panel.GetChildren().GetCount());
+            }
+            break;
+        case NotifyCollectionChangedAction.Add:
+            this.AddItemsToPresenter(e.Position, e.ItemCount);
+            break;
+        case NotifyCollectionChangedAction.Remove:
+            this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
+            break;
+        case NotifyCollectionChangedAction.Replace:
+            this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
+            this.AddItemsToPresenter(e.Position, e.ItemCount);
+            break;
+    }
+};
+
+ItemsControl.Instance.AddItemsToPresenter = function (position, count) {
+    if (!this._presenter || !this._presenter._GetElementRoot() || Nullstone.Is(this._presenter._GetElementRoot(), VirtualizingPanel)) {
+        return;
+    }
+
+    var panel = this._presenter._GetElementRoot();
+    var newIndex = this._itemContainerGenerator.GetIndexFromGeneratorPosition(position);
+    var p = this._itemContainerGenerator.StartAt(position, GeneratorDirection.Forward, true);
+    for (var i = 0; i < count; i++) {
+        var item = this.GetItems()[newIndex + 1];
+        var data = {};
+        var container = this._itemContainerGenerator.GenerateNext(data);
+
+    }
+};
+
+ItemsControl.Instance.RemoveItemsFromPresenter = function (position, count) {
 };
 
 ItemsControl.GetItemsOwner = function (ele) {
@@ -28,55 +69,11 @@ ItemsControl.GetItemsOwner = function (ele) {
 };
 
 //#region DEPENDENCY PROPERTIES
-
 ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
-ItemsControl.Instance.GetDisplayMemberPath = function () {
-    ///<returns type="String"></returns>
-    return this.GetValue(ItemCollection.DisplayMemberPathProperty);
-};
-ItemsControl.Instance.SetDisplayMemberPath = function (value) {
-    ///<param name="value" type="String"></param>
-    this.SetValue(ItemCollection.DisplayMemberPathProperty, value);
-};
-
 ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl, null);
-ItemsControl.Instance.GetItems = function () {
-    return this.$GetValue(ItemsControl.ItemsProperty);
-};
-ItemsControl.Instance.SetItems = function (value) {
-    this.$SetValue(ItemsControl.ItemsProperty, value);
-};
-
 ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return ItemsPanelTemplate; }, ItemsControl);
-ItemsControl.Instance.GetItemsPanel = function () {
-    ///<returns type="ItemsPanelTemplate"></returns>
-    return this.GetValue(ItemsControl.ItemsPanelProperty);
-};
-ItemsControl.Instance.SetItemsPanel = function (value) {
-    ///<param name="value" type="ItemsPanelTemplate"></param>
-    this.SetValue(ItemsControl.ItemsPanelProperty, value);
-};
-
 ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl);
-ItemsControl.Instance.GetItemsSource = function () {
-    ///<returns type="Object"></returns>
-    return this.GetValue(ItemsControl.ItemsSourceProperty);
-};
-ItemsControl.Instance.SetItemsSource = function (value) {
-    ///<param name="value" type="Object"></param>
-    this.SetValue(ItemsControl.ItemsSourceProperty, value);
-};
-
 ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
-ItemsControl.Instance.GetItemTemplate = function () {
-    ///<returns type="DataTemplate"></returns>
-    return this.GetValue(ItemsControl.ItemTemplateProperty);
-};
-ItemsControl.Instance.SetItemTemplate = function (value) {
-    ///<param name="value" type="DataTemplate"></param>
-    this.SetValue(ItemsControl.ItemTemplateProperty, value);
-};
-
 //#endregion
 
 ItemsControl.Instance.OnDisplayMemberPathChanged = function (e) {
