@@ -4,8 +4,6 @@
 *.user
 *.dll
 *.xap
-*Fayde.order
-*Fayde.js
 Source/WickedSick.Fayde.Client.Engine/Fayde.js
 Source/WickedSick.Fayde.Client.Engine/Fayde.order
 Source/WickedSick.Fayde.Client.Engine/ClientBin/WickedSick.LitmusTests.xap
