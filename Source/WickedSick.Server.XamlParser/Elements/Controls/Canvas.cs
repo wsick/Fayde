@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    public class Canvas
+    public class Canvas : Panel
     {
         public static readonly AttachedPropertyDescription ZIndex = AttachedPropertyDescription.Register("ZIndex", typeof(int), typeof(Canvas));
     }

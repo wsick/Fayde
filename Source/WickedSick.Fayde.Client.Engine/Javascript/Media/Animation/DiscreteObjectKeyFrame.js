@@ -6,7 +6,7 @@ var DiscreteObjectKeyFrame = Nullstone.Create("DiscreteObjectKeyFrame", ObjectKe
 
 DiscreteObjectKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
     if (keyFrameProgress >= 1.0) {
-        return this.GetConvertedValue();
+        return this.ConvertedValue;
     }
     return baseValue;
 };

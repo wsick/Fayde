@@ -7,49 +7,18 @@
 //#region DoubleAnimation
 var DoubleAnimation = Nullstone.Create("DoubleAnimation", Animation);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.Instance.GetBy = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(DoubleAnimation.ByProperty);
-};
-DoubleAnimation.Instance.SetBy = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(DoubleAnimation.ByProperty, value);
-};
-
-/*
-DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, DoubleAnimation);
-DoubleAnimation.Instance.GetEasingFunction = function () {
-///<returns type="EasingFunction"></returns>
-return this.$GetValue(DoubleAnimation.EasingFunctionProperty);
-};
-DoubleAnimation.Instance.SetEasingFunction = function (value) {
-///<param name="value" type="EasingFunction"></param>
-this.$SetValue(DoubleAnimation.EasingFunctionProperty, value);
-};
-*/
-
+//DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, DoubleAnimation);
 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.Instance.GetFrom = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(DoubleAnimation.FromProperty);
-};
-DoubleAnimation.Instance.SetFrom = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(DoubleAnimation.FromProperty, value);
-};
-
 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.Instance.GetTo = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(DoubleAnimation.ToProperty);
-};
-DoubleAnimation.Instance.SetTo = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(DoubleAnimation.ToProperty, value);
-};
+
+Nullstone.AutoProperties(DoubleAnimation, [
+    DoubleAnimation.ByProperty,
+    DoubleAnimation.FromProperty,
+    DoubleAnimation.ToProperty
+]);
 
 //#endregion
 
@@ -94,9 +63,9 @@ DoubleAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaul
 DoubleAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
         return;
-    this._FromCached = this.GetFrom();
-    this._ToCached = this.GetTo();
-    this._ByCached = this.GetBy();
+    this._FromCached = this.From;
+    this._ToCached = this.To;
+    this._ByCached = this.By;
     this._HasCached = true;
 };
 

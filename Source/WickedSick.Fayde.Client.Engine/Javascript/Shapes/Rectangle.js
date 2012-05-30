@@ -7,30 +7,18 @@ var Rectangle = Nullstone.Create("Rectangle", Shape);
 
 Rectangle.Instance.Init = function () {
     this.Init$Shape();
-    this.SetStretch(Stretch.Fill);
+    this.Stretch = Stretch.Fill;
 };
 
 //#region Dependency Properties
 
 Rectangle.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, Rectangle, 0.0);
-Rectangle.Instance.GetRadiusX = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Rectangle.RadiusXProperty);
-};
-Rectangle.Instance.SetRadiusX = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Rectangle.RadiusXProperty, value);
-};
-
 Rectangle.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, Rectangle, 0.0);
-Rectangle.Instance.GetRadiusY = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Rectangle.RadiusYProperty);
-};
-Rectangle.Instance.SetRadiusY = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Rectangle.RadiusYProperty, value);
-};
+
+Nullstone.AutoProperties(Rectangle, [
+    Rectangle.RadiusXProperty,
+    Rectangle.RadiusYProperty
+]);
 
 //#endregion
 
@@ -40,11 +28,11 @@ Rectangle.Instance._DrawPath = function (ctx) {
     this._DrawPath$Shape(ctx);
 };
 Rectangle.Instance._BuildPath = function () {
-    var stretch = this.GetStretch();
-    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
-    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
-    var radiusX = this.GetRadiusX();
-    var radiusY = this.GetRadiusY();
+    var stretch = this.Stretch;
+    var t = this._IsStroked() ? this.StrokeThickness : 0.0;
+    var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
+    var radiusX = this.RadiusX;
+    var radiusY = this.RadiusY;
 
     switch (stretch) {
         case Stretch.None:
@@ -90,11 +78,11 @@ Rectangle.Instance._ComputeStretchBounds = function () {
 };
 Rectangle.Instance._ComputeShapeBounds = function (logical) {
     /// <returns type="Rect" />
-    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
     this._SetShapeFlags(ShapeFlags.Normal);
 
-    var width = this.GetWidth();
-    var height = this.GetHeight();
+    var width = this.Width;
+    var height = this.Height;
     if (rect.Width < 0.0 || rect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
@@ -108,8 +96,8 @@ Rectangle.Instance._ComputeShapeBounds = function (logical) {
         }
     }
 
-    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
-    switch (this.GetStretch()) {
+    var t = this._IsStroked() ? this.StrokeThickness : 0.0;
+    switch (this.Stretch) {
         case Stretch.None:
             rect.Width = rect.Height = 0.0;
             break;
@@ -143,11 +131,11 @@ Rectangle.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
 };
 Rectangle.Instance._GetCoverageBounds = function () {
-    var fill = this.GetFill();
+    var fill = this.Fill;
     if (fill != null && fill.IsOpaque()) {
-        var halfST = this.GetStrokeThickness / 2.0;
-        var xr = this.GetRadiusX() + halfST;
-        var yr = this.GetRadiusY() + halfST;
+        var halfST = this.StrokeThickness / 2.0;
+        var xr = this.RadiusX + halfST;
+        var yr = this.RadiusY + halfST;
         return this._Bounds.GrowBy(-xr, -yr).RoundIn();
     }
     return new Rect();

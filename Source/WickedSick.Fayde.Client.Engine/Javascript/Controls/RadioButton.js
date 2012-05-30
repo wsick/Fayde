@@ -9,13 +9,15 @@ RadioButton.Instance.Init = function () {
     RadioButton.Register("", this);
 };
 
+//#region Dependency Properties
+
 RadioButton.GroupNameProperty = DependencyProperty.RegisterReadOnly("GroupName", function () { return RadioButton; }, RadioButton, false, function (d, args) { d.OnGroupNameChanged(args); });
-RadioButton.Instance.GetGroupName = function () {
-    return this.$GetValue(RadioButton.GroupNameProperty);
-};
-RadioButton.Instance.SetGroupName = function (value) {
-    this.$SetValue(RadioButton.GroupNameProperty, value);
-};
+
+Nullstone.AutoProperties(RadioButton, [
+    RadioButton.GroupNameProperty
+]);
+
+//#endregion
 
 RadioButton.Instance.OnGroupNameChanged = function (e) {
     RadioButton.Unregister(e.OldValue, this);
@@ -59,11 +61,11 @@ RadioButton.Instance.OnIsCheckedChanged = function (e) {
 };
 
 RadioButton.Instance.OnToggle = function () {
-    this.SetIsChecked(true);
+    this.IsChecked = true;
 };
 
 RadioButton.Instance.UpdateRadioButtonGroup = function () {
-    var groupName = this.GetGroupName();
+    var groupName = this.GroupName;
     if (!groupName) groupName = "";
 
     //if this RadioButton has been assigned a group
@@ -73,9 +75,9 @@ RadioButton.Instance.UpdateRadioButtonGroup = function () {
         if (elements) {
             for (var i = 0; i < elements.length; i++) {
                 if (!Nullstone.RefEquals(elements[i], this) &&
-                elements[i].GetIsChecked() &&
+                elements[i].IsChecked &&
                 Nullstone.RefEquals(visualRoot, elements[i].GetVisualRoot())) {
-                    elements[i].SetIsChecked(false);
+                    elements[i].IsChecked = false;
                 }
             }
         }
@@ -87,9 +89,9 @@ RadioButton.Instance.UpdateRadioButtonGroup = function () {
         if (elements) {
             for (var i = 0; i < elements.length; i++) {
                 if (!Nullstone.RefEquals(elements[i], this) &&
-                elements[i].GetIsChecked() &&
+                elements[i].IsChecked &&
                 Nullstone.RefEquals(visualParent, elements[i].GetVisualParent())) {
-                    elements[i].SetIsChecked(false);
+                    elements[i].IsChecked = false;
                 }
             }
         }

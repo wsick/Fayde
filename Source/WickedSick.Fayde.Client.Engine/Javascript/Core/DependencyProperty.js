@@ -14,7 +14,7 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
-    this._HasDefaultValue = defaultValue != null;
+    this._HasDefaultValue = defaultValue !== undefined;
     this._AutoCreator = autoCreator;
     this._IsAutoCreated = autoCreator != null;
     this._Coercer = coercer;
@@ -22,7 +22,7 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this._Validator = validator;
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
-    this._IsReadOnly = isReadOnly === true;
+    this.IsReadOnly = isReadOnly === true;
     this._IsAttached = isAttached;
     DependencyProperty._LastID = this._ID = DependencyProperty._LastID + 1;
 };

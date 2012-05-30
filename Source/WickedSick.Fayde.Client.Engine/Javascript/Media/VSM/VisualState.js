@@ -6,19 +6,17 @@
 //#region VisualState
 var VisualState = Nullstone.Create("VisualState", DependencyObject);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
-VisualState.Instance.GetStoryboard = function () {
-    return this.$GetValue(VisualState.StoryboardProperty);
-};
-VisualState.Instance.SetStoryboard = function (value) {
-    this.$SetValue(VisualState.StoryboardProperty, value);
-};
+
+Nullstone.AutoProperties(VisualState, [
+    VisualState.StoryboardProperty
+]);
 
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 VisualState.Annotations = {
     ContentProperty: VisualState.StoryboardProperty

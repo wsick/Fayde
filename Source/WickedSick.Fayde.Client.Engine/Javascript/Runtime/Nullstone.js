@@ -18,8 +18,9 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     else
         s = "arguments";
 
-    var code = "if (!Nullstone.IsReady) return;" +
-        "Nullstone._LastID = this._ID = Nullstone._LastID + 1;" +
+    var code = "var n = Nullstone; if (!n.IsReady) return;" +
+        "n._LastID = this._ID = n._LastID + 1;" +
+        "n._CreateProps(this);" +
         "if (this.Init) this.Init(" + s + ");"
 
     var f = new Function(code);
@@ -34,12 +35,15 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     f.prototype.constructor = f;
     Nullstone.IsReady = true;
     f.Instance = {};
+    f.Properties = [];
     f.Interfaces = interfaces;
     return f;
 }
 Nullstone.FinishCreate = function (f) {
+    var i;
+    //Crash if interface is not implemented
     if (f.Interfaces) {
-        for (var i = 0; i < f.Interfaces.length; i++) {
+        for (i = 0; i < f.Interfaces.length; i++) {
             var it = f.Interfaces[i].Instance;
             for (var m in it) {
                 if (!(m in f.prototype))
@@ -48,6 +52,7 @@ Nullstone.FinishCreate = function (f) {
         }
     }
 
+    //Set up 'this.Method$BaseClass();' construct
     for (var k in f.Instance) {
         if ((k in f.prototype) && f._BaseClass != null) {
             f.prototype[k + '$' + f._BaseClass._TypeName] = f.prototype[k];
@@ -55,6 +60,8 @@ Nullstone.FinishCreate = function (f) {
         f.prototype[k] = f.Instance[k];
     }
 
+    //Bring up properties defined in base class
+    Nullstone._PropagateBaseProperties(f, f._BaseClass);
 
     delete f['Instance'];
 };
@@ -110,4 +117,144 @@ Nullstone.DoesImplement = function (obj, interfaceType) {
     if (!obj.constructor.Interfaces)
         return false;
     return interfaceType in obj.constructor.Interfaces;
+};
+
+Nullstone.AutoProperties = function (type, arr) {
+    for (var i = 0; i < arr.length; i++) {
+        Nullstone.AutoProperty(type, arr[i]);
+    }
+};
+Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
+    if (nameOrDp instanceof DependencyProperty) {
+        type.Instance[nameOrDp.Name] = null;
+        type.Properties.push({
+            Auto: true,
+            DP: nameOrDp,
+            Converter: converter,
+            Override: isOverride === true
+        });
+    } else {
+        type.Instance[nameOrDp] = null;
+        type.Properties.push({
+            Auto: true,
+            Name: nameOrDp,
+            Converter: converter,
+            Override: isOverride === true
+        });
+    }
+};
+Nullstone.AutoPropertiesReadOnly = function (type, arr) {
+    for (var i = 0; i < arr.length; i++) {
+        Nullstone.AutoPropertyReadOnly(type, arr[i]);
+    }
+};
+Nullstone.AutoPropertyReadOnly = function (type, nameOrDp) {
+    if (nameOrDp instanceof DependencyProperty) {
+        type.Instance[nameOrDp.Name] = null;
+        type.Properties.push({
+            Auto: true,
+            DP: nameOrDp
+        });
+    } else {
+        type.Instance[nameOrDp] = null;
+        type.Properties.push({
+            Auto: true,
+            Name: nameOrDp,
+            IsReadOnly: true
+        });
+    }
+};
+Nullstone.AbstractProperty = function (type, name, isReadOnly) {
+    type.Instance[name] = null;
+    type.Properties.push({
+        Name: name,
+        IsAbstract: true,
+        IsReadOnly: isReadOnly === true
+    });
+};
+Nullstone.Property = function (type, name, data) {
+    type.Instance[name] = null;
+    type.Properties.push({
+        Custom: true,
+        Name: name,
+        Data: data
+    });
+};
+
+Nullstone._CreateProps = function (ns) {
+    //Define Properties on prototype
+    var props = ns.constructor.Properties;
+    for (var i = 0; i < props.length; i++) {
+        var p = props[i];
+        if (p.IsAbstract) {
+            continue;
+        } else if (p.Custom) {
+            Object.defineProperty(ns, p.Name, data);
+        } else if (p.DP) {
+            Nullstone._CreateDP(ns, p.DP, p.Converter);
+        } else {
+            Object.defineProperty(ns, p.Name, {
+                value: null,
+                writable: p.IsReadOnly !== true
+            });
+        }
+    }
+};
+Nullstone._CreateDP = function (ns, dp, converter) {
+    var getFunc = function () { return this.$GetValue(dp); };
+    if (dp.IsReadOnly) {
+        Object.defineProperty(ns, dp.Name, {
+            get: getFunc
+        });
+    } else {
+        var setFunc;
+        if (converter) {
+            setFunc = function (value) { value = converter(value); this.$SetValue(dp, value); };
+            setFunc.Converter = converter;
+        } else {
+            setFunc = function (value) { this.$SetValue(dp, value); };
+        }
+        Object.defineProperty(ns, dp.Name, {
+            get: getFunc,
+            set: setFunc
+        });
+    }
+};
+Nullstone._PropagateBaseProperties = function (targetNs, baseNs) {
+    if (!baseNs)
+        return;
+    var props = baseNs.Properties;
+    var count = props.length;
+    for (i = 0; i < count; i++) {
+        var p = props[i];
+        var name = p.DP ? p.DP.Name : p.Name;
+
+        var curNsProp = Nullstone._FindProperty(targetNs.Properties, name);
+
+        //If base nullstone has abstract property, ensure exists on current nullstone
+        if (p.IsAbstract) {
+            if (!curNsProp)
+                throw new PropertyNotImplementedException(baseNs, targetNs, name);
+            continue;
+        } else if (curNsProp) {
+            //If base nullstone has property that collides with current nullstone...
+            //Ensure property has explicit override, 
+            if (!curNsProp.Override)
+                throw new PropertyCollisionException(baseNs, targetNs, name);
+            continue;
+        }
+
+        targetNs.prototype[name] = null;
+        targetNs.Properties.push(p);
+    }
+};
+
+Nullstone._FindProperty = function (props, name) {
+    var count = props.length;
+    for (var i = 0; i < count; i++) {
+        var p = props[i];
+        if (name === (p.DP ? p.DP.Name : p.Name))
+            return p;
+    }
+    return null;
 };

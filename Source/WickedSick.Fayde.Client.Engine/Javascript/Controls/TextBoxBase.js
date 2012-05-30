@@ -39,6 +39,9 @@ TextBoxBase.Instance.Init = function () {
     this._SettingValue = true;
 };
 
+Nullstone.AbstractProperty(TextBoxBase, "SelectionStart");
+Nullstone.AbstractProperty(TextBoxBase, "SelectionLength");
+
 //#region Properties
 
 TextBoxBase.Instance.HasSelectedText = function () {
@@ -52,18 +55,6 @@ TextBoxBase.Instance.GetTextDecorations = function () {
 };
 TextBoxBase.Instance.GetSelectionCursor = function () {
     return this._SelectionCursor;
-};
-TextBoxBase.Instance.GetSelectionStart = function () {
-    AbstractMethod("TextBoxBase.GetSelectionStart");
-};
-TextBoxBase.Instance.SetSelectionStart = function (value) {
-    AbstractMethod("TextBoxBase.SetSelectionStart");
-};
-TextBoxBase.Instance.GetSelectionLength = function () {
-    AbstractMethod("TextBoxBase.GetSelectionLength");
-};
-TextBoxBase.Instance.SetSelectionLength = function (value) {
-    AbstractMethod("TextBoxBase.SetSelectionLength");
 };
 TextBoxBase.Instance.GetCaretBrush = function () {
     return null;
@@ -95,7 +86,7 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
     } else if (this._ContentElement instanceof Border) {
         this._ContentElement._SetValue(Border.ChildProperty, this._View);
     } else if (this._ContentElement instanceof Panel) {
-        this._ContentElement.GetChildren().Add(this._View);
+        this._ContentElement.Children.Add(this._View);
     } else {
         Warn("Can't handle ContentElement.");
         this._View.SetTextBox(null);
@@ -158,8 +149,8 @@ TextBoxBase.Instance.SelectAll = function () {
 };
 TextBoxBase.Instance.ClearSelection = function (start) {
     this._BatchPush();
-    this.SetSelectionStart(start);
-    this.SetSelectionLength(0);
+    this.SelectionStart = start;
+    this.SelectionLength = 0;
     this._BatchPop();
 };
 TextBoxBase.Instance.Select = function (start, length) {
@@ -175,8 +166,8 @@ TextBoxBase.Instance.Select = function (start, length) {
         length = this._Buffer.GetLength() - start;
 
     this._BatchPush();
-    this.SetSelectionStart(start);
-    this.SetSelectionLength(length);
+    this.SelectionStart = start;
+    this.SelectionLength = length;
     this._BatchPop();
 
     this._ResetIMContext();
@@ -223,8 +214,8 @@ TextBoxBase.Instance.Undo = function () {
     var cursor = action._SelectionCursor;
 
     this._BatchPush();
-    this.SetSelectionStart(Math.min(anchor, cursor));
-    this.SetSelectionLength(Math.abs(cursor - anchor));
+    this.SelectionStart = Math.min(anchor, cursor);
+    this.SelectionLength = Math.abs(cursor - anchor);
     this._Emit = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
     this._SelectionAnchor = anchor;
     this._SelectionCursor = cursor;
@@ -257,8 +248,8 @@ TextBoxBase.Instance.Redo = function () {
     }
 
     this._BatchPush();
-    this.SetSelectionStart(Math.min(anchor, cursor));
-    this.SetSelectionLength(Math.abs(cursor - anchor));
+    this.SelectionStart = Math.min(anchor, cursor);
+    this.SelectionLength = Math.abs(cursor - anchor);
     this._Emit = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
     this._SelectionAnchor = anchor;
     this._SelectionCursor = cursor;
@@ -330,8 +321,8 @@ TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
 
         this._BatchPush();
         this._Emit = _TextBoxEmitChanged.NOTHING;
-        this.SetSelectionStart(cursor);
-        this.SetSelectionLength(0);
+        this.SelectionStart = cursor;
+        this.SelectionLength = 0;
         this._BatchPop();
 
         this._SyncAndEmit();
@@ -357,8 +348,8 @@ TextBoxBase.Instance.OnMouseMove = function (sender, args) {
 
         this._BatchPush();
         this._Emit = _TextBoxEmitChanged.NOTHING;
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._BatchPop();
@@ -367,7 +358,7 @@ TextBoxBase.Instance.OnMouseMove = function (sender, args) {
 
         //TODO: 
         //if (!this._Secret && (clipboard = this.GetClipboard(this, Primary))) {
-        //  clipboard.SetText(this.GetSelectedText());
+        //  clipboard.SetText(this.SelectedText);
         //}
     }
 };
@@ -483,7 +474,7 @@ TextBoxBase.Instance.OnKeyDown = function (sender, args) {
                         if (this._IsReadOnly)
                             break;
                         //copy to clipboard
-                        this.SetSelectedText("");
+                        this.SelectedText = "";
                         handled = true;
                         break;
                     case 89:
@@ -586,8 +577,8 @@ TextBoxBase.Instance._KeyDownBackSpace = function (modifiers) {
     }
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -632,8 +623,8 @@ TextBoxBase.Instance._KeyDownDelete = function (modifiers) {
     }
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -657,8 +648,8 @@ TextBoxBase.Instance._KeyDownPageDown = function (modifiers) {
     }
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -682,8 +673,8 @@ TextBoxBase.Instance._KeyDownPageUp = function (modifiers) {
     }
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -711,8 +702,8 @@ TextBoxBase.Instance._KeyDownHome = function (modifiers) {
     }
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -741,8 +732,8 @@ TextBoxBase.Instance._KeyDownEnd = function (modifiers) {
     }
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -775,8 +766,8 @@ TextBoxBase.Instance._KeyDownLeft = function (modifiers) {
         anchor = cursor;
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -808,8 +799,8 @@ TextBoxBase.Instance._KeyDownRight = function (modifiers) {
         anchor = cursor;
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -834,8 +825,8 @@ TextBoxBase.Instance._KeyDownDown = function (modifiers) {
     }
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -861,8 +852,8 @@ TextBoxBase.Instance._KeyDownUp = function (modifiers) {
     }
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -911,8 +902,8 @@ TextBoxBase.Instance._KeyDownChar = function (c) {
     anchor = cursor;
 
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;

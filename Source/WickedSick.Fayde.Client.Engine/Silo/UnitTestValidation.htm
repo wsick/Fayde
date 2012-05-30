@@ -1,0 +1,23 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="../jquery-1.7.js" type="text/javascript"></script>
+    <script src="../Fayde.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function test() {
+            var MockBase2 = Nullstone.Create("MockBase2");
+            Nullstone.AutoProperty(MockBase2, "IsMetal");
+            Nullstone.FinishCreate(MockBase2);
+
+            var Mock5 = Nullstone.Create("Mock5", MockBase2);
+            Nullstone.AutoProperty(Mock5, "IsMetal");
+            Nullstone.FinishCreate(Mock5);
+        }
+        test();
+    </script>
+</head>
+<body>
+
+</body>
+</html>

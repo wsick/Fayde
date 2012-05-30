@@ -26,138 +26,43 @@ TextBlock.Instance.Init = function () {
 
 //#region Dependency Properties
 
-TextBlock.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, TextBlock, new Thickness());
-TextBlock.Instance.GetPadding = function () {
-    return this.$GetValue(TextBlock.PaddingProperty);
-};
-TextBlock.Instance.SetPadding = function (value) {
-    this.$SetValue(TextBlock.PaddingProperty, value);
-};
-
+TextBlock.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, TextBlock, new Thickness());
 TextBlock.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextBlock, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextBlock.Instance.GetForeground = function () {
-    return this.$GetValue(TextBlock.ForegroundProperty);
-};
-TextBlock.Instance.SetForeground = function (value) {
-    this.$SetValue(TextBlock.ForegroundProperty, value);
-};
-
-TextBlock.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY);
-TextBlock.Instance.GetFontFamily = function () {
-    return this.$GetValue(TextBlock.FontFamilyProperty);
-};
-TextBlock.Instance.SetFontFamily = function (value) {
-    this.$SetValue(TextBlock.FontFamilyProperty, value);
-};
-
-TextBlock.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH);
-TextBlock.Instance.GetFontStretch = function () {
-    return this.$GetValue(TextBlock.FontStretchProperty);
-};
-TextBlock.Instance.SetFontStretch = function (value) {
-    this.$SetValue(TextBlock.FontStretchProperty, value);
-};
-
-TextBlock.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE);
-TextBlock.Instance.GetFontStyle = function () {
-    return this.$GetValue(TextBlock.FontStyleProperty);
-};
-TextBlock.Instance.SetFontStyle = function (value) {
-    this.$SetValue(TextBlock.FontStyleProperty, value);
-};
-
-TextBlock.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextBlock, Font.DEFAULT_WEIGHT);
-TextBlock.Instance.GetFontWeight = function () {
-    return this.$GetValue(TextBlock.FontWeightProperty);
-};
-TextBlock.Instance.SetFontWeight = function (value) {
-    this.$SetValue(TextBlock.FontWeightProperty, value);
-};
-
-TextBlock.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextBlock, Font.DEFAULT_SIZE);
-TextBlock.Instance.GetFontSize = function () {
-    return this.$GetValue(TextBlock.FontSizeProperty);
-};
-TextBlock.Instance.SetFontSize = function (value) {
-    this.$SetValue(TextBlock.FontSizeProperty, value);
-};
-
-TextBlock.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None);
-TextBlock.Instance.GetTextDecorations = function () {
-    return this.$GetValue(TextBlock.TextDecorationsProperty);
-};
-TextBlock.Instance.SetTextDecorations = function (value) {
-    this.$SetValue(TextBlock.TextDecorationsProperty, value);
-};
-
-TextBlock.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextBlock);
-TextBlock.Instance.GetFontResource = function () {
-    return this.$GetValue(TextBlock.FontResourceProperty);
-};
-TextBlock.Instance.SetFontResource = function (value) {
-    this.$SetValue(TextBlock.FontResourceProperty, value);
-};
-
-TextBlock.FontSourceProperty = DependencyProperty.Register("FontSource", function () { return Object; }, TextBlock);
-TextBlock.Instance.GetFontSource = function () {
-    return this.$GetValue(TextBlock.FontSourceProperty);
-};
-TextBlock.Instance.SetFontSource = function (value) {
-    this.$SetValue(TextBlock.FontSourceProperty, value);
-};
-
-TextBlock.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBlock, "");
-TextBlock.Instance.GetText = function () {
-    return this.$GetValue(TextBlock.TextProperty);
-};
-TextBlock.Instance.SetText = function (value) {
-    this.$SetValue(TextBlock.TextProperty, value);
-};
-
+TextBlock.FontFamilyProperty = DependencyProperty.RegisterCore("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY);
+TextBlock.FontStretchProperty = DependencyProperty.RegisterCore("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH);
+TextBlock.FontStyleProperty = DependencyProperty.RegisterCore("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE);
+TextBlock.FontWeightProperty = DependencyProperty.RegisterCore("FontWeight", function () { return String; }, TextBlock, Font.DEFAULT_WEIGHT);
+TextBlock.FontSizeProperty = DependencyProperty.RegisterCore("FontSize", function () { return String; }, TextBlock, Font.DEFAULT_SIZE);
+TextBlock.TextDecorationsProperty = DependencyProperty.RegisterCore("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None);
+TextBlock.FontResourceProperty = DependencyProperty.RegisterCore("FontResource", function () { return Object; }, TextBlock);
+TextBlock.FontSourceProperty = DependencyProperty.RegisterCore("FontSource", function () { return Object; }, TextBlock);
+TextBlock.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBlock, "");
 TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, undefined, { GetValue: function () { return new InlineCollection(); } });
-TextBlock.Instance.GetInlines = function () {
-    return this.$GetValue(TextBlock.InlinesProperty);
-};
+TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
+TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () { return Number; }, TextBlock, 0.0);
+TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
+TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
+TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
 
-TextBlock.LineStackingStrategyProperty = DependencyProperty.Register("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
-TextBlock.Instance.GetLineStackingStrategy = function () {
-    return this.$GetValue(TextBlock.LineStackingStrategyProperty);
-};
-TextBlock.Instance.SetLineStackingStrategy = function (value) {
-    this.$SetValue(TextBlock.LineStackingStrategyProperty, value);
-};
-
-TextBlock.LineHeightProperty = DependencyProperty.Register("LineHeight", function () { return Number; }, TextBlock, 0.0);
-TextBlock.Instance.GetLineHeight = function () {
-    return this.$GetValue(TextBlock.LineHeightProperty);
-};
-TextBlock.Instance.SetLineHeight = function (value) {
-    this.$SetValue(TextBlock.LineHeightProperty, value);
-};
-
-TextBlock.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
-TextBlock.Instance.GetTextAlignment = function () {
-    return this.$GetValue(TextBlock.TextAlignmentProperty);
-};
-TextBlock.Instance.SetTextAlignment = function (value) {
-    this.$SetValue(TextBlock.TextAlignmentProperty, value);
-};
-
-TextBlock.TextTrimmingProperty = DependencyProperty.Register("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
-TextBlock.Instance.GetTextTrimming = function () {
-    return this.$GetValue(TextBlock.TextTrimmingProperty);
-};
-TextBlock.Instance.SetTextTrimming = function (value) {
-    this.$SetValue(TextBlock.TextTrimmingProperty, value);
-};
-
-TextBlock.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
-TextBlock.Instance.GetTextWrapping = function () {
-    return this.$GetValue(TextBlock.TextWrappingProperty);
-};
-TextBlock.Instance.SetTextWrapping = function (value) {
-    this.$SetValue(TextBlock.TextWrappingProperty, value);
-};
+Nullstone.AutoProperties(TextBlock, [
+    TextBlock.PaddingProperty,
+    TextBlock.ForegroundProperty,
+    TextBlock.FontFamilyProperty,
+    TextBlock.FontStretchProperty,
+    TextBlock.FontStyleProperty,
+    TextBlock.FontWeightProperty,
+    TextBlock.FontSizeProperty,
+    TextBlock.TextDecorationsProperty,
+    TextBlock.FontResourceProperty,
+    TextBlock.FontSourceProperty,
+    TextBlock.TextProperty,
+    TextBlock.InlinesProperty,
+    TextBlock.LineStackingStrategyProperty,
+    TextBlock.LineHeightProperty,
+    TextBlock.TextAlignmentProperty,
+    TextBlock.TextTrimmingProperty,
+    TextBlock.TextWrappingProperty
+]);
 
 //#endregion
 
@@ -165,7 +70,7 @@ TextBlock.Instance.SetTextWrapping = function (value) {
 
 TextBlock.Instance._ComputeBounds = function () {
     this._Extents = this._Layout.GetRenderExtents();
-    var padding = this.GetPadding();
+    var padding = this.Padding;
 
     this._Extents.X += padding.Left;
     this._Extents.Y += padding.Top;
@@ -179,7 +84,7 @@ TextBlock.Instance._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 TextBlock.Instance._ComputeActualSize = function () {
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
 
@@ -200,7 +105,7 @@ TextBlock.Instance._ComputeActualSize = function () {
 //#region Measure
 
 TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     var constraint = availableSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);
     desired = new Size(this._ActualWidth, this._ActualHeight).GrowByThickness(padding);
@@ -210,7 +115,7 @@ TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
 //#endregion
 
 TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     var constraint = finalSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);
     var arranged = new Size(this._ActualWidth, this._ActualHeight);
@@ -223,9 +128,9 @@ TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
 TextBlock.Instance._Render = function (ctx, region) {
     ctx.Save();
     this._RenderLayoutClip(ctx);
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     var offset = new Point(padding.Left, padding.Top);
-    if (this.GetFlowDirection() === FlowDirection.RightToLeft) {
+    if (this.FlowDirection === FlowDirection.RightToLeft) {
         NotImplemented("TextBlock._Render: Right to left");
     }
     this._Layout._Render(ctx, this._GetOriginPoint(), offset);
@@ -252,11 +157,11 @@ TextBlock.Instance.Layout = function (constraint) {
 TextBlock.Instance._UpdateFont = function (force) {
     var changed = false;
 
-    changed = changed || this._Font.SetFamily(this.GetFontFamily());
-    changed = changed || this._Font.SetStretch(this.GetFontStretch());
-    changed = changed || this._Font.SetStyle(this.GetFontStyle());
-    changed = changed || this._Font.SetWeight(this.GetFontWeight());
-    changed = changed || this._Font.SetSize(this.GetFontSize());
+    changed = changed || this._Font.SetFamily(this.FontFamily);
+    changed = changed || this._Font.SetStretch(this.FontStretch);
+    changed = changed || this._Font.SetStyle(this.FontStyle);
+    changed = changed || this._Font.SetWeight(this.FontWeight);
+    changed = changed || this._Font.SetSize(this.FontSize);
 
     changed = changed || force;
     return changed;
@@ -271,7 +176,7 @@ TextBlock.Instance._UpdateFonts = function (force) {
     return true;
 };
 TextBlock.Instance._UpdateLayoutAttributes = function () {
-    var inlines = this.GetInlines();
+    var inlines = this.Inlines;
 
     this._InvalidateMeasure();
     this._InvalidateArrange();
@@ -286,12 +191,12 @@ TextBlock.Instance._UpdateLayoutAttributes = function () {
     }
     if (count > 0)
         this._WasSet = true;
-    this._Layout.SetText(this.GetText(), length);
+    this._Layout.SetText(this.Text, length);
     this._Layout.SetTextAttributes(runs);
 };
 TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, runs) {
     if (item instanceof Run) {
-        var text = item.GetText();
+        var text = item.Text;
         if (text && text.length) {
             runs.Append(new _TextLayoutAttributes(item, length));
             length += text.length;
@@ -300,7 +205,7 @@ TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, ru
         runs.Append(new _TextLayoutAttributes(item, length));
         length += 1; //line break length
     } else if (item instanceof Span) {
-        var inlines = item.GetInlines();
+        var inlines = item.Inlines;
         var count = inlines.GetCount();
         for (var i = 0; i < count; i++) {
             length = this._UpdateLayoutAttributesForInline(inlines.GetValueAt(i), length, runs);
@@ -309,7 +214,7 @@ TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, ru
     return length;
 };
 TextBlock.Instance._SerializeText = function (str) {
-    var inlines = this.GetInlines();
+    var inlines = this.Inlines;
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
         str = inlines.GetValueAt(i)._SerializeText(str);
@@ -351,11 +256,11 @@ TextBlock.Instance._SetTextInternal = function (text) {
             run._SetAutogenerated(true);
             inlines.Add(run);
         }
-        run.SetText(text);
+        run.Text = text;
         this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(run);
     } else {
         inlines.Clear();
-        this.SetText("");
+        this.Text = "";
     }
 
     this._SetsValue = true;
@@ -443,7 +348,7 @@ TextBlock.Instance._OnCollectionChanged = function (sender, args) {
         return;
     }
 
-    var inlines = this.GetInlines();
+    var inlines = this.Inlines;
     if (args.Action === CollectionChangedArgs.Action.Clearing)
         return;
 

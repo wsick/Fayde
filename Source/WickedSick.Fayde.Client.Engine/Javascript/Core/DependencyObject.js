@@ -31,23 +31,15 @@ DependencyObject.Instance.Init = function () {
 //#region Dependency Properties
 
 DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", undefined, undefined, false, DependencyObject._NameValidator);
-DependencyObject.Instance.GetName = function () {
-    return this.$GetValue(DependencyObject.NameProperty);
-};
-DependencyObject.Instance.SetName = function (value) {
-    this.$SetValue(DependencyObject.NameProperty, value);
-};
 
 //#endregion
 
 //#region Properties
 
-DependencyObject.Instance.GetTemplateOwner = function () {
-    return this._TemplateOwner;
-};
-DependencyObject.Instance.SetTemplateOwner = function (value) {
-    this._TemplateOwner = value;
-};
+Nullstone.AutoProperties(DependencyObject, [
+    DependencyObject.NameProperty,
+    "TemplateOwner"
+]);
 
 DependencyObject.Instance.GetMentor = function () {
     ///<returns type="DependencyObject"></returns>
@@ -820,7 +812,7 @@ DependencyObject.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
 
     var thisNs = NameScope.GetNameScope(this);
     if (/* TODO: this._IsHydratedFromXaml() || */!thisNs || thisNs._GetTemporary()) {
-        var name = this.GetName();
+        var name = this.Name;
         if (name && name.length > 0)
             fromNs.UnregisterName(name);
     }
@@ -891,7 +883,7 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
             }
         } else {
             if (true /* TODO: this._IsHydratedFromXaml()*/) {
-                var name = this.GetName();
+                var name = this.Name;
                 if (parentScope && name && name.length > 0) {
                     var existingObj = parentScope.FindName(name);
                     if (existingObj !== this) {

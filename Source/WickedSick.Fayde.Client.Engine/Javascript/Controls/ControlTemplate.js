@@ -9,19 +9,17 @@ var ControlTemplate = Nullstone.Create("ControlTemplate", FrameworkTemplate, 2);
 
 ControlTemplate.Instance.Init = function (targetType, json) {
     this.Init$FrameworkTemplate();
-    this.SetTargetType(targetType);
+    this.TargetType = targetType;
     this._TempJson = json;
 };
 
 //#region Dependency Properties
 
 ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, ControlTemplate);
-ControlTemplate.Instance.GetTargetType = function () {
-    return this.$GetValue(ControlTemplate.TargetTypeProperty);
-};
-ControlTemplate.Instance.SetTargetType = function (value) {
-    this.$SetValue(ControlTemplate.TargetTypeProperty, value);
-};
+
+Nullstone.AutoProperties(ControlTemplate, [
+    ControlTemplate.TargetTypeProperty
+]);
 
 //#endregion
 

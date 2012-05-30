@@ -21,31 +21,18 @@ Fayde.Image.Instance.Init = function () {
 //#region Dependency Properties
 
 Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
-Fayde.Image.Instance.GetSource = function () {
-    ///<returns type="ImageSource"></returns>
-    return this.$GetValue(Fayde.Image.SourceProperty);
-};
-Fayde.Image.Instance.SetSource = function (value) {
-    ///<param name="value" type="ImageSource"></param>
-    value = this.SetSource.Converter(value);
-    this.$SetValue(Fayde.Image.SourceProperty, value);
-};
-Fayde.Image.Instance.SetSource.Converter = function (value) {
+// http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
+Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Fayde.Image, Stretch.Uniform);
+
+Nullstone.AutoProperties(Fayde.Image, [
+    Fayde.Image.StretchProperty
+]);
+
+Nullstone.AutoProperty(Fayde.Image, Fayde.Image.SourceProperty, function (value) {
     if (value instanceof Uri)
         return new BitmapImage(value);
     return value;
-};
-
-// http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
-Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Fayde.Image, Stretch.Uniform);
-Fayde.Image.Instance.GetStretch = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Fayde.Image.StretchProperty);
-};
-Fayde.Image.Instance.SetStretch = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Fayde.Image.StretchProperty, value);
-};
+});
 
 //#endregion
 
@@ -55,11 +42,11 @@ Fayde.Image.Instance._MeasureOverrideWithError = function (availableSize, error)
     /// <param name="availableSize" type="Size"></param>
     var desired = availableSize;
     var shapeBounds = new Rect();
-    var source = this.GetSource();
+    var source = this.Source;
     var sx = sy = 0.0;
 
     if (source != null)
-        shapeBounds = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+        shapeBounds = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
 
     if (!isFinite(desired.Width))
         desired.Width = shapeBounds.Width;
@@ -76,7 +63,7 @@ Fayde.Image.Instance._MeasureOverrideWithError = function (availableSize, error)
     if (!isFinite(availableSize.Height))
         sy = sx;
 
-    switch (this.GetStretch()) {
+    switch (this.Stretch) {
         case Stretch.Uniform:
             sx = sy = Math.min(sx, sy);
             break;
@@ -107,12 +94,12 @@ Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     /// <param name="finalSize" type="Size"></param>
     var arranged = finalSize;
     var shapeBounds = new Rect();
-    var source = this.GetSource();
+    var source = this.Source;
     var sx = 1.0;
     var sy = 1.0;
 
     if (source != null)
-        shapeBounds = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+        shapeBounds = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
 
     if (shapeBounds.Width === 0)
         shapeBounds.Width = arranged.Width;
@@ -124,7 +111,7 @@ Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     if (shapeBounds.Height !== arranged.Height)
         sy = arranged.Height / shapeBounds.Height;
 
-    switch (this.GetStretch()) {
+    switch (this.Stretch) {
         case Stretch.Uniform:
             sx = sy = Math.min(sx, sy);
             break;
@@ -151,17 +138,17 @@ Fayde.Image.Instance._CanFindElement = function () { return true; };
 Fayde.Image.Instance._InsideObject = function (ctx, x, y) {
     if (!this._InsideObject$FrameworkElement(ctx, x, y))
         return false;
-    var source = this.GetSource();
+    var source = this.Source;
     if (!source)
         return false;
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     if (stretch === Stretch.Fill || stretch === Stretch.UniformToFill)
         return true;
     var metrics = this._CalculateRenderMetrics(source);
     if (!metrics)
         return null;
 
-    var rect = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+    var rect = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
     rect = rect.Transform(metrics.Matrix);
     var np = new Point(x, y);
     this._TransformPoint(np);
@@ -174,7 +161,7 @@ Fayde.Image.Instance._ComputeActualSize = function () {
     var result = this._ComputeActualSize$FrameworkElement();
 
     var parent = this.GetVisualParent();
-    var source = this.GetSource();
+    var source = this.Source;
 
     if (parent && !Nullstone.Is(parent, Canvas))
         if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined)
@@ -196,7 +183,7 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     // Just to get something working, we do all the matrix transforms for stretching.
     // Eventually, we can let the html5 canvas do all the dirty work.
 
-    var source = this.GetSource();
+    var source = this.Source;
     if (!source)
         return;
 
@@ -218,13 +205,13 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     source.Unlock();
 };
 Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
-    var stretch = this.GetStretch();
-    var specified = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var stretch = this.Stretch;
+    var specified = new Size(this.ActualWidth, this.ActualHeight);
     var stretched = this._ApplySizeConstraints(specified);
     var adjust = !Rect.Equals(specified, this._GetRenderSize());
 
-    var pixelWidth = source.GetPixelWidth();
-    var pixelHeight = source.GetPixelHeight();
+    var pixelWidth = source.PixelWidth;
+    var pixelHeight = source.PixelHeight;
     if (pixelWidth === 0 || pixelHeight === 0)
         return null;
 

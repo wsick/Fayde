@@ -7,7 +7,7 @@
 //#region StackPanel
 var StackPanel = Nullstone.Create("StackPanel", Panel);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 StackPanel._OrientationChanged = function (d, args) {
     var sp = Nullstone.As(d, StackPanel);
@@ -17,43 +17,44 @@ StackPanel._OrientationChanged = function (d, args) {
     d._InvalidateArrange();
 };
 StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
-StackPanel.Instance.GetOrientation = function () {
-    return this.$GetValue(StackPanel.OrientationProperty);
-};
-StackPanel.Instance.SetOrientation = function (value) {
-    this.$SetValue(StackPanel.OrientationProperty, value);
-};
+
+Nullstone.AutoProperties(StackPanel, [
+    StackPanel.OrientationProperty
+]);
 
 //#endregion
 
-//#region INSTANCE METHODS
+//#region Instance Methods
 
 StackPanel.Instance.MeasureOverride = function (constraint) {
     //Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
 
-    if (this.GetOrientation() === Orientation.Vertical) {
+    var orientation = this.Orientation;
+    if (orientation === Orientation.Vertical) {
         childAvailable.Width = constraint.Width;
-        if (!isNaN(this.GetWidth()))
-            childAvailable.Width = this.GetWidth();
-        childAvailable.Width = Math.min(childAvailable.Width, this.GetMaxWidth());
-        childAvailable.Width = Math.max(childAvailable.Width, this.GetMinWidth());
+        var width = this.Width;
+        if (!isNaN(width))
+            childAvailable.Width = width;
+        childAvailable.Width = Math.min(childAvailable.Width, this.MaxWidth);
+        childAvailable.Width = Math.max(childAvailable.Width, this.MinWidth);
     } else {
         childAvailable.Height = constraint.Height;
-        if (!isNaN(this.GetHeight()))
-            childAvailable.Height = this.GetHeight();
-        childAvailable.Height = Math.min(childAvailable.Height, this.GetMaxHeight());
-        childAvailable.Height = Math.max(childAvailable.Height, this.GetMinHeight());
+        var height = this.Height;
+        if (!isNaN(height))
+            childAvailable.Height = height;
+        childAvailable.Height = Math.min(childAvailable.Height, this.MaxHeight);
+        childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
     }
 
-    var children = this.GetChildren();
+    var children = this.Children;
     for (var i = 0; i < children.GetCount(); i++) {
         var child = children.GetValueAt(i);
         child.Measure(childAvailable);
         var size = child._DesiredSize;
 
-        if (this.GetOrientation() === Orientation.Vertical) {
+        if (orientation === Orientation.Vertical) {
             measured.Height += size.Height;
             measured.Width = Math.max(measured.Width, size.Width);
         } else {
@@ -67,18 +68,19 @@ StackPanel.Instance.MeasureOverride = function (constraint) {
 StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     //Info("StackPanel.ArrangeOverride [" + this._TypeName + "]");
     var arranged = arrangeSize;
+    var orientation = this.Orientation;
 
-    if (this.GetOrientation() === Orientation.Vertical)
+    if (orientation === Orientation.Vertical)
         arranged.Height = 0;
     else
         arranged.Width = 0;
 
-    var children = this.GetChildren();
+    var children = this.Children;
     for (var i = 0; i < children.GetCount(); i++) {
         var child = children.GetValueAt(i);
         var size = child._DesiredSize;
         var childFinal;
-        if (this.GetOrientation() === Orientation.Vertical) {
+        if (orientation === Orientation.Vertical) {
             size.Width = arrangeSize.Width;
 
             childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
@@ -104,7 +106,7 @@ StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
         }
     }
 
-    if (this.GetOrientation() === Orientation.Vertical)
+    if (orientation === Orientation.Vertical)
         arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
     else
         arranged.Width = Math.max(arranged.Width, arrangeSize.Width);

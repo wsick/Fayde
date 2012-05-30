@@ -26,31 +26,17 @@ App.Instance.Init = function () {
 //#region Dependency Properties
 
 App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, { GetValue: function () { return new ResourceDictionary(); } });
-App.Instance.GetResources = function () {
-    return this.$GetValue(App.ResourcesProperty);
-};
-App.Instance.SetResources = function (value) {
-    this.$SetValue(App.ResourcesProperty, value);
-};
 
-//#endregion
-
-//#region Properties
-
-App.Instance.GetAddress = function () {
-    ///<returns type="Uri"></returns>
-    return this._Address;
-};
-App.Instance.SetAddress = function (value) {
-    ///<param name="value" type="Uri"></param>
-    this._Address = value;
-};
+Nullstone.AutoProperties(App, [
+    App.ResourcesProperty,
+    "Address"
+]);
 
 //#endregion
 
 App.Instance.Load = function (element, containerId, width, widthType, height, heightType) {
     /// <param name="element" type="UIElement"></param>
-    this.SetAddress(new Uri(document.URL));
+    this.Address = new Uri(document.URL);
     this.MainSurface.Register(containerId, width, widthType, height, heightType);
     if (!(element instanceof UIElement))
         return;
@@ -115,32 +101,32 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
         if (fe instanceof Control) {
             genericXamlStyle = fe.GetDefaultStyle();
             if (!genericXamlStyle) {
-                var styleKey = fe.GetDefaultStyleKey();
+                var styleKey = fe.DefaultStyleKey;
                 if (styleKey != null)
                     genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
             }
         }
     }
     if ((styleMask & _StyleMask.ApplicationResources) != 0) {
-        appResourcesStyle = this.GetResources().Get(fe.constructor);
+        appResourcesStyle = this.Resources.Get(fe.constructor);
         if (appResourcesStyle == null)
-            appResourcesStyle = this.GetResources().Get(fe._TypeName);
+            appResourcesStyle = this.Resources.Get(fe._TypeName);
     }
     if ((styleMask & _StyleMask.VisualTree) != 0) {
         var isControl = fe instanceof Control;
         var el = fe;
         while (el != null) {
-            if (el.GetTemplateOwner() != null && fe.GetTemplateOwner() == null) {
-                el = el.GetTemplateOwner();
+            if (el.TemplateOwner != null && fe.TemplateOwner == null) {
+                el = el.TemplateOwner;
                 continue;
             }
-            if (!isControl && el == fe.GetTemplateOwner())
+            if (!isControl && Nullstone.RefEquals(el, fe.TemplateOwner))
                 break;
 
-            visualTreeStyle = el.GetResources().Get(fe.constructor);
+            visualTreeStyle = el.Resources.Get(fe.constructor);
             if (visualTreeStyle != null)
                 break;
-            visualTreeStyle = el.GetResources().Get(fe._TypeName);
+            visualTreeStyle = el.Resources.Get(fe._TypeName);
             if (visualTreeStyle != null)
                 break;
 

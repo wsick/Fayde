@@ -11,20 +11,16 @@ BitmapImage.Instance.Init = function (uri) {
     this.ImageOpened = new MulticastEvent();
     if (uri == null)
         return;
-    this.SetUriSource(uri);
+    this.UriSource = uri;
 };
 
 //#region Dependency Properties
 
-BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Uri; }, BitmapImage, new Uri(), null, null, true);
-BitmapImage.Instance.GetUriSource = function () {
-    ///<returns type="Uri"></returns>
-    return this.$GetValue(BitmapImage.UriSourceProperty);
-};
-BitmapImage.Instance.SetUriSource = function (value) {
-    ///<param name="value" type="Uri"></param>
-    this.$SetValue(BitmapImage.UriSourceProperty, value);
-};
+BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Uri; }, BitmapImage, new Uri(), undefined, undefined, true);
+
+Nullstone.AutoProperties(BitmapImage, [
+    BitmapImage.UriSourceProperty
+]);
 
 //#endregion
 

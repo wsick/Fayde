@@ -12,36 +12,23 @@ Polygon.Instance.Init = function () {
 //#region Dependency Properties
 
 Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polygon, FillRule.EvenOdd);
-Polygon.Instance.GetFillRule = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Polygon.FillRuleProperty);
-};
-Polygon.Instance.SetFillRule = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Polygon.FillRuleProperty, value);
-};
+Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, undefined, { GetValue: function () { return new PointCollection(); } });
 
-Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, null, { GetValue: function () { return new PointCollection(); } });
-Polygon.Instance.GetPoints = function () {
-    ///<returns type="PointCollection"></returns>
-    return this.$GetValue(Polygon.PointsProperty);
-};
-Polygon.Instance.SetPoints = function (value) {
-    ///<param name="value" type="PointCollection"></param>
-    this.$SetValue(Polygon.PointsProperty, value);
-};
-Polygon.Instance.SetPoints.Converter = function (value) {
+Nullstone.AutoProperties(Polygon, [
+    Polygon.FillRuleProperty
+]);
+Nullstone.AutoProperty(Polygon, Polygon.PointsProperty, function (value) {
     if (value instanceof PointCollection)
         return value;
     if (typeof value === "string")
         return Fayde.TypeConverter.PointCollectionFromString(value);
     return value;
-};
+});
 
 //#endregion
 
 Polygon.Instance._BuildPath = function () {
-    var points = this.GetPoints();
+    var points = this.Points;
     var count;
     if (points == null || (count = points.GetCount()) < 2) {
         this._SetShapeFlags(ShapeFlags.Empty);
@@ -52,7 +39,7 @@ Polygon.Instance._BuildPath = function () {
 
     var path = new RawPath();
     if (count === 2) {
-        var thickness = this.GetStrokeThickness();
+        var thickness = this.StrokeThickness;
         var p1 = points.GetValueAt(0);
         var p2 = points.GetValueAt(1);
         Polygon._ExtendLine(p1, p2, thickness);

@@ -346,10 +346,10 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 
         if (uie._DirtyFlags & _Dirty.ChildrenZIndices) {
             uie._DirtyFlags &= ~_Dirty.ChildrenZIndices;
-            if (~(uie instanceof Panel)) {
+            if (!(uie instanceof Panel)) {
                 //Warning: Only applicable to Panel subclasses
             } else {
-                uie.GetChildren().ResortByZIndex();
+                uie.Children.ResortByZIndex();
             }
         }
 
@@ -493,7 +493,7 @@ Surface.Instance._IsTopLevel = function (top) {
 Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
     for (var node = this._InputList.First(); node; node = node.Next) {
-        newCursor = node.UIElement.GetCursor();
+        newCursor = node.UIElement.Cursor;
         if (newCursor !== CursorType.Default)
             break;
     }

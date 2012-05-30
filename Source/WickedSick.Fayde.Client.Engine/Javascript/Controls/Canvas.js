@@ -7,7 +7,7 @@
 //#region Canvas
 var Canvas = Nullstone.Create("Canvas", Panel);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Canvas.LeftProperty = DependencyProperty.RegisterAttached("Left", function () { return Number; }, Canvas, 0.0);
 Canvas.GetLeft = function (d) {

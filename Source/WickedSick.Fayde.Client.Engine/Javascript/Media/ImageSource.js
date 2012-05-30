@@ -8,11 +8,10 @@ ImageSource.Instance.Init = function () {
     this.Init$DependencyObject();
 };
 
-ImageSource.Instance.GetPixelWidth = function () { return 0; };
-ImageSource.Instance.SetPixelWidth = function (width) { };
-
-ImageSource.Instance.GetPixelHeight = function () { return 0; };
-ImageSource.Instance.SetPixelHeight = function (height) { };
+Nullstone.AutoProperties(ImageSource, [
+    "PixelWidth",
+    "PixelHeight"
+]);
 
 ImageSource.Instance.Lock = function () { };
 ImageSource.Instance.Unlock = function () { };

@@ -13,9 +13,10 @@ ResourceDictionary.Instance.Init = function () {
 //#region Dependency Properties
 
 ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
-ResourceDictionary.Instance.GetMergedDictionaries = function () {
-    return this.$GetValue(ResourceDictionary.MergedDictionariesProperty);
-};
+
+Nullstone.AutoProperties(ResourceDictionary, [
+    ResourceDictionary.MergedDictionariesProperty
+]);
 
 //#endregion
 
@@ -31,7 +32,7 @@ ResourceDictionary.Instance.Get = function (key) {
     return this._GetFromMergedDictionaries(key);
 };
 ResourceDictionary.Instance._GetFromMergedDictionaries = function (key) {
-    var merged = this.GetMergedDictionaries();
+    var merged = this.MergedDictionaries;
 
     if (!merged)
         return undefined;
@@ -65,11 +66,9 @@ ResourceDictionary.Instance.Remove = function (key) {
 };
 
 ResourceDictionary.Instance.AddedToCollection = function (value, error) {
-    var obj;
     var rv = false;
-
-    if (value instanceof DependencyObject) {
-        obj = Nullstone.As(value, DependencyObject);
+    var obj = Nullstone.As(value, DependencyObject);
+    if (obj) {
         if (obj._GetParent() && !ResourceDictionary._CanBeAddedTwice(value)) {
             error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
             return false;
@@ -86,7 +85,7 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
     rv = this.AddedToCollection$Collection(value, error);
 
     if (rv /* && !from_resource_dictionary_api */ && obj) {
-        this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, obj, obj.GetName());
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, obj, obj.Name);
     }
 
     return rv;

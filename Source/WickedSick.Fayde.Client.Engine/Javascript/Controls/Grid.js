@@ -20,7 +20,7 @@ Grid.Instance.Init = function () {
     this._ColMatrix = null;
 };
 
-//#region ATTACHED DEPENDENCY PROPERTIES
+//#region Attached Dependency Properties
 
 Grid.ColumnProperty = DependencyProperty.RegisterAttached("Column", function () { return Number; }, Grid, 0);
 Grid.GetColumn = function (d) {
@@ -56,27 +56,17 @@ Grid.SetRowSpan = function (d, value) {
 
 //#endregion
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
-Grid.Instance.GetShowGridLines = function () {
-    return this.$GetValue(Grid.ShowGridLinesProperty);
-};
-Grid.Instance.SetShowGridLines = function (value) {
-    this.$SetValue(Grid.ShowGridLinesProperty, value);
-};
-
 Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new ColumnDefinitionCollection(); } });
-Grid.Instance.GetColumnDefinitions = function () {
-    /// <returns type="ColumnDefinitionCollection" />
-    return this.$GetValue(Grid.ColumnDefinitionsProperty);
-};
-
 Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new RowDefinitionCollection(); } });
-Grid.Instance.GetRowDefinitions = function () {
-    /// <returns type="RowDefinitionCollection" />
-    return this.$GetValue(Grid.RowDefinitionsProperty);
-};
+
+Nullstone.AutoProperties(Grid, [
+    Grid.ShowGridLinesProperty,
+    Grid.ColumnDefinitionsProperty,
+    Grid.RowDefinitionsProperty
+]);
 
 //#endregion
 
@@ -92,7 +82,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var totalStars = new Size(0, 0);
     var emptyRows = rowCount === 0;
     var emptyCols = colCount === 0;
-    var hasChildren = this.GetChildren().GetCount() > 0;
+    var hasChildren = this.Children.GetCount() > 0;
 
     if (emptyRows) rowCount = 1;
     if (emptyCols) colCount = 1;
@@ -109,14 +99,14 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     } else {
         for (i = 0; i < rowCount; i++) {
             var rowdef = rows.GetValueAt(i);
-            var height = rowdef.GetHeight();
+            var height = rowdef.Height;
 
-            rowdef.SetActualHeight(Number.POSITIVE_INFINITY);
-            cell = new _Segment(0.0, rowdef.GetMinHeight(), rowdef.GetMaxHeight(), height.Type);
+            rowdef.ActualHeight = Number.POSITIVE_INFINITY;
+            cell = new _Segment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
 
             if (height.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(height.Value);
-                rowdef.SetActualHeight(cell._SetDesiredToOffered());
+                rowdef.ActualHeight = cell._SetDesiredToOffered();
             } else if (height.Type === GridUnitType.Star) {
                 cell._Stars = height.Value;
                 totalStars.Height += height.Value;
@@ -137,14 +127,14 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     } else {
         for (i = 0; i < colCount; i++) {
             var coldef = cols.GetValueAt(i);
-            var width = coldef.GetWidth();
+            var width = coldef.Width;
 
-            coldef.SetActualWidth(Number.POSITIVE_INFINITY);
-            cell = new _Segment(0.0, coldef.GetMinWidth(), coldef.GetMaxWidth(), width.Type);
+            coldef.ActualWidth = Number.POSITIVE_INFINITY;
+            cell = new _Segment(0.0, coldef.MinWidth, coldef.MaxWidth, width.Type);
 
             if (width.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(width.Value);
-                coldef.SetActualWidth(cell._SetDesiredToOffered());
+                coldef.ActualWidth = cell._SetDesiredToOffered();
             } else if (width.Type === GridUnitType.Star) {
                 cell._Stars = width.Value;
                 totalStars.Width += width.Value;
@@ -299,10 +289,10 @@ Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         this._ExpandStarRows(finalSize);
 
     for (c = 0; c < colCount; c++) {
-        columns.GetValueAt(c).SetActualWidth(this._ColMatrix[c][c]._OfferedSize);
+        columns.GetValueAt(c).ActualWidth = this._ColMatrix[c][c]._OfferedSize;
     }
     for (r = 0; r < rowCount; r++) {
-        rows.GetValueAt(r).SetActualHeight(this._RowMatrix[r][r]._OfferedSize);
+        rows.GetValueAt(r).ActualHeight = this._RowMatrix[r][r]._OfferedSize;
     }
 
     var walker = new _VisualTreeWalker(this);
@@ -352,7 +342,7 @@ Grid.Instance._ExpandStarRows = function (availableSize) {
         for (i = 0; i < this._RowMatrixDim; i++) {
             cur = this._RowMatrix[i][i];
             if (cur._Type === GridUnitType.Star)
-                rows.GetValueAt(i).SetActualHeight(cur._OfferedSize);
+                rows.GetValueAt(i).ActualHeight = cur._OfferedSize;
         }
     }
 };
@@ -375,7 +365,7 @@ Grid.Instance._ExpandStarCols = function (availableSize) {
         for (i = 0; i < this._ColMatrixDim; i++) {
             cur = this._ColMatrix[i][i];
             if (cur._Type === GridUnitType.Star) {
-                columns.GetValueAt(i).SetActualWidth(cur._OfferedSize);
+                columns.GetValueAt(i).ActualWidth = cur._OfferedSize;
             }
         }
     }
@@ -518,8 +508,8 @@ Grid.Instance._RestoreMeasureResults = function () {
 Grid.Instance._ComputeBounds = function () {
     this._ComputeBounds$Panel();
 
-    if (this.GetShowGridLines()) {
-        this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    if (this.ShowGridLines) {
+        this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
         this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/* .GrowByThickness(this._EffectPadding) */, false); //.Transform(this._AbsoluteTransform);
         this._BoundsWithChildren = this._BoundsWithChildren.Union(this._Bounds);

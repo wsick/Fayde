@@ -39,8 +39,9 @@ ResourceDictionaryCollection.Instance._WalkSubtreeLookingForCycle = function (su
         p = p._GetParent();
     }
 
-    var children = subtreeRoot.GetMergedDictionaries();
-    for (var i = 0; i < children.GetCount(); i++) {
+    var children = subtreeRoot.MergedDictionaries;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
         if (!this._WalkSubtreeLookingForCycle(children.GetValueAt(i), firstAncestor, error))
             return false;
     }

@@ -293,7 +293,7 @@ BindingExpressionBase.Instance._CalculateDataSource = function () {
             }
 
             if (fe && this.GetBinding().GetRelativeSource() && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
-                this.GetPropertyPathWalker().Update(fe.GetTemplateOwner());
+                this.GetPropertyPathWalker().Update(fe.TemplateOwner);
             } else {
                 this.SetDataContextSource(fe);
             }
@@ -312,7 +312,7 @@ BindingExpressionBase.Instance.SetDataContextSource = function (value) {
     }
 
     if (this._DataContextSource || this.GetIsMentorDataContextBound())
-        this.GetPropertyPathWalker().Update(!this._DataContextSource ? null : this._DataContextSource.GetDataContext());
+        this.GetPropertyPathWalker().Update(!this._DataContextSource ? null : this._DataContextSource.DataContext);
 };
 BindingExpressionBase.Instance._InvalidateAfterMentorChanged = function (sender, e) {
     ///<param name="e" type="EventArgs"></param>
@@ -345,7 +345,7 @@ BindingExpressionBase.Instance._FindSourceByElementName = function () {
         fe = this.GetTarget().GetMentor();
     while (fe && !source) {
         source = fe.FindName(this.GetBinding().GetElementName());
-        if (!source && fe.GetTemplateOwner())
+        if (!source && fe.TemplateOwner)
             fe = fe.GetTemplateOwner();
         else if (fe.GetMentor() && ItemsControl.GetItemsOwner(fe.GetMentor()))
             fe = fe.GetMentor();
@@ -367,7 +367,7 @@ BindingExpressionBase.Instance._MentorChanged = function (sender, e) {
             if (!mentor)
                 this.GetPropertyPathWalker().Update(null);
             else
-                this.GetPropertyPathWalker().Update(menotr.GetTemplateOwner());
+                this.GetPropertyPathWalker().Update(mentor.TemplateOwner);
             this.Refresh();
         } else {
             this.SetDataContextSource(mentor);
@@ -388,7 +388,7 @@ BindingExpressionBase.Instance._ParentChanged = function (sender, e) {
 BindingExpressionBase.Instance._DataContextChanged = function (sender, e) {
     try {
         var fe = sender;
-        this.GetPropertyPathWalker().Update(fe.GetDataContext());
+        this.GetPropertyPathWalker().Update(fe.DataContext);
         if (this.GetBinding().GetMode() === BindingMode.OneTime)
             this.Refresh();
     } catch (err) {

@@ -12,35 +12,22 @@ GeometryGroup.Instance.Init = function () {
 //#region Dependency Properties
 
 GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, GeometryGroup, FillRule.EvenOdd);
-GeometryGroup.Instance.GetFillRule = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(GeometryGroup.FillRuleProperty);
-};
-GeometryGroup.Instance.SetFillRule = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(GeometryGroup.FillRuleProperty, value);
-};
+GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, undefined, { GetValue: function () { return new GeometryCollection(); } });
 
-GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, null, { GetValue: function () { return new GeometryCollection(); } });
-GeometryGroup.Instance.GetChildren = function () {
-    ///<returns type="GeometryCollection"></returns>
-    return this.$GetValue(GeometryGroup.ChildrenProperty);
-};
-GeometryGroup.Instance.SetChildren = function (value) {
-    ///<param name="value" type="GeometryCollection"></param>
-    this.$SetValue(GeometryGroup.ChildrenProperty, value);
-};
+Nullstone.AutoProperties(GeometryGroup, [
+    GeometryGroup.FillRuleProperty,
+    GeometryGroup.ChildrenProperty
+]);
 
 //#endregion
 
 GeometryGroup.Instance.ComputePathBounds = function () {
     /// <returns type="Rect" />
     var bounds = new Rect();
-    var children = this.GetChildren();
+    var children = this.Children;
     var count = children.GetCount();
-    var g;
     for (var i = 0; i < count; i++) {
-        g = children.GetValueAt(i);
+        var g = children.GetValueAt(i);
         bounds = bounds.Union(g.GetBounds(), true);
     }
     return bounds;
@@ -49,16 +36,15 @@ GeometryGroup.Instance.ComputePathBounds = function () {
 GeometryGroup.Instance.Draw = function (ctx) {
     /// <param name="ctx" type="_RenderContext"></param>
 
-    var transform = this.GetTransform();
+    var transform = this.Transform;
     if (transform != null) {
         ctx.Save();
         ctx.Transform(transform);
     }
-    var children = this.GetChildren();
+    var children = this.Children;
     var count = children.GetCount();
-    var g;
     for (var i = 0; i < count; i++) {
-        g = children.GetValueAt(i);
+        var g = children.GetValueAt(i);
         g.Draw(ctx);
     }
     if (transform != null)
@@ -74,7 +60,7 @@ GeometryGroup.prototype._OnCollectionChanged = function (sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: GeometryGroup.ChildrenProperty,
         OldValue: null,
-        NewValue: this.GetChildren()
+        NewValue: this.Children
     });
 };
 GeometryGroup.prototype._OnCollectionItemChanged = function (sender, args) {
@@ -86,7 +72,7 @@ GeometryGroup.prototype._OnCollectionItemChanged = function (sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: GeometryGroup.ChildrenProperty,
         OldValue: null,
-        NewValue: this.GetChildren()
+        NewValue: this.Children
     });
 };
 

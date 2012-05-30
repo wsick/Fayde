@@ -5,34 +5,15 @@
 //#region HyperlinkButton
 var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
 
-HyperlinkButton.StateDisabled = "Disabled";
-HyperlinkButton.StatePressed = "Pressed";
-HyperlinkButton.StateMouseOver = "MouseOver";
-HyperlinkButton.StateNormal = "Normal";
-HyperlinkButton.StateFocused = "Focused";
-HyperlinkButton.StateUnfocused = "Unfocused";
+//#region Dependency Properties
 
-//#region DEPENDENCY PROPERTIES
+HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton);
+HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton);
 
-HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton, undefined);
-HyperlinkButton.Instance.GetNavigateUri = function () {
-    ///<returns type="Uri"></returns>
-    return this.$GetValue(HyperlinkButton.NavigateUriProperty);
-};
-HyperlinkButton.Instance.SetNavigateUri = function (value) {
-    ///<param name="value" type="Uri"></param>
-    this.$SetValue(HyperlinkButton.NavigateUriProperty, value);
-};
-
-HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, undefined);
-HyperlinkButton.Instance.GetTargetName = function () {
-    ///<returns type="String"></returns>
-    return this.$GetValue(HyperlinkButton.TargetNameProperty);
-};
-HyperlinkButton.Instance.SetTargetName = function (value) {
-    ///<param name="value" type="String"></param>
-    this.$SetValue(HyperlinkButton.TargetNameProperty, value);
-};
+Nullstone.AutoProperties(HyperlinkButton, [
+    HyperlinkButton.NavigateUriProperty,
+    HyperlinkButton.TargetNameProperty
+]);
 
 //#endregion
 
@@ -43,14 +24,14 @@ HyperlinkButton.Instance.OnApplyTemplate = function () {
 
 HyperlinkButton.Instance.OnClick = function () {
     this.OnClick$ButtonBase();
-    if (this.GetNavigateUri() != null) {
+    if (this.NavigateUri != null) {
         this._Navigate();
     }
 };
 
 HyperlinkButton.Instance._GetAbsoluteUri = function () {
     /// <returns type="Uri" />
-    var destination = this.GetNavigateUri();
+    var destination = this.NavigateUri;
     if (!destination.IsAbsoluteUri) {
         var original = destination.OriginalString;
         if (original && original.charAt(0) !== '/')
@@ -60,28 +41,28 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
     return destination;
 };
 HyperlinkButton.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateDisabled);
-    } else if (this.GetIsPressed()) {
-        this._GoToState(useTransitions, HyperlinkButton.StatePressed);
-    } else if (this.GetIsMouseOver()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateMouseOver);
+    if (!this.IsEnabled) {
+        this._GoToState(useTransitions, "Disabled");
+    } else if (this.IsPressed) {
+        this._GoToState(useTransitions, "Pressed");
+    } else if (this.IsMouseOver) {
+        this._GoToState(useTransitions, "MouseOver");
     } else {
-        this._GoToState(useTransitions, HyperlinkButton.StateNormal);
+        this._GoToState(useTransitions, "Normal");
     }
 
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateFocused);
+    if (this.IsFocused && this.IsEnabled) {
+        this._GoToState(useTransitions, "Focused");
     } else {
-        this._GoToState(useTransitions, HyperlinkButton.StateUnfocused);
+        this._GoToState(useTransitions, "Unfocused");
     }
 };
 HyperlinkButton.Instance._Navigate = function () {
-    window.location.href = this.GetNavigateUri().toString();
-    //NotImplemented("HyperlinkButton._Navigate (" + this.GetNavigateUri().toString() + ")");
+    window.location.href = this.NavigateUri.toString();
+    //NotImplemented("HyperlinkButton._Navigate(this.NavigateUri, this.TargetName)");
 };
 
-//#region DEFAULT STYLE
+//#region Default Style
 
 HyperlinkButton.Instance.GetDefaultStyle = function () {
     var styleJson = {

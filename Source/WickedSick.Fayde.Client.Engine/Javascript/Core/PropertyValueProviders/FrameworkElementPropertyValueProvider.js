@@ -1,8 +1,7 @@
-/// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="PropertyValueProviders/PropertyValueProvider.js"/>
-/// <reference path="../Primitives/Size.js"/>
+/// <reference path="PropertyValueProvider.js"/>
 /// CODE
 /// <reference path="FrameworkElement.js"/>
+/// <reference path="../../Primitives/Size.js"/>
 
 //#region FrameworkElementPropertyValueProvider
 var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);

@@ -6,7 +6,7 @@ using WickedSick.Server.XamlParser.TypeConverters;
 using WickedSick.Server.XamlParser.Elements.Media;
 using WickedSick.Server.XamlParser.Elements.Types;
 
-namespace WickedSick.Server.XamlParser.Elements
+namespace WickedSick.Server.XamlParser.Elements.Controls
 {
     public class Border : FrameworkElement
     {

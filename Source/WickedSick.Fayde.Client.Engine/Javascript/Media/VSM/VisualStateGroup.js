@@ -16,7 +16,7 @@ VisualStateGroup.Instance.Init = function () {
     this.CurrentStateChanged = new MulticastEvent();
 };
 
-//#region PROPERTIES
+//#region Properties
 
 VisualStateGroup.Instance.GetStates = function () {
     /// <returns type="VisualStateCollection" />
@@ -37,22 +37,13 @@ VisualStateGroup.Instance.GetTransitions = function () {
     return this._Transitions;
 };
 
-VisualStateGroup.Instance.GetCurrentState = function () {
-    ///<returns type="VisualState"></returns>
-    return this._CurrentState;
-};
-VisualStateGroup.Instance.SetCurrentState = function (value) {
-    ///<param name="value" type="VisualState"></param>
-    this._CurrentState = value;
-};
-
 //#endregion
 
 VisualStateGroup.Instance.GetState = function (stateName) {
     var states = this.GetStates();
     for (var i = 0; i < states.GetCount(); i++) {
         var state = states.GetValueAt(i);
-        if (state.GetName() === stateName)
+        if (state.Name === stateName)
             return state;
     }
     return null;
@@ -68,14 +59,14 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
         storyboard = newStoryboards[i];
         if (storyboard == null)
             continue;
-        element.GetResources().Add(storyboard._ID, storyboard);
+        element.Resources.Add(storyboard._ID, storyboard);
         try {
             storyboard.Begin();
         } catch (err) {
             //clear storyboards on error
             for (var j = 0; j <= i; j++) {
                 if (newStoryboards[i] != null)
-                    element.GetResources().Remove(newStoryboards[i]._ID);
+                    element.Resources.Remove(newStoryboards[i]._ID);
             }
             throw err;
         }
@@ -86,7 +77,7 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
         storyboard = currentStoryboards.GetValueAt(i);
         if (storyboard == null)
             continue;
-        element.GetResources().Remove(storyboard._ID);
+        element.Resources.Remove(storyboard._ID);
         storyboard.Stop();
     }
 
@@ -112,7 +103,7 @@ VisualStateGroup.Instance.RaiseCurrentStateChanged = function (element, oldState
     this.CurrentStateChanged.Raise(this, new VisualStateChangedEventArgs(oldState, newState, control));
 };
 
-//#region ANNOTATIONS
+//#region Annotations
 
 VisualStateGroup.Annotations = {
     ContentProperty: "States"

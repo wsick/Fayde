@@ -7,50 +7,23 @@
 var PathFigure = Nullstone.Create("PathFigure", DependencyObject);
 
 PathFigure.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._Path = null;
 };
 
 //#region Dependency Properties
 
 PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () { return Boolean; }, PathFigure, false);
-PathFigure.Instance.GetIsClosed = function () {
-    ///<returns type="Boolean"></returns>
-    return this.$GetValue(PathFigure.IsClosedProperty);
-};
-PathFigure.Instance.SetIsClosed = function (value) {
-    ///<param name="value" type="Boolean"></param>
-    this.$SetValue(PathFigure.IsClosedProperty, value);
-};
-
-PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, null, { GetValue: function () { return new PathSegmentCollection(); } });
-PathFigure.Instance.GetSegments = function () {
-    ///<returns type="PathSegmentCollection"></returns>
-    return this.$GetValue(PathFigure.SegmentsProperty);
-};
-PathFigure.Instance.SetSegments = function (value) {
-    ///<param name="value" type="PathSegmentCollection"></param>
-    this.$SetValue(PathFigure.SegmentsProperty, value);
-};
-
+PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, undefined, { GetValue: function () { return new PathSegmentCollection(); } });
 PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, PathFigure, new Point());
-PathFigure.Instance.GetStartPoint = function () {
-    ///<returns type="Point"></returns>
-    return this.$GetValue(PathFigure.StartPointProperty);
-};
-PathFigure.Instance.SetStartPoint = function (value) {
-    ///<param name="value" type="Point"></param>
-    this.$SetValue(PathFigure.StartPointProperty, value);
-};
-
 PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () { return Boolean; }, PathFigure, true);
-PathFigure.Instance.GetIsFilled = function () {
-    ///<returns type="Boolean"></returns>
-    return this.$GetValue(PathFigure.IsFilledProperty);
-};
-PathFigure.Instance.SetIsFilled = function (value) {
-    ///<param name="value" type="Boolean"></param>
-    this.$SetValue(PathFigure.IsFilledProperty, value);
-};
+
+Nullstone.AutoProperties(PathFigure, [
+    PathFigure.IsClosedProperty,
+    PathFigure.SegmentsProperty,
+    PathFigure.StartPointProperty,
+    PathFigure.IsFilledProperty
+]);
 
 //#endregion
 
@@ -92,16 +65,16 @@ PathFigure.Instance._OnCollectionItemChanged = function (sender, args) {
 PathFigure.Instance._Build = function () {
     this._Path = [];
 
-    var start = this.GetStartPoint();
+    var start = this.StartPoint;
     this._Path.push({ type: PathEntryType.Move, x: start.X, y: start.Y });
 
-    var segments = this.GetSegments();
-    var segmentCount = segments.GetCount();
-    for (var i = 0; i < segmentCount; i++) {
+    var segments = this.Segments;
+    var count = segments.GetCount();
+    for (var i = 0; i < count; i++) {
         var segment = segments[i];
         segment._Append(this._Path);
     }
-    if (this.GetIsClosed())
+    if (this.IsClosed)
         this._Path.push({ type: PathEntryType.Close });
 };
 

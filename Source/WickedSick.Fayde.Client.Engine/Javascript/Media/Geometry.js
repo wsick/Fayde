@@ -15,14 +15,10 @@ Geometry.Instance.Init = function () {
 //#region Dependency Properties
 
 Geometry.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Transform; }, Geometry);
-Geometry.Instance.GetTransform = function () {
-    ///<returns type="Transform"></returns>
-    return this.$GetValue(Geometry.TransformProperty);
-};
-Geometry.Instance.SetTransform = function (value) {
-    ///<param name="value" type="Transform"></param>
-    this.$SetValue(Geometry.TransformProperty, value);
-};
+
+Nullstone.AutoProperties(Geometry, [
+    Geometry.TransformProperty
+]);
 
 //#endregion
 
@@ -31,7 +27,7 @@ Geometry.Instance.Draw = function (ctx) {
     if (this.$Path == null)
         return;
 
-    var transform = this.GetTransform();
+    var transform = this.Transform;
     if (transform != null) {
         ctx.Save();
         ctx.Transform(transform);
@@ -53,7 +49,7 @@ Geometry.Instance.GetBounds = function (thickness) {
         this._LocalBounds = this.ComputePathBounds(thickness);
     var bounds = this._LocalBounds;
 
-    var transform = this.GetTransform();
+    var transform = this.Transform
     if (transform != null) {
         bounds = transform.TransformBounds(bounds);
     }

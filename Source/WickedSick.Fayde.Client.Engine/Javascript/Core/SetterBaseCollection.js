@@ -6,22 +6,18 @@
 //#region SetterBaseCollection
 var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", DependencyObjectCollection);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 SetterBaseCollection.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBaseCollection);
-SetterBaseCollection.Instance.GetIsSealed = function () {
-    /// <returns type="Boolean" />
-    return this.$GetValue(SetterBaseCollection.IsSealedProperty);
-};
-SetterBaseCollection.Instance.SetIsSealed = function (value) {
-    /// <param name="value" type="Boolean"></param>
-    this.$SetValue(SetterBaseCollection.IsSealedProperty, value);
-};
+
+Nullstone.AutoProperties(SetterBaseCollection, [
+    SetterBaseCollection.IsSealedProperty
+]);
 
 //#endregion
 
 SetterBaseCollection.Instance._Seal = function () {
-    this.SetIsSealed(true);
+    this.IsSealed = true;
 
     var error = new BError();
     var iterator = this.GetIterator();
@@ -35,7 +31,7 @@ SetterBaseCollection.Instance.AddedToCollection = function (value, error) {
     if (!value || !this._ValidateSetter(value, error))
         return false;
     if (value instanceof SetterBase) {
-        value.SetAttached(true);
+        value._Attached = true;
         value._Seal();
     }
     return this.AddedToCollection$DependencyObjectCollection(value, error);
@@ -43,7 +39,7 @@ SetterBaseCollection.Instance.AddedToCollection = function (value, error) {
 SetterBaseCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof SetterBase)
-            value.SetAttached(false);
+            value._Attached = false;
     }
     this.RemovedFromCollection$DependencyObjectCollection(value, isValueSafe);
 };
@@ -67,13 +63,13 @@ SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
 
     var sb = Nullstone.As(value, SetterBase);
     if (sb) {
-        if (sb.GetAttached()) {
+        if (sb._Attached) {
             error.SetErrored(BError.InvalidOperation, "Setter is currently attached to another style");
             return false;
         }
     }
 
-    if (this.GetIsSealed()) {
+    if (this.IsSealed) {
         error.SetErrored(BError.Exception, "Cannot add a setter to a sealed style");
         return false;
     }

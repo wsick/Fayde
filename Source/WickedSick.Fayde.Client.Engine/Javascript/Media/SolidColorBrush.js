@@ -10,26 +10,22 @@ SolidColorBrush.Instance.Init = function (args) {
     this.Init$Brush();
     if (args.length === 1) {
         if (args[0] instanceof Color)
-            this.SetColor(args[0]);
+            this.Color = args[0];
     }
 };
 
 //#region Dependency Properties
 
 SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush);
-SolidColorBrush.Instance.GetColor = function () {
-    ///<returns type="Color"></returns>
-    return this.$GetValue(SolidColorBrush.ColorProperty);
-};
-SolidColorBrush.Instance.SetColor = function (value) {
-    ///<param name="value" type="Color"></param>
-    this.$SetValue(SolidColorBrush.ColorProperty, value);
-};
+
+Nullstone.AutoProperties(SolidColorBrush, [
+    SolidColorBrush.ColorProperty
+]);
 
 //#endregion
 
 SolidColorBrush.Instance.SetupBrush = function (ctx, bounds) {
-    var color = this.GetColor();
+    var color = this.Color;
     if (color == null)
         this._Brush = "#000000";
     else

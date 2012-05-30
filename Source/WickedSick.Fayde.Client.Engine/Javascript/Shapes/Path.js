@@ -14,34 +14,27 @@ Path.Instance.Init = function () {
 
 // Path.Data Description: http://msdn.microsoft.com/en-us/library/system.windows.shapes.path.data(v=vs.95).aspx
 Path.DataProperty = DependencyProperty.RegisterCore("Data", function () { return Geometry; }, Path);
-Path.Instance.GetData = function () {
-    ///<returns type="Geometry"></returns>
-    return this.$GetValue(Path.DataProperty);
-};
-Path.Instance.SetData = function (value) {
-    ///<param name="value" type="Geometry"></param>
-    this.$SetValue(Path.DataProperty, value);
-};
-Path.Instance.SetData.Converter = function (value) {
+
+Nullstone.AutoProperty(Path, Path.DataProperty, function (value) {
     if (value instanceof Geometry)
         return value;
     if (typeof value === "string")
         return Fayde.TypeConverter.GeometryFromString(value);
     return value;
-};
+});
 
 //#endregion
 
 Path.Instance._GetFillRule = function () {
-    var geom = this.GetData();
+    var geom = this.Data;
     if (geom == null)
         return this._GetFillRule$Shape();
-    return geom.GetFillRule();
+    return geom.FillRule;
 };
 
 Path.Instance._DrawPath = function (ctx) {
     /// <param name="ctx" type="_RenderContext"></param>
-    var geom = this.GetData();
+    var geom = this.Data;
     if (geom == null)
         return;
     geom.Draw(ctx);
@@ -51,7 +44,7 @@ Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     /// <param name="logical" type="Boolean"></param>
     /// <param name="matrix" type="Matrix"></param>
     /// <returns type="Rect" />
-    var geom = this.GetData();
+    var geom = this.Data;
     if (geom == null) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
@@ -59,7 +52,7 @@ Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     if (logical)
         return geom.GetBounds();
 
-    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
+    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.StrokeThickness;
     return geom.GetBounds(thickness);
     return shapeBounds;
 };

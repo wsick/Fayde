@@ -9,21 +9,12 @@ var ContentPresenter = Nullstone.Create("ContentPresenter", FrameworkElement);
 //#region Dependency Properties
 
 ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter);
-ContentPresenter.Instance.GetContent = function () {
-    return this.$GetValue(ContentPresenter.ContentProperty);
-};
-ContentPresenter.Instance.SetContent = function (value) {
-    this.$SetValue(ContentPresenter.ContentProperty, value);
-};
-
 ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
-ContentPresenter.Instance.GetContentTemplate = function () {
-    /// <returns type="ControlTemplate" />
-    return this.$GetValue(ContentPresenter.ContentTemplateProperty);
-};
-ContentPresenter.Instance.SetContentTemplate = function (value) {
-    this.$SetValue(ContentPresenter.ContentTemplateProperty, value);
-};
+
+Nullstone.AutoProperties(ContentPresenter, [
+    ContentPresenter.ContentProperty,
+    ContentPresenter.ContentTemplateProperty
+]);
 
 //#endregion
 
@@ -59,7 +50,7 @@ ContentPresenter.Instance._GetFallbackRoot = function () {
 
 ContentPresenter.Instance._GetDefaultTemplateCallback = function () {
     /// <returns type="UIElement" />
-    var templateOwner = Nullstone.As(this.GetTemplateOwner(), ContentControl);
+    var templateOwner = Nullstone.As(this.TemplateOwner, ContentControl);
     if (templateOwner != null) {
         if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
             this.$SetValue(ContentPresenter.ContentProperty,
@@ -71,11 +62,11 @@ ContentPresenter.Instance._GetDefaultTemplateCallback = function () {
         }
     }
 
-    var template = Nullstone.As(this.GetContentTemplate(), DataTemplate);
+    var template = Nullstone.As(this.ContentTemplate, DataTemplate);
     if (template != null) {
         this._ContentRoot = Nullstone.As(template.GetVisualTree(this), UIElement);
     } else {
-        var content = this.GetContent();
+        var content = this.Content;
         this._ContentRoot = Nullstone.As(content, UIElement);
         if (this._ContentRoot == null && content != null)
             this._ContentRoot = this._GetFallbackRoot();
@@ -88,10 +79,10 @@ ContentPresenter.Instance._ClearRoot = function () {
     this._ContentRoot = null;
 };
 ContentPresenter.Instance.InvokeLoaded = function () {
-    if (Nullstone.Is(this.GetContent(), UIElement))
+    if (Nullstone.Is(this.Content, UIElement))
         this.$ClearValue(FrameworkElement.DataContextProperty);
     else
-        this.SetDataContext(this.GetContent());
+        this.DataContext = this.Content;
     this.InvokeLoaded$FrameworkElement();
 };
 

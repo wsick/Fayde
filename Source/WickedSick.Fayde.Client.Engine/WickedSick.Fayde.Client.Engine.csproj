@@ -60,6 +60,7 @@
     <Content Include="JavascriptTests\DependencyObjectTests.js" />
     <Content Include="JavascriptTests\FaydeAsserts.js" />
     <Content Include="JavascriptTests\MatrixTests.js" />
+    <Content Include="JavascriptTests\NullstoneTests.js" />
     <Content Include="Javascript\Collections\Enums.js" />
     <Content Include="Javascript\Collections\INotifyCollectionChanged.js" />
     <Content Include="Javascript\Collections\NotifyCollectionChangedEventArgs.js" />
@@ -123,13 +124,9 @@
     <Content Include="Javascript\Media\PathSegment.js" />
     <Content Include="Javascript\Media\PathSegmentCollection.js" />
     <Content Include="Javascript\Media\Transform.js" />
-    <Content Include="Javascript\Runtime\Exception.js" />
-    <Content Include="Javascript\Runtime\InvalidOperationException.js" />
-    <Content Include="Javascript\Runtime\NotImplementedException.js" />
-    <Content Include="Javascript\Runtime\NotSupportedException.js" />
+    <Content Include="Javascript\Runtime\Exceptions.js" />
     <Content Include="Javascript\Runtime\RoutedPropertyChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\Timer.js" />
-    <Content Include="Javascript\Runtime\XamlParseException.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
     <Content Include="Javascript\Shapes\Line.js" />
@@ -160,7 +157,7 @@
     <Content Include="Javascript\Core\DeepStyleWalker.js" />
     <Content Include="Javascript\Core\DeepTreeWalker.js" />
     <Content Include="Javascript\Core\Enums.js" />
-    <Content Include="Javascript\Core\FrameworkElementPropertyValueProvider.js" />
+    <Content Include="Javascript\Core\PropertyValueProviders\FrameworkElementPropertyValueProvider.js" />
     <Content Include="Javascript\Core\FrameworkTemplate.js" />
     <Content Include="Javascript\Core\LayoutPass.js" />
     <Content Include="Javascript\Core\NameScope.js" />
@@ -329,6 +326,7 @@
     <Content Include="Silo\silo1.html" />
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
+    <Content Include="Silo\UnitTestValidation.htm" />
     <Content Include="Silverlight.js" />
     <Content Include="Styles\AllControls.xml" />
     <Content Include="Styles\CheckBox.xml" />

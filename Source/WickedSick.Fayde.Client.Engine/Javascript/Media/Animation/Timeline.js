@@ -15,8 +15,12 @@ Timeline.Instance.Init = function () {
 //#region Dependency Properties
 
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
-
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
+
+Nullstone.AutoProperties(Timeline, [
+    Timeline.BeginTimeProperty,
+    Timeline.DurationProperty
+]);
 
 //#endregion
 

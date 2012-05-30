@@ -5,31 +5,21 @@
 //#region Run
 var Run = Nullstone.Create("Run", Inline);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return new Enum(FlowDirection); }, Run, FlowDirection.LeftToRight);
-Run.Instance.GetFlowDirection = function () {
-    return this.$GetValue(Run.FlowDirectionProperty);
-};
-Run.Instance.SetFlowDirection = function (value) {
-    this.$SetValue(Run.FlowDirectionProperty, value);
-};
-
 Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
-Run.Instance.GetText = function () {
-    /// <returns type="String" />
-    return this.$GetValue(Run.TextProperty);
-};
-Run.Instance.SetText = function (value) {
-    /// <param name="value" type="String"></param>
-    this.$SetValue(Run.TextProperty, value);
-};
+
+Nullstone.AutoProperties(Run, [
+    Run.FlowDirectionProperty,
+    Run.TextProperty
+]);
 
 //#endregion
 
 Run.Instance._SerializeText = function (str) {
     /// <returns type="String" />
-    var t = this.GetText();
+    var t = this.Text;
     if (t != null)
         return str.concat(t);
     return str;

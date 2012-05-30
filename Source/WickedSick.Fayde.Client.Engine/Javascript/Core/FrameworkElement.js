@@ -4,7 +4,7 @@
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="PropertyValueProviders/StylePropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/ImplicitStylePropertyValueProvider.js"/>
-/// <reference path="FrameworkElementPropertyValueProvider.js"/>
+/// <reference path="PropertyValueProviders/FrameworkElementPropertyValueProvider.js"/>
 /// <reference path="PropertyValueProviders/InheritedDataContextPropertyValueProvider.js"/>
 /// CODE
 /// <reference path="../Runtime/BError.js"/>
@@ -32,119 +32,42 @@ FrameworkElement.Instance.Init = function () {
 
 //#region Dependency Properties
 
-FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () { return Number; }, FrameworkElement, NaN);
-FrameworkElement.Instance.GetHeight = function () {
-    return this.$GetValue(FrameworkElement.HeightProperty);
-};
-FrameworkElement.Instance.SetHeight = function (value) {
-    this.$SetValue(FrameworkElement.HeightProperty, value);
-};
-
-FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () { return Number; }, FrameworkElement, NaN);
-FrameworkElement.Instance.GetWidth = function () {
-    return this.$GetValue(FrameworkElement.WidthProperty);
-};
-FrameworkElement.Instance.SetWidth = function (value) {
-    this.$SetValue(FrameworkElement.WidthProperty, value);
-};
-
+FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return Number; }, FrameworkElement, NaN);
+FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
-FrameworkElement.Instance.GetActualHeight = function () {
-    return this.$GetValue(FrameworkElement.ActualHeightProperty);
-};
-
 FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
-FrameworkElement.Instance.GetActualWidth = function () {
-    return this.$GetValue(FrameworkElement.ActualWidthProperty);
-};
+FrameworkElement.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
+FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.RegisterCore("HorizontalAlignment", function () { return new Enum(HorizontalAlignment); }, FrameworkElement, HorizontalAlignment.Stretch);
+FrameworkElement.LanguageProperty = DependencyProperty.RegisterCore("Language", function () { return String; }, FrameworkElement);
+FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
+FrameworkElement.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
+FrameworkElement.MaxWidthProperty = DependencyProperty.RegisterCore("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
+FrameworkElement.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
+FrameworkElement.MinWidthProperty = DependencyProperty.RegisterCore("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
+FrameworkElement.VerticalAlignmentProperty = DependencyProperty.RegisterCore("VerticalAlignment", function () { return new Enum(VerticalAlignment); }, FrameworkElement, VerticalAlignment.Stretch);
+FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Style; }, FrameworkElement);
+FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterCore("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement);
 
-FrameworkElement.DataContextProperty = DependencyProperty.Register("DataContext", function () { return Object; }, FrameworkElement);
-FrameworkElement.Instance.GetDataContext = function () {
-    return this.$GetValue(FrameworkElement.DataContextProperty);
-};
-FrameworkElement.Instance.SetDataContext = function (value) {
-    this.$SetValue(FrameworkElement.DataContextProperty, value);
-};
+Nullstone.AutoProperties(FrameworkElement, [
+    FrameworkElement.WidthProperty,
+    FrameworkElement.HeightProperty,
+    FrameworkElement.DataContextProperty,
+    FrameworkElement.HorizontalAlignmentProperty,
+    FrameworkElement.LanguageProperty,
+    FrameworkElement.MarginProperty,
+    FrameworkElement.MaxWidthProperty,
+    FrameworkElement.MaxHeightProperty,
+    FrameworkElement.MinWidthProperty,
+    FrameworkElement.MinHeightProperty,
+    FrameworkElement.VerticalAlignmentProperty,
+    FrameworkElement.StyleProperty,
+    FrameworkElement.FlowDirectionProperty
+]);
 
-FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return new Enum(HorizontalAlignment); }, FrameworkElement, HorizontalAlignment.Stretch);
-FrameworkElement.Instance.GetHorizontalAlignment = function () {
-    return this.$GetValue(FrameworkElement.HorizontalAlignmentProperty);
-};
-FrameworkElement.Instance.SetHorizontalAlignment = function (value) {
-    this.$SetValue(FrameworkElement.HorizontalAlignmentProperty, value);
-};
-
-FrameworkElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, FrameworkElement);
-FrameworkElement.Instance.GetLanguage = function () {
-    return this.$GetValue(FrameworkElement.LanguageProperty);
-};
-FrameworkElement.Instance.SetLanguage = function (value) {
-    this.$SetValue(FrameworkElement.LanguageProperty, value);
-};
-
-FrameworkElement.MarginProperty = DependencyProperty.Register("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
-FrameworkElement.Instance.GetMargin = function () {
-    return this.$GetValue(FrameworkElement.MarginProperty);
-};
-FrameworkElement.Instance.SetMargin = function (value) {
-    this.$SetValue(FrameworkElement.MarginProperty, value);
-};
-
-FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-FrameworkElement.Instance.GetMaxHeight = function () {
-    return this.$GetValue(FrameworkElement.MaxHeightProperty);
-};
-FrameworkElement.Instance.SetMaxHeight = function (value) {
-    this.$SetValue(FrameworkElement.MaxHeightProperty, value);
-};
-
-FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-FrameworkElement.Instance.GetMaxWidth = function () {
-    return this.$GetValue(FrameworkElement.MaxWidthProperty);
-};
-FrameworkElement.Instance.SetMaxWidth = function (value) {
-    this.$SetValue(FrameworkElement.MaxWidthProperty, value);
-};
-
-FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
-FrameworkElement.Instance.GetMinHeight = function () {
-    return this.$GetValue(FrameworkElement.MinHeightProperty);
-};
-FrameworkElement.Instance.SetMinHeight = function (value) {
-    this.$SetValue(FrameworkElement.MinHeightProperty, value);
-};
-
-FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
-FrameworkElement.Instance.GetMinWidth = function () {
-    return this.$GetValue(FrameworkElement.MinWidthProperty);
-};
-FrameworkElement.Instance.SetMinWidth = function (value) {
-    this.$SetValue(FrameworkElement.MinWidthProperty, value);
-};
-
-FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return new Enum(VerticalAlignment); }, FrameworkElement, VerticalAlignment.Stretch);
-FrameworkElement.Instance.GetVerticalAlignment = function () {
-    return this.$GetValue(FrameworkElement.VerticalAlignmentProperty);
-};
-FrameworkElement.Instance.SetVerticalAlignment = function (value) {
-    this.$SetValue(FrameworkElement.VerticalAlignmentProperty, value);
-};
-
-FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () { return Style; }, FrameworkElement);
-FrameworkElement.Instance.GetStyle = function () {
-    return this.$GetValue(FrameworkElement.StyleProperty);
-};
-FrameworkElement.Instance.SetStyle = function (value) {
-    this.$SetValue(FrameworkElement.StyleProperty, value);
-};
-
-FrameworkElement.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement);
-FrameworkElement.Instance.GetFlowDirection = function () {
-    return this.$GetValue(FrameworkElement.FlowDirectionProperty);
-};
-FrameworkElement.Instance.SetFlowDirection = function (value) {
-    this.$SetValue(FrameworkElement.FlowDirectionProperty, value);
-};
+Nullstone.AutoPropertiesReadOnly(FrameworkElement, [
+    FrameworkElement.ActualWidthProperty,
+    FrameworkElement.ActualHeightProperty
+]);
 
 //#endregion
 
@@ -168,8 +91,8 @@ FrameworkElement.Instance.SetBinding = function (propd, binding) {
 //#region Bounds/Size
 
 FrameworkElement.Instance._ApplySizeConstraints = function (size) {
-    var specified = new Size(this.GetWidth(), this.GetHeight());
-    var constrained = new Size(this.GetMinWidth(), this.GetMinHeight());
+    var specified = new Size(this.Width, this.Height);
+    var constrained = new Size(this.MinWidth, this.MinHeight);
 
     constrained = constrained.Max(size);
 
@@ -179,10 +102,10 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     if (!isNaN(specified.Height))
         constrained.Height = specified.Height;
 
-    constrained = constrained.Min(new Size(this.GetMaxWidth(), this.GetMaxHeight()));
-    constrained = constrained.Max(new Size(this.GetMinWidth(), this.GetMinHeight()));
+    constrained = constrained.Min(new Size(this.MaxWidth, this.MaxHeight));
+    constrained = constrained.Max(new Size(this.MinWidth, this.MinHeight));
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         constrained.Width = Math.round(constrained.Width);
         constrained.Height = Math.round(constrained.Height);
     }
@@ -192,7 +115,7 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
 
 FrameworkElement.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
-    if (this.GetVisibility() !== Visibility.Visible)
+    if (this.Visibility !== Visibility.Visible)
         return new Size(0.0, 0.0);
 
     if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
@@ -203,7 +126,7 @@ FrameworkElement.Instance._ComputeActualSize = function () {
     return actual;
 };
 FrameworkElement.Instance._ComputeBounds = function () {
-    var size = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var size = new Size(this.ActualWidth, this.ActualHeight);
     size = this._ApplySizeConstraints(size);
 
     this._Extents = new Rect(0, 0, size.Width, size.Height);
@@ -271,7 +194,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
     shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
 
-    if (this.GetVisibility() !== Visibility.Visible) {
+    if (this.Visibility !== Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
         this._DesiredSize = new Size(0, 0);
         return;
@@ -289,7 +212,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     this._InvalidateArrange();
     this._UpdateBounds();
 
-    var margin = this.GetMargin();
+    var margin = this.Margin;
     var size = availableSize.GrowByThickness(margin.Negate());
 
     size = this._ApplySizeConstraints(size);
@@ -317,7 +240,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     size = size.GrowByThickness(margin);
     size = size.Min(availableSize);
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         size.Width = Math.round(size.Width);
         size.Height = Math.round(size.Height);
     }
@@ -358,7 +281,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
 
@@ -374,7 +297,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     var parent = this.GetVisualParent();
 
-    if (this.GetVisibility() !== Visibility.Visible) {
+    if (this.Visibility !== Visibility.Visible) {
         LayoutInformation.SetLayoutSlot(this, finalRect);
         return;
     }
@@ -389,7 +312,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     this._ClearValue(LayoutInformation.LayoutClipProperty);
 
-    var margin = this.GetMargin();
+    var margin = this.Margin;
     var childRect = finalRect.GrowByThickness(margin.Negate());
 
     this._UpdateTransform();
@@ -401,8 +324,8 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     var stretched = this._ApplySizeConstraints(new Size(childRect.Width, childRect.Height));
     var framework = this._ApplySizeConstraints(new Size());
 
-    var horiz = this.GetHorizontalAlignment();
-    var vert = this.GetVerticalAlignment();
+    var horiz = this.HorizontalAlignment;
+    var vert = this.VerticalAlignment;
 
     if (horiz === HorizontalAlignment.Stretch)
         framework.Width = Math.max(framework.Width, stretched.Width);
@@ -432,11 +355,11 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     var flipHoriz = false;
     if (parent)
-    flipHoriz = parent.GetFlowDirection() != this.GetFlowDirection();
+    flipHoriz = parent.FlowDirection !== this.FlowDirection;
     else if (this.GetParent() && this.GetParent()._IsPopup())
-    flipHoriz = this.GetParent().GetFlowDirection() != this.GetFlowDirection();
+    flipHoriz = this.GetParent().FlowDirection != this.FlowDirection;
     else
-    flipHoriz = this.GetFlowDirection() == FlowDirection.RightToLeft;
+    flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
 
     var layoutXform = new Matrix();
     layoutXform = layoutXform.Translate(childRect.X, childRect.Y);
@@ -455,7 +378,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     var oldSize = this._RenderSize;
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         response.Width = Math.round(response.Width);
         response.Height = Math.round(response.Height);
     }
@@ -502,7 +425,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         }
     }
 
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         visualOffset.X = Math.round(visualOffset.X);
         visualOffset.Y = Math.round(visualOffset.Y);
     }
@@ -523,7 +446,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     var layoutClip = childRect;
     layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
     layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         layoutClip.X = Math.round(layoutClip.X);
         layoutClip.Y = Math.round(layoutClip.Y);
     }
@@ -532,7 +455,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         var frameworkClip = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
         layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
         var rectangle = new RectangleGeometry();
-        rectangle.SetRect(layoutClip);
+        rectangle.Rect = layoutClip;
         LayoutInformation.SetLayoutClip(this, rectangle);
     }
 
@@ -586,7 +509,7 @@ FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
 FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
     var np = new Point(x, y);
     this._TransformPoint(np);
-    var extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    var extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
     if (!extents.ContainsPointXY(np.X, np.Y))
         return false;
 
@@ -661,7 +584,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         pass._Count = pass._Count + 1;
 
         var flag = UIElementFlags.None;
-        if (element.GetVisibility() === Visibility.Visible) {
+        if (element.Visibility === Visibility.Visible) {
             if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                 flag = UIElementFlags.DirtyMeasureHint;
             else if (element._HasFlag(UIElementFlags.DirtyArrangeHint))
@@ -674,7 +597,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
             var measureWalker = new _DeepTreeWalker(element);
             var child;
             while (child = measureWalker.Step()) {
-                if (child.GetVisibility() !== Visibility.Visible || !child._HasFlag(flag)) {
+                if (child.Visibility !== Visibility.Visible || !child._HasFlag(flag)) {
                     measureWalker.SkipBranch();
                     continue;
                 }

@@ -17,114 +17,30 @@ Shape.Instance.Init = function () {
 //#region Dependency Properties
 
 Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Brush; }, Shape);
-Shape.Instance.GetFill = function () {
-    ///<returns type="Brush"></returns>
-    return this.$GetValue(Shape.FillProperty);
-};
-Shape.Instance.SetFill = function (value) {
-    ///<param name="value" type="Brush"></param>
-    this.$SetValue(Shape.FillProperty, value);
-};
-
 Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Stretch); }, Shape, Stretch.None);
-Shape.Instance.GetStretch = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Shape.StretchProperty);
-};
-Shape.Instance.SetStretch = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Shape.StretchProperty, value);
-};
-
 Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Brush; }, Shape);
-Shape.Instance.GetStroke = function () {
-    ///<returns type="Brush"></returns>
-    return this.$GetValue(Shape.StrokeProperty);
-};
-Shape.Instance.SetStroke = function (value) {
-    ///<param name="value" type="Brush"></param>
-    this.$SetValue(Shape.StrokeProperty, value);
-};
-
 Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () { return Number; }, Shape, 1.0);
-Shape.Instance.GetStrokeThickness = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Shape.StrokeThicknessProperty);
-};
-Shape.Instance.SetStrokeThickness = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Shape.StrokeThicknessProperty, value);
-};
-
 Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return DoubleCollection; }, Shape);
-Shape.Instance.GetStrokeDashArray = function () {
-    ///<returns type="DoubleCollection"></returns>
-    return this.$GetValue(Shape.StrokeDashArrayProperty);
-};
-Shape.Instance.SetStrokeDashArray = function (value) {
-    ///<param name="value" type="DoubleCollection"></param>
-    this.$SetValue(Shape.StrokeDashArrayProperty, value);
-};
-
 Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
-Shape.Instance.GetStrokeDashCap = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Shape.StrokeDashCapProperty);
-};
-Shape.Instance.SetStrokeDashCap = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Shape.StrokeDashCapProperty, value);
-};
-
 Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () { return Number; }, Shape, 0.0);
-Shape.Instance.GetStrokeDashOffset = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Shape.StrokeDashOffsetProperty);
-};
-Shape.Instance.SetStrokeDashOffset = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Shape.StrokeDashOffsetProperty, value);
-};
-
 Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
-Shape.Instance.GetStrokeEndLineCap = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Shape.StrokeEndLineCapProperty);
-};
-Shape.Instance.SetStrokeEndLineCap = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Shape.StrokeEndLineCapProperty, value);
-};
-
 Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Enum(PenLineJoin); }, Shape, PenLineJoin.Miter);
-Shape.Instance.GetStrokeLineJoin = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Shape.StrokeLineJoinProperty);
-};
-Shape.Instance.SetStrokeLineJoin = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Shape.StrokeLineJoinProperty, value);
-};
-
 Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () { return Number; }, Shape, 10.0);
-Shape.Instance.GetStrokeMiterLimit = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Shape.StrokeMiterLimitProperty);
-};
-Shape.Instance.SetStrokeMiterLimit = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Shape.StrokeMiterLimitProperty, value);
-};
-
 Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
-Shape.Instance.GetStrokeStartLineCap = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(Shape.StrokeStartLineCapProperty);
-};
-Shape.Instance.SetStrokeStartLineCap = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(Shape.StrokeStartLineCapProperty, value);
-};
+
+Nullstone.AutoProperties(Shape, [
+    Shape.FillProperty,
+    Shape.StretchProperty,
+    Shape.StrokeProperty,
+    Shape.StrokeThicknessProperty,
+    Shape.StrokeDashArrayProperty,
+    Shape.StrokeDashCapProperty,
+    Shape.StrokeDashOffsetProperty,
+    Shape.StrokeEndLineCapProperty,
+    Shape.StrokeLineJoinProperty,
+    Shape.StrokeMiterLimitProperty,
+    Shape.StrokeStartLineCapProperty
+]);
 
 //#endregion
 
@@ -167,7 +83,7 @@ Shape.Instance._MeasureOverrideWithError = function (availableSize, error) {
         desired = new Size(0, 0);
     }
 
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     if (stretch === Stretch.None)
         return new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
 
@@ -221,7 +137,7 @@ Shape.Instance._ArrangeOverrideWithError = function (finalSize, error) {
 
     this._InvalidateStretch();
 
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     if (stretch === Stretch.None)
         return arranged.Max(new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height));
 
@@ -312,7 +228,7 @@ Shape.Instance._ComputeActualSize = function () {
     if (shapeBounds.Width <= 0 && shapeBounds.Height <= 0)
         return desired;
 
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     if (stretch === Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
         return new Size(shapeBounds.Width, shapeBounds.Height);
 
@@ -363,18 +279,15 @@ Shape.Instance._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 Shape.Instance._ComputeStretchBounds = function () {
-    var autoDim = isNaN(this.GetWidth());
-
-    var stretch = this.GetStretch();
     var shapeBounds = this._GetNaturalBounds();
-
     if (shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
     }
 
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
-    var specified = new Size(this.GetWidth(), this.GetHeight());
+    var specified = new Size(this.Width, this.Height);
+    var autoDim = isNaN(specified.Width);
+    var framework = new Size(this.ActualWidth, this.ActualHeight);
 
     if (specified.Width <= 0.0 || specified.Height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
@@ -395,6 +308,7 @@ Shape.Instance._ComputeStretchBounds = function () {
         framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
     }
 
+    var stretch = this.Stretch;
     if (stretch === Stretch.None) {
         shapeBounds = shapeBounds.Transform(this._StretchTransform);
         return shapeBounds;
@@ -480,7 +394,7 @@ Shape.Instance._ComputeShapeBounds = function (logical) {
     this._ComputeShapeBoundsImpl(logical, null);
 };
 Shape.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
-    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
+    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.StrokeThickness;
 
     if (this._Path == null)
         this._BuildPath();
@@ -549,7 +463,7 @@ Shape.Instance._Render = function (ctx, region) {
     if (this._Fill != null)
         ctx.Fill(this._Fill, area);
     if (this._Stroke != null)
-        ctx.Stroke(this._Stroke, this.GetStrokeThickness(), area);
+        ctx.Stroke(this._Stroke, this.StrokeThickness, area);
     ctx.Restore();
 };
 

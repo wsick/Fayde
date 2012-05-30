@@ -12,9 +12,9 @@ NameScope.Instance.Init = function () {
     this._Temporary = false;
 };
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
-NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", function () { return NameScope; }, NameScope);
+NameScope.NameScopeProperty = DependencyProperty.RegisterAttachedCore("NameScope", function () { return NameScope; }, NameScope);
 NameScope.GetNameScope = function (d) {
     /// <param name="d" type="DependencyObject"></param>
     /// <returns type="NameScope" />

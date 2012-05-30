@@ -7,26 +7,22 @@ var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFra
 
 //#region Dependency Properties
 
-ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, null, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
-ObjectAnimationUsingKeyFrames.Instance.GetKeyFrames = function () {
-    ///<returns type="ObjectKeyFrameCollection"></returns>
-    return this.$GetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty);
-};
-ObjectAnimationUsingKeyFrames.Instance.SetKeyFrames = function (value) {
-    ///<param name="value" type="ObjectKeyFrameCollection"></param>
-    this.$SetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty, value);
-};
+ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, undefined, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
+
+Nullstone.AutoProperties(ObjectAnimationUsingKeyFrames, [
+    ObjectAnimationUsingKeyFrames.KeyFramesProperty
+]);
 
 //#endregion
 
 ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
     /// <param name="target" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
-    var frames = this.GetKeyFrames();
+    var frames = this.KeyFrames;
     var count = frames.GetCount();
     for (var i = 0; i < count; i++) {
         var frame = Nullstone.As(frames.GetValueAt(i), ObjectKeyFrame);
-        var value = frame.GetValue();
+        var value = frame.Value;
         if (value == null) {
             frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, undefined);
         } else {
@@ -43,7 +39,7 @@ ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
 };
 
 ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
-    var keyFrames = this.GetKeyFrames();
+    var keyFrames = this.KeyFrames;
 
     var prevFrameRef = {};
     var currentKeyFrame = keyFrames.GetKeyFrameForTime(clockData.CurrentTime, prevFrameRef);
@@ -60,7 +56,7 @@ ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOrigi
         keyStartTime = 0;
     } else {
         // start at the previous keyframe's target value
-        baseValue = prevFrame.GetConvertedValue();
+        baseValue = prevFrame.ConvertedValue;
         keyStartTime = prevFrame._ResolvedKeyTime;
     }
 
@@ -80,11 +76,11 @@ ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOrigi
 
 ObjectAnimationUsingKeyFrames.Instance.AddKeyFrame = function (frame) {
     /// <param name="frame" type="ObjectKeyFrame"></param>
-    this.GetKeyFrames().Add(frame);
+    this.KeyFrames.Add(frame);
 };
 ObjectAnimationUsingKeyFrames.Instance.RemoveKeyFrame = function (frame) {
     /// <param name="frame" type="ObjectKeyFrame"></param>
-    this.GetKeyFrames().Remove(frame);
+    this.KeyFrames.Remove(frame);
 };
 
 Nullstone.FinishCreate(ObjectAnimationUsingKeyFrames);

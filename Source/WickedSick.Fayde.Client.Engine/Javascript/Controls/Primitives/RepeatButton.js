@@ -6,30 +6,18 @@ var RepeatButton = Nullstone.Create("RepeatButton", ButtonBase);
 
 RepeatButton.Instance.Init = function () {
     this.Init$ButtonBase();
-    this.SetClickMode(ClickMode.Press);
+    this.ClickMode = ClickMode.Press;
 };
 
 //#region Dependency Properties
 
 RepeatButton.DelayProperty = DependencyProperty.Register("Delay", function () { return Number; }, RepeatButton, 500, function (d, args) { d.OnDelayChanged(args); });
-RepeatButton.Instance.GetDelay = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(RepeatButton.DelayProperty);
-};
-RepeatButton.Instance.SetDelay = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(RepeatButton.DelayProperty, value);
-};
-
 RepeatButton.IntervalProperty = DependencyProperty.Register("Interval", function () { return Number; }, RepeatButton, 33, function (d, args) { d.OnIntervalChanged(args); });
-RepeatButton.Instance.GetInterval = function () {
-    ///<returns type="Number"></returns>
-    return this.$GetValue(RepeatButton.IntervalProperty);
-};
-RepeatButton.Instance.SetInterval = function (value) {
-    ///<param name="value" type="Number"></param>
-    this.$SetValue(RepeatButton.IntervalProperty, value);
-};
+
+Nullstone.AutoProperties(RepeatButton, [
+    RepeatButton.DelayProperty,
+    RepeatButton.IntervalProperty
+]);
 
 //#endregion
 
@@ -49,7 +37,7 @@ RepeatButton.Instance.OnIsEnabledChanged = function (e) {
     this._UpdateRepeatState();
 };
 RepeatButton.Instance.OnKeyDown = function (sender, args) {
-    if (args.KeyCode === Keys.Space && this.GetClickMode() !== ClickMode.Hover) {
+    if (args.KeyCode === Keys.Space && this.ClickMode !== ClickMode.Hover) {
         this._KeyboardCausingRepeat = true;
         this._UpdateRepeatState();
     }
@@ -57,7 +45,7 @@ RepeatButton.Instance.OnKeyDown = function (sender, args) {
 };
 RepeatButton.Instance.OnKeyUp = function (sender, args) {
     this.OnKeyUp$ButtonBase(sender, args);
-    if (args.KeyCode === Keys.Space && this.GetClickMode() !== ClickMode.Hover) {
+    if (args.KeyCode === Keys.Space && this.ClickMode !== ClickMode.Hover) {
         this._KeyboardCausingRepeat = false;
         this._UpdateRepeatState();
     }
@@ -65,7 +53,7 @@ RepeatButton.Instance.OnKeyUp = function (sender, args) {
 };
 RepeatButton.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$ButtonBase(sender, args);
-    if (this.GetClickMode() !== ClickMode.Hover) {
+    if (this.ClickMode !== ClickMode.Hover) {
         this._KeyboardCausingRepeat = false;
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
@@ -73,7 +61,7 @@ RepeatButton.Instance.OnLostFocus = function (sender, args) {
 };
 RepeatButton.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$ButtonBase(sender, args);
-    if (this.GetClickMode() === ClickMode.Hover) {
+    if (this.ClickMode === ClickMode.Hover) {
         this._MouseCausingRepeat = true;
         this._UpdateRepeatState();
     }
@@ -90,7 +78,7 @@ RepeatButton.Instance.OnMouseEnter = function (sender, args) {
 };
 RepeatButton.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$ButtonBase(sender, args);
-    if (this.GetClickMode() === ClickMode.Hover) {
+    if (this.ClickMode === ClickMode.Hover) {
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
     }
@@ -100,7 +88,7 @@ RepeatButton.Instance.OnMouseLeftButtonDown = function (sender, args) {
     if (args.Handled)
         return;
     this.OnMouseLeftButtonDown$ButtonBase(sender, args);
-    if (this.GetClickMode() !== ClickMode.Hover) {
+    if (this.ClickMode !== ClickMode.Hover) {
         this._MouseCausingRepeat = true;
         this._UpdateRepeatState();
     }
@@ -109,7 +97,7 @@ RepeatButton.Instance.OnMouseLeftButtonUp = function (sender, args) {
     if (args.Handled)
         return;
     this.OnMouseLeftButtonUp$ButtonBase(sender, args);
-    if (this.GetClickMode() !== ClickMode.Hover) {
+    if (this.ClickMode !== ClickMode.Hover) {
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
     }
@@ -140,7 +128,7 @@ RepeatButton.Instance._StartTimer = function () {
     } else if (this._Timer.IsEnabled) {
         return;
     }
-    this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, this.GetDelay()));
+    this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, this.Delay));
     this._Timer.Start();
 };
 RepeatButton.Instance._StopTimer = function () {
@@ -148,13 +136,13 @@ RepeatButton.Instance._StopTimer = function () {
         this._Timer.Stop();
 };
 RepeatButton.Instance._OnTimeout = function (sender, e) {
-    var interval = this.GetInterval();
+    var interval = this.Interval;
     var timespan = this._Timer.GetInterval();
     if (timespan.Milliseconds !== interval) {
         this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, interval));
     }
 
-    if (this.GetIsPressed() || this._KeyboardCausingRepeat) {
+    if (this.IsPressed || this._KeyboardCausingRepeat) {
         this.OnClick();
         return;
     }
@@ -169,17 +157,17 @@ RepeatButton.Instance._OnTimeout = function (sender, e) {
 };
 
 RepeatButton.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
-    } else if (this.GetIsPressed()) {
+    } else if (this.IsPressed) {
         this._GoToState(useTransitions, "Pressed");
-    } else if (this.GetIsMouseOver()) {
+    } else if (this.IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");
     } else {
         this._GoToState(useTransitions, "Normal");
     }
 
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
+    if (this.IsFocused && this.IsEnabled) {
         this._GoToState(useTransitions, "Focused");
     } else {
         this._GoToState(useTransitions, "Unfocused");

@@ -10,13 +10,9 @@
 //#region Storyboard
 var Storyboard = Nullstone.Create("Storyboard", Timeline);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
 Storyboard.ChildrenProperty = DependencyProperty.Register("Children", function () { return TimelineCollection; }, Storyboard);
-Storyboard.Instance.GetChildren = function () {
-    ///<returns type="TimelineCollection"></returns>
-    return this.$GetValue(Storyboard.ChildrenProperty);
-};
 
 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () { return String }, Storyboard);
 Storyboard.GetTargetName = function (d) {
@@ -38,9 +34,13 @@ Storyboard.SetTargetProperty = function (d, value) {
     d.$SetValue(Storyboard.TargetPropertyProperty, value);
 };
 
+Nullstone.AutoProperties(Storyboard, [
+    Storyboard.ChildrenProperty
+]);
+
 //#endregion
 
-//#region ANNOTATIONS
+//#region Annotations
 
 Storyboard.Annotations = {
     ContentProperty: Storyboard.ChildrenProperty
@@ -66,23 +66,28 @@ Storyboard.Instance.Pause = function () {
 Storyboard.Instance.Resume = function () {
     var nowTime = new Date().getTime();
     this._LastStep = nowTime;
-    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        this.GetChildren(i).GetValueAt(i)._LastStep = nowTime;
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
+        children.GetValueAt(i)._LastStep = nowTime;
     }
     this._IsPaused = false;
 };
 Storyboard.Instance.Stop = function () {
     App.Instance.UnregisterStoryboard(this);
-    var children = this.GetChildren();
-    for (var i = 0; i < children.GetCount(); i++) {
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
         children.GetValueAt(i).Stop();
     }
 };
 
 Storyboard.Instance._HookupAnimations = function (error) {
     /// <param name="error" type="BError"></param>
-    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        var animation = this.GetChildren(i).GetValueAt(i);
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
+        var animation = children.GetValueAt(i);
         animation.Reset();
         if (!this._HookupAnimation(animation, null, null, error))
             return false;
@@ -133,8 +138,10 @@ Storyboard.Instance._Tick = function (lastTime, nowTime) {
     this.Update(nowTime);
 };
 Storyboard.Instance.UpdateInternal = function (clockData) {
-    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        this.GetChildren().GetValueAt(i).Update(clockData.RealTicks);
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
+        children.GetValueAt(i).Update(clockData.RealTicks);
     }
 };
 Storyboard.Instance.OnDurationReached = function () {

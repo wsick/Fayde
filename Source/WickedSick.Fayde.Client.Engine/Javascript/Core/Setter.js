@@ -5,13 +5,11 @@
 //#region Setter
 var Setter = Nullstone.Create("Setter", SetterBase);
 
-//#region DEPENDENCY PROPERTIES
+//#region Dependency Properties
 
-Setter.PropertyProperty = DependencyProperty.Register("Property", function () { return DependencyProperty; }, Setter);
-
-Setter.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, Setter);
-
-Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, Setter);
+Setter.PropertyProperty = DependencyProperty.RegisterCore("Property", function () { return DependencyProperty; }, Setter);
+Setter.ValueProperty = DependencyProperty.RegisterCore("Value", function () { return Object; }, Setter);
+Setter.ConvertedValueProperty = DependencyProperty.RegisterCore("ConvertedValue", function () { return Object; }, Setter);
 
 //#endregion
 

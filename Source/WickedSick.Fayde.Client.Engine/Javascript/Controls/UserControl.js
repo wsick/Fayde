@@ -8,12 +8,10 @@ var UserControl = Nullstone.Create("UserControl", Control);
 //#region Dependency Properties
 
 UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
-UserControl.Instance.GetContent = function () {
-    return this.$GetValue(UserControl.ContentProperty);
-};
-UserControl.Instance.SetContent = function (value) {
-    this.$SetValue(UserControl.ContentProperty, value);
-};
+
+Nullstone.AutoProperties(UserControl, [
+    UserControl.ContentProperty
+]);
 
 //#endregion
 
@@ -24,7 +22,7 @@ UserControl.Instance.IsLayoutContainer = function () { return true; };
 UserControl.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
 
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var border = this.Padding.Plus(this.BorderThickness);
 
     var walker = new _VisualTreeWalker(this);
     var child;
@@ -38,7 +36,7 @@ UserControl.Instance._MeasureOverrideWithError = function (availableSize, error)
     return desired;
 };
 UserControl.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var border = this.Padding.Plus(this.BorderThickness);
 
     var arranged = finalSize;
 

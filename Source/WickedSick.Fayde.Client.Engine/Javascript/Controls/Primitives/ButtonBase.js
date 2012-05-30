@@ -15,42 +15,25 @@ ButtonBase.Instance.Init = function () {
     this.Click = new MulticastEvent();
 
     this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
-    this.SetIsTabStop(true);
+    this.IsTabStop = true;
 }
 
 //#region Dependency Properties
 
 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Enum(ClickMode); }, ButtonBase, ClickMode.Release);
-ButtonBase.Instance.GetClickMode = function () {
-    return this.$GetValue(ButtonBase.ClickModeProperty);
-};
-ButtonBase.Instance.SetClickMode = function (value) {
-    this.$SetValue(ButtonBase.ClickModeProperty, value);
-};
-
 ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
-ButtonBase.Instance.GetIsPressed = function () {
-	return this.$GetValue(ButtonBase.IsPressedProperty);
-};
-ButtonBase.Instance.SetIsPressed = function (value) {
-	this.$SetValue(ButtonBase.IsPressedProperty, value);
-};
-
 ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.Instance.GetIsFocused = function () {
-    return this.$GetValue(ButtonBase.IsFocusedProperty);
-};
-ButtonBase.Instance.SetIsFocused = function (value) {
-    this.$SetValue(ButtonBase.IsFocusedProperty, value);
-};
-
 ButtonBase.IsMouseOverProperty = DependencyProperty.RegisterReadOnly("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.Instance.GetIsMouseOver = function () {
-    return this.$GetValue(ButtonBase.IsMouseOverProperty);
-};
-ButtonBase.Instance.SetIsMouseOver = function (value) {
-    this.$SetValue(ButtonBase.IsMouseOverProperty, value);
-};
+
+Nullstone.AutoProperties(ButtonBase, [
+    ButtonBase.ClickModeProperty
+]);
+
+Nullstone.AutoPropertiesReadOnly(ButtonBase, [
+    ButtonBase.IsPressedProperty,
+    ButtonBase.IsFocusedProperty,
+    ButtonBase.IsMouseOverProperty
+]);
 
 //#endregion
 
@@ -60,8 +43,8 @@ ButtonBase.Instance.OnIsEnabledChanged = function (e) {
     this._SuspendStateChanges = true;
     try {
         if (!isEnabled) {
-            this.SetIsFocused(false);
-            this.SetIsPressed(false);
+            this.$SetValueInternal(ButtonBase.IsFocusedProperty, false);
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
             this._IsMouseCaptured = false;
             this._IsSpaceKeyDown = false;
             this._IsMouseLeftButtonDown = false;
@@ -94,12 +77,12 @@ ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
 ButtonBase.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$ContentControl(sender, args);
 
-    this.SetIsMouseOver(true);
+    this.$SetValueInternal(ButtonBase.IsMouseOverProperty, true);
 
     this._SuspendStateChanges = true;
     try {
-        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled()) {
-            this.SetIsPressed(true);
+        if (this.ClickMode === ClickMode.Hover && this.IsEnabled) {
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, true);
             this.OnClick();
         }
     } finally {
@@ -110,12 +93,12 @@ ButtonBase.Instance.OnMouseEnter = function (sender, args) {
 ButtonBase.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$ContentControl(sender, args);
 
-    this.SetIsMouseOver(false);
+    this.$SetValueInternal(ButtonBase.IsMouseOverProperty, false);
 
     this._SuspendStateChanges = true;
     try {
-        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled())
-            this.SetIsPressed(false);
+        if (this.ClickMode === ClickMode.Hover && this.IsEnabled)
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
     } finally {
         this._SuspendStateChanges = false;
         this.UpdateVisualState();
@@ -126,27 +109,27 @@ ButtonBase.Instance.OnMouseMove = function (sender, args) {
 
     this._MousePosition = args.GetPosition(this);
 
-    if (this._IsMouseLeftButtonDown && this.GetIsEnabled() && this.GetClickMode() !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
-        this.SetIsPressed(this._IsValidMousePosition());
+    if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
+        this.$SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
     }
 };
 ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this.OnMouseLeftButtonDown$ContentControl(sender, args);
 
     this._IsMouseLeftButtonDown = true;
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         return;
-    var clickMode = this.GetClickMode();
+    var clickMode = this.ClickMode;
     if (clickMode === ClickMode.Hover)
         return;
 
-    //TODO: args.Handled = true;
+    args.Handled = true;
     this._SuspendStateChanges = true;
     try {
         this.Focus();
         this._CaptureMouseInternal();
         if (this._IsMouseCaptured)
-            this.SetIsPressed(true);
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, true);
     } finally {
         this._SuspendStateChanges = false;
         this.UpdateVisualState();
@@ -159,19 +142,19 @@ ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
     this.OnMouseLeftButtonDown$ContentControl(sender, args);
 
     this._IsMouseLeftButtonDown = false;
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         return;
-    var clickMode = this.GetClickMode();
+    var clickMode = this.ClickMode;
     if (clickMode === ClickMode.Hover)
         return;
 
-    //TODO: args.Handled = true;
-    if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
+    args.Handled = true;
+    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === ClickMode.Release)
         this.OnClick();
 
     if (!this._IsSpaceKeyDown) {
         this._ReleaseMouseCaptureInternal();
-        this.SetIsPressed(false);
+        this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
     }
 };
 
@@ -191,8 +174,8 @@ ButtonBase.Instance._ReleaseMouseCaptureInternal = function () {
 ButtonBase.Instance._IsValidMousePosition = function () {
     /// <returns type="Boolean" />
     var pos = this._MousePosition;
-    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
-        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
+    return pos.X >= 0.0 && pos.X <= this.ActualWidth
+        && pos.Y >= 0.0 && pos.Y <= this.ActualHeight;
 };
 
 //#endregion
@@ -202,18 +185,18 @@ ButtonBase.Instance._IsValidMousePosition = function () {
 ButtonBase.Instance.OnGotFocus = function (sender, args) {
     this.OnGotFocus$ContentControl(sender, args);
 
-    this.SetIsFocused(true);
+    this.$SetValueInternal(ButtonBase.IsFocusedProperty, true);
     this.UpdateVisualState();
 };
 ButtonBase.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$ContentControl(sender, args);
 
-    this.SetIsFocused(false);
+    this.$SetValueInternal(ButtonBase.IsFocusedProperty, false);
 
     this._SuspendStateChanges = true;
     try {
-        if (this.GetClickMode() !== ClickMode.Hover) {
-            this.SetIsPressed(false);
+        if (this.ClickMode !== ClickMode.Hover) {
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
             this._ReleaseMouseCaptureInternal();
             this._IsSpaceKeyDown = false;
         }
