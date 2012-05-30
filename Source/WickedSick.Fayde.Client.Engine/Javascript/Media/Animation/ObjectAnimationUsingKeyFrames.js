@@ -7,7 +7,7 @@ var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFra
 
 //#region Dependency Properties
 
-ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, null, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
+ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, undefined, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
 
 Nullstone.AutoProperties(ObjectAnimationUsingKeyFrames, [
     ObjectAnimationUsingKeyFrames.KeyFramesProperty

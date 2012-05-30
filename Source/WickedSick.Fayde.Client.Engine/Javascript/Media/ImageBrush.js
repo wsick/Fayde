@@ -15,7 +15,7 @@ ImageBrush.Instance.Init = function () {
 
 //#region Dependency Properties
 
-ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, null, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 
 Nullstone.AutoProperties(ImageBrush, [
     ImageBrush.ImageSourceProperty

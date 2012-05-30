@@ -12,7 +12,7 @@ GeometryGroup.Instance.Init = function () {
 //#region Dependency Properties
 
 GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, GeometryGroup, FillRule.EvenOdd);
-GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, null, { GetValue: function () { return new GeometryCollection(); } });
+GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, undefined, { GetValue: function () { return new GeometryCollection(); } });
 
 Nullstone.AutoProperties(GeometryGroup, [
     GeometryGroup.FillRuleProperty,

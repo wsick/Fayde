@@ -9,7 +9,7 @@ var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
 //#region Dependency Properties
 
 PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, PathGeometry);
-PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, null, { GetValue: function () { return new PathFigureCollection(); } });
+PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, undefined, { GetValue: function () { return new PathFigureCollection(); } });
 
 Nullstone.AutoProperties(PathGeometry, [
     PathGeometry.FillRuleProperty,

@@ -92,5 +92,3 @@ NullstoneTests.prototype.testPropertyCollision = function () {
     Nullstone.AutoProperty(Mock6, "IsMetal", undefined, true);
     assertNoException("Creation of Mock6 object should NOT error because 'IsMetal' property was specified as override.", function () { Nullstone.FinishCreate(Mock6); });
 };
-NullstoneTests.prototype.testProperty = function () {
-};

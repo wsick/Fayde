@@ -13,7 +13,7 @@ Polyline.Instance.Init = function () {
 //#region Dependency Properties
 
 Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
-Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, null, { GetValue: function () { return new PointCollection(); } });
+Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, undefined, { GetValue: function () { return new PointCollection(); } });
 
 Nullstone.AutoProperties(Polyline, [
     Polyline.FillRuleProperty
