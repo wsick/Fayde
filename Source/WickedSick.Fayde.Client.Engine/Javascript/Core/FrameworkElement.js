@@ -69,6 +69,12 @@ Nullstone.AutoPropertiesReadOnly(FrameworkElement, [
     FrameworkElement.ActualHeightProperty
 ]);
 
+Nullstone.Property(FrameworkElement, "Parent", {
+    get: function () {
+        return this._LogicalParent;
+    }
+});
+
 //#endregion
 
 //#region Instance Methods
@@ -805,7 +811,7 @@ FrameworkElement.Instance._SetLogicalParent = function (value, error) {
         return;
     }
 
-    if (value && this._LogicalParent && this._LogicalParent != value) {
+    if (value && this._LogicalParent && !Nullstone.RefEquals(this._LogicalParent, value)) {
         error.SetErrored(BError.InvalidOperation, "Element is a child of another element");
         return;
     }
