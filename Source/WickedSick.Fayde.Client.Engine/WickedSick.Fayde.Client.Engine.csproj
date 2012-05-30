@@ -71,6 +71,7 @@
     <Content Include="Javascript\Controls\Enums.js" />
     <Content Include="Javascript\Controls\GridLength.js" />
     <Content Include="Javascript\Controls\Image.js" />
+    <Content Include="Javascript\Controls\ItemContainerGenerator.js" />
     <Content Include="Javascript\Controls\ItemsPresenter.js" />
     <Content Include="Javascript\Controls\MediaElement.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />

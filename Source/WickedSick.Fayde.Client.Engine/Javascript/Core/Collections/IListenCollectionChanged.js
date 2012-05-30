@@ -1,6 +1,6 @@
 /// <reference path="../../Runtime/Nullstone.js" />
-/// <reference path="../../Runtime/MulticastEvent.js"/>
 /// CODE
+/// <reference path="../../Runtime/MulticastEvent.js"/>
 
 //#region IListenCollectionChanged
 var IListenCollectionChanged = Nullstone.Create("IListenCollectionChanged");

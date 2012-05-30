@@ -4,5 +4,7 @@
 //#region ItemsPresenter
 var ItemsPresenter = Nullstone.Create("ItemsPresenter", FrameworkElement);
 
+
+
 Nullstone.FinishCreate(ItemsPresenter);
 //#endregion
