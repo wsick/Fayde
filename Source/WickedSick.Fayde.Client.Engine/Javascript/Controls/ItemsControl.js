@@ -301,9 +301,9 @@ ItemsControl.Instance.ItemsControlFromItemContainer = function (container) {
         return null;
     }
 
-    var itctl = NullStone.As(e._GetLogicalParent(), ItemsControl);
+    var itctl = NullStone.As(e.Parent, ItemsControl);
     if (!itctl) {
-        return ItemsControl.GetItemsOwner(e._GetLogicalParent());
+        return ItemsControl.GetItemsOwner(e.Parent);
     }
     if (itctl.IsItemItsOwnContainer(e)) {
         return itctl;
