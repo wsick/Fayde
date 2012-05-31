@@ -82,6 +82,7 @@
     <Content Include="Javascript\Controls\Primitives\DragStartedEventArgs.js" />
     <Content Include="Javascript\Controls\Primitives\Enums.js" />
     <Content Include="Javascript\Controls\Primitives\IScrollInfo.js" />
+    <Content Include="Javascript\Controls\Primitives\ItemsChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Primitives\RangeBase.js" />
     <Content Include="Javascript\Controls\Primitives\RepeatButton.js" />
     <Content Include="Javascript\Controls\Primitives\ScrollBar.js" />
