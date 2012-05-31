@@ -1,6 +1,6 @@
 var DebugLevel = {
-    Info: 0,
-    Debug: 1,
+    Debug: 0,
+    Info: 1,
     Warn: 2,
     Error: 3,
     Fatal: 4
@@ -28,13 +28,13 @@ function NotImplemented(method) {
     Warn("Not Implemented [" + method + "]");
 }
 
-function Info(message) {
-    if (window.console && console.info)
-        console.info(message);
-}
 function Debug(message) {
     if (window.console && console.log)
         console.log(message);
+}
+function Info(message) {
+    if (window.console && console.info)
+        console.info(message);
 }
 function Warn(message) {
     if (window.console && console.warn)

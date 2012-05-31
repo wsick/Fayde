@@ -21,6 +21,12 @@ App.Instance.Init = function () {
 
     //this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
     //this._SubscribeDebugService("HitTest", function (inputList) { HUDUpdate("els", "Elements Found: " + inputList._Count.toString()); });
+    this._SubscribeDebugService("LayoutTime", function (elapsedTime) {
+        Info("LayoutTime: " + elapsedTime.toString());
+    });
+    this._SubscribeDebugService("RenderTime", function (elapsedTime) {
+        Info("RenderTime: " + elapsedTime.toString());
+    });
 };
 
 //#region Dependency Properties
@@ -76,13 +82,13 @@ App.Instance.ProcessDirty = function () {
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
     //try {
-    this.MainSurface.ProcessDirtyElements(region);
+    var updated = this.MainSurface.ProcessDirtyElements(region);
     //} catch (err) {
     //Fatal("An error occurred processing dirty elements: " + err.toString());
     //}
     this._IsRunning = false;
 
-    if (isLayoutPassTimed)
+    if (updated && isLayoutPassTimed)
         this._NotifyDebugLayoutPass(new Date().getTime() - startLayoutTime);
 };
 

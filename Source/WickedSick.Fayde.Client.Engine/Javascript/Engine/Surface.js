@@ -193,6 +193,7 @@ Surface.StaticRender = function () {
         var rect2 = cur._InvalidatedRect;
         cur._InvalidatedRect = null;
         cur._IsRenderQueued = false;
+        Info("Render --> " + rect2.toString());
         cur.Render(rect2);
     }
 };
@@ -245,8 +246,9 @@ Surface.Instance._UpdateLayout = function (error) {
     if (!this._Layers)
         return false;
     var pass = new LayoutPass();
-    var dirty = true;
+    var dirty = false;
     pass._Updated = true;
+    var updatedLayout = false;
     while (pass._Count < LayoutPass.MaxCount && pass._Updated) {
         pass._Updated = false;
         for (var i = 0; i < this._Layers.GetCount(); i++) {
@@ -265,11 +267,12 @@ Surface.Instance._UpdateLayout = function (error) {
             element._UpdateLayer(pass, error);
         }
 
-        //dirty = dirty || !this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
+        dirty = dirty || !this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
         this._ProcessDownDirtyElements();
         this._ProcessUpDirtyElements();
 
-        if (pass._Updated/* && dirty*/) {
+        if (pass._Updated || dirty) {
+            updatedLayout = true;
             //TODO: LayoutUpdated Event
         }
     }
@@ -279,7 +282,7 @@ Surface.Instance._UpdateLayout = function (error) {
             error.SetErrored(BError.Exception, "UpdateLayout has entered infinite loop and has been aborted.");
     }
 
-    return dirty;
+    return updatedLayout;
 };
 //Down --> Transformation, Opacity
 Surface.Instance._ProcessDownDirtyElements = function () {
@@ -462,7 +465,7 @@ Surface.Instance._AddDirtyElement = function (element, dirt) {
         element._UpDirtyNode = new DirtyNode(element);
         this._UpDirty.AddDirtyNode(element._UpDirtyNode);
     }
-    this._Invalidate();
+    //this._Invalidate();
 };
 Surface.Instance._RemoveDirtyElement = function (element) {
     /// <param name="element" type="UIElement"></param>
