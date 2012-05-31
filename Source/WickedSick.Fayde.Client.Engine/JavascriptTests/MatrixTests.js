@@ -37,20 +37,24 @@ MatrixTest.prototype.testCreateRotate = function () {
     var s = Math.sin(angle);
     var expected = new Matrix();
     expected._Elements = [c, -s, 0, s, c, 0];
-    expected._Type = MatrixTypes.Unknown;
+    expected._Type = MatrixTypes.Rotate;
     var actual = Matrix.CreateRotate(angle);
     assertMatrix(expected, actual);
 };
 
 MatrixTest.prototype.testMultiplyMatrix = function () {
-    var expected = new Matrix([1.4142135623730951, -1.414213562373095, 50, 2.82842712474619, 2.8284271247461903, 100]);
-    var actual = Matrix.CreateTranslate(50, 100).MultiplyMatrix(Matrix.CreateScale(2, 4).MultiplyMatrix(Matrix.CreateRotate(Math.PI / 4)));
+    var expected = Matrix.Create([1.4142135623730951, -1.414213562373095, 50, 2.82842712474619, 2.8284271247461903, 100]);
+    var actual = new Matrix();
+    Matrix.Multiply(actual, Matrix.CreateScale(2, 4), Matrix.CreateRotate(Math.PI / 4));
+    Matrix.Multiply(actual, Matrix.CreateTranslate(50, 100), actual);
     assertMatrix(expected, actual);
 };
 MatrixTest.prototype.testMultiplyPoint = function () {
-    var final = Matrix.CreateScale(2, 4).MultiplyMatrix(Matrix.CreateRotate(Math.PI / 2));
+    var final = new Matrix();
+    Matrix.Multiply(final, Matrix.CreateScale(2, 4), Matrix.CreateRotate(Math.PI / 2));
     var p = new Point(1.0, 1.0);
-    var pActual = final.MultiplyPoint(p);
+    var pActual = new Point();
+    Matrix.MultiplyPoint(pActual, final, p);
     var pExpected = new Point(-2.0, 4.0);
     assertNumberClose("Expected X value is incorrect.", pExpected.X, pActual.X);
     assertNumberClose("Expected Y value is incorrect.", pExpected.Y, pActual.Y);
@@ -59,6 +63,5 @@ MatrixTest.prototype.testMultiplyPoint = function () {
 MatrixTest.prototype.testCopy = function () {
     var m = Matrix.CreateScale(2, 4);
     var copy = m.Copy();
-    assertNullstoneNotRefEquals("Copy should not be the same Nullstone.", m, copy);
     assertMatrix(m, copy);
 };

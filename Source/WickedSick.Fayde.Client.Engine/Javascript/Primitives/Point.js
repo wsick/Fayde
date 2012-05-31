@@ -12,7 +12,9 @@ Point.Instance.Init = function (x, y) {
 Point.Instance.Apply = function (matrix) {
     /// <param name="matrix" type="Matrix"></param>
     /// <returns type="Point" />
-    return matrix.MultiplyPoint(this);
+    var b = new Point();
+    Matrix.MultiplyPoint(b, matrix, this);
+    return b;
 };
 Point.Instance.toString = function () {
     return "X=" + this.X.toString() + ";Y=" + this.Y.toString();

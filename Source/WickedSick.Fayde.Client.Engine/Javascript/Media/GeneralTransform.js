@@ -11,6 +11,14 @@ GeneralTransform.Instance.Init = function () {
     this._Matrix = new Matrix();
 };
 
+GeneralTransform.Instance.GetTransform = function (outMatrix) {
+    /// <param name="outMatrix" type="Matrix"></param>
+    this._MaybeUpdateTransform();
+    var mat = this._Matrix;
+    outMatrix._Elements = mat._Elements;
+    outMatrix._Inverse = mat._Inverse;
+    outMatrix._Type = mat._Type;
+};
 GeneralTransform.Instance.GetInverse = function () {
     /// <returns type="GeneralTransform" />
     AbstractMethod("GeneralTransform.GetInverse");
@@ -36,7 +44,9 @@ GeneralTransform.Instance.TryTransform = function (inPoint, outPointOut) {
 };
 
 GeneralTransform.Instance._TransformPoint = function (p) {
-    return this._Matrix.MultiplyPoint(p);
+    var b = new Point();
+    Matrix.MultiplyPoint(b, this._Matrix, p);
+    return b;
 };
 GeneralTransform.Instance._MaybeUpdateTransform = function () {
     if (this._NeedUpdate) {

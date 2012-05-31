@@ -21,17 +21,18 @@ function assertNumberClose(msg, expected, actual) {
 function assertMatrix(expected, actual) {
     /// <param name="expected" type="Matrix"></param>
     /// <param name="actual" type="Matrix"></param>
-    assertNotNull("M11 was not set.", actual.GetM11());
-    assertNotNull("M12 was not set.", actual.GetM12());
-    assertNotNull("M21 was not set.", actual.GetM21());
-    assertNotNull("M22 was not set.", actual.GetM22());
-    assertNotNull("Offset X was not set.", actual.GetOffsetX());
-    assertNotNull("Offset Y was not set.", actual.GetOffsetY());
-    assertSame("M11 is not set properly.", expected.GetM11(), actual.GetM11());
-    assertSame("M12 is not set properly.", expected.GetM12(), actual.GetM12());
-    assertSame("M21 is not set properly.", expected.GetM21(), actual.GetM21());
-    assertSame("M22 is not set properly.", expected.GetM22(), actual.GetM22());
-    assertSame("Offset X is not set properly.", expected.GetOffsetX(), actual.GetOffsetX());
-    assertSame("Offset Y is not set properly.", expected.GetOffsetY(), actual.GetOffsetY());
+    assertInstanceOf(Matrix, expected);
+    assertNotNull("M11 was not set.", actual.M11);
+    assertNotNull("M12 was not set.", actual.M12);
+    assertNotNull("M21 was not set.", actual.M21);
+    assertNotNull("M22 was not set.", actual.M22);
+    assertNotNull("Offset X was not set.", actual.OffsetX);
+    assertNotNull("Offset Y was not set.", actual.OffsetY);
+    assertSame("M11 is not set properly.", expected.M11, actual.M11);
+    assertSame("M12 is not set properly.", expected.M12, actual.M12);
+    assertSame("M21 is not set properly.", expected.M21, actual.M21);
+    assertSame("M22 is not set properly.", expected.M22, actual.M22);
+    assertSame("Offset X is not set properly.", expected.OffsetX, actual.OffsetX);
+    assertSame("Offset Y is not set properly.", expected.OffsetY, actual.OffsetY);
     assertSame("Matrix Type is not set properly.", expected._Type, actual._Type);
 }

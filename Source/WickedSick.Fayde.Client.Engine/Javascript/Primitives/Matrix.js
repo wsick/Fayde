@@ -3,123 +3,136 @@
 /// <reference path="Enums.js"/>
 
 //#region Matrix
-var Matrix = Nullstone.Create("Matrix", null, 2);
 
-Matrix.Instance.Init = function (els, inverse) {
-    if (els === undefined) {
-        this._Elements = [1, 0, 0, 0, 1, 0];
-        this._Type = MatrixTypes.Identity;
-        return;
-    }
-    this._Elements = els;
-    this._Inverse = inverse;
-    this._DeriveType();
+function Matrix() {
+    Object.defineProperty(this, "M11", {
+        get: function () {
+            if (this._Type === MatrixTypes.Identity)
+                return 1;
+            return this._Elements[0];
+        },
+        set: function (value) {
+            if (this._Elements[0] !== value) {
+                this._Elements[0] = value;
+                this._DeriveType();
+                this._OnChanged();
+            }
+        }
+    });
+    Object.defineProperty(this, "M12", {
+        get: function () {
+            if (this._Type === MatrixTypes.Identity)
+                return 0;
+            return this._Elements[1];
+        },
+        set: function (value) {
+            if (this._Elements[1] !== value) {
+                this._Elements[1] = value;
+                this._DeriveType();
+                this._OnChanged();
+            }
+        }
+    });
+    Object.defineProperty(this, "M21", {
+        get: function () {
+            if (this._Type === MatrixTypes.Identity)
+                return 0;
+            return this._Elements[3];
+        },
+        set: function (value) {
+            if (this._Elements[3] !== value) {
+                this._Elements[3] = value;
+                this._DeriveType();
+                this._OnChanged();
+            }
+        }
+    });
+    Object.defineProperty(this, "M22", {
+        get: function () {
+            if (this._Type === MatrixTypes.Identity)
+                return 1;
+            return this._Elements[4];
+        },
+        set: function (value) {
+            if (this._Elements[4] !== value) {
+                this._Elements[4] = value;
+                this._DeriveType();
+                this._OnChanged();
+            }
+        }
+    });
+    Object.defineProperty(this, "OffsetX", {
+        get: function () {
+            if (this._Type === MatrixTypes.Identity)
+                return 0;
+            return this._Elements[2];
+        },
+        set: function (value) {
+            if (this._Elements[2] !== value) {
+                this._Elements[2] = value;
+                this._DeriveType();
+                this._OnChanged();
+            }
+        }
+    });
+    Object.defineProperty(this, "OffsetY", {
+        get: function () {
+            if (this._Type === MatrixTypes.Identity)
+                return 0;
+            return this._Elements[5];
+        },
+        set: function (value) {
+            if (this._Elements[5] !== value) {
+                this._Elements[5] = value;
+                this._DeriveType();
+                this._OnChanged();
+            }
+        }
+    });
+    Object.defineProperty(this, "Inverse", {
+        get: function () {
+            if (this._Type === MatrixTypes.Identity)
+                return Matrix.CreateIdentity();
+            if (!this._Inverse)
+                this._Inverse = Matrix.BuildInverse(this._Elements);
+            if (this._Inverse == null)
+                return null;
+            return Matrix.Create(this._Inverse, this._Elements);
+        }
+    });
+}
+
+Matrix.prototype.Copy = function () {
+    var matrix = new Matrix();
+    matrix._Elements = this._Elements.slice(0);
+    if (this._Inverse)
+        matrix._Inverse = this._Inverse.slice(0);
+    matrix._Type = this._Type;
+    return matrix;
 };
 
-//#region Properties
-
-Matrix.prototype.GetM11 = function () {
-    ///<returns type="Number"></returns>
-    if (this._Type === MatrixTypes.Identity)
-        return 1;
-    return this._Elements[0];
-};
-Matrix.prototype.SetM11 = function (value) {
-    ///<param name="value" type="Number"></param>
-    if (this._Elements[0] !== value) {
-        this._Elements[0] = value;
-        this._DeriveType();
-        this._OnChanged();
-    }
-};
-
-Matrix.prototype.GetM12 = function () {
-    ///<returns type="Number"></returns>
-    if (this._Type === MatrixTypes.Identity)
-        return 0;
-    return this._Elements[1];
-};
-Matrix.prototype.SetM12 = function (value) {
-    ///<param name="value" type="Number"></param>
-    if (this._Elements[1] !== value) {
-        this._Elements[1] = value;
-        this._DeriveType();
-        this._OnChanged();
-    }
+Matrix.prototype.toString = function () {
+    var arr = this._Elements;
+    var t = "";
+    t += arr[0];
+    t += ",";
+    t += arr[1];
+    t += ",";
+    t += arr[2];
+    t += "\n";
+    t += arr[3];
+    t += ",";
+    t += arr[4];
+    t += ",";
+    t += arr[5];
+    t += "\n";
+    t += "0,0,1";
+    return t;
 };
 
-Matrix.prototype.GetM21 = function () {
-    ///<returns type="Number"></returns>
-    if (this._Type === MatrixTypes.Identity)
-        return 0;
-    return this._Elements[3];
-};
-Matrix.prototype.SetM21 = function (value) {
-    ///<param name="value" type="Number"></param>
-    if (this._Elements[3] !== value) {
-        this._Elements[3] = value;
-        this._DeriveType();
-        this._OnChanged();
-    }
-};
+//#region Modifiers
 
-Matrix.prototype.GetM22 = function () {
-    ///<returns type="Number"></returns>
-    if (this._Type === MatrixTypes.Identity)
-        return 1;
-    return this._Elements[4];
-};
-Matrix.prototype.SetM22 = function (value) {
-    ///<param name="value" type="Number"></param>
-    if (this._Elements[4] !== value) {
-        this._Elements[4] = value;
-        this._DeriveType();
-        this._OnChanged();
-    }
-};
-
-Matrix.prototype.GetOffsetX = function () {
-    ///<returns type="Number"></returns>
-    if (this._Type === MatrixTypes.Identity)
-        return 0;
-    return this._Elements[2];
-};
-Matrix.prototype.SetOffsetX = function (value) {
-    ///<param name="value" type="Number"></param>
-    if (this._Elements[2] !== value) {
-        this._Elements[2] = value;
-        this._DeriveType();
-        this._OnChanged();
-    }
-};
-
-Matrix.prototype.GetOffsetY = function () {
-    ///<returns type="Number"></returns>
-    if (this._Type === MatrixTypes.Identity)
-        return 0;
-    return this._Elements[5];
-};
-Matrix.prototype.SetOffsetY = function (value) {
-    ///<param name="value" type="Number"></param>
-    if (this._Elements[5] !== value) {
-        this._Elements[5] = value;
-        this._DeriveType();
-        this._OnChanged();
-    }
-};
-
-//#endregion
-
-Matrix.Instance.GetInverse = function () {
-    if (this._Type === MatrixTypes.Identity)
-        return new Matrix();
-    if (!this._Inverse)
-        this._Inverse = Matrix.BuildInverse(this._Elements);
-    if (this._Inverse == null)
-        return null;
-    return new Matrix(this._Inverse, this._Elements);
-};
-Matrix.Instance.Apply = function (ctx) {
+Matrix.prototype.Apply = function (ctx) {
     if (this._Type === MatrixTypes.Identity)
         return;
     var els = this._Elements;
@@ -138,18 +151,75 @@ Matrix.Instance.Apply = function (ctx) {
             break;
     }
 };
-Matrix.Instance.MultiplyMatrix = function (val) {
-    /// <param name="val" type="Matrix"></param>
-    if (this._Type === MatrixTypes.Identity) {
-        if (val._Type === MatrixTypes.Identity)
-            return new Matrix();
-        return new Matrix(val._Elements.slice(0));
-    }
-    if (val._Type === MatrixTypes.Identity)
-        return new Matrix(this._Elements.slice(0));
 
-    var e1 = this._Elements;
-    var e2 = val._Elements;
+Matrix.Translate = function (matrix, x, y) {
+    /// <param name="matrix" type="Matrix"></param>
+    /// <param name="x" type="Number"></param>
+    /// <param name="y" type="Number"></param>
+    if (x === 0 && y === 0)
+        return;
+
+    var els = matrix._Elements;
+    els[2] += x;
+    els[5] += y;
+
+    delete matrix._Inverse;
+    matrix._DeriveType();
+};
+Matrix.Scale = function (matrix, scaleX, scaleY, centerX, centerY) {
+    /// <param name="matrix" type="Matrix"></param>
+    /// <param name="scaleX" type="Number"></param>
+    /// <param name="scaleY" type="Number"></param>
+    /// <param name="centerX" type="Number"></param>
+    /// <param name="centerY" type="Number"></param>
+    if (scaleX === 1 && scaleY === 1)
+        return;
+
+    var translationExists = !((centerX == null || centerX === 0) && (centerY == null || centerY === 0));
+
+    var els = matrix._Elements;
+    if (translationExists)
+        Matrix.Translate(matrix, -centerX, -centerY);
+
+    els[0] *= scaleX;
+    els[1] *= scaleX;
+    els[2] *= scaleX;
+
+    els[3] *= scaleY;
+    els[4] *= scaleY;
+    els[5] *= scaleY;
+
+    if (translationExists)
+        Matrix.Translate(matrix, centerX, centerY);
+
+    delete matrix._Inverse;
+    matrix._DeriveType();
+};
+Matrix.Multiply = function (C, A, B) {
+    /// <param name="C" type="Matrix"></param>
+    /// <param name="A" type="Matrix"></param>
+    /// <param name="B" type="Matrix"></param>
+    /// <summary>Sets C = A*B</summary>
+    if (A._Type === MatrixTypes.Identity) {
+        if (B._Type === MatrixTypes.Identity) {
+            C._Elements = [1, 0, 0, 0, 1, 0];
+            C._Inverse = [1, 0, 0, 0, 1, 0];
+            C._Type = MatrixTypes.Identity;
+        }
+        C._Elements = B._Elements.slice(0);
+        if (B._Inverse)
+            C._Inverse = B._Inverse.slice(0);
+        C._Type = B._Type;
+    } else if (B._Type === MatrixTypes.Identity) {
+        C._Elements = A._Elements.slice(0);
+        if (A._Inverse)
+            C._Inverse = A._Inverse.slice(0);
+        C._Type = A._Type;
+    }
+
+
+    var e1 = A._Elements;
+    var e2 = B._Elements;
     var e3 = [];
 
     // Matrix e1:
@@ -179,40 +249,114 @@ Matrix.Instance.MultiplyMatrix = function (val) {
     e3[2] = e1[0] * e2[2] + e1[1] * e2[5] + e1[2];
     e3[5] = e1[3] * e2[2] + e1[4] * e2[5] + e1[5];
 
-    return new Matrix(e3);
+    C._Elements = e3;
+    C._Type = MatrixTypes.Unknown;
 };
-Matrix.Instance.MultiplyPoint = function (val) {
-    var e = this._Elements;
-    return new Point(
-        e[0] * val.X + e[1] * val.Y + e[2],
-        e[3] * val.X + e[4] * val.Y + e[5]
-    );
-};
-Matrix.Instance.Copy = function () {
-    return new Matrix(this._Elements.slice(0));
-};
-
-Matrix.Instance.toString = function () {
-    var arr = this._Elements;
-    var t = "";
-    t += arr[0];
-    t += ",";
-    t += arr[1];
-    t += ",";
-    t += arr[2];
-    t += "\n";
-    t += arr[3];
-    t += ",";
-    t += arr[4];
-    t += ",";
-    t += arr[5];
-    t += "\n";
-    t += "0,0,1";
-    return t;
+Matrix.MultiplyPoint = function (c, A, b) {
+    /// <param name="c" type="Point"></param>
+    /// <param name="A" type="Matrix"></param>
+    /// <param name="b" type="Point"></param>
+    /// <summary>Sets c = A*b</summary>
+    var x;
+    var y;
+    if (A._Type === MatrixTypes.Identity) {
+        x = b.X;
+        y = b.Y;
+    } else {
+        var e = A._Elements;
+        x = e[0] * b.X + e[1] * b.Y + e[2];
+        y = e[3] * b.X + e[4] * b.Y + e[5];
+    }
+    c.X = x;
+    c.Y = y;
 };
 
-Matrix.Instance._DeriveType = function () {
-    this._Angle = undefined;
+//#endregion
+
+//#region Factory
+
+Matrix.Create = function (els, inverse) {
+    var matrix = new Matrix();
+    matrix._Elements = els;
+    matrix._Inverse = inverse;
+    matrix._DeriveType();
+    return matrix;
+};
+Matrix.CreateIdentity = function () {
+    var matrix = new Matrix();
+    matrix._Elements = [1, 0, 0, 0, 1, 0];
+    matrix._Inverse = [1, 0, 0, 0, 1, 0];
+    matrix._Type = MatrixTypes.Identity;
+    return matrix;
+};
+Matrix.CreateTranslate = function (x, y) {
+    /// <returns type="Matrix" />
+    if (x == null) x = 0;
+    if (y == null) y = 0;
+    var matrix = new Matrix();
+    matrix._Elements = [1, 0, x, 0, 1, y];
+    matrix._Inverse = [1, 0, -x, 0, 1, -y];
+    matrix._Type = MatrixTypes.Translate;
+    return matrix;
+};
+Matrix.CreateScale = function (x, y) {
+    /// <returns type="Matrix" />
+    if (x == null) x = 1;
+    if (y == null) y = 1;
+    var ix = x === 0 ? 0 : 1 / x;
+    var iy = y === 0 ? 0 : 1 / y;
+    var matrix = new Matrix();
+    matrix._Elements = [x, 0, 0, 0, y, 0];
+    matrix._Inverse = [ix, 0, 0, 0, iy, 0];
+    matrix._Type = MatrixTypes.Scale;
+    return matrix;
+};
+Matrix.CreateRotate = function (angleRad) {
+    /// <returns type="Matrix" />
+    if (angleRad == null)
+        return Matrix.CreateIdentity();
+    var c = Math.cos(angleRad);
+    var s = Math.sin(angleRad);
+
+    var matrix = new Matrix();
+    matrix._Angle = angleRad;
+    matrix._Elements = [c, -s, 0, s, c, 0];
+    matrix._Type = MatrixTypes.Rotate;
+    return matrix;
+};
+Matrix.CreateShear = function (x, y) {
+    /// <returns type="Matrix" />
+    if (x == null) x = 0;
+    if (y == null) y = 0;
+    var matrix = new Matrix();
+    matrix._Elements = [1, x, 0, y, 1, 0];
+    matrix._Inverse = [1, -x, 0, -y, 1, 0];
+    matrix._Type = MatrixTypes.Shear;
+    return matrix;
+};
+
+//#endregion
+
+//#region Helpers
+
+Matrix.BuildInverse = function (arr) {
+    //Calculate determinant (ad - bc)
+    var det = (arr[0] * arr[4]) - (arr[1] * arr[3]);
+    if (det === 0)
+        return null;
+    var a = arr[0];
+    var b = arr[1];
+    var c = arr[2];
+    var d = arr[3];
+    var e = arr[4];
+    var f = arr[5];
+    return [
+        e / det, -b / det, (b * f - c * e) / det,
+        -d / det, a / det, (c * d - a * f) / det
+    ];
+};
+
+Matrix.prototype._DeriveType = function () {
     var els = this._Elements;
     this._Type = MatrixTypes.Unknown;
     if (els[1] === 0 && els[3] === 0) {
@@ -229,115 +373,11 @@ Matrix.Instance._DeriveType = function () {
             this._Type = MatrixTypes.Shear;
     }
 };
-Matrix.Instance._OnChanged = function () {
+Matrix.prototype._OnChanged = function () {
     if (this._ChangedCallback)
         this._ChangedCallback();
 };
 
-Matrix.Translate = function (matrix, x, y) {
-    /// <param name="matrix" type="Matrix"></param>
-    /// <param name="x" type="Number"></param>
-    /// <param name="y" type="Number"></param>
-    /// <returns type="Matrix" />
-    if (x === 0 && y === 0)
-        return matrix;
-
-    var els = matrix._Elements;
-    els[2] += x;
-    els[5] += y;
-
-    matrix._Inverse = undefined;
-    matrix._DeriveType();
-    return matrix;
-};
-Matrix.Scale = function (matrix, scaleX, scaleY, centerX, centerY) {
-    /// <param name="matrix" type="Matrix"></param>
-    /// <param name="scaleX" type="Number"></param>
-    /// <param name="scaleY" type="Number"></param>
-    /// <param name="centerX" type="Number"></param>
-    /// <param name="centerY" type="Number"></param>
-    /// <returns type="Matrix" />
-    if (scaleX === 1 && scaleY === 1)
-        return matrix;
-
-    var m1 = matrix;
-    var translationExists = !((centerX == null || centerX === 0) && (centerY == null || centerY === 0));
-
-    var els = m1._Elements;
-    if (translationExists)
-        m1 = Matrix.Translate(m1, -centerX, -centerY);
-
-    els[0] *= scaleX;
-    els[1] *= scaleX;
-    els[2] *= scaleX;
-
-    els[3] *= scaleY;
-    els[4] *= scaleY;
-    els[5] *= scaleY;
-
-    if (translationExists)
-        m1 = Matrix.Translate(m1, centerX, centerY);
-
-    m1._Inverse = undefined;
-    m1._DeriveType();
-
-    return m1;
-};
-
-Matrix.BuildInverse = function (arr) {
-    var det = Matrix.GetDeterminant(arr);
-    if (det === 0)
-        return null;
-    var a = arr[0];
-    var b = arr[1];
-    var c = arr[2];
-    var d = arr[3];
-    var e = arr[4];
-    var f = arr[5];
-    return [
-        e / det, -b / det, (b * f - c * e) / det,
-        -d / det, a / det, (c * d - a * f) / det
-    ];
-};
-Matrix.GetDeterminant = function (arr) {
-    //ad - bc
-    return (arr[0] * arr[4]) - (arr[1] * arr[3]);
-};
-
-//#region Factory
-
-Matrix.CreateTranslate = function (x, y) {
-    /// <returns type="Matrix" />
-    if (x == null) x = 0;
-    if (y == null) y = 0;
-    return new Matrix([1, 0, x, 0, 1, y], [1, 0, -x, 0, 1, -y]);
-};
-Matrix.CreateScale = function (x, y) {
-    /// <returns type="Matrix" />
-    if (x == null) x = 1;
-    if (y == null) y = 1;
-    var ix = x === 0 ? 0 : 1 / x;
-    var iy = y === 0 ? 0 : 1 / y;
-    return new Matrix([x, 0, 0, 0, y, 0], [ix, 0, 0, 0, iy, 0]);
-};
-Matrix.CreateRotate = function (angleRad) {
-    /// <returns type="Matrix" />
-    if (angleRad == null)
-        return new Matrix();
-    var c = Math.cos(angleRad);
-    var s = Math.sin(angleRad);
-    var mt = new Matrix([c, -s, 0, s, c, 0]);
-    mt._Angle = angleRad;
-    return mt;
-};
-Matrix.CreateShear = function (x, y) {
-    /// <returns type="Matrix" />
-    if (x == null) x = 0;
-    if (y == null) y = 0;
-    return new Matrix([1, x, 0, y, 1, 0], [1, -x, 0, -y, 1, 0]);
-};
-
 //#endregion
 
-Nullstone.FinishCreate(Matrix);
 //#endregion

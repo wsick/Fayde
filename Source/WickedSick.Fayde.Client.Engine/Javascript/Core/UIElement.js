@@ -197,7 +197,8 @@ UIElement.Instance.TransformToVisual = function (uie) {
         var inverse;
         if (!uie._CachedTransform || !(inverse = uie._CachedTransform.Inverse))
             throw new Exception("Cannot find transform.");
-        result = inverse.MultiplyMatrix(thisProjection);
+        result = new Matrix();
+        Matrix.Multiply(result, inverse, thisProjection);
     } else {
         result = thisProjection.Copy();
     }
@@ -404,9 +405,7 @@ UIElement.Instance._TransformPoint = function (p) {
         Warn("Could not get inverse of cached transform for UIElement.");
         return;
     }
-    var np = inverse.MultiplyPoint(p);
-    p.X = np.X;
-    p.Y = np.Y;
+    Matrix.MultiplyPoint(p, inverse, p);
 };
 UIElement.Instance._CanFindElement = function () {
     return false;
@@ -423,10 +422,9 @@ UIElement.Instance._GetCachedTransform = function () {
         var parent = this.GetVisualParent();
         if (parent)
             ancestor = parent._GetCachedTransform();
-        this._CachedTransform = {
-            Normal: transform.MultiplyMatrix(ancestor.Normal),
-            Inverse: ancestor.Inverse.MultiplyMatrix(transform.GetInverse())
-        };
+        this._CachedTransform = { Normal: new Matrix(), Inverse: new Matrix() };
+        Matrix.Multiply(this._CachedTransform.Normal, transform, ancestor.Normal);
+        Matrix.Multiply(this._CachedTransform.Inverse, ancestor.Inverse, transform.Inverse);
     }
     return this._CachedTransform;
 };

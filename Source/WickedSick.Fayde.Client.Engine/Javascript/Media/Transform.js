@@ -10,7 +10,7 @@ Transform.Instance.Init = function () {
 };
 
 Transform.Instance.GetInverse = function () {
-    var inv = this._Matrix.GetInverse();
+    var inv = this._Matrix.Inverse;
     if (inv == null)
         throw new InvalidOperationException("Transform is not invertible");
     var mt = new MatrixTransform();

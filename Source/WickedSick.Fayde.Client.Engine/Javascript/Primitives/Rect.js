@@ -78,8 +78,8 @@ Rect.Instance.Transform = function (matrix) {
     /// <returns type="Rect" />
     var topLeft = new Point(this.X, this.Y);
     var bottomRight = new Point(this.X + this.Width, this.Y + this.Height);
-    topLeft = matrix.MultiplyPoint(topLeft);
-    bottomRight = matrix.MultiplyPoint(bottomRight);
+    Matrix.MultiplyPoint(topLeft, matrix, topLeft);
+    Matrix.MultiplyPoint(bottomRight, matrix, bottomRight);
     return new Rect(Math.min(topLeft.X, bottomRight.X),
         Math.min(topLeft.Y, bottomRight.Y),
         Math.abs(bottomRight.X - topLeft.X),
