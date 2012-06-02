@@ -49,12 +49,12 @@ MatrixTest.prototype.testMultiplyMatrix = function () {
     Matrix.Multiply(actual, Matrix.CreateTranslate(50, 100), actual);
     assertMatrix(expected, actual);
 };
-MatrixTest.prototype.testMultiplyPoint = function () {
+MatrixTest.prototype.testTransformPoint = function () {
     var final = new Matrix();
     Matrix.Multiply(final, Matrix.CreateScale(2, 4), Matrix.CreateRotate(Math.PI / 2));
     var p = new Point(1.0, 1.0);
     var pActual = new Point();
-    Matrix.MultiplyPoint(pActual, final, p);
+    Matrix.TransformPoint(pActual, final, p);
     var pExpected = new Point(-2.0, 4.0);
     assertNumberClose("Expected X value is incorrect.", pExpected.X, pActual.X);
     assertNumberClose("Expected Y value is incorrect.", pExpected.Y, pActual.Y);

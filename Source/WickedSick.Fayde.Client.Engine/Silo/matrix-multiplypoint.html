@@ -13,7 +13,7 @@
 
             var m = new Matrix([0.6559527714004638, 0, -186.1196142997681, 0, 0.6559527714004638, -85.08589143981453]);
             var p = new Point(511.047, 342.252);
-            var f = m.MultiplyPoint(p);
+            var f = m.TransformPoint(p);
             var valid = f.X === 149.10308166612475 && f.Y === 139.415256477537;
         });
     </script>

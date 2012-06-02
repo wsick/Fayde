@@ -9,14 +9,7 @@ Transform.Instance.Init = function () {
     this.Init$GeneralTransform();
 };
 
-Transform.Instance.GetInverse = function () {
-    var inv = this._Matrix.Inverse;
-    if (inv == null)
-        throw new InvalidOperationException("Transform is not invertible");
-    var mt = new MatrixTransform();
-    mt.Matrix = inv;
-    return mt;
-};
+/*
 Transform.Instance.TransformBounds = function (rect) {
     /// <param name="rect" type="Rect"></param>
     /// <returns type="Rect" />
@@ -28,9 +21,21 @@ Transform.Instance.TransformBounds = function (rect) {
         Math.abs(p2.X - p1.X), 
         Math.abs(p2.Y - p1.Y));
 };
-Transform.Instance.TryTransform = function (inPoint, outPointOut) {
+*/
+Transform.Instance._GetInverse = function () {
+    var inverse = this._GetMatrix().Inverse;
+    if (inverse == null)
+        return;
+
+    var mt = new MatrixTransform();
+    mt._SetMatrix(inverse);
+    return mt;
+};
+Transform.Instance._TryTransform = function (inPoint, outPoint) {
     this._MaybeUpdateTransform();
-    outPointOut.Value = this._TransformPoint(inPoint);
+    var p4 = [inPoint.X, inPoint.Y, 0.0, 1.0];
+    Matrix3D.TransformPoint(p4, this._M, p4);
+    outPointOut.Value = new Point(p4[0], p4[1]);
     return true;
 };
 

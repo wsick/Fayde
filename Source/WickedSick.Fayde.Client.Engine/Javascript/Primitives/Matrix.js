@@ -5,6 +5,8 @@
 //#region Matrix
 
 function Matrix() {
+    this._Elements = [1, 0, 0, 0, 1, 0];
+    this._Type = MatrixTypes.Identity;
     Object.defineProperty(this, "M11", {
         get: function () {
             if (this._Type === MatrixTypes.Identity)
@@ -93,11 +95,11 @@ function Matrix() {
         get: function () {
             if (this._Type === MatrixTypes.Identity)
                 return Matrix.CreateIdentity();
-            if (!this._Inverse)
-                this._Inverse = Matrix.BuildInverse(this._Elements);
-            if (this._Inverse == null)
+            if (!this._InverseArr)
+                this._InverseArr = Matrix.BuildInverse(this._Elements);
+            if (this._InverseArr == null)
                 return null;
-            return Matrix.Create(this._Inverse, this._Elements);
+            return Matrix.Create(this._InverseArr, this._Elements);
         }
     });
 }
@@ -131,26 +133,6 @@ Matrix.prototype.toString = function () {
 };
 
 //#region Modifiers
-
-Matrix.prototype.Apply = function (ctx) {
-    if (this._Type === MatrixTypes.Identity)
-        return;
-    var els = this._Elements;
-    switch (this._Type) {
-        case MatrixTypes.Translate:
-            ctx.translate(els[2], els[5]);
-            break;
-        case MatrixTypes.Scale:
-            ctx.scale(els[0], els[4]);
-            break;
-        case MatrixTypes.Rotate:
-            ctx.rotate(this._Angle);
-            break;
-        default:
-            ctx.transform(els[0], els[3], els[1], els[4], els[2], els[5]);
-            break;
-    }
-};
 
 Matrix.Translate = function (matrix, x, y) {
     /// <param name="matrix" type="Matrix"></param>
@@ -205,16 +187,19 @@ Matrix.Multiply = function (C, A, B) {
             C._Elements = [1, 0, 0, 0, 1, 0];
             C._Inverse = [1, 0, 0, 0, 1, 0];
             C._Type = MatrixTypes.Identity;
+            return;
         }
         C._Elements = B._Elements.slice(0);
         if (B._Inverse)
             C._Inverse = B._Inverse.slice(0);
         C._Type = B._Type;
+        return;
     } else if (B._Type === MatrixTypes.Identity) {
         C._Elements = A._Elements.slice(0);
         if (A._Inverse)
             C._Inverse = A._Inverse.slice(0);
         C._Type = A._Type;
+        return;
     }
 
 
@@ -252,7 +237,7 @@ Matrix.Multiply = function (C, A, B) {
     C._Elements = e3;
     C._Type = MatrixTypes.Unknown;
 };
-Matrix.MultiplyPoint = function (c, A, b) {
+Matrix.TransformPoint = function (c, A, b) {
     /// <param name="c" type="Point"></param>
     /// <param name="A" type="Matrix"></param>
     /// <param name="b" type="Point"></param>

@@ -108,6 +108,8 @@
     <Content Include="Javascript\Core\Collections\ItemCollection.js" />
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
+    <Content Include="Javascript\Media\InternalTransform.js" />
+    <Content Include="Javascript\Primitives\Matrix3D.js" />
     <Content Include="Javascript\Runtime\Enum.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Core\StaticResourceExpression.js" />

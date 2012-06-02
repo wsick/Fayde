@@ -40,36 +40,35 @@ _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.Matrix;
     }
-    Matrix.Multiply(this._CurrentTransform, matrix, this._CurrentTransform);
-    Matrix.Multiply(this._InverseTransform, this._InverseTransform, matrix.Inverse);
-    var els = this._CurrentTransform._Elements;
+    var ct = this._CurrentXform;
+    Matrix.Multiply(ct, matrix, ct);
+    var els = ct._Elements;
     this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
 _RenderContext.Instance.PreTransform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.Matrix;
     }
-    Matrix.Multiply(this._CurrentTransform, this._CurrentTransform, matrix);
-    Matrix.Multiply(this._InverseTransform, matrix.Inverse, this._InverseTransform);
-    var els = this._CurrentTransform._Elements;
+    var ct = this._CurrentXform;
+    Matrix.Multiply(ct, ct, matrix);
+    var els = ct._Elements;
     this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
 _RenderContext.Instance.GetCurrentTransform = function () {
-    return this._CurrentTransform;
+    return this._CurrentXform;
 };
 _RenderContext.Instance.GetInverseTransform = function () {
-    return this._InverseTransform;
+    return this._CurrentXform.Inverse;
 };
 _RenderContext.Instance.Save = function () {
     this._Surface._Ctx.save();
-    this._Transforms.push({ Current: this._CurrentTransform, Inverse: this._InverseTransform });
-    this._CurrentTransform = this._CurrentTransform == null ? new Matrix() : this._CurrentTransform.Copy();
-    this._InverseTransform = this._InverseTransform == null ? new Matrix() : this._InverseTransform.Copy();
+    var ct = this._CurrentXform;
+    this._Transforms.push(ct);
+    this._CurrentXform = ct == null ? new Matrix() : ct.Copy();
 };
 _RenderContext.Instance.Restore = function () {
-    var temp = this._Transforms.pop();
-    this._CurrentTransform = temp.Current;
-    this._InverseTransform = temp.Inverse;
+    var curXform = this._Transforms.pop();
+    this._CurrentXform = curXform;
     this._Surface._Ctx.restore();
 };
 

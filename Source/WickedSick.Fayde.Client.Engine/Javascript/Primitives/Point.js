@@ -13,7 +13,7 @@ Point.Instance.Apply = function (matrix) {
     /// <param name="matrix" type="Matrix"></param>
     /// <returns type="Point" />
     var b = new Point();
-    Matrix.MultiplyPoint(b, matrix, this);
+    Matrix.TransformPoint(b, matrix, this);
     return b;
 };
 Point.Instance.toString = function () {

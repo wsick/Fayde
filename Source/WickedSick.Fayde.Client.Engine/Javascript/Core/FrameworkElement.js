@@ -119,6 +119,13 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     return constrained;
 };
 
+FrameworkElement.Instance._GetSizeForBrush = function () {
+    return {
+        Width: this.ActualWidth,
+        Height: this.ActualHeight
+    };
+};
+
 FrameworkElement.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
     if (this.Visibility !== Visibility.Visible)
@@ -355,25 +362,27 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (vert === VerticalAlignment.Stretch)
         response.Height = Math.max(response.Height, framework.Height);
 
-    /*
-    LAYOUT TRANSFORM NOT IMPLEMENTED YET
-    FLOW DIRECTION NOT IMPLEMENTED YET
-
     var flipHoriz = false;
+    
+    /*
+    TODO: FLOW DIRECTION NOT IMPLEMENTED YET
+
     if (parent)
-    flipHoriz = parent.FlowDirection !== this.FlowDirection;
+        flipHoriz = parent.FlowDirection !== this.FlowDirection;
     else if (this.GetParent() && this.GetParent()._IsPopup())
-    flipHoriz = this.GetParent().FlowDirection != this.FlowDirection;
+        flipHoriz = this.GetParent().FlowDirection != this.FlowDirection;
     else
-    flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
+        flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
+
+    */
 
     var layoutXform = new Matrix();
-    layoutXform = layoutXform.Translate(childRect.X, childRect.Y);
-    if (flipHoriz)  {
-    layoutXform = layoutXform.Translate(offer.Width, 0);
-    layoutXform = layoutXform.Scale(-1, 1);
+    Matrix.Translate(layoutXform, childRect.X, childRect.Y);
+    if (flipHoriz) {
+        Matrix.Translate(layoutXform, offer.Width, 0.0);
+        Matrix.Scale(layoutXform, -1, 1);
     }
-    */
+    this._LayoutXform = layoutXform;
 
     if (error.IsErrored())
         return;
@@ -436,15 +445,13 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         visualOffset.Y = Math.round(visualOffset.Y);
     }
 
-    /* 
-    LAYOUT TRANSFORM NOT IMPLEMENTED YET
     layoutXform = new Matrix();
-    layoutXform = layoutXform.Translate(visualOffset.X, visualOffset.Y);
+    Matrix.Translate(layoutXform, visualOffset.X, visualOffset.Y);
     if (flipHoriz) {
-    layoutXform = layoutXform.Translate(response.Width, 0);
-    layoutXform = layoutXform.Scale(-1, 1);
+        Matrix.Translate(layoutXform, response.Width, 0);
+        Matrix.Scale(layoutXform, -1, 1);
     }
-    */
+    this._LayoutXform = layoutXform;
 
     LayoutInformation.SetVisualOffset(this, visualOffset);
 
@@ -487,6 +494,13 @@ FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error
 };
 
 //#endregion
+
+FrameworkElement.Instance._GetTransformOrigin = function () {
+    var userXformOrigin = this.RenderTransformOrigin;
+    var width = this.ActualWidth;
+    var height = this.ActualHeight;
+    return new Point(width * userXformOrigin.X, height * userXformOrigin.Y);
+};
 
 FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (!this._GetRenderVisible())
