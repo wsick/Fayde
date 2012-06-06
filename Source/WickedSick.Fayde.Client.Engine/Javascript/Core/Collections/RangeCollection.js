@@ -1,7 +1,7 @@
 ﻿/// <reference path="../../Runtime/Nullstone.js" />
 /// CODE
 
-var Range = Nullstone.Create("Range", Object, 2);
+var Range = Nullstone.Create("Range", undefined, 2);
 
 Range.Instance.Init = function (start, end) {
     this.Start = start;
@@ -69,7 +69,7 @@ RangeCollection.Instance.IndexOf = function (value) {
     return -1;
 };
 
-RangeCollection.InstanceOf.GetValueAt = function (index) {
+RangeCollection.Instance.GetValueAt = function (index) {
     var i = 0;
     var cuml_count = 0;
     for (i; i < this.RangeCount && index >= 0; i++) {
