@@ -195,7 +195,7 @@ ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
             break;
     }
 
-    this._ItemContainerGenerator.OnOwnerItemsChanged(object, e);
+    this._ItemContainerGenerator.OnOwnerItemsItemsChanged(object, e);
     if (!this._itemsIsDataBound) {
         this.OnItemsChanged(e);
     }

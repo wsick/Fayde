@@ -82,6 +82,7 @@
     <Content Include="Javascript\Controls\Primitives\DragStartedEventArgs.js" />
     <Content Include="Javascript\Controls\Primitives\Enums.js" />
     <Content Include="Javascript\Controls\Primitives\IScrollInfo.js" />
+    <Content Include="Javascript\Controls\Primitives\ItemsChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Primitives\RangeBase.js" />
     <Content Include="Javascript\Controls\Primitives\RepeatButton.js" />
     <Content Include="Javascript\Controls\Primitives\ScrollBar.js" />
@@ -107,7 +108,9 @@
     <Content Include="Javascript\Core\Collections\IListenCollectionChanged.js" />
     <Content Include="Javascript\Core\Collections\ItemCollection.js" />
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
+    <Content Include="Javascript\Core\Collections\RangeCollection.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
+    <Content Include="Javascript\Runtime\DoubleKeyedDictionary.js" />
     <Content Include="Javascript\Runtime\Enum.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Core\StaticResourceExpression.js" />

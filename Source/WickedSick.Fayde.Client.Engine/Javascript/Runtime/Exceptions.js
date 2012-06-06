@@ -47,6 +47,17 @@ var NotSupportedException = Nullstone.Create("NotSupportedException", Exception)
 Nullstone.FinishCreate(NotSupportedException);
 //#endregion
 
+//#region IndexOutOfRangeException
+var IndexOutOfRangeException = Nullstone.Create("IndexOutOfRangeException", Exception, 1);
+
+IndexOutOfRangeException.Instance.Init = function (index) {
+    var msg = "Index is out of range: " + index;
+    this.Init$Exception(msg);
+};
+
+Nullstone.FinishCreate(IndexOutOfRangeException);
+//#endregion
+
 //#region XamlParseException
 var XamlParseException = Nullstone.Create("XamlParseException", Exception);
 Nullstone.FinishCreate(XamlParseException);

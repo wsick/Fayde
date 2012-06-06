@@ -19,5 +19,9 @@ Dictionary.Instance.Remove = function (key) {
     delete this._ht[key];
 };
 
+Dictionary.Instance.Clear = function () {
+    this._ht = [];
+};
+
 Nullstone.FinishCreate(Dictionary);
 //#endregion
