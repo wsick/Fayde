@@ -4,6 +4,11 @@
 
 var NullstoneTests = TestCase("NullstoneTests");
 
+NullstoneTests.prototype.testCreateInherited = function () {
+    var Mock7;
+    assertException("Nullstones are only allowed to inherit from other nullstones.", function () { Mock7 = Nullstone.Create("Mock7", Object); }, "InvalidOperationException");
+};
+
 NullstoneTests.prototype.testAutoProperty = function () {
     var Mock1 = Nullstone.Create("Mock1", DependencyObject);
     Mock1.SomeDProperty = DependencyProperty.Register("SomeD", function () { return Number; }, Mock1, null);
