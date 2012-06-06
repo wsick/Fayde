@@ -108,6 +108,7 @@
     <Content Include="Javascript\Core\Collections\IListenCollectionChanged.js" />
     <Content Include="Javascript\Core\Collections\ItemCollection.js" />
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
+    <Content Include="Javascript\Core\Collections\RangeCollection.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\DoubleKeyedDictionary.js" />
     <Content Include="Javascript\Runtime\Enum.js" />

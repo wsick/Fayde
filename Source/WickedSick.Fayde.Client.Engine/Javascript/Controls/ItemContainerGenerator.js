@@ -5,7 +5,7 @@
 
 var GenerationState = Nullstone.Create("GenerationState", undefined, 5);
 
-Nullstone.Instance.Init = function (allowStartAtRealizedItem, generatorDirection, positionIndex, positionOffset, step) {
+GenerationState.Instance.Init = function (allowStartAtRealizedItem, generatorDirection, positionIndex, positionOffset, step) {
     this.AllowStartAtRealizedItem = allowStartAtRealizedItem;
     this.GeneratorDirection = generatorDirection;
     this.PositionIndex = positionIndex;
@@ -16,7 +16,7 @@ Nullstone.Instance.Init = function (allowStartAtRealizedItem, generatorDirection
 Nullstone.FinishCreate(GenerationState);
 
 //#region ItemContainerGenerator
-var ItemContainerGenerator = Nullstone.Create("ItemContainerGenerator", null, 1);
+var ItemContainerGenerator = Nullstone.Create("ItemContainerGenerator", undefined, 1);
 
 ItemContainerGenerator.Instance.Init = function (owner) {
     this.ItemsChanged = new MulticastEvent();
