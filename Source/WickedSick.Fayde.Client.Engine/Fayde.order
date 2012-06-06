@@ -29,6 +29,7 @@ Text/WordBreakOp.js
 Text/History/TextBoxUndoStack.js
 Collections/INotifyCollectionChanged.js
 Controls/GridLength.js
+Controls/ItemContainerGenerator.js
 Controls/TextBoxModelChangedEventArgs.js
 Controls/Primitives/IScrollInfo.js
 Controls/Primitives/ScrollData.js
@@ -47,6 +48,7 @@ Core/VisualTreeHelper.js
 Core/VisualTreeWalker.js
 Core/Collections/CollectionChangedArgs.js
 Core/Collections/CollectionIterator.js
+Core/Collections/IListenCollectionChanged.js
 Core/Collections/ItemChangedArgs.js
 Core/PropertyValueProviders/InheritedContext.js
 Core/PropertyValueProviders/PropertyValueProvider.js
@@ -106,7 +108,6 @@ Core/LayoutPass.js
 Core/RequestBringIntoViewEventArgs.js
 Core/SizeChangedEventArgs.js
 Core/UIElementNode.js
-Core/Collections/IListenCollectionChanged.js
 Core/PropertyValueProviders/AutoCreatePropertyValueProvider.js
 Core/PropertyValueProviders/DefaultValuePropertyValueProvider.js
 Core/PropertyValueProviders/FrameworkElementPropertyValueProvider.js

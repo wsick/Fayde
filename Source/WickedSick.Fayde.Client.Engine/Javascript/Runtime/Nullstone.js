@@ -189,7 +189,7 @@ Nullstone._CreateProps = function (ns) {
         if (p.IsAbstract) {
             continue;
         } else if (p.Custom) {
-            Object.defineProperty(ns, p.Name, data);
+            Object.defineProperty(ns, p.Name, p.Data);
         } else if (p.DP) {
             Nullstone._CreateDP(ns, p.DP, p.Converter);
         } else {

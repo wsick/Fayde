@@ -1,3 +1,10 @@
+var NotifyCollectionChangedAction = {
+	Add: 1,
+	Remove: 2,
+	Replace: 3,
+	Reset: 4
+};
+
 var GridUnitType = {
     Auto: 0,
     Pixel: 1,
@@ -126,7 +133,7 @@ var _Inheritable = {
     FontResource: 1 << 10
 };
 _Inheritable.All = 0x7ff;
-_Inheritable.None = 0;
+_Inheritable.None = 0; //None must always be 0
 
 var RelativeSourceMode = {
     TemplatedParent: 1,
@@ -150,64 +157,12 @@ var _PropertyNodeType = {
 };
 
 var DebugLevel = {
-    Info: 0,
-    Debug: 1,
+    Debug: 0,
+    Info: 1,
     Warn: 2,
     Error: 3,
     Fatal: 4
 };
-function Console(level) {
-    this._Queue = [];
-    this._Level = level;
-}
-Console.prototype.Init = function (selector) {
-    this._TextBox = $(selector);
-    if (this._TextBox)
-        this._Flush();
-};
-Console.prototype._Flush = function () {
-    var data;
-    while (data = this._Dequeue()) {
-        this.WriteLineInternal("[PRE] " + data.Message, data.Color);
-    }
-    this.ScrollToEnd();
-}
-Console.prototype._Dequeue = function () {
-    if (this._Queue.length < 1)
-        return null;
-    var m = this._Queue[0];
-    this._Queue.shift();
-    return m;
-};
-Console.prototype._Enqueue = function (data) {
-    this._Queue.push(data);
-};
-Console.prototype.WriteLine = function (message, color) {
-    if (this.WriteLineInternal(message, color)) {
-        this.ScrollToEnd();
-    }
-};
-Console.prototype.WriteLineInternal = function (message, color) {
-    if (!this._TextBox) {
-        this._Enqueue({ Message: message, Color: color });
-        return false;
-    }
-    this._TextBox.append("> ");
-    if (color)
-        this._TextBox.append("<span style=\"color: " + color + ";\">" + message + "</span>");
-    else
-        this._TextBox.append(message);
-    this._TextBox.append("<br />");
-    return true;
-};
-Console.prototype.ScrollToEnd = function () {
-    var offset = this._TextBox.children().last().offset();
-    if (!offset)
-        return;
-    var end = offset.top;
-    this._TextBox[0].scrollTop = end;
-};
-var _Console = new Console(DebugLevel.Info);
 HUD.prototype = new Object;
 HUD.prototype.constructor = HUD;
 function HUD(jSelector) {
@@ -223,41 +178,25 @@ function AbstractMethod(method) {
 function NotImplemented(method) {
     Warn("Not Implemented [" + method + "]");
 }
-function Info(message) {
-    if (_Console._Level <= DebugLevel.Info) {
-        if (console.info)
-            console.info(message);
-        else
-            _Console.WriteLine("<i>INFO</i>: " + message);
-    }
-}
 function Debug(message) {
-    if (_Console._Level <= DebugLevel.Debug) {
-        if (console.log)
-            console.log(message);
-        else
-            _Console.WriteLine("<i>DEBUG</i>: " + message);
-    }
+    if (window.console && console.log)
+        console.log(message);
+}
+function Info(message) {
+    if (window.console && console.info)
+        console.info(message);
 }
 function Warn(message) {
-    if (_Console._Level <= DebugLevel.Warn) {
-        if (console.warn)
-            console.warn(message);
-        else
-            _Console.WriteLine("<i>WARN</i>: " + message, "#FF6A00");
-    }
+    if (window.console && console.warn)
+        console.warn(message);
 }
 function Error(error) {
-    if (_Console._Level <= DebugLevel.Error) {
-        if (console.error)
-            console.error(error.toString());
-        else
-            _Console.WriteLine("<b>ERROR</b>: " + error.toString(), "#0026FF");
-    }
+    if (window.console && console.error)
+        console.error(error.toString());
 }
 function Fatal(error) {
-    if (_Console._Level <= DebugLevel.Fatal)
-        _Console.WriteLine("<b>FATAL</b>: " + error.toString(), "#FF0000");
+    if (window.console && console.error)
+        console.error("FATAL: " + error.toString());
     App.Instance._Stop();
 }
 function RegisterHUD(id, jSelector) {
@@ -360,18 +299,18 @@ var LineStackingStrategy = {
     MaxHeight: 0,
     BlockLineHeight: 1
 };
-var FontWeights = {
+var FontWeight = {
     Normal: "normal",
     Bold: "bold",
     Bolder: "bolder",
     Lighter: "lighter"
 };
-var FontStyles = {
+var FontStyle = {
     Normal: "normal",
     Italic: "italic",
     Oblique: "oblique"
 };
-var FontStretches = {
+var FontStretch = {
     UltraCondensed: "ultra-condensed",
     ExtraCondensed: "extra-condensed",
     Condensed: "condensed",
@@ -615,8 +554,9 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     }
     else
         s = "arguments";
-    var code = "if (!Nullstone.IsReady) return;" +
-        "Nullstone._LastID = this._ID = Nullstone._LastID + 1;" +
+    var code = "var n = Nullstone; if (!n.IsReady) return;" +
+        "n._LastID = this._ID = n._LastID + 1;" +
+        "n._CreateProps(this);" +
         "if (this.Init) this.Init(" + s + ");"
     var f = new Function(code);
     f._IsNullstone = true;
@@ -629,12 +569,14 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     f.prototype.constructor = f;
     Nullstone.IsReady = true;
     f.Instance = {};
+    f.Properties = [];
     f.Interfaces = interfaces;
     return f;
 }
 Nullstone.FinishCreate = function (f) {
+    var i;
     if (f.Interfaces) {
-        for (var i = 0; i < f.Interfaces.length; i++) {
+        for (i = 0; i < f.Interfaces.length; i++) {
             var it = f.Interfaces[i].Instance;
             for (var m in it) {
                 if (!(m in f.prototype))
@@ -648,6 +590,7 @@ Nullstone.FinishCreate = function (f) {
         }
         f.prototype[k] = f.Instance[k];
     }
+    Nullstone._PropagateBaseProperties(f, f._BaseClass);
     delete f['Instance'];
 };
 Nullstone.RefEquals = function (obj1, obj2) {
@@ -679,6 +622,15 @@ Nullstone.As = function (obj, type) {
         return obj;
     return null;
 };
+Nullstone.Is = function (obj, type) {
+    if (obj == null)
+        return false;
+    if (obj instanceof type)
+        return true;
+    if (Nullstone.DoesImplement(obj, type))
+        return true;
+    return false;
+};
 Nullstone.DoesInheritFrom = function (t, type) {
     var temp = t;
     while (temp != null && temp._TypeName !== type._TypeName) {
@@ -692,6 +644,136 @@ Nullstone.DoesImplement = function (obj, interfaceType) {
     if (!obj.constructor.Interfaces)
         return false;
     return interfaceType in obj.constructor.Interfaces;
+};
+Nullstone.AutoProperties = function (type, arr) {
+    for (var i = 0; i < arr.length; i++) {
+        Nullstone.AutoProperty(type, arr[i]);
+    }
+};
+Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
+    if (nameOrDp instanceof DependencyProperty) {
+        type.Instance[nameOrDp.Name] = null;
+        type.Properties.push({
+            Auto: true,
+            DP: nameOrDp,
+            Converter: converter,
+            Override: isOverride === true
+        });
+    } else {
+        type.Instance[nameOrDp] = null;
+        type.Properties.push({
+            Auto: true,
+            Name: nameOrDp,
+            Converter: converter,
+            Override: isOverride === true
+        });
+    }
+};
+Nullstone.AutoPropertiesReadOnly = function (type, arr) {
+    for (var i = 0; i < arr.length; i++) {
+        Nullstone.AutoPropertyReadOnly(type, arr[i]);
+    }
+};
+Nullstone.AutoPropertyReadOnly = function (type, nameOrDp) {
+    if (nameOrDp instanceof DependencyProperty) {
+        type.Instance[nameOrDp.Name] = null;
+        type.Properties.push({
+            Auto: true,
+            DP: nameOrDp
+        });
+    } else {
+        type.Instance[nameOrDp] = null;
+        type.Properties.push({
+            Auto: true,
+            Name: nameOrDp,
+            IsReadOnly: true
+        });
+    }
+};
+Nullstone.AbstractProperty = function (type, name, isReadOnly) {
+    type.Instance[name] = null;
+    type.Properties.push({
+        Name: name,
+        IsAbstract: true,
+        IsReadOnly: isReadOnly === true
+    });
+};
+Nullstone.Property = function (type, name, data) {
+    type.Instance[name] = null;
+    type.Properties.push({
+        Custom: true,
+        Name: name,
+        Data: data
+    });
+};
+Nullstone._CreateProps = function (ns) {
+    var props = ns.constructor.Properties;
+    for (var i = 0; i < props.length; i++) {
+        var p = props[i];
+        if (p.IsAbstract) {
+            continue;
+        } else if (p.Custom) {
+            Object.defineProperty(ns, p.Name, p.Data);
+        } else if (p.DP) {
+            Nullstone._CreateDP(ns, p.DP, p.Converter);
+        } else {
+            Object.defineProperty(ns, p.Name, {
+                value: null,
+                writable: p.IsReadOnly !== true
+            });
+        }
+    }
+};
+Nullstone._CreateDP = function (ns, dp, converter) {
+    var getFunc = function () { return this.$GetValue(dp); };
+    if (dp.IsReadOnly) {
+        Object.defineProperty(ns, dp.Name, {
+            get: getFunc
+        });
+    } else {
+        var setFunc;
+        if (converter) {
+            setFunc = function (value) { value = converter(value); this.$SetValue(dp, value); };
+            setFunc.Converter = converter;
+        } else {
+            setFunc = function (value) { this.$SetValue(dp, value); };
+        }
+        Object.defineProperty(ns, dp.Name, {
+            get: getFunc,
+            set: setFunc
+        });
+    }
+};
+Nullstone._PropagateBaseProperties = function (targetNs, baseNs) {
+    if (!baseNs)
+        return;
+    var props = baseNs.Properties;
+    var count = props.length;
+    for (i = 0; i < count; i++) {
+        var p = props[i];
+        var name = p.DP ? p.DP.Name : p.Name;
+        var curNsProp = Nullstone._FindProperty(targetNs.Properties, name);
+        if (p.IsAbstract) {
+            if (!curNsProp)
+                throw new PropertyNotImplementedException(baseNs, targetNs, name);
+            continue;
+        } else if (curNsProp) {
+            if (!curNsProp.Override)
+                throw new PropertyCollisionException(baseNs, targetNs, name);
+            continue;
+        }
+        targetNs.prototype[name] = null;
+        targetNs.Properties.push(p);
+    }
+};
+Nullstone._FindProperty = function (props, name) {
+    var count = props.length;
+    for (var i = 0; i < count; i++) {
+        var p = props[i];
+        if (name === (p.DP ? p.DP.Name : p.Name))
+            return p;
+    }
+    return null;
 };
 
 var PropertyInfo = Nullstone.Create("PropertyInfo");
@@ -1138,7 +1220,7 @@ _LayoutWord.Instance.Init = function () {
 };
 Nullstone.FinishCreate(_LayoutWord);
 
-var _TextBuffer = Nullstone.Create("_TextBuffer", Object);
+var _TextBuffer = Nullstone.Create("_TextBuffer", null);
 _TextBuffer.Instance.Init = function () {
     this._Text = null;
 };
@@ -1318,7 +1400,7 @@ TextLayout.Instance.GetText = function () {
     return this._Text;
 };
 TextLayout.Instance.SetText = function (value, length) {
-    if (value) {
+    if (value != null) {
         this._Text = value;
         this._Length = length == -1 ? value.length : length;
     } else {
@@ -1985,21 +2067,15 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
-    ctx.CustomRender(_TextLayoutGlyphCluster._Painter, this._Text, brush, attrs.GetFont());
-    if (attrs.IsUnderlined()) {
-    }
-};
-_TextLayoutGlyphCluster._Painter = function (args) {
-    var canvasCtx = args[0];
-    var text = args[1];
-    var foreground = args[2];
-    var font = args[3];
-    foreground.SetupBrush(canvasCtx);
-    canvasCtx.fillStyle = foreground.ToHtml5Object();
+    var canvasCtx = ctx.GetCanvasContext();
+    brush.SetupBrush(canvasCtx);
+    canvasCtx.fillStyle = brush.ToHtml5Object();
     canvasCtx.font = font.ToHtml5Object();
     canvasCtx.textAlign = "left";
     canvasCtx.textBaseline = "top";
-    canvasCtx.fillText(text, 0, 0);
+    canvasCtx.fillText(this._Text, 0, 0);
+    if (attrs.IsUnderlined()) {
+    }
 };
 Nullstone.FinishCreate(_TextLayoutGlyphCluster);
 
@@ -2201,6 +2277,9 @@ _TextBoxUndoStack.Instance.Pop = function () {
 };
 Nullstone.FinishCreate(_TextBoxUndoStack);
 
+var INotifyCollectionChanged = Nullstone.Create("INotifyCollectionChanged");
+Nullstone.FinishCreate(INotifyCollectionChanged);
+
 var GridLength = Nullstone.Create("GridLength", null, 2);
 GridLength.Instance.Init = function (value, unitType) {
     this.Value = value == null ? 0 : value;
@@ -2210,6 +2289,11 @@ GridLength.Equals = function (gl1, gl2) {
     return Math.abs(gl1.Value - gl2.Value) < 0.001 && gl1.Type == gl2.Type;
 };
 Nullstone.FinishCreate(GridLength);
+
+var ItemContainerGenerator = Nullstone.Create("ItemContainerGenerator", null, 1);
+ItemContainerGenerator.Instance.Init = function (owner) {
+};
+Nullstone.FinishCreate(ItemContainerGenerator);
 
 var _TextBoxModelChangedEventArgs = Nullstone.Create("_TextBoxModelChangedEventArgs", null, 2);
 _TextBoxModelChangedEventArgs.Instance.Init = function (changed, propArgs) {
@@ -2265,11 +2349,11 @@ Nullstone.FinishCreate(ScrollData);
 
 var BindingOperations = {
     SetBinding: function (target, dp, binding) {
-        if (target == null)
+        if (!target)
             throw new ArgumentNullException("target");
-        if (dp == null)
+        if (!dp)
             throw new ArgumentNullException("dp");
-        if (binding == null)
+        if (!binding)
             throw new ArgumentNullException("binding");
         var e = new BindingExpression(binding, target, dp);
         target.$SetValue(dp, e);
@@ -2335,7 +2419,7 @@ var Fayde = {
                 if (val instanceof targetType)
                     return val;
                 var converter = Fayde.TypeConverters[targetType._TypeName];
-                if (converter != null)
+                if (converter)
                     return converter(val);
             } else if (targetType instanceof Enum) {
                 if (typeof val === "string") {
@@ -2387,16 +2471,21 @@ _DeepStyleWalker.Instance._InitializeStyle = function (style) {
     var dps = [];
     var cur = style;
     while (cur) {
-        var setters = cur.GetSetters();
-        for (var i = setters.GetCount() - 1; i >= 0; i--) {
-            var setter = setters.GetValueAt(i);
-            var propd = setter.$GetValue(Setter.PropertyProperty);
-            if (!dps[propd]) {
-                dps[propd] = true;
-                this._Setters.push(setter);
-            }
+        var setters = cur.Setters;
+        var count = setters.GetCount();
+        for (var i = count - 1; i >= 0; i--) {
+            var setter = Nullstone.As(setters.GetValueAt(i), Setter);
+            if (!setter)
+                continue;
+            var propd = setter._GetValue(Setter.PropertyProperty);
+            if (!propd)
+                continue;
+            if (dps[propd])
+                continue;
+            dps[propd] = setter;
+            this._Setters.push(setter);
         }
-        cur = cur.GetBasedOn();
+        cur = cur.BasedOn;
     }
     this._Setters.sort(_DeepStyleWalker.SetterSort);
 };
@@ -2407,32 +2496,32 @@ _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
     var stylesSeen = [];
     for (var i = 0; i < _StyleIndex.Count; i++) {
         var style = styles[i];
-        while (style != null) {
-            if (stylesSeen[style]) //FIX: NOT GONNA WORK
+        while (style) {
+            if (stylesSeen[style._ID])
                 continue;
-            var setters = style.GetSetters();
+            var setters = style.Setters;
             var count = setters ? setters.GetCount() : 0;
             for (var j = count - 1; j >= 0; j--) {
-                var setter = setters.GetValueAt(j);
-                if (!setter || !(setter instanceof Setter))
+                var setter = Nullstone.As(setters.GetValueAt(j), Setter);
+                if (!setter)
                     continue;
-                var dpVal = setter.$GetValue(Setter.PropertyProperty);
-                if (!dpVal)
+                var propd = setter._GetValue(Setter.PropertyProperty);
+                if (!propd)
                     continue;
-                if (!dps[dpVal]) {
-                    dps[dpVal] = setter;
-                    this._Setters.push(setter);
-                }
+                if (dps[propd])
+                    continue;
+                dps[propd] = setter;
+                this._Setters.push(setter);
             }
-            stylesSeen[style] = true;
-            style = style.GetBasedOn();
+            stylesSeen[style._ID] = true;
+            style = style.BasedOn;
         }
     }
     this._Setters.sort(_DeepStyleWalker.SetterSort);
 };
 _DeepStyleWalker.SetterSort = function (setter1, setter2) {
-    var a = setter1.$GetValue(Setter.PropertyProperty);
-    var b = setter2.$GetValue(Setter.PropertyProperty);
+    var a = setter1._GetValue(Setter.PropertyProperty);
+    var b = setter2._GetValue(Setter.PropertyProperty);
     return (a === b) ? 0 : ((a > b) ? 1 : -1);
 };
 Nullstone.FinishCreate(_DeepStyleWalker);
@@ -2472,14 +2561,14 @@ _DeepTreeWalker.Instance.SkipBranch = function () {
 };
 Nullstone.FinishCreate(_DeepTreeWalker);
 
-var DependencyProperty = Nullstone.Create("DependencyProperty", null, 10);
+var DependencyProperty = Nullstone.Create("DependencyProperty", null, 12);
 DependencyProperty._LastID = 0;
 DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
     this.Name = name;
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
     this.DefaultValue = defaultValue;
-    this._HasDefaultValue = defaultValue != null;
+    this._HasDefaultValue = defaultValue !== undefined;
     this._AutoCreator = autoCreator;
     this._IsAutoCreated = autoCreator != null;
     this._Coercer = coercer;
@@ -2487,7 +2576,7 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this._Validator = validator;
     this._IsCustom = isCustom;
     this._ChangedCallback = changedCallback;
-    this._IsReadOnly = isReadOnly === true;
+    this.IsReadOnly = isReadOnly === true;
     this._IsAttached = isAttached;
     DependencyProperty._LastID = this._ID = DependencyProperty._LastID + 1;
 };
@@ -2516,22 +2605,22 @@ DependencyProperty.Instance._Validate = function (instance, propd, value, error)
     return this._Validator(instance, propd, value, error);
 };
 DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, true, changedCallback);
 };
 DependencyProperty.RegisterReadOnly = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback, true);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, true, changedCallback, true);
 };
 DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, true, changedCallback, false, true);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, true, changedCallback, false, true);
 }
 DependencyProperty.RegisterCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, false, changedCallback);
 };
 DependencyProperty.RegisterReadOnlyCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback, true);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, false, changedCallback, true);
 };
 DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, null, null, null, null, false, changedCallback, false, true);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, false, changedCallback, false, true);
 }
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
     if (!DependencyProperty._Registered)
@@ -2539,6 +2628,8 @@ DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defa
     if (!DependencyProperty._Registered[ownerType._TypeName])
         DependencyProperty._Registered[ownerType._TypeName] = [];
     var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached);
+    if (DependencyProperty._Registered[ownerType._TypeName][name] !== undefined)
+        throw new InvalidOperationException("Dependency Property is already registered. [" + ownerType._TypeName + "." + name + "]");
     DependencyProperty._Registered[ownerType._TypeName][name] = propd;
     return propd;
 }
@@ -2546,13 +2637,13 @@ DependencyProperty.GetDependencyProperty = function (ownerType, name) {
     var reg = DependencyProperty._Registered;
     if (!reg)
         return null;
-    if (ownerType == null)
+    if (!ownerType)
         return null;
     var reg = reg[ownerType._TypeName];
     var propd;
     if (reg)
         propd = reg[name];
-    if (!propd && ownerType != null && ownerType._IsNullstone) {
+    if (!propd && ownerType && ownerType._IsNullstone) {
         propd = DependencyProperty.GetDependencyProperty(ownerType._BaseClass, name);
     }
     return propd;
@@ -2613,7 +2704,7 @@ DependencyProperty._HandlePeriod = function (data) {
     if (data.res != null) {
         var value = null;
         var newLu = null;
-        if ((value = data.lu.$GetValue(data.res)) == null)
+        if ((value = data.lu._GetValue(data.res)) == null)
             return false;
         if ((newLu = Nullstone.As(value, DependencyObject)) == null)
             return false;
@@ -2622,8 +2713,8 @@ DependencyProperty._HandlePeriod = function (data) {
             var clonedDo = Nullstone.As(clonedValue, DependencyObject);
             if (clonedDo != null) {
                 newLu = clonedDo;
-                data.lu.$SetValue(data.res, clonedValue);
-                clonedValue = data.lu.$GetValue(data.res);
+                data.lu._SetValue(data.res, clonedValue);
+                clonedValue = data.lu._GetValue(data.res);
                 data.promotedValues[clonedValue._ID] = clonedValue;
             }
         }
@@ -2774,28 +2865,28 @@ StaticResourceExpression.Instance.GetValue = function () {
     var o;
     var key = this.Key;
     var cur = this.Target;
-    while (cur != null) {
+    while (cur) {
         var fe = Nullstone.As(cur, FrameworkElement);
-        if (fe != null) {
-            o = fe.GetResources().Get(key);
-            if (o != null)
+        if (fe) {
+            o = fe.Resources.Get(key);
+            if (o)
                 return o;
         }
         var rd = Nullstone.As(cur, ResourceDictionary);
-        if (rd != null) {
+        if (rd) {
             o = rd.Get(key);
-            if (o != null)
+            if (o)
                 return o;
         }
         cur = cur._Parent;
     }
-    return App.Instance.GetResources().Get(key);
+    return App.Instance.Resources.Get(key);
 };
 StaticResourceExpression.Instance.Resolve = function (parser) {
     var isAttached = false;
-    var ownerType = null;
+    var ownerType;
     var prop = this.Property;
-    if (prop != null) {
+    if (prop) {
         isAttached = prop._IsAttached;
         ownerType = prop.OwnerType;
     }
@@ -2820,28 +2911,28 @@ TemplateBindingExpression.Instance.Init = function (sourcePropd, targetPropd) {
     this.TargetProperty = targetPropd;
 };
 TemplateBindingExpression.Instance.GetValue = function (propd) {
-    var source = this.Target.GetTemplateOwner();
-    var value = null;
-    if (source != null)
-        value = source.$GetValue(this.SourceProperty);
+    var source = this.Target.TemplateOwner;
+    var value;
+    if (source)
+        value = source._GetValue(this.SourceProperty);
     return value; //TODO: Send through TypeConverter
 };
 TemplateBindingExpression.Instance._OnAttached = function (element) {
     this._OnAttached$Expression(element);
     this.Target = element;
     var listener = this.GetListener();
-    if (listener != null) {
+    if (listener) {
         listener.Detach();
         listener = null;
         this.SetListener(listener);
     }
     var c = Nullstone.As(this.Target, ContentControl);
-    if (this.TargetProperty._ID === ContentControl.ContentProperty._ID && c != null) {
+    if (this.TargetProperty._ID === ContentControl.ContentProperty._ID && c) {
         this.SetsParent = c._ContentSetsParent;
         c._ContentSetsParent = false;
     }
-    var source = this.Target.GetTemplateOwner();
-    if (source != null) {
+    var source = this.Target.TemplateOwner;
+    if (source) {
         listener = new PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
         this.SetListener(listener);
     }
@@ -2849,10 +2940,10 @@ TemplateBindingExpression.Instance._OnAttached = function (element) {
 TemplateBindingExpression.Instance._OnDetached = function (element) {
     this._OnDetached$Expression(element);
     var listener = this.GetListener();
-    if (listener == null)
+    if (!listener)
         return;
     var c = Nullstone.As(this.Target, ContentControl);
-    if (c != null)
+    if (c)
         c._ContentSetsParent = this.SetsParent;
     listener.Detach();
     listener = null;
@@ -2863,9 +2954,9 @@ TemplateBindingExpression.Instance.OnPropertyChanged = function (sender, args) {
     try {
         this.SetUpdating(true);
         try {
-            this.Target.$SetValue(this.TargetProperty, this.GetValue(null));
+            this.Target._SetValue(this.TargetProperty, this.GetValue());
         } catch (err2) {
-            this.Target.$SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
+            this.Target._SetValue(this.TargetProperty, this.TargetProperty.GetDefaultValue(this.Target));
         }
     } catch (err) {
     } finally {
@@ -2886,45 +2977,45 @@ Nullstone.FinishCreate(UnsetValue);
 var Validators = {};
 Validators.StyleValidator = function (instance, propd, value, error) {
     var parentType = instance.constructor;
-    var errorMessage = null;
-    if (value != null) {
-        var root = null;
+    var errorMessage;
+    if (value) {
+        var root;
         var style = Nullstone.As(value, Style);
-        if (style.GetIsSealed()) {
-            if (Nullstone.DoesInheritFrom(parentType, style.GetTargetType())) {
-                error.SetErrored(BError.XamlParseException, "Style.TargetType (" + style.GetTargetType()._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
+        if (style.IsSealed) {
+            if (Nullstone.DoesInheritFrom(parentType, style.TargetType)) {
+                error.SetErrored(BError.XamlParseException, "Style.TargetType (" + style.TargetType._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
                 return false;
             }
             return true;
         }
         var cycles = [];
         root = style;
-        while (root != null) {
+        while (root) {
             if (cycles[root._ID]) {
                 error.SetErrored(BError.InvalidOperation, "Circular reference in Style.BasedOn");
                 return false;
             }
             cycles[root._ID] = true;
-            root = root.GetBasedOn();
+            root = root.BasedOn;
         }
         cycles = null;
         root = style;
-        while (root != null) {
-            var targetType = root.GetTargetType();
+        while (root) {
+            var targetType = root.TargetType;
             if (Nullstone.RefEquals(root, style)) {
-                if (targetType == null) {
+                if (!targetType) {
                     error.SetErrored(BError.InvalidOperation, "TargetType cannot be null");
                     return false;
                 } else if (!Nullstone.DoesInheritFrom(parentType, targetType)) {
                     error.SetErrored(BError.XamlParseException, "Style.TargetType (" + targetType._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
                     return false;
                 }
-            } else if (targetType == null || !Nullstone.DoesInheritFrom(parentType, targetType)) {
+            } else if (!targetType || !Nullstone.DoesInheritFrom(parentType, targetType)) {
                 error.SetErrored(BError.InvalidOperation, "Style.TargetType (" + (targetType ? targetType._TypeName : "<Not Specified>") + ") is not a subclass of (" + parentType._TypeName + ")");
                 return false;
             }
             parentType = targetType;
-            root = root.GetBasedOn();
+            root = root.BasedOn;
         }
         style._Seal();
     }
@@ -2934,42 +3025,41 @@ Validators.StyleValidator = function (instance, propd, value, error) {
 var VisualTreeHelper = {};
 VisualTreeHelper.GetChild = function (d, childIndex) {
     var fw = Nullstone.As(d, FrameworkElement);
-    if (fw == null)
+    if (!fw)
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
     var subtree = fw._GetSubtreeObject();
     var coll = Nullstone.As(subtree, UIElementCollection);
-    if (coll != null)
+    if (coll)
         return coll.GetValueAt(childIndex);
     var item = Nullstone.As(subtree, UIElement);
-    if (item != null && childIndex === 0)
+    if (item && childIndex === 0)
         return item;
     throw new ArgumentOutOfRangeException();
 };
 VisualTreeHelper.GetChildrenCount = function (d) {
     var fw = Nullstone.As(d, FrameworkElement);
-    if (fw == null)
+    if (!fw)
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
     var subtree = fw._GetSubtreeObject();
     var coll = Nullstone.As(subtree, UIElementCollection);
-    if (coll != null)
+    if (coll)
         return coll.GetCount();
-    var item = Nullstone.As(subtree, UIElement);
-    if (item != null)
+    if (Nullstone.Is(subtree, UIElement))
         return 1;
     return 0;
 };
 VisualTreeHelper.GetParent = function (d) {
     var fw = Nullstone.As(d, FrameworkElement);
-    if (fw == null)
+    if (!fw)
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
     return Nullstone.As(fw.GetVisualParent(), DependencyObject);
 };
 VisualTreeHelper.__Debug = function (uie, func) {
     var topLevel = uie;
-    if (topLevel != null) {
+    if (topLevel) {
         while (true) {
             var temp = VisualTreeHelper.GetParent(topLevel);
-            if (temp == null)
+            if (!temp)
                 break;
             topLevel = temp;
         }
@@ -2988,7 +3078,7 @@ VisualTreeHelper.__DebugTree = function (uie, uie2, tabIndex, func) {
     if (Nullstone.RefEquals(uie, uie2))
         str += "> ";
     str += uie.constructor._TypeName;
-    var name = uie.GetName();
+    var name = uie.Name;
     if (name)
         str += " [" + name + "]";
     if (func)
@@ -3006,7 +3096,7 @@ VisualTreeHelper.__DebugUIElement = function (uie, tabIndex) {
     if (!uie)
         return "";
     var str = "(";
-    if (uie.GetVisibility() === Visibility.Visible)
+    if (uie.Visibility === Visibility.Visible)
         str += "Visible";
     else
         str += "Collapsed";
@@ -3014,7 +3104,7 @@ VisualTreeHelper.__DebugUIElement = function (uie, tabIndex) {
     var p = LayoutInformation.GetVisualOffset(uie);
     if (p)
         str += p.toString();
-    var size = new Size(uie.GetActualWidth(), uie.GetActualHeight());
+    var size = new Size(uie.ActualWidth, uie.ActualHeight);
     str += " ";
     str += size.toString();
     str += ")";
@@ -3025,11 +3115,11 @@ VisualTreeHelper.__DebugUIElement = function (uie, tabIndex) {
 };
 VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
     var grid = Nullstone.As(uie, Grid);
-    if (grid == null)
+    if (!grid)
         return "";
-    var rds = grid.GetRowDefinitions();
+    var rds = grid.RowDefinitions;
     var rcount = rds.GetCount();
-    var cds = grid.GetColumnDefinitions();
+    var cds = grid.ColumnDefinitions;
     var ccount = cds.GetCount();
     var tabs = "";
     for (var i = 0; i < tabIndex; i++) {
@@ -3041,7 +3131,7 @@ VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
         str += "  Rows (" + rcount + "):\n";
         for (var i = 0; i < rcount; i++) {
             str += tabs;
-            str += "\t[" + i + "] -> " + rds.GetValueAt(i).GetActualHeight() + "\n";
+            str += "\t[" + i + "] -> " + rds.GetValueAt(i).ActualHeight + "\n";
         }
     }
     if (ccount > 0) {
@@ -3049,7 +3139,7 @@ VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
         str += "  Columns (" + ccount + "):\n";
         for (var i = 0; i < ccount; i++) {
             str += tabs;
-            str += "\t[" + i + "] -> " + cds.GetValueAt(i).GetActualWidth() + "\n";
+            str += "\t[" + i + "] -> " + cds.GetValueAt(i).ActualWidth + "\n";
         }
     }
     return str;
@@ -3057,7 +3147,7 @@ VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
 
 var _VisualTreeWalker = Nullstone.Create("_VisualTreeWalker", null, 2);
 _VisualTreeWalker.Instance.Init = function (obj, direction) {
-    if (obj == null)
+    if (!obj)
         return;
     this._Offset = 0;
     this._Collection = null;
@@ -3075,7 +3165,7 @@ _VisualTreeWalker.Instance.Init = function (obj, direction) {
     }
 };
 _VisualTreeWalker.Instance.Step = function () {
-    var result = null;
+    var result;
     if (this._Collection) {
         var count = this.GetCount();
         if (count < 0 || this._Offset >= count)
@@ -3152,11 +3242,17 @@ CollectionIterator.Instance.Reset = function () {
 CollectionIterator.Instance.GetCurrent = function (error) {
     if (this._Index < 0 || this._Index >= this._Collection.GetCount()) {
         error.SetErrored(BError.InvalidOperation, "Index out of bounds.");
-        return null;
+        return undefined;
     }
     return this._Collection.GetValueAt(this._Index);
 };
 Nullstone.FinishCreate(CollectionIterator);
+
+var IListenCollectionChanged = Nullstone.Create("IListenCollectionChanged");
+IListenCollectionChanged.Instance.Init = function () {
+    this.CollectionChanged = new MulticastEvent();
+};
+Nullstone.FinishCreate(IListenCollectionChanged);
 
 var ItemChangedArgs = Nullstone.Create("ItemChangedArgs", null, 4);
 ItemChangedArgs.Instance.Init = function (item, propd, oldValue, newValue) {
@@ -3167,7 +3263,7 @@ ItemChangedArgs.Instance.Init = function (item, propd, oldValue, newValue) {
 };
 Nullstone.FinishCreate(ItemChangedArgs);
 
-var _InheritedContext = Nullstone.Create("_InheritedContext", null);
+var _InheritedContext = Nullstone.Create("_InheritedContext");
 _InheritedContext.Instance.Init = function (args) {
     if (args.length > 2) {
         this._InitFull(args);
@@ -3189,57 +3285,59 @@ _InheritedContext.Instance._InitFull = function (args) {
     this.FontResourceSource = args[10];
 };
 _InheritedContext.Instance._InitFromObj = function (obj, parentContext) {
-    this.ForegroundSource = this.GetLocalSource(obj, _Inheritable.Foreground);
+    var inhEnum = _Inheritable;
+    this.ForegroundSource = this.GetLocalSource(obj, inhEnum.Foreground);
     if (!this.ForegroundSource && parentContext) this.ForegroundSource = parentContext.ForegroundSource;
-    this.FontFamilySource = this.GetLocalSource(obj, _Inheritable.FontFamily);
+    this.FontFamilySource = this.GetLocalSource(obj, inhEnum.FontFamily);
     if (!this.FontFamilySource && parentContext) this.FontFamilySource = parentContext.FontFamilySource;
-    this.FontStretchSource = this.GetLocalSource(obj, _Inheritable.FontStretch);
+    this.FontStretchSource = this.GetLocalSource(obj, inhEnum.FontStretch);
     if (!this.FontStretchSource && parentContext) this.FontStretchSource = parentContext.FontStretchSource;
-    this.FontStyleSource = this.GetLocalSource(obj, _Inheritable.FontStyle);
+    this.FontStyleSource = this.GetLocalSource(obj, inhEnum.FontStyle);
     if (!this.FontStretchSource && parentContext) this.FontStretchSource = parentContext.FontStretchSource;
-    this.FontWeightSource = this.GetLocalSource(obj, _Inheritable.FontWeight);
+    this.FontWeightSource = this.GetLocalSource(obj, inhEnum.FontWeight);
     if (!this.FontWeightSource && parentContext) this.FontWeightSource = parentContext.FontWeightSource;
-    this.FontSizeSource = this.GetLocalSource(obj, _Inheritable.FontSize);
+    this.FontSizeSource = this.GetLocalSource(obj, inhEnum.FontSize);
     if (!this.FontSizeSource && parentContext) this.FontSizeSource = parentContext.FontSizeSource;
-    this.LanguageSource = this.GetLocalSource(obj, _Inheritable.Language);
+    this.LanguageSource = this.GetLocalSource(obj, inhEnum.Language);
     if (!this.LanguageSource && parentContext) this.LanguageSource = parentContext.LanguageSource;
-    this.FlowDirectionSource = this.GetLocalSource(obj, _Inheritable.FlowDirection);
+    this.FlowDirectionSource = this.GetLocalSource(obj, inhEnum.FlowDirection);
     if (!this.FlowDirectionSource && parentContext) this.FlowDirectionSource = parentContext.FlowDirectionSource;
-    this.UseLayoutRoundingSource = this.GetLocalSource(obj, _Inheritable.UseLayoutRounding);
+    this.UseLayoutRoundingSource = this.GetLocalSource(obj, inhEnum.UseLayoutRounding);
     if (!this.UseLayoutRoundingSource && parentContext) this.UseLayoutRoundingSource = parentContext.UseLayoutRoundingSource;
-    this.TextDecorationsSource = this.GetLocalSource(obj, _Inheritable.TextDecorations);
+    this.TextDecorationsSource = this.GetLocalSource(obj, inhEnum.TextDecorations);
     if (!this.TextDecorationsSource && parentContext) this.TextDecorationsSource = parentContext.TextDecorationsSource;
-    this.FontResourceSource = this.GetLocalSource(obj, _Inheritable.FontResource);
+    this.FontResourceSource = this.GetLocalSource(obj, inhEnum.FontResource);
     if (!this.FontResourceSource && parentContext) this.FontResourceSource = parentContext.FontResourceSource;
 };
 _InheritedContext.Instance.Compare = function (withContext, props) {
-    var rv = _Inheritable.None;
-    if (props & _Inheritable.Foreground && withContext.ForegroundSource == this.ForegroundSource)
-        rv |= _Inheritable.Foreground;
-    if (props & _Inheritable.FontFamily && withContext.FontFamilySource == this.FontFamilySource)
-        rv |= _Inheritable.FontFamily;
-    if (props & _Inheritable.FontStretch && withContext.FontStretchSource == this.FontStretchSource)
-        rv |= _Inheritable.FontStretch;
-    if (props & _Inheritable.FontStyle && withContext.FontStyleSource == this.FontStyleSource)
-        rv |= _Inheritable.FontStyle;
-    if (props & _Inheritable.FontWeight && withContext.FontWeightSource == this.FontWeightSource)
-        rv |= _Inheritable.FontWeight;
-    if (props & _Inheritable.FontSize && withContext.FontSizeSource == this.FontSizeSource)
-        rv |= _Inheritable.FontSize;
-    if (props & _Inheritable.Language && withContext.LanguageSource == this.LanguageSource)
-        rv |= _Inheritable.Language;
-    if (props & _Inheritable.FlowDirection && withContext.FlowDirectionSource == this.FlowDirectionSource)
-        rv |= _Inheritable.FlowDirection;
-    if (props & _Inheritable.UseLayoutRounding && withContext.UseLayoutRoundingSource == this.UseLayoutRoundingSource)
-        rv |= _Inheritable.UseLayoutRounding;
-    if (props & _Inheritable.TextDecorations && withContext.TextDecorationsSource == this.TextDecorationsSource)
-        rv |= _Inheritable.TextDecorations;
-    if (props & _Inheritable.FontResource && withContext.FontResourceSource == this.FontResourceSource)
-        rv |= _Inheritable.FontResource;
+    var inhEnum = _Inheritable;
+    var rv = inhEnum.None;
+    if (props & inhEnum.Foreground && Nullstone.RefEquals(withContext.ForegroundSource, this.ForegroundSource))
+        rv |= inhEnum.Foreground;
+    if (props & inhEnum.FontFamily && Nullstone.RefEquals(withContext.FontFamilySource, this.FontFamilySource))
+        rv |= inhEnum.FontFamily;
+    if (props & inhEnum.FontStretch && Nullstone.RefEquals(withContext.FontStretchSource, this.FontStretchSource))
+        rv |= inhEnum.FontStretch;
+    if (props & inhEnum.FontStyle && Nullstone.RefEquals(withContext.FontStyleSource, this.FontStyleSource))
+        rv |= inhEnum.FontStyle;
+    if (props & inhEnum.FontWeight && Nullstone.RefEquals(withContext.FontWeightSource, this.FontWeightSource))
+        rv |= inhEnum.FontWeight;
+    if (props & inhEnum.FontSize && Nullstone.RefEquals(withContext.FontSizeSource, this.FontSizeSource))
+        rv |= inhEnum.FontSize;
+    if (props & inhEnum.Language && Nullstone.RefEquals(withContext.LanguageSource, this.LanguageSource))
+        rv |= inhEnum.Language;
+    if (props & inhEnum.FlowDirection && Nullstone.RefEquals(withContext.FlowDirectionSource, this.FlowDirectionSource))
+        rv |= inhEnum.FlowDirection;
+    if (props & inhEnum.UseLayoutRounding && Nullstone.RefEquals(withContext.UseLayoutRoundingSource, this.UseLayoutRoundingSource))
+        rv |= inhEnum.UseLayoutRounding;
+    if (props & inhEnum.TextDecorations && Nullstone.RefEquals(withContext.TextDecorationsSource, this.TextDecorationsSource))
+        rv |= inhEnum.TextDecorations;
+    if (props & inhEnum.FontResource && Nullstone.RefEquals(withContext.FontResourceSource, this.FontResourceSource))
+        rv |= inhEnum.FontResource;
     return rv;
 };
 _InheritedContext.Instance.GetLocalSource = function (obj, prop) {
-    var source = null;
+    var source;
     var propd = _InheritedPropertyValueProvider.GetProperty(prop, obj);
     if (propd && obj._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited)
         source = obj;
@@ -3278,18 +3376,18 @@ _StylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
 _StylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, reason, error) {
-    if ((reason & _ProviderFlags.RecomputesOnClear) == 0)
+    if ((reason & _ProviderFlags.RecomputesOnClear) === 0)
         return;
-    var oldValue = undefined;
-    var newValue = undefined;
-    var walkPropd = null;
+    var oldValue;
+    var newValue;
+    var walkPropd;
     var walker = new _DeepStyleWalker(this._Style);
     var setter;
     while (setter = walker.Step()) {
-        walkPropd = setter.$GetValue(Setter.PropertyProperty);
-        if (walkPropd != propd)
+        walkPropd = setter._GetValue(Setter.PropertyProperty);
+        if (walkPropd._ID !== propd._ID)
             continue;
-        newValue = setter.$GetValue(Setter.ConvertedValueProperty);
+        newValue = setter._GetValue(Setter.ConvertedValueProperty);
         oldValue = this._ht[propd];
         this._ht[propd] = newValue;
         this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
@@ -3308,25 +3406,25 @@ _StylePropertyValueProvider.Instance._UpdateStyle = function (style, error) {
     var newProp;
     while (oldSetter || newSetter) {
         if (oldSetter)
-            oldProp = oldSetter.$GetValue(Setter.PropertyProperty);
+            oldProp = oldSetter._GetValue(Setter.PropertyProperty);
         if (newSetter)
-            newProp = newSetter.$GetValue(Setter.PropertyProperty);
+            newProp = newSetter._GetValue(Setter.PropertyProperty);
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-            oldValue = oldSetter.$GetValue(Setter.ConvertedValueProperty);
-            newValue = null;
+            oldValue = oldSetter._GetValue(Setter.ConvertedValueProperty);
+            newValue = undefined;
             delete this._ht[oldProp];
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
         } else if (oldProp === newProp) {
-            oldValue = oldSetter.$GetValue(Setter.ConvertedValueProperty);
-            newValue = newSetter.$GetValue(Setter.ConvertedValueProperty);
+            oldValue = oldSetter._GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter._GetValue(Setter.ConvertedValueProperty);
             this._ht[oldProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
             newSetter = newWalker.Step();
         } else {
-            oldValue = null;
-            newValue = newSetter.$GetValue(Setter.ConvertedValueProperty);
+            oldValue = undefined;
+            newValue = newSetter._GetValue(Setter.ConvertedValueProperty);
             this._ht[newProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
             newSetter = newWalker.Step();
@@ -3382,7 +3480,7 @@ BindingExpressionBase.Instance.Init = function (binding, target, propd) {
     this._Binding = binding;
     this.SetTarget(target);
     this.SetProperty(propd);
-    var bindsToView = propd === FrameworkElement.DataContextProperty; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
+    var bindsToView = propd._ID === FrameworkElement.DataContextProperty._ID; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
     this.SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
     if (binding.GetMode() !== BindingMode.OneTime) {
         var walker = this.GetPropertyPathWalker();
@@ -3441,12 +3539,12 @@ BindingExpressionBase.Instance._OnDetached = function (element) {
     } else if (this.GetIsSelfDataContextBound()) {
         this.SetDataContextSource(null);
     }
-    if (targetFE == null)
+    if (!targetFE)
         targetFE = this.GetTarget().GetMentor();
-    if (targetFE != null && this.GetCurrentError() != null) {
+    if (targetFE && this.GetCurrentError() != null) {
         this.SetCurrentError(null);
     }
-    if (this._PropertyListener != null) {
+    if (this._PropertyListener) {
         this._PropertyListener.Detach();
         this._PropertyListener = null;
     }
@@ -3467,14 +3565,14 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         force = false;
     if (this.GetBinding().Mode !== BindingMode.TwoWay)
         return;
-    var dataError = null;
-    var exception = null;
+    var dataError;
+    var exception;
     var oldUpdating = this.GetUpdating();
     var node = this.GetPropertyPathWalker().GetFinalNode();
     try {
         if (this.GetPropertyPathWalker().GetFinalNode().GetIsPathBroken())
             return;
-        if (this.GetBinding().GetTargetNullValue() != null) {
+        if (this.GetBinding().GetTargetNullValue()) {
             try {
                 if (Nullstone.RefEquals(this.GetBinding().GetTargetNullValue(), value))
                     value = null;
@@ -3482,18 +3580,18 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
             }
         }
         var converter = this.GetBinding().GetConverter();
-        if (converter != null) {
+        if (converter) {
             value = converter.ConvertBack(value, node.GetValueType(), this.GetBinding().GetConverterParameter(), /* TODO: Culture */null);
         }
         if (value instanceof String) {
         }
         try {
-            if (value != null)
+            if (value)
                 value = this._ConvertFromTargetToSource(value);
         } catch (err) {
             return;
         }
-        if (this._CachedValue == null && value == null)
+        if (!this._CachedValue && !value)
             return;
         this.SetUpdating(true);
         node.SetValue(value);
@@ -3511,31 +3609,31 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
 };
 BindingExpressionBase.Instance._MaybeEmitError = function (message, exception) {
     var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
-    if (fe == null)
+    if (!fe)
         fe = this.GetTarget().GetMentor();
-    if (fe == null)
+    if (!fe)
         return;
     if (String.isString(message) && message === "")
         message = null;
     var oldError = this.GetCurrentError();
     if (message != null)
         this.SetCurrentError(new ValidationError(message, null));
-    else if (exception != null)
+    else if (exception)
         this.SetCurrentError(new ValidationError(null, exception));
     else
         this.SetCurrentError(null);
-    if (oldError != null && this.GetCurrentError() != null) {
+    if (oldError && this.GetCurrentError()) {
         Validation.AddError(fe, this.GetCurrentError());
         Validation.RemoveError(fe, oldError);
         if (this.GetBinding().GetNotifyOnValidationError()) {
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
         }
-    } else if (oldError != null) {
+    } else if (oldError) {
         Validation.RemoveError(fe, oldError);
         if (this.GetBinding().GetNotifyOnValidationError())
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
-    } else if (this.GetCurrentError() != null) {
+    } else if (this.GetCurrentError()) {
         Validation.AddError(fe, this.GetCurrentError());
         if (this.GetBinding().GetNotifyOnValidationError())
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.GetCurrentError()));
@@ -3551,12 +3649,12 @@ BindingExpressionBase.Instance._ConvertFromSourceToTarget = function (value) {
 };
 BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
     try {
-        if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter() != null) {
+        if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter()) {
             value = this.GetBinding().GetConverter().Convert(value, this.GetProperty().GetTargetType(), this.GetBinding().GetConverterParameter(), {});
         }
         if (value === DependencyProperty.UnsetValue || this.GetPropertyPathWalker().GetIsPathBroken()) {
             value = this.GetBinding().GetFallbackValue();
-            if (value == null)
+            if (value === undefined)
                 value = propd.GetDefaultValue(this.GetTarget());
         } else if (value == null) {
             value = this.GetBinding().GetTargetNullValue();
@@ -3582,35 +3680,36 @@ BindingExpressionBase.Instance._NotifyErrorsChanged = function (o, e) {
     NotImplemented("BindingExpressionBase._NotifyErrorsChanged");
 };
 BindingExpressionBase.Instance._CalculateDataSource = function () {
-    var source = null;
-    if (this.GetBinding().GetSource() != null) {
+    var source;
+    if (this.GetBinding().GetSource()) {
         this.GetPropertyPathWalker().Update(this.GetBinding().GetSource());
     } else if (this.GetBinding().GetElementName() != null) {
         source = this._FindSourceByElementName();
         var feTarget = Nullstone.As(this.GetTarget(), FrameworkElement);
-        if (feTarget == null)
+        if (!feTarget)
             feTarget = this.GetTarget().GetMentor();
-        if (feTarget == null) {
+        if (!feTarget) {
             this.GetTarget().MentorChanged.Subscribe(this._InvalidateAfterMentorChanged, this);
         } else {
             feTarget.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
         }
         this.GetPropertyPathWalker().Update(source);
-    } else if (this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.Self) {
+    } else if (this.GetBinding().GetRelativeSource() && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.Self) {
         this.GetPropertyPathWalker().Update(this.GetTarget());
     } else {
         var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
-        if (fe != null && (this.GetProperty() === FrameworkElement.DataContextProperty || this.GetProperty() === ContentPresenter.ContentProperty)) {
+        var propd = this.GetProperty();
+        if (fe && (propd._ID === FrameworkElement.DataContextProperty._ID || propd._ID === ContentPresenter.ContentProperty._ID)) {
             fe.VisualParentChanged.Subscribe(this._ParentChanged, this);
             fe = fe.GetVisualParent();
             this.SetDataContextSource(fe);
         } else {
-            if (fe == null) {
+            if (!fe) {
                 this.GetTarget().MentorChanged.Subscribe(this._MentorChanged, this);
                 fe = this.GetTarget().GetMentor();
             }
-            if (fe != null && this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
-                this.GetPropertyPathWalker().Update(fe.GetTemplateOwner());
+            if (fe && this.GetBinding().GetRelativeSource() && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
+                this.GetPropertyPathWalker().Update(fe.TemplateOwner);
             } else {
                 this.SetDataContextSource(fe);
             }
@@ -3618,21 +3717,21 @@ BindingExpressionBase.Instance._CalculateDataSource = function () {
     }
 };
 BindingExpressionBase.Instance.SetDataContextSource = function (value) {
-    if (this._DataContextSource != null && this._DataContextPropertyListener != null) {
+    if (this._DataContextSource && this._DataContextPropertyListener) {
         this._DataContextPropertyListener.Detach();
         this._DataContextPropertyListener = null;
     }
     this._DataContextSource = value;
-    if (this._DataContextSource != null) {
+    if (this._DataContextSource) {
         this._DataContextPropertyListener = new PropertyChangedListener(this._DataContextSource, FrameworkElement.DataContextProperty, this, this._DataContextChanged);
     }
-    if (this._DataContextSource != null || this.GetIsMentorDataContextBound())
-        this.GetPropertyPathWalker().Update(this._DataContextSource == null ? null : this._DataContextSource.GetDataContext());
+    if (this._DataContextSource || this.GetIsMentorDataContextBound())
+        this.GetPropertyPathWalker().Update(!this._DataContextSource ? null : this._DataContextSource.DataContext);
 };
 BindingExpressionBase.Instance._InvalidateAfterMentorChanged = function (sender, e) {
     this.GetTarget().MentorChanged.Unsubscribe(this._InvalidateAfterMentorChanged, this);
     var source = this._FindSourceByElementName();
-    if (source == null) {
+    if (!source) {
         this.GetTarget().GetMentor().Loaded.Subscribe(this._HandleFeTargetLoaded, this);
     } else {
         this.GetPropertyPathWalker().Update(source);
@@ -3644,21 +3743,21 @@ BindingExpressionBase.Instance._HandleFeTargetLoaded = function (sender, e) {
     var fe = sender;
     fe.Loaded.Unsubscribe(this._HandleFeTargetLoaded, this);
     var source = this._FindSourceByElementName();
-    if (source != null)
+    if (source)
         this.GetPropertyPathWalker().Update(source);
     this._Invalidate();
     this.GetTarget().$SetValue(this.GetProperty(), this);
 };
 BindingExpressionBase.Instance._FindSourceByElementName = function () {
-    var source = null;
+    var source;
     var fe = Nullstone.As(this.GetTarget(), FrameworkElement);
     if (!fe)
         fe = this.GetTarget().GetMentor();
-    while (fe != null && source == null) {
+    while (fe && !source) {
         source = fe.FindName(this.GetBinding().GetElementName());
-        if (source == null && fe.GetTemplateOwner() != null)
+        if (!source && fe.TemplateOwner)
             fe = fe.GetTemplateOwner();
-        else if (fe.GetMentor() != null && ItemsControl.GetItemsOwner(fe.GetMentor()) != null)
+        else if (fe.GetMentor() && ItemsControl.GetItemsOwner(fe.GetMentor()))
             fe = fe.GetMentor();
         else
             fe = null;
@@ -3672,11 +3771,11 @@ BindingExpressionBase.Instance._Invalidate = function () {
 BindingExpressionBase.Instance._MentorChanged = function (sender, e) {
     try {
         var mentor = this.GetTarget().GetMentor();
-        if (this.GetBinding().GetRelativeSource() != null && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
-            if (mentor == null)
+        if (this.GetBinding().GetRelativeSource() && this.GetBinding().GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
+            if (!mentor)
                 this.GetPropertyPathWalker().Update(null);
             else
-                this.GetPropertyPathWalker().Update(menotr.GetTemplateOwner());
+                this.GetPropertyPathWalker().Update(mentor.TemplateOwner);
             this.Refresh();
         } else {
             this.SetDataContextSource(mentor);
@@ -3694,7 +3793,7 @@ BindingExpressionBase.Instance._ParentChanged = function (sender, e) {
 BindingExpressionBase.Instance._DataContextChanged = function (sender, e) {
     try {
         var fe = sender;
-        this.GetPropertyPathWalker().Update(fe.GetDataContext());
+        this.GetPropertyPathWalker().Update(fe.DataContext);
         if (this.GetBinding().GetMode() === BindingMode.OneTime)
             this.Refresh();
     } catch (err) {
@@ -3705,8 +3804,8 @@ BindingExpressionBase.Instance._PropertyPathValueChanged = function () {
     this.Refresh();
 };
 BindingExpressionBase.Instance.Refresh = function () {
-    var dataError = null;
-    var exception = null;
+    var dataError;
+    var exception;
     if (!this.GetAttached())
         return;
     var oldUpdating = this.GetUpdating();
@@ -3731,13 +3830,13 @@ BindingExpressionBase.Instance.GetBinding = function () {
 BindingExpressionBase.Instance.GetCurrentError = function () {
     return this._CurrentError;
 };
-BindingExpressionBase.Instance.SetCurrentError = function (/* ValidationError */value) {
+BindingExpressionBase.Instance.SetCurrentError = function (value) {
     this._CurrentError = value;
 };
 BindingExpressionBase.Instance.GetCurrentNotifyError = function () {
     return this._CurrentNotifyError;
 };
-BindingExpressionBase.Instance.SetCurrentNotifyError = function (/* INotifyDataErrorInfo */value) {
+BindingExpressionBase.Instance.SetCurrentNotifyError = function (value) {
     this._CurrentNotifyError = value;
 };
 BindingExpressionBase.Instance.GetDataContextSource = function () {
@@ -3747,7 +3846,7 @@ BindingExpressionBase.Instance.GetDataSource = function () {
     return this.GetPropertyPathWalker().GetSource();
 };
 BindingExpressionBase.Instance.GetIsBoundToAnyDataContext = function () {
-    return !this.GetBinding().GetElementName() && this.GetBinding().GetSource() == null;
+    return !this.GetBinding().GetElementName() && !this.GetBinding().GetSource();
 };
 BindingExpressionBase.Instance.GetIsSelfDataContextBound = function () {
     return this.GetIsBoundToAnyDataContext()
@@ -3794,7 +3893,7 @@ CurrentChangedListener.Instance.Init = function (source, closure, func) {
     this._Source.CurrentChanged.Subscribe(this, this.OnCurrentChangedInternal);
 };
 CurrentChangedListener.Instance.Detach = function () {
-    if (this._Source != null) {
+    if (this._Source) {
         this._Source.CurrentChanged.Unsubscribe(this, this.OnCurrentChangedInternal);
         this._Source = null;
         this._Closure = null;
@@ -3802,7 +3901,7 @@ CurrentChangedListener.Instance.Detach = function () {
     }
 };
 CurrentChangedListener.Instance.OnCurrentChangedInternal = function (s, e) {
-    if (this._Closure != null && this._Func != null)
+    if (this._Closure && this._Func)
         this._Func.call(this._Closure, s, e);
 };
 Nullstone.FinishCreate(CurrentChangedListener);
@@ -3829,7 +3928,7 @@ PropertyChangedListener.Instance.Init = function (source, propd, closure, func) 
     this._Source.PropertyChanged.Subscribe(this.OnPropertyChangedInternal, this);
 };
 PropertyChangedListener.Instance.Detach = function () {
-    if (this._Source != null) {
+    if (this._Source) {
         this._Source.PropertyChanged.Unsubscribe(this, this.OnPropertyChangedInternal);
         this._Source = null;
         this._Closure = null;
@@ -3837,9 +3936,9 @@ PropertyChangedListener.Instance.Detach = function () {
     }
 };
 PropertyChangedListener.Instance.OnPropertyChangedInternal = function (s, e) {
-    if (e.Property !== this._Property)
+    if (e.Property._ID !== this._Property._ID)
         return;
-    if (this._Closure != null && this._Func != null)
+    if (this._Closure && this._Func)
         this._Func.call(this._Closure, s, e);
 };
 Nullstone.FinishCreate(PropertyChangedListener);
@@ -3863,23 +3962,22 @@ _PropertyPath.Instance.HasDependencyProperty = function () {
 _PropertyPath.Instance.TryResolveDependencyProperty = function (dobj) {
     if (this.HasDependencyProperty())
         return;
-    if (dobj == null)
-        return;
-    this._Propd = dobj.GetDependencyProperty(this.GetPath());
+    if (dobj)
+        this._Propd = dobj.GetDependencyProperty(this.GetPath());
 };
 _PropertyPath.Instance.GetDependencyProperty = function () {
     return this._Propd;
 };
 _PropertyPath.Instance.GetPath = function () {
-    return this._Propd == null ? this._Path : "(0)";
+    return !this._Propd ? this._Path : "(0)";
 };
 _PropertyPath.Instance.GetExpandedPath = function () {
-    return this._Propd == null ? this._ExpandedPath : "(0)";
+    return !this._Propd ? this._ExpandedPath : "(0)";
 };
 _PropertyPath.Instance.GetParsePath = function () {
-    if (this._Propd != null)
+    if (this._Propd)
         return "(0)";
-    if (this._ExpandedPath != null)
+    if (this._ExpandedPath)
         return this._ExpandedPath;
     return this._Path;
 };
@@ -4101,7 +4199,7 @@ _RenderContext.Instance._DrawClip = function (clip) {
 };
 _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
-        matrix = matrix.GetMatrix();
+        matrix = matrix.Matrix;
     }
     this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
     this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
@@ -4110,7 +4208,7 @@ _RenderContext.Instance.Transform = function (matrix) {
 };
 _RenderContext.Instance.PreTransform = function (matrix) {
     if (matrix instanceof Transform) {
-        matrix = matrix.GetMatrix();
+        matrix = matrix.Matrix;
     }
     this._CurrentTransform = this._CurrentTransform.MultiplyMatrix(matrix);
     this._InverseTransform = matrix.GetInverse().MultiplyMatrix(this._InverseTransform);
@@ -4154,12 +4252,6 @@ _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
 _RenderContext.Instance.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
 };
-_RenderContext.Instance.CustomRender = function (painterFunc) {
-    var args = _RenderContext.ToArray(arguments);
-    args.shift(); //remove painterFunc
-    args.unshift(this._Surface._Ctx); //prepend canvas context
-    painterFunc(args);
-};
 _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;
 };
@@ -4180,7 +4272,7 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         return new json.Type(json.Props.TargetType, json.Content);
     }
     var dobj = new json.Type();
-    dobj.SetTemplateOwner(this._TemplateBindingSource);
+    dobj.TemplateOwner = this._TemplateBindingSource;
     if (json.Name)
         dobj.SetNameOnScope(json.Name, namescope);
     var propd;
@@ -4214,7 +4306,7 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
                 content = content.Transmute(dobj, contentPropd, "Content", this._TemplateBindingSource);
             else
                 content = this.CreateObject(json.Content, namescope, true);
-            dobj.$SetValue(contentPropd, content);
+            this.SetValue(dobj, contentPropd, content);
         }
     } else if (contentPropd != null && contentPropd.constructor === String) {
         var setFunc = dobj["Set" + contentPropd];
@@ -4252,12 +4344,15 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         if (!(propValue instanceof Expression)) {
             var targetType = propd.GetTargetType();
             if (targetType._IsNullstone && !(propValue instanceof targetType)) {
-                var setFunc = dobj["Set" + propName];
-                if (setFunc && setFunc.Converter && setFunc.Converter instanceof Function)
-                    propValue = setFunc.Converter(propValue);
+                var propDesc = Object.getOwnPropertyDescriptor(dobj, propName);
+                if (propDesc) {
+                    var setFunc = propDesc.set;
+                    if (setFunc && setFunc.Converter && setFunc.Converter instanceof Function)
+                        propValue = setFunc.Converter(propValue);
+                }
             }
         }
-        dobj.$SetValue(propd, propValue);
+        this.SetValue(dobj, propd, propValue);
     } else if (!isAttached) {
         var func = dobj["Set" + propName];
         if (func && func instanceof Function)
@@ -4307,6 +4402,12 @@ JsonParser.Instance.ResolveStaticResourceExpressions = function () {
     }
     this.$SRExpressions = [];
 };
+JsonParser.Instance.SetValue = function (dobj, propd, value) {
+    if (value instanceof Expression)
+        dobj.$SetValueInternal(propd, value);
+    else
+        dobj._SetValue(propd, value);
+};
 JsonParser.Instance.GetAnnotationMember = function (type, member) {
     if (type == null || !type._IsNullstone)
         return null;
@@ -4324,6 +4425,11 @@ JsonParser.CreateSetter = function (dobj, propName, value) {
     setter.SetValue_Prop(value);
     return setter;
 };
+JsonParser.CreateRoot = function (json) {
+    var namescope = new NameScope();
+    var parser = new JsonParser();
+    return parser.CreateObject(json, namescope);
+}
 Nullstone.FinishCreate(JsonParser);
 
 var Markup = Nullstone.Create("Markup");
@@ -4617,7 +4723,7 @@ Fayde._MediaParser.prototype.ParseGeometryImpl = function () {
     }
     var pg = new PathGeometry();
     pg.$Path = path;
-    pg.SetFillRule(fillRule);
+    pg.FillRule = fillRule;
     return pg;
 };
 Fayde._MediaParser.prototype.ParsePointCollectionImpl = function () {
@@ -4723,7 +4829,7 @@ AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
     this._TargetObj = targetobj;
     this._TargetProp = targetprop;
     var prevStorage = targetobj._AttachAnimationStorage(targetprop, this);
-    this._BaseValue = this._TargetObj.$GetValue(this._TargetProp);
+    this._BaseValue = this._TargetObj._GetValue(this._TargetProp);
     if (this._BaseValue === undefined) {
         var targetType = this._TargetProp.GetTargetType();
         if (targetType === Number)
@@ -4736,7 +4842,7 @@ AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
     if (prevStorage != null)
         this.SetStopValue(prevStorage.GetStopValue());
     else
-        this.SetStopValue(targetobj.ReadLocalValue(targetprop));
+        this.SetStopValue(targetobj._ReadLocalValue(targetprop));
 };
 AnimationStorage.Instance.GetStopValue = function () {
     return this._StopValue;
@@ -4763,7 +4869,7 @@ AnimationStorage.Instance.DetachFromObject = function () {
 AnimationStorage.Instance.ResetPropertyValue = function () {
     if (this._TargetObj == null || this._TargetProp == null)
         return;
-    this._TargetObj.$SetValue(this._TargetProp, this.GetStopValue());
+    this._TargetObj._SetValue(this._TargetProp, this.GetStopValue());
 };
 AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
     if (this._Disabled)
@@ -4776,7 +4882,7 @@ AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
 AnimationStorage.Instance.ApplyCurrentValue = function () {
     if (this._CurrentValue == null)
         return;
-    this._TargetObj.$SetValue(this._TargetProp, this._CurrentValue);
+    this._TargetObj._SetValue(this._TargetProp, this._CurrentValue);
 };
 Nullstone.FinishCreate(AnimationStorage);
 
@@ -4960,18 +5066,18 @@ Font.Instance._BuildTranslation = function () {
     var s = "";
     var style = this.GetStyle();
     var weight = this.GetWeight();
-    if (style && style !== FontStyles.Normal)
+    if (style && style !== FontStyle.Normal)
         s += style.toString() + " ";
-    if (weight && weight !== FontWeights.Normal)
+    if (weight && weight !== FontWeight.Normal)
         s += weight.toString() + " ";
     s += this.GetSize() + " ";
     s += this.GetFamily() + " ";
     return s;
 };
 Font.DEFAULT_FAMILY = "Verdana";
-Font.DEFAULT_STRETCH = FontStretches.Normal;
-Font.DEFAULT_STYLE = FontStyles.Normal;
-Font.DEFAULT_WEIGHT = FontWeights.Normal;
+Font.DEFAULT_STRETCH = FontStretch.Normal;
+Font.DEFAULT_STYLE = FontStyle.Normal;
+Font.DEFAULT_WEIGHT = FontWeight.Normal;
 Font.DEFAULT_SIZE = "11px";
 Nullstone.FinishCreate(Font);
 
@@ -5580,26 +5686,25 @@ Uri.IsNullOrEmpty = function (uri) {
 };
 Nullstone.FinishCreate(Uri);
 
-var BError = Nullstone.Create("BError");
-BError.Instance.Init = function () {
+function BError() {
     this._Number = 0;
     this.Code = 0;
     this.CharPosition = 0;
     this.LineNumber = 0;
     this.Message = "";
-};
-BError.Instance.SetErrored = function (number, message, code) {
+}
+BError.prototype.SetErrored = function (number, message, code) {
     this._Number = number;
     this.Message = message;
     this.Code = code || 0;
 };
-BError.Instance.IsErrored = function () {
+BError.prototype.IsErrored = function () {
     return this._Number > 0;
 };
-BError.Instance.toString = function () {
+BError.prototype.toString = function () {
     return "[" + this._Number + "] " + this.Message;
 };
-BError.Instance.CreateException = function () {
+BError.prototype.CreateException = function () {
     switch (this._Number) {
         case BError.Argument:
             return new ArgumentException(this.Message, this.CharPosition, this.LineNumber);
@@ -5616,7 +5721,6 @@ BError.Argument = 2;
 BError.InvalidOperation = 3;
 BError.Exception = 4;
 BError.XamlParseException = 5;
-Nullstone.FinishCreate(BError);
 
 var Closure = Nullstone.Create("Closure");
 Nullstone.FinishCreate(Closure);
@@ -5667,14 +5771,54 @@ KeyEventArgs.Instance.Init = function (modifiers, keyCode) {
 };
 Nullstone.FinishCreate(KeyEventArgs);
 
-var Exception = Nullstone.Create("Exception");
-Nullstone.FinishCreate(Exception);
-
-var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception, 1);
-InvalidOperationException.Instance.Init = function (message) {
+var Exception = Nullstone.Create("Exception", undefined, 3);
+Exception.Instance.Init = function (message, charPosition, lineNumber) {
     this.Message = message;
+    this.CharPosition = charPosition;
+    this.LineNumber = lineNumber;
+    this.name = this.constructor._TypeName;
 };
+Exception.Instance.toString = function () {
+    return this.constructor._TypeName + ": " + this.Message;
+};
+Nullstone.FinishCreate(Exception);
+var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception);
 Nullstone.FinishCreate(InvalidOperationException);
+var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 3);
+NotImplementedException.Instance.Init = function (type, parentType, methodName) {
+    var msg;
+    if (methodName)
+        msg = type._TypeName + " does not implement " + parentType._TypeName + "." + this.MethodName;
+    else
+        msg = type._TypeName + " does not implement " + parentType._TypeName;
+    this.Init$Exception(msg);
+    this.Type = type;
+    this.ParentType = parentType;
+    this.MethodName = methodName;
+};
+Nullstone.FinishCreate(NotImplementedException);
+var NotSupportedException = Nullstone.Create("NotSupportedException", Exception);
+Nullstone.FinishCreate(NotSupportedException);
+var XamlParseException = Nullstone.Create("XamlParseException", Exception);
+Nullstone.FinishCreate(XamlParseException);
+var PropertyNotImplementedException = Nullstone.Create("PropertyNotImplementedException", Exception, 3);
+PropertyNotImplementedException.Instance.Init = function (baseClass, targetClass, propertyName) {
+    var msg = "An abstract property '" + baseClass._TypeName + "." + propertyName + "' is not implemented in '" + targetClass._TypeName + "'.";
+    this.Init$Exception(msg);
+    this.BaseClass = baseClass;
+    this.TargetClass = targetClass;
+    this.PropertyName = propertyName;
+};
+Nullstone.FinishCreate(PropertyNotImplementedException);
+var PropertyCollisionException = Nullstone.Create("PropertyCollisionException", Exception, 3);
+PropertyCollisionException.Instance.Init = function (baseClass, targetClass, propertyName) {
+    var msg = "The requested property definition '" + targetClass._TypeName + "." + propertyName + "' is already defined on '" + baseClass._TypeName + "'. You must explicitly override this property.";
+    this.Init$Exception(msg);
+    this.BaseClass = baseClass;
+    this.TargetClass = targetClass;
+    this.PropertyName = propertyName;
+};
+Nullstone.FinishCreate(PropertyCollisionException);
 
 var LinkedList = Nullstone.Create("LinkedList");
 LinkedList.Instance.Init = function () {
@@ -5792,25 +5936,6 @@ MulticastEvent.Instance.RaiseAsync = function (sender, args) {
 };
 Nullstone.FinishCreate(MulticastEvent);
 
-var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 2);
-NotImplementedException.Instance.Init = function (type, parentType, methodName) {
-    this.Type = type;
-    this.ParentType = parentType;
-    this.MethodName = methodName;
-};
-NotImplementedException.Instance.toString = function () {
-    if (this.MethodName)
-        return this.Type._TypeName + " does not implement " + this.ParentType._TypeName + "." + this.MethodName;
-    return this.Type._TypeName + " does not implement " + this.ParentType._TypeName;
-};
-Nullstone.FinishCreate(NotImplementedException);
-
-var NotSupportedException = Nullstone.Create("NotSupportedException", Exception, 1);
-NotSupportedException.Instance.Init = function (message) {
-    this.Message = message;
-};
-Nullstone.FinishCreate(NotSupportedException);
-
 var RoutedEventArgs = Nullstone.Create("RoutedEventArgs", EventArgs);
 RoutedEventArgs.Instance.Init = function () {
     this.Handled = false;
@@ -5825,15 +5950,6 @@ RoutedPropertyChangedEventArgs.Instance.Init = function (oldValue, newValue) {
 };
 Nullstone.FinishCreate(RoutedPropertyChangedEventArgs);
 
-var XamlParseException = Nullstone.Create("XamlParseException", Exception, 1);
-XamlParseException.Instance.Init = function (message) {
-    this.Message = message;
-};
-XamlParseException.Instance.toString = function () {
-    return "Xaml Parse Exception: " + this.Message;
-};
-Nullstone.FinishCreate(XamlParseException);
-
 var _TextLayoutAttributes = Nullstone.Create("_TextLayoutAttributes", null, 2);
 _TextLayoutAttributes.Instance.Init = function (source, start) {
     this._Source = source;
@@ -5841,17 +5957,17 @@ _TextLayoutAttributes.Instance.Init = function (source, start) {
 };
 _TextLayoutAttributes.Instance.GetBackground = function (selected) {
     if (selected)
-        return this._Source.GetSelectionBackground();
+        return this._Source.SelectionBackground;
     return null;
 };
 _TextLayoutAttributes.Instance.GetForeground = function (selected) {
     if (selected)
-        return this._Source.GetSelectionForeground();
-    return this._Source.GetForeground(selected);
+        return this._Source.SelectionForeground;
+    return this._Source.Foreground;
 };
 _TextLayoutAttributes.Instance.GetFont = function () { return this._Source.GetFont(); };
 _TextLayoutAttributes.Instance.GetDirection = function () { return this._Source.GetDirection(); };
-_TextLayoutAttributes.Instance.IsUnderlined = function () { return this._Source.GetTextDecorations() & TextDecorations.Underline; };
+_TextLayoutAttributes.Instance.IsUnderlined = function () { return this._Source.TextDecorations & TextDecorations.Underline; };
 Nullstone.FinishCreate(_TextLayoutAttributes);
 
 var _TextBoxUndoAction = Nullstone.Create("_TextBoxUndoAction", LinkedListNode);
@@ -5896,6 +6012,61 @@ _TextBoxUndoActionReplace.Instance.Init = function (selectionAnchor, selectionCu
 };
 Nullstone.FinishCreate(_TextBoxUndoActionReplace);
 
+var NotifyCollectionChangedEventArgs = Nullstone.Create("NotifyCollectionChangedEventArgs", EventArgs);
+NotifyCollectionChangedEventArgs.Instance.Init = function (args) {
+    if (args.length === 1) {
+        if (args[0] !== NotifyCollectionChangedAction.Reset)
+            throw new NotSupportedException();
+        this._Action = args[0];
+        this._OldStartingIndex = -1;
+        this._NewStartingIndex = -1;
+    } else if (args.length === 3) {
+        switch (args[0]) {
+            case NotifyCollectionChangedAction.Add:
+                this._NewItems = [];
+                this._NewItems.push(args[1]);
+                this._NewStartingIndex = args[2];
+                this._OldStartingIndex = -1;
+                break;
+            case NotifyCollectionChangedAction.Remove:
+                this._OldItems = [];
+                this._OldItems.push(args[1]);
+                this._OldStartingIndex = args[2];
+                this._NewStartingIndex = -1;
+                break;
+            default:
+                throw new NotSupportedException();
+        }
+        this._Action = args[0];
+    } else if (args.length === 4) {
+        if (args[0] !== NotifyCollectionChangedAction.Replace)
+            throw new NotSupportedException();
+        this._Action = args[0];
+        this._NewItems = [];
+        this._NewItems.push(args[1]);
+        this._OldItems = [];
+        this._OldItems.push(args[2]);
+        this._NewStartingIndex = args[3];
+        this._OldStartingIndex = -1;
+    }
+};
+NotifyCollectionChangedEventArgs.Instance.GetAction = function () {
+    return this._Action;
+};
+NotifyCollectionChangedEventArgs.Instance.GetNewItems = function () {
+    return this._NewItems;
+};
+NotifyCollectionChangedEventArgs.Instance.GetOldItems = function () {
+    return this._OldItems;
+};
+NotifyCollectionChangedEventArgs.Instance.GetOldStartingIndex = function () {
+    return this._OldStartingIndex;
+};
+NotifyCollectionChangedEventArgs.Instance.GetNewStartingIndex = function () {
+    return this._NewStartingIndex;
+};
+Nullstone.FinishCreate(NotifyCollectionChangedEventArgs);
+
 var DragCompletedEventArgs = Nullstone.Create("DragCompletedEventArgs", RoutedEventArgs, 3);
 DragCompletedEventArgs.Instance.Init = function (horizontal, vertical, canceled) {
     this.HorizontalChange = horizontal;
@@ -5925,74 +6096,50 @@ ScrollEventArgs.Instance.Init = function (scrollEventType, value) {
 };
 Nullstone.FinishCreate(ScrollEventArgs);
 
-var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);
-FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
-    this._ActualHeight = null;
-    this._ActualWidth = null;
-    this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
-};
-FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (propd._ID !== FrameworkElement.ActualHeightProperty._ID && propd._ID !== FrameworkElement.ActualWidthProperty._ID)
-        return undefined;
-    var actual = this._Object._ComputeActualSize();
-    if (!Size.Equals(this._Last, actual)) {
-        this._Last = actual;
-        this._ActualHeight = actual.Height;
-        this._ActualWidth = actual.Width;
-    }
-    if (propd === FrameworkElement.ActualHeightProperty) {
-        return this._ActualHeight;
-    } else {
-        return this._ActualWidth;
-    }
-};
-Nullstone.FinishCreate(FrameworkElementPropertyValueProvider);
-
 var LayoutInformation = Nullstone.Create("LayoutInformation");
-LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttached("LayoutClip", function () { return Geometry; }, LayoutInformation);
+LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Geometry; }, LayoutInformation);
 LayoutInformation.GetLayoutClip = function (d) {
     return d.$GetValue(LayoutInformation.LayoutClipProperty);
 };
 LayoutInformation.SetLayoutClip = function (d, value) {
     d.$SetValue(LayoutInformation.LayoutClipProperty, value);
 };
-LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttached("LayoutExceptionElement", function () { return UIElement; }, LayoutInformation);
+LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttachedCore("LayoutExceptionElement", function () { return UIElement; }, LayoutInformation);
 LayoutInformation.GetLayoutExceptionElement = function (d) {
     return d.$GetValue(LayoutInformation.LayoutExceptionElementProperty);
 };
 LayoutInformation.SetLayoutExceptionElement = function (d, value) {
     d.$SetValue(LayoutInformation.LayoutExceptionElementProperty, value);
 };
-LayoutInformation.LayoutSlotProperty = DependencyProperty.RegisterAttached("LayoutSlot", function () { return Rect; }, LayoutInformation, new Rect());
+LayoutInformation.LayoutSlotProperty = DependencyProperty.RegisterAttachedCore("LayoutSlot", function () { return Rect; }, LayoutInformation, new Rect());
 LayoutInformation.GetLayoutSlot = function (d) {
     return d.$GetValue(LayoutInformation.LayoutSlotProperty);
 };
 LayoutInformation.SetLayoutSlot = function (d, value) {
     d.$SetValue(LayoutInformation.LayoutSlotProperty, value);
 };
-LayoutInformation.PreviousConstraintProperty = DependencyProperty.RegisterAttached("PreviousConstraint", function () { return Size; }, LayoutInformation);
+LayoutInformation.PreviousConstraintProperty = DependencyProperty.RegisterAttachedCore("PreviousConstraint", function () { return Size; }, LayoutInformation);
 LayoutInformation.GetPreviousConstraint = function (d) {
     return d.$GetValue(LayoutInformation.PreviousConstraintProperty);
 };
 LayoutInformation.SetPreviousConstraint = function (d, value) {
     d.$SetValue(LayoutInformation.PreviousConstraintProperty, value);
 };
-LayoutInformation.FinalRectProperty = DependencyProperty.RegisterAttached("FinalRect", function () { return Rect; }, LayoutInformation);
+LayoutInformation.FinalRectProperty = DependencyProperty.RegisterAttachedCore("FinalRect", function () { return Rect; }, LayoutInformation);
 LayoutInformation.GetFinalRect = function (d) {
     return d.$GetValue(LayoutInformation.FinalRectProperty);
 };
 LayoutInformation.SetFinalRect = function (d, value) {
     d.$SetValue(LayoutInformation.FinalRectProperty, value);
 };
-LayoutInformation.LastRenderSizeProperty = DependencyProperty.RegisterAttached("LastRenderSize", function () { return Size; }, LayoutInformation);
+LayoutInformation.LastRenderSizeProperty = DependencyProperty.RegisterAttachedCore("LastRenderSize", function () { return Size; }, LayoutInformation);
 LayoutInformation.GetLastRenderSize = function (d) {
     return d.$GetValue(LayoutInformation.LastRenderSizeProperty);
 };
 LayoutInformation.SetLastRenderSize = function (d, value) {
     d.$SetValue(LayoutInformation.LastRenderSizeProperty, value);
 };
-LayoutInformation.VisualOffsetProperty = DependencyProperty.RegisterAttached("VisualOffset", function () { return Point; }, LayoutInformation);
+LayoutInformation.VisualOffsetProperty = DependencyProperty.RegisterAttachedCore("VisualOffset", function () { return Point; }, LayoutInformation);
 LayoutInformation.GetVisualOffset = function (d) {
     return d.$GetValue(LayoutInformation.VisualOffsetProperty);
 };
@@ -6041,12 +6188,12 @@ _AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var value = this.ReadLocalValue(propd);
     if (value !== undefined)
         return value;
-    value = propd._IsAutoCreated ? propd._GetAutoCreatedValue(this._Object) : null;
-    if (value == null)
-        return null;
+    value = propd._IsAutoCreated ? propd._GetAutoCreatedValue(this._Object) : undefined;
+    if (value === undefined)
+        return undefined;
     this._ht[propd] = value;
     var error = new BError();
-    this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, null, value, false, true, false, error);
+    this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, undefined, value, false, true, false, error);
     return value;
 };
 _AutoCreatePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
@@ -6071,6 +6218,30 @@ _DefaultValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) 
 };
 Nullstone.FinishCreate(_DefaultValuePropertyValueProvider);
 
+var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);
+FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
+    this._ActualHeight = null;
+    this._ActualWidth = null;
+    this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+};
+FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
+    if (propd._ID !== FrameworkElement.ActualHeightProperty._ID && propd._ID !== FrameworkElement.ActualWidthProperty._ID)
+        return undefined;
+    var actual = this._Object._ComputeActualSize();
+    if (!Size.Equals(this._Last, actual)) {
+        this._Last = actual;
+        this._ActualHeight = actual.Height;
+        this._ActualWidth = actual.Width;
+    }
+    if (propd === FrameworkElement.ActualHeightProperty) {
+        return this._ActualHeight;
+    } else {
+        return this._ActualWidth;
+    }
+};
+Nullstone.FinishCreate(FrameworkElementPropertyValueProvider);
+
 var _ImplicitStylePropertyValueProvider = Nullstone.Create("_ImplicitStylePropertyValueProvider", _PropertyValueProvider, 2);
 _ImplicitStylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
@@ -6082,20 +6253,20 @@ _ImplicitStylePropertyValueProvider.Instance.GetPropertyValue = function (propd)
     return this._ht[propd];
 };
 _ImplicitStylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
-    if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
+    if ((providerFlags & _ProviderFlags.RecomputesOnClear) === 0)
         return;
     if (!this._Styles)
         return;
-    var oldValue = undefined;
-    var newValue = null;
-    var propd = null;
+    var oldValue;
+    var newValue;
+    var prop;
     var walker = new _DeepStyleWalker(this._Styles);
     var setter;
     while (setter = walker.Step()) {
-        propd = setter.$GetValue(Setter.PropertyProperty);
-        if (propd != propd)
+        prop = setter._GetValue(Setter.PropertyProperty);
+        if (prop._ID !== propd._ID)
             continue;
-        newValue = setter.$GetValue(Setter.ConvertedValueProperty);
+        newValue = setter._GetValue(Setter.ConvertedValueProperty);
         oldValue = this._ht[propd];
         this._ht[propd] = newValue;
         this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, oldValue, newValue, true, true, true, error);
@@ -6115,8 +6286,8 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
     }
     if (!isChanged)
         return;
-    var oldValue = undefined;
-    var newValue = undefined;
+    var oldValue;
+    var newValue;
     var oldWalker = new _DeepStyleWalker(this._Styles);
     var newWalker = new _DeepStyleWalker(styles);
     var oldSetter = oldWalker.Step();
@@ -6125,26 +6296,26 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
         var oldProp;
         var newProp;
         if (oldSetter)
-            oldProp = oldSetter.$GetValue(Setter.PropertyProperty);
+            oldProp = oldSetter._GetValue(Setter.PropertyProperty);
         if (newSetter)
-            newProp = newSetter.$GetValue(Setter.PropertyProperty);
+            newProp = newSetter._GetValue(Setter.PropertyProperty);
         if (oldProp && (oldProp < newProp || !newProp)) { //WTF: Less than?
-            oldValue = oldSetter.$GetValue(Setter.ConvertedValueProperty);
-            newValue = null;
+            oldValue = oldSetter._GetValue(Setter.ConvertedValueProperty);
+            newValue = undefined;
             delete this._ht[oldProp];
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
         }
         else if (oldProp == newProp) {
-            oldValue = oldSetter.$GetValue(Setter.ConvertedValueProperty);
-            newValue = newSetter.$GetValue(Setter.ConvertedValueProperty);
+            oldValue = oldSetter._GetValue(Setter.ConvertedValueProperty);
+            newValue = newSetter._GetValue(Setter.ConvertedValueProperty);
             this._ht[oldProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, oldProp, oldValue, newValue, true, true, false, error);
             oldSetter = oldWalker.Step();
             newSetter = newWalker.Step();
         } else {
-            oldValue = null;
-            newValue = newSetter.$GetValue(Setter.ConvertedValueProperty);
+            oldValue = undefined;
+            newValue = newSetter._GetValue(Setter.ConvertedValueProperty);
             this._ht[newProp] = newValue;
             this._Object._ProviderValueChanged(this._PropertyPrecedence, newProp, oldValue, newValue, true, true, false, error);
             newSetter = newWalker.Step();
@@ -6190,15 +6361,15 @@ _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPr
     this._Source = null;
 };
 _InheritedDataContextPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (!this._Source || propd !== FrameworkElement.DataContextProperty)
-        return null;
-    return this._Source.$GetValue(propd);
+    if (!this._Source || propd._ID !== FrameworkElement.DataContextProperty._ID)
+        return undefined;
+    return this._Source._GetValue(propd);
 };
 _InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (source) {
     if (Nullstone.RefEquals(this._Source, source))
         return;
-    var oldValue = this._Source != null ? this._Source.$GetValue(FrameworkElement.DataContextProperty) : null;
-    var newValue = source != null ? source.$GetValue(FrameworkElement.DataContextProperty) : null;
+    var oldValue = this._Source ? this._Source._GetValue(FrameworkElement.DataContextProperty) : undefined;
+    var newValue = source ? source._GetValue(FrameworkElement.DataContextProperty) : undefined;
     this._DetachListener(this._Source);
     this._Source = source;
     this._AttachListener(this._Source);
@@ -6208,16 +6379,16 @@ _InheritedDataContextPropertyValueProvider.Instance.SetDataSource = function (so
     }
 };
 _InheritedDataContextPropertyValueProvider.Instance._AttachListener = function (source) {
-    if (source != null) {
+    if (source) {
         this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
     }
 };
 _InheritedDataContextPropertyValueProvider.Instance._DetachListener = function (source) {
-    if (this._DataContextListener != null) {
+    if (this._DataContextListener) {
         this._DataContextListener.Detach();
-        this._DataContextListener = null;
+        delete this._DataContextListener;
     }
-    if (source != null) {
+    if (source) {
     }
 };
 _InheritedDataContextPropertyValueProvider.Instance._SourceDataContextChanged = function (sender, args) {
@@ -6225,9 +6396,9 @@ _InheritedDataContextPropertyValueProvider.Instance._SourceDataContextChanged = 
     this._Object._ProviderValueChanged(this._PropertyPrecedence, args.Property, args.OldValue, args.NewValue, true, false, false, error);
 };
 _InheritedDataContextPropertyValueProvider.Instance.EmitChanged = function () {
-    if (this._Source != null) {
+    if (this._Source) {
         var error = new BError();
-        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, null, this._Source.$GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
+        this._Object._ProviderValueChanged(this._PropertyPrecedence, FrameworkElement.DataContextProperty, undefined, this._Source._GetValue(FrameworkElement.DataContextProperty), true, false, false, error);
     }
 };
 Nullstone.FinishCreate(_InheritedDataContextPropertyValueProvider);
@@ -6236,12 +6407,12 @@ var _InheritedIsEnabledPropertyValueProvider = Nullstone.Create("_InheritedIsEna
 _InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
     this._Source = null;
-    this._CurrentValue = this._Object.$GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+    this._CurrentValue = this._Object._GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
 };
 _InheritedIsEnabledPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (propd === Control.IsEnabledProperty)
+    if (propd._ID === Control.IsEnabledProperty._ID)
         return this._CurrentValue;
-    return null;
+    return undefined;
 };
 _InheritedIsEnabledPropertyValueProvider.Instance.SetDataSource = function (source) {
     if (source) {
@@ -6254,15 +6425,15 @@ _InheritedIsEnabledPropertyValueProvider.Instance.SetDataSource = function (sour
                 source = null;
         }
     }
-    if (this._Source != source) {
+    if (!Nullstone.RefEquals(this._Source, source)) {
         this._DetachListener(this._Source);
         this._Source = source;
         this._AttachListener(this._Source);
     }
-    if (!source || this._Object.IsAttached())
-        this.LocalValueChanged(null);
+    if (!source || this._Object._IsAttached)
+        this.LocalValueChanged();
 };
-_InheritedIsEnabledPropertyValueProvider.Instance._AttachListener = function (obj) {
+_InheritedIsEnabledPropertyValueProvider.Instance._AttachListener = function (source) {
     if (source) {
         var matchFunc = function (sender, args) {
             return this === args.Property; //Closure - Control.IsEnabledProperty
@@ -6279,12 +6450,12 @@ _InheritedIsEnabledPropertyValueProvider.Instance._IsEnabledChanged = function (
     this.LocalValueChanged(args.Property);
 };
 _InheritedIsEnabledPropertyValueProvider.Instance.LocalValueChanged = function (propd) {
-    if (propd && propd !== Control.IsEnabledProperty)
+    if (propd && propd._ID !== Control.IsEnabledProperty._ID)
         return false;
-    var localEnabled = this._Object.$GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source.$GetValue(Control.IsEnabledProperty) : null;
-    var newValue = localEnabled == true && (parentEnabled == null || parentEnabled == true);
-    if (newValue != this._CurrentValue) {
+    var localEnabled = this._Object._GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+    var parentEnabled = this._Source && this._Object.GetVisualParent() ? this._Source._GetValue(Control.IsEnabledProperty) : undefined;
+    var newValue = localEnabled === true && (!parentEnabled || parentEnabled === true);
+    if (newValue !== this._CurrentValue) {
         var oldValue = this._CurrentValue;
         this._CurrentValue = newValue;
         var error = new BError();
@@ -6299,15 +6470,17 @@ var _InheritedPropertyValueProvider = Nullstone.Create("_InheritedPropertyValueP
 _InheritedPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
     this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
     this._ht = [];
+    this._GetInheritableFunc = _InheritedPropertyValueProvider.GetInheritable;
+    this._GetPropertyFunc = _InheritedPropertyValueProvider.GetProperty;
 };
 _InheritedPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (!_InheritedPropertyValueProvider.IsInherited(this._Object, propd))
+    if (!this._GetInheritableFunc(this._Object, propd))
         return undefined;
     var inheritable = _InheritedPropertyValueProvider.GetInheritable(this._Object, propd);
     var ancestor = this._GetPropertySource(inheritable);
     if (!ancestor)
         return undefined;
-    var ancestorPropd = _InheritedPropertyValueProvider.GetProperty(inheritable, ancestor);
+    var ancestorPropd = this._GetPropertyFunc(inheritable, ancestor);
     if (!ancestorPropd)
         return undefined;
     var v = ancestor.$GetValue(ancestorPropd);
@@ -6337,7 +6510,7 @@ _InheritedPropertyValueProvider.Instance.WalkSubtree = function (rootParent, ele
         }
     }
     if (element instanceof Popup) {
-        var child = element.GetChild();
+        var child = element.Child;
         if (child)
             this.WalkTree(rootParent, element, conte, props, adding);
     }
@@ -6350,40 +6523,41 @@ _InheritedPropertyValueProvider.Instance.WalkSubtree = function (rootParent, ele
     }
 };
 _InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, element, context, props, adding) {
-    if (props == _Inheritable.None)
+    var inhEnum = _Inheritable;
+    if (props === inhEnum.None)
         return;
     if (adding) {
-        this.MaybePropagateInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
-        this.MaybePropagateInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
-        this.MaybePropagateInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
-        this.MaybePropagateInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
-        this.MaybePropagateInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
-        this.MaybePropagateInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
-        this.MaybePropagateInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
-        this.MaybePropagateInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
-        this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
-        this.MaybePropagateInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
-        this.MaybePropagateInheritedValue(context.FontResourceSource, _Inheritable.FontResource, props, element);
+        this.MaybePropagateInheritedValue(context.ForegroundSource, inhEnum.Foreground, props, element);
+        this.MaybePropagateInheritedValue(context.FontFamilySource, inhEnum.FontFamily, props, element);
+        this.MaybePropagateInheritedValue(context.FontStretchSource, inhEnum.FontStretch, props, element);
+        this.MaybePropagateInheritedValue(context.FontStyleSource, inhEnum.FontStyle, props, element);
+        this.MaybePropagateInheritedValue(context.FontWeightSource, inhEnum.FontWeight, props, element);
+        this.MaybePropagateInheritedValue(context.FontSizeSource, inhEnum.FontSize, props, element);
+        this.MaybePropagateInheritedValue(context.LanguageSource, inhEnum.Language, props, element);
+        this.MaybePropagateInheritedValue(context.FlowDirectionSource, inhEnum.FlowDirection, props, element);
+        this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, inhEnum.UseLayoutRounding, props, element);
+        this.MaybePropagateInheritedValue(context.TextDecorationsSource, inhEnum.TextDecorations, props, element);
+        this.MaybePropagateInheritedValue(context.FontResourceSource, inhEnum.FontResource, props, element);
         var eleContext = new _InheritedContext(element, context);
         props = eleContext.Compare(context, props);
-        if (props == _Inheritable.None)
+        if (props === inhEnum.None)
             return;
         this.WalkSubtree(rootParent, element, eleContext, props, adding);
     } else {
         var eleContext2 = new _InheritedContext(element, context);
-        this.MaybeRemoveInheritedValue(context.ForegroundSource, _Inheritable.Foreground, props, element);
-        this.MaybeRemoveInheritedValue(context.FontFamilySource, _Inheritable.FontFamily, props, element);
-        this.MaybeRemoveInheritedValue(context.FontStretchSource, _Inheritable.FontStretch, props, element);
-        this.MaybeRemoveInheritedValue(context.FontStyleSource, _Inheritable.FontStyle, props, element);
-        this.MaybeRemoveInheritedValue(context.FontWeightSource, _Inheritable.FontWeight, props, element);
-        this.MaybeRemoveInheritedValue(context.FontSizeSource, _Inheritable.FontSize, props, element);
-        this.MaybeRemoveInheritedValue(context.LanguageSource, _Inheritable.Language, props, element);
-        this.MaybeRemoveInheritedValue(context.FlowDirectionSource, _Inheritable.FlowDirection, props, element);
-        this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, _Inheritable.UseLayoutRounding, props, element);
-        this.MaybeRemoveInheritedValue(context.TextDecorationsSource, _Inheritable.TextDecorations, props, element);
-        this.MaybeRemoveInheritedValue(context.FontResourceSource, _Inheritable.FontResource, props, element);
+        this.MaybeRemoveInheritedValue(context.ForegroundSource, inhEnum.Foreground, props, element);
+        this.MaybeRemoveInheritedValue(context.FontFamilySource, inhEnum.FontFamily, props, element);
+        this.MaybeRemoveInheritedValue(context.FontStretchSource, inhEnum.FontStretch, props, element);
+        this.MaybeRemoveInheritedValue(context.FontStyleSource, inhEnum.FontStyle, props, element);
+        this.MaybeRemoveInheritedValue(context.FontWeightSource, inhEnum.FontWeight, props, element);
+        this.MaybeRemoveInheritedValue(context.FontSizeSource, inhEnum.FontSize, props, element);
+        this.MaybeRemoveInheritedValue(context.LanguageSource, inhEnum.Language, props, element);
+        this.MaybeRemoveInheritedValue(context.FlowDirectionSource, inhEnum.FlowDirection, props, element);
+        this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, inhEnum.UseLayoutRounding, props, element);
+        this.MaybeRemoveInheritedValue(context.TextDecorationsSource, inhEnum.TextDecorations, props, element);
+        this.MaybeRemoveInheritedValue(context.FontResourceSource, inhEnum.FontResource, props, element);
         props = eleContext2.Compare(context, props);
-        if (props == _Inheritable.None)
+        if (props === inhEnum.None)
             return;
         this.WalkSubtree(rootParent, element, context, props, adding);
     }
@@ -6391,7 +6565,7 @@ _InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, elemen
 _InheritedPropertyValueProvider.Instance.MaybePropagateInheritedValue = function (source, prop, props, element) {
     if (!source) return;
     if ((props & prop) == 0) return;
-    var sourceProperty = _InheritedPropertyValueProvider.GetProperty(prop, source);
+    var sourceProperty = this._GetPropertyFunc(prop, source);
     var value = source.$GetValue(sourceProperty);
     if (value)
         element._PropagateInheritedValue(prop, source, value);
@@ -6399,45 +6573,47 @@ _InheritedPropertyValueProvider.Instance.MaybePropagateInheritedValue = function
 _InheritedPropertyValueProvider.Instance.MaybeRemoveInheritedValue = function (source, prop, props, element) {
     if (!source) return;
     if ((props & prop) == 0) return;
-    if (source == element._GetInheritedValueSource(prop))
-        element._PropagateInheritedValue(prop, null, null);
+    if (Nullstone.RefEquals(source, element._GetInheritedValueSource(prop)))
+        element._PropagateInheritedValue(prop, undefined, undefined);
 };
 _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
+    var inhEnum = _Inheritable;
     var baseContext = new _InheritedContext(
-            this._GetPropertySource(_Inheritable.Foreground),
-            this._GetPropertySource(_Inheritable.FontFamily),
-            this._GetPropertySource(_Inheritable.FontStretch),
-            this._GetPropertySource(_Inheritable.FontStyle),
-            this._GetPropertySource(_Inheritable.FontWeight),
-            this._GetPropertySource(_Inheritable.FontSize),
-            this._GetPropertySource(_Inheritable.Language),
-            this._GetPropertySource(_Inheritable.FlowDirection),
-            this._GetPropertySource(_Inheritable.UseLayoutRounding),
-            this._GetPropertySource(_Inheritable.TextDecorations),
-            this._GetPropertySource(_Inheritable.FontResource));
+            this._GetPropertySource(inhEnum.Foreground),
+            this._GetPropertySource(inhEnum.FontFamily),
+            this._GetPropertySource(inhEnum.FontStretch),
+            this._GetPropertySource(inhEnum.FontStyle),
+            this._GetPropertySource(inhEnum.FontWeight),
+            this._GetPropertySource(inhEnum.FontSize),
+            this._GetPropertySource(inhEnum.Language),
+            this._GetPropertySource(inhEnum.FlowDirection),
+            this._GetPropertySource(inhEnum.UseLayoutRounding),
+            this._GetPropertySource(inhEnum.TextDecorations),
+            this._GetPropertySource(inhEnum.FontResource));
     var objContext = new _InheritedContext(this._Object, baseContext);
-    this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, true);
+    this.WalkTree(this._Object, subtree, objContext, inhEnum.All, true);
 };
 _InheritedPropertyValueProvider.Instance.PropagateInheritedProperty = function (propd, source, subtree) {
-    var inheritable = _InheritedPropertyValueProvider.GetInheritable(source, propd);
-    var objContext = new _InheritedContext(this._Object, null);
+    var inheritable = this._GetInheritableFunc(source, propd);
+    var objContext = new _InheritedContext(this._Object);
     this.WalkSubtree(source, subtree, objContext, inheritable, true);
 };
 _InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
+    var inhEnum = _Inheritable;
     var baseContext = new _InheritedContext(
-            this._GetPropertySource(_Inheritable.Foreground),
-            this._GetPropertySource(_Inheritable.FontFamily),
-            this._GetPropertySource(_Inheritable.FontStretch),
-            this._GetPropertySource(_Inheritable.FontStyle),
-            this._GetPropertySource(_Inheritable.FontWeight),
-            this._GetPropertySource(_Inheritable.FontSize),
-            this._GetPropertySource(_Inheritable.Language),
-            this._GetPropertySource(_Inheritable.FlowDirection),
-            this._GetPropertySource(_Inheritable.UseLayoutRounding),
-            this._GetPropertySource(_Inheritable.TextDecorations),
-            this._GetPropertySource(_Inheritable.FontResource));
+            this._GetPropertySource(inhEnum.Foreground),
+            this._GetPropertySource(inhEnum.FontFamily),
+            this._GetPropertySource(inhEnum.FontStretch),
+            this._GetPropertySource(inhEnum.FontStyle),
+            this._GetPropertySource(inhEnum.FontWeight),
+            this._GetPropertySource(inhEnum.FontSize),
+            this._GetPropertySource(inhEnum.Language),
+            this._GetPropertySource(inhEnum.FlowDirection),
+            this._GetPropertySource(inhEnum.UseLayoutRounding),
+            this._GetPropertySource(inhEnum.TextDecorations),
+            this._GetPropertySource(inhEnum.FontResource));
     var objContext = new _InheritedContext(this._Object, baseContext);
-    this.WalkTree(this._Object, subtree, objContext, _Inheritable.All, false);
+    this.WalkTree(this._Object, subtree, objContext, inhEnum.All, false);
 };
 _InheritedPropertyValueProvider.Instance._GetPropertySource = function (inheritableOrProp) {
     if (inheritableOrProp instanceof DependencyProperty)
@@ -6450,179 +6626,134 @@ _InheritedPropertyValueProvider.Instance._SetPropertySource = function (inherita
     else
         delete this._ht[inheritable];
 };
-_InheritedPropertyValueProvider.IsInherited = function (obj, propd) {
-    var inheritable = _InheritedPropertyValueProvider.GetInheritable(obj, propd);
-    return inheritable != _Inheritable.None;
-};
 _InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
     var inh = propd._CachedInheritable;
     if (inh == null) {
-        inh = _InheritedPropertyValueProvider._DeriveInheritable(obj, propd);
+        var inhProvider = _InheritedPropertyValueProvider;
+        inhProvider._InitializeMappings();
+        inh = inhProvider._PropertyToInheritable[propd._ID];
+        if (!inh) {
+            inh = 0;
+        } else if (propd.Name === "FlowDirection" && (obj instanceof Image || obj instanceof MediaElement)) {
+            inh = 0;
+        }
         if (propd._ID !== FrameworkElement.FlowDirectionProperty._ID)
             propd._CachedInheritable = inh;
     }
     return inh;
 };
-_InheritedPropertyValueProvider._DeriveInheritable = function (obj, propd) {
-    if (propd.OwnerType._TypeID === Control._TypeID) {
-        switch (propd._ID) {
-            case Control.ForegroundProperty._ID:
-                return _Inheritable.Foreground;
-            case Control.FontFamilyProperty._ID:
-                return _Inheritable.FontFamily;
-            case Control.FontStretchProperty._ID:
-                return _Inheritable.FontStretch;
-            case Control.FontStyleProperty._ID:
-                return _Inheritable.FontStyle;
-            case Control.FontWeightProperty._ID:
-                return _Inheritable.FontWeight;
-            case Control.FontSizeProperty._ID:
-                return _Inheritable.FontSize;
-            default:
-                return _Inheritable.None;
-        }
-    }
-    if (propd.OwnerType._TypeID === TextBlock._TypeID) {
-        switch (propd._ID) {
-            case TextBlock.ForegroundProperty._ID:
-                return _Inheritable.Foreground;
-            case TextBlock.FontFamilyProperty._ID:
-                return _Inheritable.FontFamily;
-            case TextBlock.FontStretchProperty._ID:
-                return _Inheritable.FontStretch;
-            case TextBlock.FontStyleProperty._ID:
-                return _Inheritable.FontStyle;
-            case TextBlock.FontWeightProperty._ID:
-                return _Inheritable.FontWeight;
-            case TextBlock.FontSizeProperty._ID:
-                return _Inheritable.FontSize;
-            case TextBlock.TextDecorationsProperty._ID:
-                return _Inheritable.TextDecorations;
-            case TextBlock.FontResourceProperty._ID:
-                return _Inheritable.FontResource;
-            default:
-                return _Inheritable.None;
-        }
-    }
-    if (propd.OwnerType._TypeID === TextElement._TypeID) {
-        switch (propd._ID) {
-            case TextElement.ForegroundProperty._ID:
-                return _Inheritable.Foreground;
-            case TextElement.FontFamilyProperty._ID:
-                return _Inheritable.FontFamily;
-            case TextElement.FontStretchProperty._ID:
-                return _Inheritable.FontStretch;
-            case TextElement.FontStyleProperty._ID:
-                return _Inheritable.FontStyle;
-            case TextElement.FontWeightProperty._ID:
-                return _Inheritable.FontWeight;
-            case TextElement.FontSizeProperty._ID:
-                return _Inheritable.FontSize;
-            case TextElement.LanguageProperty._ID:
-                return _Inheritable.Language;
-            case TextElement.TextDecorationsProperty._ID:
-                return _Inheritable.TextDecorations;
-            case TextElement.FontResourceProperty._ID:
-                return _Inheritable.FontResource;
-            default:
-                return _Inheritable.None;
-        }
-    }
-    switch (propd._ID) {
-        case FrameworkElement.LanguageProperty._ID:
-            return _Inheritable.Language;
-        case FrameworkElement.FlowDirectionProperty._ID:
-            if (!(obj instanceof Image) && !(obj instanceof MediaElement))
-                return _Inheritable.FlowDirection;
-        case Run.FlowDirectionProperty._ID:
-            return _Inheritable.FlowDirection;
-        case UIElement.UseLayoutRoundingProperty._ID:
-            return _Inheritable.UseLayoutRounding;
-    }
-    return _Inheritable.None;
-};
 _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
-    switch (inheritable) {
-        case _Inheritable.Foreground:
-            if (ancestor instanceof Control)
-                return Control.ForegroundProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.ForegroundProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.ForegroundProperty;
-            break;
-        case _Inheritable.FontFamily:
-            if (ancestor instanceof Control)
-                return Control.FontFamilyProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontFamilyProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontFamilyProperty;
-            break;
-        case _Inheritable.FontStretch:
-            if (ancestor instanceof Control)
-                return Control.FontStretchProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontStretchProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontStretchProperty;
-            break;
-        case _Inheritable.FontStyle:
-            if (ancestor instanceof Control)
-                return Control.FontStyleProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontStyleProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontStyleProperty;
-            break;
-        case _Inheritable.FontWeight:
-            if (ancestor instanceof Control)
-                return Control.FontWeightProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontWeightProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontWeightProperty;
-            break;
-        case _Inheritable.FontSize:
-            if (ancestor instanceof Control)
-                return Control.FontSizeProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontSizeProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.FontSizeProperty;
-            break;
-        case _Inheritable.Language:
-            if (ancestor instanceof FrameworkElement)
-                return FrameworkElement.LanguageProperty;
-            else if (ancestor instanceof TextElement)
-                return TextElement.LanguageProperty;
-            break;
-        case _Inheritable.FlowDirection:
-            if (ancestor instanceof FrameworkElement) {
-                if (ancestor instanceof Image || ancestor instanceof MediaElement)
-                    return null;
-                return FrameworkElement.FlowDirectionProperty;
-            } else if (ancestor instanceof Run)
-                return Run.FlowDirectionProperty;
-            break;
-        case _Inheritable.UseLayoutRounding:
-            if (ancestor instanceof UIElement)
-                return UIElement.UseLayoutRoundingProperty;
-            break;
-        case _Inheritable.TextDecorations:
-            if (ancestor instanceof TextElement)
-                return TextElement.TextDecorationsProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.TextDecorationsProperty;
-            break;
-        case _Inheritable.FontResource:
-            if (ancestor instanceof TextElement)
-                return TextElement.FontResourceProperty;
-            else if (ancestor instanceof TextBlock)
-                return TextBlock.FontResourceProperty;
-            break;
+    var c = Control;
+    var tb = TextBlock;
+    var te = TextElement;
+    var fe = FrameworkElement;
+    var inhProvider = _InheritedPropertyValueProvider;
+    inhProvider._InitializeMappings();
+    var propdGroup = inhProvider._InheritableToProperty[inheritable];
+    if (!propdGroup)
+                    return undefined;
+    for (var typeID in propdGroup) {
+        var propd = propdGroup[typeID];
+        if (!propd) {
+            if (ancestor instanceof Fayde.Image || ancestor instanceof MediaElement)
+                return null;
+            continue;
+        }
+        if (ancestor instanceof propd.OwnerType)
+            return propd;
     }
     return null;
+};
+_InheritedPropertyValueProvider._InitializeMappings = function () {
+    var inhProvider = _InheritedPropertyValueProvider;
+    if (!inhProvider._InheritableToProperty) {
+        var inhEnum = _Inheritable;
+        var c = Control;
+        var tb = TextBlock;
+        var te = TextElement;
+        var fe = FrameworkElement;
+        var r = Run;
+        var uie = UIElement;
+        var cKey = c._TypeID;
+        var tbKey = tb._TypeID;
+        var teKey = te._TypeID;
+        var feKey = fe._TypeID;
+        var itp = {};
+        var cur = {};
+        cur[cKey] = c.ForegroundProperty;
+        cur[tbKey] = tb.ForegroundProperty;
+        cur[teKey] = te.ForegroundProperty;
+        itp[inhEnum.Foreground] = cur;
+        var cur = {};
+        cur[cKey] = c.FontFamilyProperty;
+        cur[tbKey] = tb.FontFamilyProperty;
+        cur[teKey] = te.FontFamilyProperty;
+        itp[inhEnum.FontFamily] = cur;
+        var cur = {};
+        cur[cKey] = c.FontStretchProperty;
+        cur[tbKey] = tb.FontStretchProperty;
+        cur[teKey] = te.FontStretchProperty;
+        itp[inhEnum.FontStretch] = cur;
+        var cur = {};
+        cur[cKey] = c.FontStyleProperty;
+        cur[tbKey] = tb.FontStyleProperty;
+        cur[teKey] = te.FontStyleProperty;
+        itp[inhEnum.FontStyle] = cur;
+        var cur = {};
+        cur[cKey] = c.FontWeightProperty;
+        cur[tbKey] = tb.FontWeightProperty;
+        cur[teKey] = te.FontWeightProperty;
+        itp[inhEnum.FontWeight] = cur;
+        var cur = {};
+        cur[cKey] = c.FontSizeProperty;
+        cur[tbKey] = tb.FontSizeProperty;
+        cur[teKey] = te.FontSizeProperty;
+        itp[inhEnum.FontSize] = cur;
+        var cur = {};
+        cur[tbKey] = tb.TextDecorationsProperty;
+        cur[teKey] = te.TextDecorationsProperty;
+        itp[inhEnum.TextDecorations] = cur;
+        var cur = {};
+        cur[teKey] = te.LanguageProperty;
+        cur[feKey] = fe.LanguageProperty;
+        itp[inhEnum.Language] = cur;
+        var cur = {};
+        cur[tbKey] = tb.FontResourceProperty;
+        cur[teKey] = te.FontResourceProperty;
+        itp[inhEnum.FontResource] = cur;
+        var cur = {};
+        cur[Fayde.Image._TypeID] = null;
+        cur[MediaElement._TypeID] = null;
+        cur[feKey] = fe.FlowDirectionProperty;
+        cur[r._TypeID] = r.FlowDirectionProperty;
+        itp[inhEnum.FlowDirection] = cur;
+        var cur = {};
+        cur[uie._TypeID] = uie.UseLayoutRoundingProperty;
+        itp[inhEnum.UseLayoutRounding] = cur;
+        inhProvider._InheritableToProperty = itp;
+    }
+    if (!inhProvider._PropertyToInheritable) {
+        var c = Control;
+        var tb = TextBlock;
+        var te = TextElement;
+        var fe = FrameworkElement;
+        var r = Run;
+        var uie = UIElement;
+        var inhEnum = _Inheritable;
+        var pti = {};
+        pti[c.ForegroundProperty._ID] = pti[tb.ForegroundProperty._ID] = pti[te.ForegroundProperty._ID] = inhEnum.Foreground;
+        pti[c.FontFamilyProperty._ID] = pti[tb.FontFamilyProperty._ID] = pti[te.FontFamilyProperty._ID] = inhEnum.FontFamily;
+        pti[c.FontStretchProperty._ID] = pti[tb.FontStretchProperty._ID] = pti[te.FontStretchProperty._ID] = inhEnum.FontStretch;
+        pti[c.FontStyleProperty._ID] = pti[tb.FontStyleProperty._ID] = pti[te.FontStyleProperty._ID] = inhEnum.FontStyle;
+        pti[c.FontWeightProperty._ID] = pti[tb.FontWeightProperty._ID] = pti[te.FontWeightProperty._ID] = inhEnum.FontWeight;
+        pti[c.FontSizeProperty._ID] = pti[tb.FontSizeProperty._ID] = pti[te.FontSizeProperty._ID] = inhEnum.FontSize;
+        pti[tb.TextDecorationsProperty._ID] = pti[te.TextDecorationsProperty._ID] = inhEnum.TextDecorations;
+        pti[tb.FontResourceProperty._ID] = pti[te.FontResourceProperty._ID] = inhEnum.FontResource;
+        pti[te.LanguageProperty._ID] = pti[fe.LanguageProperty._ID] = inhEnum.Language;
+        pti[fe.FlowDirectionProperty._ID] = pti[r.FlowDirectionProperty._ID] = inhEnum.FlowDirection;
+        pti[uie.UseLayoutRoundingProperty._ID] = inhEnum.UseLayoutRounding;
+        inhProvider._PropertyToInheritable = pti;
+    }
 };
 Nullstone.FinishCreate(_InheritedPropertyValueProvider);
 
@@ -6652,30 +6783,36 @@ Binding.Instance.Init = function (path) {
     this.SetUpdateSourceTrigger(UpdateSourceTrigger.Default);
 };
 Binding.Instance.GetBindsDirectlyToSource = function () { return this._BindsDirectlyToSource; };
-Binding.Instance.SetBindsDirectlyToSource = function (/* Boolean */value) { this.CheckSealed(); this._BindsDirectlyToSource = value; };
+Binding.Instance.SetBindsDirectlyToSource = function (value) {
+    this.CheckSealed(); this._BindsDirectlyToSource = value;
+};
 Binding.Instance.GetConverter = function () { return this._Converter; };
 Binding.Instance.SetConverter = function (/* IValueConverter */value) { this.CheckSealed(); this._Converter = value; };
 Binding.Instance.GetConverterCulture = function () { return this._ConverterCulture; };
 Binding.Instance.SetConverterCulture = function (/* Culture */value) { this.CheckSealed(); this._ConverterCulture = value; };
 Binding.Instance.GetConverterParameter = function () { return this._ConverterParameter; };
-Binding.Instance.SetConverterParameter = function (/* Object */value) { this.CheckSealed(); this._ConverterParameter = value; };
+Binding.Instance.SetConverterParameter = function (value) { this.CheckSealed(); this._ConverterParameter = value; };
 Binding.Instance.GetElementName = function () { return this._ElementName; };
-Binding.Instance.SetElementName = function (/* String */value) {
+Binding.Instance.SetElementName = function (value) {
     this.CheckSealed();
-    if (this.GetSource() != null || this.GetRelativeSource() != null)
+    if (this.GetSource() || this.GetRelativeSource())
         throw new InvalidOperationException("ElementName cannot be set if either RelativeSource or Source is set");
     this._ElementName = value;
 };
 Binding.Instance.GetMode = function () { return this._Mode; };
-Binding.Instance.SetMode = function (/* Number */value) { this.CheckSealed(); this._Mode = value; };
+Binding.Instance.SetMode = function (value) {
+    this.CheckSealed(); this._Mode = value;
+};
 Binding.Instance.GetNotifyOnValidationError = function () { return this._NotifyOnValidationError; };
-Binding.Instance.SetNotifyOnValidationError = function (/* Boolean */value) { this.CheckSealed(); this._NotifyOnValidationError = value; };
+Binding.Instance.SetNotifyOnValidationError = function (value) {
+    this.CheckSealed(); this._NotifyOnValidationError = value;
+};
 Binding.Instance.GetRelativeSource = function () {
     return this._RelativeSource;
 };
 Binding.Instance.SetRelativeSource = function (/* RelativeSource */value) {
     this.CheckSealed();
-    if (this.GetSource() != null || this.GetElementName() != null)
+    if (this.GetSource() || this.GetElementName())
         throw new InvalidOperationException("RelativeSource cannot be set if either ElementName or Source is set");
     this._RelativeSource = value;
 };
@@ -6689,20 +6826,28 @@ Binding.Instance.SetPath = function (value) {
     this._Path = value;
 };
 Binding.Instance.GetSource = function () { return this._Source; };
-Binding.Instance.SetSource = function (/* Object */value) {
+Binding.Instance.SetSource = function (value) {
     this.CheckSealed();
-    if (this.GetElementName() != null || this.GetRelativeSource() != null)
+    if (this.GetElementName() || this.GetRelativeSource())
         throw new InvalidOperationException("Source cannot be set if either ElementName or RelativeSource is set");
     this._Source = value;
 };
 Binding.Instance.GetUpdateSourceTrigger = function () { return this._UpdateSourceTrigger; };
-Binding.Instance.SetUpdateSourceTrigger = function (/* Number */value) { this.CheckSealed(); this._UpdateSourceTrigger = value; };
+Binding.Instance.SetUpdateSourceTrigger = function (value) {
+    this.CheckSealed(); this._UpdateSourceTrigger = value;
+};
 Binding.Instance.GetValidatesOnExceptions = function () { return this._ValidatesOnExceptions; };
-Binding.Instance.SetValidatesOnExceptions = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnExceptions = value; };
+Binding.Instance.SetValidatesOnExceptions = function (value) {
+    this.CheckSealed(); this._ValidatesOnExceptions = value; 
+};
 Binding.Instance.GetValidatesOnDataErrors = function () { return this._ValidatesOnDataErrors; };
-Binding.Instance.SetValidatesOnDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnDataErrors = value; };
+Binding.Instance.SetValidatesOnDataErrors = function (value) {
+    this.CheckSealed(); this._ValidatesOnDataErrors = value; 
+};
 Binding.Instance.GetValidatesOnNotifyDataErrors = function () { return this._ValidatesOnNotifyDataErrors; };
-Binding.Instance.SetValidatesOnNotifyDataErrors = function (/* Boolean */value) { this.CheckSealed(); this._ValidatesOnNotifyDataErrors = value; };
+Binding.Instance.SetValidatesOnNotifyDataErrors = function (value) {
+    this.CheckSealed(); this._ValidatesOnNotifyDataErrors = value; 
+};
 Nullstone.FinishCreate(Binding);
 
 var BindingExpression = Nullstone.Create("BindingExpression", BindingExpressionBase, 3);
@@ -6764,19 +6909,19 @@ _PropertyPathNode.Instance.SetSource = function (value) {
     if (value == null || !Nullstone.Equals(value, this._Source)) {
         var oldSource = this._Source;
         var listener = this.GetListener();
-        if (listener != null) {
+        if (listener) {
             listener.Detach();
             listener = null;
             this.SetListener(listener);
         }
         this._Source = value;
-        if (this._Source != null && Nullstone.DoesImplement(this._Source, INotifyPropertyChanged)) {
+        if (this._Source && Nullstone.DoesImplement(this._Source, INotifyPropertyChanged)) {
             listener = new NPCListener(this._Source, this, this.OnSourcePropertyChanged);
             this.SetListener(listener);
         }
         this.OnSourceChanged(oldSource, this._Source);
         this.UpdateValue();
-        if (this.GetNext() != null)
+        if (this.GetNext())
             this.GetNext().SetSource(this._Value);
     }
 };
@@ -6792,7 +6937,7 @@ _PropertyPathNode.Instance._UpdateValueAndIsBroken = function (newValue, isBroke
     }
 };
 _PropertyPathNode.Instance._CheckIsBroken = function () {
-    return this.GetSource() == null || (this.GetPropertyInfo() == null && this.GetDependencyProperty() == null);
+    return !this.GetSource() || (!this.GetPropertyInfo() && !this.GetDependencyProperty());
 };
 _PropertyPathNode.Instance.GetIsBroken = function () {
     return this._IsBroken;
@@ -6850,7 +6995,7 @@ _PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsT
     this.ValueChanged = new MulticastEvent();
     this.SetPath(path);
     this.SetIsDataContextBound(isDataContextBound);
-    var lastCVNode = null;
+    var lastCVNode;
     if (!path || path === ".") {
         lastCVNode = new _CollectionViewNode(bindDirectlyToSource, bindsToView);
         this.SetNode(lastCVNode);
@@ -6878,7 +7023,7 @@ _PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsT
                 default:
                     break;
             }
-            if (this.GetFinalNode() != null)
+            if (this.GetFinalNode())
                 this.GetFinalNode().SetNext(node);
             else
                 this.SetNode(node);
@@ -6945,10 +7090,10 @@ _PropertyPathWalker.Instance.SetFinalNode = function (value) {
 };
 _PropertyPathWalker.Instance.GetIsPathBroken = function () {
     var path = this.GetPath();
-    if (this.GetIsDataContextBound() && (path == null || path.length < 1))
+    if (this.GetIsDataContextBound() && (!path || path.length < 1))
         return false;
     var node = this.GetNode();
-    while (node != null) {
+    while (node) {
         if (node.GetIsBroken())
             return true;
         node = node.GetNext();
@@ -6964,16 +7109,16 @@ _StandardPropertyPathNode.Instance.Init = function (typeName, propertyName) {
     this._PropertyName = propertyName;
 };
 _StandardPropertyPathNode.Instance.SetValue = function (value) {
-    if (this.GetDependencyProperty() != null)
+    if (this.GetDependencyProperty())
         this.GetSource().$SetValue(this.GetDependencyProperty(), value);
-    else if (this.GetPropertyInfo() != null)
+    else if (this.GetPropertyInfo())
         this.GetPropertyInfo().SetValue(this.GetSource(), value, null);
 };
 _StandardPropertyPathNode.Instance.UpdateValue = function () {
-    if (this.GetDependencyProperty() != null) {
+    if (this.GetDependencyProperty()) {
         this.SetValueType(this.GetDependencyProperty().GetTargetType());
         this._UpdateValueAndIsBroken(this.GetSource().$GetValue(this.GetDependencyProperty()), this._CheckIsBroken());
-    } else if (this.GetPropertyInfo() != null) {
+    } else if (this.GetPropertyInfo()) {
         this.SetValueType(null);
         try {
             this._UpdateValueAndIsBroken(this.GetPropertyInfo().GetValue(this.GetSource(), null), this._CheckIsBroken());
@@ -6990,39 +7135,39 @@ _StandardPropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSou
     var oldDO = Nullstone.As(oldSource, DependencyObject);
     var newDO = Nullstone.As(newSource, DependencyObject);
     var listener = this.GetListener();
-    if (listener != null) {
+    if (listener) {
         listener.Detach();
         this.SetListener(listener);
     }
     this.SetDependencyProperty(null);
     this.SetPropertyInfo(null);
-    if (this.GetSource() == null)
+    if (!this.GetSource())
         return;
     if (newDO != null) {
         propd = DependencyProperty.GetDependencyProperty(this.GetSource().constructor, this.GetPropertyName());
-        if (propd != null) {
+        if (propd) {
             this.SetDependencyProperty(propd);
             listener = new PropertyChangedListener(newDO, propd, this, this.OnPropertyChanged);
             this.SetListener(listener);
         }
     }
-    if (this.GetDependencyProperty() == null || !this.GetDependencyProperty()._IsAttached) {
+    if (!this.GetDependencyProperty() || !this.GetDependencyProperty()._IsAttached) {
         this.SetPropertyInfo(PropertyInfo.Find(this.GetSource(), this.GetPropertyName()));
     }
 };
 _StandardPropertyPathNode.Instance.OnPropertyChanged = function (s, e) {
     try {
         this.UpdateValue();
-        if (this.GetNext() != null)
+        if (this.GetNext())
             this.GetNext().SetSource(this.GetValue());
     } catch (err) {
     }
 };
 _StandardPropertyPathNode.Instance.OnSourcePropertyChanged = function (o, e) {
-    if (e.PropertyName === this.GetPropertyName() && this.GetPropertyInfo() != null) {
+    if (e.PropertyName === this.GetPropertyName() && this.GetPropertyInfo()) {
         this.UpdateValue();
         var next = this.GetNext();
-        if (next != null)
+        if (next)
             next.SetSource(this.GetValue());
     }
 };
@@ -7058,14 +7203,30 @@ Surface.Instance.Init = function (app) {
     this._FirstUserInitiatedEvent = false;
     this._UserInitiatedEvent = false;
     this._Cursor = CursorType.Default;
+    if (Surface._Invalidations == null)
+        Surface._Invalidations = [];
 };
-Surface.Instance.Register = function (jCanvas) {
+Surface.Instance.Register = function (jCanvas, width, widthType, height, heightType) {
     Surface._TestCanvas = document.createElement('canvas');
     this._Layers = new Collection();
     this._DownDirty = new _DirtyList();
     this._UpDirty = new _DirtyList();
     this._jCanvas = jCanvas;
-    this._Ctx = this._jCanvas[0].getContext('2d');
+    var canvas = jCanvas[0];
+    if (!width) {
+        width = 100;
+        widthType = "Percentage";
+    } else if (!widthType) {
+        widthType = "Percentage";
+    }
+    if (!height) {
+        height = 100;
+        heightType = "Percentage";
+    } else if (!heightType) {
+        heightType = "Percentage";
+    }
+    this._InitializeCanvas(canvas, width, widthType, height, heightType);
+    this._Ctx = canvas.getContext('2d');
     this._CanvasOffset = this._jCanvas.offset();
     this.RegisterEvents();
 };
@@ -7097,7 +7258,7 @@ Surface.Instance._Attach = function (element) {
         _Console.WriteLine("Unsupported top level element.");
         return;
     }
-    if (NameScope.GetNameScope(element) == null) {
+    if (!NameScope.GetNameScope(element)) {
         NameScope.SetNameScope(element, new NameScope());
     }
     this._TopLevel = element;
@@ -7123,9 +7284,34 @@ Surface.Instance._AttachLayer = function (layer) {
 };
 Surface.Instance._DetachLayer = function (layer) {
 };
+Surface.Instance._InitializeCanvas = function (canvas, width, widthType, height, heightType) {
+    var resizesWithWindow = false;
+    if (widthType === "Percentage") {
+        resizesWithWindow = true;
+        this._PercentageWidth = width;
+    } else {
+        canvas.width = width;
+    }
+    if (heightType === "Percentage") {
+        resizesWithWindow = true;
+        this._PercentageHeight = height;
+    } else {
+        canvas.height = height;
+    }
+    if (resizesWithWindow) {
+        this._ResizeCanvas();
+        var surface = this;
+        window.onresize = function (e) { surface._HandleResize(window.event ? window.event : e); };
+    }
+};
 Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
 Surface.Instance.GetExtents = function () {
-    return new Size(this.GetWidth(), this.GetHeight());
+    if (!this._Extents)
+        this._Extents = new Size(this.GetWidth(), this.GetHeight());
+    return this._Extents;
+};
+Surface.Instance._InvalidateExtents = function () {
+    delete this._Extents;
 };
 Surface.Instance.GetWidth = function () {
     return this._jCanvas.width();
@@ -7134,36 +7320,46 @@ Surface.Instance.GetHeight = function () {
     return this._jCanvas.height();
 };
 Surface.Instance._Invalidate = function (rect) {
-    if (!rect)
-        rect = new Rect(0, 0, this.GetWidth(), this.GetHeight());
-    if (!this._InvalidatedRect)
-        this._InvalidatedRect = rect;
+    if (!rect) {
+        var extents = this.GetExtents();
+        rect = new Rect(0, 0, extents.Width, extents.Height);
+    }
+    var invalidated = this._InvalidatedRect;
+    if (!invalidated)
+        invalidated = rect;
     else
-        this._InvalidatedRect = this._InvalidatedRect.Union(rect);
-    this._QueueRender();
-};
-Surface.Instance._QueueRender = function () {
+        invalidated = invalidated.Union(rect);
+    this._InvalidatedRect = invalidated;
     if (this._IsRenderQueued)
         return;
-    var surface = this;
     this._IsRenderQueued = true;
-    setTimeout(function () {
-        surface._IsRenderQueued = false;
-        var rect2 = surface._InvalidatedRect;
-        surface._InvalidatedRect = null;
-        surface.Render(rect2);
-    }, 1);
+    Surface._Invalidations.push(this);
+    setTimeout(Surface.StaticRender, 1);
+};
+Surface.StaticRender = function () {
+    var cur;
+    var invalidations = Surface._Invalidations;
+    while (cur = invalidations.pop()) {
+        var rect2 = cur._InvalidatedRect;
+        cur._InvalidatedRect = null;
+        cur._IsRenderQueued = false;
+        cur.Render(rect2);
+    }
 };
 Surface.Instance.Render = function (region) {
+    var startRenderTime;
+    var isRenderPassTimed;
+    if (isRenderPassTimed = (this._App._DebugFunc[4] != null))
+        startRenderTime = new Date().getTime();
     var ctx = new _RenderContext(this);
-    var layerCount = 0;
-    if (this._Layers)
-        layerCount = this._Layers.GetCount();
+    var layers = this._Layers;
+    var layerCount = layers ? layers.GetCount() : 0;
     ctx.Clear(region);
     for (var i = 0; i < layerCount; i++) {
-        var layer = this._Layers.GetValueAt(i);
-        layer._DoRender(ctx, region);
+        layers.GetValueAt(i)._DoRender(ctx, region);
     }
+    if (isRenderPassTimed)
+        this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
 };
 Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
@@ -7267,9 +7463,9 @@ Surface.Instance._ProcessDownDirtyElements = function () {
         }
         if (uie._DirtyFlags & _Dirty.ChildrenZIndices) {
             uie._DirtyFlags &= ~_Dirty.ChildrenZIndices;
-            if (~(uie instanceof Panel)) {
+            if (!(uie instanceof Panel)) {
             } else {
-                uie.GetChildren().ResortByZIndex();
+                uie.Children.ResortByZIndex();
             }
         }
         if (!(uie._DirtyFlags & _Dirty.DownDirtyState) && uie._DownDirtyNode) {
@@ -7391,7 +7587,7 @@ Surface.Instance._IsTopLevel = function (top) {
 Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
     for (var node = this._InputList.First(); node; node = node.Next) {
-        newCursor = node.UIElement.GetCursor();
+        newCursor = node.UIElement.Cursor;
         if (newCursor !== CursorType.Default)
             break;
     }
@@ -7424,16 +7620,16 @@ Surface.Instance._HandleWheel = function (pos) {
     this._UpdateCursorFromInputList();
 };
 Surface.Instance._HandleMove = function (evt) {
-    var pos = this._GetMousePosition(event);
+    var pos = this._GetMousePosition(evt);
     this._HandleMouseEvent("move", null, pos);
     this._UpdateCursorFromInputList();
 };
 Surface.Instance._HandleOut = function (evt) {
-    var pos = this._GetMousePosition(event);
+    var pos = this._GetMousePosition(evt);
     this._HandleMouseEvent("out", null, pos);
 };
 Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
-    HUDUpdate("mouse", pos.toString());
+    this._App._NotifyDebugCoordinates(pos);
     this._CurrentPos = pos;
     if (this._EmittingMouseEvent)
         return false;
@@ -7446,9 +7642,10 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
         this.ProcessDirtyElements();
         var ctx = new _RenderContext(this);
         var newInputList = new LinkedList();
-        var layerCount = this._Layers.GetCount();
+        var layers = this._Layers;
+        var layerCount = layers.GetCount();
         for (var i = layerCount - 1; i >= 0 && newInputList.IsEmpty(); i--) {
-            var layer = this._Layers.GetValueAt(i);
+            var layer = layers.GetValueAt(i);
             layer._HitTestPoint(ctx, pos, newInputList);
         }
         var indices = {};
@@ -7459,7 +7656,7 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
             this._EmitMouseList("enter", button, pos, newInputList, indices.Index2);
         if (type !== "noop")
             this._EmitMouseList(type, button, pos, newInputList);
-        HUDUpdate("els", "Elements Found: " + newInputList._Count.toString());
+        this._App._NotifyDebugHitTest(newInputList);
         this._InputList = newInputList;
     }
     if (this._PendingCapture)
@@ -7470,8 +7667,8 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
 };
 Surface.Instance._GetMousePosition = function (evt) {
     return new Point(
-        evt.clientX - this._CanvasOffset.left,
-        evt.clientY - this._CanvasOffset.top);
+        evt.clientX + window.pageXOffset + this._CanvasOffset.left,
+        evt.clientY + window.pageYOffset + this._CanvasOffset.top);
 };
 Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
     var ui1 = list1.Last();
@@ -7567,6 +7764,34 @@ Surface.Instance._EmitKeyDown = function (list, modifiers, keyCode, endIndex) {
     for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
         node.UIElement._EmitKeyDown(args);
     }
+};
+var resizeTimeout;
+Surface.Instance._HandleResize = function (evt) {
+    var surface = this;
+    if (resizeTimeout)
+        clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(function () { surface._HandleResizeTimeout(evt); }, 50);
+};
+Surface.Instance._HandleResizeTimeout = function (evt) {
+    this._InvalidateExtents();
+    this._ResizeCanvas();
+    var layers = this._Layers;
+    var layersCount = layers.GetCount();
+    var layer;
+    for (var i = 0; i < layersCount; i++) {
+        layer = layers.GetValueAt(i);
+        layer._InvalidateMeasure();
+    }
+    resizeTimeout = null;
+};
+Surface.Instance._ResizeCanvas = function () {
+    var width = this._PercentageWidth;
+    var height = this._PercentageHeight;
+    var canvas = this._jCanvas[0];
+    if (width != null)
+        canvas.width = window.innerWidth * width / 100.0;
+    if (height != null)
+        canvas.height = window.innerHeight * height / 100.0;
 };
 Surface.Instance._FocusElement = function (uie) {
     if (Nullstone.RefEquals(uie, this._FocusedElement))
@@ -7699,7 +7924,7 @@ _TextBlockDynamicPropertyValueProvider.Instance.Init = function (obj, propPreced
 _TextBlockDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     if (propd == TextBlock.BaselineOffsetProperty) {
         var layout = this._Object._Layout;
-        if (layout == null)
+        if (!layout)
             return 0;
         return layout.GetBaselineOffset();
     }
@@ -7727,17 +7952,17 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValue = funct
 };
 _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var v;
-    if (propd == this._BackgroundPropd) {
-        v = this._Object.$GetValue(propd, this._PropertyPrecedence + 1);
+    if (propd._ID === this._BackgroundPropd._ID) {
+        v = this._Object._GetValue(propd, this._PropertyPrecedence + 1);
         if (!v)
             v = this._SelectionBackground;
-    } else if (propd == this._ForegroundPropd) {
-        v = this._Object.$GetValue(propd, this._PropertyPrecedence + 1);
+    } else if (propd._ID === this._ForegroundPropd._ID) {
+        v = this._Object._GetValue(propd, this._PropertyPrecedence + 1);
         if (!v)
             v = this._SelectionForeground;
-    } else if (propd == this._BaselineOffsetPropd) {
+    } else if (propd._ID === this._BaselineOffsetPropd._ID) {
         var _TextBoxView = this._Object._View;
-        this._BaselineOffset = _TextBoxView == null ? 0 : _TextBoxView.GetBaselineOffset();
+        this._BaselineOffset = !_TextBoxView ? 0 : _TextBoxView.GetBaselineOffset();
         v = this._BaselineOffset;
     }
     if (v != undefined)
@@ -7745,9 +7970,9 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (p
     return this.GetPropertyValue$FrameworkElementPropertyValueProvider(propd);
 };
 _TextBoxBaseDynamicPropertyValueProvider.Instance._InitializeSelectionBrushes = function () {
-    if (this._SelectionBackground == null)
+    if (!this._SelectionBackground)
         this._SelectionBackground = new SolidColorBrush(Color.FromHex("#FF444444"));
-    if (this._SelectionForeground == null)
+    if (!this._SelectionForeground)
         this._SelectionForeground = new SolidColorBrush(Color.FromHex("#FFFFFFFF"));
 };
 Nullstone.FinishCreate(_TextBoxBaseDynamicPropertyValueProvider);
@@ -7763,27 +7988,20 @@ var DependencyObject = Nullstone.Create("DependencyObject");
 DependencyObject.Instance.Init = function () {
     this._IsAttached = false;
     this._Providers = [];
-    this._Providers[_PropertyPrecedence.LocalValue] = new _LocalValuePropertyValueProvider(this, _PropertyPrecedence.LocalValue);
-    this._Providers[_PropertyPrecedence.DefaultValue] = new _DefaultValuePropertyValueProvider(this, _PropertyPrecedence.DefaultValue);
-    this._Providers[_PropertyPrecedence.AutoCreate] = new _AutoCreatePropertyValueProvider(this, _PropertyPrecedence.AutoCreate);
+    var propPrecEnum = _PropertyPrecedence;
+    this._Providers[propPrecEnum.LocalValue] = new _LocalValuePropertyValueProvider(this, propPrecEnum.LocalValue);
+    this._Providers[propPrecEnum.DefaultValue] = new _DefaultValuePropertyValueProvider(this, propPrecEnum.DefaultValue);
+    this._Providers[propPrecEnum.AutoCreate] = new _AutoCreatePropertyValueProvider(this, propPrecEnum.AutoCreate);
     this._ProviderBitmasks = [];
     this._SecondaryParents = [];
     this.PropertyChanged = new MulticastEvent();
     this._SubPropertyListeners = [];
 };
-DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", null, null, false, DependencyObject._NameValidator);
-DependencyObject.Instance.GetName = function () {
-    return this.$GetValue(DependencyObject.NameProperty);
-};
-DependencyObject.Instance.SetName = function (value) {
-    this.$SetValue(DependencyObject.NameProperty, value);
-};
-DependencyObject.Instance.GetTemplateOwner = function () {
-    return this._TemplateOwner;
-};
-DependencyObject.Instance.SetTemplateOwner = function (value) {
-    this._TemplateOwner = value;
-};
+DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", undefined, undefined, false, DependencyObject._NameValidator);
+Nullstone.AutoProperties(DependencyObject, [
+    DependencyObject.NameProperty,
+    "TemplateOwner"
+]);
 DependencyObject.Instance.GetMentor = function () {
     return this._Mentor;
 };
@@ -7796,88 +8014,130 @@ DependencyObject.Instance.SetMentor = function (value) {
 };
 DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
     if (!(this instanceof FrameworkElement)) {
-        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.LocalStyle])
-            this._Providers[_PropertyPrecedence.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
-        if (this._Providers[_PropertyPrecedence.ImplicitStyle])
-            this._Providers[_PropertyPrecedence.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        var propPrecEnum = _PropertyPrecedence;
+        this._Providers[propPrecEnum.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        this._Providers[propPrecEnum.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[propPrecEnum.LocalStyle])
+            this._Providers[propPrecEnum.LocalStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
+        if (this._Providers[propPrecEnum.ImplicitStyle])
+            this._Providers[propPrecEnum.ImplicitStyle].ForeachValue(DependencyObject._PropagateMentor, newValue);
     }
-    if (this._MentorChangedCallback != null) {
+    if (this._MentorChangedCallback) {
         this._MentorChangedCallback(this, newValue);
+    }
+};
+DependencyObject._PropagateMentor = function (propd, value, newMentor) {
+    if (value && value instanceof DependencyObject) {
+        value.SetMentor(newMentor);
+    }
+};
+DependencyObject.Instance._SetIsAttached = function (value) {
+    if (this._IsAttached == value)
+        return;
+    this._IsAttached = value;
+    this._OnIsAttachedChanged(value);
+};
+DependencyObject.Instance._OnIsAttachedChanged = function (value) {
+    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
+    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
+};
+DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
+    if (propd._IsCustom)
+        return;
+    if (value && value instanceof DependencyObject) {
+        value._SetIsAttached(newIsAttached);
     }
 };
 DependencyObject.Instance.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);
 };
 DependencyObject.Instance.$SetValue = function (propd, value) {
-    if (propd == null)
+    if (!propd)
         throw new ArgumentException("No property specified.");
     if (propd.IsReadOnly) {
-        throw new InvalidOperationException();
+        if (propd._IsCustom)
+            throw new InvalidOperationException();
+        else
+            throw new ArgumentException();
     }
+    this.$SetValueInternal(propd, value);
+};
+DependencyObject.Instance.$SetValueInternal = function (propd, value) {
     if (value instanceof UnsetValue) {
-        this.ClearValue(propd);
+        this.$ClearValue(propd);
         return;
     }
-    var expression;
-    if (value instanceof Expression)
-        expression = value;
-    var bindingExpression;
-    if (value instanceof BindingExpressionBase)
-        bindingExpression = value;
-    if (bindingExpression != null) {
+    var expression = Nullstone.As(value, Expression);
+    var bindingExpression = Nullstone.As(expression, BindingExpressionBase);
+    if (bindingExpression) {
         var path = bindingExpression.GetBinding().GetPath().GetPath();
         if ((!path || path === ".") && bindingExpression.GetBinding().GetMode() === BindingMode.TwoWay)
             throw new ArgumentException("TwoWay bindings require a non-empty Path.");
         bindingExpression.GetBinding().Seal();
     }
-    var existing = null;
-    if (this._Expressions != null) {
-        var data = {};
-        if (this._Expressions.TryGetValue(propd, data))
-            existing = data.Value
-    }
-    var addingExpression = false;
+    var existing;
+    var data = {};
+    if (this._Expressions && this._Expressions.TryGetValue(propd, data))
+        existing = data.Value;
     var updateTwoWay = false;
-    if (expression != null) {
+    var addingExpression = false;
+    if (expression) {
         if (!Nullstone.RefEquals(expression, existing)) {
             if (expression.GetAttached())
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
-            if (existing != null)
-                this._RemoveExpression(propd);
-            if (this._Expressions == null)
+            if (existing)
+                this.$RemoveExpression(propd);
+            if (!this._Expressions)
                 this._Expressions = new Dictionary();
             this._Expressions.Add(propd, expression);
             expression._OnAttached(this);
         }
         addingExpression = true;
         value = expression.GetValue(propd);
-    } else if (existing != null) {
-        if (existing instanceof BindingExpressionBase) {
-            if (existing.GetBinding().GetMode() === BindingMode.TwoWay) {
-                updateTwoWay = !existing.GetUpdating() && !propd._IsCustom;
-            } else if (!existing.GetUpdating() || existing.GetBinding().GetMode() === BindingMode.OneTime) {
-                this._RemoveExpression(propd);
+    } else if (existing) {
+        var beb = Nullstone.As(existing, BindingExpressionBase);
+        if (beb) {
+            if (beb.GetBinding().GetMode() === BindingMode.TwoWay) {
+                updateTwoWay = !beb.GetUpdating() && !propd._IsCustom;
+            } else if (!beb.GetUpdating() || beb.GetBinding().GetMode() === BindingMode.OneTime) {
+                this.$RemoveExpression(propd);
             }
         } else if (!existing.GetUpdating()) {
-            this._RemoveExpression(propd);
+            this.$RemoveExpression(propd);
         }
     }
     try {
-        this._SetValueInternal(propd, value);
+        this._SetValue(propd, value);
         if (updateTwoWay)
             existing._TryUpdateSourceObject(value);
     } catch (err) {
         if (!addingExpression)
             throw err;
-        this._SetValueInternal(propd, propd.DefaultValue);
+        this._SetValue(propd, propd.DefaultValue);
         if (updateTwoWay)
             existing._TryUpdateSourceObject(value);
     }
 };
-DependencyObject.Instance._SetValueInternal = function (propd, value, error) {
-    if (error == null)
+DependencyObject.Instance._SetValue = function (propd, value) {
+    if (!propd)
+        throw new ArgumentException("Null dependency property.");
+    var error = new BError();
+    if (value === null) {
+        this._SetValueWithError(propd, null, error);
+        if (error.IsErrored())
+            throw error.CreateException();
+        return;
+    }
+    if (value instanceof UnsetValue) {
+        this._ClearValue(propd, true);
+        return;
+    }
+    this._SetValueWithError(propd, value, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
+DependencyObject.Instance._SetValueWithError = function (propd, value, error) {
+    if (!error)
         error = new BError();
     var hasCoercer = propd._HasCoercer();
     var coerced = value;
@@ -7888,52 +8148,73 @@ DependencyObject.Instance._SetValueInternal = function (propd, value, error) {
             throw new error.CreateException();
         return false;
     }
-    var retVal = this._SetValueImpl(propd, coerced, error);
+    var retVal = this._SetValueWithErrorImpl(propd, coerced, error);
     if (error.IsErrored())
         throw new error.CreateException();
     return retVal;
 };
-DependencyObject.Instance._SetValueImpl = function (propd, value, error) {
+DependencyObject.Instance._SetValueWithErrorImpl = function (propd, value, error) {
     if (this._IsFrozen) {
         error.SetErrored(BError.UnauthorizedAccess, "Cannot set value for property " + propd.Name + " on frozen DependencyObject.");
         return false;
     }
     var currentValue;
     var equal = false;
-    if ((currentValue = this._ReadLocalValueImpl(propd)) == null)
+    if ((currentValue = this._ReadLocalValue(propd)) === undefined)
         if (propd._IsAutoCreated)
             currentValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
-    if (currentValue != null && value != null)
+    if (currentValue !== undefined && value !== undefined)
         equal = !propd._AlwaysChange && Nullstone.Equals(currentValue, value);
     else
-        equal = currentValue == null && value == null;
+        equal = currentValue === undefined && value === undefined;
     if (!equal) {
+        var propPrecEnum = _PropertyPrecedence;
         var newValue;
-        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+        this._Providers[propPrecEnum.LocalValue].ClearValue(propd);
         if (propd._IsAutoCreated)
-            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
-        if (value != null && (!propd._IsAutoCreated || !(value instanceof DependencyObject) || Nullstone.As(value, DependencyObject) != null))
+            this._Providers[propPrecEnum.AutoCreate].ClearValue(propd);
+        if (value !== undefined && (!propd._IsAutoCreated || !(value instanceof DependencyObject) || Nullstone.Is(value, DependencyObject)))
             newValue = value;
         else
-            newValue = null;
-        if (newValue != null) {
-            this._Providers[_PropertyPrecedence.LocalValue].SetValue(propd, newValue);
+            newValue = undefined;
+        if (newValue !== undefined) {
+            this._Providers[propPrecEnum.LocalValue].SetValue(propd, newValue);
         }
-        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, currentValue, newValue, true, true, true, error);
+        this._ProviderValueChanged(propPrecEnum.LocalValue, propd, currentValue, newValue, true, true, true, error);
     }
     return true;
 };
-DependencyObject.Instance.$GetValue = function (propd, startingPrecedence, endingPrecedence) {
+DependencyObject.Instance._IsValueValid = function (propd, coerced, error) {
+    return true;
+};
+DependencyObject.Instance.$GetValue = function (propd) {
+    if (!propd)
+        throw new ArgumentException("Null dependency property.");
+    var error = new BError();
+    var value = this._GetValueWithError(propd, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+    return value;
+};
+DependencyObject.Instance._GetValueWithError = function (propd, error) {
+    if (!this._HasProperty(propd)) {
+        error.SetErrored(BError.Exception, "Cannot get the DependencyProperty " + propd.Name + " on an object of type " + propd.OwnerType._TypeName);
+        return undefined;
+    }
+    return this._GetValue(propd);
+};
+DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endingPrecedence) {
+    var propPrecEnum = _PropertyPrecedence;
     if (startingPrecedence === undefined)
-        startingPrecedence = _PropertyPrecedence.Highest;
+        startingPrecedence = propPrecEnum.Highest;
     if (endingPrecedence === undefined)
-        endingPrecedence = _PropertyPrecedence.Lowest;
+        endingPrecedence = propPrecEnum.Lowest;
     var bitmask = this._ProviderBitmasks[propd._ID] || 0;
-    bitmask |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
+    bitmask |= (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
     if (propd._IsAutoCreated)
-        bitmask |= 1 << _PropertyPrecedence.AutoCreate;
+        bitmask |= 1 << propPrecEnum.AutoCreate;
     if (propd._HasDefaultValue)
-        bitmask |= 1 << _PropertyPrecedence.DefaultValue;
+        bitmask |= 1 << propPrecEnum.DefaultValue;
     for (var i = startingPrecedence; i <= endingPrecedence; i++) {
         if (!(bitmask & (1 << i)))
             continue;
@@ -7945,111 +8226,171 @@ DependencyObject.Instance.$GetValue = function (propd, startingPrecedence, endin
             continue;
         return val;
     }
-    return null;
+    return undefined;
 };
-DependencyObject.Instance.ClearValue = function (propd, notifyListeners, error) {
-    if (notifyListeners == undefined)
+DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
+    var propPrecEnum = _PropertyPrecedence;
+    var v = this._GetValue(propd, propPrecEnum.LocalValue, propPrecEnum.InheritedDataContext);
+    if (v === undefined && propd._IsAutoCreated)
+        v = this._Providers[propPrecEnum.AutoCreate].ReadLocalValue(propd);
+    return v;
+};
+DependencyObject.Instance._GetValueNoDefault = function (propd) {
+    var value;
+    var propPrecDefaultValue = _PropertyPrecedence.DefaultValue;
+    for (var i = 0; i < propPrecDefaultValue; i++) {
+        var provider = this._Providers[i];
+        if (!provider)
+            continue;
+        value = provider.GetPropertyValue(propd);
+        if (value !== undefined)
+            break;
+    }
+    return value;
+};
+DependencyObject.Instance.$ReadLocalValue = function (propd) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data))
+        return data.Value;
+    return this.$ReadLocalValueInternal(propd);
+};
+DependencyObject.Instance.$ReadLocalValueInternal = function (propd) {
+    if (propd == null)
+        throw new ArgumentException("You must specify a dependency property.");
+    var error = new BError();
+    var value = this._ReadLocalValueWithError(propd, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+    if (value === undefined)
+        return new UnsetValue();
+    return value;
+};
+DependencyObject.Instance._ReadLocalValueWithError = function (propd, error) {
+    if (!this._HasProperty(propd)) {
+        error.SetErrored(BError.Exception, "Cannot get the DependencyProperty " + propd.Name + " on an object of type " + propd.OwnerType);
+        return undefined;
+    }
+    return this._ReadLocalValue(propd);
+};
+DependencyObject.Instance._ReadLocalValue = function (propd) {
+    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
+};
+DependencyObject.Instance.$ClearValue = function (propd) {
+    if (!propd)
+        throw new ArgumentException("Null dependency property.");
+    if (propd.IsReadOnly && !propd._IsCustom)
+        throw new ArgumentException("This property is readonly.");
+    this.$ClearValueInternal(propd);
+};
+DependencyObject.Instance.$ClearValueInternal = function (propd) {
+    this.$RemoveExpression(propd);
+    this._ClearValue(propd, true);
+};
+DependencyObject.Instance._ClearValue = function (propd, notifyListeners) {
+    var error = new BError();
+    this._ClearValueWithError(propd, true, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
+DependencyObject.Instance._ClearValueWithError = function (propd, notifyListeners, error) {
+    if (notifyListeners === undefined)
         notifyListeners = true;
-    if (error == undefined)
+    if (!error)
         error = new BError();
     if (this._GetAnimationStorageFor(propd) != null) {
         return;
     }
+    var propPrecEnum = _PropertyPrecedence;
     var oldLocalValue;
-    if ((oldLocalValue = this._ReadLocalValueImpl(propd)) == null) {
+    if ((oldLocalValue = this._ReadLocalValue(propd)) === undefined) {
         if (propd._IsAutoCreated)
-            oldLocalValue = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
+            oldLocalValue = this._Providers[propPrecEnum.AutoCreate].ReadLocalValue(propd);
     }
-    if (oldLocalValue != null) {
-        if (oldLocalValue instanceof DependencyObject) {
-            if (oldLocalValue != null && !propd._IsCustom) {
-                oldLocalValue._RemoveParent(this, null);
-                oldLocalValue._SetIsAttached(false);
-                if (oldLocalValue instanceof Collection) {
+    if (oldLocalValue !== undefined) {
+        var dob;
+        if (oldLocalValue && (dob = Nullstone.As(oldLocalValue, DependencyObject)) != null) {
+            if (!propd._IsCustom) {
+                dob._RemoveParent(this, null);
+                dob.RemovePropertyChangedListener(this, propd);
+                dob._SetIsAttached(false);
+                if (Nullstone.Is(dob, Collection)) {
                 }
             }
         }
-        this._Providers[_PropertyPrecedence.LocalValue].ClearValue(propd);
+        this._Providers[propPrecEnum.LocalValue].ClearValue(propd);
         if (propd._IsAutoCreated)
-            this._Providers[_PropertyPrecedence.AutoCreate].ClearValue(propd);
+            this._Providers[propPrecEnum.AutoCreate].ClearValue(propd);
     }
-    for (var i = _PropertyPrecedence.LocalValue + 1; i < _PropertyPrecedence.Count; i++) {
+    var count = propPrecEnum.Count;
+    var recomputeOnClearFlag = _ProviderFlags.RecomputesOnClear;
+    for (var i = propPrecEnum.LocalValue + 1; i < count; i++) {
         var provider = this._Providers[i];
-        if (provider != null && provider._HasFlag(_ProviderFlags.RecomputesOnClear))
-            provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnClear, error);
+        if (provider && provider._HasFlag(recomputeOnClearFlag))
+            provider.RecomputePropertyValue(propd, recomputeOnClearFlag, error);
     }
-    if (oldLocalValue != null) {
-        this._ProviderValueChanged(_PropertyPrecedence.LocalValue, propd, oldLocalValue, null, notifyListeners, true, false, error);
+    if (oldLocalValue !== undefined) {
+        this._ProviderValueChanged(propPrecEnum.LocalValue, propd, oldLocalValue, undefined, notifyListeners, true, false, error);
     }
 };
-DependencyObject.Instance.ReadLocalValue = function (propd) {
-    var val = this._ReadLocalValueImpl(propd);
-    if (val === undefined)
-        val = new UnsetValue();
-    return val;
-};
-DependencyObject.Instance._ReadLocalValueImpl = function (propd) {
-    return this._Providers[_PropertyPrecedence.LocalValue].GetPropertyValue(propd);
-};
-DependencyObject.Instance._GetValueNoAutoCreate = function (propd) {
-    var v = this.$GetValue(propd, _PropertyPrecedence.LocalValue, _PropertyPrecedence.InheritedDataContext);
-    if (v == null && propd._IsAutoCreated)
-        v = this._Providers[_PropertyPrecedence.AutoCreate].ReadLocalValue(propd);
-    return v;
-};
-DependencyObject.Instance._GetValueNoDefault = function (propd) {
-    var value = null;
-    for (var i = 0; i < _PropertyPrecedence.DefaultValue; i++) {
-        var provider = this._Providers[i];
-        if (provider == null)
-            continue;
-        value = provider.GetPropertyValue(propd);
-        if (value == undefined)
-            continue;
-        return value;
+DependencyObject.Instance.$RemoveExpression = function (propd) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
+        this._Expressions.Remove(propd);
+        data.Value._OnDetached(this);
     }
-    return null;
+};
+DependencyObject.Instance._HasProperty = function (propd) {
+    if (propd == null)
+        return false;
+    if (propd._IsAttached)
+        return true;
+    if (this instanceof propd.OwnerType)
+        return true;
+    return false;
 };
 DependencyObject.Instance._PropertyHasValueNoAutoCreate = function (propd, obj) {
     var v = this._GetValueNoAutoCreate(propd);
-    return v == null ? obj == null : v == obj;
+    return v === undefined ? obj === undefined : v == obj;
 };
 DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
+    var propPrecEnum = _PropertyPrecedence;
     var bitmask = this._ProviderBitmasks[propd._ID] || 0;
-    if (newProviderValue != null)
+    if (newProviderValue !== undefined)
         bitmask |= 1 << providerPrecedence;
     else
         bitmask &= ~(1 << providerPrecedence);
     this._ProviderBitmasks[propd._ID] = bitmask;
     var higher = 0;
-    for (var i = providerPrecedence; i >= _PropertyPrecedence.LocalValue; i--) {
+    var propPrecLocalValue = propPrecEnum.LocalValue;
+    for (var i = providerPrecedence; i >= propPrecLocalValue; i--) {
         higher |= 1 << i;
     }
     higher &= bitmask;
-    higher |= (1 << _PropertyPrecedence.Inherited) | (1 << _PropertyPrecedence.DynamicValue);
+    higher |= (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
     if (propd._IsAutoCreated)
-        higher |= 1 << _PropertyPrecedence.AutoCreate;
+        higher |= 1 << propPrecEnum.AutoCreate;
     if (propd._HasDefaultValue)
-        higher |= 1 << _PropertyPrecedence.DefaultValue;
-    for (var j = providerPrecedence; j >= _PropertyPrecedence.Highest; j--) {
+        higher |= 1 << propPrecEnum.DefaultValue;
+    var propPrecHighest = _PropertyPrecedence.Highest;
+    for (var j = providerPrecedence; j >= propPrecHighest; j--) {
         if (!(higher & (1 << j)))
             continue;
         var provider = this._Providers[i];
-        if (provider == null)
+        if (!provider)
             continue;
-        if (provider.GetPropertyValue(propd) != null) {
+        if (provider.GetPropertyValue(propd) !== undefined) {
             this._CallRecomputePropertyValueForProviders(propd, providerPrecedence, error);
             return;
         }
     }
-    var oldValue = undefined;
-    var newValue = undefined;
-    if (oldProviderValue == null || newProviderValue == null) {
-        var lowerPriorityValue = this.$GetValue(propd, providerPrecedence + 1);
-        if (newProviderValue == null) {
+    var oldValue;
+    var newValue;
+    if (oldProviderValue === undefined || newProviderValue === undefined) {
+        var lowerPriorityValue = this._GetValue(propd, providerPrecedence + 1);
+        if (newProviderValue === undefined) {
             oldValue = oldProviderValue;
             newValue = lowerPriorityValue;
-        } else if (oldProviderValue == null) {
+        } else if (oldProviderValue === undefined) {
             oldValue = lowerPriorityValue;
             newValue = newProviderValue;
         }
@@ -8057,23 +8398,24 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
         oldValue = oldProviderValue;
         newValue = newProviderValue;
     }
-    var equal = oldValue == null && newValue == null;
+    var equal = (oldValue === null && newValue === null) || (oldValue === undefined && newValue === undefined);
     if (oldValue != null && newValue != null) {
         equal = !propd._AlwaysChange && Nullstone.Equals(oldValue, newValue);
     }
     if (equal)
         return;
-    if (providerPrecedence !== _PropertyPrecedence.IsEnabled && this._Providers[_PropertyPrecedence.IsEnabled] && this._Providers[_PropertyPrecedence.IsEnabled].LocalValueChanged(propd))
+    var propPrecIsEnabled = propPrecEnum.IsEnabled;
+    if (providerPrecedence !== propPrecIsEnabled && this._Providers[propPrecIsEnabled] && this._Providers[propPrecIsEnabled].LocalValueChanged(propd))
         return;
     this._CallRecomputePropertyValueForProviders(propd, providerPrecedence, error);
-    var oldDO = undefined;
-    var newDO = undefined;
+    var oldDO;
+    var newDO;
     var setsParent = setParent && !propd._IsCustom;
-    if (oldValue != null && (oldValue instanceof DependencyObject))
+    if (oldValue && (oldValue instanceof DependencyObject))
         oldDO = oldValue;
-    if (newValue != null && (newValue instanceof DependencyObject))
+    if (newValue && (newValue instanceof DependencyObject))
         newDO = newValue;
-    if (oldDO != null) {
+    if (oldDO) {
         if (setsParent) {
             oldDO._SetIsAttached(false);
             oldDO._RemoveParent(this, null);
@@ -8087,7 +8429,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
             oldDO.SetMentor(null);
         }
     }
-    if (newDO != null) {
+    if (newDO) {
         if (setsParent) {
             newDO._SetIsAttached(this._IsAttached);
             newDO._AddParent(this, mergeNamesOnSetParent, error);
@@ -8114,14 +8456,15 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
             NewValue: newValue
         };
         this._OnPropertyChanged(args, error);
-        if (propd != null && propd._ChangedCallback != null)
+        if (propd && propd._ChangedCallback)
             propd._ChangedCallback(this, args, error);
-        var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
-        if (inheritedProvider != null) {
-            if (providerPrecedence == _PropertyPrecedence.Inherited) {
+        var propPrecInherited = _PropertyPrecedence.Inherited;
+        var inheritedProvider = this._Providers[propPrecInherited];
+        if (inheritedProvider) {
+            if (providerPrecedence === propPrecInherited) {
             } else {
-                if (_InheritedPropertyValueProvider.IsInherited(this, propd)
-                         && this._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited) {
+                if (_InheritedPropertyValueProvider.GetInheritable(this, propd) > 0
+                        && this._GetPropertyValueProvider(propd) < propPrecInherited) {
                     inheritedProvider.PropagateInheritedProperty(propd, this, this);
                 }
             }
@@ -8129,72 +8472,71 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     }
 };
 DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
-    for (var i = 0; i < _PropertyPrecedence.Count; i++) {
+    var count = _PropertyPrecedence.Count;
+    var lowerFlag = _ProviderFlags.RecomputesOnLowerPriorityChange;
+    var higherFlag = _ProviderFlags.RecomputesOnHigherPriorityChange;
+    for (var i = 0; i < count; i++) {
         var provider = this._Providers[i];
-        if (provider == null)
+        if (!provider)
             continue;
         if (i === providerPrecedence)
             continue;
-        if (i < providerPrecedence && provider._HasFlag(_ProviderFlags.RecomputesOnLowerPriorityChange))
-            provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnLowerPriorityChange, error);
-        else if (i > providerPrecedence && provider._HasFlag(_ProviderFlags.RecomputesOnHigherPriorityChange))
-            provider.RecomputePropertyValue(propd, _ProviderFlags.RecomputesOnHigherPriorityChange, error);
+        if (i < providerPrecedence && provider._HasFlag(lowerFlag))
+            provider.RecomputePropertyValue(propd, lowerFlag, error);
+        else if (i > providerPrecedence && provider._HasFlag(higherFlag))
+            provider.RecomputePropertyValue(propd, higherFlag, error);
     }
 };
 DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {
-    var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
-    if (inheritedProvider == null)
+    var propPrecInherited = _PropertyPrecedence.Inherited;
+    var inheritedProvider = this._Providers[propPrecInherited];
+    if (!inheritedProvider)
         return true;
     inheritedProvider._SetPropertySource(inheritable, source);
-    var propd = _InheritedPropertyValueProvider.GetProperty(inheritable, this);
+    var propd = inheritedProvider._GetPropertyFunc(inheritable, this);
     if (!propd)
         return false;
     var error = new BError();
-    this._ProviderValueChanged(_PropertyPrecedence.Inherited, propd, null, newValue, true, false, false, error);
-    return this._GetPropertyValueProvider(propd) == _PropertyPrecedence.Inherited;
+    this._ProviderValueChanged(propPrecInherited, propd, undefined, newValue, true, false, false, error);
+    return this._GetPropertyValueProvider(propd) === propPrecInherited;
 };
 DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
-    if (inheritedProvider == null)
-        return null;
+    if (!inheritedProvider)
+        return undefined;
     return inheritedProvider._GetPropertySource(inheritable);
 };
 DependencyObject.Instance._SetInheritedValueSource = function (inheritable, source) {
-    var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
-    if (inheritedProvider == null)
+    var propPrecInherited = _PropertyPrecedence.Inherited;
+    var inheritedProvider = this._Providers[propPrecInherited];
+    if (!inheritedProvider)
         return;
     if (!source) {
-        var propd = _InheritedPropertyValueProvider.GetProperty(inheritable, this);
+        var propd = inheritedProvider._GetPropertyFunc(inheritable, this);
         if (propd)
             return;
         var bitmask = this._ProviderBitmasks[propd._ID];
-        bitmask &= ~(1 << _PropertyPrecedence.Inherited);
+        bitmask &= ~(1 << propPrecInherited);
         this._ProviderBitmasks[propd._ID] = bitmask;
     }
     inheritedProvider._SetPropertySource(inheritable, source);
 };
 DependencyObject.Instance._GetPropertyValueProvider = function (propd) {
+    var propPrecEnum = _PropertyPrecedence;
     var bitmask = this._ProviderBitmasks[propd._ID];
-    for (var i = 0; i < _PropertyPrecedence.Lowest; i++) {
+    var lowest = propPrecEnum.Lowest;
+    var defaultValue = propPrecEnum.DefaultValue;
+    var autoCreate = propPrecEnum.AutoCreate;
+    for (var i = 0; i < lowest; i++) {
         var p = 1 << i;
-        if ((bitmask & p) == p)
+        if ((bitmask & p) === p)
             return i;
-        if (i == _PropertyPrecedence.DefaultValue && propd._HasDefaultValue)
+        if (i === defaultValue && propd._HasDefaultValue)
             return i;
-        if (i == _PropertyPrecedence.AutoCreate && propd._IsAutoCreated)
+        if (i === autoCreate && propd._IsAutoCreated)
             return i;
     }
     return -1;
-};
-DependencyObject.Instance._IsValueValid = function (propd, coerced, error) {
-    return true;
-};
-DependencyObject.Instance._RemoveExpression = function (propd) {
-    var data = {};
-    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
-        this._Expressions.Remove(propd);
-        data.Value._OnDetached(this);
-    }
 };
 DependencyObject.Instance._AddTarget = function (obj) {
 };
@@ -8204,27 +8546,17 @@ DependencyObject.Instance._GetResourceBase = function () {
     var rb = this._ResourceBase;
     if (rb)
         rb = rb.replace(/^\s+/, ''); //trim if not null
-    if (rb != null && rb.length > 0)
+    if (rb && rb.length > 0)
         return this._ResourceBase;
-    if (this._Parent != null)
+    if (this._Parent)
         return this._Parent._GetResourceBase();
     return this._ResourceBase;
 };
 DependencyObject.Instance._SetResourceBase = function (value) {
     this._ResourceBase = value;
 };
-DependencyObject.Instance._SetIsAttached = function (value) {
-    if (this._IsAttached == value)
-        return;
-    this._IsAttached = value;
-    this._OnIsAttachedChanged(value);
-};
-DependencyObject.Instance._OnIsAttachedChanged = function (value) {
-    this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._PropagateIsAttached, value);
-    this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._PropagateIsAttached, value);
-};
 DependencyObject.Instance._OnPropertyChanged = function (args, error) {
-    if (args.Property === DependencyObject.NameProperty) {
+    if (args.Property._ID === DependencyObject.NameProperty._ID) {
         var scope = this.FindNameScope();
         if (scope && args.NewValue) {
             if (args.OldValue)
@@ -8252,7 +8584,7 @@ DependencyObject.Instance.RemovePropertyChangedListener = function (ldo, propd) 
         var listener = this._SubPropertyListeners[i];
         if (!Nullstone.Equals(listener._Dobj, ldo))
             continue;
-        if (propd != null && listener._Propd._ID !== propd._ID)
+        if (propd && listener._Propd._ID !== propd._ID)
             continue;
         this.PropertyChanged.Unsubscribe(listener.OnSubPropertyChanged, listener);
         this._SubPropertyListeners.slice(i, 1);
@@ -8268,18 +8600,6 @@ DependencyObject.Instance._OnCollectionItemChangedEH = function (sender, args) {
     this._OnCollectionItemChanged(sender, args);
 };
 DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) { };
-DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
-    if (propd._IsCustom)
-        return;
-    if (value != null && value instanceof DependencyObject) {
-        value._SetIsAttached(newIsAttached);
-    }
-};
-DependencyObject._PropagateMentor = function (propd, value, newMentor) {
-    if (value != null && value instanceof DependencyObject) {
-        value.SetMentor(newMentor);
-    }
-};
 DependencyObject.Instance.FindName = function (name, isTemplateItem) {
     if (isTemplateItem === undefined)
         isTemplateItem = Control.GetIsTemplateItem(this);
@@ -8304,7 +8624,7 @@ DependencyObject.Instance.FindNameScope = function (templateNamescope) {
 DependencyObject.Instance.SetNameOnScope = function (name, scope) {
     if (scope.FindName(name))
         return false;
-    this.$SetValue(DependencyObject.NameProperty, name);
+    this._SetValue(DependencyObject.NameProperty, name);
     scope.RegisterName(name, this);
     return true;
 };
@@ -8329,8 +8649,8 @@ DependencyObject.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
         return;
     this._RegisteringNames = true;
     var thisNs = NameScope.GetNameScope(this);
-    if (/* TODO: this._IsHydratedFromXaml() || */thisNs == null || thisNs._GetTemporary()) {
-        var name = this.GetName();
+    if (/* TODO: this._IsHydratedFromXaml() || */!thisNs || thisNs._GetTemporary()) {
+        var name = this.Name;
         if (name && name.length > 0)
             fromNs.UnregisterName(name);
     }
@@ -8343,7 +8663,7 @@ DependencyObject.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
     this._RegisteringNames = false;
 }
 DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
-    if (!propd._IsCustom && value != null && value instanceof DependencyObject) {
+    if (!propd._IsCustom && value && value instanceof DependencyObject) {
         value._UnregisterAllNamesRootedAt(fromNs);
     }
 };
@@ -8359,21 +8679,22 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
         return;
     }
     var current = parent;
-    while (current != null) {
+    while (current) {
         if (Nullstone.RefEquals(current, this)) {
+            Warn("DependencyObject._AddParent - Cycle found.");
             return;
         }
         current = current._GetParent();
     }
-    if (this._Parent != null && !this._PermitsMultipleParents()) {
+    if (this._Parent && !this._PermitsMultipleParents()) {
         if (parent instanceof DependencyObjectCollection && (!parent._GetIsSecondaryParent() || this._HasSecondaryParents())) {
             error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
             return;
         }
     }
-    if (this._Parent != null || this._HasSecondaryParents()) {
+    if (this._Parent || this._HasSecondaryParents()) {
         this._AddSecondaryParent(parent);
-        if (this._Parent != null && !(this._Parent instanceof ResourceDictionary))
+        if (this._Parent && !(this._Parent instanceof ResourceDictionary))
             this.SetMentor(null);
         if (this._SecondaryParents.length > 1 || !(parent instanceof DependencyObjectCollection) || !parent._GetIsSecondaryParent())
             return;
@@ -8382,13 +8703,13 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
     var parentScope = parent.FindNameScope();
     if (thisScope) {
         if (thisScope._GetTemporary()) {
-            if (parentScope != null) {
+            if (parentScope) {
                 parentScope._MergeTemporaryScope(thisScope, error);
-                this.ClearValue(NameScope.NameScopeProperty, false);
+                this._ClearValue(NameScope.NameScopeProperty, false);
             }
         } else {
             if (true /* TODO: this._IsHydratedFromXaml()*/) {
-                var name = this.GetName();
+                var name = this.Name;
                 if (parentScope && name && name.length > 0) {
                     var existingObj = parentScope.FindName(name);
                     if (existingObj !== this) {
@@ -8402,7 +8723,7 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
             }
         }
     } else {
-        if (parentScope != null && mergeNamesFromSubtree) {
+        if (parentScope && mergeNamesFromSubtree) {
             var tempScope = new NameScope();
             tempScope._SetTemporary(true);
             this._RegisterAllNamesRootedAt(tempScope, error);
@@ -8411,10 +8732,10 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
             parentScope._MergeTemporaryScope(tempScope, error);
         }
     }
-    if (error == null || !error.IsErrored()) {
+    if (!error || !error.IsErrored()) {
         this._Parent = parent;
         var d = parent;
-        while (d != null && !(d instanceof FrameworkElement)) {
+        while (d && !(d instanceof FrameworkElement)) {
             d = d.GetMentor();
         }
         this.SetMentor(d);
@@ -8438,7 +8759,7 @@ DependencyObject.Instance._RemoveParent = function (parent, error) {
             this._UnregisterAllNamesRootedAt(parentScope);
         this.SetMentor(null);
     }
-    if (error == null || !error.IsErrored()) {
+    if (!error || !error.IsErrored()) {
         if (Nullstone.RefEquals(this._Parent, parent))
             this._Parent = null;
     }
@@ -8466,7 +8787,7 @@ DependencyObject.Instance._HasSecondaryParents = function () {
     return this._SecondaryParents.length > 0;
 };
 DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
-    if (this._StorageRepo == null)
+    if (!this._StorageRepo)
         return null;
     var list = this._StorageRepo[propd];
     if (!list || list.IsEmpty())
@@ -8474,11 +8795,11 @@ DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
     return list.Last().Storage;
 };
 DependencyObject.Instance._AttachAnimationStorage = function (propd, storage) {
-    var attachedStorage = null;
-    if (this._StorageRepo == null)
+    var attachedStorage;
+    if (!this._StorageRepo)
         this._StorageRepo = [];
     var list = this._StorageRepo[propd];
-    if (list == null) {
+    if (!list) {
         list = new LinkedList();
         this._StorageRepo[propd] = list;
     } else if (!list.IsEmpty()) {
@@ -8491,7 +8812,7 @@ DependencyObject.Instance._AttachAnimationStorage = function (propd, storage) {
     return attachedStorage;
 };
 DependencyObject.Instance._DetachAnimationStorage = function (propd, storage) {
-    if (this._StorageRepo == null)
+    if (!this._StorageRepo)
         return;
     var list = this._StorageRepo[propd];
     if (!list || list.IsEmpty())
@@ -8520,7 +8841,10 @@ Nullstone.FinishCreate(DependencyObject);
 var FrameworkTemplate = Nullstone.Create("FrameworkTemplate", DependencyObject);
 FrameworkTemplate.Instance.GetVisualTree = function (bindingSource) {
     var error = new BError();
-    return this._GetVisualTreeWithError(bindingSource, error);
+    var vt = this._GetVisualTreeWithError(bindingSource, error);
+    if (error.IsErrored())
+        throw error.CreateException();
+    return vt;
 };
 FrameworkTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
     NotImplemented("FrameworkTemplate._GetVisualTreeWithError");
@@ -8534,7 +8858,7 @@ NameScope.Instance.Init = function () {
     this._Names = null;
     this._Temporary = false;
 };
-NameScope.NameScopeProperty = DependencyProperty.RegisterAttached("NameScope", function () { return NameScope; }, NameScope);
+NameScope.NameScopeProperty = DependencyProperty.RegisterAttachedCore("NameScope", function () { return NameScope; }, NameScope);
 NameScope.GetNameScope = function (d) {
     return d.$GetValue(NameScope.NameScopeProperty);
 };
@@ -8604,82 +8928,65 @@ Nullstone.FinishCreate(NameScope);
 var SetterBase = Nullstone.Create("SetterBase", DependencyObject);
 SetterBase.Instance.Init = function () {
     this.Init$DependencyObject();
-    this.SetAttached(false);
+    this._Attached = false;
 };
 SetterBase.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBase, false);
-SetterBase.Instance.GetIsSealed = function () {
-    return this.$GetValue(SetterBase.IsSealedProperty);
-};
-SetterBase.Instance.GetAttached = function () {
-    return this._Attached;
-};
-SetterBase.Instance.SetAttached = function (value) {
-    this._Attached = value;
-};
+Nullstone.AutoProperties(SetterBase, [
+    SetterBase.IsSealedProperty
+]);
 SetterBase.Instance._Seal = function () {
-    if (this.GetIsSealed())
+    if (this.IsSealed)
         return;
     this.$SetValue(SetterBase.IsSealedProperty, true);
 };
 Nullstone.FinishCreate(SetterBase);
 
 var Style = Nullstone.Create("Style", DependencyObject);
-Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, null, { GetValue: function () { return new SetterBaseCollection(); } });
-Style.Instance.GetSetters = function () {
-    return this.$GetValue(Style.SettersProperty);
-};
-Style.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, Style);
-Style.Instance.GetIsSealed = function () {
-    return this.$GetValue(Style.IsSealedProperty);
-};
-Style.BasedOnProperty = DependencyProperty.Register("BasedOn", function () { return Function; }, Style);
-Style.Instance.GetBasedOn = function () {
-    return this.$GetValue(Style.BasedOnProperty);
-};
-Style.Instance.SetBasedOn = function (value) {
-    this.$SetValue(Style.BasedOnProperty, value);
-};
-Style.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, Style);
-Style.Instance.GetTargetType = function () {
-    return this.$GetValue(Style.TargetTypeProperty);
-};
-Style.Instance.SetTargetType = function (value) {
-    this.$SetValue(Style.TargetTypeProperty, value);
-};
+Style.SettersProperty = DependencyProperty.RegisterFull("Setters", function () { return SetterBaseCollection; }, Style, undefined, { GetValue: function () { return new SetterBaseCollection(); } });
+Style.IsSealedProperty = DependencyProperty.RegisterCore("IsSealed", function () { return Boolean; }, Style);
+Style.BasedOnProperty = DependencyProperty.RegisterCore("BasedOn", function () { return Function; }, Style);
+Style.TargetTypeProperty = DependencyProperty.RegisterCore("TargetType", function () { return Function; }, Style);
+Nullstone.AutoProperties(Style, [
+    Style.SettersProperty,
+    Style.IsSealedProperty,
+    Style.BasedOnProperty,
+    Style.TargetTypeProperty
+]);
 Style.Annotations = {
     ContentProperty: Style.SettersProperty
 };
 Style.Instance._Seal = function () {
-    if (this.GetIsSealed())
+    if (this.IsSealed)
         return;
     this._ConvertSetterValues();
-    this.$SetValue(Style.IsSealedProperty, true);
-    this.GetSetters()._Seal();
-    var base = this.GetBasedOn();
-    if (base != null)
+    this.$SetValueInternal(Style.IsSealedProperty, true);
+    this.Setters._Seal();
+    var base = this.BasedOn;
+    if (base)
         base._Seal();
 };
 Style.Instance._ConvertSetterValues = function () {
-    var setters = this.GetSetters();
-    for (var i = 0; i < setters.GetCount(); i++) {
+    var setters = this.Setters;
+    var count = setters.GetCount();
+    for (var i = 0; i < count; i++) {
         this._ConvertSetterValue(setters.GetValueAt(i));
     }
 };
 Style.Instance._ConvertSetterValue = function (setter) {
-    var propd = setter.$GetValue(Setter.PropertyProperty);
-    var val = setter.$GetValue(Setter.ValueProperty);
+    var propd = setter._GetValue(Setter.PropertyProperty);
+    var val = setter._GetValue(Setter.ValueProperty);
     if (typeof propd.GetTargetType() === "string") {
         if (typeof val !== "string")
             throw new XamlParseException("Setter value does not match property type.");
     }
     try {
-        setter.$SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.GetTargetType(), true));
+        setter._SetValue(Setter.ConvertedValueProperty, Fayde.TypeConverter.ConvertObject(propd, val, this.TargetType, true));
     } catch (err) {
         throw new XamlParseException(err.message);
     }
 };
 Style.Instance._AddSetter = function (dobj, propName, value) {
-    this.GetSetters().Add(JsonParser.CreateSetter(dobj, propName, value));
+    this.Setters.Add(JsonParser.CreateSetter(dobj, propName, value));
 };
 Style.Instance._AddSetterJson = function (dobj, propName, json) {
     var parser = new JsonParser();
@@ -8739,75 +9046,33 @@ UIElement.Instance.Init = function () {
     this.KeyUp.Subscribe(this.OnKeyUp, this);
     this.RequestBringIntoView = new MulticastEvent();
 };
-UIElement.ClipProperty = DependencyProperty.Register("Clip", function () { return Geometry; }, UIElement);
-UIElement.Instance.GetClip = function () {
-    return this.$GetValue(UIElement.ClipProperty);
-};
-UIElement.Instance.SetClip = function (value) {
-    this.$SetValue(UIElement.ClipProperty, value);
-};
-UIElement.IsHitTestVisibleProperty = DependencyProperty.Register("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
-UIElement.Instance.GetIsHitTestVisible = function () {
-    return this.$GetValue(UIElement.IsHitTestVisibleProperty);
-};
-UIElement.Instance.SetIsHitTestVisible = function (value) {
-    this.$SetValue(UIElement.IsHitTestVisibleProperty, value);
-};
-UIElement.OpacityMaskProperty = DependencyProperty.Register("OpacityMask", function () { return Brush; }, UIElement);
-UIElement.Instance.GetOpacityMask = function () {
-    return this.$GetValue(UIElement.OpacityMaskProperty);
-};
-UIElement.Instance.SetOpacityMask = function (value) {
-    this.$SetValue(UIElement.OpacityMaskProperty, value);
-};
-UIElement.OpacityProperty = DependencyProperty.Register("Opacity", function () { return Number; }, UIElement, 1.0);
-UIElement.Instance.GetOpacity = function () {
-    return this.$GetValue(UIElement.OpacityProperty);
-};
-UIElement.Instance.SetOpacity = function (value) {
-    this.$SetValue(UIElement.OpacityProperty, value);
-};
-UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, UIElement, CursorType.Default, null); //, UIElement._CoerceCursor);
-UIElement.Instance.GetCursor = function () {
-    return this.$GetValue(UIElement.CursorProperty);
-};
-UIElement.Instance.SetCursor = function (value) {
-    this.$SetValue(UIElement.CursorProperty, value);
-};
-UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, null, { GetValue: function () { return new ResourceDictionary(); } });
-UIElement.Instance.GetResources = function () {
-    return this.$GetValue(UIElement.ResourcesProperty);
-};
-UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, null, { GetValue: function () { } }*/);
-UIElement.Instance.GetTriggers = function () {
-    return this.$GetValue(UIElement.TriggersProperty);
-};
-UIElement.UseLayoutRoundingProperty = DependencyProperty.Register("UseLayoutRounding", function () { return Boolean; }, UIElement);
-UIElement.Instance.GetUseLayoutRounding = function () {
-    return this.$GetValue(UIElement.UseLayoutRoundingProperty);
-};
-UIElement.Instance.SetUseLayoutRounding = function (value) {
-    this.$SetValue(UIElement.UseLayoutRoundingProperty, value);
-};
-UIElement.VisibilityProperty = DependencyProperty.Register("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
-UIElement.Instance.GetVisibility = function () {
-    return this.$GetValue(UIElement.VisibilityProperty);
-};
-UIElement.Instance.SetVisibility = function (value) {
-    this.$SetValue(UIElement.VisibilityProperty, value);
-};
+UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
+UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
+UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);
+UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
+UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, UIElement, CursorType.Default, undefined); //, UIElement._CoerceCursor);
+UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, { GetValue: function () { return new ResourceDictionary(); } });
+UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, undefined, { GetValue: function () { } }*/);
+UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterCore("UseLayoutRounding", function () { return Boolean; }, UIElement);
+UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
-UIElement.Instance.GetTag = function () {
-    return this.$GetValue(UIElement.TagProperty);
-};
-UIElement.Instance.SetTag = function (value) {
-    this.$SetValue(UIElement.TagProperty, value);
-};
+Nullstone.AutoProperties(UIElement, [
+    UIElement.ClipProperty,
+    UIElement.IsHitTestVisibleProperty,
+    UIElement.OpacityMaskProperty,
+    UIElement.OpacityProperty,
+    UIElement.CursorProperty,
+    UIElement.ResourcesProperty,
+    UIElement.TriggersProperty,
+    UIElement.UseLayoutRoundingProperty,
+    UIElement.VisibilityProperty,
+    UIElement.TagProperty
+]);
 UIElement.Instance.BringIntoView = function (rect) {
-    if (rect == null) rect = new Rect();
+    if (!rect) rect = new Rect();
     var args = new RequestBringIntoViewEventArgs(this, rect);
     var cur = this;
-    while (cur != null && !args.Handled) {
+    while (cur && !args.Handled) {
         cur.RequestBringIntoView.Raise(this, args);
         cur = VisualTreeHelper.GetParent(cur);
     }
@@ -8818,11 +9083,20 @@ UIElement.Instance.SetVisualParent = function (value) {
 UIElement.Instance.GetVisualParent = function () {
     return this._VisualParent;
 };
+UIElement.Instance.GetVisualRoot = function () {
+    var visualParent = this.GetVisualParent();
+    if (visualParent) {
+        return visualParent.GetVisualRoot();
+    }
+    else {
+        return visualParent;
+    }
+};
 UIElement.Instance.IsLayoutContainer = function () { return false; };
 UIElement.Instance.IsContainer = function () { return this.IsLayoutContainer(); };
 UIElement.Instance.IsAncestorOf = function (el) {
     var parent = el;
-    while (parent != null && !Nullstone.RefEquals(parent, this))
+    while (parent && !Nullstone.RefEquals(parent, this))
         parent = VisualTreeHelper.GetParent(parent);
     return Nullstone.RefEquals(parent, this);
 };
@@ -8831,21 +9105,21 @@ UIElement.Instance.TransformToVisual = function (uie) {
     var ok = false;
     var surface = App.Instance.MainSurface;
     if (this._IsAttached) {
-        while (visual != null) {
+        while (visual) {
             if (surface._IsTopLevel(visual))
                 ok = true;
             visual = visual.GetVisualParent();
         }
     }
-    if (!ok || (uie != null && !uie._IsAttached)) {
+    if (!ok || (uie && !uie._IsAttached)) {
         throw new ArgumentException("UIElement not attached.");
         return null;
     }
-    if (uie != null && !surface._IsTopLevel(uie)) {
+    if (uie && !surface._IsTopLevel(uie)) {
         ok = false;
         visual = uie.GetVisualParent();
-        if (visual != null && uie._IsAttached) {
-            while (visual != null) {
+        if (visual && uie._IsAttached) {
+            while (visual) {
                 if (surface._IsTopLevel(visual))
                     ok = true;
                 visual = visual.GetVisualParent();
@@ -8860,7 +9134,7 @@ UIElement.Instance.TransformToVisual = function (uie) {
     var thisProjection;
     if (!this._CachedTransform || !(thisProjection = this._CachedTransform.Normal))
         throw new Exception("Cannot find transform.");
-    if (uie != null) {
+    if (uie) {
         var inverse;
         if (!uie._CachedTransform || !(inverse = uie._CachedTransform.Inverse))
             throw new Exception("Cannot find transform.");
@@ -8869,7 +9143,7 @@ UIElement.Instance.TransformToVisual = function (uie) {
         result = thisProjection.Copy();
     }
     var mt = new MatrixTransform();
-    mt.SetMatrix(result);
+    mt._SetValue(MatrixTransform.MatrixProperty, result);
     return mt;
 };
 UIElement.Instance._CacheInvalidateHint = function () {
@@ -8885,7 +9159,7 @@ UIElement.Instance._FullInvalidate = function (renderTransform) {
 UIElement.Instance._Invalidate = function (rect) {
     if (!rect)
         rect = this._SurfaceBounds;
-    if (!this._GetRenderVisible() || UIElement._IsOpacityInvisible(this._TotalOpacity))
+    if (!this._GetRenderVisible() || this._IsOpacityInvisible())
         return;
     if (this._IsAttached) {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Invalidate);
@@ -8938,8 +9212,8 @@ UIElement.Instance._ComputeLocalTransform = function () {
 UIElement.Instance._ComputeLocalProjection = function () {
 };
 UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
-    var clip = this.GetClip();
-    var layoutClip = transform ? null : LayoutInformation.GetLayoutClip(this);
+    var clip = this.Clip;
+    var layoutClip = transform ? undefined : LayoutInformation.GetLayoutClip(this);
     var box;
     if (!clip && !layoutClip)
         return unclipped;
@@ -8966,7 +9240,7 @@ UIElement.Instance._UpdateTotalRenderVisibility = function () {
 UIElement.Instance._GetActualTotalRenderVisibility = function () {
     var visible = (this._Flags & UIElementFlags.RenderVisible) != 0;
     var parentVisible = true;
-    this._TotalOpacity = this.GetOpacity();
+    this._TotalOpacity = this.Opacity;
     var visualParent = this.GetVisualParent();
     if (visualParent) {
         visualParent._ComputeTotalRenderVisibility();
@@ -9008,7 +9282,7 @@ UIElement.Instance._InsideObject = function (ctx, x, y) {
     return this._InsideClip(ctx, x, y);
 };
 UIElement.Instance._InsideClip = function (ctx, x, y) {
-    var clip = this.GetClip();
+    var clip = this.Clip;
     if (!clip)
         return true;
     var np = new Point(x, y);
@@ -9038,7 +9312,7 @@ UIElement.Instance._CreateOriginTransform = function () {
     return Matrix.CreateTranslate(visualOffset.X, visualOffset.Y);
 };
 UIElement.Instance._GetCachedTransform = function () {
-    if (this._CachedTransform == null) {
+    if (!this._CachedTransform) {
         var transform = this._CreateOriginTransform();
         var ancestor = { Normal: new Matrix(), Inverse: new Matrix() };
         var parent = this.GetVisualParent();
@@ -9101,7 +9375,9 @@ UIElement.Instance.Measure = function (availableSize) {
 };
 UIElement.Instance._MeasureWithError = function (availableSize, error) { };
 UIElement.Instance._DoArrangeWithError = function (error) {
-    var last = this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty);
+    var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    if (last === null)
+        last = undefined;
     var parent = this.GetVisualParent();
     if (!parent) {
         var desired = new Size();
@@ -9116,7 +9392,7 @@ UIElement.Instance._DoArrangeWithError = function (error) {
                     desired = new Size(surface.GetWidth(), surface.GetHeight());
             }
         } else {
-            desired = new Size(this.GetActualWidth(), this.GetActualHeight());
+            desired = new Size(this.ActualWidth, this.ActualHeight);
         }
         viewport = new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), desired.Width, desired.Height)
         last = viewport;
@@ -9145,7 +9421,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     }
     region = region.RoundOut();
     region = region.Intersection(parentRegion);
-    if (UIElement._IsOpacityInvisible(this._TotalOpacity)) {
+    if (this._IsOpacityInvisible()) {
         return;
     }
     if (!this._GetRenderVisible()) {
@@ -9160,20 +9436,23 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
         ctx.Transform(transform);
     this._CachedTransform = { Normal: ctx.GetCurrentTransform(), Inverse: ctx.GetInverseTransform() };
     ctx.SetGlobalAlpha(this._TotalOpacity);
+    var clip = this.Clip;
+    if (clip) {
+        clip.Draw(ctx);
+        var canvasCtx = ctx.GetCanvasContext();
+        canvasCtx.clip();
+    }
     this._Render(ctx, region);
-    this._PostRender(ctx, region);
-    ctx.Restore();
-};
-UIElement.Instance._Render = function (ctx, region) { };
-UIElement.Instance._PostRender = function (ctx, region) {
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
     var child;
     while (child = walker.Step()) {
         child._DoRender(ctx, region);
     }
+    ctx.Restore();
 };
+UIElement.Instance._Render = function (ctx, region) { };
 UIElement.Instance._SetIsLoaded = function (value) {
-    if (this._IsLoaded != value) {
+    if (this._IsLoaded !== value) {
         this._IsLoaded = value;
         this._OnIsLoadedChanged(value);
     }
@@ -9183,11 +9462,11 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
     var v;
     if (!this._IsLoaded) {
         this.Unloaded.Raise(this, new EventArgs());
-        iter = new CollectionIterator(this.GetResources());
+        iter = new CollectionIterator(this.Resources);
         while (iter.Next()) {
             v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
-            if (v != null)
+            if (v)
                 v._SetIsLoaded(loaded);
         }
     }
@@ -9197,11 +9476,11 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
         element._SetIsLoaded(loaded);
     }
     if (this._IsLoaded) {
-        iter = new CollectionIterator(this.GetResources());
+        iter = new CollectionIterator(this.Resources);
         while (iter.Next()) {
             v = iter.GetCurrent();
             v = Nullstone.As(v, FrameworkElement);
-            if (v != null)
+            if (v)
                 v._SetIsLoaded(loaded);
         }
         this.Loaded.RaiseAsync(this, new EventArgs());
@@ -9233,7 +9512,7 @@ UIElement.Instance._ElementRemoved = function (item) {
     item.SetMentor(null);
     var emptySlot = new Rect();
     LayoutInformation.SetLayoutSlot(item, emptySlot);
-    item.ClearValue(LayoutInformation.LayoutClipProperty);
+    item._ClearValue(LayoutInformation.LayoutClipProperty);
     this._InvalidateMeasure();
     this._Providers[_PropertyPrecedence.Inherited].ClearInheritedPropertiesOnRemovingFromTree(item);
 }
@@ -9246,19 +9525,19 @@ UIElement.Instance._ElementAdded = function (item) {
     item._SetIsAttached(this._IsAttached);
     item._SetIsLoaded(this._IsLoaded);
     var o = this;
-    while (o != null && !(o instanceof FrameworkElement))
+    while (o && !(o instanceof FrameworkElement))
         o = o.GetMentor();
     item.SetMentor(o);
     this._UpdateBounds(true);
     this._InvalidateMeasure();
-    this.ClearValue(LayoutInformation.LayoutClipProperty);
-    this.ClearValue(LayoutInformation.PreviousConstraintProperty);
+    this._ClearValue(LayoutInformation.LayoutClipProperty);
+    this._ClearValue(LayoutInformation.PreviousConstraintProperty);
     item._SetRenderSize(new Size(0, 0));
     item._UpdateTransform();
     item._UpdateProjection();
     item._InvalidateMeasure();
     item._InvalidateArrange();
-    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValueImpl(LayoutInformation.LastRenderSizeProperty))
+    if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 }
 UIElement.Instance._UpdateLayer = function (pass, error) {
@@ -9305,7 +9584,7 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateVisibility();
         this._InvalidateMeasure();
         var parent = this.GetVisualParent();
-        if (parent != null)
+        if (parent)
             parent._InvalidateMeasure();
         App.Instance.MainSurface._RemoveFocus(this);
     } else if (args.Property._ID === UIElement.IsHitTestVisibleProperty._ID) {
@@ -9413,18 +9692,19 @@ UIElement.Instance._EmitLostFocus = function () {
     this.LostFocus.Raise(this, new EventArgs());
 };
 UIElement.Instance.OnLostFocus = function (sender, args) { };
-UIElement._IsOpacityInvisible = function (opacity) {
-    return opacity * 255 < .5;
+UIElement.Instance._IsOpacityInvisible = function () {
+    return this._TotalOpacity * 255 < .5;
 };
-UIElement._IsOpacityTranslucent = function (opacity) {
-    return opacity * 255 < 245.5;
+UIElement.Instance._IsOpacityTranslucent = function () {
+    return this._TotalOpacity * 255 < 245.5;
 };
 UIElement.ZIndexComparer = function (uie1, uie2) {
-    var zi1 = Canvas.GetZIndex(uie1);
-    var zi2 = Canvas.GetZIndex(uie2);
+    var c = Canvas;
+    var zi1 = c.GetZIndex(uie1);
+    var zi2 = c.GetZIndex(uie2);
     if (zi1 == zi2) {
-        var z1 = Canvas.GetZ(uie1);
-        var z2 = Canvas.GetZ(uie2);
+        var z1 = c.GetZ(uie1);
+        var z2 = c.GetZ(uie2);
         if (isNaN(z1) || isNaN(z2))
             return 0;
         return z1 > z2 ? 1 : (z1 < z2 ? -1 : 0);
@@ -9447,6 +9727,22 @@ Collection.Instance.GetCount = function () {
 Collection.Instance.GetValueAt = function (index) {
     return this._ht[index];
 };
+Collection.Instance.SetValueAt = function (index, value) {
+    if (!this.CanAdd(value))
+        return false;
+    if (index < 0 || index >= this._ht.length)
+        return false;
+    var removed = this._ht[index];
+    var added = value;
+    var error = new BError();
+    if (this.AddedToCollection(added, error)) {
+        this._ht[index] = added;
+        this.RemovedFromCollection(removed, true);
+        this._RaiseChanged(CollectionChangedArgs.Action.Replace, removed, added, index);
+        return true;
+    }
+    return false;
+};
 Collection.Instance.Add = function (value) {
     var rv = this.Insert(this._ht.length, value);
     return rv ? this._ht.length - 1 : -1;
@@ -9462,7 +9758,7 @@ Collection.Instance.Insert = function (index, value) {
     var error = new BError();
     if (this.AddedToCollection(value, error)) {
         this._ht.splice(index, 0, value);
-        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, value, index);
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, value, index);
         return true;
     }
     return false;
@@ -9479,22 +9775,22 @@ Collection.Instance.RemoveAt = function (index) {
     var value = this._ht[index];
     this._ht.splice(index, 1);
     this.RemovedFromCollection(value, true);
-    this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, null, index);
+    this._RaiseChanged(CollectionChangedArgs.Action.Remove, value, undefined, index);
     return true;
 };
 Collection.Instance.Clear = function () {
-    this._RaiseChanged(CollectionChangedArgs.Action.Clearing, null, null, -1);
+    this._RaiseChanged(CollectionChangedArgs.Action.Clearing, undefined, undefined, -1);
     var old = this._ht;
     this._ht = [];
     for (var i = 0; i < old.length; i++) {
         this.RemovedFromCollection(old[i], true);
     }
-    this._RaiseChanged(CollectionChangedArgs.Action.Cleared, null, null, -1);
+    this._RaiseChanged(CollectionChangedArgs.Action.Cleared, undefined, undefined, -1);
     return true;
 };
 Collection.Instance.IndexOf = function (value) {
     for (var i = 0; i < this.GetCount(); i++) {
-        if (value == this._ht[i])
+        if (Nullstone.Equals(value, this._ht[i]))
             return i;
     }
     return -1;
@@ -9587,15 +9883,103 @@ DependencyObjectCollection.Instance._OnSubPropertyChanged = function (propd, sen
 };
 Nullstone.FinishCreate(DependencyObjectCollection);
 
+var PresentationFrameworkCollection = Nullstone.Create("PresentationFrameworkCollection", DependencyObject);
+PresentationFrameworkCollection.Instance.Init = function () {
+    this.Init$DependencyObject();
+    this._Backing = new Collection();
+    this.ItemsChanged = new MulticastEvent();
+    this.Clearing = new MulticastEvent();
+};
+PresentationFrameworkCollection.Instance.GetCount = function () {
+    return this._Backing.GetCount();
+};
+PresentationFrameworkCollection.Instance.GetValueAt = function (index) {
+    return this._Backing.GetValueAt(index);
+};
+PresentationFrameworkCollection.Instance.SetValueAt = function (index, value) {
+    var old = this.GetValueAt(index);
+    this._Backing.SetValueAt(index, value);
+    this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, old, index));
+};
+PresentationFrameworkCollection.Instance.Contains = function (value) {
+    return this._Backing.IndexOf(value) !== -1;
+};
+PresentationFrameworkCollection.Instance.IndexOf = function (value) {
+    return this._Backing.IndexOf(value);
+};
+PresentationFrameworkCollection.Instance.Clear = function () {
+    this._CheckReadOnly();
+    this._ClearImpl();
+};
+PresentationFrameworkCollection.Instance._ClearImpl = function () {
+    this.Clearing.Raise(this, new EventArgs());
+    this._Backing.Clear();
+    this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+};
+PresentationFrameworkCollection.Instance.Add = function (value) {
+    this._CheckReadOnly();
+    this._AddImpl(value);
+};
+PresentationFrameworkCollection.Instance._AddImpl = function (value) {
+    this._CheckNull();
+    var index = this._Backing.Add(value);
+    this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, index));
+};
+PresentationFrameworkCollection.Instance.Insert = function (index, value) {
+    this._CheckReadOnly();
+    this._InsertImpl(index, value);
+};
+PresentationFrameworkCollection.Instance._InsertImpl = function (index, value) {
+    this._CheckNull();
+    if (index < 0)
+        throw new ArgumentOutOfRangeException();
+    var index = this._Backing.Insert(index, value);
+    this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, index));
+};
+PresentationFrameworkCollection.Instance.Remove = function (value) {
+    this._CheckReadOnly();
+    return this._RemoveImpl(value);
+};
+PresentationFrameworkCollection.Instance._RemoveImpl = function (value) {
+    if (this._CheckNull(NotifyCollectionChangedAction.Remove, value))
+        return false;
+    var index = this.IndexOf(value);
+    if (index === -1)
+        return false;
+    this._Backing.RemoveAt(index);
+    this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(value, index));
+    return true;
+};
+PresentationFrameworkCollection.Instance.RemoveAt = function (index) {
+    this._CheckReadOnly();
+    this._RemoveAtImpl(index);
+};
+PresentationFrameworkCollection.Instance._RemoveAtImpl = function (index) {
+    var value = this.GetValueAt(index);
+    this._Backing.RemoveAt(index);
+    this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, value, index));
+};
+PresentationFrameworkCollection.Instance._CheckNull = function (action, value) {
+    if (value != null)
+        return false;
+    if (action === NotifyCollectionChangedAction.Add)
+        throw new ArgumentNullException();
+};
+PresentationFrameworkCollection.Instance._CheckReadOnly = function () {
+    if (this.GetIsReadOnly())
+        throw new InvalidOperationException("The collection is readonly.");
+};
+Nullstone.FinishCreate(PresentationFrameworkCollection);
+
 var ResourceDictionary = Nullstone.Create("ResourceDictionary", Collection);
 ResourceDictionary.Instance.Init = function () {
     this.Init$Collection();
     this._KeyIndex = [];
 };
-ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, null, { GetValue: function () { return new ResourceDictionaryCollection(); } });
-ResourceDictionary.Instance.GetMergedDictionaries = function () {
-    return this.$GetValue(ResourceDictionary.MergedDictionariesProperty);
-};
+ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+Nullstone.AutoProperties(ResourceDictionary, [
+    ResourceDictionary.MergedDictionariesProperty
+]);
 ResourceDictionary.Instance.ContainsKey = function (key) {
     return this._KeyIndex[key] != undefined;
 };
@@ -9608,7 +9992,7 @@ ResourceDictionary.Instance.Get = function (key) {
     return this._GetFromMergedDictionaries(key);
 };
 ResourceDictionary.Instance._GetFromMergedDictionaries = function (key) {
-    var merged = this.GetMergedDictionaries();
+    var merged = this.MergedDictionaries;
     if (!merged)
         return undefined;
     for (var i = 0; i < merged.GetCount(); i++) {
@@ -9639,11 +10023,10 @@ ResourceDictionary.Instance.Remove = function (key) {
         return this.RemoveAt(index);
 };
 ResourceDictionary.Instance.AddedToCollection = function (value, error) {
-    var obj = null;
     var rv = false;
-    if (value instanceof DependencyObject) {
-        obj = Nullstone.As(value, DependencyObject);
-        if (obj._GetParent() != null && !ResourceDictionary._CanBeAddedTwice(value)) {
+    var obj = Nullstone.As(value, DependencyObject);
+    if (obj) {
+        if (obj._GetParent() && !ResourceDictionary._CanBeAddedTwice(value)) {
             error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
             return false;
         }
@@ -9654,15 +10037,15 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
         this.AddPropertyChangedListener(obj);
     }
     rv = this.AddedToCollection$Collection(value, error);
-    if (rv /* && !from_resource_dictionary_api */ && obj != null) {
-        this._RaiseChanged(CollectionChangedArgs.Action.Add, null, obj, obj.GetName());
+    if (rv /* && !from_resource_dictionary_api */ && obj) {
+        this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, obj, obj.Name);
     }
     return rv;
 };
 ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe && value instanceof DependencyObject) {
         var obj = Nullstone.As(value, DependencyObject);
-        if (obj != null) {
+        if (obj) {
             this.RemovePropertyChangedListener(obj);
             obj._RemoveParent(this, null);
             obj._SetIsAttached(false);
@@ -9687,7 +10070,7 @@ ResourceDictionary.Instance._OnMentorChanged = function (oldValue, newValue) {
 ResourceDictionary.Instance._RegisterAllNamesRootedAt = function (namescope, error) {
     for (var i = 0; i < this.GetCount(); i++) {
         var obj = this.GetValueAt(i);
-        if (obj != null && obj instanceof DependencyObject)
+        if (obj && obj instanceof DependencyObject)
             obj._RegisterAllNamesRootedAt(namescope, error);
     }
     this._RegisterAllNamesRootedAt$Collection(namescope, error);
@@ -9695,7 +10078,7 @@ ResourceDictionary.Instance._RegisterAllNamesRootedAt = function (namescope, err
 ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
     for (var i = 0; i < this.GetCount(); i++) {
         var obj = this.GetValueAt(i);
-        if (obj != null && obj instanceof DependencyObject)
+        if (obj && obj instanceof DependencyObject)
             obj._UnregisterAllNamesRootedAt(fromNs);
     }
     this._UnregisterAllNamesRootedAt$Collection(fromNs);
@@ -9744,8 +10127,9 @@ ResourceDictionaryCollection.Instance._WalkSubtreeLookingForCycle = function (su
         }
         p = p._GetParent();
     }
-    var children = subtreeRoot.GetMergedDictionaries();
-    for (var i = 0; i < children.GetCount(); i++) {
+    var children = subtreeRoot.MergedDictionaries;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
         if (!this._WalkSubtreeLookingForCycle(children.GetValueAt(i), firstAncestor, error))
             return false;
     }
@@ -9800,7 +10184,7 @@ _CollectionViewNode.Instance.ViewChanged = function (sender, e) {
 };
 _CollectionViewNode.Instance.ViewCurrentChanged = function (sender, e) {
     this.UpdateValue();
-    if (this.GetNext() != null)
+    if (this.GetNext())
         this.GetNext().SetSource(this.GetValue());
 };
 _CollectionViewNode.Instance.SetValue = function () {
@@ -9808,26 +10192,26 @@ _CollectionViewNode.Instance.SetValue = function () {
 };
 _CollectionViewNode.Instance.UpdateValue = function () {
     if (this.GetBindsDirectlyToSource()) {
-        this.SetValueType(this.GetSource() == null ? null : this.GetSource().constructor);
+        this.SetValueType(!this.GetSource() ? null : this.GetSource().constructor);
         this._UpdateValueAndIsBroken(this.GetSource(), this._CheckIsBroken());
     } else {
         var usableSource = this.GetSource();
-        var view = null;
+        var view;
         if (this.GetSource() instanceof CollectionViewSource) {
             usableSource = null;
-            view = this.GetSource().GetView();
+            view = this.GetSource().View;
         } else if (this.GetSource().DoesImplement(ICollectionView)) {
             view = this.GetSource();
         }
-        if (view == null) {
-            this.SetValueType(usableSource == null ? null : usableSource.constructor);
+        if (!view) {
+            this.SetValueType(!usableSource ? null : usableSource.constructor);
             this._UpdateValueAndIsBroken(usableSource, this._CheckIsBroken());
         } else {
             if (this.GetBindToView()) {
                 this.SetValueType(view.constructor);
                 this._UpdateValueAndIsBroken(view, this._CheckIsBroken());
             } else {
-                this.SetValueType(view.GetCurrentItem() == null ? null : view.GetCurrentItem().constructor);
+                this.SetValueType(!view.GetCurrentItem() ? null : view.GetCurrentItem().constructor);
                 this._UpdateValueAndIsBroken(view.GetCurrentItem(), this._CheckIsBroken());
             }
         }
@@ -9837,21 +10221,21 @@ _CollectionViewNode.Instance._CheckIsBroken = function () {
     return this.GetSource() == null;
 };
 _CollectionViewNode.Instance.ConnectViewHandlers = function (source, view) {
-    if (source != null) {
-        this._ViewPropertyListener = new PropertyChangedListener(source, source.constructor.ViewProperty, this, this.ViewChanged);
-        view = source.GetView();
+    if (source) {
+        this._ViewPropertyListener = new PropertyChangedListener(source, CollectionViewSource.ViewProperty, this, this.ViewChanged);
+        view = source.View;
     }
-    if (view != null)
+    if (view)
         this._ViewListener = new CurrentChangedListener(view, this, this.ViewCurrentChanged);
 };
 _CollectionViewNode.Instance.DisconnectViewHandlers = function (onlyView) {
-    if (onlyView == null)
+    if (!onlyView)
         onlyView = false;
-    if (this._ViewPropertyListener != null && !onlyView) {
+    if (this._ViewPropertyListener && !onlyView) {
         this._ViewPropertyListener.Detach();
         this._ViewPropertyListener = null;
     }
-    if (this._ViewListener != null) {
+    if (this._ViewListener) {
         this._ViewListener.Detach();
         this._ViewListener = null;
     }
@@ -9878,19 +10262,11 @@ Nullstone.FinishCreate(_CollectionViewNode);
 
 var CollectionViewSource = Nullstone.Create("CollectionViewSource", DependencyObject);
 CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
-CollectionViewSource.Instance.GetSource = function () {
-    return this.$GetValue(CollectionViewSource.SourceProperty);
-};
-CollectionViewSource.Instance.SetSource = function (value) {
-    this.$SetValue(CollectionViewSource.SourceProperty, value);
-};
 CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
-CollectionViewSource.Instance.GetView = function () {
-    return this.$GetValue(CollectionViewSource.ViewProperty);
-};
-CollectionViewSource.Instance.SetView = function (value) {
-    this.$SetValue(CollectionViewSource.ViewProperty, value);
-};
+Nullstone.AutoProperties(CollectionViewSource, [
+    CollectionViewSource.SourceProperty,
+    CollectionViewSource.ViewProperty
+]);
 Nullstone.FinishCreate(CollectionViewSource);
 
 var _IndexedPropertyPathNode = Nullstone.Create("_IndexedPropertyPathNode", _PropertyPathNode, 1);
@@ -9924,80 +10300,37 @@ TextElement.Instance.Init = function () {
     this._Font = new Font();
     this._UpdateFont(true);
 };
-TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextElement.Instance.GetForeground = function () {
-    return this.$GetValue(TextElement.ForegroundProperty);
-};
-TextElement.Instance.SetForeground = function (value) {
-    this.$SetValue(TextElement.ForegroundProperty, value);
-};
+TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
 TextElement.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY);
-TextElement.Instance.GetFontFamily = function () {
-    return this.$GetValue(TextElement.FontFamilyProperty);
-};
-TextElement.Instance.SetFontFamily = function (value) {
-    this.$SetValue(TextElement.FontFamilyProperty, value);
-};
 TextElement.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH);
-TextElement.Instance.GetFontStretch = function () {
-    return this.$GetValue(TextElement.FontStretchProperty);
-};
-TextElement.Instance.SetFontStretch = function (value) {
-    this.$SetValue(TextElement.FontStretchProperty, value);
-};
 TextElement.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE);
-TextElement.Instance.GetFontStyle = function () {
-    return this.$GetValue(TextElement.FontStyleProperty);
-};
-TextElement.Instance.SetFontStyle = function (value) {
-    this.$SetValue(TextElement.FontStyleProperty, value);
-};
 TextElement.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextElement, Font.DEFAULT_WEIGHT);
-TextElement.Instance.GetFontWeight = function () {
-    return this.$GetValue(TextElement.FontWeightProperty);
-};
-TextElement.Instance.SetFontWeight = function (value) {
-    this.$SetValue(TextElement.FontWeightProperty, value);
-};
 TextElement.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextElement, Font.DEFAULT_SIZE);
-TextElement.Instance.GetFontSize = function () {
-    return this.$GetValue(TextElement.FontSizeProperty);
-};
-TextElement.Instance.SetFontSize = function (value) {
-    this.$SetValue(TextElement.FontSizeProperty, value);
-};
 TextElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, TextElement);
-TextElement.Instance.GetLanguage = function () {
-    return this.$GetValue(TextElement.LanguageProperty);
-};
-TextElement.Instance.SetLanguage = function (value) {
-    this.$SetValue(TextElement.LanguageProperty, value);
-};
 TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return new Enum(TextDecorations); }, TextElement, TextDecorations.None);
-TextElement.Instance.GetTextDecorations = function () {
-    return this.$GetValue(TextElement.TextDecorationsProperty);
-};
-TextElement.Instance.SetTextDecorations = function (value) {
-    this.$SetValue(TextElement.TextDecorationsProperty, value);
-};
 TextElement.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextElement);
-TextElement.Instance.GetFontResource = function () {
-    return this.$GetValue(TextElement.FontResourceProperty);
-};
-TextElement.Instance.SetFontResource = function (value) {
-    this.$SetValue(TextElement.FontResourceProperty, value);
-};
+Nullstone.AutoProperties(TextElement, [
+    TextElement.ForegroundProperty,
+    TextElement.FontFamilyProperty,
+    TextElement.FontStretchProperty,
+    TextElement.FontStyleProperty,
+    TextElement.FontWeightProperty,
+    TextElement.FontSizeProperty,
+    TextElement.LanguageProperty,
+    TextElement.TextDecorationsProperty,
+    TextElement.FontResourceProperty
+]);
 TextElement.Instance.GetBackground = function (selected) { return null; }
 TextElement.Instance.GetFont = function () { return this._Font; };
 TextElement.Instance.GetDirection = function () { return FlowDirection.LeftToRight; };
 TextElement.Instance._SerializeText = function (str) { return str; };
 TextElement.Instance._UpdateFont = function (force) {
     var changed = false;
-    changed = changed || this._Font.SetFamily(this.GetFontFamily());
-    changed = changed || this._Font.SetStretch(this.GetFontStretch());
-    changed = changed || this._Font.SetStyle(this.GetFontStyle());
-    changed = changed || this._Font.SetWeight(this.GetFontWeight());
-    changed = changed || this._Font.SetSize(this.GetFontSize());
+    changed = changed || this._Font.SetFamily(this.FontFamily);
+    changed = changed || this._Font.SetStretch(this.FontStretch);
+    changed = changed || this._Font.SetStyle(this.FontStyle);
+    changed = changed || this._Font.SetWeight(this.FontWeight);
+    changed = changed || this._Font.SetSize(this.FontSize);
     return changed || force;
 };
 TextElement.Instance._OnPropertyChanged = function (args, error) {
@@ -10005,11 +10338,11 @@ TextElement.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
-    if (args.Property == TextElement.FontFamilyProperty
-        || args.Property == TextElement.FontSizeProperty
-        || args.Property == TextElement.FontStretchProperty
-        || args.Property == TextElement.FontStyleProperty
-        || args.Property == TextElement.FontWeightProperty) {
+    if (args.Property._ID === TextElement.FontFamilyProperty._ID
+        || args.Property._ID === TextElement.FontSizeProperty._ID
+        || args.Property._ID === TextElement.FontStretchProperty._ID
+        || args.Property._ID === TextElement.FontStyleProperty._ID
+        || args.Property._ID === TextElement.FontWeightProperty._ID) {
         this._UpdateFont(false);
     }
     this.PropertyChanged.Raise(this, args);
@@ -10025,24 +10358,23 @@ App.Instance.Init = function () {
     this.MainSurface = new Surface(this);
     this._Clock = new Clock();
     this._Storyboards = [];
+    this._DebugFunc = {};
     this.Loaded = new MulticastEvent();
+    this._SubscribeDebugService("LayoutTime", function (elapsedTime) {
+        Info("LayoutTime: " + elapsedTime.toString());
+    });
+    this._SubscribeDebugService("RenderTime", function (elapsedTime) {
+        Info("RenderTime: " + elapsedTime.toString());
+    });
 };
-App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, null, { GetValue: function () { return new ResourceDictionary(); } });
-App.Instance.GetResources = function () {
-    return this.$GetValue(App.ResourcesProperty);
-};
-App.Instance.SetResources = function (value) {
-    this.$SetValue(App.ResourcesProperty, value);
-};
-App.Instance.GetAddress = function () {
-    return this._Address;
-};
-App.Instance.SetAddress = function (value) {
-    this._Address = value;
-};
-App.Instance.Load = function (element, containerId, width, height) {
-    this.SetAddress(new Uri(document.URL));
-    this.MainSurface.Register(containerId, width, height);
+App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, { GetValue: function () { return new ResourceDictionary(); } });
+Nullstone.AutoProperties(App, [
+    App.ResourcesProperty,
+    "Address"
+]);
+App.Instance.Load = function (element, containerId, width, widthType, height, heightType) {
+    this.Address = new Uri(document.URL);
+    this.MainSurface.Register(containerId, width, widthType, height, heightType);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);
@@ -10069,11 +10401,17 @@ App.Instance.ProcessStoryboards = function (lastTime, nowTime) {
 App.Instance.ProcessDirty = function () {
     if (this._IsRunning)
         return;
+    var startLayoutTime;
+    var isLayoutPassTimed;
+    if (isLayoutPassTimed = (this._DebugFunc[3] != null))
+        startLayoutTime = new Date().getTime();
     this._IsRunning = true;
     var extents = this.MainSurface.GetExtents();
     var region = new Rect(0, 0, extents.Width, extents.Height);
-        this.MainSurface.ProcessDirtyElements(region);
+    this.MainSurface.ProcessDirtyElements(region);
     this._IsRunning = false;
+    if (isLayoutPassTimed)
+        this._NotifyDebugLayoutPass(new Date().getTime() - startLayoutTime);
 };
 App.Instance.RegisterStoryboard = function (storyboard) {
     Array.addDistinctNullstone(this._Storyboards, storyboard);
@@ -10089,31 +10427,31 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
         if (fe instanceof Control) {
             genericXamlStyle = fe.GetDefaultStyle();
             if (!genericXamlStyle) {
-                var styleKey = fe.GetDefaultStyleKey();
+                var styleKey = fe.DefaultStyleKey;
                 if (styleKey != null)
                     genericXamlStyle = this._GetGenericXamlStyleFor(styleKey);
             }
         }
     }
     if ((styleMask & _StyleMask.ApplicationResources) != 0) {
-        appResourcesStyle = this.GetResources().Get(fe.constructor);
+        appResourcesStyle = this.Resources.Get(fe.constructor);
         if (appResourcesStyle == null)
-            appResourcesStyle = this.GetResources().Get(fe._TypeName);
+            appResourcesStyle = this.Resources.Get(fe._TypeName);
     }
     if ((styleMask & _StyleMask.VisualTree) != 0) {
         var isControl = fe instanceof Control;
         var el = fe;
         while (el != null) {
-            if (el.GetTemplateOwner() != null && fe.GetTemplateOwner() == null) {
-                el = el.GetTemplateOwner();
+            if (el.TemplateOwner != null && fe.TemplateOwner == null) {
+                el = el.TemplateOwner;
                 continue;
             }
-            if (!isControl && el == fe.GetTemplateOwner())
+            if (!isControl && Nullstone.RefEquals(el, fe.TemplateOwner))
                 break;
-            visualTreeStyle = el.GetResources().Get(fe.constructor);
+            visualTreeStyle = el.Resources.Get(fe.constructor);
             if (visualTreeStyle != null)
                 break;
-            visualTreeStyle = el.GetResources().Get(fe._TypeName);
+            visualTreeStyle = el.Resources.Get(fe._TypeName);
             if (visualTreeStyle != null)
                 break;
             el = el.GetVisualParent();
@@ -10128,6 +10466,51 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
 App.Instance._GetGenericXamlStyleFor = function (type) {
     NotImplemented("App._GetGenericXamlStyleFor");
 };
+App.Instance._SubscribeDebugService = function (id, func) {
+    var i = this._GetInternalDebugServiceID(id);
+    if (i)
+        this._DebugFunc[i] = func;
+};
+App.Instance._UnsubscribeDebugService = function (id) {
+    var i = this._GetInternalDebugServiceID(id);
+    if (i)
+        delete this._DebugFunc[i];
+};
+App.Instance._GetInternalDebugServiceID = function (id) {
+    if (id === "Coordinates")
+        return 1;
+    else if (id === "HitTest")
+        return 2;
+    else if (id === "LayoutTime")
+        return 3;
+    else if (id === "RenderTime")
+        return 4;
+    return null;
+};
+App.Instance._NotifyDebugCoordinates = function (position) {
+    var func = this._DebugFunc[1];
+    if (!func)
+        return;
+    func(position);
+};
+App.Instance._NotifyDebugHitTest = function (inputList) {
+    var func = this._DebugFunc[2];
+    if (!func)
+        return;
+    func(inputList);
+};
+App.Instance._NotifyDebugLayoutPass = function (elapsedTime) {
+    var func = this._DebugFunc[3];
+    if (!func)
+        return;
+    func(elapsedTime);
+};
+App.Instance._NotifyDebugRenderPass = function (elapsedTime) {
+    var func = this._DebugFunc[4];
+    if (!func)
+        return;
+    func(elapsedTime);
+};
 Nullstone.FinishCreate(App);
 
 var Brush = Nullstone.Create("Brush", DependencyObject);
@@ -10135,12 +10518,9 @@ Brush.Instance.Init = function () {
     this.Init$DependencyObject();
 };
 Brush.ChangedProperty = DependencyProperty.Register("Changed", function () { return Boolean; }, Brush);
-Brush.Instance.GetChanged = function () {
-    return this.$GetValue(Brush.ChangedProperty);
-};
-Brush.Instance.SetChanged = function (value) {
-    this.$SetValue(Brush.ChangedProperty, value);
-};
+Nullstone.AutoProperties(Brush, [
+    Brush.ChangedProperty
+]);
 Brush.Instance.SetupBrush = function (ctx, bounds) {
 };
 Brush.Instance.ToHtml5Object = function () {
@@ -10159,6 +10539,7 @@ Nullstone.FinishCreate(Brush);
 
 var GeneralTransform = Nullstone.Create("GeneralTransform", DependencyObject);
 GeneralTransform.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._NeedUpdate = true;
     this._Matrix = new Matrix();
 };
@@ -10205,17 +10586,14 @@ Geometry.Instance.Init = function () {
     this.$Path = null;
     this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 };
-Geometry.TransformProperty = DependencyProperty.Register("Transform", function () { return Transform; }, Geometry);
-Geometry.Instance.GetTransform = function () {
-    return this.$GetValue(Geometry.TransformProperty);
-};
-Geometry.Instance.SetTransform = function (value) {
-    this.$SetValue(Geometry.TransformProperty, value);
-};
+Geometry.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Transform; }, Geometry);
+Nullstone.AutoProperties(Geometry, [
+    Geometry.TransformProperty
+]);
 Geometry.Instance.Draw = function (ctx) {
     if (this.$Path == null)
         return;
-    var transform = this.GetTransform();
+    var transform = this.Transform;
     if (transform != null) {
         ctx.Save();
         ctx.Transform(transform);
@@ -10233,7 +10611,7 @@ Geometry.Instance.GetBounds = function (thickness) {
     if (compute)
         this._LocalBounds = this.ComputePathBounds(thickness);
     var bounds = this._LocalBounds;
-    var transform = this.GetTransform();
+    var transform = this.Transform
     if (transform != null) {
         bounds = transform.TransformBounds(bounds);
     }
@@ -10269,7 +10647,7 @@ Geometry.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: propd,
         OldValue: null,
-        NewValue: this.$GetValue(propd)
+        NewValue: this._GetValue(propd)
     });
     this._OnSubPropertyChanged$DependencyObject();
 };
@@ -10286,41 +10664,31 @@ GeometryGroup.Instance.Init = function () {
     this.Init$Geometry();
 };
 GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, GeometryGroup, FillRule.EvenOdd);
-GeometryGroup.Instance.GetFillRule = function () {
-    return this.$GetValue(GeometryGroup.FillRuleProperty);
-};
-GeometryGroup.Instance.SetFillRule = function (value) {
-    this.$SetValue(GeometryGroup.FillRuleProperty, value);
-};
-GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, null, { GetValue: function () { return new GeometryCollection(); } });
-GeometryGroup.Instance.GetChildren = function () {
-    return this.$GetValue(GeometryGroup.ChildrenProperty);
-};
-GeometryGroup.Instance.SetChildren = function (value) {
-    this.$SetValue(GeometryGroup.ChildrenProperty, value);
-};
+GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, undefined, { GetValue: function () { return new GeometryCollection(); } });
+Nullstone.AutoProperties(GeometryGroup, [
+    GeometryGroup.FillRuleProperty,
+    GeometryGroup.ChildrenProperty
+]);
 GeometryGroup.Instance.ComputePathBounds = function () {
     var bounds = new Rect();
-    var children = this.GetChildren();
+    var children = this.Children;
     var count = children.GetCount();
-    var g;
     for (var i = 0; i < count; i++) {
-        g = children.GetValueAt(i);
+        var g = children.GetValueAt(i);
         bounds = bounds.Union(g.GetBounds(), true);
     }
     return bounds;
 };
 GeometryGroup.Instance.Draw = function (ctx) {
-    var transform = this.GetTransform();
+    var transform = this.Transform;
     if (transform != null) {
         ctx.Save();
         ctx.Transform(transform);
     }
-    var children = this.GetChildren();
+    var children = this.Children;
     var count = children.GetCount();
-    var g;
     for (var i = 0; i < count; i++) {
-        g = children.GetValueAt(i);
+        var g = children.GetValueAt(i);
         g.Draw(ctx);
     }
     if (transform != null)
@@ -10335,7 +10703,7 @@ GeometryGroup.prototype._OnCollectionChanged = function (sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: GeometryGroup.ChildrenProperty,
         OldValue: null,
-        NewValue: this.GetChildren()
+        NewValue: this.Children
     });
 };
 GeometryGroup.prototype._OnCollectionItemChanged = function (sender, args) {
@@ -10347,28 +10715,23 @@ GeometryGroup.prototype._OnCollectionItemChanged = function (sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: GeometryGroup.ChildrenProperty,
         OldValue: null,
-        NewValue: this.GetChildren()
+        NewValue: this.Children
     });
 };
 Nullstone.FinishCreate(GeometryGroup);
 
 var GradientBrush = Nullstone.Create("GradientBrush", Brush);
 GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
-    if (this.GetMappingMode() === BrushMappingMode.Absolute)
+    if (this.MappingMode === BrushMappingMode.Absolute)
         return new Matrix();
     return new Matrix.CreateScale(bounds.Width, bounds.Height);
 };
-GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, null, { GetValue: function () { return new GradientStopCollection(); } });
-GradientBrush.Instance.GetGradientStops = function () {
-    return this.$GetValue(GradientBrush.GradientStopsProperty);
-};
+GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, undefined, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Enum(BrushMappingMode); }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
-GradientBrush.Instance.GetMappingMode = function () {
-    return this.$GetValue(GradientBrush.MappingModeProperty);
-};
-GradientBrush.Instance.SetMappingMode = function (value) {
-    this.$SetValue(GradientBrush.MappingModeProperty, value);
-};
+Nullstone.AutoProperties(GradientBrush, [
+    GradientBrush.GradientStopsProperty,
+    GradientBrush.MappingModeProperty
+]);
 GradientBrush.Annotations = {
     ContentProperty: GradientBrush.GradientStopsProperty
 };
@@ -10376,19 +10739,11 @@ Nullstone.FinishCreate(GradientBrush);
 
 var GradientStop = Nullstone.Create("GradientStop", DependencyObject);
 GradientStop.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, GradientStop, new Color());
-GradientStop.Instance.GetColor = function () {
-    return this.$GetValue(GradientStop.ColorProperty);
-};
-GradientStop.Instance.SetColor = function (value) {
-    this.$SetValue(GradientStop.ColorProperty, value);
-};
 GradientStop.OffsetProperty = DependencyProperty.Register("Offset", function () { return Number; }, GradientStop, 0.0);
-GradientStop.Instance.GetOffset = function () {
-    return this.$GetValue(GradientStop.OffsetProperty);
-};
-GradientStop.Instance.SetOffset = function (value) {
-    this.$SetValue(GradientStop.OffsetProperty, value);
-};
+Nullstone.AutoProperties(GradientStop, [
+    GradientStop.ColorProperty,
+    GradientStop.OffsetProperty
+]);
 Nullstone.FinishCreate(GradientStop);
 
 var GradientStopCollection = Nullstone.Create("GradientStopCollection", DependencyObjectCollection);
@@ -10401,38 +10756,31 @@ var ImageSource = Nullstone.Create("ImageSource", DependencyObject);
 ImageSource.Instance.Init = function () {
     this.Init$DependencyObject();
 };
-ImageSource.Instance.GetPixelWidth = function () { return 0; };
-ImageSource.Instance.SetPixelWidth = function (width) { };
-ImageSource.Instance.GetPixelHeight = function () { return 0; };
-ImageSource.Instance.SetPixelHeight = function (height) { };
+Nullstone.AutoProperties(ImageSource, [
+    "PixelWidth",
+    "PixelHeight"
+]);
 ImageSource.Instance.Lock = function () { };
 ImageSource.Instance.Unlock = function () { };
 Nullstone.FinishCreate(ImageSource);
 
 var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", GradientBrush);
 LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
-LinearGradientBrush.Instance.GetStartPoint = function () {
-    return this.$GetValue(LinearGradientBrush.StartPointProperty);
-};
-LinearGradientBrush.Instance.SetStartPoint = function (value) {
-    this.$SetValue(LinearGradientBrush.StartPointProperty, value);
-};
 LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterFull("EndPoint", function () { return Point; }, LinearGradientBrush, new Point(1, 1));
-LinearGradientBrush.Instance.GetEndPoint = function () {
-    return this.$GetValue(LinearGradientBrush.EndPointProperty);
-};
-LinearGradientBrush.Instance.SetEndPoint = function (value) {
-    this.$SetValue(LinearGradientBrush.EndPointProperty, value);
-};
+Nullstone.AutoProperties(LinearGradientBrush, [
+    LinearGradientBrush.StartPointProperty,
+    LinearGradientBrush.EndPointProperty
+]);
 LinearGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
     var transform = this._GetMappingModeTransform(bounds);
-    var start = this.GetStartPoint().Apply(transform);
-    var end = this.GetEndPoint().Apply(transform);
+    var start = this.StartPoint.Apply(transform);
+    var end = this.EndPoint.Apply(transform);
     var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
-    var stops = this.GetGradientStops();
-    for (var i = 0; i < stops.GetCount(); i++) {
+    var stops = this.GradientStops;
+    var count = stops.GetCount();
+    for (var i = 0; i < count; i++) {
         var stop = stops.GetValueAt(i);
-        grd.addColorStop(stop.GetOffset(), stop.GetColor().toString());
+        grd.addColorStop(stop.Offset, stop.Color.toString());
     }
     this._Brush = grd;
 };
@@ -10440,36 +10788,19 @@ Nullstone.FinishCreate(LinearGradientBrush);
 
 var PathFigure = Nullstone.Create("PathFigure", DependencyObject);
 PathFigure.Instance.Init = function () {
+    this.Init$DependencyObject();
     this._Path = null;
 };
 PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () { return Boolean; }, PathFigure, false);
-PathFigure.Instance.GetIsClosed = function () {
-    return this.$GetValue(PathFigure.IsClosedProperty);
-};
-PathFigure.Instance.SetIsClosed = function (value) {
-    this.$SetValue(PathFigure.IsClosedProperty, value);
-};
-PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, null, { GetValue: function () { return new PathSegmentCollection(); } });
-PathFigure.Instance.GetSegments = function () {
-    return this.$GetValue(PathFigure.SegmentsProperty);
-};
-PathFigure.Instance.SetSegments = function (value) {
-    this.$SetValue(PathFigure.SegmentsProperty, value);
-};
+PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, undefined, { GetValue: function () { return new PathSegmentCollection(); } });
 PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, PathFigure, new Point());
-PathFigure.Instance.GetStartPoint = function () {
-    return this.$GetValue(PathFigure.StartPointProperty);
-};
-PathFigure.Instance.SetStartPoint = function (value) {
-    this.$SetValue(PathFigure.StartPointProperty, value);
-};
 PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () { return Boolean; }, PathFigure, true);
-PathFigure.Instance.GetIsFilled = function () {
-    return this.$GetValue(PathFigure.IsFilledProperty);
-};
-PathFigure.Instance.SetIsFilled = function (value) {
-    this.$SetValue(PathFigure.IsFilledProperty, value);
-};
+Nullstone.AutoProperties(PathFigure, [
+    PathFigure.IsClosedProperty,
+    PathFigure.SegmentsProperty,
+    PathFigure.StartPointProperty,
+    PathFigure.IsFilledProperty
+]);
 PathFigure.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== PathFigure) {
         this._OnPropertyChanged$DependencyObject(args, error);
@@ -10487,7 +10818,7 @@ PathFigure.Instance._OnCollectionChanged = function (sender, args) {
     var newArgs = {
         Property: PathFigure.SegmentsProperty,
         OldValue: null,
-        NewValue: this.$GetValue(PathFigure.SegmentsProperty)
+        NewValue: this._GetValue(PathFigure.SegmentsProperty)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };
@@ -10500,21 +10831,21 @@ PathFigure.Instance._OnCollectionItemChanged = function (sender, args) {
     var newArgs = {
         Property: PathFigure.SegmentsProperty,
         OldValue: null,
-        NewValue: this.$GetValue(PathFigure.SegmentsProperty)
+        NewValue: this._GetValue(PathFigure.SegmentsProperty)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };
 PathFigure.Instance._Build = function () {
     this._Path = [];
-    var start = this.GetStartPoint();
+    var start = this.StartPoint;
     this._Path.push({ type: PathEntryType.Move, x: start.X, y: start.Y });
-    var segments = this.GetSegments();
-    var segmentCount = segments.GetCount();
-    for (var i = 0; i < segmentCount; i++) {
+    var segments = this.Segments;
+    var count = segments.GetCount();
+    for (var i = 0; i < count; i++) {
         var segment = segments[i];
         segment._Append(this._Path);
     }
-    if (this.GetIsClosed())
+    if (this.IsClosed)
         this._Path.push({ type: PathEntryType.Close });
 };
 Nullstone.FinishCreate(PathFigure);
@@ -10529,19 +10860,11 @@ Nullstone.FinishCreate(PathFigureCollection);
 
 var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
 PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, PathGeometry);
-PathGeometry.Instance.GetFillRule = function () {
-    return this.$GetValue(PathGeometry.FillRuleProperty);
-};
-PathGeometry.Instance.SetFillRule = function (value) {
-    this.$SetValue(PathGeometry.FillRuleProperty, value);
-};
-PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, null, { GetValue: function () { return new PathFigureCollection(); } });
-PathGeometry.Instance.GetFigures = function () {
-    return this.$GetValue(PathGeometry.FiguresProperty);
-};
-PathGeometry.Instance.SetFigures = function (value) {
-    this.$SetValue(PathGeometry.FiguresProperty, value);
-};
+PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, undefined, { GetValue: function () { return new PathFigureCollection(); } });
+Nullstone.AutoProperties(PathGeometry, [
+    PathGeometry.FillRuleProperty,
+    PathGeometry.FiguresProperty
+]);
 PathGeometry.Annotations = {
     ContentProperty: PathGeometry.FiguresProperty
 };
@@ -10554,7 +10877,7 @@ PathGeometry.prototype._OnCollectionChanged = function (sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: PathGeometry.FiguresProperty,
         OldValue: null,
-        NewValue: this.GetFigures()
+        NewValue: this.Figures
     });
 };
 PathGeometry.prototype._OnCollectionItemChanged = function (sender, args) {
@@ -10566,18 +10889,17 @@ PathGeometry.prototype._OnCollectionItemChanged = function (sender, args) {
     this.PropertyChanged.Raise(this, {
         Property: PathGeometry.FiguresProperty,
         OldValue: null,
-        NewValue: this.GetFigures()
+        NewValue: this.Figures
     });
 };
 PathGeometry.Instance._Build = function () {
     this.$Path = new RawPath();
-    var figures = this.GetFigures();
+    var figures = this.Figures;
     if (figures == null)
         return;
     var count = figures.GetCount();
-    var f;
     for (var i = 0; i < count; i++) {
-        f = figures.GetValueAt(i);
+        var f = figures.GetValueAt(i);
         f._EnsureBuilt();
         RawPath.Merge(this.$Path, f.$Path);
     }
@@ -10585,10 +10907,8 @@ PathGeometry.Instance._Build = function () {
 Nullstone.FinishCreate(PathGeometry);
 
 var PathSegment = Nullstone.Create("PathSegment", DependencyObject);
-PathSegment.Instance.Init = function () {
-};
 PathSegment.Instance._Append = function (path) {
-    AbstractMethod("PathSegment._Append");
+    throw new AbstractMethodException("PathSegment._Append");
 };
 Nullstone.FinishCreate(PathSegment);
 
@@ -10602,72 +10922,41 @@ Nullstone.FinishCreate(PathSegmentCollection);
 
 var RadialGradientBrush = Nullstone.Create("RadialGradientBrush", GradientBrush);
 RadialGradientBrush.CenterProperty = DependencyProperty.RegisterFull("Center", function () { return Point; }, RadialGradientBrush, new Point(0.5, 0.5));
-RadialGradientBrush.Instance.GetCenter = function () {
-    return this.$GetValue(RadialGradientBrush.CenterProperty);
-};
-RadialGradientBrush.Instance.SetCenter = function (value) {
-    this.$SetValue(RadialGradientBrush.CenterProperty, value);
-};
 RadialGradientBrush.GradientOriginProperty = DependencyProperty.RegisterFull("GradientOrigin", function () { return Point; }, RadialGradientBrush, new Point(0.5, 0.5));
-RadialGradientBrush.Instance.GetGradientOrigin = function () {
-    return this.$GetValue(RadialGradientBrush.GradientOriginProperty);
-};
-RadialGradientBrush.Instance.SetGradientoOrigin = function (value) {
-    this.$SetValue(RadialGradientBrush.GradientOriginProperty, value);
-};
 RadialGradientBrush.RadiusXProperty = DependencyProperty.RegisterFull("RadiusX", function () { return Number; }, RadialGradientBrush, 0.5);
-RadialGradientBrush.Instance.GetRadiusX = function () {
-    return this.$GetValue(RadialGradientBrush.RadiusXProperty);
-};
-RadialGradientBrush.Instance.SetRadiusX = function (value) {
-    this.$SetValue(RadialGradientBrush.RadiusXProperty, value);
-};
 RadialGradientBrush.RadiusYProperty = DependencyProperty.RegisterFull("RadiusY", function () { return Number; }, RadialGradientBrush, 0.5);
-RadialGradientBrush.Instance.GetRadiusY = function () {
-    return this.$GetValue(RadialGradientBrush.RadiusYProperty);
-};
-RadialGradientBrush.Instance.SetRadiusY = function (value) {
-    this.$SetValue(RadialGradientBrush.RadiusYProperty, value);
-};
+Nullstone.AutoProperties(RadialGradientBrush, [
+    RadialGradientBrush.CenterProperty,
+    RadialGradientBrush.GradientOriginProperty,
+    RadialGradientBrush.RadiusXProperty,
+    RadialGradientBrush.RadiusYProperty
+]);
 RadialGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
     NotImplemented("RadialGradientBrush.SetupBrush");
 };
 Nullstone.FinishCreate(RadialGradientBrush);
 
 var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
-RectangleGeometry.RectProperty = DependencyProperty.Register("Rect", function () { return Rect; }, RectangleGeometry, new Rect());
-RectangleGeometry.Instance.GetRect = function () {
-    return this.$GetValue(RectangleGeometry.RectProperty);
-};
-RectangleGeometry.Instance.SetRect = function (value) {
-    this.$SetValue(RectangleGeometry.RectProperty, value);
-};
-RectangleGeometry.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, RectangleGeometry, 0);
-RectangleGeometry.Instance.GetRadiusX = function () {
-    return this.$GetValue(RectangleGeometry.RadiusXProperty);
-};
-RectangleGeometry.Instance.SetRadiusX = function (value) {
-    this.$SetValue(RectangleGeometry.RadiusXProperty, value);
-};
-RectangleGeometry.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, RectangleGeometry, 0);
-RectangleGeometry.Instance.GetRadiusY = function () {
-    return this.$GetValue(RectangleGeometry.RadiusYProperty);
-};
-RectangleGeometry.Instance.SetRadiusY = function (value) {
-    this.$SetValue(RectangleGeometry.RadiusYProperty, value);
-};
+RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () { return Rect; }, RectangleGeometry, new Rect());
+RectangleGeometry.RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", function () { return Number; }, RectangleGeometry, 0);
+RectangleGeometry.RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", function () { return Number; }, RectangleGeometry, 0);
+Nullstone.AutoProperties(RectangleGeometry, [
+    RectangleGeometry.RectProperty,
+    RectangleGeometry.RadiusXProperty,
+    RectangleGeometry.RadiusYProperty
+]);
 RectangleGeometry.Instance.ComputePathBounds = function () {
-    var rect = this.GetRect();
+    var rect = this.Rect;
     if (rect)
         return rect;
     return new Rect(0.0, 0.0, 0.0, 0.0);
 };
 RectangleGeometry.Instance._Build = function () {
-    var rect = this.GetRect();
-    if (rect == null)
+    var rect = this.Rect;
+    if (!rect)
         return;
-    var radiusX = this.GetRadiusX();
-    var radiusY = this.GetRadiusY();
+    var radiusX = this.RadiusX;
+    var radiusY = this.RadiusY;
     this.$Path = new RawPath();
     this.$Path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
 };
@@ -10678,18 +10967,15 @@ SolidColorBrush.Instance.Init = function (args) {
     this.Init$Brush();
     if (args.length === 1) {
         if (args[0] instanceof Color)
-            this.SetColor(args[0]);
+            this.Color = args[0];
     }
 };
 SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush);
-SolidColorBrush.Instance.GetColor = function () {
-    return this.$GetValue(SolidColorBrush.ColorProperty);
-};
-SolidColorBrush.Instance.SetColor = function (value) {
-    this.$SetValue(SolidColorBrush.ColorProperty, value);
-};
+Nullstone.AutoProperties(SolidColorBrush, [
+    SolidColorBrush.ColorProperty
+]);
 SolidColorBrush.Instance.SetupBrush = function (ctx, bounds) {
-    var color = this.GetColor();
+    var color = this.Color;
     if (color == null)
         this._Brush = "#000000";
     else
@@ -10699,37 +10985,25 @@ Nullstone.FinishCreate(SolidColorBrush);
 
 var TileBrush = Nullstone.Create("TileBrush", Brush);
 TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return new Enum(AlignmentX); }, TileBrush, AlignmentX.Center);
-TileBrush.Instance.GetAlignmentX = function () {
-    return this.$GetValue(TileBrush.AlignmentXProperty);
-};
-TileBrush.Instance.SetAlignmentX = function (value) {
-    this.$SetValue(TileBrush.AlignmentXProperty, value);
-};
 TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return new Enum(AlignmentY); }, TileBrush, AlignmentY.Center);
-TileBrush.Instance.GetAlignmentY = function () {
-    return this.$GetValue(TileBrush.AlignmentYProperty);
-};
-TileBrush.Instance.SetAlignmentY = function (value) {
-    this.$SetValue(TileBrush.AlignmentYProperty, value);
-};
 TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, TileBrush, Stretch.Fill);
-TileBrush.Instance.GetStretch = function () {
-    return this.$GetValue(TileBrush.StretchProperty);
-};
-TileBrush.Instance.SetStretch = function (value) {
-    this.$SetValue(TileBrush.StretchProperty, value);
-};
+Nullstone.AutoProperties(TileBrush, [
+    TileBrush.AlignmentXProperty,
+    TileBrush.AlignmentYProperty,
+    TileBrush.StretchProperty
+]);
 Nullstone.FinishCreate(TileBrush);
 
 var Transform = Nullstone.Create("Transform", GeneralTransform);
 Transform.Instance.Init = function () {
+    this.Init$GeneralTransform();
 };
 Transform.Instance.GetInverse = function () {
     var inv = this._Matrix.GetInverse();
     if (inv == null)
         throw new InvalidOperationException("Transform is not invertible");
     var mt = new MatrixTransform();
-    mt.SetMatrix(inv);
+    mt.Matrix = inv;
     return mt;
 };
 Transform.Instance.TransformBounds = function (rect) {
@@ -10746,9 +11020,7 @@ Transform.Instance.TryTransform = function (inPoint, outPointOut) {
     outPointOut.Value = this._TransformPoint(inPoint);
     return true;
 };
-Transform.Instance.GetMatrix = function () {
-    AbstractMethod("Transform.GetMatrix");
-};
+Nullstone.AbstractProperty(Transform, "Matrix", true);
 Nullstone.FinishCreate(Transform);
 
 var KeyFrame = Nullstone.Create("KeyFrame", DependencyObject);
@@ -10757,15 +11029,10 @@ KeyFrame.Instance.Init = function () {
     this._ResolvedKeyTime = null;
     this._Resolved = false;
 };
-KeyFrame.Instance.GetKeyTime = function () {
-    throw new AbstractMethodException();
-};
-KeyFrame.Instance.SetKeyTime = function (value) {
-    throw new AbstractMethodException();
-};
+Nullstone.AbstractProperty(KeyFrame, "KeyTime");
 KeyFrame.Instance.CoerceKeyTime = function (dobj, propd, value, coerced, error) {
     if (value == null)
-        coerced.Value = this.GetKeyTime();
+        coerced.Value = this.KeyTime;
     else
         coerced.Value = value;
     return true;
@@ -10805,7 +11072,7 @@ KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
     for (; i >= 0; i--) {
         keyFrame = this._SortedList[i];
         valuePropd = keyFrame.GetDependencyProperty("Value");
-        if (keyFrame.$GetValue(valuePropd) != null) {
+        if (keyFrame._GetValue(valuePropd) !== undefined) {
             currentKeyFrame = keyFrame;
             break;
         }
@@ -10813,7 +11080,7 @@ KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
     for (i--; i >= 0; i--) {
         keyFrame = this._SortedList[i];
         valuePropd = keyFrame.GetDependencyProperty("Value");
-        if (keyFrame.$GetValue(valuePropd) != null) {
+        if (keyFrame._GetValue(valuePropd) !== undefined) {
             previousKeyFrame = keyFrame;
             break;
         }
@@ -10861,7 +11128,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyTime = keyFrame.GetKeyTime();
+        keyTime = keyFrame.KeyTime;
         if (keyTime.HasTimeSpan()) {
             hasTimeSpanKeyFrame = true;
             var ts = keyTime.GetTimeSpan();
@@ -10871,7 +11138,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
             keyFrame._Resolved = true;
         }
     }
-    var d = animation.GetDuration();
+    var d = animation._GetValue(Timeline.DurationProperty);
     if (d.HasTimeSpan()) {
         totalInterpolationTime = d.GetTimeSpan();
     } else if (hasTimeSpanKeyFrame) {
@@ -10882,7 +11149,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyTime = keyFrame.GetKeyTime();
+        keyTime = keyFrame.KeyTime;
         if (keyTime.HasPercent()) {
             keyFrame._ResolvedTime = totalInterpolationTime.Multiply(keyTime.GetPercent())
             keyFrame._Resolved = true;
@@ -10891,7 +11158,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     if (count > 0) {
         value = coll.GetValueAt(count - 1);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyTime = keyFrame.GetKeyTime();
+        keyTime = keyFrame.KeyTime;
         if (keyTime.IsPaced() || keyTime.IsUniform()) {
             keyFrame._ResolvedKeyTime = totalInterpolationTime;
             keyFrame._Resolved = true;
@@ -10907,7 +11174,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     if (count > 0) {
         value = coll.GetValueAt(count - 1);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyTime = keyFrame.GetKeyTime();
+        keyTime = keyFrame.KeyTime;
         if (!keyFrame._Resolved && keyTime.IsPaced()) {
             keyFrame._ResolvedKeyTime = new TimeSpan(0);
             keyFrame._Resolved = true;
@@ -10924,9 +11191,14 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
 Nullstone.FinishCreate(KeyFrameCollection);
 
 var ObjectKeyFrame = Nullstone.Create("ObjectKeyFrame", KeyFrame);
-ObjectKeyFrame.KeyTimeProperty = DependencyProperty.RegisterFull("KeyTime", function () { return KeyTime; }, ObjectKeyFrame, KeyTime.CreateUniform(), null, { GetValue: function () { NotImplemented("KeyTime Coercer"); } });
+ObjectKeyFrame.KeyTimeProperty = DependencyProperty.Register("KeyTime", function () { return KeyTime; }, ObjectKeyFrame, KeyTime.CreateUniform(), null, { GetValue: function () { NotImplemented("KeyTime Coercer"); } });
 ObjectKeyFrame.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, ObjectKeyFrame);
 ObjectKeyFrame.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, ObjectKeyFrame);
+Nullstone.AutoProperties(ObjectKeyFrame, [
+    ObjectKeyFrame.KeyTimeProperty,
+    ObjectKeyFrame.ValueProperty,
+    ObjectKeyFrame.ConvertedValueProperty
+]);
 Nullstone.FinishCreate(ObjectKeyFrame);
 
 var ObjectKeyFrameCollection = Nullstone.Create("ObjectKeyFrameCollection", KeyFrameCollection);
@@ -10942,19 +11214,11 @@ Timeline.Instance.Init = function () {
     this.Reset();
 };
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
-Timeline.Instance.GetBeginTime = function () {
-    return this.$GetValue(Timeline.BeginTimeProperty);
-};
-Timeline.Instance.SetBeginTime = function (value) {
-    this.$SetValue(Timeline.BeginTimeProperty, value);
-};
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
-Timeline.Instance.GetDuration = function () {
-    return this.$GetValue(Timeline.DurationProperty);
-};
-Timeline.Instance.SetDuration = function (value) {
-    this.$SetValue(Timeline.DurationProperty, value);
-};
+Nullstone.AutoProperties(Timeline, [
+    Timeline.BeginTimeProperty,
+    Timeline.DurationProperty
+]);
 Timeline.Instance.HasManualTarget = function () {
     return this._ManualTarget != null;
 };
@@ -10967,7 +11231,7 @@ Timeline.Instance.Reset = function () {
     this._HasReachedBeg = false;
 };
 Timeline.Instance.IsAfterBeginTime = function (nowTime) {
-    var beginTime = this.GetBeginTime();
+    var beginTime = this._GetValue(Timeline.BeginTimeProperty);
     if (beginTime == null || beginTime.IsZero())
         return true;
     var ts = new TimeSpan();
@@ -10983,7 +11247,7 @@ Timeline.Instance.CreateClockData = function (nowTime) {
         CurrentTime: new TimeSpan(nowTime - this._BeginStep),
         Progress: 1.0
     };
-    var duration = this.GetDuration();
+    var duration = this._GetValue(Timeline.DurationProperty);
     if (duration != null && duration.HasTimeSpan()) {
         var elapsedMs = nowTime - this._BeginStep;
         var durMs = duration.GetTimeSpan().GetMilliseconds();
@@ -11033,32 +11297,22 @@ BitmapSource.Instance.Init = function () {
     this.Init$ImageSource();
     this.ResetImage();
 };
-BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
-BitmapSource.Instance.GetPixelWidth = function () {
-    return this.$GetValue(BitmapSource.PixelWidthProperty);
-};
-BitmapSource.Instance.SetPixelWidth = function (value) {
-    this.$SetValue(BitmapSource.PixelWidthProperty, value);
-};
-BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, null, null, null, BitmapSource.IntGreaterThanZeroValidator);
-BitmapSource.Instance.GetPixelHeight = function () {
-    return this.$GetValue(BitmapSource.PixelHeightProperty);
-};
-BitmapSource.Instance.SetPixelHeight = function (value) {
-    this.$SetValue(BitmapSource.PixelHeightProperty, value);
-};
 BitmapSource.IntGreaterThanZeroValidator = function (instance, propd, value, error) {
     if (typeof value !== "number")
         return false;
     return value > 0;
 };
+BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, undefined, undefined, undefined, BitmapSource.IntGreaterThanZeroValidator);
+BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, undefined, undefined, undefined, BitmapSource.IntGreaterThanZeroValidator);
+Nullstone.AutoProperty(BitmapSource, BitmapSource.PixelWidthProperty, undefined, true);
+Nullstone.AutoProperty(BitmapSource, BitmapSource.PixelHeightProperty, undefined, true);
 BitmapSource.Instance.ResetImage = function () {
     this._Image = new Image();
     var bs = this;
     this._Image.onerror = function (e) { bs._OnErrored(e); };
     this._Image.onload = function (e) { bs._OnLoad(e); };
-    this.SetPixelWidth(0);
-    this.SetPixelHeight(0);
+    this.PixelWidth = 0;
+    this.PixelHeight = 0;
 };
 BitmapSource.Instance.UriSourceChanged = function (oldValue, newValue) {
     this._Image.src = newValue.toString();
@@ -11069,8 +11323,8 @@ BitmapSource.Instance._OnErrored = function (e) {
         this._ErroredCallback(e);
 };
 BitmapSource.Instance._OnLoad = function (e) {
-    this.SetPixelWidth(this._Image.naturalWidth);
-    this.SetPixelHeight(this._Image.naturalHeight);
+    this.PixelWidth = this._Image.naturalWidth;
+    this.PixelHeight = this._Image.naturalHeight;
     if (this._LoadedCallback)
         this._LoadedCallback(e);
 };
@@ -11078,12 +11332,9 @@ Nullstone.FinishCreate(BitmapSource);
 
 var VisualState = Nullstone.Create("VisualState", DependencyObject);
 VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
-VisualState.Instance.GetStoryboard = function () {
-    return this.$GetValue(VisualState.StoryboardProperty);
-};
-VisualState.Instance.SetStoryboard = function (value) {
-    this.$SetValue(VisualState.StoryboardProperty, value);
-};
+Nullstone.AutoProperties(VisualState, [
+    VisualState.StoryboardProperty
+]);
 VisualState.Annotations = {
     ContentProperty: VisualState.StoryboardProperty
 };
@@ -11115,17 +11366,11 @@ VisualStateGroup.Instance.GetTransitions = function () {
         this._Transitions = new VisualTransitionCollection();
     return this._Transitions;
 };
-VisualStateGroup.Instance.GetCurrentState = function () {
-    return this._CurrentState;
-};
-VisualStateGroup.Instance.SetCurrentState = function (value) {
-    this._CurrentState = value;
-};
 VisualStateGroup.Instance.GetState = function (stateName) {
     var states = this.GetStates();
     for (var i = 0; i < states.GetCount(); i++) {
         var state = states.GetValueAt(i);
-        if (state.GetName() === stateName)
+        if (state.Name === stateName)
             return state;
     }
     return null;
@@ -11137,13 +11382,13 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
         storyboard = newStoryboards[i];
         if (storyboard == null)
             continue;
-        element.GetResources().Add(storyboard._ID, storyboard);
+        element.Resources.Add(storyboard._ID, storyboard);
         try {
             storyboard.Begin();
         } catch (err) {
             for (var j = 0; j <= i; j++) {
                 if (newStoryboards[i] != null)
-                    element.GetResources().Remove(newStoryboards[i]._ID);
+                    element.Resources.Remove(newStoryboards[i]._ID);
             }
             throw err;
         }
@@ -11153,7 +11398,7 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
         storyboard = currentStoryboards.GetValueAt(i);
         if (storyboard == null)
             continue;
-        element.GetResources().Remove(storyboard._ID);
+        element.Resources.Remove(storyboard._ID);
         storyboard.Stop();
     }
     currentStoryboards.Clear();
@@ -11180,7 +11425,7 @@ VisualStateGroupCollection.Instance.IsElementType = function (value) {
 Nullstone.FinishCreate(VisualStateGroupCollection);
 
 var VisualStateManager = Nullstone.Create("VisualStateManager", DependencyObject);
-VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttached("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
+VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
 VisualStateManager.GetVisualStateGroups = function (d) {
     return d.$GetValue(VisualStateManager.VisualStateGroupsProperty);
 };
@@ -11195,7 +11440,7 @@ VisualStateManager._GetVisualStateGroupsInternal = function (d) {
     }
     return groups;
 };
-VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttached("CustomVisualStateManager", function () { return VisualStateManager }, VisualStateManager, null);
+VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", function () { return VisualStateManager }, VisualStateManager, null);
 VisualStateManager.GetCustomVisualStateManager = function (d) {
     return d.$GetValue(VisualStateManager.CustomVisualStateManagerProperty);
 };
@@ -11224,15 +11469,16 @@ VisualStateManager.GoToState = function (control, stateName, useTransitions) {
     return false;
 };
 VisualStateManager.GoToStateInternal = function (control, element, group, state, useTransitions) {
-    var lastState = group.GetCurrentState();
+    var lastState = group.CurrentState;
     if (Nullstone.RefEquals(lastState, state))
         return true;
     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
-    if (transition == null || (transition.GetGeneratedDuration().IsZero() && (transition.GetStoryboard() == null || transition.GetStoryboard().GetDuration().IsZero()))) {
-        if (transition != null && transition.GetStoryboard() != null) {
-            group.StartNewThenStopOld(element, [transition.GetStoryboard(), state.GetStoryboard()]);
+    var storyboard;
+    if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.GetDuration().IsZero()))) {
+        if (transition != null && storyboard != null) {
+            group.StartNewThenStopOld(element, [storyboard, state.Storyboard]);
         } else {
-            group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+            group.StartNewThenStopOld(element, [state.Storyboard]);
         }
         group.RaiseCurrentStateChanging(element, lastState, state, control);
         group.RaiseCurrentStateChanged(element, lastState, state, control);
@@ -11240,37 +11486,37 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
         var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
         dynamicTransition.$SetValue(Control.IsTemplateItemProperty, true);
         var eventClosure = new Closure();
-        transition.SetDynamicStoryboardCompleted(false);
+        transition.DynamicStoryboardCompleted = false;
         var dynamicCompleted = function (sender, e) {
-            if (transition.GetStoryboard() == null || transition.GetExplicitStoryboardCompleted() === true) {
-                group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+            if (transition.Storyboard == null || transition.ExplicitStoryboardCompleted === true) {
+                group.StartNewThenStopOld(element, [state.Storyboard]);
                 group.RaiseCurrentStateChanged(element, lastState, state, control);
             }
-            transition.SetDynamicStoryboardCompleted(true);
+            transition.DynamicStoryboardCompleted = true;
         };
         dynamicTransition.Completed.Subscribe(dynamicCompleted, eventClosure);
-        if (transition.GetStoryboard() != null && transition.GetExplicitStoryboardCompleted() === true) {
+        if (transition.Storyboard != null && transition.ExplicitStoryboardCompleted === true) {
             var transitionCompleted = function (sender, e) {
-                if (transition.GetDynamicStoryboardCompleted() === true) {
-                    group.StartNewThenStopOld(element, [state.GetStoryboard()]);
+                if (transition.DynamicStoryboardCompleted === true) {
+                    group.StartNewThenStopOld(element, [state.Storyboard]);
                     group.RaiseCurrentStateChanged(element, lastState, state, control);
                 }
-                transition.GetStoryboard().Completed.Unsubscribe(transitionCompleted, eventClosure);
-                transition.SetExplicitStoryboardCompleted(true);
+                transition.Storyboard.Completed.Unsubscribe(transitionCompleted, eventClosure);
+                transition.ExplicitStoryboardCompleted = true;
             };
-            transition.SetExplicitStoryboardCompleted(false);
-            transition.GetStoryboard().Completed.Subscribe(transitionCompleted, eventClosure);
+            transition.ExplicitStoryboardCompleted = false;
+            transition.Storyboard.Completed.Subscribe(transitionCompleted, eventClosure);
         }
-        group.StartNewThenStopOld(element, [transition.GetStoryboard(), dynamicTransition]);
+        group.StartNewThenStopOld(element, [transition.Storyboard, dynamicTransition]);
         group.RaiseCurrentStateChanging(element, lastState, state, control);
     }
-    group.SetCurrentState(state);
+    group.CurrentState = state;
     return true;
 };
 VisualStateManager._GetTemplateRoot = function (control) {
     var userControl = Nullstone.As(control, UserControl);
     if (userControl != null)
-        return Nullstone.As(userControl.GetContent(), FrameworkElement);
+        return Nullstone.As(userControl.Content, FrameworkElement);
     if (VisualTreeHelper.GetChildrenCount(control) > 0)
         return Nullstone.As(VisualTreeHelper.GetChild(control, 0), FrameworkElement);
     return null;
@@ -11306,8 +11552,8 @@ VisualStateManager._GetTransition = function (element, group, from, to) {
                 continue;
             }
             var score = -1;
-            var transFromState = group.GetState(transition.GetFrom());
-            var transToState = group.GetState(transition.GetTo());
+            var transFromState = group.GetState(transition.From);
+            var transToState = group.GetState(transition.To);
             if (Nullstone.RefEquals(from, transFromState))
                 score += 1;
             else if (transFromState != null)
@@ -11329,7 +11575,7 @@ VisualStateManager._GetTransition = function (element, group, from, to) {
 VisualStateManager._GenerateDynamicTransitionAnimations = function (root, group, state, transition) {
     var dynamic = new Storyboard();
     if (transition != null) {
-        dynamic.SetDuration(transition.GetGeneratedDuration());
+        dynamic.SetDuration(transition.GeneratedDuration);
     } else {
         dynamic.SetDuration(new Duration(0));
     }
@@ -11344,52 +11590,19 @@ Nullstone.FinishCreate(VisualStateManager);
 var VisualTransition = Nullstone.Create("VisualTransition", DependencyObject);
 VisualTransition.Instance.Init = function () {
     this.Init$DependencyObject();
-    this.SetDynamicStoryboardCompleted(true);
-    this.SetExplicitStoryboardCompleted(true);
+    this.DynamicStoryboardCompleted = true;
+    this.ExplicitStoryboardCompleted = true;
     this._GeneratedDuration = new Duration();
 };
-VisualTransition.Instance.GetFrom = function () {
-    return this._From;
-};
-VisualTransition.Instance.SetFrom = function (value) {
-    this._From = value;
-};
-VisualTransition.Instance.GetTo = function () {
-    return this._To;
-};
-VisualTransition.Instance.SetTo = function (value) {
-    this._To = value;
-};
-VisualTransition.Instance.GetStoryboard = function () {
-    return this._Storyboard;
-};
-VisualTransition.Instance.SetStoryboard = function (value) {
-    this._Storyboard = value;
-};
-VisualTransition.Instance.GetGeneratedDuration = function () {
-    return this._GeneratedDuration;
-};
-VisualTransition.Instance.SetGeneratedDuration = function (value) {
-    this._GeneratedDuration = value;
-};
-VisualTransition.Instance.GetDynamicStoryboardCompleted = function () {
-    return this._DynamicStoryboardCompleted;
-};
-VisualTransition.Instance.SetDynamicStoryboardCompleted = function (value) {
-    this._DynamicStoryboardCompleted = value;
-};
-VisualTransition.Instance.GetExplicitStoryboardCompleted = function () {
-    return this._ExplicitStoryboardCompleted;
-};
-VisualTransition.Instance.SetExplicitStoryboardCompleted = function (value) {
-    this._ExplicitStoryboardCompleted = value;
-};
-VisualTransition.Instance.GetGeneratedEasingFunction = function () {
-    return this._GeneratedEasingFunction;
-};
-VisualTransition.Instance.SetGeneratedEasingFunction = function (value) {
-    this._GeneratedEasingFunction = value;
-};
+Nullstone.AutoProperties(VisualTransition, [
+    "From",
+    "To",
+    "Storyboard",
+    "GeneratedDuration",
+    "DynamicStoryboardCompleted",
+    "ExplicitStoryboardCompleted",
+    "GeneratedEasingFunction"
+]);
 Nullstone.FinishCreate(VisualTransition);
 var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", DependencyObjectCollection);
 VisualTransitionCollection.Instance.IsElementType = function (obj) {
@@ -11405,33 +11618,14 @@ Nullstone.FinishCreate(PointCollection);
 
 var ColumnDefinition = Nullstone.Create("ColumnDefinition", DependencyObject);
 ColumnDefinition.WidthProperty = DependencyProperty.Register("Width", function () { return GridLength; }, ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
-ColumnDefinition.Instance.GetWidth = function () {
-    return this.$GetValue(ColumnDefinition.WidthProperty);
-};
-ColumnDefinition.Instance.SetWidth = function (value) {
-    this.$SetValue(ColumnDefinition.WidthProperty, value);
-};
 ColumnDefinition.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, ColumnDefinition, Number.POSITIVE_INFINITY);
-ColumnDefinition.Instance.GetMaxWidth = function () {
-    return this.$GetValue(ColumnDefinition.MaxWidthProperty);
-};
-ColumnDefinition.Instance.SetMaxWidth = function (value) {
-    this.$SetValue(ColumnDefinition.MaxWidthProperty, value);
-};
 ColumnDefinition.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, ColumnDefinition, 0.0);
-ColumnDefinition.Instance.GetMinWidth = function () {
-    return this.$GetValue(ColumnDefinition.MinWidthProperty);
-};
-ColumnDefinition.Instance.SetMinWidth = function (value) {
-    this.$SetValue(ColumnDefinition.MinWidthProperty, value);
-};
-ColumnDefinition.ActualWidthProperty = DependencyProperty.Register("ActualWidth", function () { return Number; }, ColumnDefinition, 0.0);
-ColumnDefinition.Instance.GetActualWidth = function () {
-    return this.$GetValue(ColumnDefinition.ActualWidthProperty);
-};
-ColumnDefinition.Instance.SetActualWidth = function (value) {
-    this.$SetValue(ColumnDefinition.ActualWidthProperty, value);
-};
+Nullstone.AutoProperties(ColumnDefinition, [
+    ColumnDefinition.WidthProperty,
+    ColumnDefinition.MaxWidthProperty,
+    ColumnDefinition.MinWidthProperty,
+    "ActualWidth"
+]);
 Nullstone.FinishCreate(ColumnDefinition);
 
 var ColumnDefinitionCollection = Nullstone.Create("ColumnDefinitionCollection", DependencyObjectCollection);
@@ -11450,16 +11644,13 @@ Nullstone.FinishCreate(ColumnDefinitionCollection);
 var ControlTemplate = Nullstone.Create("ControlTemplate", FrameworkTemplate, 2);
 ControlTemplate.Instance.Init = function (targetType, json) {
     this.Init$FrameworkTemplate();
-    this.SetTargetType(targetType);
+    this.TargetType = targetType;
     this._TempJson = json;
 };
 ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, ControlTemplate);
-ControlTemplate.Instance.GetTargetType = function () {
-    return this.$GetValue(ControlTemplate.TargetTypeProperty);
-};
-ControlTemplate.Instance.SetTargetType = function (value) {
-    this.$SetValue(ControlTemplate.TargetTypeProperty, value);
-};
+Nullstone.AutoProperties(ControlTemplate, [
+    ControlTemplate.TargetTypeProperty
+]);
 ControlTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
     if (this._TempJson) {
         var namescope = new NameScope();
@@ -11469,39 +11660,20 @@ ControlTemplate.Instance._GetVisualTreeWithError = function (templateBindingSour
         NameScope.SetNameScope(root, namescope);
         return root;
     }
-    this._GetVisualTreeWithError$FrameworkTemplate(templateBindingSource, error);
+    return this._GetVisualTreeWithError$FrameworkTemplate(templateBindingSource, error);
 };
 Nullstone.FinishCreate(ControlTemplate);
 
 var RowDefinition = Nullstone.Create("RowDefinition", DependencyObject);
 RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
-RowDefinition.Instance.GetHeight = function () {
-    return this.$GetValue(RowDefinition.HeightProperty);
-};
-RowDefinition.Instance.SetHeight = function (value) {
-    this.$SetValue(RowDefinition.HeightProperty, value);
-};
 RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
-RowDefinition.Instance.GetMaxHeight = function () {
-    return this.$GetValue(RowDefinition.MaxHeightProperty);
-};
-RowDefinition.Instance.SetMaxHeight = function (value) {
-    this.$SetValue(RowDefinition.MaxHeightProperty, value);
-};
 RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, RowDefinition, 0.0);
-RowDefinition.Instance.GetMinHeight = function () {
-    return this.$GetValue(RowDefinition.MinHeightProperty);
-};
-RowDefinition.Instance.SetMinHeight = function (value) {
-    this.$SetValue(RowDefinition.MinHeightProperty, value);
-};
-RowDefinition.ActualHeightProperty = DependencyProperty.Register("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
-RowDefinition.Instance.GetActualHeight = function () {
-    return this.$GetValue(RowDefinition.ActualHeightProperty);
-};
-RowDefinition.Instance.SetActualHeight = function (value) {
-    this.$SetValue(RowDefinition.ActualHeightProperty, value);
-};
+Nullstone.AutoProperties(RowDefinition, [
+    RowDefinition.HeightProperty,
+    RowDefinition.MaxHeightProperty,
+    RowDefinition.MinHeightProperty,
+    "ActualHeight"
+]);
 Nullstone.FinishCreate(RowDefinition);
 
 var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", DependencyObjectCollection);
@@ -11524,15 +11696,20 @@ _PasswordBoxDynamicPropertyValueProvider.Instance.Init = function (obj, propPrec
 };
 Nullstone.FinishCreate(_PasswordBoxDynamicPropertyValueProvider);
 
-var DataTemplate = Nullstone.Create("DataTemplate", FrameworkTemplate);
-DataTemplate.CreateTemplateFromJson = function (json) {
-    var template = new DataTemplate();
-    var namescope = new NameScope();
-    var parser = new JsonParser();
-    var root = parser.CreateObject(json, namescope);
-    NameScope.SetNameScope(root, namescope);
-    template._Hijack(root);
-    return template;
+var DataTemplate = Nullstone.Create("DataTemplate", FrameworkTemplate, 1);
+DataTemplate.Instance.Init = function (json) {
+    this._TempJson = json;
+};
+DataTemplate.Instance._GetVisualTreeWithError = function (templateBindingSource, error) {
+    if (this._TempJson) {
+        var namescope = new NameScope();
+        var parser = new JsonParser();
+        parser._TemplateBindingSource = templateBindingSource;
+        var root = parser.CreateObject(this._TempJson, namescope);
+        NameScope.SetNameScope(root, namescope);
+        return root;
+    }
+    return this._GetVisualTreeWithError$FrameworkTemplate(templateBindingSource, error);
 };
 Nullstone.FinishCreate(DataTemplate);
 
@@ -11549,105 +11726,45 @@ FrameworkElement.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
     this.SizeChanged = new MulticastEvent();
 };
-FrameworkElement.HeightProperty = DependencyProperty.Register("Height", function () { return Number; }, FrameworkElement, NaN);
-FrameworkElement.Instance.GetHeight = function () {
-    return this.$GetValue(FrameworkElement.HeightProperty);
-};
-FrameworkElement.Instance.SetHeight = function (value) {
-    this.$SetValue(FrameworkElement.HeightProperty, value);
-};
-FrameworkElement.WidthProperty = DependencyProperty.Register("Width", function () { return Number; }, FrameworkElement, NaN);
-FrameworkElement.Instance.GetWidth = function () {
-    return this.$GetValue(FrameworkElement.WidthProperty);
-};
-FrameworkElement.Instance.SetWidth = function (value) {
-    this.$SetValue(FrameworkElement.WidthProperty, value);
-};
+FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return Number; }, FrameworkElement, NaN);
+FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
-FrameworkElement.Instance.GetActualHeight = function () {
-    return this.$GetValue(FrameworkElement.ActualHeightProperty);
-};
 FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
-FrameworkElement.Instance.GetActualWidth = function () {
-    return this.$GetValue(FrameworkElement.ActualWidthProperty);
-};
-FrameworkElement.DataContextProperty = DependencyProperty.Register("DataContext", function () { return Object; }, FrameworkElement);
-FrameworkElement.Instance.GetDataContext = function () {
-    return this.$GetValue(FrameworkElement.DataContextProperty);
-};
-FrameworkElement.Instance.SetDataContext = function (value) {
-    this.$SetValue(FrameworkElement.DataContextProperty, value);
-};
-FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.Register("HorizontalAlignment", function () { return new Enum(HorizontalAlignment); }, FrameworkElement, HorizontalAlignment.Stretch);
-FrameworkElement.Instance.GetHorizontalAlignment = function () {
-    return this.$GetValue(FrameworkElement.HorizontalAlignmentProperty);
-};
-FrameworkElement.Instance.SetHorizontalAlignment = function (value) {
-    this.$SetValue(FrameworkElement.HorizontalAlignmentProperty, value);
-};
-FrameworkElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, FrameworkElement);
-FrameworkElement.Instance.GetLanguage = function () {
-    return this.$GetValue(FrameworkElement.LanguageProperty);
-};
-FrameworkElement.Instance.SetLanguage = function (value) {
-    this.$SetValue(FrameworkElement.LanguageProperty, value);
-};
-FrameworkElement.MarginProperty = DependencyProperty.Register("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
-FrameworkElement.Instance.GetMargin = function () {
-    return this.$GetValue(FrameworkElement.MarginProperty);
-};
-FrameworkElement.Instance.SetMargin = function (value) {
-    this.$SetValue(FrameworkElement.MarginProperty, value);
-};
-FrameworkElement.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-FrameworkElement.Instance.GetMaxHeight = function () {
-    return this.$GetValue(FrameworkElement.MaxHeightProperty);
-};
-FrameworkElement.Instance.SetMaxHeight = function (value) {
-    this.$SetValue(FrameworkElement.MaxHeightProperty, value);
-};
-FrameworkElement.MaxWidthProperty = DependencyProperty.Register("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
-FrameworkElement.Instance.GetMaxWidth = function () {
-    return this.$GetValue(FrameworkElement.MaxWidthProperty);
-};
-FrameworkElement.Instance.SetMaxWidth = function (value) {
-    this.$SetValue(FrameworkElement.MaxWidthProperty, value);
-};
-FrameworkElement.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
-FrameworkElement.Instance.GetMinHeight = function () {
-    return this.$GetValue(FrameworkElement.MinHeightProperty);
-};
-FrameworkElement.Instance.SetMinHeight = function (value) {
-    this.$SetValue(FrameworkElement.MinHeightProperty, value);
-};
-FrameworkElement.MinWidthProperty = DependencyProperty.Register("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
-FrameworkElement.Instance.GetMinWidth = function () {
-    return this.$GetValue(FrameworkElement.MinWidthProperty);
-};
-FrameworkElement.Instance.SetMinWidth = function (value) {
-    this.$SetValue(FrameworkElement.MinWidthProperty, value);
-};
-FrameworkElement.VerticalAlignmentProperty = DependencyProperty.Register("VerticalAlignment", function () { return new Enum(VerticalAlignment); }, FrameworkElement, VerticalAlignment.Stretch);
-FrameworkElement.Instance.GetVerticalAlignment = function () {
-    return this.$GetValue(FrameworkElement.VerticalAlignmentProperty);
-};
-FrameworkElement.Instance.SetVerticalAlignment = function (value) {
-    this.$SetValue(FrameworkElement.VerticalAlignmentProperty, value);
-};
-FrameworkElement.StyleProperty = DependencyProperty.Register("Style", function () { return Style; }, FrameworkElement);
-FrameworkElement.Instance.GetStyle = function () {
-    return this.$GetValue(FrameworkElement.StyleProperty);
-};
-FrameworkElement.Instance.SetStyle = function (value) {
-    this.$SetValue(FrameworkElement.StyleProperty, value);
-};
-FrameworkElement.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement);
-FrameworkElement.Instance.GetFlowDirection = function () {
-    return this.$GetValue(FrameworkElement.FlowDirectionProperty);
-};
-FrameworkElement.Instance.SetFlowDirection = function (value) {
-    this.$SetValue(FrameworkElement.FlowDirectionProperty, value);
-};
+FrameworkElement.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
+FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.RegisterCore("HorizontalAlignment", function () { return new Enum(HorizontalAlignment); }, FrameworkElement, HorizontalAlignment.Stretch);
+FrameworkElement.LanguageProperty = DependencyProperty.RegisterCore("Language", function () { return String; }, FrameworkElement);
+FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
+FrameworkElement.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
+FrameworkElement.MaxWidthProperty = DependencyProperty.RegisterCore("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
+FrameworkElement.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
+FrameworkElement.MinWidthProperty = DependencyProperty.RegisterCore("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
+FrameworkElement.VerticalAlignmentProperty = DependencyProperty.RegisterCore("VerticalAlignment", function () { return new Enum(VerticalAlignment); }, FrameworkElement, VerticalAlignment.Stretch);
+FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Style; }, FrameworkElement);
+FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterCore("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement);
+Nullstone.AutoProperties(FrameworkElement, [
+    FrameworkElement.WidthProperty,
+    FrameworkElement.HeightProperty,
+    FrameworkElement.DataContextProperty,
+    FrameworkElement.HorizontalAlignmentProperty,
+    FrameworkElement.LanguageProperty,
+    FrameworkElement.MarginProperty,
+    FrameworkElement.MaxWidthProperty,
+    FrameworkElement.MaxHeightProperty,
+    FrameworkElement.MinWidthProperty,
+    FrameworkElement.MinHeightProperty,
+    FrameworkElement.VerticalAlignmentProperty,
+    FrameworkElement.StyleProperty,
+    FrameworkElement.FlowDirectionProperty
+]);
+Nullstone.AutoPropertiesReadOnly(FrameworkElement, [
+    FrameworkElement.ActualWidthProperty,
+    FrameworkElement.ActualHeightProperty
+]);
+Nullstone.Property(FrameworkElement, "Parent", {
+    get: function () {
+        return this._LogicalParent;
+    }
+});
 FrameworkElement.Instance.SetTemplateBinding = function (propd, tb) {
     try {
         this.$SetValue(propd, tb);
@@ -11658,16 +11775,16 @@ FrameworkElement.Instance.SetBinding = function (propd, binding) {
     return BindingOperations.SetBinding(this, propd, binding);
 };
 FrameworkElement.Instance._ApplySizeConstraints = function (size) {
-    var specified = new Size(this.GetWidth(), this.GetHeight());
-    var constrained = new Size(this.GetMinWidth(), this.GetMinHeight());
+    var specified = new Size(this.Width, this.Height);
+    var constrained = new Size(this.MinWidth, this.MinHeight);
     constrained = constrained.Max(size);
     if (!isNaN(specified.Width))
         constrained.Width = specified.Width;
     if (!isNaN(specified.Height))
         constrained.Height = specified.Height;
-    constrained = constrained.Min(new Size(this.GetMaxWidth(), this.GetMaxHeight()));
-    constrained = constrained.Max(new Size(this.GetMinWidth(), this.GetMinHeight()));
-    if (this.GetUseLayoutRounding()) {
+    constrained = constrained.Min(new Size(this.MaxWidth, this.MaxHeight));
+    constrained = constrained.Max(new Size(this.MinWidth, this.MinHeight));
+    if (this.UseLayoutRounding) {
         constrained.Width = Math.round(constrained.Width);
         constrained.Height = Math.round(constrained.Height);
     }
@@ -11675,7 +11792,7 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
 };
 FrameworkElement.Instance._ComputeActualSize = function () {
     var parent = this.GetVisualParent();
-    if (this.GetVisibility() !== Visibility.Visible)
+    if (this.Visibility !== Visibility.Visible)
         return new Size(0.0, 0.0);
     if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
         return this._GetRenderSize();
@@ -11684,7 +11801,7 @@ FrameworkElement.Instance._ComputeActualSize = function () {
     return actual;
 };
 FrameworkElement.Instance._ComputeBounds = function () {
-    var size = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var size = new Size(this.ActualWidth, this.ActualHeight);
     size = this._ApplySizeConstraints(size);
     this._Extents = new Rect(0, 0, size.Width, size.Height);
     this._ExtentsWithChildren = this._Extents;
@@ -11738,7 +11855,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     var last = LayoutInformation.GetPreviousConstraint(this);
     var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
     shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
-    if (this.GetVisibility() !== Visibility.Visible) {
+    if (this.Visibility !== Visibility.Visible) {
         LayoutInformation.SetPreviousConstraint(this, availableSize);
         this._DesiredSize = new Size(0, 0);
         return;
@@ -11750,7 +11867,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     LayoutInformation.SetPreviousConstraint(this, availableSize);
     this._InvalidateArrange();
     this._UpdateBounds();
-    var margin = this.GetMargin();
+    var margin = this.Margin;
     var size = availableSize.GrowByThickness(margin.Negate());
     size = this._ApplySizeConstraints(size);
     if (this.MeasureOverride)
@@ -11770,7 +11887,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     size = this._ApplySizeConstraints(size);
     size = size.GrowByThickness(margin);
     size = size.Min(availableSize);
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         size.Width = Math.round(size.Width);
         size.Height = Math.round(size.Height);
     }
@@ -11796,12 +11913,14 @@ FrameworkElement.Instance.Arrange = function (finalRect) {
 FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (error.IsErrored())
         return;
-    var slot = this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty);
+    var slot = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+    if (slot === null)
+        slot = undefined;
     var shouldArrange = (this._DirtyFlags & _Dirty.Arrange) > 0;
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         finalRect = new Rect(Math.round(finalRect.X), Math.round(finalRect.Y), Math.round(finalRect.Width), Math.round(finalRect.Height));
     }
-    shouldArrange = shouldArrange || (slot != null ? !Rect.Equals(slot, finalRect) : true);
+    shouldArrange |= slot ? !Rect.Equals(slot, finalRect) : true;
     if (finalRect.Width < 0 || finalRect.Height < 0
             || !isFinite(finalRect.Width) || !isFinite(finalRect.Height)
             || isNaN(finalRect.Width) || isNaN(finalRect.Height)) {
@@ -11810,18 +11929,18 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         return;
     }
     var parent = this.GetVisualParent();
-    if (this.GetVisibility() !== Visibility.Visible) {
+    if (this.Visibility !== Visibility.Visible) {
         LayoutInformation.SetLayoutSlot(this, finalRect);
         return;
     }
     if (!shouldArrange)
         return;
     var measure = LayoutInformation.GetPreviousConstraint(this);
-    if (this.IsContainer() && measure == null)
+    if (this.IsContainer() && !measure)
         this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
     measure = LayoutInformation.GetPreviousConstraint(this);
-    this.ClearValue(LayoutInformation.LayoutClipProperty);
-    var margin = this.GetMargin();
+    this._ClearValue(LayoutInformation.LayoutClipProperty);
+    var margin = this.Margin;
     var childRect = finalRect.GrowByThickness(margin.Negate());
     this._UpdateTransform();
     this._UpdateProjection();
@@ -11829,8 +11948,8 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     var offer = this._HiddenDesire;
     var stretched = this._ApplySizeConstraints(new Size(childRect.Width, childRect.Height));
     var framework = this._ApplySizeConstraints(new Size());
-    var horiz = this.GetHorizontalAlignment();
-    var vert = this.GetVerticalAlignment();
+    var horiz = this.HorizontalAlignment;
+    var vert = this.VerticalAlignment;
     if (horiz === HorizontalAlignment.Stretch)
         framework.Width = Math.max(framework.Width, stretched.Width);
     if (vert === VerticalAlignment.Stretch)
@@ -11851,11 +11970,11 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     FLOW DIRECTION NOT IMPLEMENTED YET
     var flipHoriz = false;
     if (parent)
-    flipHoriz = parent.GetFlowDirection() != this.GetFlowDirection();
+    flipHoriz = parent.FlowDirection !== this.FlowDirection;
     else if (this.GetParent() && this.GetParent()._IsPopup())
-    flipHoriz = this.GetParent().GetFlowDirection() != this.GetFlowDirection();
+    flipHoriz = this.GetParent().FlowDirection != this.FlowDirection;
     else
-    flipHoriz = this.GetFlowDirection() == FlowDirection.RightToLeft;
+    flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
     var layoutXform = new Matrix();
     layoutXform = layoutXform.Translate(childRect.X, childRect.Y);
     if (flipHoriz)  {
@@ -11869,13 +11988,13 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     var visualOffset = new Point(childRect.X, childRect.Y);
     LayoutInformation.SetVisualOffset(this, visualOffset);
     var oldSize = this._RenderSize;
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         response.Width = Math.round(response.Width);
         response.Height = Math.round(response.Height);
     }
     this._SetRenderSize(response);
     var constrainedResponse = response.Min(this._ApplySizeConstraints(response));
-    if (parent == null || parent instanceof Canvas) {
+    if (!parent || parent instanceof Canvas) {
         if (!this.IsLayoutContainer()) {
             this._SetRenderSize(new Size(0, 0));
             return;
@@ -11911,7 +12030,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
                 break;
         }
     }
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         visualOffset.X = Math.round(visualOffset.X);
         visualOffset.Y = Math.round(visualOffset.Y);
     }
@@ -11929,7 +12048,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     var layoutClip = childRect;
     layoutClip.X = Math.max(childRect.X - visualOffset.X, 0);
     layoutClip.Y = Math.max(childRect.Y - visualOffset.Y, 0);
-    if (this.GetUseLayoutRounding()) {
+    if (this.UseLayoutRounding) {
         layoutClip.X = Math.round(layoutClip.X);
         layoutClip.Y = Math.round(layoutClip.Y);
     }
@@ -11937,7 +12056,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         var frameworkClip = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
         layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
         var rectangle = new RectangleGeometry();
-        rectangle.SetRect(layoutClip);
+        rectangle.Rect = layoutClip;
         LayoutInformation.SetLayoutClip(this, rectangle);
     }
     if (!Rect.Equals(oldSize, response)) {
@@ -11982,7 +12101,7 @@ FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
 FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
     var np = new Point(x, y);
     this._TransformPoint(np);
-    var extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    var extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
     if (!extents.ContainsPointXY(np.X, np.Y))
         return false;
     if (!this._InsideLayoutClip(x, y))
@@ -12047,7 +12166,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         }
         pass._Count = pass._Count + 1;
         var flag = UIElementFlags.None;
-        if (element.GetVisibility() === Visibility.Visible) {
+        if (element.Visibility === Visibility.Visible) {
             if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                 flag = UIElementFlags.DirtyMeasureHint;
             else if (element._HasFlag(UIElementFlags.DirtyArrangeHint))
@@ -12059,7 +12178,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
             var measureWalker = new _DeepTreeWalker(element);
             var child;
             while (child = measureWalker.Step()) {
-                if (child.GetVisibility() !== Visibility.Visible || !child._HasFlag(flag)) {
+                if (child.Visibility !== Visibility.Visible || !child._HasFlag(flag)) {
                     measureWalker.SkipBranch();
                     continue;
                 }
@@ -12074,7 +12193,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                             pass._ArrangeList.Append(new UIElementNode(child));
                         break;
                     case UIElementFlags.DirtySizeHint:
-                        if (child._ReadLocalValueImpl(LayoutInformation.LastRenderSizeProperty))
+                        if (child._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
                             pass._SizeList.Append(new UIElementNode(child));
                         break;
                     default:
@@ -12105,7 +12224,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 pass._Updated = true;
                 var last = LayoutInformation.GetLastRenderSize(fe);
                 if (last) {
-                    fe.ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                    fe._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
                     fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._GetRenderSize()));
                 }
             }
@@ -12119,7 +12238,7 @@ FrameworkElement.Instance._SetImplicitStyles = function (styleMask, styles) {
     var app = App.Instance;
     if (!app)
         return;
-    if (styles == null)
+    if (!styles)
         styles = app._GetImplicitStyles(this, styleMask);
     var error = new BError();
     if (styles) {
@@ -12149,19 +12268,19 @@ FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
     return result;
 };
 FrameworkElement.Instance._DoApplyTemplateWithError = function (error) {
-    var d = this._GetDefaultTemplate();
-    if (d) {
-        d._AddParent(this, true, error);
+    var uie = this._GetDefaultTemplate();
+    if (uie) {
+        uie._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
-        this._SetSubtreeObject(d);
-        this._ElementAdded(d);
+        this._SetSubtreeObject(uie);
+        this._ElementAdded(uie);
     }
-    return d != null;
+    return uie != null;
 };
 FrameworkElement.Instance._GetDefaultTemplate = function () {
     if (this._GetDefaultTemplateCallback)
-        return this._GetDefaultTemplateCallback(this);
+        return this._GetDefaultTemplateCallback();
     return null;
 };
 FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
@@ -12169,14 +12288,14 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$UIElement(args, error);
         return;
     }
-    if (args.Property === FrameworkElement.WidthProperty
-        || args.Property === FrameworkElement.MaxWidthProperty
-        || args.Property === FrameworkElement.MinWidthProperty
-        || args.Property === FrameworkElement.HeightProperty
-        || args.Property === FrameworkElement.MaxHeightProperty
-        || args.Property === FrameworkElement.MinHeightProperty
-        || args.Property === FrameworkElement.MarginProperty
-        || args.Property === FrameworkElement.FlowDirectionProperty) {
+    if (args.Property._ID === FrameworkElement.WidthProperty._ID
+        || args.Property._ID === FrameworkElement.MaxWidthProperty._ID
+        || args.Property._ID === FrameworkElement.MinWidthProperty._ID
+        || args.Property._ID === FrameworkElement.HeightProperty._ID
+        || args.Property._ID === FrameworkElement.MaxHeightProperty._ID
+        || args.Property._ID === FrameworkElement.MinHeightProperty._ID
+        || args.Property._ID === FrameworkElement.MarginProperty._ID
+        || args.Property._ID === FrameworkElement.FlowDirectionProperty._ID) {
         this._FullInvalidate(false);
         var visualParent = this.GetVisualParent();
         if (visualParent)
@@ -12184,14 +12303,14 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateMeasure();
         this._InvalidateArrange();
         this._UpdateBounds();
-    } else if (args.Property === FrameworkElement.StyleProperty) {
+    } else if (args.Property._ID === FrameworkElement.StyleProperty._ID) {
         var newStyle = args.NewValue;
         if (!error.IsErrored())
             this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
         if (error.IsErrored())
             return;
-    } else if (args.Property === FrameworkElement.HorizontalAlignmentProperty
-        || args.Property == FrameworkElement.VerticalAlignmentProperty) {
+    } else if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
+        || args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID) {
         this._InvalidateArrange();
         this._FullInvalidate(true);
     }
@@ -12212,9 +12331,9 @@ FrameworkElement.Instance._OnIsLoadedChanged = function (loaded) {
     if (this._Providers[_PropertyPrecedence.InheritedDataContext])
         this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
 };
-FrameworkElement.Instance.SetVisualParent = function (/* UIElement */value) {
+FrameworkElement.Instance.SetVisualParent = function (value) {
     this.SetVisualParent$UIElement(value);
-    if (!this._LogicalParent && (this._VisualParent == null || this._VisualParent instanceof FrameworkElement)) {
+    if (!this._LogicalParent && (!this._VisualParent || this._VisualParent instanceof FrameworkElement)) {
         this._Providers[_PropertyPrecedence.InheritedDataContext].SetDataSource(this._VisualParent);
         if (this._IsLoaded)
             this._Providers[_PropertyPrecedence.InheritedDataContext].EmitChanged();
@@ -12227,7 +12346,7 @@ FrameworkElement.Instance._SetLogicalParent = function (value, error) {
         this._LogicalParent = null;
         return;
     }
-    if (value && this._LogicalParent && this._LogicalParent != value) {
+    if (value && this._LogicalParent && !Nullstone.RefEquals(this._LogicalParent, value)) {
         error.SetErrored(BError.InvalidOperation, "Element is a child of another element");
         return;
     }
@@ -12263,21 +12382,18 @@ FrameworkElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
 Nullstone.FinishCreate(FrameworkElement);
 
 var Setter = Nullstone.Create("Setter", SetterBase);
-Setter.PropertyProperty = DependencyProperty.Register("Property", function () { return DependencyProperty; }, Setter);
-Setter.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, Setter);
-Setter.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, Setter);
+Setter.PropertyProperty = DependencyProperty.RegisterCore("Property", function () { return DependencyProperty; }, Setter);
+Setter.ValueProperty = DependencyProperty.RegisterCore("Value", function () { return Object; }, Setter);
+Setter.ConvertedValueProperty = DependencyProperty.RegisterCore("ConvertedValue", function () { return Object; }, Setter);
 Nullstone.FinishCreate(Setter);
 
 var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", DependencyObjectCollection);
 SetterBaseCollection.IsSealedProperty = DependencyProperty.Register("IsSealed", function () { return Boolean; }, SetterBaseCollection);
-SetterBaseCollection.Instance.GetIsSealed = function () {
-    return this.$GetValue(SetterBaseCollection.IsSealedProperty);
-};
-SetterBaseCollection.Instance.SetIsSealed = function (value) {
-    this.$SetValue(SetterBaseCollection.IsSealedProperty, value);
-};
+Nullstone.AutoProperties(SetterBaseCollection, [
+    SetterBaseCollection.IsSealedProperty
+]);
 SetterBaseCollection.Instance._Seal = function () {
-    this.SetIsSealed(true);
+    this.IsSealed = true;
     var error = new BError();
     var iterator = this.GetIterator();
     var setter;
@@ -12289,7 +12405,7 @@ SetterBaseCollection.Instance.AddedToCollection = function (value, error) {
     if (!value || !this._ValidateSetter(value, error))
         return false;
     if (value instanceof SetterBase) {
-        value.SetAttached(true);
+        value._Attached = true;
         value._Seal();
     }
     return this.AddedToCollection$DependencyObjectCollection(value, error);
@@ -12297,7 +12413,7 @@ SetterBaseCollection.Instance.AddedToCollection = function (value, error) {
 SetterBaseCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof SetterBase)
-            value.SetAttached(false);
+            value._Attached = false;
     }
     this.RemovedFromCollection$DependencyObjectCollection(value, isValueSafe);
 };
@@ -12305,26 +12421,25 @@ SetterBaseCollection.Instance.IsElementType = function (value) {
     return value instanceof SetterBase;
 };
 SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
-    var s;
-    if (value instanceof Setter) {
-        s = Nullstone.As(value, Setter);
-        if (s.$GetValue(Setter.PropertyProperty) == null) {
+    var s = Nullstone.As(value, Setter);
+    if (s) {
+        if (s._GetValue(Setter.PropertyProperty) === undefined) {
             error.SetErrored(BError.Exception, "Cannot have a null PropertyProperty value");
             return false;
         }
-        if (s._ReadLocalValueImpl(Setter.ValueProperty) == null) {
+        if (s._ReadLocalValue(Setter.ValueProperty) === undefined) {
             error.SetErrored(BError.Exception, "Cannot have a null ValueProperty value");
             return false;
         }
     }
-    if (value instanceof SetterBase) {
-        s = Nullstone.As(value, SetterBase);
-        if (s.GetAttached()) {
+    var sb = Nullstone.As(value, SetterBase);
+    if (sb) {
+        if (sb._Attached) {
             error.SetErrored(BError.InvalidOperation, "Setter is currently attached to another style");
             return false;
         }
     }
-    if (this.GetIsSealed()) {
+    if (this.IsSealed) {
         error.SetErrored(BError.Exception, "Cannot add a setter to a sealed style");
         return false;
     }
@@ -12332,14 +12447,32 @@ SetterBaseCollection.Instance._ValidateSetter = function (value, error) {
 };
 Nullstone.FinishCreate(SetterBaseCollection);
 
+var ItemCollection = Nullstone.Create("ItemCollection", PresentationFrameworkCollection, 0, [INotifyCollectionChanged]);
+ItemCollection.Instance.Init = function () {
+    this.Init$PresentationFrameworkCollection();
+    this.CollectionChanged = this.ItemsChanged;
+    this._ReadOnly = false;
+};
+ItemCollection.Instance.$SetIsReadOnly = function (readOnly) {
+    this._ReadOnly = readOnly;
+};
+ItemCollection.Instance.$GetIsReadOnly = function () {
+    return this._ReadOnly;
+};
+ItemCollection.Instance._CheckNull = function (action, value) {
+    if (value != null)
+        return false;
+    if (action === NotifyCollectionChangedAction.Remove)
+        return true;
+    throw new ArgumentException();
+};
+Nullstone.FinishCreate(ItemCollection);
+
 var Block = Nullstone.Create("Block", TextElement);
 Block.InlinesProperty = DependencyProperty.Register("Inlines", function () { return InlineCollection; }, Block);
-Block.Instance.GetInlines = function () {
-    return this.$GetValue(Block.InlinesProperty);
-};
-Block.Instance.SetInlines = function (value) {
-    this.$SetValue(Block.InlinesProperty, value);
-};
+Nullstone.AutoProperties(Block, [
+    Block.InlinesProperty
+]);
 Nullstone.FinishCreate(Block);
 
 var BlockCollection = Nullstone.Create("BlockCollection", TextElementCollection);
@@ -12351,19 +12484,19 @@ Inline.Instance.Init = function () {
     this._Autogen = false;
 };
 Inline.Instance.Equals = function (inline) {
-    if (this.GetFontFamily() != inline.GetFontFamily())
+    if (this.FontFamily !== inline.FontFamily)
         return false;
-    if (this.GetFontSize() != inline.GetFontSize())
+    if (this.FontSize() !== inline.FontSize)
         return false;
-    if (this.GetFontStyle() != inline.GetFontStyle())
+    if (this.FontStyle() !== inline.FontStyle)
         return false;
-    if (this.GetFontWeight() != inline.GetFontWeight())
+    if (this.FontWeight() !== inline.FontWeight)
         return false;
-    if (this.GetFontStretch() != inline.GetFontStretch())
+    if (this.FontStretch() !== inline.FontStretch)
         return false;
-    if (this.GetTextDecorations() != inline.GetTextDecorations())
+    if (this.TextDecorations !== inline.TextDecorations)
         return false;
-    if (this.GetForeground() != inline.GetForeground()) //TODO: Equals?
+    if (!Nullstone.Equals(this.Foreground, inline.Foreground))
         return false;
     return true;
 };
@@ -12402,21 +12535,13 @@ Nullstone.FinishCreate(Paragraph);
 
 var Run = Nullstone.Create("Run", Inline);
 Run.FlowDirectionProperty = DependencyProperty.Register("FlowDirection", function () { return new Enum(FlowDirection); }, Run, FlowDirection.LeftToRight);
-Run.Instance.GetFlowDirection = function () {
-    return this.$GetValue(Run.FlowDirectionProperty);
-};
-Run.Instance.SetFlowDirection = function (value) {
-    this.$SetValue(Run.FlowDirectionProperty, value);
-};
 Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
-Run.Instance.GetText = function () {
-    return this.$GetValue(Run.TextProperty);
-};
-Run.Instance.SetText = function (value) {
-    this.$SetValue(Run.TextProperty, value);
-};
+Nullstone.AutoProperties(Run, [
+    Run.FlowDirectionProperty,
+    Run.TextProperty
+]);
 Run.Instance._SerializeText = function (str) {
-    var t = this.GetText();
+    var t = this.Text;
     if (t != null)
         return str.concat(t);
     return str;
@@ -12425,12 +12550,9 @@ Nullstone.FinishCreate(Run);
 
 var Section = Nullstone.Create("Section", TextElement);
 Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return BlockCollection; }, Section);
-Section.Instance.GetBlocks = function () {
-    return this.$GetValue(Section.BlocksProperty);
-};
-Section.Instance.SetBlocks = function (value) {
-    this.$SetValue(Section.BlocksProperty, value);
-};
+Nullstone.AutoProperties(Section, [
+    Section.BlocksProperty
+]);
 Nullstone.FinishCreate(Section);
 
 var Span = Nullstone.Create("Span", Inline);
@@ -12440,12 +12562,12 @@ Span._CreateInlineCollection = function (obj) {
         inlines._SetIsForHyperlink();
     return inlines;
 };
-Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, null, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
-Span.Instance.GetInlines = function () {
-    return this.$GetValue(Span.InlinesProperty);
-};
+Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
+Nullstone.AutoProperties(Span, [
+    Span.InlinesProperty
+]);
 Span.Instance._SerializeText = function (str) {
-    var inlines = this.GetInlines();
+    var inlines = this.Inlines;
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
         str = inlines.GetValueAt(i)._SerializeText(str);
@@ -12464,43 +12586,18 @@ Span.Instance._OnCollectionChanged = function (sender, args) {
 Nullstone.FinishCreate(Span);
 
 var ArcSegment = Nullstone.Create("ArcSegment", PathSegment);
-ArcSegment.Instance.Init = function () {
-};
 ArcSegment.IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", function () { return Boolean; }, ArcSegment, false);
-ArcSegment.Instance.GetIsLargeArc = function () {
-    return this.$GetValue(ArcSegment.IsLargeArcProperty);
-};
-ArcSegment.Instance.SetIsLargeArc = function (value) {
-    this.$SetValue(ArcSegment.IsLargeArcProperty, value);
-};
 ArcSegment.PointProperty = DependencyProperty.Register("Point", function () { return Point; }, ArcSegment, new Point());
-ArcSegment.Instance.GetPoint = function () {
-    return this.$GetValue(ArcSegment.PointProperty);
-};
-ArcSegment.Instance.SetPoint = function (value) {
-    this.$SetValue(ArcSegment.PointProperty, value);
-};
 ArcSegment.RotationAngleProperty = DependencyProperty.Register("RotationAngle", function () { return Number; }, ArcSegment, 0.0);
-ArcSegment.Instance.GetRotationAngle = function () {
-    return this.$GetValue(ArcSegment.RotationAngleProperty);
-};
-ArcSegment.Instance.SetRotationAngle = function (value) {
-    this.$SetValue(ArcSegment.RotationAngleProperty, value);
-};
 ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () { return Size; }, ArcSegment, new Size());
-ArcSegment.Instance.GetSize = function () {
-    return this.$GetValue(ArcSegment.SizeProperty);
-};
-ArcSegment.Instance.SetSize = function (value) {
-    this.$SetValue(ArcSegment.SizeProperty, value);
-};
 ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return new Enum(SweepDirection); }, ArcSegment, SweepDirection.Counterclockwise);
-ArcSegment.Instance.GetSweepDirection = function () {
-    return this.$GetValue(ArcSegment.SweepDirectionProperty);
-};
-ArcSegment.Instance.SetSweepDirection = function (value) {
-    this.$SetValue(ArcSegment.SweepDirectionProperty, value);
-};
+Nullstone.AutoProperties(ArcSegment, [
+    ArcSegment.IsLargeArcProperty,
+    ArcSegment.PointProperty,
+    ArcSegment.RotationAngleProperty,
+    ArcSegment.SizeProperty,
+    ArcSegment.SweepDirectionProperty
+]);
 ArcSegment.Instance._Append = function (path) {
     NotImplemented("ArcSegment._Append");
 };
@@ -12512,13 +12609,10 @@ ImageBrush.Instance.Init = function () {
     this.ImageFailed = new MulticastEvent();
     this.ImageOpened = new MulticastEvent();
 };
-ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, null, { GetValue: function (propd, obj) { return new BitmapImage(); } });
-ImageBrush.Instance.GetImageSource = function () {
-    return this.$GetValue(ImageBrush.ImageSourceProperty);
-};
-ImageBrush.Instance.SetImageSource = function (value) {
-    this.$SetValue(ImageBrush.ImageSourceProperty, value);
-};
+ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+Nullstone.AutoProperties(ImageBrush, [
+    ImageBrush.ImageSourceProperty
+]);
 ImageBrush.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== ImageBrush) {
         this._OnPropertyChanged$TileBrush(args, error);
@@ -12540,7 +12634,7 @@ ImageBrush.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 ImageBrush.Instance.SetupBrush = function (ctx, bounds) {
-    var source = this.GetSource();
+    var source = this.ImageSource;
     if (source == null)
         return null;
     var pattern = ctx.createPattern(source._Image, "no-repeat");
@@ -12550,14 +12644,12 @@ Nullstone.FinishCreate(ImageBrush);
 
 var MatrixTransform = Nullstone.Create("MatrixTransform", Transform);
 MatrixTransform.Instance.Init = function () {
+    this.Init$Transform();
 };
 MatrixTransform.MatrixProperty = DependencyProperty.RegisterCore("Matrix", function() { return Matrix; }, MatrixTransform, new Matrix());
-MatrixTransform.Instance.GetMatrix = function () {
-	return this.$GetValue(MatrixTransform.MatrixProperty);
-};
-MatrixTransform.Instance.SetMatrix = function (value) {
-	this.$SetValue(MatrixTransform.MatrixProperty, value);
-};
+Nullstone.AutoProperties(MatrixTransform, [
+    MatrixTransform.MatrixProperty
+]);
 MatrixTransform.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== MatrixTransform) {
         this._OnPropertyChanged$Transform(args, error);
@@ -12579,7 +12671,7 @@ MatrixTransform.prototype._OnSubPropertyChanged = function (propd, sender, args)
     var newArgs = {
         Property: propd,
         OldValue: null,
-        NewValue: this.$GetValue(propd)
+        NewValue: this._GetValue(propd)
     };
     this.PropertyChanged.Raise(this, newArgs);
 };
@@ -12606,35 +12698,13 @@ Nullstone.FinishCreate(Animation);
 
 var ColorAnimation = Nullstone.Create("ColorAnimation", Animation);
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
-ColorAnimation.Instance.GetBy = function () {
-    return this.$GetValue(ColorAnimation.ByProperty);
-};
-ColorAnimation.Instance.SetBy = function (value) {
-    this.$SetValue(ColorAnimation.ByProperty, value);
-};
-/*
-ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
-ColorAnimation.Instance.GetEasingFunction = function () {
-return this.$GetValue(ColorAnimation.EasingFunctionProperty);
-};
-ColorAnimation.Instance.SetEasingFunction = function (value) {
-this.$SetValue(ColorAnimation.EasingFunctionProperty, value);
-};
-*/
 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
-ColorAnimation.Instance.GetFrom = function () {
-    return this.$GetValue(ColorAnimation.FromProperty);
-};
-ColorAnimation.Instance.SetFrom = function (value) {
-    this.$SetValue(ColorAnimation.FromProperty, value);
-};
 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
-ColorAnimation.Instance.GetTo = function () {
-    return this.$GetValue(ColorAnimation.ToProperty);
-};
-ColorAnimation.Instance.SetTo = function (value) {
-    this.$SetValue(ColorAnimation.ToProperty, value);
-};
+Nullstone.AutoProperties(ColorAnimation, [
+    ColorAnimation.ByProperty,
+    ColorAnimation.FromProperty,
+    ColorAnimation.ToProperty
+]);
 ColorAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
     var start = new Color();
@@ -12667,9 +12737,9 @@ ColorAnimation.Instance._GetCurrentValue = function (defaultOriginValue, default
 ColorAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
         return;
-    this._FromCached = this.GetFrom();
-    this._ToCached = this.GetTo();
-    this._ByCached = this.GetBy();
+    this._FromCached = this.From;
+    this._ToCached = this.To;
+    this._ByCached = this.By;
     this._HasCached = true;
 };
 Nullstone.FinishCreate(ColorAnimation);
@@ -12677,7 +12747,7 @@ Nullstone.FinishCreate(ColorAnimation);
 var DiscreteObjectKeyFrame = Nullstone.Create("DiscreteObjectKeyFrame", ObjectKeyFrame);
 DiscreteObjectKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
     if (keyFrameProgress >= 1.0) {
-        return this.GetConvertedValue();
+        return this.ConvertedValue;
     }
     return baseValue;
 };
@@ -12685,35 +12755,13 @@ Nullstone.FinishCreate(DiscreteObjectKeyFrame);
 
 var DoubleAnimation = Nullstone.Create("DoubleAnimation", Animation);
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.Instance.GetBy = function () {
-    return this.$GetValue(DoubleAnimation.ByProperty);
-};
-DoubleAnimation.Instance.SetBy = function (value) {
-    this.$SetValue(DoubleAnimation.ByProperty, value);
-};
-/*
-DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, DoubleAnimation);
-DoubleAnimation.Instance.GetEasingFunction = function () {
-return this.$GetValue(DoubleAnimation.EasingFunctionProperty);
-};
-DoubleAnimation.Instance.SetEasingFunction = function (value) {
-this.$SetValue(DoubleAnimation.EasingFunctionProperty, value);
-};
-*/
 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.Instance.GetFrom = function () {
-    return this.$GetValue(DoubleAnimation.FromProperty);
-};
-DoubleAnimation.Instance.SetFrom = function (value) {
-    this.$SetValue(DoubleAnimation.FromProperty, value);
-};
 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
-DoubleAnimation.Instance.GetTo = function () {
-    return this.$GetValue(DoubleAnimation.ToProperty);
-};
-DoubleAnimation.Instance.SetTo = function (value) {
-    this.$SetValue(DoubleAnimation.ToProperty, value);
-};
+Nullstone.AutoProperties(DoubleAnimation, [
+    DoubleAnimation.ByProperty,
+    DoubleAnimation.FromProperty,
+    DoubleAnimation.ToProperty
+]);
 DoubleAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
     var start = 0.0;
@@ -12746,9 +12794,9 @@ DoubleAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaul
 DoubleAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
         return;
-    this._FromCached = this.GetFrom();
-    this._ToCached = this.GetTo();
-    this._ByCached = this.GetBy();
+    this._FromCached = this.From;
+    this._ToCached = this.To;
+    this._ByCached = this.By;
     this._HasCached = true;
 };
 DoubleAnimation.Instance._OnPropertyChanged = function (args, error) {
@@ -12765,31 +12813,28 @@ DoubleAnimation.Instance._OnPropertyChanged = function (args, error) {
 Nullstone.FinishCreate(DoubleAnimation);
 
 var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFrames", Animation);
-ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, null, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
-ObjectAnimationUsingKeyFrames.Instance.GetKeyFrames = function () {
-    return this.$GetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty);
-};
-ObjectAnimationUsingKeyFrames.Instance.SetKeyFrames = function (value) {
-    this.$SetValue(ObjectAnimationUsingKeyFrames.KeyFramesProperty, value);
-};
+ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, undefined, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
+Nullstone.AutoProperties(ObjectAnimationUsingKeyFrames, [
+    ObjectAnimationUsingKeyFrames.KeyFramesProperty
+]);
 ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
-    var frames = this.GetKeyFrames();
+    var frames = this.KeyFrames;
     var count = frames.GetCount();
     for (var i = 0; i < count; i++) {
         var frame = Nullstone.As(frames.GetValueAt(i), ObjectKeyFrame);
-        var value = frame.$GetValue(ObjectKeyFrame.ValueProperty);
+        var value = frame.Value;
         if (value == null) {
-            frame.$SetValue(ObjectKeyFrame.ConvertedValueProperty, null);
+            frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, undefined);
         } else {
             var converted = value;
-            frame.$SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
+            frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
         }
     }
     KeyFrameCollection.ResolveKeyFrames(this, frames);
     return true;
 };
 ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
-    var keyFrames = this.GetKeyFrames();
+    var keyFrames = this.KeyFrames;
     var prevFrameRef = {};
     var currentKeyFrame = keyFrames.GetKeyFrameForTime(clockData.CurrentTime, prevFrameRef);
     var prevFrame = prevFrameRef.Value;
@@ -12802,7 +12847,7 @@ ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOrigi
         baseValue = defaultOriginValue;
         keyStartTime = 0;
     } else {
-        baseValue = prevFrame.GetConvertedValue();
+        baseValue = prevFrame.ConvertedValue;
         keyStartTime = prevFrame._ResolvedKeyTime;
     }
     var progress;
@@ -12818,18 +12863,15 @@ ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOrigi
     return currentKeyFrame.InterpolateValue(baseValue, progress);
 };
 ObjectAnimationUsingKeyFrames.Instance.AddKeyFrame = function (frame) {
-    this.GetKeyFrames().Add(frame);
+    this.KeyFrames.Add(frame);
 };
 ObjectAnimationUsingKeyFrames.Instance.RemoveKeyFrame = function (frame) {
-    this.GetKeyFrames().Remove(frame);
+    this.KeyFrames.Remove(frame);
 };
 Nullstone.FinishCreate(ObjectAnimationUsingKeyFrames);
 
 var Storyboard = Nullstone.Create("Storyboard", Timeline);
 Storyboard.ChildrenProperty = DependencyProperty.Register("Children", function () { return TimelineCollection; }, Storyboard);
-Storyboard.Instance.GetChildren = function () {
-    return this.$GetValue(Storyboard.ChildrenProperty);
-};
 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () { return String }, Storyboard);
 Storyboard.GetTargetName = function (d) {
     return d.$GetValue(Storyboard.TargetNameProperty);
@@ -12844,6 +12886,9 @@ Storyboard.GetTargetProperty = function (d) {
 Storyboard.SetTargetProperty = function (d, value) {
     d.$SetValue(Storyboard.TargetPropertyProperty, value);
 };
+Nullstone.AutoProperties(Storyboard, [
+    Storyboard.ChildrenProperty
+]);
 Storyboard.Annotations = {
     ContentProperty: Storyboard.ChildrenProperty
 };
@@ -12865,21 +12910,26 @@ Storyboard.Instance.Pause = function () {
 Storyboard.Instance.Resume = function () {
     var nowTime = new Date().getTime();
     this._LastStep = nowTime;
-    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        this.GetChildren(i).GetValueAt(i)._LastStep = nowTime;
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
+        children.GetValueAt(i)._LastStep = nowTime;
     }
     this._IsPaused = false;
 };
 Storyboard.Instance.Stop = function () {
     App.Instance.UnregisterStoryboard(this);
-    var children = this.GetChildren();
-    for (var i = 0; i < children.GetCount(); i++) {
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
         children.GetValueAt(i).Stop();
     }
 };
 Storyboard.Instance._HookupAnimations = function (error) {
-    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        var animation = this.GetChildren(i).GetValueAt(i);
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
+        var animation = children.GetValueAt(i);
         animation.Reset();
         if (!this._HookupAnimation(animation, null, null, error))
             return false;
@@ -12923,8 +12973,10 @@ Storyboard.Instance._Tick = function (lastTime, nowTime) {
     this.Update(nowTime);
 };
 Storyboard.Instance.UpdateInternal = function (clockData) {
-    for (var i = 0; i < this.GetChildren().GetCount(); i++) {
-        this.GetChildren().GetValueAt(i).Update(clockData.RealTicks);
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
+        children.GetValueAt(i).Update(clockData.RealTicks);
     }
 };
 Storyboard.Instance.OnDurationReached = function () {
@@ -12945,15 +12997,12 @@ BitmapImage.Instance.Init = function (uri) {
     this.ImageOpened = new MulticastEvent();
     if (uri == null)
         return;
-    this.SetUriSource(uri);
+    this.UriSource = uri;
 };
-BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Uri; }, BitmapImage, new Uri(), null, null, true);
-BitmapImage.Instance.GetUriSource = function () {
-    return this.$GetValue(BitmapImage.UriSourceProperty);
-};
-BitmapImage.Instance.SetUriSource = function (value) {
-    this.$SetValue(BitmapImage.UriSourceProperty, value);
-};
+BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Uri; }, BitmapImage, new Uri(), undefined, undefined, true);
+Nullstone.AutoProperties(BitmapImage, [
+    BitmapImage.UriSourceProperty
+]);
 BitmapImage.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== BitmapImage) {
         this._OnPropertyChanged$BitmapSource(args, error);
@@ -12987,82 +13036,29 @@ Shape.Instance.Init = function () {
     this._NaturalBounds = new Rect();
 };
 Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Brush; }, Shape);
-Shape.Instance.GetFill = function () {
-    return this.$GetValue(Shape.FillProperty);
-};
-Shape.Instance.SetFill = function (value) {
-    this.$SetValue(Shape.FillProperty, value);
-};
 Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Stretch); }, Shape, Stretch.None);
-Shape.Instance.GetStretch = function () {
-    return this.$GetValue(Shape.StretchProperty);
-};
-Shape.Instance.SetStretch = function (value) {
-    this.$SetValue(Shape.StretchProperty, value);
-};
 Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Brush; }, Shape);
-Shape.Instance.GetStroke = function () {
-    return this.$GetValue(Shape.StrokeProperty);
-};
-Shape.Instance.SetStroke = function (value) {
-    this.$SetValue(Shape.StrokeProperty, value);
-};
 Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () { return Number; }, Shape, 1.0);
-Shape.Instance.GetStrokeThickness = function () {
-    return this.$GetValue(Shape.StrokeThicknessProperty);
-};
-Shape.Instance.SetStrokeThickness = function (value) {
-    this.$SetValue(Shape.StrokeThicknessProperty, value);
-};
 Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return DoubleCollection; }, Shape);
-Shape.Instance.GetStrokeDashArray = function () {
-    return this.$GetValue(Shape.StrokeDashArrayProperty);
-};
-Shape.Instance.SetStrokeDashArray = function (value) {
-    this.$SetValue(Shape.StrokeDashArrayProperty, value);
-};
 Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
-Shape.Instance.GetStrokeDashCap = function () {
-    return this.$GetValue(Shape.StrokeDashCapProperty);
-};
-Shape.Instance.SetStrokeDashCap = function (value) {
-    this.$SetValue(Shape.StrokeDashCapProperty, value);
-};
 Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () { return Number; }, Shape, 0.0);
-Shape.Instance.GetStrokeDashOffset = function () {
-    return this.$GetValue(Shape.StrokeDashOffsetProperty);
-};
-Shape.Instance.SetStrokeDashOffset = function (value) {
-    this.$SetValue(Shape.StrokeDashOffsetProperty, value);
-};
 Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
-Shape.Instance.GetStrokeEndLineCap = function () {
-    return this.$GetValue(Shape.StrokeEndLineCapProperty);
-};
-Shape.Instance.SetStrokeEndLineCap = function (value) {
-    this.$SetValue(Shape.StrokeEndLineCapProperty, value);
-};
 Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Enum(PenLineJoin); }, Shape, PenLineJoin.Miter);
-Shape.Instance.GetStrokeLineJoin = function () {
-    return this.$GetValue(Shape.StrokeLineJoinProperty);
-};
-Shape.Instance.SetStrokeLineJoin = function (value) {
-    this.$SetValue(Shape.StrokeLineJoinProperty, value);
-};
 Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () { return Number; }, Shape, 10.0);
-Shape.Instance.GetStrokeMiterLimit = function () {
-    return this.$GetValue(Shape.StrokeMiterLimitProperty);
-};
-Shape.Instance.SetStrokeMiterLimit = function (value) {
-    this.$SetValue(Shape.StrokeMiterLimitProperty, value);
-};
 Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
-Shape.Instance.GetStrokeStartLineCap = function () {
-    return this.$GetValue(Shape.StrokeStartLineCapProperty);
-};
-Shape.Instance.SetStrokeStartLineCap = function (value) {
-    this.$SetValue(Shape.StrokeStartLineCapProperty, value);
-};
+Nullstone.AutoProperties(Shape, [
+    Shape.FillProperty,
+    Shape.StretchProperty,
+    Shape.StrokeProperty,
+    Shape.StrokeThicknessProperty,
+    Shape.StrokeDashArrayProperty,
+    Shape.StrokeDashCapProperty,
+    Shape.StrokeDashOffsetProperty,
+    Shape.StrokeEndLineCapProperty,
+    Shape.StrokeLineJoinProperty,
+    Shape.StrokeMiterLimitProperty,
+    Shape.StrokeStartLineCapProperty
+]);
 Shape.Instance._IsEmpty = function () { return this._ShapeFlags & ShapeFlags.Empty; };
 Shape.Instance._IsNormal = function () { return this._ShapeFlags & ShapeFlags.Normal; };
 Shape.Instance._IsDegenerate = function () { return this._ShapeFlags & ShapeFlags.Degenerate; };
@@ -13089,7 +13085,7 @@ Shape.Instance._MeasureOverrideWithError = function (availableSize, error) {
     if (this instanceof Rectangle || this instanceof Ellipse) {
         desired = new Size(0, 0);
     }
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     if (stretch === Stretch.None)
         return new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
     if (!isFinite(availableSize.Width))
@@ -13129,7 +13125,7 @@ Shape.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var sy = 1.0;
     var shapeBounds = this._GetNaturalBounds();
     this._InvalidateStretch();
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     if (stretch === Stretch.None)
         return arranged.Max(new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height));
     if (shapeBounds.Width === 0)
@@ -13193,7 +13189,7 @@ Shape.Instance._ComputeActualSize = function () {
     var sy = 1.0;
     var parent = this.GetVisualParent();
     if (parent != null && !(parent instanceof Canvas)) {
-        if (LayoutInformation.GetPreviousConstraint(this) != null || this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty)) {
+        if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
             return desired;
         }
     }
@@ -13201,7 +13197,7 @@ Shape.Instance._ComputeActualSize = function () {
         return desired;
     if (shapeBounds.Width <= 0 && shapeBounds.Height <= 0)
         return desired;
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     if (stretch === Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
         return new Size(shapeBounds.Width, shapeBounds.Height);
     if (!isFinite(desired.Width))
@@ -13242,15 +13238,14 @@ Shape.Instance._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 Shape.Instance._ComputeStretchBounds = function () {
-    var autoDim = isNaN(this.GetWidth());
-    var stretch = this.GetStretch();
     var shapeBounds = this._GetNaturalBounds();
     if (shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
     }
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
-    var specified = new Size(this.GetWidth(), this.GetHeight());
+    var specified = new Size(this.Width, this.Height);
+    var autoDim = isNaN(specified.Width);
+    var framework = new Size(this.ActualWidth, this.ActualHeight);
     if (specified.Width <= 0.0 || specified.Height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
@@ -13267,6 +13262,7 @@ Shape.Instance._ComputeStretchBounds = function () {
         framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
         framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
     }
+    var stretch = this.Stretch;
     if (stretch === Stretch.None) {
         shapeBounds = shapeBounds.Transform(this._StretchTransform);
         return shapeBounds;
@@ -13343,7 +13339,7 @@ Shape.Instance._ComputeShapeBounds = function (logical) {
     this._ComputeShapeBoundsImpl(logical, null);
 };
 Shape.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
-    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
+    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.StrokeThickness;
     if (this._Path == null)
         this._BuildPath();
     if (this._IsEmpty())
@@ -13395,7 +13391,7 @@ Shape.Instance._Render = function (ctx, region) {
     if (this._Fill != null)
         ctx.Fill(this._Fill, area);
     if (this._Stroke != null)
-        ctx.Stroke(this._Stroke, this.GetStrokeThickness(), area);
+        ctx.Stroke(this._Stroke, this.StrokeThickness, area);
     ctx.Restore();
 };
 Shape.Instance._BuildPath = function () { };
@@ -13453,51 +13449,23 @@ Nullstone.FinishCreate(Shape);
 
 var Border = Nullstone.Create("Border", FrameworkElement);
 Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
-Border.Instance.GetBackground = function () {
-    return this.$GetValue(Border.BackgroundProperty);
-};
-Border.Instance.SetBackground = function (value) {
-    this.$SetValue(Border.BackgroundProperty, value);
-};
 Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Border);
-Border.Instance.GetBorderBrush = function () {
-    return this.$GetValue(Border.BorderBrushProperty);
-};
-Border.Instance.SetBorderBrush = function (value) {
-    this.$SetValue(Border.BorderBrushProperty, value);
-};
-Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
-Border.Instance.GetBorderThickness = function () {
-    return this.$GetValue(Border.BorderThicknessProperty);
-};
-Border.Instance.SetBorderThickness = function (value) {
-    this.$SetValue(Border.BorderThicknessProperty, value);
-};
+Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, Border._ThicknessValidator);
 Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Border);
-Border.Instance.GetChild = function () {
-    return this.$GetValue(Border.ChildProperty);
-};
-Border.Instance.SetChild = function (value) {
-    this.$SetValue(Border.ChildProperty, value);
-};
-Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), null, null, null, Border._CornerRadiusValidator);
-Border.Instance.GetCornerRadius = function () {
-    return this.$GetValue(Border.CornerRadiusProperty);
-};
-Border.Instance.SetCornerRadius = function (value) {
-    this.$SetValue(Border.CornerRadiusProperty, value);
-};
-Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), null, null, null, Border._ThicknessValidator);
-Border.Instance.GetPadding = function () {
-    return this.$GetValue(Border.PaddingProperty);
-};
-Border.Instance.SetPadding = function (value) {
-    this.$SetValue(Border.PaddingProperty, value);
-};
+Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), undefined, undefined, undefined, Border._CornerRadiusValidator);
+Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, Border._ThicknessValidator);
+Nullstone.AutoProperties(Border, [
+    Border.BackgroundProperty,
+    Border.BorderBrushProperty,
+    Border.BorderThicknessProperty,
+    Border.ChildProperty,
+    Border.CornerRadiusProperty,
+    Border.PaddingProperty
+]);
 Border.Instance.IsLayoutContainer = function () { return true; };
 Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var border = this.Padding.Plus(this.BorderThickness);
     var walker = new _VisualTreeWalker(this);
     var child;
     while (child = walker.Step()) {
@@ -13509,7 +13477,7 @@ Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
     return desired;
 };
 Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var border = this.Padding.Plus(this.BorderThickness);
     var arranged = finalSize;
     var walker = new _VisualTreeWalker(this);
     var child;
@@ -13523,13 +13491,13 @@ Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     return finalSize;
 };
 Border.Instance._Render = function (ctx, region) {
-    var borderBrush = this.GetBorderBrush();
+    var borderBrush = this.BorderBrush;
     var paintBorder = this._Extents;
-    if (!this.GetBackground() && !borderBrush)
+    if (!this.Background && !borderBrush)
         return;
     if (paintBorder.IsEmpty())
         return;
-    if (borderBrush || !this.GetCornerRadius().IsZero()) {
+    if (borderBrush || !this.CornerRadius.IsZero()) {
         this._RenderImpl(ctx, region);
         return;
     }
@@ -13541,11 +13509,53 @@ Border.Instance._Render = function (ctx, region) {
 Border.Instance._RenderImpl = function (ctx, region) {
     ctx.Save();
     this._RenderLayoutClip(ctx);
-    ctx.CustomRender(Border._Painter, this.GetBackground(), this.GetBorderBrush(), this._Extents, this.GetBorderThickness(), this.GetCornerRadius());
+    {
+        var canvasCtx = ctx.GetCanvasContext();
+        var backgroundBrush = this.Background;
+        var borderBrush = this.BorderBrush;
+        var boundingRect = this._Extents;
+        var thickness = this.BorderThickness;
+        var cornerRadius = this.CornerRadius;
+        var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
+        canvasCtx.beginPath();
+        if (cornerRadius.IsZero()) {
+            canvasCtx.rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
+        } else {
+            var left = pathRect.X;
+            var top = pathRect.Y;
+            var right = pathRect.X + pathRect.Width;
+            var bottom = pathRect.Y + pathRect.Height;
+            canvasCtx.moveTo(left + cornerRadius.TopLeft, top);
+            canvasCtx.lineTo(right - cornerRadius.TopRight, top);
+            if (cornerRadius.TopRight > 0)
+                canvasCtx.quadraticCurveTo(right, top, right, top + cornerRadius.TopRight);
+            canvasCtx.lineTo(right, bottom - cornerRadius.BottomRight);
+            if (cornerRadius.BottomRight > 0)
+                canvasCtx.quadraticCurveTo(right, bottom, right - cornerRadius.BottomRight, bottom);
+            canvasCtx.lineTo(left + cornerRadius.BottomLeft, bottom);
+            if (cornerRadius.BottomLeft > 0)
+                canvasCtx.quadraticCurveTo(left, bottom, left, bottom - cornerRadius.BottomLeft);
+            canvasCtx.lineTo(left, top + cornerRadius.TopLeft);
+            if (cornerRadius.TopLeft > 0)
+                canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
+        }
+        if (backgroundBrush) {
+            backgroundBrush.SetupBrush(canvasCtx, pathRect);
+            canvasCtx.fillStyle = backgroundBrush.ToHtml5Object();
+            canvasCtx.fill();
+        }
+        if (borderBrush && !thickness.IsEmpty()) {
+            canvasCtx.lineWidth = thickness;
+            borderBrush.SetupBrush(canvasCtx, pathRect);
+            canvasCtx.strokeStyle = borderBrush.ToHtml5Object();
+            canvasCtx.stroke();
+        }
+        canvasCtx.closePath();
+    }
     ctx.Restore();
 };
 Border.Instance._CanFindElement = function () {
-    return this.GetBackground() != null || this.GetBorderBrush() != null;
+    return this.Background != null || this.BorderBrush != null;
 };
 Border.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Border) {
@@ -13567,7 +13577,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
             this._ElementAdded(args.NewValue);
             if (args.NewValue instanceof FrameworkElement) {
                 var logicalParent = args.NewValue._GetLogicalParent();
-                if (logicalParent && logicalParent !== this) {
+                if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
                     error.SetErrored(BError.Argument, "Content is already a child of another element.");
                     return;
                 }
@@ -13588,7 +13598,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID))
+    if (propd && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID))
         this._Invalidate();
     else
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
@@ -13596,96 +13606,72 @@ Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 Border.Annotations = {
     ContentProperty: Border.ChildProperty
 };
-Border._Painter = function (args) {
-    var canvasCtx = args[0];
-    var backgroundBrush = args[1];
-    var borderBrush = args[2];
-    var boundingRect = args[3];
-    var thickness = args[4];
-    var cornerRadius = args[5];
-    var pathOnly = args[6];
-    var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
-    canvasCtx.beginPath();
-    if (cornerRadius.IsZero()) {
-        canvasCtx.rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
-    } else {
-        var left = pathRect.X;
-        var top = pathRect.Y;
-        var right = pathRect.X + pathRect.Width;
-        var bottom = pathRect.Y + pathRect.Height;
-        canvasCtx.moveTo(left + cornerRadius.TopLeft, top);
-        canvasCtx.lineTo(right - cornerRadius.TopRight, top);
-        if (cornerRadius.TopRight > 0)
-            canvasCtx.quadraticCurveTo(right, top, right, top + cornerRadius.TopRight);
-        canvasCtx.lineTo(right, bottom - cornerRadius.BottomRight);
-        if (cornerRadius.BottomRight > 0)
-            canvasCtx.quadraticCurveTo(right, bottom, right - cornerRadius.BottomRight, bottom);
-        canvasCtx.lineTo(left + cornerRadius.BottomLeft, bottom);
-        if (cornerRadius.BottomLeft > 0)
-            canvasCtx.quadraticCurveTo(left, bottom, left, bottom - cornerRadius.BottomLeft);
-        canvasCtx.lineTo(left, top + cornerRadius.TopLeft);
-        if (cornerRadius.TopLeft > 0)
-            canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
-    }
-    if (backgroundBrush) {
-        backgroundBrush.SetupBrush(canvasCtx, pathRect);
-        canvasCtx.fillStyle = backgroundBrush.ToHtml5Object();
-        canvasCtx.fill();
-    }
-    if (borderBrush && !thickness.IsEmpty()) {
-        canvasCtx.lineWidth = thickness;
-        borderBrush.SetupBrush(canvasCtx, pathRect);
-        canvasCtx.strokeStyle = borderBrush.ToHtml5Object();
-        canvasCtx.stroke();
-    }
-    canvasCtx.closePath();
-};
 Border._ThicknessValidator = function () {
 };
 Nullstone.FinishCreate(Border);
 
 var ContentPresenter = Nullstone.Create("ContentPresenter", FrameworkElement);
 ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter);
-ContentPresenter.Instance.GetContent = function () {
-    return this.$GetValue(ContentPresenter.ContentProperty);
-};
-ContentPresenter.Instance.SetContent = function (value) {
-    this.$SetValue(ContentPresenter.ContentProperty, value);
-};
 ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
-ContentPresenter.Instance.GetContentTemplate = function () {
-    return this.$GetValue(ContentPresenter.ContentTemplateProperty);
+Nullstone.AutoProperties(ContentPresenter, [
+    ContentPresenter.ContentProperty,
+    ContentPresenter.ContentTemplateProperty
+]);
+ContentPresenter.Instance._CreateFallbackTemplate = function () {
+    return new ControlTemplate(ContentControl, {
+        Type: Grid,
+        Children: [
+            {
+                Type: TextBlock,
+                Props: {
+                    Text: new BindingMarkup()
+                }
+            }
+        ]
+    });
 };
-ContentPresenter.Instance.SetContentTemplate = function (value) {
-    this.$SetValue(ContentPresenter.ContentTemplateProperty, value);
-};
-ContentPresenter.Instance.GetFallbackRoot = function () {
-    if (this._FallbackRoot == null)
-        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
+ContentPresenter.Instance._GetFallbackRoot = function () {
+    if (this._FallbackRoot == null) {
+        if (!ContentPresenter._FallbackTemplate)
+            ContentPresenter._FallbackTemplate = this._CreateFallbackTemplate();
+        this._FallbackRoot = ContentPresenter._FallbackTemplate.GetVisualTree(this);
+    }
     return this._FallbackRoot;
 };
-ContentPresenter.Instance._GetDefaultTemplate = function () {
-    var templateOwner = this.GetTemplateOwner();
-    if (templateOwner) {
-        if (this.ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+ContentPresenter.Instance._GetDefaultTemplateCallback = function () {
+    var templateOwner = Nullstone.As(this.TemplateOwner, ContentControl);
+    if (templateOwner != null) {
+        if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
             this.$SetValue(ContentPresenter.ContentProperty,
                 new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
         }
-        if (this.ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+        if (this.$ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
             this.$SetValue(ContentPresenter.ContentTemplateProperty,
                 new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
         }
     }
-    var template = this.GetContentTemplate();
+    var template = Nullstone.As(this.ContentTemplate, DataTemplate);
     if (template != null) {
         this._ContentRoot = Nullstone.As(template.GetVisualTree(this), UIElement);
     } else {
-        var content = this.GetContent();
+        var content = this.Content;
         this._ContentRoot = Nullstone.As(content, UIElement);
         if (this._ContentRoot == null && content != null)
-            this._ContentRoot = this.GetFallbackRoot();
+            this._ContentRoot = this._GetFallbackRoot();
     }
     return this._ContentRoot;
+};
+ContentPresenter.Instance._ClearRoot = function () {
+    if (this._ContentRoot != null)
+        this._ElementRemoved(this._ContentRoot);
+    this._ContentRoot = null;
+};
+ContentPresenter.Instance.InvokeLoaded = function () {
+    if (Nullstone.Is(this.Content, UIElement))
+        this.$ClearValue(FrameworkElement.DataContextProperty);
+    else
+        this.DataContext = this.Content;
+    this.InvokeLoaded$FrameworkElement();
 };
 ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== ContentPresenter) {
@@ -13698,27 +13684,15 @@ ContentPresenter.Instance._OnPropertyChanged = function (args, error) {
             this._ClearRoot();
         }
         if (args.NewValue && !(args.NewValue instanceof UIElement))
-            this.$SetValue(FrameworkElement.DataContextProperty, args.NewValue);
+            this._SetValue(FrameworkElement.DataContextProperty, args.NewValue);
         else
-            this.ClearValue(FrameworkElement.DataContextProperty);
+            this._ClearValue(FrameworkElement.DataContextProperty);
         this._InvalidateMeasure();
     } else if (args.Property._ID === ContentPresenter.ContentTemplateProperty._ID) {
         this._ClearRoot();
         this._InvalidateMeasure();
     }
     this.PropertyChanged.Raise(this, args);
-};
-ContentPresenter.Instance._ClearRoot = function () {
-    if (this._ContentRoot != null)
-        this._ElementRemoved(this._ContentRoot);
-    this._ContentRoot = null;
-};
-ContentPresenter.Instance.InvokeLoaded = function () {
-    if (this.GetContent() instanceof UIElement)
-        this.ClearValue(FrameworkElement.DataContextProperty);
-    else
-        this.SetDataContext(this.GetContent());
-    this.InvokeLoaded$FrameworkElement();
 };
 ContentPresenter.Annotations = {
     ContentProperty: ContentPresenter.ContentProperty
@@ -13730,139 +13704,51 @@ Control.Instance.Init = function () {
     this.Init$FrameworkElement();
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 };
-Control.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Control);
-Control.Instance.GetBackground = function () {
-    return this.$GetValue(Control.BackgroundProperty);
-};
-Control.Instance.SetBackground = function (value) {
-    this.$SetValue(Control.BackgroundProperty, value);
-};
-Control.BorderBrushProperty = DependencyProperty.Register("BorderBrush", function () { return Brush; }, Control);
-Control.Instance.GetBorderBrush = function () {
-    return this.$GetValue(Control.BorderBrushProperty);
-};
-Control.Instance.SetBorderBrush = function (value) {
-    this.$SetValue(Control.BorderBrushProperty, value);
-};
-Control.BorderThicknessProperty = DependencyProperty.Register("BorderThickness", function () { return Thickness; }, Control, new Thickness());
-Control.Instance.GetBorderThickness = function () {
-    return this.$GetValue(Control.BorderThicknessProperty);
-};
-Control.Instance.SetBorderThickness = function (value) {
-    this.$SetValue(Control.BorderThicknessProperty, value);
-};
-Control.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
-Control.Instance.GetFontFamily = function () {
-    return this.$GetValue(Control.FontFamilyProperty);
-};
-Control.Instance.SetFontFamily = function (value) {
-    this.$SetValue(Control.FontFamilyProperty, value);
-};
-Control.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, Control, Font.DEFAULT_SIZE);
-Control.Instance.GetFontSize = function () {
-    return this.$GetValue(Control.FontSizeProperty);
-};
-Control.Instance.SetFontSize = function (value) {
-    this.$SetValue(Control.FontSizeProperty, value);
-};
-Control.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
-Control.Instance.GetFontStretch = function () {
-    return this.$GetValue(Control.FontStretchProperty);
-};
-Control.Instance.SetFontStretch = function (value) {
-    this.$SetValue(Control.FontStretchProperty, value);
-};
-Control.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
-Control.Instance.GetFontStyle = function () {
-    return this.$GetValue(Control.FontStyleProperty);
-};
-Control.Instance.SetFontStyle = function (value) {
-    this.$SetValue(Control.FontStyleProperty, value);
-};
-Control.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, Control, Font.DEFAULT_WEIGHT);
-Control.Instance.GetFontWeight = function () {
-    return this.$GetValue(Control.FontWeightProperty);
-};
-Control.Instance.SetFontWeight = function (value) {
-    this.$SetValue(Control.FontWeightProperty, value);
-};
-Control.ForegroundProperty = DependencyProperty.Register("Foreground", function () { return Brush; }, Control);
-Control.Instance.GetForeground = function () {
-    return this.$GetValue(Control.ForegroundProperty);
-};
-Control.Instance.SetForeground = function (value) {
-    this.$SetValue(Control.ForegroundProperty, value);
-};
-Control.HorizontalContentAlignmentProperty = DependencyProperty.Register("HorizontalContentAlignment", function () { return new Enum(HorizontalAlignment); }, Control, HorizontalAlignment.Center);
-Control.Instance.GetHorizontalContentAlignment = function () {
-    return this.$GetValue(Control.HorizontalContentAlignmentProperty);
-};
-Control.Instance.SetHorizontalContentAlignment = function (value) {
-    this.$SetValue(Control.HorizontalContentAlignmentProperty, value);
-};
-Control.IsEnabledProperty = DependencyProperty.Register("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
-Control.Instance.GetIsEnabled = function () {
-    return this.$GetValue(Control.IsEnabledProperty);
-};
-Control.Instance.SetIsEnabled = function (value) {
-    this.$SetValue(Control.IsEnabledProperty, value);
-};
-Control.IsTabStopProperty = DependencyProperty.Register("IsTabStop", function () { return Boolean; }, Control, true);
-Control.Instance.GetIsTabStop = function () {
-    return this.$GetValue(Control.IsTabStopProperty);
-};
-Control.Instance.SetIsTabStop = function (value) {
-    this.$SetValue(Control.IsTabStopProperty, value);
-};
-Control.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, Control, new Thickness());
-Control.Instance.GetPadding = function () {
-    return this.$GetValue(Control.PaddingProperty);
-};
-Control.Instance.SetPadding = function (value) {
-    this.$SetValue(Control.PaddingProperty, value);
-};
-Control.TabIndexProperty = DependencyProperty.Register("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
-Control.Instance.GetTabIndex = function () {
-    return this.$GetValue(Control.TabIndexProperty);
-};
-Control.Instance.SetTabIndex = function (value) {
-    this.$SetValue(Control.TabIndexProperty, value);
-};
-Control.TabNavigationProperty = DependencyProperty.Register("TabNavigation", function () { return Number; }, Control);
-Control.Instance.GetTabNavigation = function () {
-    return this.$GetValue(Control.TabNavigationProperty);
-};
-Control.Instance.SetTabNavigation = function (value) {
-    this.$SetValue(Control.TabNavigationProperty, value);
-};
-Control.TemplateProperty = DependencyProperty.Register("Template", function () { return ControlTemplate; }, Control);
-Control.Instance.GetTemplate = function () {
-    return this.$GetValue(Control.TemplateProperty);
-};
-Control.Instance.SetTemplate = function (value) {
-    this.$SetValue(Control.TemplateProperty, value);
-};
-Control.VerticalContentAlignmentProperty = DependencyProperty.Register("VerticalContentAlignment", function () { return new Enum(VerticalAlignment); }, Control, VerticalAlignment.Center);
-Control.Instance.GetVerticalContentAlignment = function () {
-    return this.$GetValue(Control.VerticalContentAlignmentProperty);
-};
-Control.Instance.SetVerticalContentAlignment = function (value) {
-    this.$SetValue(Control.VerticalContentAlignmentProperty, value);
-};
-Control.DefaultStyleKeyProperty = DependencyProperty.Register("DefaultStyleKey", function () { return Function; }, Control);
-Control.Instance.GetDefaultStyleKey = function () {
-    return this.$GetValue(Control.DefaultStyleKeyProperty);
-};
-Control.Instance.SetDefaultStyleKey = function (value) {
-    this.$SetValue(Control.DefaultStyleKeyProperty, value);
-};
-Control.IsTemplateItemProperty = DependencyProperty.RegisterAttached("IsTemplateItem", function () { return Boolean; }, Control, false);
+Control.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Control);
+Control.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Control);
+Control.BorderThicknessProperty = DependencyProperty.RegisterCore("BorderThickness", function () { return Thickness; }, Control, new Thickness());
+Control.FontFamilyProperty = DependencyProperty.RegisterCore("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
+Control.FontSizeProperty = DependencyProperty.RegisterCore("FontSize", function () { return String; }, Control, Font.DEFAULT_SIZE);
+Control.FontStretchProperty = DependencyProperty.RegisterCore("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
+Control.FontStyleProperty = DependencyProperty.RegisterCore("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
+Control.FontWeightProperty = DependencyProperty.RegisterCore("FontWeight", function () { return String; }, Control, Font.DEFAULT_WEIGHT);
+Control.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, Control, undefined, { GetValue: function () { return new Color(255, 255, 255, 1.0); } });
+Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () { return new Enum(HorizontalAlignment); }, Control, HorizontalAlignment.Center);
+Control.IsEnabledProperty = DependencyProperty.RegisterCore("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
+Control.IsTabStopProperty = DependencyProperty.RegisterCore("IsTabStop", function () { return Boolean; }, Control, true);
+Control.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, Control, new Thickness());
+Control.TabIndexProperty = DependencyProperty.RegisterCore("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
+Control.TabNavigationProperty = DependencyProperty.RegisterCore("TabNavigation", function () { return Number; }, Control);
+Control.TemplateProperty = DependencyProperty.RegisterCore("Template", function () { return ControlTemplate; }, Control);
+Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () { return new Enum(VerticalAlignment); }, Control, VerticalAlignment.Center);
+Control.DefaultStyleKeyProperty = DependencyProperty.RegisterCore("DefaultStyleKey", function () { return Function; }, Control);
+Control.IsTemplateItemProperty = DependencyProperty.RegisterAttachedCore("IsTemplateItem", function () { return Boolean; }, Control, false);
 Control.GetIsTemplateItem = function (d) {
     return d.$GetValue(Control.IsTemplateItemProperty);
 };
 Control.SetIsTemplateItem = function (d, value) {
     d.$SetValue(Control.IsTemplateItemProperty, value);
 };
+Nullstone.AutoProperties(Control, [
+    Control.BackgroundProperty,
+    Control.BorderBrushProperty,
+    Control.BorderThicknessProperty,
+    Control.FontFamilyProperty,
+    Control.FontSizeProperty,
+    Control.FontStretchProperty,
+    Control.FontStyleProperty,
+    Control.FontWeightProperty,
+    Control.ForegroundProperty,
+    Control.HorizontalContentAlignmentProperty,
+    Control.IsEnabledProperty,
+    Control.IsTabStopProperty,
+    Control.PaddingProperty,
+    Control.TabIndexProperty,
+    Control.TabNavigationProperty,
+    Control.TemplateProperty,
+    Control.VerticalContentAlignmentProperty,
+    Control.DefaultStyleKeyProperty
+]);
 Control.Instance.GetIsFocused = function () {
     return this._IsFocused;
 };
@@ -13899,16 +13785,16 @@ Control.Instance.IsLayoutContainer = function () {
     return true;
 };
 Control.Instance.CanCaptureMouse = function () {
-    return this.GetIsEnabled();
+    return this.IsEnabled;
 };
 Control.Instance._CanFindElement = function () {
-    return this.GetIsEnabled();
+    return this.IsEnabled;
 };
 Control.Instance._InsideObject = function (x, y) {
     return false;
 };
 Control.Instance._HitTestPoint = function (ctx, p, uielist) {
-    if (this.GetIsEnabled())
+    if (this.IsEnabled)
         this._HitTestPoint$FrameworkElement(ctx, p, uielist);
 };
 Control.Instance._UpdateIsEnabledSource = function (control) {
@@ -13941,7 +13827,7 @@ Control.Instance._OnIsAttachedChanged = function (value) {
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
 };
 Control.Instance._DoApplyTemplateWithError = function (error) {
-    var t = this.GetTemplate();
+    var t = this.Template;
     if (!t)
         return this._DoApplyTemplateWithError$FrameworkElement(error);
     var root = t._GetVisualTreeWithError(this, error);
@@ -13973,14 +13859,14 @@ Control.Instance.Focus = function (recurse) {
     var walker = new _DeepTreeWalker(this);
     var uie;
     while (uie = walker.Step()) {
-        if (uie.GetVisibility() !== Visibility.Visible) {
+        if (uie.Visibility !== Visibility.Visible) {
             walker.SkipBranch();
             continue;
         }
         var c = Nullstone.As(uie, Control);
         if (c == null)
             continue;
-        if (!c.GetIsEnabled()) {
+        if (!c.IsEnabled) {
             if (!recurse)
                 return false;
             walker.SkipBranch();
@@ -13989,7 +13875,7 @@ Control.Instance.Focus = function (recurse) {
         var loaded = false;
         for (var check = this; !loaded && check != null; check = check.GetVisualParent())
             loaded = loaded || check._IsLoaded;
-        if (loaded && c._GetRenderVisible() && c.GetIsTabStop())
+        if (loaded && c._GetRenderVisible() && c.IsTabStop)
             return surface._FocusElement(c);
         if (!recurse)
             return false;
@@ -14014,33 +13900,23 @@ Fayde.Image.Instance.Init = function () {
     this.ImageFailed = new MulticastEvent();
     this.ImageOpened = new MulticastEvent();
 };
-Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, null, { GetValue: function (propd, obj) { return new BitmapImage(); } });
-Fayde.Image.Instance.GetSource = function () {
-    return this.$GetValue(Fayde.Image.SourceProperty);
-};
-Fayde.Image.Instance.SetSource = function (value) {
-    value = this.SetSource.Converter(value);
-    this.$SetValue(Fayde.Image.SourceProperty, value);
-};
-Fayde.Image.Instance.SetSource.Converter = function (value) {
+Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Fayde.Image, Stretch.Uniform);
+Nullstone.AutoProperties(Fayde.Image, [
+    Fayde.Image.StretchProperty
+]);
+Nullstone.AutoProperty(Fayde.Image, Fayde.Image.SourceProperty, function (value) {
     if (value instanceof Uri)
         return new BitmapImage(value);
     return value;
-};
-Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Fayde.Image, Stretch.Uniform);
-Fayde.Image.Instance.GetStretch = function () {
-    return this.$GetValue(Fayde.Image.StretchProperty);
-};
-Fayde.Image.Instance.SetStretch = function (value) {
-    this.$SetValue(Fayde.Image.StretchProperty, value);
-};
+});
 Fayde.Image.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = availableSize;
     var shapeBounds = new Rect();
-    var source = this.GetSource();
+    var source = this.Source;
     var sx = sy = 0.0;
     if (source != null)
-        shapeBounds = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+        shapeBounds = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
     if (!isFinite(desired.Width))
         desired.Width = shapeBounds.Width;
     if (!isFinite(desired.Height))
@@ -14053,7 +13929,7 @@ Fayde.Image.Instance._MeasureOverrideWithError = function (availableSize, error)
         sx = sy;
     if (!isFinite(availableSize.Height))
         sy = sx;
-    switch (this.GetStretch()) {
+    switch (this.Stretch) {
         case Stretch.Uniform:
             sx = sy = Math.min(sx, sy);
             break;
@@ -14076,11 +13952,11 @@ Fayde.Image.Instance._MeasureOverrideWithError = function (availableSize, error)
 Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var arranged = finalSize;
     var shapeBounds = new Rect();
-    var source = this.GetSource();
+    var source = this.Source;
     var sx = 1.0;
     var sy = 1.0;
     if (source != null)
-        shapeBounds = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+        shapeBounds = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
     if (shapeBounds.Width === 0)
         shapeBounds.Width = arranged.Width;
     if (shapeBounds.Height === 0)
@@ -14089,7 +13965,7 @@ Fayde.Image.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         sx = arranged.Width / shapeBounds.Width;
     if (shapeBounds.Height !== arranged.Height)
         sy = arranged.Height / shapeBounds.Height;
-    switch (this.GetStretch()) {
+    switch (this.Stretch) {
         case Stretch.Uniform:
             sx = sy = Math.min(sx, sy);
             break;
@@ -14109,24 +13985,40 @@ Fayde.Image.Instance._CanFindElement = function () { return true; };
 Fayde.Image.Instance._InsideObject = function (ctx, x, y) {
     if (!this._InsideObject$FrameworkElement(ctx, x, y))
         return false;
-    var source = this.GetSource();
+    var source = this.Source;
     if (!source)
         return false;
-    var stretch = this.GetStretch();
+    var stretch = this.Stretch;
     if (stretch === Stretch.Fill || stretch === Stretch.UniformToFill)
         return true;
     var metrics = this._CalculateRenderMetrics(source);
     if (!metrics)
         return null;
-    var rect = new Rect(0, 0, source.GetPixelWidth(), source.GetPixelHeight());
+    var rect = new Rect(0, 0, source.PixelWidth, source.PixelHeight);
     rect = rect.Transform(metrics.Matrix);
     var np = new Point(x, y);
     this._TransformPoint(np);
     return rect.ContainsPoint(np);
 };
+Fayde.Image.Instance._ComputeActualSize = function () {
+    var result = this._ComputeActualSize$FrameworkElement();
+    var parent = this.GetVisualParent();
+    var source = this.Source;
+    if (parent && !Nullstone.Is(parent, Canvas))
+        if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined)
+            return result;
+    if (source) {
+        var available = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+        available = this._ApplySizeConstraints(available);
+        var error = new BError();
+        result = this._MeasureOverrideWithError(available, error);
+        result = this._ApplySizeConstraints(result);
+    }
+    return result;
+};
 Fayde.Image.Instance._Render = function (ctx, region) {
-    var source = this.GetSource();
-    if (source == null)
+    var source = this.Source;
+    if (!source)
         return;
     source.Lock();
     var metrics = this._CalculateRenderMetrics(source);
@@ -14138,17 +14030,18 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     if (metrics.Overlap !== RectOverlap.In || this._HasLayoutClip())
         this._RenderLayoutClip(ctx);
     ctx.PreTransform(metrics.Matrix);
-    ctx.CustomRender(Fayde.Image._ImagePainter, source._Image);
+    var canvasCtx = ctx.GetCanvasContext();
+    canvasCtx.drawImage(source._Image, 0, 0);
     ctx.Restore();
     source.Unlock();
 };
 Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
-    var stretch = this.GetStretch();
-    var specified = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var stretch = this.Stretch;
+    var specified = new Size(this.ActualWidth, this.ActualHeight);
     var stretched = this._ApplySizeConstraints(specified);
     var adjust = !Rect.Equals(specified, this._GetRenderSize());
-    var pixelWidth = source.GetPixelWidth();
-    var pixelHeight = source.GetPixelHeight();
+    var pixelWidth = source.PixelWidth;
+    var pixelHeight = source.PixelHeight;
     if (pixelWidth === 0 || pixelHeight === 0)
         return null;
     if (stretch !== Stretch.UniformToFill)
@@ -14176,7 +14069,7 @@ Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
     };
 };
 Fayde.Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && (propd._ID === Fayde.Image.SourceProperty._ID)) {
+    if (propd && (propd._ID === Fayde.Image.SourceProperty._ID)) {
         this._InvalidateMeasure();
         this._Invalidate();
         return;
@@ -14189,12 +14082,12 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
     }
     if (args.Property._ID === Fayde.Image.SourceProperty._ID) {
         var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
-        if (oldBmpSrc != null) {
+        if (oldBmpSrc) {
             oldBmpSrc._ErroredCallback = null;
             oldBmpSrc._LoadedCallback = null;
         }
         var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
-        if (newBmpSrc != null) {
+        if (newBmpSrc) {
             var i = this;
             newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
             newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
@@ -14256,33 +14149,292 @@ Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, al
     return new Matrix([scale, 0, dx, 0, scale, dy],
         [1 / scale, 0, -dx, 0, 1 / scale, -dy]);
 };
-Fayde.Image._ImagePainter = function (args) {
-    var ctx = args[0];
-    var img = args[1];
-    ctx.drawImage(img, 0, 0);
-};
 Nullstone.FinishCreate(Fayde.Image);
 
-var ItemCollection = {};//TODO: Implement
-var ItemsControl = Nullstone.Create("ItemsControl", Control);
+var ItemsControl = Nullstone.Create("ItemsControl", Control, 0, [IListenCollectionChanged]);
+ItemsControl.Instance.Init = function () {
+    this.Init$Control();
+    this._itemContainerGenerator = new ItemContainerGenerator(this);
+    this._itemContainerGenerator.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
+};
+ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
+    if (!this._presenter || Nullstone.Is(_presenter._GetElementRoot(), VirtualizingPanel)) {
+        return;
+    }
+    var panel = this._presenter._GetElementRoot();
+    switch (e.GetAction()) {
+        case NotifyCollectionChangedAction.Reset:
+            if (panel.Children.GetCount() > 0) {
+                this.RemoveItemsFromPresenter(new GeneratorPosition(0, 0), panel.Children.GetCount());
+            }
+            break;
+        case NotifyCollectionChangedAction.Add:
+            this.AddItemsToPresenter(e.Position, e.ItemCount);
+            break;
+        case NotifyCollectionChangedAction.Remove:
+            this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
+            break;
+        case NotifyCollectionChangedAction.Replace:
+            this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
+            this.AddItemsToPresenter(e.Position, e.ItemCount);
+            break;
+    }
+};
+ItemsControl.Instance.AddItemsToPresenter = function (position, count) {
+    if (!this._presenter || !this._presenter._GetElementRoot() || Nullstone.Is(this._presenter._GetElementRoot(), VirtualizingPanel)) {
+        return;
+    }
+    var panel = this._presenter._GetElementRoot();
+    var newIndex = this._itemContainerGenerator.GetIndexFromGeneratorPosition(position);
+    var p = this._itemContainerGenerator.StartAt(position, GeneratorDirection.Forward, true);
+    for (var i = 0; i < count; i++) {
+        var item = this.Items.GetValueAt(newIndex + 1);
+        var data = {};
+        var container = this._itemContainerGenerator.GenerateNext(data);
+    }
+};
+ItemsControl.Instance.RemoveItemsFromPresenter = function (position, count) {
+    if (!this._presenter || !this._presenter._GetElementRoot() || Nullstone.Is(this._presenter._GetElementRoot(), VirtualizingPanel)) {
+        return;
+    }
+    var panel = this._presenter._GetElementRoot();
+    while (count > 0) {
+        panel.Children.RemoveAt(position.Index);
+        count--;
+    }
+};
+ItemsControl.Instance.PrepareContainerForItemOverride = function (element, item) {
+    if (this.DisplayMemberPath != null && this.ItemTemplate) {
+        throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaenously");
+    }
+    this.UpdateContentTemplateOnContainer(element, item);
+};
+ItemsControl.Instance._GetDefaultTemplate = function () {
+    var presenter = this._presenter;
+    if (!presenter) {
+        presenter = new ItemsPresenter();
+        presenter.TemplateOwner = this;
+    }
+    return presenter;
+};
+ItemsControl.Instance._SetItemsPresenter = function (presenter) {
+    if (this._presenter) {
+        this._presenter._GetElementRoot().Children.Clear();
+    }
+    this._presenter = presenter;
+    this.AddItemsToPresenter(new GeneratorPosition(-1, 1), this.Items.GetCount());
+};
 ItemsControl.GetItemsOwner = function (ele) {
     var panel = Nullstone.As(ele, Panel);
-    if (panel == null || !panel.GetIsItemsHost())
+    if (!panel || !panel.IsItemsHost)
         return null;
-    var owner = Nullstone.As(panel.GetTemplateOwner(), ItemsPresenter);
-    if (owner != null)
-        return Nullstone.As(owner.GetTemplateOwner(), ItemsControl);
+    var owner = Nullstone.As(panel.TemplateOwner, ItemsPresenter);
+    if (owner)
+        return Nullstone.As(owner.TemplateOwner, ItemsControl);
     return null;
 };
-ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl);
-ItemsControl.Instance.GetItems = function () {
-    return this.$GetValue(ItemsControl.ItemsProperty);
+ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
+ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl, null);
+ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return ItemsPanelTemplate; }, ItemsControl);
+ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
+ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
+Nullstone.AutoProperties(ItemsControl, [
+    ItemsControl.DisplayMemberPathProperty,
+    ItemsControl.ItemsPanelProperty,
+    ItemsControl.ItemTemplateProperty
+]);
+Nullstone.Property(ItemsControl, "Items", {
+    get: function () {
+        var items = Nullstone.As(this.$GetValue(ItemsControl.ItemsProperty), ItemCollection);
+        if (!items) {
+            items = new ItemCollection();
+            this._itemsIsDataBound = false;
+            items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
+            items.Clearing.Subscribe(this.OnItemsClearing, this);
+            this.$SetValue(ItemsControl.ItemsProperty, items);
+        }
+        return items;
+    }
+});
+Nullstone.Property(ItemsControl, "ItemsSource", {
+    get: function () {
+        return this.$GetValue(ItemsControl.ItemsSourceProperty);
+    },
+    set: function (value) {
+        if (!this._itemsIsDataBound && this.Items.GetCount() > 0) {
+            throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
+        }
+        this.$SetValue(ItemsControl.ItemsSourceProperty, value);
+    }
+});
+ItemsControl.Instance.OnDisplayMemberPathChanged = function (e) {
+    var items = this.Items;
+    var count = items.GetCount();
+    for (var i = 0; i < count; i++) {
+        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
+    }
 };
-ItemsControl.Instance.SetItems = function (value) {
-    this.$SetValue(ItemsControl.ItemsProperty, value);
+ItemsControl.Instance.IsItemItsOwnContainer = function (item) {
+    return Nullstone.Is(item, FrameworkElement);
+};
+ItemsControl.Instance.OnItemsClearing = function (object, e) {
+    this._SetLogicalParent(this.Items);
+};
+ItemsControl.Instance.OnItemsChanged = function (e) {
+};
+ItemsControl.Instance.SetLogicalParent = function (parent, items) {
+    if (this.ItemsSource) {
+        return;
+    }
+    var count = items.GetCount();
+    for (var i = 0; i < count; i++) {
+        var fe = Nullstone.As(items.GetValueAt(i), FrameworkElement);
+        if (fe) {
+            var error = new BError();
+            this._SetLogicalParent(parent, error);
+            if (error.IsErrored()) {
+                throw error.CreateException();
+            }
+        }
+    }
+};
+ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
+    switch (e.Action) {
+        case NotifyCollectionChangedAction.Add:
+            this._SetLogicalParent(e.NewItems);
+            break;
+        case NotifyCollectionChangedAction.Remove:
+            this._SetLogicalParent(e.OldItems);
+            break;
+        case NotifyCollectionChangedAction.Replace:
+            this._SetLogicalParent(e.NewItems);
+            break;
+    }
+    this._ItemContainerGenerator.OnOwnerItemsChanged(object, e);
+    if (!this._itemsIsDataBound) {
+        this.OnItemsChanged(e);
+    }
+};
+ItemsControl.Instance.OnItemsSourceChanged = function (e) {
+    if (!e.OldValue && Nullstone.Is(e.OldValue, INotifyCollectionChanged)) {
+        e.OldValue.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
+    }
+    if (!e.NewValue) {
+        if (Nullstone.Is(e.NewValue, INotifyCollectionChanged)) {
+            e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
+        }
+        this.Items.$SetIsReadOnly(true);
+        this._itemsIsDataBound = true;
+        this.Items._ClearImpl();
+        var count = e.NewValue.GetCount();
+        for (var i = 0; i < count; i++) {
+            this.Items._AddImpl(e.NewValue.GetValueAt(i));
+        }
+        this.OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+    else {
+        this._itemsIsDataBound = false;
+        this.Items.$SetIsReadyOnly(false);
+        this.Items._ClearImpl();
+    }
+    this._InvalidateMeasure();
+};
+ItemsControl.Instance._CollectionChanged = function (sender, e) {
+    switch (e.Action) {
+        case NotifyCollectionChangedAction.Add:
+            var count = e.NewItems.GetCount();
+            for (var i = 0; i < count; i++) {
+                this.Items._InsertImpl(e.NewStartingIndex + 1, e.NewItems.GetValueAt(i));
+            }
+            break;
+        case NotifyCollectionChangedAction.Remove:
+            var count = e.OldItems.GetCount();
+            for (var i = 0; i < count; i++) {
+                this.Items._RemoveAtImpl(e.OldStartingIndex);
+            }
+            break;
+        case NotifyCollectionChangedAction.Replace:
+            var count = e.NewItems.GetCount();
+            for (var i = 0; i < count; i++) {
+                this.Items._SetItemImpl(e.NewStartingIndex + 1, e.NewItems.GetValueAt(i));
+            }
+            break;
+        case NotifyCollectionChangedAction.Reset:
+            this.Items._ClearImpl();
+            var count = this.ItemsSource.GetCount();
+            for (var i = 0; i < count; i++) {
+                this.Items._AddImpl(this.ItemsSource.GetValueAt(i));
+            }
+            break;
+    }
+};
+ItemsControl.Instance.OnItemTemplateChanged = function (e) {
+    var items = this.Items;
+    var count = items.GetCount();
+    for (var i = 0; i < count; i++) {
+        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
+    }
+};
+ItemsControl.Instance.UpdateContentTemplateOnContainer = function (element, item) {
+    if (Nullstone.RefEquals(element, item)) {
+        return;
+    }
+    var presenter = Nullstone.As(element, ContentPresenter);
+    var control = Nullstone.As(element, ContentControl);
+    var template;
+    if (!(item instanceof UIElement)) {
+        template = this.ItemTemplate;
+        if (!template) {
+            template = this._GetDisplayMemberTemplate();
+        }
+    }
+    if (presenter) {
+        presenter.ContentTemplate = template;
+        presenter.Content = item;
+    } else if (control) {
+        control.ContentTemplate = template;
+        control.Content = item;
+    }
+};
+ItemsControl.Instance.ItemsControlFromItemContainer = function (container) {
+    var e = Nullstone.As(container, FrameworkElement);
+    if (!e) {
+        return null;
+    }
+    var itctl = NullStone.As(e.Parent, ItemsControl);
+    if (!itctl) {
+        return ItemsControl.GetItemsOwner(e.Parent);
+    }
+    if (itctl.IsItemItsOwnContainer(e)) {
+        return itctl;
+    }
+    return null;
+};
+ItemsControl.Instance._Panel = function () {
+    if (this._presenter) {
+        return _presenter._GetElementRoot();
+    } else {
+        return null;
+    }
 };
 ItemsControl.Annotations = {
     ContentProperty: ItemsControl.ItemsProperty
+};
+ItemsControl.Instance._GetDisplayMemberTemplate = function () {
+    if (!this._DisplayMemberTemplate) {
+        this._DisplayMemberTemplate = new DataTemplate({
+            Type: Grid,
+            Children: [
+            {
+                Type: TextBlock,
+                Props: {
+                    Text: new BindingMarkup({ Path: this.DisplayMemberPath })
+                }
+            }
+        ]
+        });
+    }
+    return this._DisplayMemberTemplate;
 };
 Nullstone.FinishCreate(ItemsControl);
 
@@ -14294,12 +14446,6 @@ Nullstone.FinishCreate(MediaElement);
 
 var Panel = Nullstone.Create("Panel", FrameworkElement);
 Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
-Panel.Instance.GetBackground = function () {
-    return this.$GetValue(Panel.BackgroundProperty);
-};
-Panel.Instance.SetBackground = function (value) {
-    this.$SetValue(Panel.BackgroundProperty, value);
-};
 Panel._CreateChildren = {
     GetValue: function (propd, obj) {
         var col = new UIElementCollection();
@@ -14309,20 +14455,13 @@ Panel._CreateChildren = {
         return col;
     }
 };
-Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, null, Panel._CreateChildren);
-Panel.Instance.GetChildren = function () {
-    return this.$GetValue(Panel.ChildrenProperty);
-};
-Panel.Instance.SetChildren = function (value) {
-    this.$SetValue(Panel.ChildrenProperty, value);
-};
+Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, undefined, Panel._CreateChildren);
 Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
-Panel.Instance.GetIsItemsHost = function () {
-    return this.$GetValue(Panel.IsItemsHostProperty);
-};
-Panel.Instance.SetIsItemsHost = function (value) {
-    this.$SetValue(Panel.IsItemsHostProperty, value);
-};
+Nullstone.AutoProperties(Panel, [
+    Panel.BackgroundProperty,
+    Panel.ChildrenProperty,
+    Panel.IsItemsHostProperty
+]);
 Panel.Instance.IsLayoutContainer = function () { return true; };
 Panel.Instance.IsContainer = function () { return true; };
 Panel.Instance._ComputeBounds = function () {
@@ -14334,8 +14473,8 @@ Panel.Instance._ComputeBounds = function () {
             continue;
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
     }
-    if (this.GetBackground()) {
-        this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    if (this.Background) {
+        this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
     }
     this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
@@ -14344,7 +14483,7 @@ Panel.Instance._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 Panel.Instance._GetCoverageBounds = function () {
-    var background = this.GetBackground();
+    var background = this.Background;
     if (background && background.IsOpaque())
         return this._Bounds;
     return new Rect();
@@ -14357,7 +14496,7 @@ Panel.Instance._ShiftPosition = function (point) {
     this._BoundsWithChildren.Y += dy;
 };
 Panel.Instance._EmptyBackground = function () {
-    return this.GetBackground() == null;
+    return this.Background == null;
 };
 Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
     Info("Panel._MeasureOverrideWithError [" + this._TypeName + "]");
@@ -14365,10 +14504,10 @@ Panel.Instance._MeasureOverrideWithError = function (availableSize, error) {
     return result;
 };
 Panel.Instance._Render = function (ctx, region) {
-    var background = this.GetBackground();
+    var background = this.Background;
     if (!background)
         return;
-    var framework = new Size(this.GetActualWidth(), this.GetActualHeight());
+    var framework = new Size(this.ActualWidth, this.ActualHeight);
     framework = this._ApplySizeConstraints(framework);
     if (framework.Width <= 0 || framework.Height <= 0)
         return;
@@ -14381,9 +14520,9 @@ Panel.Instance._Render = function (ctx, region) {
         ctx.Restore();
     }
 };
-Panel.Instance._CanFindElement = function () { return this.GetBackground() != null; }
+Panel.Instance._CanFindElement = function () { return this.Background != null; }
 Panel.Instance._InsideObject = function (ctx, x, y) {
-    if (this.GetBackground())
+    if (this.Background)
         return this._InsideObject$FrameworkElement(ctx, x, y);
     return false;
 };
@@ -14431,7 +14570,7 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 Panel.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && propd._ID === Panel.BackgroundProperty._ID) {
+    if (propd && propd._ID === Panel.BackgroundProperty._ID) {
         this._Invalidate();
     } else {
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
@@ -14496,7 +14635,7 @@ _RichTextBoxView.Instance.Init = function () {
 };
 Nullstone.FinishCreate(_RichTextBoxView);
 
-var ScrollContentPresenter = Nullstone.Create("ScrollContentPresenter", ContentPresenter, null, [IScrollInfo]);
+var ScrollContentPresenter = Nullstone.Create("ScrollContentPresenter", ContentPresenter, 0, [IScrollInfo]);
 ScrollContentPresenter.Instance.Init = function () {
     this.Init$ContentPresenter();
     this.$IsClipPropertySet = false;
@@ -14550,7 +14689,7 @@ ScrollContentPresenter.Instance.ChangeHorizontalOffset = function (offset) {
     var valid = ScrollContentPresenter._ValidateInputOffset(offset);
     if (DoubleUtil.AreClose(this.$ScrollData.Offset.X, valid))
         return;
-    this.$ScrollData.CachedOffset.X = num;
+    this.$ScrollData.CachedOffset.X = valid;
     this._InvalidateArrange();
 };
 ScrollContentPresenter.Instance.ChangeVerticalOffset = function (offset) {
@@ -14579,7 +14718,7 @@ ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
 };
 ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
     var scrollOwner = this.GetScrollOwner();
-    if (scrollOwner == null || this._ContentRoot == null)
+    if (!scrollOwner || !this._ContentRoot)
         return this._ArrangeOverrideWithError(arrangeSize);
     if (this._ClampOffsets())
         scrollOwner._InvalidateScrollInfo();
@@ -14593,29 +14732,29 @@ ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
 };
 ScrollContentPresenter.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ContentPresenter();
-    var sv = Nullstone.As(this.GetTemplateOwner(), ScrollViewer);
-    if (sv == null)
+    var sv = Nullstone.As(this.TemplateOwner, ScrollViewer);
+    if (!sv)
         return;
-    var content = this.GetContent();
+    var content = this.Content;
     var info = Nullstone.As(content, IScrollInfo);
-    if (info == null) {
+    if (!info) {
         var presenter = Nullstone.As(content, ItemsPresenter);
-        if (presenter != null) {
-            if (presenter._ElementRoot == null)
+        if (presenter) {
+            if (!presenter._ElementRoot)
                 presenter.ApplyTemplate();
             info = Nullstone.As(presenter._ElementRoot, IScrollInfo);
         }
     }
-    if (info == null)
+    if (!info)
         info = this;
-    info.SetCanHorizontallyScroll(sv.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
-    info.SetCanVerticallyScroll(sv.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+    info.SetCanHorizontallyScroll(sv.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+    info.SetCanVerticallyScroll(sv.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
     info.SetScrollOwner(sv);
     sv.SetScrollInfo(info);
     sv._InvalidateScrollInfo();
 };
 ScrollContentPresenter.Instance.MakeVisible = function (visual, rectangle) {
-    if (rectangle.IsEmpty() || visual == null || Nullstone.RefEquals(visual, this) || !this.IsAncestorOf(visual))
+    if (rectangle.IsEmpty() || !visual || Nullstone.RefEquals(visual, this) || !this.IsAncestorOf(visual))
         return new Rect();
     var generalTransform = visual.TransformToVisual(this);
     var point = generalTransform.Transform(new Point(rectangle.X, rectangle.Y));
@@ -14677,34 +14816,35 @@ ScrollContentPresenter.Instance._ClampOffsets = function () {
 ScrollContentPresenter.Instance._UpdateClip = function (arrangeSize) {
     if (!this.$IsClipPropertySet) {
         this.$ClippingRectangle = new RectangleGeometry();
-        this.SetClip(this.$ClippingRectangle);
+        this.Clip = this.$ClippingRectangle;
         this.$IsClipPropertySet = true;
     }
-    if (Nullstone.As(this.GetTemplateOwner(), ScrollViewer) == null || Nullstone.As(this.GetContent(), _TextBoxView) == null && Nullstone.As(this.GetContent(), _RichTextBoxView) == null) {
-        this.$ClippingRectangle.SetRect(new Rect(0, 0, arrangeSize.Width, arrangeSize.Height));
+    var content;
+    if (Nullstone.Is(this.TemplateOwner, ScrollViewer) && (content = this.Content) && (Nullstone.Is(content, _TextBoxView) || Nullstone.Is(content, _RichTextBoxView))) {
+        this.$ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
     } else {
-        this.$ClippingRectangle.SetRect(this._CalculateTextBoxClipRect(arrangeSize));
+        this.$ClippingRectangle.Rect = new Rect(0, 0, arrangeSize.Width, arrangeSize.Height);
     }
 };
 ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSize) {
     var left = 0;
     var right = 0;
-    var templatedParent = Nullstone.As(this.GetTemplateOwner(), ScrollViewer);
+    var templatedParent = Nullstone.As(this.TemplateOwner, ScrollViewer);
     var width = this.$ScrollData.Extent.Width;
     var num = this.$ScrollData.Viewport.Width;
     var x = this.$ScrollData.Offset.X;
-    var textbox = Nullstone.As(templatedParent.GetTemplateOwner(), TextBox);
-    var richtextbox = Nullstone.As(templatedParent.GetTemplateOwner(), RichTextBox);
+    var textbox = Nullstone.As(templatedParent.TemplateOwner, TextBox);
+    var richtextbox = Nullstone.As(templatedParent.TemplateOwner, RichTextBox);
     var textWrapping = TextWrapping.NoWrap;
     var horizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
-    if (richtextbox != null) {
-        textWrapping = richtextbox.GetTextWrapping();
-        horizontalScrollBarVisibility = richtextbox.GetHorizontalScrollBarVisibility();
-    } else if (textbox != null) {
-        textWrapping = textbox.GetTextWrapping();
-        horizontalScrollBarVisibility = textbox.GetHorizontalScrollBarVisibility();
+    if (richtextbox) {
+        textWrapping = richtextbox.TextWrapping;
+        horizontalScrollBarVisibility = richtextbox.HorizontalScrollBarVisibility;
+    } else if (textbox) {
+        textWrapping = textbox.TextWrapping;
+        horizontalScrollBarVisibility = textbox.HorizontalScrollBarVisibility;
     }
-    var padding = templatedParent.GetPadding();
+    var padding = templatedParent.Padding;
     if (textWrapping !== TextWrapping.Wrap) {
         if (num > width || x === 0)
             left = padding.Left + 1;
@@ -14719,10 +14859,10 @@ ScrollContentPresenter.Instance._CalculateTextBoxClipRect = function (arrangeSiz
     return new Rect(-left, 0, arrangeSize.Width + left + right, arrangeSize.Height);
 };
 ScrollContentPresenter.Instance.LineUp = function () {
-    this.ChangeVerticalOffset(this.GetVerticalOffset() + 16);
+    this.ChangeVerticalOffset(this.GetVerticalOffset() - 16);
 };
 ScrollContentPresenter.Instance.LineDown = function () {
-    this.ChangeVerticalOffset(this.GetVerticalOffset() - 16);
+    this.ChangeVerticalOffset(this.GetVerticalOffset() + 16);
 };
 ScrollContentPresenter.Instance.LineLeft = function () {
     this.ChangeHorizontalOffset(this.GetHorizontalOffset() - 16);
@@ -14759,40 +14899,40 @@ Nullstone.FinishCreate(ScrollContentPresenter);
 var StackPanel = Nullstone.Create("StackPanel", Panel);
 StackPanel._OrientationChanged = function (d, args) {
     var sp = Nullstone.As(d, StackPanel);
-    if (sp == null)
+    if (!sp)
         return;
     d._InvalidateMeasure();
     d._InvalidateArrange();
 };
 StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
-StackPanel.Instance.GetOrientation = function () {
-    return this.$GetValue(StackPanel.OrientationProperty);
-};
-StackPanel.Instance.SetOrientation = function (value) {
-    this.$SetValue(StackPanel.OrientationProperty, value);
-};
+Nullstone.AutoProperties(StackPanel, [
+    StackPanel.OrientationProperty
+]);
 StackPanel.Instance.MeasureOverride = function (constraint) {
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
     var measured = new Size(0, 0);
-    if (this.GetOrientation() === Orientation.Vertical) {
+    var orientation = this.Orientation;
+    if (orientation === Orientation.Vertical) {
         childAvailable.Width = constraint.Width;
-        if (!isNaN(this.GetWidth()))
-            childAvailable.Width = this.GetWidth();
-        childAvailable.Width = Math.min(childAvailable.Width, this.GetMaxWidth());
-        childAvailable.Width = Math.max(childAvailable.Width, this.GetMinWidth());
+        var width = this.Width;
+        if (!isNaN(width))
+            childAvailable.Width = width;
+        childAvailable.Width = Math.min(childAvailable.Width, this.MaxWidth);
+        childAvailable.Width = Math.max(childAvailable.Width, this.MinWidth);
     } else {
         childAvailable.Height = constraint.Height;
-        if (!isNaN(this.GetHeight()))
-            childAvailable.Height = this.GetHeight();
-        childAvailable.Height = Math.min(childAvailable.Height, this.GetMaxHeight());
-        childAvailable.Height = Math.max(childAvailable.Height, this.GetMinHeight());
+        var height = this.Height;
+        if (!isNaN(height))
+            childAvailable.Height = height;
+        childAvailable.Height = Math.min(childAvailable.Height, this.MaxHeight);
+        childAvailable.Height = Math.max(childAvailable.Height, this.MinHeight);
     }
-    var children = this.GetChildren();
+    var children = this.Children;
     for (var i = 0; i < children.GetCount(); i++) {
         var child = children.GetValueAt(i);
         child.Measure(childAvailable);
         var size = child._DesiredSize;
-        if (this.GetOrientation() === Orientation.Vertical) {
+        if (orientation === Orientation.Vertical) {
             measured.Height += size.Height;
             measured.Width = Math.max(measured.Width, size.Width);
         } else {
@@ -14804,16 +14944,17 @@ StackPanel.Instance.MeasureOverride = function (constraint) {
 };
 StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     var arranged = arrangeSize;
-    if (this.GetOrientation() === Orientation.Vertical)
+    var orientation = this.Orientation;
+    if (orientation === Orientation.Vertical)
         arranged.Height = 0;
     else
         arranged.Width = 0;
-    var children = this.GetChildren();
+    var children = this.Children;
     for (var i = 0; i < children.GetCount(); i++) {
         var child = children.GetValueAt(i);
         var size = child._DesiredSize;
         var childFinal;
-        if (this.GetOrientation() === Orientation.Vertical) {
+        if (orientation === Orientation.Vertical) {
             size.Width = arrangeSize.Width;
             childFinal = new Rect(0, arranged.Height, size.Width, size.Height);
             if (childFinal.IsEmpty())
@@ -14833,7 +14974,7 @@ StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
             arranged.Height = Math.max(arranged.Height, size.Height);
         }
     }
-    if (this.GetOrientation() === Orientation.Vertical)
+    if (orientation === Orientation.Vertical)
         arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
     else
         arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
@@ -14853,125 +14994,45 @@ TextBlock.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._Font = new Font();
 };
-TextBlock.PaddingProperty = DependencyProperty.Register("Padding", function () { return Thickness; }, TextBlock, new Thickness());
-TextBlock.Instance.GetPadding = function () {
-    return this.$GetValue(TextBlock.PaddingProperty);
-};
-TextBlock.Instance.SetPadding = function (value) {
-    this.$SetValue(TextBlock.PaddingProperty, value);
-};
-TextBlock.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextBlock, null, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextBlock.Instance.GetForeground = function () {
-    return this.$GetValue(TextBlock.ForegroundProperty);
-};
-TextBlock.Instance.SetForeground = function (value) {
-    this.$SetValue(TextBlock.ForegroundProperty, value);
-};
-TextBlock.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY);
-TextBlock.Instance.GetFontFamily = function () {
-    return this.$GetValue(TextBlock.FontFamilyProperty);
-};
-TextBlock.Instance.SetFontFamily = function (value) {
-    this.$SetValue(TextBlock.FontFamilyProperty, value);
-};
-TextBlock.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH);
-TextBlock.Instance.GetFontStretch = function () {
-    return this.$GetValue(TextBlock.FontStretchProperty);
-};
-TextBlock.Instance.SetFontStretch = function (value) {
-    this.$SetValue(TextBlock.FontStretchProperty, value);
-};
-TextBlock.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE);
-TextBlock.Instance.GetFontStyle = function () {
-    return this.$GetValue(TextBlock.FontStyleProperty);
-};
-TextBlock.Instance.SetFontStyle = function (value) {
-    this.$SetValue(TextBlock.FontStyleProperty, value);
-};
-TextBlock.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return String; }, TextBlock, Font.DEFAULT_WEIGHT);
-TextBlock.Instance.GetFontWeight = function () {
-    return this.$GetValue(TextBlock.FontWeightProperty);
-};
-TextBlock.Instance.SetFontWeight = function (value) {
-    this.$SetValue(TextBlock.FontWeightProperty, value);
-};
-TextBlock.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return String; }, TextBlock, Font.DEFAULT_SIZE);
-TextBlock.Instance.GetFontSize = function () {
-    return this.$GetValue(TextBlock.FontSizeProperty);
-};
-TextBlock.Instance.SetFontSize = function (value) {
-    this.$SetValue(TextBlock.FontSizeProperty, value);
-};
-TextBlock.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None);
-TextBlock.Instance.GetTextDecorations = function () {
-    return this.$GetValue(TextBlock.TextDecorationsProperty);
-};
-TextBlock.Instance.SetTextDecorations = function (value) {
-    this.$SetValue(TextBlock.TextDecorationsProperty, value);
-};
-TextBlock.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextBlock);
-TextBlock.Instance.GetFontResource = function () {
-    return this.$GetValue(TextBlock.FontResourceProperty);
-};
-TextBlock.Instance.SetFontResource = function (value) {
-    this.$SetValue(TextBlock.FontResourceProperty, value);
-};
-TextBlock.FontSourceProperty = DependencyProperty.Register("FontSource", function () { return Object; }, TextBlock);
-TextBlock.Instance.GetFontSource = function () {
-    return this.$GetValue(TextBlock.FontSourceProperty);
-};
-TextBlock.Instance.SetFontSource = function (value) {
-    this.$SetValue(TextBlock.FontSourceProperty, value);
-};
-TextBlock.TextProperty = DependencyProperty.Register("Text", function () { return String; }, TextBlock, "");
-TextBlock.Instance.GetText = function () {
-    return this.$GetValue(TextBlock.TextProperty);
-};
-TextBlock.Instance.SetText = function (value) {
-    this.$SetValue(TextBlock.TextProperty, value);
-};
-TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, null, { GetValue: function () { return new InlineCollection(); } });
-TextBlock.Instance.GetInlines = function () {
-    return this.$GetValue(TextBlock.InlinesProperty);
-};
-TextBlock.LineStackingStrategyProperty = DependencyProperty.Register("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
-TextBlock.Instance.GetLineStackingStrategy = function () {
-    return this.$GetValue(TextBlock.LineStackingStrategyProperty);
-};
-TextBlock.Instance.SetLineStackingStrategy = function (value) {
-    this.$SetValue(TextBlock.LineStackingStrategyProperty, value);
-};
-TextBlock.LineHeightProperty = DependencyProperty.Register("LineHeight", function () { return Number; }, TextBlock, 0.0);
-TextBlock.Instance.GetLineHeight = function () {
-    return this.$GetValue(TextBlock.LineHeightProperty);
-};
-TextBlock.Instance.SetLineHeight = function (value) {
-    this.$SetValue(TextBlock.LineHeightProperty, value);
-};
-TextBlock.TextAlignmentProperty = DependencyProperty.Register("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
-TextBlock.Instance.GetTextAlignment = function () {
-    return this.$GetValue(TextBlock.TextAlignmentProperty);
-};
-TextBlock.Instance.SetTextAlignment = function (value) {
-    this.$SetValue(TextBlock.TextAlignmentProperty, value);
-};
-TextBlock.TextTrimmingProperty = DependencyProperty.Register("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
-TextBlock.Instance.GetTextTrimming = function () {
-    return this.$GetValue(TextBlock.TextTrimmingProperty);
-};
-TextBlock.Instance.SetTextTrimming = function (value) {
-    this.$SetValue(TextBlock.TextTrimmingProperty, value);
-};
-TextBlock.TextWrappingProperty = DependencyProperty.Register("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
-TextBlock.Instance.GetTextWrapping = function () {
-    return this.$GetValue(TextBlock.TextWrappingProperty);
-};
-TextBlock.Instance.SetTextWrapping = function (value) {
-    this.$SetValue(TextBlock.TextWrappingProperty, value);
-};
+TextBlock.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, TextBlock, new Thickness());
+TextBlock.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextBlock, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
+TextBlock.FontFamilyProperty = DependencyProperty.RegisterCore("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY);
+TextBlock.FontStretchProperty = DependencyProperty.RegisterCore("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH);
+TextBlock.FontStyleProperty = DependencyProperty.RegisterCore("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE);
+TextBlock.FontWeightProperty = DependencyProperty.RegisterCore("FontWeight", function () { return String; }, TextBlock, Font.DEFAULT_WEIGHT);
+TextBlock.FontSizeProperty = DependencyProperty.RegisterCore("FontSize", function () { return String; }, TextBlock, Font.DEFAULT_SIZE);
+TextBlock.TextDecorationsProperty = DependencyProperty.RegisterCore("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None);
+TextBlock.FontResourceProperty = DependencyProperty.RegisterCore("FontResource", function () { return Object; }, TextBlock);
+TextBlock.FontSourceProperty = DependencyProperty.RegisterCore("FontSource", function () { return Object; }, TextBlock);
+TextBlock.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBlock, "");
+TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, undefined, { GetValue: function () { return new InlineCollection(); } });
+TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
+TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () { return Number; }, TextBlock, 0.0);
+TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
+TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
+TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
+Nullstone.AutoProperties(TextBlock, [
+    TextBlock.PaddingProperty,
+    TextBlock.ForegroundProperty,
+    TextBlock.FontFamilyProperty,
+    TextBlock.FontStretchProperty,
+    TextBlock.FontStyleProperty,
+    TextBlock.FontWeightProperty,
+    TextBlock.FontSizeProperty,
+    TextBlock.TextDecorationsProperty,
+    TextBlock.FontResourceProperty,
+    TextBlock.FontSourceProperty,
+    TextBlock.TextProperty,
+    TextBlock.InlinesProperty,
+    TextBlock.LineStackingStrategyProperty,
+    TextBlock.LineHeightProperty,
+    TextBlock.TextAlignmentProperty,
+    TextBlock.TextTrimmingProperty,
+    TextBlock.TextWrappingProperty
+]);
 TextBlock.Instance._ComputeBounds = function () {
     this._Extents = this._Layout.GetRenderExtents();
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     this._Extents.X += padding.Left;
     this._Extents.Y += padding.Top;
     this._ExtentsWithChildren = this._Extents;
@@ -14981,10 +15042,10 @@ TextBlock.Instance._ComputeBounds = function () {
     this._ComputeSurfaceBounds();
 };
 TextBlock.Instance._ComputeActualSize = function () {
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     var result = new Size(0.0, 0.0);
-    if (this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty) != null || LayoutInformation.GetPreviousConstraint(this) != null) {
+    if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
         this._Layout.Layout();
         var actuals = this._Layout.GetActualExtents();
         this._ActualWidth = actuals.Width;
@@ -14998,14 +15059,14 @@ TextBlock.Instance._ComputeActualSize = function () {
     return result;
 };
 TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     var constraint = availableSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);
     desired = new Size(this._ActualWidth, this._ActualHeight).GrowByThickness(padding);
     return desired;
 };
 TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     var constraint = finalSize.GrowByThickness(padding.Negate());
     this.Layout(constraint);
     var arranged = new Size(this._ActualWidth, this._ActualHeight);
@@ -15017,9 +15078,9 @@ TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
 TextBlock.Instance._Render = function (ctx, region) {
     ctx.Save();
     this._RenderLayoutClip(ctx);
-    var padding = this.GetPadding();
+    var padding = this.Padding;
     var offset = new Point(padding.Left, padding.Top);
-    if (this.GetFlowDirection() === FlowDirection.RightToLeft) {
+    if (this.FlowDirection === FlowDirection.RightToLeft) {
         NotImplemented("TextBlock._Render: Right to left");
     }
     this._Layout._Render(ctx, this._GetOriginPoint(), offset);
@@ -15043,11 +15104,11 @@ TextBlock.Instance.Layout = function (constraint) {
 };
 TextBlock.Instance._UpdateFont = function (force) {
     var changed = false;
-    changed = changed || this._Font.SetFamily(this.GetFontFamily());
-    changed = changed || this._Font.SetStretch(this.GetFontStretch());
-    changed = changed || this._Font.SetStyle(this.GetFontStyle());
-    changed = changed || this._Font.SetWeight(this.GetFontWeight());
-    changed = changed || this._Font.SetSize(this.GetFontSize());
+    changed = changed || this._Font.SetFamily(this.FontFamily);
+    changed = changed || this._Font.SetStretch(this.FontStretch);
+    changed = changed || this._Font.SetStyle(this.FontStyle);
+    changed = changed || this._Font.SetWeight(this.FontWeight);
+    changed = changed || this._Font.SetSize(this.FontSize);
     changed = changed || force;
     return changed;
 };
@@ -15061,7 +15122,7 @@ TextBlock.Instance._UpdateFonts = function (force) {
     return true;
 };
 TextBlock.Instance._UpdateLayoutAttributes = function () {
-    var inlines = this.GetInlines();
+    var inlines = this.Inlines;
     this._InvalidateMeasure();
     this._InvalidateArrange();
     this._UpdateFont(false);
@@ -15073,12 +15134,12 @@ TextBlock.Instance._UpdateLayoutAttributes = function () {
     }
     if (count > 0)
         this._WasSet = true;
-    this._Layout.SetText(this.GetText(), length);
+    this._Layout.SetText(this.Text, length);
     this._Layout.SetTextAttributes(runs);
 };
 TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, runs) {
     if (item instanceof Run) {
-        var text = item.GetText();
+        var text = item.Text;
         if (text && text.length) {
             runs.Append(new _TextLayoutAttributes(item, length));
             length += text.length;
@@ -15087,7 +15148,7 @@ TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, ru
         runs.Append(new _TextLayoutAttributes(item, length));
         length += 1; //line break length
     } else if (item instanceof Span) {
-        var inlines = item.GetInlines();
+        var inlines = item.Inlines;
         var count = inlines.GetCount();
         for (var i = 0; i < count; i++) {
             length = this._UpdateLayoutAttributesForInline(inlines.GetValueAt(i), length, runs);
@@ -15096,7 +15157,7 @@ TextBlock.Instance._UpdateLayoutAttributesForInline = function (item, length, ru
     return length;
 };
 TextBlock.Instance._SerializeText = function (str) {
-    var inlines = this.GetInlines();
+    var inlines = this.Inlines;
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
         str = inlines.GetValueAt(i)._SerializeText(str);
@@ -15116,7 +15177,7 @@ TextBlock.Instance._GetTextInternal = function (inlines) {
 TextBlock.Instance._SetTextInternal = function (text) {
     this._SetsValue = false;
     var value;
-    var inlines = this.$GetValue(TextBlock.InlinesProperty);
+    var inlines = this._GetValue(TextBlock.InlinesProperty);
     if (text) {
         var count = inlines.GetCount();
         var run = null;
@@ -15131,17 +15192,17 @@ TextBlock.Instance._SetTextInternal = function (text) {
                 run = null;
             }
         }
-        if (run == null) {
+        if (!run) {
             inlines.Clear();
             run = new Run();
             run._SetAutogenerated(true);
             inlines.Add(run);
         }
-        run.SetText(text);
+        run.Text = text;
         this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(run);
     } else {
         inlines.Clear();
-        this.SetText("");
+        this.Text = "";
     }
     this._SetsValue = true;
 };
@@ -15152,7 +15213,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
     var invalidate = true;
     if (args.Property.OwnerType !== TextBlock) {
         this._OnPropertyChanged$FrameworkElement(args, error);
-        if (args.Property !== FrameworkElement.LanguageProperty)
+        if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
             return;
         if (!this._UpdateFonts(false))
             return;
@@ -15165,7 +15226,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
         this._UpdateFonts(false);
     } else if (args.Property._ID === TextBlock.TextProperty._ID) {
         if (this._SetsValue) {
-            this._SetTextInternal(args.NewValue)
+            this._SetTextInternal(args.NewValue);
             this._UpdateLayoutAttributes();
             this._Dirty = true;
         } else {
@@ -15175,7 +15236,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
     } else if (args.Property._ID === TextBlock.InlinesProperty._ID) {
         if (this._SetsValue) {
             this._SetsValue = false;
-            this.$SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
+            this._SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
             this._SetsValue = true;
             this._UpdateLayoutAttributes();
             this._Dirty = true;
@@ -15210,7 +15271,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 TextBlock.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && propd._ID === TextBlock.ForegroundProperty._ID) {
+    if (propd && propd._ID === TextBlock.ForegroundProperty._ID) {
         this._Invalidate();
     } else {
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
@@ -15221,7 +15282,7 @@ TextBlock.Instance._OnCollectionChanged = function (sender, args) {
         this._OnCollectionChanged$FrameworkElement(sender, args);
         return;
     }
-    var inlines = this.GetInlines();
+    var inlines = this.Inlines;
     if (args.Action === CollectionChangedArgs.Action.Clearing)
         return;
     if (!this._SetsValue)
@@ -15229,7 +15290,7 @@ TextBlock.Instance._OnCollectionChanged = function (sender, args) {
     if (args.Action === CollectionChangedArgs.Add)
         this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
     this._SetsValue = false;
-    this.$SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+    this._SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
     this._SetsValue = true;
     this._UpdateLayoutAttributes();
     this._InvalidateMeasure();
@@ -15262,6 +15323,8 @@ TextBoxBase.Instance.Init = function () {
     this._IsFocused = false;
     this._SettingValue = true;
 };
+Nullstone.AbstractProperty(TextBoxBase, "SelectionStart");
+Nullstone.AbstractProperty(TextBoxBase, "SelectionLength");
 TextBoxBase.Instance.HasSelectedText = function () {
     return this._SelectionCursor !== this._SelectionAnchor;
 };
@@ -15273,18 +15336,6 @@ TextBoxBase.Instance.GetTextDecorations = function () {
 };
 TextBoxBase.Instance.GetSelectionCursor = function () {
     return this._SelectionCursor;
-};
-TextBoxBase.Instance.GetSelectionStart = function () {
-    AbstractMethod("TextBoxBase.GetSelectionStart");
-};
-TextBoxBase.Instance.SetSelectionStart = function (value) {
-    AbstractMethod("TextBoxBase.SetSelectionStart");
-};
-TextBoxBase.Instance.GetSelectionLength = function () {
-    AbstractMethod("TextBoxBase.GetSelectionLength");
-};
-TextBoxBase.Instance.SetSelectionLength = function (value) {
-    AbstractMethod("TextBoxBase.SetSelectionLength");
 };
 TextBoxBase.Instance.GetCaretBrush = function () {
     return null;
@@ -15303,13 +15354,13 @@ TextBoxBase.Instance.OnApplyTemplate = function () {
     this._View.SetEnableCursor(!this._IsReadOnly);
     this._View.SetTextBox(this);
     if (this._ContentElement instanceof ContentPresenter) {
-        this._ContentElement.SetContent(this._View);
+        this._ContentElement._SetValue(ContentPresenter.ContentProperty, this._View);
     } else if (this._ContentElement instanceof ContentControl) {
-        this._ContentElement.SetContent(this._View);
+        this._ContentElement._SetValue(ContentControl.ContentProperty, this._View);
     } else if (this._ContentElement instanceof Border) {
-        this._ContentElement.SetChild(this._View);
+        this._ContentElement._SetValue(Border.ChildProperty, this._View);
     } else if (this._ContentElement instanceof Panel) {
-        this._ContentElement.GetChildren().Add(this._View);
+        this._ContentElement.Children.Add(this._View);
     } else {
         Warn("Can't handle ContentElement.");
         this._View.SetTextBox(null);
@@ -15354,8 +15405,8 @@ TextBoxBase.Instance.SelectAll = function () {
 };
 TextBoxBase.Instance.ClearSelection = function (start) {
     this._BatchPush();
-    this.SetSelectionStart(start);
-    this.SetSelectionLength(0);
+    this.SelectionStart = start;
+    this.SelectionLength = 0;
     this._BatchPop();
 };
 TextBoxBase.Instance.Select = function (start, length) {
@@ -15368,8 +15419,8 @@ TextBoxBase.Instance.Select = function (start, length) {
     if (length > (this._Buffer.GetLength() - start))
         length = this._Buffer.GetLength() - start;
     this._BatchPush();
-    this.SetSelectionStart(start);
-    this.SetSelectionLength(length);
+    this.SelectionStart = start;
+    this.SelectionLength = length;
     this._BatchPop();
     this._ResetIMContext();
     this._SyncAndEmit();
@@ -15403,8 +15454,8 @@ TextBoxBase.Instance.Undo = function () {
     var anchor = action._SelectionAnchor;
     var cursor = action._SelectionCursor;
     this._BatchPush();
-    this.SetSelectionStart(Math.min(anchor, cursor));
-    this.SetSelectionLength(Math.abs(cursor - anchor));
+    this.SelectionStart = Math.min(anchor, cursor);
+    this.SelectionLength = Math.abs(cursor - anchor);
     this._Emit = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
     this._SelectionAnchor = anchor;
     this._SelectionCursor = cursor;
@@ -15433,8 +15484,8 @@ TextBoxBase.Instance.Redo = function () {
         anchor = cursor = action._Start + action._Inserted.length;
     }
     this._BatchPush();
-    this.SetSelectionStart(Math.min(anchor, cursor));
-    this.SetSelectionLength(Math.abs(cursor - anchor));
+    this.SelectionStart = Math.min(anchor, cursor);
+    this.SelectionLength = Math.abs(cursor - anchor);
     this._Emit = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
     this._SelectionAnchor = anchor;
     this._SelectionCursor = cursor;
@@ -15468,12 +15519,12 @@ TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && (propd._ID === Control.BackgroundProperty._ID
+    if (propd && (propd._ID === Control.BackgroundProperty._ID
         || propd._ID === Control.ForegroundProperty._ID)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
         this._Invalidate();
     }
-    if (propd != null && propd.OwnerType !== TextBoxBase)
+    if (propd && propd.OwnerType !== TextBoxBase)
         this._OnSubPropertyChanged$Control(propd, sender, args);
 };
 TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
@@ -15486,8 +15537,8 @@ TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
         this._Selecting = true;
         this._BatchPush();
         this._Emit = _TextBoxEmitChanged.NOTHING;
-        this.SetSelectionStart(cursor);
-        this.SetSelectionLength(0);
+        this.SelectionStart = cursor;
+        this.SelectionLength = 0;
         this._BatchPop();
         this._SyncAndEmit();
     }
@@ -15506,8 +15557,8 @@ TextBoxBase.Instance.OnMouseMove = function (sender, args) {
         cursor = this._View.GetCursorFromXY(p.X, p.Y);
         this._BatchPush();
         this._Emit = _TextBoxEmitChanged.NOTHING;
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._BatchPop();
@@ -15603,7 +15654,7 @@ TextBoxBase.Instance.OnKeyDown = function (sender, args) {
                     case 88:
                         if (this._IsReadOnly)
                             break;
-                        this.SetSelectedText("");
+                        this.SelectedText = "";
                         handled = true;
                         break;
                     case 89:
@@ -15691,8 +15742,8 @@ TextBoxBase.Instance._KeyDownBackSpace = function (modifiers) {
         handled = true;
     }
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15730,8 +15781,8 @@ TextBoxBase.Instance._KeyDownDelete = function (modifiers) {
         handled = true;
     }
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15750,8 +15801,8 @@ TextBoxBase.Instance._KeyDownPageDown = function (modifiers) {
         anchor = cursor;
     }
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15770,8 +15821,8 @@ TextBoxBase.Instance._KeyDownPageUp = function (modifiers) {
         anchor = cursor;
     }
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15794,8 +15845,8 @@ TextBoxBase.Instance._KeyDownHome = function (modifiers) {
         anchor = cursor;
     }
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15819,8 +15870,8 @@ TextBoxBase.Instance._KeyDownEnd = function (modifiers) {
         anchor = cursor;
     }
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15848,8 +15899,8 @@ TextBoxBase.Instance._KeyDownLeft = function (modifiers) {
     if (!modifiers.Shift)
         anchor = cursor;
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15876,8 +15927,8 @@ TextBoxBase.Instance._KeyDownRight = function (modifiers) {
     if (!modifiers.Shift)
         anchor = cursor;
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15897,8 +15948,8 @@ TextBoxBase.Instance._KeyDownDown = function (modifiers) {
         anchor = cursor;
     }
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15919,8 +15970,8 @@ TextBoxBase.Instance._KeyDownUp = function (modifiers) {
         anchor = cursor;
     }
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15961,8 +16012,8 @@ TextBoxBase.Instance._KeyDownChar = function (c) {
     cursor = start + 1;
     anchor = cursor;
     if (this._SelectionAnchor !== anchor || this._SelectionCursor !== cursor) {
-        this.SetSelectionStart(Math.min(anchor, cursor));
-        this.SetSelectionLength(Math.abs(cursor - anchor));
+        this.SelectionStart = Math.min(anchor, cursor);
+        this.SelectionLength = Math.abs(cursor - anchor);
         this._SelectionAnchor = anchor;
         this._SelectionCursor = cursor;
         this._Emit |= _TextBoxEmitChanged.SELECTION;
@@ -15999,7 +16050,7 @@ _TextBoxView.Instance.Init = function () {
     this._BlinkTimeout = 0;
     this._TextBox = null;
     this._Dirty = false;
-    this.SetCursor(CursorType.IBeam);
+    this.Cursor = CursorType.IBeam;
 };
 _TextBoxView.Instance.SetTextBox = function (value) {
     if (this._TextBox == value)
@@ -16013,8 +16064,8 @@ _TextBoxView.Instance.SetTextBox = function (value) {
         this._Layout.SetTextAttributes(new LinkedList());
         var attrs = new _TextLayoutAttributes(this._TextBox, 0);
         this._Layout.GetTextAttributes().Append(attrs);
-        this._Layout.SetTextAlignment(this._TextBox.GetTextAlignment());
-        this._Layout.SetTextWrapping(this._TextBox.GetTextWrapping());
+        this._Layout.SetTextAlignment(this._TextBox.TextAlignment);
+        this._Layout.SetTextWrapping(this._TextBox.TextWrapping);
         this._HadSelectedText = this._TextBox.HasSelectedText();
         this._SelectionChanged = true;
         this._UpdateText();
@@ -16127,7 +16178,7 @@ _TextBoxView.Instance._UpdateText = function () {
     this._Layout.SetText(text ? text : "", -1);
 };
 _TextBoxView.Instance._ComputeActualSize = function () {
-    if (this._ReadLocalValueImpl(LayoutInformation.LayoutSlotProperty))
+    if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined)
         return this._ComputeActualSize$FrameworkElement();
     this.Layout(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
     return this._Layout.GetActualExtents();
@@ -16167,7 +16218,7 @@ _TextBoxView.Instance._Render = function (ctx, region) {
     this._TextBox._Providers[_PropertyPrecedence.DynamicValue]._InitializeSelectionBrushes();
     this._UpdateCursor(false);
     if (this._SelectionChanged) {
-        this._Layout.Select(this._TextBox.GetSelectionStart(), this._TextBox.GetSelectionLength());
+        this._Layout.Select(this._TextBox.SelectionStart, this._TextBox.SelectionLength);
         this._SelectionChanged = false;
     }
     ctx.Save();
@@ -16178,14 +16229,21 @@ _TextBoxView.Instance._Render = function (ctx, region) {
 };
 _TextBoxView.Instance._RenderImpl = function (ctx, region) {
     ctx.Save();
-    if (this.GetFlowDirection() === FlowDirection.RightToLeft) {
+    if (this.FlowDirection === FlowDirection.RightToLeft) {
     }
     this._Layout._Render(ctx, this._GetOriginPoint(), new Point());
     if (this._CursorVisible) {
-        var caretBrush = this._TextBox.GetCaretBrush();
+        var caretBrush = this._TextBox.CaretBrush;
         if (!caretBrush)
             caretBrush = new SolidColorBrush(new Color(0, 0, 0));
-        ctx.CustomRender(_TextBoxView._CursorPainter, this._Cursor, caretBrush);
+        var canvasCtx = ctx.GetCanvasContext();
+        var rect = this._Cursor;
+        canvasCtx.moveTo(rect.X + 0.5, rect.Y);
+        canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
+        canvasCtx.lineWidth = 1.0;
+        caretBrush.SetupBrush(canvasCtx, rect);
+        canvasCtx.strokeStyle = caretBrush.ToHtml5Object();
+        canvasCtx.stroke();
     }
     ctx.Restore();
 };
@@ -16245,31 +16303,17 @@ _TextBoxView.CURSOR_BLINK_OFF_MULTIPLIER = 2;
 _TextBoxView.CURSOR_BLINK_DELAY_MULTIPLIER = 3;
 _TextBoxView.CURSOR_BLINK_ON_MULTIPLIER = 4;
 _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
-_TextBoxView._CursorPainter = function (args) {
-    var canvasCtx = args[0];
-    var rect = args[1];
-    var brush = args[2];
-    canvasCtx.moveTo(rect.X + 0.5, rect.Y);
-    canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
-    canvasCtx.lineWidth = 1.0;
-    brush.SetupBrush(canvasCtx, rect);
-    canvasCtx.strokeStyle = brush.ToHtml5Object();
-    canvasCtx.stroke();
-};
 Nullstone.FinishCreate(_TextBoxView);
 
 var UserControl = Nullstone.Create("UserControl", Control);
 UserControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, UserControl);
-UserControl.Instance.GetContent = function () {
-    return this.$GetValue(UserControl.ContentProperty);
-};
-UserControl.Instance.SetContent = function (value) {
-    this.$SetValue(UserControl.ContentProperty, value);
-};
+Nullstone.AutoProperties(UserControl, [
+    UserControl.ContentProperty
+]);
 UserControl.Instance.IsLayoutContainer = function () { return true; };
 UserControl.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var desired = new Size(0, 0);
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var border = this.Padding.Plus(this.BorderThickness);
     var walker = new _VisualTreeWalker(this);
     var child;
     while (child = walker.Step()) {
@@ -16280,7 +16324,7 @@ UserControl.Instance._MeasureOverrideWithError = function (availableSize, error)
     return desired;
 };
 UserControl.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-    var border = this.GetPadding().Plus(this.GetBorderThickness());
+    var border = this.Padding.Plus(this.BorderThickness);
     var arranged = finalSize;
     var walker = new _VisualTreeWalker(this);
     var child;
@@ -16297,7 +16341,7 @@ UserControl.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
-    if (args.Property == UserControl.ContentProperty) {
+    if (args.Property._ID === UserControl.ContentProperty._ID) {
         if (args.OldValue && args.OldValue instanceof UIElement) {
             if (args.OldValue instanceof FrameworkElement) {
                 args.OldValue._SetLogicalParent(null, error);
@@ -16326,11 +16370,11 @@ Nullstone.FinishCreate(UserControl);
 var RangeBase = Nullstone.Create("RangeBase", Control);
 RangeBase.Instance.Init = function () {
     this.Init$Control();
-    this.SetMinimum(0);
-    this.SetMaximum(1);
-    this.SetValue(0);
-    this.SetSmallChange(0.1);
-    this.SetLargeChange(1);
+    this.Minimum = 0;
+    this.Maximum = 1;
+    this.SmallChange = 0.1;
+    this.LargeChange = 1;
+    this.Value = 0;
     this.ValueChanged = new MulticastEvent();
     this._LevelsFromRootCall = 0;
 };
@@ -16338,8 +16382,8 @@ RangeBase._OnMinimumPropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
         throw new ArgumentException("Invalid double value for Minimum property.");
     if (d._LevelsFromRootCall === 0) {
-        d._InitialMax = args.GetMaximum();
-        d._InitialVal = d.GetValue();
+        d._InitialMax = d.Maximum;
+        d._InitialVal = d.Value;
     }
     d._LevelsFromRootCall++;
     d._CoerceMaximum();
@@ -16347,79 +16391,53 @@ RangeBase._OnMinimumPropertyChanged = function (d, args) {
     d._LevelsFromRootCall--;
     if (d._LevelsFromRootCall === 0) {
         d._OnMinimumChanged(args.OldValue, args.OldValue);
-        var max = d.GetMaximum();
+        var max = d.Maximum;
         if (!DoubleUtil.AreClose(d._InitialMax, max)) {
             d._OnMaximumChanged(d._InitialMax, max);
         }
-        var val = d.GetValue();
+        var val = d.Value;
         if (!DoubleUtil.AreClose(d._InitialVal, val)) {
             d._OnValueChanged(d._InitialVal, val);
         }
     }
 };
 RangeBase.MinimumProperty = DependencyProperty.Register("Minimum", function () { return Number; }, RangeBase, 0, RangeBase._OnMinimumPropertyChanged);
-RangeBase.Instance.GetMinimum = function () {
-    return this.$GetValue(RangeBase.MinimumProperty);
-};
-RangeBase.Instance.SetMinimum = function (value) {
-    this.$SetValue(RangeBase.MinimumProperty, value);
-};
 RangeBase._OnMaximumPropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
         throw new ArgumentException("Invalid double value for Maximum property.");
     if (d._LevelsFromRootCall === 0) {
         d._RequestedMax = args.NewValue;
         d._InitialMax = args.OldValue;
-        d._InitialVal = d.GetValue();
+        d._InitialVal = d.Value;
     }
     d._LevelsFromRootCall++;
     d._CoerceMaximum();
     d._CoerceValue();
     d._LevelsFromRootCall--;
     if (d._LevelsFromRootCall === 0) {
-        var max = d.GetMaximum();
+        var max = d.Maximum;
         if (!DoubleUtil.AreClose(d._InitialMax, max)) {
             d._OnMaximumChanged(d._InitialMax, max);
         }
-        var val = d.GetValue();
+        var val = d.Value;
         if (!DoubleUtil.AreClose(d._InitialVal, val)) {
             d._OnValueChanged(d._InitialVal, val);
         }
     }
 };
 RangeBase.MaximumProperty = DependencyProperty.Register("Maximum", function () { return Number; }, RangeBase, 1, RangeBase._OnMaximumPropertyChanged);
-RangeBase.Instance.GetMaximum = function () {
-    return this.$GetValue(RangeBase.MaximumProperty);
-};
-RangeBase.Instance.SetMaximum = function (value) {
-    if (this._LevelsFromRootCall === 0)
-        this._RequestedMax = value;
-    this.$SetValue(RangeBase.MaximumProperty, value);
-};
 RangeBase._OnLargeChangePropertyChanged = function (d, args) {
     if (!RangeBase._IsValidChange(args.NewValue)) {
         throw new ArgumentException("Invalid Large Change Value.");
     }
 };
 RangeBase.LargeChangeProperty = DependencyProperty.Register("LargeChange", function () { return Number; }, RangeBase, 1, RangeBase._OnLargeChangePropertyChanged);
-RangeBase.Instance.GetLargeChange = function () {
-    return this.$GetValue(RangeBase.LargeChangeProperty);
-};
-RangeBase.Instance.SetLargeChange = function (value) {
-    this.$SetValue(RangeBase.LargeChangeProperty, value);
-};
 RangeBase._OnSmallChangePropertyChanged = function (d, args) {
     if (!RangeBase._IsValidChange(args.NewValue)) {
         throw new ArgumentException("Invalid Small Change Value.");
     }
 };
 RangeBase.SmallChangeProperty = DependencyProperty.Register("SmallChange", function () { return Number; }, RangeBase, 0.1, RangeBase._OnSmallChangePropertyChanged);
-RangeBase.Instance.GetSmallChange = function () {
-    return this.$GetValue(RangeBase.SmallChangeProperty);
-};
-RangeBase.Instance.SetSmallChange = function (value) {
-    this.$SetValue(RangeBase.SmallChangeProperty, value);
-};
 RangeBase._OnValuePropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))
         throw new ArgumentException("Invalid double value for Value property.");
@@ -16431,41 +16449,42 @@ RangeBase._OnValuePropertyChanged = function (d, args) {
     d._CoerceValue();
     d._LevelsFromRootCall--;
     if (d._LevelsFromRootCall === 0) {
-        var val = d.GetValue();
+        var val = d.Value;
         if (!DoubleUtil.AreClose(d._InitialVal, val)) {
             d._OnValueChanged(d._InitialVal, val);
         }
     }
 };
 RangeBase.ValueProperty = DependencyProperty.Register("Value", function () { return Number; }, RangeBase, 0, RangeBase._OnValuePropertyChanged);
-RangeBase.Instance.GetValue = function () {
-    return this.$GetValue(RangeBase.ValueProperty);
-};
-RangeBase.Instance.SetValue = function (value) {
-    this.$SetValue(RangeBase.ValueProperty, value);
-};
+Nullstone.AutoProperties(RangeBase, [
+    RangeBase.MinimumProperty,
+    RangeBase.MaximumProperty,
+    RangeBase.LargeChangeProperty,
+    RangeBase.SmallChangeProperty,
+    RangeBase.ValueProperty
+]);
 RangeBase.Instance._CoerceMaximum = function () {
-    var min = this.GetMinimum();
-    var max = this.GetMaximum();
+    var min = this.Minimum;
+    var max = this.Maximum;
     if (!DoubleUtil.AreClose(this._RequestedMax, max) && this._RequestedMax >= min) {
-        this.SetMaximum(this._RequestedMax);
+        this.Maximum = this._RequestedMax;
         return;
     }
     if (max < min)
-        this.SetMaximum(min);
+        this.Maximum = min;
 };
 RangeBase.Instance._CoerceValue = function () {
-    var min = this.GetMinimum();
-    var max = this.GetMaximum();
-    var val = this.GetValue();
+    var min = this.Minimum;
+    var max = this.Maximum;
+    var val = this.Value;
     if (!DoubleUtil.AreClose(this._RequestedVal, val) && this._RequestedVal >= min && this._RequestedVal <= max) {
-        this.SetValue(this._RequestedVal);
+        this.Value = this._RequestedVal;
         return;
     }
     if (val < min)
-        this.SetValue(min);
+        this.Value = min;
     if (val > max)
-        this.SetValue(max);
+        this.Value = max;
 };
 RangeBase._IsValidChange = function (value) {
     if (!RangeBase._IsValidDoubleValue(value))
@@ -16498,27 +16517,19 @@ ScrollBar._OnOrientationPropertyChanged = function (d, args) {
     d._OnOrientationChanged();
 };
 ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, ScrollBar, Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
-ScrollBar.Instance.GetOrientation = function () {
-    return this.$GetValue(ScrollBar.OrientationProperty);
-};
-ScrollBar.Instance.SetOrientation = function (value) {
-    this.$SetValue(ScrollBar.OrientationProperty, value);
-};
 ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
     d._UpdateTrackLayout(d._GetTrackLength());
 };
 ScrollBar.ViewportSizeProperty = DependencyProperty.Register("ViewportSize", function () { return Number; }, ScrollBar, 0, ScrollBar._OnViewportSizePropertyChanged);
-ScrollBar.Instance.GetViewportSize = function () {
-    return this.$GetValue(ScrollBar.ViewportSizeProperty);
-};
-ScrollBar.Instance.SetViewportSize = function (value) {
-    this.$SetValue(ScrollBar.ViewportSizeProperty, value);
-};
+Nullstone.AutoProperties(ScrollBar, [
+    ScrollBar.OrientationProperty,
+    ScrollBar.ViewportSizeProperty
+]);
 ScrollBar.Instance.GetIsDragging = function () {
-    if (this.$ElementHorizontalThumb != null)
-        return this.$ElementHorizontalThumb.GetIsDragging();
-    if (this.$ElementVerticalThumb != null)
-        return this.$ElementVerticalThumb.GetIsDragging();
+    if (this.$ElementHorizontalThumb)
+        return this.$ElementHorizontalThumb.IsDragging;
+    if (this.$ElementVerticalThumb)
+        return this.$ElementVerticalThumb.IsDragging;
     return false;
 };
 ScrollBar.Instance.OnApplyTemplate = function () {
@@ -16535,38 +16546,38 @@ ScrollBar.Instance.OnApplyTemplate = function () {
     this.$ElementVerticalSmallIncrease = Nullstone.As(this.GetTemplateChild("VerticalSmallIncrease"), RepeatButton);
     this.$ElementVerticalSmallDecrease = Nullstone.As(this.GetTemplateChild("VerticalSmallDecrease"), RepeatButton);
     this.$ElementVerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), Thumb);
-    if (this.$ElementHorizontalThumb != null) {
+    if (this.$ElementHorizontalThumb) {
         this.$ElementHorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
         this.$ElementHorizontalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
         this.$ElementHorizontalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
     }
-    if (this.$ElementHorizontalLargeIncrease != null) {
+    if (this.$ElementHorizontalLargeIncrease) {
         this.$ElementHorizontalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
     }
-    if (this.$ElementHorizontalLargeDecrease != null) {
+    if (this.$ElementHorizontalLargeDecrease) {
         this.$ElementHorizontalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
     }
-    if (this.$ElementHorizontalSmallIncrease != null) {
+    if (this.$ElementHorizontalSmallIncrease) {
         this.$ElementHorizontalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
     }
-    if (this.$ElementHorizontalSmallDecrease != null) {
+    if (this.$ElementHorizontalSmallDecrease) {
         this.$ElementHorizontalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
     }
-    if (this.$ElementVerticalThumb != null) {
+    if (this.$ElementVerticalThumb) {
         this.$ElementVerticalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
         this.$ElementVerticalThumb.DragDelta.Subscribe(this._OnThumbDragDelta, this);
         this.$ElementVerticalThumb.DragCompleted.Subscribe(this._OnThumbDragCompleted, this);
     }
-    if (this.$ElementVerticalLargeIncrease != null) {
+    if (this.$ElementVerticalLargeIncrease) {
         this.$ElementVerticalLargeIncrease.Click.Subscribe(this._LargeIncrement, this);
     }
-    if (this.$ElementVerticalLargeDecrease != null) {
+    if (this.$ElementVerticalLargeDecrease) {
         this.$ElementVerticalLargeDecrease.Click.Subscribe(this._LargeDecrement, this);
     }
-    if (this.$ElementVerticalSmallIncrease != null) {
+    if (this.$ElementVerticalSmallIncrease) {
         this.$ElementVerticalSmallIncrease.Click.Subscribe(this._SmallIncrement, this);
     }
-    if (this.$ElementVerticalSmallDecrease != null) {
+    if (this.$ElementVerticalSmallDecrease) {
         this.$ElementVerticalSmallDecrease.Click.Subscribe(this._SmallDecrement, this);
     }
     this._OnOrientationChanged();
@@ -16574,7 +16585,7 @@ ScrollBar.Instance.OnApplyTemplate = function () {
 };
 ScrollBar.Instance.OnIsEnabledChanged = function (args) {
     this.OnIsEnabledChanged$RangeBase(args);
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         this._IsMouseOver = false;
     this.UpdateVisualState();
 };
@@ -16585,11 +16596,11 @@ ScrollBar.Instance.OnLostMouseCapture = function (sender, args) {
 ScrollBar.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$RangeBase(sender, args);
     this._IsMouseOver = true;
-    var orientation = this.GetOrientation();
+    var orientation = this.Orientation;
     var shouldUpdate = false;
-    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb != null && !this.$ElementHorizontalThumb.GetIsDragging())
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
         shouldUpdate = true;
-    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null && !this.$ElementVerticalThumb.GetIsDragging())
+    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
         shouldUpdate = true;
     if (shouldUpdate)
         this.UpdateVisualState();
@@ -16597,11 +16608,11 @@ ScrollBar.Instance.OnMouseEnter = function (sender, args) {
 ScrollBar.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$RangeBase(sender, args);
     this._IsMouseOver = false;
-    var orientation = this.GetOrientation();
+    var orientation = this.Orientation;
     var shouldUpdate = false;
-    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb != null && !this.$ElementHorizontalThumb.GetIsDragging())
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
         shouldUpdate = true;
-    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null && !this.$ElementVerticalThumb.GetIsDragging())
+    if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
         shouldUpdate = true;
     if (shouldUpdate)
         this.UpdateVisualState();
@@ -16637,28 +16648,28 @@ ScrollBar.Instance._OnValueChanged = function (oldValue, newValue) {
     this._UpdateTrackLayout(trackLength);
 };
 ScrollBar.Instance._OnThumbDragStarted = function (sender, args) {
-    this._DragValue = this.GetValue();
+    this._DragValue = this.Value;
 };
 ScrollBar.Instance._OnThumbDragDelta = function (sender, args) {
     var change = 0;
     var zoomFactor = 1; //TODO: FullScreen?
     var num = zoomFactor;
-    var max = this.GetMaximum();
-    var min = this.GetMinimum();
+    var max = this.Maximum;
+    var min = this.Minimum;
     var diff = max - min;
     var trackLength = this._GetTrackLength();
-    var orientation = this.GetOrientation();
-    if (this.$ElementVerticalThumb != null && orientation === Orientation.Vertical) {
-        change = num * args.VerticalChange / (trackLength - this.$ElementVerticalThumb.GetActualHeight()) * diff;
+    var orientation = this.Orientation;
+    if (this.$ElementVerticalThumb && orientation === Orientation.Vertical) {
+        change = num * args.VerticalChange / (trackLength - this.$ElementVerticalThumb.ActualHeight) * diff;
     }
-    if (this.$ElementHorizontalThumb != null && orientation === Orientation.Horizontal) {
-        change = num * args.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.GetActualWidth()) * diff;
+    if (this.$ElementHorizontalThumb && orientation === Orientation.Horizontal) {
+        change = num * args.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.ActualWidth) * diff;
     }
     if (!isNaN(change) && isFinite(change)) {
         this._DragValue += change;
         var num1 = Math.min(max, Math.max(min, this._DragValue));
-        if (num1 !== this.GetValue()) {
-            this.SetValue(num1);
+        if (num1 !== this.Value) {
+            this.Value = num1;
             this._RaiseScroll(ScrollEventType.ThumbTrack);
         }
     }
@@ -16667,34 +16678,34 @@ ScrollBar.Instance._OnThumbDragCompleted = function (sender, args) {
     this._RaiseScroll(ScrollEventType.EndScroll);
 };
 ScrollBar.Instance._SmallDecrement = function (sender, args) {
-    var curValue = this.GetValue();
-    var num = Math.max(curValue - this.GetSmallChange(), this.GetMinimum());
+    var curValue = this.Value;
+    var num = Math.max(curValue - this.SmallChange, this.Minimum);
     if (curValue !== num) {
-        this.SetValue(num);
+        this.Value = num;
         this._RaiseScroll(ScrollEventType.SmallDecrement);
     }
 };
 ScrollBar.Instance._SmallIncrement = function (sender, args) {
-    var curValue = this.GetValue();
-    var num = Math.min(curValue + this.GetSmallChange(), this.GetMaximum());
+    var curValue = this.Value;
+    var num = Math.min(curValue + this.SmallChange, this.Maximum);
     if (curValue !== num) {
-        this.SetValue(num);
+        this.Value = num;
         this._RaiseScroll(ScrollEventType.SmallIncrement);
     }
 };
 ScrollBar.Instance._LargeDecrement = function (sender, args) {
-    var curValue = this.GetValue();
-    var num = Math.max(curValue - this.GetLargeChange(), this.GetMinimum());
+    var curValue = this.Value;
+    var num = Math.max(curValue - this.LargeChange, this.Minimum);
     if (curValue !== num) {
-        this.SetValue(num);
+        this.Value = num;
         this._RaiseScroll(ScrollEventType.LargeDecrement);
     }
 };
 ScrollBar.Instance._LargeIncrement = function (sender, args) {
-    var curValue = this.GetValue();
-    var num = Math.min(curValue + this.GetLargeChange(), this.GetMaximum());
+    var curValue = this.Value;
+    var num = Math.min(curValue + this.LargeChange, this.Maximum);
     if (curValue !== num) {
-        this.SetValue(num);
+        this.Value = num;
         this._RaiseScroll(ScrollEventType.LargeIncrement);
     }
 };
@@ -16702,102 +16713,102 @@ ScrollBar.Instance._HandleSizeChanged = function () {
     this._UpdateTrackLayout(this._GetTrackLength());
 };
 ScrollBar.Instance._OnOrientationChanged = function () {
-    var orientation = this.GetOrientation();
-    if (this.$ElementHorizontalTemplate != null) {
-        this.$ElementHorizontalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed);
+    var orientation = this.Orientation;
+    if (this.$ElementHorizontalTemplate) {
+        this.$ElementHorizontalTemplate.Visibility = orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed;
     }
-    if (this.$ElementVerticalTemplate != null) {
-        this.$ElementVerticalTemplate.SetVisibility(orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible);
+    if (this.$ElementVerticalTemplate) {
+        this.$ElementVerticalTemplate.Visibility = orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible;
     }
     this._UpdateTrackLayout(this._GetTrackLength());
 };
 ScrollBar.Instance._UpdateTrackLayout = function (trackLength) {
-    var max = this.GetMaximum();
-    var min = this.GetMinimum();
-    var val = this.GetValue();
+    var max = this.Maximum;
+    var min = this.Minimum;
+    var val = this.Value;
     var multiplier = (val - min) / (max - min);
     var thumbSize = this._UpdateThumbSize(trackLength);
-    var orientation = this.GetOrientation();
-    if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease != null && this.$ElementHorizontalThumb != null) {
-        this.$ElementHorizontalLargeDecrease.SetWidth(Math.max(0, multiplier * (trackLength - thumbSize)));
-    } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease != null && this.$ElementVerticalThumb != null) {
-        this.$ElementVerticalLargeDecrease.SetHeight(Math.max(0, multiplier * (trackLength - thumbSize)));
+    var orientation = this.Orientation;
+    if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
+        this.$ElementHorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
+    } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
+        this.$ElementVerticalLargeDecrease.Height = Math.max(0, multiplier * (trackLength - thumbSize));
     }
 };
 ScrollBar.Instance._UpdateThumbSize = function (trackLength) {
     var result = Number.NaN;
     var hideThumb = trackLength <= 0;
     if (trackLength > 0) {
-        var orientation = this.GetOrientation();
-        var max = this.GetMaximum();
-        var min = this.GetMinimum();
-        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb != null) {
+        var orientation = this.Orientation;
+        var max = this.Maximum;
+        var min = this.Minimum;
+        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb) {
             if (max - min !== 0)
-                result = Math.max(this.$ElementHorizontalThumb.GetMinWidth(), this._ConvertViewportSizeToDisplayUnits(trackLength));
-            if (max - min === 0 || result > this.GetActualWidth() || trackLength <= this.$ElementHorizontalThumb.GetMinWidth()) {
+                result = Math.max(this.$ElementHorizontalThumb.MinWidth, this._ConvertViewportSizeToDisplayUnits(trackLength));
+            if (max - min === 0 || result > this.ActualWidth || trackLength <= this.$ElementHorizontalThumb.MinWidth) {
                 hideThumb = true;
             } else {
-                this.$ElementHorizontalThumb.SetVisibility(Visibility.Visible);
-                this.$ElementHorizontalThumb.SetWidth(result);
+                this.$ElementHorizontalThumb.Visibility = Visibility.Visible;
+                this.$ElementHorizontalThumb.Width = result;
             }
-        } else if (orientation === Orientation.Vertical && this.$ElementVerticalThumb != null) {
+        } else if (orientation === Orientation.Vertical && this.$ElementVerticalThumb) {
             if (max - min !== 0)
-                result = Math.max(this.$ElementVerticalThumb.GetMinHeight(), this._ConvertViewportSizeToDisplayUnits(trackLength));
-            if (max - min === 0 || result > this.GetActualHeight() || trackLength <= this.$ElementVerticalThumb.GetMinHeight()) {
+                result = Math.max(this.$ElementVerticalThumb.MinHeight, this._ConvertViewportSizeToDisplayUnits(trackLength));
+            if (max - min === 0 || result > this.ActualHeight || trackLength <= this.$ElementVerticalThumb.MinHeight) {
                 hideThumb = true;
             } else {
-                this.$ElementVerticalThumb.SetVisibility(Visibility.Visible);
-                this.$ElementVerticalThumb.SetHeight(result);
+                this.$ElementVerticalThumb.Visibility = Visibility.Visible;
+                this.$ElementVerticalThumb.Height = result;
             }
         }
     }
     if (hideThumb) {
-        if (this.$ElementHorizontalThumb != null) {
-            this.$ElementHorizontalThumb.SetVisibility(Visibility.Collapsed);
+        if (this.$ElementHorizontalThumb) {
+            this.$ElementHorizontalThumb.Visibility = Visibility.Collapsed;
         }
-        if (this.$ElementVerticalThumb != null) {
-            this.$ElementVerticalThumb.SetVisibility(Visibility.Collapsed);
+        if (this.$ElementVerticalThumb) {
+            this.$ElementVerticalThumb.Visibility = Visibility.Collapsed;
         }
     }
     return result;
 };
 ScrollBar.Instance._GetTrackLength = function () {
     var actual = NaN;
-    if (this.GetOrientation() === Orientation.Horizontal) {
-        actual = this.GetActualWidth();
-        if (this.$ElementHorizontalSmallDecrease != null) {
-            var thickness = this.$ElementHorizontalSmallDecrease.GetMargin();
-            actual = actual - (this.$ElementHorizontalSmallDecrease.GetActualWidth() + thickness.Left + thickness.Right);
+    if (this.Orientation === Orientation.Horizontal) {
+        actual = this.ActualWidth;
+        if (this.$ElementHorizontalSmallDecrease) {
+            var thickness = this.$ElementHorizontalSmallDecrease.Margin;
+            actual = actual - (this.$ElementHorizontalSmallDecrease.ActualWidth + thickness.Left + thickness.Right);
         }
-        if (this.$ElementHorizontalSmallIncrease != null) {
-            var thickness = this.$ElementHorizontalSmallIncrease.GetMargin();
-            actual = actual - (this.$ElementHorizontalSmallIncrease.GetActualWidth() + thickness.Left + thickness.Right);
+        if (this.$ElementHorizontalSmallIncrease) {
+            var thickness = this.$ElementHorizontalSmallIncrease.Margin;
+            actual = actual - (this.$ElementHorizontalSmallIncrease.ActualWidth + thickness.Left + thickness.Right);
         }
     } else {
-        actual = this.GetActualHeight();
-        if (this.$ElementVerticalSmallDecrease != null) {
-            var thickness = this.$ElementVerticalSmallDecrease.GetMargin();
-            actual = actual - (this.$ElementVerticalSmallDecrease.GetActualHeight() + thickness.Top + thickness.Bottom);
+        actual = this.ActualHeight;
+        if (this.$ElementVerticalSmallDecrease) {
+            var thickness = this.$ElementVerticalSmallDecrease.Margin;
+            actual = actual - (this.$ElementVerticalSmallDecrease.ActualHeight + thickness.Top + thickness.Bottom);
         }
-        if (this.$ElementVerticalSmallIncrease != null) {
-            var thickness = this.$ElementVerticalSmallIncrease.GetMargin();
-            actual = actual - (this.$ElementVerticalSmallIncrease.GetActualHeight() + thickness.Top + thickness.Bottom);
+        if (this.$ElementVerticalSmallIncrease) {
+            var thickness = this.$ElementVerticalSmallIncrease.Margin;
+            actual = actual - (this.$ElementVerticalSmallIncrease.ActualHeight + thickness.Top + thickness.Bottom);
         }
     }
     return actual;
 };
 ScrollBar.Instance._ConvertViewportSizeToDisplayUnits = function (trackLength) {
-    var viewportSize = this.GetViewportSize();
-    return trackLength * viewportSize / (viewportSize + this.GetMaximum() - this.GetMinimum());
+    var viewportSize = this.ViewportSize;
+    return trackLength * viewportSize / (viewportSize + this.Maximum - this.Minimum);
 };
 ScrollBar.Instance._RaiseScroll = function (scrollEvtType) {
-    var args = new ScrollEventArgs(scrollEvtType, this.GetValue());
+    var args = new ScrollEventArgs(scrollEvtType, this.Value);
     args.OriginalSource = this;
     this.Scroll.Raise(this, args);
 };
 ScrollBar.Instance.UpdateVisualState = function (useTransitions) {
     if (useTransitions === undefined) useTransitions = true;
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
     } else if (this._IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");
@@ -20385,16 +20396,14 @@ Thumb.Instance.Init = function () {
     this.DragStarted = new MulticastEvent();
 };
 Thumb.IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", function () { return Boolean; }, Thumb, false, function (d, args) { d.OnDraggingChanged(args); });
-Thumb.Instance.GetIsDragging = function () {
-    return this.$GetValue(Thumb.IsDraggingProperty);
-};
 Thumb.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, Thumb);
-Thumb.Instance.GetIsFocused = function () {
-    return this.$GetValue(Thumb.IsFocusedProperty);
-};
+Nullstone.AutoPropertiesReadOnly(Thumb, [
+    Thumb.IsDraggingProperty,
+    Thumb.IsFocusedProperty
+]);
 Thumb.Instance.CancelDrag = function () {
-    if (this.GetIsDragging()) {
-        this._SetValueInternal(Thumb.IsDraggingProperty, false);
+    if (this.IsDragging) {
+        this.$SetValueInternal(Thumb.IsDraggingProperty, false);
         this._RaiseDragCompleted(true);
     }
 };
@@ -20403,7 +20412,7 @@ Thumb.Instance.OnApplyTemplate = function () {
     this.UpdateVisualState(false);
 };
 Thumb.Instance._FocusChanged = function (hasFocus) {
-    this._SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
+    this.$SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
     this.UpdateVisualState();
 };
 Thumb.Instance.OnDraggingChanged = function (args) {
@@ -20411,7 +20420,7 @@ Thumb.Instance.OnDraggingChanged = function (args) {
 };
 Thumb.Instance.OnIsEnabledChanged = function (args) {
     this.OnIsEnabledChanged$Control(args);
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         this._IsMouseOver = false;
     this.UpdateVisualState();
 };
@@ -20426,18 +20435,18 @@ Thumb.Instance.OnLostFocus = function (sender, args) {
 Thumb.Instance.OnLostMouseCapture = function (sender, args) {
     this.OnLostMouseCapture$Control(sender, args);
     this._RaiseDragCompleted(false);
-    this._SetValueInternal(Thumb.IsDraggingProperty, false);
+    this.$SetValueInternal(Thumb.IsDraggingProperty, false);
 };
 Thumb.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$Control(sender, args);
-    if (this.GetIsEnabled()) {
+    if (this.IsEnabled) {
         this._IsMouseOver = true;
         this.UpdateVisualState();
     }
 };
 Thumb.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$Control(sender, args);
-    if (this.GetIsEnabled()) {
+    if (this.IsEnabled) {
         this._IsMouseOver = false;
         this.UpdateVisualState();
     }
@@ -20446,10 +20455,10 @@ Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this.OnMouseLeftButtonDown$Control(sender, args);
     if (args.Handled)
         return;
-    if (!this.GetIsDragging() && this.GetIsEnabled()) {
+    if (!this.IsDragging && this.IsEnabled) {
         args.Handled = true;
         this.CaptureMouse();
-        this._SetValueInternal(Thumb.IsDraggingProperty, true);
+        this.$SetValueInternal(Thumb.IsDraggingProperty, true);
         this._Origin = this._PreviousPosition = args.GetPosition(this._GetLogicalParent());
         var success = false;
         try {
@@ -20463,7 +20472,7 @@ Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
 };
 Thumb.Instance.OnMouseMove = function (sender, args) {
     this.OnMouseMove$Control(sender, args);
-    if (!this.GetIsDragging())
+    if (!this.IsDragging)
         return;
     var p = args.GetPosition(this._GetLogicalParent());
     if (!Point.Equals(p, this._PreviousPosition)) {
@@ -20473,16 +20482,16 @@ Thumb.Instance.OnMouseMove = function (sender, args) {
 };
 Thumb.Instance.UpdateVisualState = function (useTransitions) {
     if (useTransitions === undefined) useTransitions = true;
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
-    } else if (this.GetIsDragging()) {
+    } else if (this.IsDragging) {
         this._GoToState(useTransitions, "Pressed");
     } else if (this._IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");
     } else {
         this._GoToState(useTransitions, "Normal");
     }
-    if (this.GetIsFocused() && this.GetIsEnabled())
+    if (this.IsFocused && this.IsEnabled)
         this._GoToState(useTransitions, "Focused");
     else
         this._GoToState(useTransitions, "Unfocused");
@@ -20978,7 +20987,7 @@ Nullstone.FinishCreate(Hyperlink);
 var Ellipse = Nullstone.Create("Ellipse", Shape);
 Ellipse.Instance.Init = function () {
     this.Init$Shape();
-    this.SetStretch(Stretch.Fill);
+    this.Stretch = Stretch.Fill;
 };
 Ellipse.Instance._DrawPath = function (ctx) {
     if (this._Path == null)
@@ -20986,9 +20995,9 @@ Ellipse.Instance._DrawPath = function (ctx) {
     this._DrawPath$Shape(ctx);
 };
 Ellipse.Instance._BuildPath = function () {
-    var stretch = this.GetStretch();
-    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
-    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    var stretch = this.Stretch;
+    var t = this._IsStroked() ? this.StrokeThickness : 0.0;
+    var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
     switch (stretch) {
         case Stretch.None:
             rect.Width = rect.Height = 0;
@@ -21019,10 +21028,10 @@ Ellipse.Instance._ComputeStretchBounds = function () {
     return this._ComputeShapeBounds(false);
 };
 Ellipse.Instance._ComputeShapeBounds = function (logical) {
-    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
     this._SetShapeFlags(ShapeFlags.Normal);
-    var width = this.GetWidth();
-    var height = this.GetHeight();
+    var width = this.Width;
+    var height = this.Height;
     if (rect.Width < 0.0 || rect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
@@ -21034,8 +21043,8 @@ Ellipse.Instance._ComputeShapeBounds = function (logical) {
             return new Rect();
         }
     }
-    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
-    switch (this.GetStretch()) {
+    var t = this._IsStroked() ? this.StrokeThickness : 0.0;
+    switch (this.Stretch) {
         case Stretch.None:
             rect.Width = rect.Height = 0.0;
             break;
@@ -21067,33 +21076,15 @@ Line.Instance.Init = function () {
     this.Init$Shape();
 };
 Line.X1Property = DependencyProperty.Register("X1", function () { return Number; }, Line, 0);
-Line.Instance.GetX1 = function () {
-    return this.$GetValue(Line.X1Property);
-};
-Line.Instance.SetX1 = function (value) {
-    this.$SetValue(Line.X1Property, value);
-};
 Line.Y1Property = DependencyProperty.Register("Y1", function () { return Number; }, Line, 0);
-Line.Instance.GetY1 = function () {
-    return this.$GetValue(Line.Y1Property);
-};
-Line.Instance.SetY1 = function (value) {
-    this.$SetValue(Line.Y1Property, value);
-};
 Line.X2Property = DependencyProperty.Register("X2", function () { return Number; }, Line, 0);
-Line.Instance.GetX2 = function () {
-    return this.$GetValue(Line.X2Property);
-};
-Line.Instance.SetX2 = function (value) {
-    this.$SetValue(Line.X2Property, value);
-};
 Line.Y2Property = DependencyProperty.Register("Y2", function () { return Number; }, Line, 0);
-Line.Instance.GetY2 = function () {
-    return this.$GetValue(Line.Y2Property);
-};
-Line.Instance.SetY2 = function (value) {
-    this.$SetValue(Line.Y2Property, value);
-};
+Nullstone.AutoProperties(Line, [
+    Line.X1Property,
+    Line.Y1Property,
+    Line.X2Property,
+    Line.Y2Property
+]);
 Line.Instance._DrawPath = function (ctx) {
     if (this._Path == null)
         this._BuildPath();
@@ -21102,10 +21093,10 @@ Line.Instance._DrawPath = function (ctx) {
 Line.Instance._BuildPath = function () {
     this._SetShapeFlags(ShapeFlags.Normal);
     this._Path = new RawPath();
-    var x1 = this.GetX1();
-    var y1 = this.GetY1();
-    var x2 = this.GetX2();
-    var y2 = this.GetY2();
+    var x1 = this.X1;
+    var y1 = this.Y1;
+    var x2 = this.X2;
+    var y2 = this.Y2;
     this._Path.Move(x1, y1);
     this._Path.Line(x2, y2);
 };
@@ -21113,13 +21104,13 @@ Line.Instance._ComputeShapeBounds = function (logical) {
     var shapeBounds = new Rect();
     var thickness = 0;
     if (!logical)
-        thickness = this.GetStrokeThickness();
+        thickness = this.StrokeThickness;
     if (thickness <= 0.0 && !logical)
         return shapeBounds;
-    var x1 = this.GetX1();
-    var y1 = this.GetY1();
-    var x2 = this.GetX2();
-    var y2 = this.GetY2();
+    var x1 = this.X1;
+    var y1 = this.Y1;
+    var x2 = this.X2;
+    var y2 = this.Y2;
     shapeBounds = new Rect(
         Math.min(x1, x2),
         Math.min(y1, y2),
@@ -21148,40 +21139,34 @@ Path.Instance.Init = function () {
     this.Init$Shape();
 };
 Path.DataProperty = DependencyProperty.RegisterCore("Data", function () { return Geometry; }, Path);
-Path.Instance.GetData = function () {
-    return this.$GetValue(Path.DataProperty);
-};
-Path.Instance.SetData = function (value) {
-    this.$SetValue(Path.DataProperty, value);
-};
-Path.Instance.SetData.Converter = function (value) {
+Nullstone.AutoProperty(Path, Path.DataProperty, function (value) {
     if (value instanceof Geometry)
         return value;
     if (typeof value === "string")
         return Fayde.TypeConverter.GeometryFromString(value);
     return value;
-};
+});
 Path.Instance._GetFillRule = function () {
-    var geom = this.GetData();
+    var geom = this.Data;
     if (geom == null)
         return this._GetFillRule$Shape();
-    return geom.GetFillRule();
+    return geom.FillRule;
 };
 Path.Instance._DrawPath = function (ctx) {
-    var geom = this.GetData();
+    var geom = this.Data;
     if (geom == null)
         return;
     geom.Draw(ctx);
 };
 Path.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
-    var geom = this.GetData();
+    var geom = this.Data;
     if (geom == null) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
     }
     if (logical)
         return geom.GetBounds();
-    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.GetStrokeThickness();
+    var thickness = (logical || !this._IsStroked()) ? 0.0 : this.StrokeThickness;
     return geom.GetBounds(thickness);
     return shapeBounds;
 };
@@ -21205,28 +21190,19 @@ Polygon.Instance.Init = function () {
     this.Init$Shape();
 };
 Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polygon, FillRule.EvenOdd);
-Polygon.Instance.GetFillRule = function () {
-    return this.$GetValue(Polygon.FillRuleProperty);
-};
-Polygon.Instance.SetFillRule = function (value) {
-    this.$SetValue(Polygon.FillRuleProperty, value);
-};
-Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, null, { GetValue: function () { return new PointCollection(); } });
-Polygon.Instance.GetPoints = function () {
-    return this.$GetValue(Polygon.PointsProperty);
-};
-Polygon.Instance.SetPoints = function (value) {
-    this.$SetValue(Polygon.PointsProperty, value);
-};
-Polygon.Instance.SetPoints.Converter = function (value) {
+Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, undefined, { GetValue: function () { return new PointCollection(); } });
+Nullstone.AutoProperties(Polygon, [
+    Polygon.FillRuleProperty
+]);
+Nullstone.AutoProperty(Polygon, Polygon.PointsProperty, function (value) {
     if (value instanceof PointCollection)
         return value;
     if (typeof value === "string")
         return Fayde.TypeConverter.PointCollectionFromString(value);
     return value;
-};
+});
 Polygon.Instance._BuildPath = function () {
-    var points = this.GetPoints();
+    var points = this.Points;
     var count;
     if (points == null || (count = points.GetCount()) < 2) {
         this._SetShapeFlags(ShapeFlags.Empty);
@@ -21235,7 +21211,7 @@ Polygon.Instance._BuildPath = function () {
     this.SetShapeFlags(ShapeFlags.Normal);
     var path = new RawPath();
     if (count === 2) {
-        var thickness = this.GetStrokeThickness();
+        var thickness = this.StrokeThickness;
         var p1 = points.GetValueAt(0);
         var p2 = points.GetValueAt(1);
         Polygon._ExtendLine(p1, p2, thickness);
@@ -21343,28 +21319,19 @@ Polyline.Instance.Init = function () {
     this.Init$Shape();
 };
 Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
-Polyline.Instance.GetFillRule = function () {
-    return this.$GetValue(Polyline.FillRuleProperty);
-};
-Polyline.Instance.SetFillRule = function (value) {
-    this.$SetValue(Polyline.FillRuleProperty, value);
-};
-Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, null, { GetValue: function () { return new PointCollection(); } });
-Polyline.Instance.GetPoints = function () {
-    return this.$GetValue(Polyline.PointsProperty);
-};
-Polyline.Instance.SetPoints = function (value) {
-    this.$SetValue(Polyline.PointsProperty, value);
-};
-Polyline.Instance.SetPoints.Converter = function (value) {
+Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, undefined, { GetValue: function () { return new PointCollection(); } });
+Nullstone.AutoProperties(Polyline, [
+    Polyline.FillRuleProperty
+]);
+Nullstone.AutoProperty(Polyline, Polyline.PointsProperty, function (value) {
     if (value instanceof PointCollection)
         return value;
     if (typeof value === "string")
         return Fayde.TypeConverter.PointCollectionFromString(value);
     return value;
-};
+});
 Polyline.Instance._BuildPath = function () {
-    var points = this.GetPoints();
+    var points = this.Points;
     var count;
     if (points == null || (count = points.GetCount()) < 2) {
         this._SetShapeFlags(ShapeFlags.Empty);
@@ -21407,33 +21374,25 @@ Nullstone.FinishCreate(Polyline);
 var Rectangle = Nullstone.Create("Rectangle", Shape);
 Rectangle.Instance.Init = function () {
     this.Init$Shape();
-    this.SetStretch(Stretch.Fill);
+    this.Stretch = Stretch.Fill;
 };
 Rectangle.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, Rectangle, 0.0);
-Rectangle.Instance.GetRadiusX = function () {
-    return this.$GetValue(Rectangle.RadiusXProperty);
-};
-Rectangle.Instance.SetRadiusX = function (value) {
-    this.$SetValue(Rectangle.RadiusXProperty, value);
-};
 Rectangle.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, Rectangle, 0.0);
-Rectangle.Instance.GetRadiusY = function () {
-    return this.$GetValue(Rectangle.RadiusYProperty);
-};
-Rectangle.Instance.SetRadiusY = function (value) {
-    this.$SetValue(Rectangle.RadiusYProperty, value);
-};
+Nullstone.AutoProperties(Rectangle, [
+    Rectangle.RadiusXProperty,
+    Rectangle.RadiusYProperty
+]);
 Rectangle.Instance._DrawPath = function (ctx) {
     if (this._Path == null)
         this._BuildPath();
     this._DrawPath$Shape(ctx);
 };
 Rectangle.Instance._BuildPath = function () {
-    var stretch = this.GetStretch();
-    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
-    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
-    var radiusX = this.GetRadiusX();
-    var radiusY = this.GetRadiusY();
+    var stretch = this.Stretch;
+    var t = this._IsStroked() ? this.StrokeThickness : 0.0;
+    var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
+    var radiusX = this.RadiusX;
+    var radiusY = this.RadiusY;
     switch (stretch) {
         case Stretch.None:
             rect.Width = rect.Height = 0;
@@ -21472,10 +21431,10 @@ Rectangle.Instance._ComputeStretchBounds = function () {
     return this._ComputeShapeBounds(false);
 };
 Rectangle.Instance._ComputeShapeBounds = function (logical) {
-    var rect = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
     this._SetShapeFlags(ShapeFlags.Normal);
-    var width = this.GetWidth();
-    var height = this.GetHeight();
+    var width = this.Width;
+    var height = this.Height;
     if (rect.Width < 0.0 || rect.Height < 0.0 || width <= 0.0 || height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
@@ -21487,8 +21446,8 @@ Rectangle.Instance._ComputeShapeBounds = function (logical) {
             return new Rect();
         }
     }
-    var t = this._IsStroked() ? this.GetStrokeThickness() : 0.0;
-    switch (this.GetStretch()) {
+    var t = this._IsStroked() ? this.StrokeThickness : 0.0;
+    switch (this.Stretch) {
         case Stretch.None:
             rect.Width = rect.Height = 0.0;
             break;
@@ -21518,11 +21477,11 @@ Rectangle.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
 };
 Rectangle.Instance._GetCoverageBounds = function () {
-    var fill = this.GetFill();
+    var fill = this.Fill;
     if (fill != null && fill.IsOpaque()) {
-        var halfST = this.GetStrokeThickness / 2.0;
-        var xr = this.GetRadiusX() + halfST;
-        var yr = this.GetRadiusY() + halfST;
+        var halfST = this.StrokeThickness / 2.0;
+        var xr = this.RadiusX + halfST;
+        var yr = this.RadiusY + halfST;
         return this._Bounds.GrowBy(-xr, -yr).RoundIn();
     }
     return new Rect();
@@ -21607,20 +21566,13 @@ Grid.SetRowSpan = function (d, value) {
     d.$SetValue(Grid.RowSpanProperty, value);
 };
 Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
-Grid.Instance.GetShowGridLines = function () {
-    return this.$GetValue(Grid.ShowGridLinesProperty);
-};
-Grid.Instance.SetShowGridLines = function (value) {
-    this.$SetValue(Grid.ShowGridLinesProperty, value);
-};
-Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, null, { GetValue: function () { return new ColumnDefinitionCollection(); } });
-Grid.Instance.GetColumnDefinitions = function () {
-    return this.$GetValue(Grid.ColumnDefinitionsProperty);
-};
-Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, null, { GetValue: function () { return new RowDefinitionCollection(); } });
-Grid.Instance.GetRowDefinitions = function () {
-    return this.$GetValue(Grid.RowDefinitionsProperty);
-};
+Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new ColumnDefinitionCollection(); } });
+Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new RowDefinitionCollection(); } });
+Nullstone.AutoProperties(Grid, [
+    Grid.ShowGridLinesProperty,
+    Grid.ColumnDefinitionsProperty,
+    Grid.RowDefinitionsProperty
+]);
 Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var totalSize = availableSize.Copy();
     var cols = this._GetColumnDefinitionsNoAutoCreate();
@@ -21630,7 +21582,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var totalStars = new Size(0, 0);
     var emptyRows = rowCount === 0;
     var emptyCols = colCount === 0;
-    var hasChildren = this.GetChildren().GetCount() > 0;
+    var hasChildren = this.Children.GetCount() > 0;
     if (emptyRows) rowCount = 1;
     if (emptyCols) colCount = 1;
     this._CreateMatrices(rowCount, colCount);
@@ -21644,12 +21596,12 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     } else {
         for (i = 0; i < rowCount; i++) {
             var rowdef = rows.GetValueAt(i);
-            var height = rowdef.GetHeight();
-            rowdef.SetActualHeight(Number.POSITIVE_INFINITY);
-            cell = new _Segment(0.0, rowdef.GetMinHeight(), rowdef.GetMaxHeight(), height.Type);
+            var height = rowdef.Height;
+            rowdef.ActualHeight = Number.POSITIVE_INFINITY;
+            cell = new _Segment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
             if (height.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(height.Value);
-                rowdef.SetActualHeight(cell._SetDesiredToOffered());
+                rowdef.ActualHeight = cell._SetDesiredToOffered();
             } else if (height.Type === GridUnitType.Star) {
                 cell._Stars = height.Value;
                 totalStars.Height += height.Value;
@@ -21668,12 +21620,12 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     } else {
         for (i = 0; i < colCount; i++) {
             var coldef = cols.GetValueAt(i);
-            var width = coldef.GetWidth();
-            coldef.SetActualWidth(Number.POSITIVE_INFINITY);
-            cell = new _Segment(0.0, coldef.GetMinWidth(), coldef.GetMaxWidth(), width.Type);
+            var width = coldef.Width;
+            coldef.ActualWidth = Number.POSITIVE_INFINITY;
+            cell = new _Segment(0.0, coldef.MinWidth, coldef.MaxWidth, width.Type);
             if (width.Type === GridUnitType.Pixel) {
                 cell._OfferedSize = cell._Clamp(width.Value);
-                coldef.SetActualWidth(cell._SetDesiredToOffered());
+                coldef.ActualWidth = cell._SetDesiredToOffered();
             } else if (width.Type === GridUnitType.Star) {
                 cell._Stars = width.Value;
                 totalStars.Width += width.Value;
@@ -21805,10 +21757,10 @@ Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     if (totalConsumed.Height !== finalSize.Height)
         this._ExpandStarRows(finalSize);
     for (c = 0; c < colCount; c++) {
-        columns.GetValueAt(c).SetActualWidth(this._ColMatrix[c][c]._OfferedSize);
+        columns.GetValueAt(c).ActualWidth = this._ColMatrix[c][c]._OfferedSize;
     }
     for (r = 0; r < rowCount; r++) {
-        rows.GetValueAt(r).SetActualHeight(this._RowMatrix[r][r]._OfferedSize);
+        rows.GetValueAt(r).ActualHeight = this._RowMatrix[r][r]._OfferedSize;
     }
     var walker = new _VisualTreeWalker(this);
     var child;
@@ -21852,7 +21804,7 @@ Grid.Instance._ExpandStarRows = function (availableSize) {
         for (i = 0; i < this._RowMatrixDim; i++) {
             cur = this._RowMatrix[i][i];
             if (cur._Type === GridUnitType.Star)
-                rows.GetValueAt(i).SetActualHeight(cur._OfferedSize);
+                rows.GetValueAt(i).ActualHeight = cur._OfferedSize;
         }
     }
 };
@@ -21874,7 +21826,7 @@ Grid.Instance._ExpandStarCols = function (availableSize) {
         for (i = 0; i < this._ColMatrixDim; i++) {
             cur = this._ColMatrix[i][i];
             if (cur._Type === GridUnitType.Star) {
-                columns.GetValueAt(i).SetActualWidth(cur._OfferedSize);
+                columns.GetValueAt(i).ActualWidth = cur._OfferedSize;
             }
         }
     }
@@ -22007,8 +21959,8 @@ Grid.Instance._RestoreMeasureResults = function () {
 };
 Grid.Instance._ComputeBounds = function () {
     this._ComputeBounds$Panel();
-    if (this.GetShowGridLines()) {
-        this._Extents = new Rect(0, 0, this.GetActualWidth(), this.GetActualHeight());
+    if (this.ShowGridLines) {
+        this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
         this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/* .GrowByThickness(this._EffectPadding) */, false); //.Transform(this._AbsoluteTransform);
         this._BoundsWithChildren = this._BoundsWithChildren.Union(this._Bounds);
@@ -22018,11 +21970,11 @@ Grid.Instance._ComputeBounds = function () {
 };
 Grid.Instance._GetRowDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.RowDefinitionsProperty);
-    return value === undefined ? null : value;
+    return value === undefined ? undefined : value;
 }
 Grid.Instance._GetColumnDefinitionsNoAutoCreate = function () {
     var value = this._GetValueNoAutoCreate(Grid.ColumnDefinitionsProperty);
-    return value === undefined ? null : value;
+    return value === undefined ? undefined : value;
 }
 Grid.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Grid) {
@@ -22165,6 +22117,10 @@ PasswordBox.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.DynamicValue] = new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
     this._EventsMask = _TextBoxEmitChanged.TEXT;
 };
+Nullstone.AutoProperties(PasswordBox, [
+    "SelectionStart",
+    "SelectionLength"
+]);
 Nullstone.FinishCreate(PasswordBox);
 
 var TextBox = Nullstone.Create("TextBox", TextBoxBase);
@@ -22176,112 +22132,42 @@ TextBox.Instance.Init = function () {
     this.TextChanged = new MulticastEvent();
 };
 TextBox.AcceptsReturnProperty = DependencyProperty.RegisterCore("AcceptsReturn", function () { return Boolean; }, TextBox, false);
-TextBox.Instance.GetAcceptsReturn = function () {
-    return this.$GetValue(TextBox.AcceptsReturnProperty);
-};
-TextBox.Instance.SetAcceptsReturn = function (value) {
-    this.$SetValue(TextBox.AcceptsReturnProperty, value);
-};
 TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () { return Brush; }, TextBox);
-TextBox.Instance.GetCaretBrush = function () {
-    return this.$GetValue(TextBox.CaretBrushProperty);
-};
-TextBox.Instance.SetCaretBrush = function (value) {
-    this.$SetValue(TextBox.CaretBrushProperty, value);
-};
-TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBox, 0, null, null, null, TextBox.PositiveIntValidator);
-TextBox.Instance.GetMaxLength = function () {
-    return this.$GetValue(TextBox.MaxLengthProperty);
-};
-TextBox.Instance.SetMaxLength = function (value) {
-    this.$SetValue(TextBox.MaxLengthProperty, value);
-};
 TextBox.PositiveIntValidator = function (instance, propd, value, error) {
     if (typeof value !== 'number')
         return false;
     return value >= 0;
 };
+TextBox.MaxLengthProperty = DependencyProperty.RegisterFull("MaxLength", function () { return Number; }, TextBox, 0, undefined, undefined, undefined, TextBox.PositiveIntValidator);
 TextBox.IsReadOnlyProperty = DependencyProperty.RegisterCore("IsReadOnly", function () { return Boolean; }, TextBox);
-TextBox.Instance.GetIsReadOnly = function () {
-    return this.$GetValue(TextBox.IsReadOnlyProperty);
-};
-TextBox.Instance.SetIsReadOnly = function (value) {
-    this.$SetValue(TextBox.IsReadOnlyProperty, value);
-};
 TextBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () { return Brush; }, TextBox);
-TextBox.Instance.GetSelectionForeground = function () {
-    return this.$GetValue(TextBox.SelectionForegroundProperty);
-};
-TextBox.Instance.SetSelectionForeground = function (value) {
-    this.$SetValue(TextBox.SelectionForegroundProperty, value);
-};
 TextBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () { return Brush; }, TextBox);
-TextBox.Instance.GetSelectionBackground = function () {
-    return this.$GetValue(TextBox.SelectionBackgroundProperty);
-};
-TextBox.Instance.SetSelectionBackground = function (value) {
-    this.$SetValue(TextBox.SelectionBackgroundProperty, value);
-};
 TextBox.BaselineOffsetProperty = DependencyProperty.RegisterCore("BaselineOffset", function () { return Number; }, TextBox);
-TextBox.Instance.GetBaselineOffset = function () {
-    return this.$GetValue(TextBox.BaselineOffsetProperty);
-};
-TextBox.Instance.SetBaselineOffset = function (value) {
-    this.$SetValue(TextBox.BaselineOffsetProperty, value);
-};
-TextBox.SelectedTextProperty = DependencyProperty.RegisterFull("SelectedText", function () { return String; }, TextBox, "", null, null, true);
-TextBox.Instance.GetSelectedText = function () {
-    return this.$GetValue(TextBox.SelectedTextProperty);
-};
-TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () { return Number; }, TextBox, 0, null, null, true, TextBox.PositiveIntValidator);
-TextBox.Instance.GetSelectionLength = function () {
-    return this.$GetValue(TextBox.SelectionLengthProperty);
-};
-TextBox.Instance.SetSelectionLength = function (value) {
-    this.$SetValue(TextBox.SelectionLengthProperty, value);
-};
-TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBox, 0, null, null, true, TextBox.PositiveIntValidator);
-TextBox.Instance.GetSelectionStart = function () {
-    return this.$GetValue(TextBox.SelectionStartProperty);
-};
-TextBox.Instance.SetSelectionStart = function (value) {
-    this.$SetValue(TextBox.SelectionStartProperty, value);
-};
+TextBox.SelectedTextProperty = DependencyProperty.RegisterFull("SelectedText", function () { return String; }, TextBox, "", undefined, undefined, true);
+TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () { return Number; }, TextBox, 0, undefined, undefined, true, TextBox.PositiveIntValidator);
+TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBox, 0, undefined, undefined, true, TextBox.PositiveIntValidator);
 TextBox.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBox);
-TextBox.Instance.GetText = function () {
-    return this.$GetValue(TextBox.TextProperty);
-};
-TextBox.Instance.SetText = function (value) {
-    this.$SetValue(TextBox.TextProperty, value);
-};
 TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBox, TextAlignment.Left);
-TextBox.Instance.GetTextAlignment = function () {
-    return this.$GetValue(TextBox.TextAlignmentProperty);
-};
-TextBox.Instance.SetTextAlignment = function (value) {
-    this.$SetValue(TextBox.TextAlignmentProperty, value);
-};
 TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBox, TextWrapping.NoWrap);
-TextBox.Instance.GetTextWrapping = function () {
-    return this.$GetValue(TextBox.TextWrappingProperty);
-};
-TextBox.Instance.SetTextWrapping = function (value) {
-    this.$SetValue(TextBox.TextWrappingProperty, value);
-};
 TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
-TextBox.Instance.GetHorizontalScrollBarVisibility = function () {
-    return this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty);
-};
-TextBox.Instance.SetHorizontalScrollBarVisibility = function (value) {
-    this.$SetValue(TextBox.HorizontalScrollBarVisibilityProperty, value);
-};
 TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
-TextBox.Instance.GetVerticalScrollBarVisibility = function () {
-    return this.$GetValue(TextBox.VerticalScrollBarVisibilityProperty);
-};
-TextBox.Instance.SetVerticalScrollBarVisibility = function (value) {
-    this.$SetValue(TextBox.VerticalScrollBarVisibilityProperty, value);
-};
+Nullstone.AutoProperties(TextBox, [
+    TextBox.AcceptsReturnProperty,
+    TextBox.CaretBrushProperty,
+    TextBox.MaxLengthProperty,
+    TextBox.IsReadOnlyProperty,
+    TextBox.SelectionForegroundProperty,
+    TextBox.SelectionBackgroundProperty,
+    TextBox.BaselineOffsetProperty,
+    TextBox.SelectedTextProperty,
+    TextBox.SelectionLengthProperty,
+    TextBox.SelectionStartProperty,
+    TextBox.TextProperty,
+    TextBox.TextAlignmentProperty,
+    TextBox.TextWrappingProperty,
+    TextBox.HorizontalScrollBarVisibilityProperty,
+    TextBox.VerticalScrollBarVisibilityProperty
+]);
 TextBox.Instance.GetIsMouseOver = function () {
     return this._IsMouseOver;
 };
@@ -22289,27 +22175,28 @@ TextBox.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$TextBoxBase();
     if (!this._ContentElement)
         return;
-    var prop;
-    if ((prop = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
-        this._ContentElement.$SetValue(prop, this.$GetValue(TextBox.VerticalScrollBarVisibilityProperty));
-    if ((prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
-        if (this.GetTextWrapping() === TextWrapping.Wrap)
-            this._ContentElement.$SetValue(prop, ScrollBarVisibility.Disabled);
+    var prop = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility");
+    if (prop)
+        this._ContentElement._SetValue(prop, this._GetValue(TextBox.VerticalScrollBarVisibilityProperty));
+    prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
+    if (prop) {
+        if (this.TextWrapping === TextWrapping.Wrap)
+            this._ContentElement._SetValue(prop, ScrollBarVisibility.Disabled);
         else
-            this._ContentElement.$SetValue(prop, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+            this._ContentElement._SetValue(prop, this._GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
     }
 };
 TextBox.Instance._SyncSelectedText = function () {
     if (this._SelectionCursor !== this._SelectionAnchor) {
         var start = Math.min(this._SelectionAnchor, this._SelectionCursor);
         var len = Math.abs(this._SelectionCursor - this._SelectionAnchor);
-        var text = this._Buffer._Text == null ? '' : this._Buffer._Text.substr(start, len);
+        var text = !this._Buffer._Text ? '' : this._Buffer._Text.substr(start, len);
         this._SettingValue = false;
-        this._SetValueInternal(TextBox.SelectedTextProperty, text);
+        this._SetValue(TextBox.SelectedTextProperty, text);
         this._SettingValue = true;
     } else {
         this._SettingValue = false;
-        this._SetValueInternal(TextBox.SelectedTextProperty, "");
+        this._SetValue(TextBox.SelectedTextProperty, "");
         this._SettingValue = true;
     }
 };
@@ -22317,11 +22204,11 @@ TextBox.Instance._EmitSelectionChanged = function () {
     this.SelectionChanged.RaiseAsync(this, {});
 };
 TextBox.Instance.GetDisplayText = function () {
-    return this.GetText();
+    return this.Text;
 };
 TextBox.Instance._SyncText = function () {
     this._SettingValue = false;
-    this._SetValueInternal(TextBox.TextProperty, this._Buffer._Text);
+    this._SetValue(TextBox.TextProperty, this._Buffer._Text);
     this._SettingValue = true;
 };
 TextBox.Instance._EmitTextChanged = function () {
@@ -22368,7 +22255,7 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
                     action = new _TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
                     this._Buffer.Insert(start, text);
                 }
-                if (action != null) {
+                if (action) {
                     this._Emit |= _TextBoxEmitChanged.TEXT;
                     this._Undo.Push(action);
                     this._Redo.Clear();
@@ -22382,13 +22269,13 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         length = Math.abs(this._SelectionCursor - this._SelectionAnchor);
         start = args.NewValue;
         if (start > this._Buffer.GetLength()) {
-            this.SetSelectionStart(this._Buffer.GetLength());
+            this.SelectionStart = this._Buffer.GetLength();
             return;
         }
         if (start + length > this._Buffer.GetLength()) {
             this._BatchPush();
             length = this._Buffer.GetLength() - start;
-            this.SetSelectionLength(length);
+            this.SelectionLength = length;
             this._BatchPop();
         }
         if (this._SelectionAnchor != start) {
@@ -22404,7 +22291,7 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         length = args.NewValue;
         if (start + length > this._Buffer.GetLength()) {
             length = this._Buffer.GetLength() - start;
-            this.SetSelectionLength(length);
+            this.SelectionLength = length;
             return;
         }
         if (this._SelectionCursor != (start + length)) {
@@ -22444,27 +22331,30 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
         changed = _TextBoxModelChanged.TextAlignment;
     } else if (args.Property._ID === TextBox.TextWrappingProperty._ID) {
         if (this._ContentElement) {
-            if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
+            propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
+            if (propd) {
                 if (args.NewValue === TextWrapping.Wrap)
-                    this._ContentElement.$SetValue(propd, ScrollBarVisibility.Disabled);
+                    this._ContentElement._SetValue(propd, ScrollBarVisibility.Disabled);
                 else
-                    this._ContentElement.$SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
+                    this._ContentElement._SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
             }
         }
         changed = _TextBoxModelChanged.TextWrapping
     } else if (args.Property._ID === TextBox.HorizontalScrollBarVisibilityProperty._ID) {
         if (this._ContentElement) {
-            if ((propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility"))) {
-                if (this.GetTextWrapping() === TextWrapping.Wrap)
-                    this._ContentElement.$SetValue(propd, ScrollBarVisibility.Disabled);
+            propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
+            if (propd) {
+                if (this.TextWrapping === TextWrapping.Wrap)
+                    this._ContentElement._SetValue(propd, ScrollBarVisibility.Disabled);
                 else
-                    this._ContentElement.$SetValue(propd, args.NewValue);
+                    this._ContentElement._SetValue(propd, args.NewValue);
             }
         }
     } else if (args.Property._ID === TextBox.VerticalScrollBarVisibilityProperty._ID) {
         if (this._ContentElement) {
-            if ((propd = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility")))
-                this._ContentElement.$SetValue(propd, args.NewValue);
+            propd = this._ContentElement.GetDependencyProperty("VerticalScrollBarVisibility");
+            if (propd)
+                this._ContentElement._SetValue(propd, args.NewValue);
         }
     }
     if (changed !== _TextBoxModelChanged.Nothing)
@@ -22472,12 +22362,12 @@ TextBox.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd != null && (propd._ID === TextBox.SelectionBackgroundProperty._ID
+    if (propd && (propd._ID === TextBox.SelectionBackgroundProperty._ID
         || propd._ID === TextBox.SelectionForegroundProperty._ID)) {
         this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
         this._Invalidate();
     }
-    if (propd == null || propd.OwnerType !== TextBox)
+    if (!propd || propd.OwnerType !== TextBox)
         this._OnSubPropertyChanged$TextBoxBase(propd, sender, args);
 };
 TextBox.Instance.OnMouseEnter = function (sender, args) {
@@ -22499,9 +22389,9 @@ TextBox.Instance.OnLostFocus = function (sender, args) {
     this._ChangeVisualState(true);
 };
 TextBox.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         VisualStateManager.GoToState(this, "Disabled", useTransitions);
-    } else if (this.GetIsReadOnly()) {
+    } else if (this.IsReadOnly) {
         VisualStateManager.GoToState(this, "ReadOnly", useTransitions);
     } else if (this.GetIsMouseOver()) {
         VisualStateManager.GoToState(this, "MouseOver", useTransitions);
@@ -22790,7 +22680,17 @@ TextBox.Instance.GetDefaultStyle = function () {
 Nullstone.FinishCreate(TextBox);
 
 var ContentControl = Nullstone.Create("ContentControl", Control);
-ContentControl._FallbackTemplate = (function () {
+ContentControl.Instance.Init = function () {
+    this.Init$Control();
+    this._ContentSetsParent = true;
+};
+ContentControl.ContentProperty = DependencyProperty.RegisterCore("Content", function () { return Object; }, ContentControl, undefined, function (d, args) { d.OnContentChanged(args.OldValue, args.NewValue); });
+ContentControl.ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return ControlTemplate; }, ContentControl, undefined, function (d, args) { d.OnContentTemplateChanged(args.OldValue, args.NewValue); });
+Nullstone.AutoProperties(ContentControl, [
+    ContentControl.ContentProperty,
+    ContentControl.ContentTemplateProperty
+]);
+ContentControl.Instance._CreateFallbackTemplate = function () {
     return new ControlTemplate(ContentControl, {
         Type: Grid,
         Children: [
@@ -22802,28 +22702,53 @@ ContentControl._FallbackTemplate = (function () {
             }
         ]
     });
-})();
-ContentControl.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentControl);
-ContentControl.Instance.GetContent = function () {
-    return this.$GetValue(ContentControl.ContentProperty);
 };
-ContentControl.Instance.SetContent = function (value) {
-    this.$SetValue(ContentControl.ContentProperty, value);
-};
-ContentControl.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentControl);
-ContentControl.Instance.GetContentTemplate = function () {
-    return this.$GetValue(ContentControl.ContentTemplateProperty);
-};
-ContentControl.Instance.SetContentTemplate = function (value) {
-    this.$SetValue(ContentControl.ContentTemplateProperty, value);
-};
-ContentControl.Instance.GetFallbackRoot = function () {
-    if (this._FallbackRoot == null)
-        this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
+ContentControl.Instance._GetFallbackRoot = function () {
+    if (this._FallbackRoot == null) {
+        if (!ContentPresenter._FallbackTemplate)
+            ContentPresenter._FallbackTemplate = this._CreateFallbackTemplate();
+        this._FallbackRoot = ContentPresenter._FallbackTemplate.GetVisualTree(this);
+    }
     return this._FallbackRoot;
 };
+ContentControl.Instance.OnContentChanged = function (oldContent, newContent) {
+};
+ContentControl.Instance.OnContentTemplateChanged = function (oldContentTemplate, newContentTemplate) {
+};
 ContentControl.Instance._GetDefaultTemplate = function () {
-    return this.GetFallbackRoot();
+    var content = this.Content;
+    if (!content)
+        return null;
+    var uie = Nullstone.As(content, UIElement);
+    if (uie)
+        return uie;
+    return this._GetDefaultTemplate$Control();
+};
+ContentControl.Instance._GetDefaultTemplateCallback = function () {
+    return _GetFallbackRoot();
+};
+ContentControl.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== ContentControl) {
+        this._OnPropertyChanged$Control(args, error);
+        return;
+    }
+    if (args.Property._ID === ContentControl.ContentProperty._ID) {
+        if (args.OldValue && Nullstone.Is(args.OldValue, FrameworkElement)) {
+            if (this._ContentSetsParent) {
+                args.OldValue._SetLogicalParent(null, error);
+                if (error.IsErrored())
+                    return;
+            }
+        }
+        if (args.NewValue && Nullstone.Is(args.NewValue, FrameworkElement)) {
+            if (this._ContentSetsParent) {
+                args.NewValue._SetLogicalParent(this, error);
+                if (error.IsErrored())
+                    return;
+            }
+        }
+    }
+    this.PropertyChanged.Raise(this, args);
 };
 ContentControl.Annotations = {
     ContentProperty: ContentControl.ContentProperty
@@ -22836,79 +22761,52 @@ ScrollViewer.Instance.Init = function () {
     this.RequestBringIntoView.Subscribe(this._OnRequestBringIntoView, this);
 };
 ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {
-    if (d == null)
+    if (!d)
         return;
     d._InvalidateMeasure();
     var scrollInfo = d.GetScrollInfo();
-    if (scrollInfo != null) {
-        scrollInfo.SetCanHorizontallyScroll(d.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
-        scrollInfo.SetCanVerticallyScroll(d.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+    if (scrollInfo) {
+        scrollInfo.SetCanHorizontallyScroll(d.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+        scrollInfo.SetCanVerticallyScroll(d.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
     }
     d._UpdateScrollBarVisibility();
 };
 ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
-ScrollViewer.Instance.GetHorizontalScrollBarVisibility = function () {
-    return this.$GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
-};
-ScrollViewer.Instance.SetHorizontalScrollBarVisibility = function (value) {
-    this.$SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
-};
 ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
-ScrollViewer.Instance.GetVerticalScrollBarVisibility = function () {
-    return this.$GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty);
-};
-ScrollViewer.Instance.SetVerticalScrollBarVisibility = function (value) {
-    this.$SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
-};
 ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", function () { return new Enum(Visibility); }, ScrollViewer);
-ScrollViewer.Instance.GetComputedHorizontalScrollBarVisibility = function () {
-    return this.$GetValue(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty);
-};
 ScrollViewer.ComputedVerticalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", function () { return new Enum(Visibility); }, ScrollViewer);
-ScrollViewer.Instance.GetComputedVerticalScrollBarVisibility = function () {
-    return this.$GetValue(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty);
-};
 ScrollViewer.HorizontalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", function () { return Number; }, ScrollViewer);
-ScrollViewer.Instance.GetHorizontalOffset = function () {
-    return this.$GetValue(ScrollViewer.HorizontalOffsetProperty);
-};
 ScrollViewer.VerticalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("VerticalOffset", function () { return Number; }, ScrollViewer);
-ScrollViewer.Instance.GetVerticalOffset = function () {
-    return this.$GetValue(ScrollViewer.VerticalOffsetProperty);
-};
 ScrollViewer.ScrollableWidthProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableWidth", function () { return Number; }, ScrollViewer);
-ScrollViewer.Instance.GetScrollableWidth = function () {
-    return this.$GetValue(ScrollViewer.ScrollableWidthProperty);
-};
 ScrollViewer.ScrollableHeightProperty = DependencyProperty.RegisterReadOnlyCore("ScrollableHeight", function () { return Number; }, ScrollViewer);
-ScrollViewer.Instance.GetScrollableHeight = function () {
-    return this.$GetValue(ScrollViewer.ScrollableHeightProperty);
-};
 ScrollViewer.ViewportWidthProperty = DependencyProperty.RegisterReadOnlyCore("ViewportWidth", function () { return Number; }, ScrollViewer);
-ScrollViewer.Instance.GetViewportWidth = function () {
-    return this.$GetValue(ScrollViewer.ViewportWidthProperty);
-};
 ScrollViewer.ViewportHeightProperty = DependencyProperty.RegisterReadOnlyCore("ViewportHeight", function () { return Number; }, ScrollViewer);
-ScrollViewer.Instance.GetViewportHeight = function () {
-    return this.$GetValue(ScrollViewer.ViewportHeightProperty);
-};
 ScrollViewer.ExtentWidthProperty = DependencyProperty.RegisterReadOnlyCore("ExtentWidth", function () { return Number; }, ScrollViewer);
-ScrollViewer.Instance.GetExtentWidth = function () {
-    return this.$GetValue(ScrollViewer.ExtentWidthProperty);
-    return this.$xExtent;
-};
 ScrollViewer.ExtentHeightProperty = DependencyProperty.RegisterReadOnlyCore("ExtentHeight", function () { return Number; }, ScrollViewer);
-ScrollViewer.Instance.GetExtentHeight = function () {
-    return this.$GetValue(ScrollViewer.ExtentHeightProperty);
-};
+Nullstone.AutoProperties(ScrollViewer, [
+    ScrollViewer.HorizontalScrollBarVisibilityProperty,
+    ScrollViewer.VerticalScrollBarVisibilityProperty
+]);
+Nullstone.AutoPropertiesReadOnly(ScrollViewer, [
+    ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty,
+    ScrollViewer.ComputedVerticalScrollBarVisibilityProperty,
+    ScrollViewer.HorizontalOffsetProperty,
+    ScrollViewer.VerticalOffsetProperty,
+    ScrollViewer.ScrollableWidthProperty,
+    ScrollViewer.ScrollableHeightProperty,
+    ScrollViewer.ViewportWidthProperty,
+    ScrollViewer.ViewportHeightProperty,
+    ScrollViewer.ExtentWidthProperty,
+    ScrollViewer.ExtentHeightProperty
+]);
 ScrollViewer.Instance.GetScrollInfo = function () {
     return this.$ScrollInfo;
 };
 ScrollViewer.Instance.SetScrollInfo = function (value) {
     this.$ScrollInfo = value;
-    if (value != null) {
-        value.SetCanHorizontallyScroll(this.GetHorizontalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
-        value.SetCanVerticallyScroll(this.GetVerticalScrollBarVisibility() !== ScrollBarVisibility.Disabled);
+    if (value) {
+        value.SetCanHorizontallyScroll(this.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+        value.SetCanVerticallyScroll(this.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
     }
 };
 ScrollViewer.Instance.LineUp = function () {
@@ -22983,7 +22881,7 @@ ScrollViewer.Instance._HandleScroll = function (orientation, e) {
 };
 ScrollViewer.Instance._HandleHorizontalScroll = function (e) {
     var scrollInfo = this.GetScrollInfo();
-    if (scrollInfo == null)
+    if (!scrollInfo)
         return;
     var offset = scrollInfo.GetHorizontalOffset();
     var newValue = offset;
@@ -23012,13 +22910,13 @@ ScrollViewer.Instance._HandleHorizontalScroll = function (e) {
             break;
     }
     newValue = Math.max(newValue, 0);
-    newValue = Math.min(this.GetScrollableWidth(), newValue);
+    newValue = Math.min(this.ScrollableWidth, newValue);
     if (!DoubleUtil.AreClose(offset, newValue))
         scrollInfo.ChangeHorizontalOffset(newValue);
 };
 ScrollViewer.Instance._HandleVerticalScroll = function (e) {
     var scrollInfo = this.GetScrollInfo();
-    if (scrollInfo == null)
+    if (!scrollInfo)
         return;
     var offset = scrollInfo.GetVerticalOffset();
     var newValue = offset;
@@ -23047,7 +22945,7 @@ ScrollViewer.Instance._HandleVerticalScroll = function (e) {
             break;
     }
     newValue = Math.max(newValue, 0);
-    newValue = Math.min(this.GetScrollableHeight(), newValue);
+    newValue = Math.min(this.ScrollableHeight, newValue);
     if (!DoubleUtil.AreClose(offset, newValue))
         scrollInfo.ChangeVerticalOffset(newValue);
 };
@@ -23062,9 +22960,9 @@ ScrollViewer.Instance.OnMouseWheel = function (sender, args) {
     if (args.Handled)
         return;
     var scrollInfo = this.GetScrollInfo();
-    if (scrollInfo == null)
+    if (!scrollInfo)
         return;
-    if ((args.Delta > 0 && scrollInfo.GetVerticalOffset() !== 0) || (args.Delta < 0 && scrollInfo.GetVerticalOffset() < this.GetScrollableHeight())) {
+    if ((args.Delta > 0 && scrollInfo.GetVerticalOffset() !== 0) || (args.Delta < 0 && scrollInfo.GetVerticalOffset() < this.ScrollableHeight)) {
         if (args.Delta >= 0)
             scrollInfo.MouseWheelUp();
         else
@@ -23122,18 +23020,18 @@ ScrollViewer.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ContentControl();
     this.$ElementScrollContentPresenter = Nullstone.As(this.GetTemplateChild("ScrollContentPresenter"), ScrollContentPresenter);
     this.$ElementHorizontalScrollBar = Nullstone.As(this.GetTemplateChild("HorizontalScrollBar"), ScrollBar);
-    if (this.$ElementHorizontalScrollBar != null) {
+    if (this.$ElementHorizontalScrollBar) {
         this.$ElementHorizontalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Horizontal, e); }, this);
     }
     this.$ElementVerticalScrollBar = Nullstone.As(this.GetTemplateChild("VerticalScrollBar"), ScrollBar);
-    if (this.$ElementVerticalScrollBar != null) {
+    if (this.$ElementVerticalScrollBar) {
         this.$ElementVerticalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Vertical, e); }, this);
     }
     this._UpdateScrollBarVisibility();
 };
 ScrollViewer.Instance.MakeVisible = function (uie, targetRect) {
     var escp = this.$ElementScrollContentPresenter;
-    if (uie != null && escp != null && (Nullstone.RefEquals(escp, uie) || escp.IsAncestorOf(uie)) && this.IsAncestorOf(escp) && this._IsAttached) {
+    if (uie && escp && (Nullstone.RefEquals(escp, uie) || escp.IsAncestorOf(uie)) && this.IsAncestorOf(escp) && this._IsAttached) {
         if (targetRect.IsEmpty()) {
             targetRect = new Rect(0, 0, uie._RenderSize.Width, uie._RenderSize.Height);
         }
@@ -23148,31 +23046,31 @@ ScrollViewer.Instance.MakeVisible = function (uie, targetRect) {
 };
 ScrollViewer.Instance._InvalidateScrollInfo = function () {
     var scrollInfo = this.GetScrollInfo();
-    if (scrollInfo != null) {
-        this._SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.GetExtentWidth());
-        this._SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.GetExtentHeight());
-        this._SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.GetViewportWidth());
-        this._SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.GetViewportHeight());
+    if (scrollInfo) {
+        this.$SetValueInternal(ScrollViewer.ExtentWidthProperty, scrollInfo.GetExtentWidth());
+        this.$SetValueInternal(ScrollViewer.ExtentHeightProperty, scrollInfo.GetExtentHeight());
+        this.$SetValueInternal(ScrollViewer.ViewportWidthProperty, scrollInfo.GetViewportWidth());
+        this.$SetValueInternal(ScrollViewer.ViewportHeightProperty, scrollInfo.GetViewportHeight());
         this._UpdateScrollBar(Orientation.Horizontal, scrollInfo.GetHorizontalOffset());
         this._UpdateScrollBar(Orientation.Vertical, scrollInfo.GetVerticalOffset());
         this._UpdateScrollBarVisibility();
     }
-    this._RaiseViewportChanged(this.GetViewportWidth(), this.GetViewportHeight());
-    var w = Math.max(0, this.GetExtentWidth() - this.GetViewportWidth());
-    if (w !== this.GetScrollableWidth()) {
-        this._SetValueInternal(ScrollViewer.ScrollableWidthProperty, w);
+    this._RaiseViewportChanged(this.ViewportWidth, this.ViewportHeight);
+    var w = Math.max(0, this.ExtentWidth - this.ViewportWidth);
+    if (w !== this.ScrollableWidth) {
+        this.$SetValueInternal(ScrollViewer.ScrollableWidthProperty, w);
         this._InvalidateMeasure();
     }
-    var h = Math.max(0, this.GetExtentHeight() - this.GetViewportHeight());
-    if (h !== this.GetScrollableHeight()) {
-        this._SetValueInternal(ScrollViewer.ScrollableHeightProperty, h);
+    var h = Math.max(0, this.ExtentHeight - this.ViewportHeight);
+    if (h !== this.ScrollableHeight) {
+        this.$SetValueInternal(ScrollViewer.ScrollableHeightProperty, h);
         this._InvalidateMeasure();
     }
 };
 ScrollViewer.Instance._UpdateScrollBarVisibility = function () {
     var scrollInfo = this.GetScrollInfo();
     var horizontalVisibility = Visibility.Visible;
-    var hsbv = this.GetHorizontalScrollBarVisibility();
+    var hsbv = this.HorizontalScrollBarVisibility;
     switch (hsbv) {
         case ScrollBarVisibility.Visible:
             break;
@@ -23182,16 +23080,16 @@ ScrollViewer.Instance._UpdateScrollBarVisibility = function () {
             break;
         case ScrollBarVisibility.Auto:
         default:
-            horizontalVisibility = (scrollInfo == null || scrollInfo.GetExtentWidth() <= scrollInfo.GetViewportWidth()) ? Visibility.Collapsed : Visibility.Visible;
+            horizontalVisibility = (!scrollInfo || scrollInfo.GetExtentWidth() <= scrollInfo.GetViewportWidth()) ? Visibility.Collapsed : Visibility.Visible;
             break;
     }
-    if (horizontalVisibility !== this.GetComputedHorizontalScrollBarVisibility()) {
-        this._SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
+    if (horizontalVisibility !== this.ComputedHorizontalScrollBarVisibility) {
+        this.$SetValueInternal(ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty, horizontalVisibility);
         this._RaiseVisibilityChanged(horizontalVisibility, Orientation.Horizontal);
         this._InvalidateMeasure();
     }
     var verticalVisibility = Visibility.Visible;
-    var vsbv = this.GetVerticalScrollBarVisibility();
+    var vsbv = this.VerticalScrollBarVisibility;
     switch (vsbv) {
         case ScrollBarVisibility.Visible:
             break;
@@ -23201,11 +23099,11 @@ ScrollViewer.Instance._UpdateScrollBarVisibility = function () {
             break;
         case ScrollBarVisibility.Auto:
         default:
-            verticalVisibility = (scrollInfo == null || scrollInfo.GetExtentHeight() <= scrollInfo.GetViewportHeight()) ? Visibility.Collapsed : Visibility.Visible;
+            verticalVisibility = (!scrollInfo || scrollInfo.GetExtentHeight() <= scrollInfo.GetViewportHeight()) ? Visibility.Collapsed : Visibility.Visible;
             break;
     }
-    if (verticalVisibility !== this.GetComputedVerticalScrollBarVisibility()) {
-        this._SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
+    if (verticalVisibility !== this.ComputedVerticalScrollBarVisibility) {
+        this.$SetValueInternal(ScrollViewer.ComputedVerticalScrollBarVisibilityProperty, verticalVisibility);
         this._RaiseVisibilityChanged(verticalVisibility, Orientation.Vertical);
         this._InvalidateMeasure();
     }
@@ -23214,16 +23112,16 @@ ScrollViewer.Instance._UpdateScrollBar = function (orientation, value) {
     try {
         var scrollInfo = this.GetScrollInfo();
         if (orientation === Orientation.Horizontal) {
-            this._SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
+            this.$SetValueInternal(ScrollViewer.HorizontalOffsetProperty, value);
             this._RaiseOffsetChanged(scrollInfo.GetHorizontalOffset(), Orientation.Horizontal);
-            if (this.$ElementHorizontalScrollBar != null) {
-                this.$ElementHorizontalScrollBar.SetValue(value);
+            if (this.$ElementHorizontalScrollBar) {
+                this.$ElementHorizontalScrollBar.Value = value;
             }
         } else {
-            this._SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
+            this.$SetValueInternal(ScrollViewer.VerticalOffsetProperty, value);
             this._RaiseOffsetChanged(scrollInfo.GetVerticalOffset(), Orientation.Vertical);
-            if (this.$ElementVerticalScrollBar != null) {
-                this.$ElementVerticalScrollBar.SetValue(value);
+            if (this.$ElementVerticalScrollBar) {
+                this.$ElementVerticalScrollBar.Value = value;
             }
         }
     } finally {
@@ -23238,7 +23136,7 @@ ScrollViewer.Instance._RaiseViewportChanged = function (viewportWidth, viewportH
 ScrollViewer.Instance._OnRequestBringIntoView = function (sender, args) {
     var sv = Nullstone.As(sender, ScrollViewer);
     var targetObj = args.TargetObject;
-    if (targetObj != null && sv != null && !Nullstone.RefEquals(sv, targetObj) && sv.IsAncestorOf(targetObj)) {
+    if (targetObj && sv && !Nullstone.RefEquals(sv, targetObj) && sv.IsAncestorOf(targetObj)) {
         sv.MakeVisible(targetObj, args.TargetRect);
         args.Handled = true;
     }
@@ -23479,44 +23377,28 @@ ButtonBase.Instance.Init = function () {
     this._MousePosition = new Point();
     this.Click = new MulticastEvent();
     this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
-    this.SetIsTabStop(true);
+    this.IsTabStop = true;
 }
 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Enum(ClickMode); }, ButtonBase, ClickMode.Release);
-ButtonBase.Instance.GetClickMode = function () {
-    return this.$GetValue(ButtonBase.ClickModeProperty);
-};
-ButtonBase.Instance.SetClickMode = function (value) {
-    this.$SetValue(ButtonBase.ClickModeProperty, value);
-};
 ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
-ButtonBase.Instance.GetIsPressed = function () {
-	return this.$GetValue(ButtonBase.IsPressedProperty);
-};
-ButtonBase.Instance.SetIsPressed = function (value) {
-	this.$SetValue(ButtonBase.IsPressedProperty, value);
-};
 ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.Instance.GetIsFocused = function () {
-    return this.$GetValue(ButtonBase.IsFocusedProperty);
-};
-ButtonBase.Instance.SetIsFocused = function (value) {
-    this.$SetValue(ButtonBase.IsFocusedProperty, value);
-};
 ButtonBase.IsMouseOverProperty = DependencyProperty.RegisterReadOnly("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.Instance.GetIsMouseOver = function () {
-    return this.$GetValue(ButtonBase.IsMouseOverProperty);
-};
-ButtonBase.Instance.SetIsMouseOver = function (value) {
-    this.$SetValue(ButtonBase.IsMouseOverProperty, value);
-};
+Nullstone.AutoProperties(ButtonBase, [
+    ButtonBase.ClickModeProperty
+]);
+Nullstone.AutoPropertiesReadOnly(ButtonBase, [
+    ButtonBase.IsPressedProperty,
+    ButtonBase.IsFocusedProperty,
+    ButtonBase.IsMouseOverProperty
+]);
 ButtonBase.Instance.OnIsEnabledChanged = function (e) {
     this.OnIsEnabledChanged$ContentControl(e);
     var isEnabled = e.NewValue;
     this._SuspendStateChanges = true;
     try {
         if (!isEnabled) {
-            this.SetIsFocused(false);
-            this.SetIsPressed(false);
+            this.$SetValueInternal(ButtonBase.IsFocusedProperty, false);
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
             this._IsMouseCaptured = false;
             this._IsSpaceKeyDown = false;
             this._IsMouseLeftButtonDown = false;
@@ -23538,11 +23420,11 @@ ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
 };
 ButtonBase.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$ContentControl(sender, args);
-    this.SetIsMouseOver(true);
+    this.$SetValueInternal(ButtonBase.IsMouseOverProperty, true);
     this._SuspendStateChanges = true;
     try {
-        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled()) {
-            this.SetIsPressed(true);
+        if (this.ClickMode === ClickMode.Hover && this.IsEnabled) {
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, true);
             this.OnClick();
         }
     } finally {
@@ -23552,11 +23434,11 @@ ButtonBase.Instance.OnMouseEnter = function (sender, args) {
 };
 ButtonBase.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$ContentControl(sender, args);
-    this.SetIsMouseOver(false);
+    this.$SetValueInternal(ButtonBase.IsMouseOverProperty, false);
     this._SuspendStateChanges = true;
     try {
-        if (this.GetClickMode() === ClickMode.Hover && this.GetIsEnabled())
-            this.SetIsPressed(false);
+        if (this.ClickMode === ClickMode.Hover && this.IsEnabled)
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
     } finally {
         this._SuspendStateChanges = false;
         this.UpdateVisualState();
@@ -23565,24 +23447,25 @@ ButtonBase.Instance.OnMouseLeave = function (sender, args) {
 ButtonBase.Instance.OnMouseMove = function (sender, args) {
     this.OnMouseMove$ContentControl(sender, args);
     this._MousePosition = args.GetPosition(this);
-    if (this._IsMouseLeftButtonDown && this.GetIsEnabled() && this.GetClickMode() !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
-        this.SetIsPressed(this._IsValidMousePosition());
+    if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
+        this.$SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
     }
 };
 ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this.OnMouseLeftButtonDown$ContentControl(sender, args);
     this._IsMouseLeftButtonDown = true;
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         return;
-    var clickMode = this.GetClickMode();
+    var clickMode = this.ClickMode;
     if (clickMode === ClickMode.Hover)
         return;
+    args.Handled = true;
     this._SuspendStateChanges = true;
     try {
         this.Focus();
         this._CaptureMouseInternal();
         if (this._IsMouseCaptured)
-            this.SetIsPressed(true);
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, true);
     } finally {
         this._SuspendStateChanges = false;
         this.UpdateVisualState();
@@ -23593,20 +23476,21 @@ ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
 ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
     this.OnMouseLeftButtonDown$ContentControl(sender, args);
     this._IsMouseLeftButtonDown = false;
-    if (!this.GetIsEnabled())
+    if (!this.IsEnabled)
         return;
-    var clickMode = this.GetClickMode();
+    var clickMode = this.ClickMode;
     if (clickMode === ClickMode.Hover)
         return;
-    if (!this._IsSpaceKeyDown && this.GetIsPressed() && clickMode === ClickMode.Release)
+    args.Handled = true;
+    if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === ClickMode.Release)
         this.OnClick();
     if (!this._IsSpaceKeyDown) {
         this._ReleaseMouseCaptureInternal();
-        this.SetIsPressed(false);
+        this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
     }
 };
 ButtonBase.Instance.OnClick = function () {
-    this.Click.Raise(this, null);
+    this.Click.Raise(this, new EventArgs());
 };
 ButtonBase.Instance._CaptureMouseInternal = function () {
     if (!this._IsMouseCaptured)
@@ -23618,21 +23502,21 @@ ButtonBase.Instance._ReleaseMouseCaptureInternal = function () {
 };
 ButtonBase.Instance._IsValidMousePosition = function () {
     var pos = this._MousePosition;
-    return pos.X >= 0.0 && pos.X <= this.GetActualWidth()
-        && pos.Y >= 0.0 && pos.Y <= this.GetActualHeight();
+    return pos.X >= 0.0 && pos.X <= this.ActualWidth
+        && pos.Y >= 0.0 && pos.Y <= this.ActualHeight;
 };
 ButtonBase.Instance.OnGotFocus = function (sender, args) {
     this.OnGotFocus$ContentControl(sender, args);
-    this.SetIsFocused(true);
+    this.$SetValueInternal(ButtonBase.IsFocusedProperty, true);
     this.UpdateVisualState();
 };
 ButtonBase.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$ContentControl(sender, args);
-    this.SetIsFocused(false);
+    this.$SetValueInternal(ButtonBase.IsFocusedProperty, false);
     this._SuspendStateChanges = true;
     try {
-        if (this.GetClickMode() !== ClickMode.Hover) {
-            this.SetIsPressed(false);
+        if (this.ClickMode !== ClickMode.Hover) {
+            this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
             this._ReleaseMouseCaptureInternal();
             this._IsSpaceKeyDown = false;
         }
@@ -23643,7 +23527,7 @@ ButtonBase.Instance.OnLostFocus = function (sender, args) {
 };
 ButtonBase._GetVisualRoot = function (d) {
     var parent = d;
-    while (parent != null) {
+    while (parent) {
         d = parent;
         parent = VisualTreeHelper.GetParent(parent);
     }
@@ -23654,22 +23538,14 @@ Nullstone.FinishCreate(ButtonBase);
 var RepeatButton = Nullstone.Create("RepeatButton", ButtonBase);
 RepeatButton.Instance.Init = function () {
     this.Init$ButtonBase();
-    this.SetClickMode(ClickMode.Press);
+    this.ClickMode = ClickMode.Press;
 };
 RepeatButton.DelayProperty = DependencyProperty.Register("Delay", function () { return Number; }, RepeatButton, 500, function (d, args) { d.OnDelayChanged(args); });
-RepeatButton.Instance.GetDelay = function () {
-    return this.$GetValue(RepeatButton.DelayProperty);
-};
-RepeatButton.Instance.SetDelay = function (value) {
-    this.$SetValue(RepeatButton.DelayProperty, value);
-};
 RepeatButton.IntervalProperty = DependencyProperty.Register("Interval", function () { return Number; }, RepeatButton, 33, function (d, args) { d.OnIntervalChanged(args); });
-RepeatButton.Instance.GetInterval = function () {
-    return this.$GetValue(RepeatButton.IntervalProperty);
-};
-RepeatButton.Instance.SetInterval = function (value) {
-    this.$SetValue(RepeatButton.IntervalProperty, value);
-};
+Nullstone.AutoProperties(RepeatButton, [
+    RepeatButton.DelayProperty,
+    RepeatButton.IntervalProperty
+]);
 RepeatButton.Instance.OnDelayChanged = function (args) {
     if (args.NewValue < 0)
         throw new ArgumentException("Delay Property cannot be negative.");
@@ -23685,7 +23561,7 @@ RepeatButton.Instance.OnIsEnabledChanged = function (e) {
     this._UpdateRepeatState();
 };
 RepeatButton.Instance.OnKeyDown = function (sender, args) {
-    if (args.KeyCode === Keys.Space && this.GetClickMode() !== ClickMode.Hover) {
+    if (args.KeyCode === Keys.Space && this.ClickMode !== ClickMode.Hover) {
         this._KeyboardCausingRepeat = true;
         this._UpdateRepeatState();
     }
@@ -23693,7 +23569,7 @@ RepeatButton.Instance.OnKeyDown = function (sender, args) {
 };
 RepeatButton.Instance.OnKeyUp = function (sender, args) {
     this.OnKeyUp$ButtonBase(sender, args);
-    if (args.KeyCode === Keys.Space && this.GetClickMode() !== ClickMode.Hover) {
+    if (args.KeyCode === Keys.Space && this.ClickMode !== ClickMode.Hover) {
         this._KeyboardCausingRepeat = false;
         this._UpdateRepeatState();
     }
@@ -23701,7 +23577,7 @@ RepeatButton.Instance.OnKeyUp = function (sender, args) {
 };
 RepeatButton.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$ButtonBase(sender, args);
-    if (this.GetClickMode() !== ClickMode.Hover) {
+    if (this.ClickMode !== ClickMode.Hover) {
         this._KeyboardCausingRepeat = false;
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
@@ -23709,7 +23585,7 @@ RepeatButton.Instance.OnLostFocus = function (sender, args) {
 };
 RepeatButton.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$ButtonBase(sender, args);
-    if (this.GetClickMode() === ClickMode.Hover) {
+    if (this.ClickMode === ClickMode.Hover) {
         this._MouseCausingRepeat = true;
         this._UpdateRepeatState();
     }
@@ -23717,7 +23593,7 @@ RepeatButton.Instance.OnMouseEnter = function (sender, args) {
     var parent = this;
     while (true) {
         var fe = Nullstone.As(parent, FrameworkElement);
-        if (fe == null)
+        if (!fe)
             break;
         parent = fe._GetLogicalParent();
     }
@@ -23725,7 +23601,7 @@ RepeatButton.Instance.OnMouseEnter = function (sender, args) {
 };
 RepeatButton.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$ButtonBase(sender, args);
-    if (this.GetClickMode() === ClickMode.Hover) {
+    if (this.ClickMode === ClickMode.Hover) {
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
     }
@@ -23735,7 +23611,7 @@ RepeatButton.Instance.OnMouseLeftButtonDown = function (sender, args) {
     if (args.Handled)
         return;
     this.OnMouseLeftButtonDown$ButtonBase(sender, args);
-    if (this.GetClickMode() !== ClickMode.Hover) {
+    if (this.ClickMode !== ClickMode.Hover) {
         this._MouseCausingRepeat = true;
         this._UpdateRepeatState();
     }
@@ -23744,7 +23620,7 @@ RepeatButton.Instance.OnMouseLeftButtonUp = function (sender, args) {
     if (args.Handled)
         return;
     this.OnMouseLeftButtonUp$ButtonBase(sender, args);
-    if (this.GetClickMode() !== ClickMode.Hover) {
+    if (this.ClickMode !== ClickMode.Hover) {
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
     }
@@ -23754,7 +23630,7 @@ RepeatButton.Instance.OnMouseMove = function (sender, args) {
     var parent = this;
     while (true) {
         var fe = Nullstone.As(parent, FrameworkElement);
-        if (fe == null)
+        if (!fe)
             break;
         parent = fe._GetLogicalParent();
     }
@@ -23767,26 +23643,26 @@ RepeatButton.Instance._UpdateRepeatState = function () {
         this._StopTimer();
 };
 RepeatButton.Instance._StartTimer = function () {
-    if (this._Timer == null) {
+    if (!this._Timer) {
         this._Timer = new Timer();
         this._Timer.Tick.Subscribe(this._OnTimeout, this);
     } else if (this._Timer.IsEnabled) {
         return;
     }
-    this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, this.GetDelay()));
+    this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, this.Delay));
     this._Timer.Start();
 };
 RepeatButton.Instance._StopTimer = function () {
-    if (this._Timer != null)
+    if (this._Timer)
         this._Timer.Stop();
 };
 RepeatButton.Instance._OnTimeout = function (sender, e) {
-    var interval = this.GetInterval();
+    var interval = this.Interval;
     var timespan = this._Timer.GetInterval();
     if (timespan.Milliseconds !== interval) {
         this._Timer.SetInterval(new TimeSpan(0, 0, 0, 0, interval));
     }
-    if (this.GetIsPressed() || this._KeyboardCausingRepeat) {
+    if (this.IsPressed || this._KeyboardCausingRepeat) {
         this.OnClick();
         return;
     }
@@ -23799,16 +23675,16 @@ RepeatButton.Instance._OnTimeout = function (sender, e) {
     }
 };
 RepeatButton.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
-    } else if (this.GetIsPressed()) {
+    } else if (this.IsPressed) {
         this._GoToState(useTransitions, "Pressed");
-    } else if (this.GetIsMouseOver()) {
+    } else if (this.IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");
     } else {
         this._GoToState(useTransitions, "Normal");
     }
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
+    if (this.IsFocused && this.IsEnabled) {
         this._GoToState(useTransitions, "Focused");
     } else {
         this._GoToState(useTransitions, "Unfocused");
@@ -24309,20 +24185,60 @@ RepeatButton.Instance.GetDefaultStyle = function () {
 Nullstone.FinishCreate(RepeatButton);
 
 var ToggleButton = Nullstone.Create("ToggleButton", ButtonBase);
-ToggleButton.IsCheckedProperty = DependencyProperty.RegisterReadOnly("IsChecked", function () { return Boolean; }, ToggleButton, false, function (d, args) { d.OnIsCheckedChanged(args); });
-ToggleButton.Instance.GetIsChecked = function () {
-    return this.$GetValue(ToggleButton.IsCheckedProperty);
-};
-ToggleButton.Instance.SetIsChecked = function (value) {
-    this.$SetValue(ToggleButton.IsCheckedProperty, value);
-};
+ToggleButton.IsCheckedProperty = DependencyProperty.Register("IsChecked", function () { return Boolean; }, ToggleButton, false, function (d, args) { d.OnIsCheckedChanged(args); });
+ToggleButton.IsThreeStateProperty = DependencyProperty.Register("IsThreeState", function () { return Boolean; }, ToggleButton, false);
+Nullstone.AutoProperties(ToggleButton, [
+    ToggleButton.IsCheckedProperty,
+    ToggleButton.IsThreeStateProperty
+]);
 ToggleButton.Instance.OnIsCheckedChanged = function (e) {
     var isChecked = e.NewValue;
     this.UpdateVisualState();
 };
+ToggleButton.Instance._ChangeVisualState = function (useTransitions) {
+    var isChecked = this.IsChecked;
+    var isEnabled = this.IsEnabled;
+    if (!isEnabled) {
+        this._GoToState(useTransitions, "Disabled");
+    } else if (this.IsPressed) {
+        this._GoToState(useTransitions, "Pressed");
+    } else if (this.IsMouseOver) {
+        this._GoToState(useTransitions, "MouseOver");
+    } else {
+        this._GoToState(useTransitions, "Normal");
+    }
+    if (isChecked == true) {
+        this._GoToState(useTransitions, "Checked");
+    } else if (isChecked == false) {
+        this._GoToState(useTransitions, "Unchecked");
+    } else {
+        if (!this._GoToState(useTransitions, "Indeterminate")) {
+            this._GoToState(useTransitions, "Unchecked");
+        }
+    }
+    if (this.IsFocused && isEnabled) {
+        this._GoToState(useTransitions, "Focused");
+    } else {
+        this._GoToState(useTransitions, "Unfocused");
+    }
+};
 ToggleButton.Instance.OnClick = function () {
-    alert('clicked');
-    this.SetIsChecked(true);
+    this.OnToggle();
+    this.OnClick$ButtonBase();
+};
+ToggleButton.Instance.OnToggle = function () {
+    var isChecked = this.IsChecked;
+    if (isChecked === true) {
+        if (this.IsThreeState) {
+            this.IsChecked = null;
+        } else {
+            this.IsChecked = false;
+        }
+    } else if (isChecked === false) {
+        this.IsChecked = true;
+    } else {
+        this.IsChecked = false;
+    }
 };
 Nullstone.FinishCreate(ToggleButton);
 
@@ -24332,16 +24248,16 @@ Button.Instance.OnApplyTemplate = function () {
     this.UpdateVisualState(false);
 };
 Button.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
+    if (!this.IsEnabled) {
         this._GoToState(useTransitions, "Disabled");
-    } else if (this.GetIsPressed()) {
+    } else if (this.IsPressed) {
         this._GoToState(useTransitions, "Pressed");
-    } else if (this.GetIsMouseOver()) {
+    } else if (this.IsMouseOver) {
         this._GoToState(useTransitions, "MouseOver");
     } else {
         this._GoToState(useTransitions, "Normal");
     }
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
+    if (this.IsFocused && this.IsEnabled) {
         this._GoToState(useTransitions, "Focused");
     } else {
         this._GoToState(useTransitions, "Unfocused");
@@ -24349,7 +24265,7 @@ Button.Instance._ChangeVisualState = function (useTransitions) {
 };
 Button.Instance.OnIsEnabledChanged = function (e) {
     this.OnIsEnabledChanged$ButtonBase(e);
-    this.SetIsTabStop(e.NewValue);
+    this.IsTabStop = e.NewValue;
 };
 Button.Instance.GetDefaultStyle = function () {
     var styleJson = {
@@ -25687,38 +25603,24 @@ CheckBox.Instance.GetDefaultStyle = function () {
 Nullstone.FinishCreate(CheckBox);
 
 var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
-HyperlinkButton.StateDisabled = "Disabled";
-HyperlinkButton.StatePressed = "Pressed";
-HyperlinkButton.StateMouseOver = "MouseOver";
-HyperlinkButton.StateNormal = "Normal";
-HyperlinkButton.StateFocused = "Focused";
-HyperlinkButton.StateUnfocused = "Unfocused";
-HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton, null);
-HyperlinkButton.Instance.GetNavigateUri = function () {
-    return this.$GetValue(HyperlinkButton.NavigateUriProperty);
-};
-HyperlinkButton.Instance.SetNavigateUri = function (value) {
-    this.$SetValue(HyperlinkButton.NavigateUriProperty, value);
-};
-HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton, null);
-HyperlinkButton.Instance.GetTargetName = function () {
-    return this.$GetValue(HyperlinkButton.TargetNameProperty);
-};
-HyperlinkButton.Instance.SetTargetName = function (value) {
-    this.$SetValue(HyperlinkButton.TargetNameProperty, value);
-};
+HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton);
+HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton);
+Nullstone.AutoProperties(HyperlinkButton, [
+    HyperlinkButton.NavigateUriProperty,
+    HyperlinkButton.TargetNameProperty
+]);
 HyperlinkButton.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ButtonBase();
     this.UpdateVisualState(false);
 };
 HyperlinkButton.Instance.OnClick = function () {
     this.OnClick$ButtonBase();
-    if (this.GetNavigateUri() != null) {
+    if (this.NavigateUri != null) {
         this._Navigate();
     }
 };
 HyperlinkButton.Instance._GetAbsoluteUri = function () {
-    var destination = this.GetNavigateUri();
+    var destination = this.NavigateUri;
     if (!destination.IsAbsoluteUri) {
         var original = destination.OriginalString;
         if (original && original.charAt(0) !== '/')
@@ -25728,23 +25630,23 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
     return destination;
 };
 HyperlinkButton.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.GetIsEnabled()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateDisabled);
-    } else if (this.GetIsPressed()) {
-        this._GoToState(useTransitions, HyperlinkButton.StatePressed);
-    } else if (this.GetIsMouseOver()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateMouseOver);
+    if (!this.IsEnabled) {
+        this._GoToState(useTransitions, "Disabled");
+    } else if (this.IsPressed) {
+        this._GoToState(useTransitions, "Pressed");
+    } else if (this.IsMouseOver) {
+        this._GoToState(useTransitions, "MouseOver");
     } else {
-        this._GoToState(useTransitions, HyperlinkButton.StateNormal);
+        this._GoToState(useTransitions, "Normal");
     }
-    if (this.GetIsFocused() && this.GetIsEnabled()) {
-        this._GoToState(useTransitions, HyperlinkButton.StateFocused);
+    if (this.IsFocused && this.IsEnabled) {
+        this._GoToState(useTransitions, "Focused");
     } else {
-        this._GoToState(useTransitions, HyperlinkButton.StateUnfocused);
+        this._GoToState(useTransitions, "Unfocused");
     }
 };
 HyperlinkButton.Instance._Navigate = function () {
-    window.location.href = this.GetNavigateUri().toString();
+    window.location.href = this.NavigateUri.toString();
 };
 HyperlinkButton.Instance.GetDefaultStyle = function () {
     var styleJson = {
@@ -25988,4 +25890,991 @@ HyperlinkButton.Instance.GetDefaultStyle = function () {
     return parser.CreateObject(styleJson, new NameScope());
 };
 Nullstone.FinishCreate(HyperlinkButton);
+
+var RadioButton = Nullstone.Create("RadioButton", ToggleButton);
+RadioButton.Instance.Init = function () {
+    this.Init$ToggleButton();
+    RadioButton.Register("", this);
+};
+RadioButton.GroupNameProperty = DependencyProperty.RegisterReadOnly("GroupName", function () { return RadioButton; }, RadioButton, false, function (d, args) { d.OnGroupNameChanged(args); });
+Nullstone.AutoProperties(RadioButton, [
+    RadioButton.GroupNameProperty
+]);
+RadioButton.Instance.OnGroupNameChanged = function (e) {
+    RadioButton.Unregister(e.OldValue, this);
+    RadioButton.Register(e.NewValue, this);
+};
+RadioButton._GroupNameToElements = [];
+RadioButton.Register = function(groupName, radioButton) {
+    if (!groupName) groupName = "";
+    var list = RadioButton._GroupNameToElements[groupName];
+    if (!list) {
+        list = [];
+        RadioButton._GroupNameToElements[groupName] = list;
+    }
+    list.push(radioButton);
+};
+RadioButton.Unregister = function (groupName, radioButton) {
+    if (!groupName) groupName = "";
+    var list = RadioButton._GroupNameToElements[groupName];
+    if (list) {
+        for (var i = 0; i < list.length; i++) {
+            if (Nullstone.RefEquals(radioButton, list[i])) {
+                list.splice(i, 1);
+                break;
+            }
+        }
+    }
+};
+RadioButton.Instance.OnIsCheckedChanged = function (e) {
+    if (e.NewValue === true) {
+        this.UpdateRadioButtonGroup();
+    }
+    this.OnIsCheckedChanged$ToggleButton(e);
+};
+RadioButton.Instance.OnToggle = function () {
+    this.IsChecked = true;
+};
+RadioButton.Instance.UpdateRadioButtonGroup = function () {
+    var groupName = this.GroupName;
+    if (!groupName) groupName = "";
+    if (groupName) {
+        var visualRoot = this.GetVisualRoot();
+        var elements = RadioButton._GroupNameToElements[groupName];
+        if (elements) {
+            for (var i = 0; i < elements.length; i++) {
+                if (!Nullstone.RefEquals(elements[i], this) &&
+                elements[i].IsChecked &&
+                Nullstone.RefEquals(visualRoot, elements[i].GetVisualRoot())) {
+                    elements[i].IsChecked = false;
+                }
+            }
+        }
+    } else {
+        var elements = RadioButton._GroupNameToElements[groupName];
+        var visualParent = this.GetVisualParent();
+        if (elements) {
+            for (var i = 0; i < elements.length; i++) {
+                if (!Nullstone.RefEquals(elements[i], this) &&
+                elements[i].IsChecked &&
+                Nullstone.RefEquals(visualParent, elements[i].GetVisualParent())) {
+                    elements[i].IsChecked = false;
+                }
+            }
+        }
+    }
+};
+RadioButton.Instance.GetDefaultStyle = function () {
+    var styleJson = {
+        Type: Style,
+        Props: {
+            TargetType: RadioButton
+        },
+        Children: [
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(RadioButton, "Background"),
+        Value: "#FF448DCA"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(RadioButton, "Foreground"),
+        Value: "#FF000000"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(RadioButton, "HorizontalContentAlignment"),
+        Value: "Left"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(RadioButton, "VerticalContentAlignment"),
+        Value: "Top"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(RadioButton, "Padding"),
+        Value: "4,1,0,0"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(RadioButton, "BorderThickness"),
+        Value: "1"
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(RadioButton, "BorderBrush"),
+        Value: {
+            Type: LinearGradientBrush,
+            Props: {
+                EndPoint: new Point(0.5, 1),
+                StartPoint: new Point(0.5, 0)
+            },
+            Children: [
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FFA3AEB9"),
+        Offset: 0
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FF8399A9"),
+        Offset: 0.375
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FF718597"),
+        Offset: 0.375
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FF617584"),
+        Offset: 1
+    }
+}]
+        }
+    }
+},
+{
+    Type: Setter,
+    Props: {
+        Property: DependencyProperty.GetDependencyProperty(RadioButton, "Template"),
+        Value: {
+            Type: ControlTemplate,
+            Props: {
+                TargetType: RadioButton
+            },
+            Content: {
+                Type: Grid,
+                Props: {
+                    ColumnDefinitions: [
+{
+    Type: ColumnDefinition,
+    Props: {
+        Width: new GridLength(16, GridUnitType.Pixel)
+    }
+},
+{
+    Type: ColumnDefinition,
+    Props: {
+        Width: new GridLength(1, GridUnitType.Star)
+    }
+}]
+                },
+                AttachedProps: [{
+                    Owner: VisualStateManager,
+                    Prop: "VisualStateGroups",
+                    Value: [
+{
+    Type: VisualStateGroup,
+    Name: "CommonStates",
+    Children: [
+{
+    Type: VisualState,
+    Name: "Normal"
+},
+{
+    Type: VisualState,
+    Name: "MouseOver",
+    Content: {
+        Type: Storyboard,
+        Children: [
+{
+    Type: DoubleAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: 1
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BackgroundOverlay"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("Opacity")
+}
+]
+},
+{
+    Type: DoubleAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: 1
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddleBackground"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("Opacity")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#7FFFFFFF")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#CCFFFFFF")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#F2FFFFFF")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)")
+}
+]
+}]
+    }
+},
+{
+    Type: VisualState,
+    Name: "Pressed",
+    Content: {
+        Type: Storyboard,
+        Children: [
+{
+    Type: DoubleAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: 1
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BackgroundOverlay"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("Opacity")
+}
+]
+},
+{
+    Type: DoubleAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: 1
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddleBackground"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("Opacity")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#6BFFFFFF")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Fill).(GradientBrush.GradientStops)[3].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#C6FFFFFF")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Fill).(GradientBrush.GradientStops)[2].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#EAFFFFFF")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Fill).(GradientBrush.GradientStops)[1].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#F4FFFFFF")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Fill).(GradientBrush.GradientStops)[0].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#FF6DBDD1")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Stroke).(GradientBrush.GradientStops)[3].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#FF6DBDD1")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Stroke).(GradientBrush.GradientStops)[0].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#FF6DBDD1")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Stroke).(GradientBrush.GradientStops)[1].(GradientStop.Color)")
+}
+]
+},
+{
+    Type: ColorAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: Color.FromHex("#FF6DBDD1")
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "BoxMiddle"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(Shape.Stroke).(GradientBrush.GradientStops)[2].(GradientStop.Color)")
+}
+]
+}]
+    }
+},
+{
+    Type: VisualState,
+    Name: "Disabled",
+    Content: {
+        Type: Storyboard,
+        Children: [
+{
+    Type: DoubleAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: 0.55
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "contentPresenter"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(UIElement.Opacity)")
+}
+]
+},
+{
+    Type: DoubleAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: 0.55
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "DisabledVisualElement"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(UIElement.Opacity)")
+}
+]
+}]
+    }
+}]
+},
+{
+    Type: VisualStateGroup,
+    Name: "CheckStates",
+    Children: [
+{
+    Type: VisualState,
+    Name: "Checked",
+    Content: {
+        Type: Storyboard,
+        Children: [
+{
+    Type: DoubleAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: 1
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "CheckIcon"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("(UIElement.Opacity)")
+}
+]
+}]
+    }
+},
+{
+    Type: VisualState,
+    Name: "Unchecked"
+}]
+},
+{
+    Type: VisualStateGroup,
+    Name: "FocusStates",
+    Children: [
+{
+    Type: VisualState,
+    Name: "Focused",
+    Content: {
+        Type: Storyboard,
+        Children: [
+{
+    Type: DoubleAnimation,
+    Props: {
+        Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0)),
+        To: 1
+    },
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "ContentFocusVisualElement"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("Opacity")
+}
+]
+}]
+    }
+},
+{
+    Type: VisualState,
+    Name: "Unfocused"
+}]
+},
+{
+    Type: VisualStateGroup,
+    Name: "ValidationStates",
+    Children: [
+{
+    Type: VisualState,
+    Name: "Valid"
+},
+{
+    Type: VisualState,
+    Name: "InvalidUnfocused",
+    Content: {
+        Type: Storyboard,
+        Children: [
+{
+    Type: ObjectAnimationUsingKeyFrames,
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "ValidationErrorElement"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("Visibility")
+}
+],
+    Children: [
+{
+    Type: DiscreteObjectKeyFrame,
+    Props: {
+        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+        Value: Visibility.Visible
+    }
+}]
+}]
+    }
+},
+{
+    Type: VisualState,
+    Name: "InvalidFocused",
+    Content: {
+        Type: Storyboard,
+        Children: [
+{
+    Type: ObjectAnimationUsingKeyFrames,
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "ValidationErrorElement"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("Visibility")
+}
+],
+    Children: [
+{
+    Type: DiscreteObjectKeyFrame,
+    Props: {
+        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+        Value: Visibility.Visible
+    }
+}]
+},
+{
+    Type: ObjectAnimationUsingKeyFrames,
+    AttachedProps: [{
+        Owner: Storyboard,
+        Prop: "TargetName",
+        Value: "validationTooltip"
+    },
+{
+    Owner: Storyboard,
+    Prop: "TargetProperty",
+    Value: new _PropertyPath("IsOpen")
+}
+],
+    Children: [
+{
+    Type: DiscreteObjectKeyFrame,
+    Props: {
+        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+        Value:
+                          true
+    }
+}]
+}]
+    }
+}]
+}]
+                }
+],
+                Children: [
+{
+    Type: Grid,
+    Props: {
+        HorizontalAlignment: HorizontalAlignment.Left,
+        VerticalAlignment: VerticalAlignment.Top
+    },
+    Children: [
+{
+    Type: Ellipse,
+    Name: "Background",
+    Props: {
+        Width: 14,
+        Height: 14,
+        Stroke: new TemplateBindingMarkup("BorderBrush"),
+        StrokeThickness: new TemplateBindingMarkup("BorderThickness"),
+        Fill: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FFFFFFFF")
+            }
+        },
+        Margin: new Thickness(1, 1, 1, 1)
+    }
+},
+{
+    Type: Ellipse,
+    Name: "BackgroundOverlay",
+    Props: {
+        Fill: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FFC4DBEE")
+            }
+        },
+        Opacity: 0,
+        Width: 14,
+        Height: 14,
+        StrokeThickness: 1,
+        Margin: new Thickness(1, 1, 1, 1),
+        Stroke: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#00000000")
+            }
+        }
+    }
+},
+{
+    Type: Ellipse,
+    Name: "BoxMiddleBackground",
+    Props: {
+        Width: 10,
+        Height: 10,
+        Fill: new TemplateBindingMarkup("Background"),
+        Stroke: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#00000000")
+            }
+        },
+        StrokeThickness: 1
+    }
+},
+{
+    Type: Ellipse,
+    Name: "BoxMiddle",
+    Props: {
+        Width: 10,
+        Height: 10,
+        StrokeThickness: 1,
+        Stroke: {
+            Type: LinearGradientBrush,
+            Props: {
+                EndPoint: new Point(0.5, 1),
+                StartPoint: new Point(0.5, 0)
+            },
+            Children: [
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FFFFFFFF"),
+        Offset: 1
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FFFFFFFF"),
+        Offset: 0
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FFFFFFFF"),
+        Offset: 0.375
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FFFFFFFF"),
+        Offset: 0.375
+    }
+}]
+        },
+        Fill: {
+            Type: LinearGradientBrush,
+            Props: {
+                StartPoint: new Point(0.62, 0.15),
+                EndPoint: new Point(0.64, 0.88)
+            },
+            Children: [
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#FFFFFFFF"),
+        Offset: 0.013
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#F9FFFFFF"),
+        Offset: 0.375
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#EAFFFFFF"),
+        Offset: 0.603
+    }
+},
+{
+    Type: GradientStop,
+    Props: {
+        Color: Color.FromHex("#D8FFFFFF"),
+        Offset: 1
+    }
+}]
+        }
+    }
+},
+{
+    Type: Ellipse,
+    Name: "BoxMiddleLine",
+    Props: {
+        Width: 10,
+        Height: 10,
+        Stroke: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FF333333")
+            }
+        },
+        StrokeThickness: 1,
+        Opacity: 0.2
+    }
+},
+{
+    Type: Ellipse,
+    Name: "CheckIcon",
+    Props: {
+        Fill: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FF333333")
+            }
+        },
+        Width: 4,
+        Height: 4,
+        Opacity: 0
+    }
+},
+{
+    Type: Ellipse,
+    Name: "DisabledVisualElement",
+    Props: {
+        Width: 14,
+        Height: 14,
+        Opacity: 0,
+        Fill: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FFFFFFFF")
+            }
+        }
+    }
+},
+{
+    Type: Ellipse,
+    Name: "ContentFocusVisualElement",
+    Props: {
+        Stroke: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FF6DBDD1")
+            }
+        },
+        StrokeThickness: 1,
+        Opacity: 0,
+        IsHitTestVisible: false,
+        Width: 16,
+        Height: 16
+    }
+},
+{
+    Type: Grid,
+    Name: "ValidationErrorElement",
+    Props: {
+        Visibility: Visibility.Collapsed
+    },
+    Children: [
+{
+    Type: Ellipse,
+    Props: {
+        Stroke: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FFDB000C")
+            }
+        },
+        StrokeThickness: 1,
+        Width: 14,
+        Height: 14
+    }
+},
+{
+    Type: Ellipse,
+    Props: {
+        HorizontalAlignment: HorizontalAlignment.Right,
+        VerticalAlignment: VerticalAlignment.Top,
+        Margin: new Thickness(0, -2, -1, 0),
+        Fill: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#FFDB000C")
+            }
+        },
+        Width: 4,
+        Height: 4
+    }
+},
+{
+    Type: Ellipse,
+    Props: {
+        HorizontalAlignment: HorizontalAlignment.Right,
+        VerticalAlignment: VerticalAlignment.Top,
+        Margin: new Thickness(0, -5, -4, 0),
+        Fill: {
+            Type: SolidColorBrush,
+            Props: {
+                Color: Color.FromHex("#00FFFFFF")
+            }
+        },
+        Width: 10,
+        Height: 10
+    }
+}]
+}]
+},
+{
+    Type: ContentPresenter,
+    Name: "contentPresenter",
+    Props: {
+        ContentTemplate: new TemplateBindingMarkup("ContentTemplate"),
+        HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
+        VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
+        Margin: new TemplateBindingMarkup("Padding")
+    },
+    AttachedProps: [{
+        Owner: Grid,
+        Prop: "Column",
+        Value: 1
+    }
+],
+    Content: new TemplateBindingMarkup("Content")
+}]
+            }
+        }
+    }
+}]
+    };
+var parser = new JsonParser();
+return parser.CreateObject(styleJson, new NameScope());
+};
+Nullstone.FinishCreate(RadioButton);
 
