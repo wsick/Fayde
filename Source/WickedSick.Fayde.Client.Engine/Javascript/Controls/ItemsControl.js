@@ -16,59 +16,70 @@ ItemsControl.Instance.Init = function () {
 };
 
 ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
-    if (!this._presenter || Nullstone.Is(_presenter._GetElementRoot(), VirtualizingPanel)) {
+    if (!this._presenter || Nullstone.Is(_presenter._elementRoot, VirtualizingPanel)) {
         return;
     }
 
-    var panel = this._presenter._GetElementRoot();
+    var panel = this._presenter._elementRoot;
     switch (e.GetAction()) {
         case NotifyCollectionChangedAction.Reset:
             if (panel.Children.GetCount() > 0) {
-                this.RemoveItemsFromPresenter(new GeneratorPosition(0, 0), panel.Children.GetCount());
+                this.RemoveItemsFromPresenter(0, 0, panel.Children.GetCount());
             }
             break;
         case NotifyCollectionChangedAction.Add:
-            this.AddItemsToPresenter(e.Position, e.ItemCount);
+            this.AddItemsToPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
             break;
         case NotifyCollectionChangedAction.Remove:
-            this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
+            this.RemoveItemsFromPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
             break;
         case NotifyCollectionChangedAction.Replace:
-            this.RemoveItemsFromPresenter(e.Position, e.ItemCount);
+            this.RemoveItemsFromPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
             this.AddItemsToPresenter(e.Position, e.ItemCount);
             break;
     }
 };
 
-ItemsControl.Instance.AddItemsToPresenter = function (position, count) {
-    if (!this._presenter || !this._presenter._GetElementRoot() || Nullstone.Is(this._presenter._GetElementRoot(), VirtualizingPanel)) {
+ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOffset, count) {
+    if (!this._presenter || !this._presenter._elementRoot /*|| Nullstone.Is(this._presenter._elementRoot, VirtualizingPanel)*/) {
         return;
     }
 
-    var panel = this._presenter._GetElementRoot();
-    var newIndex = this._itemContainerGenerator.GetIndexFromGeneratorPosition(position);
-    var p = this._itemContainerGenerator.StartAt(position, GeneratorDirection.Forward, true);
+    var panel = this._presenter._elementRoot;
+    var newIndex = this._itemContainerGenerator.IndexFromGeneratorPosition(positionIndex, positionOffset);
+    var p = this._itemContainerGenerator.StartAt(positionIndex, positionOffset, 0, true);
     for (var i = 0; i < count; i++) {
         var item = this.Items.GetValueAt(newIndex + 1);
         var data = {};
         var container = this._itemContainerGenerator.GenerateNext(data);
+        var c = Nullstone.As(container, ContentControl);
+        if (c) {
+            c.ContentSetsParent = false;
+        }
 
+        var f = Nullstone.As(container, FrameworkElement);
+        if (f && !Nullstone.Is(item, FrameworkElement)) {
+            f.DataContext = item;
+        }
+
+        panel.Children.Insert(newIndex + i, Nullstone.As(container, UIElement));
+        this._itemContainerGenerator.PrepareItemContainer(container);
     }
 };
 
-ItemsControl.Instance.RemoveItemsFromPresenter = function (position, count) {
-    if (!this._presenter || !this._presenter._GetElementRoot() || Nullstone.Is(this._presenter._GetElementRoot(), VirtualizingPanel)) {
+ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
+    if (!this._presenter || !this._presenter._elementRoot || Nullstone.Is(this._presenter._elementRoot, VirtualizingPanel)) {
         return;
     }
 
-    var panel = this._presenter._GetElementRoot();
+    var panel = this._presenter._elementRoot;
     while (count > 0) {
-        panel.Children.RemoveAt(position.Index);
+        panel.Children.RemoveAt(positionIndex);
         count--;
     }
 };
 
-ItemsControl.Instance.PrepareContainerForItemOverride = function (element, item) {
+ItemsControl.Instance.PrepareContainerForItem = function (element, item) {
     if (this.DisplayMemberPath != null && this.ItemTemplate) {
         throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaenously");
     }
@@ -87,11 +98,11 @@ ItemsControl.Instance._GetDefaultTemplate = function () {
 
 ItemsControl.Instance._SetItemsPresenter = function (presenter) {
     if (this._presenter) {
-        this._presenter._GetElementRoot().Children.Clear();
+        this._presenter._elementRoot.Children.Clear();
     }
 
     this._presenter = presenter;
-    this.AddItemsToPresenter(new GeneratorPosition(-1, 1), this.Items.GetCount());
+    this.AddItemsToPresenter(-1, 1, this.Items.GetCount());
 };
 
 ItemsControl.GetItemsOwner = function (ele) {
@@ -106,7 +117,7 @@ ItemsControl.GetItemsOwner = function (ele) {
 
 //#region DEPENDENCY PROPERTIES
 ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
-ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl, null);
+ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl, undefined);
 ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return ItemsPanelTemplate; }, ItemsControl);
 ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
 ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
@@ -195,7 +206,7 @@ ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
             break;
     }
 
-    this._ItemContainerGenerator.OnOwnerItemsItemsChanged(object, e);
+    this._itemContainerGenerator.OnOwnerItemsItemsChanged(object, e);
     if (!this._itemsIsDataBound) {
         this.OnItemsChanged(e);
     }
@@ -314,7 +325,7 @@ ItemsControl.Instance.ItemsControlFromItemContainer = function (container) {
 ItemsControl.Instance._Panel = function () {
     ///<returns type="Panel"></returns>
     if (this._presenter) {
-        return _presenter._GetElementRoot();
+        return _presenter._elementRoot;
     } else {
         return null;
     }
@@ -323,7 +334,7 @@ ItemsControl.Instance._Panel = function () {
 //#region ANNOTATIONS
 
 ItemsControl.Annotations = {
-    ContentProperty: ItemsControl.ItemsProperty
+    ContentProperty: "Items"
 };
 
 //#endregion

@@ -48,7 +48,7 @@ PresentationFrameworkCollection.Instance.Add = function (value) {
     this._AddImpl(value);
 };
 PresentationFrameworkCollection.Instance._AddImpl = function (value) {
-    this._CheckNull();
+    this._CheckNull(NotifyCollectionChangedAction.Add, value);
 
     var index = this._Backing.Add(value);
     this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, index));
@@ -59,7 +59,7 @@ PresentationFrameworkCollection.Instance.Insert = function (index, value) {
     this._InsertImpl(index, value);
 };
 PresentationFrameworkCollection.Instance._InsertImpl = function (index, value) {
-    this._CheckNull();
+    this._CheckNull(NotifyCollectionChangedAction.Add, value);
     if (index < 0)
         throw new ArgumentOutOfRangeException();
 
@@ -101,7 +101,7 @@ PresentationFrameworkCollection.Instance._CheckNull = function (action, value) {
         throw new ArgumentNullException();
 };
 PresentationFrameworkCollection.Instance._CheckReadOnly = function () {
-    if (this.GetIsReadOnly())
+    if (this.$GetIsReadOnly())
         throw new InvalidOperationException("The collection is readonly.");
 };
 

@@ -57,12 +57,11 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
             this.SetValue(dobj, contentPropd, content);
         }
     } else if (contentPropd != null && contentPropd.constructor === String) {
-        var setFunc = dobj["Set" + contentPropd];
-        var getFunc = dobj["Get" + contentPropd];
-        if (setFunc) {
-            setFunc.call(dobj, this.CreateObject(json.Content, namescope, true));
-        } else if (getFunc) {
-            var coll = getFunc.call(dobj);
+        var propDesc = Object.getOwnPropertyDescriptor(dobj, contentPropd);
+        if (propDesc.set || propDesc.writable) {
+            dobj[contentPropd] = this.CreateObject(json.Content, namescope, true);
+        } else if (propDesc.get) {
+            var coll = dobj[contentPropd];
             for (var j in json.Children) {
                 var fobj = this.CreateObject(json.Children[j], namescope, true);
                 if (fobj instanceof DependencyObject)

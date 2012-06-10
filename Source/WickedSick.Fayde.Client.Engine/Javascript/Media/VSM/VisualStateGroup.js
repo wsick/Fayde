@@ -18,12 +18,14 @@ VisualStateGroup.Instance.Init = function () {
 
 //#region Properties
 
-VisualStateGroup.Instance.GetStates = function () {
-    /// <returns type="VisualStateCollection" />
-    if (this._States == null)
-        this._States = new VisualStateCollection();
-    return this._States;
-};
+Nullstone.Property(VisualStateGroup, "States", {
+    get: function () {
+        /// <returns type="VisualStateCollection" />
+        if (this._States == null)
+            this._States = new VisualStateCollection();
+        return this._States;        
+    }
+});
 VisualStateGroup.Instance.GetCurrentStoryboards = function () {
     ///<returns type="StoryboardCollection"></returns>
     if (this._CurrentStoryboards == null)
@@ -40,7 +42,7 @@ VisualStateGroup.Instance.GetTransitions = function () {
 //#endregion
 
 VisualStateGroup.Instance.GetState = function (stateName) {
-    var states = this.GetStates();
+    var states = this.States;
     for (var i = 0; i < states.GetCount(); i++) {
         var state = states.GetValueAt(i);
         if (state.Name === stateName)

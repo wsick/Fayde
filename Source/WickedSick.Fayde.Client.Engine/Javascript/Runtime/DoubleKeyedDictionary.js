@@ -32,7 +32,8 @@ DoubleKeyedDictionary.Instance.Add = function (key1, key2) {
 };
 
 DoubleKeyedDictionary.Instance.Add = function (key1, key2, ignoreExisting) {
-    if (!ignoreExisting && (this._forward.TryGetValue(key1, fResult) || this._backward.TryGetValue(key2, bResult))) {
+    var result = {};
+    if (!ignoreExisting && (this._forward.TryGetValue(key1, result) || this._backward.TryGetValue(key2, result))) {
         throw new InvalidOperationException("Dictionary already contains this key pair");
     }
     this._forward.Add(key1, key2);
@@ -49,11 +50,12 @@ DoubleKeyedDictionary.Instance.Remove = function (key1, key2) {
 };
 
 DoubleKeyedDictionary.Instance.Remove = function (key1, key2, ignoreExisting) {
-    if (!ignoreExisting && (!this._forward.TryGetValue(key1, fResult) || !this._backward.TryGetValue(key2, bResult))) {
+    var result = {};
+    if (!ignoreExisting && (!this._forward.TryGetValue(key1, result) || !this._backward.TryGetValue(key2, result))) {
         throw new InvalidOperationException("Dictionary does not contain this key pair");
     }
     this._forward.Remove(key1);
-    this._backward.Remove(key2);   
+    this._backward.Remove(key2);
 };
 
 DoubleKeyedDictionary.Instance.TryMapFromKey1 = function (key1, key2) {

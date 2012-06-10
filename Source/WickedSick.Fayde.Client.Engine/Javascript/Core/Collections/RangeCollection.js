@@ -73,9 +73,9 @@ RangeCollection.Instance.GetValueAt = function (index) {
     var i = 0;
     var cuml_count = 0;
     for (i; i < this.RangeCount && index >= 0; i++) {
-        cuml_count = cuml_count + this._ranges[i].Count;
+        cuml_count = cuml_count + this._ranges[i].Count();
         if (index < cuml_count) {
-            return ranges[i].End - (cuml_count - index) + 1;
+            return this._ranges[i].End - (cuml_count - index) + 1;
         }
     }
 
@@ -122,6 +122,27 @@ RangeCollection.Instance.InsertRange = function (range) {
     }
 };
 
+RangeCollection.Instance.FindInsertionPosition = function (range) {
+    var min = 0;
+    var max = this.RangeCount - 1;
+    while (min <= max) {
+        var mid = min + ((max - min) / 2);
+        var midRange = this._ranges[mid];
+        if (midRange.End === range.End) {
+            return mid;
+        } else if (midRange.End > range.End) {
+            if (mid > 0 && (this._ranges[mid - 1].End < range.End)) {
+                return mid;
+            }
+            max = mid - 1;
+        }
+        else {
+            min = mid + 1;
+        }
+    }
+    return min;
+};
+
 RangeCollection.Instance.RemoveIndexFromRange = function (index) {
     var range_index = this.FindRangeIndexForValue(index);
     if (range_index < 0) {
@@ -154,6 +175,7 @@ RangeCollection.Instance.RemoveAt = function (index) {
 };
 
 RangeCollection.Instance.Insert = function (position, range) {
+    this.Shift(position, 1);
     this._ranges[position] = range;
 };
 
@@ -166,7 +188,7 @@ RangeCollection.Instance.Shift = function (start, delta) {
         this._ranges = RangeCollection.CopyRangeArray(this._ranges, start, range_count - start, start + delta);
     }
 
-    RangeCount += delta;
+    this.RangeCount += delta;
 };
 
 RangeCollection.Instance.MergeLeft = function (range, position) {

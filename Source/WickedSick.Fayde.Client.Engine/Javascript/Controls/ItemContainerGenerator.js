@@ -5,13 +5,12 @@
 
 var GenerationState = Nullstone.Create("GenerationState", undefined, 5);
 
-GenerationState.Instance.Init = function (allowStartAtRealizedItem, generatorDirection, positionIndex, positionOffset, step) {
-    this.AllowStartAtRealizedItem = allowStartAtRealizedItem;
-    this.GeneratorDirection = generatorDirection;
-    this.PositionIndex = positionIndex;
-    this.PositionOffset = positionOffset;
-    this.Step = step;
-}
+GenerationState.Instance.Init = function (allowStartAtRealizedItem, generatorDirection, positionIndex, positionOffset) {
+    this._allowStartAtRealizedItem = allowStartAtRealizedItem;
+    this._positionIndex = positionIndex;
+    this._positionOffset = positionOffset;
+    this._step = generatorDirection === 0 ? 1 : -1;
+};
 
 Nullstone.FinishCreate(GenerationState);
 
@@ -20,11 +19,12 @@ var ItemContainerGenerator = Nullstone.Create("ItemContainerGenerator", undefine
 
 ItemContainerGenerator.Instance.Init = function (owner) {
     this.ItemsChanged = new MulticastEvent();
-    
+
     this.Cache = [];
     this.ContainerIndexMap = new DoubleKeyedDictionary();
     this.ContainerItemMap = new Dictionary();
     this.Owner = owner;
+    this.RealizedElements = new RangeCollection();
 };
 
 ItemContainerGenerator.Instance.ContainerFromIndex = function (index) {
@@ -38,7 +38,12 @@ ItemContainerGenerator.Instance.ContainerFromItem = function (item) {
         return;
     }
 
-    //TODO: finish this
+    for (var key in this.ContainerItemMap._ht) {
+        if (this.ContainerItemMap.GetValueAt(key), item) {
+            return key;
+        }
+    }
+    return null;
 };
 
 ItemContainerGenerator.Instance.CheckOffsetAndRealized = function (positionIndex, positionOffset, count) {
@@ -46,8 +51,12 @@ ItemContainerGenerator.Instance.CheckOffsetAndRealized = function (positionIndex
         throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
     }
 
-    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
-    //TODO: finish this
+    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var rangeIndex = this.RealizedElements.FindRangeIndexForValue(index);
+    var range = this.RealizedElements.Ranges.GetValueAt(rangeIndex);
+    if (index < range.Start || (index + count) > range.Start + range.Count) {
+        throw new InvalidOperationException("Only items which have been Realized can be removed");
+    }
 };
 
 ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
@@ -69,7 +78,7 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
             index = startOffset - 1;
         }
     }
-    else if (startAt >= 0 && startAt < this.RealizedElements.GetCount()) {
+    else if (startAt >= 0 && startAt < this.RealizedElements.Count) {
         index = this.RealizedElements.GetValueAt(startAt) + startOffset;
     }
     else {
@@ -125,15 +134,15 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
 
     this.RealizedElements.Add(index);
     this.ContainerIndexMap.Add(container, index);
-    this.ContainerItemMap(container, item);
+    this.ContainerItemMap.Add(container, item);
 
-    this._GenerationState._positionIndex = this.RealizedItems.IndexOf(index);
+    this._GenerationState._positionIndex = this.RealizedElements.IndexOf(index);
     this._GenerationState._positionOffset = this._GenerationState._step;
     return container;
 };
 
 ItemContainerGenerator.Instance.GeneratorPositionFromIndex = function (itemIndex) {
-    var realizedCount = this.RealizedElements.GetCount();
+    var realizedCount = this.RealizedElements.Count;
 
     if (itemIndex < 0) {
         return { index: -1, offset: 0 };
@@ -187,14 +196,17 @@ ItemContainerGenerator.Instance.IndexFromGeneratorPosition = function (positionI
             return this.Owner.Items.GetCount() + positionOffset;
         }
         else {
-            if (positionIndex > this.Owner.Items.GetCount()) {
-                return -1;
-            }
-            if (positionIndex >= 0 && positionIndex < this.RealizedElements.GetCount()) {
-                return this.RealizedElements.GetValueAt(positionIndex) + positionOffset;
-            }
-            return positionIndex + positionOffset;
+            return positionOffset - 1;
         }
+    }
+    else {
+        if (positionIndex > this.Owner.Items.GetCount()) {
+            return -1;
+        }
+        if (positionIndex >= 0 && positionIndex < this.RealizedElements.Count) {
+            return this.RealizedElements.GetValueAt(positionIndex) + positionOffset;
+        }
+        return positionIndex + positionOffset;
     }
 };
 
@@ -215,62 +227,62 @@ ItemContainerGenerator.Instance.OnOwnerItemsItemsChanged = function (sender, e) 
     var oldPosition = { index: -1, offset: 0 };
     var position;
 
-    switch (e.Action) {
+    switch (e.GetAction()) {
         case NotifyCollectionChangedAction.Add:
-            if ((e.NewStartingIndex + 1) != this.Owner.Items.GetCount()) {
-                this.MoveExistingItems(e.NewStartingIndex, 1);
+            if ((e.GetNewStartingIndex() + 1) != this.Owner.Items.GetCount()) {
+                this.MoveExistingItems(e.GetNewStartingIndex(), 1);
             }
             itemCount = 1;
             itemUICount = 0;
-            position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
+            position = this.GeneratorPositionFromIndex(e.GetNewStartingIndex());
             position.offset = 1;
             break;
         case NotifyCollectionChangedAction.Remove:
             itemCount = 1;
-            if (this.RealizedElements.Contains(e.OldStartingIndex)) {
+            if (this.RealizedElements.Contains(e.GetOldStartingIndex())) {
                 itemUICount = 1;
             }
             else {
                 itemUICount = 0;
             }
-            position = this.GeneratorPositionFromIndex(e.OldStartingIndex);
+            position = this.GeneratorPositionFromIndex(e.GetOldStartingIndex());
             if (itemUICount == 1) {
                 this.Remove(position.index, position.offset, 1);
             }
-            this.MoveExistingItems(e.OldStartingIndex, -1);
+            this.MoveExistingItems(e.GetOldStartingIndex(), -1);
             break;
         case NotifyCollectionChangedAction.Replace:
-            if (!this.RealizedElements.Contains(e.NewStartingIndex)) {
+            if (!this.RealizedElements.Contains(e.GetNewStartingIndex())) {
                 return;
             }
             itemCount = 1;
             itemUICount = 1;
-            position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
+            position = this.GeneratorPositionFromIndex(e.GetNewStartingIndex());
             this.Remove(position.index, position.offset, 1);
 
             var fresh;
-            var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
+            var newPos = this.GeneratorPositionFromIndex(e.GetNewStartingIndex());
             this.StartAt(newPos.index, newPos.offset, 0, true);
             this.PrepareItemContainer(this.GenerateNext(fresh));
             break;
         case NotifyCollectionChangedAction.Reset:
             var itemCount;
-            if (!e.OldItems) {
+            if (!e.GetOldItems()) {
                 itemCount = 0;
             }
             else {
-                itemCount = e.OldItems.GetCount();
+                itemCount = e.GetOldItems().GetCount();
             }
-            itemUICount = this.RealizedElements.GetCount();
+            itemUICount = this.RealizedElements.Count;
             position = { index: -1, offset: 0 };
             this.RemoveAll();
             break;
         default:
-            Console.WriteLine("*** Critical error in ItemContainerGenerator.OnOwnerItemsItemsChanged. NotifyCollectionChangedAction.{0} is not supported", e.Action);
+            Console.WriteLine("*** Critical error in ItemContainerGenerator.OnOwnerItemsItemsChanged. NotifyCollectionChangedAction.{0} is not supported", e.GetAction());
             break;
     }
 
-    var args = new ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position);
+    var args = new ItemsChangedEventArgs(e.GetAction(), itemCount, itemUICount, oldPosition, position);
     this.ItemsChanged.Raise(this, args);
 };
 
@@ -284,7 +296,7 @@ ItemContainerGenerator.Instance.PrepareItemContainer = function (container) {
 ItemContainerGenerator.Instance.Remove = function (positionIndex, positionOffset, count) {
     this.CheckOffsetAndRealized(positionIndex, positionOffset, count);
 
-    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
     for (var i = 0; i < count; i++) {
         var container = this.ContainerIndexMap.GetValueAtKey2(index + 1);
         var item;
@@ -297,11 +309,36 @@ ItemContainerGenerator.Instance.Remove = function (positionIndex, positionOffset
 };
 
 ItemContainerGenerator.Instance.MoveExistingItems = function (index, offset) {
-    //TODO: finish this
+    var newRanges = new RangeCollection();
+    var list = [];
+    for (var i = 0; i < this.RealizedElements.Count; i++) {
+        list.push(this.RealizedElements.GetValueAt(i));
+    }
+
+    if (offset > 0) {
+        list = list.reverse();
+    }
+
+    for (var i = 0; i < list.length; i++) {
+        var oldIndex = i;
+        if (oldIndex < index) {
+            newRanges.Add(oldIndex);
+        }
+        else {
+            newRanges.Add(oldIndex + offset);
+            var container = this.ContainerIndexMap.GetValueAt(oldIndex);
+            this.ContainerIndexMap.Remove(container, oldIndex);
+            this.ContainerIndexMap.Add(container, oldIndex + offset);
+        }
+    }
+
+    this.RealizedElements = newRanges;
 };
 
 ItemContainerGenerator.Instance.RemoveAll = function () {
-    //TODO: finish this
+    for (var key in this.ContainerItemMap._ht) {
+        this.Owner.ClearContainerForItem(key, this.ContainerItemMap.GetValueAt(key));
+    }
 
     this.RealizedElements.Clear();
     this.ContainerIndexMap.Clear();
@@ -309,18 +346,18 @@ ItemContainerGenerator.Instance.RemoveAll = function () {
 };
 
 ItemContainerGenerator.Instance.StartAt = function (positionIndex, positionOffset, direction, allowStartAtRealizedItem) {
-    if (!this._GenerationState) {
+    if (this._GenerationState) {
         throw new InvalidOperationException("Cannot call StartAt while a generation operation is in progress");
     }
 
-    this._GenerationState = new GenerationState(allowStartAtRealizedItem, direction, positionIndex, positionOffset, this);
+    this._GenerationState = new GenerationState(allowStartAtRealizedItem, direction, positionIndex, positionOffset);
     return this._GenerationState;
 };
 
 ItemContainerGenerator.Instance.Recycle = function (positionIndex, positionOffset, count) {
     this.CheckOffsetAndRealized(positionIndex, positionOffset, count);
 
-    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
     for (var i = 0; i < count; i++) {
         this.Cache.push(this.ContainerIndexMap.GetValueForKey2(index + i));
     }
