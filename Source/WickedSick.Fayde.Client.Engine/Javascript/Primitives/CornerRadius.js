@@ -18,5 +18,9 @@ CornerRadius.Instance.IsZero = function () {
         && this.BottomLeft === 0;
 };
 
+CornerRadius.Instance.toString = function () {
+    return "(" + this.TopLeft + ", " + this.TopRight + ", " + this.BottomRight + ", " + this.BottomLeft + ")";
+};
+
 Nullstone.FinishCreate(CornerRadius);
 //#endregion
