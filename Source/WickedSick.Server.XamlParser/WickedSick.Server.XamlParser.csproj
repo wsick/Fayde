@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="Elements\Controls\Canvas.cs" />
     <Compile Include="Elements\Controls\CheckBox.cs" />
+    <Compile Include="Elements\Controls\ItemsControl.cs" />
     <Compile Include="Elements\Controls\Primitives\Popup.cs" />
     <Compile Include="Elements\Controls\RadioButton.cs" />
     <Compile Include="Elements\Controls\ScrollContentPresenter.cs" />
