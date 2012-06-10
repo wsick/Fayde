@@ -1,0 +1,19 @@
+﻿<Window x:Class="WickedSick.Thea.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:dialog="clr-namespace:WickedSick.MVVM.DialogEx;assembly=WickedSick.MVVM"
+        xmlns:views="clr-namespace:WickedSick.Thea.Views"
+        Title="MainWindow" Height="600" Width="800" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <dialog:DialogControl DataContext="{Binding LoadCommand}" 
+                              ViewType="{x:Type views:LoadWindow}"
+                              ViewModel="{Binding DialogDataContext}"
+                              DialogCompleteCommand="{Binding ChangedCommand}"
+                              IsDialogVisible="{Binding IsRequestingChange, Mode=TwoWay}" />
+        <Grid>
+            <views:VisualTree Margin="5,5,10,5">
+            
+            </views:VisualTree>
+        </Grid>
+    </Grid>
+</Window>

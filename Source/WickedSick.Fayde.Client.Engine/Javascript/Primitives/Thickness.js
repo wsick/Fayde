@@ -39,5 +39,9 @@ Thickness.Instance.IsEmpty = function () {
     return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
 };
 
+Thickness.Instance.toString = function () {
+    return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
+};
+
 Nullstone.FinishCreate(Thickness);
 //#endregion

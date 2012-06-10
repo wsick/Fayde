@@ -8,6 +8,7 @@
 var DataTemplate = Nullstone.Create("DataTemplate", FrameworkTemplate, 1);
 
 DataTemplate.Instance.Init = function (json) {
+    this.Init$FrameworkTemplate();
     this._TempJson = json;
 };
 

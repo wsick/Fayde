@@ -5,6 +5,10 @@ var Nullstone = {};
 Nullstone._LastID = 0;
 Nullstone._LastTypeID = 1;
 Nullstone.Create = function (typeName, parent, argCount, interfaces) {
+    if (parent && parent._IsNullstone !== true) {
+        throw new InvalidOperationException("Nullstones can only be inherited from other nullstones.");
+    }
+
     var s;
     if (argCount) {
         s = "";
