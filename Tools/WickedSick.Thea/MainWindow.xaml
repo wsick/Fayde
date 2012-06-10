@@ -11,17 +11,9 @@
                               DialogCompleteCommand="{Binding ChangedCommand}"
                               IsDialogVisible="{Binding IsRequestingChange, Mode=TwoWay}" />
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250" />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
             <views:VisualTree Margin="5,5,10,5">
             
             </views:VisualTree>
-            <GridSplitter HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="5" />
-            <Grid>
-                
-            </Grid>
         </Grid>
     </Grid>
 </Window>

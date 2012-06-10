@@ -23,11 +23,11 @@ FaydeInterop.prototype.GenerateCache = function () {
             Visual: cur,
             Children: this.GetCacheChildren(cur)
         };
-        item.Serialized = cur.constructor._TypeName + "~|~" + cur.Name + "~|~" + item.Children.length;
+        item.Serialized = cur.constructor._TypeName + "~|~" + cur.Name + "~|~" + cur._ID + "~|~" + item.Children.length;
         this._Cache.Children.push(item);
     }
 
-    this._Cache.Serialized = "Surface" +  "~|~" + "~|~" + layerCount;
+    this._Cache.Serialized = "Surface" + "~|~" + "~|~" + surface._ID + "~|~" + layerCount;
 };
 FaydeInterop.prototype.GetCacheChildren = function (visual) {
     var arr = [];
@@ -38,8 +38,50 @@ FaydeInterop.prototype.GetCacheChildren = function (visual) {
             Visual: cur,
             Children: this.GetCacheChildren(cur)
         };
-        item.Serialized = cur.constructor._TypeName + "~|~" + cur.Name + "~|~" + item.Children.length;
+        item.Serialized = cur.constructor._TypeName + "~|~" + cur.Name + "~|~" + cur._ID + "~|~" + item.Children.length;
         arr.push(item);
+    }
+    return arr;
+};
+FaydeInterop.prototype.GetProperties = function (visual) {
+    var arr = [];
+
+    var dps = this.GetDPs(visual.constructor);
+    var dpCount = dps.length;
+    for (var i = 0; i < dpCount; i++) {
+        var dp = dps[i];
+        var value = visual.$GetValue(dp);
+        if (value === undefined)
+            value = "\"(undefined)\"";
+        else if (value === null)
+            value = "null";
+        else if (typeof value !== "number")
+            value = '"' + value + '"';
+        else if (value.constructor._IsNullstone)
+            value = '"' + value.toString() + '"';
+
+        var cur = "{ OwnerType: \"" + dp.OwnerType._TypeName + "\", Name: \"" + dp.Name + "\", Value: " + value + " }";
+        arr.push(cur);
+    }
+
+    return "[" + arr.toString() + "]";
+};
+
+FaydeInterop.prototype.GetDPs = function (type) {
+    /// <returns type="Array" />
+    if (!Nullstone.DoesInheritFrom(type, DependencyObject))
+        return [];
+    var reg;
+    var arr = [];
+    var curType = type;
+    while (curType) {
+        reg = DependencyProperty._Registered[curType._TypeName];
+        for (var h in reg) {
+            var dp = reg[h];
+            if (!dp._IsAttached)
+                arr.push(dp);
+        }
+        curType = curType._BaseClass;
     }
     return arr;
 };

@@ -40,6 +40,17 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
+        private VisualViewModel _SelectedVisual;
+        public VisualViewModel SelectedVisual
+        {
+            get { return _SelectedVisual; }
+            set
+            {
+                _SelectedVisual = value;
+                OnPropertyChanged("SelectedVisual");
+            }
+        }
+
         #endregion
 
         #region Load
@@ -86,6 +97,7 @@ namespace WickedSick.Thea.ViewModels
             {
                 RootLayers.Add(v);
             }
+            //_Interop.PopulateProperties(RootLayers[0]);
         }
 
         public void Dispose()
@@ -94,6 +106,15 @@ namespace WickedSick.Thea.ViewModels
             {
                 AttachedBrowser.Dispose();
                 AttachedBrowser = null;
+            }
+        }
+
+        protected override void OnPropertyChanged(string propertyName)
+        {
+            base.OnPropertyChanged(propertyName);
+            if (propertyName == "SelectedVisual")
+            {
+                _Interop.PopulateProperties(SelectedVisual);
             }
         }
     }

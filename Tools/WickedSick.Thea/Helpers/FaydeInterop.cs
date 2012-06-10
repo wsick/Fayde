@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Web.Script.Serialization;
 using WatiN.Core;
 using WickedSick.Thea.ViewModels;
+using WickedSick.Thea.Models;
 
 namespace WickedSick.Thea.Helpers
 {
@@ -33,6 +35,18 @@ namespace WickedSick.Thea.Helpers
             return tuple.Item1.VisualChildren;
         }
 
+        public void PopulateProperties(VisualViewModel vvm)
+        {
+            var formattedArr = RunFunc("GetProperties", GetJsCodeToGetVisual(vvm));
+            var props = ParseDependencyValueArray(formattedArr)
+                .OrderBy(dv => dv.OwnerTypeName)
+                .ThenBy(dv => dv.Name)
+                .ToList();
+            vvm.Properties.Clear();
+            foreach (var p in props)
+                vvm.Properties.Add(p);
+        }
+
         
         private void GetVisualTreeChildren(Tuple<VisualViewModel, int> rootTuple, Stack<int> indexStack)
         {
@@ -58,11 +72,12 @@ namespace WickedSick.Thea.Helpers
         private static Tuple<VisualViewModel, int> DeserializeVisual(string formatted)
         {
             var tokens = formatted.Split(new[] { "~|~" }, StringSplitOptions.None);
-            var childCount = int.Parse(tokens[2]);
+            var childCount = int.Parse(tokens[3]);
             var vvm = new VisualViewModel
             {
                 Type = tokens[0],
                 Name = tokens[1],
+                ID = tokens[2],
             };
             if (string.IsNullOrWhiteSpace(vvm.Name))
                 vvm.Name = null;
@@ -79,9 +94,32 @@ namespace WickedSick.Thea.Helpers
             }
         }
 
-        private string RunFunc(string functionName)
+        private string GetJsCodeToGetVisual(VisualViewModel vvm)
         {
-            return _Browser.Eval(string.Format("FaydeInterop.Reg[{0}].{1}();", this._ID, functionName));
+            return string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Visual", this._ID, vvm.IndexPath);
+        }
+
+        private string RunFunc(string functionName, string args = null)
+        {
+            return _Browser.Eval(string.Format("FaydeInterop.Reg[{0}].{1}({2});", this._ID, functionName, args));
+        }
+
+        private static IEnumerable<DependencyValue> ParseDependencyValueArray(string s)
+        {
+            var js = new JavaScriptSerializer();
+            dynamic obj = js.Deserialize(s, typeof(object));
+            for (int i = 0; i < obj.Length; i++)
+			{
+                var ownerTypeName = obj[i]["OwnerType"].ToString();
+                var name = obj[i]["Name"].ToString();
+                var value = (obj[i]["Value"] ?? string.Empty).ToString();
+                yield return new DependencyValue
+                {
+                    OwnerTypeName = ownerTypeName,
+                    Name = name,
+                    Value = value,
+                };
+			}
         }
     }
 }

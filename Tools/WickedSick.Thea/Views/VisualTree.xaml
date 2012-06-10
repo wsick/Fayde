@@ -2,9 +2,18 @@
     x:Class="WickedSick.Thea.Views.VisualTree"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vms="clr-namespace:WickedSick.Thea.ViewModels">
+    xmlns:vms="clr-namespace:WickedSick.Thea.ViewModels"
+    xmlns:treeviewex="clr-namespace:WickedSick.MVVM.TreeViewEx;assembly=WickedSick.MVVM"
+    xmlns:e="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity">
     <Grid>
-        <TreeView ItemsSource="{Binding RootLayers}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <TreeView x:Name="VisualsTreeView" ItemsSource="{Binding RootLayers}" Margin="5,5,10,5">
+            <e:Interaction.Behaviors>
+                <treeviewex:TreeViewBehavior SelectedItem="{Binding SelectedVisual, Mode=TwoWay}" />
+            </e:Interaction.Behaviors>
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type vms:VisualViewModel}" ItemsSource="{Binding VisualChildren}">
                     <StackPanel Orientation="Horizontal">
@@ -14,5 +23,19 @@
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>
+        <GridSplitter HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="5" />
+        <ScrollViewer Grid.Column="1" Margin="5">
+            <ItemsControl ItemsSource="{Binding SelectedVisual.Properties}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Width="200" Text="{Binding Name}" />
+                            <TextBlock Width="200" Text="{Binding Value}" />
+                            <TextBlock Width="100" Text="{Binding OwnerTypeName}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>

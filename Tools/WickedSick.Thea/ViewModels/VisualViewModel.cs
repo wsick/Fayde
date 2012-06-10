@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using WickedSick.MVVM;
+using System.Collections.Generic;
+using WickedSick.Thea.Models;
 
 namespace WickedSick.Thea.ViewModels
 {
@@ -8,6 +10,7 @@ namespace WickedSick.Thea.ViewModels
         #region Properties
 
         public string IndexPath { get; set; }
+        public string ID { get; set; }
 
         private string _Type;
         public string Type
@@ -39,6 +42,17 @@ namespace WickedSick.Thea.ViewModels
             {
                 _VisualChildren = value;
                 OnPropertyChanged("VisualChildren");
+            }
+        }
+
+        private ObservableCollection<DependencyValue> _Properties = new ObservableCollection<DependencyValue>();
+        public ObservableCollection<DependencyValue> Properties
+        {
+            get { return _Properties; }
+            set
+            {
+                _Properties = value;
+                OnPropertyChanged("Properties");
             }
         }
 
