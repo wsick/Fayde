@@ -9,10 +9,96 @@
 //#region ItemsControl
 var ItemsControl = Nullstone.Create("ItemsControl", Control, 0, [IListenCollectionChanged]);
 
+//#region DEPENDENCY PROPERTIES
+ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
+ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl, undefined);
+ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return ItemsPanelTemplate; }, ItemsControl);
+ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
+ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
+//#endregion
+
+Nullstone.AutoProperties(ItemsControl, [
+    ItemsControl.DisplayMemberPathProperty,
+    ItemsControl.ItemsPanelProperty,
+    ItemsControl.ItemTemplateProperty
+]);
+
+Nullstone.Property(ItemsControl, "Items", {
+    get: function () {
+        var items = Nullstone.As(this.$GetValue(ItemsControl.ItemsProperty), ItemCollection);
+        if (!items) {
+            items = new ItemCollection();
+            this._itemsIsDataBound = false;
+            items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
+            items.Clearing.Subscribe(this.OnItemsClearing, this);
+            this.$SetValue(ItemsControl.ItemsProperty, items);
+        }
+        return items;
+    }
+});
+
+Nullstone.Property(ItemsControl, "ItemsSource", {
+    get: function () {
+        return this.$GetValue(ItemsControl.ItemsSourceProperty);
+    },
+    set: function (value) {
+        if (!this._itemsIsDataBound && this.Items.GetCount() > 0) {
+            throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
+        }
+        this.$SetValue(ItemsControl.ItemsSourceProperty, value);
+    }
+});
+
 ItemsControl.Instance.Init = function () {
     this.Init$Control();
     this._itemContainerGenerator = new ItemContainerGenerator(this);
     this._itemContainerGenerator.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
+};
+
+ItemsControl.Instance.OnDisplayMemberPathChanged = function (e) {
+    var items = this.Items;
+    var count = items.GetCount();
+    for (var i = 0; i < count; i++) {
+        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
+    }
+};
+
+ItemsControl.Instance.OnItemTemplateChanged = function (e) {
+    var items = this.Items;
+    var count = items.GetCount();
+    for (var i = 0; i < count; i++) {
+        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
+    }
+};
+
+ItemsControl.Instance.OnItemsSourceChanged = function (e) {
+    if (!e.OldValue && Nullstone.Is(e.OldValue, INotifyCollectionChanged)) {
+        e.OldValue.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
+    }
+
+    if (!e.NewValue) {
+        if (Nullstone.Is(e.NewValue, INotifyCollectionChanged)) {
+            e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
+        }
+
+        this.Items.$SetIsReadOnly(true);
+        this._itemsIsDataBound = true;
+        this.Items._ClearImpl();
+
+        var count = e.NewValue.GetCount();
+        for (var i = 0; i < count; i++) {
+            this.Items._AddImpl(e.NewValue.GetValueAt(i));
+        }
+
+        this.OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+    else {
+        this._itemsIsDataBound = false;
+        this.Items.$SetIsReadyOnly(false);
+        this.Items._ClearImpl();
+    }
+
+    this._InvalidateMeasure();
 };
 
 ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
@@ -39,6 +125,9 @@ ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
             break;
     }
 };
+
+
+
 
 ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOffset, count) {
     if (!this._presenter || !this._presenter._elementRoot /*|| Nullstone.Is(this._presenter._elementRoot, VirtualizingPanel)*/) {
@@ -115,54 +204,6 @@ ItemsControl.GetItemsOwner = function (ele) {
     return null;
 };
 
-//#region DEPENDENCY PROPERTIES
-ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
-ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl, undefined);
-ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return ItemsPanelTemplate; }, ItemsControl);
-ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
-ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
-
-Nullstone.AutoProperties(ItemsControl, [
-    ItemsControl.DisplayMemberPathProperty,
-    ItemsControl.ItemsPanelProperty,
-    ItemsControl.ItemTemplateProperty
-]);
-
-Nullstone.Property(ItemsControl, "Items", {
-    get: function () {
-        var items = Nullstone.As(this.$GetValue(ItemsControl.ItemsProperty), ItemCollection);
-        if (!items) {
-            items = new ItemCollection();
-            this._itemsIsDataBound = false;
-            items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
-            items.Clearing.Subscribe(this.OnItemsClearing, this);
-            this.$SetValue(ItemsControl.ItemsProperty, items);
-        }
-        return items;
-    }
-});
-
-Nullstone.Property(ItemsControl, "ItemsSource", {
-    get: function () {
-        return this.$GetValue(ItemsControl.ItemsSourceProperty);
-    },
-    set: function (value) {
-        if (!this._itemsIsDataBound && this.Items.GetCount() > 0) {
-            throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
-        }
-        this.$SetValue(ItemsControl.ItemsSourceProperty, value);
-    }
-});
-//#endregion
-
-ItemsControl.Instance.OnDisplayMemberPathChanged = function (e) {
-    var items = this.Items;
-    var count = items.GetCount();
-    for (var i = 0; i < count; i++) {
-        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
-    }
-};
-
 ItemsControl.Instance.IsItemItsOwnContainer = function (item) {
     return Nullstone.Is(item, FrameworkElement);
 };
@@ -212,36 +253,6 @@ ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
     }
 };
 
-ItemsControl.Instance.OnItemsSourceChanged = function (e) {
-    if (!e.OldValue && Nullstone.Is(e.OldValue, INotifyCollectionChanged)) {
-        e.OldValue.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
-    }
-
-    if (!e.NewValue) {
-        if (Nullstone.Is(e.NewValue, INotifyCollectionChanged)) {
-            e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
-        }
-
-        this.Items.$SetIsReadOnly(true);
-        this._itemsIsDataBound = true;
-        this.Items._ClearImpl();
-
-        var count = e.NewValue.GetCount();
-        for (var i = 0; i < count; i++) {
-            this.Items._AddImpl(e.NewValue.GetValueAt(i));
-        }
-
-        this.OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-    }
-    else {
-        this._itemsIsDataBound = false;
-        this.Items.$SetIsReadyOnly(false);
-        this.Items._ClearImpl();
-    }
-
-    this._InvalidateMeasure();
-};
-
 ItemsControl.Instance._CollectionChanged = function (sender, e) {
     switch (e.Action) {
         case NotifyCollectionChangedAction.Add:
@@ -271,14 +282,6 @@ ItemsControl.Instance._CollectionChanged = function (sender, e) {
             break;
     }
 
-};
-
-ItemsControl.Instance.OnItemTemplateChanged = function (e) {
-    var items = this.Items;
-    var count = items.GetCount();
-    for (var i = 0; i < count; i++) {
-        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
-    }
 };
 
 ItemsControl.Instance.UpdateContentTemplateOnContainer = function (element, item) {

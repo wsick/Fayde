@@ -1,7 +1,7 @@
 ﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
       Title="Fayde Home">
-  <Grid>
+  <Grid Margin="5">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="150"/>
       <ColumnDefinition Width="*"/>
@@ -11,10 +11,10 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="40"/>
     </Grid.RowDefinitions>
-    <Border Grid.ColumnSpan="2" Grid.Row="0" Background="#2C4B63" CornerRadius="10" Margin="5">
+    <Border Grid.ColumnSpan="2" Grid.Row="0" Margin="0, 0, 0, 5" Background="#2C4B63" CornerRadius="5">
       <TextBlock Margin="10" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="30">Welcome to Fayde</TextBlock>
     </Border>
-    <Border Grid.Column="0" Grid.Row="1" Margin="10,0,10,0" Background="#F0F0F0" CornerRadius="5" BorderBrush="#000000" BorderThickness="1">
+    <Border Grid.Column="0" Grid.Row="1" Background="#F0F0F0" CornerRadius="5" BorderBrush="#2C4B63" BorderThickness="1">
       <StackPanel Grid.Column="0" Grid.Row="1" Margin="5" Orientation="Vertical">
         <HyperlinkButton Content="Home"/>
         <HyperlinkButton Content="About"/>
@@ -39,15 +39,25 @@
       <CheckBox Margin="20, 0, 20, 0">CheckBox</CheckBox>
       <RadioButton Margin="20, 0, 20, 0">RadioButton 1</RadioButton>
       <RadioButton Margin="20, 0, 20, 0">RadioButton 2</RadioButton>
-      <ItemsControl>
-        <ItemsControl.Items>
-          <TextBlock Text="Item 1"/>
-          <TextBlock Text="Item 2"/>
-        </ItemsControl.Items>
-      </ItemsControl>
+      <Border Margin="20" CornerRadius="2" BorderThickness="1">
+        <Border.BorderBrush>
+          <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+            <GradientStop Color="#FFA3AEB9" Offset="0" />
+            <GradientStop Color="#FF8399A9" Offset="0.375" />
+            <GradientStop Color="#FF718597" Offset="0.375" />
+            <GradientStop Color="#FF617584" Offset="1" />
+          </LinearGradientBrush>
+        </Border.BorderBrush>
+        <ItemsControl>
+          <ItemsControl.Items>
+            <TextBlock Padding="5" Text="Item 1"/>
+            <TextBlock Padding="5" Text="Item 2"/>
+          </ItemsControl.Items>
+        </ItemsControl>
+      </Border>
     </StackPanel>
-    <Border Grid.ColumnSpan="2" Grid.Row="2" Margin="5" CornerRadius="10" Background="#2C4B63">
-      <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5" Foreground="#FFFFFF">Copyright WickedSick 2012</TextBlock>
+    <Border Grid.ColumnSpan="2" Grid.Row="2" Margin="0, 5, 0, 0" CornerRadius="5" Background="#2C4B63">
+      <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Padding="2" Foreground="#FFFFFF">Copyright WickedSick 2012</TextBlock>
     </Border>
   </Grid>
 </Page>

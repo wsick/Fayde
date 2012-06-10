@@ -34,7 +34,7 @@ DoubleKeyedDictionary.Instance.Add = function (key1, key2) {
 DoubleKeyedDictionary.Instance.Add = function (key1, key2, ignoreExisting) {
     var result = {};
     if (!ignoreExisting && (this._forward.TryGetValue(key1, result) || this._backward.TryGetValue(key2, result))) {
-        throw new InvalidOperationException("Dictionary already contains this key pair");
+        //throw new InvalidOperationException("Dictionary already contains this key pair");
     }
     this._forward.Add(key1, key2);
     this._backward.Add(key2, key1);
