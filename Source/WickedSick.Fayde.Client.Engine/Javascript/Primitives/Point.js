@@ -9,13 +9,6 @@ Point.Instance.Init = function (x, y) {
     this.Y = y == null ? 0 : y;
 };
 
-Point.Instance.Apply = function (matrix) {
-    /// <param name="matrix" type="Matrix"></param>
-    /// <returns type="Point" />
-    var b = new Point();
-    Matrix.TransformPoint(b, matrix, this);
-    return b;
-};
 Point.Instance.toString = function () {
     return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
 };

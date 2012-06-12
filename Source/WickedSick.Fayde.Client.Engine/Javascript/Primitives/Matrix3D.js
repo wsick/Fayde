@@ -13,6 +13,9 @@ function Matrix3D() {
         0, 0, 0, 1
     ];
 }
+Matrix3D.prototype.toString = function () {
+    return this._Elements.toString();
+};
 
 Matrix3D.Init = function (A, B) {
     /// <summary>Copies B onto A.</summary>

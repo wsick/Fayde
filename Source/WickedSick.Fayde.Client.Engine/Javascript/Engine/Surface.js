@@ -225,8 +225,9 @@ Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
     var element = sender;
     this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded, this);
     if (Nullstone.RefEquals(element, this._TopLevel)) {
-        //TODO: Resize canvas based on top level
+        //TODO: Resize canvas based on top level (if has no default size)
 
+        //TODO: Emit Resize event
         element._UpdateTotalRenderVisibility();
         element._UpdateTotalHitTestVisibility();
         element._FullInvalidate(true);

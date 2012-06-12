@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="DependencyObject.js" />
 /// CODE
 /// <reference path="../Core/DependencyProperty.js" />
@@ -13,6 +12,7 @@
 /// <reference path="Enums.js"/>
 /// <reference path="../Engine/RenderContext.js"/>
 /// <reference path="../Primitives/Matrix3D.js"/>
+/// <reference path="../Primitives/Rect.js"/>
 
 //#region UIElement
 var UIElement = Nullstone.Create("UIElement", DependencyObject);
@@ -247,7 +247,7 @@ UIElement.Instance._FullInvalidate = function (renderTransform) {
 };
 UIElement.Instance._Invalidate = function (rect) {
     if (!rect)
-        rect = this._SurfaceBounds;
+        rect = this.GetBounds();
     if (!this._GetRenderVisible() || this._IsOpacityInvisible())
         return;
 
@@ -295,6 +295,9 @@ UIElement.Instance._InvalidateBitmapCache = function () {
 
 //#region Updates/Computes
 
+UIElement.Instance.GetBounds = function () {
+    return this._SurfaceBounds;
+};
 UIElement.Instance._UpdateBounds = function (forceRedraw) {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
@@ -462,19 +465,23 @@ UIElement.Instance._TransformBounds = function (old, current) {
     var p2 = new Point(1, 1);
     var p3 = new Point(0, 1);
 
-    var p0a = p0.Apply(tween);
+    var p0a = new Point();
+    Matrix.TransformPoint(p0a, tween, p0);
     p0.X = p0.X - p0a.X;
     p0.Y = p0.Y - p0a.Y;
 
-    var p1a = p1.Apply(tween);
+    var p1a = new Point();
+    Matrix.TransformPoint(p1a, tween, p1);
     p1.X = p1.X - p1a.X;
     p1.Y = p1.Y - p1a.Y;
 
-    var p2a = p2.Apply(tween);
+    var p2a = new Point();
+    Matrix.TransformPoint(p2a, tween, p2);
     p2.X = p2.X - p2a.X;
     p2.Y = p2.Y - p2a.Y;
 
-    var p3a = p3.Apply(tween);
+    var p3a = new Point();
+    Matrix.TransformPoint(p3a, tween, p3);
     p3.X = p3.X - p3a.X;
     p3.Y = p3.Y - p3a.Y;
 
@@ -821,7 +828,7 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
         this._SubtreeObject._SetIsAttached(value);
 
 
-    this._InvalidateVisibility(); //HACK
+    //this._InvalidateVisibility(); //HACK
     this._OnIsAttachedChanged$DependencyObject(value);
 
     if (!value) {

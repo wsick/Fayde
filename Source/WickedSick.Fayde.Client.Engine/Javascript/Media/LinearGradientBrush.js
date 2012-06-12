@@ -20,8 +20,10 @@ Nullstone.AutoProperties(LinearGradientBrush, [
 
 LinearGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
     var transform = this._GetMappingModeTransform(bounds);
-    var start = this.StartPoint.Apply(transform);
-    var end = this.EndPoint.Apply(transform);
+    var start = new Point();
+    var end = new Point();
+    Matrix.TransformPoint(start, transform, this.StartPoint);
+    Matrix.TransformPoint(end, transform, this.EndPoint);
 
     var grd = ctx.createLinearGradient(start.X, start.Y, end.X, end.Y);
     var stops = this.GradientStops;
