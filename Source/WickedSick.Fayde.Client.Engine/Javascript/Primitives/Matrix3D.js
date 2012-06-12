@@ -54,7 +54,8 @@ Matrix3D.Multiply = function (C, A, B) {
 
     var c = C._Elements;
     var a = A._Elements;
-    var b = B._Elements;
+    //if user passed in same in-mem Matrix3D for C and B, we don't want to overwrite values as we're using them
+    var b = B._Elements.slice(0);
 
     c[0] = a[0] * b[0] + a[4] * b[1] + a[8] * b[2] + a[12] * b[3];
     c[4] = a[0] * b[4] + a[4] * b[5] + a[8] * b[6] + a[12] * b[7];
@@ -81,17 +82,12 @@ Matrix3D.TransformPoint = function (c, A, b) {
     /// <param name="A" type="Matrix3D"></param>
     /// <param name="b" type="Array">[x, y, z, w]</param>
     var e = A._Elements;
-    var d = [0, 0, 0, 1];
-    //if user passed in same point for c and b, we don't want to overwrite values as we're using them
-    d[0] = e[0] * b[0] + e[1] * b[1] + e[2] * b[2] + e[3];
-    d[1] = e[4] * b[0] + e[5] * b[1] + e[6] * b[2] + e[7];
-    d[2] = e[8] * b[0] + e[9] * b[1] + e[10] * b[2] + e[11];
-    d[3] = e[12] * b[0] + e[13] * b[1] + e[14] * b[2] + e[15];
-
-    c[0] = d[0];
-    c[1] = d[1];
-    c[2] = d[2];
-    c[3] = d[3];
+    //if user passed in same in-mem point for c and b, we don't want to overwrite values as we're using them
+    var d = b.slice(0);
+    c[0] = e[0] * d[0] + e[1] * d[1] + e[2] * d[2] + e[3];
+    c[1] = e[4] * d[0] + e[5] * d[1] + e[6] * d[2] + e[7];
+    c[2] = e[8] * d[0] + e[9] * d[1] + e[10] * d[2] + e[11];
+    c[3] = e[12] * d[0] + e[13] * d[1] + e[14] * d[2] + e[15];
 };
 Matrix3D.Equals = function (A, B) {
     /// <summary>Performs equality test on all items in A & B.</summary>
@@ -158,9 +154,8 @@ Matrix3D._CalculateInverse = function (m) {
     if (det === 0)
         return;
     det = 1.0 / det;
-    var inverse = [];
     for (var i = 0; i < 16; i++) {
-        inverse.push(tmp[i] * det);
+        tmp[i] *= det;
     }
-    return inverse;
+    return tmp;
 };
