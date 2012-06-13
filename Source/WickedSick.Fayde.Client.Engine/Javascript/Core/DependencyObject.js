@@ -73,7 +73,7 @@ DependencyObject._PropagateMentor = function (propd, value, newMentor) {
 };
 
 DependencyObject.Instance._SetIsAttached = function (value) {
-    if (this._IsAttached == value)
+    if (this._IsAttached === value)
         return;
     this._IsAttached = value;
     this._OnIsAttachedChanged(value);

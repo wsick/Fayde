@@ -35,5 +35,15 @@ LinearGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
     this._Brush = grd;
 };
 
+LinearGradientBrush.Instance.toString = function () {
+    var stops = this.GradientStops;
+    var count = stops.GetCount();
+    var ser = [];
+    for (var i = 0; i < count; i++) {
+        ser.push(stops.GetValueAt(i).toString());
+    }
+    return "LinearGradientBrush(" + this.StartPoint.toString() + " --> " + this.EndPoint.toString() + " [" + ser.toString() + "])";
+};
+
 Nullstone.FinishCreate(LinearGradientBrush);
 //#endregion

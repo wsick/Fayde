@@ -28,6 +28,12 @@ function NotImplemented(method) {
     Warn("Not Implemented [" + method + "]");
 }
 
+function RenderDebug(message) {
+    if (false)
+        return;
+    if (window.console && console.log)
+        console.log("RENDER: " + message);
+}
 function Debug(message) {
     if (window.console && console.log)
         console.log(message);

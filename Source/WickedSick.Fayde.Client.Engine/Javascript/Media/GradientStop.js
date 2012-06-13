@@ -18,5 +18,9 @@ Nullstone.AutoProperties(GradientStop, [
 
 //#endregion
 
+GradientStop.Instance.toString = function () {
+    return this.Color.toString() + " @ " + this.Offset.toString();
+};
+
 Nullstone.FinishCreate(GradientStop);
 //#endregion

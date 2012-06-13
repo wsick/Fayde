@@ -169,7 +169,7 @@ Surface.Instance.GetHeight = function () {
 //#region Render
 
 Surface.Instance._Invalidate = function (rect) {
-    Info("Render Invalidation: " + rect.toString());
+    RenderDebug("Invalidation: " + rect.toString());
     if (!rect) {
         var extents = this.GetExtents();
         rect = new Rect(0, 0, extents.Width, extents.Height);
@@ -194,7 +194,7 @@ Surface.StaticRender = function () {
         var rect2 = cur._InvalidatedRect;
         cur._InvalidatedRect = null;
         cur._IsRenderQueued = false;
-        Info("Render --> " + rect2.toString());
+        RenderDebug(" --> " + rect2.toString());
         cur.Render(rect2);
     }
 };
@@ -309,7 +309,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             if (!uie._GetRenderVisible())
                 uie._CacheInvalidateHint();
 
-            if (ovisible != uie._GetRenderVisible())
+            if (ovisible !== uie._GetRenderVisible())
                 this._AddDirtyElement(uie, _Dirty.NewBounds);
 
             this._PropagateDirtyFlagToChildren(uie, _Dirty.NewBounds);
@@ -352,7 +352,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
         if (uie._DirtyFlags & _Dirty.ChildrenZIndices) {
             uie._DirtyFlags &= ~_Dirty.ChildrenZIndices;
             if (!(uie instanceof Panel)) {
-                //Warning: Only applicable to Panel subclasses
+                Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
             } else {
                 uie.Children.ResortByZIndex();
             }
