@@ -89,6 +89,78 @@ Matrix3D.TransformPoint = function (c, A, b) {
     c[2] = e[8] * d[0] + e[9] * d[1] + e[10] * d[2] + e[11];
     c[3] = e[12] * d[0] + e[13] * d[1] + e[14] * d[2] + e[15];
 };
+Matrix3D.TransformBounds = function (m3, bounds) {
+    /// <param name="m3" type="Matrix3D"></param>
+    /// <param name="bounds" type="Rect"></param>
+    /// <returns type="Rect" />
+    var idels = [
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    ];
+    if (!(m3._Elements < idels) && !(m3._Elements > idels)) //identity matrix
+        return new Rect(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+
+    var p1 = [bounds.X, bounds.Y, 0.0, 1.0];
+    var p2 = [bounds.X + bounds.Width, bounds.Y, 0.0, 1.0];
+    var p3 = [bounds.X + bounds.Width, bounds.Y + bounds.Height, 0.0, 1.0];
+    var p4 = [bounds.X, bounds.Y + bounds.Height, 0.0, 1.0];
+
+    var tp = Matrix3D.TransformPoint;
+    tp(p1, m3, p1);
+    tp(p2, m3, p2);
+    tp(p3, m3, p3);
+    tp(p4, m3, p4);
+
+    var vs = 65536.0;
+    var vsr = 1.0 / vs;
+    p1[0] *= vsr;
+    p1[1] *= vsr;
+    p2[0] *= vsr;
+    p2[1] *= vsr;
+    p3[0] *= vsr;
+    p3[1] *= vsr;
+    p4[0] *= vsr;
+    p4[1] *= vsr;
+
+    var clipmask = Matrix3D._ClipMask;
+    var cm1 = clipmask(p1);
+    var cm2 = clipmask(p2);
+    var cm3 = clipmask(p3);
+    var cm4 = clipmask(p4);
+
+    if ((cm1 | cm2 | cm3 | cm4) !== 0) {
+        bounds = new Rect();
+        if ((cm1 & cm2 & cm3 & cm4) === 0) {
+            NotImplemented("Matrix3D.TransformBounds");
+            //var r1 = Matrix3D._ClipToBounds(p1, p2, p3, cm1 | cm2 | cm3);
+            //var r2 = Matrix3D._ClipToBounds(p1, p3, p4, cm1 | cm3 | cm4);
+            //if (!r1.IsEmpty()) bounds = bounds.Union(r1);
+            //if (!r2.IsEmpty()) bounds = bounds.Union(r2);
+        }
+    } else {
+        var p1w = 1.0 / p1[3];
+        var p2w = 1.0 / p2[3];
+        var p3w = 1.0 / p3[3];
+        var p4w = 1.0 / p4[3];
+        p1[0] *= p1w * vs;
+        p1[1] *= p1w * vs;
+        p2[0] *= p2w * vs;
+        p2[1] *= p2w * vs;
+        p3[0] *= p3w * vs;
+        p3[1] *= p3w * vs;
+        p4[0] *= p4w * vs;
+        p4[1] *= p4w * vs;
+
+        bounds = new Rect(p1[0], p1[1], 0, 0);
+        bounds = bounds.ExtendTo(p2[0], p2[1]);
+        bounds = bounds.ExtendTo(p3[0], p3[1]);
+        bounds = bounds.ExtendTo(p4[0], p4[1]);
+    }
+
+    return bounds;
+};
 Matrix3D.Equals = function (A, B) {
     /// <summary>Performs equality test on all items in A & B.</summary>
     /// <param name="A" type="Matrix3D"></param>
@@ -158,4 +230,17 @@ Matrix3D._CalculateInverse = function (m) {
         tmp[i] *= det;
     }
     return tmp;
+};
+
+Matrix3D._ClipMask = function (clip) {
+	var mask = 0;
+
+	if (-clip[0] + clip[3] < 0) mask |= (1 << 0);
+	if ( clip[0] + clip[3] < 0) mask |= (1 << 1);
+	if (-clip[1] + clip[3] < 0) mask |= (1 << 2);
+	if ( clip[1] + clip[3] < 0) mask |= (1 << 3);
+	if ( clip[2] + clip[3] < 0) mask |= (1 << 4);
+	if (-clip[2] + clip[3] < 0) mask |= (1 << 5);
+
+	return mask;
 };

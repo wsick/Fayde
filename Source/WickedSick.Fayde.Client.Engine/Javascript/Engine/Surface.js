@@ -169,6 +169,7 @@ Surface.Instance.GetHeight = function () {
 //#region Render
 
 Surface.Instance._Invalidate = function (rect) {
+    Info("Render Invalidation: " + rect.toString());
     if (!rect) {
         var extents = this.GetExtents();
         rect = new Rect(0, 0, extents.Width, extents.Height);

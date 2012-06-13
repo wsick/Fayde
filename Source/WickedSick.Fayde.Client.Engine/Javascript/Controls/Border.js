@@ -62,28 +62,16 @@ Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     return finalSize;
 };
 Border.Instance._Render = function (ctx, region) {
+    /// <param name="ctx" type="_RenderContext"></param>
     var borderBrush = this.BorderBrush;
     var paintBorder = this._Extents;
+    var background = this.Background;
 
-    if (!this.Background && !borderBrush)
+    if (!background && !borderBrush)
         return;
     if (paintBorder.IsEmpty())
         return;
-
-    //BorderBrush or CornerRadius?
-    if (borderBrush || !this.CornerRadius.IsZero()) {
-        this._RenderImpl(ctx, region);
-        return;
-    }
-
-    //If we got this far, all we have left to paint is the background
-    if (!this._HasLayoutClip() && false /* TODO: IsIntegerTranslation  */) {
-        //TODO:
-        //var paintBackground = paintBorder.GrowByThickness(this.BorderThickness.Negate());
-
-    } else {
-        this._RenderImpl(ctx, region);
-    }
+    this._RenderImpl(ctx, region);
 };
 Border.Instance._RenderImpl = function (ctx, region) {
     /// <param name="ctx" type="_RenderContext"></param>

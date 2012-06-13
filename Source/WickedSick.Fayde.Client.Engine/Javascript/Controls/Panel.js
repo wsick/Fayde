@@ -49,8 +49,8 @@ Panel.Instance._ComputeBounds = function () {
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
     }
 
-    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
-    this._BoundsWithChildren = this._IntersectBoundsWithClipPath(this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteTransform);
+    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
+    this._BoundsWithChildren = this._IntersectBoundsWithClipPath(this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
 
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
@@ -89,14 +89,10 @@ Panel.Instance._Render = function (ctx, region) {
         return;
     var area = new Rect(0, 0, framework.Width, framework.Height);
 
-    if (!this._HasLayoutClip() && false/* TODO: IsIntegerTranslation */) {
-        //TODO:
-    } else {
-        ctx.Save();
-        this._RenderLayoutClip(ctx);
-        ctx.FillRect(background, area);
-        ctx.Restore();
-    }
+    ctx.Save();
+    this._RenderLayoutClip(ctx);
+    ctx.FillRect(background, area);
+    ctx.Restore();
 };
 
 Panel.Instance._CanFindElement = function () { return this.Background != null; }

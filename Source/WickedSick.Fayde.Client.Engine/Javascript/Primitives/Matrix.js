@@ -237,6 +237,27 @@ Matrix.Multiply = function (C, A, B) {
     C._Elements = e3;
     C._Type = MatrixTypes.Unknown;
 };
+Matrix.TransformBounds = function (m, bounds) {
+    /// <param name="m" type="Matrix"></param>
+    /// <param name="bounds" type="Rect"></param>
+    /// <returns type="Rect" />
+    var p1 = new Point(bounds.X, bounds.Y);
+    var p2 = new Point(bounds.X + bounds.Width, bounds.Y);
+    var p3 = new Point(bounds.X + bounds.Width, bounds.Y + bounds.Height);
+    var p4 = new Point(bounds.X, bounds.Y + bounds.Height);
+
+    Matrix.TransformPoint(p1, m, p1);
+    Matrix.TransformPoint(p2, m, p2);
+    Matrix.TransformPoint(p3, m, p3);
+    Matrix.TransformPoint(p4, m, p4);
+
+    var l = Math.min(Math.min(Math.min(p1.X, p2.X), p3.X), p4.X);
+    var t = Math.min(Math.min(Math.min(p1.Y, p2.Y), p3.Y), p4.Y);
+    var r = Math.max(Math.max(Math.max(p1.X, p2.X), p3.X), p4.X);
+    var b = Math.max(Math.max(Math.max(p1.Y, p2.Y), p3.Y), p4.Y);
+
+    return new Rect(l, t, r - l, b - t);
+};
 Matrix.TransformPoint = function (c, A, b) {
     /// <param name="c" type="Point"></param>
     /// <param name="A" type="Matrix"></param>

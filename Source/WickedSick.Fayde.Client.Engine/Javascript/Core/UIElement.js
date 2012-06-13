@@ -369,7 +369,7 @@ UIElement.Instance._ComputeTransform = function () {
             popupChild._UpdateTransform();
     }
 
-    if (Matrix3D.Equals(oldProjection, this._LocalProjection)) {
+    if (!Matrix3D.Equals(oldProjection, this._LocalProjection)) {
         if (visualParent)
             visualParent._Invalidate(this._GetSubtreeBounds());
         else if (App.Instance.MainSurface._IsTopLevel(this))
@@ -383,7 +383,7 @@ UIElement.Instance._ComputeTransform = function () {
         if (!this.Effect)
             cacheMode.GetTransform(this._CacheXform);
 
-        if (Matrix3D.Equals(oldCache, this._CacheXform))
+        if (!Matrix3D.Equals(oldCache, this._CacheXform))
             this._InvalidateBitmapCache();
 
         var inverse = this._CacheXform.Inverse;
@@ -749,6 +749,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     }
 
     if (region.IsEmpty()) {
+        debugger;
         ctx.Restore();
         return;
     }
