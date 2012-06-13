@@ -344,7 +344,7 @@ Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, al
             dy = height - (scale * sh);
             break;
     }
-    return new Matrix([scale, 0, dx, 0, scale, dy],
+    return Matrix.Create([scale, 0, dx, 0, scale, dy],
         [1 / scale, 0, -dx, 0, 1 / scale, -dy]);
 };
 
