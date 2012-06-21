@@ -1,6 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using WickedSick.MVVM;
-using System.Collections.Generic;
 using WickedSick.Thea.Models;
 
 namespace WickedSick.Thea.ViewModels
@@ -11,6 +12,28 @@ namespace WickedSick.Thea.ViewModels
 
         public string IndexPath { get; set; }
         public string ID { get; set; }
+
+        private bool _IsThisOnStackFrame;
+        public bool IsThisOnStackFrame
+        {
+            get { return _IsThisOnStackFrame; }
+            set
+            {
+                _IsThisOnStackFrame = value;
+                OnPropertyChanged("IsThisOnStackFrame");
+            }
+        }
+
+        private bool _IsInHitTest;
+        public bool IsInHitTest
+        {
+            get { return _IsInHitTest; }
+            set
+            {
+                _IsInHitTest = value;
+                OnPropertyChanged("IsInHitTest");
+            }
+        }
 
         private string _Type;
         public string Type
@@ -57,5 +80,15 @@ namespace WickedSick.Thea.ViewModels
         }
 
         #endregion
+
+        public IEnumerable<VisualViewModel> AllChildren
+        {
+            get
+            {
+                if (!VisualChildren.Any())
+                    return Enumerable.Empty<VisualViewModel>();
+                return VisualChildren.Concat(VisualChildren.SelectMany(vc => vc.AllChildren));
+            }
+        }
     }
 }

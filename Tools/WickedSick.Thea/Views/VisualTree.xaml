@@ -5,10 +5,10 @@
     xmlns:vms="clr-namespace:WickedSick.Thea.ViewModels"
     xmlns:treeviewex="clr-namespace:WickedSick.MVVM.TreeViewEx;assembly=WickedSick.MVVM"
     xmlns:e="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity">
-    <Grid>
+    <Grid MinHeight="200">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250" />
-            <ColumnDefinition />
+            <ColumnDefinition MinWidth="200" />
         </Grid.ColumnDefinitions>
         <TreeView x:Name="VisualsTreeView" ItemsSource="{Binding RootLayers}" Margin="5,5,10,5">
             <e:Interaction.Behaviors>
@@ -17,8 +17,12 @@
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type vms:VisualViewModel}" ItemsSource="{Binding VisualChildren}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Type}" />
-                        <TextBlock Margin="5,0,0,0" Text="{Binding Name, StringFormat=[{0}], TargetNullValue=''}" />
+                        <TextBlock FontWeight="{Binding IsThisOnStackFrame, Converter={StaticResource boolFontWeightConverter}}" 
+                                   Foreground="{Binding IsInHitTest, Converter={StaticResource boolSolidColorBrushConverter}}"
+                                   Text="{Binding Type}" />
+                        <TextBlock FontWeight="{Binding IsThisOnStackFrame, Converter={StaticResource boolFontWeightConverter}}" 
+                                   Foreground="{Binding IsInHitTest, Converter={StaticResource boolSolidColorBrushConverter}}"
+                                   Margin="5,0,0,0" Text="{Binding Name, StringFormat=[{0}], TargetNullValue=''}" />
                     </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
@@ -30,7 +34,7 @@
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Width="200" Text="{Binding Name}" />
-                            <TextBlock Width="200" Text="{Binding Value}" />
+                            <TextBlock Width="300" Text="{Binding Value}" />
                             <TextBlock Width="100" Text="{Binding OwnerTypeName}" />
                         </StackPanel>
                     </DataTemplate>
