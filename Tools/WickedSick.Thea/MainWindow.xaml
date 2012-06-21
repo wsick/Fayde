@@ -3,14 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:dialog="clr-namespace:WickedSick.MVVM.DialogEx;assembly=WickedSick.MVVM"
         xmlns:views="clr-namespace:WickedSick.Thea.Views"
-        Title="MainWindow" Height="600" Width="800" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="600" Width="1000" WindowStartupLocation="CenterScreen">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <dialog:DialogControl DataContext="{Binding LoadCommand}" 
                               ViewType="{x:Type views:LoadWindow}"
                               ViewModel="{Binding DialogDataContext}"
                               DialogCompleteCommand="{Binding ChangedCommand}"
                               IsDialogVisible="{Binding IsRequestingChange, Mode=TwoWay}" />
-        <Grid>
+        <dialog:DialogControl DataContext="{Binding ChooseVisualStudioCommand}"
+                              ViewType="{x:Type views:ChooseVisualStudioWindow}"
+                              ViewModel="{Binding DialogDataContext}"
+                              DialogCompleteCommand="{Binding ChangedCommand}"
+                              IsDialogVisible="{Binding IsRequestingChange, Mode=TwoWay}" />
+        <Menu>
+            <MenuItem Header="File">
+                <MenuItem Header="Exit" />
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Header="Attach to Visual Studio..." Command="{Binding ChooseVisualStudioCommand.RequestChangeCommand}" />
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1">
             <views:VisualTree Margin="5,5,10,5">
             
             </views:VisualTree>

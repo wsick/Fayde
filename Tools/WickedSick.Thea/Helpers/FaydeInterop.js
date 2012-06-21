@@ -7,6 +7,7 @@
         FaydeInterop.Reg = {};
     FaydeInterop.Reg[this._ID] = this;
     this.App = app;
+    this.RegisterHitTestDebugService();
 }
 FaydeInterop.prototype.GenerateCache = function () {
     this._Cache = {
@@ -28,6 +29,17 @@ FaydeInterop.prototype.GenerateCache = function () {
     }
 
     this._Cache.Serialized = "Surface" + "~|~" + "~|~" + surface._ID + "~|~" + layerCount;
+    this.GenerateDPCache();
+};
+FaydeInterop.prototype.GenerateDPCache = function () {
+    var dpCache = [];
+    for (var tn in DependencyProperty._Registered) {
+        for (var name in DependencyProperty._Registered[tn]) {
+            var propd = DependencyProperty._Registered[tn][name];
+            dpCache[propd._ID] = propd;
+        }
+    }
+    this._DPCache = dpCache;
 };
 FaydeInterop.prototype.GetCacheChildren = function (visual) {
     var arr = [];
@@ -44,36 +56,27 @@ FaydeInterop.prototype.GetCacheChildren = function (visual) {
     return arr;
 };
 FaydeInterop.prototype.GetProperties = function (visual) {
-    var arr = [];
-
-    var dps = this.GetDPs(visual.constructor);
+    var dps = this.GetDPs(visual);
     var dpCount = dps.length;
+    var arr = [];
     for (var i = 0; i < dpCount; i++) {
-        var dp = dps[i];
-        var value = visual.$GetValue(dp);
-        if (value === undefined)
-            value = "\"(undefined)\"";
-        else if (value === null)
-            value = "null";
-        else if (typeof value !== "number")
-            value = '"' + value + '"';
-        else if (value.constructor._IsNullstone)
-            value = '"' + value.toString() + '"';
-
-        var cur = "{ OwnerType: \"" + dp.OwnerType._TypeName + "\", Name: \"" + dp.Name + "\", Value: " + value + " }";
-        arr.push(cur);
+        arr.push(this.SerializeDependencyValue(visual, dps[i]));
     }
-
+    var adps = this.GetAttachedDPs(visual);
+    var adpCount = adps.length;
+    for (var i = 0; i < adpCount; i++) {
+        arr.push(this.SerializeDependencyValue(visual, adps[i]));
+    }
     return "[" + arr.toString() + "]";
 };
 
-FaydeInterop.prototype.GetDPs = function (type) {
+FaydeInterop.prototype.GetDPs = function (dobj) {
     /// <returns type="Array" />
-    if (!Nullstone.DoesInheritFrom(type, DependencyObject))
+    if (!(dobj instanceof DependencyObject))
         return [];
     var reg;
     var arr = [];
-    var curType = type;
+    var curType = dobj.constructor;
     while (curType) {
         reg = DependencyProperty._Registered[curType._TypeName];
         for (var h in reg) {
@@ -84,4 +87,53 @@ FaydeInterop.prototype.GetDPs = function (type) {
         curType = curType._BaseClass;
     }
     return arr;
+};
+FaydeInterop.prototype.GetAttachedDPs = function (dobj) {
+    /// <returns type="Array" />
+    if (!(dobj instanceof DependencyObject))
+        return [];
+    var arr = [];
+    var localProvider = dobj._Providers[_PropertyPrecedence.LocalValue];
+    var dpCache = this._DPCache;
+    for (var dpid in localProvider._ht) {
+        var dp = dpCache[dpid];
+        if (dp._IsAttached)
+            arr.push(dp);
+    }
+    return arr;
+};
+
+FaydeInterop.prototype.RegisterHitTestDebugService = function () {
+    var fi = this;
+    this.App._SubscribeDebugService("HitTest", function (inputList) {
+        fi._CachedHitTest = inputList;
+    });
+};
+FaydeInterop.prototype.GetVisualIDsInHitTest = function () {
+    if (!this._CachedHitTest)
+        return "[]";
+
+    var arr = [];
+    var cur = this._CachedHitTest.First();
+    while (cur != null) {
+        arr.push(cur.UIElement._ID);
+        cur = cur.Next;
+    }
+    return "[" + arr.toString() + "]";
+};
+
+FaydeInterop.prototype.SerializeDependencyValue = function (dobj, dp) {
+    var value = this.SerializeValue(dobj.$GetValue(dp));
+    return "{ OwnerType: \"" + dp.OwnerType._TypeName + "\", Name: \"" + dp.Name + "\", Value: " + value + " }";
+};
+FaydeInterop.prototype.SerializeValue = function (value) {
+    if (value === undefined)
+        return "\"(undefined)\"";
+    if (value === null)
+        return "null";
+    if (typeof value !== "number")
+        return '"' + value + '"';
+    if (value.constructor._IsNullstone)
+        return '"' + value.toString() + '"';
+    return value;
 };

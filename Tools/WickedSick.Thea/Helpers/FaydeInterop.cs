@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Web.Script.Serialization;
 using WatiN.Core;
-using WickedSick.Thea.ViewModels;
 using WickedSick.Thea.Models;
+using WickedSick.Thea.ViewModels;
+using WickedSick.Thea.VisualStudioInterop;
 
 namespace WickedSick.Thea.Helpers
 {
@@ -15,6 +16,7 @@ namespace WickedSick.Thea.Helpers
 
         private Browser _Browser;
         private int? _ID = null;
+        private VisualStudioInstance _VSI;
 
         public FaydeInterop(Browser browser)
         {
@@ -47,6 +49,19 @@ namespace WickedSick.Thea.Helpers
                 vvm.Properties.Add(p);
         }
 
+        public IEnumerable<string> GetVisualIDsInHitTest()
+        {
+            var formattedArr = RunFunc("GetVisualIDsInHitTest");
+            return ParseStringArray(formattedArr);
+        }
+
+
+        public void AttachToVisualStudio(VisualStudioInstance instance)
+        {
+            _VSI = instance;
+            _VSI.Attach();
+        }
+
         
         private void GetVisualTreeChildren(Tuple<VisualViewModel, int> rootTuple, Stack<int> indexStack)
         {
@@ -66,6 +81,7 @@ namespace WickedSick.Thea.Helpers
             string js = string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Serialized", this._ID, indexPath);
             var tuple = DeserializeVisual(_Browser.Eval(js));
             tuple.Item1.IndexPath = indexPath;
+            RefreshIsThisOnStackFrame(tuple.Item1);
             return tuple;
         }
 
@@ -84,26 +100,6 @@ namespace WickedSick.Thea.Helpers
             return Tuple.Create(vvm, childCount);
         }
 
-        private void InitializeFaydeInteropJs()
-        {
-            var jsStream = this.GetType().Assembly.GetManifestResourceStream("WickedSick.Thea.Helpers.FaydeInterop.js");
-            using (var sr = new StreamReader(jsStream))
-            {
-                var js = sr.ReadToEnd();
-                _Browser.RunScript(js);
-            }
-        }
-
-        private string GetJsCodeToGetVisual(VisualViewModel vvm)
-        {
-            return string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Visual", this._ID, vvm.IndexPath);
-        }
-
-        private string RunFunc(string functionName, string args = null)
-        {
-            return _Browser.Eval(string.Format("FaydeInterop.Reg[{0}].{1}({2});", this._ID, functionName, args));
-        }
-
         private static IEnumerable<DependencyValue> ParseDependencyValueArray(string s)
         {
             var js = new JavaScriptSerializer();
@@ -120,6 +116,107 @@ namespace WickedSick.Thea.Helpers
                     Value = value,
                 };
 			}
+        }
+
+        private static IEnumerable<string> ParseStringArray(string s)
+        {
+            var js = new JavaScriptSerializer();
+            dynamic obj = js.Deserialize(s, typeof(object));
+            for (int i = 0; i < obj.Length; i++)
+            {
+                object o = obj[i];
+                if (o != null)
+                    yield return o.ToString();
+            }
+        }
+
+
+        #region Execution Wrapper
+
+        private void RunScript(string script)
+        {
+            if (_VSI != null && _VSI.IsDebugging)
+            {
+                try
+                {
+                    _VSI.ExecuteStatement(script);
+                }
+                catch (ContextNotAvailableException)
+                {
+                    _Browser.RunScript(script);
+                }
+                return;
+            }
+            _Browser.RunScript(script);
+        }
+
+        private string Eval(string expression)
+        {
+            if (_VSI != null && _VSI.IsDebugging)
+            {
+                try
+                {
+                    return _VSI.GetExpression(expression);
+                }
+                catch (ContextNotAvailableException)
+                {
+                }
+            }
+            return _Browser.Eval(expression);
+        }
+
+        public string EvalAgainstStackFrame(string expression)
+        {
+            if (_VSI != null && _VSI.IsDebugging)
+            {
+                try
+                {
+                    return _VSI.GetExpression(expression);
+                }
+                catch (ContextNotAvailableException)
+                {
+                }
+            }
+            return null;
+        }
+
+        #endregion
+
+        #region Fayde Interop Js Wrapper
+
+        private void InitializeFaydeInteropJs()
+        {
+            var jsStream = this.GetType().Assembly.GetManifestResourceStream("WickedSick.Thea.Helpers.FaydeInterop.js");
+            using (var sr = new StreamReader(jsStream))
+            {
+                var js = sr.ReadToEnd();
+                RunScript(js);
+            }
+        }
+
+        private string GetJsCodeToGetVisual(VisualViewModel vvm)
+        {
+            return string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Visual", this._ID, vvm.IndexPath);
+        }
+
+        private string RunFunc(string functionName, string args = null)
+        {
+            return Eval(string.Format("FaydeInterop.Reg[{0}].{1}({2})", this._ID, functionName, args));
+        }
+
+        #endregion
+
+
+        private void RefreshIsThisOnStackFrame(VisualViewModel vvm)
+        {
+            vvm.IsThisOnStackFrame = false;
+            if (_VSI == null)
+                return;
+            var obj = _VSI.GetExpression("this._ID") as string;
+            if (obj == null)
+                return;
+            if (obj == vvm.ID)
+                vvm.IsThisOnStackFrame = true;
         }
     }
 }

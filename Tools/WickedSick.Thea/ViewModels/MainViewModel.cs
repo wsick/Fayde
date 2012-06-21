@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Threading;
 using WatiN.Core;
 using WickedSick.MVVM;
 using WickedSick.MVVM.DialogEx;
 using WickedSick.Thea.Helpers;
-using System.Collections.ObjectModel;
 
 namespace WickedSick.Thea.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
         private FaydeInterop _Interop;
+        private DispatcherTimer _Timer;
 
         public MainViewModel()
         {
@@ -71,7 +74,7 @@ namespace WickedSick.Thea.ViewModels
             return new DialogViewModel<LoadViewModel>
             {
                 ViewModelBuilder = o => new LoadViewModel(),
-                AcceptAction = lvm => InitializeAttachedBrowser(lvm.SelectedBrowser),
+                AcceptAction = lvm => AttachToBrowser(lvm.SelectedBrowser),
                 CompleteAction = o =>
                 {
                     var lvm = (LoadViewModel)o.Data;
@@ -82,14 +85,38 @@ namespace WickedSick.Thea.ViewModels
             };
         }
 
-        #endregion
-
         public void Load()
         {
             LoadCommand.RequestChangeCommand.Execute(null);
         }
 
-        private void InitializeAttachedBrowser(Browser browser)
+        #endregion
+
+        #region ChooseVisualStudio
+
+        private DialogViewModel<ChooseVisualStudioViewModel> _ChooseVisualStudioCommand;
+        public DialogViewModel<ChooseVisualStudioViewModel> ChooseVisualStudioCommand
+        {
+            get
+            {
+                if (_ChooseVisualStudioCommand == null)
+                    _ChooseVisualStudioCommand = CreateChooseVisualStudioCommand();
+                return _ChooseVisualStudioCommand;
+            }
+        }
+
+        private DialogViewModel<ChooseVisualStudioViewModel> CreateChooseVisualStudioCommand()
+        {
+            return new DialogViewModel<ChooseVisualStudioViewModel>
+            {
+                ViewModelBuilder = cvsvm => new ChooseVisualStudioViewModel(),
+                AcceptAction = cvsvm => AttachToVisualStudio(cvsvm.SelectedInstance),
+            };
+        }
+
+        #endregion
+
+        private void AttachToBrowser(Browser browser)
         {
             AttachedBrowser = browser;
             _Interop = new FaydeInterop(AttachedBrowser);
@@ -98,6 +125,59 @@ namespace WickedSick.Thea.ViewModels
                 RootLayers.Add(v);
             }
             //_Interop.PopulateProperties(RootLayers[0]);
+        }
+
+        private void AttachToVisualStudio(VisualStudioInterop.VisualStudioInstance instance)
+        {
+            if (_Timer != null)
+            {
+                _Timer.Tick -= _Timer_Tick;
+                if (_Timer.IsEnabled)
+                    _Timer.Stop();
+            }
+
+            _Interop.AttachToVisualStudio(instance);
+            _Timer = new DispatcherTimer();
+            _Timer.Tick += _Timer_Tick;
+            _Timer.Interval = TimeSpan.FromSeconds(1);
+            _Timer.Start();
+        }
+
+        private void _Timer_Tick(object sender, EventArgs e)
+        {
+            var allVisuals = RootLayers
+                .SelectMany(l => l.AllChildren)
+                .Concat(RootLayers)
+                .ToList();
+
+            RefreshThisVisual(allVisuals);
+            RefreshHitTestVisuals(allVisuals);
+        }
+
+        private void RefreshThisVisual(List<VisualViewModel> allVisuals)
+        {
+            var sid = _Interop.EvalAgainstStackFrame("this._ID");
+            if (sid == null)
+                return;
+
+            foreach (var v in allVisuals)
+                v.IsThisOnStackFrame = false;
+            var thisVisual = allVisuals.FirstOrDefault(vvm => vvm.ID == sid);
+            if (thisVisual != null)
+                thisVisual.IsThisOnStackFrame = true;
+        }
+
+        private void RefreshHitTestVisuals(List<VisualViewModel> allVisuals)
+        {
+            var hitTested = _Interop.GetVisualIDsInHitTest().ToList();
+            if (hitTested == null)
+                return;
+
+            foreach (var v in allVisuals)
+                v.IsInHitTest = false;
+
+            foreach (var v in allVisuals.Where(vvm => hitTested.Any(s => vvm.ID == s)))
+                v.IsInHitTest = true;
         }
 
         public void Dispose()
