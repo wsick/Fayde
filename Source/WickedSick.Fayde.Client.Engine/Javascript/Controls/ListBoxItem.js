@@ -1,9 +1,8 @@
 ﻿/// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="../" />
 /// <reference path="ContentControl.js" />
 
 //#region ListBox
-var ListBoxItem = Nullstone.Create("ListBox", ContentControl);
+var ListBoxItem = Nullstone.Create("ListBoxItem", ContentControl);
 
 ListBoxItem.IsSelectedProperty = DependencyProperty.RegisterCore("IsSelected", function () { return Boolean; }, ListBoxItem, null, function (d, args) { d.OnIsSelectedChanged(args); });
 

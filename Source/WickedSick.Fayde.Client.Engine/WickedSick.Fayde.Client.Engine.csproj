@@ -64,6 +64,7 @@
     <Content Include="Javascript\Collections\Enums.js" />
     <Content Include="Javascript\Collections\INotifyCollectionChanged.js" />
     <Content Include="Javascript\Collections\NotifyCollectionChangedEventArgs.js" />
+    <Content Include="Javascript\Collections\ObservableCollection.js" />
     <Content Include="Javascript\Controls\CheckBox.js" />
     <Content Include="Javascript\Controls\ColumnDefinition.js" />
     <Content Include="Javascript\Controls\ColumnDefinitionCollection.js" />
