@@ -75,6 +75,7 @@
     <Content Include="Javascript\Controls\ItemsPanelTemplate.js" />
     <Content Include="Javascript\Controls\ItemsPresenter.js" />
     <Content Include="Javascript\Controls\ListBox.js" />
+    <Content Include="Javascript\Controls\ListBoxItem.js" />
     <Content Include="Javascript\Controls\MediaElement.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />
     <Content Include="Javascript\Controls\Popup.js" />
