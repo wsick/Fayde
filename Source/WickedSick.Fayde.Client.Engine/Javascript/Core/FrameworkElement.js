@@ -613,7 +613,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 flag = UIElementFlags.DirtySizeHint;
         }
 
-        if (flag != UIElementFlags.None) {
+        if (flag !== UIElementFlags.None) {
             var measureWalker = new _DeepTreeWalker(element);
             var child;
             while (child = measureWalker.Step()) {
@@ -641,23 +641,25 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
             }
         }
 
-        if (flag == UIElementFlags.DirtyMeasureHint) {
+        if (flag === UIElementFlags.DirtyMeasureHint) {
             Info("Starting _MeasureList Update: " + pass._MeasureList._Count);
             while (node = pass._MeasureList.First()) {
                 pass._MeasureList.Remove(node);
+                LayoutDebug("Measure [" + node.UIElement.__DebugToString() + "]");
                 node.UIElement._DoMeasureWithError(error);
                 pass._Updated = true;
             }
-        } else if (flag == UIElementFlags.DirtyArrangeHint) {
+        } else if (flag === UIElementFlags.DirtyArrangeHint) {
             Info("Starting _ArrangeList Update: " + pass._ArrangeList._Count);
             while (node = pass._ArrangeList.First()) {
                 pass._ArrangeList.Remove(node);
+                LayoutDebug("Arrange [" + node.UIElement.__DebugToString() + "]");
                 node.UIElement._DoArrangeWithError(error);
                 pass._Updated = true;
                 if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                     break;
             }
-        } else if (flag == UIElementFlags.DirtySizeHint) {
+        } else if (flag === UIElementFlags.DirtySizeHint) {
             while (node = pass._SizeList.First()) {
                 pass._SizeList.Remove(node);
                 var fe = node.UIElement;

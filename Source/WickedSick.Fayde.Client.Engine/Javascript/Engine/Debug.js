@@ -28,8 +28,26 @@ function NotImplemented(method) {
     Warn("Not Implemented [" + method + "]");
 }
 
+function DirtyDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log) {
+        var tabs = "";
+        for (var i = 0; i < DirtyDebug.Level; i++) {
+            tabs += "\t";
+        }
+        console.log("DIRTY: " + tabs + message);
+    }
+}
+DirtyDebug.Level = 0;
+function LayoutDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log)
+        console.log("LAYOUT: " + message);
+};
 function RenderDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("RENDER: " + message);

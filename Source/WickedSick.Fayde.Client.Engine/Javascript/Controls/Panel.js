@@ -183,7 +183,7 @@ Panel.Instance._OnCollectionChanged = function (sender, args) {
 };
 Panel.Instance._OnCollectionItemChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
-        if (args.Property == Canvas.ZIndexProperty || args.Property == Canvas.ZProperty) {
+        if (args.Property._ID === Canvas.ZIndexProperty._ID || args.Property._ID === Canvas.ZProperty._ID) {
             args.Item._Invalidate();
             if (this._IsAttached) {
                 App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);

@@ -21,14 +21,12 @@ App.Instance.Init = function () {
 
     //this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
     //this._SubscribeDebugService("HitTest", function (inputList) { HUDUpdate("els", "Elements Found: " + inputList._Count.toString()); });
-    /*
     this._SubscribeDebugService("LayoutTime", function (elapsedTime) {
         Info("LayoutTime: " + elapsedTime.toString());
     });
     this._SubscribeDebugService("RenderTime", function (elapsedTime) {
         Info("RenderTime: " + elapsedTime.toString());
     });
-    */
 };
 
 //#region Dependency Properties
@@ -42,10 +40,11 @@ Nullstone.AutoProperties(App, [
 
 //#endregion
 
-App.Instance.Load = function (element, containerId, width, widthType, height, heightType) {
-    /// <param name="element" type="UIElement"></param>
+App.Instance.Load = function (json, containerId, width, widthType, height, heightType) {
+    /// <param name="json" type="Object"></param>
     this.Address = new Uri(document.URL);
     this.MainSurface.Register(containerId, width, widthType, height, heightType);
+    var element = JsonParser.CreateRoot(json);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);

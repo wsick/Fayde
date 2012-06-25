@@ -356,7 +356,9 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Silo\heightTest.htm" />
-    <None Include="Tests\Controls\button.fayde" />
+    <None Include="Tests\Controls\button.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Tests\Controls\checkbox.fayde">
       <SubType>Designer</SubType>
     </None>

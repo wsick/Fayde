@@ -335,7 +335,8 @@ UIElement.Instance._ComputeTransform = function () {
 
     var visualParent = this.GetVisualParent();
     if (visualParent != null) {
-        this._AbsoluteXform = visualParent._AbsoluteXform;
+        this._AbsoluteXform = visualParent._AbsoluteXform.Copy();
+        Matrix3D.Init(this._AbsoluteProjection, visualParent._AbsoluteProjection);
     } else if (this._Parent != null && this._Parent instanceof Popup) {
         throw new NotImplementedException();
     }
@@ -809,10 +810,11 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
 //#region Visual State Changes
 
 UIElement.Instance._OnIsAttachedChanged = function (value) {
+    this._UpdateTotalRenderVisibility();
+
     if (this._SubtreeObject)
         this._SubtreeObject._SetIsAttached(value);
 
-    this._InvalidateVisibility(); //HACK
     this._OnIsAttachedChanged$DependencyObject(value);
 
     if (!value) {
@@ -891,18 +893,30 @@ UIElement.Instance._PropagateFlagUp = function (flag) {
     }
 };
 
-UIElement.Instance.__DebugDirtyFlags = function () {
+UIElement.Instance.__DebugDownDirtyFlags = function () {
     var t = new String();
-    if (this._DirtyFlags & _Dirty.Measure)
-        t = t.concat("[Measure]");
-    if (this._DirtyFlags & _Dirty.Arrange)
-        t = t.concat("[Arrange]");
-    if (this._DirtyFlags & _Dirty.Bounds)
-        t = t.concat("[Bounds]");
     if (this._DirtyFlags & _Dirty.ChildrenZIndices)
         t = t.concat("[ChildrenZIndices]");
     if (this._DirtyFlags & _Dirty.Clip)
         t = t.concat("[Clip]");
+    if (this._DirtyFlags & _Dirty.Transform)
+        t = t.concat("[Transform]");
+    if (this._DirtyFlags & _Dirty.LocalTransform)
+        t = t.concat("[LocalTransform]");
+    if (this._DirtyFlags & _Dirty.LocalProjection)
+        t = t.concat("[LocalProjection]");
+    if (this._DirtyFlags & _Dirty.RenderVisibility)
+        t = t.concat("[RenderVisibility]");
+    if (this._DirtyFlags & _Dirty.HitTestVisibility)
+        t = t.concat("[HitTestVisibility]");
+    return t;
+};
+UIElement.Instance.__DebugUpDirtyFlags = function () {
+    var t = new String();
+    if (this._DirtyFlags & _Dirty.Bounds)
+        t = t.concat("[Bounds]");
+    if (this._DirtyFlags & _Dirty.NewBounds)
+        t = t.concat("[NewBounds]");
     if (this._DirtyFlags & _Dirty.Invalidate)
         t = t.concat("[Invalidate]");
     return t;
@@ -1103,6 +1117,10 @@ UIElement.ZIndexComparer = function (uie1, uie2) {
         return z1 > z2 ? 1 : (z1 < z2 ? -1 : 0);
     }
     return zi1 - zi2;
+};
+
+UIElement.Instance.__DebugToString = function () {
+    return this._ID + ":" + this.constructor._TypeName + ":" + this.Name;
 };
 
 Nullstone.FinishCreate(UIElement);

@@ -70,7 +70,7 @@ ContentControl.Instance._GetDefaultTemplate = function () {
     return this._GetDefaultTemplate$Control();
 };
 ContentControl.Instance._GetDefaultTemplateCallback = function () {
-    return _GetFallbackRoot();
+    return this._GetFallbackRoot();
 };
 
 ContentControl.Instance._OnPropertyChanged = function (args, error) {

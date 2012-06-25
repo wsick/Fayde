@@ -30,8 +30,8 @@ Surface.Instance.Init = function (app) {
 Surface.Instance.Register = function (jCanvas, width, widthType, height, heightType) {
     Surface._TestCanvas = document.createElement('canvas');
     this._Layers = new Collection();
-    this._DownDirty = new _DirtyList();
-    this._UpDirty = new _DirtyList();
+    this._DownDirty = new _DirtyList("Down");
+    this._UpDirty = new _DirtyList("Up");
 
     this._jCanvas = jCanvas;
     var canvas = jCanvas[0];
@@ -94,15 +94,7 @@ Surface.Instance._Attach = function (element) {
 
     this._TopLevel = element;
 
-    this._TopLevel.Loaded.Subscribe(this._HandleTopLevelLoaded, this);
     this._AttachLayer(this._TopLevel);
-    var surface = this;
-    var postAttach = function () {
-        surface._TopLevel._SetIsAttached(true);
-        surface._TopLevel._SetIsLoaded(true);
-        surface._App.OnLoaded();
-    };
-    setTimeout(postAttach, 1);
 };
 Surface.Instance._AttachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
@@ -111,6 +103,7 @@ Surface.Instance._AttachLayer = function (layer) {
     else
         this._Layers.Add(layer);
 
+    DirtyDebug("AttachLayer");
     layer._FullInvalidate(true);
     layer._InvalidateMeasure();
     layer._SetIsAttached(true);
@@ -222,20 +215,6 @@ Surface.Instance.Render = function (region) {
 
 //#region Update
 
-Surface.Instance._HandleTopLevelLoaded = function (sender, args) {
-    var element = sender;
-    this._TopLevel.Loaded.Unsubscribe(this._HandleTopLevelLoaded, this);
-    if (Nullstone.RefEquals(element, this._TopLevel)) {
-        //TODO: Resize canvas based on top level (if has no default size)
-
-        //TODO: Emit Resize event
-        element._UpdateTotalRenderVisibility();
-        element._UpdateTotalHitTestVisibility();
-        element._FullInvalidate(true);
-
-        element._InvalidateMeasure();
-    }
-};
 Surface.Instance.ProcessDirtyElements = function () {
     var error = new BError();
     var dirty = this._UpdateLayout(error);
@@ -286,12 +265,18 @@ Surface.Instance._UpdateLayout = function (error) {
 
     return updatedLayout;
 };
-//Down --> Transformation, Opacity
+//Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
 Surface.Instance._ProcessDownDirtyElements = function () {
     var visualParent;
     var node;
+    var i = 0;
     while (node = this._DownDirty.GetFirst()) {
+        i++;
+        DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
         var uie = node.Element;
+
+        DirtyDebug.Level++;
+        DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
 
         if (uie._DirtyFlags & _Dirty.RenderVisibility) {
             uie._DirtyFlags &= ~_Dirty.RenderVisibility;
@@ -304,6 +289,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             if (visualParent)
                 visualParent._UpdateBounds();
 
+            DirtyDebug("ComputeTotalRenderVisibility: [" + uie.__DebugToString() + "]");
             uie._ComputeTotalRenderVisibility();
 
             if (!uie._GetRenderVisible())
@@ -312,7 +298,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             if (ovisible !== uie._GetRenderVisible())
                 this._AddDirtyElement(uie, _Dirty.NewBounds);
 
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.NewBounds);
+            this._PropagateDirtyFlagToChildren(uie, _Dirty.RenderVisibility);
         }
 
         if (uie._DirtyFlags & _Dirty.HitTestVisibility) {
@@ -324,16 +310,21 @@ Surface.Instance._ProcessDownDirtyElements = function () {
         if (uie._DirtyFlags & _Dirty.LocalTransform) {
             uie._DirtyFlags &= ~_Dirty.LocalTransform;
             uie._DirtyFlags |= _Dirty.Transform;
+            DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
             uie._ComputeLocalTransform();
+            DirtyDebug("--> " + uie._LocalXform._Elements.toString());
         }
         if (uie._DirtyFlags & _Dirty.LocalProjection) {
             uie._DirtyFlags &= ~_Dirty.LocalProjection;
             uie._DirtyFlags |= _Dirty.Transform;
+            DirtyDebug("ComputeLocalProjection: [" + uie.__DebugToString() + "]");
             uie._ComputeLocalProjection();
         }
         if (uie._DirtyFlags & _Dirty.Transform) {
             uie._DirtyFlags &= ~_Dirty.Transform;
+            DirtyDebug("ComputeTransform: [" + uie.__DebugToString() + "]");
             uie._ComputeTransform();
+            DirtyDebug("--> " + uie._AbsoluteProjection._Elements.slice(0, 8).toString());
             visualParent = uie.GetVisualParent();
             if (visualParent)
                 visualParent._UpdateBounds();
@@ -354,6 +345,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             if (!(uie instanceof Panel)) {
                 Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
             } else {
+                DirtyDebug("ResortByZIndex: [" + uie.__DebugToString() + "]");
                 uie.Children.ResortByZIndex();
             }
         }
@@ -362,6 +354,8 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             this._DownDirty.RemoveDirtyNode(uie._DownDirtyNode);
             uie._DownDirtyNode = null;
         }
+
+        DirtyDebug.Level--;
     }
 
     if (!this._DownDirty.IsEmpty()) {
@@ -372,7 +366,10 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 Surface.Instance._ProcessUpDirtyElements = function () {
     var visualParent;
     var node;
+    var i = 0;
     while (node = this._UpDirty.GetFirst()) {
+        i++;
+        DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
         var uie = node.Element;
         if (uie._DirtyFlags & _Dirty.Bounds) {
             uie._DirtyFlags &= ~_Dirty.Bounds;
@@ -452,6 +449,13 @@ Surface.Instance._AddDirtyElement = function (element, dirt) {
     /// <param name="element" type="UIElement"></param>
     if (element.GetVisualParent() == null && !this._IsTopLevel(element))
         return;
+
+    DirtyDebug.Level++;
+    if (dirt & _Dirty.DownDirtyState)
+        DirtyDebug("AddDirtyElement(Down): [" + element.__DebugToString() + "]" + element.__DebugDownDirtyFlags() + " --> " + _Dirty.__DebugToString(dirt));
+    if (dirt & _Dirty.UpDirtyState)
+        DirtyDebug("AddDirtyElement(Up): [" + element.__DebugToString() + "]" + element.__DebugUpDirtyFlags() + " --> " + _Dirty.__DebugToString(dirt));
+    DirtyDebug.Level--;
 
     element._DirtyFlags |= dirt;
 
@@ -576,7 +580,7 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
             this._EmitMouseList("enter", button, pos, newInputList, indices.Index2);
         if (type !== "noop")
             this._EmitMouseList(type, button, pos, newInputList);
-
+        
         this._App._NotifyDebugHitTest(newInputList);
         this._InputList = newInputList;
     }
