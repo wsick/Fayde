@@ -203,9 +203,11 @@ Surface.Instance.Render = function (region) {
     var layerCount = layers ? layers.GetCount() : 0;
 
     ctx.Clear(region);
+    RenderDebug.Count = 0;
     for (var i = 0; i < layerCount; i++) {
         layers.GetValueAt(i)._DoRender(ctx, region);
     }
+    RenderDebug("UIElement Count: " + RenderDebug.Count);
 
     if (isRenderPassTimed)
         this._App._NotifyDebugRenderPass(new Date().getTime() - startRenderTime);
@@ -426,6 +428,7 @@ Surface.Instance._ProcessUpDirtyElements = function () {
                     */
                 }
             }
+            uie._DirtyRegion = new Rect();
         }
 
         if (!(uie._DirtyFlags & _Dirty.UpDirtyState)) {

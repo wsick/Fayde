@@ -162,19 +162,19 @@ RawPath.Instance.Draw = function (ctx) {
         switch (p.type) {
             case PathEntryType.Move:
                 canvasCtx.moveTo(p.x, p.y);
-                RenderDebug("\t\tMoveTo: [X = " + p.x + "; Y = " + p.y + "]");
+                DrawDebug("\t\tMoveTo: [X = " + p.x + "; Y = " + p.y + "]");
                 break;
             case PathEntryType.Line:
                 canvasCtx.lineTo(p.x, p.y);
-                RenderDebug("\t\tLineTo: [X = " + p.x + "; Y = " + p.y + "]");
+                DrawDebug("\t\tLineTo: [X = " + p.x + "; Y = " + p.y + "]");
                 break;
             case PathEntryType.Rect:
                 canvasCtx.rect(p.x, p.y, p.width, p.height);
-                RenderDebug("\t\tRect: [X = " + p.x + "; Y = " + p.y + "; Width = " + p.width + "; Height = " + p.height + "]");
+                DrawDebug("\t\tRect: [X = " + p.x + "; Y = " + p.y + "; Width = " + p.width + "; Height = " + p.height + "]");
                 break;
             case PathEntryType.Quadratic:
                 canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
-                RenderDebug("\t\tQuadratic: [CPX = " + p.cpx + "; CPY = " + p.cpy + "; X = " + p.x + "; Y = " + p.y + "]");
+                DrawDebug("\t\tQuadratic: [CPX = " + p.cpx + "; CPY = " + p.cpy + "; X = " + p.x + "; Y = " + p.y + "]");
                 break;
             case PathEntryType.Bezier:
                 canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);

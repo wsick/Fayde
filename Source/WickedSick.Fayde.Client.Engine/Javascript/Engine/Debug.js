@@ -46,8 +46,14 @@ function LayoutDebug(message) {
     if (window.console && console.log)
         console.log("LAYOUT: " + message);
 };
-function RenderDebug(message) {
+function DrawDebug(message) {
     if (true)
+        return;
+    if (window.console && console.log)
+        console.log("DRAW: " + message);
+};
+function RenderDebug(message) {
+    if (false)
         return;
     if (window.console && console.log)
         console.log("RENDER: " + message);

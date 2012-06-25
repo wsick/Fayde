@@ -748,7 +748,8 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
         canvasCtx.clip();
     }
 
-    RenderDebug(this.constructor._TypeName + "[" + this.Name + "]");
+    RenderDebug.Count++;
+    //RenderDebug(this.constructor._TypeName + "[" + this.Name + "]");
     this._Render(ctx, region);
 
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);

@@ -31,10 +31,10 @@ _RenderContext.Instance.IsPointInClipPath = function (clip, p) {
 _RenderContext.Instance._DrawClip = function (clip) {
     if (clip instanceof Rect) {
         this._Surface._Ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
-        RenderDebug("DrawClip (Rect): " + clip.toString());
+        DrawDebug("DrawClip (Rect): " + clip.toString());
     } else if (clip instanceof Geometry) {
         clip.Draw(this);
-        RenderDebug("DrawClip (Geometry): " + clip.toString());
+        DrawDebug("DrawClip (Geometry): " + clip.toString());
     }
 };
 
@@ -79,7 +79,7 @@ _RenderContext.Instance.Fill = function (brush, region) {
     brush.SetupBrush(this._Surface._Ctx, region);
     this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
     this._Surface._Ctx.fill();
-    RenderDebug("Fill: [" + this._Surface._Ctx.fillStyle.toString() + "]");
+    DrawDebug("Fill: [" + this._Surface._Ctx.fillStyle.toString() + "]");
 };
 _RenderContext.Instance.FillRect = function (brush, rect) {
     /// <param name="brush" type="Brush"></param>
@@ -87,7 +87,7 @@ _RenderContext.Instance.FillRect = function (brush, rect) {
     brush.SetupBrush(this._Surface._Ctx, rect);
     this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
     this._Surface._Ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
-    RenderDebug("FillRect: [" + this._Surface._Ctx.fillStyle.toString() + "] " + rect.toString());
+    DrawDebug("FillRect: [" + this._Surface._Ctx.fillStyle.toString() + "] " + rect.toString());
 };
 _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     /// <param name="stroke" type="Brush"></param>
@@ -95,12 +95,12 @@ _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     this._Surface._Ctx.strokeStyle = stroke.ToHtml5Object();
     this._Surface._Ctx.lineWidth = thickness;
     this._Surface._Ctx.stroke();
-    RenderDebug("Stroke: [" + this._Surface._Ctx.strokeStyle.toString() + "] -> " + this._Surface._Ctx.lineWidth.toString());
+    DrawDebug("Stroke: [" + this._Surface._Ctx.strokeStyle.toString() + "] -> " + this._Surface._Ctx.lineWidth.toString());
 };
 
 _RenderContext.Instance.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
-    RenderDebug("Clear: " + rect.toString());
+    DrawDebug("Clear: " + rect.toString());
 };
 _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;
