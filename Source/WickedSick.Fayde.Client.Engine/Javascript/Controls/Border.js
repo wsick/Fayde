@@ -62,28 +62,16 @@ Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     return finalSize;
 };
 Border.Instance._Render = function (ctx, region) {
+    /// <param name="ctx" type="_RenderContext"></param>
     var borderBrush = this.BorderBrush;
     var paintBorder = this._Extents;
+    var background = this.Background;
 
-    if (!this.Background && !borderBrush)
+    if (!background && !borderBrush)
         return;
     if (paintBorder.IsEmpty())
         return;
-
-    //BorderBrush or CornerRadius?
-    if (borderBrush || !this.CornerRadius.IsZero()) {
-        this._RenderImpl(ctx, region);
-        return;
-    }
-
-    //If we got this far, all we have left to paint is the background
-    if (!this._HasLayoutClip() && false /* TODO: IsIntegerTranslation  */) {
-        //TODO:
-        //var paintBackground = paintBorder.GrowByThickness(this.BorderThickness.Negate());
-
-    } else {
-        this._RenderImpl(ctx, region);
-    }
+    this._RenderImpl(ctx, region);
 };
 Border.Instance._RenderImpl = function (ctx, region) {
     /// <param name="ctx" type="_RenderContext"></param>
@@ -98,48 +86,19 @@ Border.Instance._RenderImpl = function (ctx, region) {
         var cornerRadius = this.CornerRadius;
 
         var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
-        canvasCtx.beginPath();
+        var rawPath = new RawPath();
         if (cornerRadius.IsZero()) {
-            canvasCtx.rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
+            rawPath.Rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
         } else {
-            var left = pathRect.X;
-            var top = pathRect.Y;
-            var right = pathRect.X + pathRect.Width;
-            var bottom = pathRect.Y + pathRect.Height;
+            rawPath.RoundedRectFull(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height,
+                cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+        }
+        rawPath.Draw(ctx);
 
-            canvasCtx.moveTo(left + cornerRadius.TopLeft, top);
-            //top edge
-            canvasCtx.lineTo(right - cornerRadius.TopRight, top);
-            //top right arc
-            if (cornerRadius.TopRight > 0)
-                canvasCtx.quadraticCurveTo(right, top, right, top + cornerRadius.TopRight);
-            //right edge
-            canvasCtx.lineTo(right, bottom - cornerRadius.BottomRight);
-            //bottom right arc
-            if (cornerRadius.BottomRight > 0)
-                canvasCtx.quadraticCurveTo(right, bottom, right - cornerRadius.BottomRight, bottom);
-            //bottom edge
-            canvasCtx.lineTo(left + cornerRadius.BottomLeft, bottom);
-            //bottom left arc
-            if (cornerRadius.BottomLeft > 0)
-                canvasCtx.quadraticCurveTo(left, bottom, left, bottom - cornerRadius.BottomLeft);
-            //left edge
-            canvasCtx.lineTo(left, top + cornerRadius.TopLeft);
-            //top left arc
-            if (cornerRadius.TopLeft > 0)
-                canvasCtx.quadraticCurveTo(left, top, left + cornerRadius.TopLeft, top);
-        }
-        if (backgroundBrush) {
-            backgroundBrush.SetupBrush(canvasCtx, pathRect);
-            canvasCtx.fillStyle = backgroundBrush.ToHtml5Object();
-            canvasCtx.fill();
-        }
-        if (borderBrush && !thickness.IsEmpty()) {
-            canvasCtx.lineWidth = thickness;
-            borderBrush.SetupBrush(canvasCtx, pathRect);
-            canvasCtx.strokeStyle = borderBrush.ToHtml5Object();
-            canvasCtx.stroke();
-        }
+        if (backgroundBrush)
+            ctx.Fill(backgroundBrush, pathRect);
+        if (borderBrush && !thickness.IsEmpty())
+            ctx.Stroke(borderBrush, thickness, pathRect);
         canvasCtx.closePath();
     }
     ctx.Restore();

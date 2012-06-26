@@ -30,9 +30,12 @@ _RenderContext.Instance.IsPointInClipPath = function (clip, p) {
 };
 _RenderContext.Instance._DrawClip = function (clip) {
     if (clip instanceof Rect) {
-        this._Surface._Ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
+        this._Surface._Ctx.beginPath();
+        this._Surface._Ctx.rect(clip.X, clip.Y, clip.Width, clip.Height);
+        DrawDebug("DrawClip (Rect): " + clip.toString());
     } else if (clip instanceof Geometry) {
         clip.Draw(this);
+        DrawDebug("DrawClip (Geometry): " + clip.toString());
     }
 };
 
@@ -40,36 +43,35 @@ _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.Matrix;
     }
-    this._CurrentTransform = matrix.MultiplyMatrix(this._CurrentTransform);
-    this._InverseTransform = this._InverseTransform.MultiplyMatrix(matrix.GetInverse());
-    var els = this._CurrentTransform._Elements;
+    var ct = this._CurrentXform;
+    Matrix.Multiply(ct, matrix, ct);
+    var els = ct._Elements;
     this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
 _RenderContext.Instance.PreTransform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.Matrix;
     }
-    this._CurrentTransform = this._CurrentTransform.MultiplyMatrix(matrix);
-    this._InverseTransform = matrix.GetInverse().MultiplyMatrix(this._InverseTransform);
-    var els = this._CurrentTransform._Elements;
+    var ct = this._CurrentXform;
+    Matrix.Multiply(ct, ct, matrix);
+    var els = ct._Elements;
     this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
 _RenderContext.Instance.GetCurrentTransform = function () {
-    return this._CurrentTransform;
+    return this._CurrentXform;
 };
 _RenderContext.Instance.GetInverseTransform = function () {
-    return this._InverseTransform;
+    return this._CurrentXform.Inverse;
 };
 _RenderContext.Instance.Save = function () {
     this._Surface._Ctx.save();
-    this._Transforms.push({ Current: this._CurrentTransform, Inverse: this._InverseTransform });
-    this._CurrentTransform = this._CurrentTransform == null ? new Matrix() : this._CurrentTransform.Copy();
-    this._InverseTransform = this._InverseTransform == null ? new Matrix() : this._InverseTransform.Copy();
+    var ct = this._CurrentXform;
+    this._Transforms.push(ct);
+    this._CurrentXform = ct == null ? new Matrix() : ct.Copy();
 };
 _RenderContext.Instance.Restore = function () {
-    var temp = this._Transforms.pop();
-    this._CurrentTransform = temp.Current;
-    this._InverseTransform = temp.Inverse;
+    var curXform = this._Transforms.pop();
+    this._CurrentXform = curXform;
     this._Surface._Ctx.restore();
 };
 
@@ -78,6 +80,7 @@ _RenderContext.Instance.Fill = function (brush, region) {
     brush.SetupBrush(this._Surface._Ctx, region);
     this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
     this._Surface._Ctx.fill();
+    DrawDebug("Fill: [" + this._Surface._Ctx.fillStyle.toString() + "]");
 };
 _RenderContext.Instance.FillRect = function (brush, rect) {
     /// <param name="brush" type="Brush"></param>
@@ -85,6 +88,7 @@ _RenderContext.Instance.FillRect = function (brush, rect) {
     brush.SetupBrush(this._Surface._Ctx, rect);
     this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
     this._Surface._Ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
+    DrawDebug("FillRect: [" + this._Surface._Ctx.fillStyle.toString() + "] " + rect.toString());
 };
 _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     /// <param name="stroke" type="Brush"></param>
@@ -92,10 +96,12 @@ _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     this._Surface._Ctx.strokeStyle = stroke.ToHtml5Object();
     this._Surface._Ctx.lineWidth = thickness;
     this._Surface._Ctx.stroke();
+    DrawDebug("Stroke: [" + this._Surface._Ctx.strokeStyle.toString() + "] -> " + this._Surface._Ctx.lineWidth.toString());
 };
 
 _RenderContext.Instance.Clear = function (rect) {
     this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
+    DrawDebug("Clear: " + rect.toString());
 };
 _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
     this._Surface._Ctx.globalAlpha = alpha;

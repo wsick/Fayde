@@ -15,5 +15,7 @@ var UIElementFlags = {
 
     DirtyArrangeHint: 0x800,
     DirtyMeasureHint: 0x1000,
-    DirtySizeHint: 0x2000
+    DirtySizeHint: 0x2000,
+
+    RenderProjection: 0x4000
 };

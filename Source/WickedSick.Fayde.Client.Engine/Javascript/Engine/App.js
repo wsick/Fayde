@@ -21,6 +21,12 @@ App.Instance.Init = function () {
 
     //this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
     //this._SubscribeDebugService("HitTest", function (inputList) { HUDUpdate("els", "Elements Found: " + inputList._Count.toString()); });
+    this._SubscribeDebugService("LayoutTime", function (elapsedTime) {
+        Info("LayoutTime: " + elapsedTime.toString());
+    });
+    this._SubscribeDebugService("RenderTime", function (elapsedTime) {
+        Info("RenderTime: " + elapsedTime.toString());
+    });
 };
 
 //#region Dependency Properties
@@ -34,10 +40,11 @@ Nullstone.AutoProperties(App, [
 
 //#endregion
 
-App.Instance.Load = function (element, containerId, width, widthType, height, heightType) {
-    /// <param name="element" type="UIElement"></param>
+App.Instance.Load = function (json, containerId, width, widthType, height, heightType) {
+    /// <param name="json" type="Object"></param>
     this.Address = new Uri(document.URL);
     this.MainSurface.Register(containerId, width, widthType, height, heightType);
+    var element = JsonParser.CreateRoot(json);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);
@@ -73,16 +80,14 @@ App.Instance.ProcessDirty = function () {
         startLayoutTime = new Date().getTime();
 
     this._IsRunning = true;
-    var extents = this.MainSurface.GetExtents();
-    var region = new Rect(0, 0, extents.Width, extents.Height);
     //try {
-    this.MainSurface.ProcessDirtyElements(region);
+    var updated = this.MainSurface.ProcessDirtyElements();
     //} catch (err) {
     //Fatal("An error occurred processing dirty elements: " + err.toString());
     //}
     this._IsRunning = false;
 
-    if (isLayoutPassTimed)
+    if (updated && isLayoutPassTimed)
         this._NotifyDebugLayoutPass(new Date().getTime() - startLayoutTime);
 };
 

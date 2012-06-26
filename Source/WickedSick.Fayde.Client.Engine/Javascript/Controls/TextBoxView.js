@@ -131,7 +131,7 @@ _TextBoxView.Instance._EndCursorBlink = function () {
         this._HideCursor();
 };
 _TextBoxView.Instance._InvalidateCursor = function () {
-    this._Invalidate(this._Cursor/*.Transform(this._AbsoluteTransform)*/);
+    this._Invalidate(this._Cursor.Transform(this._AbsoluteXform));
 };
 _TextBoxView.Instance._ShowCursor = function () {
     this._CursorVisible = true;
@@ -150,7 +150,7 @@ _TextBoxView.Instance._UpdateCursor = function (invalidate) {
         this._InvalidateCursor();
 
     this._Cursor = this._Layout.GetSelectionCursor(new Point(), cur);
-    rect = this._Cursor; //.Transform(this._AbsoluteTransform);
+    rect = this._Cursor.Transform(this._AbsoluteXform);
 
     //TODO: this._TextBox._ImCtx.SetCursorLocation(rect);
 

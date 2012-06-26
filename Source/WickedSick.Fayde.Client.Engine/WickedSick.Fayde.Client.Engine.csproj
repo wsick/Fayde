@@ -115,6 +115,8 @@
     <Content Include="Javascript\Core\Collections\RangeCollection.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\DoubleKeyedDictionary.js" />
+    <Content Include="Javascript\Media\InternalTransform.js" />
+    <Content Include="Javascript\Primitives\Matrix3D.js" />
     <Content Include="Javascript\Runtime\Enum.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Core\StaticResourceExpression.js" />
@@ -361,6 +363,9 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Silo\heightTest.htm" />
+    <None Include="Tests\Controls\button.fayde">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Tests\Controls\checkbox.fayde">
       <SubType>Designer</SubType>
     </None>

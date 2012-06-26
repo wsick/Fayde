@@ -73,7 +73,7 @@ DependencyObject._PropagateMentor = function (propd, value, newMentor) {
 };
 
 DependencyObject.Instance._SetIsAttached = function (value) {
-    if (this._IsAttached == value)
+    if (this._IsAttached === value)
         return;
     this._IsAttached = value;
     this._OnIsAttachedChanged(value);
@@ -924,7 +924,6 @@ DependencyObject.Instance._RemoveParent = function (parent, error) {
         if (this._HasSecondaryParents() || !(parent instanceof DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
             return;
     } else {
-        //WTF: Hack?
         if (!Nullstone.RefEquals(this._Parent, parent))
             return;
     }

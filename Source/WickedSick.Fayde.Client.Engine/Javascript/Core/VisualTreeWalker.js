@@ -39,7 +39,7 @@ _VisualTreeWalker.Instance.Step = function () {
             return this._Collection.GetValueAt(0);
         }
 
-        if (this._Direction == _VisualTreeWalkerDirection.ZForward || this._Direction == _VisualTreeWalkerDirection.ZReverse) {
+        if (this._Direction === _VisualTreeWalkerDirection.ZForward || this._Direction === _VisualTreeWalkerDirection.ZReverse) {
             if (this._Collection.GetZSortedCount() != count) {
                 this._Collection.ResortByZIndex();
             }

@@ -1,6 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="Matrix.js"/>
+/// <reference path="Matrix3D.js"/>
 /// <reference path="Enums.js"/>
 
 //#region Rect
@@ -41,6 +42,8 @@ Rect.Instance.Union = function (rect2, logical) {
     /// <returns type="Rect" />
     if (this.IsEmpty())
         return new Rect(rect2.X, rect2.Y, rect2.Width, rect2.Height);
+    if (rect2.IsEmpty())
+        return new Rect(this.X, this.Y, this.Width, this.Height);
     if (logical) {
         if (rect2.Width <= 0 && rect2.Height <= 0)
             return new Rect(this.X, this.Y, this.Width, this.Height);
@@ -73,17 +76,15 @@ Rect.Instance.RoundIn = function () {
     /// <returns type="Rect" />
     return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
 }
-Rect.Instance.Transform = function (matrix) {
-    /// <param name="matrix" type="Matrix"></param>
+Rect.Instance.Transform = function (transform) {
     /// <returns type="Rect" />
-    var topLeft = new Point(this.X, this.Y);
-    var bottomRight = new Point(this.X + this.Width, this.Y + this.Height);
-    topLeft = matrix.MultiplyPoint(topLeft);
-    bottomRight = matrix.MultiplyPoint(bottomRight);
-    return new Rect(Math.min(topLeft.X, bottomRight.X),
-        Math.min(topLeft.Y, bottomRight.Y),
-        Math.abs(bottomRight.X - topLeft.X),
-        Math.abs(bottomRight.Y - topLeft.Y));
+    if (!transform)
+        return this;
+
+    if (transform instanceof Matrix)
+        return Matrix.TransformBounds(transform, this);
+    else if (transform instanceof Matrix3D)
+        return Matrix3D.TransformBounds(transform, this);
 };
 Rect.Instance.RectIn = function (rect2) {
     /// <param name="rect2" type="Rect"></param>
@@ -110,9 +111,23 @@ Rect.Instance.ContainsPointXY = function (x, y) {
         && (this.X + this.Width) >= x
         && (this.Y + this.Height) >= y;
 };
+Rect.Instance.ExtendTo = function (x, y) {
+    var result = new Rect(this.X, this.Y, this.Width, this.Height);
+
+    if (x < result.X || x > (result.X + result.Width))
+        result.Width = Math.max(Math.abs(x - result.X), Math.abs(x - result.X - result.Width));
+
+    if (y < result.Y || y > (result.Y + result.Height))
+        result.Height = Math.max(Math.abs(y - result.Y), Math.abs(y - result.Y - result.Height));
+
+    result.X = Math.min(result.X, x);
+    result.Y = Math.min(result.Y, y);
+
+    return result;
+};
 
 Rect.Instance.toString = function () {
-    return "[X = " + this.X + + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
+    return "[X = " + this.X + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
 };
 
 Rect.Equals = function (rect1, rect2) {

@@ -10,7 +10,7 @@ var Shape = Nullstone.Create("Shape", FrameworkElement);
 Shape.Instance.Init = function () {
     this.Init$FrameworkElement();
     this._ShapeFlags = 0;
-    this._StretchTransform = new Matrix();
+    this._StretchXform = new Matrix();
     this._NaturalBounds = new Rect();
 };
 
@@ -176,7 +176,7 @@ Shape.Instance._InvalidateNaturalBounds = function () {
 };
 Shape.Instance._InvalidateStretch = function () {
     this._ExtentsWithChildren = this._Extents = new Rect();
-    this._StretchTransform = new Matrix();
+    this._StretchXform = new Matrix();
     this._InvalidatePathCache();
 };
 Shape.Instance._InvalidatePathCache = function (free) {
@@ -274,7 +274,7 @@ Shape.Instance._TransformBounds = function () {
     //TODO:
 };
 Shape.Instance._ComputeBounds = function () {
-    this._BoundsWithChildren = this._Bounds = this._IntersectBoundsWithClipPath(this._GetStretchExtents()/*.GrowBy(this._EffectPadding)*/, false); //.Transform(this._AbsoluteXform);
+    this._BoundsWithChildren = this._Bounds = this._IntersectBoundsWithClipPath(this._GetStretchExtents()/*.GrowBy(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
@@ -310,7 +310,7 @@ Shape.Instance._ComputeStretchBounds = function () {
 
     var stretch = this.Stretch;
     if (stretch === Stretch.None) {
-        shapeBounds = shapeBounds.Transform(this._StretchTransform);
+        shapeBounds = shapeBounds.Transform(this._StretchXform);
         return shapeBounds;
     }
 
@@ -345,7 +345,7 @@ Shape.Instance._ComputeStretchBounds = function () {
 
     if ((adjX && Shape.IsSignificant(sw - 1, shapeBounds.Width)) || (adjY && Shape.IsSignificant(sh - 1, shapeBounds.Height))) {
         var temp = new Matrix();
-        temp = Matrix.Scale(temp, adjX ? sw : 1.0, adjY ? sh : 1.0);
+        Matrix.Scale(temp, adjX ? sw : 1.0, adjY ? sh : 1.0);
         var stretchBounds = this._ComputeShapeBoundsImpl(false, temp);
         if (stretchBounds.Width !== shapeBounds.Width && stretchBounds.Height !== shapeBounds.Height) {
             sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
@@ -364,27 +364,27 @@ Shape.Instance._ComputeStretchBounds = function () {
     var x = (!autoDim || adjX) ? shapeBounds.X : 0;
     var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
 
-    var st = this._StretchTransform;
+    var st = this._StretchXform;
     if (!(this instanceof Line) || !autoDim)
-        st = Matrix.Translate(st, -x, -y);
-    st = Matrix.Translate(st,
+        Matrix.Translate(st, -x, -y);
+    Matrix.Translate(st,
         adjX ? -shapeBounds.Width * 0.5 : 0.0,
         adjY ? -shapeBounds.Height * 0.5 : 0.0);
-    st = Matrix.Scale(st,
+    Matrix.Scale(st,
         adjX ? sw : 1.0,
         adjY ? sh : 1.0);
     if (center) {
-        st = Matrix.Translate(st,
+        Matrix.Translate(st,
             adjX ? framework.Width * 0.5 : 0,
             adjY ? framework.Height * 0.5 : 0);
     } else {
-        st = Matrix.Translate(st,
+        Matrix.Translate(st,
             adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0,
             adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
     }
-    this._StretchTransform = st;
+    this._StretchXform = st;
 
-    shapeBounds = shapeBounds.Transform(this._StretchTransform);
+    shapeBounds = shapeBounds.Transform(this._StretchXform);
     return shapeBounds;
 };
 Shape.IsSignificant = function (dx, x) {
@@ -437,7 +437,7 @@ Shape.Instance._InsideShape = function (ctx, x, y) {
     var ret = false;
     var area = this._GetStretchExtents();
     ctx.Save();
-    ctx.PreTransform(this._StretchTransform);
+    ctx.PreTransform(this._StretchXform);
     if (this._Fill != null) {
         this._DrawPath(ctx);
         if (ctx.IsPointInPath(new Point(x, y)))
@@ -458,7 +458,7 @@ Shape.Instance._Render = function (ctx, region) {
         return;
     var area = this._GetStretchExtents();
     ctx.Save();
-    ctx.PreTransform(this._StretchTransform);
+    ctx.PreTransform(this._StretchXform);
     this._DrawPath(ctx);
     if (this._Fill != null)
         ctx.Fill(this._Fill, area);
