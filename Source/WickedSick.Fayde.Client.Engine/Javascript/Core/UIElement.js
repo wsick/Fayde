@@ -721,7 +721,6 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     if (!this._GetRenderVisible() || this._IsOpacityInvisible())
         return;
 
-    ctx.Save();
     var region;
     if (false) {
         //TODO: Render to intermediate
@@ -733,10 +732,10 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
             .Intersection(parentRegion);
     }
 
-    if (region.IsEmpty()) {
-        ctx.Restore();
+    if (region.IsEmpty())
         return;
-    }
+
+    ctx.Save();
 
     ctx.Transform(this._RenderXform);
     ctx.SetGlobalAlpha(this._TotalOpacity);
@@ -749,7 +748,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     }
 
     RenderDebug.Count++;
-    //RenderDebug(this.constructor._TypeName + "[" + this.Name + "]");
+    RenderDebug(this.__DebugToString());
     this._Render(ctx, region);
 
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);

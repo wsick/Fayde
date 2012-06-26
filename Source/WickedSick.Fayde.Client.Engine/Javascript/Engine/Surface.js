@@ -203,10 +203,13 @@ Surface.Instance.Render = function (region) {
     var layerCount = layers ? layers.GetCount() : 0;
 
     ctx.Clear(region);
+    ctx.GetCanvasContext().save();
+    ctx.Clip(region);
     RenderDebug.Count = 0;
     for (var i = 0; i < layerCount; i++) {
         layers.GetValueAt(i)._DoRender(ctx, region);
     }
+    ctx.GetCanvasContext().restore();
     RenderDebug("UIElement Count: " + RenderDebug.Count);
 
     if (isRenderPassTimed)

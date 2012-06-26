@@ -30,7 +30,8 @@ _RenderContext.Instance.IsPointInClipPath = function (clip, p) {
 };
 _RenderContext.Instance._DrawClip = function (clip) {
     if (clip instanceof Rect) {
-        this._Surface._Ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
+        this._Surface._Ctx.beginPath();
+        this._Surface._Ctx.rect(clip.X, clip.Y, clip.Width, clip.Height);
         DrawDebug("DrawClip (Rect): " + clip.toString());
     } else if (clip instanceof Geometry) {
         clip.Draw(this);

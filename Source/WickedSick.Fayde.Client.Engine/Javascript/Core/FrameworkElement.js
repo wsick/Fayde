@@ -127,10 +127,10 @@ FrameworkElement.Instance._GetSizeForBrush = function () {
 };
 
 FrameworkElement.Instance._ComputeActualSize = function () {
-    var parent = this.GetVisualParent();
     if (this.Visibility !== Visibility.Visible)
         return new Size(0.0, 0.0);
 
+    var parent = this.GetVisualParent();
     if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
         return this._GetRenderSize();
 
