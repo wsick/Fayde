@@ -123,14 +123,14 @@ RadioButton.Instance.GetDefaultStyle = function () {
     Type: Setter,
     Props: {
         Property: DependencyProperty.GetDependencyProperty(RadioButton, "HorizontalContentAlignment"),
-        Value: HorizontalAlignment.Left
+        Value: "Left"
     }
 },
 {
     Type: Setter,
     Props: {
         Property: DependencyProperty.GetDependencyProperty(RadioButton, "VerticalContentAlignment"),
-        Value: VerticalAlignment.Top
+        Value: "Top"
     }
 },
 {

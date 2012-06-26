@@ -29,14 +29,14 @@ CheckBox.Instance.GetDefaultStyle = function () {
     Type: Setter,
     Props: {
         Property: DependencyProperty.GetDependencyProperty(CheckBox, "HorizontalContentAlignment"),
-        Value: HorizontalAlignment.Left
+        Value: "Left"
     }
 },
 {
     Type: Setter,
     Props: {
         Property: DependencyProperty.GetDependencyProperty(CheckBox, "VerticalContentAlignment"),
-        Value: VerticalAlignment.Top
+        Value: "Top"
     }
 },
 {

@@ -75,7 +75,7 @@ var Fayde = {
             } else if (targetType instanceof Enum) {
                 if (typeof val === "string") {
                     var ret = targetType.Object[val];
-                    if (ret)
+                    if (ret !== undefined)
                         return ret;
                     return val;
                 }
