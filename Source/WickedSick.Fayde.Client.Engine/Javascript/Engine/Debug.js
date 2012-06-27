@@ -53,7 +53,7 @@ function DrawDebug(message) {
         console.log("DRAW: " + message);
 };
 function RenderDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("RENDER: " + message);
