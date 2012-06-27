@@ -26,6 +26,7 @@ DependencyObject.Instance.Init = function () {
     this._SecondaryParents = [];
     this.PropertyChanged = new MulticastEvent();
     this._SubPropertyListeners = [];
+    this._CachedValues = {};
 };
 
 //#region Dependency Properties
@@ -565,6 +566,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
 
     //Construct property changed event args and raise
     if (notifyListeners) {
+        this._CachedValues[propd._ID] = newValue;
         var args = {
             Property: propd,
             OldValue: oldValue,

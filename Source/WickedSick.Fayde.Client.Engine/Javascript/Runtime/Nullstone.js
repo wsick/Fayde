@@ -205,7 +205,16 @@ Nullstone._CreateProps = function (ns) {
     }
 };
 Nullstone._CreateDP = function (ns, dp, converter) {
-    var getFunc = function () { return this.$GetValue(dp); };
+    var getFunc = function () {
+        var value = undefined;
+        if (dp._ID in this._CachedValues) {
+            value = this._CachedValues[dp._ID];
+        } else {
+            value = this.$GetValue(dp);
+            this._CachedValues[dp._ID] = value;
+        }
+        return value;
+    };
     if (dp.IsReadOnly) {
         Object.defineProperty(ns, dp.Name, {
             get: getFunc
