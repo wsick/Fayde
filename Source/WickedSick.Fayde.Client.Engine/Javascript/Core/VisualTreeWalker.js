@@ -5,9 +5,7 @@
 /// <reference path="Collections/UIElementCollection.js"/>
 
 //#region _VisualTreeWalker
-var _VisualTreeWalker = Nullstone.Create("_VisualTreeWalker", null, 2);
-
-_VisualTreeWalker.Instance.Init = function (obj, direction) {
+function _VisualTreeWalker(obj, direction) {
     /// <param name="obj" type="UIElement"></param>
     /// <param name="direction" type="Number">_VisualTreeWalkerDirection</param>
     if (!obj)
@@ -26,9 +24,9 @@ _VisualTreeWalker.Instance.Init = function (obj, direction) {
                 this._Direction = _VisualTreeWalkerDirection.Logical;
         }
     }
-};
+}
 
-_VisualTreeWalker.Instance.Step = function () {
+_VisualTreeWalker.prototype.Step = function () {
     var result;
     if (this._Collection) {
         var count = this.GetCount();
@@ -68,13 +66,11 @@ _VisualTreeWalker.Instance.Step = function () {
     }
     return result;
 };
-_VisualTreeWalker.Instance.GetCount = function () {
+_VisualTreeWalker.prototype.GetCount = function () {
     if (!this._Content)
         return 0;
     if (!this._Collection)
         return 1;
     return this._Collection.GetCount();
 };
-
-Nullstone.FinishCreate(_VisualTreeWalker);
 //#endregion
