@@ -79,7 +79,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var rows = this._GetRowDefinitionsNoAutoCreate();
     var colCount = cols ? cols.GetCount() : 0;
     var rowCount = rows ? rows.GetCount() : 0;
-    var totalStars = new Size(0, 0);
+    var totalStars = new Size();
     var emptyRows = rowCount === 0;
     var emptyCols = colCount === 0;
     var hasChildren = this.Children.GetCount() > 0;
@@ -171,7 +171,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
         var walker = new _VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
-            var childSize = new Size(0, 0);
+            var childSize = new Size();
             var starCol = false;
             var starRow = false;
             var autoCol = false;
@@ -253,7 +253,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
 
     sizes.Remove(separator);
 
-    var gridSize = new Size(0, 0);
+    var gridSize = new Size();
     for (c = 0; c < colCount; c++) {
         gridSize.Width += this._ColMatrix[c][c]._DesiredSize;
     }
@@ -275,7 +275,7 @@ Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var c;
     var r;
 
-    var totalConsumed = new Size(0, 0);
+    var totalConsumed = new Size();
     for (c = 0; c < this._ColMatrixDim; c++) {
         totalConsumed.Width += this._ColMatrix[c][c]._SetOfferedToDesired();
     }

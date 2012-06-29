@@ -33,7 +33,7 @@ Nullstone.AutoProperties(Border, [
 
 Border.Instance.IsLayoutContainer = function () { return true; };
 Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
-    var desired = new Size(0, 0);
+    var desired = new Size();
     var border = this.Padding.Plus(this.BorderThickness);
 
     var walker = new _VisualTreeWalker(this);
