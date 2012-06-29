@@ -24,7 +24,11 @@ App.Instance.Init = function () {
     this._ParserCount = 0;
 
     //this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
-    //this._SubscribeDebugService("HitTest", function (inputList) { HUDUpdate("els", "Elements Found: " + inputList._Count.toString()); });
+    this._SubscribeDebugService("HitTest", function (inputList, elapsedTime) {
+        //HUDUpdate("els", "Elements Found: " + inputList._Count.toString()); 
+        //Info("HitTestTime: " + elapsedTime.toString());
+    });
+
     this._SubscribeDebugService("LayoutTime", function (elapsedTime) {
         Info("LayoutTime: " + elapsedTime.toString());
     });
@@ -32,7 +36,7 @@ App.Instance.Init = function () {
         Info("RenderTime: " + elapsedTime.toString());
     });
     this._SubscribeDebugService("ParserTime", function (type, elapsedTime) {
-        Info("ParserTime: [" + type._TypeName + "]" + elapsedTime.toString());
+        //Info("ParserTime: [" + type._TypeName + "]" + elapsedTime.toString());
         app._TotalParserTime += elapsedTime;
         app._ParserCount++;
     });
@@ -53,7 +57,7 @@ App.Instance.Load = function (json, containerId, width, widthType, height, heigh
     /// <param name="json" type="Object"></param>
     this.Address = new Uri(document.URL);
     this.MainSurface.Register(containerId, width, widthType, height, heightType);
-    var element = JsonParser.CreateRoot(json);
+    var element = JsonParser.Parse(json);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);
@@ -190,11 +194,11 @@ App.Instance._NotifyDebugCoordinates = function (position) {
         return;
     func(position);
 };
-App.Instance._NotifyDebugHitTest = function (inputList) {
+App.Instance._NotifyDebugHitTest = function (inputList, elapsedTime) {
     var func = this._DebugFunc[2];
     if (!func)
         return;
-    func(inputList);
+    func(inputList, elapsedTime);
 };
 App.Instance._NotifyDebugLayoutPass = function (elapsedTime) {
     var func = this._DebugFunc[3];

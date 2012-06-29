@@ -245,7 +245,7 @@ Surface.Instance._UpdateLayout = function (error) {
 
             var last = LayoutInformation.GetPreviousConstraint(element);
             var available = new Size(this.GetWidth(), this.GetHeight());
-            if (element.IsContainer() && (!last || (!last.Equals(available)))) {
+            if (element.IsContainer() && (!last || (!Size.Equals(last, available)))) {
                 element._InvalidateMeasure();
                 LayoutInformation.SetPreviousConstraint(element, available);
             }
@@ -557,7 +557,8 @@ Surface.Instance._HandleOut = function (evt) {
     this._HandleMouseEvent("out", null, pos);
 };
 Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emitEnter) {
-    this._App._NotifyDebugCoordinates(pos);
+    var app = this._App;
+    app._NotifyDebugCoordinates(pos);
     this._CurrentPos = pos;
     if (this._EmittingMouseEvent)
         return false;
@@ -573,6 +574,8 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
         var newInputList = new LinkedList();
         var layers = this._Layers;
         var layerCount = layers.GetCount();
+
+        var startTime = new Date().getTime();
         for (var i = layerCount - 1; i >= 0 && newInputList.IsEmpty(); i--) {
             var layer = layers.GetValueAt(i);
             layer._HitTestPoint(ctx, pos, newInputList);
@@ -586,8 +589,8 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, emitLeave, emi
             this._EmitMouseList("enter", button, pos, newInputList, indices.Index2);
         if (type !== "noop")
             this._EmitMouseList(type, button, pos, newInputList);
-        
-        this._App._NotifyDebugHitTest(newInputList);
+
+        app._NotifyDebugHitTest(newInputList, new Date().getTime() - startTime);
         this._InputList = newInputList;
     }
 
