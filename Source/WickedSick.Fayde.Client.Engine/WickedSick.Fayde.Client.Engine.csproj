@@ -52,6 +52,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Benchmarks\Bitwise\test.html" />
     <Content Include="Benchmarks\LinkedList\LinkedList.js" />
     <Content Include="Benchmarks\LinkedList\test.html" />
     <Content Include="Benchmarks\Matrix\CanvasMatrix.js" />
