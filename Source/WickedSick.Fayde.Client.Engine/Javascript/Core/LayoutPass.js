@@ -6,9 +6,9 @@
 var LayoutPass = Nullstone.Create("LayoutPass");
 
 LayoutPass.Instance.Init = function () {
-    this._MeasureList = new LinkedList();
-    this._ArrangeList = new LinkedList();
-    this._SizeList = new LinkedList();
+    this._MeasureList = [];
+    this._ArrangeList = [];
+    this._SizeList = [];
     this._Count = 0;
     this._Updated = false;
 };

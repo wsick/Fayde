@@ -591,14 +591,12 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
 
     while (pass._Count < LayoutPass.MaxCount) {
         var node;
-        while (node = pass._ArrangeList.First()) {
+        while (node = pass._ArrangeList.shift()) {
             node.UIElement._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
-            pass._ArrangeList.Remove(node);
             Info("PropagateFlagUp DirtyArrangeHint");
         }
-        while (node = pass._SizeList.First()) {
+        while (node = pass._SizeList.shift()) {
             node.UIElement._PropagateFlagUp(UIElementFlags.DirtySizeHint);
-            pass._SizeList.Remove(node);
             Info("PropagateFlagUp DirtySizeHint");
         }
         pass._Count = pass._Count + 1;
@@ -625,15 +623,15 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 switch (flag) {
                     case UIElementFlags.DirtyMeasureHint:
                         if (child._DirtyFlags & _Dirty.Measure)
-                            pass._MeasureList.Append(new UIElementNode(child));
+                            pass._MeasureList.push(new UIElementNode(child));
                         break;
                     case UIElementFlags.DirtyArrangeHint:
                         if (child._DirtyFlags & _Dirty.Arrange)
-                            pass._ArrangeList.Append(new UIElementNode(child));
+                            pass._ArrangeList.push(new UIElementNode(child));
                         break;
                     case UIElementFlags.DirtySizeHint:
                         if (child._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
-                            pass._SizeList.Append(new UIElementNode(child));
+                            pass._SizeList.push(new UIElementNode(child));
                         break;
                     default:
                         break;
@@ -642,17 +640,15 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         }
 
         if (flag === UIElementFlags.DirtyMeasureHint) {
-            Info("Starting _MeasureList Update: " + pass._MeasureList._Count);
-            while (node = pass._MeasureList.First()) {
-                pass._MeasureList.Remove(node);
+            Info("Starting _MeasureList Update: " + pass._MeasureList.length);
+            while (node = pass._MeasureList.shift()) {
                 LayoutDebug("Measure [" + node.UIElement.__DebugToString() + "]");
                 node.UIElement._DoMeasureWithError(error);
                 pass._Updated = true;
             }
         } else if (flag === UIElementFlags.DirtyArrangeHint) {
-            Info("Starting _ArrangeList Update: " + pass._ArrangeList._Count);
-            while (node = pass._ArrangeList.First()) {
-                pass._ArrangeList.Remove(node);
+            Info("Starting _ArrangeList Update: " + pass._ArrangeList.length);
+            while (node = pass._ArrangeList.shift()) {
                 LayoutDebug("Arrange [" + node.UIElement.__DebugToString() + "]");
                 node.UIElement._DoArrangeWithError(error);
                 pass._Updated = true;
@@ -660,8 +656,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                     break;
             }
         } else if (flag === UIElementFlags.DirtySizeHint) {
-            while (node = pass._SizeList.First()) {
-                pass._SizeList.Remove(node);
+            while (node = pass._SizeList.shift()) {
                 var fe = node.UIElement;
                 pass._Updated = true;
                 var last = LayoutInformation.GetLastRenderSize(fe);
