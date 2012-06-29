@@ -45,18 +45,24 @@ function LayoutDebug(message) {
         return;
     if (window.console && console.log)
         console.log("LAYOUT: " + message);
-};
+}
 function DrawDebug(message) {
     if (true)
         return;
     if (window.console && console.log)
         console.log("DRAW: " + message);
-};
+}
 function RenderDebug(message) {
     if (true)
         return;
     if (window.console && console.log)
         console.log("RENDER: " + message);
+}
+function ParserDebug(message) {
+    if (false)
+        return;
+    if (window.console && console.log)
+        console.log("PARSER: " + message);
 }
 function Debug(message) {
     if (window.console && console.log)

@@ -10,6 +10,26 @@ JsonParser.Instance.Init = function () {
     this.$SRExpressions = [];
 };
 
+JsonParser.Parse = function (json, templateBindingSource, namescope) {
+    var parser = new JsonParser();
+    parser._TemplateBindingSource = templateBindingSource;
+    if (!namescope)
+        namescope = new NameScope();
+
+    var app = App.Instance;
+    var startTime;
+    var isTimed;
+    if (isTimed = (app._DebugFunc[5] != null))
+        startTime = new Date().getTime();
+
+    var obj = parser.CreateObject(json, namescope);
+
+    if (isTimed)
+        app._NotifyDebugParserPass(json.Type, new Date().getTime() - startTime);
+
+    return obj;
+};
+
 JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
     if (json.Type === ControlTemplate) {
         return new json.Type(json.Props.TargetType, json.Content);

@@ -690,8 +690,7 @@ ScrollViewer.Instance.GetDefaultStyle = function () {
 }]
 
     };
-    var parser = new JsonParser();
-    return parser.CreateObject(styleJson, new NameScope());
+    return JsonParser.Parse(styleJson);
 };
 
 Nullstone.FinishCreate(ScrollViewer);
