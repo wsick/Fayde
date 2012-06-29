@@ -4,6 +4,7 @@
 var Nullstone = {};
 Nullstone._LastID = 0;
 Nullstone._LastTypeID = 1;
+Nullstone._RecordTypeCounts = true;
 Nullstone.Create = function (typeName, parent, argCount, interfaces) {
     if (parent && parent._IsNullstone !== true) {
         throw new InvalidOperationException("Nullstones can only be inherited from other nullstones.");
@@ -27,8 +28,14 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
         "n._CreateProps(this);" +
         "if (this.Init) this.Init(" + s + ");"
 
-    var f = new Function(code);
+    if (Nullstone._RecordTypeCounts) {
+        code += "n._TypeCount['" + typeName + "']++;";
+        if (!Nullstone._TypeCount)
+            Nullstone._TypeCount = [];
+        Nullstone._TypeCount[typeName] = 0;
+    }
 
+    var f = new Function(code);
     f._IsNullstone = true;
     f._TypeName = typeName;
     Nullstone._LastTypeID = f._TypeID = Nullstone._LastTypeID + 1;
@@ -270,4 +277,13 @@ Nullstone._FindProperty = function (props, name) {
             return p;
     }
     return null;
+};
+
+Nullstone._GetTypeCountsAbove = function (count) {
+    var arr = [];
+    for (var tn in Nullstone._TypeCount) {
+        if (Nullstone._TypeCount[tn] > count)
+            arr[tn] = Nullstone._TypeCount[tn];
+    }
+    return arr;
 };
