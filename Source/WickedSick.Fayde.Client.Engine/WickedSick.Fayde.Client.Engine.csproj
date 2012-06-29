@@ -52,6 +52,12 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Benchmarks\LinkedList\LinkedList.js" />
+    <Content Include="Benchmarks\LinkedList\test.html" />
+    <Content Include="Benchmarks\Matrix\CanvasMatrix.js" />
+    <Content Include="Benchmarks\Matrix\glMatrix-min.js" />
+    <Content Include="Benchmarks\Matrix\Matrix3D.js" />
+    <Content Include="Benchmarks\Matrix\test.html" />
     <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Fayde.js" />
