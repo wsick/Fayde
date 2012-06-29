@@ -7,7 +7,7 @@ function Point(x, y) {
     this.Y = y == null ? 0 : y;
 }
 
-Point.Instance.toString = function () {
+Point.prototype.toString = function () {
     return "X=" + this.X.toString() + ";Y=" + this.Y.toString();
 };
 
