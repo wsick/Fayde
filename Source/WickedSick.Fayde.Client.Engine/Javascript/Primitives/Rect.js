@@ -112,7 +112,7 @@ Rect.Instance.ContainsPointXY = function (x, y) {
 };
 
 Rect.Instance.toString = function () {
-    return "[X = " + this.X + + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
+    return "[X = " + this.X + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
 };
 
 Rect.Equals = function (rect1, rect2) {
