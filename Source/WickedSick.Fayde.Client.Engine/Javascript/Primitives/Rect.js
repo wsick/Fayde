@@ -5,27 +5,34 @@
 /// <reference path="Enums.js"/>
 
 //#region Rect
-var Rect = Nullstone.Create("Rect", null, 4);
-
-Rect.Instance.Init = function (x, y, width, height) {
+function Rect(x, y, width, height) {
     this.X = x == null ? 0 : x;
     this.Y = y == null ? 0 : y;
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
+}
+
+Rect.Equals = function (rect1, rect2) {
+    /// <returns type="Boolean" />
+    if (rect1 == null)
+        return rect2 == null;
+    if (rect2 == null)
+        return false;
+    return rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
 };
 
-Rect.Instance.GetRight = function () {
+Rect.prototype.GetRight = function () {
     return this.X + this.Width;
 };
-Rect.Instance.GetBottom = function () {
+Rect.prototype.GetBottom = function () {
     return this.Y + this.Height;
 };
 
-Rect.Instance.IsEmpty = function () {
+Rect.prototype.IsEmpty = function () {
     /// <returns type="Boolean" />
     return this.Width <= 0.0 || this.Height <= 0.0;
 };
-Rect.Instance.GrowBy = function (left, top, right, bottom) {
+Rect.prototype.GrowBy = function (left, top, right, bottom) {
     /// <returns type="Rect" />
     var result = new Rect(this.X - left, this.Y - top, this.Width + left + right, this.Height + top + bottom);
     if (result.Width < 0)
@@ -34,11 +41,11 @@ Rect.Instance.GrowBy = function (left, top, right, bottom) {
         result.Height = 0;
     return result;
 };
-Rect.Instance.GrowByThickness = function (thickness) {
+Rect.prototype.GrowByThickness = function (thickness) {
     /// <returns type="Rect" />
     return this.GrowBy(thickness.Left, thickness.Top, thickness.Right, thickness.Bottom);
 };
-Rect.Instance.Union = function (rect2, logical) {
+Rect.prototype.Union = function (rect2, logical) {
     /// <returns type="Rect" />
     if (this.IsEmpty())
         return new Rect(rect2.X, rect2.Y, rect2.Width, rect2.Height);
@@ -59,7 +66,7 @@ Rect.Instance.Union = function (rect2, logical) {
     result.Height = Math.max(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y;
     return result;
 };
-Rect.Instance.Intersection = function (rect2) {
+Rect.prototype.Intersection = function (rect2) {
     /// <returns type="Rect" />
     var result = new Rect(0, 0, 0, 0);
     result.X = Math.max(this.X, rect2.X);
@@ -68,15 +75,15 @@ Rect.Instance.Intersection = function (rect2) {
     result.Height = Math.max(0, Math.min(this.Y + this.Height, rect2.Y + rect2.Height) - result.Y);
     return result;
 };
-Rect.Instance.RoundOut = function () {
+Rect.prototype.RoundOut = function () {
     /// <returns type="Rect" />
     return new Rect(Math.floor(this.X), Math.floor(this.Y), Math.ceil(this.X + this.Width) - Math.floor(this.X), Math.ceil(this.Y + this.Height) - Math.floor(this.Y));
 }
-Rect.Instance.RoundIn = function () {
+Rect.prototype.RoundIn = function () {
     /// <returns type="Rect" />
     return new Rect(Math.ceil(this.X), Math.ceil(this.Y), Math.floor(this.X + this.Width) - Math.ceil(this.X), Math.floor(this.Y + this.Height) - Math.ceil(this.Y));
 }
-Rect.Instance.Transform = function (transform) {
+Rect.prototype.Transform = function (transform) {
     /// <returns type="Rect" />
     if (!transform)
         return this;
@@ -86,7 +93,7 @@ Rect.Instance.Transform = function (transform) {
     else if (transform instanceof Matrix3D)
         return Matrix3D.TransformBounds(transform, this);
 };
-Rect.Instance.RectIn = function (rect2) {
+Rect.prototype.RectIn = function (rect2) {
     /// <param name="rect2" type="Rect"></param>
     /// <returns type="Number" />
     var inter = this.Intersection(rect2);
@@ -96,14 +103,14 @@ Rect.Instance.RectIn = function (rect2) {
         return RectOverlap.In;
     return RectOverlap.Part;
 };
-Rect.Instance.ContainsPoint = function (p) {
+Rect.prototype.ContainsPoint = function (p) {
     /// <param name="p" type="Point"></param>
     return this.X <= p.X
         && this.Y <= p.Y
         && (this.X + this.Width) >= p.X
         && (this.Y + this.Height) >= p.Y;
 };
-Rect.Instance.ContainsPointXY = function (x, y) {
+Rect.prototype.ContainsPointXY = function (x, y) {
     /// <param name="x" type="Number"></param>
     /// <param name="y" type="Number"></param>
     return this.X <= x
@@ -111,7 +118,7 @@ Rect.Instance.ContainsPointXY = function (x, y) {
         && (this.X + this.Width) >= x
         && (this.Y + this.Height) >= y;
 };
-Rect.Instance.ExtendTo = function (x, y) {
+Rect.prototype.ExtendTo = function (x, y) {
     var result = new Rect(this.X, this.Y, this.Width, this.Height);
 
     if (x < result.X || x > (result.X + result.Width))
@@ -126,18 +133,8 @@ Rect.Instance.ExtendTo = function (x, y) {
     return result;
 };
 
-Rect.Instance.toString = function () {
+Rect.prototype.toString = function () {
     return "[X = " + this.X + "; Y = " + this.Y + "; Width = " + this.Width + "; Height = " + this.Height + "]";
 };
 
-Rect.Equals = function (rect1, rect2) {
-    /// <returns type="Boolean" />
-    if (rect1 == null && rect2 == null)
-        return true;
-    if (rect1 == null || rect2 == null)
-        return false;
-    return rect1.X == rect2.X && rect1.Y == rect2.Y && rect1.Width == rect2.Width && rect1.Height == rect2.Height;
-};
-
-Nullstone.FinishCreate(Rect);
 //#endregion
