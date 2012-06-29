@@ -17,9 +17,10 @@
             <TreeView.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type vms:VisualViewModel}" ItemsSource="{Binding VisualChildren}">
                     <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ID}" />
                         <TextBlock FontWeight="{Binding IsThisOnStackFrame, Converter={StaticResource boolFontWeightConverter}}" 
                                    Foreground="{Binding IsInHitTest, Converter={StaticResource boolSolidColorBrushConverter}}"
-                                   Text="{Binding Type}" />
+                                   Margin="5,0,0,0" Text="{Binding Type}" />
                         <TextBlock FontWeight="{Binding IsThisOnStackFrame, Converter={StaticResource boolFontWeightConverter}}" 
                                    Foreground="{Binding IsInHitTest, Converter={StaticResource boolSolidColorBrushConverter}}"
                                    Margin="5,0,0,0" Text="{Binding Name, StringFormat=[{0}], TargetNullValue=''}" />
