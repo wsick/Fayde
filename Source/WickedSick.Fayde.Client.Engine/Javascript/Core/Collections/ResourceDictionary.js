@@ -140,24 +140,27 @@ ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
 
 ResourceDictionary._CanBeAddedTwice = function (value) {
     //TODO: Uncomment when implemented
-    var twices = [
-        FrameworkTemplate,
-        Style,
-    //StrokeCollection,
-    //DrawingAttributes,
-    //Transform,
-        Brush,
-    //StylusPointCollection,
-    //BitmapImage,
-    //Stroke,
-    //Invalid
-    ];
-
-    for (var i = 0; i < twices.length; i++) {
-        if (value instanceof twices[i])
-            return true;
-    }
-    return true;
+    if (value instanceof FrameworkTemplate)
+        return true;
+    if (value instanceof Style)
+        return true;
+    if (value instanceof Transform)
+        return true;
+    if (value instanceof Brush)
+        return true;
+    //if (value instanceof StrokeCollection)
+    //  return true;
+    //if (value instanceof DrawingAttributes)
+    //  return true;
+    //if (value instanceof StylusPointCollection)
+    //  return true;
+    //if (value instanceof BitmapImage)
+    //  return true;
+    //if (value instanceof Stroke)
+    //  return true;
+    //if (value instanceof Invalid)
+    //  return true;
+    return false;
 };
 
 Nullstone.FinishCreate(ResourceDictionary);

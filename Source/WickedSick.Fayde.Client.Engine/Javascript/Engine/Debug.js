@@ -1,6 +1,6 @@
 var DebugLevel = {
-    Info: 0,
-    Debug: 1,
+    Debug: 0,
+    Info: 1,
     Warn: 2,
     Error: 3,
     Fatal: 4
@@ -28,13 +28,43 @@ function NotImplemented(method) {
     Warn("Not Implemented [" + method + "]");
 }
 
-function Info(message) {
-    if (window.console && console.info)
-        console.info(message);
+function DirtyDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log) {
+        var tabs = "";
+        for (var i = 0; i < DirtyDebug.Level; i++) {
+            tabs += "\t";
+        }
+        console.log("DIRTY: " + tabs + message);
+    }
+}
+DirtyDebug.Level = 0;
+function LayoutDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log)
+        console.log("LAYOUT: " + message);
+};
+function DrawDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log)
+        console.log("DRAW: " + message);
+};
+function RenderDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log)
+        console.log("RENDER: " + message);
 }
 function Debug(message) {
     if (window.console && console.log)
         console.log(message);
+}
+function Info(message) {
+    if (window.console && console.info)
+        console.info(message);
 }
 function Warn(message) {
     if (window.console && console.warn)

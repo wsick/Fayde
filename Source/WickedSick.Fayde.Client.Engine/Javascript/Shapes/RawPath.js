@@ -32,6 +32,32 @@ RawPath.Instance.Rect = function (x, y, width, height) {
         height: height
     });
 };
+RawPath.Instance.RoundedRectFull = function (left, top, width, height, topLeft, topRight, bottomRight, bottomLeft) {
+    var right = left + width;
+    var bottom = top + height;
+
+    this.Move(left + topLeft, top);
+    //top edge
+    this.Line(right - topRight, top);
+    //top right arc
+    if (topRight > 0)
+        this.Quadratic(right, top, right, top + topRight);
+    //right edge
+    this.Line(right, bottom - bottomRight);
+    //bottom right arc
+    if (bottomRight > 0)
+        this.Quadratic(right, bottom, right - bottomRight, bottom);
+    //bottom edge
+    this.Line(left + bottomLeft, bottom);
+    //bottom left arc
+    if (bottomLeft > 0)
+        this.Quadratic(left, bottom, left, bottom - bottomLeft);
+    //left edge
+    this.Line(left, top + topLeft);
+    //top left arc
+    if (topLeft > 0)
+        this.Quadratic(left, top, left + topLeft, top);
+};
 RawPath.Instance.RoundedRect = function (left, top, width, height, radiusX, radiusY) {
     if (radiusX === 0.0 && radiusY === 0.0) {
         this.Rect(left, top, width, height);
@@ -136,15 +162,19 @@ RawPath.Instance.Draw = function (ctx) {
         switch (p.type) {
             case PathEntryType.Move:
                 canvasCtx.moveTo(p.x, p.y);
+                DrawDebug("\t\tMoveTo: [X = " + p.x + "; Y = " + p.y + "]");
                 break;
             case PathEntryType.Line:
                 canvasCtx.lineTo(p.x, p.y);
+                DrawDebug("\t\tLineTo: [X = " + p.x + "; Y = " + p.y + "]");
                 break;
             case PathEntryType.Rect:
                 canvasCtx.rect(p.x, p.y, p.width, p.height);
+                DrawDebug("\t\tRect: [X = " + p.x + "; Y = " + p.y + "; Width = " + p.width + "; Height = " + p.height + "]");
                 break;
             case PathEntryType.Quadratic:
                 canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
+                DrawDebug("\t\tQuadratic: [CPX = " + p.cpx + "; CPY = " + p.cpy + "; X = " + p.x + "; Y = " + p.y + "]");
                 break;
             case PathEntryType.Bezier:
                 canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);

@@ -17,7 +17,7 @@ var _Dirty = {
     NewBounds: 1 << 21,
     Invalidate: 1 << 22,
     InUpDirtyList: 1 << 30,
-    InUpDirtyList: 1 << 31
+    InDownDirtyList: 1 << 31
 };
 _Dirty.DownDirtyState =
     _Dirty.Transform |
@@ -31,20 +31,65 @@ _Dirty.DownDirtyState =
 _Dirty.UpDirtyState = _Dirty.Bounds | _Dirty.Invalidate;
 _Dirty.State = _Dirty.DownDirtyState | _Dirty.UpDirtyState;
 
-//#region _DirtyList
-var _DirtyList = Nullstone.Create("_DirtyList");
+_Dirty.__DebugToString = function (dirty) {
+    switch (dirty) {
+        case _Dirty.Measure:
+            return "[Measure]";
+        case _Dirty.Arrange:
+            return "[Arrange]";
+        case _Dirty.Bounds:
+            return "[Bounds]";
+        case _Dirty.NewBounds:
+            return "[NewBounds]";
+        case _Dirty.ChildrenZIndices:
+            return "[ChildrenZIndices]";
+        case _Dirty.Clip:
+            return "[Clip]";
+        case _Dirty.Invalidate:
+            return "[Invalidate]";
+        case _Dirty.Transform:
+            return "[Transform]";
+        case _Dirty.LocalTransform:
+            return "[LocalTransform]";
+        case _Dirty.LocalProjection:
+            return "[LocalProjection]";
+        case _Dirty.RenderVisibility:
+            return "[RenderVisibility]";
+        case _Dirty.HitTestVisibility:
+            return "[HitTestVisibility]";
+    }
+    return dirty;
+};
 
-_DirtyList.Instance.Init = function () {
+//#region _DirtyList
+var _DirtyList = Nullstone.Create("_DirtyList", undefined, 1);
+
+_DirtyList.Instance.Init = function (type) {
     this._DirtyNodes = new LinkedList();
+    this._Type = type;
 };
 
 _DirtyList.Instance.AddDirtyNode = function (node) {
+    DirtyDebug.Level++;
     this._DirtyNodes.Append(node);
+    if (this._Type === "Down")
+        DirtyDebug("AddDirtyNode(Down): [" + node.Element.__DebugToString() + "]" + node.Element.__DebugDownDirtyFlags());
+    if (this._Type === "Up")
+        DirtyDebug("AddDirtyNode(Up): [" + node.Element.__DebugToString() + "]" + node.Element.__DebugUpDirtyFlags());
+    DirtyDebug(this.__DebugToString());
+    DirtyDebug.Level--;
 };
 _DirtyList.Instance.RemoveDirtyNode = function (node) {
     if (!this._DirtyNodes)
         return;
+    DirtyDebug.Level++;
     this._DirtyNodes.Remove(node);
+    if (this._Type === "Down")
+        DirtyDebug("RemoveDirtyNode(Down): [" + node.Element.__DebugToString() + "]" + node.Element.__DebugDownDirtyFlags());
+    if (this._Type === "Up")
+        DirtyDebug("RemoveDirtyNode(Up): [" + node.Element.__DebugToString() + "]" + node.Element.__DebugUpDirtyFlags());
+    DirtyDebug("Remaining: " + this.__DebugToString());
+    DirtyDebug.Level--;
 };
 _DirtyList.Instance.GetFirst = function () {
     return this._DirtyNodes.First();
@@ -54,6 +99,16 @@ _DirtyList.Instance.IsEmpty = function () {
 };
 _DirtyList.Instance.Clear = function () {
     this._DirtyNodes.Clear();
+};
+
+_DirtyList.Instance.__DebugToString = function () {
+    var s = new String();
+    var cur = this._DirtyNodes.First();
+    while (cur != null) {
+        s += "[" + cur.Element.__DebugToString() + "]";
+        cur = cur.Next;
+    }
+    return s;
 };
 
 Nullstone.FinishCreate(_DirtyList);

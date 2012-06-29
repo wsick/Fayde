@@ -26,6 +26,7 @@ DependencyObject.Instance.Init = function () {
     this._SecondaryParents = [];
     this.PropertyChanged = new MulticastEvent();
     this._SubPropertyListeners = [];
+    this._CachedValues = {};
 };
 
 //#region Dependency Properties
@@ -73,7 +74,7 @@ DependencyObject._PropagateMentor = function (propd, value, newMentor) {
 };
 
 DependencyObject.Instance._SetIsAttached = function (value) {
-    if (this._IsAttached == value)
+    if (this._IsAttached === value)
         return;
     this._IsAttached = value;
     this._OnIsAttachedChanged(value);
@@ -565,6 +566,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
 
     //Construct property changed event args and raise
     if (notifyListeners) {
+        this._CachedValues[propd._ID] = newValue;
         var args = {
             Property: propd,
             OldValue: oldValue,
@@ -924,7 +926,6 @@ DependencyObject.Instance._RemoveParent = function (parent, error) {
         if (this._HasSecondaryParents() || !(parent instanceof DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
             return;
     } else {
-        //WTF: Hack?
         if (!Nullstone.RefEquals(this._Parent, parent))
             return;
     }

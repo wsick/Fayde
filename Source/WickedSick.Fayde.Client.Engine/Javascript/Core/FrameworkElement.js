@@ -119,11 +119,18 @@ FrameworkElement.Instance._ApplySizeConstraints = function (size) {
     return constrained;
 };
 
+FrameworkElement.Instance._GetSizeForBrush = function () {
+    return {
+        Width: this.ActualWidth,
+        Height: this.ActualHeight
+    };
+};
+
 FrameworkElement.Instance._ComputeActualSize = function () {
-    var parent = this.GetVisualParent();
     if (this.Visibility !== Visibility.Visible)
         return new Size(0.0, 0.0);
 
+    var parent = this.GetVisualParent();
     if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
         return this._GetRenderSize();
 
@@ -145,19 +152,19 @@ FrameworkElement.Instance._ComputeBounds = function () {
             this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
     }
 
-    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false); //.Transform(this._AbsoluteXform);
-    this._BoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteXform);
+    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
+    this._BoundsWithChildren = this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/.Transform(this._AbsoluteXform);
 
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
 FrameworkElement.Instance._ComputeGlobalBounds = function () {
     this._ComputeGlobalBounds$UIElement();
-    this._GlobalBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._LocalProjection);
+    this._GlobalBoundsWithChildren = this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/.Transform(this._LocalProjection);
 };
 FrameworkElement.Instance._ComputeSurfaceBounds = function () {
     this._ComputeSurfaceBounds$UIElement();
-    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren; //.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
+    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/.Transform(this._AbsoluteProjection);
 };
 
 FrameworkElement.Instance._GetSubtreeExtents = function () {
@@ -355,25 +362,27 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     if (vert === VerticalAlignment.Stretch)
         response.Height = Math.max(response.Height, framework.Height);
 
-    /*
-    LAYOUT TRANSFORM NOT IMPLEMENTED YET
-    FLOW DIRECTION NOT IMPLEMENTED YET
-
     var flipHoriz = false;
+    
+    /*
+    TODO: FLOW DIRECTION NOT IMPLEMENTED YET
+
     if (parent)
-    flipHoriz = parent.FlowDirection !== this.FlowDirection;
+        flipHoriz = parent.FlowDirection !== this.FlowDirection;
     else if (this.GetParent() && this.GetParent()._IsPopup())
-    flipHoriz = this.GetParent().FlowDirection != this.FlowDirection;
+        flipHoriz = this.GetParent().FlowDirection != this.FlowDirection;
     else
-    flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
+        flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
+
+    */
 
     var layoutXform = new Matrix();
-    layoutXform = layoutXform.Translate(childRect.X, childRect.Y);
-    if (flipHoriz)  {
-    layoutXform = layoutXform.Translate(offer.Width, 0);
-    layoutXform = layoutXform.Scale(-1, 1);
+    Matrix.Translate(layoutXform, childRect.X, childRect.Y);
+    if (flipHoriz) {
+        Matrix.Translate(layoutXform, offer.Width, 0.0);
+        Matrix.Scale(layoutXform, -1, 1);
     }
-    */
+    this._LayoutXform = layoutXform;
 
     if (error.IsErrored())
         return;
@@ -436,15 +445,13 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         visualOffset.Y = Math.round(visualOffset.Y);
     }
 
-    /* 
-    LAYOUT TRANSFORM NOT IMPLEMENTED YET
     layoutXform = new Matrix();
-    layoutXform = layoutXform.Translate(visualOffset.X, visualOffset.Y);
+    Matrix.Translate(layoutXform, visualOffset.X, visualOffset.Y);
     if (flipHoriz) {
-    layoutXform = layoutXform.Translate(response.Width, 0);
-    layoutXform = layoutXform.Scale(-1, 1);
+        Matrix.Translate(layoutXform, response.Width, 0);
+        Matrix.Scale(layoutXform, -1, 1);
     }
-    */
+    this._LayoutXform = layoutXform;
 
     LayoutInformation.SetVisualOffset(this, visualOffset);
 
@@ -487,6 +494,13 @@ FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error
 };
 
 //#endregion
+
+FrameworkElement.Instance._GetTransformOrigin = function () {
+    var userXformOrigin = this.RenderTransformOrigin;
+    var width = this.ActualWidth;
+    var height = this.ActualHeight;
+    return new Point(width * userXformOrigin.X, height * userXformOrigin.Y);
+};
 
 FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (!this._GetRenderVisible())
@@ -599,7 +613,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 flag = UIElementFlags.DirtySizeHint;
         }
 
-        if (flag != UIElementFlags.None) {
+        if (flag !== UIElementFlags.None) {
             var measureWalker = new _DeepTreeWalker(element);
             var child;
             while (child = measureWalker.Step()) {
@@ -627,23 +641,25 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
             }
         }
 
-        if (flag == UIElementFlags.DirtyMeasureHint) {
+        if (flag === UIElementFlags.DirtyMeasureHint) {
             Info("Starting _MeasureList Update: " + pass._MeasureList._Count);
             while (node = pass._MeasureList.First()) {
                 pass._MeasureList.Remove(node);
+                LayoutDebug("Measure [" + node.UIElement.__DebugToString() + "]");
                 node.UIElement._DoMeasureWithError(error);
                 pass._Updated = true;
             }
-        } else if (flag == UIElementFlags.DirtyArrangeHint) {
+        } else if (flag === UIElementFlags.DirtyArrangeHint) {
             Info("Starting _ArrangeList Update: " + pass._ArrangeList._Count);
             while (node = pass._ArrangeList.First()) {
                 pass._ArrangeList.Remove(node);
+                LayoutDebug("Arrange [" + node.UIElement.__DebugToString() + "]");
                 node.UIElement._DoArrangeWithError(error);
                 pass._Updated = true;
                 if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                     break;
             }
-        } else if (flag == UIElementFlags.DirtySizeHint) {
+        } else if (flag === UIElementFlags.DirtySizeHint) {
             while (node = pass._SizeList.First()) {
                 pass._SizeList.Remove(node);
                 var fe = node.UIElement;

@@ -10,13 +10,21 @@ MatrixTransform.Instance.Init = function () {
 
 //#region Dependency Properties
 
-MatrixTransform.MatrixProperty = DependencyProperty.RegisterCore("Matrix", function() { return Matrix; }, MatrixTransform, new Matrix());
+MatrixTransform.MatrixProperty = DependencyProperty.RegisterFull("Matrix", function () { return Matrix; }, MatrixTransform, undefined, { GetValue: function () { return new Matrix(); } });
 
 Nullstone.AutoProperties(MatrixTransform, [
     MatrixTransform.MatrixProperty
 ]);
 
 //#endregion
+
+MatrixTransform.Instance._UpdateTransform = function () {
+    var matrix = this.Matrix;
+    if (matrix)
+        this._M = Matrix3D.CreateAffine(this.Matrix);
+    else
+        this._M = new Matrix3D();
+};
 
 MatrixTransform.prototype._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== MatrixTransform) {

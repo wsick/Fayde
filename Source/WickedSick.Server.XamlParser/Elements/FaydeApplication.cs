@@ -68,9 +68,12 @@ namespace WickedSick.Server.XamlParser.Elements
                 //sb.AppendLine("\t\t\t\tRegisterHUD(\"els\", \"#hud-els\");");
             }
             sb.Append("var json = ");
-            sb.Append(((IJsonSerializable)p.GetValue("Content")).toJson(0));
+            var pageUserControl = new UserControl();
+            pageUserControl.AddContent(p.GetValue("Content"));
+            sb.Append(pageUserControl.toJson(0));
             sb.AppendLine(";");
-            sb.AppendLine(string.Format("\t\t\t\tApp.Instance.Load(JsonParser.CreateRoot(json), $(\"#canvas\"), {0}, {1}, {2}, {3});", width, widthType, height, heightType));
+
+            sb.AppendLine(string.Format("\t\t\t\tApp.Instance.Load(json, $(\"#canvas\"), {0}, {1}, {2}, {3});", width, widthType, height, heightType));
             sb.AppendLine("\t\t\t});");
             sb.AppendLine("\t\t</script>");
 
