@@ -51,6 +51,9 @@ ImageBrush.Instance.SetupBrush = function (ctx, bounds) {
     if (source == null)
         return null;
 
+    if (source._Image == null)
+        return null;
+
     var pattern = ctx.createPattern(source._Image, "no-repeat");
     NotImplemented("ImageBrush.SetupBrush");
 };
