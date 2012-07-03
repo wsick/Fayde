@@ -19,7 +19,7 @@ Nullstone.FinishCreate(Exception);
 //#endregion
 
 //#region InvalidOperationException
-var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception);
+var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception, 3);
 Nullstone.FinishCreate(InvalidOperationException);
 //#endregion
 
@@ -43,7 +43,7 @@ Nullstone.FinishCreate(NotImplementedException);
 //#endregion
 
 //#region NotSupportedException
-var NotSupportedException = Nullstone.Create("NotSupportedException", Exception);
+var NotSupportedException = Nullstone.Create("NotSupportedException", Exception, 3);
 Nullstone.FinishCreate(NotSupportedException);
 //#endregion
 
@@ -59,7 +59,8 @@ Nullstone.FinishCreate(IndexOutOfRangeException);
 //#endregion
 
 //#region XamlParseException
-var XamlParseException = Nullstone.Create("XamlParseException", Exception);
+var XamlParseException = Nullstone.Create("XamlParseException", Exception, 3);
+
 Nullstone.FinishCreate(XamlParseException);
 //#endregion
 
