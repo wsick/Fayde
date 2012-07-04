@@ -29,7 +29,28 @@ Size.prototype.GrowBy = function (width, height) {
     return new Size(w > 0 ? w : 0, h > 0 ? h : 0);
 };
 Size.prototype.GrowByThickness = function (thickness) {
-    return this.GrowBy(thickness.Left + thickness.Right, thickness.Top + thickness.Bottom);
+    /// <param name="thickness" type="Thickness"></param>
+    var width = thickness.Left + thickness.Right;
+    var height = thickness.Top + thickness.Bottom;
+    var h = this.Height;
+    var w = this.Width;
+    if (h != Number.POSITIVE_INFINITY)
+        h += height;
+    if (w != Number.POSITIVE_INFINITY)
+        w += width;
+    return new Size(w > 0 ? w : 0, h > 0 ? h : 0);
+};
+Size.prototype.ShrinkByThickness = function (thickness) {
+    /// <param name="thickness" type="Thickness"></param>
+    var width = thickness.Left + thickness.Right;
+    var height = thickness.Top + thickness.Bottom;
+    var h = this.Height;
+    var w = this.Width;
+    if (h != Number.POSITIVE_INFINITY)
+        h -= height;
+    if (w != Number.POSITIVE_INFINITY)
+        w -= width;
+    return new Size(w > 0 ? w : 0, h > 0 ? h : 0);
 };
 Size.prototype.Min = function (size2) {
     return new Size(Math.min(this.Width, size2.Width), Math.min(this.Height, size2.Height));
