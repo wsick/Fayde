@@ -36,6 +36,9 @@ _RenderContext.Instance._DrawClip = function (clip) {
     } else if (clip instanceof Geometry) {
         clip.Draw(this);
         DrawDebug("DrawClip (Geometry): " + clip.toString());
+    } else if (clip instanceof RawPath) {
+        clip.Draw(this);
+        DrawDebug("DrawClip (RawPath): " + clip.toString());
     }
 };
 
