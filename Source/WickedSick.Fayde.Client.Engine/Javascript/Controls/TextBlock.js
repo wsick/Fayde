@@ -94,7 +94,7 @@ TextBlock.Instance._ComputeActualSize = function () {
         this._ActualWidth = actuals.Width;
         this._ActualHeight = actuals.Height;
     } else {
-        constraint = constraint.GrowByThickness(padding.Negate());
+        constraint = constraint.ShrinkByThickness(padding);
         this.Layout(constraint);
     }
     result = new Size(this._ActualWidth, this._ActualHeight);
@@ -106,7 +106,7 @@ TextBlock.Instance._ComputeActualSize = function () {
 
 TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var padding = this.Padding;
-    var constraint = availableSize.GrowByThickness(padding.Negate());
+    var constraint = availableSize.ShrinkByThickness(padding);
     this.Layout(constraint);
     desired = new Size(this._ActualWidth, this._ActualHeight).GrowByThickness(padding);
     return desired;
@@ -116,7 +116,7 @@ TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
 
 TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var padding = this.Padding;
-    var constraint = finalSize.GrowByThickness(padding.Negate());
+    var constraint = finalSize.ShrinkByThickness(padding);
     this.Layout(constraint);
     var arranged = new Size(this._ActualWidth, this._ActualHeight);
     arranged = arranged.Max(constraint);

@@ -39,7 +39,7 @@ Border.Instance._MeasureOverrideWithError = function (availableSize, error) {
     var walker = new _VisualTreeWalker(this);
     var child;
     while (child = walker.Step()) {
-        child._MeasureWithError(availableSize.GrowByThickness(border.Negate()), error);
+        child._MeasureWithError(availableSize.ShrinkByThickness(border), error);
         desired = child._DesiredSize;
     }
     desired = desired.GrowByThickness(border);
@@ -54,7 +54,7 @@ Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var child;
     while (child = walker.Step()) {
         var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
-        childRect = childRect.GrowByThickness(border.Negate());
+        childRect = childRect.ShrinkByThickness(border);
         child._ArrangeWithError(childRect, error);
         arranged = new Size(childRect.Width, childRect.Height).GrowBy(border);
         arranged = arranged.Max(finalSize);
@@ -85,7 +85,7 @@ Border.Instance._RenderImpl = function (ctx, region) {
         var thickness = this.BorderThickness;
         var cornerRadius = this.CornerRadius;
 
-        var pathRect = boundingRect.GrowByThickness(thickness.Half().Negate());
+        var pathRect = boundingRect.ShrinkByThickness(thickness);
         var rawPath = new RawPath();
         if (cornerRadius.IsZero()) {
             rawPath.Rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
@@ -97,8 +97,10 @@ Border.Instance._RenderImpl = function (ctx, region) {
 
         if (backgroundBrush)
             ctx.Fill(backgroundBrush, pathRect);
-        if (borderBrush && !thickness.IsEmpty())
+        if (borderBrush && !thickness.IsEmpty()) {
+            
             ctx.Stroke(borderBrush, thickness, pathRect);
+        }
         canvasCtx.closePath();
     }
     ctx.Restore();

@@ -43,7 +43,21 @@ Rect.prototype.GrowBy = function (left, top, right, bottom) {
 };
 Rect.prototype.GrowByThickness = function (thickness) {
     /// <returns type="Rect" />
-    return this.GrowBy(thickness.Left, thickness.Top, thickness.Right, thickness.Bottom);
+    var result = new Rect(this.X - thickness.Left, this.Y - thickness.Top, this.Width + thickness.Left + thickness.Right, this.Height + thickness.Top + thickness.Bottom);
+    if (result.Width < 0)
+        result.Width = 0;
+    if (result.Height < 0)
+        result.Height = 0;
+    return result;
+};
+Rect.prototype.ShrinkByThickness = function (thickness) {
+    /// <returns type="Rect" />
+    var result = new Rect(this.X + thickness.Left, this.Y + thickness.Top, this.Width - thickness.Left - thickness.Right, this.Height - thickness.Top - thickness.Bottom);
+    if (result.Width < 0)
+        result.Width = 0;
+    if (result.Height < 0)
+        result.Height = 0;
+    return result;
 };
 Rect.prototype.Union = function (rect2, logical) {
     /// <returns type="Rect" />

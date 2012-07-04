@@ -226,7 +226,7 @@ FrameworkElement.Instance._MeasureWithError = function (availableSize, error) {
     this._UpdateBounds();
 
     var margin = this.Margin;
-    var size = availableSize.GrowByThickness(margin.Negate());
+    var size = availableSize.ShrinkByThickness(margin);
 
     size = this._ApplySizeConstraints(size);
 
@@ -326,7 +326,7 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
     this._ClearValue(LayoutInformation.LayoutClipProperty);
 
     var margin = this.Margin;
-    var childRect = finalRect.GrowByThickness(margin.Negate());
+    var childRect = finalRect.ShrinkByThickness(margin);
 
     this._UpdateTransform();
     this._UpdateProjection();
