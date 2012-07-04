@@ -50,6 +50,15 @@ Rect.prototype.GrowByThickness = function (thickness) {
         result.Height = 0;
     return result;
 };
+Rect.prototype.ShrinkBy = function (left, top, right, bottom) {
+    /// <returns type="Rect" />
+    var result = new Rect(this.X + left, this.Y + top, this.Width - left - right, this.Height - top - bottom);
+    if (result.Width < 0)
+        result.Width = 0;
+    if (result.Height < 0)
+        result.Height = 0;
+    return result;
+};
 Rect.prototype.ShrinkByThickness = function (thickness) {
     /// <returns type="Rect" />
     var result = new Rect(this.X + thickness.Left, this.Y + thickness.Top, this.Width - thickness.Left - thickness.Right, this.Height - thickness.Top - thickness.Bottom);

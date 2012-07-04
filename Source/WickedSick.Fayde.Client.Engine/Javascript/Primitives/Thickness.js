@@ -22,7 +22,7 @@ Thickness.Instance.Plus = function (thickness2) {
 Thickness.Instance.IsEmpty = function () {
     return this.Left == 0 && this.Top == 0 && this.Right == 0 && this.Bottom == 0;
 };
-Thickness.Instance.IsEven = function () {
+Thickness.Instance.IsBalanced = function () {
     return this.Left === this.Top
         && this.Left === this.Right
         && this.Left === this.Bottom;

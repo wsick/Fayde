@@ -15,6 +15,7 @@ _RenderContext.Instance.GetSurface = function () {
     return this._Surface;
 };
 _RenderContext.Instance.GetCanvasContext = function () {
+    /// <returns type="CanvasRenderingContext2D" />
     return this._Surface._Ctx;
 };
 _RenderContext.Instance.Clip = function (clip) {
@@ -80,26 +81,31 @@ _RenderContext.Instance.Restore = function () {
 
 _RenderContext.Instance.Fill = function (brush, region) {
     /// <param name="brush" type="Brush"></param>
-    brush.SetupBrush(this._Surface._Ctx, region);
-    this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
-    this._Surface._Ctx.fill();
-    DrawDebug("Fill: [" + this._Surface._Ctx.fillStyle.toString() + "]");
+    var ctx = this._Surface._Ctx;
+    brush.SetupBrush(ctx, region);
+    ctx.fillStyle = brush.ToHtml5Object();
+    ctx.fill();
+    DrawDebug("Fill: [" + ctx.fillStyle.toString() + "]");
 };
 _RenderContext.Instance.FillRect = function (brush, rect) {
     /// <param name="brush" type="Brush"></param>
     /// <param name="rect" type="Rect"></param>
-    brush.SetupBrush(this._Surface._Ctx, rect);
-    this._Surface._Ctx.fillStyle = brush.ToHtml5Object();
-    this._Surface._Ctx.fillRect(rect.X, rect.Y, rect.Width, rect.Height);
-    DrawDebug("FillRect: [" + this._Surface._Ctx.fillStyle.toString() + "] " + rect.toString());
+    var ctx = this._Surface._Ctx;
+    brush.SetupBrush(ctx, rect);
+    ctx.beginPath();
+    ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
+    ctx.fillStyle = brush.ToHtml5Object();
+    ctx.fill();
+    DrawDebug("FillRect: [" + ctx.fillStyle.toString() + "] " + rect.toString());
 };
 _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     /// <param name="stroke" type="Brush"></param>
-    stroke.SetupBrush(this._Surface._Ctx, region);
-    this._Surface._Ctx.strokeStyle = stroke.ToHtml5Object();
-    this._Surface._Ctx.lineWidth = thickness;
-    this._Surface._Ctx.stroke();
-    DrawDebug("Stroke: [" + this._Surface._Ctx.strokeStyle.toString() + "] -> " + this._Surface._Ctx.lineWidth.toString());
+    var ctx = this._Surface._Ctx;
+    stroke.SetupBrush(ctx, region);
+    ctx.lineWidth = thickness;
+    ctx.strokeStyle = stroke.ToHtml5Object();
+    ctx.stroke();
+    DrawDebug("Stroke: [" + ctx.strokeStyle.toString() + "] -> " + ctx.lineWidth.toString());
 };
 
 _RenderContext.Instance.Clear = function (rect) {

@@ -64,46 +64,112 @@ Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
 Border.Instance._Render = function (ctx, region) {
     /// <param name="ctx" type="_RenderContext"></param>
     var borderBrush = this.BorderBrush;
-    var paintBorder = this._Extents;
-    var background = this.Background;
+    var extents = this._Extents;
+    var backgroundBrush = this.Background;
 
-    if (!background && !borderBrush)
+    if (!backgroundBrush && !borderBrush)
         return;
-    if (paintBorder.IsEmpty())
+    if (extents.IsEmpty())
         return;
-    this._RenderImpl(ctx, region);
-};
-Border.Instance._RenderImpl = function (ctx, region) {
-    /// <param name="ctx" type="_RenderContext"></param>
+
+    var thickness = this.BorderThickness;
+
     ctx.Save();
     this._RenderLayoutClip(ctx);
-    {
-        var canvasCtx = ctx.GetCanvasContext();
-        var backgroundBrush = this.Background;
-        var borderBrush = this.BorderBrush;
-        var boundingRect = this._Extents;
-        var thickness = this.BorderThickness;
-        var cornerRadius = this.CornerRadius;
-
-        var pathRect = boundingRect.ShrinkByThickness(thickness);
-        var rawPath = new RawPath();
-        if (cornerRadius.IsZero()) {
-            rawPath.Rect(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height);
-        } else {
-            rawPath.RoundedRectFull(pathRect.X, pathRect.Y, pathRect.Width, pathRect.Height,
-                cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
-        }
-        rawPath.Draw(ctx);
-
-        if (backgroundBrush)
-            ctx.Fill(backgroundBrush, pathRect);
-        if (borderBrush && !thickness.IsEmpty()) {
-            
-            ctx.Stroke(borderBrush, thickness, pathRect);
-        }
-        canvasCtx.closePath();
-    }
+    if (!borderBrush || thickness.IsEmpty())
+        this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
+    else if (thickness.IsBalanced())
+        this._RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
+    else
+        this._RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
     ctx.Restore();
+};
+
+Border.Instance._RenderFillOnly = function (ctx, extents, backgroundBrush, thickness, cornerRadius) {
+    /// <param name="ctx" type="_RenderContext"></param>
+    /// <param name="extents" type="Rect"></param>
+    /// <param name="backgroundBrush" type="Brush"></param>
+    /// <param name="thickness" type="Thickness"></param>
+    /// <param name="cornerRadius" type="CornerRadius"></param>
+
+    var fillExtents = thickness.IsEmpty() ? extents : extents.ShrinkByThickness(thickness);
+
+    if (cornerRadius.IsZero()) {
+        ctx.FillRect(backgroundBrush, fillExtents);
+        return;
+    }
+
+    var rawPath = new RawPath();
+    rawPath.RoundedRectFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height,
+        cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+    rawPath.Draw(ctx);
+    ctx.Fill(backgroundBrush, fillExtents);
+};
+Border.Instance._RenderBalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
+    /// <param name="ctx" type="_RenderContext"></param>
+    /// <param name="extents" type="Rect"></param>
+    /// <param name="backgroundBrush" type="Brush"></param>
+    /// <param name="borderBrush" type="Brush"></param>
+    /// <param name="thickness" type="Thickness"></param>
+    /// <param name="cornerRadius" type="CornerRadius"></param>
+
+    //Stroke renders half-out/half-in the path, Border control needs to fit within the given extents so we need to shrink by half the border thickness
+    var fillPlusHalfExtents = extents.ShrinkBy(thickness.Left * 0.5, thickness.Top * 0.5, thickness.Right * 0.5, thickness.Bottom * 0.5);
+
+    if (cornerRadius.IsZero()) {
+        //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
+        ctx.FillRect(backgroundBrush, fillPlusHalfExtents);
+    } else {
+        var rawPath = new RawPath();
+        rawPath.RoundedRectFull(fillPlusHalfExtents.X, fillPlusHalfExtents.Y, fillPlusHalfExtents.Width, fillPlusHalfExtents.Height,
+            cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+        rawPath.Draw(ctx);
+        ctx.Fill(backgroundBrush, fillPlusHalfExtents);
+    }
+    ctx.Stroke(borderBrush, thickness.Left, extents);
+};
+Border.Instance._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
+    /// <param name="ctx" type="_RenderContext"></param>
+    /// <param name="extents" type="Rect"></param>
+    /// <param name="backgroundBrush" type="Brush"></param>
+    /// <param name="borderBrush" type="Brush"></param>
+    /// <param name="thickness" type="Thickness"></param>
+    /// <param name="cornerRadius" type="CornerRadius"></param>
+
+    var hasCornerRadius = !cornerRadius.IsZero();
+    var innerExtents = extents.ShrinkByThickness(thickness);
+
+    var innerPath = new RawPath();
+    var outerPath = new RawPath();
+    if (hasCornerRadius) {
+        outerPath.RoundedRectFull(0, 0, extents.Width, extents.Height,
+            cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+        innerPath.RoundedRectFull(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height,
+            cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
+    } else {
+        outerPath.Rect(0, 0, extents.Width, extents.Height);
+        innerPath.Rect(innerExtents.X - extents.X, innerExtents.Y - extents.Y, innerExtents.Width, innerExtents.Height);
+    }
+
+    var tmpCanvas = document.createElement("canvas");
+    tmpCanvas.width = extents.Width;
+    tmpCanvas.height = extents.Height;
+    var tmpCtx = tmpCanvas.getContext("2d");
+
+    outerPath.Draw(tmpCtx);
+    borderBrush.SetupBrush(tmpCtx, extents);
+    tmpCtx.fillStyle = borderBrush.ToHtml5Object();
+    tmpCtx.fill();
+
+    tmpCtx.globalCompositeOperation = "xor";
+    innerPath.Draw(tmpCtx);
+    tmpCtx.fill();
+
+    var canvasCtx = ctx.GetCanvasContext();
+    canvasCtx.drawImage(tmpCanvas, extents.X, extents.Y);
+
+    innerPath.Draw(ctx);
+    ctx.Fill(backgroundBrush, innerExtents);
 };
 
 Border.Instance._CanFindElement = function () {
