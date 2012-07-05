@@ -79,6 +79,11 @@ _RenderContext.Instance.Restore = function () {
     this._Surface._Ctx.restore();
 };
 
+_RenderContext.Instance.Rect = function (rect) {
+    var ctx = this._Surface._Ctx;
+    ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
+    DrawDebug("Rect: " + rect.toString());
+};
 _RenderContext.Instance.Fill = function (brush, region) {
     /// <param name="brush" type="Brush"></param>
     var ctx = this._Surface._Ctx;

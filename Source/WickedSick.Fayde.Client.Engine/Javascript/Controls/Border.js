@@ -61,6 +61,9 @@ Border.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     }
     return finalSize;
 };
+
+//#region Render
+
 Border.Instance._Render = function (ctx, region) {
     /// <param name="ctx" type="_RenderContext"></param>
     var borderBrush = this.BorderBrush;
@@ -84,7 +87,6 @@ Border.Instance._Render = function (ctx, region) {
         this._RenderUnbalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
     ctx.Restore();
 };
-
 Border.Instance._RenderFillOnly = function (ctx, extents, backgroundBrush, thickness, cornerRadius) {
     /// <param name="ctx" type="_RenderContext"></param>
     /// <param name="extents" type="Rect"></param>
@@ -118,13 +120,17 @@ Border.Instance._RenderBalanced = function (ctx, extents, backgroundBrush, borde
 
     if (cornerRadius.IsZero()) {
         //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
-        ctx.FillRect(backgroundBrush, fillPlusHalfExtents);
+        if (backgroundBrush)
+            ctx.FillRect(backgroundBrush, fillPlusHalfExtents);
+        else
+            ctx.Rect(fillPlusHalfExtents);
     } else {
         var rawPath = new RawPath();
         rawPath.RoundedRectFull(fillPlusHalfExtents.X, fillPlusHalfExtents.Y, fillPlusHalfExtents.Width, fillPlusHalfExtents.Height,
             cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
         rawPath.Draw(ctx);
-        ctx.Fill(backgroundBrush, fillPlusHalfExtents);
+        if (backgroundBrush)
+            ctx.Fill(backgroundBrush, fillPlusHalfExtents);
     }
     ctx.Stroke(borderBrush, thickness.Left, extents);
 };
@@ -169,8 +175,11 @@ Border.Instance._RenderUnbalanced = function (ctx, extents, backgroundBrush, bor
     canvasCtx.drawImage(tmpCanvas, extents.X, extents.Y);
 
     innerPath.Draw(ctx);
-    ctx.Fill(backgroundBrush, innerExtents);
+    if (backgroundBrush)
+        ctx.Fill(backgroundBrush, innerExtents);
 };
+
+//#endregion
 
 Border.Instance._CanFindElement = function () {
     return this.Background != null || this.BorderBrush != null;
