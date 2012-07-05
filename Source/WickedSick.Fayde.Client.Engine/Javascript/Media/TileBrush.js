@@ -19,5 +19,26 @@ Nullstone.AutoProperties(TileBrush, [
 
 //#endregion
 
+TileBrush.Instance.SetupBrush = function (ctx, bounds) {
+    var imgExtents = this.GetTileExtents();
+
+    var tmpCanvas = document.createElement("canvas");
+    tmpCanvas.width = bounds.Width;
+    tmpCanvas.height = bounds.Height;
+
+    var tmpCtx = tmpCanvas.getContext("2d");
+
+    var mat = Fayde.Image.ComputeMatrix(bounds.Width, bounds.Height,
+        imgExtents.Width, imgExtents.Height, this.Stretch, this.AlignmentX, this.AlignmentY);
+    var els = mat._Elements;
+    tmpCtx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
+
+    this.DrawTile(tmpCtx, bounds);
+
+    this._Brush = ctx.createPattern(tmpCanvas, "no-repeat");
+};
+TileBrush.Instance.GetTileExtents = function () { };
+TileBrush.Instance.DrawTile = function (canvasCtx, bounds) { };
+
 Nullstone.FinishCreate(TileBrush);
 //#endregion
