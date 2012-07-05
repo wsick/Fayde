@@ -85,7 +85,7 @@ _InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, elemen
         this.MaybePropagateInheritedValue(context.TextDecorationsSource, inhEnum.TextDecorations, props, element);
         this.MaybePropagateInheritedValue(context.FontResourceSource, inhEnum.FontResource, props, element);
 
-        var eleContext = new _InheritedContext(element, context);
+        var eleContext = _InheritedContext.FromObject(element, context);
 
         props = eleContext.Compare(context, props);
         if (props === inhEnum.None)
@@ -93,7 +93,7 @@ _InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, elemen
 
         this.WalkSubtree(rootParent, element, eleContext, props, adding);
     } else {
-        var eleContext2 = new _InheritedContext(element, context);
+        var eleContext2 = _InheritedContext.FromObject(element, context);
 
         this.MaybeRemoveInheritedValue(context.ForegroundSource, inhEnum.Foreground, props, element);
         this.MaybeRemoveInheritedValue(context.FontFamilySource, inhEnum.FontFamily, props, element);
@@ -134,7 +134,7 @@ _InheritedPropertyValueProvider.Instance.MaybeRemoveInheritedValue = function (s
 };
 _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
     var inhEnum = _Inheritable;
-    var baseContext = new _InheritedContext(
+    var baseContext = _InheritedContext.FromSources(
             this._GetPropertySource(inhEnum.Foreground),
             this._GetPropertySource(inhEnum.FontFamily),
             this._GetPropertySource(inhEnum.FontStretch),
@@ -146,17 +146,17 @@ _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToT
             this._GetPropertySource(inhEnum.UseLayoutRounding),
             this._GetPropertySource(inhEnum.TextDecorations),
             this._GetPropertySource(inhEnum.FontResource));
-    var objContext = new _InheritedContext(this._Object, baseContext);
+    var objContext = _InheritedContext.FromObject(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, inhEnum.All, true);
 };
 _InheritedPropertyValueProvider.Instance.PropagateInheritedProperty = function (propd, source, subtree) {
     var inheritable = this._GetInheritableFunc(source, propd);
-    var objContext = new _InheritedContext(this._Object);
+    var objContext = _InheritedContext.FromObject(this._Object, null);
     this.WalkSubtree(source, subtree, objContext, inheritable, true);
 };
 _InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromTree = function (subtree) {
     var inhEnum = _Inheritable;
-    var baseContext = new _InheritedContext(
+    var baseContext = _InheritedContext.FromSources(
             this._GetPropertySource(inhEnum.Foreground),
             this._GetPropertySource(inhEnum.FontFamily),
             this._GetPropertySource(inhEnum.FontStretch),
@@ -168,7 +168,7 @@ _InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromT
             this._GetPropertySource(inhEnum.UseLayoutRounding),
             this._GetPropertySource(inhEnum.TextDecorations),
             this._GetPropertySource(inhEnum.FontResource));
-    var objContext = new _InheritedContext(this._Object, baseContext);
+    var objContext = _InheritedContext.FromObject(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, inhEnum.All, false);
 };
 _InheritedPropertyValueProvider.Instance._GetPropertySource = function (inheritableOrProp) {
