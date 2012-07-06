@@ -38,6 +38,7 @@ var TextWrapping = {
     WrapWithOverflow: 2
 };
 
+//FLAGS
 var TextDecorations = {
     None: 0,
     Underline: 1
