@@ -21,8 +21,9 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
 
     var brush;
     var area;
+    var fontHeight = font.GetActualHeight();
     if (this._Selected && (brush = attrs.GetBackground(true))) {
-        area = new Rect(origin.X, origin.Y, this._Advance, font.GetActualHeight());
+        area = new Rect(origin.X, origin.Y, this._Advance, fontHeight);
         ctx.FillRect(brush, area); //selection background
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
@@ -30,14 +31,20 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
 
     var canvasCtx = ctx.GetCanvasContext();
     brush.SetupBrush(canvasCtx);
-    canvasCtx.fillStyle = brush.ToHtml5Object();
+    var brushHtml5 = brush.ToHtml5Object();
+    canvasCtx.fillStyle = brushHtml5;
     canvasCtx.font = font.ToHtml5Object();
     canvasCtx.textAlign = "left";
     canvasCtx.textBaseline = "top";
     canvasCtx.fillText(this._Text, 0, 0);
 
     if (attrs.IsUnderlined()) {
-        //TODO: Underline
+        canvasCtx.beginPath();
+        canvasCtx.moveTo(0, fontHeight);
+        canvasCtx.lineTo(this._Advance, fontHeight);
+        canvasCtx.lineWidth = 2;
+        canvasCtx.strokeStyle = brushHtml5;
+        canvasCtx.stroke();
     }
 };
 
