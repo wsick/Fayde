@@ -46,13 +46,26 @@ namespace WickedSick.Thea.VisualStudioInterop
         {
             get
             {
-                var debugger = GetDebugger();
-                if (debugger == null)
+                try
+                {
+                    var debugger = GetDebugger();
+                    if (debugger == null)
+                        return false;
+                    var processes = debugger.DebuggedProcesses;
+                    if (processes == null)
+                        return false;
+                    return processes.Count > 0;
+                }
+                catch (COMException cex)
+                {
+                    //if user is interacting with visual studio debugger visualizer, the call will be rejected
+                    if (IsRejectedCall(cex))
+                    {
+                        Debug.WriteLine("Rejected call.");
+                        return true;
+                    }
                     return false;
-                var processes = debugger.DebuggedProcesses;
-                if (processes == null)
-                    return false;
-                return processes.Count > 0;
+                }
             }
         }
 
@@ -163,7 +176,16 @@ namespace WickedSick.Thea.VisualStudioInterop
         private void HandleCOMException(COMException cex)
         {
             if (IsContextNotAvailable(cex))
+            {
+                Debug.WriteLine("Context not available.");
                 throw new ContextNotAvailableException(cex);
+            }
+            if (IsRejectedCall(cex))
+            {
+                Debug.WriteLine("Rejected call.");
+                throw new ContextNotAvailableException(cex);
+            }
+
             try { System.Runtime.InteropServices.Marshal.ThrowExceptionForHR(cex.ErrorCode); }
             catch (Exception ex)
             {
@@ -176,6 +198,15 @@ namespace WickedSick.Thea.VisualStudioInterop
             unchecked
             {
                 return cex.ErrorCode == (int)0x89711006;
+            }
+        }
+
+        private static bool IsRejectedCall(COMException cex)
+        {
+            // "Call was rejected by callee. (Exception from HRESULT: 0x80010001 (RPC_E_CALL_REJECTED))"
+            unchecked
+            {
+                return cex.ErrorCode == (int)0x80010001;
             }
         }
     }

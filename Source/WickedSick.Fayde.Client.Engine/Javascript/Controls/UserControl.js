@@ -27,7 +27,7 @@ UserControl.Instance._MeasureOverrideWithError = function (availableSize, error)
     var walker = new _VisualTreeWalker(this);
     var child;
     while (child = walker.Step()) {
-        child._MeasureWithError(availableSize.GrowByThickness(border.Negate()), error);
+        child._MeasureWithError(availableSize.ShrinkByThickness(border), error);
         desired = child._DesiredSize;
     }
 
@@ -44,7 +44,7 @@ UserControl.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var child;
     while (child = walker.Step()) {
         var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
-        childRect = childRect.GrowByThickness(border.Negate());
+        childRect = childRect.ShrinkByThickness(border);
         child._ArrangeWithError(childRect, error);
         arranged = new Size(childRect.Width, childRect.Height).GrowByThickness(border);
     }

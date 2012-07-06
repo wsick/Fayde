@@ -6,61 +6,60 @@
 //#region _InheritedContext
 var _InheritedContext = Nullstone.Create("_InheritedContext");
 
-_InheritedContext.Instance.Init = function (args) {
-    if (args.length > 2) {
-        this._InitFull(args);
-    } else if (args.length == 2) {
-        this._InitFromObj(args[0], args[1]);
-    }
+_InheritedContext.FromSources = function (foregroundSource, fontFamilySource, fontStretchSource, fontStyleSource,
+        fontWeightSource, fontSizeSource, languageSource, flowDirectionSource, useLayoutRoundingSource, textDecorationsSource, fontResourceSource) {
+    var ic = new _InheritedContext();
+    ic.ForegroundSource = foregroundSource;
+    ic.FontFamilySource = fontFamilySource;
+    ic.FontStretchSource = fontStretchSource;
+    ic.FontStyleSource = fontStyleSource;
+    ic.FontWeightSource = fontWeightSource;
+    ic.FontSizeSource = fontSizeSource;
+    ic.LanguageSource = languageSource;
+    ic.FlowDirectionSource = flowDirectionSource;
+    ic.UseLayoutRoundingSource = useLayoutRoundingSource;
+    ic.TextDecorationsSource = textDecorationsSource;
+    ic.FontResourceSource = fontResourceSource;
+    return ic;
 };
+_InheritedContext.FromObject = function (obj, parentContext) {
+    var ic = new _InheritedContext();
 
-_InheritedContext.Instance._InitFull = function (args) {
-    this.ForegroundSource = args[0];
-    this.FontFamilySource = args[1];
-    this.FontStretchSource = args[2];
-    this.FontStyleSource = args[3];
-    this.FontWeightSource = args[4];
-    this.FontSizeSource = args[5];
-    this.LanguageSource = args[6];
-    this.FlowDirectionSource = args[7];
-    this.UseLayoutRoundingSource = args[8];
-    this.TextDecorationsSource = args[9];
-    this.FontResourceSource = args[10];
-};
-_InheritedContext.Instance._InitFromObj = function (obj, parentContext) {
     var inhEnum = _Inheritable;
-    this.ForegroundSource = this.GetLocalSource(obj, inhEnum.Foreground);
-    if (!this.ForegroundSource && parentContext) this.ForegroundSource = parentContext.ForegroundSource;
+    ic.ForegroundSource = ic.GetLocalSource(obj, inhEnum.Foreground);
+    if (!ic.ForegroundSource && parentContext) ic.ForegroundSource = parentContext.ForegroundSource;
 
-    this.FontFamilySource = this.GetLocalSource(obj, inhEnum.FontFamily);
-    if (!this.FontFamilySource && parentContext) this.FontFamilySource = parentContext.FontFamilySource;
+    ic.FontFamilySource = ic.GetLocalSource(obj, inhEnum.FontFamily);
+    if (!ic.FontFamilySource && parentContext) ic.FontFamilySource = parentContext.FontFamilySource;
 
-    this.FontStretchSource = this.GetLocalSource(obj, inhEnum.FontStretch);
-    if (!this.FontStretchSource && parentContext) this.FontStretchSource = parentContext.FontStretchSource;
+    ic.FontStretchSource = ic.GetLocalSource(obj, inhEnum.FontStretch);
+    if (!ic.FontStretchSource && parentContext) ic.FontStretchSource = parentContext.FontStretchSource;
 
-    this.FontStyleSource = this.GetLocalSource(obj, inhEnum.FontStyle);
-    if (!this.FontStretchSource && parentContext) this.FontStretchSource = parentContext.FontStretchSource;
+    ic.FontStyleSource = ic.GetLocalSource(obj, inhEnum.FontStyle);
+    if (!ic.FontStretchSource && parentContext) ic.FontStretchSource = parentContext.FontStretchSource;
 
-    this.FontWeightSource = this.GetLocalSource(obj, inhEnum.FontWeight);
-    if (!this.FontWeightSource && parentContext) this.FontWeightSource = parentContext.FontWeightSource;
+    ic.FontWeightSource = ic.GetLocalSource(obj, inhEnum.FontWeight);
+    if (!ic.FontWeightSource && parentContext) ic.FontWeightSource = parentContext.FontWeightSource;
 
-    this.FontSizeSource = this.GetLocalSource(obj, inhEnum.FontSize);
-    if (!this.FontSizeSource && parentContext) this.FontSizeSource = parentContext.FontSizeSource;
+    ic.FontSizeSource = ic.GetLocalSource(obj, inhEnum.FontSize);
+    if (!ic.FontSizeSource && parentContext) ic.FontSizeSource = parentContext.FontSizeSource;
 
-    this.LanguageSource = this.GetLocalSource(obj, inhEnum.Language);
-    if (!this.LanguageSource && parentContext) this.LanguageSource = parentContext.LanguageSource;
+    ic.LanguageSource = ic.GetLocalSource(obj, inhEnum.Language);
+    if (!ic.LanguageSource && parentContext) ic.LanguageSource = parentContext.LanguageSource;
 
-    this.FlowDirectionSource = this.GetLocalSource(obj, inhEnum.FlowDirection);
-    if (!this.FlowDirectionSource && parentContext) this.FlowDirectionSource = parentContext.FlowDirectionSource;
+    ic.FlowDirectionSource = ic.GetLocalSource(obj, inhEnum.FlowDirection);
+    if (!ic.FlowDirectionSource && parentContext) ic.FlowDirectionSource = parentContext.FlowDirectionSource;
 
-    this.UseLayoutRoundingSource = this.GetLocalSource(obj, inhEnum.UseLayoutRounding);
-    if (!this.UseLayoutRoundingSource && parentContext) this.UseLayoutRoundingSource = parentContext.UseLayoutRoundingSource;
+    ic.UseLayoutRoundingSource = ic.GetLocalSource(obj, inhEnum.UseLayoutRounding);
+    if (!ic.UseLayoutRoundingSource && parentContext) ic.UseLayoutRoundingSource = parentContext.UseLayoutRoundingSource;
 
-    this.TextDecorationsSource = this.GetLocalSource(obj, inhEnum.TextDecorations);
-    if (!this.TextDecorationsSource && parentContext) this.TextDecorationsSource = parentContext.TextDecorationsSource;
+    ic.TextDecorationsSource = ic.GetLocalSource(obj, inhEnum.TextDecorations);
+    if (!ic.TextDecorationsSource && parentContext) ic.TextDecorationsSource = parentContext.TextDecorationsSource;
 
-    this.FontResourceSource = this.GetLocalSource(obj, inhEnum.FontResource);
-    if (!this.FontResourceSource && parentContext) this.FontResourceSource = parentContext.FontResourceSource;
+    ic.FontResourceSource = ic.GetLocalSource(obj, inhEnum.FontResource);
+    if (!ic.FontResourceSource && parentContext) ic.FontResourceSource = parentContext.FontResourceSource;
+
+    return ic;
 };
 
 _InheritedContext.Instance.Compare = function (withContext, props) {

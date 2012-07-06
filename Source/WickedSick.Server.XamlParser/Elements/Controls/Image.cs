@@ -1,8 +1,7 @@
 ﻿using WickedSick.Server.XamlParser.Elements.Media;
-using WickedSick.Server.XamlParser.TypeConverters;
 using WickedSick.Server.XamlParser.Elements.Types;
 
-namespace WickedSick.Server.XamlParser.Elements.Media
+namespace WickedSick.Server.XamlParser.Elements.Controls
 {
     [Element(NullstoneName = "Fayde.Image")]
     public class Image : FrameworkElement

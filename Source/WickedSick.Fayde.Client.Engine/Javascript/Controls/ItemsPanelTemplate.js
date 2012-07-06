@@ -15,9 +15,7 @@ ItemsPanelTemplate.Instance._GetVisualTreeWithError = function (templateBindingS
     /// <returns type="DependencyObject" />
     if (this._TempJson) {
         var namescope = new NameScope();
-        var parser = new JsonParser();
-        parser._TemplateBindingSource = templateBindingSource;
-        var root = parser.CreateObject(this._TempJson, namescope);
+        var root = JsonParser.Parse(this._TempJson, templateBindingSource, namescope);
         NameScope.SetNameScope(root, namescope);
         return root;
     }

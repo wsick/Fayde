@@ -17,9 +17,11 @@ ImageBrush.Instance.Init = function () {
 
 ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 
-Nullstone.AutoProperties(ImageBrush, [
-    ImageBrush.ImageSourceProperty
-]);
+Nullstone.AutoProperty(ImageBrush, ImageBrush.ImageSourceProperty, function (value) {
+    if (value instanceof Uri)
+        return new BitmapImage(value);
+    return value;
+});
 
 //#endregion
 
@@ -51,8 +53,20 @@ ImageBrush.Instance.SetupBrush = function (ctx, bounds) {
     if (source == null)
         return null;
 
-    var pattern = ctx.createPattern(source._Image, "no-repeat");
-    NotImplemented("ImageBrush.SetupBrush");
+    if (source._Image == null)
+        return null;
+
+    this.SetupBrush$TileBrush(ctx, bounds);
+};
+ImageBrush.Instance.GetTileExtents = function () {
+    var source = this.ImageSource;
+    return new Rect(0, 0, source.PixelWidth, source.PixelHeight);
+};
+ImageBrush.Instance.DrawTile = function (canvasCtx, bounds) {
+    var source = this.ImageSource;
+    canvasCtx.rect(0, 0, bounds.Width, bounds.Height);
+    canvasCtx.fillStyle = canvasCtx.createPattern(source._Image, "no-repeat");
+    canvasCtx.fill();
 };
 
 Nullstone.FinishCreate(ImageBrush);

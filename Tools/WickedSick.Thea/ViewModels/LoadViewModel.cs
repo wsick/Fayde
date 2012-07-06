@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 using WatiN.Core;
 using WickedSick.MVVM;
 
@@ -8,8 +11,11 @@ namespace WickedSick.Thea.ViewModels
 {
     public class LoadViewModel : ViewModelBase, IDisposable
     {
+        private Dispatcher _Dispatcher;
+
         public LoadViewModel()
         {
+            _Dispatcher = Dispatcher.CurrentDispatcher;
             RefreshCommand.Execute();
         }
 
@@ -37,6 +43,17 @@ namespace WickedSick.Thea.ViewModels
             }
         }
 
+        private bool _IsBusy;
+        public bool IsBusy
+        {
+            get { return _IsBusy; }
+            set
+            {
+                _IsBusy = value;
+                OnPropertyChanged("IsBusy");
+            }
+        }
+
         #endregion
 
         #region Refresh
@@ -47,20 +64,54 @@ namespace WickedSick.Thea.ViewModels
             get
             {
                 if (_RefreshCommand == null)
-                    _RefreshCommand = new RelayCommand(Refresh_Execute);
+                    _RefreshCommand = new RelayCommand(Refresh_Execute, Refresh_CanExecute);
                 return _RefreshCommand;
             }
         }
 
         private void Refresh_Execute()
         {
-            var ies = IE.InternetExplorers().Cast<IE>().ToList();
+            IsBusy = true;
+            Dispatcher.CurrentDispatcher.BeginInvoke((Action)DoRefresh, new object[] { });
+        }
+
+        private bool Refresh_CanExecute()
+        {
+            return !IsBusy;
+        }
+
+        private void DoRefresh()
+        {
+            var browsers = new List<Browser>();
+            Exception error = null;
+            try
+            {
+                browsers.AddRange(IE.InternetExplorers());
+            }
+            catch (Exception ex)
+            {
+                error = ex;
+            }
+            ContinueRefresh(error, browsers);
+        }
+
+        private void ContinueRefresh(Exception error, List<Browser> browsers)
+        {
+            _Dispatcher.BeginInvoke((Action<List<Browser>>)FinishRefresh, new object[] { browsers });
+        }
+
+        private void FinishRefresh(List<Browser> browsers)
+        {
             Browsers.Clear();
-            foreach (var ie in ies)
+            foreach (var ie in browsers.OfType<IE>())
             {
                 ie.AutoClose = false;
+            }
+            foreach (var ie in browsers)
+            {
                 Browsers.Add(ie);
             }
+            IsBusy = false;
         }
 
         #endregion
@@ -73,6 +124,13 @@ namespace WickedSick.Thea.ViewModels
             }
             Browsers.Clear();
             SelectedBrowser = null;
+        }
+
+        protected override void OnPropertyChanged(string propertyName)
+        {
+            base.OnPropertyChanged(propertyName);
+            if (propertyName == "IsBusy")
+                RefreshCommand.ForceCanExecuteChanged();
         }
     }
 }

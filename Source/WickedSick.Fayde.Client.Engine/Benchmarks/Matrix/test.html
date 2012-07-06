@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Matrix Benchmark</title>
+		
+		<!-- Common Utilities -->
+		<script type="text/javascript" src="glMatrix-min.js"></script>
+		<script type="text/javascript" src="CanvasMatrix.js"></script>
+		<script type="text/javascript" src="Matrix3D.js"></script>
+		
+		<!-- Benchmarking utilities -->
+		<script type="text/javascript">
+		    function log(html) {
+		        document.getElementById('logDiv').innerHTML += html + '<br/><br/>'
+		    }
+
+		    function logTitle(title) {
+		        document.getElementById('logDiv').innerHTML +=
+				'=============================================<br/>' +
+				'<b>' + title + '</b><br/>' +
+				'=============================================' + '<br/><br/>'
+		    }
+
+		    function test(name, f) {
+		        // Repeats each benchmark multiple times to smooth out anomalies
+		        // Also tracks min and max times
+
+		        if (!f) {
+		            log('<i>' + name + ': Unsupported</i>');
+		            return;
+		        }
+
+		        var runCount = 10;
+		        var internalRunCount = 20000;
+		        var totalTime = 0;
+		        var minTime = 0;
+		        var maxTime = 0;
+
+		        for (var i = 0; i < runCount; ++i) {
+		            var time = f(internalRunCount);
+		            if (i == 0) {
+		                minTime = time;
+		                maxTime = time;
+		            } else {
+		                if (minTime > time) { minTime = time; }
+		                if (maxTime < time) { maxTime = time; }
+		            }
+		            totalTime += time;
+		        }
+
+		        var avg = totalTime / runCount;
+
+		        log('<i>' + name + '</i> - Avg: <b>' + avg + 'ms</b>, Min: ' + minTime + 'ms, Max: ' + maxTime + 'ms');
+		    }
+
+		    function testSet(name, tests) {
+		        setTimeout(function () {
+		            logTitle(name);
+		            for (var i = 0; i < tests.length; ++i) {
+		                test(tests[i].name, tests[i].test);
+		            }
+		        }, 1);
+		    }
+
+		    function glMatrixRandom() {
+		        return mat4.create([
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100
+				]);
+		    }
+
+		    function canvasMatrixRandom() {
+		        return new CanvasMatrix4([
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100
+				]);
+		    }
+
+		    function createRandomMatrix3D() {
+		        var m3 = new Matrix3D();
+		        m3._Elements = [
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100,
+					Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100
+				];
+		        return m3;
+		    }
+		</script>
+		
+		<!-- Benchmarks -->
+		<script type="text/javascript">
+		    function testMain() {
+
+		        testSet('Multiplication', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var m2 = glMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.multiply(m1, m2);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: function (count) {
+					    var m1 = canvasMatrixRandom();
+					    var m2 = canvasMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        m1.multRight(m2);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'Matrix3D', test: function (count) {
+					    var m1 = createRandomMatrix3D();
+					    var m2 = createRandomMatrix3D();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        Matrix3D.Multiply(m1, m2, m1);
+					    }
+					    return Date.now() - start;
+					} 
+					}
+				]);
+
+		        testSet('Translation', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var v1 = [1, 2, 3];
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.translate(m1, v1);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: function (count) {
+					    var m1 = canvasMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        m1.translate(1, 2, 3);
+					    }
+					    return Date.now() - start;
+					} 
+					}
+				]);
+
+		        testSet('Scaling', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var v1 = [1, 2, 3];
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.scale(m1, v1);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: function (count) {
+					    var m1 = canvasMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        m1.scale(1, 2, 3);
+					    }
+					    return Date.now() - start;
+					} 
+					}
+				]);
+
+		        testSet('Rotation (Arbitrary axis)', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var v1 = [1, 2, 3];
+					    var a = Math.PI / 2;
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.rotate(m1, a, v1);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: function (count) {
+					    var m1 = canvasMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        m1.rotate(90, 1, 2, 3);
+					    }
+					    return Date.now() - start;
+					} 
+					}
+				]);
+
+		        testSet('Rotation (X axis)', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var v1 = [1, 0, 0];
+					    var a = Math.PI / 2;
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.rotate(m1, a, v1);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: function (count) {
+					    var m1 = canvasMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        m1.rotate(90, 1, 0, 0);
+					    }
+					    return Date.now() - start;
+					} 
+					}
+				]);
+
+		        testSet('Transpose', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.transpose(m1);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: function (count) {
+					    var m1 = canvasMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        m1.transpose();
+					    }
+					    return Date.now() - start;
+					} 
+					}
+				]);
+
+		        testSet('Inverse', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.inverse(m1);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: function (count) {
+					    var m1 = canvasMatrixRandom();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        m1.invert();
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'Matrix3D', test: function (count) {
+					    var m1 = createRandomMatrix3D();
+					    var m2;
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        m2 = m1.Inverse;
+					    }
+					    return Date.now() - start;
+					} 
+					}
+				]);
+
+		        testSet('Inverse 3x3', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var res = mat3.create();
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.toInverseMat3(m1, res);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: null },
+				]);
+
+		        testSet('Vector Transformation', [
+					{ name: 'glMatrix', test: function (count) {
+					    var m1 = glMatrixRandom();
+					    var v1 = [1, 2, 3];
+					    var start = Date.now();
+					    for (var i = 0; i < count; ++i) {
+					        mat4.multiplyVec3(m1, v1);
+					    }
+					    return Date.now() - start;
+					} 
+					},
+					{ name: 'CanvasMatrix', test: null },
+				]);
+		    }
+		</script>
+		
+		<style type="text/css">
+			body {
+				font: 0.8em Verdana,sans-serif;
+			}
+		</style>
+	</head>
+	<body onload="testMain()">
+		<p>
+			This page benchmarks the performance of several matrix libraries intended for use with WebGL: 
+			glMatrix, CanvasMatrix, and Matrix3D<br/>
+			Benchmark times are averaged over 10 runs of 20,000 iterations of the target operation.
+		</p>
+		<div id="logDiv"></div>
+	</body>
+</html>

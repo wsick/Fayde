@@ -43,6 +43,8 @@ StaticResourceExpression.Instance.Resolve = function (parser) {
         ownerType = prop.OwnerType;
     }
     var value = this.GetValue();
+    if (!value)
+        throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
     parser.TrySetPropertyValue(this.Target, prop, value, null, isAttached, ownerType, this.PropertyName);
 };
 

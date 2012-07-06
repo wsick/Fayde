@@ -652,7 +652,7 @@ UIElement.Instance._DoMeasureWithError = function (error) {
     if (last) {
         var previousDesired = this._DesiredSize;
         this._MeasureWithError(last, error);
-        if (previousDesired.Equals(this._DesiredSize))
+        if (Size.Equals(previousDesired, this._DesiredSize))
             return;
     }
 

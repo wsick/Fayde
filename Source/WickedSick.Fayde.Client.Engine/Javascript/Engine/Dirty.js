@@ -1,6 +1,5 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
-/// <reference path="../Runtime/LinkedList.js"/>
 
 var _Dirty = {
     Transform: 1 << 0,
@@ -62,54 +61,56 @@ _Dirty.__DebugToString = function (dirty) {
 };
 
 //#region _DirtyList
-var _DirtyList = Nullstone.Create("_DirtyList", undefined, 1);
-
-_DirtyList.Instance.Init = function (type) {
-    this._DirtyNodes = new LinkedList();
+function _DirtyList(type) {
+    this._DirtyNodes = [];
     this._Type = type;
-};
+}
 
-_DirtyList.Instance.AddDirtyNode = function (node) {
+_DirtyList.prototype.Add = function (node) {
+    this._DirtyNodes.push(node);
+    /*
     DirtyDebug.Level++;
-    this._DirtyNodes.Append(node);
     if (this._Type === "Down")
-        DirtyDebug("AddDirtyNode(Down): [" + node.Element.__DebugToString() + "]" + node.Element.__DebugDownDirtyFlags());
+        DirtyDebug("Add(Down): [" + node.__DebugToString() + "]" + node.__DebugDownDirtyFlags());
     if (this._Type === "Up")
-        DirtyDebug("AddDirtyNode(Up): [" + node.Element.__DebugToString() + "]" + node.Element.__DebugUpDirtyFlags());
+        DirtyDebug("Add(Up): [" + node.__DebugToString() + "]" + node.__DebugUpDirtyFlags());
     DirtyDebug(this.__DebugToString());
     DirtyDebug.Level--;
+    */
 };
-_DirtyList.Instance.RemoveDirtyNode = function (node) {
-    if (!this._DirtyNodes)
-        return;
+_DirtyList.prototype.RemoveFirst = function () {
+    var node = this._DirtyNodes.shift();
+};
+_DirtyList.prototype.Remove = function (node) {
+    Array.removeNullstone(this._DirtyNodes, node);
+    /*
     DirtyDebug.Level++;
-    this._DirtyNodes.Remove(node);
     if (this._Type === "Down")
-        DirtyDebug("RemoveDirtyNode(Down): [" + node.Element.__DebugToString() + "]" + node.Element.__DebugDownDirtyFlags());
+    DirtyDebug("Remove(Down): [" + node.__DebugToString() + "]" + node.__DebugDownDirtyFlags());
     if (this._Type === "Up")
-        DirtyDebug("RemoveDirtyNode(Up): [" + node.Element.__DebugToString() + "]" + node.Element.__DebugUpDirtyFlags());
+    DirtyDebug("Remove(Up): [" + node.__DebugToString() + "]" + node.__DebugUpDirtyFlags());
     DirtyDebug("Remaining: " + this.__DebugToString());
     DirtyDebug.Level--;
+    */
 };
-_DirtyList.Instance.GetFirst = function () {
-    return this._DirtyNodes.First();
+_DirtyList.prototype.GetFirst = function () {
+    if (this._DirtyNodes.length > 0)
+        return this._DirtyNodes[0];
+    return undefined;
 };
-_DirtyList.Instance.IsEmpty = function () {
-    return this._DirtyNodes.IsEmpty();
+_DirtyList.prototype.IsEmpty = function () {
+    return this._DirtyNodes.length < 1;
 };
-_DirtyList.Instance.Clear = function () {
-    this._DirtyNodes.Clear();
+_DirtyList.prototype.Clear = function () {
+    this._DirtyNodes = [];
 };
 
-_DirtyList.Instance.__DebugToString = function () {
+_DirtyList.prototype.__DebugToString = function () {
     var s = new String();
-    var cur = this._DirtyNodes.First();
-    while (cur != null) {
-        s += "[" + cur.Element.__DebugToString() + "]";
-        cur = cur.Next;
+    for (var i = 0; i < this._DirtyNodes.length; i++) {
+        var cur = this._DirtyNodes[i];
+        s += "[" + cur.__DebugToString() + "]";
     }
     return s;
 };
-
-Nullstone.FinishCreate(_DirtyList);
 //#endregion

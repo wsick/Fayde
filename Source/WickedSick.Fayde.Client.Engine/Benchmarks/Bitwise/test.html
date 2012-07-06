@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Bitwise Benchmark</title>
+		
+		<!-- Common Utilities -->
+		
+		<!-- Benchmarking utilities -->
+		<script type="text/javascript">
+		    function log(html) {
+		        document.getElementById('logDiv').innerHTML += html + '<br/><br/>'
+		    }
+
+		    function logTitle(title) {
+		        document.getElementById('logDiv').innerHTML +=
+				'=============================================<br/>' +
+				'<b>' + title + '</b><br/>' +
+				'=============================================' + '<br/><br/>'
+		    }
+
+		    function test(name, f) {
+		        // Repeats each benchmark multiple times to smooth out anomalies
+		        // Also tracks min and max times
+
+		        if (!f) {
+		            log('<i>' + name + ': Unsupported</i>');
+		            return;
+		        }
+
+		        var runCount = 10;
+		        var internalRunCount = 20000;
+		        var totalTime = 0;
+		        var minTime = 0;
+		        var maxTime = 0;
+
+		        for (var i = 0; i < runCount; ++i) {
+		            var time = f(internalRunCount);
+		            if (i == 0) {
+		                minTime = time;
+		                maxTime = time;
+		            } else {
+		                if (minTime > time) { minTime = time; }
+		                if (maxTime < time) { maxTime = time; }
+		            }
+		            totalTime += time;
+		        }
+
+		        var avg = totalTime / runCount;
+		        var avgCycle =  avg / internalRunCount;
+
+		        log('<i>' + name + '</i> - Avg: <b>' + avg + 'ms</b>, Min: ' + minTime + 'ms, Max: ' + maxTime + 'ms' + '; Avg Op: ' + avgCycle + ' ms');
+		    }
+
+		    function testSet(name, tests) {
+		        setTimeout(function () {
+		            logTitle(name);
+		            for (var i = 0; i < tests.length; ++i) {
+		                test(tests[i].name, tests[i].test);
+		            }
+		        }, 1);
+		    }
+		</script>
+		
+		<!-- Benchmarks -->
+		<script type="text/javascript">
+		    function testMain() {
+
+		        testSet('Has Flag', [
+					{ name: 'Bitwise', test: function (count) {
+					    var flags = Math.floor(Math.random() * (1 << 32));
+					    var r = Math.random() * 32;
+					    var start = Date.now();
+					    for (var i = 0; i < count; i++) {
+					        var bit = 1 << r;
+					        var has = false;
+					        if (flags & bit)
+					            has = true;
+					    }
+					    return Date.now() - start;
+					}
+					},
+					{ name: 'Hash', test: function (count) {
+					    var hash = [];
+					    var flags = Math.floor(Math.random() * (1 << 32));
+					    for (var i = 0; i < 32; i++) {
+					        var bit = 1 << i;
+					        if (flags & bit)
+					            hash[bit] = true;
+					    }
+
+					    var r = Math.random() * 32;
+					    var start = Date.now();
+					    for (var i = 0; i < count; i++) {
+					        var bit = 1 << r;
+					        has = hash[bit];
+					    }
+					    return Date.now() - start;
+					}
+					}
+				]);
+
+					testSet('Set Flag', [
+					{ name: 'Bitwise', test: function (count) {
+					    var flags = 0;
+					    var r = Math.random() * 32;
+					    var start = Date.now();
+					    for (var i = 0; i < count; i++) {
+					        var bit = 1 << r;
+					        flags |= bit;
+					    }
+					    return Date.now() - start;
+					}
+					},
+					{ name: 'Hash', test: function (count) {
+					    var hash = [];
+
+					    var r = Math.random() * 32;
+					    var start = Date.now();
+					    for (var i = 0; i < count; i++) {
+					        var bit = 1 << r;
+					        hash[bit] = true;
+					    }
+					    return Date.now() - start;
+					}
+					}
+				]);
+		    }
+        </script>
+		
+		<style type="text/css">
+			body {
+				font: 0.8em Verdana,sans-serif;
+			}
+		</style>
+	</head>
+	<body onload="testMain()">
+		<div id="logDiv"></div>
+	</body>
+</html>

@@ -64,9 +64,12 @@ Array.addDistinctNullstone = function (arr, ns) {
 };
 Array.removeNullstone = function (arr, ns) {
     /// <param name="ns" type="Object"></param>
-    var index = Array.indexOfNullstone(arr, ns);
-    if (index > -1)
-        arr.splice(index, 1);
+    for (var i = 0; i < arr.length; i++) {
+        if (Nullstone.RefEquals(arr[i], ns)) {
+            arr.splice(i, 1);
+            return;
+        }
+    }
 };
 
 Number.isNumber = function (o) {
