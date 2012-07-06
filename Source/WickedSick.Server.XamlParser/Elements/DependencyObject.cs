@@ -7,11 +7,14 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using WickedSick.Server.XamlParser.TypeConverters;
 using WickedSick.Server.XamlParser.Elements.Types;
+using log4net;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
     public abstract class DependencyObject : IJsonSerializable
     {
+        static readonly ILog Log = LogManager.GetLogger(typeof(DependencyObject));
+
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
         public static Type GetElementType(string nameSpace, string elementName)
         {

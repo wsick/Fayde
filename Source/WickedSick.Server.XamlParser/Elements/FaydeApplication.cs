@@ -79,7 +79,7 @@ namespace WickedSick.Server.XamlParser.Elements
 
             sb.AppendLine("\t\t</head>");
             sb.Append("\t<body onmousedown=\"return false;\" style=\"margin: 0;\">");
-            sb.Append("<canvas id=\"canvas\" tabindex=\"1\" style=\"position: absolute;\"></canvas>");
+            sb.Append("\t\t<canvas id=\"canvas\" tabindex=\"1\" style=\"position: absolute;\"></canvas>");
 
             /*
             if (pageDebug)

@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using log4net;
+using System.Reflection;
 
 namespace WickedSick.Server.XamlParser
 {
     public class PropertyDescription
     {
+        static readonly ILog Log = LogManager.GetLogger(typeof(PropertyDescription));
+
         private static IDictionary<string, PropertyDescription> _dependencyProperties = new Dictionary<string, PropertyDescription>();
 
         public static PropertyDescription Register(string name, Type type, Type ownerType, bool isContent = false)
@@ -25,9 +29,15 @@ namespace WickedSick.Server.XamlParser
             Type checkType = ownerType;
             while (checkType != null)
             {
+                checkType.GetMembers(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+                    .Concat(checkType.GetMembers(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic))
+                    .OfType<FieldInfo>().Where(fi => fi.FieldType == typeof(PropertyDescription)).ToList()
+                    .ForEach(fi => fi.GetValue(null));
+
                 string key = string.Format("{0}.{1}", checkType.Name, name);
                 if (_dependencyProperties.Keys.Contains(key))
                     return _dependencyProperties[key];
+
                 checkType = checkType.BaseType;
             }
 
@@ -39,6 +49,11 @@ namespace WickedSick.Server.XamlParser
             Type checkType = ownerType;
             while (checkType != null)
             {
+                checkType.GetMembers(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+                    .Concat(checkType.GetMembers(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic))
+                    .OfType<FieldInfo>().Where(fi => fi.FieldType == typeof(PropertyDescription)).ToList()
+                    .ForEach(fi => fi.GetValue(null));
+
                 foreach (string key in _dependencyProperties.Keys)
                 {
                     if (key.StartsWith(checkType.Name + ".") && _dependencyProperties[key].IsContent)

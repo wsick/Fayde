@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using WickedSick.Server.XamlParser.Elements;
 
-namespace WickedSick.Server.XamlParser.Core
+namespace WickedSick.Server.XamlParser.Elements.Core
 {
     public class Boolean: DependencyObject
     {
