@@ -165,6 +165,7 @@
     <Compile Include="Elements\Types\Length.cs" />
     <Compile Include="Elements\Types\RepeatBehavior.cs" />
     <Compile Include="Elements\Types\ScrollBarVisibility.cs" />
+    <Compile Include="Elements\Types\TextDecorationCollection.cs" />
     <Compile Include="ParserAttributes.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -297,11 +298,10 @@
     <Compile Include="Elements\Types\Point.cs" />
     <Compile Include="Elements\Types\PropertyPath.cs" />
     <Compile Include="Elements\Types\Stretch.cs" />
-    <Compile Include="TypeConverters\TextDecorationConverter.cs" />
-    <Compile Include="Elements\Types\TextDecoration.cs" />
     <Compile Include="Elements\Types\TextWrapping.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TypeConverters\TextDecorationCollectionConverter.cs" />
     <Compile Include="TypeConverters\ThicknessConverter.cs" />
     <Compile Include="TypeConverters\TimeSpanConverter.cs" />
     <Compile Include="TypeConverters\UriConverter.cs" />

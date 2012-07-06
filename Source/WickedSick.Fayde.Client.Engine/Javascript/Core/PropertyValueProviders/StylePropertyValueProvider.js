@@ -46,6 +46,7 @@ _StylePropertyValueProvider.Instance._UpdateStyle = function (style, error) {
 
     var oldWalker = new _DeepStyleWalker(this._Style);
     var newWalker = new _DeepStyleWalker(style);
+    style._Seal();
 
     var oldSetter = oldWalker.Step();
     var newSetter = newWalker.Step();

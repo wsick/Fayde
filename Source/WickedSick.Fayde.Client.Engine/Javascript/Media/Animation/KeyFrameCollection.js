@@ -175,13 +175,13 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
 
     // XXX resolve remaining KeyTime::Paced frames */
 
-    this._SortedList = [];
+    coll._SortedList = [];
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
-        this._SortedList.push(keyFrame);
+        coll._SortedList.push(keyFrame);
     }
-    this._SortedList.sort(KeyFrame.Comparer);
+    coll._SortedList.sort(KeyFrame.Comparer);
 };
 
 Nullstone.FinishCreate(KeyFrameCollection);

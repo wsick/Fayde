@@ -131,9 +131,9 @@ TimeSpan.Instance.Divide = function (ts2) {
 TimeSpan.Instance.CompareTo = function (ts2) {
     /// <param name="ts2" type="TimeSpan"></param>
     /// <returns type="Number" />
-    if (this._Ticks === ts2)
+    if (this._Ticks === ts2._Ticks)
         return 0;
-    return (this._Ticks > ts2) ? 1 : -1;
+    return (this._Ticks > ts2._Ticks) ? 1 : -1;
 };
 TimeSpan.Instance.IsZero = function () {
     /// <returns type="Boolean" />

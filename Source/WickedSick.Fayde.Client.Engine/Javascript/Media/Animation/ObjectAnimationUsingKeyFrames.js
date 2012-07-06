@@ -83,5 +83,13 @@ ObjectAnimationUsingKeyFrames.Instance.RemoveKeyFrame = function (frame) {
     this.KeyFrames.Remove(frame);
 };
 
+//#region Annotations
+
+ObjectAnimationUsingKeyFrames.Annotations = {
+    ContentProperty: ObjectAnimationUsingKeyFrames.KeyFramesProperty
+};
+
+//#endregion
+
 Nullstone.FinishCreate(ObjectAnimationUsingKeyFrames);
 //#endregion
