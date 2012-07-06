@@ -155,6 +155,7 @@
     <Compile Include="Elements\Types\AlignmentY.cs" />
     <Compile Include="Elements\Types\BrushMappingMode.cs" />
     <Compile Include="Elements\Types\ClickMode.cs" />
+    <Compile Include="Elements\Types\CursorType.cs" />
     <Compile Include="Elements\Types\FlowDirection.cs" />
     <Compile Include="Elements\Types\FontStretch.cs" />
     <Compile Include="Elements\Types\FontStyle.cs" />
