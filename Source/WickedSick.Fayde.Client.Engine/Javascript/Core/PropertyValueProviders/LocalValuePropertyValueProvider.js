@@ -12,13 +12,13 @@ _LocalValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) 
 };
 
 _LocalValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    return this._ht[propd];
+    return this._ht[propd._ID];
 };
 _LocalValuePropertyValueProvider.Instance.SetValue = function (propd, value) {
-    this._ht[propd] = value;
+    this._ht[propd._ID] = value;
 };
 _LocalValuePropertyValueProvider.Instance.ClearValue = function (propd) {
-    delete this._ht[propd];
+    delete this._ht[propd._ID];
 };
 
 Nullstone.FinishCreate(_LocalValuePropertyValueProvider);
