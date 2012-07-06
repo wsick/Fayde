@@ -20,6 +20,9 @@ Nullstone.AutoProperties(TileBrush, [
 //#endregion
 
 TileBrush.Instance.SetupBrush = function (ctx, bounds) {
+    if (this._IsSurfaceCached(bounds))
+        return;
+
     var imgExtents = this.GetTileExtents();
 
     var tmpCanvas = document.createElement("canvas");
@@ -35,10 +38,42 @@ TileBrush.Instance.SetupBrush = function (ctx, bounds) {
 
     this.DrawTile(tmpCtx, bounds);
 
+    this._SC = {
+        Bounds: bounds
+    };
     this._Brush = ctx.createPattern(tmpCanvas, "no-repeat");
 };
 TileBrush.Instance.GetTileExtents = function () { };
 TileBrush.Instance.DrawTile = function (canvasCtx, bounds) { };
+
+TileBrush.Instance._IsSurfaceCached = function (bounds) {
+    if (!this._Brush)
+        return false;
+    if (!this._SC)
+        return false;
+    if (!Rect.Equals(this._SC.Bounds, bounds))
+        return false;
+    return true;
+};
+TileBrush.Instance._InvalidateSurfaceCache = function () {
+    delete this._Brush;
+    delete this._SC;
+};
+
+TileBrush.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== TileBrush) {
+        this._OnPropertyChanged$Brush(args, error);
+        return;
+    }
+
+    if (args.Property._ID === TileBrush.AlignmentXProperty._ID
+        || args.Property._ID === TileBrush.AlignmentYProperty._ID
+        || args.Property._ID === TileBrush.StretchProperty._ID) {
+        this._InvalidateSurfaceCache();
+    }
+
+    this.PropertyChanged.Raise(this, args);
+};
 
 Nullstone.FinishCreate(TileBrush);
 //#endregion

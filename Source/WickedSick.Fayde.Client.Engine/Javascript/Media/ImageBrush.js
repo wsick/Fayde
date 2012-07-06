@@ -43,6 +43,7 @@ ImageBrush.Instance._OnPropertyChanged = function (args, error) {
             newBmpSrc._ErroredCallback = function () { ib.ImageFailed.Raise(this, new EventArgs()); };
             newBmpSrc._LoadedCallback = function () { ib.ImageOpened.Raise(this, new EventArgs()); };
         }
+        this._InvalidateSurfaceCache();
     }
 
     this.PropertyChanged.Raise(this, args);
