@@ -7,7 +7,7 @@ var ObjectKeyFrame = Nullstone.Create("ObjectKeyFrame", KeyFrame);
 
 //#region Dependency Properties
 
-ObjectKeyFrame.KeyTimeProperty = DependencyProperty.Register("KeyTime", function () { return KeyTime; }, ObjectKeyFrame, KeyTime.CreateUniform(), null, { GetValue: function () { NotImplemented("KeyTime Coercer"); } });
+ObjectKeyFrame.KeyTimeProperty = DependencyProperty.Register("KeyTime", function () { return KeyTime; }, ObjectKeyFrame, new KeyTime(), null, { GetValue: function () { NotImplemented("KeyTime Coercer"); } });
 ObjectKeyFrame.ValueProperty = DependencyProperty.Register("Value", function () { return Object; }, ObjectKeyFrame);
 ObjectKeyFrame.ConvertedValueProperty = DependencyProperty.Register("ConvertedValue", function () { return Object; }, ObjectKeyFrame);
 

@@ -4,17 +4,21 @@
 //#region KeyTime
 var KeyTime = Nullstone.Create("KeyTime");
 
-KeyTime.CreateUniform = function () {
-    var kt = new KeyTime();
-    kt._IsUniform = true;
-    return kt;
+KeyTime.Instance.Init = function () {
+    this._IsUniform = true;
 };
 
 KeyTime.Instance.IsPaced = function () {
-    return this._IsPaced == true;
+    return this._IsPaced === true;
 };
 KeyTime.Instance.IsUniform = function () {
-    return this._IsUniform == true;
+    return this._IsUniform === true;
+};
+KeyTime.Instance.HasTimeSpan = function () {
+    return this._Timespan != null;
+};
+KeyTime.Instance.HasPercent = function () {
+    return this._Percent != null;
 };
 
 Nullstone.FinishCreate(KeyTime);
