@@ -7,11 +7,14 @@ using System.IO;
 using WickedSick.Server.XamlParser;
 using System.Xml;
 using WickedSick.Server.XamlParser.Elements;
+using log4net;
 
 namespace WickedSick.Server.Framework.Fayde
 {
     public class FaydeHttpModule: IHttpModule
     {
+        static readonly ILog Log = LogManager.GetLogger(typeof(FaydeHttpModule));
+
         public static readonly string FAYDE_APPLICATION = "FaydeApplication";
 
         public void Dispose() { }
@@ -38,6 +41,7 @@ namespace WickedSick.Server.Framework.Fayde
             FaydeApplication fapp = app.Context.Items[FAYDE_APPLICATION] as FaydeApplication;
             if (filePath.Equals("~/") && fapp != null)
             {
+                Log.Debug("Getting value of DefaultPageUri");
                 string defaultUri = (string)fapp.GetValue("DefaultPageUri");
                 app.Context.RewritePath(defaultUri);
             }

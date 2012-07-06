@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\Tools\ThirdParty\log4net\4.0\release\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -55,6 +58,7 @@
     <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Fayde.js" />
+    <Content Include="Global.asax" />
     <Content Include="Images\testing.jpg" />
     <Content Include="Images\tile-test.png" />
     <Content Include="JavascriptTests\DependencyObjectTests.js" />
@@ -374,7 +378,9 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="Docs\Tips.txt" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -385,6 +391,9 @@
     <Content Include="xaml.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
     <Compile Include="xaml.aspx.cs">
       <DependentUpon>xaml.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

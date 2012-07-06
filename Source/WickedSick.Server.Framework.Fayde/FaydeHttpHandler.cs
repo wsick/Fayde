@@ -22,31 +22,22 @@ namespace WickedSick.Server.Framework.Fayde
         {
             HttpRequest req = context.Request;
             HttpResponse res = context.Response;
-            try
-            {
-                XmlDocument doc = new XmlDocument();
-                string filePath = req.MapPath(req.CurrentExecutionFilePath);
-                if (!File.Exists(filePath))
-                {
-                    res.Write("Fayde file could not be found.");
-                    return;
-                }
-                doc.Load(filePath);
-                if (!doc.DocumentElement.Name.ToLower().Equals("page"))
-                    throw new Exception("We currently only support the Page element as the document root.");
 
-                FaydeApplication fa = context.Items[FaydeHttpModule.FAYDE_APPLICATION] as FaydeApplication;
-                if (fa != null)
-                {
-                    Page p = Parser.ParseXmlNode(doc.DocumentElement, null) as Page;
-                    res.Write(fa.BuildPage(p, CollectIncludes(FindOrderFile(filePath)), GetJsPrefix(req)));
-                }
-            }
-            catch (Exception ex)
+            XmlDocument doc = new XmlDocument();
+            string filePath = req.MapPath(req.CurrentExecutionFilePath);
+            if (!File.Exists(filePath))
             {
-                res.Write("<p>An unexpected exception has occurred.</p>");
-                res.Write("<p>" + ex.Message + "</p>");
-                res.Write("<p>" + ex.StackTrace.Replace(Environment.NewLine, "<br>") + "</p>");
+                throw new Exception("Fayde file could not be found.");
+            }
+            doc.Load(filePath);
+            if (!doc.DocumentElement.Name.ToLower().Equals("page"))
+                throw new Exception("The root of your document must be a Page control.");
+
+            FaydeApplication fa = context.Items[FaydeHttpModule.FAYDE_APPLICATION] as FaydeApplication;
+            if (fa != null)
+            {
+                Page p = Parser.ParseXmlNode(doc.DocumentElement, null) as Page;
+                res.Write(fa.BuildPage(p, CollectIncludes(FindOrderFile(filePath)), GetJsPrefix(req)));
             }
         }
 

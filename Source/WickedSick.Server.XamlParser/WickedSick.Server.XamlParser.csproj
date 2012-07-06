@@ -51,6 +51,9 @@
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\Tools\ThirdParty\log4net\4.0\release\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -62,7 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttachedPropertyDescription.cs" />
-    <Compile Include="Core\Boolean.cs" />
+    <Compile Include="Elements\Core\Boolean.cs" />
     <Compile Include="Elements\Bindings\Binding.cs">
       <SubType>Code</SubType>
     </Compile>
