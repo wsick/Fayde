@@ -1,7 +1,14 @@
-﻿Converters:
-	- Example: 
-		Setter -> SomeClass.Instance.SetSomething = function(value) { this.$SetValue(SomethingProperty, value); };
-		Converter -> SomeClass.Instance.SetSomething.Converter = function(value) { ... };
+﻿AutoProperties:
+	Nullstone.AutoProperties(SomeClass, [
+		SomeClass.OneProperty,
+		SomeClass.TwoProperty,
+		SomeClass.ThreeProperty,
+		"BasicProperty"
+	]);
+AutoProperty (DependencyProperty):
+	Nullstone.AutoProperty(SomeClass, SomeClass.SomeProperty, function(value) { /* Return converted value */ });
+AutoProperty (Regular Property):
+	Nullstone.Property(SomeClass, "AnotherProperty", function (value) { /* Return converted value */ });
 	
 PropertyChanged args:
 	Property, OldValue, NewValue
