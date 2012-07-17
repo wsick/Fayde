@@ -66,8 +66,11 @@
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Fayde.js" />
     <Content Include="Global.asax" />
+    <Content Include="Images\github.png" />
+    <Content Include="Images\header_overlay.png" />
     <Content Include="Images\testing.jpg" />
     <Content Include="Images\tile-test.png" />
+    <Content Include="Images\twitter.png" />
     <Content Include="JavascriptTests\DependencyObjectTests.js" />
     <Content Include="JavascriptTests\FaydeAsserts.js" />
     <Content Include="JavascriptTests\MatrixTests.js" />
@@ -397,6 +400,7 @@
     </Content>
     <Content Include="LitmusTests.html" />
     <Content Include="xaml.aspx" />
+    <None Include="Tests\web.fayde" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">

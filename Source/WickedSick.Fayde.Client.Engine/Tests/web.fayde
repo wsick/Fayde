@@ -1,0 +1,128 @@
+﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+      Title="Fayde Home">
+    <Grid x:Name="LayoutRoot" Background="#FFB6B8A2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top">
+            <Border BorderBrush="White" BorderThickness="2" Height="100" Margin="10,10,10,15" CornerRadius="10" VerticalAlignment="Top" Background="#FF326733">
+                <Grid>
+                    <Border Height="76" VerticalAlignment="Bottom" CornerRadius="0,0,10,10">
+                        <Border.Background>
+                            <ImageBrush ImageSource="../Images/header_overlay.png"/>
+                        </Border.Background>
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="Fayde" Margin="15,5" Foreground="White" FontSize="36" FontFamily="Moire" />
+                        <TextBlock Text="Look Ma..no plugins!" Margin="40,0" Foreground="White" FontFamily="Moire" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border BorderBrush="White" BorderThickness="2,0,2,2" VerticalAlignment="Top" HorizontalAlignment="Right" Background="#FF334D66" Height="60" Width="100" Margin="0,0,47,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <HyperlinkButton Margin="5" NavigateUri="https://github.com/BSick7/Fayde">
+                        <Image Height="32" Source="../Images/github.png" Width="32"/>
+                    </HyperlinkButton>
+                    <HyperlinkButton Margin="5" NavigateUri="https://twitter.com/#!/fayde_project">
+                        <Image Height="31" Source="../Images/twitter.png" Width="25"/>
+                    </HyperlinkButton>
+                </StackPanel>
+            </Border>
+            <Border BorderBrush="White" BorderThickness="2" Background="#FF923428" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="3">
+                    <StackPanel.Resources>
+                        <Style x:Key="MenuHyperlinkButton" TargetType="HyperlinkButton">
+                            <Setter Property="Foreground" Value="#FFFFFF" />
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="FontSize" Value="14" />
+                            <Setter Property="Margin" Value="3" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="HyperlinkButton">
+                                        <Grid Cursor="{TemplateBinding Cursor}" Background="{TemplateBinding Background}">
+                                            <VisualStateManager.VisualStateGroups>
+                                                <VisualStateGroup x:Name="CommonStates">
+                                                    <VisualState x:Name="Normal"/>
+                                                    <VisualState x:Name="MouseOver">
+                                                        <Storyboard>
+                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="UnderlineTextBlock" Storyboard.TargetProperty="Visibility" Duration="0">
+                                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                                    <DiscreteObjectKeyFrame.Value>
+                                                                        <Visibility>Visible</Visibility>
+                                                                    </DiscreteObjectKeyFrame.Value>
+                                                                </DiscreteObjectKeyFrame>
+                                                            </ObjectAnimationUsingKeyFrames>
+                                                        </Storyboard>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Pressed">
+                                                        <Storyboard>
+                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="UnderlineTextBlock" Storyboard.TargetProperty="Visibility" Duration="0">
+                                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                                    <DiscreteObjectKeyFrame.Value>
+                                                                        <Visibility>Visible</Visibility>
+                                                                    </DiscreteObjectKeyFrame.Value>
+                                                                </DiscreteObjectKeyFrame>
+                                                            </ObjectAnimationUsingKeyFrames>
+                                                        </Storyboard>
+                                                    </VisualState>
+                                                    <VisualState x:Name="Disabled">
+                                                        <Storyboard>
+                                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="DisabledOverlay" Storyboard.TargetProperty="Visibility" Duration="0">
+                                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                                    <DiscreteObjectKeyFrame.Value>
+                                                                        <Visibility>Visible</Visibility>
+                                                                    </DiscreteObjectKeyFrame.Value>
+                                                                </DiscreteObjectKeyFrame>
+                                                            </ObjectAnimationUsingKeyFrames>
+                                                        </Storyboard>
+                                                    </VisualState>
+                                                </VisualStateGroup>
+                                            </VisualStateManager.VisualStateGroups>
+                                            <TextBlock
+                                                x:Name="UnderlineTextBlock"
+                                                Text="{TemplateBinding Content}"
+                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                Margin="{TemplateBinding Padding}"
+                                                TextDecorations="Underline"
+                                                Visibility="Collapsed"/>
+                                            <TextBlock Canvas.ZIndex="1"
+                                                x:Name="DisabledOverlay"
+                                                Text="{TemplateBinding Content}"
+                                                Foreground="#FFAAAAAA"
+                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                Margin="{TemplateBinding Padding}"
+                                                Visibility="Collapsed"/>
+                                            <ContentPresenter
+                                                x:Name="contentPresenter"
+                                                Content="{TemplateBinding Content}"
+                                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                Margin="{TemplateBinding Padding}"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </StackPanel.Resources>
+                    <HyperlinkButton Content="home" Style="{StaticResource MenuHyperlinkButton}" />
+                    <TextBlock Text="|" Foreground="White" FontSize="14" Margin="0,3" />
+                    <HyperlinkButton Content="roadmap" Style="{StaticResource MenuHyperlinkButton}" />
+                    <TextBlock Text="|" Foreground="White" FontSize="14" Margin="0,3" />
+                    <HyperlinkButton Content="learn" Style="{StaticResource MenuHyperlinkButton}" />
+                    <TextBlock Text="|" Foreground="White" FontSize="14" Margin="0,3" />
+                    <HyperlinkButton Content="support" Style="{StaticResource MenuHyperlinkButton}" />
+                    <TextBlock Text="|" Foreground="White" FontSize="14" Margin="0,3" />
+                    <HyperlinkButton Content="about" Style="{StaticResource MenuHyperlinkButton}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+        <Grid Grid.Row="1">
+
+        </Grid>
+    </Grid>
+</Page>
