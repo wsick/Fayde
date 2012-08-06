@@ -13,7 +13,6 @@
     <RootNamespace>WickedSick.Fayde.Client.Engine</RootNamespace>
     <AssemblyName>WickedSick.Fayde.Client.Engine</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <UseIISExpress>true</UseIISExpress>
     <SilverlightApplicationList>{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}|..\WickedSick.LitmusTests\WickedSick.LitmusTests.csproj|ClientBin|False</SilverlightApplicationList>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -128,6 +127,8 @@
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
     <Content Include="Javascript\Core\Collections\RangeCollection.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
+    <Content Include="Javascript\Controls\Frame.js" />
+    <Content Include="Javascript\Navigation\UriMapper.js" />
     <Content Include="Javascript\Runtime\DoubleKeyedDictionary.js" />
     <Content Include="Javascript\Media\InternalTransform.js" />
     <Content Include="Javascript\Primitives\Matrix3D.js" />
@@ -418,7 +419,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.fa">
+    <None Include="default.fap">
       <SubType>Designer</SubType>
     </None>
     <None Include="Fayde.order" />

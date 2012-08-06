@@ -1,4 +1,0 @@
-﻿<FaydeApplication xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-                  DefaultPageUri="Tests/smoke.fayde"
-                  Debug="true">
-</FaydeApplication>
