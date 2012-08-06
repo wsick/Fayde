@@ -12,7 +12,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         Forever
     }
 
-    public class Duration : IJsonSerializable
+    public class Duration : IJsonConvertible
     {
         private Duration(DurationType durationType)
         {
@@ -31,12 +31,12 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         public DurationType DurationType { get; private set; }
         public Elements.Types.TimeSpan TimeSpan { get; private set; }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             if (DurationType == DurationType.Automatic || DurationType == DurationType.Forever)
                 return string.Format("new Duration({0})", DurationType.ToString());
             else
-                return string.Format("new Duration({0})", TimeSpan.toJson(tabIndents));
+                return string.Format("new Duration({0})", TimeSpan.ToJson(tabIndents));
         }
     }
 }

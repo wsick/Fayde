@@ -183,7 +183,7 @@
     <Compile Include="Elements\Controls\HyperlinkButton.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="IJsonSerializable.cs">
+    <Compile Include="IJsonConvertible.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Media\LinearGradientBrush.cs">

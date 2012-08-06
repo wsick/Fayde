@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class Length : IJsonSerializable
+    public class Length : IJsonConvertible
     {
         public double? Value { get; set; }
 
@@ -14,7 +14,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             Value = null;
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             return Value.ToString();
         }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class Color : IJsonSerializable
+    public class Color : IJsonConvertible
     {
         public static Color FromHex(string hexString)
         {
@@ -19,7 +19,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
 
         private string HexString { get; set; }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             return string.Format("Color.FromHex(\"{0}\")", HexString);
         }

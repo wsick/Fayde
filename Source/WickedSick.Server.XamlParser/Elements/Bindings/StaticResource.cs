@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Bindings
 {
-    public class StaticResource: IJsonSerializable
+    public class StaticResource: IJsonConvertible
     {
         public string Key { get; protected set; }
 
@@ -10,7 +10,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
             Key = key;
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             return string.Format("new StaticResourceMarkup(\"{0}\")", Key);
         }

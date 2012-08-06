@@ -11,7 +11,7 @@ using log4net;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public abstract class DependencyObject : IJsonSerializable
+    public abstract class DependencyObject : IJsonConvertible
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(DependencyObject));
 
@@ -200,7 +200,7 @@ namespace WickedSick.Server.XamlParser.Elements
             return properties;
         }
 
-        private IJsonSerializable GetContent()
+        private IJsonConvertible GetContent()
         {
             PropertyDescription dp = PropertyDescription.GetContent(GetType());
             if (dp == null)
@@ -208,13 +208,13 @@ namespace WickedSick.Server.XamlParser.Elements
             if (!_dependencyValues.ContainsKey(dp))
                 return null;
             object value = _dependencyValues[dp];
-            if (value is IJsonSerializable)
-                return (IJsonSerializable)value;
+            if (value is IJsonConvertible)
+                return (IJsonConvertible)value;
             else
                 return null;
         }
 
-        public virtual string toJson(int tabIndent)
+        public virtual string ToJson(int tabIndent)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("{");
@@ -252,7 +252,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.Append("]");
             }
 
-            IJsonSerializable content = GetContent();
+            IJsonConvertible content = GetContent();
             if (content != null)
             {
                 sb.AppendLine(",");
@@ -260,7 +260,7 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.Append("Children: ");
                 else
                     sb.Append("Content: ");
-                sb.Append(content.toJson(0));
+                sb.Append(content.ToJson(0));
             }
             sb.AppendLine();
             sb.Append("}");
@@ -293,9 +293,9 @@ namespace WickedSick.Server.XamlParser.Elements
                 sb.AppendLine(",");
                 sb.Append("Value: ");
                 object value = properties[apd];
-                if (value is IJsonSerializable)
+                if (value is IJsonConvertible)
                 {
-                    sb.AppendLine(((IJsonSerializable)value).toJson(0));
+                    sb.AppendLine(((IJsonConvertible)value).ToJson(0));
                 }
                 else if (typeof(IList).IsAssignableFrom(value.GetType()))
                 {
@@ -337,17 +337,17 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.AppendLine(",");
                 if (this is Setter && pd.Name.Equals("Property"))
                 {
-                    string typeName = ((IJsonSerializable)Parent.GetValue("TargetType")).toJson(0);
+                    string typeName = ((IJsonConvertible)Parent.GetValue("TargetType")).ToJson(0);
                     sb.Append(pd.Name);
                     sb.Append(": ");
                     sb.Append(string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, value));
                     needsComma = true;
                 }
-                else if (value is IJsonSerializable)
+                else if (value is IJsonConvertible)
                 {
                     sb.Append(pd.Name);
                     sb.Append(": ");
-                    sb.Append(((IJsonSerializable)value).toJson(0));
+                    sb.Append(((IJsonConvertible)value).ToJson(0));
                     needsComma = true;
                 }
                 else if (typeof(IList).IsAssignableFrom(value.GetType()))
@@ -414,7 +414,7 @@ namespace WickedSick.Server.XamlParser.Elements
             {
                 if (needsComma)
                     sb.AppendLine(",");
-                sb.Append(d.toJson(0));
+                sb.Append(d.ToJson(0));
                 needsComma = true;
             }
             return sb.ToString();

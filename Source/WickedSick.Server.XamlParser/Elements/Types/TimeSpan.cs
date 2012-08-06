@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class TimeSpan : IJsonSerializable
+    public class TimeSpan : IJsonConvertible
     {
         private long _ticks;
         private int _days;
@@ -28,7 +28,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             _milliseconds = milliseconds;
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             if (_ticks > 0)
                 return string.Format("new TimeSpan({0})", _ticks);

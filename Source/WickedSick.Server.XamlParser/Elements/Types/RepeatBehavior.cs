@@ -12,17 +12,17 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         Forever
     }
 
-    public class RepeatBehavior: IJsonSerializable
+    public class RepeatBehavior: IJsonConvertible
     {
         public RepeatBehaviorType Type { get; set; }
         public double Count { get; set; }
         public TimeSpan TimeSpan { get; set; }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             string value;
             if (Type == RepeatBehaviorType.RepeatDuration)
-                value = TimeSpan.toJson(0);
+                value = TimeSpan.ToJson(0);
             else if (Type == RepeatBehaviorType.IterationCount)
                 value = Count.ToString();
             else

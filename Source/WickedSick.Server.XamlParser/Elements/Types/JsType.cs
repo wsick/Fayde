@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class JsType : IJsonSerializable
+    public class JsType : IJsonConvertible
     {
         public string Value { get; protected set; }
 
@@ -10,7 +10,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             Value = value;
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             return Value;
         }

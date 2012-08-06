@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class JsonUri : IJsonSerializable
+    public class JsonUri : IJsonConvertible
     {
         private Uri _Uri;
 
@@ -14,7 +14,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             _Uri = uri;
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             return string.Format("new Uri(\"{0}\")", _Uri);
         }

@@ -19,7 +19,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
         Explicit
     }
 
-    public class Binding: IJsonSerializable
+    public class Binding: IJsonConvertible
     {
         public object FallbackValue { get; set; }
         public string Path { get; set; }
@@ -44,7 +44,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
             Mode = BindingMode.TwoWay;
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("new BindingMarkup({ ");

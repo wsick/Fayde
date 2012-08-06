@@ -10,7 +10,7 @@ namespace WickedSick.Server.XamlParser.Elements.Core
     {
         public static readonly PropertyDescription Content = PropertyDescription.Register("Content", typeof(string), typeof(Boolean), true);
 
-        public override string toJson(int tabIndent)
+        public override string ToJson(int tabIndent)
         {
             return ((string)GetValue("Content")).ToLower();
         }

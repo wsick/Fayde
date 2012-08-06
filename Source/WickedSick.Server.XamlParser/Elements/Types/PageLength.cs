@@ -11,12 +11,12 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         Percentage
     }
 
-    public class PageLength : IJsonSerializable
+    public class PageLength : IJsonConvertible
     {
         public double Value { get; set; }
         public PageLengthType LengthType { get; set; }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             if (LengthType == PageLengthType.Pixel)
                 return Value.ToString();

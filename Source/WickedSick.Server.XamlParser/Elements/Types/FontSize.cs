@@ -5,7 +5,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class FontSize : IJsonSerializable
+    public class FontSize : IJsonConvertible
     {
         private int _size;
 
@@ -14,7 +14,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             _size = size;
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             return string.Format("\"{0}px\"", _size);
         }

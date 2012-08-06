@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class TextDecorationCollection : IJsonSerializable
+    public class TextDecorationCollection : IJsonConvertible
     {
         private List<string> _Items = new List<string>();
 
@@ -21,7 +21,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             _Items.Add(item);
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             //TextDecorations are a flags enum in javascript, bitwise OR all items
             return string.Join(" | ", _Items.Select(i => string.Format("TextDecorations.{0}", i)));

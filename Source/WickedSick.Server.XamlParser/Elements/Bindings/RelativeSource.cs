@@ -15,7 +15,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
         TemplatedParent
     }
 
-    public class RelativeSource: IJsonSerializable
+    public class RelativeSource: IJsonConvertible
     {
         public RelativeSourceMode Mode { get; set; }
 
@@ -24,7 +24,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
             Mode = mode;
         }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             throw new NotImplementedException();
         }

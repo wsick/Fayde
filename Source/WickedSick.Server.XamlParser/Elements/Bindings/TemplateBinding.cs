@@ -5,11 +5,11 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Bindings
 {
-    public class TemplateBinding: IJsonSerializable
+    public class TemplateBinding: IJsonConvertible
     {
         public string SourcePropertyName { get; set; }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             return string.Format("new TemplateBindingMarkup(\"{0}\")", SourcePropertyName);
         }

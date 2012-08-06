@@ -11,18 +11,18 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         Uniform = 0
     }
 
-    public class KeyTime : IJsonSerializable
+    public class KeyTime : IJsonConvertible
     {
         public KeyTimeType Type { get; set; }
         public TimeSpan TimeSpan { get; set; }
         public KeyTime Uniform { get; set; }
 
-        public string toJson(int tabIndents)
+        public string ToJson(int tabIndents)
         {
             if (Type == KeyTimeType.Uniform)
                 return "new KeyTime(Uniform)";
             else
-                return string.Format("new KeyTime({0})", TimeSpan.toJson(tabIndents));
+                return string.Format("new KeyTime({0})", TimeSpan.ToJson(tabIndents));
         }
     }
 
