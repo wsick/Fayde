@@ -167,6 +167,8 @@
     <Compile Include="Elements\Types\RepeatBehavior.cs" />
     <Compile Include="Elements\Types\ScrollBarVisibility.cs" />
     <Compile Include="Elements\Types\TextDecorationCollection.cs" />
+    <Compile Include="Elements\UriMapping.cs" />
+    <Compile Include="Elements\UriMatcher.cs" />
     <Compile Include="ParserAttributes.cs">
       <SubType>Code</SubType>
     </Compile>
