@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using WickedSick.Server.XamlParser.TypeConverters;
 using WickedSick.Server.XamlParser.Elements.Controls;
 using WickedSick.Server.XamlParser.Elements.Types;
 
@@ -10,11 +8,31 @@ namespace WickedSick.Server.XamlParser.Elements
 {
     public class FaydeApplication : DependencyObject
     {
-        public static readonly PropertyDescription DefaultPageUri = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));
+        //public static readonly PropertyDescription DefaultPageUri = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));
         public static readonly PropertyDescription Width = PropertyDescription.Register("Width", typeof(PageLength), typeof(FaydeApplication));
         public static readonly PropertyDescription Height = PropertyDescription.Register("Height", typeof(PageLength), typeof(FaydeApplication));
         public static readonly PropertyDescription Debug = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
         public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FaydeApplication));
+        public static readonly PropertyDescription UriMappings = PropertyDescription.Register("UriMappings", typeof(List<UriMapping>), typeof(FaydeApplication), true);
+
+        public string MapUri(Uri requestUri)
+        {
+            var fragment = requestUri.GetComponents(UriComponents.Fragment, UriFormat.UriEscaped);
+
+            var mappings = GetValue("UriMappings") as List<UriMapping>;
+            if (mappings == null)
+                return null;
+
+            var relativeUri = new Uri(fragment, UriKind.Relative);
+            string mappedUri;
+            foreach (var mapping in mappings)
+            {
+                if (mapping.TryMatch(relativeUri, out mappedUri))
+                    return mappedUri;
+            }
+            return null;
+        }
+
 
         public string BuildPage(Page p, IEnumerable<string> includes, string baseDirResolution)
         {   
@@ -70,7 +88,7 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.Append("var json = ");
             var pageUserControl = new UserControl();
             pageUserControl.AddContent(p.GetValue("Content"));
-            sb.Append(pageUserControl.toJson(0));
+            sb.Append(pageUserControl.ToJson(0));
             sb.AppendLine(";");
 
             sb.AppendLine(string.Format("\t\t\t\tApp.Instance.Load(json, $(\"#canvas\"), {0}, {1}, {2}, {3});", width, widthType, height, heightType));
