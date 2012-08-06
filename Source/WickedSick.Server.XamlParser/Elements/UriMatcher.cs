@@ -42,6 +42,12 @@ namespace WickedSick.Server.XamlParser.Elements
             MappedUri = string.Empty;
             i = 0;
             j = 0;
+            if (MatchTemplate.Length == 0)
+            {
+                IsSuccess = Actual.Length == 0;
+                MappedUri = IsSuccess ? BuildMappedUri() : null;
+                return;
+            }
             while (i < MatchTemplate.Length && j < Actual.Length)
             {
                 if (MatchTemplate[i] == '{')
@@ -120,9 +126,7 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             if (len <= 0)
                 return null;
-            if ((index + 1) >= s.Length)
-                return null;
-            if ((index + len + 1) >= s.Length)
+            if ((index + len) >= s.Length)
                 return null;
             return s.Substring(index, len);
         }

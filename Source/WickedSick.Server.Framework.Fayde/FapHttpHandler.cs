@@ -48,7 +48,7 @@ namespace WickedSick.Server.Framework.Fayde
             Page page = null;
             if (string.IsNullOrWhiteSpace(localPath))
             {
-                localPath = fap.MapUri(new Uri("", UriKind.Relative));
+                localPath = fap.MapUri("");
                 if (string.IsNullOrWhiteSpace(localPath))
                     throw new XamlParseException("No UriMapping to map to the default page.");
             }
@@ -92,7 +92,7 @@ namespace WickedSick.Server.Framework.Fayde
             }
 
             var userControl = new UserControl();
-            userControl.AddContent(page);
+            userControl.AddContent(page.GetValue("Content"));
             writer.WriteAppLoadScript(userControl, width, widthType, height, heightType);
         }
 
@@ -102,7 +102,10 @@ namespace WickedSick.Server.Framework.Fayde
                 return;
             using (var sw = new StreamWriter(stream))
             {
-                sw.Write(Parser.Parse(pageLocalPath).ToJson(0));
+                var page = Parser.Parse(pageLocalPath) as Page;
+                var userControl = new UserControl();
+                userControl.AddContent(page.GetValue("Content"));
+                sw.Write(userControl.ToJson(0));
             }
         }
 
@@ -154,7 +157,7 @@ namespace WickedSick.Server.Framework.Fayde
 
         private string GetPhysicalPath(HttpContext context, FaydeApplication fap)
         {
-            var mappedPath = fap.MapUri(context.Request.Url);
+            var mappedPath = fap.MapUri(context.Request.QueryString["p"]);
             if (string.IsNullOrWhiteSpace(mappedPath))
                 return mappedPath;
             return Path.Combine(Path.GetDirectoryName(context.Request.PhysicalPath), mappedPath.Replace("/", "\\").TrimStart('\\'));

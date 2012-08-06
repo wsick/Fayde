@@ -15,15 +15,13 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FaydeApplication));
         public static readonly PropertyDescription UriMappings = PropertyDescription.Register("UriMappings", typeof(DependencyObjectCollection<UriMapping>), typeof(FaydeApplication), true);
 
-        public string MapUri(Uri requestUri)
+        public string MapUri(string fragment)
         {
-            var fragment = requestUri.GetComponents(UriComponents.Fragment, UriFormat.UriEscaped);
-
             var mappings = GetValue("UriMappings") as DependencyObjectCollection<UriMapping>;
             if (mappings == null)
                 return null;
 
-            var relativeUri = new Uri(fragment, UriKind.Relative);
+            var relativeUri = new Uri(fragment ?? string.Empty, UriKind.Relative);
             string mappedUri;
             foreach (var mapping in mappings)
             {

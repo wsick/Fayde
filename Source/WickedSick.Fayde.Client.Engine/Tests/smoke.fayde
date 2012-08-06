@@ -34,7 +34,7 @@
       </TextBlock>
       <TextBox Margin="20" Text="This is a sample textbox."></TextBox>
       <Button Margin="20,0,20,20" Content="This is a sample button."/>
-      <Image Stretch="None" Source="../Images/testing.jpg" />
+      <Image Stretch="None" Source="Images/testing.jpg" />
       <RepeatButton Margin="20" Content="This is a repeat button."/>
       <CheckBox Margin="20, 0, 20, 0">CheckBox</CheckBox>
       <RadioButton Margin="20, 0, 20, 0">RadioButton 1</RadioButton>

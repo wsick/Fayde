@@ -2,6 +2,6 @@
       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
       Title="Basic Test" >
     <Grid>
-        <Image Width="600" Height="480" Stretch="UniformToFill" Source="../Images/testing.jpg" />
+        <Image Width="600" Height="480" Stretch="UniformToFill" Source="Images/testing.jpg" />
     </Grid>
 </Page>

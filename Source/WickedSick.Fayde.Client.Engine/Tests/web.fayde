@@ -11,7 +11,7 @@
                 <Grid>
                     <Border Height="76" VerticalAlignment="Bottom" CornerRadius="0,0,10,10">
                         <Border.Background>
-                            <ImageBrush ImageSource="../Images/header_overlay.png"/>
+                            <ImageBrush ImageSource="Images/header_overlay.png"/>
                         </Border.Background>
                     </Border>
                     <StackPanel>
@@ -23,10 +23,10 @@
             <Border BorderBrush="White" BorderThickness="2,0,2,2" VerticalAlignment="Top" HorizontalAlignment="Right" Background="#FF334D66" Height="60" Width="100" Margin="0,0,47,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <HyperlinkButton Margin="5" NavigateUri="https://github.com/BSick7/Fayde">
-                        <Image Height="32" Source="../Images/github.png" Width="32"/>
+                        <Image Height="32" Source="Images/github.png" Width="32"/>
                     </HyperlinkButton>
                     <HyperlinkButton Margin="5" NavigateUri="https://twitter.com/#!/fayde_project">
-                        <Image Height="31" Source="../Images/twitter.png" Width="25"/>
+                        <Image Height="31" Source="Images/twitter.png" Width="25"/>
                     </HyperlinkButton>
                 </StackPanel>
             </Border>
