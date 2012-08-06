@@ -29,7 +29,7 @@ namespace WickedSick.Fayde.Client.Engine
             XmlDocument doc = new XmlDocument();
             doc.LoadXml(tb1.Text);
             DependencyObject d = (DependencyObject)Parser.ParseXmlNode(doc.DocumentElement, null);
-            tb2.Text = d.toJson(0);
+            tb2.Text = d.ToJson(0);
         }
 
         protected void selectedFile_Click(object sender, EventArgs e)
