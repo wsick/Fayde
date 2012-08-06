@@ -1,8 +1,6 @@
 ﻿<FaydeApplication
     xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
     Debug="true">
-    <FaydeApplication.UriMappings>
-        <UriMapping Uri="" MappedUri="/Tests/smoke.fayde" />
-        <UriMapping Uri="/{pageName}" MappedUri="/Tests/{pageName}.fayde" />
-    </FaydeApplication.UriMappings>
+    <UriMapping Uri="" MappedUri="/Tests/smoke.fayde" />
+    <UriMapping Uri="/{pageName}" MappedUri="/Tests/{pageName}.fayde" />
 </FaydeApplication>

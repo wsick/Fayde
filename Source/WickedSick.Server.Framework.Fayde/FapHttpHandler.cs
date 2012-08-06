@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using WickedSick.Server.XamlParser.Elements;
-using System.Web;
-using System.Xml;
-using WickedSick.Server.XamlParser;
-using log4net;
 using System.IO;
-using WickedSick.Server.XamlParser.Elements.Types;
+using System.Linq;
+using System.Web;
+using log4net;
+using WickedSick.Server.XamlParser;
+using WickedSick.Server.XamlParser.Elements;
 using WickedSick.Server.XamlParser.Elements.Controls;
+using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.Framework.Fayde
 {
@@ -31,20 +29,34 @@ namespace WickedSick.Server.Framework.Fayde
                 return;
             }
 
-            var localPath = fap.MapUri(context.Request.Url);
-            if (string.IsNullOrWhiteSpace(localPath))
-                WriteFapFull(context);
+#if DEBUG
+            var orderFile = FindOrderFile(context.Request.PhysicalApplicationPath);
+            Includes = CollectIncludes(orderFile).ToList();
+            DirectoryResolution = "";
+#endif
+
+            var localPath = GetPhysicalPath(context, fap);
+            if (IsJsonOnly(context))
+                WritePageJson(context.Response.OutputStream, localPath);
             else
-                WriteFapPage(context, localPath);
+                WriteFapFull(fap, context.Response.OutputStream, localPath);
         }
 
 
-        private void WriteFapFull(HttpContext context)
+        private void WriteFapFull(FaydeApplication fap, Stream stream, string localPath)
         {
-            if (IsJsonOnly(context))
-                return;
             Page page = null;
-            using (var writer = new FapWriter(context.Response.OutputStream))
+            if (string.IsNullOrWhiteSpace(localPath))
+            {
+                localPath = fap.MapUri(new Uri("", UriKind.Relative));
+                if (string.IsNullOrWhiteSpace(localPath))
+                    throw new XamlParseException("No UriMapping to map to the default page.");
+            }
+            page = Parser.Parse(localPath) as Page;
+            if (page == null)
+                throw new XamlParseException("UriMapping refers to a document that is not a Page.");
+
+            using (var writer = new FapWriter(stream))
             {
                 writer.WriteStart();
                 writer.WriteHeadStart();
@@ -84,16 +96,14 @@ namespace WickedSick.Server.Framework.Fayde
             writer.WriteAppLoadScript(userControl, width, widthType, height, heightType);
         }
 
-        private void WriteFapPage(HttpContext context, string localPath)
+        private void WritePageJson(Stream stream, string pageLocalPath)
         {
-            if (IsJsonOnly(context))
+            if (string.IsNullOrWhiteSpace(pageLocalPath))
+                return;
+            using (var sw = new StreamWriter(stream))
             {
+                sw.Write(Parser.Parse(pageLocalPath).ToJson(0));
             }
-        }
-
-        private void WriteJson(StreamWriter sw, IJsonConvertible j)
-        {
-            sw.Write(j.ToJson(0));
         }
 
 
@@ -124,18 +134,15 @@ namespace WickedSick.Server.Framework.Fayde
 
         private FaydeApplication CreateFap(HttpRequest request)
         {
-            var xd = new XmlDocument();
             try
             {
-                xd.Load(request.PhysicalPath);
+                return Parser.Parse(request.PhysicalPath) as FaydeApplication;
             }
             catch (Exception ex)
             {
                 logger.Error("Could not load Fayde Application document.", ex);
                 return null;
             }
-
-            return (FaydeApplication)Parser.ParseXmlNode(xd.DocumentElement, null);
         }
 
 
@@ -145,27 +152,14 @@ namespace WickedSick.Server.Framework.Fayde
             return bool.TryParse(context.Request.Headers["JsonOnly"], out onlyJson) && onlyJson;
         }
 
-
-        private static string GetJsPrefix(HttpRequest request)
+        private string GetPhysicalPath(HttpContext context, FaydeApplication fap)
         {
-            var path = request.AppRelativeCurrentExecutionFilePath.TrimStart('~', '/');
-            return string.Join("", Enumerable.Repeat("../", Occurrences(path, "/")));
+            var mappedPath = fap.MapUri(context.Request.Url);
+            if (string.IsNullOrWhiteSpace(mappedPath))
+                return mappedPath;
+            return Path.Combine(Path.GetDirectoryName(context.Request.PhysicalPath), mappedPath.Replace("/", "\\").TrimStart('\\'));
         }
 
-        private static int Occurrences(string s, string match)
-        {
-            int count = 0;
-            for (int i = 0; i < s.Length; i++)
-            {
-                var cur = s.Substring(i);
-                if (cur.StartsWith(match))
-                {
-                    count++;
-                    i += match.Length - 1;
-                }
-            }
-            return count;
-        }
 
         private string FindOrderFile(string execPath)
         {

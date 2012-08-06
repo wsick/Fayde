@@ -1,12 +1,10 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Collections;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public class DependencyObjectCollection<T>: DependencyObject
+    public class DependencyObjectCollection<T>: DependencyObject, IEnumerable<T>
     {
         private IList<T> _items = new List<T>();
 
@@ -34,6 +32,16 @@ namespace WickedSick.Server.XamlParser.Elements
             }
             sb.AppendLine("]");
             return sb.ToString();
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _items.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _items.GetEnumerator();
         }
     }
 }

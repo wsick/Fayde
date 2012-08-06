@@ -48,8 +48,6 @@
   <ItemGroup>
     <Compile Include="FapHttpHandler.cs" />
     <Compile Include="FapWriter.cs" />
-    <Compile Include="FaydeHttpHandler.cs" />
-    <Compile Include="FaydeHttpModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

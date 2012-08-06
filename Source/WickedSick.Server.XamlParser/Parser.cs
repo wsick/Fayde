@@ -1,19 +1,35 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Xml;
 using WickedSick.Server.XamlParser.Elements;
-using WickedSick.Server.XamlParser.TypeConverters;
-using WickedSick.Server.XamlParser.Elements.Media.VSM;
 
 namespace WickedSick.Server.XamlParser
 {
     public static class Parser
     {
-        public static object ParseXmlNode(XmlNode node, DependencyObject parent)
+        public static DependencyObject Parse(string filepath)
+        {
+            var doc = new XmlDocument();
+            doc.Load(filepath);
+            return (DependencyObject)Parser.ParseXmlNode(doc.DocumentElement, null);
+        }
+
+        public static DependencyObject Parse(Stream stream)
+        {
+            var doc = new XmlDocument();
+            doc.Load(stream);
+            return (DependencyObject)Parser.ParseXmlNode(doc.DocumentElement, null);
+        }
+
+        public static DependencyObject ParseXml(string xml)
+        {
+            var doc = new XmlDocument();
+            doc.LoadXml(xml);
+            return (DependencyObject)Parser.ParseXmlNode(doc.DocumentElement, null);
+        }
+
+        private static object ParseXmlNode(XmlNode node, DependencyObject parent)
         {
             if (node.NodeType == XmlNodeType.Comment)
                 return null;

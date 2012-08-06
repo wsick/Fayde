@@ -26,10 +26,8 @@ namespace WickedSick.Fayde.Client.Engine
 
         protected void submit_Click(object sender, EventArgs e)
         {
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(tb1.Text);
-            DependencyObject d = (DependencyObject)Parser.ParseXmlNode(doc.DocumentElement, null);
-            tb2.Text = d.ToJson(0);
+            var dobj = Parser.ParseXml(tb1.Text);
+            tb2.Text = dobj.ToJson(0);
         }
 
         protected void selectedFile_Click(object sender, EventArgs e)

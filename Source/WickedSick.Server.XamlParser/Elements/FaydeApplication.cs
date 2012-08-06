@@ -13,13 +13,13 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription Height = PropertyDescription.Register("Height", typeof(PageLength), typeof(FaydeApplication));
         public static readonly PropertyDescription Debug = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
         public static readonly PropertyDescription Resources = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FaydeApplication));
-        public static readonly PropertyDescription UriMappings = PropertyDescription.Register("UriMappings", typeof(List<UriMapping>), typeof(FaydeApplication), true);
+        public static readonly PropertyDescription UriMappings = PropertyDescription.Register("UriMappings", typeof(DependencyObjectCollection<UriMapping>), typeof(FaydeApplication), true);
 
         public string MapUri(Uri requestUri)
         {
             var fragment = requestUri.GetComponents(UriComponents.Fragment, UriFormat.UriEscaped);
 
-            var mappings = GetValue("UriMappings") as List<UriMapping>;
+            var mappings = GetValue("UriMappings") as DependencyObjectCollection<UriMapping>;
             if (mappings == null)
                 return null;
 
