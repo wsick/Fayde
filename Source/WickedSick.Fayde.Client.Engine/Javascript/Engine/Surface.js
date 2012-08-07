@@ -111,7 +111,9 @@ Surface.Instance._AttachLayer = function (layer) {
 };
 Surface.Instance._DetachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
-    //TODO: Implement
+    this._Layers.Remove(layer);
+    layer._SetIsLoaded(false);
+    layer._SetIsAttached(false);
 };
 Surface.Instance._InitializeCanvas = function (canvas, width, widthType, height, heightType) {
     var resizesWithWindow = false;

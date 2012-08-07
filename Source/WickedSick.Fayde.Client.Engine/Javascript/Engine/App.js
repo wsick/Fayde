@@ -6,6 +6,8 @@
 /// <reference path="../Core/UIElement.js"/>
 /// <reference path="Clock.js"/>
 /// <reference path="../Runtime/JsEx.js"/>
+/// <reference path="NavService.js"/>
+/// <reference path="AjaxJsonRequest.js"/>
 
 //#region App
 var App = Nullstone.Create("App", DependencyObject);
@@ -53,15 +55,21 @@ Nullstone.AutoProperties(App, [
 
 //#endregion
 
-App.Instance.Load = function (json, containerId, width, widthType, height, heightType) {
-    /// <param name="json" type="Object"></param>
+App.Instance.LoadInitial = function (containerId) {
     this.Address = new Uri(document.URL);
-    this.MainSurface.Register(containerId, width, widthType, height, heightType);
+    this.MainSurface.Register(containerId);
+    
+    this.NavService = new NavService(this);
+    this.NavService.NavigateInitial();
+
+    this.Start();
+};
+App.Instance.LoadUIElement = function (json) {
+    /// <param name="json" type="Object"></param>
     var element = JsonParser.Parse(json);
     if (!(element instanceof UIElement))
         return;
     this.MainSurface._Attach(element);
-    this.Start();
 };
 App.Instance.OnLoaded = function () {
     this.Loaded.RaiseAsync(this, new EventArgs());

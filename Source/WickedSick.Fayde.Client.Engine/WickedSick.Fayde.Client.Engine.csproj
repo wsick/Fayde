@@ -128,6 +128,8 @@
     <Content Include="Javascript\Core\Collections\RangeCollection.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Frame.js" />
+    <Content Include="Javascript\Engine\AjaxJsonRequest.js" />
+    <Content Include="Javascript\Engine\NavService.js" />
     <Content Include="Javascript\Navigation\UriMapper.js" />
     <Content Include="Javascript\Runtime\DoubleKeyedDictionary.js" />
     <Content Include="Javascript\Media\InternalTransform.js" />

@@ -7,7 +7,6 @@ using log4net;
 using WickedSick.Server.XamlParser;
 using WickedSick.Server.XamlParser.Elements;
 using WickedSick.Server.XamlParser.Elements.Controls;
-using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.Framework.Fayde
 {
@@ -29,71 +28,37 @@ namespace WickedSick.Server.Framework.Fayde
                 return;
             }
 
-#if DEBUG
-            var orderFile = FindOrderFile(context.Request.PhysicalApplicationPath);
-            Includes = CollectIncludes(orderFile).ToList();
-            DirectoryResolution = "";
-#endif
-
-            var localPath = GetPhysicalPath(context, fap);
-            if (IsJsonOnly(context))
-                WritePageJson(context.Response.OutputStream, localPath);
+            var fragment = context.Request.QueryString["p"];
+            if (fragment != null)
+            {
+                WritePageJson(context.Response.OutputStream, GetPhysicalPath(context, fap, fragment));
+            }
             else
-                WriteFapFull(fap, context.Response.OutputStream, localPath);
+            {
+#if DEBUG
+                var orderFile = FindOrderFile(context.Request.PhysicalApplicationPath);
+                Includes = CollectIncludes(orderFile).ToList();
+                DirectoryResolution = "";
+#endif
+                WriteFapFull(fap, context.Response.OutputStream);
+            }
         }
 
 
-        private void WriteFapFull(FaydeApplication fap, Stream stream, string localPath)
+        private void WriteFapFull(FaydeApplication fap, Stream stream)
         {
-            Page page = null;
-            if (string.IsNullOrWhiteSpace(localPath))
-            {
-                localPath = fap.MapUri("");
-                if (string.IsNullOrWhiteSpace(localPath))
-                    throw new XamlParseException("No UriMapping to map to the default page.");
-            }
-            page = Parser.Parse(localPath) as Page;
-            if (page == null)
-                throw new XamlParseException("UriMapping refers to a document that is not a Page.");
-
             using (var writer = new FapWriter(stream))
             {
                 writer.WriteStart();
                 writer.WriteHeadStart();
-                writer.WriteTitle(page.GetValue("Title") as string);
                 writer.WriteScriptIncludes(DirectoryResolution, Includes);
-                WriteAppLoadScriptForPage(writer, page);
+                writer.WriteAppLoadScript();
                 writer.WriteHeadEnd();
                 writer.WriteBodyStart();
                 writer.WriteCanvas();
                 writer.WriteBodyEnd();
                 writer.WriteEnd();
             }
-        }
-
-        private void WriteAppLoadScriptForPage(FapWriter writer, Page page)
-        {
-            var width = "null";
-            var widthType = "null";
-            var plWidth = page.GetValue("Width") as PageLength;
-            if (plWidth != null)
-            {
-                width = plWidth.Value.ToString();
-                widthType = "\"" + plWidth.LengthType.ToString() + "\"";
-            }
-
-            var height = "null";
-            var heightType = "null";
-            var plHeight = page.GetValue("Height") as PageLength;
-            if (plHeight != null)
-            {
-                height = plHeight.Value.ToString();
-                heightType = "\"" + plHeight.LengthType.ToString() + "\"";
-            }
-
-            var userControl = new UserControl();
-            userControl.AddContent(page.GetValue("Content"));
-            writer.WriteAppLoadScript(userControl, width, widthType, height, heightType);
         }
 
         private void WritePageJson(Stream stream, string pageLocalPath)
@@ -149,15 +114,9 @@ namespace WickedSick.Server.Framework.Fayde
         }
 
 
-        private bool IsJsonOnly(HttpContext context)
+        private string GetPhysicalPath(HttpContext context, FaydeApplication fap, string fragment)
         {
-            bool onlyJson;
-            return bool.TryParse(context.Request.Headers["JsonOnly"], out onlyJson) && onlyJson;
-        }
-
-        private string GetPhysicalPath(HttpContext context, FaydeApplication fap)
-        {
-            var mappedPath = fap.MapUri(context.Request.QueryString["p"]);
+            var mappedPath = fap.MapUri(fragment);
             if (string.IsNullOrWhiteSpace(mappedPath))
                 return mappedPath;
             return Path.Combine(Path.GetDirectoryName(context.Request.PhysicalPath), mappedPath.Replace("/", "\\").TrimStart('\\'));

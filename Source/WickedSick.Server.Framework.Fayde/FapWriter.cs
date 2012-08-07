@@ -63,17 +63,14 @@ namespace WickedSick.Server.Framework.Fayde
 #endif
         }
 
-        public void WriteAppLoadScript(IJsonConvertible j, string width, string widthType, string height, string heightType)
+        public void WriteAppLoadScript()
         {
             Writer.WriteLine("\t\t<script type=\"text/javascript\">");
             Writer.WriteLine("\t\t\t$(document).ready(function () {");
             Writer.WriteLine("\t\t\t\tApp.Instance = new App();");
 
-            Writer.Write("\t\t\t\tvar json = ");
-            Writer.Write(j.ToJson(4));
-            Writer.WriteLine(";");
+            Writer.WriteLine("\t\t\t\tApp.Instance.LoadInitial($(\"#canvas\"));");
 
-            Writer.WriteLine(string.Format("\t\t\t\tApp.Instance.Load(json, $(\"#canvas\"), {0}, {1}, {2}, {3});", width, widthType, height, heightType));
             Writer.WriteLine("\t\t\t});");
             Writer.WriteLine("\t\t</script>");
         }

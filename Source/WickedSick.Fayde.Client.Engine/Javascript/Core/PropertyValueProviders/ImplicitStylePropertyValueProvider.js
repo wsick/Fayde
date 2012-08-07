@@ -124,8 +124,8 @@ _ImplicitStylePropertyValueProvider.Instance.ClearStyles = function (styleMask, 
     if (!this._Styles)
         return;
 
-    //TODO: Replace $.clone; don't use jQuery
-    var newStyles = $.clone(this._Styles); //WTF: Does $.clone fully work for us?
+    var newStyles = this._Styles.slice(0);
+    //TODO: Do we need a deep copy?
     if (styleMask & _StyleMask.GenericXaml)
         newStyles[_StyleIndex.GenericXaml] = null;
     if (styleMask & _StyleMask.ApplicationResources)
