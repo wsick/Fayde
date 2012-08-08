@@ -55,21 +55,16 @@ Nullstone.AutoProperties(App, [
 
 //#endregion
 
-App.Instance.LoadInitial = function (containerId) {
+App.Instance.LoadInitial = function (containerId, json) {
     this.Address = new Uri(document.URL);
     this.MainSurface.Register(containerId);
-    
     this.NavService = new NavService(this);
-    this.NavService.NavigateInitial();
+
+    var element = JsonParser.Parse(json);
+    if (element instanceof UIElement)
+        this.MainSurface._Attach(element);
 
     this.Start();
-};
-App.Instance.LoadUIElement = function (json) {
-    /// <param name="json" type="Object"></param>
-    var element = JsonParser.Parse(json);
-    if (!(element instanceof UIElement))
-        return;
-    this.MainSurface._Attach(element);
 };
 App.Instance.OnLoaded = function () {
     this.Loaded.RaiseAsync(this, new EventArgs());

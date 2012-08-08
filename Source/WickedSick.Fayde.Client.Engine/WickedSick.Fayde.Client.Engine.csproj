@@ -91,6 +91,7 @@
     <Content Include="Javascript\Controls\ListBox.js" />
     <Content Include="Javascript\Controls\ListBoxItem.js" />
     <Content Include="Javascript\Controls\MediaElement.js" />
+    <Content Include="Javascript\Controls\Page.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />
     <Content Include="Javascript\Controls\Popup.js" />
     <Content Include="Javascript\Controls\Primitives\ButtonBase.js" />
@@ -376,10 +377,12 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="jsTestDriver.conf" />
+    <None Include="Tests\about.fayde" />
     <None Include="Tests\binding.fayde">
       <SubType>Designer</SubType>
     </None>
     <Content Include="Silo\heightTest.htm" />
+    <None Include="Tests\contact.fayde" />
     <None Include="Tests\Controls\border.fayde" />
     <None Include="Tests\Controls\button.fayde">
       <SubType>Designer</SubType>
@@ -443,7 +446,7 @@
     <None Include="Tests\Shapes\shapes.fayde">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Tests\smoke.fayde">
+    <None Include="Tests\home.fayde">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>

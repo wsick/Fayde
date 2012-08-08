@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AttachedPropertyDescription.cs" />
+    <Compile Include="Elements\Controls\Frame.cs" />
     <Compile Include="Elements\Core\Boolean.cs" />
     <Compile Include="Elements\Bindings\Binding.cs">
       <SubType>Code</SubType>
@@ -168,6 +169,7 @@
     <Compile Include="Elements\Types\ScrollBarVisibility.cs" />
     <Compile Include="Elements\Types\TextDecorationCollection.cs" />
     <Compile Include="Elements\UriMapping.cs" />
+    <Compile Include="Elements\UriMappingCollection.cs" />
     <Compile Include="Elements\UriMatcher.cs" />
     <Compile Include="ParserAttributes.cs">
       <SubType>Code</SubType>

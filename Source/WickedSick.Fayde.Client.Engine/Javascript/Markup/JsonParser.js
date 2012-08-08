@@ -31,6 +31,10 @@ JsonParser.Parse = function (json, templateBindingSource, namescope) {
 };
 
 JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
+    if (json.Type == null) {
+        return null;
+    }
+
     if (json.Type === ControlTemplate) {
         return new json.Type(json.Props.TargetType, json.Content);
     }

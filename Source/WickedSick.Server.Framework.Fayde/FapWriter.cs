@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using WickedSick.Server.XamlParser.Elements.Controls;
 using WickedSick.Server.XamlParser;
+using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.Framework.Fayde
 {
@@ -63,13 +64,20 @@ namespace WickedSick.Server.Framework.Fayde
 #endif
         }
 
-        public void WriteAppLoadScript()
+        public void WriteAppLoadScript(FaydeApplication fap)
         {
             Writer.WriteLine("\t\t<script type=\"text/javascript\">");
             Writer.WriteLine("\t\t\t$(document).ready(function () {");
             Writer.WriteLine("\t\t\t\tApp.Instance = new App();");
 
-            Writer.WriteLine("\t\t\t\tApp.Instance.LoadInitial($(\"#canvas\"));");
+            Writer.Write("\t\t\t\tvar json = ");
+            if (fap.Content != null)
+                Writer.Write(fap.Content.ToJson(4));
+            else
+                Writer.Write("{}");
+            Writer.WriteLine(";");
+
+            Writer.WriteLine("\t\t\t\tApp.Instance.LoadInitial($(\"#canvas\"), json);");
 
             Writer.WriteLine("\t\t\t});");
             Writer.WriteLine("\t\t</script>");

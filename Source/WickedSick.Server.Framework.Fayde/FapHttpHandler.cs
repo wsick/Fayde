@@ -52,7 +52,7 @@ namespace WickedSick.Server.Framework.Fayde
                 writer.WriteStart();
                 writer.WriteHeadStart();
                 writer.WriteScriptIncludes(DirectoryResolution, Includes);
-                writer.WriteAppLoadScript();
+                writer.WriteAppLoadScript(fap);
                 writer.WriteHeadEnd();
                 writer.WriteBodyStart();
                 writer.WriteCanvas();
@@ -65,12 +65,11 @@ namespace WickedSick.Server.Framework.Fayde
         {
             if (string.IsNullOrWhiteSpace(pageLocalPath))
                 return;
+
             using (var sw = new StreamWriter(stream))
             {
                 var page = Parser.Parse(pageLocalPath) as Page;
-                var userControl = new UserControl();
-                userControl.AddContent(page.GetValue("Content"));
-                sw.Write(userControl.ToJson(0));
+                sw.Write(page.ToJson(0));
             }
         }
 
