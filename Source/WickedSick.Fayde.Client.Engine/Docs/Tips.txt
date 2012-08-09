@@ -15,3 +15,8 @@ PropertyChanged args:
 
 DependencyProperty Gotchas:
 	If you specify a changed callback function in a DependencyProperty.Register, that function needs to be defined earlier in the javascript or "undefined" will be set as the callback.
+
+Custom Control:
+	DefaultStyleKey:
+		Silverlight Syntax in ctor: "this.DefaultStyleKey = typeof(MyClass);"
+		Fayde Syntax in Init: "this.DefaultStyleKey = this.constructor;" or "this.DefaultStyleKey = MyClass;"
