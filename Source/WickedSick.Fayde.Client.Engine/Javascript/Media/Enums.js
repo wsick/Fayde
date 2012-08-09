@@ -44,3 +44,9 @@ var FillRule = {
     EvenOdd: 0,
     Nonzero: 1
 };
+
+var GradientSpreadMethod = {
+    Pad: 0,
+    Reflect: 1,
+    Repeat: 2
+};

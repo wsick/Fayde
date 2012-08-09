@@ -10,39 +10,39 @@ MatrixTransform.Instance.Init = function () {
 
 //#region Dependency Properties
 
-MatrixTransform.MatrixProperty = DependencyProperty.RegisterFull("Matrix", function () { return Matrix; }, MatrixTransform, undefined, { GetValue: function () { return new Matrix(); } });
+MatrixTransform.ValueProperty = DependencyProperty.RegisterFull("Value", function () { return Matrix; }, MatrixTransform, undefined, { GetValue: function () { return new Matrix(); } });
 
 Nullstone.AutoProperties(MatrixTransform, [
-    MatrixTransform.MatrixProperty
+    MatrixTransform.ValueProperty
 ]);
 
 //#endregion
 
 MatrixTransform.Instance._UpdateTransform = function () {
-    var matrix = this.Matrix;
+    var matrix = this.Value;
     if (matrix)
-        this._M = Matrix3D.CreateAffine(this.Matrix);
+        this._M = Matrix3D.CreateAffine(this.Value);
     else
         this._M = new Matrix3D();
 };
 
-MatrixTransform.prototype._OnPropertyChanged = function (args, error) {
+MatrixTransform.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== MatrixTransform) {
         this._OnPropertyChanged$Transform(args, error);
         return;
     }
-    //We need to subscribe Matrix._ChangedCallback to notify MatrixProperty changed
-    if (args.Property._ID === MatrixTransform.MatrixProperty._ID) {
+    //We need to subscribe Matrix._ChangedCallback to notify ValueProperty changed
+    if (args.Property._ID === MatrixTransform.ValueProperty._ID) {
         if (args.OldValue != null)
             args.OldValue._ChangedCallback = null;
         if (args.NewValue != null) {
             var mt = this;
-            args.NewValue._ChangedCallback = function () { mt._OnSubPropertyChanged(MatrixTransform.MatrixProperty, this, args) };
+            args.NewValue._ChangedCallback = function () { mt._OnSubPropertyChanged(MatrixTransform.ValueProperty, this, args) };
         }
     }
     this.PropertyChanged.Raise(this, args);
 };
-MatrixTransform.prototype._OnSubPropertyChanged = function (propd, sender, args) {
+MatrixTransform.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     this._NeedUpdate = true;
     this._OnSubPropertyChanged$Transform(propd, sender, args);
     var newArgs = {

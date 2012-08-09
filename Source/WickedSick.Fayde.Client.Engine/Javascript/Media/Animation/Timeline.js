@@ -2,6 +2,7 @@
 /// <reference path="../../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="../../Primitives/Duration.js"/>
+/// <reference path="RepeatBehavior.js"/>
 
 //#region Timeline
 var Timeline = Nullstone.Create("Timeline", DependencyObject);
@@ -16,10 +17,12 @@ Timeline.Instance.Init = function () {
 
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline);
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline);
+Timeline.RepeatBehaviorProperty = DependencyProperty.Register("RepeatBehavior", function () { return RepeatBehavior; }, Timeline);
 
 Nullstone.AutoProperties(Timeline, [
     Timeline.BeginTimeProperty,
-    Timeline.DurationProperty
+    Timeline.DurationProperty,
+    Timeline.RepeatBehaviorProperty
 ]);
 
 //#endregion

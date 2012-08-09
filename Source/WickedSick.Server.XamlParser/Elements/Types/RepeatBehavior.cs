@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
     public enum RepeatBehaviorType
@@ -20,14 +16,11 @@ namespace WickedSick.Server.XamlParser.Elements.Types
 
         public string ToJson(int tabIndents)
         {
-            string value;
             if (Type == RepeatBehaviorType.RepeatDuration)
-                value = TimeSpan.ToJson(0);
+                return string.Format("RepeatBehavior.FromRepeatDuration({0})", TimeSpan.ToJson(0));
             else if (Type == RepeatBehaviorType.IterationCount)
-                value = Count.ToString();
-            else
-                value = "Forever";
-            return string.Format("new RepeatBehavior({0})", value);
+                return string.Format("RepeatBehavior.FromIterationCount({0})", Count);
+            return "RepeatBehavior.FromForever()";
         }
     }
 }
