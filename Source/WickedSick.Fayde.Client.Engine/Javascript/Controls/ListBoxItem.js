@@ -24,7 +24,7 @@ Nullstone.Property(ListBoxItem, "ParentSelector", {
 
 ListBoxItem.Instance.Init = function () {
     this._parentSelectorChanged = new MulticastEvent();
-    this.DefaultStyleKey = this;
+    this.DefaultStyleKey = this.constructor;
 };
 
 ListBoxItem.Instance.OnIsSelectedChanged = function (e) {
