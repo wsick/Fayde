@@ -93,6 +93,8 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
                 coll.Add(fobj);
             }
         }
+    } else if (dobj instanceof Collection) {
+        this.TrySetCollectionProperty(json.Children, dobj, null, namescope);
     }
 
     if (!ignoreResolve) {
@@ -143,20 +145,31 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
     }
 };
 JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, namescope) {
-    var targetType = propd.GetTargetType();
+    var targetType;
+    if (propd == null) {
+        if (dobj == null)
+            return;
+        targetType = dobj.constructor;
+    } else {
+        targetType = propd.GetTargetType();
+    }
     if (!Nullstone.DoesInheritFrom(targetType, Collection))
         return false;
     if (!(subJson instanceof Array))
         return false;
 
     var coll;
-    if (propd._IsAutoCreated) {
-        coll = dobj.$GetValue(propd);
+    if (propd == null) {
+        coll = dobj;
     } else {
-        coll = new targetType();
-        if (coll instanceof DependencyObject)
-            coll._AddParent(dobj, true);
-        dobj.$SetValue(propd, coll);
+        if (propd._IsAutoCreated) {
+            coll = dobj.$GetValue(propd);
+        } else {
+            coll = new targetType();
+            if (coll instanceof DependencyObject)
+                coll._AddParent(dobj, true);
+            dobj.$SetValue(propd, coll);
+        }
     }
 
     var rd = Nullstone.As(coll, ResourceDictionary);
@@ -168,6 +181,8 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
             coll.Add(fobj);
         } else {
             var key = subJson[i].Key;
+            if (!key && fobj instanceof Style)
+                key = fobj.TargetType;
             if (key)
                 rd.Set(key, fobj);
         }

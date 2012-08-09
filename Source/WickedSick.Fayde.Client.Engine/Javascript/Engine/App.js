@@ -162,7 +162,10 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
     return styles;
 };
 App.Instance._GetGenericXamlStyleFor = function (type) {
-    NotImplemented("App._GetGenericXamlStyleFor");
+    if (!App.GenericXaml && App.GetGenericXaml)
+        App.GenericXaml = App.GetGenericXaml();
+    if (App.GenericXaml)
+        return App.GenericXaml.Get(type);
 };
 
 //#region Debug Service
