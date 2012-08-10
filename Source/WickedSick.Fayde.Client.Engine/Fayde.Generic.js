@@ -10622,6 +10622,13 @@ App.GetGenericXaml = function () {
 {
     Type: Setter,
     Props: {
+        Property: DependencyProperty.GetDependencyProperty(TextBox, "Cursor"),
+        Value: "IBeam"
+    }
+},
+{
+    Type: Setter,
+    Props: {
         Property: DependencyProperty.GetDependencyProperty(TextBox, "BorderThickness"),
         Value: "1"
     }

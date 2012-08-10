@@ -2042,6 +2042,7 @@
         </Setter>
     </Style>
     <Style TargetType="TextBox">
+        <Setter Property="Cursor" Value="IBeam" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Background" Value="#FFFFFFFF" />
         <Setter Property="Foreground" Value="#FF000000" />
