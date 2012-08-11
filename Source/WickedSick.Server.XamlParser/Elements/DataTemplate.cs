@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public class DataTemplate: DependencyObject
+    public class DataTemplate : DependencyObject
     {
+        public static readonly PropertyDescription ContentProperty = PropertyDescription.Register("Content", typeof(UIElement), typeof(DataTemplate), true);
     }
 }

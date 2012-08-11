@@ -6,7 +6,7 @@ using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.XamlParser.Elements.Core
 {
-    public class Boolean: DependencyObject
+    public class Boolean : DependencyObject
     {
         public static readonly PropertyDescription Content = PropertyDescription.Register("Content", typeof(string), typeof(Boolean), true);
 

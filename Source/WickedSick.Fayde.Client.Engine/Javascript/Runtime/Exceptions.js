@@ -4,6 +4,12 @@
 //#region Exception
 var Exception = Nullstone.Create("Exception", undefined, 3);
 
+Nullstone.Property(Exception, "message", {
+    get: function () {
+        return this.Message;
+    }
+});
+
 Exception.Instance.Init = function (message, charPosition, lineNumber) {
     this.Message = message;
     this.CharPosition = charPosition;

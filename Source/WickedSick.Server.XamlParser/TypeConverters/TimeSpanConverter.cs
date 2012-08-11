@@ -40,20 +40,11 @@ namespace WickedSick.Server.XamlParser.TypeConverters
 
             minutes = int.Parse(parts[1]);
 
-            periodIndex = parts[2].IndexOf(".");
-            if (periodIndex == 0)
-            {
-                seconds = 0;
-                milliseconds = (int)(100 * double.Parse(parts[2].Substring(1, parts[2].Length - 1)));
-            }
-            else if (periodIndex > 0)
-            {
-                seconds = int.Parse(parts[2].Substring(0, periodIndex - 1));
-                milliseconds = int.Parse(parts[2].Substring(periodIndex + 1, parts[2].Length - (periodIndex + 1)));
-            }
-            else
-                seconds = int.Parse(parts[2]);
-
+            var secTokens = parts[2].Split('.');
+            if (secTokens.Length > 1)
+                milliseconds = string.IsNullOrWhiteSpace(secTokens[1]) ? 0 : int.Parse(secTokens[1]);
+            seconds = string.IsNullOrWhiteSpace(secTokens[0]) ? 0 : int.Parse(secTokens[0]);
+            
             return new Elements.Types.TimeSpan(hours, minutes, seconds, days, milliseconds);
         }
     }

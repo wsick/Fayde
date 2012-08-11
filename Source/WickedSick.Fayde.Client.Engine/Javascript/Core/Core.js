@@ -50,8 +50,12 @@ var Fayde = {
         Color: function (str) {
             if (!str)
                 return new Color(0, 0, 0, 1.0);
-            if (str.substr(0, 1) !== "#")
-                throw new NotSupportedException("Known Colors are not supported.");
+            if (str.substr(0, 1) !== "#") {
+                var color = Color.KnownColors[str];
+                if (!color)
+                    throw new NotSupportedException("Unknown Color: " + str);
+                return color;
+            }
             return Color.FromHex(str);
         }
     },

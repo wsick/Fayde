@@ -45,7 +45,7 @@ _RenderContext.Instance._DrawClip = function (clip) {
 
 _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
-        matrix = matrix.Matrix;
+        matrix = matrix.Value;
     }
     var ct = this._CurrentXform;
     Matrix.Multiply(ct, matrix, ct);

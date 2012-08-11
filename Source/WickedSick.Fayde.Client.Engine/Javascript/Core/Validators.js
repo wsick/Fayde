@@ -16,7 +16,7 @@ Validators.StyleValidator = function (instance, propd, value, error) {
         var style = Nullstone.As(value, Style);
 
         if (style.IsSealed) {
-            if (Nullstone.DoesInheritFrom(parentType, style.TargetType)) {
+            if (!Nullstone.DoesInheritFrom(parentType, style.TargetType)) {
                 error.SetErrored(BError.XamlParseException, "Style.TargetType (" + style.TargetType._TypeName + ") is not a subclass of (" + parentType._TypeName + ")");
                 return false;
             }

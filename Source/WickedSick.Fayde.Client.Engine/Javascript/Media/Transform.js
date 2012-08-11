@@ -39,7 +39,7 @@ Transform.Instance._TryTransform = function (inPoint, outPoint) {
     return true;
 };
 
-Nullstone.AbstractProperty(Transform, "Matrix", true);
+Nullstone.AbstractProperty(Transform, "Value", true);
 
 Nullstone.FinishCreate(Transform);
 //#endregion

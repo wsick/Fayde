@@ -18,10 +18,12 @@ GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
 
 GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, undefined, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Enum(BrushMappingMode); }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
+GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () { return new Enum(GradientSpreadMethod); }, GradientBrush, GradientSpreadMethod.Pad);
 
 Nullstone.AutoProperties(GradientBrush, [
     GradientBrush.GradientStopsProperty,
-    GradientBrush.MappingModeProperty
+    GradientBrush.MappingModeProperty,
+    GradientBrush.SpreadMethodProperty
 ]);
 
 //#endregion

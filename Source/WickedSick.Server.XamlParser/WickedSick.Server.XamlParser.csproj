@@ -98,9 +98,22 @@
     <Compile Include="Elements\Controls\ItemsPresenter.cs" />
     <Compile Include="Elements\Controls\Primitives\ToggleButton.cs" />
     <Compile Include="Elements\Controls\UserControl.cs" />
+    <Compile Include="Elements\Core\Double.cs" />
     <Compile Include="Elements\DependencyObjectCollection.cs" />
     <Compile Include="Elements\EventTrigger.cs" />
+    <Compile Include="Elements\Media\Animation\BackEase.cs" />
     <Compile Include="Elements\Media\Animation\BeginStoryboard.cs" />
+    <Compile Include="Elements\Media\Animation\ColorAnimationUsingKeyFrames.cs" />
+    <Compile Include="Elements\Media\Animation\ColorKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\DoubleAnimationUsingKeyFrames.cs" />
+    <Compile Include="Elements\Media\Animation\DoubleKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\EasingColorKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\EasingDoubleKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\EasingFunctionBase.cs" />
+    <Compile Include="Elements\Media\Animation\IEasingFunction.cs" />
+    <Compile Include="Elements\Media\Animation\KeySpline.cs" />
+    <Compile Include="Elements\Media\Animation\ObjectAnimation.cs" />
+    <Compile Include="Elements\Media\Animation\SplineDoubleKeyFrame.cs" />
     <Compile Include="Elements\Media\Brush.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -120,6 +133,9 @@
     <Compile Include="Elements\Controls\Control.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\Media\Effects\BlurEffect.cs" />
+    <Compile Include="Elements\Media\Effects\DropShadowEffect.cs" />
+    <Compile Include="Elements\Media\Effects\Effect.cs" />
     <Compile Include="Elements\Media\GradientBrush.cs" />
     <Compile Include="Elements\Controls\Image.cs">
       <SubType>Code</SubType>
@@ -143,9 +159,11 @@
     <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="Elements\Controls\Tooltip.cs" />
     <Compile Include="Elements\Media\ImageBrush.cs" />
+    <Compile Include="Elements\Media\RotateTransform.cs" />
     <Compile Include="Elements\Media\SkewTransform.cs" />
     <Compile Include="Elements\Media\TileBrush.cs" />
     <Compile Include="Elements\Media\TransformGroup.cs" />
+    <Compile Include="Elements\Media\VSM\VisualTransition.cs" />
     <Compile Include="Elements\ResourceDictionary.cs" />
     <Compile Include="Elements\ToolTipService.cs" />
     <Compile Include="Elements\Media\Transform.cs" />
@@ -157,7 +175,9 @@
     <Compile Include="Elements\Types\BrushMappingMode.cs" />
     <Compile Include="Elements\Types\ClickMode.cs" />
     <Compile Include="Elements\Types\CursorType.cs" />
+    <Compile Include="Elements\Types\EasingMode.cs" />
     <Compile Include="Elements\Types\FlowDirection.cs" />
+    <Compile Include="Elements\Types\FontFamily.cs" />
     <Compile Include="Elements\Types\FontStretch.cs" />
     <Compile Include="Elements\Types\FontStyle.cs" />
     <Compile Include="Elements\Types\FontWeight.cs" />
@@ -277,6 +297,7 @@
     <Compile Include="Elements\Types\CornerRadius.cs" />
     <Compile Include="Elements\Types\Duration.cs" />
     <Compile Include="Elements\Types\FillRule.cs" />
+    <Compile Include="TypeConverters\FontFamilyConverter.cs" />
     <Compile Include="TypeConverters\FontSizeConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
     <Compile Include="Elements\Types\FontSize.cs" />

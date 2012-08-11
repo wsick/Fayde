@@ -183,8 +183,19 @@ namespace WickedSick.Server.XamlParser.Elements
             }
         }
 
-        public static readonly PropertyDescription Name = PropertyDescription.Register("Name", typeof(string), typeof(DependencyObject));
-        public static readonly PropertyDescription Key = PropertyDescription.Register("Key", typeof(string), typeof(DependencyObject));
+        public static readonly PropertyDescription NameProperty = PropertyDescription.Register("Name", typeof(string), typeof(DependencyObject));
+        public string Name
+        {
+            get { return GetValue("Name") as string; }
+            set { SetValue("Name", value); }
+        }
+        public static readonly PropertyDescription KeyProperty = PropertyDescription.Register("Key", typeof(string), typeof(DependencyObject));
+        public string Key
+        {
+            get { return GetValue("Key") as string; }
+            set { SetValue("Key", value); }
+        }
+
         public DependencyObject Parent { get; set; }
 
         private IDictionary<PropertyDescription, object> GetProperties()
@@ -220,18 +231,16 @@ namespace WickedSick.Server.XamlParser.Elements
             sb.AppendLine("{");
             sb.AppendFormat("Type: {0}", GetTypeName());
 
-            string name = GetValue("Name") as string;
-            if (!string.IsNullOrWhiteSpace(name))
+            if (!string.IsNullOrWhiteSpace(Name))
             {
                 sb.AppendLine(",");
-                sb.AppendFormat("Name: \"{0}\"", name);
+                sb.AppendFormat("Name: \"{0}\"", Name);
             }
 
-            string key = GetValue("Key") as string;
-            if (!string.IsNullOrWhiteSpace(key))
+            if (!string.IsNullOrWhiteSpace(Key))
             {
                 sb.AppendLine(",");
-                sb.AppendFormat("Key: \"{0}\"", key);
+                sb.AppendFormat("Key: \"{0}\"", Key);
             }
 
             string propJson = propsToJson(GetProperties());
@@ -328,7 +337,7 @@ namespace WickedSick.Server.XamlParser.Elements
             var needsComma = false;
             foreach (PropertyDescription pd in properties.Keys)
             {
-                if (pd == DependencyObject.Name || pd == DependencyObject.Key)
+                if (pd == DependencyObject.NameProperty || pd == DependencyObject.KeyProperty)
                     continue;
                 object value = properties[pd];
                 if (value == null) continue;

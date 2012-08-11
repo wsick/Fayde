@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using WickedSick.Server.XamlParser.Elements.Controls;
-using WickedSick.Server.XamlParser;
 using WickedSick.Server.XamlParser.Elements;
 
 namespace WickedSick.Server.Framework.Fayde
@@ -60,8 +56,9 @@ namespace WickedSick.Server.Framework.Fayde
                 Writer.WriteLine(string.Format("\t\t<script src=\"{0}Javascript/{1}\" type=\"text/javascript\"></script>", directoryResolution, include));
             }
 #else
-            sb.AppendLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", directoryResolution));
+            Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", directoryResolution));
 #endif
+            Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.Generic.js\" type=\"text/javascript\"></script>", directoryResolution));
         }
 
         public void WriteAppLoadScript(FaydeApplication fap)

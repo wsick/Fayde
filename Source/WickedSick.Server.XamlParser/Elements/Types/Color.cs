@@ -1,12 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class Color : IJsonConvertible
+    public class Color : DependencyObject
     {
+        protected static readonly PropertyDescription ContentProperty = PropertyDescription.Register("Content", typeof(string), typeof(Color), true);
+        protected string Content
+        {
+            get { return GetValue("Content") as string; }
+            set { SetValue("Content", value); }
+        }
+
+        protected static readonly PropertyDescription HexStringProperty = PropertyDescription.Register("HexString", typeof(string), typeof(Color));
+        protected string HexString
+        {
+            get { return GetValue("HexString") as string; }
+            set { SetValue("HexString", value); }
+        }
+
         public static Color FromHex(string hexString)
         {
             return new Color() { HexString = hexString };
@@ -14,14 +25,20 @@ namespace WickedSick.Server.XamlParser.Elements.Types
 
         public static Color FromUInt32(UInt32 uint32)
         {
-            return new Color() { HexString = string.Format("#{0:x8}", uint32).ToUpper() };
+            return new Color() { Content = string.Format("#{0:x8}", uint32).ToUpper() };
         }
 
-        private string HexString { get; set; }
-
-        public string ToJson(int tabIndents)
+        public override string ToJson(int tabIndents)
         {
-            return string.Format("Color.FromHex(\"{0}\")", HexString);
+            if (Content != null)
+            {
+                var converter = new WickedSick.Server.XamlParser.TypeConverters.ColorConverter();
+                var color = converter.Convert(Content) as Color;
+                color.Name = Name;
+                color.Key = Key;
+                return color.ToJson(tabIndents);
+            }
+            return base.ToJson(tabIndents);
         }
     }
 }
