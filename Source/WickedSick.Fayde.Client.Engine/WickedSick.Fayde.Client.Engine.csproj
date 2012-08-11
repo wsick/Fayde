@@ -135,11 +135,16 @@
     <Content Include="Javascript\Core\Collections\ItemCollection.js" />
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
     <Content Include="Javascript\Core\Collections\RangeCollection.js" />
+    <Content Include="Javascript\Core\EventTrigger.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Frame.js" />
+    <Content Include="Javascript\Core\TriggerAction.js" />
+    <Content Include="Javascript\Core\TriggerActionCollection.js" />
+    <Content Include="Javascript\Core\TriggerBase.js" />
     <Content Include="Javascript\Engine\AjaxJsonRequest.js" />
     <Content Include="Javascript\Engine\NavService.js" />
     <Content Include="Javascript\Media\Animation\BackEase.js" />
+    <Content Include="Javascript\Media\Animation\BeginStoryboard.js" />
     <Content Include="Javascript\Media\Animation\ColorAnimationUsingKeyFrames.js" />
     <Content Include="Javascript\Media\Animation\ColorKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\ColorKeyFrameCollection.js" />
