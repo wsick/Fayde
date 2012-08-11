@@ -35,6 +35,10 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         return null;
     }
 
+    if (json.Type === Number || json.Type === String || json.Type === Boolean) {
+        return json.Value;
+    }
+
     if (json.Type === ControlTemplate) {
         var targetType = json.Props == null ? null : json.Props.TargetType;
         return new json.Type(targetType, json.Content);
