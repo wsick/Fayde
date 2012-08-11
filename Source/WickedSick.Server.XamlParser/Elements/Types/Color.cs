@@ -1,12 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
-    public class Color : IJsonConvertible
+    public class Color : DependencyObject
     {
+        protected static readonly PropertyDescription ContentProperty = PropertyDescription.Register("Content", typeof(string), typeof(Color), true);
+        protected string Content
+        {
+            get { return GetValue("Content") as string; }
+            set { SetValue("Content", value); }
+        }
+
         public static Color FromHex(string hexString)
         {
             return new Color() { HexString = hexString };
@@ -19,8 +23,14 @@ namespace WickedSick.Server.XamlParser.Elements.Types
 
         private string HexString { get; set; }
 
-        public string ToJson(int tabIndents)
+        public override string ToJson(int tabIndents)
         {
+            if (Content != null)
+            {
+                var color = new WickedSick.Server.XamlParser.TypeConverters.ColorConverter();
+                return (color.Convert(Content) as IJsonConvertible).ToJson(tabIndents);
+            }
+
             return string.Format("Color.FromHex(\"{0}\")", HexString);
         }
     }
