@@ -11,6 +11,13 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             set { SetValue("Content", value); }
         }
 
+        protected static readonly PropertyDescription HexStringProperty = PropertyDescription.Register("HexString", typeof(string), typeof(Color));
+        protected string HexString
+        {
+            get { return GetValue("HexString") as string; }
+            set { SetValue("HexString", value); }
+        }
+
         public static Color FromHex(string hexString)
         {
             return new Color() { HexString = hexString };
@@ -18,20 +25,20 @@ namespace WickedSick.Server.XamlParser.Elements.Types
 
         public static Color FromUInt32(UInt32 uint32)
         {
-            return new Color() { HexString = string.Format("#{0:x8}", uint32).ToUpper() };
+            return new Color() { Content = string.Format("#{0:x8}", uint32).ToUpper() };
         }
-
-        private string HexString { get; set; }
 
         public override string ToJson(int tabIndents)
         {
             if (Content != null)
             {
-                var color = new WickedSick.Server.XamlParser.TypeConverters.ColorConverter();
-                return (color.Convert(Content) as IJsonConvertible).ToJson(tabIndents);
+                var converter = new WickedSick.Server.XamlParser.TypeConverters.ColorConverter();
+                var color = converter.Convert(Content) as Color;
+                color.Name = Name;
+                color.Key = Key;
+                return color.ToJson(tabIndents);
             }
-
-            return string.Format("Color.FromHex(\"{0}\")", HexString);
+            return base.ToJson(tabIndents);
         }
     }
 }

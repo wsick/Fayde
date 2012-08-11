@@ -1,37 +1,56 @@
-/// <reference path="../Runtime/Nullstone.js" />
+/// <reference path="../Core/DependencyObject.js" />
 /// CODE
 
 //#region Color
-var Color = Nullstone.Create("Color", null, 4);
+var Color = Nullstone.Create("Color", DependencyObject, 4);
 
 Color.Instance.Init = function (r, g, b, a) {
+    this.Init$DependencyObject();
     this.R = r == null ? 255 : r;
     this.G = g == null ? 255 : g;
     this.B = b == null ? 255 : b;
     this.A = a == null ? 1.0 : a;
 };
 
+Nullstone.Property(Color, "HexString", {
+    get: function () { return this._Content; },
+    set: function (value) {
+        var raw = Color.ParseHex(value);
+        this.A = raw.a;
+        this.R = raw.r;
+        this.G = raw.g;
+        this.B = raw.b;
+    }
+});
+
 Color.__NoAlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 Color.__AlphaRegex = /#([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}([0-9a-fA-F][0-9a-fA-F]){1}/;
 
 Color.FromHex = function (hex) {
+    var raw = Color.ParseHex(hex);
+    return new Color(raw.r, raw.g, raw.b, raw.a);
+};
+
+Color.ParseHex = function (hex) {
     var match;
-    var r;
-    var g;
-    var b;
-    var a;
+    var raw = {
+        a: 0,
+        r: 0,
+        g: 0,
+        b: 0
+    };
     if ((match = Color.__AlphaRegex.exec(hex)) != null) {
-        a = parseInt(match[1], 16) / 255.0;
-        r = parseInt(match[2], 16);
-        g = parseInt(match[3], 16);
-        b = parseInt(match[4], 16);
+        raw.a = parseInt(match[1], 16) / 255.0;
+        raw.r = parseInt(match[2], 16);
+        raw.g = parseInt(match[3], 16);
+        raw.b = parseInt(match[4], 16);
     } else if ((match = Color.__NoAlphaRegex.exec(hex)) != null) {
-        a = 1.0;
-        r = parseInt(match[1], 16);
-        g = parseInt(match[2], 16);
-        b = parseInt(match[3], 16);
+        raw.a = 1.0;
+        raw.r = parseInt(match[1], 16);
+        raw.g = parseInt(match[2], 16);
+        raw.b = parseInt(match[3], 16);
     }
-    return new Color(r, g, b, a);
+    return raw;
 };
 
 Color.Instance.Add = function (color2) {
@@ -192,5 +211,5 @@ Color.KnownColors = {
     White: Color.FromHex("#FFFFFFFF"),
     WhiteSmoke: Color.FromHex("#FFF5F5F5"),
     Yellow: Color.FromHex("#FFFFFF00"),
-    YellowGreen: Color.FromHex("#FF9ACD32"),
+    YellowGreen: Color.FromHex("#FF9ACD32")
 };
