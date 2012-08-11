@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/DependencyObject.js"/>
-/// CODE
 /// <reference path="../Primitives/Color.js"/>
+/// CODE
 
 //#region GradientStop
 var GradientStop = Nullstone.Create("GradientStop", DependencyObject);
