@@ -140,9 +140,13 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         }
         this.SetValue(dobj, propd, propValue);
     } else if (!isAttached) {
-        var func = dobj["Set" + propName];
-        if (func && func instanceof Function)
-            func.call(dobj, propValue);
+        if (dobj.hasOwnProperty(propName)) {
+            dobj[propName] = propValue;
+        } else {
+            var func = dobj["Set" + propName];
+            if (func && func instanceof Function)
+                func.call(dobj, propValue);
+        }
     } else {
         //There is no fallback if we can't find attached property
         Warn("Could not find attached property: " + ownerType._TypeName + "." + propName);
