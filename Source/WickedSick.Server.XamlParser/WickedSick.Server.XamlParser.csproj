@@ -133,6 +133,7 @@
     <Compile Include="Elements\Controls\Control.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Elements\Media\Effects\BlurEffect.cs" />
     <Compile Include="Elements\Media\Effects\DropShadowEffect.cs" />
     <Compile Include="Elements\Media\Effects\Effect.cs" />
     <Compile Include="Elements\Media\GradientBrush.cs" />
