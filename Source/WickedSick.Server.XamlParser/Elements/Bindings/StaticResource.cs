@@ -1,18 +1,25 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Bindings
 {
-    public class StaticResource: IJsonConvertible
+    public class StaticResource : DependencyObject
     {
-        public string Key { get; protected set; }
+        public StaticResource() { }
 
-        public StaticResource(string key)
+        public StaticResource(string resourceKey)
         {
-            Key = key;
+            ResourceKey = resourceKey;
         }
 
-        public string ToJson(int tabIndents)
+        public static readonly PropertyDescription ResourceKeyProperty = PropertyDescription.Register("ResourceKey", typeof(string), typeof(StaticResource));
+        public string ResourceKey
         {
-            return string.Format("new StaticResourceMarkup(\"{0}\")", Key);
+            get { return GetValue("ResourceKey") as string; }
+            set { SetValue("ResourceKey", value); }
+        }
+
+        public override string ToJson(int tabIndents)
+        {
+            return string.Format("new StaticResourceMarkup(\"{0}\")", ResourceKey);
         }
     }
 }
