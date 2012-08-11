@@ -38,6 +38,10 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
     if (json.Type === ControlTemplate) {
         return new json.Type(json.Props.TargetType, json.Content);
     }
+    if (json.Type === DataTemplate) {
+        return new DataTemplate(json.Content);
+    }
+
     var dobj = new json.Type();
     dobj.TemplateOwner = this._TemplateBindingSource;
     if (json.Name)
