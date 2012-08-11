@@ -102,6 +102,11 @@
     <Compile Include="Elements\DependencyObjectCollection.cs" />
     <Compile Include="Elements\EventTrigger.cs" />
     <Compile Include="Elements\Media\Animation\BeginStoryboard.cs" />
+    <Compile Include="Elements\Media\Animation\DoubleAnimationUsingKeyFrames.cs" />
+    <Compile Include="Elements\Media\Animation\DoubleKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\KeySpline.cs" />
+    <Compile Include="Elements\Media\Animation\ObjectAnimation.cs" />
+    <Compile Include="Elements\Media\Animation\SplineDoubleKeyFrame.cs" />
     <Compile Include="Elements\Media\Brush.cs">
       <SubType>Code</SubType>
     </Compile>
