@@ -101,9 +101,16 @@
     <Compile Include="Elements\Core\Double.cs" />
     <Compile Include="Elements\DependencyObjectCollection.cs" />
     <Compile Include="Elements\EventTrigger.cs" />
+    <Compile Include="Elements\Media\Animation\BackEase.cs" />
     <Compile Include="Elements\Media\Animation\BeginStoryboard.cs" />
+    <Compile Include="Elements\Media\Animation\ColorAnimationUsingKeyFrames.cs" />
+    <Compile Include="Elements\Media\Animation\ColorKeyFrame.cs" />
     <Compile Include="Elements\Media\Animation\DoubleAnimationUsingKeyFrames.cs" />
     <Compile Include="Elements\Media\Animation\DoubleKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\EasingColorKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\EasingDoubleKeyFrame.cs" />
+    <Compile Include="Elements\Media\Animation\EasingFunctionBase.cs" />
+    <Compile Include="Elements\Media\Animation\IEasingFunction.cs" />
     <Compile Include="Elements\Media\Animation\KeySpline.cs" />
     <Compile Include="Elements\Media\Animation\ObjectAnimation.cs" />
     <Compile Include="Elements\Media\Animation\SplineDoubleKeyFrame.cs" />
@@ -167,6 +174,7 @@
     <Compile Include="Elements\Types\BrushMappingMode.cs" />
     <Compile Include="Elements\Types\ClickMode.cs" />
     <Compile Include="Elements\Types\CursorType.cs" />
+    <Compile Include="Elements\Types\EasingMode.cs" />
     <Compile Include="Elements\Types\FlowDirection.cs" />
     <Compile Include="Elements\Types\FontFamily.cs" />
     <Compile Include="Elements\Types\FontStretch.cs" />
