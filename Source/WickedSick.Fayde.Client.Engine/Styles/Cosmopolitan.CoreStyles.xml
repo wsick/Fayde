@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ResourceDictionary
     xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-    xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
     
     <!-- Brushes -->
     <!-- Theme Base Colors -->
@@ -693,7 +692,7 @@
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsOpen" Storyboard.TargetName="validationTooltip">
                                             <DiscreteObjectKeyFrame KeyTime="0">
                                                 <DiscreteObjectKeyFrame.Value>
-                                                    <sys:Boolean>True</sys:Boolean>
+                                                    <Boolean>True</Boolean>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
@@ -721,7 +720,7 @@
                                                     <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsHitTestVisible" Storyboard.TargetName="validationTooltip">
                                                         <DiscreteObjectKeyFrame KeyTime="0">
                                                             <DiscreteObjectKeyFrame.Value>
-                                                                <sys:Boolean>true</sys:Boolean>
+                                                                <Boolean>true</Boolean>
                                                             </DiscreteObjectKeyFrame.Value>
                                                         </DiscreteObjectKeyFrame>
                                                     </ObjectAnimationUsingKeyFrames>
@@ -898,7 +897,7 @@
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsOpen" Storyboard.TargetName="validationTooltip">
                                             <DiscreteObjectKeyFrame KeyTime="0">
                                                 <DiscreteObjectKeyFrame.Value>
-                                                    <sys:Boolean>True</sys:Boolean>
+                                                    <Boolean>True</Boolean>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
@@ -933,7 +932,7 @@
                                                     <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsHitTestVisible" Storyboard.TargetName="validationTooltip">
                                                         <DiscreteObjectKeyFrame KeyTime="0">
                                                             <DiscreteObjectKeyFrame.Value>
-                                                                <sys:Boolean>true</sys:Boolean>
+                                                                <Boolean>true</Boolean>
                                                             </DiscreteObjectKeyFrame.Value>
                                                         </DiscreteObjectKeyFrame>
                                                     </ObjectAnimationUsingKeyFrames>
@@ -1467,7 +1466,7 @@
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsOpen" Storyboard.TargetName="validationTooltip">
                                             <DiscreteObjectKeyFrame KeyTime="0">
                                                 <DiscreteObjectKeyFrame.Value>
-                                                    <sys:Boolean>True</sys:Boolean>
+                                                    <Boolean>True</Boolean>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
@@ -1490,7 +1489,7 @@
                                                     <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsHitTestVisible" Storyboard.TargetName="validationTooltip">
                                                         <DiscreteObjectKeyFrame KeyTime="0">
                                                             <DiscreteObjectKeyFrame.Value>
-                                                                <sys:Boolean>true</sys:Boolean>
+                                                                <Boolean>true</Boolean>
                                                             </DiscreteObjectKeyFrame.Value>
                                                         </DiscreteObjectKeyFrame>
                                                     </ObjectAnimationUsingKeyFrames>
@@ -1680,7 +1679,7 @@
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsOpen" Storyboard.TargetName="validationTooltip">
                                             <DiscreteObjectKeyFrame KeyTime="0">
                                                 <DiscreteObjectKeyFrame.Value>
-                                                    <sys:Boolean>True</sys:Boolean>
+                                                    <Boolean>True</Boolean>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
@@ -1715,7 +1714,7 @@
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsHitTestVisible" Storyboard.TargetName="validationTooltip">
                                                             <DiscreteObjectKeyFrame KeyTime="0">
                                                                 <DiscreteObjectKeyFrame.Value>
-                                                                    <sys:Boolean>true</sys:Boolean>
+                                                                    <Boolean>true</Boolean>
                                                                 </DiscreteObjectKeyFrame.Value>
                                                             </DiscreteObjectKeyFrame>
                                                         </ObjectAnimationUsingKeyFrames>
@@ -1816,7 +1815,7 @@
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsOpen" Storyboard.TargetName="validationTooltip">
                                             <DiscreteObjectKeyFrame KeyTime="0">
                                                 <DiscreteObjectKeyFrame.Value>
-                                                    <sys:Boolean>True</sys:Boolean>
+                                                    <Boolean>True</Boolean>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
@@ -1842,7 +1841,7 @@
                                                     <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsHitTestVisible" Storyboard.TargetName="validationTooltip">
                                                         <DiscreteObjectKeyFrame KeyTime="0">
                                                             <DiscreteObjectKeyFrame.Value>
-                                                                <sys:Boolean>true</sys:Boolean>
+                                                                <Boolean>true</Boolean>
                                                             </DiscreteObjectKeyFrame.Value>
                                                         </DiscreteObjectKeyFrame>
                                                     </ObjectAnimationUsingKeyFrames>
@@ -2037,7 +2036,7 @@
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsOpen" Storyboard.TargetName="validationTooltip">
                                             <DiscreteObjectKeyFrame KeyTime="0">
                                                 <DiscreteObjectKeyFrame.Value>
-                                                    <sys:Boolean>True</sys:Boolean>
+                                                    <Boolean>True</Boolean>
                                                 </DiscreteObjectKeyFrame.Value>
                                             </DiscreteObjectKeyFrame>
                                         </ObjectAnimationUsingKeyFrames>
@@ -2066,7 +2065,7 @@
                                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="IsHitTestVisible" Storyboard.TargetName="validationTooltip">
                                                                 <DiscreteObjectKeyFrame KeyTime="0">
                                                                     <DiscreteObjectKeyFrame.Value>
-                                                                        <sys:Boolean>true</sys:Boolean>
+                                                                        <Boolean>true</Boolean>
                                                                     </DiscreteObjectKeyFrame.Value>
                                                                 </DiscreteObjectKeyFrame>
                                                             </ObjectAnimationUsingKeyFrames>
