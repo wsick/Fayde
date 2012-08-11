@@ -36,7 +36,8 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
     }
 
     if (json.Type === ControlTemplate) {
-        return new json.Type(json.Props.TargetType, json.Content);
+        var targetType = json.Props == null ? null : json.Props.TargetType;
+        return new json.Type(targetType, json.Content);
     }
     if (json.Type === DataTemplate) {
         return new DataTemplate(json.Content);
@@ -110,7 +111,7 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
 JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
     //If the object is not a Nullstone, let's parse it
     if (!propValue.constructor._IsNullstone && propValue.Type) {
-        propValue = this.CreateObject(propValue, namescope);
+        propValue = this.CreateObject(propValue, namescope, true);
     }
 
     if (propValue instanceof Markup)
@@ -183,9 +184,9 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
     var rd = Nullstone.As(coll, ResourceDictionary);
     for (var i in subJson) {
         var fobj = this.CreateObject(subJson[i], namescope, true);
-        if (fobj instanceof DependencyObject)
-            fobj._AddParent(coll, true);
         if (rd == null) {
+            if (fobj instanceof DependencyObject)
+                fobj._AddParent(coll, true);
             coll.Add(fobj);
         } else {
             var key = subJson[i].Key;
