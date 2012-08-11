@@ -65,7 +65,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
                     sb.AppendFormat(", FallbackValue: {0}", FallbackValue);
             }
 
-            sb.AppendLine(" })");
+            sb.Append(" })");
             return sb.ToString();
         }
     }
