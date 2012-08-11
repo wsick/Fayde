@@ -139,6 +139,9 @@
     <Content Include="Javascript\Engine\NavService.js" />
     <Content Include="Javascript\Media\Animation\PointAnimation.js" />
     <Content Include="Javascript\Media\Animation\RepeatBehavior.js" />
+    <Content Include="Javascript\Media\Effects\BlurEffect.js" />
+    <Content Include="Javascript\Media\Effects\DropShadowEffect.js" />
+    <Content Include="Javascript\Media\Effects\Effect.js" />
     <Content Include="Javascript\Media\SkewTransform.js" />
     <Content Include="Javascript\Media\TransformCollection.js" />
     <Content Include="Javascript\Media\TransformGroup.js" />

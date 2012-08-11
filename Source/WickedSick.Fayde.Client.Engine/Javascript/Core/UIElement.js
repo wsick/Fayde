@@ -99,7 +99,7 @@ UIElement.Instance.Init = function () {
 
 UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
 //UIElement.CacheModeProperty;
-//UIElement.EffectProperty;
+UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Effect; }, UIElement);
 UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
 UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);
 UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
@@ -116,6 +116,7 @@ UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return 
 
 Nullstone.AutoProperties(UIElement, [
     UIElement.ClipProperty,
+    UIElement.EffectProperty,
     UIElement.IsHitTestVisibleProperty,
     UIElement.OpacityMaskProperty,
     UIElement.OpacityProperty,
