@@ -49,19 +49,20 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
             StringBuilder sb = new StringBuilder();
             sb.Append("new BindingMarkup({ ");
 
-            sb.Append("'Mode': ");
-            sb.Append(Mode.ToString());
+            sb.AppendFormat("Mode: BindingMode.{0}", Mode);
 
             if (Path != null)
-            {
-                sb.Append(", 'Path': ");
-                sb.Append(Path);
-            }
+                sb.AppendFormat(", Path: \"{0}\"", Path);
 
             if (FallbackValue != null)
             {
-                sb.Append(", 'FallbackValue': ");
-                sb.Append(FallbackValue.ToString());
+                var ijc = FallbackValue as IJsonConvertible;
+                if (ijc != null)
+                    sb.AppendFormat(", FallbackValue: {0}", ijc.ToJson(tabIndents));
+                else if (FallbackValue is string)
+                    sb.AppendFormat(", FallbackValue: \"{0}\"", FallbackValue);
+                else
+                    sb.AppendFormat(", FallbackValue: {0}", FallbackValue);
             }
 
             sb.AppendLine(" })");
