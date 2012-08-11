@@ -145,6 +145,7 @@
     <Content Include="Javascript\Media\Animation\DoubleAnimationUsingKeyFrames.js" />
     <Content Include="Javascript\Media\Animation\DoubleKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\DoubleKeyFrameCollection.js" />
+    <Content Include="Javascript\Media\Animation\EasingColorKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\EasingDoubleKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\EasingFunctionBase.js" />
     <Content Include="Javascript\Media\Animation\Enums.js" />
