@@ -84,6 +84,7 @@
     <Content Include="Javascript\Controls\ColumnDefinition.js" />
     <Content Include="Javascript\Controls\ColumnDefinitionCollection.js" />
     <Content Include="Javascript\Controls\ComboBox.js" />
+    <Content Include="Javascript\Controls\ComboBoxItem.js" />
     <Content Include="Javascript\Controls\ControlTemplate.js" />
     <Content Include="Javascript\Controls\Enums.js" />
     <Content Include="Javascript\Controls\GridLength.js" />
