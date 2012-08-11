@@ -92,7 +92,9 @@ Font.Instance._BuildTranslation = function () {
     if (weight && weight !== FontWeight.Normal)
         s += weight.toString() + " ";
     s += this.GetSize() + " ";
-    s += this.GetFamily() + " ";
+    var family = this.GetFamily();
+    if (!family)
+        s += family.toString();
     return s;
 };
 
