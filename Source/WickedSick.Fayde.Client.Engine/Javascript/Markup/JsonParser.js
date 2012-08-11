@@ -56,7 +56,8 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
             if (propValue == undefined)
                 continue;
 
-            propd = dobj.GetDependencyProperty(propName);
+            if (dobj instanceof DependencyObject)
+                propd = dobj.GetDependencyProperty(propName);
             this.TrySetPropertyValue(dobj, propd, propValue, namescope, false, dobj.constructor, propName);
         }
     }
