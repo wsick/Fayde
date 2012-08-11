@@ -139,6 +139,9 @@
     <Content Include="Javascript\Engine\AjaxJsonRequest.js" />
     <Content Include="Javascript\Engine\NavService.js" />
     <Content Include="Javascript\Media\Animation\BackEase.js" />
+    <Content Include="Javascript\Media\Animation\ColorAnimationUsingKeyFrames.js" />
+    <Content Include="Javascript\Media\Animation\ColorKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\ColorKeyFrameCollection.js" />
     <Content Include="Javascript\Media\Animation\DoubleAnimationUsingKeyFrames.js" />
     <Content Include="Javascript\Media\Animation\DoubleKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\DoubleKeyFrameCollection.js" />

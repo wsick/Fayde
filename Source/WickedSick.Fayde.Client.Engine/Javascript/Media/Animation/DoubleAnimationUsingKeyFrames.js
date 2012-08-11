@@ -1,4 +1,4 @@
-﻿/// <reference path="Timeline.js"/>
+﻿/// <reference path="Animation.js"/>
 /// <reference path="DoubleKeyFrameCollection.js"/>
 /// CODE
 /// <reference path="DoubleKeyFrame.js"/>
