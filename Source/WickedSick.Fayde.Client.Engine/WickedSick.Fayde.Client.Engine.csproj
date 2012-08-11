@@ -62,6 +62,7 @@
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
     <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
+    <None Include="Fayde.Generic.js.old" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
@@ -143,6 +144,7 @@
     <Content Include="Javascript\Media\TransformGroup.js" />
     <Content Include="Javascript\Media\TranslateTransform.js" />
     <Content Include="Javascript\Navigation\UriMapper.js" />
+    <Content Include="Javascript\Primitives\FontFamily.js" />
     <Content Include="Javascript\Runtime\DoubleKeyedDictionary.js" />
     <Content Include="Javascript\Media\InternalTransform.js" />
     <Content Include="Javascript\Primitives\Matrix3D.js" />
