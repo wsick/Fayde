@@ -506,7 +506,7 @@ Shape.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateStrokeBounds();
     } else if (args.Property._ID === Shape.StrokeDashCapProperty._ID
         || args.Property._ID === Shape.StrokeDashArrayProperty._ID
-        || args.Property._ID === Shape.StrokeEndLineProperty._ID
+        || args.Property._ID === Shape.StrokeEndLineCapProperty._ID
         || args.Property._ID === Shape.StrokeLineJoinProperty._ID
         || args.Property._ID === Shape.StrokeMiterLimitProperty._ID
         || args.Property._ID === Shape.StrokeStartLineCapProperty._ID) {
