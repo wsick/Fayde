@@ -614,6 +614,7 @@
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderBrush}"/>
+        <Setter Property="Cursor" Value="IBeam" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
@@ -686,7 +687,7 @@
                         <Rectangle x:Name="FocusInnerRectangle" StrokeThickness="{TemplateBinding BorderThickness}" Opacity="0" Margin="1" Stroke="{StaticResource TextBoxMouseOverInnerBorderBrush}" />
                         <Grid Margin="0,1,0,0">
                             <Border x:Name="ReadOnlyVisualElement" Background="{StaticResource ReadOnlyBrush}" Opacity="0"/>
-                            <Grid >
+                            <Grid>
                                 <ScrollViewer x:Name="ContentElement" BorderThickness="0" IsTabStop="False" Margin="4,0,2,2" VerticalAlignment="Center" Background="{x:Null}"/>
                             </Grid>
                         </Grid>
