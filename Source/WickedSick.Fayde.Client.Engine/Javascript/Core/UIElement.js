@@ -93,6 +93,8 @@ UIElement.Instance.Init = function () {
     this.KeyUp.Subscribe(this.OnKeyUp, this);
 
     this.RequestBringIntoView = new MulticastEvent();
+
+    this.VisualParentChanged = new MulticastEvent();
 };
 
 //#region Dependency Properties
@@ -143,6 +145,7 @@ UIElement.Instance.BringIntoView = function (rect) {
 UIElement.Instance.SetVisualParent = function (value) {
     /// <param name="value" type="UIElement"></param>
     this._VisualParent = value;
+    this.VisualParentChanged.Raise(this, new EventArgs());
 };
 UIElement.Instance.GetVisualParent = function () {
     /// <returns type="UIElement" />
