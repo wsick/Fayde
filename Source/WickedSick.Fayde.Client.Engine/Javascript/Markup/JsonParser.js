@@ -135,7 +135,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         propValue = propValue.Transmute(dobj, propd, propName, this._TemplateBindingSource);
 
     if (propValue instanceof StaticResourceExpression) {
-        this.$SRExpressions.push(propValue);
+        this.SetValue(dobj, propd, propValue);
         return;
     }
 
@@ -228,10 +228,14 @@ JsonParser.Instance.ResolveStaticResourceExpressions = function () {
     this.$SRExpressions = [];
 };
 JsonParser.Instance.SetValue = function (dobj, propd, value) {
-    if (value instanceof Expression)
-        dobj.$SetValueInternal(propd, value);
-    else
+    if (value instanceof StaticResourceExpression) {
+        this.$SRExpressions.push(value);
         dobj._SetValue(propd, value);
+    } else if (value instanceof Expression) {
+        dobj.$SetValueInternal(propd, value);
+    } else {
+        dobj._SetValue(propd, value);
+    }
 };
 
 JsonParser.Instance.GetAnnotationMember = function (type, member) {
