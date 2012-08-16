@@ -346,10 +346,9 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.AppendLine(",");
                 if (this is Setter && pd.Name.Equals("Property"))
                 {
-                    string typeName = ((IJsonConvertible)Parent.GetValue("TargetType")).ToJson(0);
                     sb.Append(pd.Name);
                     sb.Append(": ");
-                    sb.Append(string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, value));
+                    sb.Append(SerializeSetterProperty(this as Setter, Parent.GetValue("TargetType") as JsType));
                     needsComma = true;
                 }
                 else if (value is IJsonConvertible)
@@ -427,6 +426,21 @@ namespace WickedSick.Server.XamlParser.Elements
                 needsComma = true;
             }
             return sb.ToString();
+        }
+
+        private string SerializeSetterProperty(Setter setter, JsType parentType)
+        {
+            var typeName = parentType.ToJson(0);
+            var prop = setter.Property;
+            if (prop.Contains("."))
+            {
+                var tokens = prop.Split('.');
+                if (tokens.Length != 2)
+                    throw new XamlParseException("A property can only contain a '.' if it is an attached property with the following signature: '<Owner Type>.<Property Name>'.");
+                typeName = tokens[0];
+                prop = tokens[1];
+            }
+            return string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, prop);
         }
     }
 }
