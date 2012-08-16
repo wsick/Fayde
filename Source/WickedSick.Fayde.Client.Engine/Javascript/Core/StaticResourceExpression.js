@@ -11,7 +11,7 @@ StaticResourceExpression.Instance.Init = function (key, target, propd, propName,
     this.PropertyName = propName;
 };
 
-StaticResourceExpression.Instance.GetValue = function () {
+StaticResourceExpression.Instance.GetValue = function (sourceRD) {
     var o;
     var key = this.Key;
     var cur = this.Target;
@@ -30,6 +30,11 @@ StaticResourceExpression.Instance.GetValue = function () {
         }
         cur = cur._Parent;
     }
+    if (sourceRD) {
+        o = sourceRD.Get(key);
+        if (o)
+            return o;
+    }
     return App.Instance.Resources.Get(key);
 };
 
@@ -42,7 +47,7 @@ StaticResourceExpression.Instance.Resolve = function (parser) {
         isAttached = prop._IsAttached;
         ownerType = prop.OwnerType;
     }
-    var value = this.GetValue();
+    var value = this.GetValue(parser._SourceRD);
     if (!value)
         throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
     parser.TrySetPropertyValue(this.Target, prop, value, null, isAttached, ownerType, this.PropertyName);

@@ -10,8 +10,9 @@ JsonParser.Instance.Init = function () {
     this.$SRExpressions = [];
 };
 
-JsonParser.Parse = function (json, templateBindingSource, namescope) {
+JsonParser.Parse = function (json, templateBindingSource, namescope, sourceRD) {
     var parser = new JsonParser();
+    parser._SourceRD = sourceRD;
     parser._TemplateBindingSource = templateBindingSource;
     if (!namescope)
         namescope = new NameScope();
@@ -41,13 +42,21 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
 
     if (json.Type === ControlTemplate) {
         var targetType = json.Props == null ? null : json.Props.TargetType;
-        return new json.Type(targetType, json.Content);
+        var template = new json.Type(targetType, json.Content);
+        template._SourceRD = this._ContextResourceDictionary;
+        return template;
     }
     if (json.Type === DataTemplate) {
-        return new DataTemplate(json.Content);
+        var template = new DataTemplate(json.Content);
+        template._SourceRD = this._ContextResourceDictionary;
+        return template;
     }
 
+
     var dobj = new json.Type();
+    if (json.Type === ResourceDictionary) {
+        this._ContextResourceDictionary = dobj;
+    }
     dobj.TemplateOwner = this._TemplateBindingSource;
     if (json.Name)
         dobj.SetNameOnScope(json.Name, namescope);
@@ -109,6 +118,9 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
 
     if (!ignoreResolve) {
         this.ResolveStaticResourceExpressions();
+    }
+    if (json.Type === ResourceDictionary) {
+        delete this._ContextResourceDictionary;
     }
     return dobj;
 };
