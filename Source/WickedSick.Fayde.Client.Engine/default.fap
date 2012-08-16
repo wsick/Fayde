@@ -25,6 +25,7 @@
                 <HyperlinkButton Content="Home" NavigateUri="#" />
                 <HyperlinkButton Content="About" NavigateUri="#/about" />
                 <HyperlinkButton Content="Contact Us" NavigateUri="#/contact" />
+                <HyperlinkButton Content="TextBox" NavigateUri="#/textbox" />
             </StackPanel>
         </Border>
         <Grid Grid.Column="1" Grid.Row="1" Margin="10">
