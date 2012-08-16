@@ -61,8 +61,14 @@ ResourceDictionary.Instance.Add = function (key, value) {
 };
 ResourceDictionary.Instance.Remove = function (key) {
     var index = this._GetIndexFromKey(key);
-    if (index > -1)
-        return this.RemoveAt(index);
+    if (index > -1 && this.RemoveAt(index)) {
+        delete this._KeyIndex[key];
+        for (var h in this._KeyIndex) {
+            if (this._KeyIndex[h] > index)
+                this._KeyIndex[h] -= 1;
+        }
+        return true;
+    }
 };
 
 ResourceDictionary.Instance.AddedToCollection = function (value, error) {
