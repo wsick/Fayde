@@ -15,7 +15,8 @@ TemplateBindingExpression.Instance.GetValue = function (propd) {
     var value;
     if (source)
         value = source._GetValue(this.SourceProperty);
-    return value; //TODO: Send through TypeConverter
+    value = Fayde.TypeConverter.ConvertObject(this.TargetProperty, value, this.Target.constructor, true);
+    return value;
 };
 TemplateBindingExpression.Instance._OnAttached = function (element) {
     this._OnAttached$Expression(element);
