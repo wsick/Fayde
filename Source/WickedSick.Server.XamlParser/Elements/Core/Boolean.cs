@@ -22,8 +22,11 @@ namespace WickedSick.Server.XamlParser.Elements.Core
                 sb.Append(Key);
                 sb.AppendLine("\",");
             }
+            bool content;
+            if (!bool.TryParse(Content, out content))
+                content = false;
             sb.Append("Value: ");
-            sb.AppendLine(Content);
+            sb.AppendLine(content.ToString().ToLower());
             sb.Append("}");
 
             return sb.ToString();
