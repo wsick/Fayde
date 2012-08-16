@@ -19,7 +19,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
         Explicit
     }
 
-    public class Binding: IJsonConvertible
+    public class Binding : IJsonConvertible
     {
         public object FallbackValue { get; set; }
         public string Path { get; set; }
@@ -41,32 +41,33 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
 
         public Binding()
         {
-            Mode = BindingMode.TwoWay;
         }
 
         public string ToJson(int tabIndents)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("new BindingMarkup({ ");
+            sb.Append(string.Join(", ", GetPropertiesJson(tabIndents)));
+            sb.Append(" })");
+            return sb.ToString();
+        }
 
-            sb.AppendFormat("Mode: BindingMode.{0}", Mode);
-
+        private IEnumerable<string> GetPropertiesJson(int tabIndents)
+        {
+            if (Mode != BindingMode.OneWay)
+                yield return string.Format("Mode: BindingMode.{0}", Mode);
             if (Path != null)
-                sb.AppendFormat(", Path: \"{0}\"", Path);
-
+                yield return string.Format("Path: \"{0}\"", Path);
             if (FallbackValue != null)
             {
                 var ijc = FallbackValue as IJsonConvertible;
                 if (ijc != null)
-                    sb.AppendFormat(", FallbackValue: {0}", ijc.ToJson(tabIndents));
+                    yield return string.Format("FallbackValue: {0}", ijc.ToJson(tabIndents));
                 else if (FallbackValue is string)
-                    sb.AppendFormat(", FallbackValue: \"{0}\"", FallbackValue);
+                    yield return string.Format("FallbackValue: \"{0}\"", FallbackValue);
                 else
-                    sb.AppendFormat(", FallbackValue: {0}", FallbackValue);
+                    yield return string.Format("FallbackValue: {0}", FallbackValue);
             }
-
-            sb.Append(" })");
-            return sb.ToString();
         }
     }
 }
