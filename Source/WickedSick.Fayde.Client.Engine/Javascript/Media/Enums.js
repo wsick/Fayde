@@ -50,3 +50,8 @@ var GradientSpreadMethod = {
     Reflect: 1,
     Repeat: 2
 };
+
+var TextHintingMode = {
+    Fixed: 0,
+    Animated: 1
+};
