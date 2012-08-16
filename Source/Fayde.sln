@@ -1,6 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C241F086-ADA2-4B95-8071-1C0752C02D98}"
+	ProjectSection(SolutionItems) = preProject
+		Fayde.vsmdi = Fayde.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Fayde.Client.Engine", "WickedSick.Fayde.Client.Engine\WickedSick.Fayde.Client.Engine.csproj", "{8734C581-3114-488D-8A53-7BC942232787}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Server.Framework.Fayde", "WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj", "{40645861-EE77-480A-B389-0F2857DA682D}"
@@ -10,13 +17,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.LitmusTests", "WickedSick.LitmusTests\WickedSick.LitmusTests.csproj", "{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.Fayde.Client.Engine.Tests", "WickedSick.Fayde.Client.Engine.Tests\WickedSick.Fayde.Client.Engine.Tests.csproj", "{9AB83FB9-F924-484C-9DA6-1D3DADE152C7}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C241F086-ADA2-4B95-8071-1C0752C02D98}"
-	ProjectSection(SolutionItems) = preProject
-		Fayde.vsmdi = Fayde.vsmdi
-		Local.testsettings = Local.testsettings
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
