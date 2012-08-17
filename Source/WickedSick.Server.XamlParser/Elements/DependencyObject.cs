@@ -128,7 +128,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (contentProperty == null)
                 throw new XamlParseException(string.Format("Content cannot be added to an element with no content property definition. {0}", GetType().Name));
             
-            if (contentProperty.Type.IsGenericType && contentProperty.Type.GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
+            if (IsSubclassOfRawGeneric(contentProperty.Type, typeof(DependencyObjectCollection<>)))
             {
                 if (!_dependencyValues.Keys.Contains(contentProperty))
                 {
@@ -441,6 +441,18 @@ namespace WickedSick.Server.XamlParser.Elements
                 prop = tokens[1];
             }
             return string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, prop);
+        }
+
+        private static bool IsSubclassOfRawGeneric(Type check, Type generic)
+        {
+            while (check != typeof(object))
+            {
+                var cur = check.IsGenericType ? check.GetGenericTypeDefinition() : check;
+                if (generic == cur)
+                    return true;
+                check = check.BaseType;
+            }
+            return false;
         }
     }
 }
