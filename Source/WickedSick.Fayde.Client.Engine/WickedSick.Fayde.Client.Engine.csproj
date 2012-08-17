@@ -167,6 +167,7 @@
     <Content Include="Javascript\Media\Animation\PointAnimation.js" />
     <Content Include="Javascript\Media\Animation\RepeatBehavior.js" />
     <Content Include="Javascript\Media\Animation\SplineDoubleKeyFrame.js" />
+    <Content Include="Javascript\Media\Curves.js" />
     <Content Include="Javascript\Media\Effects\BlurEffect.js" />
     <Content Include="Javascript\Media\Effects\DropShadowEffect.js" />
     <Content Include="Javascript\Media\Effects\Effect.js" />
