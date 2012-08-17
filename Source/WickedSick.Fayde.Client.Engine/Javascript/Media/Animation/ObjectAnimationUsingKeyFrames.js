@@ -31,9 +31,13 @@ ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
             frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
         }
     }
+
     KeyFrameCollection.ResolveKeyFrames(this, frames);
 
-    //TODO: Validate Key Times
+    for (var j = 0; j < count; j++) {
+        if (!keyFrames._SortedList[j].KeyTime.IsValid)
+            return false;
+    }
 
     return true;
 };
