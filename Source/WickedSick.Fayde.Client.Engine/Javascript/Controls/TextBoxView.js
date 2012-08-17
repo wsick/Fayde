@@ -235,6 +235,7 @@ _TextBoxView.Instance._RenderImpl = function (ctx, region) {
 
         var canvasCtx = ctx.GetCanvasContext();
         var rect = this._Cursor;
+        canvasCtx.beginPath();
         canvasCtx.moveTo(rect.X + 0.5, rect.Y);
         canvasCtx.lineTo(rect.X + 0.5, rect.Y + rect.Height);
         canvasCtx.lineWidth = 1.0;
