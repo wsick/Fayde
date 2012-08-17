@@ -4,7 +4,7 @@ using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public class DependencyObjectCollection<T>: DependencyObject, IEnumerable<T>
+    public class DependencyObjectCollection<T> : DependencyObject, IEnumerable<T>
     {
         private IList<T> _items = new List<T>();
 

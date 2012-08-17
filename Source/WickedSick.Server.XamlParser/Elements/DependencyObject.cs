@@ -265,7 +265,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (content != null)
             {
                 sb.AppendLine(",");
-                if (content.GetType().IsGenericType && content.GetType().GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
+                if (IsSubclassOfRawGeneric(content.GetType(), typeof(DependencyObjectCollection<>)))
                     sb.Append("Children: ");
                 else
                     sb.Append("Content: ");
