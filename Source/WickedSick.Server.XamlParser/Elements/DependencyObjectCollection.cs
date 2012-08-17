@@ -32,7 +32,7 @@ namespace WickedSick.Server.XamlParser.Elements
         public override string ToJson(int tabIndents)
         {
             if (_items.Count == 0)
-                return string.Empty;
+                return "[]";
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("[");
