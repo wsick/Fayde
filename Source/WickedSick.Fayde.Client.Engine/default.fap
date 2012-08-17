@@ -23,9 +23,8 @@
         <Border Grid.Column="0" Grid.Row="1" Background="#F0F0F0" CornerRadius="5" BorderBrush="#2C4B63" BorderThickness="1">
             <StackPanel Grid.Column="0" Grid.Row="1" Margin="5" Orientation="Vertical">
                 <HyperlinkButton Content="Home" NavigateUri="#" />
-                <HyperlinkButton Content="About" NavigateUri="#/about" />
+                <HyperlinkButton Content="Core Controls" NavigateUri="#/core_controls" />
                 <HyperlinkButton Content="Contact Us" NavigateUri="#/contact" />
-                <HyperlinkButton Content="TextBox" NavigateUri="#/textbox" />
             </StackPanel>
         </Border>
         <Grid Grid.Column="1" Grid.Row="1" Margin="10">

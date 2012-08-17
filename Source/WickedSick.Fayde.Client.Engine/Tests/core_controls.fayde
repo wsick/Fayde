@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+      Title="Fayde | Core Controls">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+            <TextBlock Text="TEXTBOX" />
+            <TextBox Text="TextBox" />
+            <TextBlock Text="TOOLTIP" />
+            
+        </StackPanel>
+        <StackPanel Grid.Column="1">
+            <TextBlock Text="SEARCHBUTTON" />
+            <TextBlock Text="PASSWORDBOX" />
+            <TextBlock Text="BUTTON" />
+            <Button Content="Button" />
+            <TextBlock Text="REPEATBUTTON" />
+            <RepeatButton Content="RepeatButton" />
+            <TextBlock Text="TOGGLEBUTTON" />
+            <ToggleButton Content="ToggleButton" />
+            <TextBlock Text="CHECKBOX" />
+            <CheckBox IsChecked="true" Content="CheckBox" />
+            <CheckBox IsIndeterminate="true" Content="CheckBox" />
+            <CheckBox IsChecked="false" Content="CheckBox" />
+        </StackPanel>
+    </Grid>
+</Page>

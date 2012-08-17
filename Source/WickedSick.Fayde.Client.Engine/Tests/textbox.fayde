@@ -1,7 +1,0 @@
-﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-      Title="Fayde | TextBox">
-    <StackPanel>
-        <TextBox Margin="20" Text="This is a sample textbox."></TextBox>
-    </StackPanel>
-</Page>
