@@ -67,6 +67,14 @@ namespace WickedSick.Server.Framework.Fayde
             Writer.WriteLine("\t\t\t$(document).ready(function () {");
             Writer.WriteLine("\t\t\t\tApp.Instance = new App();");
 
+            if (fap.Resources != null)
+            {
+                Writer.Write("\t\t\t\tvar rjson = ");
+                Writer.Write(fap.Resources.ToJson(4));
+                Writer.WriteLine(";");
+                Writer.WriteLine("\t\t\t\tApp.Instance.LoadResources(rjson);");
+            }
+
             Writer.Write("\t\t\t\tvar json = ");
             if (fap.Content != null)
                 Writer.Write(fap.Content.ToJson(4));

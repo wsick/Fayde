@@ -44,7 +44,7 @@ App.Instance.Init = function () {
     });
 };
 
-//#region Dependency Properties
+//#region Properties
 
 App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, { GetValue: function () { return new ResourceDictionary(); } });
 
@@ -55,6 +55,11 @@ Nullstone.AutoProperties(App, [
 
 //#endregion
 
+App.Instance.LoadResources = function (json) {
+    var rd = JsonParser.Parse(json);
+    if (rd instanceof ResourceDictionary)
+        this.Resources = rd;
+};
 App.Instance.LoadInitial = function (containerId, json) {
     this.Address = new Uri(document.URL);
     this.MainSurface.Register(containerId);
