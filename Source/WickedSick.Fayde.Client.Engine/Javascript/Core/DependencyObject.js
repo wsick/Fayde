@@ -255,6 +255,14 @@ DependencyObject.Instance._IsValueValid = function (propd, coerced, error) {
     return true;
 };
 
+DependencyObject.Instance._HasDeferredValueExpression = function (propd) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
+        return data.Value instanceof DeferredValueExpression;
+    }
+    return false;
+};
+
 //#endregion
 
 //#region Get Value

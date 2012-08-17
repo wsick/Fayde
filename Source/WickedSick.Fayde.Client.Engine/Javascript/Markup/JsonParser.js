@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="Markup.js"/>
 /// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/DeferredValueExpression.js"/>
 
 //#region JsonParser
 var JsonParser = Nullstone.Create("JsonParser");
@@ -230,7 +231,7 @@ JsonParser.Instance.ResolveStaticResourceExpressions = function () {
 JsonParser.Instance.SetValue = function (dobj, propd, value) {
     if (value instanceof StaticResourceExpression) {
         this.$SRExpressions.push(value);
-        dobj._SetValue(propd, value);
+        dobj.$SetValueInternal(propd, new DeferredValueExpression());
     } else if (value instanceof Expression) {
         dobj.$SetValueInternal(propd, value);
     } else {
