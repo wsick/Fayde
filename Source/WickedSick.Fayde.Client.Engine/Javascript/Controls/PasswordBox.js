@@ -14,9 +14,15 @@ PasswordBox.Instance.Init = function () {
     this._EventsMask = _TextBoxEmitChanged.TEXT;
 };
 
-//#region Dependency Properties
+//#region Properties
+
+PasswordBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () { return Brush; }, PasswordBox);
+PasswordBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () { return Brush; }, PasswordBox);
+PasswordBox.BaselineOffsetProperty = DependencyProperty.RegisterCore("BaselineOffset", function () { return Number; }, PasswordBox);
 
 Nullstone.AutoProperties(PasswordBox, [
+    PasswordBox.SelectionBackgroundProperty,
+    PasswordBox.SelectionForegroundProperty,
     "SelectionStart",
     "SelectionLength"
 ]);
