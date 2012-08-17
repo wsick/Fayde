@@ -25,8 +25,12 @@ namespace WickedSick.Server.XamlParser.Elements.Core
             bool content;
             if (!bool.TryParse(Content, out content))
                 content = false;
+
             sb.Append("Value: ");
-            sb.AppendLine(content.ToString().ToLower());
+            if (string.IsNullOrWhiteSpace(Content))
+                sb.AppendLine("null");
+            else
+                sb.AppendLine(content.ToString().ToLower());
             sb.Append("}");
 
             return sb.ToString();
