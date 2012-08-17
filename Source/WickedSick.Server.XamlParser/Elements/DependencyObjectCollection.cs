@@ -1,16 +1,32 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public class DependencyObjectCollection<T> : DependencyObject, IEnumerable<T>
+    public class DependencyObjectCollection<T> : DependencyObject, IEnumerable<T>, IElementTypeable
     {
         private IList<T> _items = new List<T>();
 
+        public Type ElementType
+        {
+            get { return typeof(T); }
+        }
+
         public override void AddContent(object value)
         {
-            _items.Add((T)value);
+            if (value is IEnumerable<T>)
+            {
+                foreach (var val in (value as IEnumerable<T>))
+                {
+                    _items.Add(val);
+                }
+            }
+            else
+            {
+                _items.Add((T)value);
+            }
         }
 
         public override string ToJson(int tabIndents)

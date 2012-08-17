@@ -58,7 +58,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (pd == null)
                 throw new ArgumentException(string.Format("An unregistered property has been passed. {0}.{1}", GetType().Name, name));
 
-            if (pd.Type.IsGenericType && pd.Type.GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
+            if (IsSubclassOfRawGeneric(pd.Type, typeof(DependencyObjectCollection<>)))
             {
                 DependencyObject doc;
                 if (_dependencyValues.ContainsKey(pd))
@@ -71,10 +71,14 @@ namespace WickedSick.Server.XamlParser.Elements
                     _dependencyValues.Add(pd, doc);
                 }
 
-                Type genericType = pd.Type.GetGenericArguments()[0];
-                if (value is string && genericType != typeof(string))
+                Type elementType = null;
+                if (doc is IElementTypeable)
+                    elementType = (doc as IElementTypeable).ElementType;
+                else if (pd.Type.IsGenericType)
+                    elementType = pd.Type.GetGenericArguments()[0];
+                if (value is string && elementType != typeof(string))
                 {
-                    value = GetConvertedValue((string)value, genericType);
+                    value = GetConvertedValue((string)value, elementType);
                 }
                 doc.AddContent(value);
             }

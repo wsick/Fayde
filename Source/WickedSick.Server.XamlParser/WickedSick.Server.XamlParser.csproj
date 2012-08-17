@@ -116,6 +116,9 @@
     <Compile Include="Elements\Documents\TextElement.cs" />
     <Compile Include="Elements\Documents\TextElementCollection.cs" />
     <Compile Include="Elements\EventTrigger.cs" />
+    <Compile Include="Elements\IElementTypeable.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Elements\Media\Animation\BackEase.cs" />
     <Compile Include="Elements\Media\Animation\BeginStoryboard.cs" />
     <Compile Include="Elements\Media\Animation\ColorAnimationUsingKeyFrames.cs" />
