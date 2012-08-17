@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using WickedSick.Server.XamlParser.Elements.Controls;
 using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
@@ -12,7 +9,13 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription WidthProperty = PropertyDescription.Register("Width", typeof(PageLength), typeof(FaydeApplication));
         public static readonly PropertyDescription HeightProperty = PropertyDescription.Register("Height", typeof(PageLength), typeof(FaydeApplication));
         public static readonly PropertyDescription DebugProperty = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
+
         public static readonly PropertyDescription ResourcesProperty = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FaydeApplication));
+        public ResourceDictionary Resources
+        {
+            get { return GetValue("Resources") as ResourceDictionary; }
+            set { SetValue("Resources", value); }
+        }
         
         public static readonly PropertyDescription UriMappingsProperty = PropertyDescription.Register("UriMappings", typeof(UriMappingCollection), typeof(FaydeApplication));
         public UriMappingCollection UriMappings
