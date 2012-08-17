@@ -15,7 +15,7 @@ Nullstone.AutoProperties(EasingDoubleKeyFrame, [
 
 //#endregion
 
-SplineDoubleKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
+EasingDoubleKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
     if (keyFrameProgress >= 1.0)
         return this.Value;
 
