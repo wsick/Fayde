@@ -50,7 +50,7 @@ TextLayout.Instance.GetTextAttributes = function () {
 };
 TextLayout.Instance.SetTextAttributes = function (value) {
     if (this._Attributes) {
-        this._Attributes._Clear(true);
+        this._Attributes.Clear(true);
     }
     this._Attributes = value;
     this._ResetState();

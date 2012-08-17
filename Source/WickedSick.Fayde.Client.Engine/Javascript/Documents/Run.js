@@ -17,12 +17,9 @@ Nullstone.AutoProperties(Run, [
 
 //#endregion
 
-Run.Instance._SerializeText = function (str) {
+Run.Instance._SerializeText = function () {
     /// <returns type="String" />
-    var t = this.Text;
-    if (t != null)
-        return str.concat(t);
-    return str;
+    return this.Text;
 };
 
 Nullstone.FinishCreate(Run);

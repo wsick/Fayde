@@ -227,7 +227,7 @@ TextBlock.Instance._GetTextInternal = function (inlines) {
     var block = "";
     var count = inlines.GetCount();
     for (var i = 0; i < count; i++) {
-        block = block.concat(inlines.GetValueAt(i)._SerializeText());
+        block += inlines.GetValueAt(i)._SerializeText();
     }
     return block;
 };
