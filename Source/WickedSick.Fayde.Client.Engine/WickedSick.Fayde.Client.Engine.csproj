@@ -150,6 +150,7 @@
     <Content Include="Javascript\Core\TriggerBase.js" />
     <Content Include="Javascript\Engine\AjaxJsonRequest.js" />
     <Content Include="Javascript\Engine\NavService.js" />
+    <Content Include="Javascript\Core\DeferredValueExpression.js" />
     <Content Include="Javascript\Media\Animation\BackEase.js" />
     <Content Include="Javascript\Media\Animation\BeginStoryboard.js" />
     <Content Include="Javascript\Media\Animation\ColorAnimationUsingKeyFrames.js" />
