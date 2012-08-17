@@ -2818,7 +2818,11 @@ App.GetGenericResourceDictionary = function () {
 
                                             },
                                             {
-                                                Type: ColorAnimationUsingKeyFrames,
+                                                Type: ColorAnimation,
+                                                Props: {
+                                                    To: new StaticResourceMarkup("HighlightLightColor"),
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetName",
@@ -2830,16 +2834,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Value: new _PropertyPath("Color")
 
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: EasingColorKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: new StaticResourceMarkup("HighlightLightColor")
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
@@ -7602,9 +7597,16 @@ App.GetGenericResourceDictionary = function () {
                                         Name: "MouseOver",
                                         Content: {
                                             Type: Storyboard,
+                                            Props: {
+                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                            },
                                             Children: [
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 1,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -7616,19 +7618,14 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "MouseOverRectangle"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: EasingDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
-                                                        Value: 1
-                                                    }
-                                                }]
-
+                                                ]
                                             },
                                             {
-                                                Type: ColorAnimationUsingKeyFrames,
+                                                Type: ColorAnimation,
+                                                Props: {
+                                                    To: new StaticResourceMarkup("Gray2"),
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetName",
@@ -7640,19 +7637,14 @@ App.GetGenericResourceDictionary = function () {
                                                     Value: new _PropertyPath("Color")
 
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: EasingColorKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: new StaticResourceMarkup("Gray2")
-                                                    }
-                                                }]
-
+                                                ]
                                             },
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 1,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -7664,16 +7656,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "grid"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: EasingDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
-                                                        Value: 1
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
@@ -7683,9 +7666,16 @@ App.GetGenericResourceDictionary = function () {
                                         Name: "Pressed",
                                         Content: {
                                             Type: Storyboard,
+                                            Props: {
+                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                            },
                                             Children: [
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 1,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -7697,16 +7687,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "PressedRectangle"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: EasingDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
-                                                        Value: 1
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
@@ -7718,7 +7699,11 @@ App.GetGenericResourceDictionary = function () {
                                             Type: Storyboard,
                                             Children: [
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 0.55,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -7730,19 +7715,14 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "contentPresenter"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: SplineDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: 0.55
-                                                    }
-                                                }]
-
+                                                ]
                                             },
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 0.55,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -7754,16 +7734,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "DisabledVisualElement"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: SplineDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: 0.55
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
@@ -7781,7 +7752,11 @@ App.GetGenericResourceDictionary = function () {
                                             Type: Storyboard,
                                             Children: [
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 1,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -7793,16 +7768,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "CheckIcon"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: SplineDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: 1
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
@@ -7818,7 +7784,11 @@ App.GetGenericResourceDictionary = function () {
                                             Type: Storyboard,
                                             Children: [
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 1,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -7830,16 +7800,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "IndeterminateIcon"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: SplineDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: 1
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
@@ -9234,9 +9195,16 @@ App.GetGenericResourceDictionary = function () {
                                         Name: "MouseOver",
                                         Content: {
                                             Type: Storyboard,
+                                            Props: {
+                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                            },
                                             Children: [
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 1,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -9248,19 +9216,14 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "MouseOverEllipse"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: EasingDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
-                                                        Value: 1
-                                                    }
-                                                }]
-
+                                                ]
                                             },
                                             {
-                                                Type: ColorAnimationUsingKeyFrames,
+                                                Type: ColorAnimation,
+                                                Props: {
+                                                    To: new StaticResourceMarkup("Gray2"),
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetName",
@@ -9272,19 +9235,14 @@ App.GetGenericResourceDictionary = function () {
                                                     Value: new _PropertyPath("Color")
 
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: EasingColorKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: new StaticResourceMarkup("Gray2")
-                                                    }
-                                                }]
-
+                                                ]
                                             },
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 1,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -9296,16 +9254,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "grid"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: EasingDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
-                                                        Value: 1
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
@@ -9324,7 +9273,11 @@ App.GetGenericResourceDictionary = function () {
                                             Type: Storyboard,
                                             Children: [
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 0.55,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -9336,19 +9289,14 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "contentPresenter"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: SplineDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: 0.55
-                                                    }
-                                                }]
-
+                                                ]
                                             },
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 0.55,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -9360,16 +9308,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "DisabledVisualElement"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: SplineDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: 0.55
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
@@ -9387,7 +9326,11 @@ App.GetGenericResourceDictionary = function () {
                                             Type: Storyboard,
                                             Children: [
                                             {
-                                                Type: DoubleAnimationUsingKeyFrames,
+                                                Type: DoubleAnimation,
+                                                Props: {
+                                                    To: 1,
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 0))
+                                                },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
                                                     Prop: "TargetProperty",
@@ -9399,16 +9342,7 @@ App.GetGenericResourceDictionary = function () {
                                                     Prop: "TargetName",
                                                     Value: "CheckIcon"
                                                 }
-                                                ],
-                                                Children: [
-                                                {
-                                                    Type: SplineDoubleKeyFrame,
-                                                    Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
-                                                        Value: 1
-                                                    }
-                                                }]
-
+                                                ]
                                             }]
 
                                         }
