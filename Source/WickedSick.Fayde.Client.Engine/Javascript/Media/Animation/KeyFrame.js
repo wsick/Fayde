@@ -19,7 +19,7 @@ KeyFrame.Instance.CoerceKeyTime = function (dobj, propd, value, coerced, error) 
         coerced.Value = value;
     return true;
 };
-KeyFrame.Instance.InterpolateValue = function () {
+KeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
     throw new AbstractMethodException();
 };
 
