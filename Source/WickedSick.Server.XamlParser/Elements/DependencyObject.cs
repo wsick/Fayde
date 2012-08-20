@@ -58,7 +58,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (pd == null)
                 throw new ArgumentException(string.Format("An unregistered property has been passed. {0}.{1}", GetType().Name, name));
 
-            if (pd.Type.IsGenericType && pd.Type.GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
+            if (IsSubclassOfRawGeneric(pd.Type, typeof(DependencyObjectCollection<>)))
             {
                 DependencyObject doc;
                 if (_dependencyValues.ContainsKey(pd))
@@ -71,10 +71,14 @@ namespace WickedSick.Server.XamlParser.Elements
                     _dependencyValues.Add(pd, doc);
                 }
 
-                Type genericType = pd.Type.GetGenericArguments()[0];
-                if (value is string && genericType != typeof(string))
+                Type elementType = null;
+                if (doc is IElementTypeable)
+                    elementType = (doc as IElementTypeable).ElementType;
+                else if (pd.Type.IsGenericType)
+                    elementType = pd.Type.GetGenericArguments()[0];
+                if (value is string && elementType != typeof(string))
                 {
-                    value = GetConvertedValue((string)value, genericType);
+                    value = GetConvertedValue((string)value, elementType);
                 }
                 doc.AddContent(value);
             }
@@ -128,7 +132,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (contentProperty == null)
                 throw new XamlParseException(string.Format("Content cannot be added to an element with no content property definition. {0}", GetType().Name));
             
-            if (contentProperty.Type.IsGenericType && contentProperty.Type.GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
+            if (IsSubclassOfRawGeneric(contentProperty.Type, typeof(DependencyObjectCollection<>)))
             {
                 if (!_dependencyValues.Keys.Contains(contentProperty))
                 {
@@ -265,7 +269,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (content != null)
             {
                 sb.AppendLine(",");
-                if (content.GetType().IsGenericType && content.GetType().GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
+                if (IsSubclassOfRawGeneric(content.GetType(), typeof(DependencyObjectCollection<>)))
                     sb.Append("Children: ");
                 else
                     sb.Append("Content: ");
@@ -346,10 +350,9 @@ namespace WickedSick.Server.XamlParser.Elements
                     sb.AppendLine(",");
                 if (this is Setter && pd.Name.Equals("Property"))
                 {
-                    string typeName = ((IJsonConvertible)Parent.GetValue("TargetType")).ToJson(0);
                     sb.Append(pd.Name);
                     sb.Append(": ");
-                    sb.Append(string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, value));
+                    sb.Append(SerializeSetterProperty(this as Setter, Parent.GetValue("TargetType") as JsType));
                     needsComma = true;
                 }
                 else if (value is IJsonConvertible)
@@ -427,6 +430,33 @@ namespace WickedSick.Server.XamlParser.Elements
                 needsComma = true;
             }
             return sb.ToString();
+        }
+
+        private string SerializeSetterProperty(Setter setter, JsType parentType)
+        {
+            var typeName = parentType.ToJson(0);
+            var prop = setter.Property;
+            if (prop.Contains("."))
+            {
+                var tokens = prop.Split('.');
+                if (tokens.Length != 2)
+                    throw new XamlParseException("A property can only contain a '.' if it is an attached property with the following signature: '<Owner Type>.<Property Name>'.");
+                typeName = tokens[0];
+                prop = tokens[1];
+            }
+            return string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, prop);
+        }
+
+        private static bool IsSubclassOfRawGeneric(Type check, Type generic)
+        {
+            while (check != typeof(object))
+            {
+                var cur = check.IsGenericType ? check.GetGenericTypeDefinition() : check;
+                if (generic == cur)
+                    return true;
+                check = check.BaseType;
+            }
+            return false;
         }
     }
 }

@@ -29,7 +29,7 @@ DependencyObject.Instance.Init = function () {
     this._CachedValues = {};
 };
 
-//#region Dependency Properties
+//#region Properties
 
 DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", undefined, undefined, false, DependencyObject._NameValidator);
 
@@ -253,6 +253,14 @@ DependencyObject.Instance._SetValueWithErrorImpl = function (propd, value, error
 DependencyObject.Instance._IsValueValid = function (propd, coerced, error) {
     //TODO: Handle type problems
     return true;
+};
+
+DependencyObject.Instance._HasDeferredValueExpression = function (propd) {
+    var data = {};
+    if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
+        return data.Value instanceof DeferredValueExpression;
+    }
+    return false;
 };
 
 //#endregion
@@ -730,7 +738,11 @@ DependencyObject.Instance.RemovePropertyChangedListener = function (ldo, propd) 
         break;
     }
 };
-DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) { };
+DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
+    if (inheritedProvider)
+        inheritedProvider.PropagateInheritedProperty(propd, this, this);
+};
 
 //#endregion
 

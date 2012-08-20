@@ -10,12 +10,13 @@ var DoubleAnimation = Nullstone.Create("DoubleAnimation", Animation);
 //#region Dependency Properties
 
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
-//DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, DoubleAnimation);
+DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return IEasingFunction; }, DoubleAnimation);
 DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
 DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
 
 Nullstone.AutoProperties(DoubleAnimation, [
     DoubleAnimation.ByProperty,
+    DoubleAnimation.EasingFunctionProperty,
     DoubleAnimation.FromProperty,
     DoubleAnimation.ToProperty
 ]);
@@ -54,9 +55,9 @@ DoubleAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaul
     else if (defaultDestinationValue != null && Number.isNumber(defaultDestinationValue))
         end = defaultDestinationValue;
 
-    //var easingFunc = this.GetEasingFunction();
-    //if (easingFunc != null)
-    //clockData.Progress = easingFunc.Ease(clockData.Progress);
+    var easingFunc = this.EasingFunction;
+    if (easingFunc != null)
+        clockData.Progress = easingFunc.Ease(clockData.Progress);
 
     return start + ((end - start) * clockData.Progress);
 };

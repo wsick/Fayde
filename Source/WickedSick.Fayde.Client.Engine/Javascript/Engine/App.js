@@ -44,7 +44,7 @@ App.Instance.Init = function () {
     });
 };
 
-//#region Dependency Properties
+//#region Properties
 
 App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, { GetValue: function () { return new ResourceDictionary(); } });
 
@@ -55,6 +55,11 @@ Nullstone.AutoProperties(App, [
 
 //#endregion
 
+App.Instance.LoadResources = function (json) {
+    var rd = JsonParser.Parse(json);
+    if (rd instanceof ResourceDictionary)
+        this.Resources = rd;
+};
 App.Instance.LoadInitial = function (containerId, json) {
     this.Address = new Uri(document.URL);
     this.MainSurface.Register(containerId);
@@ -132,6 +137,8 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
         appResourcesStyle = this.Resources.Get(fe.constructor);
         if (appResourcesStyle == null)
             appResourcesStyle = this.Resources.Get(fe._TypeName);
+        if (appResourcesStyle != null)
+            appResourcesStyle._SourceRD = this.Resources;
     }
     if ((styleMask & _StyleMask.VisualTree) != 0) {
         var isControl = fe instanceof Control;
@@ -162,10 +169,11 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
     return styles;
 };
 App.Instance._GetGenericXamlStyleFor = function (type) {
-    if (!App.GenericXaml && App.GetGenericXaml)
-        App.GenericXaml = App.GetGenericXaml();
-    if (App.GenericXaml)
-        return App.GenericXaml.Get(type);
+    if (!App.GenericResourceDictionary && App.GetGenericResourceDictionary) {
+        App.GenericResourceDictionary = App.GetGenericResourceDictionary();
+    }
+    if (App.GenericResourceDictionary)
+        return App.GenericResourceDictionary.Get(type);
 };
 
 //#region Debug Service

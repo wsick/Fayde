@@ -98,11 +98,11 @@ Font.Instance._BuildTranslation = function () {
     return s;
 };
 
-Font.DEFAULT_FAMILY = "Verdana";
+Font.DEFAULT_FAMILY = "Segoe UI, Lucida Sans Unicode, Verdana";
 Font.DEFAULT_STRETCH = FontStretch.Normal;
 Font.DEFAULT_STYLE = FontStyle.Normal;
 Font.DEFAULT_WEIGHT = FontWeight.Normal;
-Font.DEFAULT_SIZE = "11px";
+Font.DEFAULT_SIZE = "14px";
 
 Nullstone.FinishCreate(Font);
 //#endregion

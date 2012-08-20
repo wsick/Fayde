@@ -83,13 +83,17 @@ var Fayde = {
                         return ret;
                     return val;
                 }
-            } else if (typeof targetType === "number") {
+            } else if (typeof targetType === "number" || targetType === Number) {
                 if (typeof val === "number")
                     return val;
-                return parseFloat(val);
+                if (!val)
+                    return 0;
+                if (val instanceof Thickness)
+                    return val.Left;
+                return parseFloat(val.toString());
             }
 
-            if (typeof targetType === "string")
+            if (typeof targetType === "string" || targetType === String)
                 return doStringConversion ? val.toString() : "";
 
             var tc;

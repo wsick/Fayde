@@ -59,3 +59,11 @@ var ScrollBarVisibility = {
     Hidden: 2,
     Visible: 3
 };
+
+var PlacementMode = {
+    Bottom: 0,
+    Right: 1,
+    Mouse: 2,
+    Left: 3,
+    Top: 4
+};

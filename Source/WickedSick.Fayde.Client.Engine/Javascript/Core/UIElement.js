@@ -93,13 +93,15 @@ UIElement.Instance.Init = function () {
     this.KeyUp.Subscribe(this.OnKeyUp, this);
 
     this.RequestBringIntoView = new MulticastEvent();
+
+    this.VisualParentChanged = new MulticastEvent();
 };
 
 //#region Dependency Properties
 
 UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
 //UIElement.CacheModeProperty;
-//UIElement.EffectProperty;
+UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Effect; }, UIElement);
 UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
 UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);
 UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
@@ -116,6 +118,7 @@ UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return 
 
 Nullstone.AutoProperties(UIElement, [
     UIElement.ClipProperty,
+    UIElement.EffectProperty,
     UIElement.IsHitTestVisibleProperty,
     UIElement.OpacityMaskProperty,
     UIElement.OpacityProperty,
@@ -142,6 +145,7 @@ UIElement.Instance.BringIntoView = function (rect) {
 UIElement.Instance.SetVisualParent = function (value) {
     /// <param name="value" type="UIElement"></param>
     this._VisualParent = value;
+    this.VisualParentChanged.Raise(this, new EventArgs());
 };
 UIElement.Instance.GetVisualParent = function () {
     /// <returns type="UIElement" />
@@ -954,8 +958,6 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
     }
     //TODO: Check invalidation of some properties
     this.PropertyChanged.Raise(this, args);
-};
-UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 };
 
 //#endregion

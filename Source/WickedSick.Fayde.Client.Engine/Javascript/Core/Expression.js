@@ -23,7 +23,7 @@ Expression.Instance._OnDetached = function (element) {
     this.SetAttached(false);
 };
 
-//#region PROPERTIES
+//#region Properties
 
 Expression.Instance.GetAttached = function () {
     /// <returns type="Boolean" />

@@ -1,32 +1,47 @@
-<CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
-  <Header>
-    <Title>propda</Title>
-    <Author>WickedSick</Author>
-    <Shortcut>propda</Shortcut>
-    <Description>Code snippet for an attached dependency property</Description>
-    <SnippetTypes>
-      <SnippetType>Expansion</SnippetType>
-    </SnippetTypes>
-  </Header>
-  <Snippet>
-    <Declarations>
-      <Literal>
-        <ID>owner</ID>
-        <ToolTip>Owner Type</ToolTip>
-        <Default>Object</Default>
-      </Literal>
-      <Literal>
-        <ID>name</ID>
-        <ToolTip>Property Name</ToolTip>
-        <Default>Name</Default>
-      </Literal>
-      <Literal>
-        <ID>type</ID>
-        <ToolTip>Target Type</ToolTip>
-        <Default>Number</Default>
-      </Literal>
-    </Declarations>
-    <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.RegisterAttached("$name$", function () { return $type$ }, $owner$);
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Keywords>
+        <Keyword>propda</Keyword>
+      </Keywords>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+      <Title>propda</Title>
+      <Author>Bradley</Author>
+      <Description>
+      </Description>
+      <HelpUrl>
+      </HelpUrl>
+      <Shortcut>propda</Shortcut>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal Editable="true">
+          <ID>owner</ID>
+          <ToolTip>owner</ToolTip>
+          <Default>Owner</Default>
+          <Function>
+          </Function>
+        </Literal>
+        <Literal Editable="true">
+          <ID>name</ID>
+          <ToolTip>name</ToolTip>
+          <Default>Name</Default>
+          <Function>
+          </Function>
+        </Literal>
+        <Literal Editable="true">
+          <ID>type</ID>
+          <ToolTip>type</ToolTip>
+          <Default>Type</Default>
+          <Function>
+          </Function>
+        </Literal>
+      </Declarations>
+      <Code Language="javascript"><![CDATA[
+$owner$.$name$Property = DependencyProperty.RegisterAttached("$name$", function () { return $type$; }, $owner$);
 $owner$.Get$name$ = function (d) {
 	///<returns type="$type$"></returns>
 	return d.GetValue($owner$.$name$Property);
@@ -35,5 +50,6 @@ $owner$.Set$name$ = function (d, value) {
 	///<param name="value" type="$type$"></param>
 	d.SetValue($owner$.$name$Property, value);
 };$end$]]></Code>
-  </Snippet>
-</CodeSnippet>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

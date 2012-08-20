@@ -18,10 +18,10 @@ Nullstone.AutoProperties(ObjectAnimationUsingKeyFrames, [
 ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
     /// <param name="target" type="DependencyObject"></param>
     /// <param name="propd" type="DependencyProperty"></param>
-    var frames = this.KeyFrames;
-    var count = frames.GetCount();
+    var keyFrames = this.KeyFrames;
+    var count = keyFrames.GetCount();
     for (var i = 0; i < count; i++) {
-        var frame = Nullstone.As(frames.GetValueAt(i), ObjectKeyFrame);
+        var frame = Nullstone.As(keyFrames.GetValueAt(i), ObjectKeyFrame);
         var value = frame.Value;
         if (value == null) {
             frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, undefined);
@@ -31,9 +31,13 @@ ObjectAnimationUsingKeyFrames.Instance.Resolve = function (target, propd) {
             frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
         }
     }
-    KeyFrameCollection.ResolveKeyFrames(this, frames);
 
-    //TODO: Validate Key Times
+    KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
+
+    for (var j = 0; j < count; j++) {
+        if (!keyFrames._SortedList[j].KeyTime.IsValid)
+            return false;
+    }
 
     return true;
 };

@@ -2,6 +2,7 @@
 /// CODE
 /// <reference path="Markup.js"/>
 /// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/DeferredValueExpression.js"/>
 
 //#region JsonParser
 var JsonParser = Nullstone.Create("JsonParser");
@@ -10,8 +11,9 @@ JsonParser.Instance.Init = function () {
     this.$SRExpressions = [];
 };
 
-JsonParser.Parse = function (json, templateBindingSource, namescope) {
+JsonParser.Parse = function (json, templateBindingSource, namescope, sourceRD) {
     var parser = new JsonParser();
+    parser._SourceRD = sourceRD;
     parser._TemplateBindingSource = templateBindingSource;
     if (!namescope)
         namescope = new NameScope();
@@ -35,14 +37,27 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
         return null;
     }
 
-    if (json.Type === ControlTemplate) {
-        return new json.Type(json.Props.TargetType, json.Content);
-    }
-    if (json.Type === DataTemplate) {
-        return new DataTemplate(json.Content);
+    if (json.Type === Number || json.Type === String || json.Type === Boolean) {
+        return json.Value;
     }
 
+    if (json.Type === ControlTemplate) {
+        var targetType = json.Props == null ? null : json.Props.TargetType;
+        var template = new json.Type(targetType, json.Content);
+        template._SourceRD = this._ContextResourceDictionary;
+        return template;
+    }
+    if (json.Type === DataTemplate) {
+        var template = new DataTemplate(json.Content);
+        template._SourceRD = this._ContextResourceDictionary;
+        return template;
+    }
+
+
     var dobj = new json.Type();
+    if (json.Type === ResourceDictionary) {
+        this._ContextResourceDictionary = dobj;
+    }
     dobj.TemplateOwner = this._TemplateBindingSource;
     if (json.Name)
         dobj.SetNameOnScope(json.Name, namescope);
@@ -55,7 +70,8 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
             if (propValue == undefined)
                 continue;
 
-            propd = dobj.GetDependencyProperty(propName);
+            if (dobj instanceof DependencyObject)
+                propd = dobj.GetDependencyProperty(propName);
             this.TrySetPropertyValue(dobj, propd, propValue, namescope, false, dobj.constructor, propName);
         }
     }
@@ -104,20 +120,23 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
     if (!ignoreResolve) {
         this.ResolveStaticResourceExpressions();
     }
+    if (json.Type === ResourceDictionary) {
+        delete this._ContextResourceDictionary;
+    }
     return dobj;
 };
 
 JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, namescope, isAttached, ownerType, propName) {
     //If the object is not a Nullstone, let's parse it
     if (!propValue.constructor._IsNullstone && propValue.Type) {
-        propValue = this.CreateObject(propValue, namescope);
+        propValue = this.CreateObject(propValue, namescope, true);
     }
 
     if (propValue instanceof Markup)
         propValue = propValue.Transmute(dobj, propd, propName, this._TemplateBindingSource);
 
     if (propValue instanceof StaticResourceExpression) {
-        this.$SRExpressions.push(propValue);
+        this.SetValue(dobj, propd, propValue);
         return;
     }
 
@@ -183,9 +202,9 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
     var rd = Nullstone.As(coll, ResourceDictionary);
     for (var i in subJson) {
         var fobj = this.CreateObject(subJson[i], namescope, true);
-        if (fobj instanceof DependencyObject)
-            fobj._AddParent(coll, true);
         if (rd == null) {
+            if (fobj instanceof DependencyObject)
+                fobj._AddParent(coll, true);
             coll.Add(fobj);
         } else {
             var key = subJson[i].Key;
@@ -210,10 +229,14 @@ JsonParser.Instance.ResolveStaticResourceExpressions = function () {
     this.$SRExpressions = [];
 };
 JsonParser.Instance.SetValue = function (dobj, propd, value) {
-    if (value instanceof Expression)
+    if (value instanceof StaticResourceExpression) {
+        this.$SRExpressions.push(value);
+        dobj.$SetValueInternal(propd, new DeferredValueExpression());
+    } else if (value instanceof Expression) {
         dobj.$SetValueInternal(propd, value);
-    else
+    } else {
         dobj._SetValue(propd, value);
+    }
 };
 
 JsonParser.Instance.GetAnnotationMember = function (type, member) {

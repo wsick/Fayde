@@ -9,10 +9,5 @@ namespace WickedSick.Server.XamlParser.Elements.Types
             get { return GetValue("FamilyNames") as string; }
             set { SetValue("FamilyNames", value); }
         }
-
-        public override string ToJson(int tabIndent)
-        {
-            return string.Format("new FontFamily(\"{0}\")", FamilyNames);
-        }
     }
 }

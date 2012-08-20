@@ -151,6 +151,8 @@ _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToT
 };
 _InheritedPropertyValueProvider.Instance.PropagateInheritedProperty = function (propd, source, subtree) {
     var inheritable = this._GetInheritableFunc(source, propd);
+    if (inheritable === 0)
+        return;
     var objContext = _InheritedContext.FromObject(this._Object, null);
     this.WalkSubtree(source, subtree, objContext, inheritable, true);
 };

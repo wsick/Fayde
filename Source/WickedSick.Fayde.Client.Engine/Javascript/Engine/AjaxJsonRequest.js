@@ -20,6 +20,10 @@ AjaxJsonRequest.prototype.Post = function (url, query, data) {
     this.xmlhttp.send(data);
 };
 
+AjaxJsonRequest.prototype.Cancel = function () {
+    this.xmlhttp.abort();
+};
+
 AjaxJsonRequest.prototype._PrepareRequest = function () {
     var xmlhttp;
     if (window.XMLHttpRequest) {

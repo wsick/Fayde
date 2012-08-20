@@ -75,9 +75,6 @@ Style.Instance._AddSetter = function (dobj, propName, value) {
 Style.Instance._AddSetterJson = function (dobj, propName, json) {
     this._AddSetter(dobj, propName, JsonParser.Parse(json));
 };
-Style.Instance._AddSetterControlTemplate = function (dobj, propName, templateJson) {
-    this._AddSetter(dobj, propName, new ControlTemplate(dobj.constructor, templateJson));
-};
 
 Nullstone.FinishCreate(Style);
 //#endregion

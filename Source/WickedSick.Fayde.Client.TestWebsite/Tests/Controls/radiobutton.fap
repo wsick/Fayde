@@ -1,0 +1,13 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot">
+        <StackPanel>
+            <RadioButton Content="Radio 1"></RadioButton>
+            <RadioButton Content="Radio 2"></RadioButton>
+            <RadioButton Content="Radio 3"></RadioButton>
+        </StackPanel>
+    </Grid>
+</FaydeApplication>

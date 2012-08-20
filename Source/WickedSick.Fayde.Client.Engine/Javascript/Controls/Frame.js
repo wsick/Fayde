@@ -49,7 +49,7 @@ Frame.Instance.GoBackward = function () {
 };
 Frame.Instance.StopLoading = function () {
     if (this._Request) {
-        this._Request.abort();
+        this._Request.Cancel();
         this._Request = null;
     }
 };

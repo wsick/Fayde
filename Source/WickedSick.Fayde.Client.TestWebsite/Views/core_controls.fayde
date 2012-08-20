@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+      Title="Fayde | Core Controls">
+    <Grid x:Name="LayoutRoot">
+        <Grid.Resources>
+            <SolidColorBrush x:Key="LabelTextBrush" Color="Black" />
+            <FontFamily x:Key="ContentFontFamily">Segoe UI, Lucida Sans Unicode, Verdana</FontFamily>
+            <Double x:Key="LabelFontSize">12</Double>
+            <Style x:Key="ControlLabelStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource LabelTextBrush}"/>
+                <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}"/>
+                <Setter Property="FontSize" Value="{StaticResource LabelFontSize}"/>
+                <Setter Property="TextOptions.TextHintingMode" Value="Animated"/>
+            </Style>
+        </Grid.Resources>
+        <StackPanel x:Name="ContentStackPanel">
+            <Grid Margin="21,0,50,0" HorizontalAlignment="Left">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="0.2*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Width="260" Margin="0">
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="TEXTBOX" Margin="0,10,30,0" />
+                    <TextBox TextWrapping="Wrap" Text="TextBox" Margin="0,3,30,3"/>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="TOOLTIP" Margin="0,10,30,0" />
+                    <Image Margin="0" Source="page01.JPG" Stretch="Fill" RenderTransformOrigin="0.5,0.5" ToolTipService.ToolTip="Lorem ipsum dolor">
+                    </Image>
+                </StackPanel>
+                <StackPanel Grid.ColumnSpan="1" Orientation="Vertical" Margin="10,0" Width="260" Grid.Column="1">
+                    <!--
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="SEARCHBUTTON"  Margin="30,10,30,0"/>
+                    <Grid Height="26" Margin="30,5" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.896*"/>
+                            <ColumnDefinition Width="0.104*"/>
+                        </Grid.ColumnDefinitions>
+                            
+                        <HyperlinkButton Content="HyperlinkButton" Style="{StaticResource SearchButtonStyle}" Margin="0,1,0,4" Grid.Column="1"/>
+                        <Border BorderBrush="#FFCCCCCC" BorderThickness="1" Grid.ColumnSpan="2" Margin="0"/>
+                    </Grid>
+                    -->
+                    <!--
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="PASSWORDBOX"  Margin="30,10,30,0"/>
+                    <PasswordBox Margin="30,5" Style="{StaticResource PasswordBoxStyle}"/>
+                    -->
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="BUTTON" Margin="30,10,30,0"/>
+                    <Button Content="BUTTON" Margin="30,5"/>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="REPEATBUTTON" Margin="30,10,30,0" />
+                    <RepeatButton Content="REPEATBUTTON" Margin="30,3"/>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="TOGGLEBUTTON" Margin="30,10,30,0" />
+                    <ToggleButton Content="TOGGLEBUTTON" Margin="30,3"/>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="CHECKBOX" Margin="30,41,30,0"/>
+                    <CheckBox Content="CheckBox" Margin="30,3" HorizontalAlignment="Left" IsChecked="True"/>
+                    <CheckBox Content="CheckBox" Margin="30,3" HorizontalAlignment="Left" IsThreeState="True" IsChecked="True"/>
+                    <CheckBox Content="CheckBox" Margin="30,3" HorizontalAlignment="Left"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,65,0" VerticalAlignment="Top" Grid.Column="2" Width="200">
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="HYPERLINKBUTTON"  Margin="0,10,0,0"/>
+                    <HyperlinkButton Content="HyperlinkButton" Margin="0,5"/>
+                    <!--
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="LISTBOX" Margin="0,15,40,0"/>
+                    <ListBox Margin="-7,0,5,0">
+                        <ListBoxItem Content="listboxitem01"/>
+                        <ListBoxItem Content="listboxitem02"/>
+                        <ListBoxItem Content="listboxitem03"/>
+                        <ListBoxItem Content="listboxitem04"/>
+                    </ListBox>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="SLIDER" Margin="0,20,-50,0" />
+                    <Slider Margin="59,3,0,3"/>
+                    <Slider Margin="-105,-26,0,3" Height="100" Orientation="Vertical"/>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="PROGRESSBAR"  Margin="0,15,0,0"/>
+                    <ProgressBar  Value="50" Margin="0,5"/>
+                    <ProgressBar Value="50" Margin="0,5" IsIndeterminate="True"/>
+                    -->
+                </StackPanel>
+                <StackPanel Margin="0" VerticalAlignment="Top" Grid.Column="3" Width="200">
+                    <!--
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="COMBOBOX" Margin="0,10,-93,0"/>
+                    <ComboBox Margin="0,5">
+                        <ComboBoxItem Content="ComboBoxItem"/>
+                        <ComboBoxItem Content="ComboBoxItem"/>
+                        <ComboBoxItem Content="ComboBoxItem"/>
+                    </ComboBox>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="SCROLLVIEWER"  Padding="0" Margin="0,14,0,0"/>
+                    <ScrollViewer HorizontalAlignment="Left" Height="81" Width="200">
+                        <TextBlock TextWrapping="Wrap">
+                            <Span>
+                                <Run Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec gravida laoreet vestibulum. Nunc suscipit laoreet neque, ac fermentum odio condimentum sit amet."/>
+                            </Span>
+                            <LineBreak/>
+                            <Run Text=""/>
+                        </TextBlock>
+                    </ScrollViewer>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="RADIOBUTTON" Margin="0,43,-68,0"/>
+                    <RadioButton Content="RadioButton" Margin="0,3"  HorizontalAlignment="Left" IsChecked="True"/>
+                    <RadioButton Content="RadioButton" Margin="0,3"  HorizontalAlignment="Left" IsThreeState="True"/>
+                    <RadioButton Content="RadioButton" Margin="0,3"  HorizontalAlignment="Left"/>
+                    <TextBlock Style="{StaticResource ControlLabelStyle}" TextWrapping="Wrap" Text="TEXTBLOCK" Margin="0,31,-77,0"/>
+                    <TextBlock Margin="0,5" TextWrapping="Wrap" Text="Pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer "/>
+                    -->
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Page>

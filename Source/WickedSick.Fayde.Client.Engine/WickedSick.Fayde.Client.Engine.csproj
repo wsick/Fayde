@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,7 +14,13 @@
     <RootNamespace>WickedSick.Fayde.Client.Engine</RootNamespace>
     <AssemblyName>WickedSick.Fayde.Client.Engine</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <SilverlightApplicationList>{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}|..\WickedSick.LitmusTests\WickedSick.LitmusTests.csproj|ClientBin|False</SilverlightApplicationList>
+    <SilverlightApplicationList>
+    </SilverlightApplicationList>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>4.0</OldToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -61,17 +68,11 @@
     <Content Include="Benchmarks\Matrix\glMatrix-min.js" />
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
-    <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
     <None Include="Fayde.Generic.js.old" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
     <Content Include="Global.asax" />
-    <Content Include="Images\github.png" />
-    <Content Include="Images\header_overlay.png" />
-    <Content Include="Images\testing.jpg" />
-    <Content Include="Images\tile-test.png" />
-    <Content Include="Images\twitter.png" />
     <Content Include="JavascriptTests\DependencyObjectTests.js" />
     <Content Include="JavascriptTests\FaydeAsserts.js" />
     <Content Include="JavascriptTests\MatrixTests.js" />
@@ -84,6 +85,7 @@
     <Content Include="Javascript\Controls\ColumnDefinition.js" />
     <Content Include="Javascript\Controls\ColumnDefinitionCollection.js" />
     <Content Include="Javascript\Controls\ComboBox.js" />
+    <Content Include="Javascript\Controls\ComboBoxItem.js" />
     <Content Include="Javascript\Controls\ControlTemplate.js" />
     <Content Include="Javascript\Controls\Enums.js" />
     <Content Include="Javascript\Controls\GridLength.js" />
@@ -129,17 +131,45 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Javascript\Controls\TextBoxBase.js" />
+    <Content Include="Javascript\Controls\ToolTip.js" />
+    <Content Include="Javascript\Controls\ToolTipService.js" />
     <Content Include="Javascript\Core\Collections\IListenCollectionChanged.js" />
     <Content Include="Javascript\Core\Collections\ItemCollection.js" />
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
     <Content Include="Javascript\Core\Collections\RangeCollection.js" />
+    <Content Include="Javascript\Core\EventTrigger.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Frame.js" />
+    <Content Include="Javascript\Core\TriggerAction.js" />
+    <Content Include="Javascript\Core\TriggerActionCollection.js" />
+    <Content Include="Javascript\Core\TriggerBase.js" />
     <Content Include="Javascript\Engine\AjaxJsonRequest.js" />
     <Content Include="Javascript\Engine\NavService.js" />
+    <Content Include="Javascript\Core\DeferredValueExpression.js" />
+    <Content Include="Javascript\Media\Animation\BackEase.js" />
+    <Content Include="Javascript\Media\Animation\BeginStoryboard.js" />
+    <Content Include="Javascript\Media\Animation\ColorAnimationUsingKeyFrames.js" />
+    <Content Include="Javascript\Media\Animation\ColorKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\ColorKeyFrameCollection.js" />
+    <Content Include="Javascript\Media\Animation\DoubleAnimationUsingKeyFrames.js" />
+    <Content Include="Javascript\Media\Animation\DoubleKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\DoubleKeyFrameCollection.js" />
+    <Content Include="Javascript\Media\Animation\EasingColorKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\EasingDoubleKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\EasingFunctionBase.js" />
+    <Content Include="Javascript\Media\Animation\Enums.js" />
+    <Content Include="Javascript\Media\Animation\IEasingFunction.js" />
+    <Content Include="Javascript\Media\Animation\KeySpline.js" />
     <Content Include="Javascript\Media\Animation\PointAnimation.js" />
     <Content Include="Javascript\Media\Animation\RepeatBehavior.js" />
+    <Content Include="Javascript\Media\Animation\SplineDoubleKeyFrame.js" />
+    <Content Include="Javascript\Media\Curves.js" />
+    <Content Include="Javascript\Media\Effects\BlurEffect.js" />
+    <Content Include="Javascript\Media\Effects\DropShadowEffect.js" />
+    <Content Include="Javascript\Media\Effects\Effect.js" />
+    <Content Include="Javascript\Media\RotateTransform.js" />
     <Content Include="Javascript\Media\SkewTransform.js" />
+    <Content Include="Javascript\Media\TextOptions.js" />
     <Content Include="Javascript\Media\TransformCollection.js" />
     <Content Include="Javascript\Media\TransformGroup.js" />
     <Content Include="Javascript\Media\TranslateTransform.js" />
@@ -367,7 +397,6 @@
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
     <Content Include="Silo\UnitTestValidation.htm" />
-    <Content Include="Silverlight.js" />
     <Content Include="Styles\AllControls.xml" />
     <Content Include="Styles\CheckBox.xml" />
     <Content Include="Styles\ContentPresenter.xml" />
@@ -391,23 +420,7 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="jsTestDriver.conf" />
-    <None Include="Tests\about.fayde" />
-    <None Include="Tests\binding.fayde">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Silo\heightTest.htm" />
-    <None Include="Tests\contact.fayde" />
-    <None Include="Tests\Controls\border.fayde" />
-    <None Include="Tests\Controls\button.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Controls\checkbox.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Controls\radiobutton.fayde" />
-    <None Include="Tests\Controls\scrollbar.fayde">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Docs\Tips.txt" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -418,9 +431,7 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="LitmusTests.html" />
     <Content Include="xaml.aspx" />
-    <None Include="Tests\web.fayde" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -438,31 +449,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.fap">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
-    <None Include="Tests\basic.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Media\brush.fayde" />
-    <None Include="Tests\Media\imagebrush.fayde" />
-    <None Include="Tests\Media\imaging.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Shapes\path.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Controls\scrollviewer.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Shapes\shapes.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\home.fayde">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">
@@ -475,8 +463,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
@@ -490,8 +483,9 @@
     <PreBuildEvent>"$(ProjectDir)PackageAssemblies.bat" "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>xcopy /s /y $(ProjectDir)Fayde.js $(SolutionDir)..\JsBin\
+xcopy /s /y $(ProjectDir)Fayde.order $(SolutionDir)..\JsBin\
+xcopy /s /y $(ProjectDir)Fayde.Generic.js $(SolutionDir)..\JsBin\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

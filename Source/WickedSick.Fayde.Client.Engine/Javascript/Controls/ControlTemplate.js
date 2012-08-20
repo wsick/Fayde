@@ -28,7 +28,7 @@ ControlTemplate.Instance._GetVisualTreeWithError = function (templateBindingSour
     /// <returns type="DependencyObject" />
     if (this._TempJson) {
         var namescope = new NameScope();
-        var root = JsonParser.Parse(this._TempJson, templateBindingSource, namescope);
+        var root = JsonParser.Parse(this._TempJson, templateBindingSource, namescope, this._SourceRD);
         NameScope.SetNameScope(root, namescope);
         return root;
     }

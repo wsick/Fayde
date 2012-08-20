@@ -23,6 +23,7 @@ Nullstone.Property(ListBoxItem, "ParentSelector", {
 });
 
 ListBoxItem.Instance.Init = function () {
+    this.Init$ContentControl();
     this._parentSelectorChanged = new MulticastEvent();
     this.DefaultStyleKey = this.constructor;
 };

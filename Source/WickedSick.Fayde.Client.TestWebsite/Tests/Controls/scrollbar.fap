@@ -1,0 +1,10 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot">
+        <ScrollBar Width="30" Height="300" Orientation="Vertical">
+        </ScrollBar>
+    </Grid>
+</FaydeApplication>

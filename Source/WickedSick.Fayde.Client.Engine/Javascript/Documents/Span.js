@@ -21,11 +21,13 @@ Nullstone.AutoProperties(Span, [
 
 //#endregion
 
-Span.Instance._SerializeText = function (str) {
+Span.Instance._SerializeText = function () {
+    /// <returns type="String" />
     var inlines = this.Inlines;
     var count = inlines.GetCount();
+    var str = "";
     for (var i = 0; i < count; i++) {
-        str = inlines.GetValueAt(i)._SerializeText(str);
+        str += inlines.GetValueAt(i)._SerializeText();
     }
     return str;
 };

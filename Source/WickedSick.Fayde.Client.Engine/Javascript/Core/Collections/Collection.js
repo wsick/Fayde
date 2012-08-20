@@ -65,6 +65,8 @@ Collection.Instance.Insert = function (index, value) {
         this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, value, index);
         return true;
     }
+    if (error.IsErrored())
+        throw error.CreateException();
     return false;
 };
 Collection.Instance.Remove = function (value) {

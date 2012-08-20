@@ -76,6 +76,8 @@ Storyboard.Instance.Resume = function () {
 Storyboard.Instance.Stop = function () {
     App.Instance.UnregisterStoryboard(this);
     var children = this.Children;
+    if (!children)
+        return;
     var count = children.GetCount();
     for (var i = 0; i < count; i++) {
         children.GetValueAt(i).Stop();
@@ -85,6 +87,8 @@ Storyboard.Instance.Stop = function () {
 Storyboard.Instance._HookupAnimations = function (error) {
     /// <param name="error" type="BError"></param>
     var children = this.Children;
+    if (!children)
+        return true;
     var count = children.GetCount();
     for (var i = 0; i < count; i++) {
         var animation = children.GetValueAt(i);
@@ -139,6 +143,8 @@ Storyboard.Instance._Tick = function (lastTime, nowTime) {
 };
 Storyboard.Instance.UpdateInternal = function (clockData) {
     var children = this.Children;
+    if (!children)
+        return;
     var count = children.GetCount();
     for (var i = 0; i < count; i++) {
         children.GetValueAt(i).Update(clockData.RealTicks);

@@ -6,6 +6,8 @@ var KeyTime = Nullstone.Create("KeyTime");
 
 KeyTime.Instance.Init = function () {
     this._IsUniform = true;
+    this.IsValid = true;
+    //TODO: IsValid is false for coercing from null
 };
 
 KeyTime.Instance.IsPaced = function () {

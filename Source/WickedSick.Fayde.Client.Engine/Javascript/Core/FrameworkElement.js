@@ -776,8 +776,6 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
     }
     this.PropertyChanged.Raise(this, args);
 };
-FrameworkElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-};
 
 //#endregion
 
