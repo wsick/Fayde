@@ -44,12 +44,12 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
     if (json.Type === ControlTemplate) {
         var targetType = json.Props == null ? null : json.Props.TargetType;
         var template = new json.Type(targetType, json.Content);
-        template._SourceRD = this._ContextResourceDictionary;
+        template._SourceRD = this._ContextResourceDictionary == null ? this._SourceRD : this._ContextResourceDictionary;
         return template;
     }
     if (json.Type === DataTemplate) {
         var template = new DataTemplate(json.Content);
-        template._SourceRD = this._ContextResourceDictionary;
+        template._SourceRD = this._ContextResourceDictionary == null ? this._SourceRD : this._ContextResourceDictionary;
         return template;
     }
 
