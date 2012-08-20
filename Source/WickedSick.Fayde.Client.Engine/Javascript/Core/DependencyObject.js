@@ -29,7 +29,7 @@ DependencyObject.Instance.Init = function () {
     this._CachedValues = {};
 };
 
-//#region Dependency Properties
+//#region Properties
 
 DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", undefined, undefined, false, DependencyObject._NameValidator);
 
@@ -738,7 +738,11 @@ DependencyObject.Instance.RemovePropertyChangedListener = function (ldo, propd) 
         break;
     }
 };
-DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) { };
+DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
+    if (inheritedProvider)
+        inheritedProvider.PropagateInheritedProperty(propd, this, this);
+};
 
 //#endregion
 

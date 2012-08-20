@@ -15,7 +15,7 @@
             </Style>
         </Grid.Resources>
         <StackPanel x:Name="ContentStackPanel">
-            <Grid Margin="21,0,50,0"  HorizontalAlignment="Left">
+            <Grid Margin="21,0,50,0" HorizontalAlignment="Left">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.2*"/>
                     <ColumnDefinition Width="0.2*"/>

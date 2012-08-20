@@ -10,7 +10,7 @@ Control.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
 };
 
-//#region Dependency Properties
+//#region Properties
 
 Control.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Control);
 Control.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Control);

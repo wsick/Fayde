@@ -959,8 +959,6 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
     //TODO: Check invalidation of some properties
     this.PropertyChanged.Raise(this, args);
 };
-UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-};
 
 //#endregion
 
