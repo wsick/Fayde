@@ -1,9 +1,9 @@
-﻿<Page Title="Shapes Test"
-       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-       xmlns:sys="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-       xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
-    <Grid>
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" />
             <ColumnDefinition />
@@ -21,7 +21,7 @@
             </Path.Fill>
         </Path>
         <Rectangle Grid.Row="1" Grid.Column="1" Width="100" Height="100" Opacity="0" Fill="Black">
-            
+
         </Rectangle>
     </Grid>
-</Page>
+</FaydeApplication>

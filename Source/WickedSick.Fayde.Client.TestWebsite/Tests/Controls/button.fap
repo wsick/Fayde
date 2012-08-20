@@ -1,0 +1,11 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot">
+        <Button Content="Button Test"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Margin="10" Padding="10" />
+    </Grid>
+</FaydeApplication>

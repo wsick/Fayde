@@ -1,9 +1,9 @@
-﻿<Page
-       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-       xmlns:sys="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-       xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
-    <Grid Background="#FFFFFF">
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="400" />
             <RowDefinition Height="400" />
@@ -14,23 +14,23 @@
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.Background>
-                <ImageBrush Stretch="None" ImageSource="tile-test.png" />
+                <ImageBrush Stretch="None" ImageSource="../../Images/tile-test.png" />
             </Grid.Background>
         </Grid>
         <Grid Grid.Column="1">
             <Grid.Background>
-                <ImageBrush Stretch="Fill" ImageSource="tile-test.png" />
+                <ImageBrush Stretch="Fill" ImageSource="../../Images/tile-test.png" />
             </Grid.Background>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.Background>
-                <ImageBrush Stretch="Uniform" ImageSource="tile-test.png" />
+                <ImageBrush Stretch="Uniform" ImageSource="../../Images/tile-test.png" />
             </Grid.Background>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="1">
             <Grid.Background>
-                <ImageBrush Stretch="UniformToFill" ImageSource="tile-test.png" />
+                <ImageBrush Stretch="UniformToFill" ImageSource="../../Images/tile-test.png" />
             </Grid.Background>
         </Grid>
     </Grid>
-</Page>
+</FaydeApplication>

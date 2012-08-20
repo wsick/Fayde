@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
-    <Grid Background="Green">
-        <Border BorderBrush="White" BorderThickness="10" Background="Black" Margin="5" Width="100" Height="100">
-        
-        </Border>
-    </Grid>
-</Page>

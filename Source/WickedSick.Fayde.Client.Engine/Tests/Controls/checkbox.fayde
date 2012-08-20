@@ -1,5 +1,0 @@
-﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-      Title="Fayde CheckBox Test">
-    <CheckBox>Heyo</CheckBox>
-</Page>

@@ -3,8 +3,8 @@
     xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
     Debug="true">
     <FaydeApplication.UriMappings>
-        <UriMapping Uri="" MappedUri="/Tests/home.fayde" />
-        <UriMapping Uri="/{pageName}" MappedUri="/Tests/{pageName}.fayde" />
+        <UriMapping Uri="" MappedUri="/Views/home.fayde" />
+        <UriMapping Uri="/{pageName}" MappedUri="/Views/{pageName}.fayde" />
     </FaydeApplication.UriMappings>
     <Grid Margin="5">
         <Grid.ColumnDefinitions>

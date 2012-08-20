@@ -14,7 +14,8 @@
     <RootNamespace>WickedSick.Fayde.Client.Engine</RootNamespace>
     <AssemblyName>WickedSick.Fayde.Client.Engine</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <SilverlightApplicationList>{8EBC2ED0-1EDD-4204-BD21-1F5EF6B6494F}|..\WickedSick.LitmusTests\WickedSick.LitmusTests.csproj|ClientBin|False</SilverlightApplicationList>
+    <SilverlightApplicationList>
+    </SilverlightApplicationList>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -67,17 +68,11 @@
     <Content Include="Benchmarks\Matrix\glMatrix-min.js" />
     <Content Include="Benchmarks\Matrix\Matrix3D.js" />
     <Content Include="Benchmarks\Matrix\test.html" />
-    <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
     <None Include="Fayde.Generic.js.old" />
     <Content Include="Docs\DebugServices.txt" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
     <Content Include="Global.asax" />
-    <Content Include="Images\github.png" />
-    <Content Include="Images\header_overlay.png" />
-    <Content Include="Images\testing.jpg" />
-    <Content Include="Images\tile-test.png" />
-    <Content Include="Images\twitter.png" />
     <Content Include="JavascriptTests\DependencyObjectTests.js" />
     <Content Include="JavascriptTests\FaydeAsserts.js" />
     <Content Include="JavascriptTests\MatrixTests.js" />
@@ -402,7 +397,6 @@
     <Content Include="Silo\image-load.html" />
     <Content Include="Silo\RawPath\quad-bezier-bounds.html" />
     <Content Include="Silo\UnitTestValidation.htm" />
-    <Content Include="Silverlight.js" />
     <Content Include="Styles\AllControls.xml" />
     <Content Include="Styles\CheckBox.xml" />
     <Content Include="Styles\ContentPresenter.xml" />
@@ -426,25 +420,8 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="jsTestDriver.conf" />
-    <None Include="Tests\about.fayde" />
-    <None Include="Tests\binding.fayde">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Silo\heightTest.htm" />
-    <None Include="Tests\contact.fayde" />
-    <None Include="Tests\Controls\border.fayde" />
-    <None Include="Tests\Controls\button.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Controls\checkbox.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Controls\radiobutton.fayde" />
-    <None Include="Tests\Controls\scrollbar.fayde">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="Docs\Tips.txt" />
-    <Content Include="Tests\core_controls.fayde" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -454,9 +431,7 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="LitmusTests.html" />
     <Content Include="xaml.aspx" />
-    <None Include="Tests\web.fayde" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -474,31 +449,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.fap">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Fayde.order" />
     <None Include="PackageAssemblies.bat" />
-    <None Include="Tests\basic.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Media\brush.fayde" />
-    <None Include="Tests\Media\imagebrush.fayde" />
-    <None Include="Tests\Media\imaging.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Shapes\path.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Controls\scrollviewer.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\Shapes\shapes.fayde">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Tests\home.fayde">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WickedSick.Server.Framework.Fayde\WickedSick.Server.Framework.Fayde.csproj">
@@ -531,8 +483,9 @@
     <PreBuildEvent>"$(ProjectDir)PackageAssemblies.bat" "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>xcopy /s /y $(ProjectDir)Fayde.js $(SolutionDir)..\JsBin\
+xcopy /s /y $(ProjectDir)Fayde.order $(SolutionDir)..\JsBin\
+xcopy /s /y $(ProjectDir)Fayde.Generic.js $(SolutionDir)..\JsBin\</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

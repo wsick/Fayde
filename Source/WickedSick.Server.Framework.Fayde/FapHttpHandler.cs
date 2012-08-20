@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Web;
 using log4net;
 using WickedSick.Server.XamlParser;
 using WickedSick.Server.XamlParser.Elements;
-using WickedSick.Server.XamlParser.Elements.Controls;
 
 namespace WickedSick.Server.Framework.Fayde
 {
@@ -21,6 +21,9 @@ namespace WickedSick.Server.Framework.Fayde
 
         public void ProcessRequest(HttpContext context)
         {
+            bool debug = false;
+            bool.TryParse(ConfigurationManager.AppSettings["FAP_DEBUG"], out debug);
+
             var fap = GetFaydeApplication(context);
             if (fap == null)
             {
@@ -35,11 +38,12 @@ namespace WickedSick.Server.Framework.Fayde
             }
             else
             {
-#if DEBUG
-                var orderFile = FindOrderFile(context.Request.PhysicalApplicationPath);
-                Includes = CollectIncludes(orderFile).ToList();
-                DirectoryResolution = "";
-#endif
+                if (debug)
+                {
+                    var orderFile = FindOrderFile(context.Request.MapPath("~/"));
+                    Includes = CollectIncludes(orderFile).ToList();
+                    DirectoryResolution = context.Request.ApplicationPath + "/" + ConfigurationManager.AppSettings["FAP_DEBUG_ROOT"];
+                }
                 WriteFapFull(fap, context.Response.OutputStream);
             }
         }
@@ -122,15 +126,10 @@ namespace WickedSick.Server.Framework.Fayde
         }
 
 
-        private string FindOrderFile(string execPath)
+        private string FindOrderFile(string appPath)
         {
-            var fi = new FileInfo(execPath);
-            var di = fi.Directory;
-            while (di != null && !di.GetFiles("Fayde.order", SearchOption.TopDirectoryOnly).Any())
-            {
-                di = di.Parent;
-            }
-            return new FileInfo(Path.Combine(di.FullName, "Fayde.order")).FullName;
+            var di = new DirectoryInfo(appPath);
+            return new FileInfo(Path.Combine(di.Parent.Parent.FullName, "JsBin", "Fayde.order")).FullName;
         }
 
         private IEnumerable<string> CollectIncludes(string orderFilepath)

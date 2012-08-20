@@ -1,9 +1,9 @@
-﻿<Page Title="Fayde Imaging"
-       xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
-       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-       xmlns:sys="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-       xmlns:vsm="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements">
-    <Grid Background="#FFFFFF00">
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot" Background="#FFFFFF00">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400" />
             <ColumnDefinition Width="400" />
@@ -29,4 +29,4 @@
             <TextBlock Foreground="#FFFFFFFF" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" Text="UniformToFill" />
         </Grid>
     </Grid>
-</Page>
+</FaydeApplication>

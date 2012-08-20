@@ -1,0 +1,11 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core">
+    <FaydeApplication.UriMappings>
+    </FaydeApplication.UriMappings>
+    <Grid x:Name="LayoutRoot">
+        <ScrollViewer Width="300" Height="300">
+            <Image Width="600" Height="480" Stretch="UniformToFill" Source="../../Images/testing.jpg" />
+        </ScrollViewer>
+    </Grid>
+</FaydeApplication>
