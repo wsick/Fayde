@@ -4,6 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:WickedSick.LitmusTests"
     xmlns:tests="clr-namespace:WickedSick.LitmusTests.Tests">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Cosmopolitan/CoreStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid x:Name="LayoutRoot">
         <tests:ScrollViewerTest />
     </Grid>
