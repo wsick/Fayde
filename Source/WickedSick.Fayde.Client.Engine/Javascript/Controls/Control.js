@@ -135,6 +135,10 @@ Control.Instance._OnPropertyChanged = function (args, error) {
     }
 
     if (args.Property._ID === Control.TemplateProperty._ID) {
+        var subtree = this._GetSubtreeObject();
+        if (subtree)
+            this._ElementRemoved(subtree);
+        this._InvalidateMeasure();
     } else if (args.Property._ID === Control.PaddingProperty._ID
         || args.Property._ID === Control.BorderThicknessProperty._ID) {
         this._InvalidateMeasure();
