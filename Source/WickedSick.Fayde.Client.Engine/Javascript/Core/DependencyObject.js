@@ -459,6 +459,8 @@ DependencyObject.Instance._PropertyHasValueNoAutoCreate = function (propd, obj) 
     return v === undefined ? obj === undefined : v == obj;
 };
 DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, propd, oldProviderValue, newProviderValue, notifyListeners, setParent, mergeNamesOnSetParent, error) {
+    delete this._CachedValues[propd._ID];
+
     var propPrecEnum = _PropertyPrecedence;
     var bitmask = this._ProviderBitmasks[propd._ID] || 0;
     if (newProviderValue !== undefined)
@@ -574,7 +576,6 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
 
     //Construct property changed event args and raise
     if (notifyListeners) {
-        this._CachedValues[propd._ID] = newValue;
         var args = {
             Property: propd,
             OldValue: oldValue,
