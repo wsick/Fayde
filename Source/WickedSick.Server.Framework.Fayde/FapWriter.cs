@@ -64,7 +64,7 @@ namespace WickedSick.Server.Framework.Fayde
         public void WriteAppLoadScript(FaydeApplication fap)
         {
             Writer.WriteLine("\t\t<script type=\"text/javascript\">");
-            Writer.WriteLine("\t\t\t$(document).ready(function () {");
+            Writer.WriteLine("\t\t\tfunction InitializeFayde() {");
             Writer.WriteLine("\t\t\t\tApp.Instance = new App();");
 
             if (fap.Resources != null)
@@ -84,13 +84,13 @@ namespace WickedSick.Server.Framework.Fayde
 
             Writer.WriteLine("\t\t\t\tApp.Instance.LoadInitial($(\"#canvas\"), json);");
 
-            Writer.WriteLine("\t\t\t});");
+            Writer.WriteLine("\t\t\t};");
             Writer.WriteLine("\t\t</script>");
         }
 
         public void WriteBodyStart()
         {
-            Writer.WriteLine("\t<body onmousedown=\"return false;\" style=\"margin: 0;\">");
+            Writer.WriteLine("\t<body onload=\"InitializeFayde()\" onmousedown=\"return false;\" style=\"margin: 0;\">");
         }
         public void WriteBodyEnd()
         {
