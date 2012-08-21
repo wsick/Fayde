@@ -451,6 +451,8 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             while (check != typeof(object))
             {
+                if (check == null)
+                    break;
                 var cur = check.IsGenericType ? check.GetGenericTypeDefinition() : check;
                 if (generic == cur)
                     return true;
