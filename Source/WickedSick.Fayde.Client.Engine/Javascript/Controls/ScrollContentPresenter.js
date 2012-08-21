@@ -100,8 +100,10 @@ ScrollContentPresenter.Instance.ChangeVerticalOffset = function (offset) {
     this._InvalidateArrange();
 };
 ScrollContentPresenter._ValidateInputOffset = function (offset) {
-    if (!isNaN(offset))
+    if (!isNaN(offset)) {
         return Math.max(0, offset);
+    }
+
     throw new ArgumentException("Offset is not a number.");
 };
 
@@ -322,10 +324,10 @@ ScrollContentPresenter.Instance.LineRight = function () {
 //#region Mouse Wheel
 
 ScrollContentPresenter.Instance.MouseWheelUp = function () {
-    this.ChangeVerticalOffset(this.GetVerticalOffset() + 48);
+    this.ChangeVerticalOffset(this.GetVerticalOffset() - 48);
 };
 ScrollContentPresenter.Instance.MouseWheelDown = function () {
-    this.ChangeVerticalOffset(this.GetVerticalOffset() - 48);
+    this.ChangeVerticalOffset(this.GetVerticalOffset() + 48);
 };
 ScrollContentPresenter.Instance.MouseWheelLeft = function () {
     this.ChangeHorizontalOffset(this.GetHorizontalOffset() - 48);

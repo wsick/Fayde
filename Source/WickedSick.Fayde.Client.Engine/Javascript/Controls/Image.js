@@ -200,6 +200,7 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     ctx.PreTransform(metrics.Matrix);
     var canvasCtx = ctx.GetCanvasContext();
     canvasCtx.drawImage(source._Image, 0, 0);
+    DrawDebug("Image: [" + source._Image.src + "]");
     ctx.Restore();
 
     source.Unlock();
