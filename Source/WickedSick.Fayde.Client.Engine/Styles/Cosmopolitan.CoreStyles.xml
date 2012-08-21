@@ -276,24 +276,6 @@
     <Double x:Key="ControlContentFontSize">10</Double>
     <!-- FONTS -->
 
-    <!--ContentControl Style-->
-    <Style x:Key="DefaultContentControlStyle" TargetType="ContentControl">
-        <Setter Property="IsEnabled" Value="true" />
-        <Setter Property="Foreground" Value="#FF000000" />
-        <Setter Property="HorizontalContentAlignment" Value="Left" />
-        <Setter Property="VerticalContentAlignment" Value="Top" />
-        <Setter Property="Cursor" Value="Arrow" />
-        <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}" />
-        <Setter Property="FontSize" Value="{StaticResource ContentFontSize}" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ContentControl">
-                    <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
     <!--SearchButtonStyle-->
     <Style x:Key="SearchButtonStyle" TargetType="HyperlinkButton">
         <Setter Property="Margin" Value="-22,0,20,0" />
@@ -2447,7 +2429,26 @@
 
     <!-- Implicit Styles -->
     <!-- When defining your own styles, set "based on" the same way to keep control theming -->
-    <Style TargetType="ContentControl" BasedOn="{StaticResource DefaultContentControlStyle}" />
+    <Style TargetType="ContentPresenter">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style TargetType="ContentControl">
+        <Setter Property="IsEnabled" Value="true" />
+        <Setter Property="Foreground" Value="#FF000000" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="VerticalContentAlignment" Value="Top" />
+        <Setter Property="Cursor" Value="Arrow" />
+        <Setter Property="FontFamily" Value="{StaticResource ContentFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource ContentFontSize}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}" />
     <Style TargetType="HyperlinkButton" BasedOn="{StaticResource DefaultHyperlinkButtonStyle}" />
     <Style TargetType="TextBox" BasedOn="{StaticResource DefaultTextBoxStyle}" />

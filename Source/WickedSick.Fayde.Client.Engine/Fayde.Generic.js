@@ -1458,83 +1458,6 @@ App.GetGenericResourceDictionary = function () {
         },
         {
             Type: Style,
-            Key: "DefaultContentControlStyle",
-            Props: {
-                TargetType: ContentControl
-            },
-            Children: [
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "IsEnabled"),
-                    Value: "true"
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Foreground"),
-                    Value: "#FF000000"
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "HorizontalContentAlignment"),
-                    Value: "Left"
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "VerticalContentAlignment"),
-                    Value: "Top"
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Cursor"),
-                    Value: "Arrow"
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "FontFamily"),
-                    Value: new StaticResourceMarkup("ContentFontFamily")
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "FontSize"),
-                    Value: new StaticResourceMarkup("ContentFontSize")
-                }
-            },
-            {
-                Type: Setter,
-                Props: {
-                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Template"),
-                    Value: {
-                        Type: ControlTemplate,
-                        Props: {
-                            TargetType: ContentControl
-                        },
-                        Content: {
-                            Type: ContentPresenter,
-                            Props: {
-                                ContentTemplate: new TemplateBindingMarkup("ContentTemplate")
-                            },
-                            Content: new TemplateBindingMarkup("Content")
-                        }
-                    }
-                }
-            }]
-
-        },
-        {
-            Type: Style,
             Key: "SearchButtonStyle",
             Props: {
                 TargetType: HyperlinkButton
@@ -11707,9 +11630,100 @@ App.GetGenericResourceDictionary = function () {
         {
             Type: Style,
             Props: {
-                TargetType: ContentControl,
-                BasedOn: new StaticResourceMarkup("DefaultContentControlStyle")
-            }
+                TargetType: ContentPresenter
+            },
+            Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentPresenter, "HorizontalAlignment"),
+                    Value: "Left"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentPresenter, "VerticalAlignment"),
+                    Value: "Top"
+                }
+            }]
+
+        },
+        {
+            Type: Style,
+            Props: {
+                TargetType: ContentControl
+            },
+            Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "IsEnabled"),
+                    Value: "true"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Foreground"),
+                    Value: "#FF000000"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "HorizontalContentAlignment"),
+                    Value: "Left"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "VerticalContentAlignment"),
+                    Value: "Top"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Cursor"),
+                    Value: "Arrow"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "FontFamily"),
+                    Value: new StaticResourceMarkup("ContentFontFamily")
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "FontSize"),
+                    Value: new StaticResourceMarkup("ContentFontSize")
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Template"),
+                    Value: {
+                        Type: ControlTemplate,
+                        Props: {
+                            TargetType: ContentControl
+                        },
+                        Content: {
+                            Type: ContentPresenter,
+                            Props: {
+                                ContentTemplate: new TemplateBindingMarkup("ContentTemplate")
+                            },
+                            Content: new TemplateBindingMarkup("Content")
+                        }
+                    }
+                }
+            }]
+
         },
         {
             Type: Style,
