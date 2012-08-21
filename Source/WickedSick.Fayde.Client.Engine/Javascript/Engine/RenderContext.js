@@ -81,6 +81,7 @@ _RenderContext.Instance.Restore = function () {
 
 _RenderContext.Instance.Rect = function (rect) {
     var ctx = this._Surface._Ctx;
+    ctx.beginPath();
     ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
     DrawDebug("Rect: " + rect.toString());
 };
