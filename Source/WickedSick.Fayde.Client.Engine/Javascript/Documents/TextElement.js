@@ -51,15 +51,12 @@ TextElement.Instance.GetDirection = function () { return FlowDirection.LeftToRig
 
 TextElement.Instance._SerializeText = function (str) { return str; };
 TextElement.Instance._UpdateFont = function (force) {
-    var changed = false;
-
-    changed = changed || this._Font.SetFamily(this.FontFamily);
-    changed = changed || this._Font.SetStretch(this.FontStretch);
-    changed = changed || this._Font.SetStyle(this.FontStyle);
-    changed = changed || this._Font.SetWeight(this.FontWeight);
-    changed = changed || this._Font.SetSize(this.FontSize);
-
-    return changed || force;
+    this._Font.Family = this.FontFamily;
+    this._Font.Stretch = this.FontStretch;
+    this._Font.Style = this.FontStyle;
+    this._Font.Weight = this.FontWeight;
+    this._Font.Size = this.FontSize;
+    return this._Font.IsChanged || force;
 };
 TextElement.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TextElement) {

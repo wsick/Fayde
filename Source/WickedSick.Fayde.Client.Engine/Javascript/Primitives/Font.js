@@ -11,61 +11,56 @@ Font.Instance.Init = function () {
     this._Weight = Font.DEFAULT_WEIGHT;
     this._Size = Font.DEFAULT_SIZE;
 };
-
-Font.Instance.GetFamily = function () {
-    return this._Family;
-};
-Font.Instance.SetFamily = function (value) {
-    if (this._Family == value)
-        return false;
-    this._Family = value;
-    this._PurgeCache();
-    return true;
-};
-
-Font.Instance.GetStretch = function () {
-    return this._Stretch;
-};
-Font.Instance.SetStretch = function (value) {
-    if (this._Stretch == value)
-        return false;
-    this._Stretch = value;
-    this._PurgeCache();
-    return true;
-};
-
-Font.Instance.GetStyle = function () {
-    return this._Style;
-};
-Font.Instance.SetStyle = function (value) {
-    if (this._Style == value)
-        return false;
-    this._Style = value;
-    this._PurgeCache();
-    return true;
-};
-
-Font.Instance.GetWeight = function () {
-    return this._Weight;
-};
-Font.Instance.SetWeight = function (value) {
-    if (this._Weight == value)
-        return false;
-    this._Weight = value;
-    this._PurgeCache();
-    return true;
-};
-
-Font.Instance.GetSize = function () {
-    return this._Size;
-};
-Font.Instance.SetSize = function (value) {
-    if (this._Size == value)
-        return false;
-    this._Size = value;
-    this._PurgeCache();
-    return true;
-};
+Nullstone.Property(Font, "Family", {
+    get: function () { return this._Family; },
+    set: function (value) {
+        if (this._Family == value)
+            return;
+        this._Family = value;
+        this._PurgeCache();
+    }
+});
+Nullstone.Property(Font, "Stretch", {
+    get: function () { return this._Stretch; },
+    set: function (value) {
+        if (this._Stretch == value)
+            return;
+        this._Stretch = value;
+        this._PurgeCache();
+    }
+});
+Nullstone.Property(Font, "Style", {
+    get: function () { return this._Style; },
+    set: function (value) {
+        if (this._Style == value)
+            return;
+        this._Style = value;
+        this._PurgeCache();
+    }
+});
+Nullstone.Property(Font, "Weight", {
+    get: function () { return this._Weight; },
+    set: function (value) {
+        if (this._Weight == value)
+            return;
+        this._Weight = value;
+        this._PurgeCache();
+    }
+});
+Nullstone.Property(Font, "Size", {
+    get: function () { return this._Size; },
+    set: function (value) {
+        if (this._Size == value)
+            return;
+        this._Size = value;
+        this._PurgeCache();
+    }
+});
+Nullstone.Property(Font, "IsChanged", {
+    get: function () {
+        return this._CachedTranslation == null;
+    }
+});
 
 Font.Instance.GetActualHeight = function () {
     return Surface._MeasureHeight(this);
@@ -74,8 +69,8 @@ Font.Instance.GetActualHeight = function () {
 Font.Instance._Descender = function () { return 0.0; }; //most likely removable
 Font.Instance._Ascender = function () { return 0.0; }; //most likely removable
 Font.Instance._PurgeCache = function () {
-    this._CachedHeight = undefined;
-    this._CachedTranslation = undefined;
+    delete this._CachedHeight;
+    delete this._CachedTranslation;
 };
 
 Font.Instance.ToHtml5Object = function () {
@@ -84,17 +79,16 @@ Font.Instance.ToHtml5Object = function () {
     return this._CachedTranslation;
 };
 Font.Instance._BuildTranslation = function () {
+    //Format: font-style font-variant font-weight font-size/line-height font-family
+    //Font Styles: normal, italic, oblique
+    //Font Variants: normal, small-caps
+    //Font Weights: normal, bold, bolder, lighter, 100, 200, 300, 400, 500, 600, 700, 800, 900
     var s = "";
-    var style = this.GetStyle();
-    var weight = this.GetWeight();
-    if (style && style !== FontStyle.Normal)
-        s += style.toString() + " ";
-    if (weight && weight !== FontWeight.Normal)
-        s += weight.toString() + " ";
-    s += this.GetSize() + "px ";
-    var family = this.GetFamily();
-    if (family)
-        s += family.toString();
+    s += this.Style.toString() + " ";
+    s += "normal ";
+    s += this.Weight.toString() + " ";
+    s += this.Size + "px ";
+    s += this.Family.toString();
     return s;
 };
 

@@ -265,19 +265,19 @@ TextBoxBase.Instance.Redo = function () {
 TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
     var changed = _TextBoxModelChanged.Nothing;
     if (args.Property._ID === Control.FontFamilyProperty._ID) {
-        this._Font.SetFamily(args.NewValue);
+        this._Font.Family = args.NewValue;
         changed = _TextBoxModelChanged.Font;
     } else if (args.Property._ID === Control.FontSizeProperty._ID) {
-        this._Font.SetSize(args.NewValue);
+        this._Font.Size = args.NewValue;
         changed = _TextBoxModelChanged.Font;
     } else if (args.Property._ID === Control.FontStretchProperty._ID) {
-        this._Font.SetStretch(args.NewValue);
+        this._Font.Stretch = args.NewValue;
         changed = _TextBoxModelChanged.Font;
     } else if (args.Property._ID === Control.FontStyleProperty._ID) {
-        this._Font.SetStyle(args.NewValue);
+        this._Font.Style = args.NewValue;
         changed = _TextBoxModelChanged.Font;
     } else if (args.Property._ID === Control.FontWeightProperty._ID) {
-        this._Font.SetWeight(args.NewValue);
+        this._Font.Weight = args.NewValue;
         changed = _TextBoxModelChanged.Font;
     }
 

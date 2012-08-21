@@ -155,16 +155,12 @@ TextBlock.Instance.Layout = function (constraint) {
     this._Dirty = false;
 };
 TextBlock.Instance._UpdateFont = function (force) {
-    var changed = false;
-
-    changed = changed || this._Font.SetFamily(this.FontFamily);
-    changed = changed || this._Font.SetStretch(this.FontStretch);
-    changed = changed || this._Font.SetStyle(this.FontStyle);
-    changed = changed || this._Font.SetWeight(this.FontWeight);
-    changed = changed || this._Font.SetSize(this.FontSize);
-
-    changed = changed || force;
-    return changed;
+    this._Font.Family = this.FontFamily;
+    this._Font.Stretch = this.FontStretch;
+    this._Font.Style = this.FontStyle;
+    this._Font.Weight = this.FontWeight;
+    this._Font.Size = this.FontSize;
+    return this._Font.IsChanged || force;
 };
 TextBlock.Instance._UpdateFonts = function (force) {
     if (!this._UpdateFont(force))
