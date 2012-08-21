@@ -126,6 +126,10 @@ FrameworkElement.Instance._GetSizeForBrush = function () {
     };
 };
 
+FrameworkElement.Instance._PurgeSizeCache = function () {
+    delete this._CachedValues[FrameworkElement.ActualWidthProperty];
+    delete this._CachedValues[FrameworkElement.ActualHeightProperty];
+};
 FrameworkElement.Instance._ComputeActualSize = function () {
     if (this.Visibility !== Visibility.Visible)
         return new Size(0.0, 0.0);
@@ -662,6 +666,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 var last = LayoutInformation.GetLastRenderSize(fe);
                 if (last) {
                     fe._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                    fe._PurgeSizeCache();
                     fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._GetRenderSize()));
                 }
             }
