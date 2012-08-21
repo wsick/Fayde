@@ -1458,6 +1458,83 @@ App.GetGenericResourceDictionary = function () {
         },
         {
             Type: Style,
+            Key: "DefaultContentControlStyle",
+            Props: {
+                TargetType: ContentControl
+            },
+            Children: [
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "IsEnabled"),
+                    Value: "true"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Foreground"),
+                    Value: "#FF000000"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "HorizontalContentAlignment"),
+                    Value: "Left"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "VerticalContentAlignment"),
+                    Value: "Top"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Cursor"),
+                    Value: "Arrow"
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "FontFamily"),
+                    Value: new StaticResourceMarkup("ContentFontFamily")
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "FontSize"),
+                    Value: new StaticResourceMarkup("ContentFontSize")
+                }
+            },
+            {
+                Type: Setter,
+                Props: {
+                    Property: DependencyProperty.GetDependencyProperty(ContentControl, "Template"),
+                    Value: {
+                        Type: ControlTemplate,
+                        Props: {
+                            TargetType: ContentControl
+                        },
+                        Content: {
+                            Type: ContentPresenter,
+                            Props: {
+                                ContentTemplate: new TemplateBindingMarkup("ContentTemplate")
+                            },
+                            Content: new TemplateBindingMarkup("Content")
+                        }
+                    }
+                }
+            }]
+
+        },
+        {
+            Type: Style,
             Key: "SearchButtonStyle",
             Props: {
                 TargetType: HyperlinkButton
@@ -1752,6 +1829,7 @@ App.GetGenericResourceDictionary = function () {
                                 Props: {
                                     HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
                                     Margin: new TemplateBindingMarkup("Padding"),
+                                    Text: new TemplateBindingMarkup("Content"),
                                     TextDecorations: TextDecorations.Underline,
                                     Visibility: Visibility.Collapsed,
                                     VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
@@ -1761,8 +1839,7 @@ App.GetGenericResourceDictionary = function () {
                                             Color: new StaticResourceMarkup("HighlightDarkColor")
                                         }
                                     }
-                                },
-                                Content: new TemplateBindingMarkup("Content")
+                                }
                             },
                             {
                                 Type: TextBlock,
@@ -1771,6 +1848,7 @@ App.GetGenericResourceDictionary = function () {
                                     Foreground: new StaticResourceMarkup("DisabledForegroundBrush"),
                                     HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
                                     Margin: new TemplateBindingMarkup("Padding"),
+                                    Text: new TemplateBindingMarkup("Content"),
                                     Visibility: Visibility.Collapsed,
                                     VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment")
                                 },
@@ -1779,8 +1857,7 @@ App.GetGenericResourceDictionary = function () {
                                     Prop: "ZIndex",
                                     Value: 1
                                 }
-                                ],
-                                Content: new TemplateBindingMarkup("Content")
+                                ]
                             },
                             {
                                 Type: ContentControl,
@@ -2107,9 +2184,9 @@ App.GetGenericResourceDictionary = function () {
                             MaxWidth: 250,
                             Margin: new Thickness(8, 4, 8, 4),
                             TextWrapping: TextWrapping.Wrap,
+                            Text: new BindingMarkup({ Mode: BindingMode.OneTime, Path: "(Validation.Errors)[0].ErrorContent" }),
                             UseLayoutRounding: false
-                        },
-                        Content: new BindingMarkup({ Mode: BindingMode.OneTime, Path: "(Validation.Errors)[0].ErrorContent" })
+                        }
                     }
                 }]
 
@@ -2338,9 +2415,9 @@ App.GetGenericResourceDictionary = function () {
                             MaxWidth: 250,
                             UseLayoutRounding: false,
                             Foreground: new StaticResourceMarkup("WhiteColorBrush"),
+                            Text: new BindingMarkup({ Mode: BindingMode.OneTime, Path: "(Validation.Errors)[0].Exception.Message" }),
                             TextWrapping: TextWrapping.Wrap
-                        },
-                        Content: new BindingMarkup({ Mode: BindingMode.OneTime, Path: "(Validation.Errors)[0].Exception.Message" })
+                        }
                     }
                 }]
 
@@ -2962,6 +3039,7 @@ App.GetGenericResourceDictionary = function () {
                                 Props: {
                                     HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
                                     Margin: new TemplateBindingMarkup("Padding"),
+                                    Text: new TemplateBindingMarkup("Content"),
                                     TextDecorations: TextDecorations.Underline,
                                     Visibility: Visibility.Collapsed,
                                     VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment"),
@@ -2971,8 +3049,7 @@ App.GetGenericResourceDictionary = function () {
                                             Color: new StaticResourceMarkup("HighlightDarkColor")
                                         }
                                     }
-                                },
-                                Content: new TemplateBindingMarkup("Content")
+                                }
                             },
                             {
                                 Type: TextBlock,
@@ -2981,6 +3058,7 @@ App.GetGenericResourceDictionary = function () {
                                     Foreground: new StaticResourceMarkup("DisabledForegroundBrush"),
                                     HorizontalAlignment: new TemplateBindingMarkup("HorizontalContentAlignment"),
                                     Margin: new TemplateBindingMarkup("Padding"),
+                                    Text: new TemplateBindingMarkup("Content"),
                                     Visibility: Visibility.Collapsed,
                                     VerticalAlignment: new TemplateBindingMarkup("VerticalContentAlignment")
                                 },
@@ -2989,8 +3067,7 @@ App.GetGenericResourceDictionary = function () {
                                     Prop: "ZIndex",
                                     Value: 1
                                 }
-                                ],
-                                Content: new TemplateBindingMarkup("Content")
+                                ]
                             },
                             {
                                 Type: ContentControl,
@@ -11626,6 +11703,13 @@ App.GetGenericResourceDictionary = function () {
                 }
             }]
 
+        },
+        {
+            Type: Style,
+            Props: {
+                TargetType: ContentControl,
+                BasedOn: new StaticResourceMarkup("DefaultContentControlStyle")
+            }
         },
         {
             Type: Style,
