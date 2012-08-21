@@ -64,6 +64,7 @@ Surface.Instance.RegisterEvents = function () {
 
     //IE9, Chrome, Safari, Opera
     canvas.addEventListener("mousewheel", function (e) { surface._HandleWheel(window.event ? window.event : e); });
+    //Firefox
     canvas.addEventListener("DOMMouseScroll", function (e) { surface._HandleWheel(window.event ? window.event : e); });
 
     document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
