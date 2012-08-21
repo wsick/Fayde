@@ -77,9 +77,12 @@ Border.Instance._Render = function (ctx, region) {
 
     var thickness = this.BorderThickness;
 
+    var fillOnly = !borderBrush || thickness.IsEmpty();
+    if (fillOnly && !backgroundBrush)
+        return;
     ctx.Save();
     this._RenderLayoutClip(ctx);
-    if (!borderBrush || thickness.IsEmpty())
+    if (fillOnly)
         this._RenderFillOnly(ctx, extents, backgroundBrush, thickness, this.CornerRadius);
     else if (thickness.IsBalanced())
         this._RenderBalanced(ctx, extents, backgroundBrush, borderBrush, thickness, this.CornerRadius);
