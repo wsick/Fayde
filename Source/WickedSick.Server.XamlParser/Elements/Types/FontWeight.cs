@@ -3,9 +3,15 @@ namespace WickedSick.Server.XamlParser.Elements.Types
 {
     public enum FontWeight
     {
-        Lighter,
+        Thin,
+        ExtraLight,
+        Light,
         Normal,
-        Bolder,
+        Medium,
+        SemiBold,
         Bold,
+        ExtraBold,
+        Black,
+        ExtraBlack,
     }
 }

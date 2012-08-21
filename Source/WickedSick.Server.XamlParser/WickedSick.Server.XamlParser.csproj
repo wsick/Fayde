@@ -316,9 +316,7 @@
     <Compile Include="Elements\Types\Duration.cs" />
     <Compile Include="Elements\Types\FillRule.cs" />
     <Compile Include="TypeConverters\FontFamilyConverter.cs" />
-    <Compile Include="TypeConverters\FontSizeConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
-    <Compile Include="Elements\Types\FontSize.cs" />
     <Compile Include="Elements\Types\GridLength.cs" />
     <Compile Include="Elements\Types\HorizontalAlignment.cs" />
     <Compile Include="TypeConverters\ImageSourceConverter.cs" />

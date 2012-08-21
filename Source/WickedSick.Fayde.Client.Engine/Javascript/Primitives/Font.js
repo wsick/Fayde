@@ -91,7 +91,7 @@ Font.Instance._BuildTranslation = function () {
         s += style.toString() + " ";
     if (weight && weight !== FontWeight.Normal)
         s += weight.toString() + " ";
-    s += this.GetSize() + " ";
+    s += this.GetSize() + "px ";
     var family = this.GetFamily();
     if (family)
         s += family.toString();
@@ -102,7 +102,7 @@ Font.DEFAULT_FAMILY = "Segoe UI, Lucida Sans Unicode, Verdana";
 Font.DEFAULT_STRETCH = FontStretch.Normal;
 Font.DEFAULT_STYLE = FontStyle.Normal;
 Font.DEFAULT_WEIGHT = FontWeight.Normal;
-Font.DEFAULT_SIZE = "14px";
+Font.DEFAULT_SIZE = 14;
 
 Nullstone.FinishCreate(Font);
 //#endregion
