@@ -49,7 +49,6 @@ namespace WickedSick.Server.Framework.Fayde
 
         public void WriteScriptIncludes(string directoryResolution, IEnumerable<string> includes)
         {
-            Writer.WriteLine(string.Format("\t\t<script src=\"{0}jquery-1.7.js\" type=\"text/javascript\"></script>", directoryResolution));
 #if DEBUG
             foreach (var include in includes)
             {
@@ -82,7 +81,7 @@ namespace WickedSick.Server.Framework.Fayde
                 Writer.Write("{}");
             Writer.WriteLine(";");
 
-            Writer.WriteLine("\t\t\t\tApp.Instance.LoadInitial($(\"#canvas\"), json);");
+            Writer.WriteLine("\t\t\t\tApp.Instance.LoadInitial(document.getElementById(\"canvas\"), json);");
 
             Writer.WriteLine("\t\t\t};");
             Writer.WriteLine("\t\t</script>");

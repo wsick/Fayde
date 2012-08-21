@@ -27,14 +27,13 @@ Surface.Instance.Init = function (app) {
 
 //#region Initialization
 
-Surface.Instance.Register = function (jCanvas, width, widthType, height, heightType) {
+Surface.Instance.Register = function (canvas, width, widthType, height, heightType) {
     Surface._TestCanvas = document.createElement('canvas');
     this._Layers = new Collection();
     this._DownDirty = new _DirtyList("Down");
     this._UpDirty = new _DirtyList("Up");
 
-    this._jCanvas = jCanvas;
-    var canvas = jCanvas[0];
+    this._Canvas = canvas;
 
     if (!width) {
         width = 100;
@@ -48,10 +47,10 @@ Surface.Instance.Register = function (jCanvas, width, widthType, height, heightT
     } else if (!heightType) {
         heightType = "Percentage";
     }
-    this._InitializeCanvas(canvas, width, widthType, height, heightType);
+    this._InitializeCanvas(this._Canvas, width, widthType, height, heightType);
 
-    this._Ctx = canvas.getContext('2d');
-    this._CanvasOffset = this._jCanvas.offset();
+    this._Ctx = this._Canvas.getContext('2d');
+    this._CalculateOffset();
     this.RegisterEvents();
 };
 Surface.Instance.RegisterEvents = function () {
@@ -138,12 +137,24 @@ Surface.Instance._InitializeCanvas = function (canvas, width, widthType, height,
         window.onresize = function (e) { surface._HandleResize(window.event ? window.event : e); };
     }
 };
+Surface.Instance._CalculateOffset = function () {
+    var left = 0;
+    var top = 0;
+    var cur = this._Canvas;
+    if (cur.offsetParent) {
+        do {
+            left += cur.offsetLeft;
+            top += cur.offsetTop;
+        } while (cur = cur.offsetParent);
+    }
+    this._CanvasOffset = { left: left, top: top };
+};
 
 //#endregion
 
 //#region Properties
 
-Surface.Instance.GetCanvas = function () { return this._jCanvas[0]; };
+Surface.Instance.GetCanvas = function () { return this._Canvas; };
 Surface.Instance.GetExtents = function () {
     if (!this._Extents)
         this._Extents = new Size(this.GetWidth(), this.GetHeight());
@@ -153,10 +164,10 @@ Surface.Instance._InvalidateExtents = function () {
     delete this._Extents;
 };
 Surface.Instance.GetWidth = function () {
-    return this._jCanvas.width();
+    return this._Canvas.offsetWidth;
 };
 Surface.Instance.GetHeight = function () {
-    return this._jCanvas.height();
+    return this._Canvas.offsetHeight;
 };
 
 //#endregion
@@ -520,7 +531,7 @@ Surface.Instance._UpdateCursorFromInputList = function () {
 };
 Surface.Instance._SetCursor = function (cursor) {
     this._Cursor = cursor;
-    this._jCanvas.css("cursor", cursor);
+    this._Canvas.style.cursor = cursor;
 };
 
 //#endregion
@@ -746,11 +757,10 @@ Surface.Instance._HandleResizeTimeout = function (evt) {
 Surface.Instance._ResizeCanvas = function () {
     var width = this._PercentageWidth;
     var height = this._PercentageHeight;
-    var canvas = this._jCanvas[0];
     if (width != null)
-        canvas.width = window.innerWidth * width / 100.0;
+        this._Canvas.width = window.innerWidth * width / 100.0;
     if (height != null)
-        canvas.height = window.innerHeight * height / 100.0;
+        this._Canvas.height = window.innerHeight * height / 100.0;
 };
 
 //#endregion
