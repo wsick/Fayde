@@ -80,21 +80,23 @@ ContentControl.Instance._OnPropertyChanged = function (args, error) {
     }
 
     if (args.Property._ID === ContentControl.ContentProperty._ID) {
-        if (args.OldValue && Nullstone.Is(args.OldValue, FrameworkElement)) {
-            this._ElementRemoved(args.OldValue);
-            if (this._ContentSetsParent) {
-                args.OldValue._SetLogicalParent(null, error);
-                if (error.IsErrored())
-                    return;
+        if (args.OldValue && args.OldValue instanceof UIElement) {
+            if (args.OldValue instanceof FrameworkElement) {
+                if (this._ContentSetsParent) {
+                    args.OldValue._SetLogicalParent(null, error);
+                    if (error.IsErrored())
+                        return;
+                }
             }
+            this._ElementRemoved(args.OldValue);
+            this._SetSubtreeObject(null);
         }
-        if (args.NewValue && Nullstone.Is(args.NewValue, FrameworkElement)) {
+        if (args.NewValue && args.NewValue instanceof FrameworkElement) {
             if (this._ContentSetsParent) {
                 args.NewValue._SetLogicalParent(this, error);
                 if (error.IsErrored())
                     return;
             }
-            this._ElementAdded(args.NewValue);
         }
         this._InvalidateMeasure();
     }
