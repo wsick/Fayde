@@ -77,6 +77,9 @@ UIElement.Instance.Init = function () {
     this.MouseLeave = new MulticastEvent();
     this.MouseLeave.Subscribe(this.OnMouseLeave, this);
 
+    this.MouseWheel = new MulticastEvent();
+    this.MouseWheel.Subscribe(this.OnMouseWheel, this);
+
     this.LostMouseCapture = new MulticastEvent();
     this.LostMouseCapture.Subscribe(this.OnLostMouseCapture, this);
 
@@ -976,7 +979,7 @@ UIElement.Instance.ReleaseMouseCapture = function () {
     App.Instance.MainSurface.ReleaseMouseCapture(this);
 };
 
-UIElement.Instance._EmitMouseEvent = function (type, button, absolutePos) {
+UIElement.Instance._EmitMouseEvent = function (type, button, absolutePos, delta) {
     if (type === "up") {
         if (Surface.IsLeftButton(button))
             this._EmitMouseLeftButtonUp(absolutePos);
@@ -993,6 +996,8 @@ UIElement.Instance._EmitMouseEvent = function (type, button, absolutePos) {
         this._EmitMouseEnter(absolutePos);
     } else if (type === "move") {
         this._EmitMouseMoveEvent(absolutePos);
+    } else if (type === "wheel") {
+        this._EmitMouseWheel(absolutePos, delta);
     }
 };
 
@@ -1033,7 +1038,14 @@ UIElement.Instance.OnMouseEnter = function (sender, args) { };
 UIElement.Instance._EmitMouseLeave = function (absolutePos) {
     this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.Instance.OnMouseLeave = function (sender, args) { };
+UIElement.Instance.OnMouseLeave = function (sender, args) {
+    console.log("RAWR" + args.Delta);
+};
+
+UIElement.Instance._EmitMouseWheel = function (absolutePos, delta) {
+    this.MouseWheel.Raise(this, new MouseWheelEventArgs(absolutePos, delta));
+};
+UIElement.Instance.OnMouseWheel = function (sender, args) { };
 
 UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
     this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));

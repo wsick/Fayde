@@ -41,6 +41,17 @@ MouseButtonEventArgs.Instance.Init = function (absolutePos) {
 Nullstone.FinishCreate(MouseButtonEventArgs);
 //#endregion
 
+//#region MouseWheelEventArgs
+var MouseWheelEventArgs = Nullstone.Create("MouseWheelEventArgs", MouseEventArgs, 2);
+
+MouseWheelEventArgs.Instance.Init = function (absolutePos, delta) {
+    this.Init$MouseEventArgs(absolutePos);
+    this.Delta = delta;
+};
+
+Nullstone.FinishCreate(MouseWheelEventArgs);
+//#endregion
+
 //#region KeyEventArgs
 var KeyEventArgs = Nullstone.Create("KeyEventArgs", EventArgs, 2);
 
