@@ -1038,9 +1038,7 @@ UIElement.Instance.OnMouseEnter = function (sender, args) { };
 UIElement.Instance._EmitMouseLeave = function (absolutePos) {
     this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.Instance.OnMouseLeave = function (sender, args) {
-    console.log("RAWR" + args.Delta);
-};
+UIElement.Instance.OnMouseLeave = function (sender, args) { };
 
 UIElement.Instance._EmitMouseWheel = function (absolutePos, delta) {
     this.MouseWheel.Raise(this, new MouseWheelEventArgs(absolutePos, delta));
