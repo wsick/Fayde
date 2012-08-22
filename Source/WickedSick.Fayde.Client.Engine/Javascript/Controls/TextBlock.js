@@ -77,7 +77,7 @@ TextBlock.Instance._ComputeBounds = function () {
 
     this._ExtentsWithChildren = this._Extents;
 
-    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowBy(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
+    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowBy(this._EffectPadding), false).Transform(this._AbsoluteXform);
     this._BoundsWithChildren = this._Bounds;
 
     this._ComputeGlobalBounds();

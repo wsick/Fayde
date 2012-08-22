@@ -156,19 +156,19 @@ FrameworkElement.Instance._ComputeBounds = function () {
             this._ExtentsWithChildren = this._ExtentsWithChildren.Union(item._GetGlobalBounds());
     }
 
-    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
-    this._BoundsWithChildren = this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/.Transform(this._AbsoluteXform);
+    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
+    this._BoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteXform);
 
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
 FrameworkElement.Instance._ComputeGlobalBounds = function () {
     this._ComputeGlobalBounds$UIElement();
-    this._GlobalBoundsWithChildren = this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/.Transform(this._LocalProjection);
+    this._GlobalBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform(this._LocalProjection);
 };
 FrameworkElement.Instance._ComputeSurfaceBounds = function () {
     this._ComputeSurfaceBounds$UIElement();
-    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/.Transform(this._AbsoluteProjection);
+    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
 };
 
 FrameworkElement.Instance._GetSubtreeExtents = function () {

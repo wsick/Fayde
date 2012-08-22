@@ -511,7 +511,7 @@ Grid.Instance._ComputeBounds = function () {
     if (this.ShowGridLines) {
         this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
-        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/* .GrowByThickness(this._EffectPadding) */, false).Transform(this._AbsoluteXform);
+        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
         this._BoundsWithChildren = this._BoundsWithChildren.Union(this._Bounds);
 
         this._ComputeGlobalBounds();

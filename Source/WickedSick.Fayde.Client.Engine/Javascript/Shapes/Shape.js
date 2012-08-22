@@ -274,7 +274,7 @@ Shape.Instance._TransformBounds = function () {
     //TODO:
 };
 Shape.Instance._ComputeBounds = function () {
-    this._BoundsWithChildren = this._Bounds = this._IntersectBoundsWithClipPath(this._GetStretchExtents()/*.GrowBy(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
+    this._BoundsWithChildren = this._Bounds = this._IntersectBoundsWithClipPath(this._GetStretchExtents().GrowBy(this._EffectPadding), false).Transform(this._AbsoluteXform);
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };

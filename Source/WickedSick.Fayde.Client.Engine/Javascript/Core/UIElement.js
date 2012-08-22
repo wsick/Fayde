@@ -13,6 +13,7 @@
 /// <reference path="../Engine/RenderContext.js"/>
 /// <reference path="../Primitives/Matrix3D.js"/>
 /// <reference path="../Primitives/Rect.js"/>
+/// <reference path="../Primitives/Thickness.js"/>
 
 //#region UIElement
 var UIElement = Nullstone.Create("UIElement", DependencyObject);
@@ -40,6 +41,7 @@ UIElement.Instance.Init = function () {
     this._DirtyRegion = new Rect();
     this._DesiredSize = new Size();
     this._RenderSize = new Size();
+    this._EffectPadding = new Thickness();
 
     this._AbsoluteXform = new Matrix();
     this._LayoutXform = new Matrix();
@@ -294,6 +296,26 @@ UIElement.Instance._InvalidateParent = function (r) {
     else if (this._IsAttached)
         App.Instance.MainSurface._Invalidate(r);
 };
+UIElement.Instance._InvalidateClip = function () {
+    this._InvalidateParent(this._GetSubtreeBounds());
+    this._UpdateBounds(true);
+    this._ComputeComposite();
+};
+UIElement.Instance._InvalidateEffect = function () {
+    var effect = this.Effect;
+    var oldPadding = this._EffectPadding;
+    if (effect)
+        this._EffectPadding = effect.Padding();
+    else
+        this._EffectPadding = new Thickness();
+
+    this._InvalidateParent(this._GetSubtreeBounds());
+
+    if (!Thickness.Equals(oldPadding, this._EffectPadding))
+        this._UpdateBounds();
+
+    this._ComputeComposite();
+};
 UIElement.Instance._InvalidateBitmapCache = function () {
     //NotImplemented("UIElement._InvalidateBitmapCache");
 };
@@ -320,10 +342,10 @@ UIElement.Instance._ComputeBounds = function () {
     AbstractMethod("UIElement._ComputeBounds()");
 };
 UIElement.Instance._ComputeGlobalBounds = function () {
-    this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false).Transform(this._LocalProjection);
+    this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._LocalProjection);
 };
 UIElement.Instance._ComputeSurfaceBounds = function () {
-    this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false).Transform(this._AbsoluteProjection);
+    this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteProjection);
 };
 UIElement.Instance._ComputeTransform = function () {
     var projection = this.Projection;
@@ -756,7 +778,13 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
 
     RenderDebug.Count++;
     RenderDebug(this.__DebugToString());
+
+    var effect = this.Effect;
+    if (effect)
+        effect.PreRender(ctx);
     this._Render(ctx, region);
+    if (effect)
+        effect.PostRender(ctx);
 
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
     var child;
@@ -958,9 +986,28 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
             this._Flags &= ~UIElementFlags.HitTestVisible;
         }
         this._UpdateTotalHitTestVisibility();
+    } else if (args.Property._ID === UIElement.ClipProperty._ID) {
+        this._InvalidateClip();
+    } else if (args.Property._ID === UIElement.UseLayoutRoundingProperty._ID) {
+        this._InvalidateMeasure();
+        this._InvalidateArrange();
+    } else if (args.Property._ID === UIElement.EffectProperty._ID) {
+        var oldEffect = args.OldValue != null;
+        var newEffect = args.NewValue != null;
+        this._InvalidateEffect();
+        if (oldEffect !== newEffect && this._IsAttached)
+            App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Transform);
     }
     //TODO: Check invalidation of some properties
     this.PropertyChanged.Raise(this, args);
+};
+UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd._ID === UIElement.ClipProperty._ID) {
+        this._InvalidateClip();
+    } else if (propd._ID === UIElement.EffectProperty._ID) {
+        this._InvalidateEffect();
+    }
+    this._OnSubPropertyChanged$DependencyObject(propd, sender, args);
 };
 
 //#endregion

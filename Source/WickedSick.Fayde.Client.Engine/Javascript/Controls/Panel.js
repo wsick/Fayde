@@ -49,8 +49,8 @@ Panel.Instance._ComputeBounds = function () {
         this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
     }
 
-    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents/*.GrowByThickness(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
-    this._BoundsWithChildren = this._IntersectBoundsWithClipPath(this._ExtentsWithChildren/*.GrowByThickness(this._EffectPadding)*/, false).Transform(this._AbsoluteXform);
+    this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
+    this._BoundsWithChildren = this._IntersectBoundsWithClipPath(this._ExtentsWithChildren.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
 
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();

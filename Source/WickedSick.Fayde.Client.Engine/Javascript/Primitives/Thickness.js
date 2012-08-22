@@ -28,6 +28,17 @@ Thickness.Instance.IsBalanced = function () {
         && this.Left === this.Bottom;
 };
 
+Thickness.Equals = function (thickness1, thickness2) {
+    if (thickness1 == null && thickness2 == null)
+        return true;
+    if (thickness1 == null || thickness2 == null)
+        return false;
+    return thickness1.Left === thickness2.Left
+        && thickness1.Top === thickness2.Top
+        && thickness1.Right === thickness2.Right
+        && thickness1.Bottom === thickness2.Bottom;
+};
+
 Thickness.Instance.toString = function () {
     return "(" + this.Left + ", " + this.Top + ", " + this.Right + ", " + this.Bottom + ")";
 };
