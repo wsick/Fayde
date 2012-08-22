@@ -54,11 +54,13 @@ Timeline.Instance.CreateClockData = function (nowTime) {
         BeginTicks: this._BeginStep,
         RealTicks: nowTime,
         CurrentTime: new TimeSpan(nowTime - this._BeginStep),
-        Progress: 1.0
+        Progress: 1.0,
+        HasDuration: false
     };
 
     var duration = this._GetValue(Timeline.DurationProperty);
     if (duration != null && duration.HasTimeSpan()) {
+        clockData.HasDuration = true;
         var elapsedMs = nowTime - this._BeginStep;
         var durMs = duration.GetTimeSpan().GetMilliseconds();
         if (durMs > 0) {
@@ -88,7 +90,7 @@ Timeline.Instance.Update = function (nowTime) {
             this._HasReachedBeg = true;
         }
         var clockData = this.CreateClockData(nowTime);
-        if (clockData.Progress === 1.0) {
+        if (clockData.Progress === 1.0 && clockData.HasDuration) {
             this.UpdateInternal(clockData);
             this.OnDurationReached();
             return;
