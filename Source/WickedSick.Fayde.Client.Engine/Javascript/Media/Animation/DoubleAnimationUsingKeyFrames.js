@@ -56,11 +56,11 @@ DoubleAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOrigi
     if (clockData.CurrentTime.CompareTo(keyEndTime) >= 0) {
         progress = 1.0;
     } else {
-        var keyDuration = keyEndTime.Subtract(keyStartTime);
+        var keyDuration = keyEndTime._Ticks - keyStartTime;
         if (keyDuration <= 0)
             progress = 1.0;
         else
-            progress = (clockData.CurrentTime.Subtract(keyStartTime)).Divide(keyDuration);
+            progress = (clockData.CurrentTime._Ticks - keyStartTime) / keyDuration;
     }
 
     return currentKeyFrame.InterpolateValue(baseValue, progress);
