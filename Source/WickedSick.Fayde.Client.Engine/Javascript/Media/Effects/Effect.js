@@ -1,5 +1,6 @@
 ﻿/// <reference path="../../Core/DependencyObject.js"/>
 /// CODE
+/// <reference path="../../Primitives/Thickness.js"/>
 
 //#region Effect
 var Effect = Nullstone.Create("Effect", DependencyObject);
@@ -13,6 +14,17 @@ Nullstone.AutoProperties(Effect, [
 ]);
 
 //#endregion
+
+Effect.Instance.Padding = function () {
+    return new Thickness();
+};
+
+Effect.Instance.PreRender = function (ctx) {
+    AbstractMethod("Effect.PreRender");
+};
+Effect.Instance.PostRender = function (ctx) {
+    AbstractMethod("Effect.PostRender");
+};
 
 Nullstone.FinishCreate(Effect);
 //#endregion
