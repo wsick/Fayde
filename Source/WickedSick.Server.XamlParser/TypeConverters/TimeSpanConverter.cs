@@ -40,10 +40,12 @@ namespace WickedSick.Server.XamlParser.TypeConverters
 
             minutes = int.Parse(parts[1]);
 
-            var secTokens = parts[2].Split('.');
-            if (secTokens.Length > 1)
-                milliseconds = string.IsNullOrWhiteSpace(secTokens[1]) ? 0 : int.Parse(secTokens[1]);
-            seconds = string.IsNullOrWhiteSpace(secTokens[0]) ? 0 : int.Parse(secTokens[0]);
+            double dsec;
+            if (!double.TryParse(parts[2], out dsec))
+                throw new ArgumentException("An invalid value for TimeSpan has been provided.");
+
+            seconds = (int)dsec;
+            milliseconds = (int)((dsec - Math.Floor(dsec)) * 1000.0);
             
             return new Elements.Types.TimeSpan(hours, minutes, seconds, days, milliseconds);
         }
