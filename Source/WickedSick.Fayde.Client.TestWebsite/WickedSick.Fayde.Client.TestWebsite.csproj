@@ -65,6 +65,7 @@
     <Content Include="ClientBin\WickedSick.LitmusTests.xap" />
     <Content Include="Images\github.png" />
     <Content Include="Images\header_overlay.png" />
+    <Content Include="Images\page01.jpg" />
     <Content Include="Images\testing.jpg" />
     <Content Include="Images\tile-test.png" />
     <Content Include="Images\twitter.png" />
