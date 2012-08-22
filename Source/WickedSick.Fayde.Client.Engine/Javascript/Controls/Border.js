@@ -123,19 +123,21 @@ Border.Instance._RenderBalanced = function (ctx, extents, backgroundBrush, borde
 
     if (cornerRadius.IsZero()) {
         //Technically this fills outside it's fill extents, we may need to do something different for a transparent border brush
-        if (backgroundBrush)
-            ctx.FillRect(backgroundBrush, fillPlusHalfExtents);
-        else
+        if (backgroundBrush) {
+            ctx.StrokeAndFillRect(borderBrush, thickness.Left, extents, backgroundBrush, fillPlusHalfExtents);
+        }  else {
             ctx.Rect(fillPlusHalfExtents);
+            ctx.Stroke(borderBrush, thickness.Left, extents);
+        }
     } else {
         var rawPath = new RawPath();
         rawPath.RoundedRectFull(fillPlusHalfExtents.X, fillPlusHalfExtents.Y, fillPlusHalfExtents.Width, fillPlusHalfExtents.Height,
             cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
         rawPath.Draw(ctx);
+        ctx.Stroke(borderBrush, thickness.Left, extents);
         if (backgroundBrush)
             ctx.Fill(backgroundBrush, fillPlusHalfExtents);
     }
-    ctx.Stroke(borderBrush, thickness.Left, extents);
 };
 Border.Instance._RenderUnbalanced = function (ctx, extents, backgroundBrush, borderBrush, thickness, cornerRadius) {
     /// <param name="ctx" type="_RenderContext"></param>
