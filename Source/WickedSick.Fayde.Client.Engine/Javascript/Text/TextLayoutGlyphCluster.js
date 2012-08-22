@@ -20,17 +20,16 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     ctx.Transform(Matrix.CreateTranslate(x, y - y0));
 
     var brush;
-    var area;
     var fontHeight = font.GetActualHeight();
+    var area = new Rect(origin.X, origin.Y, this._Advance, fontHeight);
     if (this._Selected && (brush = attrs.GetBackground(true))) {
-        area = new Rect(origin.X, origin.Y, this._Advance, fontHeight);
         ctx.FillRect(brush, area); //selection background
     }
     if (!(brush = attrs.GetForeground(this._Selected)))
         return;
 
     var canvasCtx = ctx.GetCanvasContext();
-    brush.SetupBrush(canvasCtx);
+    brush.SetupBrush(canvasCtx, area);
     var brushHtml5 = brush.ToHtml5Object();
     canvasCtx.fillStyle = brushHtml5;
     canvasCtx.font = font.ToHtml5Object();
