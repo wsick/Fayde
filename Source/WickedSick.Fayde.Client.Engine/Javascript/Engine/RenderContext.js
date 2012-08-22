@@ -104,6 +104,18 @@ _RenderContext.Instance.FillRect = function (brush, rect) {
     ctx.fill();
     DrawDebug("FillRect: [" + ctx.fillStyle.toString() + "] " + rect.toString());
 };
+_RenderContext.Instance.StrokeAndFillRect = function (strokeBrush, thickness, strokeRect, fillBrush, fillRect) {
+    var ctx = this._Surface._Ctx;
+    strokeBrush.SetupBrush(ctx, strokeRect);
+    fillBrush.SetupBrush(ctx, fillRect);
+    ctx.beginPath();
+    ctx.rect(fillRect.X, fillRect.Y, fillRect.Width, fillRect.Height);
+    ctx.strokeStyle = strokeBrush.ToHtml5Object();
+    ctx.stroke();
+    ctx.fillStyle = fillBrush.ToHtml5Object();
+    ctx.fill();
+    DrawDebug("StrokeAndFillRect: [" + ctx.strokeStyle.toString() + "] [" + ctx.fillStyle.toString() + "] " + fillRect.toString());
+};
 _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     /// <param name="stroke" type="Brush"></param>
     var ctx = this._Surface._Ctx;
