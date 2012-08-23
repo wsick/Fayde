@@ -307,7 +307,7 @@ TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 //#region Mouse
 
 TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
-    //TODO: Set handled (routed event)
+    args.Handled = true;
     this.Focus();
 
     if (this._View) {
@@ -332,7 +332,7 @@ TextBoxBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
     if (this._Captured)
         this.ReleaseMouseCapture();
 
-    //TODO: Set handled (routed event)
+    args.Handled = true;
     this._Selecting = false;
     this._Captured = false;
 };
@@ -342,7 +342,7 @@ TextBoxBase.Instance.OnMouseMove = function (sender, args) {
 
     if (this._Selecting) {
         var p = args.GetPosition(this._View);
-        //TODO: Set handled (routed event)
+        args.Handled = true;
 
         cursor = this._View.GetCursorFromXY(p.X, p.Y);
 
