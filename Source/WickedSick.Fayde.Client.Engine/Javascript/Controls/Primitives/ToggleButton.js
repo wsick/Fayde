@@ -4,7 +4,7 @@
 //#region ToggleButton
 var ToggleButton = Nullstone.Create("ToggleButton", ButtonBase);
 
-//#region Dependency Properties
+//#region Properties
 
 ToggleButton.IsCheckedProperty = DependencyProperty.Register("IsChecked", function () { return Boolean; }, ToggleButton, false, function (d, args) { d.OnIsCheckedChanged(args); });
 ToggleButton.IsThreeStateProperty = DependencyProperty.Register("IsThreeState", function () { return Boolean; }, ToggleButton, false);
@@ -15,6 +15,11 @@ Nullstone.AutoProperties(ToggleButton, [
 ]);
 
 //#endregion
+
+ToggleButton.Instance.Init = function () {
+    this.Init$ButtonBase();
+    this.DefaultStyleKey = this.constructor;
+};
 
 ToggleButton.Instance.OnIsCheckedChanged = function (e) {
     var isChecked = e.NewValue;
