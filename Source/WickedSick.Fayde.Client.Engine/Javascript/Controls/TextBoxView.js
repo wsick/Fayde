@@ -154,7 +154,7 @@ _TextBoxView.Instance._UpdateCursor = function (invalidate) {
 
     //TODO: this._TextBox._ImCtx.SetCursorLocation(rect);
 
-    if (this._Cursor != current)
+    if (!Rect.Equals(this._Cursor, current))
         this._TextBox._EmitCursorPositionChanged(this._Cursor.Height, this._Cursor.X, this._Cursor.Y);
 
     if (invalidate && this._CursorVisible)
@@ -255,8 +255,8 @@ _TextBoxView.Instance.OnGotFocus = function () {
 _TextBoxView.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this._TextBox.OnMouseLeftButtonDown(sender, args);
 };
-_TextBoxView.Instance.OnMouseLeftButtonUp = function (args) {
-    this._TextBox.OnMouseLeftButtonUp(args);
+_TextBoxView.Instance.OnMouseLeftButtonUp = function (sender, args) {
+    this._TextBox.OnMouseLeftButtonUp(sender, args);
 };
 
 _TextBoxView.Instance._OnModelChanged = function (sender, args) {
