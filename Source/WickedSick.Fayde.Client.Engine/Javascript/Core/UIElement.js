@@ -1051,6 +1051,8 @@ UIElement.Instance._EmitEvent = function (type, button, args) {
         this.MouseMove.Raise(this, args);
     } else if (type === "wheel") {
         this.MouseWheel.Raise(this, args);
+    } else {
+        return false;
     }
     return args.Handled;
 };

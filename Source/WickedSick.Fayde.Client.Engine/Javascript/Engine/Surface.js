@@ -658,8 +658,9 @@ Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
     }
 };
 Surface.Instance._EmitMouseList = function (type, button, pos, delta, list, endIndex) {
+    var handled = false;
     if (endIndex === 0)
-        return;
+        return handled;
     if (!endIndex || endIndex === -1)
         endIndex = list._Count;
     var i = 0;
@@ -670,10 +671,12 @@ Surface.Instance._EmitMouseList = function (type, button, pos, delta, list, endI
     for (node = list.First() ; node && i < endIndex; node = node.Next, i++) {
         if (type === "leave")
             args.Source = node.UIElement;
-        node.UIElement._EmitEvent(type, button, args);
+        if (node.UIElement._EmitEvent(type, button, args))
+            handled = true;
         if (type === "leave")
             args = this._CreateEventArgs(type, pos, delta);
     }
+    return handled;
 };
 
 Surface.Instance.SetMouseCapture = function (uie) {
