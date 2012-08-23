@@ -32,10 +32,10 @@ App.Instance.Init = function () {
     });
 
     this._SubscribeDebugService("LayoutTime", function (elapsedTime) {
-        Info("LayoutTime: " + elapsedTime.toString());
+        //Info("LayoutTime: " + elapsedTime.toString());
     });
     this._SubscribeDebugService("RenderTime", function (elapsedTime) {
-        Info("RenderTime: " + elapsedTime.toString());
+        //Info("RenderTime: " + elapsedTime.toString());
     });
     this._SubscribeDebugService("ParserTime", function (type, elapsedTime) {
         //Info("ParserTime: [" + type._TypeName + "]" + elapsedTime.toString());

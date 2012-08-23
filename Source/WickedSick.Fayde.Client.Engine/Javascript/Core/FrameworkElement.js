@@ -597,11 +597,11 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         var node;
         while (node = pass._ArrangeList.shift()) {
             node.UIElement._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
-            Info("PropagateFlagUp DirtyArrangeHint");
+            LayoutDebug("PropagateFlagUp DirtyArrangeHint");
         }
         while (node = pass._SizeList.shift()) {
             node.UIElement._PropagateFlagUp(UIElementFlags.DirtySizeHint);
-            Info("PropagateFlagUp DirtySizeHint");
+            LayoutDebug("PropagateFlagUp DirtySizeHint");
         }
         pass._Count = pass._Count + 1;
 
@@ -644,14 +644,14 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
         }
 
         if (flag === UIElementFlags.DirtyMeasureHint) {
-            Info("Starting _MeasureList Update: " + pass._MeasureList.length);
+            LayoutDebug("Starting _MeasureList Update: " + pass._MeasureList.length);
             while (node = pass._MeasureList.shift()) {
                 LayoutDebug("Measure [" + node.UIElement.__DebugToString() + "]");
                 node.UIElement._DoMeasureWithError(error);
                 pass._Updated = true;
             }
         } else if (flag === UIElementFlags.DirtyArrangeHint) {
-            Info("Starting _ArrangeList Update: " + pass._ArrangeList.length);
+            LayoutDebug("Starting _ArrangeList Update: " + pass._ArrangeList.length);
             while (node = pass._ArrangeList.shift()) {
                 LayoutDebug("Arrange [" + node.UIElement.__DebugToString() + "]");
                 node.UIElement._DoArrangeWithError(error);
@@ -670,7 +670,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                     fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._GetRenderSize()));
                 }
             }
-            Info("Completed _SizeList Update");
+            LayoutDebug("Completed _SizeList Update");
         } else {
             break;
         }

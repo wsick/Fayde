@@ -70,6 +70,12 @@ function FocusDebug(message) {
     if (window.console && console.log)
         console.log("FOCUS: " + message);
 }
+function TextDebug(message) {
+    if (false)
+        return;
+    if (window.console && console.log)
+        console.log("TEXT: " + message);
+}
 function Debug(message) {
     if (window.console && console.log)
         console.log(message);

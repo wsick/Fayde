@@ -317,6 +317,7 @@ TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
         this._ResetIMContext();
 
         this._Captured = this.CaptureMouse();
+        TextDebug("TextBox-CapturedMouse: " + this._Captured);
         this._Selecting = true;
 
         this._BatchPush();
@@ -329,8 +330,10 @@ TextBoxBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
     }
 };
 TextBoxBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
-    if (this._Captured)
+    if (this._Captured) {
         this.ReleaseMouseCapture();
+        TextDebug("TextBox-ReleaseCapturedMouse");
+    }
 
     args.Handled = true;
     this._Selecting = false;
@@ -345,6 +348,7 @@ TextBoxBase.Instance.OnMouseMove = function (sender, args) {
         args.Handled = true;
 
         cursor = this._View.GetCursorFromXY(p.X, p.Y);
+        TextDebug("TextBox.MouseMove-CursorPos: " + p.toString());
 
         this._BatchPush();
         this._Emit = _TextBoxEmitChanged.NOTHING;

@@ -118,7 +118,8 @@ TextBox.Instance._SyncSelectedText = function () {
     }
 };
 TextBox.Instance._EmitSelectionChanged = function () {
-    this.SelectionChanged.RaiseAsync(this, {});
+    TextDebug("TextBox.SelectionChanged [" + this.SelectionStart + " -- " + this.SelectionLength + "]");
+    this.SelectionChanged.RaiseAsync(this, new EventArgs());
 };
 
 //#endregion
@@ -323,11 +324,13 @@ TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 //#endregion
 
 TextBox.Instance.OnMouseEnter = function (sender, args) {
+    FocusDebug("TextBox.OnMouseEnter");
     this.IsMouseOver = true;
     this._ChangeVisualState(true);
     this.OnMouseEnter$TextBoxBase(sender, args);
 };
 TextBox.Instance.OnMouseLeave = function (sender, args) {
+    FocusDebug("TextBox.OnMouseLeave");
     this.IsMouseOver = false;
     this._ChangeVisualState(true);
     this.OnMouseLeave$TextBoxBase(sender, args);
