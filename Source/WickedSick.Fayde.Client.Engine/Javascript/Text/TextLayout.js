@@ -555,12 +555,23 @@ TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
     word._Advance = 0.0;
     var measuredIndex = 0;
     var measuredText = "";
+    if (text.indexOf(" ", measuredIndex) === -1) {
+        var advance = Surface._MeasureWidth(text, word._Font);
+        if (isFinite(maxWidth) && (word._LineAdvance + advance) > maxWidth) {
+            return true;
+        }
+        word._Advance = advance;
+        word._LineAdvance = advance;
+        word._Length = text.length;
+        return false;
+    }
+    var tempText = text;
     while (true) {
-        var index = text.indexOf(" ", measuredIndex);
+        var index = tempText.indexOf(" ", measuredIndex);
         if (index === -1)
             break;
         index += 1; //include " "
-        var tempText = text.slice(measuredIndex, index);
+        tempText = tempText.slice(measuredIndex, index);
         var advance = Surface._MeasureWidth(tempText, word._Font);
         if (isFinite(maxWidth) && (word._LineAdvance + advance) > maxWidth) {
             return true;
@@ -571,7 +582,6 @@ TextLayout._LayoutWordWrap = function (word, text, maxWidth) {
         word._LineAdvance += advance;
         word._Length += measuredText.length;
     }
-    word._Length = text.length;
     return false;
 };
 TextLayout._LayoutWordWrapMoon = function (word, text, maxWidth) {
