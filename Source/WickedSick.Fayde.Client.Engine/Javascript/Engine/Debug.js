@@ -65,7 +65,7 @@ function ParserDebug(message) {
         console.log("PARSER: " + message);
 }
 function FocusDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("FOCUS: " + message);

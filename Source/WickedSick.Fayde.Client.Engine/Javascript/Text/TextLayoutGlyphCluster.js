@@ -36,6 +36,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
     canvasCtx.textAlign = "left";
     canvasCtx.textBaseline = "top";
     canvasCtx.fillText(this._Text, 0, 0);
+    DrawDebug("Text: " + this._Text + " [" + canvasCtx.fillStyle.toString() + "]");
 
     if (attrs.IsUnderlined()) {
         canvasCtx.beginPath();
