@@ -71,7 +71,7 @@ function FocusDebug(message) {
         console.log("FOCUS: " + message);
 }
 function TextDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("TEXT: " + message);
