@@ -673,7 +673,7 @@ Surface.Instance._EmitMouseList = function (type, button, pos, delta, list, endI
             args.Source = node.UIElement;
         if (node.UIElement._EmitEvent(type, button, args))
             handled = true;
-        if (type === "leave")
+        if (type === "leave") //MouseLeave gets new event args on each emit
             args = this._CreateEventArgs(type, pos, delta);
     }
     return handled;
