@@ -59,10 +59,16 @@ function RenderDebug(message) {
         console.log("RENDER: " + message);
 }
 function ParserDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("PARSER: " + message);
+}
+function FocusDebug(message) {
+    if (false)
+        return;
+    if (window.console && console.log)
+        console.log("FOCUS: " + message);
 }
 function Debug(message) {
     if (window.console && console.log)
