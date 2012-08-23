@@ -28,11 +28,13 @@ TextBox.Instance.Init = function () {
 
     this._EventsMask = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
 
+    this.IsMouseOver = false;
+
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 TextBox.AcceptsReturnProperty = DependencyProperty.RegisterCore("AcceptsReturn", function () { return Boolean; }, TextBox, false);
 TextBox.CaretBrushProperty = DependencyProperty.RegisterCore("CaretBrush", function () { return Brush; }, TextBox);
@@ -70,17 +72,9 @@ Nullstone.AutoProperties(TextBox, [
     TextBox.TextAlignmentProperty,
     TextBox.TextWrappingProperty,
     TextBox.HorizontalScrollBarVisibilityProperty,
-    TextBox.VerticalScrollBarVisibilityProperty
+    TextBox.VerticalScrollBarVisibilityProperty,
+    "IsMouseOver"
 ]);
-
-//#endregion
-
-//#region Properties
-
-TextBox.Instance.GetIsMouseOver = function () {
-    ///<returns type="Boolean"></returns>
-    return this._IsMouseOver;
-};
 
 //#endregion
 
@@ -329,12 +323,12 @@ TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 //#endregion
 
 TextBox.Instance.OnMouseEnter = function (sender, args) {
-    this._IsMouseOver = true;
+    this.IsMouseOver = true;
     this._ChangeVisualState(true);
     this.OnMouseEnter$TextBoxBase(sender, args);
 };
 TextBox.Instance.OnMouseLeave = function (sender, args) {
-    this._IsMouseOver = false;
+    this.IsMouseOver = false;
     this._ChangeVisualState(true);
     this.OnMouseLeave$TextBoxBase(sender, args);
 };
@@ -353,7 +347,7 @@ TextBox.Instance._ChangeVisualState = function (useTransitions) {
         VisualStateManager.GoToState(this, "Disabled", useTransitions);
     } else if (this.IsReadOnly) {
         VisualStateManager.GoToState(this, "ReadOnly", useTransitions);
-    } else if (this.GetIsMouseOver()) {
+    } else if (this.IsMouseOver) {
         VisualStateManager.GoToState(this, "MouseOver", useTransitions);
     } else {
         VisualStateManager.GoToState(this, "Normal", useTransitions);
