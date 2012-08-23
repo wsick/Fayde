@@ -9,6 +9,7 @@
 /// <reference path="DirtyNode.js"/>
 /// <reference path="Clock.js"/>
 /// <reference path="../Primitives/Font.js"/>
+/// <reference path="../Core/TabNavigationWalker.js"/>
 
 //#region Surface
 var Surface = Nullstone.Create("Surface", null, 1);
@@ -549,8 +550,8 @@ Surface.Instance._HandleButtonRelease = function (evt) {
 
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("up", button, pos);
-    this._SetUserInitiatedEvent(false);
     this._UpdateCursorFromInputList();
+    this._SetUserInitiatedEvent(false);
     if (this._Captured)
         this._PerformReleaseCapture();
 };
@@ -560,8 +561,8 @@ Surface.Instance._HandleButtonPress = function (evt) {
 
     this._SetUserInitiatedEvent(true);
     this._HandleMouseEvent("down", button, pos);
-    this._SetUserInitiatedEvent(false);
     this._UpdateCursorFromInputList();
+    this._SetUserInitiatedEvent(false);
 };
 Surface.Instance._HandleWheel = function (evt) {
     var delta = 0;
@@ -782,6 +783,7 @@ Surface.Instance._ResizeCanvas = function () {
 
 Surface.Instance._FocusElement = function (uie) {
     /// <param name="uie" type="UIElement"></param>
+    FocusDebug("Surface._FocusElement (" + uie.__DebugToString() + ")");
     if (Nullstone.RefEquals(uie, this._FocusedElement))
         return true;
 
@@ -803,6 +805,17 @@ Surface.Instance._RemoveFocus = function (uie) {
         this._FocusElement(null);
 };
 Surface.Instance._EnsureElementFocused = function () {
+    if (!this._FocusedElement) {
+        var last = this._Layers.GetCount() - 1;
+        for (var i = last; i >= 0; i--) {
+            if (TabNavigationWalker.Focus(layers.GetValueAt(i)))
+                break;
+        }
+        if (!this._FocusedElement && last !== -1)
+            this._FocusElement(layers.GetValueAt(last));
+    }
+    if (this._FirstUserInitiatedEvent)
+        this._EmitFocusChangeEventsAsync();
 };
 Surface.Instance._EmitFocusChangeEventsAsync = function () {
     var surface = this;

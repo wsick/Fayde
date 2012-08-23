@@ -19,3 +19,13 @@ var UIElementFlags = {
 
     RenderProjection: 0x4000
 };
+
+// http://msdn.microsoft.com/en-us/library/system.windows.input.keyboardnavigationmode.aspx
+var KeyboardNavigationMode = {
+    Continue: 0,
+    Once: 1,
+    Cycle: 2,
+    None: 3,
+    Contained: 4,
+    Local: 5
+};
