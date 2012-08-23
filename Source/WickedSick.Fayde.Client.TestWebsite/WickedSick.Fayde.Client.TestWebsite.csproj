@@ -70,6 +70,8 @@
     <Content Include="Images\tile-test.png" />
     <Content Include="Images\twitter.png" />
     <Content Include="Silverlight.js" />
+    <None Include="Views\SDK.fayde" />
+    <None Include="Views\Toolkit.fayde" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -84,7 +86,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Views\Core.fayde" />
-    <Content Include="Views\home.fayde">
+    <Content Include="Views\Home.fayde">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Views\contact.fayde" />
@@ -118,9 +120,9 @@
     <Content Include="Tests\Media\imaging.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Views\smoke.fap">
+    <None Include="Views\smoke.fayde">
       <SubType>Designer</SubType>
-    </Content>
+    </None>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
