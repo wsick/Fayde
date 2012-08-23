@@ -663,8 +663,16 @@ Surface.Instance._EmitMouseList = function (type, button, pos, delta, list, endI
     if (!endIndex || endIndex === -1)
         endIndex = list._Count;
     var i = 0;
-    for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
-        node.UIElement._EmitMouseEvent(type, button, pos, delta);
+    var args = this._CreateEventArgs(type, pos, delta);
+    var node = list.First();
+    if (node && args instanceof RoutedEventArgs)
+        args.Source = node.UIElement;
+    for (node = list.First() ; node && i < endIndex; node = node.Next, i++) {
+        if (type === "leave")
+            args.Source = node.UIElement;
+        node.UIElement._EmitEvent(type, button, args);
+        if (type === "leave")
+            args = this._CreateEventArgs(type, pos, delta);
     }
 };
 
@@ -834,6 +842,26 @@ Surface.Instance._EmitFocusList = function (type, list) {
         return;
     for (var node = list.First(); node; node = node.Next) {
         node.UIElement._EmitFocusChange(type);
+    }
+};
+
+//#endregion
+
+//#region Event
+
+Surface.Instance._CreateEventArgs = function (type, pos, delta) {
+    if (type === "up") {
+        return new MouseButtonEventArgs(pos);
+    } else if (type === "down") {
+        return new MouseButtonEventArgs(pos);
+    } else if (type === "leave") {
+        return new MouseEventArgs(pos);
+    } else if (type === "enter") {
+        return new MouseEventArgs(pos);
+    } else if (type === "move") {
+        return new MouseEventArgs(pos);
+    } else if (type === "wheel") {
+        return new MouseWheelEventArgs(pos, delta);
     }
 };
 

@@ -241,10 +241,9 @@ ScrollViewer.Instance._HandleVerticalScroll = function (e) {
 //#region Mouse
 
 ScrollViewer.Instance.OnMouseLeftButtonDown = function (sender, args) {
-    args.Handled = this.Focus();
+    if (!args.Handled && this.Focus())
+        args.Handled = true;
     this.OnMouseLeftButtonDown$ContentControl(sender, args);
-    if (args.Handled)
-        return;
 };
 ScrollViewer.Instance.OnMouseWheel = function (sender, args) {
     this.OnMouseWheel$ContentControl(sender, args);

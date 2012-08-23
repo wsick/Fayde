@@ -1026,70 +1026,42 @@ UIElement.Instance.ReleaseMouseCapture = function () {
     App.Instance.MainSurface.ReleaseMouseCapture(this);
 };
 
-UIElement.Instance._EmitMouseEvent = function (type, button, absolutePos, delta) {
+UIElement.Instance._EmitEvent = function (type, button, args) {
     if (type === "up") {
-        if (Surface.IsLeftButton(button))
-            this._EmitMouseLeftButtonUp(absolutePos);
-        else if (Surface.IsRightButton(button))
-            this._EmitMouseRightButtonUp(absolutePos);
+        if (Surface.IsLeftButton(button)) {
+            //HUDUpdate("clicky", "MouseLeftButtonUp " + absolutePos.toString());
+            this.MouseLeftButtonUp.Raise(this, args);
+        } else if (Surface.IsRightButton(button)) {
+            //HUDUpdate("clicky", "MouseRightButtonUp " + absolutePos.toString());
+            this.MouseRightButtonUp.Raise(this, args);
+        }
     } else if (type === "down") {
-        if (Surface.IsLeftButton(button))
-            this._EmitMouseLeftButtonDown(absolutePos);
-        else if (Surface.IsRightButton(button))
-            this._EmitMouseRightButtonDown(absolutePos);
+        if (Surface.IsLeftButton(button)) {
+            //HUDUpdate("clicky", "MouseLeftButtonDown " + absolutePos.toString());
+            this.MouseLeftButtonDown.Raise(this, args);
+        } else if (Surface.IsRightButton(button)) {
+            //HUDUpdate("clicky", "MouseRightButtonDown " + absolutePos.toString());
+            this.MouseRightButtonDown.Raise(this, args);
+        }
     } else if (type === "leave") {
-        this._EmitMouseLeave(absolutePos);
+        this.MouseLeave.Raise(this, args);
     } else if (type === "enter") {
-        this._EmitMouseEnter(absolutePos);
+        this.MouseEnter.Raise(this, args);
     } else if (type === "move") {
-        this._EmitMouseMoveEvent(absolutePos);
+        this.MouseMove.Raise(this, args);
     } else if (type === "wheel") {
-        this._EmitMouseWheel(absolutePos, delta);
+        this.MouseWheel.Raise(this, args);
     }
+    return args.Handled;
 };
 
-UIElement.Instance._EmitMouseMoveEvent = function (absolutePos) {
-    this.MouseMove.Raise(this, new MouseEventArgs(absolutePos));
-};
 UIElement.Instance.OnMouseMove = function (sender, args) { };
-
-UIElement.Instance._EmitMouseLeftButtonDown = function (absolutePos) {
-    HUDUpdate("clicky", "MouseLeftButtonDown " + absolutePos.toString());
-    this.MouseLeftButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
-};
 UIElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
-
-UIElement.Instance._EmitMouseLeftButtonUp = function (absolutePos) {
-    HUDUpdate("clicky", "MouseLeftButtonUp " + absolutePos.toString());
-    this.MouseLeftButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
-};
 UIElement.Instance.OnMouseLeftButtonUp = function (sender, args) { };
-
-UIElement.Instance._EmitMouseRightButtonDown = function (absolutePos) {
-    HUDUpdate("clicky", "MouseRightButtonDown " + absolutePos.toString());
-    this.MouseRightButtonDown.Raise(this, new MouseButtonEventArgs(absolutePos));
-};
 UIElement.Instance.OnMouseRightButtonDown = function (sender, args) { };
-
-UIElement.Instance._EmitMouseRightButtonUp = function (absolutePos) {
-    HUDUpdate("clicky", "MouseRightButtonUp " + absolutePos.toString());
-    this.MouseRightButtonUp.Raise(this, new MouseButtonEventArgs(absolutePos));
-};
 UIElement.Instance.OnMouseRightButtonUp = function (sender, args) { };
-
-UIElement.Instance._EmitMouseEnter = function (absolutePos) {
-    this.MouseEnter.Raise(this, new MouseEventArgs(absolutePos));
-};
 UIElement.Instance.OnMouseEnter = function (sender, args) { };
-
-UIElement.Instance._EmitMouseLeave = function (absolutePos) {
-    this.MouseLeave.Raise(this, new MouseEventArgs(absolutePos));
-};
 UIElement.Instance.OnMouseLeave = function (sender, args) { };
-
-UIElement.Instance._EmitMouseWheel = function (absolutePos, delta) {
-    this.MouseWheel.Raise(this, new MouseWheelEventArgs(absolutePos, delta));
-};
 UIElement.Instance.OnMouseWheel = function (sender, args) { };
 
 UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {

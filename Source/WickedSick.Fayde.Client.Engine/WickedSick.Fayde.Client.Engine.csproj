@@ -196,7 +196,9 @@
     <Content Include="Javascript\Media\PathSegmentCollection.js" />
     <Content Include="Javascript\Media\Transform.js" />
     <Content Include="Javascript\Runtime\Exceptions.js" />
-    <Content Include="Javascript\Runtime\RoutedPropertyChangedEventArgs.js" />
+    <Content Include="Javascript\Core\Input\KeyboardEventArgs.js" />
+    <Content Include="Javascript\Core\Input\MouseEventArgs.js" />
+    <Content Include="Javascript\Core\RoutedPropertyChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\Timer.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
@@ -371,8 +373,8 @@
     <Content Include="Javascript\Controls\TextBlock.js" />
     <Content Include="Javascript\Controls\TextBox.js" />
     <Content Include="Javascript\Documents\TextElement.js" />
-    <Content Include="Javascript\Runtime\RoutedEvent.js" />
-    <Content Include="Javascript\Runtime\RoutedEventArgs.js" />
+    <Content Include="Javascript\Core\RoutedEvent.js" />
+    <Content Include="Javascript\Core\RoutedEventArgs.js" />
     <Content Include="Javascript\Text\Enums.js" />
     <Content Include="Javascript\Text\LayoutWord.js" />
     <Content Include="Javascript\Text\TextBuffer.js" />

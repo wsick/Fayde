@@ -1,7 +1,7 @@
 ﻿/// <reference path="../Control.js"/>
 /// CODE
 /// <reference path="../../Runtime/Utils.js"/>
-/// <reference path="../../Runtime/RoutedPropertyChangedEventArgs.js"/>
+/// <reference path="../../Core/RoutedPropertyChangedEventArgs.js"/>
 
 //#region RangeBase
 var RangeBase = Nullstone.Create("RangeBase", Control);

@@ -1,4 +1,4 @@
-﻿/// <reference path="../Runtime/RoutedEventArgs.js"/>
+﻿/// <reference path="RoutedEventArgs.js"/>
 /// CODE
 /// <reference path="../Primitives/Size.js"/>
 
@@ -8,6 +8,7 @@ var SizeChangedEventArgs = Nullstone.Create("SizeChangedEventArgs", RoutedEventA
 SizeChangedEventArgs.Instance.Init = function (prevSize, newSize) {
     /// <param name="prevSize" type="Size"></param>
     /// <param name="newSize" type="Size"></param>
+    this.Init$RoutedEventArgs();
     this.PreviousSize = prevSize.Copy();
     this.NewSize = newSize.Copy();
 };
