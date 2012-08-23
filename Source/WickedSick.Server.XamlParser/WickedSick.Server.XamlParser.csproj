@@ -302,6 +302,7 @@
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeConverters\BoolConverter.cs" />
+    <Compile Include="TypeConverters\BooleanConverter.cs" />
     <Compile Include="TypeConverters\BrushConverter.cs">
       <SubType>Code</SubType>
     </Compile>
