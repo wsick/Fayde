@@ -21,7 +21,9 @@ SplineDoubleKeyFrame.Instance.InterpolateValue = function (baseValue, keyFramePr
 
     var start = baseValue;
     var end = this.Value;
-    var splineProgress = this.KeySpline.GetSplineProgress(keyFrameProgress);
+    var splineProgress = keyFrameProgress;
+    if (this.KeySpline)
+        splineProgress = this.KeySpline.GetSplineProgress(keyFrameProgress);
 
     if (isNaN(start))
         start = 0;

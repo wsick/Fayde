@@ -34,9 +34,9 @@ Curves.RecursiveSubdivide = function (b, lvl, currentlvl, pos, src) {
     return pos;
 };
 Curves.SubdivideCubic = function (data, src) {
-    var p01, p012, p0123;
-    var p12, p123;
-    var p23;
+    var p01 = {}, p012 = {}, p0123 = {};
+    var p12 = {}, p123 = {};
+    var p23 = {};
 
     Curves.HalfLerpPoint(p01, src.c0, src.c1);
     Curves.HalfLerpPoint(p12, src.c1, src.c2);

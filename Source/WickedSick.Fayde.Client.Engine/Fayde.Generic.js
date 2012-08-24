@@ -1716,7 +1716,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -1899,7 +1899,7 @@ App.GetGenericResourceDictionary = function () {
                             {
                                 Type: VisualTransition,
                                 Props: {
-                                    GeneratedDuration: new Duration(new TimeSpan(0, 0, 0, 0, 2)),
+                                    GeneratedDuration: new Duration(new TimeSpan(0, 0, 0, 0, 200)),
                                     To: "Open"
                                 },
                                 Content: {
@@ -1923,7 +1923,7 @@ App.GetGenericResourceDictionary = function () {
                                         {
                                             Type: SplineDoubleKeyFrame,
                                             Props: {
-                                                KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 2)),
+                                                KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 200)),
                                                 Value: 0
                                             }
                                         }]
@@ -1947,7 +1947,7 @@ App.GetGenericResourceDictionary = function () {
                                         {
                                             Type: SplineDoubleKeyFrame,
                                             Props: {
-                                                KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 2)),
+                                                KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 200)),
                                                 Value: 1
                                             }
                                         }]
@@ -1983,7 +1983,7 @@ App.GetGenericResourceDictionary = function () {
                                     {
                                         Type: SplineDoubleKeyFrame,
                                         Props: {
-                                            KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                            KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                             Value: 0
                                         }
                                     }]
@@ -2016,7 +2016,7 @@ App.GetGenericResourceDictionary = function () {
                                     {
                                         Type: SplineDoubleKeyFrame,
                                         Props: {
-                                            KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                            KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                             Value: 0
                                         }
                                     }]
@@ -2040,7 +2040,7 @@ App.GetGenericResourceDictionary = function () {
                                     {
                                         Type: SplineDoubleKeyFrame,
                                         Props: {
-                                            KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                            KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                             Value: 1
                                         }
                                     }]
@@ -2154,7 +2154,7 @@ App.GetGenericResourceDictionary = function () {
                             {
                                 Type: VisualTransition,
                                 Props: {
-                                    GeneratedDuration: new Duration(new TimeSpan(0, 0, 0, 0, 2)),
+                                    GeneratedDuration: new Duration(new TimeSpan(0, 0, 0, 0, 200)),
                                     To: "Open"
                                 },
                                 Content: {
@@ -2163,7 +2163,7 @@ App.GetGenericResourceDictionary = function () {
                                     {
                                         Type: DoubleAnimation,
                                         Props: {
-                                            Duration: new Duration(new TimeSpan(0, 0, 0, 0, 2)),
+                                            Duration: new Duration(new TimeSpan(0, 0, 0, 0, 200)),
                                             To: 0,
                                             EasingFunction: {
                                                 Type: BackEase,
@@ -2189,7 +2189,7 @@ App.GetGenericResourceDictionary = function () {
                                     {
                                         Type: DoubleAnimation,
                                         Props: {
-                                            Duration: new Duration(new TimeSpan(0, 0, 0, 0, 2)),
+                                            Duration: new Duration(new TimeSpan(0, 0, 0, 0, 200)),
                                             To: 1
                                         },
                                         AttachedProps: [{
@@ -2811,7 +2811,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -2866,7 +2866,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -2902,7 +2902,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -3316,7 +3316,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -3349,7 +3349,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -3373,7 +3373,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: {
                                                             Type: Boolean,
                                                             Value: true
@@ -3512,7 +3512,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                                     Value: {
                                                                         Type: Boolean,
                                                                         Value: true
@@ -3843,7 +3843,7 @@ App.GetGenericResourceDictionary = function () {
                                                                         {
                                                                             Type: EasingDoubleKeyFrame,
                                                                             Props: {
-                                                                                KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                                KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                                 Value: 1
                                                                             }
                                                                         }]
@@ -3867,7 +3867,7 @@ App.GetGenericResourceDictionary = function () {
                                                                         {
                                                                             Type: EasingDoubleKeyFrame,
                                                                             Props: {
-                                                                                KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                                KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                                 Value: 1
                                                                             }
                                                                         }]
@@ -4103,7 +4103,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: SplineDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: 0.45
                                                     }
                                                 }]
@@ -4142,7 +4142,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: 1
                                                     }
                                                 }]
@@ -4166,7 +4166,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: 1
                                                     }
                                                 }]
@@ -4206,7 +4206,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -4249,7 +4249,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -4282,7 +4282,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -4306,7 +4306,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: {
                                                             Type: Boolean,
                                                             Value: true
@@ -4465,7 +4465,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                                     Value: {
                                                                         Type: Boolean,
                                                                         Value: true
@@ -4666,7 +4666,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                         Value: 0.65
                                                     }
                                                 }]
@@ -4690,7 +4690,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingColorKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: new StaticResourceMarkup("HoverForegroundColor")
                                                     }
                                                 }]
@@ -4723,7 +4723,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: SplineDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: 0.55
                                                     }
                                                 }]
@@ -4766,7 +4766,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                         Value: 1
                                                     }
                                                 }]
@@ -4790,7 +4790,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingColorKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: new StaticResourceMarkup("HoverForegroundColor")
                                                     }
                                                 }]
@@ -5061,7 +5061,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 1
                                                                 }
                                                             }]
@@ -5085,7 +5085,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 0.5
                                                                 }
                                                             }]
@@ -5125,7 +5125,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 0.5
                                                                 }
                                                             }]
@@ -5255,7 +5255,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 1
                                                                 }
                                                             }]
@@ -5279,7 +5279,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 0.5
                                                                 }
                                                             }]
@@ -5319,7 +5319,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 0.5
                                                                 }
                                                             }]
@@ -5439,7 +5439,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 1
                                                                 }
                                                             }]
@@ -5463,7 +5463,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 0.5
                                                                 }
                                                             }]
@@ -5503,7 +5503,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 0.5
                                                                 }
                                                             }]
@@ -5634,7 +5634,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 1
                                                                 }
                                                             }]
@@ -5658,7 +5658,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 0.5
                                                                 }
                                                             }]
@@ -5698,7 +5698,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 0.5
                                                                 }
                                                             }]
@@ -5874,7 +5874,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 1
                                                                 }
                                                             }]
@@ -5907,7 +5907,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 1
                                                                 }
                                                             }]
@@ -5940,7 +5940,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: SplineDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                                     Value: 0
                                                                 }
                                                             }]
@@ -6038,7 +6038,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 1
                                                                 }
                                                             }]
@@ -6071,7 +6071,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: EasingDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 1)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 100)),
                                                                     Value: 1
                                                                 }
                                                             }]
@@ -6104,7 +6104,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: SplineDoubleKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                                     Value: 0
                                                                 }
                                                             }]
@@ -6200,7 +6200,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: SplineDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: 0.5
                                                     }
                                                 }]
@@ -6860,7 +6860,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -6893,7 +6893,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -6917,7 +6917,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: {
                                                             Type: Boolean,
                                                             Value: true
@@ -7017,7 +7017,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                                     Value: {
                                                                         Type: Boolean,
                                                                         Value: true
@@ -7363,7 +7363,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -7598,14 +7598,14 @@ App.GetGenericResourceDictionary = function () {
                                         Content: {
                                             Type: Storyboard,
                                             Props: {
-                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 100))
                                             },
                                             Children: [
                                             {
                                                 Type: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7643,7 +7643,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Type: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7667,14 +7667,14 @@ App.GetGenericResourceDictionary = function () {
                                         Content: {
                                             Type: Storyboard,
                                             Props: {
-                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 100))
                                             },
                                             Children: [
                                             {
                                                 Type: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -7856,7 +7856,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -7889,7 +7889,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -7913,7 +7913,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: {
                                                             Type: Boolean,
                                                             Value: true
@@ -8084,7 +8084,7 @@ App.GetGenericResourceDictionary = function () {
                                                                 {
                                                                     Type: DiscreteObjectKeyFrame,
                                                                     Props: {
-                                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                                         Value: {
                                                                             Type: Boolean,
                                                                             Value: true
@@ -8386,7 +8386,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: 1
                                                     }
                                                 }]
@@ -8457,7 +8457,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -8490,7 +8490,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -8514,7 +8514,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: {
                                                             Type: Boolean,
                                                             Value: true
@@ -8641,7 +8641,7 @@ App.GetGenericResourceDictionary = function () {
                                                             {
                                                                 Type: DiscreteObjectKeyFrame,
                                                                 Props: {
-                                                                    KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                                    KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                                     Value: {
                                                                         Type: Boolean,
                                                                         Value: true
@@ -8811,7 +8811,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -8838,7 +8838,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Collapsed
                                                     }
                                                 }]
@@ -8862,14 +8862,14 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: SplineDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: 0
                                                     }
                                                 },
                                                 {
                                                     Type: SplineDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 35)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 350)),
                                                         Value: 20
                                                     }
                                                 }]
@@ -9196,14 +9196,14 @@ App.GetGenericResourceDictionary = function () {
                                         Content: {
                                             Type: Storyboard,
                                             Props: {
-                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                Duration: new Duration(new TimeSpan(0, 0, 0, 0, 100))
                                             },
                                             Children: [
                                             {
                                                 Type: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9241,7 +9241,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Type: DoubleAnimation,
                                                 Props: {
                                                     To: 1,
-                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 1))
+                                                    Duration: new Duration(new TimeSpan(0, 0, 0, 0, 100))
                                                 },
                                                 AttachedProps: [{
                                                     Owner: Storyboard,
@@ -9402,7 +9402,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -9435,7 +9435,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -9459,7 +9459,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: {
                                                             Type: Boolean,
                                                             Value: true
@@ -9592,7 +9592,7 @@ App.GetGenericResourceDictionary = function () {
                                                                     {
                                                                         Type: DiscreteObjectKeyFrame,
                                                                         Props: {
-                                                                            KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                                            KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                                             Value: {
                                                                                 Type: Boolean,
                                                                                 Value: true
@@ -10530,7 +10530,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -10557,7 +10557,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -10584,7 +10584,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -10608,7 +10608,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -10632,7 +10632,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -10656,7 +10656,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: DiscreteObjectKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 0)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 0)),
                                                         Value: Visibility.Visible
                                                     }
                                                 }]
@@ -11516,7 +11516,7 @@ App.GetGenericResourceDictionary = function () {
                                             Type: VisualTransition,
                                             Props: {
                                                 From: "Open",
-                                                GeneratedDuration: new Duration(new TimeSpan(0, 0, 0, 0, 3)),
+                                                GeneratedDuration: new Duration(new TimeSpan(0, 0, 0, 0, 300)),
                                                 To: "Closed"
                                             }
                                         }]
@@ -11547,7 +11547,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 4)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 400)),
                                                         Value: 0
                                                     }
                                                 }]
@@ -11580,7 +11580,7 @@ App.GetGenericResourceDictionary = function () {
                                                 {
                                                     Type: EasingDoubleKeyFrame,
                                                     Props: {
-                                                        KeyTime: new KeyTime(new TimeSpan(0, 0, 0, 0, 3)),
+                                                        KeyTime: KeyTime.CreateTimeSpan(new TimeSpan(0, 0, 0, 0, 300)),
                                                         Value: 1
                                                     }
                                                 }]
