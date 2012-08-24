@@ -1,28 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
   <Header>
-    <Title>region</Title>
-    <Author>WickedSick</Author>
-    <Shortcut>region</Shortcut>
-    <Description>Code snippet for a region</Description>
     <SnippetTypes>
       <SnippetType>Expansion</SnippetType>
       <SnippetType>SurroundsWith</SnippetType>
     </SnippetTypes>
+    <Title>region</Title>
+    <Author>WickedSick</Author>
+    <Description>Code snippet for a region</Description>
+    <HelpUrl>
+    </HelpUrl>
+    <Shortcut>region</Shortcut>
   </Header>
   <Snippet>
     <Declarations>
-      <Literal>
+      <Literal Editable="true">
         <ID>name</ID>
         <ToolTip>Region Name</ToolTip>
         <Default>region</Default>
+        <Function>
+        </Function>
       </Literal>
-      <Literal>
+      <Literal Editable="true">
         <ID>selected</ID>
         <ToolTip>Code</ToolTip>
-        <Default></Default>
+        <Default>
+        </Default>
+        <Function>
+        </Function>
       </Literal>
     </Declarations>
-    <Code Language="jscript"><![CDATA[//#region $name$
+    <Code Language="javascript"><![CDATA[//#region $name$
 
 $selected$
 

@@ -1,32 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <CodeSnippet Format="1.1.0" xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
   <Header>
-    <Title>propd</Title>
-    <Author>WickedSick</Author>
-    <Shortcut>propd</Shortcut>
-    <Description>Code snippet for a dependency property</Description>
     <SnippetTypes>
       <SnippetType>Expansion</SnippetType>
     </SnippetTypes>
+    <Title>propd</Title>
+    <Author>WickedSick</Author>
+    <Description>Code snippet for a dependency property</Description>
+    <HelpUrl>
+    </HelpUrl>
+    <Shortcut>propd</Shortcut>
   </Header>
   <Snippet>
     <Declarations>
-      <Literal>
+      <Literal Editable="true">
         <ID>owner</ID>
         <ToolTip>Owner Type</ToolTip>
         <Default>DependencyObject</Default>
+        <Function>
+        </Function>
       </Literal>
-      <Literal>
+      <Literal Editable="true">
         <ID>name</ID>
         <ToolTip>Property Name</ToolTip>
         <Default>Name</Default>
+        <Function>
+        </Function>
       </Literal>
-      <Literal>
+      <Literal Editable="true">
         <ID>type</ID>
         <ToolTip>Property Type</ToolTip>
         <Default>RefObject</Default>
+        <Function>
+        </Function>
       </Literal>
     </Declarations>
-    <Code Language="jscript"><![CDATA[$owner$.$name$Property = DependencyProperty.Register("$name$", function() { return $type$; }, $owner$);
+    <Code Language="javascript"><![CDATA[$owner$.$name$Property = DependencyProperty.Register("$name$", function() { return $type$; }, $owner$);
 $owner$.Instance.Get$name$ = function () {
 	///<returns type="$type$"></returns>
 	return this.GetValue($owner$.$name$Property);
