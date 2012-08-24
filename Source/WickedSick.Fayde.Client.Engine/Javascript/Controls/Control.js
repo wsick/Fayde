@@ -62,10 +62,6 @@ Nullstone.AutoProperties(Control, [
     Control.DefaultStyleKeyProperty
 ]);
 
-//#endregion
-
-//#region Properties
-
 Control.Instance.GetIsFocused = function () {
     ///<returns type="Boolean"></returns>
     return this._IsFocused;

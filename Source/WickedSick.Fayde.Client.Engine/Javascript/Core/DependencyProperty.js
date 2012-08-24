@@ -242,50 +242,52 @@ DependencyProperty._HandleDefault = function (data) {
         }
     }
 
-    if (data.index === data.end)
-        return false;
-
-    c = data.path.charAt(data.index);
-    if (c === '.') {
-        // we found a type name, now find the property name
-        if ((data.index - start) === 11 && data.path.substr(start, 11).toLowerCase() === "textelement") { //bug workaround from Blend
-            data.type = TextBlock;
-            data.explicitType = true;
-        } else {
-            var s = data.index;
-            if (data.path.charAt(data.index - 1) === '\'' && !data.tickOpen) {
-                s = data.index - 1;
-            }
-            var name = data.path.slice(start, s);
-            data.type = DependencyProperty._LookupType(name);
-            data.explicitType = true;
-            if (data.type == null)
-                data.type = data.lu.constructor;
-        }
-        data.index++;
-        start = data.index;
-        while (data.index < data.end) {
-            c = data.path.charAt(data.index);
-            if (!((!data.parenOpen || c !== ')') && (c !== '.' || data.tickOpen)))
-                break;
-            data.index++;
-            if (c === '\'') {
-                data.tickOpen = !data.tickOpen;
-                if (!data.tickOpen)
-                    break;
-            }
-        }
-        if (data.index === start)
-            return false;
-    } else {
+    if (data.index === data.end) {
+        // This happened because a property at the end of the path ended like this: '.Property'
+        // We only fail if we can't find the property
         data.type = data.lu.constructor;
-        data.explicitType = false;
+    } else {
+        c = data.path.charAt(data.index);
+        if (c === '.') {
+            // we found a type name, now find the property name
+            if ((data.index - start) === 11 && data.path.substr(start, 11).toLowerCase() === "textelement") { //bug workaround from Blend
+                data.type = TextBlock;
+                data.explicitType = true;
+            } else {
+                var s = data.index;
+                if (data.path.charAt(data.index - 1) === '\'' && !data.tickOpen) {
+                    s = data.index - 1;
+                }
+                var name = data.path.slice(start, s);
+                data.type = DependencyProperty._LookupType(name);
+                data.explicitType = true;
+                if (data.type == null)
+                    data.type = data.lu.constructor;
+            }
+            data.index++;
+            start = data.index;
+            while (data.index < data.end) {
+                c = data.path.charAt(data.index);
+                if (!((!data.parenOpen || c !== ')') && (c !== '.' || data.tickOpen)))
+                    break;
+                data.index++;
+                if (c === '\'') {
+                    data.tickOpen = !data.tickOpen;
+                    if (!data.tickOpen)
+                        break;
+                }
+            }
+            if (data.index === start)
+                return false;
+        } else {
+            data.type = data.lu.constructor;
+            data.explicitType = false;
+        }
+
+        c = data.path.charAt(data.index);
+        if ((c !== ')' && data.parenOpen) || data.type == null)
+            return false;
     }
-
-    c = data.path.charAt(data.index);
-    if ((c !== ')' && data.parenOpen) || data.type == null)
-        return false;
-
     name = data.path.slice(start, data.index);
     if ((data.res = DependencyProperty.GetDependencyProperty(data.type, name)) == null && data.lu)
         data.res = DependencyProperty.GetDependencyProperty(data.lu.constructor, name);
