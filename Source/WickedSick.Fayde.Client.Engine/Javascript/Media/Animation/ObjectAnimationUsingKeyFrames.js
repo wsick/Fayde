@@ -57,7 +57,7 @@ ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOrigi
     if (prevFrame == null) {
         // the first keyframe, start at the animation's base value
         baseValue = defaultOriginValue;
-        keyStartTime = 0;
+        keyStartTime = new TimeSpan();
     } else {
         // start at the previous keyframe's target value
         baseValue = prevFrame.ConvertedValue;
@@ -68,11 +68,11 @@ ObjectAnimationUsingKeyFrames.Instance._GetCurrentValue = function (defaultOrigi
     if (clockData.CurrentTime.CompareTo(keyEndTime) >= 0) {
         progress = 1.0;
     } else {
-        var keyDuration = keyEndTime._Ticks - keyStartTime;
+        var keyDuration = keyEndTime._Ticks - keyStartTime._Ticks;
         if (keyDuration <= 0)
             progress = 1.0;
         else
-            progress = (clockData.CurrentTime._Ticks - keyStartTime) / keyDuration;
+            progress = (clockData.CurrentTime._Ticks - keyStartTime._Ticks) / keyDuration;
     }
 
     return currentKeyFrame.InterpolateValue(baseValue, progress);
