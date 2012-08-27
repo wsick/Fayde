@@ -5,7 +5,7 @@
 var ProgressBar = Nullstone.Create("ProgressBar", RangeBase);
 
 ProgressBar.Instance.Init = function () {
-    this.Init$Control();
+    this.Init$RangeBase();
     this.DefaultStyleKey = this.constructor;
 };
 
