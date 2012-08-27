@@ -21,9 +21,9 @@ Thumb.IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", fun
 Thumb.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, Thumb);
 
 Nullstone.AutoPropertiesReadOnly(Thumb, [
-    Thumb.IsDraggingProperty,
-    Thumb.IsFocusedProperty
+    Thumb.IsDraggingProperty
 ]);
+Nullstone.AutoProperty(Thumb, Thumb.IsFocusedProperty, undefined, true);
 
 //#endregion
 

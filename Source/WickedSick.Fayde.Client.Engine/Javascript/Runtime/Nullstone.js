@@ -159,19 +159,21 @@ Nullstone.AutoPropertiesReadOnly = function (type, arr) {
         Nullstone.AutoPropertyReadOnly(type, arr[i]);
     }
 };
-Nullstone.AutoPropertyReadOnly = function (type, nameOrDp) {
+Nullstone.AutoPropertyReadOnly = function (type, nameOrDp, isOverride) {
     if (nameOrDp instanceof DependencyProperty) {
         type.Instance[nameOrDp.Name] = null;
         type.Properties.push({
             Auto: true,
-            DP: nameOrDp
+            DP: nameOrDp,
+            Override: isOverride === true
         });
     } else {
         type.Instance[nameOrDp] = null;
         type.Properties.push({
             Auto: true,
             Name: nameOrDp,
-            IsReadOnly: true
+            IsReadOnly: true,
+            Override: isOverride === true
         });
     }
 };

@@ -29,9 +29,9 @@ Nullstone.AutoProperties(ButtonBase, [
 ]);
 
 Nullstone.AutoPropertiesReadOnly(ButtonBase, [
-    ButtonBase.IsPressedProperty,
-    ButtonBase.IsFocusedProperty
+    ButtonBase.IsPressedProperty
 ]);
+Nullstone.AutoProperty(ButtonBase, ButtonBase.IsFocusedProperty, undefined, true);
 
 //#endregion
 

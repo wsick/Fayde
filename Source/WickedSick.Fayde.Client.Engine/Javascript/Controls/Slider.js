@@ -31,10 +31,7 @@ Nullstone.AutoProperties(Slider, [
     Slider.IsDirectionReversedProperty,
     Slider.OrientationProperty
 ]);
-
-Nullstone.AutoPropertiesReadOnly(Slider, [
-    Slider.IsFocusedProperty
-]);
+Nullstone.AutoPropertyReadOnly(Slider, Slider.IsFocusedProperty, true);
 
 //#endregion
 
@@ -51,10 +48,10 @@ Slider.Instance.OnApplyTemplate = function () {
         this.$HorizontalThumb.DragDelta.Subscribe(function (sender, e) { this._OnThumbDragDelta(e); }, this);
     }
     if (this.$HorizontalLargeDecrease != null) {
-        this.$HorizontalLargeDecrease.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+        this.$HorizontalLargeDecrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
     }
     if (this.$HorizontalLargeIncrease != null) {
-        this.$HorizontalLargeIncrease.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+        this.$HorizontalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
     }
 
     this.$VerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalTemplate"), FrameworkElement);
@@ -67,10 +64,10 @@ Slider.Instance.OnApplyTemplate = function () {
         this.$VerticalThumb.DragDelta.Subscribe(function (sender, e) { this._OnThumbDragDelta(e); }, this);
     }
     if (this.$VerticalLargeDecrease != null) {
-        this.$VerticalLargeDecrease.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+        this.$VerticalLargeDecrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
     }
     if (this.$VerticalLargeIncrease != null) {
-        this.$VerticalLargeIncrease.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+        this.$VerticalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
     }
 
     this._OnOrientationChanged();

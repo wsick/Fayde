@@ -339,7 +339,7 @@ TextBox.Instance.OnLostFocus = function (sender, args) {
     this.$UpdateVisualState();
 };
 
-Thumb.Instance.$GetVisualStateCommon = function () {
+TextBox.Instance.$GetVisualStateCommon = function () {
     if (!this.IsEnabled) {
         return "Disabled";
     } else if (this.IsReadOnly) {
