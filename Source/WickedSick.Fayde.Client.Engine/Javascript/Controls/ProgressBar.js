@@ -41,8 +41,8 @@ ProgressBar.Instance.OnApplyTemplate = function () {
     this.$UpdateVisualState(false);
 };
 
-ProgressBar.Instance._OnValueChanged = function (oldValue, newValue) {
-    this._OnValueChanged$RangeBase(oldValue, newValue);
+ProgressBar.Instance.$OnValueChanged = function (oldValue, newValue) {
+    this.$OnValueChanged$RangeBase(oldValue, newValue);
     this._UpdateIndicator();
 };
 ProgressBar.Instance._OnTrackSizeChanged = function (sender, e) {

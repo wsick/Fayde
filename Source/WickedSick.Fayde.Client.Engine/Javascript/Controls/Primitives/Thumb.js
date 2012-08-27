@@ -72,14 +72,14 @@ Thumb.Instance.OnLostMouseCapture = function (sender, args) {
     this._RaiseDragCompleted(false);
     this.$SetValueInternal(Thumb.IsDraggingProperty, false);
 };
-Thumb.Instance.OnMouseEnter = function (sender, args) {
-    this.OnMouseEnter$Control(sender, args);
+Thumb.Instance.OnMouseEnter = function (args) {
+    this.OnMouseEnter$Control(args);
     if (this.IsEnabled) {
         this.$UpdateVisualState();
     }
 };
-Thumb.Instance.OnMouseLeave = function (sender, args) {
-    this.OnMouseLeave$Control(sender, args);
+Thumb.Instance.OnMouseLeave = function (args) {
+    this.OnMouseLeave$Control(args);
     if (this.IsEnabled) {
         this.$UpdateVisualState();
     }

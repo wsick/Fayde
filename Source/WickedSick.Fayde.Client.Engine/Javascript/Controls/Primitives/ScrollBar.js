@@ -33,10 +33,6 @@ Nullstone.AutoProperties(ScrollBar, [
     ScrollBar.ViewportSizeProperty
 ]);
 
-//#endregion
-
-//#region Properties
-
 ScrollBar.Instance.GetIsDragging = function () {
     ///<returns type="Boolean"></returns>
     if (this.$ElementHorizontalThumb)
@@ -112,8 +108,8 @@ ScrollBar.Instance.OnLostMouseCapture = function (sender, args) {
     this.OnLostMouseCapture$RangeBase(sender, args);
     this.$UpdateVisualState();
 };
-ScrollBar.Instance.OnMouseEnter = function (sender, args) {
-    this.OnMouseEnter$RangeBase(sender, args);
+ScrollBar.Instance.OnMouseEnter = function (args) {
+    this.OnMouseEnter$RangeBase(args);
     var orientation = this.Orientation;
     var shouldUpdate = false;
     if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
@@ -123,8 +119,8 @@ ScrollBar.Instance.OnMouseEnter = function (sender, args) {
     if (shouldUpdate)
         this.$UpdateVisualState();
 };
-ScrollBar.Instance.OnMouseLeave = function (sender, args) {
-    this.OnMouseLeave$RangeBase(sender, args);
+ScrollBar.Instance.OnMouseLeave = function (args) {
+    this.OnMouseLeave$RangeBase(args);
     var orientation = this.Orientation;
     var shouldUpdate = false;
     if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
@@ -154,19 +150,19 @@ ScrollBar.Instance.OnMouseLeftButtonUp = function (sender, args) {
 
 //#region RangeBase Changes
 
-ScrollBar.Instance._OnMaximumChanged = function (oldMax, newMax) {
+ScrollBar.Instance.$OnMaximumChanged = function (oldMax, newMax) {
     var trackLength = this._GetTrackLength();
-    this._OnMaximumChanged$RangeBase(oldMax, newMax);
+    this.$OnMaximumChanged$RangeBase(oldMax, newMax);
     this._UpdateTrackLayout(trackLength);
 };
-ScrollBar.Instance._OnMinimumChanged = function (oldMin, newMin) {
+ScrollBar.Instance.$OnMinimumChanged = function (oldMin, newMin) {
     var trackLength = this._GetTrackLength();
-    this._OnMinimumChanged$RangeBase(oldMax, newMax);
+    this.$OnMinimumChanged$RangeBase(oldMax, newMax);
     this._UpdateTrackLayout(trackLength);
 };
-ScrollBar.Instance._OnValueChanged = function (oldValue, newValue) {
+ScrollBar.Instance.$OnValueChanged = function (oldValue, newValue) {
     var trackLength = this._GetTrackLength();
-    this._OnValueChanged$RangeBase(oldValue, newValue);
+    this.$OnValueChanged$RangeBase(oldValue, newValue);
     this._UpdateTrackLayout(trackLength);
 };
 

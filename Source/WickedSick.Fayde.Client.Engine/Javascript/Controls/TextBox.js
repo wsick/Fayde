@@ -320,14 +320,14 @@ TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 
 //#endregion
 
-TextBox.Instance.OnMouseEnter = function (sender, args) {
+TextBox.Instance.OnMouseEnter = function (args) {
     FocusDebug("TextBox.OnMouseEnter");
-    this.OnMouseEnter$TextBoxBase(sender, args);
+    this.OnMouseEnter$TextBoxBase(args);
     this.$UpdateVisualState();
 };
-TextBox.Instance.OnMouseLeave = function (sender, args) {
+TextBox.Instance.OnMouseLeave = function (args) {
     FocusDebug("TextBox.OnMouseLeave");
-    this.OnMouseLeave$TextBoxBase(sender, args);
+    this.OnMouseLeave$TextBoxBase(args);
     this.$UpdateVisualState();
 };
 TextBox.Instance.OnGotFocus = function (sender, args) {

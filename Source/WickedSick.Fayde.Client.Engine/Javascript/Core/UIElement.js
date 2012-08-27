@@ -74,10 +74,7 @@ UIElement.Instance.Init = function () {
     this.MouseRightButtonUp.Subscribe(this.OnMouseRightButtonUp, this);
 
     this.MouseEnter = new MulticastEvent();
-    this.MouseEnter.Subscribe(this.OnMouseEnter, this);
-
     this.MouseLeave = new MulticastEvent();
-    this.MouseLeave.Subscribe(this.OnMouseLeave, this);
 
     this.MouseWheel = new MulticastEvent();
     this.MouseWheel.Subscribe(this.OnMouseWheel, this);
@@ -1050,8 +1047,12 @@ UIElement.Instance._EmitEvent = function (type, button, args) {
             this.MouseRightButtonDown.Raise(this, args);
         }
     } else if (type === "leave") {
+        this.$SetValueInternal(UIElement.IsMouseOverProperty, false);
+        this.OnMouseLeave(args);
         this.MouseLeave.Raise(this, args);
     } else if (type === "enter") {
+        this.$SetValueInternal(UIElement.IsMouseOverProperty, true);
+        this.OnMouseEnter(args);
         this.MouseEnter.Raise(this, args);
     } else if (type === "move") {
         this.MouseMove.Raise(this, args);
@@ -1068,12 +1069,8 @@ UIElement.Instance.OnMouseLeftButtonDown = function (sender, e) { };
 UIElement.Instance.OnMouseLeftButtonUp = function (sender, e) { };
 UIElement.Instance.OnMouseRightButtonDown = function (sender, e) { };
 UIElement.Instance.OnMouseRightButtonUp = function (sender, e) { };
-UIElement.Instance.OnMouseEnter = function (sender, e) {
-    this.$SetValueInternal(UIElement.IsMouseOverProperty, true);
-};
-UIElement.Instance.OnMouseLeave = function (sender, e) {
-    this.$SetValueInternal(UIElement.IsMouseOverProperty, false);
-};
+UIElement.Instance.OnMouseEnter = function (e) { };
+UIElement.Instance.OnMouseLeave = function (e) { };
 UIElement.Instance.OnMouseWheel = function (sender, e) { };
 
 UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {

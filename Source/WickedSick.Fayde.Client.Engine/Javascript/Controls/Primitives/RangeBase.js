@@ -33,10 +33,10 @@ RangeBase._OnMinimumPropertyChanged = function (d, args) {
     d._CoerceValue();
     d._LevelsFromRootCall--;
     if (d._LevelsFromRootCall === 0) {
-        d._OnMinimumChanged(args.OldValue, args.OldValue);
+        d.$OnMinimumChanged(args.OldValue, args.OldValue);
         var max = d.Maximum;
         if (!DoubleUtil.AreClose(d._InitialMax, max)) {
-            d._OnMaximumChanged(d._InitialMax, max);
+            d.$OnMaximumChanged(d._InitialMax, max);
         }
         var val = d.Value;
         if (!DoubleUtil.AreClose(d._InitialVal, val)) {
@@ -61,7 +61,7 @@ RangeBase._OnMaximumPropertyChanged = function (d, args) {
     if (d._LevelsFromRootCall === 0) {
         var max = d.Maximum;
         if (!DoubleUtil.AreClose(d._InitialMax, max)) {
-            d._OnMaximumChanged(d._InitialMax, max);
+            d.$OnMaximumChanged(d._InitialMax, max);
         }
         var val = d.Value;
         if (!DoubleUtil.AreClose(d._InitialVal, val)) {
@@ -154,11 +154,13 @@ RangeBase._IsValidDoubleValue = function (value) {
     return true;
 };
 
-RangeBase.Instance._OnMinimumChanged = function (oldMin, newMin) { };
-RangeBase.Instance._OnMaximumChanged = function (oldMax, newMax) { };
+RangeBase.Instance.$OnMinimumChanged = function (oldMin, newMin) { };
+RangeBase.Instance.$OnMaximumChanged = function (oldMax, newMax) { };
 RangeBase.Instance._OnValueChanged = function (oldValue, newValue) {
     this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldValue, newValue));
+    this.$OnValueChanged(oldValue, newValue);
 };
+RangeBase.Instance.$OnValueChanged = function (oldValue, newValue) { };
 
 Nullstone.FinishCreate(RangeBase);
 //#endregion

@@ -79,8 +79,8 @@ ButtonBase.Instance.$GetVisualStateCommon = function () {
 
 //#region Mouse
 
-ButtonBase.Instance.OnMouseEnter = function (sender, args) {
-    this.OnMouseEnter$ContentControl(sender, args);
+ButtonBase.Instance.OnMouseEnter = function (args) {
+    this.OnMouseEnter$ContentControl(args);
 
     this._SuspendStateChanges = true;
     try {
@@ -93,8 +93,8 @@ ButtonBase.Instance.OnMouseEnter = function (sender, args) {
         this.$UpdateVisualState();
     }
 };
-ButtonBase.Instance.OnMouseLeave = function (sender, args) {
-    this.OnMouseLeave$ContentControl(sender, args);
+ButtonBase.Instance.OnMouseLeave = function (args) {
+    this.OnMouseLeave$ContentControl(args);
 
     this._SuspendStateChanges = true;
     try {

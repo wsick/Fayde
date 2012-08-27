@@ -60,8 +60,8 @@ RepeatButton.Instance.OnLostFocus = function (sender, args) {
         this._UpdateRepeatState();
     }
 };
-RepeatButton.Instance.OnMouseEnter = function (sender, args) {
-    this.OnMouseEnter$ButtonBase(sender, args);
+RepeatButton.Instance.OnMouseEnter = function (args) {
+    this.OnMouseEnter$ButtonBase(args);
     if (this.ClickMode === ClickMode.Hover) {
         this._MouseCausingRepeat = true;
         this._UpdateRepeatState();
@@ -77,8 +77,8 @@ RepeatButton.Instance.OnMouseEnter = function (sender, args) {
     }
     this._MousePosition = args.GetPosition(parent);
 };
-RepeatButton.Instance.OnMouseLeave = function (sender, args) {
-    this.OnMouseLeave$ButtonBase(sender, args);
+RepeatButton.Instance.OnMouseLeave = function (args) {
+    this.OnMouseLeave$ButtonBase(args);
     if (this.ClickMode === ClickMode.Hover) {
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
