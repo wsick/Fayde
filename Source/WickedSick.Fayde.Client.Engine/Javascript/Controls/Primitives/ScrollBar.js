@@ -16,7 +16,7 @@ ScrollBar.Instance.Init = function () {
     this.DefaultStyleKey = this.constructor;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 ScrollBar._OnOrientationPropertyChanged = function (d, args) {
     d._OnOrientationChanged();
@@ -106,8 +106,6 @@ ScrollBar.Instance.OnApplyTemplate = function () {
 
 ScrollBar.Instance.OnIsEnabledChanged = function (args) {
     this.OnIsEnabledChanged$RangeBase(args);
-    if (!this.IsEnabled)
-        this.IsMouseOver = false;
     this.$UpdateVisualState();
 };
 ScrollBar.Instance.OnLostMouseCapture = function (sender, args) {

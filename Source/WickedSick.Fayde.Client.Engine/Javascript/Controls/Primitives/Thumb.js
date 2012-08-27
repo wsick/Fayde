@@ -49,8 +49,6 @@ Thumb.Instance.OnDraggingChanged = function (args) {
 };
 Thumb.Instance.OnIsEnabledChanged = function (args) {
     this.OnIsEnabledChanged$Control(args);
-    if (!this.IsEnabled)
-        this._IsMouseOver = false;
     this.$UpdateVisualState();
 };
 

@@ -36,7 +36,6 @@ Nullstone.AutoPropertiesReadOnly(ButtonBase, [
 //#endregion
 
 ButtonBase.Instance.OnIsEnabledChanged = function (e) {
-    this.OnIsEnabledChanged$ContentControl(e);
     var isEnabled = e.NewValue;
     this._SuspendStateChanges = true;
     try {

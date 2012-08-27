@@ -246,6 +246,8 @@ Control.Instance.OnLostFocus = function (sender, e) {
 //#endregion
 
 Control.Instance.OnIsEnabledChanged = function (args) {
+    if (!this.IsEnabled)
+        this.$SetValueInternal(UIElement.IsMouseOverProperty, false);
 }
 
 //#region Visual State Management
