@@ -398,8 +398,8 @@ TextBoxBase.Instance._EmitCursorPositionChanged = function (height, x, y) {
 
 //#region Keyboard
 
-TextBoxBase.Instance.OnKeyDown = function (sender, args) {
-    switch (args.KeyCode) {
+TextBoxBase.Instance.OnKeyDown = function (args) {
+    switch (arg.Key) {
         case 16: //shift
         case 17: //ctrl
         case 18: //alt
@@ -411,13 +411,13 @@ TextBoxBase.Instance.OnKeyDown = function (sender, args) {
 
     this._BatchPush();
 
-    switch (args.KeyCode) {
-        case Keys.Backspace:
+    switch (arg.Key) {
+        case Key.Back:
             if (this._IsReadOnly)
                 break;
             handled = this._KeyDownBackSpace(args.Modifiers);
             break;
-        case Keys.Delete:
+        case Key.Delete:
             if (this._IsReadOnly)
                 break;
             if (args.Modifiers.Shift) {
@@ -427,7 +427,7 @@ TextBoxBase.Instance.OnKeyDown = function (sender, args) {
                 handled = this._KeyDownDelete(args.Modifiers);
             }
             break;
-        case Keys.Insert:
+        case Key.Insert:
             if (args.Modifiers.Shift) {
                 //Shift+Insert => Paste
                 handled = true;
@@ -436,28 +436,28 @@ TextBoxBase.Instance.OnKeyDown = function (sender, args) {
                 handled = true;
             }
             break;
-        case Keys.PageDown:
+        case Key.PageDown:
             handled = this._KeyDownPageDown(args.Modifiers);
             break;
-        case Keys.PageUp:
+        case Key.PageUp:
             handled = this._KeyUpPageDown(args.Modifiers);
             break;
-        case Keys.Home:
+        case Key.Home:
             handled = this._KeyDownHome(args.Modifiers);
             break;
-        case Keys.End:
+        case Key.End:
             handled = this._KeyDownEnd(args.Modifiers);
             break;
-        case Keys.Left:
+        case Key.Left:
             handled = this._KeyDownLeft(args.Modifiers);
             break;
-        case Keys.Right:
+        case Key.Right:
             handled = this._KeyDownRight(args.Modifiers);
             break;
-        case Keys.Down:
+        case Key.Down:
             handled = this._KeyDownDown(args.Modifiers);
             break;
-        case Keys.Up:
+        case Key.Up:
             handled = this._KeyDownUp(args.Modifiers);
             break;
         default:
@@ -508,9 +508,9 @@ TextBoxBase.Instance.OnKeyDown = function (sender, args) {
     this._SyncAndEmit();
 
     if (!args.Handled)
-        this.PostOnKeyDown(sender, args);
+        this.PostOnKeyDown(args);
 };
-TextBoxBase.Instance.PostOnKeyDown = function (sender, args) {
+TextBoxBase.Instance.PostOnKeyDown = function (args) {
     if (args.Handled)
         return;
 
@@ -527,8 +527,8 @@ TextBoxBase.Instance.PostOnKeyDown = function (sender, args) {
     this._Emit = _TextBoxEmitChanged.NOTHING;
     this._BatchPush();
 
-    switch (args.KeyCode) {
-        case Keys.Enter:
+    switch (args.Key) {
+        case Key.Enter:
             this._KeyDownChar('\r');
             break;
         default:

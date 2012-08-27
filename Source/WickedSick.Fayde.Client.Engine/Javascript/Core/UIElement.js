@@ -89,10 +89,7 @@ UIElement.Instance.Init = function () {
     this.LostFocus.Subscribe(this.OnLostFocus, this);
 
     this.KeyDown = new MulticastEvent();
-    this.KeyDown.Subscribe(this.OnKeyDown, this);
-
     this.KeyUp = new MulticastEvent();
-    this.KeyUp.Subscribe(this.OnKeyUp, this);
 
     this.RequestBringIntoView = new MulticastEvent();
 
@@ -1101,16 +1098,16 @@ UIElement.Instance.OnLostMouseCapture = function (sender, e) { };
 //Alt - 18
 
 UIElement.Instance._EmitKeyDown = function (args) {
+    this.OnKeyDown(args);
     this.KeyDown.Raise(this, args);
 };
 UIElement.Instance._EmitKeyUp = function (args) {
+    this.OnKeyUp(args);
     this.KeyUp.Raise(this, args);
 };
 
-UIElement.Instance.OnKeyDown = function (sender, args) {
-};
-UIElement.Instance.OnKeyUp = function (sender, args) {
-};
+UIElement.Instance.OnKeyDown = function (args) { };
+UIElement.Instance.OnKeyUp = function (args) { };
 
 //#endregion
 

@@ -1,5 +1,7 @@
 ﻿/// <reference path="../RoutedEventArgs.js"/>
 /// CODE
+/// <reference path="Enums.js"/>
+/// <reference path="KeyCodes.js"/>
 
 //#region KeyboardEventArgs
 var KeyboardEventArgs = Nullstone.Create("KeyboardEventArgs", RoutedEventArgs);
@@ -14,7 +16,8 @@ var KeyEventArgs = Nullstone.Create("KeyEventArgs", KeyboardEventArgs, 2);
 KeyEventArgs.Instance.Init = function (modifiers, keyCode) {
     this.Init$KeyboardEventArgs();
     this.Modifiers = modifiers;
-    this.KeyCode = keyCode;
+    this.PlatformKeyCode = keyCode;
+    this.Key = _KeyCodes[keyCode];
 };
 
 Nullstone.FinishCreate(KeyEventArgs);

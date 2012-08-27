@@ -265,8 +265,8 @@ ScrollViewer.Instance.OnMouseWheel = function (sender, args) {
 
 //#region Keyboard
 
-ScrollViewer.Instance.OnKeyDown = function (sender, args) {
-    this.OnKeyDown$ContentControl(sender, args);
+ScrollViewer.Instance.OnKeyDown = function (args) {
+    this.OnKeyDown$ContentControl(args);
     this._HandleKeyDown(args);
 };
 ScrollViewer.Instance._HandleKeyDown = function (args) {
@@ -279,33 +279,33 @@ ScrollViewer.Instance._HandleKeyDown = function (args) {
     var scrollEventType = ScrollEventType.ThumbTrack;
     //TODO: FlowDirection
     //var flowDirection = base.FlowDirection === FlowDirection.RightToLeft;
-    switch (args.KeyCode) {
-        case Keys.PageUp:
+    switch (args.Key) {
+        case Key.PageUp:
             scrollEventType = ScrollEventType.LargeDecrement;
             break;
-        case Keys.PageDown:
+        case Key.PageDown:
             scrollEventType = ScrollEventType.LargeIncrement;
             break;
-        case Keys.End:
+        case Key.End:
             if (!args.Modifiers.Ctrl)
                 orientation = Orientation.Horizontal;
             scrollEventType = ScrollEventType.Last;
             break;
-        case Keys.Home:
+        case Key.Home:
             if (!args.Modifiers.Ctrl)
                 orientation = Orientation.Horizontal;
             scrollEventType = ScrollEventType.First;
             break;
-        case Keys.Left:
+        case Key.Left:
             orientation = Orientation.Horizontal;
             scrollEventType = ScrollEventType.SmallDecrement;
-        case Keys.Up:
+        case Key.Up:
             scrollEventType = ScrollEventType.SmallDecrement;
             break;
-        case Keys.Right:
+        case Key.Right:
             orientation = Orientation.Horizontal;
             scrollEventType = ScrollEventType.SmallIncrement;
-        case Keys.Down:
+        case Key.Down:
             scrollEventType = ScrollEventType.SmallIncrement;
             break;
     }

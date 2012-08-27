@@ -37,16 +37,16 @@ RepeatButton.Instance.OnIsEnabledChanged = function (e) {
     this._MouseCausingRepeat = false;
     this._UpdateRepeatState();
 };
-RepeatButton.Instance.OnKeyDown = function (sender, args) {
-    if (args.KeyCode === Keys.Space && this.ClickMode !== ClickMode.Hover) {
+RepeatButton.Instance.OnKeyDown = function (args) {
+    if (args.Key === Key.Space && this.ClickMode !== ClickMode.Hover) {
         this._KeyboardCausingRepeat = true;
         this._UpdateRepeatState();
     }
-    this.OnKeyDown$ButtonBase(sender, args);
+    this.OnKeyDown$ButtonBase(args);
 };
-RepeatButton.Instance.OnKeyUp = function (sender, args) {
-    this.OnKeyUp$ButtonBase(sender, args);
-    if (args.KeyCode === Keys.Space && this.ClickMode !== ClickMode.Hover) {
+RepeatButton.Instance.OnKeyUp = function (args) {
+    this.OnKeyUp$ButtonBase(args);
+    if (args.Key === Key.Space && this.ClickMode !== ClickMode.Hover) {
         this._KeyboardCausingRepeat = false;
         this._UpdateRepeatState();
     }
