@@ -9,6 +9,7 @@
 /// <reference path="ContentPresenter.js"/>
 /// <reference path="ContentControl.js"/>
 /// <reference path="Border.js"/>
+/// <reference path="../Core/Input/Enums.js"/>
 
 //#region TextBoxBase
 var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
@@ -462,18 +463,18 @@ TextBoxBase.Instance.OnKeyDown = function (args) {
             break;
         default:
             if (args.Modifiers.Ctrl) {
-                switch (args.KeyCode) {
-                    case 65:
+                switch (args.Key) {
+                    case Key.A:
                         //Ctrl+A => Select All
                         handled = true;
                         this.SelectAll();
                         break;
-                    case 67:
+                    case Key.C:
                         //Ctrl+C => Copy
                         //copy to clipboard
                         handled = true;
                         break;
-                    case 88:
+                    case Key.X:
                         //Ctrl+X => Cut
                         if (this._IsReadOnly)
                             break;
@@ -481,14 +482,14 @@ TextBoxBase.Instance.OnKeyDown = function (args) {
                         this.SelectedText = "";
                         handled = true;
                         break;
-                    case 89:
+                    case Key.Y:
                         //Ctrl+Y => Redo
                         if (!this.IsReadOnly) {
                             handled = true;
                             this.Redo();
                         }
                         break;
-                    case 90:
+                    case Key.Z:
                         //Ctrl+Z => Undo
                         if (!this.IsReadOnly) {
                             handled = true;

@@ -10,6 +10,7 @@
 /// <reference path="Clock.js"/>
 /// <reference path="../Primitives/Font.js"/>
 /// <reference path="../Core/TabNavigationWalker.js"/>
+/// <reference path="../Core/Input/KeyCodes.js"/>
 
 //#region Surface
 var Surface = Nullstone.Create("Surface", null, 1);
@@ -71,7 +72,8 @@ Surface.Instance.RegisterEvents = function () {
     document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
     document.onkeydown = function (e) {
         e = window.event ? window.event : e;
-        if (e.keyCode === 8 || e.keyCode === 46) {
+        var key = _KeyFromKeyCode[e.keyCode];
+        if (key === Key.Back || key === Key.Delete) { //backspace or delete
             surface._HandleKeyPress(e);
             return false;
         }
@@ -733,7 +735,8 @@ Surface.Instance._HandleKeyPress = function (eve) {
         };
         handled = this._EmitKeyDown(focusToRoot, modifiers, eve.keyCode);
     }
-    if (!handled && eve.keyCode === 9) { //Tab
+    var key = _KeyFromKeyCode[eve.keyCode];
+    if (!handled && key === Key.Tab) { //Tab
         if (this._FocusedElement != null)
             TabNavigationWalker.Focus(this._FocusedElement, eve.shiftKey);
         else

@@ -17,7 +17,7 @@ KeyEventArgs.Instance.Init = function (modifiers, keyCode) {
     this.Init$KeyboardEventArgs();
     this.Modifiers = modifiers;
     this.PlatformKeyCode = keyCode;
-    this.Key = _KeyCodes[keyCode];
+    this.Key = _KeyFromKeyCode[keyCode];
 };
 
 Nullstone.FinishCreate(KeyEventArgs);
