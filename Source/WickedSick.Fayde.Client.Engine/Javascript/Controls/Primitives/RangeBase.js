@@ -8,6 +8,8 @@ var RangeBase = Nullstone.Create("RangeBase", Control);
 
 RangeBase.Instance.Init = function () {
     this.Init$Control();
+
+    this._LevelsFromRootCall = 0;
     
     this.Minimum = 0;
     this.Maximum = 1;
@@ -16,7 +18,6 @@ RangeBase.Instance.Init = function () {
     this.Value = 0;
 
     this.ValueChanged = new MulticastEvent();
-    this._LevelsFromRootCall = 0;
 };
 
 //#region Properties
