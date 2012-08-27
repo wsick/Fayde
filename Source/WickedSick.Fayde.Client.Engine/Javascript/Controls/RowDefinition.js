@@ -6,17 +6,18 @@
 //#region RowDefinition
 var RowDefinition = Nullstone.Create("RowDefinition", DependencyObject);
 
-//#region Dependency Properties
+//#region Properties
 
-RowDefinition.HeightProperty = DependencyProperty.Register("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
-RowDefinition.MaxHeightProperty = DependencyProperty.Register("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
-RowDefinition.MinHeightProperty = DependencyProperty.Register("MinHeight", function () { return Number; }, RowDefinition, 0.0);
+RowDefinition.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
+RowDefinition.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
+RowDefinition.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, RowDefinition, 0.0);
+RowDefinition.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
 
 Nullstone.AutoProperties(RowDefinition, [
     RowDefinition.HeightProperty,
     RowDefinition.MaxHeightProperty,
     RowDefinition.MinHeightProperty,
-    "ActualHeight"
+    RowDefinition.ActualHeightProperty
 ]);
 
 //#endregion
