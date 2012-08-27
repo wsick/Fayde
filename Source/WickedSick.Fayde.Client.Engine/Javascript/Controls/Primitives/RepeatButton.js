@@ -10,7 +10,7 @@ RepeatButton.Instance.Init = function () {
     this.DefaultStyleKey = this.constructor;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 RepeatButton.DelayProperty = DependencyProperty.Register("Delay", function () { return Number; }, RepeatButton, 500, function (d, args) { d.OnDelayChanged(args); });
 RepeatButton.IntervalProperty = DependencyProperty.Register("Interval", function () { return Number; }, RepeatButton, 33, function (d, args) { d.OnIntervalChanged(args); });
@@ -50,7 +50,7 @@ RepeatButton.Instance.OnKeyUp = function (sender, args) {
         this._KeyboardCausingRepeat = false;
         this._UpdateRepeatState();
     }
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 RepeatButton.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$ButtonBase(sender, args);
@@ -66,7 +66,7 @@ RepeatButton.Instance.OnMouseEnter = function (sender, args) {
         this._MouseCausingRepeat = true;
         this._UpdateRepeatState();
     }
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 
     var parent = this;
     while (true) {
@@ -83,7 +83,7 @@ RepeatButton.Instance.OnMouseLeave = function (sender, args) {
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
     }
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 RepeatButton.Instance.OnMouseLeftButtonDown = function (sender, args) {
     if (args.Handled)
@@ -102,7 +102,7 @@ RepeatButton.Instance.OnMouseLeftButtonUp = function (sender, args) {
         this._MouseCausingRepeat = false;
         this._UpdateRepeatState();
     }
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 RepeatButton.Instance.OnMouseMove = function (sender, args) {
     var parent = this;
@@ -154,24 +154,6 @@ RepeatButton.Instance._OnTimeout = function (sender, e) {
             this.OnClick();
             break;
         }
-    }
-};
-
-RepeatButton.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.IsEnabled) {
-        this._GoToState(useTransitions, "Disabled");
-    } else if (this.IsPressed) {
-        this._GoToState(useTransitions, "Pressed");
-    } else if (this.IsMouseOver) {
-        this._GoToState(useTransitions, "MouseOver");
-    } else {
-        this._GoToState(useTransitions, "Normal");
-    }
-
-    if (this.IsFocused && this.IsEnabled) {
-        this._GoToState(useTransitions, "Focused");
-    } else {
-        this._GoToState(useTransitions, "Unfocused");
     }
 };
 

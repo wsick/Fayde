@@ -15,7 +15,7 @@ Thumb.Instance.Init = function () {
     this.DefaultStyleKey = this.constructor;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 Thumb.IsDraggingProperty = DependencyProperty.RegisterReadOnly("IsDragging", function () { return Boolean; }, Thumb, false, function (d, args) { d.OnDraggingChanged(args); });
 Thumb.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, Thumb);
@@ -27,6 +27,11 @@ Nullstone.AutoPropertiesReadOnly(Thumb, [
 
 //#endregion
 
+Thumb.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$Control();
+    this.$UpdateVisualState(false);
+};
+
 Thumb.Instance.CancelDrag = function () {
     if (this.IsDragging) {
         this.$SetValueInternal(Thumb.IsDraggingProperty, false);
@@ -34,24 +39,19 @@ Thumb.Instance.CancelDrag = function () {
     }
 };
 
-Thumb.Instance.OnApplyTemplate = function () {
-    this.OnApplyTemplate$Control();
-    this.UpdateVisualState(false);
-};
-
 Thumb.Instance._FocusChanged = function (hasFocus) {
     this.$SetValueInternal(Thumb.IsFocusedProperty, hasFocus);
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 
 Thumb.Instance.OnDraggingChanged = function (args) {
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 Thumb.Instance.OnIsEnabledChanged = function (args) {
     this.OnIsEnabledChanged$Control(args);
     if (!this.IsEnabled)
         this._IsMouseOver = false;
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 
 //#region Focus
@@ -77,15 +77,13 @@ Thumb.Instance.OnLostMouseCapture = function (sender, args) {
 Thumb.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$Control(sender, args);
     if (this.IsEnabled) {
-        this._IsMouseOver = true;
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
     }
 };
 Thumb.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$Control(sender, args);
     if (this.IsEnabled) {
-        this._IsMouseOver = false;
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
     }
 };
 Thumb.Instance.OnMouseLeftButtonDown = function (sender, args) {
@@ -122,24 +120,6 @@ Thumb.Instance.OnMouseMove = function (sender, args) {
 
 //#endregion
 
-Thumb.Instance.UpdateVisualState = function (useTransitions) {
-    if (useTransitions === undefined) useTransitions = true;
-    if (!this.IsEnabled) {
-        this._GoToState(useTransitions, "Disabled");
-    } else if (this.IsDragging) {
-        this._GoToState(useTransitions, "Pressed");
-    } else if (this._IsMouseOver) {
-        this._GoToState(useTransitions, "MouseOver");
-    } else {
-        this._GoToState(useTransitions, "Normal");
-    }
-
-    if (this.IsFocused && this.IsEnabled)
-        this._GoToState(useTransitions, "Focused");
-    else
-        this._GoToState(useTransitions, "Unfocused");
-};
-
 Thumb.Instance._RaiseDragStarted = function () {
     this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.X, this._Origin.Y));
 };
@@ -148,6 +128,18 @@ Thumb.Instance._RaiseDragDelta = function (x, y) {
 };
 Thumb.Instance._RaiseDragCompleted = function (canceled) {
     this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
+};
+
+Thumb.Instance.$GetVisualStateCommon = function () {
+    if (!this.IsEnabled) {
+        return "Disabled";
+    } else if (this.IsDragging) {
+        return "Pressed";
+    } else if (this.IsMouseOver) {
+        return "MouseOver";
+    } else {
+        return "Normal";
+    }
 };
 
 Nullstone.FinishCreate(Thumb);

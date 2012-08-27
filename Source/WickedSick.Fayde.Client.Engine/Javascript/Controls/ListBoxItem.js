@@ -4,6 +4,8 @@
 //#region ListBox
 var ListBoxItem = Nullstone.Create("ListBoxItem", ContentControl);
 
+//#region Properties
+
 ListBoxItem.IsSelectedProperty = DependencyProperty.RegisterCore("IsSelected", function () { return Boolean; }, ListBoxItem, null, function (d, args) { d.OnIsSelectedChanged(args); });
 
 Nullstone.AutoProperties(ListBoxItem, [
@@ -22,14 +24,21 @@ Nullstone.Property(ListBoxItem, "ParentSelector", {
     }
 });
 
+//#endregion
+
 ListBoxItem.Instance.Init = function () {
     this.Init$ContentControl();
     this._parentSelectorChanged = new MulticastEvent();
     this.DefaultStyleKey = this.constructor;
 };
 
+ListBoxItem.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$ContentControl();
+    this.$UpdateVisualState(false);
+};
+
 ListBoxItem.Instance.OnIsSelectedChanged = function (e) {
-    this._ChangeVisualState();
+    this.$UpdateVisualState();
 };
 
 ListBoxItem.Instance.InvokeLoaded = function () {
@@ -37,11 +46,6 @@ ListBoxItem.Instance.InvokeLoaded = function () {
     if (this._parentSelector) {
         this._parentSelector.NotifyListItemLoaded(this);
     }
-};
-
-ListBoxItem.Instance.OnApplyTemplate = function () {
-    this.OnApplyTemplate$ContentControl();
-    this._ChangeVisualState();
 };
 
 ListBoxItem.Instance.OnMouseLeftButtonDown = function (sender, args) {
@@ -54,59 +58,40 @@ ListBoxItem.Instance.OnMouseLeftButtonDown = function (sender, args) {
         }
     }
 };
-
-ListBoxItem.Instance.OnMouseEnter = function (sender, args) {
-    this._isMouseOver = true;
-    this._ChangeVisualState();
-};
-
-ListBoxItem.Instance.OnMouseLeave = function (sender, args) {
-    this._isMouseOver = false;
-    this._ChangeVisualState();
-};
-
 ListBoxItem.Instance.OnGotFocus = function (sender, args) {
     this.OnGotFocus$ContentControl();
-    this._ChangeVisualState();
+    this.$UpdateVisualState();
     if (this._parentSelector) {
         this._parentSelector.NotifyListItemGotFocus(this);
     }
 };
-
 ListBoxItem.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$ContentControl();
-    this._ChangeVisualState();
+    this.$UpdateVisualState();
     if (this._parentSelector) {
         this._parentSelector.NotifyListItemLostFocus(this);
     }
 };
 
-ListBoxItem.Instance._ChangeVisualState = function () {
-    var isFocused = this.IsFocused;
-    var isEnabled = this.IsEnabled;
-    var isSelected = this.IsSelected;
-    var isMouseOver = this.IsMouseOver;
-
-    if (isFocused) {
-        this._GoToState("Focused", true);
+ListBoxItem.Instance.$GetVisualStateNamesToActivate = function () {
+    var arr = this.$GetVisualStateNamesToActivate$ContentControl();
+    arr.push(this.$GetVisualStateSelection());
+    return arr;
+};
+ListBoxItem.Instance.$GetVisualStateCommon = function () {
+    if (!this.IsEnabled) {
+        return this.Content instanceof Control ? "Normal" : "Disabled";
+    } else if (this.IsMouseOver) {
+        return "MouseOver";
     } else {
-        this._GoToState("Unfocused", true);
+        return "Normal";
     }
-
-    if (!isEnabled) {
-        this._GoToState(Nullstone.Is(this.Content, Control) ? "Normal" : "Disabled", true);
-    } else if (isMouseOver) {
-        this._GoToState("MouseOver", true);
+};
+ListBoxItem.Instance.$GetVisualStateSelection = function () {
+    if (this.IsSelected) {
+        return this.IsFocused ? "Selected" : "SelectedUnfocused";
     } else {
-        this._GoToState("Normal", true);
-    }
-
-    if (isSelected && isFocused) {
-        this._GoToState("Selected", true);
-    } else if (isSelected) {
-        this._GoToState("SelectedUnfocused", true);
-    } else {
-        this._GoToState("Unselected", true);
+        return "Unselected";
     }
 };
 

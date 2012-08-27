@@ -24,7 +24,7 @@ TextBlock.Instance.Init = function () {
     this._Font = new Font();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 TextBlock.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, TextBlock, new Thickness());
 TextBlock.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextBlock, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });

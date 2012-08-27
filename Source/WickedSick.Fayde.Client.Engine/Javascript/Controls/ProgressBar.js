@@ -38,7 +38,7 @@ ProgressBar.Instance.OnApplyTemplate = function () {
     if (track)
         track.SizeChanged.Subscribe(this._OnTrackSizeChanged, this);
 
-    this.UpdateVisualState(false);
+    this.$UpdateVisualState(false);
 };
 
 ProgressBar.Instance._OnValueChanged = function (oldValue, newValue) {
@@ -50,7 +50,7 @@ ProgressBar.Instance._OnTrackSizeChanged = function (sender, e) {
 };
 
 ProgressBar.Instance._OnIsIndeterminateChanged = function () {
-    this.UpdateVisualState(true);
+    this.$UpdateVisualState(true);
 };
 ProgressBar.Instance._UpdateIndicator = function () {
     var min = this.Minimum;
@@ -77,12 +77,8 @@ ProgressBar.Instance._UpdateIndicator = function () {
     this.$Indicator.Width = fullWidth * progress;
 };
 
-ProgressBar.Instance.UpdateVisualState = function (useTransitions) {
-    if (!this.IsIndeterminate) {
-        this._GoToState(useTransitions, "Determinate");
-    } else {
-        this._GoToState(useTransitions, "Indeterminate");
-    }
+ProgressBar.Instance.$GetVisualStateNamesToActivate = function () {
+    return this.IsIndeterminate ? "Indeterminate" : "Determinate";
 };
 
 Nullstone.FinishCreate(ProgressBar);

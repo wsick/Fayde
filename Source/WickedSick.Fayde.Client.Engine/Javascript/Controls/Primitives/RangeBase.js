@@ -19,7 +19,7 @@ RangeBase.Instance.Init = function () {
     this._LevelsFromRootCall = 0;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 RangeBase._OnMinimumPropertyChanged = function (d, args) {
     if (!RangeBase._IsValidDoubleValue(args.NewValue))

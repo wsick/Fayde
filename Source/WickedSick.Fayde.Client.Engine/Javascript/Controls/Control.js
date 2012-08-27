@@ -62,10 +62,12 @@ Nullstone.AutoProperties(Control, [
     Control.DefaultStyleKeyProperty
 ]);
 
-Control.Instance.GetIsFocused = function () {
-    ///<returns type="Boolean"></returns>
-    return this._IsFocused;
-};
+Nullstone.Property(Control, "IsFocused", {
+    get: function () {
+        /// <returns type="Boolean" />
+        return this._IsFocused;
+    }
+});
 
 //#endregion
 
@@ -191,13 +193,6 @@ Control.Instance._DoApplyTemplateWithError = function (error) {
 
 Control.Instance.OnMouseLeftButtonDown = function (sender, args) { };
 
-Control.Instance._GoToState = function (useTransitions, stateName) {
-    /// <param name="useTransitions" type="Boolean"></param>
-    /// <param name="stateName" type="String"></param>
-    /// <returns type="Boolean" />
-    return VisualStateManager.GoToState(this, stateName, useTransitions);
-};
-
 //#endregion
 
 //#region Focus
@@ -239,19 +234,51 @@ Control.Instance.Focus = function (recurse) {
     }
     return false;
 };
-Control.Instance.OnGotFocus = function (sender, args) {
+Control.Instance.OnGotFocus = function (sender, e) {
     this._IsFocused = true;
-    this.OnGotFocus$FrameworkElement(sender, args);
+    this.OnGotFocus$FrameworkElement(sender, e);
 };
-Control.Instance.OnLostFocus = function (sender, args) {
+Control.Instance.OnLostFocus = function (sender, e) {
     this._IsFocused = false;
-    this.OnLostFocus$FrameworkElement(sender, args);
+    this.OnLostFocus$FrameworkElement(sender, e);
 };
 
 //#endregion
 
 Control.Instance.OnIsEnabledChanged = function (args) {
 }
+
+//#region Visual State Management
+
+Control.Instance.$UpdateVisualState = function (useTransitions) {
+    useTransitions = useTransitions !== false;
+    var states = this.$GetVisualStateNamesToActivate();
+    for (var i = 0; i < states.length; i++) {
+        VisualStateManager.GoToState(this, states[i], useTransitions);
+    }
+};
+Control.Instance.$GetVisualStateNamesToActivate = function () {
+    var commonState = this.$GetVisualStateCommon();
+    var focusedState = this.$GetVisualStateFocus();
+    return [commonState, focusedState];
+};
+Control.Instance.$GetVisualStateCommon = function () {
+    if (!this.IsEnabled) {
+        return "Disabled";
+    } else if (this.IsMouseOver) {
+        return "MouseOver";
+    } else {
+        return "Normal";
+    }
+};
+Control.Instance.$GetVisualStateFocus = function () {
+    if (this.IsFocused && this.IsEnabled)
+        return "Focused";
+    else
+        return "Unfocused";
+};
+
+//#endregion
 
 Nullstone.FinishCreate(Control);
 //#endregion

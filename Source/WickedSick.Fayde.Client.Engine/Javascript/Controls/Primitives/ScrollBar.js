@@ -99,7 +99,7 @@ ScrollBar.Instance.OnApplyTemplate = function () {
     }
 
     this._OnOrientationChanged();
-    this.UpdateVisualState(false);
+    this.$UpdateVisualState(false);
 };
 
 //#region Interaction
@@ -107,16 +107,15 @@ ScrollBar.Instance.OnApplyTemplate = function () {
 ScrollBar.Instance.OnIsEnabledChanged = function (args) {
     this.OnIsEnabledChanged$RangeBase(args);
     if (!this.IsEnabled)
-        this._IsMouseOver = false;
-    this.UpdateVisualState();
+        this.IsMouseOver = false;
+    this.$UpdateVisualState();
 };
 ScrollBar.Instance.OnLostMouseCapture = function (sender, args) {
     this.OnLostMouseCapture$RangeBase(sender, args);
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 ScrollBar.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$RangeBase(sender, args);
-    this._IsMouseOver = true;
     var orientation = this.Orientation;
     var shouldUpdate = false;
     if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
@@ -124,11 +123,10 @@ ScrollBar.Instance.OnMouseEnter = function (sender, args) {
     if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
         shouldUpdate = true;
     if (shouldUpdate)
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
 };
 ScrollBar.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$RangeBase(sender, args);
-    this._IsMouseOver = false;
     var orientation = this.Orientation;
     var shouldUpdate = false;
     if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
@@ -136,7 +134,7 @@ ScrollBar.Instance.OnMouseLeave = function (sender, args) {
     if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
         shouldUpdate = true;
     if (shouldUpdate)
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
 };
 ScrollBar.Instance.OnMouseLeftButtonDown = function (sender, args) {
     this.OnMouseLeftButtonDown$RangeBase(sender, args);
@@ -151,7 +149,7 @@ ScrollBar.Instance.OnMouseLeftButtonUp = function (sender, args) {
         return;
     args.Handled = true;
     this.ReleaseMouseCapture();
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 
 //#endregion
@@ -349,17 +347,6 @@ ScrollBar.Instance._RaiseScroll = function (scrollEvtType) {
     var args = new ScrollEventArgs(scrollEvtType, this.Value);
     args.OriginalSource = this;
     this.Scroll.Raise(this, args);
-};
-
-ScrollBar.Instance.UpdateVisualState = function (useTransitions) {
-    if (useTransitions === undefined) useTransitions = true;
-    if (!this.IsEnabled) {
-        this._GoToState(useTransitions, "Disabled");
-    } else if (this._IsMouseOver) {
-        this._GoToState(useTransitions, "MouseOver");
-    } else {
-        this._GoToState(useTransitions, "Normal");
-    }
 };
 
 Nullstone.FinishCreate(ScrollBar);

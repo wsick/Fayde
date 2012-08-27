@@ -14,16 +14,15 @@ ButtonBase.Instance.Init = function () {
 
     this.Click = new MulticastEvent();
 
-    this.Loaded.Subscribe(function () { this._IsLoaded = true; this.UpdateVisualState(); }, this);
+    this.Loaded.Subscribe(function () { this._IsLoaded = true; this.$UpdateVisualState(); }, this);
     this.IsTabStop = true;
 }
 
-//#region Dependency Properties
+//#region Properties
 
 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Enum(ClickMode); }, ButtonBase, ClickMode.Release);
 ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
 ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
-ButtonBase.IsMouseOverProperty = DependencyProperty.RegisterReadOnly("IsMouseOver", function () { return Boolean; }, ButtonBase, false);
 
 Nullstone.AutoProperties(ButtonBase, [
     ButtonBase.ClickModeProperty
@@ -31,8 +30,7 @@ Nullstone.AutoProperties(ButtonBase, [
 
 Nullstone.AutoPropertiesReadOnly(ButtonBase, [
     ButtonBase.IsPressedProperty,
-    ButtonBase.IsFocusedProperty,
-    ButtonBase.IsMouseOverProperty
+    ButtonBase.IsFocusedProperty
 ]);
 
 //#endregion
@@ -51,23 +49,31 @@ ButtonBase.Instance.OnIsEnabledChanged = function (e) {
         }
     } finally {
         this._SuspendStateChanges = false;
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
     }
 };
 ButtonBase.Instance.OnIsPressedChanged = function (e) {
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 
 //#region Visual State
 
-ButtonBase.Instance.UpdateVisualState = function (useTransitions) {
+ButtonBase.Instance.$UpdateVisualState = function (useTransitions) {
     /// <param name="useTransitions" type="Boolean"></param>
     if (this._SuspendStateChanges)
         return;
-    this._ChangeVisualState(useTransitions === true);
+    this.$UpdateVisualState$ContentControl(useTransitions);
 };
-ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
-    //Nothing to do in ButtonBase
+ButtonBase.Instance.$GetVisualStateCommon = function () {
+    if (!this.IsEnabled) {
+        return "Disabled";
+    } else if (this.IsPressed) {
+        return "Pressed";
+    } else if (this.IsMouseOver) {
+        return "MouseOver";
+    } else {
+        return "Normal";
+    }
 };
 
 //#endregion
@@ -77,8 +83,6 @@ ButtonBase.Instance._ChangeVisualState = function (useTransitions) {
 ButtonBase.Instance.OnMouseEnter = function (sender, args) {
     this.OnMouseEnter$ContentControl(sender, args);
 
-    this.$SetValueInternal(ButtonBase.IsMouseOverProperty, true);
-
     this._SuspendStateChanges = true;
     try {
         if (this.ClickMode === ClickMode.Hover && this.IsEnabled) {
@@ -87,13 +91,11 @@ ButtonBase.Instance.OnMouseEnter = function (sender, args) {
         }
     } finally {
         this._SuspendStateChanges = false;
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
     }
 };
 ButtonBase.Instance.OnMouseLeave = function (sender, args) {
     this.OnMouseLeave$ContentControl(sender, args);
-
-    this.$SetValueInternal(ButtonBase.IsMouseOverProperty, false);
 
     this._SuspendStateChanges = true;
     try {
@@ -101,7 +103,7 @@ ButtonBase.Instance.OnMouseLeave = function (sender, args) {
             this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
     } finally {
         this._SuspendStateChanges = false;
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
     }
 };
 ButtonBase.Instance.OnMouseMove = function (sender, args) {
@@ -132,7 +134,7 @@ ButtonBase.Instance.OnMouseLeftButtonDown = function (sender, args) {
             this.$SetValueInternal(ButtonBase.IsPressedProperty, true);
     } finally {
         this._SuspendStateChanges = false;
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
     }
 
     if (clickMode === ClickMode.Press)
@@ -184,13 +186,11 @@ ButtonBase.Instance._IsValidMousePosition = function () {
 
 ButtonBase.Instance.OnGotFocus = function (sender, args) {
     this.OnGotFocus$ContentControl(sender, args);
-
     this.$SetValueInternal(ButtonBase.IsFocusedProperty, true);
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 ButtonBase.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$ContentControl(sender, args);
-
     this.$SetValueInternal(ButtonBase.IsFocusedProperty, false);
 
     this._SuspendStateChanges = true;
@@ -202,7 +202,7 @@ ButtonBase.Instance.OnLostFocus = function (sender, args) {
         }
     } finally {
         this._SuspendStateChanges = false;
-        this.UpdateVisualState();
+        this.$UpdateVisualState();
     }
 };
 

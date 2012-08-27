@@ -28,8 +28,6 @@ TextBox.Instance.Init = function () {
 
     this._EventsMask = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
 
-    this.IsMouseOver = false;
-
     this.SelectionChanged = new MulticastEvent();
     this.TextChanged = new MulticastEvent();
 };
@@ -72,8 +70,7 @@ Nullstone.AutoProperties(TextBox, [
     TextBox.TextAlignmentProperty,
     TextBox.TextWrappingProperty,
     TextBox.HorizontalScrollBarVisibilityProperty,
-    TextBox.VerticalScrollBarVisibilityProperty,
-    "IsMouseOver"
+    TextBox.VerticalScrollBarVisibilityProperty
 ]);
 
 //#endregion
@@ -325,41 +322,32 @@ TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 
 TextBox.Instance.OnMouseEnter = function (sender, args) {
     FocusDebug("TextBox.OnMouseEnter");
-    this.IsMouseOver = true;
-    this._ChangeVisualState(true);
     this.OnMouseEnter$TextBoxBase(sender, args);
+    this.$UpdateVisualState();
 };
 TextBox.Instance.OnMouseLeave = function (sender, args) {
     FocusDebug("TextBox.OnMouseLeave");
-    this.IsMouseOver = false;
-    this._ChangeVisualState(true);
     this.OnMouseLeave$TextBoxBase(sender, args);
+    this.$UpdateVisualState();
 };
 TextBox.Instance.OnGotFocus = function (sender, args) {
     this.OnGotFocus$TextBoxBase(sender, args);
-    this._ChangeVisualState(true);
+    this.$UpdateVisualState();
 };
 TextBox.Instance.OnLostFocus = function (sender, args) {
     this.OnLostFocus$TextBoxBase(sender, args);
-    this._ChangeVisualState(true);
+    this.$UpdateVisualState();
 };
 
-TextBox.Instance._ChangeVisualState = function (useTransitions) {
-    /// <param name="useTransitions" type="Boolean"></param>
+Thumb.Instance.$GetVisualStateCommon = function () {
     if (!this.IsEnabled) {
-        VisualStateManager.GoToState(this, "Disabled", useTransitions);
+        return "Disabled";
     } else if (this.IsReadOnly) {
-        VisualStateManager.GoToState(this, "ReadOnly", useTransitions);
+        return "ReadOnly";
     } else if (this.IsMouseOver) {
-        VisualStateManager.GoToState(this, "MouseOver", useTransitions);
+        return "MouseOver";
     } else {
-        VisualStateManager.GoToState(this, "Normal", useTransitions);
-    }
-
-    if (this.GetIsFocused()) {
-        VisualStateManager.GoToState(this, "Focused", useTransitions);
-    } else {
-        VisualStateManager.GoToState(this, "Unfocused", useTransitions);
+        return "Normal";
     }
 };
 

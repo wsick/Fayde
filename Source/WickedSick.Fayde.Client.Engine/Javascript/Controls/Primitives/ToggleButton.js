@@ -25,49 +25,23 @@ ToggleButton.Instance.OnIsCheckedChanged = function (e) {
     var isChecked = e.NewValue;
     //TODO: add the code for raising the appropriate routed event
     //      OnChecked, OnUnchecked, OnIndeterminate
-    this.UpdateVisualState();
+    this.$UpdateVisualState();
 };
 
-ToggleButton.Instance._ChangeVisualState = function (useTransitions) {
-    // Cache dependency properties we'll check more than once
+ToggleButton.Instance.$UpdateVisualState = function (useTransitions) {
+    useTransitions = useTransitions !== false;
+    this.$UpdateVisualState$ButtonBase(useTransitions);
+
     var isChecked = this.IsChecked;
-    var isEnabled = this.IsEnabled;
-
-    // Update the Interaction state group 
-    if (!isEnabled) {
-        this._GoToState(useTransitions, "Disabled");
-    } else if (this.IsPressed) {
-        this._GoToState(useTransitions, "Pressed");
-    } else if (this.IsMouseOver) {
-        this._GoToState(useTransitions, "MouseOver");
-    } else {
-        this._GoToState(useTransitions, "Normal");
-    }
-
-    // Update the validation state group
-    //TODO: put the validation state group logic back in
-    //if (Validation.GetErrors (this).Count > 0) {
-    //GoToState (useTransitions, this.IsFocused ? "InvalidFocused" : "InvalidUnfocused");
-    //} else {
-    //GoToState (useTransitions, "Valid");
-    //}
-
-    // Update the Check state group 
-    if (isChecked == true) {
-        this._GoToState(useTransitions, "Checked");
-    } else if (isChecked == false) {
-        this._GoToState(useTransitions, "Unchecked");
+    if (isChecked === true) {
+        VisualStateManager.GoToState(this, "Checked", useTransitions);
+    } else if (isChecked === false) {
+        VisualStateManager.GoToState(this, "Unchecked", useTransitions);
     } else {
         // isChecked is null
-        if (!this._GoToState(useTransitions, "Indeterminate")) {
-            this._GoToState(useTransitions, "Unchecked");
+        if (!VisualStateManager.GoToState(this, "Indeterminate", useTransitions)) {
+            VisualStateManager.GoToState(this, "Unchecked", useTransitions)
         }
-    }
-
-    if (this.IsFocused && isEnabled) {
-        this._GoToState(useTransitions, "Focused");
-    } else {
-        this._GoToState(useTransitions, "Unfocused");
     }
 };
 

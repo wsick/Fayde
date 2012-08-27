@@ -5,7 +5,7 @@
 //#region HyperlinkButton
 var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
 
-//#region Dependency Properties
+//#region Properties
 
 HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton);
 HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton);
@@ -24,7 +24,7 @@ HyperlinkButton.Instance.Init = function () {
 
 HyperlinkButton.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$ButtonBase();
-    this.UpdateVisualState(false);
+    this.$UpdateVisualState(false);
 };
 
 HyperlinkButton.Instance.OnClick = function () {
@@ -44,23 +44,6 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
         destination = new Uri(App.Instance.GetHost().GetSource(), destination);
     }
     return destination;
-};
-HyperlinkButton.Instance._ChangeVisualState = function (useTransitions) {
-    if (!this.IsEnabled) {
-        this._GoToState(useTransitions, "Disabled");
-    } else if (this.IsPressed) {
-        this._GoToState(useTransitions, "Pressed");
-    } else if (this.IsMouseOver) {
-        this._GoToState(useTransitions, "MouseOver");
-    } else {
-        this._GoToState(useTransitions, "Normal");
-    }
-
-    if (this.IsFocused && this.IsEnabled) {
-        this._GoToState(useTransitions, "Focused");
-    } else {
-        this._GoToState(useTransitions, "Unfocused");
-    }
 };
 HyperlinkButton.Instance._Navigate = function () {
     window.location.href = this.NavigateUri.toString();

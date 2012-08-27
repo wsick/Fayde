@@ -102,7 +102,7 @@ UIElement.Instance.Init = function () {
     this.VisualParentChanged = new MulticastEvent();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
 //UIElement.CacheModeProperty;
@@ -121,6 +121,8 @@ UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterCore("UseLayout
 UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
 
+UIElement.IsMouseOverProperty = DependencyProperty.RegisterReadOnlyCore("IsMouseOver", function () { return Boolean; }, UIElement);
+
 Nullstone.AutoProperties(UIElement, [
     UIElement.ClipProperty,
     UIElement.EffectProperty,
@@ -133,6 +135,10 @@ Nullstone.AutoProperties(UIElement, [
     UIElement.UseLayoutRoundingProperty,
     UIElement.VisibilityProperty,
     UIElement.TagProperty
+]);
+
+Nullstone.AutoPropertiesReadOnly(UIElement, [
+    UIElement.IsMouseOverProperty
 ]);
 
 //#endregion
@@ -1057,19 +1063,23 @@ UIElement.Instance._EmitEvent = function (type, button, args) {
     return args.Handled;
 };
 
-UIElement.Instance.OnMouseMove = function (sender, args) { };
-UIElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
-UIElement.Instance.OnMouseLeftButtonUp = function (sender, args) { };
-UIElement.Instance.OnMouseRightButtonDown = function (sender, args) { };
-UIElement.Instance.OnMouseRightButtonUp = function (sender, args) { };
-UIElement.Instance.OnMouseEnter = function (sender, args) { };
-UIElement.Instance.OnMouseLeave = function (sender, args) { };
-UIElement.Instance.OnMouseWheel = function (sender, args) { };
+UIElement.Instance.OnMouseMove = function (sender, e) { };
+UIElement.Instance.OnMouseLeftButtonDown = function (sender, e) { };
+UIElement.Instance.OnMouseLeftButtonUp = function (sender, e) { };
+UIElement.Instance.OnMouseRightButtonDown = function (sender, e) { };
+UIElement.Instance.OnMouseRightButtonUp = function (sender, e) { };
+UIElement.Instance.OnMouseEnter = function (sender, e) {
+    this.$SetValueInternal(UIElement.IsMouseOverProperty, true);
+};
+UIElement.Instance.OnMouseLeave = function (sender, e) {
+    this.$SetValueInternal(UIElement.IsMouseOverProperty, false);
+};
+UIElement.Instance.OnMouseWheel = function (sender, e) { };
 
 UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
     this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
 };
-UIElement.Instance.OnLostMouseCapture = function (sender, args) { };
+UIElement.Instance.OnLostMouseCapture = function (sender, e) { };
 
 //#endregion
 
@@ -1123,12 +1133,12 @@ UIElement.Instance._EmitFocusChange = function (type) {
 UIElement.Instance._EmitGotFocus = function () {
     this.GotFocus.Raise(this, new EventArgs());
 };
-UIElement.Instance.OnGotFocus = function (sender, args) { };
+UIElement.Instance.OnGotFocus = function (sender, e) { };
 
 UIElement.Instance._EmitLostFocus = function () {
     this.LostFocus.Raise(this, new EventArgs());
 };
-UIElement.Instance.OnLostFocus = function (sender, args) { };
+UIElement.Instance.OnLostFocus = function (sender, e) { };
 
 //#endregion
 
