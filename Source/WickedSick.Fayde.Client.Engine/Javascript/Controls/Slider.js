@@ -7,13 +7,14 @@
 var Slider = Nullstone.Create("Slider", RangeBase);
 
 Slider.Instance.Init = function () {
-    this.Init$Control();
+    this.Init$RangeBase();
     this.DefaultStyleKey = this.constructor;
 
     this.SizeChanged.Subscribe(function () { this._UpdateTrackLayout(); }, this);
 };
 
 //#region Properties
+
 Slider.IsDirectionReversedPropertyChanged = function (d, args) {
     d._UpdateTrackLayout();
 };
@@ -114,7 +115,8 @@ Slider.Instance._UpdateTrackLayout = function () {
     var largeDecrease;
     var largeIncrease;
     var thumb;
-    if (this.Orientation === Orientation.Horizontal) {
+    var isHorizontal = this.Orientation === Orientation.Horizontal;
+    if (isHorizontal) {
         defs = templateGrid.ColumnDefinitions;
         largeDecrease = this.$HorizontalLargeDecrease;
         largeIncrease = this.$HorizontalLargeIncrease;
@@ -127,15 +129,27 @@ Slider.Instance._UpdateTrackLayout = function () {
     }
 
     if (defs != null && defs.GetCount() === 3) {
-        defs.GetValueAt(0).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
-        defs.GetValueAt(2).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+        var slotProp;
+        if (isHorizontal) {
+            defs.GetValueAt(0).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+            defs.GetValueAt(2).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+            slotProp = Grid.ColumnProperty;
+        } else {
+            defs.GetValueAt(0).Height = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+            defs.GetValueAt(2).Height = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+            slotProp = Grid.RowProperty;
+        }
         if (largeDecrease != null)
-            largeDecrease.$SetValue(Grid.ColumnProperty, isReversed ? 2 : 0);
+            largeDecrease.$SetValue(slotProp, isReversed ? 2 : 0);
         if (largeIncrease != null)
-            largeIncrease.$SetValue(Grid.ColumnProperty, isReversed ? 0 : 2);
+            largeIncrease.$SetValue(slotProp, isReversed ? 0 : 2);
     }
-    if (largeDecrease != null && thumb != null)
-        largeDecrease.Width = Math.max(0, multiplier * (this.ActualWidth - thumb.ActualWidth));
+    if (largeDecrease != null && thumb != null) {
+        if (isHorizontal)
+            largeDecrease.Width = Math.max(0, multiplier * (this.ActualWidth - thumb.ActualWidth));
+        else
+            largeDecrease.Height = Math.max(0, multiplier * (this.ActualHeight - thumb.ActualHeight));
+    }
 
 };
 
@@ -145,7 +159,9 @@ Slider.Instance._OnThumbDragStarted = function () {
 Slider.Instance._OnThumbDragDelta = function (e) {
     var offset = 0;
     if (this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null) {
+        offset = e.HorizontalChange / (this.ActualWidth - this.$HorizontalThumb.ActualWidth) * (this.Maximum - this.Minimum);
     } else if (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null) {
+        offset = e.VerticalChange / (this.ActualHeight - this.$VerticalThumb.ActualHeight) * (this.Maximum - this.Minimum);
     }
 
     if (!isNaN(offset) && isFinite(offset)) {
