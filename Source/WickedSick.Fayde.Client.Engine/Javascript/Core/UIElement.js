@@ -1079,24 +1079,6 @@ UIElement.Instance.OnLostMouseCapture = function (sender, e) { };
 
 //#region Keyboard
 
-//Backspace - 8
-//Enter - 13
-//Left - 37
-//Up - 38
-//Right - 39 
-//Down - 40
-//Home - 36
-//End - 35
-//Page Up - 33
-//Page Down - 34
-//Insert - 45
-//Delete - 46
-//Esc - 27
-
-//Shift - 16
-//Ctrl - 17
-//Alt - 18
-
 UIElement.Instance._EmitKeyDown = function (args) {
     this.OnKeyDown(args);
     this.KeyDown.Raise(this, args);

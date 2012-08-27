@@ -3,7 +3,7 @@
 /// CODE
 
 //#region GridLength
-var GridLength = Nullstone.Create("GridLength", null, 2);
+var GridLength = Nullstone.Create("GridLength", undefined, 2);
 
 GridLength.Instance.Init = function (value, unitType) {
     this.Value = value == null ? 0 : value;

@@ -1,5 +1,7 @@
 ﻿/// <reference path="Primitives/RangeBase.js"/>
 /// CODE
+/// <reference path="Grid.js"/>
+/// <reference path="GridLength.js"/>
 
 //#region Slider
 var Slider = Nullstone.Create("Slider", RangeBase);
@@ -7,8 +9,229 @@ var Slider = Nullstone.Create("Slider", RangeBase);
 Slider.Instance.Init = function () {
     this.Init$Control();
     this.DefaultStyleKey = this.constructor;
-    NotImplemented("Slider");
+
+    this.SizeChanged.Subscribe(function () { this._UpdateTrackLayout(); }, this);
 };
+
+//#region Properties
+Slider.IsDirectionReversedPropertyChanged = function (d, args) {
+    d._UpdateTrackLayout();
+};
+Slider.IsDirectionReversedProperty = DependencyProperty.RegisterCore("IsDirectionReversed", function () { return Boolean; }, Slider, false, Slider.IsDirectionReversedPropertyChanged);
+Slider.IsFocusedPropertyChanged = function (d, args) {
+    d.$UpdateVisualState();
+};
+Slider.IsFocusedProperty = DependencyProperty.RegisterReadOnlyCore("IsFocused", function () { return Boolean; }, Slider, false, Slider.IsFocusedPropertyChanged);
+Slider.OrientationPropertyChanged = function (d, args) {
+    d._OnOrientationChanged();
+};
+Slider.OrientationProperty = DependencyProperty.RegisterCore("Orientation", function () { return Orientation; }, Slider, Orientation.Horizontal, Slider.OrientationPropertyChanged);
+
+Nullstone.AutoProperties(Slider, [
+    Slider.IsDirectionReversedProperty,
+    Slider.OrientationProperty
+]);
+
+Nullstone.AutoPropertiesReadOnly(Slider, [
+    Slider.IsFocusedProperty
+]);
+
+//#endregion
+
+Slider.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$RangeBase();
+
+    this.$HorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalTemplate"), FrameworkElement);
+    this.$HorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
+    this.$HorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
+    this.$HorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), Thumb);
+
+    if (this.$HorizontalThumb != null) {
+        this.$HorizontalThumb.DragStarted.Subscribe(function (sender, e) { this.Focus(); this._OnThumbDragStarted(); }, this);
+        this.$HorizontalThumb.DragDelta.Subscribe(function (sender, e) { this._OnThumbDragDelta(e); }, this);
+    }
+    if (this.$HorizontalLargeDecrease != null) {
+        this.$HorizontalLargeDecrease.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+    }
+    if (this.$HorizontalLargeIncrease != null) {
+        this.$HorizontalLargeIncrease.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+    }
+
+    this.$VerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalTemplate"), FrameworkElement);
+    this.$VerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeIncreaseRepeatButton"), RepeatButton);
+    this.$VerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
+    this.$VerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), Thumb);
+
+    if (this.$VerticalThumb != null) {
+        this.$VerticalThumb.DragStarted.Subscribe(function (sender, e) { this.Focus(); this._OnThumbDragStarted(); }, this);
+        this.$VerticalThumb.DragDelta.Subscribe(function (sender, e) { this._OnThumbDragDelta(e); }, this);
+    }
+    if (this.$VerticalLargeDecrease != null) {
+        this.$VerticalLargeDecrease.Subscribe(function (sender, e) { this.Focus(); this.Value -= this.LargeChange; }, this);
+    }
+    if (this.$VerticalLargeIncrease != null) {
+        this.$VerticalLargeIncrease.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
+    }
+
+    this._OnOrientationChanged();
+    this.$UpdateVisualState(false);
+};
+
+Slider.Instance.OnIsEnabledChanged = function (args) {
+    this.OnIsEnabledChanged$RangeBase(args);
+    this.$UpdateVisualState();
+};
+
+Slider.Instance.$OnMinimumChanged = function (oldMin, newMin) {
+    this.$OnMinimumChanged$RangeBase(oldMin, newMin);
+    this._UpdateTrackLayout();
+};
+Slider.Instance.$OnMaximumChanged = function (oldMax, newMax) {
+    this.$OnMaximumChanged$RangeBase(oldMax, newMax);
+    this._UpdateTrackLayout();
+};
+Slider.Instance.$OnValueChanged = function (oldValue, newValue) {
+    this.$OnValueChanged$RangeBase(oldValue, newValue);
+    this._UpdateTrackLayout();
+};
+
+Slider.Instance._OnOrientationChanged = function () {
+    if (this.$HorizontalTemplate != null)
+        this.$HorizontalTemplate.Visibility = this.Orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed;
+    if (this.$VerticalTemplate != null)
+        this.$VerticalTemplate.Visibility = this.Orientation === Orientation.Vertical ? Visibility.Visible : Visibility.Collapsed;
+    this._UpdateTrackLayout();
+};
+Slider.Instance._UpdateTrackLayout = function () {
+    var max = this.Maximum;
+    var min = this.Minimum;
+    var val = this.Value;
+    var multiplier = 1 - (max - val) / (max - min);
+
+    var templateGrid = Nullstone.As(this.Orientation === Orientation.Horizontal ? this.$HorizontalTemplate : this.$VerticalTemplate, Grid);
+    if (templateGrid == null)
+        return;
+
+    var isReversed = this.IsDirectionReversed;
+    var defs;
+    var largeDecrease;
+    var largeIncrease;
+    var thumb;
+    if (this.Orientation === Orientation.Horizontal) {
+        defs = templateGrid.ColumnDefinitions;
+        largeDecrease = this.$HorizontalLargeDecrease;
+        largeIncrease = this.$HorizontalLargeIncrease;
+        thumb = this.$HorizontalThumb;
+    } else {
+        defs = templateGrid.RowDefinitions;
+        largeDecrease = this.$VerticalLargeDecrease;
+        largeIncrease = this.$VerticalLargeIncrease;
+        thumb = this.$VerticalThumb;
+    }
+
+    if (defs != null && defs.GetCount() === 3) {
+        defs.GetValueAt(0).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+        defs.GetValueAt(2).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+        if (largeDecrease != null)
+            largeDecrease.$SetValue(Grid.ColumnProperty, isReversed ? 2 : 0);
+        if (largeIncrease != null)
+            largeIncrease.$SetValue(Grid.ColumnProperty, isReversed ? 0 : 2);
+    }
+    if (largeDecrease != null && thumb != null)
+        largeDecrease.Width = Math.max(0, multiplier * (this.ActualWidth - thumb.ActualWidth));
+
+};
+
+Slider.Instance._OnThumbDragStarted = function () {
+    this._DragValue = this.Value;
+};
+Slider.Instance._OnThumbDragDelta = function (e) {
+    var offset = 0;
+    if (this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null) {
+    } else if (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null) {
+    }
+
+    if (!isNaN(offset) && isFinite(offset)) {
+        this._DragValue += this.IsDirectionReversed ? -offset : offset;
+        var newValue = Math.min(this.Maximum, Math.max(this.Minimum, this._DragValue));
+        if (newValue != this.Value)
+            this.Value = newValue;
+    }
+};
+
+//#region Mouse Response
+
+Slider.Instance.OnMouseEnter = function (e) {
+    this.OnMouseEnter$RangeBase(e);
+    if ((this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+        (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+        this.$UpdateVisualState();
+    }
+};
+Slider.Instance.OnMouseLeave = function (e) {
+    this.OnMouseLeave$RangeBase(e);
+    if ((this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+        (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+        this.$UpdateVisualState();
+    }
+};
+Slider.Instance.OnMouseLeftButtonDown = function (e) {
+    this.OnMouseLeftButtonDown$RangeBase(e);
+    if (e.Handled)
+        return;
+    e.Handled = true;
+    this.Focus();
+    this.CaptureMouse();
+};
+Slider.Instance.OnLostMouseCapture = function (sender, e) {
+    this.OnLostMouseCapture$RangeBase(sender, e);
+    this.$UpdateVisualState();
+};
+
+//#endregion
+
+//#region Keyboard Response
+
+Slider.Instance.OnKeyDown = function (e) {
+    this.OnKeyDown$RangeBase(e);
+    if (e.Handled)
+        return;
+    if (!this.IsEnabled)
+        return;
+
+    switch (e.Key) {
+        case Key.Left:
+        case Key.Down:
+            this.Value += (this.IsDirectionReversed ? this.SmallChange : -this.SmallChange);
+            break;
+        case Key.Right:
+        case Key.Up:
+            this.Value += (this.IsDirectionReversed ? -this.SmallChange : this.SmallChange);
+            break;
+        case Key.Home:
+            this.Value = this.Minimum;
+            break;
+        case Key.End:
+            this.Value = this.Maximum;
+            break;
+    }
+
+};
+
+//#endregion
+
+//#region Focus Response
+
+Slider.Instance.OnGotFocus = function (sender, e) {
+    this.OnGotFocus$RangeBase(sender, e);
+    this.$SetValueInternal(Slider.IsFocusedProperty, true);
+};
+Slider.Instance.OnLostFocus = function (sender, e) {
+    this.OnLostFocus$RangeBase(sender, e);
+    this.$SetValueInternal(Slider.IsFocusedProperty, false);
+};
+
+//#endregion
 
 Nullstone.FinishCreate(Slider);
 //#endregion
