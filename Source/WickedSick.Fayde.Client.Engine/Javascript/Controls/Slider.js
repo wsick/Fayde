@@ -94,10 +94,11 @@ Slider.Instance.$OnValueChanged = function (oldValue, newValue) {
 };
 
 Slider.Instance._OnOrientationChanged = function () {
+    var isHorizontal = this.Orientation === Orientation.Horizontal;
     if (this.$HorizontalTemplate != null)
-        this.$HorizontalTemplate.Visibility = this.Orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed;
+        this.$HorizontalTemplate.Visibility = isHorizontal ? Visibility.Visible : Visibility.Collapsed;
     if (this.$VerticalTemplate != null)
-        this.$VerticalTemplate.Visibility = this.Orientation === Orientation.Vertical ? Visibility.Visible : Visibility.Collapsed;
+        this.$VerticalTemplate.Visibility = !isHorizontal ? Visibility.Visible : Visibility.Collapsed;
     this._UpdateTrackLayout();
 };
 Slider.Instance._UpdateTrackLayout = function () {
@@ -106,7 +107,8 @@ Slider.Instance._UpdateTrackLayout = function () {
     var val = this.Value;
     var multiplier = 1 - (max - val) / (max - min);
 
-    var templateGrid = Nullstone.As(this.Orientation === Orientation.Horizontal ? this.$HorizontalTemplate : this.$VerticalTemplate, Grid);
+    var isHorizontal = this.Orientation === Orientation.Horizontal;
+    var templateGrid = Nullstone.As(isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate, Grid);
     if (templateGrid == null)
         return;
 
@@ -115,7 +117,6 @@ Slider.Instance._UpdateTrackLayout = function () {
     var largeDecrease;
     var largeIncrease;
     var thumb;
-    var isHorizontal = this.Orientation === Orientation.Horizontal;
     if (isHorizontal) {
         defs = templateGrid.ColumnDefinitions;
         largeDecrease = this.$HorizontalLargeDecrease;
