@@ -22,9 +22,6 @@ Effect.Instance.Padding = function () {
 Effect.Instance.PreRender = function (ctx) {
     AbstractMethod("Effect.PreRender");
 };
-Effect.Instance.PostRender = function (ctx) {
-    AbstractMethod("Effect.PostRender");
-};
 
 Nullstone.FinishCreate(Effect);
 //#endregion

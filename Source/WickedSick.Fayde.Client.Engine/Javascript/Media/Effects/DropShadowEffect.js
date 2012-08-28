@@ -62,14 +62,10 @@ DropShadowEffect.Instance.PreRender = function (ctx) {
 
     var canvasCtx = ctx.GetCanvasContext();
 
-    this._OriginalShadow = canvasCtx.shadowColor;
     canvasCtx.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
     canvasCtx.shadowBlur = radius;
     canvasCtx.shadowOffsetX = offsetX;
     canvasCtx.shadowOffsetY = offsetY;
-};
-DropShadowEffect.Instance.PostRender = function (ctx) {
-    ctx.GetCanvasContext().shadowColor = this._OriginalShadow;
 };
 
 Nullstone.FinishCreate(DropShadowEffect);

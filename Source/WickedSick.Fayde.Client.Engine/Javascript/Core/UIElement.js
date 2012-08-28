@@ -769,10 +769,10 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     ctx.Transform(this._RenderXform);
     ctx.SetGlobalAlpha(this._TotalOpacity);
 
+    var canvasCtx = ctx.GetCanvasContext();
     var clip = this.Clip;
     if (clip) {
         clip.Draw(ctx);
-        var canvasCtx = ctx.GetCanvasContext();
         canvasCtx.clip();
     }
 
@@ -780,11 +780,14 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     RenderDebug(this.__DebugToString());
 
     var effect = this.Effect;
-    if (effect)
+    if (effect) {
+        canvasCtx.save();
         effect.PreRender(ctx);
+    }
     this._Render(ctx, region);
-    if (effect)
-        effect.PostRender(ctx);
+    if (effect) {
+        canvasCtx.restore();
+    }
 
     var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
     var child;
