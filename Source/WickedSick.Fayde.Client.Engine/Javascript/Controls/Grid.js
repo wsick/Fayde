@@ -56,7 +56,7 @@ Grid.SetRowSpan = function (d, value) {
 
 //#endregion
 
-//#region Dependency Properties
+//#region Properties
 
 Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
 Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, undefined, { GetValue: function () { return new ColumnDefinitionCollection(); } });
@@ -70,10 +70,10 @@ Nullstone.AutoProperties(Grid, [
 
 //#endregion
 
-//#region Instance Methods
+//#region Measure/Arrange
 
 Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
-    //Info("Grid._MeasureOverrideWithError [" + this._TypeName + "]");
+    //LayoutDebug("Grid Measure Pass: " + this.__DebugToString() + " [" + availableSize.toString() + "]");
     var totalSize = availableSize.Copy();
     var cols = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
@@ -100,7 +100,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
         for (i = 0; i < rowCount; i++) {
             var rowdef = rows.GetValueAt(i);
             var height = rowdef.Height;
-            
+
             rowdef.$SetValueInternal(RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
             cell = new _Segment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
 
@@ -263,7 +263,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
     return gridSize;
 };
 Grid.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-    //Info("Grid._ArrangeOverrideWithError [" + this._TypeName + "]");
+    //LayoutDebug("Grid Arrange Pass: " + this.__DebugToString() + " [" + finalSize.toString() + "]");
     var columns = this._GetColumnDefinitionsNoAutoCreate();
     var rows = this._GetRowDefinitionsNoAutoCreate();
 
@@ -439,6 +439,28 @@ Grid.Instance._AssignSize = function (matrix, start, end, size, unitType, desire
     return size;
 };
 
+//#endregion
+
+//#region Bounds
+
+Grid.Instance._ComputeBounds = function () {
+    this._ComputeBounds$Panel();
+
+    if (this.ShowGridLines) {
+        this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
+        this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
+        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
+        this._BoundsWithChildren = this._BoundsWithChildren.Union(this._Bounds);
+
+        this._ComputeGlobalBounds();
+        this._ComputeSurfaceBounds();
+    }
+};
+
+//#endregion
+
+//#region Matrix Management
+
 Grid.Instance._CreateMatrices = function (rowCount, colCount) {
     if (this._RowMatrix == null || this._ColMatrix == null || this._RowMatrixDim !== rowCount || this._ColMatrixDim !== colCount) {
         this._DestroyMatrices();
@@ -505,28 +527,9 @@ Grid.Instance._RestoreMeasureResults = function () {
     }
 };
 
-Grid.Instance._ComputeBounds = function () {
-    this._ComputeBounds$Panel();
+//#endregion
 
-    if (this.ShowGridLines) {
-        this._Extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
-        this._ExtentsWithChildren = this._ExtentsWithChildren.Union(this._Extents);
-        this._Bounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteXform);
-        this._BoundsWithChildren = this._BoundsWithChildren.Union(this._Bounds);
-
-        this._ComputeGlobalBounds();
-        this._ComputeSurfaceBounds();
-    }
-};
-
-Grid.Instance._GetRowDefinitionsNoAutoCreate = function () {
-    var value = this._GetValueNoAutoCreate(Grid.RowDefinitionsProperty);
-    return value === undefined ? undefined : value;
-}
-Grid.Instance._GetColumnDefinitionsNoAutoCreate = function () {
-    var value = this._GetValueNoAutoCreate(Grid.ColumnDefinitionsProperty);
-    return value === undefined ? undefined : value;
-}
+//#region Changes
 
 Grid.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Grid) {
@@ -571,6 +574,17 @@ Grid.Instance._OnCollectionItemChanged = function (sender, args) {
 
 //#endregion
 
+//#region Definition Retrieval
+
+Grid.Instance._GetRowDefinitionsNoAutoCreate = function () {
+    return this._GetValueNoAutoCreate(Grid.RowDefinitionsProperty);
+}
+Grid.Instance._GetColumnDefinitionsNoAutoCreate = function () {
+    return this._GetValueNoAutoCreate(Grid.ColumnDefinitionsProperty);
+}
+
+//#endregion
+
 Grid.__DebugMatrix = function (matrix) {
     var str = "";
     for (var i = 0; i < matrix.length; i++) {
@@ -598,9 +612,7 @@ Nullstone.FinishCreate(Grid);
 //#endregion
 
 //#region _Segment
-var _Segment = Nullstone.Create("_Segment", null, 4);
-
-_Segment.Instance.Init = function (offered, min, max, unitType) {
+function _Segment(offered, min, max, unitType) {
     if (offered == null) offered = 0.0;
     if (min == null) min = 0.0;
     if (max == null) max = Number.POSITIVE_INFINITY;
@@ -614,28 +626,26 @@ _Segment.Instance.Init = function (offered, min, max, unitType) {
 
     this._OfferedSize = this._Clamp(offered);
     this._OriginalSize = this._OfferedSize;
-};
+}
 
-_Segment.Instance._SetOfferedToDesired = function () {
+_Segment.prototype._SetOfferedToDesired = function () {
     this._OfferedSize = this._DesiredSize;
     return this._OfferedSize;
 };
-_Segment.Instance._SetDesiredToOffered = function () {
+_Segment.prototype._SetDesiredToOffered = function () {
     this._DesiredSize = this._OfferedSize;
     return this._DesiredSize;
 };
-_Segment.Instance._Clamp = function (value) {
+_Segment.prototype._Clamp = function (value) {
     if (value < this._Min)
         return this._Min;
     if (value > this._Max)
         return this._Max;
     return value;
 }
-_Segment.Instance.toString = function () {
+_Segment.prototype.toString = function () {
     return this._OfferedSize.toString() + ";" + this._DesiredSize.toString();
 };
-
-Nullstone.FinishCreate(_Segment);
 //#endregion
 
 //#region _GridNode
@@ -653,7 +663,7 @@ Nullstone.FinishCreate(_GridNode);
 //#endregion
 
 //#region _GridWalker
-var _GridWalker = Nullstone.Create("_GridWalker", null, 5);
+var _GridWalker = Nullstone.Create("_GridWalker", undefined, 5);
 
 _GridWalker.Instance.Init = function (grid, rowMatrix, rowCount, colMatrix, colCount) {
     this._HasAutoAuto = false;
