@@ -40,7 +40,7 @@ Slider.Instance.OnApplyTemplate = function () {
     this.OnApplyTemplate$RangeBase();
 
     this.$HorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalTemplate"), FrameworkElement);
-    this.$HorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
+    this.$HorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeIncreaseRepeatButton"), RepeatButton);
     this.$HorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
     this.$HorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), Thumb);
 
@@ -132,19 +132,19 @@ Slider.Instance._UpdateTrackLayout = function () {
         if (isHorizontal) {
             defs.GetValueAt(0).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
             defs.GetValueAt(2).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
-            
-            if (largeDecrease != null)
-                largeDecrease.$SetValue(Grid.ColumnProperty, isReversed ? 2 : 0);
-            if (largeIncrease != null)
-                largeIncrease.$SetValue(Grid.ColumnProperty, isReversed ? 0 : 2);
-        } else {
-            defs.GetValueAt(0).Height = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
-            defs.GetValueAt(2).Height = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
 
             if (largeDecrease != null)
-                largeDecrease.$SetValue(Grid.RowProperty, isReversed ? 0 : 2);
+                Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
             if (largeIncrease != null)
-                largeIncrease.$SetValue(Grid.RowProperty, isReversed ? 2 : 0);
+                Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
+        } else {
+            defs.GetValueAt(0).Height = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+            defs.GetValueAt(2).Height = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+
+            if (largeDecrease != null)
+                Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
+            if (largeIncrease != null)
+                Grid.SetRow(largeIncrease, isReversed ? 2 : 0);
         }
     }
 
@@ -168,7 +168,7 @@ Slider.Instance._OnThumbDragDelta = function (e) {
     if (this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null) {
         offset = e.HorizontalChange / (this.ActualWidth - this.$HorizontalThumb.ActualWidth) * (this.Maximum - this.Minimum);
     } else if (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null) {
-        offset = e.VerticalChange / (this.ActualHeight - this.$VerticalThumb.ActualHeight) * (this.Maximum - this.Minimum);
+        offset = -e.VerticalChange / (this.ActualHeight - this.$VerticalThumb.ActualHeight) * (this.Maximum - this.Minimum);
     }
     if (!isNaN(offset) && isFinite(offset)) {
         this._DragValue += this.IsDirectionReversed ? -offset : offset;

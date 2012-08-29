@@ -71,13 +71,13 @@
                             <ListBoxItem Content="listboxitem03" />
                             <ListBoxItem Content="listboxitem04" />
                         </ListBox>
+                        -->
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="SLIDER" Margin="0,20,-50,0" />
                         <Slider Margin="59,3,0,3" />
                         <Slider Margin="-105,-26,0,3" Height="100" Orientation="Vertical" />
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="PROGRESSBAR" Margin="0,15,0,0" />
                         <ProgressBar Value="50" Margin="0,5" />
                         <ProgressBar Value="50" Margin="0,5" IsIndeterminate="True" />
-                        -->
                     </StackPanel>
                     <StackPanel Margin="0" VerticalAlignment="Top" Grid.Column="3" Width="200">
                         <!--
