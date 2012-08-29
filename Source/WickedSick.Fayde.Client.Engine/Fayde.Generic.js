@@ -10481,7 +10481,18 @@ App.GetGenericResourceDictionary = function () {
                                         Type: Grid,
                                         Name: "Root",
                                         Props: {
-                                            Opacity: 0
+                                            Opacity: 0,
+                                            Background: {
+                                                Type: SolidColorBrush,
+                                                Props: {
+                                                    Color: {
+                                                        Type: Color,
+                                                        Props: {
+                                                            HexString: "#00FFFFFF"
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }]
