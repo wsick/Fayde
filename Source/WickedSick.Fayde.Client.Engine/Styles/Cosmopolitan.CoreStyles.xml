@@ -2215,7 +2215,7 @@
                     <Grid x:Name="Root">
                         <Grid.Resources>
                             <ControlTemplate x:Key="RepeatButtonTemplate">
-                                <Grid x:Name="Root" Opacity="0"/>
+                                <Grid x:Name="Root" Opacity="0" Background="Transparent" />
                             </ControlTemplate>
                         </Grid.Resources>
                         <VisualStateManager.VisualStateGroups>
