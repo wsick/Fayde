@@ -10,7 +10,7 @@
 //#region Storyboard
 var Storyboard = Nullstone.Create("Storyboard", Timeline);
 
-//#region Dependency Properties
+//#region Properties
 
 Storyboard.ChildrenProperty = DependencyProperty.Register("Children", function () { return TimelineCollection; }, Storyboard);
 
@@ -150,9 +150,9 @@ Storyboard.Instance.UpdateInternal = function (clockData) {
         children.GetValueAt(i).Update(clockData.RealTicks);
     }
 };
-Storyboard.Instance.OnDurationReached = function () {
+Storyboard.Instance.OnCompleted = function () {
     App.Instance.UnregisterStoryboard(this);
-    this.OnDurationReached$Timeline();
+    this.OnCompleted$Timeline();
 };
 
 Nullstone.FinishCreate(Storyboard);
