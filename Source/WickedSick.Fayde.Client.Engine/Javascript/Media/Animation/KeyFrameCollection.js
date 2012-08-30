@@ -91,7 +91,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
 
     var totalInterpolationTime;
     var hasTimeSpanKeyFrame = false;
-    var highestKeyTimeTimeSpan = 0;
+    var highestKeyTimeTimeSpan = new TimeSpan();
     var keyFrame;
     var value;
     var count = coll.GetCount();
@@ -129,6 +129,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     } else {
         totalInterpolationTime = new TimeSpan(TimeSpan._TicksPerSecond);
     }
+    animation._TotalKeyTime = totalInterpolationTime;
 
     // use the total interpolation time to resolve percent keytime keyframes
     for (i = 0; i < count; i++) {
