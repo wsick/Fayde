@@ -4,7 +4,7 @@
 /// <reference path="TimeSpan.js"/>
 
 //#region Duration
-var Duration = Nullstone.Create("Duration", null, 1);
+var Duration = Nullstone.Create("Duration", undefined, 1);
 
 Duration.Instance.Init = function (value) {
     if (typeof value == "number") {
@@ -42,21 +42,28 @@ Duration.CreateTimeSpan = function (timespan) {
     return d;
 };
 
-//#region PROPERTIES
+//#region Properties
 
-Duration.Instance.GetType = function () {
-    return this._Type;
-};
-Duration.Instance.GetTimeSpan = function () {
-    ///<returns type="TimeSpan"></returns>
-    if (this.HasTimeSpan())
-        return this._TimeSpan;
-    throw new InvalidOperationException();
-};
-Duration.Instance.HasTimeSpan = function () {
-    /// <returns type="Boolean" />
-    return this.GetType() === DurationType.TimeSpan;
-};
+Nullstone.Property(Duration, "Type", {
+    get: function () { return this._Type; }
+});
+Nullstone.Property(Duration, "TimeSpan", {
+    get: function () {
+        if (this._Type === DurationType.TimeSpan)
+            return this._TimeSpan;
+        throw new InvalidOperationException();
+    }
+});
+Nullstone.Property(Duration, "HasTimeSpan", {
+    get: function () {
+        return this._Type === DurationType.TimeSpan;
+    }
+});
+Nullstone.Property(Duration, "IsForever", {
+    get: function () {
+        return this._Type === DurationType.Forever;
+    }
+});
 
 //#endregion
 

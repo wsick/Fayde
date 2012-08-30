@@ -63,12 +63,12 @@ AnimationStorage.Instance.ResetPropertyValue = function () {
     this._TargetObj._SetValue(this._TargetProp, this.GetStopValue());
 };
 
-AnimationStorage.Instance.UpdateCurrentValueAndApply = function (progress) {
+AnimationStorage.Instance.UpdateCurrentValueAndApply = function (clockData) {
     if (this._Disabled)
         return;
     if (this._TargetObj == null)
         return;
-    this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this._StopValue !== undefined ? this._StopValue : this._BaseValue, progress);
+    this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this._StopValue !== undefined ? this._StopValue : this._BaseValue, clockData);
     this.ApplyCurrentValue();
 };
 AnimationStorage.Instance.ApplyCurrentValue = function () {

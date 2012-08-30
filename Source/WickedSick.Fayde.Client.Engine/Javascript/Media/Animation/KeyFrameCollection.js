@@ -60,7 +60,7 @@ KeyFrameCollection.Instance.GetKeyFrameForTime = function (t, prevFrameRef) {
 
 KeyFrameCollection.Instance.Clear = function () {
     this._Resolved = false;
-    //Clear sorted
+    this._SortedList = [];
     this.Clear$DependencyObjectCollection();
 };
 
@@ -110,9 +110,9 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
         keyTime = keyFrame.KeyTime;
-        if (keyTime.HasTimeSpan()) {
+        if (keyTime.HasTimeSpan) {
             hasTimeSpanKeyFrame = true;
-            var ts = keyTime.GetTimeSpan();
+            var ts = keyTime.TimeSpan;
             if (ts.CompareTo(highestKeyTimeTimeSpan) > 0)
                 highestKeyTimeTimeSpan = ts;
             keyFrame._ResolvedKeyTime = ts;
@@ -122,8 +122,8 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
 
     // calculate total animation interpolation time
     var d = animation._GetValue(Timeline.DurationProperty);
-    if (d.HasTimeSpan()) {
-        totalInterpolationTime = d.GetTimeSpan();
+    if (d.HasTimeSpan) {
+        totalInterpolationTime = d.TimeSpan;
     } else if (hasTimeSpanKeyFrame) {
         totalInterpolationTime = highestKeyTimeTimeSpan;
     } else {
@@ -135,8 +135,8 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
         keyTime = keyFrame.KeyTime;
-        if (keyTime.HasPercent()) {
-            keyFrame._ResolvedTime = totalInterpolationTime.Multiply(keyTime.GetPercent())
+        if (keyTime.HasPercent) {
+            keyFrame._ResolvedTime = totalInterpolationTime.Multiply(keyTime.Percent)
             keyFrame._Resolved = true;
         }
     }
@@ -146,7 +146,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
         value = coll.GetValueAt(count - 1);
         keyFrame = Nullstone.As(value, KeyFrame);
         keyTime = keyFrame.KeyTime;
-        if (keyTime.IsPaced() || keyTime.IsUniform()) {
+        if (keyTime.IsPaced || keyTime.IsUniform) {
             keyFrame._ResolvedKeyTime = totalInterpolationTime;
             keyFrame._Resolved = true;
         }
@@ -163,7 +163,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
         value = coll.GetValueAt(count - 1);
         keyFrame = Nullstone.As(value, KeyFrame);
         keyTime = keyFrame.KeyTime;
-        if (!keyFrame._Resolved && keyTime.IsPaced()) {
+        if (!keyFrame._Resolved && keyTime.IsPaced) {
             keyFrame._ResolvedKeyTime = new TimeSpan(0);
             keyFrame._Resolved = true;
         }

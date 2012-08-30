@@ -19,21 +19,24 @@ KeyTime.CreateTimeSpan = function (ts) {
     return kt;
 };
 
-KeyTime.Instance.IsPaced = function () {
-    return this._IsPaced === true;
-};
-KeyTime.Instance.IsUniform = function () {
-    return this._IsUniform === true;
-};
-KeyTime.Instance.HasTimeSpan = function () {
-    return this._TimeSpan != null;
-};
-KeyTime.Instance.GetTimeSpan = function () {
-    return this._TimeSpan;
-};
-KeyTime.Instance.HasPercent = function () {
-    return this._Percent != null;
-};
+Nullstone.Property(KeyTime, "IsPaced", {
+    get: function () { return this._IsPaced === true; }
+});
+Nullstone.Property(KeyTime, "IsUniform", {
+    get: function () { return this._IsUniform === true; }
+});
+Nullstone.Property(KeyTime, "HasTimeSpan", {
+    get: function () { return this._TimeSpan != null; }
+});
+Nullstone.Property(KeyTime, "TimeSpan", {
+    get: function () { return this._TimeSpan; }
+});
+Nullstone.Property(KeyTime, "HasPercent", {
+    get: function () { return this._Percent != null; }
+});
+Nullstone.Property(KeyTime, "Percent", {
+    get: function () { return this._Percent; }
+});
 
 Nullstone.FinishCreate(KeyTime);
 //#endregion
