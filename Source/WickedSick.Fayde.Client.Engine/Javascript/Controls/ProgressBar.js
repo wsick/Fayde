@@ -50,7 +50,7 @@ ProgressBar.Instance._OnTrackSizeChanged = function (sender, e) {
 };
 
 ProgressBar.Instance._OnIsIndeterminateChanged = function () {
-    this.$UpdateVisualState(true);
+    this.$UpdateVisualState();
 };
 ProgressBar.Instance._UpdateIndicator = function () {
     var min = this.Minimum;
@@ -78,7 +78,7 @@ ProgressBar.Instance._UpdateIndicator = function () {
 };
 
 ProgressBar.Instance.$GetVisualStateNamesToActivate = function () {
-    return this.IsIndeterminate ? "Indeterminate" : "Determinate";
+    return this.IsIndeterminate ? ["Indeterminate"] : ["Determinate"];
 };
 
 Nullstone.FinishCreate(ProgressBar);
