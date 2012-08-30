@@ -2,23 +2,23 @@
 /// CODE
 /// <reference path="../Runtime/JsEx.js"/>
 
-//#region Clock
-var Clock = Nullstone.Create("Clock");
+//#region ClockTimer
+var ClockTimer = Nullstone.Create("ClockTimer");
 
-Clock.Instance.Init = function () {
+ClockTimer.Instance.Init = function () {
     this._Timers = [];
 };
 
-Clock.Instance.RegisterTimer = function (timer) {
+ClockTimer.Instance.RegisterTimer = function (timer) {
     if (!Array.addDistinctNullstone(this._Timers, timer))
         return;
     if (this._Timers.length === 1)
         this.RequestAnimationTick();
 };
-Clock.Instance.UnregisterTimer = function (timer) {
+ClockTimer.Instance.UnregisterTimer = function (timer) {
     Array.removeNullstone(this._Timers, timer);
 };
-Clock.Instance.DoTick = function () {
+ClockTimer.Instance.DoTick = function () {
     var nowTime = new Date().getTime();
     if (!this._RunTimers(this._LastTime, nowTime)) {
         return;
@@ -26,7 +26,7 @@ Clock.Instance.DoTick = function () {
     this._LastTime = nowTime;
     this.RequestAnimationTick();
 };
-Clock.Instance._RunTimers = function (lastTime, nowTime) {
+ClockTimer.Instance._RunTimers = function (lastTime, nowTime) {
     if (this._Timers.length === 0)
         return false;
     for (var i = 0; i < this._Timers.length; i++) {
@@ -36,10 +36,10 @@ Clock.Instance._RunTimers = function (lastTime, nowTime) {
     return true;
 };
 
-Clock.Instance.RequestAnimationTick = function () {
-    var clock = this;
-    window.requestAnimFrame(function () { clock.DoTick(); });
+ClockTimer.Instance.RequestAnimationTick = function () {
+    var clockTimer = this;
+    window.requestAnimFrame(function () { clockTimer.DoTick(); });
 };
 
-Nullstone.FinishCreate(Clock);
+Nullstone.FinishCreate(ClockTimer);
 //#endregion

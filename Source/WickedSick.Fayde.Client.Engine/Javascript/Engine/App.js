@@ -4,7 +4,7 @@
 /// <reference path="Surface.js"/>
 /// <reference path="../Runtime/Collections.js"/>
 /// <reference path="../Core/UIElement.js"/>
-/// <reference path="Clock.js"/>
+/// <reference path="ClockTimer.js"/>
 /// <reference path="../Runtime/JsEx.js"/>
 /// <reference path="NavService.js"/>
 /// <reference path="AjaxJsonRequest.js"/>
@@ -15,7 +15,7 @@ var App = Nullstone.Create("App", DependencyObject);
 App.Instance.Init = function () {
     this.Init$DependencyObject();
     this.MainSurface = new Surface(this);
-    this._Clock = new Clock();
+    this._ClockTimer = new ClockTimer();
     this._Storyboards = [];
     this._DebugFunc = {};
 
@@ -76,14 +76,14 @@ App.Instance.OnLoaded = function () {
 };
 
 App.Instance.Start = function () {
-    this._Clock.RegisterTimer(this);
+    this._ClockTimer.RegisterTimer(this);
 };
 App.Instance._Tick = function (lastTime, nowTime) {
     this.ProcessStoryboards(lastTime, nowTime);
     this.ProcessDirty();
 };
 App.Instance._Stop = function () {
-    this._Clock.UnregisterTimer(this);
+    this._ClockTimer.UnregisterTimer(this);
 };
 
 App.Instance.ProcessStoryboards = function (lastTime, nowTime) {

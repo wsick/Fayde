@@ -7,7 +7,6 @@
 /// <reference path="../Runtime/Collection.js"/>
 /// <reference path="../Runtime/EventArgs.js"/>
 /// <reference path="DirtyNode.js"/>
-/// <reference path="Clock.js"/>
 /// <reference path="../Primitives/Font.js"/>
 /// <reference path="../Core/TabNavigationWalker.js"/>
 /// <reference path="../Core/Input/KeyCodes.js"/>
@@ -17,7 +16,6 @@ var Surface = Nullstone.Create("Surface", null, 1);
 
 Surface.Instance.Init = function (app) {
     this._App = app;
-    this._Clock = new Clock();
     this._InputList = new LinkedList();
     this._FocusChangedEvents = new LinkedList();
     this._FirstUserInitiatedEvent = false;
