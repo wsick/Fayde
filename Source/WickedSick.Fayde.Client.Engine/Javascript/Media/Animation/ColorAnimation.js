@@ -59,7 +59,7 @@ ColorAnimation.Instance.GetCurrentValue = function (defaultOriginValue, defaultD
     else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
         end = defaultDestinationValue;
 
-    var easingFunc = this.GetEasingFunction();
+    var easingFunc = this.EasingFunction;
     if (easingFunc != null)
         clockData.Progress = easingFunc.Ease(clockData.Progress);
 
