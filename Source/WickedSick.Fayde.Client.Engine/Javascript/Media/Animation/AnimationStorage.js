@@ -2,7 +2,7 @@
 /// CODE
 
 //#region AnimationStorage
-var AnimationStorage = Nullstone.Create("AnimationStorage", null, 3);
+var AnimationStorage = Nullstone.Create("AnimationStorage", undefined, 3);
 
 AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
     /// <param name="timeline" type="Timeline"></param>
@@ -26,16 +26,9 @@ AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
     }
 
     if (prevStorage != null)
-        this.SetStopValue(prevStorage.GetStopValue());
+        this.StopValue = prevStorage.StopValue;
     else
-        this.SetStopValue(targetobj._ReadLocalValue(targetprop));
-};
-
-AnimationStorage.Instance.GetStopValue = function () {
-    return this._StopValue;
-};
-AnimationStorage.Instance.SetStopValue = function (value) {
-    this._StopValue = value;
+        this.StopValue = targetobj._ReadLocalValue(targetprop);
 };
 
 AnimationStorage.Instance.Enable = function () {
@@ -60,7 +53,7 @@ AnimationStorage.Instance.DetachFromObject = function () {
 AnimationStorage.Instance.ResetPropertyValue = function () {
     if (this._TargetObj == null || this._TargetProp == null)
         return;
-    this._TargetObj._SetValue(this._TargetProp, this.GetStopValue());
+    this._TargetObj._SetValue(this._TargetProp, this.StopValue);
 };
 
 AnimationStorage.Instance.UpdateCurrentValueAndApply = function (clockData) {
@@ -68,7 +61,7 @@ AnimationStorage.Instance.UpdateCurrentValueAndApply = function (clockData) {
         return;
     if (this._TargetObj == null)
         return;
-    this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this._StopValue !== undefined ? this._StopValue : this._BaseValue, clockData);
+    this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this.StopValue !== undefined ? this.StopValue : this._BaseValue, clockData);
     this.ApplyCurrentValue();
 };
 AnimationStorage.Instance.ApplyCurrentValue = function () {
