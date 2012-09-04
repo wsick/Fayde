@@ -6,22 +6,28 @@
 //#region ColorAnimation
 var ColorAnimation = Nullstone.Create("ColorAnimation", Animation);
 
-//#region Dependency Properties
+//#region Properties
 
 ColorAnimation.ByProperty = DependencyProperty.Register("By", function () { return Color; }, ColorAnimation);
-//ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return EasingFunction; }, ColorAnimation);
+ColorAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return IEasingFunction; }, ColorAnimation);
 ColorAnimation.FromProperty = DependencyProperty.Register("From", function () { return Color; }, ColorAnimation);
 ColorAnimation.ToProperty = DependencyProperty.Register("To", function () { return Color; }, ColorAnimation);
 
 Nullstone.AutoProperties(ColorAnimation, [
     ColorAnimation.ByProperty,
+    ColorAnimation.EasingFunctionProperty,
     ColorAnimation.FromProperty,
     ColorAnimation.ToProperty
 ]);
 
 //#endregion
 
-ColorAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
+ColorAnimation.Instance.GetNaturalDurationCore = function () {
+    var keyFrames = this.KeyFrames;
+
+};
+
+ColorAnimation.Instance.GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
 
     var start = new Color();
@@ -36,7 +42,7 @@ ColorAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
         return start.Add(this._ByCached);
     return start;
 };
-ColorAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+ColorAnimation.Instance.GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
 
     var start = new Color();
@@ -53,9 +59,9 @@ ColorAnimation.Instance._GetCurrentValue = function (defaultOriginValue, default
     else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
         end = defaultDestinationValue;
 
-    //var easingFunc = this.GetEasingFunction();
-    //if (easingFunc != null)
-    //clockData.Progress = easingFunc.Ease(clockData.Progress);
+    var easingFunc = this.GetEasingFunction();
+    if (easingFunc != null)
+        clockData.Progress = easingFunc.Ease(clockData.Progress);
 
     return start.Add(end.Subtract(start).Multiply(clockData.Progress));
 };
