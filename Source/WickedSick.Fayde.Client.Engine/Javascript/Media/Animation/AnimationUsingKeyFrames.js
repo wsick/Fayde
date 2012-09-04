@@ -64,6 +64,14 @@ AnimationUsingKeyFrames.Instance.GetCurrentValue = function (defaultOriginValue,
 
     return currentKeyFrame.InterpolateValue(baseValue, progress);
 };
+AnimationUsingKeyFrames.Instance.GetNaturalDurationCore = function () {
+    var keyFrames = this.KeyFrames;
+    KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
+    var count = keyFrames._SortedList.length;
+    if (count > 0)
+        return keyFrames._SortedList[count - 1]._ResolvedKeyTime;
+    return new Duration(new TimeSpan());
+};
 
 AnimationUsingKeyFrames.Instance.AddKeyFrame = function (frame) {
     this.KeyFrames.Add(frame);
