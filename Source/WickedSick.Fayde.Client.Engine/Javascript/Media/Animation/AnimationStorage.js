@@ -61,7 +61,7 @@ AnimationStorage.Instance.UpdateCurrentValueAndApply = function (clockData) {
         return;
     if (this._TargetObj == null)
         return;
-    this._CurrentValue = this._Timeline._GetCurrentValue(this._BaseValue, this.StopValue !== undefined ? this.StopValue : this._BaseValue, clockData);
+    this._CurrentValue = this._Timeline.GetCurrentValue(this._BaseValue, this.StopValue !== undefined ? this.StopValue : this._BaseValue, clockData);
     this.ApplyCurrentValue();
 };
 AnimationStorage.Instance.ApplyCurrentValue = function () {
