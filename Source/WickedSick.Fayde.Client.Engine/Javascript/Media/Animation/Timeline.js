@@ -107,44 +107,49 @@ Timeline.Instance.CreateClockData = function (nowTime) {
         this._HasBegun = true;
     }
 
-    var clockData = {
-        CurrentTime: new TimeSpan(nowTime - this._BeginTicks - this._TicksPaused),
-        Progress: 0.0,
-        Completed: false
-    };
+    var elapsedTicks = nowTime - this._BeginTicks - this._TicksPaused;
+    var currentTimeTicks = elapsedTicks;
+    var progress = 0.0;
+    var completed = false;
 
     var duration = this.GetNaturalDuration();
     if (!duration || duration.IsAutomatic) {
-        clockData.Progress = 1.0;
-        clockData.Completed = true;
+        progress = 1.0;
+        completed = true;
     } else if (duration.HasTimeSpan) {
-        var elapsedTicks = clockData.CurrentTime._Ticks;
         var durTicks = duration.TimeSpan._Ticks;
+        var d = durTicks;
         if (this.AutoReverse === true) {
+            d = d / 2;
             // Progress - Graph that repeats 3 times has shape: /\/\/\/\/\/\
-            clockData.Progress = 1 - (Math.abs((elapsedTicks % (durTicks + durTicks)) - durTicks) / durTicks);
+            progress = 1 - (Math.abs((elapsedTicks % (d + d)) - d) / d);
         } else {
             // Progress - Graph that repeats 3 times has shape: //////
-            clockData.Progress = (elapsedTicks / durTicks) - Math.floor(elapsedTicks / durTicks);
+            progress = (elapsedTicks / d) - Math.floor(elapsedTicks / d);
         }
+        currentTimeTicks = progress * d; //normalizes CurrentTime within [0,duration] constraints
 
         var repeat = this.RepeatBehavior;
         if (repeat.IsForever) {
         } else if (repeat.HasCount) {
             if (Math.floor(elapsedTicks / durTicks) > repeat.Count) {
-                clockData.Progress = 1.0;
-                clockData.Completed = true;
+                progress = 1.0;
+                completed = true;
             }
         } else if (repeat.HasDuration) {
             if (elapsedTicks > repeat.Duration.TimeSpan._Ticks) {
-                clockData.Progress = 1.0;
-                clockData.Completed = true;
+                progress = 1.0;
+                completed = true;
             }
         }
     }
     // else if (duration.IsForever) { // do nothing }
-
-    return clockData;
+    
+    return {
+        CurrentTime: new TimeSpan(currentTimeTicks),
+        Progress: progress,
+        Completed: completed
+    };
 };
 Timeline.Instance.IsAfterBeginTime = function (nowTime) {
     var beginTime = this.BeginTime;
