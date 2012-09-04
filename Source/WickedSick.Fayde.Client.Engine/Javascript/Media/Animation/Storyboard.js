@@ -155,6 +155,42 @@ Storyboard.Instance.OnCompleted = function () {
     this.OnCompleted$Timeline();
 };
 
+Storyboard.Instance.GetNaturalDurationCore = function () {
+    var children = this.Children;
+    var count = children.GetCount();
+    if (count === 0)
+        return new Duration(new TimeSpan());
+
+    var fullTicks = null;
+    for (var i = 0; i < count; i++) {
+        var timeline = children.GetValueAt(i);
+        var dur = timeline.GetNaturalDuration();
+        if (dur.IsAutomatic)
+            continue;
+        if (dur.IsForever)
+            return Duration.CreateForever();
+        //duration must have a timespan if we got here
+        var spanTicks = dur.TimeSpan._Ticks;
+        var repeat = timeline.RepeatBehavior;
+        if (repeat.IsForever)
+            return dur.IsForever;
+        if (repeat.HasCount)
+            spanTicks = spanTicks * repeat.Count;
+        if (timeline.AutoReverse)
+            spanTicks *= 2;
+        if (repeat.HasDuration)
+            spanTicks = repeat.Duration.TimeSpan._Ticks;
+        if (span !== 0)
+            spanTicks = spanTicks / timeline.SpeedRatio;
+        spanTicks += timeline.BeginTime;
+        if (fullTicks == null || fullTicks <= spanTicks)
+            fullTicks = spanTicks;
+    }
+    if (fullTicks == null)
+        return Duration.CreateAutomatic();
+    return new Duration(new TimeSpan(fullTicks));
+};
+
 Nullstone.FinishCreate(Storyboard);
 //#endregion
 
