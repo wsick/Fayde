@@ -149,6 +149,7 @@
     <Content Include="Javascript\Engine\NavService.js" />
     <Content Include="Javascript\Core\DeferredValueExpression.js" />
     <Content Include="Javascript\Core\TabNavigationWalker.js" />
+    <Content Include="Javascript\Media\Animation\AnimationUsingKeyFrames.js" />
     <Content Include="Javascript\Media\Animation\BackEase.js" />
     <Content Include="Javascript\Media\Animation\BeginStoryboard.js" />
     <Content Include="Javascript\Media\Animation\ColorAnimationUsingKeyFrames.js" />
