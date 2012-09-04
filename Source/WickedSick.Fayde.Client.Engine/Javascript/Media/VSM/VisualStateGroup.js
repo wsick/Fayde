@@ -74,21 +74,26 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
         }
     }
 
+    this.StopCurrentStoryboards(element);
+
     var currentStoryboards = this.GetCurrentStoryboards();
-    for (i = 0; i < currentStoryboards.GetCount(); i++) {
+    for (i = 0; i < newStoryboards.length; i++) {
+        if (newStoryboards[i] == null)
+            continue;
+        currentStoryboards.Add(newStoryboards[i]);
+    }
+};
+VisualStateGroup.Instance.StopCurrentStoryboards = function (element) {
+    var currentStoryboards = this.GetCurrentStoryboards();
+    var count = currentStoryboards.GetCount();
+    for (i = 0; i < count ; i++) {
         storyboard = currentStoryboards.GetValueAt(i);
         if (storyboard == null)
             continue;
         element.Resources.Remove(storyboard._ID);
         storyboard.Stop();
     }
-
     currentStoryboards.Clear();
-    for (i = 0; i < newStoryboards.length; i++) {
-        if (newStoryboards[i] == null)
-            continue;
-        currentStoryboards.Add(newStoryboards[i]);
-    }
 };
 VisualStateGroup.Instance.RaiseCurrentStateChanging = function (element, oldState, newState, control) {
     /// <param name="element" type="FrameworkElement"></param>

@@ -159,6 +159,8 @@ Control.Instance._OnLogicalParentChanged = function (oldParent, newParent) {
 Control.Instance._OnIsAttachedChanged = function (value) {
     this._OnIsAttachedChanged$FrameworkElement(value);
     this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
+    if (!value)
+        VisualStateManager.DestroyStoryboards(this);
 };
 
 Control.Instance._DoApplyTemplateWithError = function (error) {
