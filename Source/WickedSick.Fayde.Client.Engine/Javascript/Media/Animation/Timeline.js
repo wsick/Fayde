@@ -1,8 +1,8 @@
-/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="../../Primitives/Duration.js"/>
 /// <reference path="RepeatBehavior.js"/>
+/// <reference path="Enums.js"/>
 
 //#region Timeline
 var Timeline = Nullstone.Create("Timeline", DependencyObject);
@@ -45,98 +45,128 @@ Nullstone.Property(Timeline, "ManualTarget", {
 //#endregion
 
 Timeline.Instance.Reset = function () {
+    this._TicksPaused = 0;
     this._IsFirstUpdate = true;
-    this._BeginStep = null;
-    this._HasReachedBeg = false;
+    delete this._BeginTicks;
+    this._HasBegun = false;
 };
-Timeline.Instance.IsAfterBeginTime = function (nowTime) {
-    var beginTime = this._GetValue(Timeline.BeginTimeProperty);
-    if (beginTime == null || beginTime.IsZero())
-        return true;
-    var ts = new TimeSpan();
-    ts.AddMilliseconds(nowTime - this._InitialStep);
-    if (ts.CompareTo(beginTime) < 0)
-        return false;
-    return true;
-};
-Timeline.Instance.CreateClockData = function (nowTime) {
-    var clockData = {
-        BeginTicks: this._BeginStep,
-        RealTicks: nowTime,
-        CurrentTime: new TimeSpan(nowTime - this._BeginStep),
-        Progress: 1.0,
-        Completed: true
-    };
 
-    var duration = this._GetValue(Timeline.DurationProperty);
-    if (duration != null && (duration.HasTimeSpan || duration.IsForever)) {
-        this.CalculateProgressInTimeline(clockData, nowTime - this._BeginStep, duration.TimeSpan.GetMilliseconds());
-    }
-
-    return clockData;
+Timeline.Instance.Pause = function () {
+    if (this._IsPaused)
+        return;
+    this._BeginPauseTime = new Date().getTime();
+    this._IsPaused = true;
 };
+Timeline.Instance.Resume = function () {
+    if (!this._IsPaused)
+        return;
+    this._IsPaused = false;
+    var nowTime = new Date().getTime();
+    this._TicksPaused = nowTime - this._BeginPauseTime;
+};
+Timeline.Instance.Stop = function () {
+    this.Reset();
+};
+
 Timeline.Instance.OnCompleted = function () {
+    var fill = this.FillBehavior;
+    switch (fill) {
+        case FillBehavior.HoldEnd:
+            break;
+        case FillBehavior.Stop:
+            this.Stop();
+            break;
+    }
     this.Completed.Raise(this, new EventArgs());
 };
 
+Timeline.Instance.Update = function (nowTime) {
+    var clockData = this.CreateClockData(nowTime);
+    if (!clockData)
+        return;
+    if (this._IsPaused)
+        return;
+    this.UpdateInternal(clockData);
+    if (clockData.Completed)
+        this.OnCompleted();
+};
+Timeline.Instance.UpdateInternal = function (clockData) { };
+
+//#region Clock
+
+Timeline.Instance.CreateClockData = function (nowTime) {
+    if (this._IsFirstUpdate) {
+        this._InitialStep = nowTime;
+        this._HasBegun = false;
+        this._IsFirstUpdate = false;
+    }
+    if (!this._HasBegun) {
+        if (!this.IsAfterBeginTime(nowTime))
+            return;
+        this._BeginTicks = nowTime;
+        this._HasBegun = true;
+    }
+
+    var clockData = {
+        CurrentTime: new TimeSpan(nowTime - this._BeginTicks - this._TicksPaused),
+        Progress: 0.0,
+        Completed: false
+    };
+
+    var duration = this.GetNaturalDuration();
+    if (!duration || duration.IsAutomatic) {
+        clockData.Progress = 1.0;
+        clockData.Completed = true;
+    } else if (duration.HasTimeSpan) {
+        var elapsedTicks = clockData.CurrentTime._Ticks;
+        var durTicks = duration.TimeSpan._Ticks;
+        if (this.AutoReverse === true) {
+            clockData.Progress = 1 - (Math.abs(elapsedTicks - durTicks) / durTicks);
+        } else {
+            clockData.Progress = (elapsedTicks / durTicks) - Math.floor(elapsedTicks / durTicks);
+        }
+
+        var repeat = this.RepeatBehavior;
+        if (repeat.IsForever) {
+        } else if (repeat.HasCount) {
+            if (Math.floor(elapsedTicks / durTicks) > repeat.Count) {
+                clockData.Progress = 1.0;
+                clockData.Completed = true;
+            }
+        } else if (repeat.HasDuration) {
+            if (elapsedTicks > repeat.Duration.TimeSpan._Ticks) {
+                clockData.Progress = 1.0;
+                clockData.Completed = true;
+            }
+        }
+    }
+    // else if (duration.IsForever) { // do nothing }
+
+    return clockData;
+};
+Timeline.Instance.IsAfterBeginTime = function (nowTime) {
+    var beginTime = this.BeginTime;
+    if (beginTime == null)
+        return true;
+    var beginTicks = beginTime._Ticks;
+    if (beginTicks <= 0)
+        return true;
+    var elapsedTicks = nowTime - this._InitialStep;
+    if (elapsedTicks < beginTicks)
+        return false;
+    return true;
+};
 Timeline.Instance.GetNaturalDuration = function () {
     var d = this.Duration;
-    if (d.IsAutomatic) {
+    if (d.IsAutomatic)
         return this.GetNaturalDurationCore();
-    } else {
-        return d;
-    }
+    return d;
 };
 Timeline.Instance.GetNaturalDurationCore = function () {
     return Duration.CreateAutomatic();
 };
-Timeline.Instance.CalculateProgressInTimeline = function (clockData, elapsed, duration) {
-    clockData.Completed = false;
-    if (this.AutoReverse === true) {
-        clockData.Progress = 1 - (Math.abs(elapsed - duration) / duration);
-    } else {
-        clockData.Progress = (elapsed / duration) - Math.floor(elapsed / duration);
-    }
 
-    //check to see if Elapsed Time exceeds RepeatBehavior
-    var repeatBehavior = this.RepeatBehavior;
-    if (repeatBehavior.IsForever) {
-        //never exceeds
-    } else if (repeatBehavior.HasCount) {
-        if (Math.floor(elapsed / duration) > repeatBehavior.Count) {
-            clockData.Progress = 1.0;
-            clockData.Completed = true;
-        }
-    } else if (repeatBehavior.HasDuration) {
-        if (elapsed > repeatBehavior.Duration) {
-            clockData.Progress = 1.0;
-            clockData.Completed = true;
-        }
-    }
-};
-
-Timeline.Instance.Update = function (nowTime) {
-    try {
-        if (this._IsFirstUpdate) {
-            this._InitialStep = nowTime;
-            this._HasReachedBeg = false;
-            this._IsFirstUpdate = false;
-        }
-        if (!this._HasReachedBeg) {
-            if (!this.IsAfterBeginTime(nowTime))
-                return;
-            this._BeginStep = nowTime;
-            this._HasReachedBeg = true;
-        }
-        var clockData = this.CreateClockData(nowTime);
-        this.UpdateInternal(clockData);
-        if (clockData.Completed)
-            this.OnCompleted();
-    } finally {
-        this._LastStep = nowTime;
-    }
-};
-Timeline.Instance.UpdateInternal = function (clockData) { };
+//#endregion
 
 Nullstone.FinishCreate(Timeline);
 //#endregion

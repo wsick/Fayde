@@ -49,31 +49,34 @@ Storyboard.Annotations = {
 //#endregion
 
 Storyboard.Instance.Begin = function () {
-    var error = new BError();
-    this.BeginWithError(error);
-    if (error.IsErrored())
-        throw error.CreateException();
-};
-Storyboard.Instance.BeginWithError = function (error) {
     this.Reset();
-    if (!this._HookupAnimations(error))
-        return false;
-    App.Instance.RegisterStoryboard(this);
+    var error = new BError();
+    if (this._HookupAnimations(error)) {
+        App.Instance.RegisterStoryboard(this);
+    } else {
+        throw error.CreateException();
+    }
 };
 Storyboard.Instance.Pause = function () {
-    this._IsPaused = true;
-};
-Storyboard.Instance.Resume = function () {
-    var nowTime = new Date().getTime();
-    this._LastStep = nowTime;
+    this.Pause$Timeline();
+
     var children = this.Children;
     var count = children.GetCount();
     for (var i = 0; i < count; i++) {
-        children.GetValueAt(i)._LastStep = nowTime;
+        children.GetValueAt(i).Pause();
     }
-    this._IsPaused = false;
+};
+Storyboard.Instance.Resume = function () {
+    this.Resume$Timeline();
+    
+    var children = this.Children;
+    var count = children.GetCount();
+    for (var i = 0; i < count; i++) {
+        children.GetValueAt(i).Resume();
+    }
 };
 Storyboard.Instance.Stop = function () {
+    this.Stop$Timeline();
     App.Instance.UnregisterStoryboard(this);
     var children = this.Children;
     if (!children)
@@ -91,9 +94,7 @@ Storyboard.Instance._HookupAnimations = function (error) {
         return true;
     var count = children.GetCount();
     for (var i = 0; i < count; i++) {
-        var animation = children.GetValueAt(i);
-        animation.Reset();
-        if (!this._HookupAnimation(animation, null, null, error))
+        if (!this._HookupAnimation(children.GetValueAt(i), null, null, error))
             return false;
     }
     return true;
@@ -103,10 +104,11 @@ Storyboard.Instance._HookupAnimation = function (animation, targetObject, target
     /// <param name="targetObject" type="DependencyObject"></param>
     /// <param name="targetPropertyPath" type="DependencyProperty"></param>
     /// <param name="error" type="BError">Description</param>
+    animation.Reset();
     var localTargetObject = null;
     var localTargetPropertyPath = null;
-    if (animation.HasManualTarget()) {
-        localTargetObject = animation.GetManualTarget();
+    if (animation.HasManualTarget) {
+        localTargetObject = animation.ManualTarget;
     } else {
         var name = Storyboard.GetTargetName(animation);
         if (name)
@@ -136,23 +138,14 @@ Storyboard.Instance._HookupAnimation = function (animation, targetObject, target
     return true;
 };
 
-Storyboard.Instance._Tick = function (lastTime, nowTime) {
-    if (this._IsPaused)
-        return;
-    this.Update(nowTime);
-};
 Storyboard.Instance.UpdateInternal = function (clockData) {
     var children = this.Children;
     if (!children)
         return;
     var count = children.GetCount();
     for (var i = 0; i < count; i++) {
-        children.GetValueAt(i).Update(clockData.RealTicks);
+        children.GetValueAt(i).Update(clockData.CurrentTime._Ticks);
     }
-};
-Storyboard.Instance.OnCompleted = function () {
-    App.Instance.UnregisterStoryboard(this);
-    this.OnCompleted$Timeline();
 };
 
 Storyboard.Instance.GetNaturalDurationCore = function () {
@@ -180,7 +173,7 @@ Storyboard.Instance.GetNaturalDurationCore = function () {
             spanTicks *= 2;
         if (repeat.HasDuration)
             spanTicks = repeat.Duration.TimeSpan._Ticks;
-        if (span !== 0)
+        if (spanTicks !== 0)
             spanTicks = spanTicks / timeline.SpeedRatio;
         spanTicks += timeline.BeginTime;
         if (fullTicks == null || fullTicks <= spanTicks)

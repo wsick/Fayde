@@ -87,8 +87,9 @@ App.Instance._Stop = function () {
 };
 
 App.Instance.ProcessStoryboards = function (lastTime, nowTime) {
-    for (var i = 0; i < this._Storyboards.length; i++) {
-        this._Storyboards[i]._Tick(lastTime, nowTime);
+    var len = this._Storyboards.length;
+    for (var i = 0; i < len; i++) {
+        this._Storyboards[i].Update(nowTime);
     }
 };
 App.Instance.ProcessDirty = function () {
