@@ -175,7 +175,7 @@ Storyboard.Instance.GetNaturalDurationCore = function () {
             spanTicks = repeat.Duration.TimeSpan._Ticks;
         if (spanTicks !== 0)
             spanTicks = spanTicks / timeline.SpeedRatio;
-        spanTicks += timeline.BeginTime;
+        spanTicks += timeline.BeginTime._Ticks;
         if (fullTicks == null || fullTicks <= spanTicks)
             fullTicks = spanTicks;
     }
