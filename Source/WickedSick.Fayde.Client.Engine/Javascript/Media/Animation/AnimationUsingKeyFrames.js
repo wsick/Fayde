@@ -1,5 +1,6 @@
 ﻿/// <reference path="Animation.js"/>
 /// CODE
+/// <reference path="KeyFrameCollection.js"/>
 
 //#region AnimationUsingKeyFrames
 var AnimationUsingKeyFrames = Nullstone.Create("AnimationUsingKeyFrames", Animation);
@@ -68,9 +69,12 @@ AnimationUsingKeyFrames.Instance.GetNaturalDurationCore = function () {
     var keyFrames = this.KeyFrames;
     KeyFrameCollection.ResolveKeyFrames(this, keyFrames);
     var count = keyFrames._SortedList.length;
+    var ts;
     if (count > 0)
-        return keyFrames._SortedList[count - 1]._ResolvedKeyTime;
-    return new Duration(new TimeSpan());
+        ts = keyFrames._SortedList[count - 1]._ResolvedKeyTime;
+    else
+        ts = new TimeSpan();
+    return Duration.CreateTimeSpan(ts);
 };
 
 AnimationUsingKeyFrames.Instance.AddKeyFrame = function (frame) {
