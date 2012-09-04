@@ -19,22 +19,30 @@ Timeline.AutoReverseProperty = DependencyProperty.Register("AutoReverse", functi
 Timeline.BeginTimeProperty = DependencyProperty.Register("BeginTime", function () { return TimeSpan; }, Timeline, new TimeSpan());
 Timeline.DurationProperty = DependencyProperty.Register("Duration", function () { return Duration; }, Timeline, Duration.CreateAutomatic());
 Timeline.RepeatBehaviorProperty = DependencyProperty.Register("RepeatBehavior", function () { return RepeatBehavior; }, Timeline, RepeatBehavior.FromIterationCount(1));
+Timeline.SpeedRatioProperty = DependencyProperty.Register("SpeedRatio", function () { return Number; }, Timeline, 1.0);
+Timeline.FillBehaviorProperty = DependencyProperty.Register("FillBehavior", function () { return new Enum(FillBehavior); }, Timeline, FillBehavior.HoldEnd);
 
 Nullstone.AutoProperties(Timeline, [
     Timeline.AutoReverseProperty,
     Timeline.BeginTimeProperty,
     Timeline.DurationProperty,
-    Timeline.RepeatBehaviorProperty
+    Timeline.RepeatBehaviorProperty,
+    Timeline.SpeedRatioProperty,
+    Timeline.FillBehaviorProperty
 ]);
 
-//#endregion
+Nullstone.Property(Timeline, "HasManualTarget", {
+    get: function () {
+        return this._ManualTarget != null;
+    }
+});
+Nullstone.Property(Timeline, "ManualTarget", {
+    get: function () {
+        return this._ManualTarget;
+    }
+});
 
-Timeline.Instance.HasManualTarget = function () {
-    return this._ManualTarget != null;
-};
-Timeline.Instance.GetManualTarget = function () {
-    return this._ManualTarget;
-};
+//#endregion
 
 Timeline.Instance.Reset = function () {
     this._IsFirstUpdate = true;
@@ -71,6 +79,17 @@ Timeline.Instance.OnCompleted = function () {
     this.Completed.Raise(this, new EventArgs());
 };
 
+Timeline.Instance.GetNaturalDuration = function () {
+    var d = this.Duration;
+    if (d.IsAutomatic) {
+        return this.GetNaturalDurationCore();
+    } else {
+        return d;
+    }
+};
+Timeline.Instance.GetNaturalDurationCore = function () {
+    return Duration.CreateAutomatic();
+};
 Timeline.Instance.CalculateProgressInTimeline = function (clockData, elapsed, duration) {
     clockData.Completed = false;
     if (this.AutoReverse === true) {
@@ -83,13 +102,13 @@ Timeline.Instance.CalculateProgressInTimeline = function (clockData, elapsed, du
     var repeatBehavior = this.RepeatBehavior;
     if (repeatBehavior.IsForever) {
         //never exceeds
-    } else if (repeatBehavior.IterationCount) {
-        if (Math.floor(elapsed / duration) > repeatBehavior.IterationCount) {
+    } else if (repeatBehavior.HasCount) {
+        if (Math.floor(elapsed / duration) > repeatBehavior.Count) {
             clockData.Progress = 1.0;
             clockData.Completed = true;
         }
-    } else if (repeatBehavior.RepeatDuration) {
-        if (elapsed > repeatBehavior.RepeatDuration) {
+    } else if (repeatBehavior.HasDuration) {
+        if (elapsed > repeatBehavior.Duration) {
             clockData.Progress = 1.0;
             clockData.Completed = true;
         }
