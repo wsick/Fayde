@@ -121,8 +121,10 @@ Timeline.Instance.CreateClockData = function (nowTime) {
         var elapsedTicks = clockData.CurrentTime._Ticks;
         var durTicks = duration.TimeSpan._Ticks;
         if (this.AutoReverse === true) {
-            clockData.Progress = 1 - (Math.abs(elapsedTicks - durTicks) / durTicks);
+            // Progress - Graph that repeats 3 times has shape: /\/\/\/\/\/\
+            clockData.Progress = 1 - (Math.abs((elapsedTicks % (durTicks + durTicks)) - durTicks) / durTicks);
         } else {
+            // Progress - Graph that repeats 3 times has shape: //////
             clockData.Progress = (elapsedTicks / durTicks) - Math.floor(elapsedTicks / durTicks);
         }
 
