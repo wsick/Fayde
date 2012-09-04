@@ -22,11 +22,6 @@ Nullstone.AutoProperties(ColorAnimation, [
 
 //#endregion
 
-ColorAnimation.Instance.GetNaturalDurationCore = function () {
-    var keyFrames = this.KeyFrames;
-
-};
-
 ColorAnimation.Instance.GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
 
