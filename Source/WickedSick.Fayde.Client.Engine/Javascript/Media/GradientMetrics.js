@@ -6,34 +6,34 @@
 //+x,0y
 GradientMetrics.prototype.E = function (dir, first, last, bounds) {
     var maxX = bounds.X + bounds.Width;
-    while (first.x > bounds.X)
+    while (first.x >= bounds.X)
         first.x -= dir.x;
-    while (last.x < maxX)
+    while (last.x <= maxX)
         last.x += dir.x;
 };
 //-x,0y
 GradientMetrics.prototype.W = function (dir, first, last, bounds) {
     var maxX = bounds.X + bounds.Width;
-    while (first.x < maxX)
+    while (first.x <= maxX)
         first.x -= dir.x;
-    while (last.x > bounds.X)
+    while (last.x >= bounds.X)
         last.x += dir.x;
 };
 
 //0x,+y
 GradientMetrics.prototype.S = function (dir, first, last, bounds) {
     var maxY = bounds.Y + bounds.Height;
-    while (first.y > bounds.Y)
+    while (first.y >= bounds.Y)
         first.y -= dir.y;
-    while (last.y < maxY)
+    while (last.y <= maxY)
         last.y += dir.y;
 };
 //0x,-y
 GradientMetrics.prototype.N = function (dir, first, last, bounds) {
     var maxY = bounds.Y + bounds.Height;
-    while (first.y < maxY)
+    while (first.y <= maxY)
         first.y -= dir.y;
-    while (last.y > bounds.Y)
+    while (last.y >= bounds.Y)
         last.y += dir.y;
 };
 
@@ -41,11 +41,11 @@ GradientMetrics.prototype.N = function (dir, first, last, bounds) {
 GradientMetrics.prototype.NW = function (dir, first, last, bounds) {
     var maxX = bounds.X + bounds.Width;
     var maxY = bounds.Y + bounds.Height;
-    while (first.x < maxX && first.y < maxY) {
+    while (first.x <= maxX && first.y <= maxY) {
         first.x -= dir.x;
         first.y -= dir.y;
     }
-    while (last.x > bounds.X && last.y > bounds.Y) {
+    while (last.x >= bounds.X && last.y >= bounds.Y) {
         last.x += dir.x;
         last.y += dir.y;
     }
@@ -55,11 +55,11 @@ GradientMetrics.prototype.NW = function (dir, first, last, bounds) {
 GradientMetrics.prototype.SW = function (dir, first, last, bounds) {
     var maxX = bounds.X + bounds.Width;
     var maxY = bounds.Y + bounds.Height;
-    while (first.x < maxX && first.y > bounds.Y) {
+    while (first.x <= maxX && first.y >= bounds.Y) {
         first.x -= dir.x;
         first.y -= dir.y;
     }
-    while (last.x > bounds.X && last.y < maxY) {
+    while (last.x >= bounds.X && last.y <= maxY) {
         last.x += dir.x;
         last.y += dir.y;
     }
@@ -69,11 +69,11 @@ GradientMetrics.prototype.SW = function (dir, first, last, bounds) {
 GradientMetrics.prototype.NE = function (dir, first, last, bounds) {
     var maxX = bounds.X + bounds.Width;
     var maxY = bounds.Y + bounds.Height;
-    while (first.x > bounds.X && first.y < maxY) {
+    while (first.x >= bounds.X && first.y <= maxY) {
         first.x -= dir.x;
         first.y -= dir.y;
     }
-    while (last.x < maxX && last.y > bounds.Y) {
+    while (last.x <= maxX && last.y >= bounds.Y) {
         last.x += dir.x;
         last.y += dir.y;
     }
@@ -82,11 +82,11 @@ GradientMetrics.prototype.NE = function (dir, first, last, bounds) {
 GradientMetrics.prototype.SE = function (dir, first, last, bounds) {
     var maxX = bounds.X + bounds.Width;
     var maxY = bounds.Y + bounds.Height;
-    while (first.x > bounds.X && first.y > bounds.Y) {
+    while (first.x >= bounds.X && first.y >= bounds.Y) {
         first.x -= dir.x;
         first.y -= dir.y;
     }
-    while (last.x < maxX && last.y < maxY) {
+    while (last.x <= maxX && last.y <= maxY) {
         last.x += dir.x;
         last.y += dir.y;
     }
