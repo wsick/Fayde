@@ -29,15 +29,26 @@ Transform.Instance._TransformPoint = function (point) {
 Transform.Instance.TransformBounds = function (rect) {
     /// <param name="rect" type="Rect"></param>
     /// <returns type="Rect" />
-    var p1 = new Point(rect.X, rect.y);
-    Matrix.TransformPoint(p1, this.Value, p1);
-    var p2 = new Point(rect.X + rect.Width, rect.Y + rect.Height);
-    Matrix.TransformPoint(p2, this.Value, p2);
-    return new Rect(
-        Math.min(p1.X, p2.X),
-        Math.min(p1.Y, p2.Y),
-        Math.abs(p2.X - p1.X),
-        Math.abs(p2.Y - p1.Y));
+    var ptl = new Point(rect.X, rect.Y);
+    Matrix.TransformPoint(ptl, this.Value, ptl);
+    
+    var pbl = new Point(rect.X, rect.Y + rect.Height);
+    Matrix.TransformPoint(pbl, this.Value, pbl)
+    
+    var ptr = new Point(rect.X + rect.Width, rect.Y);
+    Matrix.TransformPoint(ptr, this.Value, ptr);
+
+    var pbr = new Point(rect.X + rect.Width, rect.Y + rect.Height);
+    Matrix.TransformPoint(pbr, this.Value, pbr);
+
+    var minX = Math.min(ptl.X, pbl.X, ptr.X, pbr.X);
+    var maxX = Math.max(ptl.X, pbl.X, ptr.X, pbr.X);
+
+    var minY = Math.min(ptl.Y, pbl.Y, ptr.Y, pbr.Y);
+    var maxY = Math.max(ptl.Y, pbl.Y, ptr.Y, pbr.Y);
+
+    return new Rect(minX, minY,
+        maxX - minX, maxY - minY);
 };
 
 Transform.Instance._UpdateTransform = function () {
