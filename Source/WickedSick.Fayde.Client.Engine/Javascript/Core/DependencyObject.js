@@ -1038,7 +1038,7 @@ DependencyObject.Instance._DetachAnimationStorage = function (propd, storage) {
             if (Nullstone.RefEquals(node.Storage, storage)) {
                 var remove = node;
                 node = node.Next;
-                node.Storage.SetStopValue(storage.GetStopValue());
+                node.Storage.StopValue = storage.StopValue;
                 list.Remove(remove);
                 break;
             }

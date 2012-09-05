@@ -25,8 +25,12 @@ Animation.Instance.UpdateInternal = function (clockData) {
         this._Storage.UpdateCurrentValueAndApply(clockData);
 };
 
-Animation.Instance._GetTargetValue = function (defaultOriginValue) { return null; };
-Animation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) { return null; };
+Animation.Instance.GetNaturalDurationCore = function () {
+    return Duration.CreateTimeSpan(new TimeSpan(0, 0, 1));
+};
+
+Animation.Instance.GetTargetValue = function (defaultOriginValue) { };
+Animation.Instance.GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) { };
 
 Nullstone.FinishCreate(Animation);
 //#endregion

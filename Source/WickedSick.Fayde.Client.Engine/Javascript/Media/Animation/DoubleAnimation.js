@@ -1,13 +1,11 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="Animation.js"/>
 /// CODE
-/// <reference path="Storyboard.js"/>
-/// <reference path="../../Core/DependencyObject.js"/>
 
 //#region DoubleAnimation
 var DoubleAnimation = Nullstone.Create("DoubleAnimation", Animation);
 
-//#region Dependency Properties
+//#region Properties
 
 DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
 DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return IEasingFunction; }, DoubleAnimation);
@@ -23,7 +21,7 @@ Nullstone.AutoProperties(DoubleAnimation, [
 
 //#endregion
 
-DoubleAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
+DoubleAnimation.Instance.GetTargetValue = function (defaultOriginValue) {
     this._EnsureCache();
 
     var start = 0.0;
@@ -38,7 +36,7 @@ DoubleAnimation.Instance._GetTargetValue = function (defaultOriginValue) {
         return start + this._ByCached;
     return start;
 };
-DoubleAnimation.Instance._GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
+DoubleAnimation.Instance.GetCurrentValue = function (defaultOriginValue, defaultDestinationValue, clockData) {
     this._EnsureCache();
 
     var start = 0.0;

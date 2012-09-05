@@ -64,6 +64,11 @@ Nullstone.Property(Duration, "IsForever", {
         return this._Type === DurationType.Forever;
     }
 });
+Nullstone.Property(Duration, "IsAutomatic", {
+    get: function () {
+        return this._Type === DurationType.Automatic;
+    }
+});
 
 //#endregion
 

@@ -100,7 +100,7 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
 
     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
     var storyboard;
-    if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.GetDuration().IsZero()))) {
+    if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.Duration.IsZero()))) {
         if (transition != null && storyboard != null) {
             group.StartNewThenStopOld(element, [storyboard, state.Storyboard]);
         } else {
@@ -141,6 +141,20 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
 
     group.CurrentState = state;
     return true;
+};
+
+VisualStateManager.DestroyStoryboards = function (control) {
+    var root = VisualStateManager._GetTemplateRoot(control);
+    if (root == null)
+        return false;
+
+    var groups = VisualStateManager._GetVisualStateGroupsInternal(root);
+    if (groups == null)
+        return false;
+    var count = groups.GetCount();
+    for (var i = 0; i < count; i++) {
+        groups.GetValueAt(i).StopCurrentStoryboards(control);
+    }
 };
 
 VisualStateManager._GetTemplateRoot = function (control) {

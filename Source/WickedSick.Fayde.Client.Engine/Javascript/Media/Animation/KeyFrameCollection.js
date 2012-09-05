@@ -100,7 +100,7 @@ KeyFrameCollection.ResolveKeyFrames = function (animation, coll) {
     for (i = 0; i < count; i++) {
         value = coll.GetValueAt(i);
         keyFrame = Nullstone.As(value, KeyFrame);
-        keyFrame._ResolvedTime = 0;
+        keyFrame._ResolvedKeyTime = new TimeSpan();
         keyFrame._Resolved = false;
     }
 
