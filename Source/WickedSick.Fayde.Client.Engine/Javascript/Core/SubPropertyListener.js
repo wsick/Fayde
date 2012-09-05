@@ -8,7 +8,6 @@ var SubPropertyListener = Nullstone.Create("SubPropertyListener", null, 2);
 SubPropertyListener.Instance.Init = function (dobj, propd) {
     this._Dobj = dobj;
     this._Propd = propd;
-    //this._Dobj.PropertyChanged.Subscribe(this.OnSubPropertyChanged, this);
 };
 SubPropertyListener.Instance.OnSubPropertyChanged = function (sender, args) {
     this._Dobj._OnSubPropertyChanged(this._Propd, sender, args);

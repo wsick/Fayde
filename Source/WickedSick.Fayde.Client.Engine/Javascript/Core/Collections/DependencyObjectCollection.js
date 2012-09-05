@@ -9,7 +9,7 @@ var DependencyObjectCollection = Nullstone.Create("DependencyObjectCollection", 
 DependencyObjectCollection.Instance.Init = function (setsParent) {
     this.Init$Collection();
     this._IsSecondaryParent = false;
-    this._SetsParent = !setsParent ? true : setsParent;
+    this._SetsParent = setsParent == null ? true : setsParent;
 };
 
 DependencyObjectCollection.Instance.IsElementType = function (value) {
@@ -43,7 +43,7 @@ DependencyObjectCollection.Instance.AddedToCollection = function (value, error) 
         value.SetMentor(this.GetMentor());
     }
 
-    this.AddPropertyChangedListener(value);
+    value.AddPropertyChangedListener(this);
 
     var rv = this.AddedToCollection$Collection(value, error);
     value._SetIsAttached(rv && this._IsAttached);
@@ -60,7 +60,7 @@ DependencyObjectCollection.Instance.AddedToCollection = function (value, error) 
 DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
     if (isValueSafe) {
         if (value instanceof DependencyObject) {
-            this.RemovePropertyChangedListener(value);
+            value.RemovePropertyChangedListener(this);
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
