@@ -251,10 +251,10 @@ Matrix.TransformBounds = function (m, bounds) {
     Matrix.TransformPoint(p3, m, p3);
     Matrix.TransformPoint(p4, m, p4);
 
-    var l = Math.min(Math.min(Math.min(p1.X, p2.X), p3.X), p4.X);
-    var t = Math.min(Math.min(Math.min(p1.Y, p2.Y), p3.Y), p4.Y);
-    var r = Math.max(Math.max(Math.max(p1.X, p2.X), p3.X), p4.X);
-    var b = Math.max(Math.max(Math.max(p1.Y, p2.Y), p3.Y), p4.Y);
+    var l = Math.min(p1.X, p2.X, p3.X, p4.X);
+    var t = Math.min(p1.Y, p2.Y, p3.Y, p4.Y);
+    var r = Math.max(p1.X, p2.X, p3.X, p4.X);
+    var b = Math.max(p1.Y, p2.Y, p3.Y, p4.Y);
 
     return new Rect(l, t, r - l, b - t);
 };
