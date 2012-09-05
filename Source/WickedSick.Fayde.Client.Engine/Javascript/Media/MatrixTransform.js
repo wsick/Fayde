@@ -8,23 +8,13 @@ MatrixTransform.Instance.Init = function () {
     this.Init$Transform();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 MatrixTransform.ValueProperty = DependencyProperty.RegisterFull("Value", function () { return Matrix; }, MatrixTransform, undefined, { GetValue: function () { return new Matrix(); } });
 
-Nullstone.AutoProperties(MatrixTransform, [
-    MatrixTransform.ValueProperty
-]);
+Nullstone.AutoProperty(MatrixTransform, MatrixTransform.ValueProperty, undefined, true);
 
 //#endregion
-
-MatrixTransform.Instance._UpdateTransform = function () {
-    var matrix = this.Value;
-    if (matrix)
-        this._M = Matrix3D.CreateAffine(this.Value);
-    else
-        this._M = new Matrix3D();
-};
 
 MatrixTransform.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== MatrixTransform) {

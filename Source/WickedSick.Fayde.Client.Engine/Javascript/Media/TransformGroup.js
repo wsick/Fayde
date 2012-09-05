@@ -5,21 +5,21 @@
 //#region TransformGroup
 var TransformGroup = Nullstone.Create("TransformGroup", Transform);
 
-//#region Dependency Properties
+//#region Properties
 
-TransformGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return TransformCollection; }, TransformGroup, undefined, { GetValue: function () { return new TransformCollection(); } });
+TransformGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return TransformCollection; }, TransformGroup);
 
 Nullstone.AutoProperties(TransformGroup, [
     TransformGroup.ChildrenProperty
 ]);
 
-Nullstone.Property(TransformGroup, "Value", {
-    get: function () {
-        if (!this._Value)
-            this._Value = this._BuildValue();
-        return this._Value;
-    }
-});
+//#endregion
+
+//#region Annotations
+
+TransformGroup.Annotations = {
+    ContentProperty: TransformGroup.ChildrenProperty
+};
 
 //#endregion
 
@@ -36,29 +36,31 @@ TransformGroup.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property._ID === TransformGroup.ChildrenProperty._ID) {
         if (args.OldValue != null) {
             args.OldValue.Changed.Unsubscribe(this._ChildrenChanged, this);
+            args.OldValue.ItemChanged.Unsubscribe(this._ChildrenItemChanged, this);
         }
         if (args.NewValue != null) {
+            args.NewValue.ItemChanged.Subscribe(this._ChildrenItemChanged, this);
             args.NewValue.Changed.Subscribe(this._ChildrenChanged, this);
         }
     }
     this.PropertyChanged.Raise(this, args);
 };
 TransformGroup.Instance._ChildrenChanged = function (sender, e) {
-    delete this._Value;
+    this._ClearValue();
+};
+TransformGroup.Instance._ChildrenItemChanged = function (sender, e) {
+    this._ClearValue();
 };
 
 TransformGroup.Instance._BuildValue = function () {
-    NotImplemented("TransformGroup._BuildValue");
-    return new Matrix();
+    var children = this.Children;
+    var count = children.GetCount();
+    var cur = new Matrix();
+    for (var i = 0; i < count; i++) {
+        Matrix.Multiply(cur, children.GetValueAt(i).Value, cur);
+    }
+    return cur;
 };
-
-//#region Annotations
-
-TransformGroup.Annotations = {
-    ContentProperty: TransformGroup.ChildrenProperty
-};
-
-//#endregion
 
 Nullstone.FinishCreate(TransformGroup);
 //#endregion

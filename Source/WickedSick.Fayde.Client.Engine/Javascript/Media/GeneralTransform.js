@@ -21,11 +21,18 @@ GeneralTransform.Instance._GetMatrix = function () {
     ];
     return m;
 };
+GeneralTransform.Instance._TryTransform = function (inPoint, outPoint) {
+    this._MaybeUpdateTransform();
+    var p4 = [inPoint.X, inPoint.Y, 0.0, 1.0];
+    Matrix3D.TransformPoint(p4, this._M, p4);
+    outPointOut.Value = new Point(p4[0], p4[1]);
+    return true;
+};
 GeneralTransform.Instance._Transform = function (point) {
     /// <param name="point" type="Point"></param>
     /// <returns type="Point" />
-    var p4 = [point.X, point.Y, 0.0, 1.0];
     this._MaybeUpdateTransform();
+    var p4 = [point.X, point.Y, 0.0, 1.0];
     Matrix3D.TransformPoint(p4, this._M, p4);
 
     if (p4[3] !== 0.0) {
@@ -33,6 +40,13 @@ GeneralTransform.Instance._Transform = function (point) {
         return new Point(p4[0] * w, p4[1] * w);
     }
     return new Point(NaN, NaN);
+};
+GeneralTransform.Instance._TransformPoint = function (point) {
+    this._MaybeUpdateTransform();
+    var p4 = [point.X, point.Y, 0.0, 1.0];
+    Matrix3D.TransformPoint(p4, this._M, p4);
+    point.X = p4[0];
+    point.Y = p4[1];
 };
 GeneralTransform.Instance._TransformXY = function (x, y) {
     return this._Transform(new Point(x, y));

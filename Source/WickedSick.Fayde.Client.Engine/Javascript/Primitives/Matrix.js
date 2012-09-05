@@ -340,6 +340,22 @@ Matrix.CreateShear = function (x, y) {
     matrix._Type = MatrixTypes.Shear;
     return matrix;
 };
+Matrix.CreateSkew = function (angleRadX, angleRadY) {
+    /// <returns type="Matrix" />
+    if (angleRadX == null) angleRadX = 0;
+    if (angleRadY == null) angleRadY = 0;
+
+    var x = Math.tan(angleRadX);
+    var ix = -x;
+    var y = Math.tan(angleRadY);
+    var iy = -y;
+
+    var matrix = new Matrix();
+    matrix._Elements = [1, y, 0, x, 1, 0];
+    matrix._Inverse = [1, iy, 0, ix, 1, 0];
+    matrix._Type = MatrixTypes.Shear;
+    return matrix;
+};
 
 //#endregion
 

@@ -171,6 +171,7 @@
     <Content Include="Javascript\Media\Effects\DropShadowEffect.js" />
     <Content Include="Javascript\Media\Effects\Effect.js" />
     <Content Include="Javascript\Media\RotateTransform.js" />
+    <Content Include="Javascript\Media\ScaleTransform.js" />
     <Content Include="Javascript\Media\SkewTransform.js" />
     <Content Include="Javascript\Media\TextOptions.js" />
     <Content Include="Javascript\Media\TransformCollection.js" />
