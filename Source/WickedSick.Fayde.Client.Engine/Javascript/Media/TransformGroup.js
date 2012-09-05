@@ -56,7 +56,7 @@ TransformGroup.Instance._BuildValue = function () {
     var children = this.Children;
     var count = children.GetCount();
     var cur = new Matrix();
-    for (var i = 0; i < count; i++) {
+    for (var i = count - 1; i >= 0; i--) {
         Matrix.Multiply(cur, children.GetValueAt(i).Value, cur);
     }
     return cur;
