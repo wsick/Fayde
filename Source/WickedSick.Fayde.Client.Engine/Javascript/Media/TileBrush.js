@@ -5,7 +5,7 @@
 //#region TileBrush
 var TileBrush = Nullstone.Create("TileBrush", Brush);
 
-//#region Dependency Properties
+//#region Properties
 
 TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return new Enum(AlignmentX); }, TileBrush, AlignmentX.Center);
 TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return new Enum(AlignmentY); }, TileBrush, AlignmentY.Center);
@@ -19,10 +19,7 @@ Nullstone.AutoProperties(TileBrush, [
 
 //#endregion
 
-TileBrush.Instance.SetupBrush = function (ctx, bounds) {
-    if (this._IsSurfaceCached(bounds))
-        return;
-
+TileBrush.Instance.CreateBrush = function (ctx, bounds) {
     var imgExtents = this.GetTileExtents();
 
     var tmpCanvas = document.createElement("canvas");
@@ -38,27 +35,10 @@ TileBrush.Instance.SetupBrush = function (ctx, bounds) {
 
     this.DrawTile(tmpCtx, bounds);
 
-    this._SC = {
-        Bounds: bounds
-    };
-    this._Brush = ctx.createPattern(tmpCanvas, "no-repeat");
+    return ctx.createPattern(tmpCanvas, "no-repeat");
 };
 TileBrush.Instance.GetTileExtents = function () { };
 TileBrush.Instance.DrawTile = function (canvasCtx, bounds) { };
-
-TileBrush.Instance._IsSurfaceCached = function (bounds) {
-    if (!this._Brush)
-        return false;
-    if (!this._SC)
-        return false;
-    if (!Rect.Equals(this._SC.Bounds, bounds))
-        return false;
-    return true;
-};
-TileBrush.Instance._InvalidateSurfaceCache = function () {
-    delete this._Brush;
-    delete this._SC;
-};
 
 TileBrush.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== TileBrush) {

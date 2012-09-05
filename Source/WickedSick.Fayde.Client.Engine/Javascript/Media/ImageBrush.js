@@ -13,7 +13,7 @@ ImageBrush.Instance.Init = function () {
     this.ImageOpened = new MulticastEvent();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 

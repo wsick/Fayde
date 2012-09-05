@@ -22,8 +22,8 @@ Nullstone.AutoProperties(RadialGradientBrush, [
 
 //#endregion
 
-RadialGradientBrush.Instance.SetupBrush = function (ctx, bounds) {
-    NotImplemented("RadialGradientBrush.SetupBrush");
+RadialGradientBrush.Instance.CreateBrush = function (ctx, bounds) {
+    NotImplemented("RadialGradientBrush.CreateBrush");
 };
 
 Nullstone.FinishCreate(RadialGradientBrush);

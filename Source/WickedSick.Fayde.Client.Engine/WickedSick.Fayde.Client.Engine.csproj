@@ -170,6 +170,7 @@
     <Content Include="Javascript\Media\Effects\BlurEffect.js" />
     <Content Include="Javascript\Media\Effects\DropShadowEffect.js" />
     <Content Include="Javascript\Media\Effects\Effect.js" />
+    <Content Include="Javascript\Media\GradientMetrics.js" />
     <Content Include="Javascript\Media\RotateTransform.js" />
     <Content Include="Javascript\Media\ScaleTransform.js" />
     <Content Include="Javascript\Media\SkewTransform.js" />
@@ -395,6 +396,7 @@
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
     <Content Include="jsTestDriverAsserts.js" />
+    <Content Include="Silo\lineargradient-pattern.html" />
     <Content Include="Silo\matrix-multiplypoint.html" />
     <Content Include="Silo\RawPath\arcto-bounds.html" />
     <Content Include="Silo\RawPath\arc-bounds.html" />

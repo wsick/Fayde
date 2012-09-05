@@ -14,7 +14,7 @@ SolidColorBrush.Instance.Init = function (args) {
     }
 };
 
-//#region Dependency Properties
+//#region Properties
 
 SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush);
 
@@ -24,12 +24,11 @@ Nullstone.AutoProperties(SolidColorBrush, [
 
 //#endregion
 
-SolidColorBrush.Instance.SetupBrush = function (ctx, bounds) {
+SolidColorBrush.Instance.CreateBrush = function (ctx, bounds) {
     var color = this.Color;
     if (color == null)
-        this._Brush = "#000000";
-    else
-        this._Brush = color.toString();
+        return "#000000";
+    return color.toString();
 };
 
 Nullstone.FinishCreate(SolidColorBrush);

@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+        function load() {
+            var start = { x: 0, y: 0 };
+            var end = { x: 100, y: 100 };
+            var bounds = { x: 100, y: 50, w: 300, h: 200 };
+
+            var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext('2d');
+
+            canvas.width = 500;
+            canvas.height = 500;
+
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            var grd = createLinearGradient(ctx, start, end, bounds, "Repeat");
+
+            ctx.fillStyle = grd;
+            ctx.fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+        }
+
+        function createLinearGradient(ctx, start, end, bounds, type) {
+            var dir = { x: end.x - start.x, y: end.y - start.y };
+            var first = { x: start.x, y: start.y };
+            var last = { x: end.x, y: end.y };
+
+            var stops = [
+                { offset: 0.0, color: "#000000" },
+                { offset: 1.0, color: "#FFFFFF" }
+            ];
+
+            if (type === "Pad") {
+                var grd = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+                for (var i = 0; i < stops.length; i++) {
+                    var stop = stops[i];
+                    grd.addColorStop(stop.offset, stop.color);
+                }
+                return grd;
+            }
+
+            var calculator = new GradientMetricsCalculator();
+            calculator.Calculate(dir, first, last, bounds);
+
+            if (type === "Repeat") {
+                var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
+                var steps = (last.x - first.x) / dir.x;
+                var curOffset = 0.0;
+                for (var i = 0.0; i < steps; i++) {
+                    for (var j = 0; j < stops.length; j++) {
+                        var stop = stops[j];
+                        grd.addColorStop(curOffset + (stop.offset / steps), stop.color);
+                    }
+                    curOffset += (1.0 / steps);
+                }
+                return grd;
+            }
+
+            if (type === "Reflect") {
+                // not implemented
+            }
+        }
+
+        function GradientMetricsCalculator() {
+            //+x,0y
+            this.E = function (dir, first, last, bounds) {
+                var maxX = bounds.x + bounds.w;
+                while (first.x > bounds.x)
+                    first.x -= dir.x;
+                while (last.x < maxX)
+                    last.x += dir.x;
+            };
+            //-x,0y
+            this.W = function (dir, first, last, bounds) {
+                var maxX = bounds.x + bounds.w;
+                while (first.x < maxX)
+                    first.x -= dir.x;
+                while (last.x > bounds.x)
+                    last.x += dir.x;
+            };
+
+            //0x,+y
+            this.S = function (dir, first, last, bounds) {
+                var maxY = bounds.y + bounds.h;
+                while (first.y > bounds.y)
+                    first.y -= dir.y;
+                while (last.y < maxY)
+                    last.y += dir.y;
+            };
+            //0x,-y
+            this.N = function (dir, first, last, bounds) {
+                var maxY = bounds.y + bounds.h;
+                while (first.y < maxY)
+                    first.y -= dir.y;
+                while (last.y > bounds.y)
+                    last.y += dir.y;
+            };
+
+            //-x,-y
+            this.NW = function (dir, first, last, bounds) {
+                var maxX = bounds.x + bounds.w;
+                var maxY = bounds.y + bounds.h;
+                while (first.x < maxX && first.y < maxY) {
+                    first.x -= dir.x;
+                    first.y -= dir.y;
+                }
+                while (last.x > bounds.x && last.y > bounds.y) {
+                    last.x += dir.x;
+                    last.y += dir.y;
+                }
+
+            };
+            //-x,+y
+            this.SW = function (dir, first, last, bounds) {
+                var maxX = bounds.x + bounds.w;
+                var maxY = bounds.y + bounds.h;
+                while (first.x < maxX && first.y > bounds.y) {
+                    first.x -= dir.x;
+                    first.y -= dir.y;
+                }
+                while (last.x > bounds.x && last.y < maxY) {
+                    last.x += dir.x;
+                    last.y += dir.y;
+                }
+            };
+
+            //+x,-y
+            this.NE = function (dir, first, last, bounds) {
+                var maxX = bounds.x + bounds.w;
+                var maxY = bounds.y + bounds.h;
+                while (first.x > bounds.x && first.y < maxY) {
+                    first.x -= dir.x;
+                    first.y -= dir.y;
+                }
+                while (last.x < maxX && last.y > bounds.y) {
+                    last.x += dir.x;
+                    last.y += dir.y;
+                }
+            };
+            //+x,+y
+            this.SE = function (dir, first, last, bounds) {
+                var maxX = bounds.x + bounds.w;
+                var maxY = bounds.y + bounds.h;
+                while (first.x > bounds.x && first.y > bounds.y) {
+                    first.x -= dir.x;
+                    first.y -= dir.y;
+                }
+                while (last.x < maxX && last.y < maxY) {
+                    last.x += dir.x;
+                    last.y += dir.y;
+                }
+            };
+
+            this.Calculate = function (dir, first, last, bounds) {
+                if (dir.y === 0) {
+                    if (dir.x < 0)
+                        this.W(dir, first, last, bounds);
+                    else
+                        this.E(dir, first, last, bounds);
+                } else if (dir.x === 0) {
+                    if (dir.y < 0)
+                        this.N(dir, first, last, bounds);
+                    else
+                        this.S(dir, first, last, bounds);
+                } else if (dir.x < 0 && dir.y < 0) { // e\s
+                    this.NW(dir, first, last, bounds);
+                } else if (dir.x < 0 && dir.y > 0) { // e/s
+                    this.SW(dir, first, last, bounds);
+                } else if (dir.x > 0 && dir.y < 0) { // s/e
+                    this.NE(dir, first, last, bounds);
+                } else if (dir.x > 0 && dir.y > 0) { // s\e
+                    this.SE(dir, first, last, bounds);
+                }
+            };
+        }
+    </script>
+</head>
+<body onload="load();">
+    <canvas id="canvas">
+
+    </canvas>
+</body>
+</html>
