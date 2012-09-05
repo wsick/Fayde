@@ -10,6 +10,18 @@ Transform.Instance.Init = function () {
     this.ValueChanged = new MulticastEvent();
 };
 
+Nullstone.Property(Transform, "Inverse", {
+    get: function () {
+        var inverse = this.Value.Inverse;
+        if (inverse == null)
+            return;
+
+        var mt = new MatrixTransform();
+        mt.Value = inverse;
+        return mt;
+    }
+});
+
 Transform.Instance._TryTransform = function (inPoint, outPoint) {
     var o = new Point();
     Matrix.TransformPoint(o, this.Value, inPoint);
@@ -38,15 +50,6 @@ Transform.Instance._UpdateTransform = function () {
         this._M = Matrix3D.CreateAffine(this.Value);
     else
         this._M = new Matrix3D();
-};
-Transform.Instance._GetInverse = function () {
-    var inverse = this._GetMatrix().Inverse;
-    if (inverse == null)
-        return;
-
-    var mt = new MatrixTransform();
-    mt._SetMatrix(inverse);
-    return mt;
 };
 
 Nullstone.Property(Transform, "Value", {
