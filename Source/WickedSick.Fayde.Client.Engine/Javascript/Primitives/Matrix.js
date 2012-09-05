@@ -270,8 +270,8 @@ Matrix.TransformPoint = function (c, A, b) {
         y = b.Y;
     } else {
         var e = A._Elements;
-        x = e[0] * b.X + e[1] * b.Y + e[2];
-        y = e[3] * b.X + e[4] * b.Y + e[5];
+        x = e[0] * b.X + e[3] * b.Y + e[2];
+        y = e[1] * b.X + e[4] * b.Y + e[5];
     }
     c.X = x;
     c.Y = y;
