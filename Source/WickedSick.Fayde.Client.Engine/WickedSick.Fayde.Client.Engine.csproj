@@ -397,6 +397,7 @@
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
     <Content Include="jsTestDriverAsserts.js" />
+    <Content Include="Silo\brush-transform.html" />
     <Content Include="Silo\lineargradient-pattern.html" />
     <Content Include="Silo\matrix-multiplypoint.html" />
     <Content Include="Silo\RawPath\arcto-bounds.html" />

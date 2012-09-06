@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript">
+        function load() {
+            var canvas1 = document.getElementById('canvas1');
+            var ctx1 = canvas1.getContext('2d');
+
+            var canvas2 = document.getElementById('canvas2');
+            var ctx2 = canvas2.getContext('2d');
+
+            var canvas3 = document.getElementById('canvas2');
+            var ctx3 = canvas2.getContext('2d');
+
+            var stops = [
+                { offset: 0, color: "rgba(135,135,135,0.2)" },
+                { offset: 0.651, color: "rgba(149,149,149,0.2)" },
+                { offset: 0.093, color: "rgba(0,0,0,0.29803921568627450980392156862745)" },
+                { offset: 0.548, color: "rgba(0,0,0,0.29803921568627450980392156862745)" }
+            ];
+
+            var brush = buildRepeatGradient(ctx1,
+                { x: -20, y: 0 },
+                { x: 220, y: 1 },
+                { x: -20, y: 1 },
+                stops);
+
+            canvas1.width = 198;
+            canvas1.height = 8;
+            ctx1.transform(1, 0, -0.5773502691896257, 1, 9.771428571428568, 0);
+            ctx1.fillStyle = brush;
+            ctx1.fillRect(-9.771428571428568, 0, 198, 8);
+
+            var brush2 = ctx2.createPattern(canvas1, "no-repeat");
+            ctx2.fillStyle = brush2;
+            ctx2.fillRect(0, 0, 198, 8);
+        }
+
+        function buildRepeatGradient(ctx, dir, first, last, stops) {
+            var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
+            var count = stops.length;
+            var steps = (last.x - first.x) / dir.x;
+            var curOffset = 0.0;
+            for (var i = 0; i < steps; i++) {
+                for (var j = 0; j < count; j++) {
+                    var stop = stops[j];
+                    grd.addColorStop(curOffset + (stop.offset / steps), stop.color);
+                }
+                curOffset += (1.0 / steps);
+            }
+            return grd;
+        }
+    </script>
+</head>
+<body onload="load();">
+    <canvas id="canvas1" width="298" height="108">
+
+    </canvas>
+    <canvas id="canvas2" width="298" height="108">
+
+    </canvas>
+    <canvas id="canvas3" width="298" height="108">
+
+    </canvas>
+</body>
+</html>
