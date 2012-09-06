@@ -2,7 +2,7 @@
 /// <reference path="ItemsControl.js" />
 
 //#region ListBox
-var ListBox = Nullstone.Create("ListBox", ItemsControl);
+var ListBox = Nullstone.Create("ListBox", Selector);
 
 
 

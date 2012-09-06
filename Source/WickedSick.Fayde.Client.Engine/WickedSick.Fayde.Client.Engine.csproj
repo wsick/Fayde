@@ -111,6 +111,8 @@
     <Content Include="Javascript\Controls\Primitives\ScrollBar.js" />
     <Content Include="Javascript\Controls\Primitives\ScrollData.js" />
     <Content Include="Javascript\Controls\Primitives\ScrollEventArgs.js" />
+    <Content Include="Javascript\Controls\Primitives\SelectorSelection.js" />
+    <Content Include="Javascript\Controls\Primitives\SelectionChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Primitives\Selector.js" />
     <Content Include="Javascript\Controls\Primitives\Thumb.js" />
     <Content Include="Javascript\Controls\Primitives\ToggleButton.js" />
@@ -141,6 +143,7 @@
     <Content Include="Javascript\Core\EventTrigger.js" />
     <Content Include="Javascript\Core\Input\Enums.js" />
     <Content Include="Javascript\Core\Input\KeyCodes.js" />
+    <Content Include="Javascript\Core\ISupportInitialize.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Frame.js" />
     <Content Include="Javascript\Core\TriggerAction.js" />

@@ -151,7 +151,7 @@ ItemsControl.Instance.OnItemsSourceChanged = function (e) {
             this.Items._AddImpl(e.NewValue.GetValueAt(i));
         }
 
-        this.$OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        this.OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     } else {
         this._itemsIsDataBound = false;
         this.Items.$SetIsReadyOnly(false);
@@ -188,7 +188,7 @@ ItemsControl.Instance._CollectionChanged = function (sender, e) {
             }
             break;
     }
-    this.$OnItemsChanged(e);
+    this.OnItemsChanged(e);
 };
 ItemsControl.Instance.OnDisplayMemberPathChanged = function (e) {
     var items = this.Items;
@@ -204,7 +204,7 @@ ItemsControl.Instance.GetContainerForItem = function () {
 ItemsControl.Instance.IsItemItsOwnContainer = function (item) {
     return item instanceof FrameworkElement;
 };
-ItemsControl.Instance.$OnItemsChanged = function (e) { };
+ItemsControl.Instance.OnItemsChanged = function (e) { };
 ItemsControl.Instance.OnItemsClearing = function (object, e) {
     this.SetLogicalParent(null, this.Items);
 };
@@ -224,7 +224,7 @@ ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
 
     this._ItemContainerGenerator.OnOwnerItemsItemsChanged(object, e);
     if (!this._itemsIsDataBound)
-        this.$OnItemsChanged(e);
+        this.OnItemsChanged(e);
 };
 ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
     if (this._presenter == null || this._presenter._elementRoot instanceof VirtualizingPanel)
