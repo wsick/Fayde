@@ -40,11 +40,6 @@ ScrollViewer.ViewportHeightProperty = DependencyProperty.RegisterReadOnlyCore("V
 ScrollViewer.ExtentWidthProperty = DependencyProperty.RegisterReadOnlyCore("ExtentWidth", function () { return Number; }, ScrollViewer);
 ScrollViewer.ExtentHeightProperty = DependencyProperty.RegisterReadOnlyCore("ExtentHeight", function () { return Number; }, ScrollViewer);
 
-Nullstone.AutoProperties(ScrollViewer, [
-    ScrollViewer.HorizontalScrollBarVisibilityProperty,
-    ScrollViewer.VerticalScrollBarVisibilityProperty
-]);
-
 Nullstone.AutoPropertiesReadOnly(ScrollViewer, [
     ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty,
     ScrollViewer.ComputedVerticalScrollBarVisibilityProperty,
@@ -57,6 +52,38 @@ Nullstone.AutoPropertiesReadOnly(ScrollViewer, [
     ScrollViewer.ExtentWidthProperty,
     ScrollViewer.ExtentHeightProperty
 ]);
+
+Nullstone.Property(ScrollViewer, "HorizontalScrollBarVisibility", {
+    get: function () {
+        return this.$GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
+    },
+    set: function (value) {
+        return this.$SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
+    }
+});
+Nullstone.Property(ScrollViewer, "VerticalScrollBarVisibility", {
+    get: function () {
+        return this.$GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty);
+    },
+    set: function (value) {
+        return this.$SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
+    }
+});
+
+
+ScrollViewer.GetHorizontalScrollBarVisibility = function (d) {
+    return d.$GetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty);
+};
+ScrollViewer.SetHorizontalScrollBarVisibility = function (d, value) {
+    d.$SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, value);
+};
+
+ScrollViewer.GetVerticalScrollBarVisibility = function (d) {
+    return d.$GetValue(ScrollViewer.VerticalScrollBarVisibilityProperty);
+};
+ScrollViewer.SetVerticalScrollBarVisibility = function (d, value) {
+    d.$SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, value);
+};
 
 //#endregion
 
