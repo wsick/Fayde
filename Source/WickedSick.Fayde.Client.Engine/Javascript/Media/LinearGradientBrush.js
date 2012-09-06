@@ -56,7 +56,7 @@ LinearGradientBrush.Instance._CreateRepeat = function (ctx, bounds) {
     }
     return grd;
 };
-LinearGradientBrush.Instance._CreateReflect = function (ctx,bounds) {
+LinearGradientBrush.Instance._CreateReflect = function (ctx, bounds) {
     var data = this._GetPointData(bounds);
     var start = data.start;
     var end = data.end;

@@ -32,19 +32,27 @@ Brush.Instance.SetupBrush = function (ctx, bounds) {
         return;
     this._CacheSurface(bounds);
 
-    this._Brush = this.CreateBrush(ctx, bounds);
     var transform = this.Transform;
-    if (!transform)
+    if (!transform) {
+        this._Brush = this.CreateBrush(ctx, bounds, bounds);
         return;
+    }
+
+    var matrix = transform.Value;
+    var els = transform.Value._Elements;
+    var transformedBounds = Matrix.TransformBounds(matrix, bounds);
+
+    this._Brush = this.CreateBrush(ctx, bounds);
+    var fillExtents = bounds.GrowBy(els[2], els[5], 0, 0);
 
     var tmpCanvas = document.createElement('canvas');
-    tmpCanvas.width = bounds.Width;
-    tmpCanvas.height = bounds.Height;
+    tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
+    tmpCanvas.height = Math.max(transformedBounds.Height, bounds.Height);
     var tmpCtx = tmpCanvas.getContext('2d');
-    var els = transform.Value._Elements;
     tmpCtx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
     tmpCtx.fillStyle = this._Brush;
-    tmpCtx.fillRect(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+    tmpCtx.fillRect(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height);
+
     this._Brush = ctx.createPattern(tmpCanvas, "no-repeat");
 };
 Brush.Instance.CreateBrush = function (ctx, bounds) { };
