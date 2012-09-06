@@ -5,6 +5,7 @@
 /// <reference path="Panel.js"/>
 /// <reference path="ItemsPresenter.js"/>
 /// <reference path="../Collections/NotifyCollectionChangedEventArgs.js" />
+/// <reference path="VirtualizingPanel.js"/>
 
 //#region ItemsControl
 var ItemsControl = Nullstone.Create("ItemsControl", Control, 0, [IListenCollectionChanged]);
@@ -12,8 +13,8 @@ var ItemsControl = Nullstone.Create("ItemsControl", Control, 0, [IListenCollecti
 ItemsControl.Instance.Init = function () {
     this.Init$Control();
     this.DefaultStyleKey = this.constructor;
-    this._itemContainerGenerator = new ItemContainerGenerator(this);
-    this._itemContainerGenerator.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
+    this._ItemContainerGenerator = new ItemContainerGenerator(this);
+    this._ItemContainerGenerator.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
 };
 
 //#region Properties
@@ -54,7 +55,7 @@ Nullstone.Property(ItemsControl, "ItemsSource", {
 });
 
 Nullstone.Property(ItemsControl, "ItemContainerGenerator", {
-    get: function () { return this._itemContainerGenerator; }
+    get: function () { return this._ItemContainerGenerator; }
 });
 
 // <DataTemplate><Grid><TextBlock Text="{Binding @DisplayMemberPath}" /></Grid></DataTemplate>
@@ -221,7 +222,7 @@ ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
             break;
     }
 
-    this._itemContainerGenerator.OnOwnerItemsItemsChanged(object, e);
+    this._ItemContainerGenerator.OnOwnerItemsItemsChanged(object, e);
     if (!this._itemsIsDataBound)
         this.$OnItemsChanged(e);
 };
@@ -275,14 +276,14 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
         return;
 
     var panel = this._presenter._elementRoot;
-    var newIndex = this._itemContainerGenerator.IndexFromGeneratorPosition(positionIndex, positionOffset);
-    var p = this._itemContainerGenerator.StartAt(positionIndex, positionOffset, 0, true);
+    var newIndex = this._ItemContainerGenerator.IndexFromGeneratorPosition(positionIndex, positionOffset);
+    var p = this._ItemContainerGenerator.StartAt(positionIndex, positionOffset, 0, true);
     var items = this.Items;
     var children = panel.Children;
     for (var i = 0; i < count; i++) {
         var item = items.GetValueAt(newIndex + 1);
         var data = {};
-        var container = this._itemContainerGenerator.GenerateNext(data);
+        var container = this._ItemContainerGenerator.GenerateNext(data);
         if (container instanceof ContentControl)
             c._ContentSetsParent = false;
 
@@ -290,7 +291,7 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
             f.DataContext = item;
 
         children.Insert(newIndex + i, container);
-        this._itemContainerGenerator.PrepareItemContainer(container);
+        this._ItemContainerGenerator.PrepareItemContainer(container);
     }
 };
 ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
@@ -331,7 +332,6 @@ ItemsControl.Instance.UpdateContentTemplateOnContainer = function (element, item
         control.Content = item;
     }
 };
-
 
 Nullstone.FinishCreate(ItemsControl);
 //#endregion
