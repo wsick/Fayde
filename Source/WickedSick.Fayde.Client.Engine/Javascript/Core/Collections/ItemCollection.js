@@ -12,10 +12,11 @@ ItemCollection.Instance.Init = function () {
     this._ReadOnly = false;
 };
 
-ItemCollection.Instance.$SetIsReadOnly = function (readOnly) {
-    this._ReadOnly = readOnly;
-};
 ItemCollection.Instance.$GetIsReadOnly = function () {
+    return this._ReadOnly;
+};
+
+ItemCollection.Instance._IsReadOnlyImpl = function () {
     return this._ReadOnly;
 };
 

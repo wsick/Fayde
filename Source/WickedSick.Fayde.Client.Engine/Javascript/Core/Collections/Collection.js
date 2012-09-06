@@ -97,7 +97,8 @@ Collection.Instance.Clear = function () {
     return true;
 };
 Collection.Instance.IndexOf = function (value) {
-    for (var i = 0; i < this.GetCount(); i++) {
+    var count = this.GetCount();
+    for (var i = 0; i < count; i++) {
         if (Nullstone.Equals(value, this._ht[i]))
             return i;
     }

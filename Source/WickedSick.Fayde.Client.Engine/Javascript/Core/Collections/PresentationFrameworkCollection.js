@@ -13,6 +13,16 @@ PresentationFrameworkCollection.Instance.Init = function () {
     this.Clearing = new MulticastEvent();
 };
 
+//#region Properties
+
+Nullstone.Property(PresentationFrameworkCollection, "IsReadOnly", {
+    get: function () {
+        return this._IsReadOnlyImpl();
+    }
+});
+
+//#endregion
+
 PresentationFrameworkCollection.Instance.GetCount = function () {
     return this._Backing.GetCount();
 };
@@ -30,6 +40,11 @@ PresentationFrameworkCollection.Instance.Contains = function (value) {
     return this._Backing.IndexOf(value) !== -1;
 };
 PresentationFrameworkCollection.Instance.IndexOf = function (value) {
+    return this._IndexOfImpl(value);
+};
+PresentationFrameworkCollection.Instance._IndexOfImpl = function (value) {
+    if (value == null)
+        return -1;
     return this._Backing.IndexOf(value);
 };
 
@@ -92,6 +107,10 @@ PresentationFrameworkCollection.Instance._RemoveAtImpl = function (index) {
     var value = this.GetValueAt(index);
     this._Backing.RemoveAt(index);
     this.ItemsChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, value, index));
+};
+
+PresentationFrameworkCollection.Instance._IsReadOnlyImpl = function () {
+    return false;
 };
 
 PresentationFrameworkCollection.Instance._CheckNull = function (action, value) {
