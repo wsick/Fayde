@@ -9,13 +9,20 @@
 //#region ItemsControl
 var ItemsControl = Nullstone.Create("ItemsControl", Control, 0, [IListenCollectionChanged]);
 
-//#region DEPENDENCY PROPERTIES
+ItemsControl.Instance.Init = function () {
+    this.Init$Control();
+    this.DefaultStyleKey = this.constructor;
+    this._itemContainerGenerator = new ItemContainerGenerator(this);
+    this._itemContainerGenerator.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
+};
+
+//#region Properties
+
 ItemsControl.DisplayMemberPathProperty = DependencyProperty.RegisterCore("DisplayMemberPath", function () { return String; }, ItemsControl, null, function (d, args) { d.OnDisplayMemberPathChanged(args); });
-ItemsControl.ItemsProperty = DependencyProperty.Register("Items", function () { return ItemCollection; }, ItemsControl, undefined);
+ItemsControl.ItemsProperty = DependencyProperty.RegisterCore("Items", function () { return ItemCollection; }, ItemsControl);
 ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return ItemsPanelTemplate; }, ItemsControl);
 ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
 ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
-//#endregion
 
 Nullstone.AutoProperties(ItemsControl, [
     ItemsControl.DisplayMemberPathProperty,
@@ -26,7 +33,7 @@ Nullstone.AutoProperties(ItemsControl, [
 Nullstone.Property(ItemsControl, "Items", {
     get: function () {
         var items = Nullstone.As(this.$GetValue(ItemsControl.ItemsProperty), ItemCollection);
-        if (!items) {
+        if (items == null) {
             items = new ItemCollection();
             this._itemsIsDataBound = false;
             items.ItemsChanged.Subscribe(this.InvokeItemsChanged, this);
@@ -38,45 +45,98 @@ Nullstone.Property(ItemsControl, "Items", {
 });
 
 Nullstone.Property(ItemsControl, "ItemsSource", {
-    get: function () {
-        return this.$GetValue(ItemsControl.ItemsSourceProperty);
-    },
+    get: function () { return this.$GetValue(ItemsControl.ItemsSourceProperty); },
     set: function (value) {
-        if (!this._itemsIsDataBound && this.Items.GetCount() > 0) {
+        if (!this._itemsIsDataBound && this.Items.GetCount() > 0)
             throw new InvalidOperationException("Items collection must be empty before using ItemsSource");
-        }
         this.$SetValue(ItemsControl.ItemsSourceProperty, value);
     }
 });
 
-ItemsControl.Instance.Init = function () {
-    this.Init$Control();
-    this._itemContainerGenerator = new ItemContainerGenerator(this);
-    this._itemContainerGenerator.ItemsChanged.Subscribe(this.OnItemContainerGeneratorChanged, this);
-};
+Nullstone.Property(ItemsControl, "ItemContainerGenerator", {
+    get: function () { return this._itemContainerGenerator; }
+});
 
-ItemsControl.Instance.OnDisplayMemberPathChanged = function (e) {
-    var items = this.Items;
-    var count = items.GetCount();
-    for (var i = 0; i < count; i++) {
-        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
+// <DataTemplate><Grid><TextBlock Text="{Binding @DisplayMemberPath}" /></Grid></DataTemplate>
+Nullstone.Property(ItemsControl, "$DisplayMemberTemplate", {
+    get: function () {
+        if (this._DisplayMemberTemplate == null) {
+            var json = {
+                Type: Grid,
+                Children: [
+                    {
+                        Type: TextBlock,
+                        Props: {
+                            Text: new BindingMarkup({ Path: this.DisplayMemberPath })
+                        }
+                    }
+                ]
+            };
+            this._DisplayMemberTemplate = new DataTemplate(json);
+        }
+        return this._DisplayMemberTemplate;
     }
-};
+});
 
-ItemsControl.Instance.OnItemTemplateChanged = function (e) {
-    var items = this.Items;
-    var count = items.GetCount();
-    for (var i = 0; i < count; i++) {
-        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
+Nullstone.Property(ItemsControl, "$Panel", {
+    get: function () {
+        return this._presenter == null ? null : this._presenter._elementRoot;
     }
+});
+
+//#endregion
+
+//#region Annotations
+
+ItemsControl.Annotations = {
+    ContentProperty: "Items"
 };
 
+//#endregion
+
+ItemsControl.GetItemsOwner = function (element) {
+    var panel = Nullstone.As(element, Panel);
+    if (panel == null || !panel.IsItemsHost)
+        return null;
+    var owner = Nullstone.As(panel.TemplateOwner, ItemsPresenter);
+    if (owner != null)
+        return Nullstone.As(owner.TemplateOwner, ItemsControl);
+    return null;
+};
+ItemsControl.ItemsControlFromItemContainer = function (container) {
+    var e = Nullstone.As(container, FrameworkElement);
+    if (e == null)
+        return null;
+
+    var itctl = Nullstone.As(e.Parent, ItemsControl);
+    if (itctl == null)
+        return ItemsControl.GetItemsOwner(e.Parent);
+    if (itctl.IsItemItsOwnContainer(e))
+        return itctl;
+    return null;
+};
+
+ItemsControl.Instance._GetDefaultTemplate = function () {
+    var presenter = this._presenter;
+    if (presenter == null) {
+        presenter = new ItemsPresenter();
+        presenter.TemplateOwner = this;
+    }
+    return presenter;
+};
+ItemsControl.Instance._SetItemsPresenter = function (presenter) {
+    if (this._presenter != null)
+        this._presenter._elementRoot.Children.Clear();
+
+    this._presenter = presenter;
+    this.AddItemsToPresenter(-1, 1, this.Items.GetCount());
+};
 ItemsControl.Instance.OnItemsSourceChanged = function (e) {
     if (!e.OldValue && Nullstone.Is(e.OldValue, INotifyCollectionChanged)) {
         e.OldValue.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
     }
 
-    if (!e.NewValue) {
+    if (e.NewValue != null) {
         if (Nullstone.Is(e.NewValue, INotifyCollectionChanged)) {
             e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
         }
@@ -90,9 +150,8 @@ ItemsControl.Instance.OnItemsSourceChanged = function (e) {
             this.Items._AddImpl(e.NewValue.GetValueAt(i));
         }
 
-        this.OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-    }
-    else {
+        this.$OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    } else {
         this._itemsIsDataBound = false;
         this.Items.$SetIsReadyOnly(false);
         this.Items._ClearImpl();
@@ -100,159 +159,6 @@ ItemsControl.Instance.OnItemsSourceChanged = function (e) {
 
     this._InvalidateMeasure();
 };
-
-ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
-    if (!this._presenter || Nullstone.Is(_presenter._elementRoot, VirtualizingPanel)) {
-        return;
-    }
-
-    var panel = this._presenter._elementRoot;
-    switch (e.GetAction()) {
-        case NotifyCollectionChangedAction.Reset:
-            if (panel.Children.GetCount() > 0) {
-                this.RemoveItemsFromPresenter(0, 0, panel.Children.GetCount());
-            }
-            break;
-        case NotifyCollectionChangedAction.Add:
-            this.AddItemsToPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
-            break;
-        case NotifyCollectionChangedAction.Remove:
-            this.RemoveItemsFromPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
-            break;
-        case NotifyCollectionChangedAction.Replace:
-            this.RemoveItemsFromPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
-            this.AddItemsToPresenter(e.Position, e.ItemCount);
-            break;
-    }
-};
-
-
-
-
-ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOffset, count) {
-    if (!this._presenter || !this._presenter._elementRoot /*|| Nullstone.Is(this._presenter._elementRoot, VirtualizingPanel)*/) {
-        return;
-    }
-
-    var panel = this._presenter._elementRoot;
-    var newIndex = this._itemContainerGenerator.IndexFromGeneratorPosition(positionIndex, positionOffset);
-    var p = this._itemContainerGenerator.StartAt(positionIndex, positionOffset, 0, true);
-    for (var i = 0; i < count; i++) {
-        var item = this.Items.GetValueAt(newIndex + 1);
-        var data = {};
-        var container = this._itemContainerGenerator.GenerateNext(data);
-        var c = Nullstone.As(container, ContentControl);
-        if (c) {
-            c.ContentSetsParent = false;
-        }
-
-        var f = Nullstone.As(container, FrameworkElement);
-        if (f && !Nullstone.Is(item, FrameworkElement)) {
-            f.DataContext = item;
-        }
-
-        panel.Children.Insert(newIndex + i, Nullstone.As(container, UIElement));
-        this._itemContainerGenerator.PrepareItemContainer(container);
-    }
-};
-
-ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
-    if (!this._presenter || !this._presenter._elementRoot || Nullstone.Is(this._presenter._elementRoot, VirtualizingPanel)) {
-        return;
-    }
-
-    var panel = this._presenter._elementRoot;
-    while (count > 0) {
-        panel.Children.RemoveAt(positionIndex);
-        count--;
-    }
-};
-
-ItemsControl.Instance.PrepareContainerForItem = function (element, item) {
-    if (this.DisplayMemberPath != null && this.ItemTemplate) {
-        throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaenously");
-    }
-
-    this.UpdateContentTemplateOnContainer(element, item);
-};
-
-ItemsControl.Instance._GetDefaultTemplate = function () {
-    var presenter = this._presenter;
-    if (!presenter) {
-        presenter = new ItemsPresenter();
-        presenter.TemplateOwner = this;
-    }
-    return presenter;
-};
-
-ItemsControl.Instance._SetItemsPresenter = function (presenter) {
-    if (this._presenter) {
-        this._presenter._elementRoot.Children.Clear();
-    }
-
-    this._presenter = presenter;
-    this.AddItemsToPresenter(-1, 1, this.Items.GetCount());
-};
-
-ItemsControl.GetItemsOwner = function (ele) {
-    var panel = Nullstone.As(ele, Panel);
-    if (!panel || !panel.IsItemsHost)
-        return null;
-    var owner = Nullstone.As(panel.TemplateOwner, ItemsPresenter);
-    if (owner)
-        return Nullstone.As(owner.TemplateOwner, ItemsControl);
-    return null;
-};
-
-ItemsControl.Instance.IsItemItsOwnContainer = function (item) {
-    return Nullstone.Is(item, FrameworkElement);
-};
-
-ItemsControl.Instance.OnItemsClearing = function (object, e) {
-    this._SetLogicalParent(this.Items);
-};
-
-ItemsControl.Instance.OnItemsChanged = function (e) {
-    
-};
-
-ItemsControl.Instance.SetLogicalParent = function (parent, items) {
-    if (this.ItemsSource) {
-        return;
-    }
-
-    var count = items.GetCount();
-    for (var i = 0; i < count; i++) {
-        var fe = Nullstone.As(items.GetValueAt(i), FrameworkElement);
-        if (fe) {
-            var error = new BError();
-            this._SetLogicalParent(parent, error);
-            if (error.IsErrored()) {
-                throw error.CreateException();
-            }
-        }
-    }
-};
-
-ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
-    switch (e.Action) {
-        case NotifyCollectionChangedAction.Add:
-            this._SetLogicalParent(e.NewItems);
-            break;
-        case NotifyCollectionChangedAction.Remove:
-            this._SetLogicalParent(e.OldItems);
-            break;
-        case NotifyCollectionChangedAction.Replace:
-            this._SetLogicalParent(e.NewItems);
-            break;
-    }
-
-    this._itemContainerGenerator.OnOwnerItemsItemsChanged(object, e);
-    if (!this._itemsIsDataBound) {
-        this.OnItemsChanged(e);
-    }
-};
-
 ItemsControl.Instance._CollectionChanged = function (sender, e) {
     switch (e.Action) {
         case NotifyCollectionChangedAction.Add:
@@ -281,13 +187,131 @@ ItemsControl.Instance._CollectionChanged = function (sender, e) {
             }
             break;
     }
-
+    this.$OnItemsChanged(e);
 };
-
-ItemsControl.Instance.UpdateContentTemplateOnContainer = function (element, item) {
-    if (Nullstone.RefEquals(element, item)) {
-        return;
+ItemsControl.Instance.OnDisplayMemberPathChanged = function (e) {
+    var items = this.Items;
+    var count = items.GetCount();
+    for (var i = 0; i < count; i++) {
+        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
     }
+};
+ItemsControl.Instance.ClearContainerForItem = function (element, item) { };
+ItemsControl.Instance.GetContainerForItem = function () {
+    return new ContentPresenter();
+};
+ItemsControl.Instance.IsItemItsOwnContainer = function (item) {
+    return item instanceof FrameworkElement;
+};
+ItemsControl.Instance.$OnItemsChanged = function (e) { };
+ItemsControl.Instance.OnItemsClearing = function (object, e) {
+    this.SetLogicalParent(null, this.Items);
+};
+ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
+    switch (e.Action) {
+        case NotifyCollectionChangedAction.Add:
+            this.SetLogicalParent(this, e.NewItems);
+            break;
+        case NotifyCollectionChangedAction.Remove:
+            this.SetLogicalParent(null, e.OldItems);
+            break;
+        case NotifyCollectionChangedAction.Replace:
+            this.SetLogicalParent(null, e.OldItems);
+            this.SetLogicalParent(this, e.NewItems);
+            break;
+    }
+
+    this._itemContainerGenerator.OnOwnerItemsItemsChanged(object, e);
+    if (!this._itemsIsDataBound)
+        this.$OnItemsChanged(e);
+};
+ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
+    if (this._presenter == null || this._presenter._elementRoot instanceof VirtualizingPanel)
+        return;
+
+    var panel = this._presenter._elementRoot;
+    switch (e.GetAction()) {
+        case NotifyCollectionChangedAction.Reset:
+            var count = panel.Children.GetCount();
+            if (count > 0)
+                this.RemoveItemsFromPresenter(0, 0, count);
+            break;
+        case NotifyCollectionChangedAction.Add:
+            this.AddItemsToPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
+            break;
+        case NotifyCollectionChangedAction.Remove:
+            this.RemoveItemsFromPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
+            break;
+        case NotifyCollectionChangedAction.Replace:
+            this.RemoveItemsFromPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
+            this.AddItemsToPresenter(e.Position, e.ItemCount);
+            break;
+    }
+};
+ItemsControl.Instance.OnItemTemplateChanged = function (e) {
+    var items = this.Items;
+    var count = items.GetCount();
+    for (var i = 0; i < count; i++) {
+        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
+    }
+};
+ItemsControl.Instance.SetLogicalParent = function (parent, items) {
+    if (this.ItemsSource != null)
+        return;
+
+    var error = new BError();
+    var count = items.GetCount();
+    for (var i = 0; i < count; i++) {
+        var fe = Nullstone.As(items.GetValueAt(i), FrameworkElement);
+        if (fe == null)
+            continue;
+        this._SetLogicalParent(parent, error);
+        if (error.IsErrored())
+            throw error.CreateException();
+    }
+};
+ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOffset, count) {
+    if (this._presenter == null || this._presenter._elementRoot == null || this._presenter._elementRoot instanceof VirtualizingPanel)
+        return;
+
+    var panel = this._presenter._elementRoot;
+    var newIndex = this._itemContainerGenerator.IndexFromGeneratorPosition(positionIndex, positionOffset);
+    var p = this._itemContainerGenerator.StartAt(positionIndex, positionOffset, 0, true);
+    var items = this.Items;
+    var children = panel.Children;
+    for (var i = 0; i < count; i++) {
+        var item = items.GetValueAt(newIndex + 1);
+        var data = {};
+        var container = this._itemContainerGenerator.GenerateNext(data);
+        if (container instanceof ContentControl)
+            c._ContentSetsParent = false;
+
+        if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
+            f.DataContext = item;
+
+        children.Insert(newIndex + i, container);
+        this._itemContainerGenerator.PrepareItemContainer(container);
+    }
+};
+ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
+    if (this._presenter == null || this._presenter._elementRoot == null || this._presenter._elementRoot instanceof VirtualizingPanel)
+        return;
+
+    var panel = this._presenter._elementRoot;
+    while (count > 0) {
+        panel.Children.RemoveAt(positionIndex);
+        count--;
+    }
+};
+ItemsControl.Instance.PrepareContainerForItem = function (element, item) {
+    if (this.DisplayMemberPath != null && this.ItemTemplate != null)
+        throw new InvalidOperationException("Cannot set 'DisplayMemberPath' and 'ItemTemplate' simultaenously");
+
+    this.UpdateContentTemplateOnContainer(element, item);
+};
+ItemsControl.Instance.UpdateContentTemplateOnContainer = function (element, item) {
+    if (Nullstone.RefEquals(element, item))
+        return;
 
     var presenter = Nullstone.As(element, ContentPresenter);
     var control = Nullstone.As(element, ContentControl);
@@ -295,70 +319,19 @@ ItemsControl.Instance.UpdateContentTemplateOnContainer = function (element, item
     var template;
     if (!(item instanceof UIElement)) {
         template = this.ItemTemplate;
-        if (!template) {
-            template = this._GetDisplayMemberTemplate();
-        }
+        if (template == null)
+            template = this.$DisplayMemberTemplate;
     }
 
-    if (presenter) {
+    if (presenter != null) {
         presenter.ContentTemplate = template;
         presenter.Content = item;
-    } else if (control) {
+    } else if (control != null) {
         control.ContentTemplate = template;
         control.Content = item;
     }
 };
 
-ItemsControl.Instance.ItemsControlFromItemContainer = function (container) {
-    var e = Nullstone.As(container, FrameworkElement);
-    if (!e) {
-        return null;
-    }
-
-    var itctl = NullStone.As(e.Parent, ItemsControl);
-    if (!itctl) {
-        return ItemsControl.GetItemsOwner(e.Parent);
-    }
-    if (itctl.IsItemItsOwnContainer(e)) {
-        return itctl;
-    }
-    return null;
-};
-
-ItemsControl.Instance._Panel = function () {
-    ///<returns type="Panel"></returns>
-    if (this._presenter) {
-        return _presenter._elementRoot;
-    } else {
-        return null;
-    }
-};
-
-//#region ANNOTATIONS
-
-ItemsControl.Annotations = {
-    ContentProperty: "Items"
-};
-
-//#endregion
-
-// <DataTemplate><Grid><TextBlock Text="{Binding @DisplayMemberPath}" /></Grid></DataTemplate>
-ItemsControl.Instance._GetDisplayMemberTemplate = function () {
-    if (!this._DisplayMemberTemplate) {
-        this._DisplayMemberTemplate = new DataTemplate({
-            Type: Grid,
-            Children: [
-            {
-                Type: TextBlock,
-                Props: {
-                    Text: new BindingMarkup({ Path: this.DisplayMemberPath })
-                }
-            }
-        ]
-        });
-    }
-    return this._DisplayMemberTemplate;
-};
 
 Nullstone.FinishCreate(ItemsControl);
 //#endregion
