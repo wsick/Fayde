@@ -10,6 +10,8 @@
 /// <reference path="../Primitives/Font.js"/>
 /// <reference path="../Core/TabNavigationWalker.js"/>
 /// <reference path="../Core/Input/KeyCodes.js"/>
+/// <reference path="../Core/Input/Keyboard.js"/>
+/// <reference path="../Core/Input/Enums.js"/>
 
 //#region Surface
 var Surface = Nullstone.Create("Surface", null, 1);
@@ -545,6 +547,7 @@ Surface.Instance._SetCursor = function (cursor) {
 //#region Mouse
 
 Surface.Instance._HandleButtonRelease = function (evt) {
+    Keyboard.RefreshModifiers(evt);
     var button = evt.which ? evt.which : evt.button;
     var pos = this._GetMousePosition(evt);
 
@@ -556,6 +559,7 @@ Surface.Instance._HandleButtonRelease = function (evt) {
         this._PerformReleaseCapture();
 };
 Surface.Instance._HandleButtonPress = function (evt) {
+    Keyboard.RefreshModifiers(evt);
     var button = evt.which ? evt.which : evt.button;
     var pos = this._GetMousePosition(evt);
 
@@ -565,6 +569,7 @@ Surface.Instance._HandleButtonPress = function (evt) {
     this._SetUserInitiatedEvent(false);
 };
 Surface.Instance._HandleWheel = function (evt) {
+    Keyboard.RefreshModifiers(evt);
     var delta = 0;
     if (evt.wheelDelta)
         delta = evt.wheelDelta / 120;
@@ -577,11 +582,13 @@ Surface.Instance._HandleWheel = function (evt) {
     this._UpdateCursorFromInputList();
 };
 Surface.Instance._HandleMove = function (evt) {
+    Keyboard.RefreshModifiers(evt);
     var pos = this._GetMousePosition(evt);
     this._HandleMouseEvent("move", null, pos);
     this._UpdateCursorFromInputList();
 };
 Surface.Instance._HandleOut = function (evt) {
+    Keyboard.RefreshModifiers(evt);
     var pos = this._GetMousePosition(evt);
     this._HandleMouseEvent("out", null, pos);
 };
@@ -723,6 +730,7 @@ Surface.Instance._PerformReleaseCapture = function () {
 
 Surface.Instance._HandleKeyPress = function (eve) {
     this._SetUserInitiatedEvent(true);
+    Keyboard.RefreshModifiers(eve);
     var handled = false;
     if (this._FocusedElement != null) {
         var focusToRoot = Surface._ElementPathToRoot(this._FocusedElement);

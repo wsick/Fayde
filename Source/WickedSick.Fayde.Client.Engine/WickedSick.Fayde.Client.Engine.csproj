@@ -143,6 +143,7 @@
     <Content Include="Javascript\Core\Collections\RangeCollection.js" />
     <Content Include="Javascript\Core\EventTrigger.js" />
     <Content Include="Javascript\Core\Input\Enums.js" />
+    <Content Include="Javascript\Core\Input\Keyboard.js" />
     <Content Include="Javascript\Core\Input\KeyCodes.js" />
     <Content Include="Javascript\Core\ISupportInitialize.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />

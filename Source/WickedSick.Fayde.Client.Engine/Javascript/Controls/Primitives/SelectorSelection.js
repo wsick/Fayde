@@ -112,7 +112,7 @@ SelectorSelection.Instance.Select = function (item, ignoreSelectedValue) {
         switch (this.Mode) {
             case SelectionMode.Single:
                 if (selected) {
-                    if (false/* TODO: ModifierKeys.Control */)
+                    if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control)
                         this.ClearSelection(ignoreSelectedValue);
                     else
                         this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
@@ -121,13 +121,13 @@ SelectorSelection.Instance.Select = function (item, ignoreSelectedValue) {
                 }
                 break;
             case SelectionMode.Extended:
-                if (false/* TODO: ModifierKeys.Shift */) {
+                if ((Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift) {
                     var sIndex = ownerItems.IndexOf(this._SelectedItem);
                     if (this._SelectedItems.GetCount() === 0)
                         this.SelectRange(0, ownerItems.IndexOf(item));
                     else
                         this.SelectRange(sIndex, ownerItems.IndexOf(item));
-                } else if (false/* TODO: ModifierKeys.Control */) {
+                } else if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control) {
                     if (!selected)
                         this.AddToSelected(item);
                 } else {
