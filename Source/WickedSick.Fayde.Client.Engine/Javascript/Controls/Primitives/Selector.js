@@ -7,7 +7,7 @@
 /// <reference path="../../Collections/ObservableCollection.js"/>
 /// <reference path="../../Core/ISupportInitialize.js"/>
 
-//#region ItemsControl
+//#region Selector
 var Selector = Nullstone.Create("Selector", ItemsControl, 0, [ISupportInitialize]);
 
 Selector.Instance.Init = function () {

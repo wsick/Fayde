@@ -40,3 +40,9 @@ var PlacementMode = {
     Left: 3,
     Top: 4
 };
+
+var SelectionMode = {
+    Single: 0,
+    Multiple: 1,
+    Extended: 2
+};

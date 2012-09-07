@@ -114,6 +114,10 @@ Collection.Instance.GetIterator = function () {
     return new CollectionIterator(this);
 };
 
+Collection.Instance.ToArray = function () {
+    return this._ht.slice(0);
+};
+
 Collection.Instance._RaiseItemChanged = function (obj, propd, oldValue, newValue) {
     this.ItemChanged.Raise(this, new ItemChangedArgs(obj, propd, oldValue, newValue));
 };
