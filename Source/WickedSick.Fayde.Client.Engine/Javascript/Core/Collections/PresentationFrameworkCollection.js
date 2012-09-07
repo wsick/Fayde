@@ -113,6 +113,11 @@ PresentationFrameworkCollection.Instance._IsReadOnlyImpl = function () {
     return false;
 };
 
+PresentationFrameworkCollection.Instance.ToArray = function () {
+    return this._Backing.ToArray();
+};
+
+
 PresentationFrameworkCollection.Instance._CheckNull = function (action, value) {
     if (value != null)
         return false;
