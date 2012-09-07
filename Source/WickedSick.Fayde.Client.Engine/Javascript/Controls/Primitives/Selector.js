@@ -57,9 +57,11 @@ Nullstone.Property(Selector, "SelectedItems", {
     get: function () {
         if (this._SelectedItemsIsInvalid)
             this._Selection.RepopulateSelectedItems();
-        return this.SelectedItems;
+        return this._SelectedItems;
     }
 });
+
+Nullstone.AbstractProperty(Selector, "IsSelectionActive", true);
 
 //#endregion
 
@@ -130,7 +132,7 @@ Selector.Instance.OnItemsChanged = function (e) {
     var item;
     switch (e.Action) {
         case NotifyCollectionChangedAction.Add:
-            item = Nullstone.As(e.NewItems.GetValueAt(0), ListBoxItem);
+            item = Nullstone.As(e.NewItems[0], ListBoxItem);
             if (item != null && item.IsSelected && !this.SelectedItems.Contains(item)) {
                 this._Selection.Select(item);
             } else if (this.SelectedItem != null) {
@@ -150,14 +152,14 @@ Selector.Instance.OnItemsChanged = function (e) {
                 this._Selection.ClearSelection();
             break;
         case NotifyCollectionChangedAction.Remove:
-            item = e.OldItems.GetValueAt(0);
+            item = e.OldItems[0];
             if (this.SelectedItems.Contains(item))
                 this._Selection.Unselect(item);
             else if (e.OldStartingIndex <= this.SelectedIndex)
                 this._Selection.Select(this.SelectedItem);
             break;
         case NotifyCollectionChangedAction.Replace:
-            item = e.OldItems.GetValueAt(0);
+            item = e.OldItems[0];
             this._Selection.Unselect(item);
             break;
         default:

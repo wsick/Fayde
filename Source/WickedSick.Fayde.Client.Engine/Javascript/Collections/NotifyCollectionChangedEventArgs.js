@@ -47,21 +47,21 @@ NotifyCollectionChangedEventArgs.Instance.Init = function (args) {
     }
 };
 
-NotifyCollectionChangedEventArgs.Instance.GetAction = function () {
-    return this._Action;
-};
-NotifyCollectionChangedEventArgs.Instance.GetNewItems = function () {
-    return this._NewItems;
-};
-NotifyCollectionChangedEventArgs.Instance.GetOldItems = function () {
-    return this._OldItems;
-};
-NotifyCollectionChangedEventArgs.Instance.GetOldStartingIndex = function () {
-    return this._OldStartingIndex;
-};
-NotifyCollectionChangedEventArgs.Instance.GetNewStartingIndex = function () {
-    return this._NewStartingIndex;
-};
+Nullstone.Property(NotifyCollectionChangedEventArgs, "Action", {
+    get: function () { return this._Action; }
+});
+Nullstone.Property(NotifyCollectionChangedEventArgs, "NewItems", {
+    get: function () { return this._NewItems; }
+});
+Nullstone.Property(NotifyCollectionChangedEventArgs, "OldItems", {
+    get: function () { return this._OldItems; }
+});
+Nullstone.Property(NotifyCollectionChangedEventArgs, "OldStartingIndex", {
+    get: function () { return this._OldStartingIndex; }
+});
+Nullstone.Property(NotifyCollectionChangedEventArgs, "NewStartingIndex", {
+    get: function () { return this._NewStartingIndex; }
+});
 
 Nullstone.FinishCreate(NotifyCollectionChangedEventArgs);
 //#endregion

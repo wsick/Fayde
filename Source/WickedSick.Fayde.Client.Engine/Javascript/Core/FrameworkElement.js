@@ -713,6 +713,12 @@ FrameworkElement.Instance._ClearImplicitStyles = function (styleMask) {
 //#region Template
 
 FrameworkElement.Instance.OnApplyTemplate = function () { };
+FrameworkElement.Instance.ApplyTemplate = function () {
+    var error = new BError();
+    this._ApplyTemplateWithError(error);
+    if (error.IsErrored())
+        throw error.CreateException();
+};
 FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
     if (this._GetSubtreeObject())
         return false;

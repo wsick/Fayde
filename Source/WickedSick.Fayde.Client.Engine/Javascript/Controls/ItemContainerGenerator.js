@@ -227,51 +227,51 @@ ItemContainerGenerator.Instance.OnOwnerItemsItemsChanged = function (sender, e) 
     var oldPosition = { index: -1, offset: 0 };
     var position;
 
-    switch (e.GetAction()) {
+    switch (e.Action) {
         case NotifyCollectionChangedAction.Add:
-            if ((e.GetNewStartingIndex() + 1) != this.Owner.Items.GetCount()) {
-                this.MoveExistingItems(e.GetNewStartingIndex(), 1);
+            if ((e.NewStartingIndex + 1) != this.Owner.Items.GetCount()) {
+                this.MoveExistingItems(e.NewStartingIndex, 1);
             }
             itemCount = 1;
             itemUICount = 0;
-            position = this.GeneratorPositionFromIndex(e.GetNewStartingIndex());
+            position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
             position.offset = 1;
             break;
         case NotifyCollectionChangedAction.Remove:
             itemCount = 1;
-            if (this.RealizedElements.Contains(e.GetOldStartingIndex())) {
+            if (this.RealizedElements.Contains(e.OldStartingIndex)) {
                 itemUICount = 1;
             }
             else {
                 itemUICount = 0;
             }
-            position = this.GeneratorPositionFromIndex(e.GetOldStartingIndex());
+            position = this.GeneratorPositionFromIndex(e.OldStartingIndex);
             if (itemUICount == 1) {
                 this.Remove(position.index, position.offset, 1);
             }
-            this.MoveExistingItems(e.GetOldStartingIndex(), -1);
+            this.MoveExistingItems(e.OldStartingIndex, -1);
             break;
         case NotifyCollectionChangedAction.Replace:
-            if (!this.RealizedElements.Contains(e.GetNewStartingIndex())) {
+            if (!this.RealizedElements.Contains(e.NewStartingIndex)) {
                 return;
             }
             itemCount = 1;
             itemUICount = 1;
-            position = this.GeneratorPositionFromIndex(e.GetNewStartingIndex());
+            position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
             this.Remove(position.index, position.offset, 1);
 
             var fresh;
-            var newPos = this.GeneratorPositionFromIndex(e.GetNewStartingIndex());
+            var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
             this.StartAt(newPos.index, newPos.offset, 0, true);
             this.PrepareItemContainer(this.GenerateNext(fresh));
             break;
         case NotifyCollectionChangedAction.Reset:
             var itemCount;
-            if (!e.GetOldItems()) {
+            if (!e.OldItems) {
                 itemCount = 0;
             }
             else {
-                itemCount = e.GetOldItems().GetCount();
+                itemCount = e.OldItems.GetCount();
             }
             itemUICount = this.RealizedElements.Count;
             position = { index: -1, offset: 0 };
@@ -282,7 +282,7 @@ ItemContainerGenerator.Instance.OnOwnerItemsItemsChanged = function (sender, e) 
             break;
     }
 
-    var args = new ItemsChangedEventArgs(e.GetAction(), itemCount, itemUICount, oldPosition, position);
+    var args = new ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position);
     this.ItemsChanged.Raise(this, args);
 };
 

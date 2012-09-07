@@ -4,7 +4,10 @@
 //#region ObservableCollection
 var ObservableCollection = Nullstone.Create("ObservableCollection", Collection);
 
-
+ObservableCollection.Instance.Init = function () {
+    this.Init$Collection();
+    this.CollectionChanged = new MulticastEvent();
+};
 
 Nullstone.FinishCreate(ObservableCollection);
 //#endregion

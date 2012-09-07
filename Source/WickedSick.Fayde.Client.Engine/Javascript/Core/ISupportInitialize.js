@@ -1,4 +1,7 @@
-﻿//#region ISupportInitialize
+﻿/// <reference path="../Runtime/Nullstone.js"/>
+/// CODE
+
+//#region ISupportInitialize
 var ISupportInitialize = Nullstone.Create("ISupportInitialize");
 
 ISupportInitialize.Instance.BeginInit = function () { };

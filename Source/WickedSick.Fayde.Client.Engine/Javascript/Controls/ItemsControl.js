@@ -1,4 +1,3 @@
-/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Control.js"/>
 /// <reference path="../Core/Collections/IListenCollectionChanged.js" />
 /// CODE
@@ -206,7 +205,7 @@ ItemsControl.Instance.IsItemItsOwnContainer = function (item) {
 };
 ItemsControl.Instance.OnItemsChanged = function (e) { };
 ItemsControl.Instance.OnItemsClearing = function (object, e) {
-    this.SetLogicalParent(null, this.Items);
+    this.SetLogicalParent(null, this.Items.ToArray());
 };
 ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
     switch (e.Action) {
@@ -261,9 +260,9 @@ ItemsControl.Instance.SetLogicalParent = function (parent, items) {
         return;
 
     var error = new BError();
-    var count = items.GetCount();
+    var count = items.length;
     for (var i = 0; i < count; i++) {
-        var fe = Nullstone.As(items.GetValueAt(i), FrameworkElement);
+        var fe = Nullstone.As(items[i], FrameworkElement);
         if (fe == null)
             continue;
         this._SetLogicalParent(parent, error);
