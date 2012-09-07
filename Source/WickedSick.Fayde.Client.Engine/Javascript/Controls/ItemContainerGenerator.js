@@ -3,6 +3,7 @@
 /// <reference path="Primitives/ItemsChangedEventArgs.js" />
 /// CODE
 
+//#region GenerationState
 var GenerationState = Nullstone.Create("GenerationState", undefined, 5);
 
 GenerationState.Instance.Init = function (allowStartAtRealizedItem, generatorDirection, positionIndex, positionOffset) {
@@ -13,6 +14,7 @@ GenerationState.Instance.Init = function (allowStartAtRealizedItem, generatorDir
 };
 
 Nullstone.FinishCreate(GenerationState);
+//#endregion
 
 //#region ItemContainerGenerator
 var ItemContainerGenerator = Nullstone.Create("ItemContainerGenerator", undefined, 1);

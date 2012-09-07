@@ -4,6 +4,7 @@
 /// <reference path="../Primitives/Font.js"/>
 /// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
+/// <reference path="../Text/TextLayout.js"/>
 
 //#region TextBlock
 var TextBlock = Nullstone.Create("TextBlock", FrameworkElement);
