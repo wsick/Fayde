@@ -2,5 +2,25 @@
       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
       Title="Fayde | Home">
     <StackPanel>
+        <ListBox Margin="-7,0,5,0">
+            <ListBox.ItemsSource>
+                <Array>
+                    <String>Test 1</String>
+                    <String>Test 2</String>
+                    <String>Test 3</String>
+                </Array>
+            </ListBox.ItemsSource>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <CheckBox Content="{Binding}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <!--
+            <ListBoxItem Content="listboxitem01" />
+            <ListBoxItem Content="listboxitem02" />
+            <ListBoxItem Content="listboxitem03" />
+            <ListBoxItem Content="listboxitem04" />
+            -->
+        </ListBox>
     </StackPanel>
 </Page>

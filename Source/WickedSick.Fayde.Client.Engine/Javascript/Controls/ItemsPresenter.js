@@ -46,8 +46,8 @@ ItemsPresenter.Instance._GetDefaultTemplateCallback = function () {
     }
 
     if (this._ElementRoot == null) {
-        
-        var template = c instanceof ListBox ? this.VirtualizingStackPanelFallbackTemplate : this.StackPanelFallbackTemplate;
+        //TODO: Implement var template = c instanceof ListBox ? this.VirtualizingStackPanelFallbackTemplate : this.StackPanelFallbackTemplate;
+        var template = this.StackPanelFallbackTemplate;
         this._ElementRoot = template.GetVisualTree(this);
     }
 
