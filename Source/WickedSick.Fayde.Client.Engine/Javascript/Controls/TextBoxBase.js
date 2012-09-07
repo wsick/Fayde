@@ -921,20 +921,20 @@ TextBoxBase.Instance._KeyDownChar = function (c) {
 
 //#region Focus
 
-TextBoxBase.Instance.OnLostFocus = function (sender, args) {
+TextBoxBase.Instance.OnLostFocus = function (e) {
     this._IsFocused = false;
     if (this._View)
-        this._View.OnLostFocus();
+        this._View.OnLostFocus(e);
 
     if (!this._IsReadOnly) {
         //this._IMCtx.FocusOut();
         this._NeedIMReset = true;
     }
 };
-TextBoxBase.Instance.OnGotFocus = function (sender, args) {
+TextBoxBase.Instance.OnGotFocus = function (e) {
     this._IsFocused = true;
     if (this._View)
-        this._View.OnGotFocus();
+        this._View.OnGotFocus(e);
     if (!this._IsReadOnly) {
         //this._IMCtx.FocusIn();
         this._NeedIMReset = true;

@@ -183,13 +183,13 @@ ButtonBase.Instance._IsValidMousePosition = function () {
 
 //#region Focus
 
-ButtonBase.Instance.OnGotFocus = function (sender, args) {
-    this.OnGotFocus$ContentControl(sender, args);
+ButtonBase.Instance.OnGotFocus = function (e) {
+    this.OnGotFocus$ContentControl(e);
     this.$SetValueInternal(ButtonBase.IsFocusedProperty, true);
     this.$UpdateVisualState();
 };
-ButtonBase.Instance.OnLostFocus = function (sender, args) {
-    this.OnLostFocus$ContentControl(sender, args);
+ButtonBase.Instance.OnLostFocus = function (e) {
+    this.OnLostFocus$ContentControl(e);
     this.$SetValueInternal(ButtonBase.IsFocusedProperty, false);
 
     this._SuspendStateChanges = true;

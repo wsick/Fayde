@@ -60,23 +60,23 @@ ListBoxItem.Instance.OnMouseLeftButtonDown = function (sender, args) {
         this._ParentSelector.NotifyListItemClicked(this);
     }
 };
-ListBoxItem.Instance.OnMouseEnter = function () {
-    this.OnMouseEnter$ContentControl();
+ListBoxItem.Instance.OnMouseEnter = function (e) {
+    this.OnMouseEnter$ContentControl(e);
     this.$UpdateVisualState();
 };
-ListBoxItem.Instance.OnMouseLeave = function () {
-    this.OnMouseLeave$ContentControl();
+ListBoxItem.Instance.OnMouseLeave = function (e) {
+    this.OnMouseLeave$ContentControl(e);
     this.$UpdateVisualState();
 };
-ListBoxItem.Instance.OnGotFocus = function (sender, args) {
-    this.OnGotFocus$ContentControl();
+ListBoxItem.Instance.OnGotFocus = function (e) {
+    this.OnGotFocus$ContentControl(e);
     this.$UpdateVisualState();
     if (this._ParentSelector != null) {
         this._ParentSelector.NotifyListItemGotFocus(this);
     }
 };
-ListBoxItem.Instance.OnLostFocus = function (sender, args) {
-    this.OnLostFocus$ContentControl();
+ListBoxItem.Instance.OnLostFocus = function (e) {
+    this.OnLostFocus$ContentControl(e);
     this.$UpdateVisualState();
     if (this._ParentSelector != null) {
         this._ParentSelector.NotifyListItemLostFocus(this);

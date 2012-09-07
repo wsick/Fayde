@@ -246,10 +246,10 @@ _TextBoxView.Instance._RenderImpl = function (ctx, region) {
     ctx.Restore();
 };
 
-_TextBoxView.Instance.OnLostFocus = function () {
+_TextBoxView.Instance.OnLostFocus = function (e) {
     this._EndCursorBlink();
 };
-_TextBoxView.Instance.OnGotFocus = function () {
+_TextBoxView.Instance.OnGotFocus = function (e) {
     this._ResetCursorBlink(false);
 };
 _TextBoxView.Instance.OnMouseLeftButtonDown = function (sender, args) {

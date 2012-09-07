@@ -330,12 +330,12 @@ TextBox.Instance.OnMouseLeave = function (args) {
     this.OnMouseLeave$TextBoxBase(args);
     this.$UpdateVisualState();
 };
-TextBox.Instance.OnGotFocus = function (sender, args) {
-    this.OnGotFocus$TextBoxBase(sender, args);
+TextBox.Instance.OnGotFocus = function (e) {
+    this.OnGotFocus$TextBoxBase(e);
     this.$UpdateVisualState();
 };
-TextBox.Instance.OnLostFocus = function (sender, args) {
-    this.OnLostFocus$TextBoxBase(sender, args);
+TextBox.Instance.OnLostFocus = function (e) {
+    this.OnLostFocus$TextBoxBase(e);
     this.$UpdateVisualState();
 };
 

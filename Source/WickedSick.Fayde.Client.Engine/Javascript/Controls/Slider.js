@@ -241,12 +241,12 @@ Slider.Instance.OnKeyDown = function (e) {
 
 //#region Focus Response
 
-Slider.Instance.OnGotFocus = function (sender, e) {
-    this.OnGotFocus$RangeBase(sender, e);
+Slider.Instance.OnGotFocus = function (e) {
+    this.OnGotFocus$RangeBase(e);
     this.$SetValueInternal(Slider.IsFocusedProperty, true);
 };
-Slider.Instance.OnLostFocus = function (sender, e) {
-    this.OnLostFocus$RangeBase(sender, e);
+Slider.Instance.OnLostFocus = function (e) {
+    this.OnLostFocus$RangeBase(e);
     this.$SetValueInternal(Slider.IsFocusedProperty, false);
 };
 

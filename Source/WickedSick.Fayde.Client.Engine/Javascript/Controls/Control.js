@@ -236,13 +236,13 @@ Control.Instance.Focus = function (recurse) {
     }
     return false;
 };
-Control.Instance.OnGotFocus = function (sender, e) {
+Control.Instance.OnGotFocus = function (e) {
     this._IsFocused = true;
-    this.OnGotFocus$FrameworkElement(sender, e);
+    this.OnGotFocus$FrameworkElement(e);
 };
-Control.Instance.OnLostFocus = function (sender, e) {
+Control.Instance.OnLostFocus = function (e) {
     this._IsFocused = false;
-    this.OnLostFocus$FrameworkElement(sender, e);
+    this.OnLostFocus$FrameworkElement(e);
 };
 
 //#endregion

@@ -83,10 +83,7 @@ UIElement.Instance.Init = function () {
     this.LostMouseCapture.Subscribe(this.OnLostMouseCapture, this);
 
     this.GotFocus = new MulticastEvent();
-    this.GotFocus.Subscribe(this.OnGotFocus, this);
-
     this.LostFocus = new MulticastEvent();
-    this.LostFocus.Subscribe(this.OnLostFocus, this);
 
     this.KeyDown = new MulticastEvent();
     this.KeyUp = new MulticastEvent();
@@ -1110,14 +1107,18 @@ UIElement.Instance._EmitFocusChange = function (type) {
 };
 
 UIElement.Instance._EmitGotFocus = function () {
-    this.GotFocus.Raise(this, new EventArgs());
+    var e = new RoutedEventArgs();
+    this.OnGotFocus(e);
+    this.GotFocus.Raise(this, e);
 };
-UIElement.Instance.OnGotFocus = function (sender, e) { };
+UIElement.Instance.OnGotFocus = function (e) { };
 
 UIElement.Instance._EmitLostFocus = function () {
-    this.LostFocus.Raise(this, new EventArgs());
+    var e = new RoutedEventArgs();
+    this.OnLostFocus(e);
+    this.LostFocus.Raise(this, e);
 };
-UIElement.Instance.OnLostFocus = function (sender, e) { };
+UIElement.Instance.OnLostFocus = function (e) { };
 
 //#endregion
 

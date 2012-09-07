@@ -54,12 +54,12 @@ Thumb.Instance.OnIsEnabledChanged = function (args) {
 
 //#region Focus
 
-Thumb.Instance.OnGotFocus = function (sender, args) {
-    this.OnGotFocus$Control(sender, args);
+Thumb.Instance.OnGotFocus = function (e) {
+    this.OnGotFocus$Control(e);
     this._FocusChanged(this._HasFocus());
 };
-Thumb.Instance.OnLostFocus = function (sender, args) {
-    this.OnLostFocus$Control(sender, args);
+Thumb.Instance.OnLostFocus = function (e) {
+    this.OnLostFocus$Control(e);
     this._FocusChanged(this._HasFocus());
 };
 
