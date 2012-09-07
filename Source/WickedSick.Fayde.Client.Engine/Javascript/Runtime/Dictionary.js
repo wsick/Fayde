@@ -29,9 +29,19 @@ Dictionary.Instance.GetValue = function (key) {
 Dictionary.Instance.GetKeyFromValue = function (value) {
     var len = this._ht.length;
     var func = this._IsValueNullstone ? Nullstone.RefEquals : Nullstone.Equals;
-    for (var i = 0; i < len; i++) {
-        if (func(this._ht[i], value))
-            return value;
+    if (this._IsValueNullstone) {
+        for (var keyID in this._ht) {
+            if (keyID === value._ID)
+                return this._k[keyID];
+        }
+    } else {
+        for (var key in this._ht) {
+            if (Nullstone.Equals(this._ht[key], value)) {
+                if (this._IsKeyNullstone)
+                    return this._k[key];
+                return key;
+            }
+        }
     }
     return null;
 };
