@@ -19,13 +19,23 @@ ScrollViewer.Instance.Init = function () {
 ScrollViewer.OnScrollBarVisibilityPropertyChanged = function (d, args) {
     if (!d)
         return;
-    d._InvalidateMeasure();
-    var scrollInfo = d.GetScrollInfo();
-    if (scrollInfo) {
-        scrollInfo.SetCanHorizontallyScroll(d.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
-        scrollInfo.SetCanVerticallyScroll(d.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+    var scrollViewer = Nullstone.As(d, ScrollViewer);
+    if (scrollViewer != null) {
+        d._InvalidateMeasure();
+        var scrollInfo = d.GetScrollInfo();
+        if (scrollInfo) {
+            scrollInfo.SetCanHorizontallyScroll(d.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+            scrollInfo.SetCanVerticallyScroll(d.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+        }
+        d._UpdateScrollBarVisibility();
+        return;
     }
-    d._UpdateScrollBarVisibility();
+
+    var listbox = Nullstone.As(d, ListBox);
+    if (listbox != null && listbox.$TemplateScrollViewer != null) {
+        listbox.$TemplateScrollViewer.$SetValue(args.Property, args.NewValue);
+        return;
+    }
 };
 ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
 ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
