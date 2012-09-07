@@ -141,19 +141,19 @@ ItemsControl.Instance.OnItemsSourceChanged = function (e) {
             e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
         }
 
-        this.Items.$SetIsReadOnly(true);
+        this.Items._ReadOnly = true;
         this._itemsIsDataBound = true;
         this.Items._ClearImpl();
 
-        var count = e.NewValue.GetCount();
+        var count = e.NewValue.length;
         for (var i = 0; i < count; i++) {
-            this.Items._AddImpl(e.NewValue.GetValueAt(i));
+            this.Items._AddImpl(e.NewValue[i]);
         }
 
         this.OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     } else {
         this._itemsIsDataBound = false;
-        this.Items.$SetIsReadyOnly(false);
+        this.Items._ReadOnly = false;
         this.Items._ClearImpl();
     }
 
@@ -252,7 +252,7 @@ ItemsControl.Instance.OnItemTemplateChanged = function (e) {
     var items = this.Items;
     var count = items.GetCount();
     for (var i = 0; i < count; i++) {
-        this.UpdateContentTemplateOnContainer(ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
+        this.UpdateContentTemplateOnContainer(this.ItemContainerGenerator.ContainerFromIndex(i), items.GetValueAt(i));
     }
 };
 ItemsControl.Instance.SetLogicalParent = function (parent, items) {
@@ -287,7 +287,7 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
             c._ContentSetsParent = false;
 
         if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
-            f.DataContext = item;
+            container.DataContext = item;
 
         children.Insert(newIndex + i, container);
         this._ItemContainerGenerator.PrepareItemContainer(container);
