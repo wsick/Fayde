@@ -74,6 +74,7 @@
     <Compile Include="Elements\Controls\Primitives\Selector.cs" />
     <Compile Include="Elements\Controls\ProgressBar.cs" />
     <Compile Include="Elements\Controls\Slider.cs" />
+    <Compile Include="Elements\Core\Array.cs" />
     <Compile Include="Elements\Core\Boolean.cs" />
     <Compile Include="Elements\Bindings\Binding.cs">
       <SubType>Code</SubType>
@@ -107,6 +108,7 @@
     <Compile Include="Elements\Controls\Primitives\ToggleButton.cs" />
     <Compile Include="Elements\Controls\UserControl.cs" />
     <Compile Include="Elements\Core\Double.cs" />
+    <Compile Include="Elements\Core\String.cs" />
     <Compile Include="Elements\DependencyObjectCollection.cs" />
     <Compile Include="Elements\Documents\Inline.cs" />
     <Compile Include="Elements\Documents\InlineCollection.cs" />
