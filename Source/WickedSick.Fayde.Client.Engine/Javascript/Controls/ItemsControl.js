@@ -80,7 +80,7 @@ Nullstone.Property(ItemsControl, "$DisplayMemberTemplate", {
 
 Nullstone.Property(ItemsControl, "$Panel", {
     get: function () {
-        return this._presenter == null ? null : this._presenter._elementRoot;
+        return this._Presenter == null ? null : this._Presenter._ElementRoot;
     }
 });
 
@@ -117,7 +117,7 @@ ItemsControl.ItemsControlFromItemContainer = function (container) {
 };
 
 ItemsControl.Instance._GetDefaultTemplate = function () {
-    var presenter = this._presenter;
+    var presenter = this._Presenter;
     if (presenter == null) {
         presenter = new ItemsPresenter();
         presenter.TemplateOwner = this;
@@ -125,10 +125,10 @@ ItemsControl.Instance._GetDefaultTemplate = function () {
     return presenter;
 };
 ItemsControl.Instance._SetItemsPresenter = function (presenter) {
-    if (this._presenter != null)
-        this._presenter._elementRoot.Children.Clear();
+    if (this._Presenter != null)
+        this._Presenter._ElementRoot.Children.Clear();
 
-    this._presenter = presenter;
+    this._Presenter = presenter;
     this.AddItemsToPresenter(-1, 1, this.Items.GetCount());
 };
 ItemsControl.Instance.OnItemsSourceChanged = function (e) {
@@ -226,10 +226,10 @@ ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
         this.OnItemsChanged(e);
 };
 ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
-    if (this._presenter == null || this._presenter._elementRoot instanceof VirtualizingPanel)
+    if (this._Presenter == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)
         return;
 
-    var panel = this._presenter._elementRoot;
+    var panel = this._Presenter._ElementRoot;
     switch (e.GetAction()) {
         case NotifyCollectionChangedAction.Reset:
             var count = panel.Children.GetCount();
@@ -271,10 +271,10 @@ ItemsControl.Instance.SetLogicalParent = function (parent, items) {
     }
 };
 ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOffset, count) {
-    if (this._presenter == null || this._presenter._elementRoot == null || this._presenter._elementRoot instanceof VirtualizingPanel)
+    if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)
         return;
 
-    var panel = this._presenter._elementRoot;
+    var panel = this._Presenter._ElementRoot;
     var newIndex = this._ItemContainerGenerator.IndexFromGeneratorPosition(positionIndex, positionOffset);
     var p = this._ItemContainerGenerator.StartAt(positionIndex, positionOffset, 0, true);
     var items = this.Items;
@@ -294,10 +294,10 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
     }
 };
 ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
-    if (this._presenter == null || this._presenter._elementRoot == null || this._presenter._elementRoot instanceof VirtualizingPanel)
+    if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)
         return;
 
-    var panel = this._presenter._elementRoot;
+    var panel = this._Presenter._ElementRoot;
     while (count > 0) {
         panel.Children.RemoveAt(positionIndex);
         count--;

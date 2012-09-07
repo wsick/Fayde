@@ -80,10 +80,11 @@ Selector.Instance._OnSelectedIndexChanged = function (args) {
     if (this._Selection.Updating || this._Initializing)
         return;
 
-    if (args.NewValue < 0 || args.NewValue >= Items.GetCount())
+    var items = this.Items;
+    if (args.NewValue < 0 || args.NewValue >= items.GetCount())
         this._Selection.ClearSelection();
     else
-        this._Selection.Select(this.Items.GetValueAt(args.NewValue));
+        this._Selection.Select(items.GetValueAt(args.NewValue));
 };
 Selector.Instance._OnSelectedItemChanged = function (args) {
     if (this._Selection.Updating || this._Initializing)

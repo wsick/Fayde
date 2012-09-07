@@ -11,6 +11,7 @@ SelectorSelection.Instance.Init = function (owner) {
     this._Owner = owner;
     this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
     this._SelectedItems = new Collection();
+    this.Mode = SelectionMode.Single;
 };
 
 SelectorSelection.Instance._HandleOwnerSelectionChanged = function (sender, e) {
