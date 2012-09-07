@@ -2,7 +2,7 @@
 /// CODE
 
 //#region CollectionChangedArgs
-var CollectionChangedArgs = Nullstone.Create("CollectionChangedArgs", null, 4);
+var CollectionChangedArgs = Nullstone.Create("CollectionChangedArgs", undefined, 4);
 
 CollectionChangedArgs.Instance.Init = function (action, oldValue, newValue, index) {
     this.Action = action;
