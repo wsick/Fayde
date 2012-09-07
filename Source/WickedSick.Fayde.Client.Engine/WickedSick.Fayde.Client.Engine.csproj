@@ -136,6 +136,7 @@
     <Content Include="Javascript\Controls\ToolTip.js" />
     <Content Include="Javascript\Controls\ToolTipService.js" />
     <Content Include="Javascript\Controls\VirtualizingPanel.js" />
+    <Content Include="Javascript\Controls\VirtualizingStackPanel.js" />
     <Content Include="Javascript\Core\Collections\IListenCollectionChanged.js" />
     <Content Include="Javascript\Core\Collections\ItemCollection.js" />
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />

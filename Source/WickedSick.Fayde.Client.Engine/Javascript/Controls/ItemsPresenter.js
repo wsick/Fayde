@@ -1,51 +1,58 @@
-﻿/// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="../Core/FrameworkElement.js" />
+﻿/// <reference path="../Core/FrameworkElement.js" />
+/// CODE
+/// <reference path="StackPanel.js"/>
+/// <reference path="VirtualizingStackPanel.js"/>
 
 //#region ItemsPresenter
 var ItemsPresenter = Nullstone.Create("ItemsPresenter", FrameworkElement);
 
-ItemsPresenter.GetStackPanelFallbackTemplate = function () {
-    if (!this._stackPanelFallbackTemplate) {
-        this._stackPanelFallbackTemplate = new ItemsPanelTemplate({ Type: StackPanel });
-    }
-    return this._stackPanelFallbackTemplate;
-};
+//#region Properties
 
-ItemsPresenter.GetVirtualizingStackPanelFallbackTemplate = function () {
-    throw new NotSupportedException();
-};
+Nullstone.Property(ItemsPresenter, "StackPanelFallbackTemplate", {
+    get: function () {
+        if (this._SPFT == null)
+            this._SPFT = new ItemsPanelTemplate({ Type: StackPanel });
+        return this._SPFT;
+    }
+});
+
+Nullstone.Property(ItemsPresenter, "VirtualizingStackPanelFallbackTemplate", {
+    get: function () {
+        if (this._VSPFT == null)
+            this._VSPFT = new ItemsPanelTemplate({ Type: VirtualizingStackPanel });
+        return this._VSPFT;
+    }
+});
+
+//#endregion
 
 ItemsPresenter.Instance.OnApplyTemplate = function () {
-    var c = Nullstone.As(this.TemplateOwner, ItemsControl);
-    c._SetItemsPresenter(this);
+    this.TemplateOwner._SetItemsPresenter(this);
     this.OnApplyTemplate$FrameworkElement();
 };
-
 ItemsPresenter.Instance._GetDefaultTemplateCallback = function () {
     var c = Nullstone.As(this.TemplateOwner, ItemsControl);
-    if (!c) {
+    if (c == null)
         return null;
-    }
 
-    if (this._elementRoot) {
-        return this._elementRoot;
-    }
+    if (this._ElementRoot != null)
+        return this._ElementRoot;
 
-    if (c.ItemsPanel) {
+    if (c.ItemsPanel != null) {
         var root = c.ItemsPanel.GetVisualTree(this);
-        if (root && !Nullstone.Is(root, Panel)) {
+        if (root != null && !(root instanceof Panel))
             throw new InvalidOperationException("The root element of an ItemsPanelTemplate must be a Panel subclass");
-        }
-        this._elementRoot = Nullstone.As(root, Panel);
+        this._ElementRoot = root;
     }
 
-    if (!this._elementRoot) {
-        var template = Nullstone.Is(c, ListBox) ? ItemsPresenter.GetVirtualizingStackPanelFallbackTemplate() : ItemsPresenter.GetStackPanelFallbackTemplate();
-        this._elementRoot = template.GetVisualTree(this);
+    if (this._ElementRoot == null) {
+        
+        var template = c instanceof ListBox ? this.VirtualizingStackPanelFallbackTemplate : this.StackPanelFallbackTemplate;
+        this._ElementRoot = template.GetVisualTree(this);
     }
 
-    this._elementRoot.IsItemsHost = true;
-    return this._elementRoot;
+    this._ElementRoot.IsItemsHost = true;
+    return this._ElementRoot;
 };
 
 Nullstone.FinishCreate(ItemsPresenter);

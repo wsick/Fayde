@@ -1,11 +1,11 @@
 ﻿/// <reference path="../ItemsControl.js" />
+/// <reference path="../../Core/ISupportInitialize.js"/>
 /// CODE
 /// <reference path="../ScrollViewer.js"/>
 /// <reference path="../ListBoxItem.js"/>
 /// <reference path="SelectionChangedEventArgs.js"/>
 /// <reference path="SelectorSelection.js"/>
 /// <reference path="../../Collections/ObservableCollection.js"/>
-/// <reference path="../../Core/ISupportInitialize.js"/>
 
 //#region Selector
 var Selector = Nullstone.Create("Selector", ItemsControl, 0, [ISupportInitialize]);
