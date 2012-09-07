@@ -50,6 +50,24 @@ Collection.Instance.Add = function (value) {
     var rv = this.Insert(this._ht.length, value);
     return rv ? this._ht.length - 1 : -1;
 };
+Collection.Instance.AddRange = function (newItems) {
+    if (newItems == null)
+        return false;
+    var rawArray = newItems;
+    if (rawArray instanceof Collection)
+        rawArray = rawArray._ht;
+
+    if (!Array.isArray(rawArray))
+        return false;
+
+    var rv = true;
+    var count = rawArray.length;
+    for (var i = 0; i < count; i++) {
+        if (!this.Add(rawArray[i]))
+            rv = false;
+    }
+    return rv;
+};
 Collection.Instance.Insert = function (index, value) {
     if (!this.CanAdd(value))
         return false;
