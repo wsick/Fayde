@@ -112,8 +112,10 @@ ScrollContentPresenter._ValidateInputOffset = function (offset) {
 ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
     /// <param name="constraint" type="Size"></param>
     var scrollOwner = this.GetScrollOwner();
-    if (scrollOwner == null || this._ContentRoot == null)
-        return this._MeasureOverrideWithError(constraint);
+    if (scrollOwner == null || this._ContentRoot == null) {
+        var error = new BError();
+        return this._MeasureOverrideWithError(constraint, error);
+    }
 
     var ideal = new Size(this.GetCanHorizontallyScroll() ? Number.POSITIVE_INFINITY : constraint.Width,
         this.GetCanVerticallyScroll() ? Number.POSITIVE_INFINITY : constraint.Height);
