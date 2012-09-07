@@ -4,33 +4,29 @@
 
 //#region DoubleKeyedDictionary
 
-var DoubleKeyedDictionary = Nullstone.Create("DoubleKeyedDictionary");
+var DoubleKeyedDictionary = Nullstone.Create("DoubleKeyedDictionary", undefined, 2);
 
-DoubleKeyedDictionary.Instance.Init = function () {
-    this._forward = new Dictionary();
-    this._backward = new Dictionary();
+DoubleKeyedDictionary.Instance.Init = function (type1, type2) {
+    this._forward = new Dictionary(type1, type2);
+    this._backward = new Dictionary(type2, type1);
 };
 
-DoubleKeyedDictionary.Instance.GetValueFromKey1 = function (key2) {
+DoubleKeyedDictionary.Instance.GetValueFromKey1 = function (key1) {
     var result = {};
-    if (this._backward.TryGetValue(key2, result)) {
+    if (this._forward.TryGetValue(key1, result))
         return result.Value;
-    }
     return null;
 };
-
-DoubleKeyedDictionary.Instance.GetValueFromKey2 = function (key1) {
+DoubleKeyedDictionary.Instance.GetValueFromKey2 = function (key2) {
     var result = {};
-    if (this._forward.TryGetValue(key1, result)) {
+    if (this._backward.TryGetValue(key2, result))
         return result.Value;
-    }
     return null;
 };
 
 DoubleKeyedDictionary.Instance.Add = function (key1, key2) {
     this.Add(key1, key2, false);
 };
-
 DoubleKeyedDictionary.Instance.Add = function (key1, key2, ignoreExisting) {
     var result = {};
     if (!ignoreExisting && (this._forward.TryGetValue(key1, result) || this._backward.TryGetValue(key2, result))) {
@@ -48,7 +44,6 @@ DoubleKeyedDictionary.Instance.Clear = function () {
 DoubleKeyedDictionary.Instance.Remove = function (key1, key2) {
     this.Remove(key1, key2, false);
 };
-
 DoubleKeyedDictionary.Instance.Remove = function (key1, key2, ignoreExisting) {
     var result = {};
     if (!ignoreExisting && (!this._forward.TryGetValue(key1, result) || !this._backward.TryGetValue(key2, result))) {
@@ -61,7 +56,6 @@ DoubleKeyedDictionary.Instance.Remove = function (key1, key2, ignoreExisting) {
 DoubleKeyedDictionary.Instance.TryMapFromKey1 = function (key1, key2) {
     return this._forward.TryGetValue(key1, key2);
 };
-
 DoubleKeyedDictionary.Instance.TryMapFromKey2 = function (key2, key1) {
     return this._backward.TryGetValue(key2, key1);
 };

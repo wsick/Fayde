@@ -141,7 +141,7 @@ DependencyObject.Instance.$SetValueInternal = function (propd, value) {
             if (existing)
                 this.$RemoveExpression(propd);
             if (!this._Expressions)
-                this._Expressions = new Dictionary();
+                this._Expressions = new Dictionary(DependencyProperty, Expression);
             this._Expressions.Add(propd, expression);
             expression._OnAttached(this);
         }
