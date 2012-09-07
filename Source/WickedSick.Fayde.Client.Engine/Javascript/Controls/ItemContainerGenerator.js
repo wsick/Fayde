@@ -30,7 +30,7 @@ ItemContainerGenerator.Instance.Init = function (owner) {
 };
 
 ItemContainerGenerator.Instance.ContainerFromIndex = function (index) {
-    return this.ContainerIndexMap.TryMapFromKey2(index, container);
+    return this.ContainerIndexMap.MapFromKey2(index);
 };
 ItemContainerGenerator.Instance.ContainerFromItem = function (item) {
     if (item == null)
@@ -175,7 +175,7 @@ ItemContainerGenerator.Instance.GetItemContainerGeneratorForPanel = function (pa
 
 ItemContainerGenerator.Instance.IndexFromContainer = function (container) {
     var data = {};
-    if (this.ContainerIndexMap.TryMapFromKey1(container, data))
+    if (this.ContainerIndexMap.MapFromKey1(container, data))
         return data.Value;
     return -1;
 };
