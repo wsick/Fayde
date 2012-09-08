@@ -5,7 +5,6 @@ namespace WickedSick.Server.XamlParser.Elements
     public abstract class FrameworkElement : UIElement
     {
         public static readonly PropertyDescription MarginProperty = PropertyDescription.Register("Margin", typeof(Thickness), typeof(FrameworkElement));
-        public static readonly PropertyDescription PaddingProperty = PropertyDescription.Register("Padding", typeof(Thickness), typeof(FrameworkElement));
         public static readonly PropertyDescription HorizontalAlignmentProperty = PropertyDescription.Register("HorizontalAlignment", typeof(HorizontalAlignment), typeof(FrameworkElement));
         public static readonly PropertyDescription VerticalAlignmentProperty = PropertyDescription.Register("VerticalAlignment", typeof(VerticalAlignment), typeof(FrameworkElement));
         public static readonly PropertyDescription MinWidthProperty = PropertyDescription.Register("MinWidth", typeof(double), typeof(FrameworkElement));
