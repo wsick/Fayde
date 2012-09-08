@@ -499,9 +499,9 @@
     <PreBuildEvent>"$(ProjectDir)PackageAssemblies.bat" "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /s /y $(ProjectDir)Fayde.js $(SolutionDir)..\JsBin\
-xcopy /s /y $(ProjectDir)Fayde.order $(SolutionDir)..\JsBin\
-xcopy /s /y $(ProjectDir)Fayde.Generic.js $(SolutionDir)..\JsBin\</PostBuildEvent>
+    <PostBuildEvent>xcopy /s /y "$(ProjectDir)Fayde.js" "$(SolutionDir)..\JsBin\"
+xcopy /s /y "$(ProjectDir)Fayde.order" "$(SolutionDir)..\JsBin\"
+xcopy /s /y "$(ProjectDir)Fayde.Generic.js" "$(SolutionDir)..\JsBin\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
