@@ -284,7 +284,7 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
         var data = {};
         var container = this._ItemContainerGenerator.GenerateNext(data);
         if (container instanceof ContentControl)
-            c._ContentSetsParent = false;
+            container._ContentSetsParent = false;
 
         if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
             container.DataContext = item;
