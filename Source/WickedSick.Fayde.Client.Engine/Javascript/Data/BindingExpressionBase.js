@@ -185,9 +185,9 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         if (this.PropertyPathWalker.FinalNode.IsPathBroken)
             return;
 
-        if (this.Binding.GetTargetNullValue()) {
+        if (this.Binding.TargetNullValue) {
             try {
-                if (Nullstone.RefEquals(this.Binding.GetTargetNullValue(), value))
+                if (Nullstone.RefEquals(this.Binding.TargetNullValue, value))
                     value = null;
             } catch (err) {
                 //ignore
@@ -279,19 +279,20 @@ BindingExpressionBase.Instance._ConvertFromSourceToTarget = function (value) {
 };
 BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
     try {
-        if (!this.PropertyPathWalker.IsPathBroken && this.Binding.GetConverter()) {
-            value = this.Binding.GetConverter().Convert(value, this.Property.GetTargetType(), this.Binding.GetConverterParameter(), {});
+        var binding = this.Binding;
+        if (!this.PropertyPathWalker.IsPathBroken && binding.GetConverter()) {
+            value = binding.GetConverter().Convert(value, this.Property.GetTargetType(), binding.GetConverterParameter(), {});
         }
         if (value === DependencyProperty.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
-            value = this.Binding.GetFallbackValue();
+            value = binding.FallbackValue;
             if (value === undefined)
                 value = propd.GetDefaultValue(this.Target);
         } else if (value == null) {
-            value = this.Binding.GetTargetNullValue();
-            if (value == null && this.IsBoundToAnyDataContext && !this.Binding.GetPath().Path)
+            value = binding.TargetNullValue;
+            if (value == null && this.IsBoundToAnyDataContext && !binding.GetPath().Path)
                 value = propd.GetDefaultValue(this.Target);
         } else {
-            var format = this.Binding.GetStringFormat();
+            var format = binding.StringFormat;
             if (format) {
                 if (!String.contains(format, "{0"))
                     format = "{0:" + format + "}";
@@ -299,7 +300,7 @@ BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
             }
         }
     } catch (err) {
-        return Fayde.TypeConverter.ConvertObject(propd, this.Binding.GetFallbackValue(), this.Target.constructor, true);
+        return Fayde.TypeConverter.ConvertObject(propd, binding.FallbackValue, this.Target.constructor, true);
     }
     return value;
 };

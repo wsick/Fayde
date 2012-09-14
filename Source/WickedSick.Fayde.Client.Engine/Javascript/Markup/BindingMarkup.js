@@ -22,7 +22,7 @@ BindingMarkup.Instance._BuildBinding = function () {
     /// <returns type="Binding" />
     var b = new Binding(this._Data.Path);
     if (this._Data.FallbackValue !== undefined)
-        b.SetFallbackValue(this._Data.FallbackValue);
+        b.FallbackValue = this._Data.FallbackValue;
     if (this._Data.Mode !== undefined)
         b.SetMode(this._Data.Mode);
     return b;

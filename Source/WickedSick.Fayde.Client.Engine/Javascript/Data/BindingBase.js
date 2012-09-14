@@ -4,52 +4,43 @@
 //#region BindingBase
 var BindingBase = Nullstone.Create("BindingBase");
 
+//#region Properties
+
+Nullstone.AutoProperties(BindingBase, [
+    "Sealed"
+]);
+
+Nullstone.Property(BindingBase, "StringFormat", {
+    get: function () { return this._StringFormat; },
+    set: function (value) {
+        this.CheckSealed();
+        this._StringFormat = value;
+    }
+});
+Nullstone.Property(BindingBase, "FallbackValue", {
+    get: function () { return this._FallbackValue; },
+    set: function (value) {
+        this.CheckSealed();
+        this._FallbackValue = value;
+    }
+});
+Nullstone.Property(BindingBase, "TargetNullValue", {
+    get: function () { return this._TargetNullValue; },
+    set: function (value) {
+        this.CheckSealed();
+        this._TargetNullValue = value;
+    }
+});
+
+//#endregion
+
 BindingBase.Instance.CheckSealed = function () {
-    if (this.GetSealed())
+    if (this.Sealed)
         throw new InvalidOperationException("The Binding cannot be changed after it has been used.");
 };
 BindingBase.Instance.Seal = function () {
-    this.SetSealed(true);
+    this.Sealed = true;
 };
-
-//#region Properties
-
-BindingBase.Instance.GetFallbackValue = function () {
-    return this._FallbackValue;
-};
-BindingBase.Instance.SetFallbackValue = function (value) {
-    this.CheckSealed();
-    this._FallbackValue = value;
-};
-
-BindingBase.Instance.GetSealed = function () {
-    ///<returns type="Boolean"></returns>
-    return this._Sealed;
-};
-BindingBase.Instance.SetSealed = function (value) {
-    ///<param name="value" type="Boolean"></param>
-    this._Sealed = value;
-};
-
-BindingBase.Instance.GetStringFormat = function () {
-    ///<returns type="String"></returns>
-    return this._StringFormat;
-};
-BindingBase.Instance.SetStringFormat = function (value) {
-    ///<param name="value" type="String"></param>
-    this.CheckSealed();
-    this._StringFormat = value;
-};
-
-BindingBase.Instance.GetTargetNullValue = function () {
-    return this._TargetNullValue;
-};
-BindingBase.Instance.SetTargetNullValue = function (value) {
-    this.CheckSealed();
-    this._TargetNullValue = value;
-};
-
-//#endregion
 
 Nullstone.FinishCreate(BindingBase);
 //#endregion
