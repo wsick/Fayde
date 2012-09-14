@@ -1,16 +1,14 @@
-/// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
 //#region _PropertyPathParser
-var _PropertyPathParser = Nullstone.Create("_PropertyPathParser", null, 1);
+function _PropertyPathParser(path) {
+    this.Path = path;
+}
 
-_PropertyPathParser.Instance.Init = function (path) {
-    this.SetPath(path);
-};
-
-_PropertyPathParser.Instance.Step = function (data) {
+_PropertyPathParser.prototype.Step = function (data) {
     var type = _PropertyNodeType.None;
-    if (this.GetPath().length === 0) {
+    var path = this.Path;
+    if (path.length === 0) {
         data.typeName = null;
         data.propertyName = null;
         data.index = null;
@@ -18,94 +16,80 @@ _PropertyPathParser.Instance.Step = function (data) {
     }
 
     var end;
-    if (this.GetPath().charAt(0) === '(') {
+    if (path.charAt(0) === '(') {
         type = _PropertyNodeType.AttachedProperty;
-        end = this.GetPath().indexOf(')');
+        end = path.indexOf(')');
         if (end === -1)
             throw new ArgumentException("Invalid property path. Attached property is missing the closing bracket");
 
         var splitIndex;
-        var tickOpen = this.GetPath().indexOf('\'');
+        var tickOpen = path.indexOf('\'');
         var tickClose = 0;
         var typeOpen;
         var typeClose;
         var propOpen;
         var propClose;
 
-        typeOpen = this.GetPath().indexOf('\'');
+        typeOpen = path.indexOf('\'');
         if (typeOpen > 0) {
             typeOpen++;
 
-            typeClose = this.GetPath().indexOf('\'', typeOpen + 1);
+            typeClose = path.indexOf('\'', typeOpen + 1);
             if (typeClose < 0)
-                throw new Exception("Invalid property path, Unclosed type name '" + this.GetPath() + "'.");
+                throw new Exception("Invalid property path, Unclosed type name '" + path + "'.");
 
-            propOpen = this.GetPath().indexOf('.', typeClose);
+            propOpen = path.indexOf('.', typeClose);
             if (propOpen < 0)
-                throw new Exception("Invalid properth path, No property indexer found '" + this.GetPath() + "'.");
+                throw new Exception("Invalid properth path, No property indexer found '" + path + "'.");
 
             propOpen++;
         } else {
             typeOpen = 1;
-            typeClose = this.GetPath().indexOf('.', typeOpen);
+            typeClose = path.indexOf('.', typeOpen);
             if (typeClose < 0)
-                throw new Exception("Invalid property path, No property indexer found on '" + this.GetPath() + "'.");
+                throw new Exception("Invalid property path, No property indexer found on '" + path + "'.");
             propOpen = typeClose + 1;
         }
 
         propClose = end;
 
-        data.typeName = this.GetPath().slice(typeOpen, typeClose);
-        data.propertyName = this.GetPath().slice(propOpen, propClose);
+        data.typeName = path.slice(typeOpen, typeClose);
+        data.propertyName = path.slice(propOpen, propClose);
 
         data.index = null;
-        if (this.GetPath().length > (end + 1) && this.GetPath().charAt(end + 1) === '.')
+        if (path.length > (end + 1) && path.charAt(end + 1) === '.')
             end++;
-        this.SetPath(this.GetPath().substr(end + 1));
-    } else if (this.GetPath().charAt(0) === '[') {
+        path = path.substr(end + 1);
+    } else if (path.charAt(0) === '[') {
         type = _PropertyNodeType.Indexed;
-        end = this.GetPath().indexOf(']');
+        end = path.indexOf(']');
 
         data.typeName = null;
         data.propertyName = null;
-        data.index = this.GetPath().substr(1, end - 1);
-        this.SetPath(this.GetPath().substr(end + 1));
-        if (this.GetPath().charAt(0) === '.')
-            this.SetPath(this.GetPath().substr(1));
+        data.index = path.substr(1, end - 1);
+        path = path.substr(end + 1);
+        if (path.charAt(0) === '.')
+            path = path.substr(1);
     } else {
         type = _PropertyNodeType.Property;
-        end = this.GetPath().indexOfAny(['.', '[']);
+        end = path.indexOfAny(['.', '[']);
 
         if (end === -1) {
-            data.propertyName = this.GetPath();
-            this.SetPath("");
+            data.propertyName = path;
+            path = "";
         } else {
-            data.propertyName = this.GetPath().substr(0, end);
-            if (this.GetPath().charAt(end) === '.')
-                this.SetPath(this.GetPath().substr(end + 1));
+            data.propertyName = path.substr(0, end);
+            if (path.charAt(end) === '.')
+                path = path.substr(end + 1);
             else
-                this.SetPath(this.GetPath().substr(end));
+                path = path.substr(end);
         }
 
         data.typeName = null;
         data.index = null;
     }
+    this.Path = path;
 
     return type;
 };
-
-//#region PROPERTIES
-
-_PropertyPathParser.Instance.GetPath = function () {
-    /// <returns type="String" />
-    return this._Path;
-};
-_PropertyPathParser.Instance.SetPath = function (value) {
-    /// <param name="value" type="String"></param>
-    this._Path = value;
-};
-
-//#endregion
-
-Nullstone.FinishCreate(_PropertyPathParser);
 //#endregion

@@ -11,27 +11,38 @@ _StandardPropertyPathNode.Instance.Init = function (typeName, propertyName) {
     this._PropertyName = propertyName;
 };
 
+//#region Properties
+
+Nullstone.Property(_StandardPropertyPathNode, "PropertyName", {
+    get: function () { return this._PropertyName; }
+});
+Nullstone.Property(_StandardPropertyPathNode, "TypeName", {
+    get: function () { return this._STypeName; }
+});
+
+//#endregion
+
 _StandardPropertyPathNode.Instance.SetValue = function (value) {
-    if (this.GetDependencyProperty())
-        this.GetSource().$SetValue(this.GetDependencyProperty(), value);
-    else if (this.GetPropertyInfo())
-        this.GetPropertyInfo().SetValue(this.GetSource(), value, null);
+    if (this.DependencyProperty)
+        this.Source.$SetValue(this.DependencyProperty, value);
+    else if (this.PropertyInfo)
+        this.PropertyInfo.SetValue(this.Source, value, null);
 };
 _StandardPropertyPathNode.Instance.UpdateValue = function () {
-    if (this.GetDependencyProperty()) {
-        this.SetValueType(this.GetDependencyProperty().GetTargetType());
-        this._UpdateValueAndIsBroken(this.GetSource().$GetValue(this.GetDependencyProperty()), this._CheckIsBroken());
-    } else if (this.GetPropertyInfo()) {
-        //TODO: this.SetValueType(PropertyInfo.PropertyType);
-        this.SetValueType(null);
+    if (this.DependencyProperty) {
+        this.ValueType = this.DependencyProperty.GetTargetType();
+        this.UpdateValueAndIsBroken(this.Source.$GetValue(this.DependencyProperty), this._CheckIsBroken());
+    } else if (this.PropertyInfo) {
+        //TODO: this.ValueType = PropertyInfo.PropertyType;
+        this.ValueType = null;
         try {
-            this._UpdateValueAndIsBroken(this.GetPropertyInfo().GetValue(this.GetSource(), null), this._CheckIsBroken());
+            this.UpdateValueAndIsBroken(this.PropertyInfo.GetValue(this.Source, null), this._CheckIsBroken());
         } catch (err) {
-            this._UpdateValueAndIsBroken(null, this._CheckIsBroken());
+            this.UpdateValueAndIsBroken(null, this._CheckIsBroken());
         }
     } else {
-        this.SetValueType(null);
-        this._UpdateValueAndIsBroken(null, this._CheckIsBroken());
+        this.ValueType = null;
+        this.UpdateValueAndIsBroken(null, this._CheckIsBroken());
     }
 };
 
@@ -40,59 +51,47 @@ _StandardPropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSou
 
     var oldDO = Nullstone.As(oldSource, DependencyObject);
     var newDO = Nullstone.As(newSource, DependencyObject);
-    var listener = this.GetListener();
+    var listener = this.Listener;
     if (listener) {
         listener.Detach();
-        this.SetListener(listener);
+        this.Listener = listener;
     }
 
-    this.SetDependencyProperty(null);
-    this.SetPropertyInfo(null);
-    if (!this.GetSource())
+    this.DependencyProperty = null;
+    this.PropertyInfo = null;
+    if (!this.Source)
         return;
 
     if (newDO != null) {
-        propd = DependencyProperty.GetDependencyProperty(this.GetSource().constructor, this.GetPropertyName());
+        propd = DependencyProperty.GetDependencyProperty(this.Source.constructor, this.PropertyName);
         if (propd) {
-            this.SetDependencyProperty(propd);
+            this.DependencyProperty = propd;
             listener = new PropertyChangedListener(newDO, propd, this, this.OnPropertyChanged);
-            this.SetListener(listener);
+            this.Listener = listener;
         }
     }
 
-    if (!this.GetDependencyProperty() || !this.GetDependencyProperty()._IsAttached) {
-        this.SetPropertyInfo(PropertyInfo.Find(this.GetSource(), this.GetPropertyName()));
+    if (!this.DependencyProperty || !this.DependencyProperty._IsAttached) {
+        this.PropertyInfo = PropertyInfo.Find(this.Source, this.PropertyName);
     }
 };
 _StandardPropertyPathNode.Instance.OnPropertyChanged = function (s, e) {
     try {
         this.UpdateValue();
-        if (this.GetNext())
-            this.GetNext().SetSource(this.GetValue());
+        if (this.Next)
+            this.Next.SetSource(this.Value);
     } catch (err) {
         //Ignore
     }
 };
 _StandardPropertyPathNode.Instance.OnSourcePropertyChanged = function (o, e) {
-    if (e.PropertyName === this.GetPropertyName() && this.GetPropertyInfo()) {
+    if (e.PropertyName === this.PropertyName && this.PropertyInfo) {
         this.UpdateValue();
-        var next = this.GetNext();
+        var next = this.Next;
         if (next)
-            next.SetSource(this.GetValue());
+            next.SetSource(this.Value);
     }
 };
-
-//#region PROPERTIES
-
-_StandardPropertyPathNode.Instance.GetTypeName = function () {
-    return this._STypeName;
-};
-
-_StandardPropertyPathNode.Instance.GetPropertyName = function () {
-    return this._PropertyName;
-};
-
-//#endregion
 
 Nullstone.FinishCreate(_StandardPropertyPathNode);
 //#endregion

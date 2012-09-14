@@ -75,7 +75,7 @@ Binding.Instance.GetPath = function () {
 Binding.Instance.SetPath = function (value) {
     /// <param name="value" type="_PropertyPath"></param>
     this.CheckSealed();
-    if (value.HasDependencyProperty())
+    if (value.HasDependencyProperty)
         throw new ArgumentException("PropertyPaths which are instantiated with a DependencyProperty are not supported");
     this._Path = value;
 };

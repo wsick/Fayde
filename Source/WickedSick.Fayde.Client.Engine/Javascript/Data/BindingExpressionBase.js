@@ -18,7 +18,7 @@ BindingExpressionBase.Instance.Init = function (binding, target, propd) {
     this.SetProperty(propd);
 
     var bindsToView = propd._ID === FrameworkElement.DataContextProperty._ID; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
-    this.SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().GetParsePath(), binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
+    this.SetPropertyPathWalker(new _PropertyPathWalker(binding.GetPath().ParsePath, binding.GetBindsDirectlyToSource(), bindsToView, this.GetIsBoundToAnyDataContext()));
     if (binding.GetMode() !== BindingMode.OneTime) {
         var walker = this.GetPropertyPathWalker();
         walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);
@@ -31,10 +31,10 @@ BindingExpressionBase.Instance.GetValue = function (propd) {
         return this._CachedValue;
 
     this._Cached = true;
-    if (this.GetPropertyPathWalker().GetIsPathBroken()) {
+    if (this.GetPropertyPathWalker().IsPathBroken) {
         this._CachedValue = null;
     } else {
-        this._CachedValue = this.GetPropertyPathWalker().GetValueInternal();
+        this._CachedValue = this.GetPropertyPathWalker().ValueInternal;
     }
 
     try {
@@ -122,7 +122,7 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
     var dataError;
     var exception;
     var oldUpdating = this.GetUpdating();
-    var node = this.GetPropertyPathWalker().GetFinalNode();
+    var node = this.GetPropertyPathWalker().FinalNode;
 
     try {
         // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
@@ -131,7 +131,7 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         //if (!force && this.GetIsTwoWayTextBoxText() && Nullstone.RefEquals(FocusManager.GetFocusedElement(), this.GetTarget()))
         //return;
 
-        if (this.GetPropertyPathWalker().GetFinalNode().GetIsPathBroken())
+        if (this.GetPropertyPathWalker().FinalNode.IsPathBroken)
             return;
 
         if (this.GetBinding().GetTargetNullValue()) {
@@ -228,16 +228,16 @@ BindingExpressionBase.Instance._ConvertFromSourceToTarget = function (value) {
 };
 BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
     try {
-        if (!this.GetPropertyPathWalker().GetIsPathBroken() && this.GetBinding().GetConverter()) {
+        if (!this.GetPropertyPathWalker().IsPathBroken && this.GetBinding().GetConverter()) {
             value = this.GetBinding().GetConverter().Convert(value, this.GetProperty().GetTargetType(), this.GetBinding().GetConverterParameter(), {});
         }
-        if (value === DependencyProperty.UnsetValue || this.GetPropertyPathWalker().GetIsPathBroken()) {
+        if (value === DependencyProperty.UnsetValue || this.GetPropertyPathWalker().IsPathBroken) {
             value = this.GetBinding().GetFallbackValue();
             if (value === undefined)
                 value = propd.GetDefaultValue(this.GetTarget());
         } else if (value == null) {
             value = this.GetBinding().GetTargetNullValue();
-            if (value == null && this.GetIsBoundToAnyDataContext() && !this.GetBinding().GetPath().GetPath())
+            if (value == null && this.GetIsBoundToAnyDataContext() && !this.GetBinding().GetPath().Path)
                 value = propd.GetDefaultValue(this.GetTarget());
         } else {
             var format = this.GetBinding().GetStringFormat();
@@ -406,7 +406,7 @@ BindingExpressionBase.Instance.Refresh = function () {
         return;
 
     //TODO: ERROR/VALIDATION
-    //var node = this.GetPropertyPathWalker().GetFinalNode();
+    //var node = this.GetPropertyPathWalker().FinalNode;
     //var source = node.GetSource();
     //source = Nullstone.As(source, INotifyDataErrorInfo));
     //this._AttachToNotifyError(source);
@@ -465,7 +465,7 @@ BindingExpressionBase.Instance.GetDataContextSource = function () {
 };
 
 BindingExpressionBase.Instance.GetDataSource = function () {
-    return this.GetPropertyPathWalker().GetSource();
+    return this.GetPropertyPathWalker().Source;
 };
 
 BindingExpressionBase.Instance.GetIsBoundToAnyDataContext = function () {

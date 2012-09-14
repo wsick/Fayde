@@ -2,7 +2,7 @@
 /// CODE
 
 //#region _PropertyPath
-var _PropertyPath = Nullstone.Create("_PropertyPath", null, 2);
+var _PropertyPath = Nullstone.Create("_PropertyPath", undefined, 2);
 
 _PropertyPath.Instance.Init = function (path, expandedPath) {
     this._Path = path;
@@ -18,38 +18,37 @@ _PropertyPath.CreateFromParameter = function (parameter) {
     return p;
 };
 
-_PropertyPath.Instance.HasDependencyProperty = function () {
-    return this._Propd != null;
-};
-
 _PropertyPath.Instance.TryResolveDependencyProperty = function (dobj) {
     /// <param name="dobj" type="DependencyObject"></param>
-    if (this.HasDependencyProperty())
+    if (this.HasDependencyProperty)
         return;
     if (dobj)
-        this._Propd = dobj.GetDependencyProperty(this.GetPath());
+        this._Propd = dobj.GetDependencyProperty(this.Path);
 };
 
 //#region Properties
 
-_PropertyPath.Instance.GetDependencyProperty = function () {
-    /// <returns type="DependencyProperty" />
-    return this._Propd;
-};
-_PropertyPath.Instance.GetPath = function () {
-    /// <returns type="String" />
-    return !this._Propd ? this._Path : "(0)";
-};
-_PropertyPath.Instance.GetExpandedPath = function () {
-    return !this._Propd ? this._ExpandedPath : "(0)";
-};
-_PropertyPath.Instance.GetParsePath = function () {
-    if (this._Propd)
-        return "(0)";
-    if (this._ExpandedPath)
-        return this._ExpandedPath;
-    return this._Path;
-};
+Nullstone.Property(_PropertyPath, "Path", {
+    get: function () { return !this._Propd ? this._Path : "(0)"; }
+});
+Nullstone.Property(_PropertyPath, "ExpandedPath", {
+    get: function () { return !this._Propd ? this._ExpandedPath : "(0)"; }
+});
+Nullstone.Property(_PropertyPath, "ParsePath", {
+    get: function () {
+        if (this._Propd)
+            return "(0)";
+        if (this._ExpandedPath)
+            return this._ExpandedPath;
+        return this._Path;
+    }
+});
+Nullstone.Property(_PropertyPath, "HasDependencyProperty", {
+    get: function () { return this._Propd != null; }
+});
+Nullstone.Property(_PropertyPath, "DependencyProperty", {
+    get: function () { return this._Propd; }
+});
 
 //#endregion
 

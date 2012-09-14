@@ -109,12 +109,12 @@ DependencyProperty.ResolvePropertyPath = function (refobj, propertyPath, promote
     /// <param name="propertyPath" type="_PropertyPath"></param>
     /// <returns type="DependencyProperty" />
 
-    if (propertyPath.HasDependencyProperty())
-        return propertyPath.GetDependencyProperty();
+    if (propertyPath.HasDependencyProperty)
+        return propertyPath.DependencyProperty;
 
-    var path = propertyPath.GetPath();
-    if (propertyPath.GetExpandedPath() != null)
-        path = propertyPath.GetExpandedPath();
+    var path = propertyPath.Path;
+    if (propertyPath.ExpandedPath != null)
+        path = propertyPath.ExpandedPath;
 
     var data = {
         index: 0,
@@ -142,7 +142,7 @@ DependencyProperty.ResolvePropertyPath = function (refobj, propertyPath, promote
         } else if (c === ')') {
             data.parenOpen = false;
         } else if (c === '\'') {//Ticks only legal in expanded path
-            if (propertyPath.GetExpandedPath() == null)
+            if (propertyPath.ExpandedPath == null)
                 Warn("The ' character is not legal in property paths.");
             else
                 data.tickOpen = !data.tickOpen;

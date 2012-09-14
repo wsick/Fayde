@@ -8,10 +8,19 @@ var _CollectionViewNode = Nullstone.Create("_CollectionViewNode", _PropertyPathN
 
 _CollectionViewNode.Instance.Init = function (bindsDirectlyToSource, bindToView, viewChanged) {
     this.Init$_PropertyPathNode();
-    this.SetBindsDirectlyToSource(bindsDirectlyToSource === true);
-    this.SetBindToView(bindToView === true);
-    this.SetViewChangedHandler(this.ViewChanged);
+    this.BindsDirectlyToSource = bindsDirectlyToSource === true;
+    this.BindToView = bindToView === true;
+    this.ViewChangedHandler = this.ViewChanged;
 };
+
+//#region Properties
+
+Nullstone.AutoProperties(_CollectionViewNode, [
+    "BindsDirectlyToSource",
+    "BindToView"
+]);
+
+//#endregion
 
 _CollectionViewNode.Instance.OnSourceChanged = function (oldSource, newSource) {
     this.OnSourceChanged$_PropertyPathNode(oldSource, newSource);
@@ -25,42 +34,42 @@ _CollectionViewNode.Instance.ViewChanged = function (sender, e) {
 };
 _CollectionViewNode.Instance.ViewCurrentChanged = function (sender, e) {
     this.UpdateValue();
-    if (this.GetNext())
-        this.GetNext().SetSource(this.GetValue());
+    if (this.Next)
+        this.Next.SetSource(this.Value);
 };
 _CollectionViewNode.Instance.SetValue = function () {
     throw new NotImplementedException();
 };
 _CollectionViewNode.Instance.UpdateValue = function () {
-    if (this.GetBindsDirectlyToSource()) {
-        this.SetValueType(!this.GetSource() ? null : this.GetSource().constructor);
-        this._UpdateValueAndIsBroken(this.GetSource(), this._CheckIsBroken());
+    if (this.BindsDirectlyToSource) {
+        this.ValueType = this.Source == null ? null : this.Source.constructor;
+        this.UpdateValueAndIsBroken(this.Source, this._CheckIsBroken());
     } else {
-        var usableSource = this.GetSource();
+        var usableSource = this.Source;
         var view;
-        if (this.GetSource() instanceof CollectionViewSource) {
+        if (this.Source instanceof CollectionViewSource) {
             usableSource = null;
-            view = this.GetSource().View;
-        } else if (this.GetSource().DoesImplement(ICollectionView)) {
-            view = this.GetSource();
+            view = this.Source.View;
+        } else if (this.Source.DoesImplement(ICollectionView)) {
+            view = this.Source;
         }
 
         if (!view) {
-            this.SetValueType(!usableSource ? null : usableSource.constructor);
-            this._UpdateValueAndIsBroken(usableSource, this._CheckIsBroken());
+            this.ValueType = usableSource == null ? null : usableSource.constructor;
+            this.UpdateValueAndIsBroken(usableSource, this._CheckIsBroken());
         } else {
-            if (this.GetBindToView()) {
-                this.SetValueType(view.constructor);
-                this._UpdateValueAndIsBroken(view, this._CheckIsBroken());
+            if (this.BindToView) {
+                this.ValueType = view.constructor;
+                this.UpdateValueAndIsBroken(view, this._CheckIsBroken());
             } else {
-                this.SetValueType(!view.GetCurrentItem() ? null : view.GetCurrentItem().constructor);
-                this._UpdateValueAndIsBroken(view.GetCurrentItem(), this._CheckIsBroken());
+                this.ValueType = view.GetCurrentItem() == null ? null : view.GetCurrentItem().constructor;
+                this.UpdateValueAndIsBroken(view.GetCurrentItem(), this._CheckIsBroken());
             }
         }
     }
 };
 _CollectionViewNode.Instance._CheckIsBroken = function () {
-    return this.GetSource() == null;
+    return this.Source == null;
 };
 
 _CollectionViewNode.Instance.ConnectViewHandlers = function (source, view) {
@@ -87,37 +96,6 @@ _CollectionViewNode.Instance.DisconnectViewHandlers = function (onlyView) {
         this._ViewListener = null;
     }
 };
-
-//#region PROPERTIES
-
-_CollectionViewNode.Instance.GetBindsDirectlyToSource = function () {
-    /// <returns type="Boolean" />
-    return this._BindsDirectlyToSource;
-};
-_CollectionViewNode.Instance.SetBindsDirectlyToSource = function (value) {
-    /// <param name="value" type="Boolean"></param>
-    this._BindsDirectlyToSource = value;
-};
-
-_CollectionViewNode.Instance.GetBindToView = function () {
-    /// <returns type="Boolean" />
-    return this._BindToView;
-};
-_CollectionViewNode.Instance.SetBindToView = function (value) {
-    /// <param name="value" type="Boolean"></param>
-    this._BindToView = value;
-};
-
-_CollectionViewNode.Instance.GetViewChangedHandler = function () {
-    /// <returns type="Function" />
-    return this._ViewChangedHandler;
-};
-_CollectionViewNode.Instance.SetViewChangedHandler = function (value) {
-    /// <param name="value" type="Function"></param>
-    this._ViewChangedHandler = value;
-};
-
-//#endregion
 
 Nullstone.FinishCreate(_CollectionViewNode);
 //#endregion

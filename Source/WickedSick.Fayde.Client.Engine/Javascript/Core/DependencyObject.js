@@ -152,7 +152,7 @@ DependencyObject.Instance.$SetValueInternal = function (propd, value) {
     var expression = Nullstone.As(value, Expression);
     var bindingExpression = Nullstone.As(expression, BindingExpressionBase);
     if (bindingExpression) {
-        var path = bindingExpression.GetBinding().GetPath().GetPath();
+        var path = bindingExpression.GetBinding().GetPath().Path;
         if ((!path || path === ".") && bindingExpression.GetBinding().GetMode() === BindingMode.TwoWay)
             throw new ArgumentException("TwoWay bindings require a non-empty Path.");
         bindingExpression.GetBinding().Seal();

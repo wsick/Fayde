@@ -3,7 +3,7 @@
 /// CODE
 
 //#region _PropertyPathWalker
-var _PropertyPathWalker = Nullstone.Create("_PropertyPathWalker", null, 4);
+var _PropertyPathWalker = Nullstone.Create("_PropertyPathWalker", undefined, 4);
 
 _PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
     if (bindDirectlyToSource == null)
@@ -18,15 +18,15 @@ _PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsT
 
     //begin
 
-    this.SetPath(path);
-    this.SetIsDataContextBound(isDataContextBound);
+    this.Path = path;
+    this.IsDataContextBound = isDataContextBound;
 
     var lastCVNode;
 
     if (!path || path === ".") {
         lastCVNode = new _CollectionViewNode(bindDirectlyToSource, bindsToView);
-        this.SetNode(lastCVNode);
-        this.SetFinalNode(lastCVNode);
+        this.Node = lastCVNode;
+        this.FinalNode = lastCVNode;
     } else {
         var data = {
             typeName: undefined,
@@ -42,115 +42,79 @@ _PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsT
             switch (type) {
                 case _PropertyNodeType.AttachedProperty:
                 case _PropertyNodeType.Property:
-                    node.SetNext(new _StandardPropertyPathNode(data.typeName, data.propertyName));
+                    node.Next = new _StandardPropertyPathNode(data.typeName, data.propertyName);
                     break;
                 case _PropertyNodeType.Indexed:
-                    node.SetNext(new _IndexedPropertyPathNode(data.index));
+                    node.Next = new _IndexedPropertyPathNode(data.index);
                     break;
                 default:
                     break;
             }
 
-            if (this.GetFinalNode())
-                this.GetFinalNode().SetNext(node);
+            if (this.FinalNode)
+                this.FinalNode.Next = node;
             else
-                this.SetNode(node);
-            this.SetFinalNode(node.GetNext());
+                this.Node = node;
+            this.FinalNode = node.Next;
         }
     }
 
-    lastCVNode.SetBindToView(lastCVNode.GetBindToView() || bindsToView);
-    this.GetFinalNode().IsBrokenChanged.Subscribe(function (s, a) {
-        this.SetValueInternal(Nullstone.As(s, _PropertyPathNode).GetValue());
-        this.IsBrokenChanged.Raise(this, new EventArgs());
-    },
-    this);
-    this.GetFinalNode().ValueChanged.Subscribe(function (s, a) {
-        this.SetValueInternal(Nullstone.As(s, _PropertyPathNode).GetValue());
-        this.ValueChanged.Raise(this, new EventArgs());
-    },
-    this);
+    lastCVNode.BindToView = lastCVNode.BindToView || bindsToView;
+    this.FinalNode.IsBrokenChanged.Subscribe(
+        function (s, a) {
+            this.ValueInternal = Nullstone.As(s, _PropertyPathNode).Value;
+            this.IsBrokenChanged.Raise(this, new EventArgs());
+        }, this);
+    this.FinalNode.ValueChanged.Subscribe(
+        function (s, a) {
+            this.ValueInternal = Nullstone.As(s, _PropertyPathNode).Value;
+            this.ValueChanged.Raise(this, new EventArgs());
+        }, this);
 };
+
+//#region Properties
+
+Nullstone.AutoProperties(_PropertyPathWalker, [
+    "Source",
+    "Path",
+    "Node",
+    "FinalNode",
+    "ValueInternal",
+    "IsDataContextBound"
+]);
+
+Nullstone.Property(_PropertyPathWalker, "Value", {
+    get: function () { return this._Value; }
+});
+
+Nullstone.Property(_PropertyPathWalker, "IsPathBroken", {
+    get: function () {
+        var path = this.Path;
+        if (this.IsDataContextBound && (!path || path.length < 1))
+            return false;
+
+        var node = this.Node;
+        while (node) {
+            if (node.IsBroken)
+                return true;
+            node = node.Next;
+        }
+        return false;
+    }
+});
+
+//#endregion
 
 _PropertyPathWalker.Instance.GetValue = function (item) {
     this.Update(item);
-    var o = this.GetFinalNode().GetValue();
+    var o = this.FinalNode.GetValue();
     this.Update(null);
     return o;
 };
 _PropertyPathWalker.Instance.Update = function (source) {
-    this.SetSource(source);
-    this.GetNode().SetSource(source);
+    this.Source = source;
+    this.Node.SetSource(source);
 };
-
-//#region PROPERTIES
-
-_PropertyPathWalker.Instance.GetSource = function () {
-    return this._Source;
-};
-_PropertyPathWalker.Instance.SetSource = function (value) {
-    this._Source = value;
-};
-
-_PropertyPathWalker.Instance.GetPath = function () {
-    /// <returns type="String" />
-    return this._Path;
-};
-_PropertyPathWalker.Instance.SetPath = function (value) {
-    /// <param name="value" type="String"></param>
-    this._Path = value;
-};
-
-_PropertyPathWalker.Instance.GetValueInternal = function () {
-    return this._ValueInternal;
-};
-_PropertyPathWalker.Instance.SetValueInternal = function (value) {
-    this._ValueInternal = value;
-};
-
-_PropertyPathWalker.Instance.GetIsDataContextBound = function () {
-    /// <returns type="Boolean" />
-    return this._IsDataContextBound;
-};
-_PropertyPathWalker.Instance.SetIsDataContextBound = function (value) {
-    /// <param name="value" type="Boolean"></param>
-    this._IsDataContextBound = value;
-};
-
-_PropertyPathWalker.Instance.GetNode = function () {
-    /// <returns type="_PropertyPathNode" />
-    return this._Node;
-};
-_PropertyPathWalker.Instance.SetNode = function (value) {
-    /// <param name="value" type="_PropertyPathNode"></param>
-    this._Node = value;
-};
-
-_PropertyPathWalker.Instance.GetFinalNode = function () {
-    /// <returns type="_PropertyPathNode" />
-    return this._FinalNode;
-};
-_PropertyPathWalker.Instance.SetFinalNode = function (value) {
-    /// <param name="value" type="_PropertyPathNode"></param>
-    this._FinalNode = value;
-};
-
-_PropertyPathWalker.Instance.GetIsPathBroken = function () {
-    /// <returns type="Boolean" />
-    var path = this.GetPath();
-    if (this.GetIsDataContextBound() && (!path || path.length < 1))
-        return false;
-
-    var node = this.GetNode();
-    while (node) {
-        if (node.GetIsBroken())
-            return true;
-        node = node.GetNext();
-    }
-    return false;
-};
-
-//#endregion
 
 Nullstone.FinishCreate(_PropertyPathWalker);
 //#endregion
