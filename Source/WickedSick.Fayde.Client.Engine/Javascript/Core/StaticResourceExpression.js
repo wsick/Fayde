@@ -11,30 +11,32 @@ StaticResourceExpression.Instance.Init = function (key, target, propd, propName,
     this.PropertyName = propName;
 };
 
-StaticResourceExpression.Instance.GetValue = function (sourceRD) {
+StaticResourceExpression.Instance.GetValue = function (resChain) {
     var o;
     var key = this.Key;
+
+    var len = resChain.length;
+    for (var i = len - 1; i >= 0; i--) {
+        o = resChain[i].Get(key);
+        if (o)
+            return o;
+    }
+
     var cur = this.Target;
     while (cur) {
-        var fe = Nullstone.As(cur, FrameworkElement);
-        if (fe) {
-            o = fe.Resources.Get(key);
+        if (cur instanceof FrameworkElement) {
+            o = cur.Resources.Get(key);
             if (o)
                 return o;
         }
-        var rd = Nullstone.As(cur, ResourceDictionary);
-        if (rd) {
-            o = rd.Get(key);
+        if (cur instanceof ResourceDictionary) {
+            o = cur.Get(key);
             if (o)
                 return o;
         }
         cur = cur._Parent;
     }
-    if (sourceRD) {
-        o = sourceRD.Get(key);
-        if (o)
-            return o;
-    }
+    
     return App.Instance.Resources.Get(key);
 };
 
@@ -47,7 +49,10 @@ StaticResourceExpression.Instance.Resolve = function (parser) {
         isAttached = prop._IsAttached;
         ownerType = prop.OwnerType;
     }
-    var value = this.GetValue(parser._SourceRD);
+
+    var value = this.GetValue(parser._ResChain);
+    if (value instanceof ResourceTarget)
+        value = value.CreateResource();
     if (!value)
         throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
     parser.TrySetPropertyValue(this.Target, prop, value, null, isAttached, ownerType, this.PropertyName);

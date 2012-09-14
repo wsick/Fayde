@@ -139,7 +139,7 @@ App.Instance._GetImplicitStyles = function (fe, styleMask) {
         if (appResourcesStyle == null)
             appResourcesStyle = this.Resources.Get(fe._TypeName);
         if (appResourcesStyle != null)
-            appResourcesStyle._SourceRD = this.Resources;
+            appResourcesStyle._ResChain = [this.Resources];
     }
     if ((styleMask & _StyleMask.VisualTree) != 0) {
         var isControl = fe instanceof Control;

@@ -37,7 +37,8 @@ ResourceDictionary.Instance._GetFromMergedDictionaries = function (key) {
     if (!merged)
         return undefined;
 
-    for (var i = 0; i < merged.GetCount(); i++) {
+    var count = merged.GetCount();
+    for (var i = 0; i < count; i++) {
         var dict = merged.GetValueAt(i);
         var value = dict.Get(key);
         if (value != undefined)

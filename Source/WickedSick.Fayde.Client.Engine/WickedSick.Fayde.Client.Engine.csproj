@@ -70,6 +70,7 @@
     <Content Include="Benchmarks\Matrix\test.html" />
     <None Include="Fayde.Generic.js.old" />
     <Content Include="Docs\DebugServices.txt" />
+    <Content Include="Docs\Plugins.txt" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
     <Content Include="Global.asax" />
@@ -146,6 +147,7 @@
     <Content Include="Javascript\Core\Input\Keyboard.js" />
     <Content Include="Javascript\Core\Input\KeyCodes.js" />
     <Content Include="Javascript\Core\ISupportInitialize.js" />
+    <Content Include="Javascript\Core\ResourceTarget.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Frame.js" />
     <Content Include="Javascript\Core\TriggerAction.js" />

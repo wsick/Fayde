@@ -13,7 +13,7 @@ ControlTemplate.Instance.Init = function (targetType, json) {
     this._TempJson = json;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 ControlTemplate.TargetTypeProperty = DependencyProperty.Register("TargetType", function () { return Function; }, ControlTemplate);
 
@@ -28,7 +28,7 @@ ControlTemplate.Instance._GetVisualTreeWithError = function (templateBindingSour
     /// <returns type="DependencyObject" />
     if (this._TempJson) {
         var namescope = new NameScope();
-        var root = JsonParser.Parse(this._TempJson, templateBindingSource, namescope, this._SourceRD);
+        var root = JsonParser.Parse(this._TempJson, templateBindingSource, namescope, this._ResChain);
         NameScope.SetNameScope(root, namescope);
         return root;
     }

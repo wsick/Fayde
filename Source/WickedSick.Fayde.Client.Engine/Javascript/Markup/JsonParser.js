@@ -9,11 +9,13 @@ var JsonParser = Nullstone.Create("JsonParser");
 
 JsonParser.Instance.Init = function () {
     this.$SRExpressions = [];
+    this._ResChain = [];
 };
 
-JsonParser.Parse = function (json, templateBindingSource, namescope, sourceRD) {
+JsonParser.Parse = function (json, templateBindingSource, namescope, resChain) {
     var parser = new JsonParser();
-    parser._SourceRD = sourceRD;
+    if (resChain)
+        parser._ResChain = resChain;
     parser._TemplateBindingSource = templateBindingSource;
     if (!namescope)
         namescope = new NameScope();
@@ -44,20 +46,17 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
     if (json.Type === ControlTemplate) {
         var targetType = json.Props == null ? null : json.Props.TargetType;
         var template = new json.Type(targetType, json.Content);
-        template._SourceRD = this._ContextResourceDictionary == null ? this._SourceRD : this._ContextResourceDictionary;
+        template._ResChain = this._ResChain;
         return template;
     }
     if (json.Type === DataTemplate) {
         var template = new DataTemplate(json.Content);
-        template._SourceRD = this._ContextResourceDictionary == null ? this._SourceRD : this._ContextResourceDictionary;
+        template._ResChain = this._ResChain;
         return template;
     }
 
 
     var dobj = new json.Type();
-    if (json.Type === ResourceDictionary) {
-        this._ContextResourceDictionary = dobj;
-    }
     dobj.TemplateOwner = this._TemplateBindingSource;
     if (json.Name)
         dobj.SetNameOnScope(json.Name, namescope);
@@ -200,20 +199,32 @@ JsonParser.Instance.TrySetCollectionProperty = function (subJson, dobj, propd, n
     }
 
     var rd = Nullstone.As(coll, ResourceDictionary);
+    var oldChain = this._ResChain;
+    if (rd) {
+        this._ResChain = this._ResChain.slice(0);
+        this._ResChain.push(rd);
+    }
     for (var i in subJson) {
-        var fobj = this.CreateObject(subJson[i], namescope, true);
+        var fobj;
         if (rd == null) {
+            fobj = this.CreateObject(subJson[i], namescope, true);
             if (fobj instanceof DependencyObject)
                 fobj._AddParent(coll, true);
             coll.Add(fobj);
         } else {
             var key = subJson[i].Key;
-            if (!key && fobj instanceof Style)
-                key = fobj.TargetType;
+            if (subJson[i].Type !== Style) {
+                fobj = new ResourceTarget(subJson[i], namescope, this._TemplateBindingSource, this._ResChain);
+            } else {
+                fobj = this.CreateObject(subJson[i], namescope, true);
+                if (!key)
+                    key = fobj.TargetType;
+            }
             if (key)
                 rd.Set(key, fobj);
         }
     }
+    this._ResChain = oldChain;
 
     return true;
 };

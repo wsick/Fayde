@@ -1,0 +1,6 @@
+﻿http://stackoverflow.com/questions/2649056/how-to-write-a-browser-plugin
+
+https://developer.mozilla.org/en-US/docs/Plugins
+https://developer.mozilla.org/en-US/docs/Plugins/External_resources_for_plugin_creation
+https://developer.mozilla.org/en-US/docs/Gecko_Plugin_API_Reference/Plug-in_Development_Overview#Making Plug-ins Scriptable
+https://developer.mozilla.org/en-US/docs/Gecko_Plugin_API_Reference/Scripting_plugins

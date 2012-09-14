@@ -51,7 +51,7 @@ ColorAnimation.Instance.GetCurrentValue = function (defaultOriginValue, defaultD
         end = this._ToCached;
     else if (this._ByCached != null)
         end = start.Add(this._ByCached);
-    else if (defaultDestinationValue != null && defaultDestinationValue instanceof Number)
+    else if (defaultDestinationValue != null && defaultDestinationValue instanceof Color)
         end = defaultDestinationValue;
 
     var easingFunc = this.EasingFunction;
