@@ -20,7 +20,7 @@ _PropertyValueProvider.Instance.ForeachValue = function (func, data) {
     if (!func)
         return;
     for (var value in this._ht)
-        func(value, this._ht[value], data);
+        func(DependencyProperty._IDs[value], this._ht[value], data);
 };
 _PropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
 };

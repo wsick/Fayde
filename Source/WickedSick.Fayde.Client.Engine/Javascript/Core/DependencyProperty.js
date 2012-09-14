@@ -75,6 +75,8 @@ DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerTy
 }
 
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
+    if (!DependencyProperty._IDs)
+        DependencyProperty._IDs = [];
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = [];
     if (!DependencyProperty._Registered[ownerType._TypeName])
@@ -83,6 +85,7 @@ DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defa
     if (DependencyProperty._Registered[ownerType._TypeName][name] !== undefined)
         throw new InvalidOperationException("Dependency Property is already registered. [" + ownerType._TypeName + "." + name + "]");
     DependencyProperty._Registered[ownerType._TypeName][name] = propd;
+    DependencyProperty._IDs[propd._ID] = propd;
     return propd;
 }
 DependencyProperty.GetDependencyProperty = function (ownerType, name) {
@@ -164,17 +167,16 @@ DependencyProperty._HandlePeriod = function (data) {
         return true;
     if (data.res != null) {
         var value = null;
-        var newLu = null;
         if ((value = data.lu._GetValue(data.res)) == null)
             return false;
-        if ((newLu = Nullstone.As(value, DependencyObject)) == null)
+        if (!(value instanceof DependencyObject))
             return false;
 
-        if (data.promotedValues != null && !cloned && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
-            var clonedValue = Object.Clone(value);
-            var clonedDo = Nullstone.As(clonedValue, DependencyObject);
-            if (clonedDo != null) {
-                newLu = clonedDo;
+        var newLu = value;
+        if (data.promotedValues != null && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
+            var clonedValue = Fayde.Clone(value);
+            if (clonedValue instanceof DependencyObject) {
+                newLu = clonedValue;
                 data.lu._SetValue(data.res, clonedValue);
                 clonedValue = data.lu._GetValue(data.res);
                 data.promotedValues[clonedValue._ID] = clonedValue;

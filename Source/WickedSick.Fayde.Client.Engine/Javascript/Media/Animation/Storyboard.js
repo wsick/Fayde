@@ -51,7 +51,8 @@ Storyboard.Annotations = {
 Storyboard.Instance.Begin = function () {
     this.Reset();
     var error = new BError();
-    if (this._HookupAnimations(error)) {
+    var promotedValues = [];
+    if (this._HookupAnimations(promotedValues, error)) {
         App.Instance.RegisterStoryboard(this);
     } else {
         throw error.CreateException();
@@ -87,19 +88,19 @@ Storyboard.Instance.Stop = function () {
     }
 };
 
-Storyboard.Instance._HookupAnimations = function (error) {
+Storyboard.Instance._HookupAnimations = function (promotedValues, error) {
     /// <param name="error" type="BError"></param>
     var children = this.Children;
     if (!children)
         return true;
     var count = children.GetCount();
     for (var i = 0; i < count; i++) {
-        if (!this._HookupAnimation(children.GetValueAt(i), null, null, error))
+        if (!this._HookupAnimation(children.GetValueAt(i), null, null, promotedValues, error))
             return false;
     }
     return true;
 };
-Storyboard.Instance._HookupAnimation = function (animation, targetObject, targetPropertyPath, error) {
+Storyboard.Instance._HookupAnimation = function (animation, targetObject, targetPropertyPath, promotedValues, error) {
     /// <param name="animation" type="Animation"></param>
     /// <param name="targetObject" type="DependencyObject"></param>
     /// <param name="targetPropertyPath" type="DependencyProperty"></param>
@@ -125,9 +126,9 @@ Storyboard.Instance._HookupAnimation = function (animation, targetObject, target
         Value: targetObject
     };
     targetPropertyPath.TryResolveDependencyProperty(targetObject);
-    var targetProperty = DependencyProperty.ResolvePropertyPath(refobj, targetPropertyPath);
+    var targetProperty = DependencyProperty.ResolvePropertyPath(refobj, targetPropertyPath, promotedValues);
     if (targetProperty == null) {
-        Warn("Could not resolve property for storyboard. [" + localTargetPropertyPath.GetPath().toString() + "]");
+        error.SetErrored(BError.XamlParseException, "Could not resolve property for storyboard. [" + localTargetPropertyPath.GetPath().toString() + "]");
         return false;
     }
     if (!animation.Resolve(refobj.Value, targetProperty)) {
