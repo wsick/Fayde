@@ -31,6 +31,14 @@ AnimationStorage.Instance.Init = function (timeline, targetobj, targetprop) {
         this.StopValue = targetobj._ReadLocalValue(targetprop);
 };
 
+AnimationStorage.Instance.SwitchTarget = function (target) {
+    var wasDisabled = this._Disabled;
+    if (!this._Disabled)
+        this.Disable();
+    this._TargetObj = target;
+    this._Disabled = wasDisabled;
+};
+
 AnimationStorage.Instance.Enable = function () {
     //Attach target handler
     this._Disabled = false;
