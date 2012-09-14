@@ -40,6 +40,18 @@ function DirtyDebug(message) {
     }
 }
 DirtyDebug.Level = 0;
+function AnimationDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log)
+        console.log("ANIMATION: " + message);
+}
+function VsmDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log)
+        console.log("VSM: " + message);
+}
 function LayoutDebug(message) {
     if (true)
         return;

@@ -55,6 +55,8 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
     /// <param name="element" type="FrameworkElement"></param>
     /// <param name="newStoryboards" type="Array"></param>
 
+    AnimationDebug("StartNewThenStopOld (" + element.__DebugToString() + " - " + this.Name + ")");
+
     var i;
     var storyboard;
     for (i = 0; i < newStoryboards.length; i++) {

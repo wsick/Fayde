@@ -98,6 +98,8 @@ VisualStateManager.GoToStateInternal = function (control, element, group, state,
     if (Nullstone.RefEquals(lastState, state))
         return true;
 
+    VsmDebug("GoToStateInternal: " + state.Name);
+
     var transition = useTransitions ? VisualStateManager._GetTransition(element, group, lastState, state) : null;
     var storyboard;
     if (transition == null || (transition.GeneratedDuration.IsZero() && ((storyboard = transition.Storyboard) == null || storyboard.Duration.IsZero()))) {
