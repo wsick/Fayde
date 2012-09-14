@@ -115,6 +115,57 @@ var Fayde = {
         PointCollectionFromString: function (val) {
             return Fayde._MediaParser.ParsePointCollection(val);
         }
+    },
+    Clone: function (value) {
+        if (value instanceof DependencyObject)
+            return value.Clone();
+
+        if (typeof value === "number")
+            return value;
+
+        var typeName = value.constructor._TypeName;
+        switch (typeName) {
+            case "FontFamily":
+                return new FontFamily(value.FamilyNames);
+            case "_PropertyPath":
+                return new _PropertyPath(value._Path, value._ExpandedPath);
+            case "Color":
+                return new Color(value.R, value.G, value.B, value.A);
+            case "Point":
+                return new Point(value.X, value.Y);
+            case "Rect":
+                return new Rect(value.X, value.Y, value.Width, value.Height);
+            case "Size":
+                return new Size(value.Width, value.Height);
+            case "Uri":
+                return new Uri(value._OriginalString);
+            case "RepeatBehavior":
+                var rb = new RepeatBehavior();
+                rb._Duration = value._Duration;
+                rb._Count = value._Count;
+                rb.IsForever = value.IsForever;
+                return rb;
+            case "Duration":
+                var dur = new Duration();
+                dur._Type = value._Type;
+                dur._TimeSpan = value._TimeSpan;
+                return dur;
+            case "KeyTime":
+                var kt = new KeyTime();
+                kt._TimeSpan = value._TimeSpan;
+                kt._IsPaced = value._IsPaced;
+                kt._IsUniform = value._IsUniform;
+                kt._Percent = value._Percent;
+                return kt;
+            case "GridLength":
+                return new GridLength(value.Value, value.Type);
+            case "Thickness":
+                return new Thickness(value.Left, value.Top, value.Right, value.Bottom);
+            case "CornerRadius":
+                return new CornerRadius(value.TopLeft, value.TopRight, value.BottomRight, value.BottomLeft);
+        }
+
+        return new value.constructor();
     }
 };
 

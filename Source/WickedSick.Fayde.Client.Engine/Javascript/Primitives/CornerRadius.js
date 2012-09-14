@@ -2,7 +2,7 @@
 /// CODE
 
 //#region CornerRadius
-var CornerRadius = Nullstone.Create("CornerRadius", null, 4);
+var CornerRadius = Nullstone.Create("CornerRadius", undefined, 4);
 
 CornerRadius.Instance.Init = function (topLeft, topRight, bottomRight, bottomLeft) {
     this.TopLeft = topLeft == null ? 0 : topLeft;

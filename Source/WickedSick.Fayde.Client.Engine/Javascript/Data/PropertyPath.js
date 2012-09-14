@@ -30,7 +30,7 @@ _PropertyPath.Instance.TryResolveDependencyProperty = function (dobj) {
         this._Propd = dobj.GetDependencyProperty(this.GetPath());
 };
 
-//#region PROPERTIES
+//#region Properties
 
 _PropertyPath.Instance.GetDependencyProperty = function () {
     /// <returns type="DependencyProperty" />

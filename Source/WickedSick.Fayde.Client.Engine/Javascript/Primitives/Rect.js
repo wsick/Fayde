@@ -11,6 +11,7 @@ function Rect(x, y, width, height) {
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
+Rect._TypeName = "Rect";
 
 Rect.Equals = function (rect1, rect2) {
     /// <returns type="Boolean" />

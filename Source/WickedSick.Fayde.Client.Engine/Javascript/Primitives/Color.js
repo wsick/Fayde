@@ -1,11 +1,11 @@
+/// <reference path="../Runtime/Nullstone.js"/>
 /// <reference path="../Core/DependencyObject.js" />
 /// CODE
 
 //#region Color
-var Color = Nullstone.Create("Color", DependencyObject, 4);
+var Color = Nullstone.Create("Color", undefined, 4);
 
 Color.Instance.Init = function (r, g, b, a) {
-    this.Init$DependencyObject();
     this.R = r == null ? 255 : r;
     this.G = g == null ? 255 : g;
     this.B = b == null ? 255 : b;

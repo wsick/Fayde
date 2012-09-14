@@ -68,7 +68,7 @@ DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
     }
 };
 DependencyObject._PropagateMentor = function (propd, value, newMentor) {
-    if (value && value instanceof DependencyObject) {
+    if (value instanceof DependencyObject) {
         value.SetMentor(newMentor);
     }
 };
@@ -90,6 +90,38 @@ DependencyObject._PropagateIsAttached = function (propd, value, newIsAttached) {
     if (value && value instanceof DependencyObject) {
         value._SetIsAttached(newIsAttached);
     }
+};
+
+//#endregion
+
+//#region Clone
+
+DependencyObject.Instance.Clone = function () {
+    var newDO = new this.constructor();
+    newDO.CloneCore(this);
+    return newDO;
+};
+DependencyObject.Instance.CloneCore = function (source) {
+    var data = {
+        Old: source,
+        New: this
+    };
+    source._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject.CloneAutoCreatedValue, data);
+    source._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject.CloneLocalValue, data);
+    this._CloneAnimationStorage(source);
+};
+DependencyObject.CloneAutoCreatedValue = function (propd, value, data) {
+    var oldValue = data.Old._GetValue(propd, _PropertyPrecedence.AutoCreate);
+    var newValue = data.New._GetValue(propd, _PropertyPrecedence.AutoCreate);
+
+    if ((oldValue instanceof DependencyObject) && (newValue instanceof DependencyObject))
+        newValue.CloneCore(oldValue);
+};
+DependencyObject.CloneLocalValue = function (propd, value, data) {
+    if (propd._ID === DependencyObject.NameProperty._ID)
+        return;
+
+    data.New._SetValue(propd, Fayde.Clone(value));
 };
 
 //#endregion
@@ -723,9 +755,11 @@ DependencyObject.Instance._OnPropertyChanged = function (args, error) {
     this.PropertyChanged.Raise(this, args);
 };
 DependencyObject.Instance.AddPropertyChangedListener = function (ldo, propd) {
-    var listener = new SubPropertyListener(ldo, propd);
-    this._SubPropertyListeners.push(listener);
-    this.PropertyChanged.Subscribe(listener.OnSubPropertyChanged, listener);
+    if (!(ldo instanceof Setter)) {
+        var listener = new SubPropertyListener(ldo, propd);
+        this._SubPropertyListeners.push(listener);
+        this.PropertyChanged.Subscribe(listener.OnSubPropertyChanged, listener);
+    }
 };
 DependencyObject.Instance.RemovePropertyChangedListener = function (ldo, propd) {
     for (var i = 0; i < this._SubPropertyListeners.length; i++) {
@@ -989,6 +1023,27 @@ DependencyObject.Instance._HasSecondaryParents = function () {
 
 //#region Animation Storage
 
+DependencyObject.Instance._CloneAnimationStorage = function (source) {
+    var srcStorageRepo = source._StorageRepo;
+    if (!srcStorageRepo)
+        return;
+    var storageRepo = this._StorageRepo = [];
+
+    for (var key in srcStorageRepo) {
+        var newList = new LinkedList();
+
+        var list = srcStorageRepo[key];
+        var node = list.First();
+        while (node) {
+            node.Storage.SwitchTarget(this);
+            var newNode = new LinkedListNode();
+            newNode.Storage = node.Storage;
+            newList.Append(newNode);
+            node = node.Next;
+        }
+        storageRepo[key] = newList;
+    }
+};
 DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
     if (!this._StorageRepo)
         return null;
@@ -1046,8 +1101,6 @@ DependencyObject.Instance._DetachAnimationStorage = function (propd, storage) {
         }
     }
 };
-
-//#endregion
 
 //#endregion
 

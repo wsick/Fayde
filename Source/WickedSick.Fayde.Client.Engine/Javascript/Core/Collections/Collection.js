@@ -143,5 +143,14 @@ Collection.Instance._RaiseChanged = function (action, oldValue, newValue, index)
     this.Changed.Raise(this, new CollectionChangedArgs(action, oldValue, newValue, index));
 };
 
+Collection.Instance.CloneCore = function (source) {
+    this.CloneCore$DependencyObject(source);
+
+    var len = source._ht.length;
+    for (var i = 0; i < len; i++) {
+        this.Add(Fayde.Clone(source._ht[i]));
+    }
+};
+
 Nullstone.FinishCreate(Collection);
 //#endregion

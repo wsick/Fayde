@@ -3,7 +3,7 @@
 /// CODE
 
 //#region Clip
-var Clip = Nullstone.Create("Clip", null, 1);
+var Clip = Nullstone.Create("Clip", undefined, 1);
 
 Clip.Instance.Init = function (rect) {
     var rounded = rect.RoundOut();

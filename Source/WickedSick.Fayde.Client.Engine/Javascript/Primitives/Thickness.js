@@ -2,7 +2,7 @@
 /// CODE
 
 //#region Thickness
-var Thickness = Nullstone.Create("Thickness", null, 4);
+var Thickness = Nullstone.Create("Thickness", undefined, 4);
 
 Thickness.Instance.Init = function (left, top, right, bottom) {
     this.Left = left == null ? 0 : left;

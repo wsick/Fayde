@@ -6,6 +6,7 @@ function Size(width, height) {
     this.Width = width == null ? 0 : width;
     this.Height = height == null ? 0 : height;
 }
+Size._TypeName = "Size";
 
 Size.Equals = function (size1, size2) {
     if (size1 == null)
