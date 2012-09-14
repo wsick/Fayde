@@ -2,7 +2,7 @@
       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
       Title="Fayde | Home">
     <StackPanel>
-        <ListBox Margin="-7,0,5,0">
+        <ListBox Margin="-7,0,5,0" SelectionMode="Multiple">
             <ListBox.ItemsSource>
                 <Array>
                     <String>Test 1</String>
