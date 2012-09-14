@@ -103,7 +103,7 @@ Storyboard.Instance._HookupAnimations = function (promotedValues, error) {
 Storyboard.Instance._HookupAnimation = function (animation, targetObject, targetPropertyPath, promotedValues, error) {
     /// <param name="animation" type="Animation"></param>
     /// <param name="targetObject" type="DependencyObject"></param>
-    /// <param name="targetPropertyPath" type="DependencyProperty"></param>
+    /// <param name="targetPropertyPath" type="_PropertyPath"></param>
     /// <param name="error" type="BError">Description</param>
     animation.Reset();
     var localTargetObject = null;
@@ -128,13 +128,14 @@ Storyboard.Instance._HookupAnimation = function (animation, targetObject, target
     targetPropertyPath.TryResolveDependencyProperty(targetObject);
     var targetProperty = DependencyProperty.ResolvePropertyPath(refobj, targetPropertyPath, promotedValues);
     if (targetProperty == null) {
-        error.SetErrored(BError.XamlParseException, "Could not resolve property for storyboard. [" + localTargetPropertyPath.GetPath().toString() + "]");
+        error.SetErrored(BError.XamlParseException, "Could not resolve property for storyboard. [" + localTargetPropertyPath.Path.toString() + "]");
         return false;
     }
     if (!animation.Resolve(refobj.Value, targetProperty)) {
         error.SetErrored(BError.InvalidOperation, "Storyboard value could not be converted to the correct type");
         return false;
     }
+    AnimationDebug("Hookup (" + targetPropertyPath.Path + ")");
     animation.HookupStorage(refobj.Value, targetProperty);
     return true;
 };
