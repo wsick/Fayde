@@ -18,8 +18,8 @@ BindingExpressionBase.Instance.Init = function (binding, target, propd) {
     this.Property = propd;
 
     var bindsToView = propd._ID === FrameworkElement.DataContextProperty._ID; //TODO: || propd.GetTargetType() === IEnumerable || propd.GetTargetType() === ICollectionView
-    var walker = this.PropertyPathWalker = new _PropertyPathWalker(binding.GetPath().ParsePath, binding.GetBindsDirectlyToSource(), bindsToView, this.IsBoundToAnyDataContext);
-    if (binding.GetMode() !== BindingMode.OneTime) {
+    var walker = this.PropertyPathWalker = new _PropertyPathWalker(binding.Path.ParsePath, binding.BindsDirectlyToSource, bindsToView, this.IsBoundToAnyDataContext);
+    if (binding.Mode !== BindingMode.OneTime) {
         walker.IsBrokenChanged.Subscribe(this._PropertyPathValueChanged, this);
         walker.ValueChanged.Subscribe(this._PropertyPathValueChanged, this);
     }
@@ -45,7 +45,7 @@ Nullstone.Property(BindingExpressionBase, "DataContextSource", {
     get: function () { return this._DataContextSource; }
 });
 Nullstone.Property(BindingExpressionBase, "IsBoundToAnyDataContext", {
-    get: function () { return !this.Binding.GetElementName() && !this.Binding.GetSource(); }
+    get: function () { return !this.Binding.ElementName && !this.Binding.Source; }
 });
 Nullstone.Property(BindingExpressionBase, "IsSelfDataContextBound", {
     get: function () {
@@ -71,7 +71,7 @@ Nullstone.Property(BindingExpressionBase, "IsTwoWayTextBoxText", {
     get: function () {
         return (this.Target instanceof TextBox)
             && (this.Property._ID === TextBox.TextProperty._ID)
-            && (this.Binding.GetMode() === BindingMode.TwoWay);
+            && (this.Binding.Mode === BindingMode.TwoWay);
     }
 });
 
@@ -107,7 +107,7 @@ BindingExpressionBase.Instance._OnAttached = function (element) {
         this.Target.LostFocus.Subscribe(this._TextBoxLostFocus, this);
 
     var targetFE = Nullstone.As(element, FrameworkElement);
-    if (this.Binding.GetMode() === BindingMode.TwoWay && this.Property._IsCustom) {
+    if (this.Binding.Mode === BindingMode.TwoWay && this.Property._IsCustom) {
         var updateDataSourceCallback = function () {
             try {
                 if (!this.Updating)
@@ -158,7 +158,7 @@ BindingExpressionBase.Instance._TextBoxLostFocus = function () {
     this._UpdateSourceObject();
 };
 BindingExpressionBase.Instance._TryUpdateSourceObject = function (value) {
-    if (!this.Updating && this.Binding.GetUpdateSourceTrigger() === UpdateSourceTrigger.Default) {
+    if (!this.Updating && this.Binding.UpdateSourceTrigger === UpdateSourceTrigger.Default) {
         this._UpdateSourceObject(value, false);
     }
 };
@@ -167,7 +167,8 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         value = this.Target.$GetValue(this.Property);
     if (force === undefined)
         force = false;
-    if (this.Binding.Mode !== BindingMode.TwoWay)
+    var binding = this.Binding;
+    if (binding.Mode !== BindingMode.TwoWay)
         return;
 
     var dataError;
@@ -185,18 +186,18 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         if (this.PropertyPathWalker.FinalNode.IsPathBroken)
             return;
 
-        if (this.Binding.TargetNullValue) {
+        if (binding.TargetNullValue) {
             try {
-                if (Nullstone.RefEquals(this.Binding.TargetNullValue, value))
+                if (Nullstone.RefEquals(binding.TargetNullValue, value))
                     value = null;
             } catch (err) {
                 //ignore
             }
         }
 
-        var converter = this.Binding.GetConverter();
+        var converter = binding.Converter;
         if (converter) {
-            value = converter.ConvertBack(value, node.GetValueType(), this.Binding.GetConverterParameter(), /* TODO: Culture */null);
+            value = converter.ConvertBack(value, node.GetValueType(), binding.ConverterParameter, binding.ConverterCulture);
         }
 
         if (value instanceof String) {
@@ -217,7 +218,7 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
         node.SetValue(value);
         this._CachedValue = value;
     } catch (err) {
-        if (this.Binding.GetValidatesOnExceptions()) {
+        if (binding.ValidatesOnExceptions) {
             if (err instanceof TargetInvocationException)
                 exception = err.InnerException;
             exception = err;
@@ -225,8 +226,8 @@ BindingExpressionBase.Instance._UpdateSourceObject = function (value, force) {
     } finally {
         this.Updating = oldUpdating;
         //TODO: IDataErrorInfo
-        //if (this.Binding.GetValidatesOnDataErrors() && !exception && node.GetSource().DoesImplement(IDataErrorInfo) && node.GetPropertyInfo() != null) {
-        //dataError = node.GetSource()[node.GetPropertyInfo().Name];
+        //if (binding.ValidatesOnDataErrors && !exception && node.Source.DoesImplement(IDataErrorInfo) && node.GetPropertyInfo() != null) {
+        //dataError = node.Source[node.GetPropertyInfo().Name];
         //}
     }
     this._MaybeEmitError(dataError, exception);
@@ -254,17 +255,17 @@ BindingExpressionBase.Instance._MaybeEmitError = function (message, exception) {
     if (oldError && this.CurrentError) {
         Validation.AddError(fe, this.CurrentError);
         Validation.RemoveError(fe, oldError);
-        if (this.Binding.GetNotifyOnValidationError()) {
+        if (this.Binding.NotifyOnValidationError) {
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.CurrentError));
         }
     } else if (oldError) {
         Validation.RemoveError(fe, oldError);
-        if (this.Binding.GetNotifyOnValidationError())
+        if (this.Binding.NotifyOnValidationError)
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Removed, oldError));
     } else if (this.CurrentError) {
         Validation.AddError(fe, this.CurrentError);
-        if (this.Binding.GetNotifyOnValidationError())
+        if (this.Binding.NotifyOnValidationError)
             fe.RaiseBindingValidationError(new ValidationErrorEventArgs(ValidationErrorEventAction.Added, this.CurrentError));
     }
 };
@@ -280,8 +281,8 @@ BindingExpressionBase.Instance._ConvertFromSourceToTarget = function (value) {
 BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
     try {
         var binding = this.Binding;
-        if (!this.PropertyPathWalker.IsPathBroken && binding.GetConverter()) {
-            value = binding.GetConverter().Convert(value, this.Property.GetTargetType(), binding.GetConverterParameter(), {});
+        if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
+            value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
         }
         if (value === DependencyProperty.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
             value = binding.FallbackValue;
@@ -289,7 +290,7 @@ BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
                 value = propd.GetDefaultValue(this.Target);
         } else if (value == null) {
             value = binding.TargetNullValue;
-            if (value == null && this.IsBoundToAnyDataContext && !binding.GetPath().Path)
+            if (value == null && this.IsBoundToAnyDataContext && !binding.Path.Path)
                 value = propd.GetDefaultValue(this.Target);
         } else {
             var format = binding.StringFormat;
@@ -316,9 +317,9 @@ BindingExpressionBase.Instance._NotifyErrorsChanged = function (o, e) {
 
 BindingExpressionBase.Instance._CalculateDataSource = function () {
     var source;
-    if (this.Binding.GetSource()) {
-        this.PropertyPathWalker.Update(this.Binding.GetSource());
-    } else if (this.Binding.GetElementName() != null) {
+    if (this.Binding.Source) {
+        this.PropertyPathWalker.Update(this.Binding.Source);
+    } else if (this.Binding.ElementName != null) {
         source = this._FindSourceByElementName();
         var feTarget = Nullstone.As(this.Target, FrameworkElement);
         if (!feTarget)
@@ -329,7 +330,7 @@ BindingExpressionBase.Instance._CalculateDataSource = function () {
             feTarget.Loaded.Subscribe(this._HandleFeTargetLoaded, this);
         }
         this.PropertyPathWalker.Update(source);
-    } else if (this.Binding.GetRelativeSource() && this.Binding.GetRelativeSource().GetMode() === RelativeSourceMode.Self) {
+    } else if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.Self) {
         this.PropertyPathWalker.Update(this.Target);
     } else {
         var fe = Nullstone.As(this.Target, FrameworkElement);
@@ -344,7 +345,7 @@ BindingExpressionBase.Instance._CalculateDataSource = function () {
                 fe = this.Target.GetMentor();
             }
 
-            if (fe && this.Binding.GetRelativeSource() && this.Binding.GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
+            if (fe && this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
                 this.PropertyPathWalker.Update(fe.TemplateOwner);
             } else {
                 this.SetDataContextSource(fe);
@@ -396,7 +397,7 @@ BindingExpressionBase.Instance._FindSourceByElementName = function () {
     if (!fe)
         fe = this.Target.GetMentor();
     while (fe && !source) {
-        source = fe.FindName(this.Binding.GetElementName());
+        source = fe.FindName(this.Binding.ElementName);
         if (!source && fe.TemplateOwner)
             fe = fe.GetTemplateOwner();
         else if (fe.GetMentor() && ItemsControl.GetItemsOwner(fe.GetMentor()))
@@ -415,7 +416,7 @@ BindingExpressionBase.Instance._MentorChanged = function (sender, e) {
     /// <param name="e" type="EventArgs"></param>
     try {
         var mentor = this.Target.GetMentor();
-        if (this.Binding.GetRelativeSource() && this.Binding.GetRelativeSource().GetMode() === RelativeSourceMode.TemplatedParent) {
+        if (this.Binding.RelativeSource && this.Binding.RelativeSource.Mode === RelativeSourceMode.TemplatedParent) {
             if (!mentor)
                 this.PropertyPathWalker.Update(null);
             else
@@ -441,7 +442,7 @@ BindingExpressionBase.Instance._DataContextChanged = function (sender, e) {
     try {
         var fe = sender;
         this.PropertyPathWalker.Update(fe.DataContext);
-        if (this.Binding.GetMode() === BindingMode.OneTime)
+        if (this.Binding.Mode === BindingMode.OneTime)
             this.Refresh();
     } catch (err) {
         Warn(err.message);
@@ -459,12 +460,12 @@ BindingExpressionBase.Instance.Refresh = function () {
 
     //TODO: ERROR/VALIDATION
     //var node = this.PropertyPathWalker.FinalNode;
-    //var source = node.GetSource();
+    //var source = node.Source;
     //source = Nullstone.As(source, INotifyDataErrorInfo));
     //this._AttachToNotifyError(source);
 
-    //source = Nullstone.As(node.GetSource(), IDataErrorInfo);
-    //if (!this.Updating && this.Binding.GetValidatesOnDataErrors() && source && node.GetPropertyInfo())
+    //source = Nullstone.As(node.Source, IDataErrorInfo);
+    //if (!this.Updating && this.Binding.ValidatesOnDataErrors && source && node.GetPropertyInfo())
     //dataError = source[node.GetPropertyInfo().Name];
 
     var oldUpdating = this.Updating;
@@ -473,7 +474,7 @@ BindingExpressionBase.Instance.Refresh = function () {
         this._Invalidate();
         this.Target.$SetValue(this.Property, this);
     } catch (err) {
-        if (this.Binding.GetValidatesOnExceptions()) {
+        if (this.Binding.ValidatesOnExceptions) {
             exception = err;
             if (exception instanceof TargetInvocationException)
                 exception = exception.InnerException;

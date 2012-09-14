@@ -3,20 +3,17 @@
 /// CODE
 
 //#region RelativeSource
-var RelativeSource = Nullstone.Create("RelativeSource", null, 1);
+var RelativeSource = Nullstone.Create("RelativeSource", undefined, 1);
 
 RelativeSource.Instance.Init = function (mode) {
     if (mode == null)
         mode = RelativeSourceMode.TemplatedParent;
-    this.SetMode(mode);
+    this.Mode = mode;
 };
 
-RelativeSource.Instance.GetMode = function () {
-    return this._Mode;
-};
-RelativeSource.Instance.SetMode = function (/* RelativeSourceMode */value) {
-    this._Mode = value;
-};
+Nullstone.AutoProperties(RelativeSource, [
+    "Mode"
+]);
 
 Nullstone.FinishCreate(RelativeSource);
 //#endregion

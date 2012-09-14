@@ -152,8 +152,8 @@ DependencyObject.Instance.$SetValueInternal = function (propd, value) {
     var expression = Nullstone.As(value, Expression);
     if (expression instanceof BindingExpressionBase) {
         var binding = expression.Binding;
-        var path = binding.GetPath().Path;
-        if ((!path || path === ".") && binding.GetMode() === BindingMode.TwoWay)
+        var path = binding.Path.Path;
+        if ((!path || path === ".") && binding.Mode === BindingMode.TwoWay)
             throw new ArgumentException("TwoWay bindings require a non-empty Path.");
         binding.Seal();
     }
@@ -182,9 +182,9 @@ DependencyObject.Instance.$SetValueInternal = function (propd, value) {
     } else if (existing) {
         if (existing instanceof BindingExpressionBase) {
             var binding = existing.Binding;
-            if (binding.GetMode() === BindingMode.TwoWay) {
+            if (binding.Mode === BindingMode.TwoWay) {
                 updateTwoWay = !existing.Updating && !propd._IsCustom;
-            } else if (!existing.Updating || binding.GetMode() === BindingMode.OneTime) {
+            } else if (!existing.Updating || binding.Mode === BindingMode.OneTime) {
                 this.$RemoveExpression(propd);
             }
         } else if (!existing.Updating) {
