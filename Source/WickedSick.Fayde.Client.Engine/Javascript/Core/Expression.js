@@ -12,38 +12,25 @@
 //#region Expression
 var Expression = Nullstone.Create("Expression");
 
+//#region Properties
+
+Nullstone.AutoProperties(Expression, [
+    "Attached",
+    "Updating"
+]);
+
+//#endregion
+
 Expression.Instance.GetValue = function (propd) {
     AbstractMethod("Expression.GetValue");
 };
 Expression.Instance._OnAttached = function (element) {
     ///<param name="element" type="DependencyObject"></param>
-    this.SetAttached(true);
+    this.Attached = true;
 };
 Expression.Instance._OnDetached = function (element) {
-    this.SetAttached(false);
+    this.Attached = false;
 };
-
-//#region Properties
-
-Expression.Instance.GetAttached = function () {
-    /// <returns type="Boolean" />
-    return this._Attached;
-};
-Expression.Instance.SetAttached = function (value) {
-    /// <param name="value" type="Boolean"></param>
-    this._Attached = value;
-};
-
-Expression.Instance.GetUpdating = function () {
-    /// <returns type="Boolean" />
-    return this._Updating;
-};
-Expression.Instance.SetUpdating = function (value) {
-    /// <param name="value" type="Boolean"></param>
-    this._Updating = value;
-};
-
-//#endregion
 
 Nullstone.FinishCreate(Expression);
 //#endregion

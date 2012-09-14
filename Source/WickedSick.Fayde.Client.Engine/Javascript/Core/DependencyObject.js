@@ -150,12 +150,12 @@ DependencyObject.Instance.$SetValueInternal = function (propd, value) {
     }
 
     var expression = Nullstone.As(value, Expression);
-    var bindingExpression = Nullstone.As(expression, BindingExpressionBase);
-    if (bindingExpression) {
-        var path = bindingExpression.GetBinding().GetPath().Path;
-        if ((!path || path === ".") && bindingExpression.GetBinding().GetMode() === BindingMode.TwoWay)
+    if (expression instanceof BindingExpressionBase) {
+        var binding = expression.Binding;
+        var path = binding.GetPath().Path;
+        if ((!path || path === ".") && binding.GetMode() === BindingMode.TwoWay)
             throw new ArgumentException("TwoWay bindings require a non-empty Path.");
-        bindingExpression.GetBinding().Seal();
+        binding.Seal();
     }
 
     var existing;
@@ -167,7 +167,7 @@ DependencyObject.Instance.$SetValueInternal = function (propd, value) {
     var addingExpression = false;
     if (expression) {
         if (!Nullstone.RefEquals(expression, existing)) {
-            if (expression.GetAttached())
+            if (expression.Attached)
                 throw new ArgumentException("Cannot attach the same Expression to multiple FrameworkElements");
 
             if (existing)
@@ -180,14 +180,14 @@ DependencyObject.Instance.$SetValueInternal = function (propd, value) {
         addingExpression = true;
         value = expression.GetValue(propd);
     } else if (existing) {
-        var beb = Nullstone.As(existing, BindingExpressionBase);
-        if (beb) {
-            if (beb.GetBinding().GetMode() === BindingMode.TwoWay) {
-                updateTwoWay = !beb.GetUpdating() && !propd._IsCustom;
-            } else if (!beb.GetUpdating() || beb.GetBinding().GetMode() === BindingMode.OneTime) {
+        if (existing instanceof BindingExpressionBase) {
+            var binding = existing.Binding;
+            if (binding.GetMode() === BindingMode.TwoWay) {
+                updateTwoWay = !existing.Updating && !propd._IsCustom;
+            } else if (!existing.Updating || binding.GetMode() === BindingMode.OneTime) {
                 this.$RemoveExpression(propd);
             }
-        } else if (!existing.GetUpdating()) {
+        } else if (!existing.Updating) {
             this.$RemoveExpression(propd);
         }
     }

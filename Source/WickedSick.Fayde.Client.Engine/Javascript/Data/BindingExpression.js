@@ -9,12 +9,17 @@ BindingExpression.Instance.Init = function (binding, target, propd) {
     this.Init$BindingExpressionBase(binding, target, propd);
 };
 
-BindingExpression.Instance.GetParentBinding = function () {
-    return this.GetBinding();
-};
-BindingExpression.Instance.GetDataItem = function () {
-    return this.GetDataSource();
-};
+//#region Properties
+
+Nullstone.Property(BindingExpression, "ParentBinding", {
+    get: function () { return this.Binding; }
+});
+Nullstone.Property(BindingExpression, "DataItem", {
+    get: function () { return this.DataSource; }
+});
+
+//#endregion
+
 BindingExpression.Instance.UpdateSource = function () {
     return this._UpdateSourceObject(undefined, true);
 };

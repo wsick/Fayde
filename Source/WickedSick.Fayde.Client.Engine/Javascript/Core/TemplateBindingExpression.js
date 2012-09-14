@@ -60,7 +60,7 @@ TemplateBindingExpression.Instance._OnDetached = function (element) {
 TemplateBindingExpression.Instance.OnPropertyChanged = function (sender, args) {
     try {
         // Type converting doesn't happen for TemplateBindings
-        this.SetUpdating(true);
+        this.Updating = true;
         try {
             this.Target._SetValue(this.TargetProperty, this.GetValue());
         } catch (err2) {
@@ -69,7 +69,7 @@ TemplateBindingExpression.Instance.OnPropertyChanged = function (sender, args) {
     } catch (err) {
 
     } finally {
-        this.SetUpdating(false);
+        this.Updating = false;
     }
 };
 
