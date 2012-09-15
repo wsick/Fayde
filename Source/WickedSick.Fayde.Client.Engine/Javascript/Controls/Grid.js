@@ -241,7 +241,7 @@ Grid.Instance._MeasureOverrideWithError = function (availableSize, error) {
 
         sizes.Remove(separator);
 
-        while (node = sizes.Last()) {
+        while (node = sizes.Tail) {
             node._Cell._DesiredSize = Math.max(node._Cell._DesiredSize, node._Size);
             this._AllocateDesiredSize(rowCount, colCount);
             sizes.Remove(node);

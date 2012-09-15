@@ -1033,7 +1033,7 @@ DependencyObject.Instance._CloneAnimationStorage = function (source) {
         var newList = new LinkedList();
 
         var list = srcStorageRepo[key];
-        var node = list.First();
+        var node = list.Head;
         while (node) {
             node.Storage.SwitchTarget(this);
             var newNode = new LinkedListNode();
@@ -1052,7 +1052,7 @@ DependencyObject.Instance._GetAnimationStorageFor = function (propd) {
     if (!list || list.IsEmpty())
         return null;
 
-    return list.Last().Storage;
+    return list.Tail.Storage;
 };
 DependencyObject.Instance._AttachAnimationStorage = function (propd, storage) {
     var attachedStorage;
@@ -1065,7 +1065,7 @@ DependencyObject.Instance._AttachAnimationStorage = function (propd, storage) {
 
         this._StorageRepo[propd] = list;
     } else if (!list.IsEmpty()) {
-        attachedStorage = list.Last().Storage;
+        attachedStorage = list.Tail.Storage;
         attachedStorage.Disable();
     }
 
@@ -1082,13 +1082,13 @@ DependencyObject.Instance._DetachAnimationStorage = function (propd, storage) {
     if (!list || list.IsEmpty())
         return;
 
-    var last = list.Last();
+    var last = list.Tail;
     if (Nullstone.RefEquals(last.Storage, storage)) {
         list.Remove(last);
         if (!list.IsEmpty())
-            list.Last().Storage.Enable();
+            list.Tail.Storage.Enable();
     } else {
-        var node = list.First();
+        var node = list.Head;
         while (node) {
             if (Nullstone.RefEquals(node.Storage, storage)) {
                 var remove = node;

@@ -530,7 +530,7 @@ Surface.Instance._IsTopLevel = function (top) {
 
 Surface.Instance._UpdateCursorFromInputList = function () {
     var newCursor = CursorType.Default;
-    for (var node = this._InputList.First(); node; node = node.Next) {
+    for (var node = this._InputList.Head; node; node = node.Next) {
         newCursor = node.UIElement.Cursor;
         if (newCursor !== CursorType.Default)
             break;
@@ -643,9 +643,11 @@ Surface.Instance._GetMousePosition = function (evt) {
         evt.clientY + window.pageYOffset + this._CanvasOffset.top);
 };
 Surface.Instance._FindFirstCommonElement = function (list1, list2, outObj) {
-    var ui1 = list1.Last();
+    /// <param name="list1" type="LinkedList"></param>
+    /// <param name="list2" type="LinkedList"></param>
+    var ui1 = list1.Tail;
     var i1 = list1._Count - 1;
-    var ui2 = list2.Last();
+    var ui2 = list2.Tail;
     var i2 = list2._Count - 1;
 
     outObj.Index1 = -1;
@@ -672,10 +674,10 @@ Surface.Instance._EmitMouseList = function (type, button, pos, delta, list, endI
         endIndex = list._Count;
     var i = 0;
     var args = this._CreateEventArgs(type, pos, delta);
-    var node = list.First();
+    var node = list.Head;
     if (node && args instanceof RoutedEventArgs)
         args.Source = node.UIElement;
-    for (node = list.First() ; node && i < endIndex; node = node.Next, i++) {
+    for (node = list.Head; node && i < endIndex; node = node.Next, i++) {
         if (type === "leave")
             args.Source = node.UIElement;
         if (node.UIElement._EmitEvent(type, button, args))
@@ -758,7 +760,7 @@ Surface.Instance._EmitKeyDown = function (list, modifiers, keyCode, endIndex) {
         endIndex = list._Count;
     var i = 0;
     var args = new KeyEventArgs(modifiers, keyCode);
-    for (var node = list.First(); node && i < endIndex; node = node.Next, i++) {
+    for (var node = list.Head; node && i < endIndex; node = node.Next, i++) {
         node.UIElement._EmitKeyDown(args);
     }
 };
@@ -843,7 +845,7 @@ Surface.Instance._EmitFocusChangeEventsAsync = function () {
 };
 Surface.Instance._EmitFocusChangeEvents = function () {
     var node;
-    while (node = this._FocusChangedEvents.First()) {
+    while (node = this._FocusChangedEvents.Head) {
         this._FocusChangedEvents.Remove(node);
         this._EmitFocusList("lost", node.LostFocus);
         this._EmitFocusList("got", node.GotFocus);
@@ -852,7 +854,7 @@ Surface.Instance._EmitFocusChangeEvents = function () {
 Surface.Instance._EmitFocusList = function (type, list) {
     if (list == null)
         return;
-    for (var node = list.First(); node; node = node.Next) {
+    for (var node = list.Head; node; node = node.Next) {
         node.UIElement._EmitFocusChange(type);
     }
 };

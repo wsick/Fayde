@@ -23,14 +23,14 @@ _DeepTreeWalker.Instance.Init = function (top, direction) {
 _DeepTreeWalker.Instance.Step = function () {
     if (this._Last) {
         var walker = new _VisualTreeWalker(this._Last, this._Direction);
-        var prepend = this._WalkList.First();
+        var prepend = this._WalkList.Head;
         var child;
         while (child = walker.Step()) {
             this._WalkList.InsertBefore(new UIElementNode(child), prepend);
         }
     }
 
-    var next = this._WalkList.First();
+    var next = this._WalkList.Head;
     if (!next) {
         this._Last = null;
         return null;

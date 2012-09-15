@@ -357,7 +357,7 @@ TextLayout.Instance.Layout = function () {
     this._Lines.push(line);
 
     var index = 0;
-    var attrs = this._Attributes.First();
+    var attrs = this._Attributes.Head;
     var nattrs;
     var end;
     var run;
@@ -522,7 +522,7 @@ TextLayout.Instance.__Debug = function () {
 TextLayout._ValidateAttrs = function (attributes) {
     /// <param name="attributes" type="LinkedList"></param>
     var attrs;
-    if (!(attrs = attributes.First()) || attrs._Start != 0)
+    if (!(attrs = attributes.Head) || attrs._Start != 0)
         return false;
 
     while (attrs != null) {
