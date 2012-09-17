@@ -6,8 +6,11 @@
 var _TextBoxBaseDynamicPropertyValueProvider = Nullstone.Create("_TextBoxBaseDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider, 5);
 
 _TextBoxBaseDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
-    this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence, 
-        _ProviderFlags.RecomputesOnClear | _ProviderFlags.RecomputesOnLowerPriorityChange);
+    this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence);
+
+    this._RecomputesOnClear = true;
+    this._RecomputesOnLower = true;
+
     this._ForegroundPropd = foregroundPropd;
     this._BackgroundPropd = backgroundPropd;
     this._BaselineOffsetPropd = baselineOffsetPropd;
@@ -16,12 +19,11 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.Init = function (obj, propPrec
     this._BaselineOffset = undefined;
 };
 
-_TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
+_TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValue = function (propd, lower, higher, clear, error) {
     if (propd._ID === this._BackgroundPropd._ID)
         this._SelectionBackground = undefined;
     else if (propd._ID === this._ForegroundPropd._ID)
         this._SelectionForeground = undefined;
-    this.RecomputePropertyValue$FrameworkElementPropertyValueProvider(propd, providerFlags, error);
 };
 _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     var v;

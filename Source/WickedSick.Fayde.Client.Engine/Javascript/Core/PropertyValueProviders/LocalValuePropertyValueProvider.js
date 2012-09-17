@@ -7,8 +7,10 @@
 var _LocalValuePropertyValueProvider = Nullstone.Create("_LocalValuePropertyValueProvider", _PropertyValueProvider, 2);
 
 _LocalValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._ht = [];
+
+    //this._ProvidesLocalValue = true;
 };
 
 _LocalValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {

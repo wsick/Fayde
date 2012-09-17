@@ -10,15 +10,17 @@
 var _StylePropertyValueProvider = Nullstone.Create("_StylePropertyValueProvider", _PropertyValueProvider, 2);
 
 _StylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._ht = [];
+
+    this._RecomputesOnClear = true;
 };
 
 _StylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd];
 };
-_StylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, reason, error) {
-    if ((reason & _ProviderFlags.RecomputesOnClear) === 0)
+_StylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, lower, higher, clear, error) {
+    if (!clear)
         return;
 
     var oldValue;

@@ -7,8 +7,10 @@
 var _AutoCreatePropertyValueProvider = Nullstone.Create("_AutoCreatePropertyValueProvider", _PropertyValueProvider, 2);
 
 _AutoCreatePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.ProvidesLocalValue);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._ht = [];
+
+    //this._ProvidesLocalValue = true;
 }
 
 _AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
@@ -25,10 +27,10 @@ _AutoCreatePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     this._Object._ProviderValueChanged(this._PropertyPrecedence, propd, undefined, value, false, true, false, error);
     return value;
 };
-_AutoCreatePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
-    if ((providerFlags & _ProviderFlags.RecomputesOnClear) == 0)
+_AutoCreatePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, lower, higher, clear, error) {
+    if (!clear)
         return;
-    this.ClearValue(propd);
+    delete this._ht[propd];
 };
 _AutoCreatePropertyValueProvider.Instance.ReadLocalValue = function (propd) {
     return this._ht[propd];

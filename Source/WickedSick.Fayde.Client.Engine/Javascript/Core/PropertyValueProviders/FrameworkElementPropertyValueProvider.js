@@ -7,7 +7,7 @@
 var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);
 
 FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._ActualHeight = null;
     this._ActualWidth = null;
     this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
@@ -24,7 +24,7 @@ FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (prop
         this._ActualWidth = actual.Width;
     }
 
-    if (propd === FrameworkElement.ActualHeightProperty) {
+    if (propd._ID === FrameworkElement.ActualHeightProperty._ID) {
         return this._ActualHeight;
     } else {
         return this._ActualWidth;

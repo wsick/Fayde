@@ -15,13 +15,6 @@ _PropertyPrecedence.Highest = _PropertyPrecedence.IsEnabled;
 _PropertyPrecedence.Lowest = _PropertyPrecedence.AutoCreate;
 _PropertyPrecedence.Count = 9;
 
-var _ProviderFlags = {
-    RecomputesOnLowerPriorityChange: 1,
-    RecomputesOnHigherPriorityChange: 2,
-    RecomputesOnClear: 4,
-    ProvidesLocalValue: 8
-};
-
 var _StyleIndex = {
     VisualTree: 0,
     ApplicationResources: 1,

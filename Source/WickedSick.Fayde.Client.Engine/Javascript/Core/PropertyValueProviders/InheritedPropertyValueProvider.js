@@ -8,7 +8,7 @@
 var _InheritedPropertyValueProvider = Nullstone.Create("_InheritedPropertyValueProvider", _PropertyValueProvider, 2);
 
 _InheritedPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._ht = [];
 
     this._GetInheritableFunc = _InheritedPropertyValueProvider.GetInheritable;

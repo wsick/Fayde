@@ -7,17 +7,19 @@
 var _ImplicitStylePropertyValueProvider = Nullstone.Create("_ImplicitStylePropertyValueProvider", _PropertyValueProvider, 2);
 
 _ImplicitStylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnClear);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._Styles = null;
     this._StyleMask = _StyleMask.None;
     this._ht = [];
+
+    this._RecomputesOnClear = true;
 }
 
 _ImplicitStylePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
     return this._ht[propd._ID];
 };
-_ImplicitStylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
-    if ((providerFlags & _ProviderFlags.RecomputesOnClear) === 0)
+_ImplicitStylePropertyValueProvider.Instance.RecomputePropertyValue = function (propd, lower, higher, clear, error) {
+    if (!clear)
         return;
 
     if (!this._Styles)

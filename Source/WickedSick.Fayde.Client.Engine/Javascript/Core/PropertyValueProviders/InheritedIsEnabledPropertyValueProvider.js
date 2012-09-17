@@ -7,9 +7,11 @@
 var _InheritedIsEnabledPropertyValueProvider = Nullstone.Create("_InheritedIsEnabledPropertyValueProvider", _PropertyValueProvider, 2);
 
 _InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, _ProviderFlags.RecomputesOnLowerPriorityChange);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._Source = null;
     this._CurrentValue = this._Object._GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
+
+    //this._RecomputesOnLower = true;
 };
 
 _InheritedIsEnabledPropertyValueProvider.Instance.GetPropertyValue = function (propd) {

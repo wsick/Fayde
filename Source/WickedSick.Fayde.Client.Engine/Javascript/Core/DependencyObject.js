@@ -447,11 +447,10 @@ DependencyObject.Instance._ClearValueWithError = function (propd, notifyListener
     }
 
     var count = propPrecEnum.Count;
-    var recomputeOnClearFlag = _ProviderFlags.RecomputesOnClear;
     for (var i = propPrecEnum.LocalValue + 1; i < count; i++) {
         var provider = this._Providers[i];
-        if (provider && provider._HasFlag(recomputeOnClearFlag))
-            provider.RecomputePropertyValue(propd, recomputeOnClearFlag, error);
+        if (provider && provider._RecomputesOnClear)
+            provider.RecomputePropertyValue(propd, false, false, true, error);
     }
 
     if (oldLocalValue !== undefined) {
@@ -618,8 +617,6 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
 };
 DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
     var count = _PropertyPrecedence.Count;
-    var lowerFlag = _ProviderFlags.RecomputesOnLowerPriorityChange;
-    var higherFlag = _ProviderFlags.RecomputesOnHigherPriorityChange;
     for (var i = 0; i < count; i++) {
         var provider = this._Providers[i];
         if (!provider)
@@ -627,10 +624,10 @@ DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (pr
         if (i === providerPrecedence)
             continue;
 
-        if (i < providerPrecedence && provider._HasFlag(lowerFlag))
-            provider.RecomputePropertyValue(propd, lowerFlag, error);
-        else if (i > providerPrecedence && provider._HasFlag(higherFlag))
-            provider.RecomputePropertyValue(propd, higherFlag, error);
+        if (i < providerPrecedence && provider._RecomputesOnLower)
+            provider.RecomputePropertyValue(propd, true, false, false, error);
+        //else if (i > providerPrecedence && provider._RecomputesOnHigher)
+            //provider.RecomputePropertyValue(propd, false, true, false, error);
     }
 };
 DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {

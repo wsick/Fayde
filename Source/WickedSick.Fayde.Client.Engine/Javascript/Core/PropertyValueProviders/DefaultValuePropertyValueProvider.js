@@ -7,7 +7,7 @@
 var _DefaultValuePropertyValueProvider = Nullstone.Create("_DefaultValuePropertyValueProvider", _PropertyValueProvider, 2);
 
 _DefaultValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence, 0);
+    this.Init$_PropertyValueProvider(obj, propPrecedence);
 }
 
 _DefaultValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
