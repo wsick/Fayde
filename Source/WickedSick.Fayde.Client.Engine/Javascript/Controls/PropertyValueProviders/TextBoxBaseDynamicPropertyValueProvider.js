@@ -17,11 +17,10 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.Init = function (obj, propPrec
 };
 
 _TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
-    if (propd == this._BackgroundPropd)
+    if (propd._ID === this._BackgroundPropd._ID)
         this._SelectionBackground = undefined;
-    else if (propd == this._ForegroundPropd)
+    else if (propd._ID === this._ForegroundPropd._ID)
         this._SelectionForeground = undefined;
-
     this.RecomputePropertyValue$FrameworkElementPropertyValueProvider(propd, providerFlags, error);
 };
 _TextBoxBaseDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
