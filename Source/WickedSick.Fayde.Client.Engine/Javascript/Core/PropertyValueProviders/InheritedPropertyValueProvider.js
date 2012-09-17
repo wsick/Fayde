@@ -214,7 +214,7 @@ _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
     inhProvider._InitializeMappings();
     var propdGroup = inhProvider._InheritableToProperty[inheritable];
     if (!propdGroup)
-                    return undefined;
+        return undefined;
     for (var typeID in propdGroup) {
         var propd = propdGroup[typeID];
         if (!propd) {

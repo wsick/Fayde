@@ -302,17 +302,8 @@ DependencyObject.Instance._HasDeferredValueExpression = function (propd) {
 DependencyObject.Instance.$GetValue = function (propd) {
     if (!propd)
         throw new ArgumentException("Null dependency property.");
-    var error = new BError();
-    var value = this._GetValueWithError(propd, error);
-    if (error.IsErrored())
-        throw error.CreateException();
-    return value;
-};
-DependencyObject.Instance._GetValueWithError = function (propd, error) {
-    if (!this._HasProperty(propd)) {
-        error.SetErrored(BError.Exception, "Cannot get the DependencyProperty " + propd.Name + " on an object of type " + propd.OwnerType._TypeName);
-        return undefined;
-    }
+    if (propd == null && !(propd._IsAttached || this instanceof propd.OwnerType))
+        throw new InvalidOperationException("Cannot get the DependencyProperty " + propd.Name + " on an object of type " + propd.OwnerType._TypeName);
     return this._GetValue(propd);
 };
 DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endingPrecedence) {
