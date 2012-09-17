@@ -315,6 +315,7 @@ DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endin
 
     //Establish providers used
     var bitmask = this._ProviderBitmasks[propd._ID] || 0;
+    //bitmask |= propd._BitmaskCache;
     bitmask |= (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
     if (propd._IsAutoCreated)
         bitmask |= 1 << propPrecEnum.AutoCreate;
@@ -491,24 +492,14 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     else
         bitmask &= ~(1 << providerPrecedence);
     this._ProviderBitmasks[propd._ID] = bitmask;
-
-    var higher = 0;
-    var propPrecLocalValue = propPrecEnum.LocalValue;
-    for (var i = providerPrecedence; i >= propPrecLocalValue; i--) {
-        higher |= 1 << i;
-    }
-    higher &= bitmask;
-    higher |= (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
-    if (propd._IsAutoCreated)
-        higher |= 1 << propPrecEnum.AutoCreate;
-    if (propd._HasDefaultValue)
-        higher |= 1 << propPrecEnum.DefaultValue;
+    
+    var higher = (((1 << (providerPrecedence + 1)) - 2) & bitmask) | propd._BitmaskCache;
 
     var propPrecHighest = _PropertyPrecedence.Highest;
-    for (var j = providerPrecedence; j >= propPrecHighest; j--) {
+    for (var j = providerPrecedence - 1; j >= propPrecHighest; j--) {
         if (!(higher & (1 << j)))
             continue;
-        var provider = this._Providers[i];
+        var provider = this._Providers[j];
         if (!provider)
             continue;
         if (provider.GetPropertyValue(propd) !== undefined) {
@@ -683,17 +674,15 @@ DependencyObject.Instance._GetPropertyValueProvider = function (propd) {
     var propPrecEnum = _PropertyPrecedence;
     var bitmask = this._ProviderBitmasks[propd._ID];
     var lowest = propPrecEnum.Lowest;
-    var defaultValue = propPrecEnum.DefaultValue;
-    var autoCreate = propPrecEnum.AutoCreate;
     for (var i = 0; i < lowest; i++) {
-        var p = 1 << i;
-        if ((bitmask & p) === p)
-            return i;
-        if (i === defaultValue && propd._HasDefaultValue)
-            return i;
-        if (i === autoCreate && propd._IsAutoCreated)
-            return i;
+        if (!(bitmask & (1 << i)))
+            continue;
+        return i;
     }
+    if (propd._HasDefaultValue)
+        return propPrecEnum.DefaultValue;
+    if (propd._IsAutoCreated)
+        return propPrecEnum.AutoCreate;
     return -1;
 };
 

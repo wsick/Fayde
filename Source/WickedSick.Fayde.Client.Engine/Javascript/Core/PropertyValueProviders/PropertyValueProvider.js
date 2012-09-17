@@ -22,8 +22,7 @@ _PropertyValueProvider.Instance.ForeachValue = function (func, data) {
     for (var value in this._ht)
         func(DependencyProperty._IDs[value], this._ht[value], data);
 };
-_PropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) {
-};
+_PropertyValueProvider.Instance.RecomputePropertyValue = function (propd, providerFlags, error) { };
 
 Nullstone.FinishCreate(_PropertyValueProvider);
 //#endregion

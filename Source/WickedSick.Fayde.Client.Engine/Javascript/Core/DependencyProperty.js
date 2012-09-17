@@ -25,6 +25,14 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     this.IsReadOnly = isReadOnly === true;
     this._IsAttached = isAttached;
     DependencyProperty._LastID = this._ID = DependencyProperty._LastID + 1;
+    
+    var propPrecEnum = _PropertyPrecedence;
+    var bitmask = (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
+    if (this._IsAutoCreated)
+        bitmask |= propPrecEnum.AutoCreate;
+    if (this._HasDefaultValue)
+        bitmask |= propPrecEnum.DefaultValue;
+    this._BitmaskCache = bitmask;
 };
 
 DependencyProperty.Instance.toString = function () {
