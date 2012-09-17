@@ -6,41 +6,35 @@
 
 var VisualTreeHelper = {};
 VisualTreeHelper.GetChild = function (d, childIndex) {
-    var fw = Nullstone.As(d, FrameworkElement);
-    if (!fw)
+    if (!(d instanceof FrameworkElement))
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
-    var subtree = fw._GetSubtreeObject();
-    var coll = Nullstone.As(subtree, UIElementCollection);
-    if (coll)
-        return coll.GetValueAt(childIndex);
+    var subtree = d._SubtreeObject;
+    if (subtree instanceof UIElementCollection)
+        return subtree.GetValueAt(childIndex);
 
-    var item = Nullstone.As(subtree, UIElement);
-    if (item && childIndex === 0)
-        return item;
+    if ((subtree instanceof UIElement) && childIndex === 0)
+        return subtree;
 
     throw new ArgumentOutOfRangeException();
 };
 VisualTreeHelper.GetChildrenCount = function (d) {
-    var fw = Nullstone.As(d, FrameworkElement);
-    if (!fw)
+    if (!(d instanceof FrameworkElement))
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
-    var subtree = fw._GetSubtreeObject();
-    var coll = Nullstone.As(subtree, UIElementCollection);
-    if (coll)
-        return coll.GetCount();
+    var subtree = d._SubtreeObject;
+    if (subtree instanceof UIElementCollection)
+        return subtree.GetCount();
 
-    if (Nullstone.Is(subtree, UIElement))
+    if (subtree instanceof UIElement)
         return 1;
 
     return 0;
 };
 VisualTreeHelper.GetParent = function (d) {
-    var fw = Nullstone.As(d, FrameworkElement);
-    if (!fw)
+    if (!(d instanceof FrameworkElement))
         throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
-    return Nullstone.As(fw.GetVisualParent(), DependencyObject);
+    return Nullstone.As(d.GetVisualParent(), DependencyObject);
 };
 
 VisualTreeHelper.__Debug = function (uie, func) {

@@ -91,7 +91,7 @@ Control.Instance.SetVisualParent = function (visualParent) {
 Control.Instance._ElementAdded = function (item) {
     var error = new BError();
     item._AddParent(this, true, error);
-    this._SetSubtreeObject(item);
+    this._SubtreeObject = item;
     this._ElementAdded$FrameworkElement(item);
 };
 Control.Instance._ElementRemoved = function (item) {
@@ -133,7 +133,7 @@ Control.Instance._OnPropertyChanged = function (args, error) {
     }
 
     if (args.Property._ID === Control.TemplateProperty._ID) {
-        var subtree = this._GetSubtreeObject();
+        var subtree = this._SubtreeObject;
         if (subtree)
             this._ElementRemoved(subtree);
         this._InvalidateMeasure();

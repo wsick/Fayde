@@ -172,17 +172,17 @@ FrameworkElement.Instance._ComputeSurfaceBounds = function () {
 };
 
 FrameworkElement.Instance._GetSubtreeExtents = function () {
-    if (this._GetSubtreeObject())
+    if (this._SubtreeObject)
         return this._ExtentsWithChildren;
     return this._Extents;
 };
 FrameworkElement.Instance._GetGlobalBounds = function () {
-    if (this._GetSubtreeObject())
+    if (this._SubtreeObject)
         return this._GlobalBoundsWithChildren;
     return this._GlobalBounds;
 };
 FrameworkElement.Instance._GetSubtreeBounds = function () {
-    if (this._GetSubtreeObject())
+    if (this._SubtreeObject)
         return this._SurfaceBoundsWithChildren;
     return this._SurfaceBounds;
 };
@@ -584,8 +584,8 @@ FrameworkElement.Instance._RenderLayoutClip = function (ctx) {
 
 FrameworkElement.Instance._ElementRemoved = function (value) {
     this._ElementRemoved$UIElement(value);
-    if (this._GetSubtreeObject() == value)
-        this._SetSubtreeObject(null);
+    if (Nullstone.RefEquals(this._SubtreeObject, value))
+        this._SubtreeObject = null;
 };
 FrameworkElement.Instance._UpdateLayer = function (pass, error) {
     var element = this;
@@ -720,7 +720,7 @@ FrameworkElement.Instance.ApplyTemplate = function () {
         throw error.CreateException();
 };
 FrameworkElement.Instance._ApplyTemplateWithError = function (error) {
-    if (this._GetSubtreeObject())
+    if (this._SubtreeObject)
         return false;
 
     var result = this._DoApplyTemplateWithError(error);
@@ -734,7 +734,7 @@ FrameworkElement.Instance._DoApplyTemplateWithError = function (error) {
         uie._AddParent(this, true, error);
         if (error.IsErrored())
             return false;
-        this._SetSubtreeObject(uie);
+        this._SubtreeObject = uie;
         this._ElementAdded(uie);
     }
     return uie != null;

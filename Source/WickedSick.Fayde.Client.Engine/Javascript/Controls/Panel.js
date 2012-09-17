@@ -14,7 +14,7 @@ Panel._CreateChildren = {
         var col = new UIElementCollection();
         col._SetIsSecondaryParent(true);
         if (obj)
-            obj._SetSubtreeObject(col);
+            obj._SubtreeObject = col;
         return col;
     }
 };
@@ -127,7 +127,7 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
         var collection;
         var count;
         var i;
-        this._SetSubtreeObject(args.NewValue ? args.NewValue : null);
+        this._SubtreeObject = args.NewValue ? args.NewValue : null;
         if (args.OldValue) {
             collection = args.OldValue;
             count = collection.GetCount();

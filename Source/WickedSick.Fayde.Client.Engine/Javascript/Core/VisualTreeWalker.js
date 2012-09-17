@@ -12,7 +12,7 @@ function _VisualTreeWalker(obj, direction) {
         return;
     this._Offset = 0;
     this._Collection = null;
-    this._Content = obj._GetSubtreeObject();
+    this._Content = obj._SubtreeObject;
     if (direction)
         this._Direction = direction;
     else

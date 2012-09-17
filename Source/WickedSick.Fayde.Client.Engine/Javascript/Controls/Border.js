@@ -198,7 +198,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property._ID === Border.ChildProperty._ID) {
         if (args.OldValue && args.OldValue instanceof UIElement) {
             this._ElementRemoved(args.OldValue);
-            this._SetSubtreeObject(null);
+            this._SubtreeObject = null;
             if (args.OldValue instanceof FrameworkElement) {
                 args.OldValue._SetLogicalParent(null, error);
                 if (error.IsErrored())
@@ -206,7 +206,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
             }
         }
         if (args.NewValue && args.NewValue instanceof UIElement) {
-            this._SetSubtreeObject(args.NewValue);
+            this._SubtreeObject = args.NewValue;
             this._ElementAdded(args.NewValue);
             if (args.NewValue instanceof FrameworkElement) {
                 var logicalParent = args.NewValue._GetLogicalParent();

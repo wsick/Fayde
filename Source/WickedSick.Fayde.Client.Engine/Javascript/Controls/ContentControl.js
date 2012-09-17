@@ -89,7 +89,7 @@ ContentControl.Instance._OnPropertyChanged = function (args, error) {
                 }
             }
             this._ElementRemoved(args.OldValue);
-            this._SetSubtreeObject(null);
+            this._SubtreeObject = null;
         }
         if (args.NewValue && args.NewValue instanceof FrameworkElement) {
             if (this._ContentSetsParent) {

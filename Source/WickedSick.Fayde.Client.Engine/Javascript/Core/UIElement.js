@@ -132,6 +132,10 @@ Nullstone.AutoPropertiesReadOnly(UIElement, [
     UIElement.IsMouseOverProperty
 ]);
 
+Nullstone.AutoProperties(UIElement, [
+    "_SubtreeObject"
+]);
+
 //#endregion
 
 UIElement.Instance.BringIntoView = function (rect) {
@@ -638,12 +642,6 @@ UIElement.Instance._GetGlobalBounds = function () {
 UIElement.Instance._GetCoverageBounds = function () {
     /// <returns type="Rect" />
     return new Rect();
-};
-UIElement.Instance._GetSubtreeObject = function () {
-    return this._SubtreeObject;
-};
-UIElement.Instance._SetSubtreeObject = function (value) {
-    this._SubtreeObject = value;
 };
 UIElement.Instance._GetSubtreeExtents = function () {
     /// <returns type="Rect" />
