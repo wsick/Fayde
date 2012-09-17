@@ -136,7 +136,7 @@ FrameworkElement.Instance._ComputeActualSize = function () {
 
     var parent = this.GetVisualParent();
     if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
-        return this._GetRenderSize();
+        return this._RenderSize;
 
     var actual = new Size(0, 0);
     actual = this._ApplySizeConstraints(actual);
@@ -402,12 +402,12 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         response.Height = Math.round(response.Height);
     }
 
-    this._SetRenderSize(response);
+    this._RenderSize = response;
     var constrainedResponse = response.Min(this._ApplySizeConstraints(response));
 
     if (!parent || parent instanceof Canvas) {
         if (!this.IsLayoutContainer()) {
-            this._SetRenderSize(new Size(0, 0));
+            this._RenderSize = new Size(0, 0);
             return;
         }
     }
@@ -667,7 +667,7 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 if (last) {
                     fe._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
                     fe._PurgeSizeCache();
-                    fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._GetRenderSize()));
+                    fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._RenderSize));
                 }
             }
             LayoutDebug("Completed _SizeList Update");

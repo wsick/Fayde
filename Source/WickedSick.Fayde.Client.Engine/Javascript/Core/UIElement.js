@@ -650,12 +650,6 @@ UIElement.Instance._GetSubtreeExtents = function () {
 UIElement.Instance._GetSubtreeBounds = function () {
     return this._SurfaceBounds;
 };
-UIElement.Instance._SetRenderSize = function (value) {
-    this._RenderSize = value;
-};
-UIElement.Instance._GetRenderSize = function () {
-    return this._RenderSize;
-};
 UIElement.Instance._GetOriginPoint = function () {
     return new Point(0.0, 0.0);
 };
@@ -898,7 +892,7 @@ UIElement.Instance._ElementAdded = function (item) {
     this._InvalidateMeasure();
     this._ClearValue(LayoutInformation.LayoutClipProperty);
     this._ClearValue(LayoutInformation.PreviousConstraintProperty);
-    item._SetRenderSize(new Size(0, 0));
+    item._RenderSize = new Size(0, 0);
     item._UpdateTransform();
     item._UpdateProjection();
     item._InvalidateMeasure();

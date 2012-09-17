@@ -209,7 +209,7 @@ Fayde.Image.Instance._CalculateRenderMetrics = function (source) {
     var stretch = this.Stretch;
     var specified = new Size(this.ActualWidth, this.ActualHeight);
     var stretched = this._ApplySizeConstraints(specified);
-    var adjust = !Rect.Equals(specified, this._GetRenderSize());
+    var adjust = !Rect.Equals(specified, this._RenderSize);
 
     var pixelWidth = source.PixelWidth;
     var pixelHeight = source.PixelHeight;
