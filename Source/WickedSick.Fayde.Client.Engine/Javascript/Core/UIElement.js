@@ -1,7 +1,7 @@
 /// <reference path="DependencyObject.js" />
 /// CODE
 /// <reference path="../Core/DependencyProperty.js" />
-/// <reference path="Canvas.js" />
+/// <reference path="../Controls/Canvas.js" />
 /// <reference path="../Engine/Dirty.js"/>
 /// <reference path="../Engine/App.js"/>
 /// <reference path="../Core/Collections/Collection.js"/>
@@ -11,7 +11,6 @@
 /// <reference path="../Media/MatrixTransform.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="../Engine/RenderContext.js"/>
-/// <reference path="../Primitives/Matrix3D.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Primitives/Thickness.js"/>
 
@@ -43,15 +42,15 @@ UIElement.Instance.Init = function () {
     this._RenderSize = new Size();
     this._EffectPadding = new Thickness();
 
-    this._AbsoluteXform = new Matrix();
-    this._LayoutXform = new Matrix();
-    this._LocalXform = new Matrix();
-    this._RenderXform = new Matrix();
-    this._CacheXform = new Matrix();
+    this._AbsoluteXform = mat3.identity();
+    this._LayoutXform = mat3.identity();
+    this._LocalXform = mat3.identity();
+    this._RenderXform = mat3.identity();
+    this._CacheXform = mat3.identity();
 
-    this._LocalProjection = new Matrix3D();
-    this._AbsoluteProjection = new Matrix3D();
-    this._RenderProjection = new Matrix3D();
+    this._LocalProjection = mat4.identity();
+    this._AbsoluteProjection = mat4.identity();
+    this._RenderProjection = mat4.identity();
 
     this._ComputeLocalTransform();
     this._ComputeLocalProjection();
@@ -208,26 +207,28 @@ UIElement.Instance.TransformToVisual = function (uie) {
 
     //1. invert transform from input element to top level
     //2. transform back down to this element
-    var result = new Matrix3D();
+    var result = mat4.create();
     // A = From, B = To, M = what we want
     // A = M * B
     // => M = A * inv (B)
     if (uie) {
         var inverse = uie._AbsoluteProjection.Inverse;
-        Matrix3D.Multiply(result, this._AbsoluteProjection, inverse);
+        mat4.multiply(this._AbsoluteProjection, inverse, result); //result = abs * inverse
     } else {
-        Matrix3D.Init(result, this._AbsoluteProjection);
+        mat4.set(this._AbsoluteProjection, result); //result = absolute
     }
 
-    var matrix = Matrix3D.Get2DAffine(result);
-    if (matrix) {
+    var raw = mat4.toAffineMat3(result);
+    if (raw) {
         var mt = new MatrixTransform();
+        var m = new Matrix();
+        matrix.raw = raw;
         mt._SetValue(MatrixTransform.MatrixProperty, matrix);
         return mt;
     }
 
     var it = new InternalTransform();
-    it._SetTransform(result);
+    it.raw = result;
     return it;
 };
 
@@ -343,62 +344,62 @@ UIElement.Instance._ComputeBounds = function () {
     AbstractMethod("UIElement._ComputeBounds()");
 };
 UIElement.Instance._ComputeGlobalBounds = function () {
-    this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._LocalProjection);
+    this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform4(this._LocalProjection);
 };
 UIElement.Instance._ComputeSurfaceBounds = function () {
-    this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform(this._AbsoluteProjection);
+    this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform4(this._AbsoluteProjection);
 };
 UIElement.Instance._ComputeTransform = function () {
     var projection = this.Projection;
     var cacheMode = this.CacheMode;
 
-    var oldProjection = new Matrix3D();
-    Matrix3D.Init(oldProjection, this._LocalProjection);
+    var oldProjection = mat4.create(this._LocalProjection);
+
     var old = this._AbsoluteXform;
     var oldCache = this._CacheXform;
 
-    this._AbsoluteXform = new Matrix();
-    this._RenderXform = new Matrix();
-    this._CacheXform = new Matrix();
-    this._AbsoluteProjection = new Matrix3D();
-    this._LocalProjection = new Matrix3D();
+    this._AbsoluteXform = mat3.identity();
+    this._RenderXform = mat3.identity();
+    this._CacheXform = mat3.identity();
+    this._AbsoluteProjection = mat4.identity();
+    this._LocalProjection = mat4.identity();
 
     var visualParent = this.GetVisualParent();
     if (visualParent != null) {
-        this._AbsoluteXform = visualParent._AbsoluteXform.Copy();
-        Matrix3D.Init(this._AbsoluteProjection, visualParent._AbsoluteProjection);
+        mat3.set(visualParent._AbsoluteXform, this._AbsoluteXform);
+        mat4.set(visualParent._AbsoluteProjection, this._AbsoluteProjection);
     } else if (this._Parent != null && this._Parent instanceof Popup) {
         throw new NotImplementedException();
     }
 
     var renderXform = this._RenderXform;
-    Matrix.Multiply(renderXform, this._LayoutXform, renderXform);
-    Matrix.Multiply(renderXform, this._LocalXform, renderXform);
+    mat3.multiply(this._LayoutXform, renderXform, renderXform); //render = layout * render
+    mat3.multiply(this._LocalXform, renderXform, renderXform); //render = local * render
 
-    var m = Matrix3D.CreateAffine(renderXform);
-    Matrix3D.Multiply(this._LocalProjection, m, this._LocalProjection);
+
+    var m = mat3.toAffineMat4(renderXform);
+    mat4.multiply(m, this._LocalProjection, this._LocalProjection); //local = m * local
 
     if (false) {
         //TODO: Render To Intermediate not implemented
     } else {
-        Matrix.Multiply(this._AbsoluteXform, this._RenderXform, this._AbsoluteXform);
+        mat3.multiply(this._RenderXform, this._AbsoluteXform, this._AbsoluteXform); //abs = render * abs
     }
 
     if (projection) {
         m = projection.GetTransform();
-        Matrix3D.Multiply(this._LocalProjection, m, this._LocalProjection);
+        mat4.multiply(m, this._LocalProjection, this._LocalProjection); //local = m * local
         this._Flags |= UIElementFlags.RenderProjection;
     }
 
-    Matrix3D.Multiply(this._AbsoluteProjection, this._LocalProjection, this._AbsoluteProjection);
+    mat4.multiply(this._LocalProjection, this._AbsoluteProjection, this._AbsoluteProjection); //abs = local * abs
 
     if (this instanceof Popup) {
         var popupChild = this.Child;
         if (popupChild)
             popupChild._UpdateTransform();
     }
-
-    if (!Matrix3D.Equals(oldProjection, this._LocalProjection)) {
+    if (!mat4.equal(oldProjection, this._LocalProjection)) {
         if (visualParent)
             visualParent._Invalidate(this._GetSubtreeBounds());
         else if (App.Instance.MainSurface._IsTopLevel(this))
@@ -412,15 +413,15 @@ UIElement.Instance._ComputeTransform = function () {
         if (!this.Effect)
             cacheMode.GetTransform(this._CacheXform);
 
-        if (!Matrix3D.Equals(oldCache, this._CacheXform))
+        if (!mat3.equal(oldCache, this._CacheXform))
             this._InvalidateBitmapCache();
 
-        var inverse = this._CacheXform.Inverse;
-
-        m = Matrix3D.CreateAffine(inverse);
-        Matrix3D.Multiply(this._RenderProjection, m, this._LocalProjection);
+        var inverse = mat3.inverse(this._CacheXform);
+        mat4.toAffineMat4(inverse, m);
+        mat4.multiply(m, this._LocalProjection, this._RenderProjection); // render = m * local
     } else {
-        Matrix3D.Init(this._RenderProjection, this._LocalProjection);
+        // render = local
+        mat4.set(this._LocalProjection, this._RenderProjection);
     }
 
     if (/* RUNTIME_INIT_USE_UPDATE_POSITION */false && !(this._DirtyFlags & _Dirty.Bounds)) {
@@ -437,13 +438,13 @@ UIElement.Instance._ComputeLocalTransform = function () {
         return;
 
     var transformOrigin = this._GetTransformOrigin();
-    this._LocalXform = new Matrix();
-    this._RenderXform = new Matrix();
+    this._LocalXform = mat3.identity();
+    this._RenderXform = mat3.identity();
     transform.GetTransform(this._RenderXform);
 
-    Matrix.Translate(this._LocalXform, transformOrigin.X, transformOrigin.Y);
-    Matrix.Multiply(this._LocalXform, this._RenderXform, this._LocalXform);
-    Matrix.Translate(this._LocalXform, -transformOrigin.X, -transformOrigin.Y);
+    mat3.translate(this._LocalXform, transformOrigin.X, transformOrigin.Y);
+    mat3.multiply(this._RenderXform, this._LocalXform, this._LocalXform);//local = render * local
+    mat3.translate(this._LocalXform, -transformOrigin.X, -transformOrigin.Y);
 };
 UIElement.Instance._ComputeLocalProjection = function () {
     var projection = this.Projection;
@@ -487,36 +488,34 @@ UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform
 UIElement.Instance._TransformBounds = function (old, current) {
     var updated = new Rect();
 
-    var tween = new Matrix();
-    Matrix.Multiply(tween, old.Inverse, current);
+    var tween = mat3.inverse(old);
+    mat3.multiply(tween, current, tween); //tween = tween * current;
 
-    var p0 = new Point(0, 0);
-    var p1 = new Point(1, 0);
-    var p2 = new Point(1, 1);
-    var p3 = new Point(0, 1);
+    var p0 = vec2.createFrom(0, 0);
+    var p1 = vec2.createFrom(1, 0);
+    var p2 = vec2.createFrom(1, 1);
+    var p3 = vec2.createFrom(0, 1);
 
-    var p0a = new Point();
-    Matrix.TransformPoint(p0a, tween, p0);
-    p0.X = p0.X - p0a.X;
-    p0.Y = p0.Y - p0a.Y;
+    var p0a = mat3.transformVec2(tween, p0, vec2.create());
+    p0[0] = p0[0] - p0a[0];
+    p0[1] = p0[1] - p0a[1];
 
-    var p1a = new Point();
-    Matrix.TransformPoint(p1a, tween, p1);
-    p1.X = p1.X - p1a.X;
-    p1.Y = p1.Y - p1a.Y;
+    var p1a = mat3.transformVec2(tween, p1, vec2.create());
+    p1[0] = p1[0] - p1a[0];
+    p1[1] = p1[1] - p1a[1];
 
-    var p2a = new Point();
-    Matrix.TransformPoint(p2a, tween, p2);
-    p2.X = p2.X - p2a.X;
-    p2.Y = p2.Y - p2a.Y;
+    var p2a = mat3.transformVec2(tween, p2, vec2.create());
+    p2[0] = p2[0] - p2a[0];
+    p2[1] = p2[1] - p2a[1];
 
-    var p3a = new Point();
-    Matrix.TransformPoint(p3a, tween, p3);
-    p3.X = p3.X - p3a.X;
-    p3.Y = p3.Y - p3a.Y;
+    var p3a = mat3.transformVec2(tween, p3, vec2.create());
+    p3[0] = p3[0] - p3a[0];
+    p3[1] = p3[1] - p3a[1];
 
-    if (Point.Equals(p0, p1) && Point.Equals(p1, p2) && Point.Equals(p2, p3)) {
-        this._ShiftPosition(new Point(this._Bounds.X, this._Bounds.Y).Transform(tween));
+    if (vec2.equal(p0, p1) && vec2.equal(p1, p2) && vec2.equal(p2, p3)) {
+        var bounds = vec2.createFrom(this._Bounds.X, this._Bounds.Y);
+        mat3.transformVec2(tween, bounds);
+        this._ShiftPosition(bounds);
         this._ComputeGlobalBounds();
         this._ComputeSurfaceBounds();
         return;
@@ -609,19 +608,20 @@ UIElement.Instance._InsideClip = function (ctx, x, y) {
 };
 UIElement.Instance._TransformPoint = function (p) {
     /// <param name="p" type="Point"></param>
-    var inverse = this._AbsoluteProjection.Inverse;
+    var inverse = mat4.inverse(this._AbsoluteProjection);
     if (inverse == null) {
         Warn("Could not get inverse of Absolute Projection for UIElement.");
         return;
     }
+    
+    var p4 = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
+    var m20 = inverse[8];
+    var m21 = inverse[9];
+    var m22 = inverse[10];
+    var m23 = inverse[11];
+    p4[2] = -(m20 * p4[0] + m21 * p4[1] + m23) / m22;
 
-    var p4 = [
-        p.X,
-        p.Y,
-        -(inverse._Elements[8] * p.X + inverse._Elements[8] * p.Y + inverse._Elements[11]) / inverse._Elements[10],
-        1.0
-    ];
-    Matrix3D.TransformPoint(p4, inverse, p4);
+    mat4.multiplyVec4(inverse, p4);
     p.X = p4[0] / p4[3];
     p.Y = p4[1] / p4[3];
 };
@@ -745,7 +745,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     } else {
         region = this._GetSubtreeExtents()
             .Transform(this._RenderXform)
-            .Transform(ctx.GetCurrentTransform())
+            .Transform(ctx.CurrentTransform)
             .RoundOut()
             .Intersection(parentRegion);
     }
@@ -758,7 +758,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     ctx.Transform(this._RenderXform);
     ctx.SetGlobalAlpha(this._TotalOpacity);
 
-    var canvasCtx = ctx.GetCanvasContext();
+    var canvasCtx = ctx.CanvasContext;
     var clip = this.Clip;
     if (clip) {
         clip.Draw(ctx);

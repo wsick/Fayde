@@ -2,7 +2,7 @@
 /// <reference path="PropertyValueProvider.js"/>
 /// <reference path="Enums.js"/>
 /// CODE
-/// <reference path="../Data/PropertyChangedListener.js"/>
+/// <reference path="../../Data/PropertyChangedListener.js"/>
 
 //#region _InheritedDataContextPropertyValueProvider
 var _InheritedDataContextPropertyValueProvider = Nullstone.Create("_InheritedDataContextPropertyValueProvider", _PropertyValueProvider, 2);

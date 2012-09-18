@@ -55,9 +55,9 @@ TransformGroup.Instance._ChildrenItemChanged = function (sender, e) {
 TransformGroup.Instance._BuildValue = function () {
     var children = this.Children;
     var count = children.GetCount();
-    var cur = new Matrix();
+    var cur = mat3.identity();
     for (var i = count - 1; i >= 0; i--) {
-        Matrix.Multiply(cur, children.GetValueAt(i).Value, cur);
+        mat3.multiply(children.GetValueAt(i).Value.raw, cur, cur);
     }
     return cur;
 };

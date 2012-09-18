@@ -164,11 +164,11 @@ FrameworkElement.Instance._ComputeBounds = function () {
 };
 FrameworkElement.Instance._ComputeGlobalBounds = function () {
     this._ComputeGlobalBounds$UIElement();
-    this._GlobalBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform(this._LocalProjection);
+    this._GlobalBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform4(this._LocalProjection);
 };
 FrameworkElement.Instance._ComputeSurfaceBounds = function () {
     this._ComputeSurfaceBounds$UIElement();
-    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform(this._AbsoluteProjection);
+    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform4(this._AbsoluteProjection);
 };
 
 FrameworkElement.Instance._GetSubtreeExtents = function () {
@@ -380,11 +380,11 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
 
     */
 
-    var layoutXform = new Matrix();
-    Matrix.Translate(layoutXform, childRect.X, childRect.Y);
+    var layoutXform = mat3.identity();
+    mat3.translate(layoutXform, childRect.X, childRect.Y);
     if (flipHoriz) {
-        Matrix.Translate(layoutXform, offer.Width, 0.0);
-        Matrix.Scale(layoutXform, -1, 1);
+        mat3.translate(layoutXform, offer.Width, 0);
+        mat3.scale(layoutXform, -1, 1);
     }
     this._LayoutXform = layoutXform;
 
@@ -449,11 +449,11 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         visualOffset.Y = Math.round(visualOffset.Y);
     }
 
-    layoutXform = new Matrix();
-    Matrix.Translate(layoutXform, visualOffset.X, visualOffset.Y);
+    layoutXform = mat3.identity();
+    mat3.translate(layoutXform, visualOffset.X, visualOffset.Y);
     if (flipHoriz) {
-        Matrix.Translate(layoutXform, response.Width, 0);
-        Matrix.Scale(layoutXform, -1, 1);
+        mat3.translate(layoutXform, response.Width, 0);
+        mat3.scale(layoutXform, -1, 1);
     }
     this._LayoutXform = layoutXform;
 
@@ -572,14 +572,14 @@ FrameworkElement.Instance._RenderLayoutClip = function (ctx) {
             break;
         var visualOffset = LayoutInformation.GetVisualOffset(element);
         if (visualOffset) {
-            ctx.Transform(Matrix.CreateTranslate(-visualOffset.X, -visualOffset.Y));
+            ctx.Translate(-visualOffset.X, -visualOffset.Y);
             iX += visualOffset.X;
             iY += visualOffset.Y;
         }
 
         element = element.GetVisualParent();
     }
-    ctx.Transform(Matrix.CreateTranslate(iX, iY));
+    ctx.Translate(iX, iY);
 };
 
 FrameworkElement.Instance._ElementRemoved = function (value) {

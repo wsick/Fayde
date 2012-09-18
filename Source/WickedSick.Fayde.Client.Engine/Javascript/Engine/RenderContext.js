@@ -2,37 +2,38 @@
 /// CODE
 /// <reference path="Enums.js"/>
 /// <reference path="Surface.js"/>
+/// <reference path="../../gl-matrix.js"/>
+/// <reference path="../Runtime/gl-matrix-ex.js"/>
 
 //#region _RenderContext
-var _RenderContext = Nullstone.Create("_RenderContext", null, 1);
+var _RenderContext = Nullstone.Create("_RenderContext", undefined, 1);
 
 _RenderContext.Instance.Init = function (surface) {
-    this._Surface = surface;
+    this.Surface = surface;
+    this.CanvasContext = this.Surface._Ctx;
     this._Transforms = [];
 };
 
-_RenderContext.Instance.GetSurface = function () {
-    return this._Surface;
-};
-_RenderContext.Instance.GetCanvasContext = function () {
-    /// <returns type="CanvasRenderingContext2D" />
-    return this._Surface._Ctx;
-};
+Nullstone.AutoProperties(_RenderContext, [
+    "CurrentTransform",
+    "CanvasContext"
+]);
+
 _RenderContext.Instance.Clip = function (clip) {
     this._DrawClip(clip);
-    this._Surface._Ctx.clip();
+    this.CanvasContext.clip();
 };
 _RenderContext.Instance.IsPointInPath = function (p) {
-    return this._Surface._Ctx.isPointInPath(p.X, p.Y);
+    return this.CanvasContext.isPointInPath(p.X, p.Y);
 };
 _RenderContext.Instance.IsPointInClipPath = function (clip, p) {
     this._DrawClip(clip);
-    return this._Surface._Ctx.isPointInPath(p.X, p.Y);
+    return this.CanvasContext.isPointInPath(p.X, p.Y);
 };
 _RenderContext.Instance._DrawClip = function (clip) {
     if (clip instanceof Rect) {
-        this._Surface._Ctx.beginPath();
-        this._Surface._Ctx.rect(clip.X, clip.Y, clip.Width, clip.Height);
+        this.CanvasContext.beginPath();
+        this.CanvasContext.rect(clip.X, clip.Y, clip.Width, clip.Height);
         DrawDebug("DrawClip (Rect): " + clip.toString());
     } else if (clip instanceof Geometry) {
         clip.Draw(this);
@@ -43,51 +44,58 @@ _RenderContext.Instance._DrawClip = function (clip) {
     }
 };
 
-_RenderContext.Instance.Transform = function (matrix) {
-    if (matrix instanceof Transform) {
-        matrix = matrix.Value;
-    }
-    var ct = this._CurrentXform;
-    Matrix.Multiply(ct, matrix, ct);
-    var els = ct._Elements;
-    this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
-};
 _RenderContext.Instance.PreTransform = function (matrix) {
     if (matrix instanceof Transform) {
-        matrix = matrix.Matrix;
+        matrix = matrix.Value.raw;
     }
-    var ct = this._CurrentXform;
-    Matrix.Multiply(ct, ct, matrix);
-    var els = ct._Elements;
-    this._Surface._Ctx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
+
+    var ct = this.CurrentTransform;
+    mat3.multiply(ct, matrix, ct);
+    this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+
+    //Matrix.Multiply(ct, ct, matrix);
+    //var els = ct._Elements;
+    //this.CanvasContext.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
-_RenderContext.Instance.GetCurrentTransform = function () {
-    return this._CurrentXform;
+_RenderContext.Instance.Transform = function (matrix) {
+    if (matrix instanceof Transform) {
+        matrix = matrix.Value.raw;
+    }
+    var ct = this.CurrentTransform;
+    mat3.multiply(matrix, ct, ct);
+    this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+
+    //Matrix.Multiply(ct, matrix, ct);
+    //var els = ct._Elements;
+    //this.CanvasContext.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
-_RenderContext.Instance.GetInverseTransform = function () {
-    return this._CurrentXform.Inverse;
+_RenderContext.Instance.Translate = function (x, y) {
+    var ct = this.CurrentTransform;
+    mat3.translate(x, y);
+    this.CanvasContext.translate(x, y);
 };
+
 _RenderContext.Instance.Save = function () {
-    this._Surface._Ctx.save();
-    var ct = this._CurrentXform;
+    this.CanvasContext.save();
+    var ct = this.CurrentTransform;
     this._Transforms.push(ct);
-    this._CurrentXform = ct == null ? new Matrix() : ct.Copy();
+    this.CurrentTransform = ct == null ? mat3.identity() : mat3.create(ct);
 };
 _RenderContext.Instance.Restore = function () {
     var curXform = this._Transforms.pop();
-    this._CurrentXform = curXform;
-    this._Surface._Ctx.restore();
+    this.CurrentTransform = curXform;
+    this.CanvasContext.restore();
 };
 
 _RenderContext.Instance.Rect = function (rect) {
-    var ctx = this._Surface._Ctx;
+    var ctx = this.CanvasContext;
     ctx.beginPath();
     ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
     DrawDebug("Rect: " + rect.toString());
 };
 _RenderContext.Instance.Fill = function (brush, region) {
     /// <param name="brush" type="Brush"></param>
-    var ctx = this._Surface._Ctx;
+    var ctx = this.CanvasContext;
     brush.SetupBrush(ctx, region);
     ctx.fillStyle = brush.ToHtml5Object();
     ctx.fill();
@@ -96,7 +104,7 @@ _RenderContext.Instance.Fill = function (brush, region) {
 _RenderContext.Instance.FillRect = function (brush, rect) {
     /// <param name="brush" type="Brush"></param>
     /// <param name="rect" type="Rect"></param>
-    var ctx = this._Surface._Ctx;
+    var ctx = this.CanvasContext;
     brush.SetupBrush(ctx, rect);
     ctx.beginPath();
     ctx.rect(rect.X, rect.Y, rect.Width, rect.Height);
@@ -105,7 +113,7 @@ _RenderContext.Instance.FillRect = function (brush, rect) {
     DrawDebug("FillRect: [" + ctx.fillStyle.toString() + "] " + rect.toString());
 };
 _RenderContext.Instance.StrokeAndFillRect = function (strokeBrush, thickness, strokeRect, fillBrush, fillRect) {
-    var ctx = this._Surface._Ctx;
+    var ctx = this.CanvasContext;
     strokeBrush.SetupBrush(ctx, strokeRect);
     fillBrush.SetupBrush(ctx, fillRect);
     ctx.beginPath();
@@ -118,7 +126,7 @@ _RenderContext.Instance.StrokeAndFillRect = function (strokeBrush, thickness, st
 };
 _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     /// <param name="stroke" type="Brush"></param>
-    var ctx = this._Surface._Ctx;
+    var ctx = this.CanvasContext;
     stroke.SetupBrush(ctx, region);
     ctx.lineWidth = thickness;
     ctx.strokeStyle = stroke.ToHtml5Object();
@@ -127,11 +135,11 @@ _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
 };
 
 _RenderContext.Instance.Clear = function (rect) {
-    this._Surface._Ctx.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
+    this.CanvasContext.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
     DrawDebug("Clear: " + rect.toString());
 };
 _RenderContext.Instance.SetGlobalAlpha = function (alpha) {
-    this._Surface._Ctx.globalAlpha = alpha;
+    this.CanvasContext.globalAlpha = alpha;
 };
 
 _RenderContext.ToArray = function (args) {

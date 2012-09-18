@@ -10,6 +10,18 @@ Transform.Instance.Init = function () {
     this.ValueChanged = new MulticastEvent();
 };
 
+//#region Properties
+
+Nullstone.Property(Transform, "Value", {
+    get: function () {
+        if (!this._Value) {
+            var val = new Matrix();
+            val.raw = this._BuildValue();
+            this._Value = val;
+        }
+        return this._Value;
+    }
+});
 Nullstone.Property(Transform, "Inverse", {
     get: function () {
         var inverse = this.Value.Inverse;
@@ -22,45 +34,22 @@ Nullstone.Property(Transform, "Inverse", {
     }
 });
 
-Transform.Instance._TryTransform = function (inPoint, outPoint) {
-    var o = new Point();
-    Matrix.TransformPoint(o, this.Value, inPoint);
-    outPointOut.Value = o;
-    return true;
-};
-Transform.Instance._Transform = function (point) {
-    /// <param name="point" type="Point"></param>
-    /// <returns type="Point" />
-    var p = new Point();
-    Matrix.TransformPoint(p, this.Value, point);
-    return p;
-};
+//#endregion
+
 Transform.Instance.TransformPoint = function (point) {
-    Matrix.TransformPoint(point, this.Value, point);
+    var v = mat3.transformVec2(this.Value.raw, vec2.createFrom(point.X, point.Y));
+    return new Point(v[0], v[1]);
 };
 Transform.Instance.TransformBounds = function (rect) {
     /// <param name="rect" type="Rect"></param>
     /// <returns type="Rect" />
-    return Matrix.TransformBounds(this.Value, rect);
+    if (!rect)
+        return;
+    return rect.Transform(this.Value.raw);
 };
 
-Transform.Instance._UpdateTransform = function () {
-    var matrix = this.Value;
-    if (matrix)
-        this._M = Matrix3D.CreateAffine(this.Value);
-    else
-        this._M = new Matrix3D();
-};
-
-Nullstone.Property(Transform, "Value", {
-    get: function () {
-        if (!this._Value)
-            this._Value = this._BuildValue();
-        return this._Value;
-    }
-});
 Transform.Instance._BuildValue = function () {
-    AbstractMethod("_Transform.BuildValue");
+    AbstractMethod("Transform.BuildValue");
 };
 Transform.Instance._ClearValue = function () {
     delete this._Value;

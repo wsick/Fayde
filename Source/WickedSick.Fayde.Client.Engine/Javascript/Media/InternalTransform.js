@@ -6,30 +6,18 @@ var InternalTransform = Nullstone.Create("InternalTransform", GeneralTransform);
 
 InternalTransform.Instance.Init = function () {
     this.Init$GeneralTransform();
+    this.raw = mat4.identity();
 };
 
-InternalTransform.Instance._GetInverse = function () {
-    var inverse = this._M.Inverse;
-    var t = new InternalTransform();
-    Matrix3D.Init(t._M, inverse._M);
-    return t;
-};
-InternalTransform.Instance._GetMatrix3D = function () {
-    var m3 = new Matrix3D();
-    Matrix3D.Init(m3, this._M);
-    return m3;
-};
-InternalTransform.Instance._TryTransform = function (inPoint, outPoint) {
-    var p4 = [inPoint.X, inPoint.Y, 0.0, 1.0];
-    Matrix3D.TransformPoint(p4, this._M, p4);
-    outPoint.Value = new Point(p4[0], p4[1]);
-    return true;
-};
-InternalTransform.Instance._SetTransform = function (m3) {
-    Matrix3D.Init(this._M, m3);
-};
-InternalTransform.Instance._UpdateTransform = function () {
-    //do nothing
+InternalTransform.Instance.Transform = function (p) {
+    var pi = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
+    var po = vec4.create();
+    mat4.transformVec4(this.raw, pi, po);
+    if (po[3] != 0.0){
+        var w = 1.0 / po[3];
+        return new Point(po[0] * w, p[1] * w);
+    }
+    return new Point(NaN, NaN);
 };
 
 Nullstone.FinishCreate(InternalTransform);

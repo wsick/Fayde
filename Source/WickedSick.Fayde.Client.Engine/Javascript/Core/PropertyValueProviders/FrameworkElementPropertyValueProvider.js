@@ -1,6 +1,6 @@
 /// <reference path="PropertyValueProvider.js"/>
 /// CODE
-/// <reference path="FrameworkElement.js"/>
+/// <reference path="../FrameworkElement.js"/>
 /// <reference path="../../Primitives/Size.js"/>
 
 //#region FrameworkElementPropertyValueProvider

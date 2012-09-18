@@ -36,12 +36,12 @@ RotateTransform.Instance._BuildValue = function () {
     var cx = this.CenterX;
     var cy = this.CenterY;
     var angleRad = Math.PI / 180 * this.Angle;
+    var m = mat3.createRotate(angleRad);
     if (cx === 0 && cy === 0)
-        return Matrix.CreateRotate(angleRad);
+        return m;
 
-    var m = new Matrix();
-    Matrix.Multiply(m, Matrix.CreateRotate(angleRad), Matrix.CreateTranslate(-cx, -cy));
-    Matrix.Multiply(m, Matrix.CreateTranslate(cx, cy), m);
+    mat3.multiply(m, mat3.createTranslate(-cx, -cy), m);
+    mat3.translate(m, cx, cy);
     return m;
 };
 

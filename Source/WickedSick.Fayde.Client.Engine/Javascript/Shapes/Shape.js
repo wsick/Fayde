@@ -10,7 +10,7 @@ var Shape = Nullstone.Create("Shape", FrameworkElement);
 Shape.Instance.Init = function () {
     this.Init$FrameworkElement();
     this._ShapeFlags = 0;
-    this._StretchXform = new Matrix();
+    this._StretchXform = mat3.identity();
     this._NaturalBounds = new Rect();
 };
 
@@ -176,7 +176,7 @@ Shape.Instance._InvalidateNaturalBounds = function () {
 };
 Shape.Instance._InvalidateStretch = function () {
     this._ExtentsWithChildren = this._Extents = new Rect();
-    this._StretchXform = new Matrix();
+    this._StretchXform = mat3.identity();
     this._InvalidatePathCache();
 };
 Shape.Instance._InvalidatePathCache = function (free) {
@@ -344,8 +344,7 @@ Shape.Instance._ComputeStretchBounds = function () {
     }
 
     if ((adjX && Shape.IsSignificant(sw - 1, shapeBounds.Width)) || (adjY && Shape.IsSignificant(sh - 1, shapeBounds.Height))) {
-        var temp = new Matrix();
-        Matrix.Scale(temp, adjX ? sw : 1.0, adjY ? sh : 1.0);
+        var temp = mat3.createScale(adjX ? sw : 1.0, adjY ? sh : 1.0);
         var stretchBounds = this._ComputeShapeBoundsImpl(false, temp);
         if (stretchBounds.Width !== shapeBounds.Width && stretchBounds.Height !== shapeBounds.Height) {
             sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
@@ -366,19 +365,19 @@ Shape.Instance._ComputeStretchBounds = function () {
 
     var st = this._StretchXform;
     if (!(this instanceof Line) || !autoDim)
-        Matrix.Translate(st, -x, -y);
-    Matrix.Translate(st,
+        mat3.translate(st, -x, -y);
+    mat3.translate(st,
         adjX ? -shapeBounds.Width * 0.5 : 0.0,
         adjY ? -shapeBounds.Height * 0.5 : 0.0);
-    Matrix.Scale(st,
+    mat3.scale(st,
         adjX ? sw : 1.0,
         adjY ? sh : 1.0);
     if (center) {
-        Matrix.Translate(st,
+        mat3.translate(st,
             adjX ? framework.Width * 0.5 : 0,
             adjY ? framework.Height * 0.5 : 0);
     } else {
-        Matrix.Translate(st,
+        mat3.translate(st,
             adjX ? (logicalBounds.Width * sw + diffX) * 0.5 : 0,
             adjY ? (logicalBounds.Height * sh + diffY) * 0.5 : 0);
     }

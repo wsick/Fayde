@@ -48,8 +48,8 @@ GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
     /// <param name="bounds" type="Rect"></param>
     /// <returns type="Matrix" />
     if (this.MappingMode === BrushMappingMode.Absolute)
-        return new Matrix();
-    return new Matrix.CreateScale(bounds.Width, bounds.Height);
+        return mat3.identity();
+    return mat3.createScale(bounds.Width, bounds.Height);
 };
 
 Nullstone.FinishCreate(GradientBrush);

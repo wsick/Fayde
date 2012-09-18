@@ -18,7 +18,7 @@ Fayde.Image.Instance.Init = function () {
     this.ImageOpened = new MulticastEvent();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
@@ -198,8 +198,7 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     if (metrics.Overlap !== RectOverlap.In || this._HasLayoutClip())
         this._RenderLayoutClip(ctx);
     ctx.PreTransform(metrics.Matrix);
-    var canvasCtx = ctx.GetCanvasContext();
-    canvasCtx.drawImage(source._Image, 0, 0);
+    canvas.CanvasContext.drawImage(source._Image, 0, 0);
     DrawDebug("Image: [" + source._Image.src + "]");
     ctx.Restore();
 
@@ -293,7 +292,6 @@ Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, al
     /// <param name="stretch" type="Stretch"></param>
     /// <param name="alignX" type="Number"></param>
     /// <param name="alignY" type="Number"></param>
-    /// <returns type="Matrix" />
 
     var sx = width / sw;
     var sy = height / sh;
@@ -303,7 +301,7 @@ Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, al
         sy = 1.0;
 
     if (stretch === Stretch.Fill) {
-        return new Matrix.CreateScale(sx, sy);
+        return mat3.createScale(sx, sy);
     }
 
     var scale = 1.0;
@@ -345,8 +343,9 @@ Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, al
             dy = height - (scale * sh);
             break;
     }
-    return Matrix.Create([scale, 0, dx, 0, scale, dy],
-        [1 / scale, 0, -dx, 0, 1 / scale, -dy]);
+    var m = mat3.createScale(scale, scale);
+    mat3.translate(m, dx, dy);
+    return m;
 };
 
 Nullstone.FinishCreate(Fayde.Image);

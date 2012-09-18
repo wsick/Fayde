@@ -233,7 +233,7 @@ _TextBoxView.Instance._RenderImpl = function (ctx, region) {
         if (!caretBrush)
             caretBrush = new SolidColorBrush(new Color(0, 0, 0));
 
-        var canvasCtx = ctx.GetCanvasContext();
+        var canvasCtx = ctx.CanvasContext;
         var rect = this._Cursor;
         canvasCtx.beginPath();
         canvasCtx.moveTo(rect.X + 0.5, rect.Y);

@@ -38,12 +38,12 @@ ScaleTransform.Instance._OnPropertyChanged = function (args, error) {
 ScaleTransform.Instance._BuildValue = function () {
     var cx = this.CenterX;
     var cy = this.CenterY;
+    var m = mat3.createScale(this.ScaleX, this.ScaleY);
     if (cx === 0 && cy === 0)
-        return Matrix.CreateScale(this.ScaleX, this.ScaleY);
+        return m;
 
-    var m = new Matrix();
-    Matrix.Multiply(m, Matrix.CreateScale(this.ScaleX, this.ScaleY), Matrix.CreateTranslate(-cx, -cy));
-    Matrix.Multiply(m, Matrix.CreateTranslate(cx, cy), m);
+    mat3.multiply(m, mat3.createTranslate(-cx, -cy), m);
+    mat3.translate(m, cx, cy);
     return m;
 };
 

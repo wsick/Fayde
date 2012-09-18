@@ -38,18 +38,17 @@ Brush.Instance.SetupBrush = function (ctx, bounds) {
         return;
     }
 
-    var matrix = transform.Value;
-    var els = transform.Value._Elements;
-    var transformedBounds = Matrix.TransformBounds(matrix, bounds);
+    var transformedBounds = transform.TransformBounds(bounds);
+    var raw = transform.Value.raw;
 
     this._Brush = this.CreateBrush(ctx, bounds);
-    var fillExtents = bounds.GrowBy(els[2], els[5], 0, 0);
+    var fillExtents = bounds.GrowBy(raw[2], raw[5], 0, 0);
 
     var tmpCanvas = document.createElement('canvas');
     tmpCanvas.width = Math.max(transformedBounds.Width, bounds.Width);
     tmpCanvas.height = Math.max(transformedBounds.Height, bounds.Height);
     var tmpCtx = tmpCanvas.getContext('2d');
-    tmpCtx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
+    tmpCtx.setTransform(raw[0], raw[1], raw[3], raw[4], raw[2], raw[5]);
     tmpCtx.fillStyle = this._Brush;
     tmpCtx.fillRect(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height);
 

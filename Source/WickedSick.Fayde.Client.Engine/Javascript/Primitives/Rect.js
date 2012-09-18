@@ -1,7 +1,6 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="Matrix.js"/>
-/// <reference path="Matrix3D.js"/>
 /// <reference path="Enums.js"/>
 
 //#region Rect
@@ -112,10 +111,96 @@ Rect.prototype.Transform = function (transform) {
     if (!transform)
         return this;
 
-    if (transform instanceof Matrix)
-        return Matrix.TransformBounds(transform, this);
-    else if (transform instanceof Matrix3D)
-        return Matrix3D.TransformBounds(transform, this);
+    var x = this.X;
+    var y = this.Y;
+    var width = this.Width;
+    var height = this.Height;
+
+    var p1 = vec2.createFrom(x, y);
+    var p2 = vec2.createFrom(x + width, y);
+    var p3 = vec2.createFrom(x + width, y + height);
+    var p4 = vec2.createFrom(x, y + height);
+
+    mat3.transformVec2(transform, p1);
+    mat3.transformVec2(transform, p2);
+    mat3.transformVec2(transform, p3);
+    mat3.transformVec2(transform, p4);
+
+    var l = Math.min(p1[0], p2[0], p3[0], p4[0]);
+    var t = Math.min(p1[1], p2[1], p3[1], p4[1]);
+    var r = Math.max(p1[0], p2[0], p3[0], p4[0]);
+    var b = Math.max(p1[1], p2[1], p3[1], p4[1]);
+
+    return new Rect(l, t, r - l, b - t);
+};
+Rect.prototype.Transform4 = function (transform) {
+    /// <returns type="Rect" />
+    if (!transform)
+        return this;
+
+    var x = this.X;
+    var y = this.Y;
+    var width = this.Width;
+    var height = this.Height;
+
+    var p1 = vec4.createFrom(x, y, 0.0, 1.0);
+    var p2 = vec4.createFrom(x + width, y, 0.0, 1.0);
+    var p3 = vec4.createFrom(x + width, y + height, 0.0, 1.0);
+    var p4 = vec4.createFrom(x, y + height, 0.0, 1.0);
+
+    mat4.transformVec4(transform, p1);
+    mat4.transformVec4(transform, p2);
+    mat4.transformVec4(transform, p3);
+    mat4.transformVec4(transform, p4);
+
+    var vs = 65536.0;
+    var vsr = 1.0 / vs;
+    p1[0] *= vsr;
+    p1[1] *= vsr;
+    p2[0] *= vsr;
+    p2[1] *= vsr;
+    p3[0] *= vsr;
+    p3[1] *= vsr;
+    p4[0] *= vsr;
+    p4[1] *= vsr;
+
+    var clipmask = Rect._ClipMask;
+    var cm1 = clipmask(p1);
+    var cm2 = clipmask(p2);
+    var cm3 = clipmask(p3);
+    var cm4 = clipmask(p4);
+
+    var bounds;
+    if ((cm1 | cm2 | cm3 | cm4) !== 0) {
+        bounds = new Rect();
+        if ((cm1 & cm2 & cm3 & cm4) === 0) {
+            NotImplemented("Rect.Transform4");
+            //var r1 = Matrix3D._ClipToBounds(p1, p2, p3, cm1 | cm2 | cm3);
+            //var r2 = Matrix3D._ClipToBounds(p1, p3, p4, cm1 | cm3 | cm4);
+            //if (!r1.IsEmpty()) bounds = bounds.Union(r1);
+            //if (!r2.IsEmpty()) bounds = bounds.Union(r2);
+        }
+    } else {
+        var p1w = 1.0 / p1[3];
+        var p2w = 1.0 / p2[3];
+        var p3w = 1.0 / p3[3];
+        var p4w = 1.0 / p4[3];
+        p1[0] *= p1w * vs;
+        p1[1] *= p1w * vs;
+        p2[0] *= p2w * vs;
+        p2[1] *= p2w * vs;
+        p3[0] *= p3w * vs;
+        p3[1] *= p3w * vs;
+        p4[0] *= p4w * vs;
+        p4[1] *= p4w * vs;
+
+        bounds = new Rect(p1[0], p1[1], 0, 0);
+        bounds.ExtendTo(p2[0], p2[1]);
+        bounds.ExtendTo(p3[0], p3[1]);
+        bounds.ExtendTo(p4[0], p4[1]);
+    }
+
+    return bounds;
 };
 Rect.prototype.RectIn = function (rect2) {
     /// <param name="rect2" type="Rect"></param>
@@ -143,18 +228,34 @@ Rect.prototype.ContainsPointXY = function (x, y) {
         && (this.Y + this.Height) >= y;
 };
 Rect.prototype.ExtendTo = function (x, y) {
-    var result = new Rect(this.X, this.Y, this.Width, this.Height);
+    var rx = this.X;
+    var ry = this.Y;
+    var rw = this.Width;
+    var rh = this.Height;
 
-    if (x < result.X || x > (result.X + result.Width))
-        result.Width = Math.max(Math.abs(x - result.X), Math.abs(x - result.X - result.Width));
+    if (x < rx || x > (rx + rw))
+        rw = Math.max(Math.abs(x - rx), Math.abs(x - rx - rw));
+    if (y < ry || y > (ry + rh))
+        rh = Math.max(Math.abs(y - ry), Math.abs(y - ry - rh));
 
-    if (y < result.Y || y > (result.Y + result.Height))
-        result.Height = Math.max(Math.abs(y - result.Y), Math.abs(y - result.Y - result.Height));
+    this.X = Math.min(rx, x);
+    this.Y = Math.min(ry, y);
 
-    result.X = Math.min(result.X, x);
-    result.Y = Math.min(result.Y, y);
+    this.Width = rw;
+    this.Height = rh;
+};
 
-    return result;
+Rect._ClipMask = function (clip) {
+    var mask = 0;
+
+    if (-clip[0] + clip[3] < 0) mask |= (1 << 0);
+    if (clip[0] + clip[3] < 0) mask |= (1 << 1);
+    if (-clip[1] + clip[3] < 0) mask |= (1 << 2);
+    if (clip[1] + clip[3] < 0) mask |= (1 << 3);
+    if (clip[2] + clip[3] < 0) mask |= (1 << 4);
+    if (-clip[2] + clip[3] < 0) mask |= (1 << 5);
+
+    return mask;
 };
 
 Rect.prototype.toString = function () {

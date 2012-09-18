@@ -4,10 +4,6 @@
 //#region MatrixTransform
 var MatrixTransform = Nullstone.Create("MatrixTransform", Transform);
 
-MatrixTransform.Instance.Init = function () {
-    this.Init$Transform();
-};
-
 //#region Properties
 
 MatrixTransform.ValueProperty = DependencyProperty.RegisterFull("Value", function () { return Matrix; }, MatrixTransform, undefined, { GetValue: function () { return new Matrix(); } });

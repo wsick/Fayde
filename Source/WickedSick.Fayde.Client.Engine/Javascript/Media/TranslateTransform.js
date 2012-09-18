@@ -30,7 +30,7 @@ TranslateTransform.Instance._OnPropertyChanged = function (args, error) {
 };
 
 TranslateTransform.Instance._BuildValue = function () {
-    return Matrix.CreateTranslate(this.X, this.Y);
+    return mat3.createTranslate(this.X, this.Y);
 };
 
 Nullstone.FinishCreate(TranslateTransform);

@@ -155,7 +155,7 @@ RawPath.Instance.Close = function () {
 RawPath.Instance.Draw = function (ctx) {
     var canvasCtx = ctx;
     if (ctx instanceof _RenderContext)
-        canvasCtx = ctx.GetCanvasContext();
+        canvasCtx = ctx.CanvasContext;
     canvasCtx.beginPath();
     var backing = this._Path;
     for (var i = 0; i < backing.length; i++) {

@@ -73,6 +73,7 @@
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
+    <Content Include="gl-matrix.js" />
     <Content Include="Global.asax" />
     <Content Include="JavascriptTests\DependencyObjectTests.js" />
     <Content Include="JavascriptTests\FaydeAsserts.js" />
@@ -157,6 +158,7 @@
     <Content Include="Javascript\Engine\NavService.js" />
     <Content Include="Javascript\Core\DeferredValueExpression.js" />
     <Content Include="Javascript\Core\TabNavigationWalker.js" />
+    <Content Include="Javascript\gl-matrix-min.js" />
     <Content Include="Javascript\Media\Animation\AnimationUsingKeyFrames.js" />
     <Content Include="Javascript\Media\Animation\BackEase.js" />
     <Content Include="Javascript\Media\Animation\BeginStoryboard.js" />
@@ -212,6 +214,7 @@
     <Content Include="Javascript\Core\Input\KeyboardEventArgs.js" />
     <Content Include="Javascript\Core\Input\MouseEventArgs.js" />
     <Content Include="Javascript\Core\RoutedPropertyChangedEventArgs.js" />
+    <Content Include="Javascript\Runtime\gl-matrix-ex.js" />
     <Content Include="Javascript\Runtime\Timer.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />

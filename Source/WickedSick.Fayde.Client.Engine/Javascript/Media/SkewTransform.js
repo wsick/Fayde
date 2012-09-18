@@ -40,12 +40,12 @@ SkewTransform.Instance._BuildValue = function () {
     var cy = this.CenterY;
     var angleXRad = Math.PI / 180 * this.AngleX;
     var angleYRad = Math.PI / 180 * this.AngleY;
+    var m = mat3.createSkew(angleXRad, angleYRad);
     if (cx === 0 && cy === 0)
-        return Matrix.CreateSkew(angleXRad, angleYRad);
+        return m;
 
-    var m = new Matrix();
-    Matrix.Multiply(m, Matrix.CreateSkew(angleXRad, angleYRad), Matrix.CreateTranslate(-cx, -cy));
-    Matrix.Multiply(m, Matrix.CreateTranslate(cx, cy), m);
+    mat3.multiply(m, mat3.createTranslate(-cx, -cy), m);
+    mat3.translate(m, cx, cy);
     return m;
 };
 

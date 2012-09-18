@@ -4,7 +4,7 @@
 /// <reference path="Dirty.js"/>
 /// <reference path="Debug.js"/>
 /// <reference path="../Core/LayoutInformation.js"/>
-/// <reference path="../Runtime/Collection.js"/>
+/// <reference path="../Core/Collections/Collection.js"/>
 /// <reference path="../Runtime/EventArgs.js"/>
 /// <reference path="DirtyNode.js"/>
 /// <reference path="../Primitives/Font.js"/>
@@ -224,13 +224,13 @@ Surface.Instance.Render = function (region) {
     var layerCount = layers ? layers.GetCount() : 0;
 
     ctx.Clear(region);
-    ctx.GetCanvasContext().save();
+    ctx.CanvasContext.save();
     ctx.Clip(region);
     RenderDebug.Count = 0;
     for (var i = 0; i < layerCount; i++) {
         layers.GetValueAt(i)._DoRender(ctx, region);
     }
-    ctx.GetCanvasContext().restore();
+    ctx.CanvasContext.restore();
     RenderDebug("UIElement Count: " + RenderDebug.Count);
 
     if (isRenderPassTimed)

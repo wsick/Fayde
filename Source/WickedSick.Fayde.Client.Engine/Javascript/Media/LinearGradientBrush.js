@@ -64,14 +64,16 @@ LinearGradientBrush.Instance._CreateReflect = function (ctx, bounds) {
 
 LinearGradientBrush.Instance._GetPointData = function (bounds) {
     var transform = this._GetMappingModeTransform(bounds);
-    var start = new Point();
-    var end = new Point();
-    Matrix.TransformPoint(start, transform, this.StartPoint);
-    Matrix.TransformPoint(end, transform, this.EndPoint);
+
+    var sp = this.StartPoint;
+    var ep = this.EndPoint;
+
+    var s = mat3.transformVec2(transform, vec2.createFrom(sp.X, sp.Y));
+    var e = mat3.transformVec2(transform, vec2.createFrom(ep.X, ep.Y));
     
     return {
-        start: start,
-        end: end
+        start: new Point(s[0], s[1]),
+        end: new Point(e[0], e[1])
     };
 };
 

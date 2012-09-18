@@ -60,7 +60,7 @@ DropShadowEffect.Instance.PreRender = function (ctx) {
     var offsetX = Math.cos(direction) * depth;
     var offsetY = Math.sin(direction) * depth;
 
-    var canvasCtx = ctx.GetCanvasContext();
+    var canvasCtx = ctx.CanvasContext;
 
     canvasCtx.shadowColor = "rgba(" + color.R + "," + color.G + "," + color.B + "," + opacity + ")";
     canvasCtx.shadowBlur = radius;
