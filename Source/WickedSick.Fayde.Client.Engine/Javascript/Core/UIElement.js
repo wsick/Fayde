@@ -608,7 +608,7 @@ UIElement.Instance._InsideClip = function (ctx, x, y) {
 };
 UIElement.Instance._TransformPoint = function (p) {
     /// <param name="p" type="Point"></param>
-    var inverse = mat4.inverse(this._AbsoluteProjection);
+    var inverse = mat4.inverse(this._AbsoluteProjection, mat4.create());
     if (inverse == null) {
         Warn("Could not get inverse of Absolute Projection for UIElement.");
         return;
@@ -621,7 +621,7 @@ UIElement.Instance._TransformPoint = function (p) {
     var m23 = inverse[11];
     p4[2] = -(m20 * p4[0] + m21 * p4[1] + m23) / m22;
 
-    mat4.multiplyVec4(inverse, p4);
+    mat4.transformVec4(inverse, p4);
     p.X = p4[0] / p4[3];
     p.Y = p4[1] / p4[3];
 };
