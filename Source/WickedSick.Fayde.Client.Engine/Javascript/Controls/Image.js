@@ -198,7 +198,7 @@ Fayde.Image.Instance._Render = function (ctx, region) {
     if (metrics.Overlap !== RectOverlap.In || this._HasLayoutClip())
         this._RenderLayoutClip(ctx);
     ctx.PreTransform(metrics.Matrix);
-    canvas.CanvasContext.drawImage(source._Image, 0, 0);
+    ctx.CanvasContext.drawImage(source._Image, 0, 0);
     DrawDebug("Image: [" + source._Image.src + "]");
     ctx.Restore();
 

@@ -27,6 +27,7 @@ Matrix3D.prototype.toString = function () {
     return this._Elements.toString();
 };
 
+/*
 Matrix3D.Init = function (A, B) {
     /// <summary>Copies B onto A.</summary>
     /// <param name="A" type="Matrix3D"></param>
@@ -154,9 +155,9 @@ Matrix3D.TransformBounds = function (m3, bounds) {
         p4[1] *= p4w * vs;
 
         bounds = new Rect(p1[0], p1[1], 0, 0);
-        bounds = bounds.ExtendTo(p2[0], p2[1]);
-        bounds = bounds.ExtendTo(p3[0], p3[1]);
-        bounds = bounds.ExtendTo(p4[0], p4[1]);
+        bounds.ExtendTo(p2[0], p2[1]);
+        bounds.ExtendTo(p3[0], p3[1]);
+        bounds.ExtendTo(p4[0], p4[1]);
     }
 
     return bounds;
@@ -244,3 +245,4 @@ Matrix3D._ClipMask = function (clip) {
 
 	return mask;
 };
+*/
