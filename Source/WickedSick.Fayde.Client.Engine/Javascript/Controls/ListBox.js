@@ -16,7 +16,7 @@ ListBox.Instance.Init = function () {
 
 ListBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () { return Style; }, ListBox, undefined, function (d, args) { d.OnItemContainerStyleChanged(args.OldValue, args.NewValue); });
 ListBox.SelectionModeProperty = DependencyProperty.RegisterCore("SelectionMode", function () { return new Enum(SelectionMode); }, ListBox, undefined, function (d, args) { d._Selection.Mode = args.NewValue; });
-ListBox.IsSelectionActiveProperty = DependencyProperty.RegisterReadOnlyCore("IsSelectionActive", function () { return Boolean; }, ListBox);
+ListBox.IsSelectionActiveProperty = Selector.IsSelectionActiveProperty;
 
 Nullstone.AutoProperties(ListBox, [
     ListBox.ItemContainerStyleProperty,

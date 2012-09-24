@@ -61,7 +61,7 @@ Nullstone.Property(Selector, "SelectedItems", {
     }
 });
 
-Nullstone.AbstractProperty(Selector, "IsSelectionActive", true);
+Nullstone.AutoPropertyReadOnly(Selector, Selector.IsSelectionActiveProperty);
 
 //#endregion
 
