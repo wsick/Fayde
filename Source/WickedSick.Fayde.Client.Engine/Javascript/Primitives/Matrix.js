@@ -61,7 +61,8 @@ function Matrix() {
     });
     Object.defineProperty(this, "Inverse", {
         get: function () {
-            var inverse = mat3.inverse(this.raw);
+            var inverse = mat3.identity();
+            mat3.inverse(this.raw, inverse);
             if (inverse) {
                 var m = new Matrix();
                 m.raw = inverse;

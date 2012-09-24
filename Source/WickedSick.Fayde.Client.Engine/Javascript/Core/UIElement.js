@@ -463,7 +463,7 @@ UIElement.Instance._ComputeLocalTransform = function () {
     var transformOrigin = this._GetTransformOrigin();
     this._LocalXform = mat3.identity();
     this._RenderXform = mat3.identity();
-    transform.GetTransform(this._RenderXform);
+    mat3.set(transform.Value.raw, this._RenderXform);
 
     mat3.translate(this._LocalXform, transformOrigin.X, transformOrigin.Y);
     mat3.multiply(this._LocalXform, this._RenderXform, this._LocalXform); //local = render * local
