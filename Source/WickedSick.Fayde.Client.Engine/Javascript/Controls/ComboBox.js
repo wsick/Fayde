@@ -83,7 +83,7 @@ ComboBox.Instance.OnApplyTemplate = function () {
     if (this.$Popup != null) {
         this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
         this.$Popup._CatchClickedOutside();
-        this.$Popup.Subscribe(this._PopupClickedOutside, this);
+        this.$Popup.ClickedOutside.Subscribe(this._PopupClickedOutside, this);
         
         var child = this.$Popup.Child;
         if (child != null) {
