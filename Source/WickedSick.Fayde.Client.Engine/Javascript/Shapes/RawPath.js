@@ -106,24 +106,31 @@ RawPath.Instance.Bezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
     });
 };
 RawPath.Instance.Ellipse = function (x, y, width, height) {
-    var kappa = .5522848; // 4 * ((sqrt(2) - 1) / 3)
-    var ox = width / 2 * kappa;
-    var oy = height / 2 * kappa;
+    var radiusX = width / 2;
+    var radiusY = height / 2;
     var right = x + width;
     var bottom = y + height;
-    var centerX = x + width / 2;
-    var centerY = y + height / 2;
-    //move to left edge, halfway down
-    this.Move(x, centerY);
-    //top left bezier curve
-    this.Bezier(x, centerY - oy, centerX - ox, y, centerX, y);
-    //top right bezier curve
-    this.Bezier(centerX + ox, y, right, centerY - oy, right, centerY);
-    //bottom right bezier curve
-    this.Bezier(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
-    //bottom left bezier curve
-    this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
-    this.Close();
+    var centerX = x + radiusX;
+    var centerY = y + radiusY;
+    if (width === height) { //circle
+        this.Arc(centerX, centerY, radiusX, 0, Math.PI * 2, false);
+    } else { //oval
+        var kappa = .5522848; // 4 * ((sqrt(2) - 1) / 3)
+        var ox = radiusX * kappa;
+        var oy = radiusY * kappa;
+
+        //move to left edge, halfway down
+        this.Move(x, centerY);
+        //top left bezier curve
+        this.Bezier(x, centerY - oy, centerX - ox, y, centerX, y);
+        //top right bezier curve
+        this.Bezier(centerX + ox, y, right, centerY - oy, right, centerY);
+        //bottom right bezier curve
+        this.Bezier(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
+        //bottom left bezier curve
+        this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
+        this.Close();
+    }
 };
 RawPath.Instance.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
     NotImplemented("EllipticalArc");
