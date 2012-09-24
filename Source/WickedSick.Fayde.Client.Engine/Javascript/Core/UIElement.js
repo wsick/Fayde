@@ -189,7 +189,6 @@ UIElement.Instance.TransformToVisual = function (uie) {
 
     if (!ok || (uie && !uie._IsAttached)) {
         throw new ArgumentException("UIElement not attached.");
-        return null;
     }
 
     if (uie && !surface._IsTopLevel(uie)) {
@@ -204,7 +203,6 @@ UIElement.Instance.TransformToVisual = function (uie) {
         }
         if (!ok) {
             throw new ArgumentException("UIElement not attached.");
-            return null;
         }
     }
 

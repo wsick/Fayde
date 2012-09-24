@@ -82,11 +82,13 @@ ComboBox.Instance.OnApplyTemplate = function () {
 
     if (this.$Popup != null) {
         this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
+        this.$Popup._CatchClickedOutside();
+        this.$Popup.Subscribe(this._PopupClickedOutside, this);
         
         var child = this.$Popup.Child;
         if (child != null) {
             child.KeyDown.Subscribe(this._OnChildKeyDown, this);
-            this.$Popup._RealChild.SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
+            this.$Popup.RealChild.SizeChanged.Subscribe(this._UpdatePopupSizeAndPosition, this);
         }
     }
 
@@ -252,6 +254,9 @@ ComboBox.Instance._OnToggleUnchecked = function (sender, e) { this.IsDropDownOpe
 
 //#endregion
 
+ComboBox.Instance._PopupClickedOutside = function () {
+    this.IsDropDownOpen = false;
+};
 ComboBox.Instance._UpdateDisplayedItem = function (selectedItem) {
     if (this.$ContentPresenter == null)
         return;
@@ -304,7 +309,7 @@ ComboBox.Instance._UpdateDisplayedItem = function (selectedItem) {
 ComboBox.Instance._UpdatePopupSizeAndPosition = function (sender, e) {
     if (this.$Popup == null)
         return;
-    var child = this.$Popup._RealChild;
+    var child = this.$Popup.RealChild;
     if (!(child instanceof FrameworkElement))
         return;
     child.MinWidth = this.ActualWidth;
@@ -312,13 +317,13 @@ ComboBox.Instance._UpdatePopupSizeAndPosition = function (sender, e) {
     var root = App.Instance.MainSurface.Root;
     if (root == null)
         return;
-    try{
+    try {
         var xform = this.TransformToVisual(null);
     } catch (err) {
         //Ignore ComboBox being detached
         return;
     }
-    
+
     var offset = new Point(0, this.ActualHeight);
     var bottomRight = new Point(offset.X + child.ActualWidth, offset.Y + child.ActualHeight);
 
@@ -361,7 +366,7 @@ ComboBox.Instance._UpdatePopupMaxHeight = function (height) {
     if (this.$Popup != null && this.$Popup.Child instanceof FrameworkElement) {
         if (height === Number.POSITIVE_INFINITY)
             height = App.Instance.MainSurface.ActualHeight / 2.0;
-        this.$Popup._RealChild.MaxHeight = height;
+        this.$Popup.RealChild.MaxHeight = height;
     }
 };
 

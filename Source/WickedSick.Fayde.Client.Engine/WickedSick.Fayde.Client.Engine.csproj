@@ -100,7 +100,7 @@
     <Content Include="Javascript\Controls\MediaElement.js" />
     <Content Include="Javascript\Controls\Page.js" />
     <Content Include="Javascript\Controls\PasswordBox.js" />
-    <Content Include="Javascript\Controls\Popup.js" />
+    <Content Include="Javascript\Controls\Primitives\Popup.js" />
     <Content Include="Javascript\Controls\Primitives\ButtonBase.js" />
     <Content Include="Javascript\Controls\Primitives\DragCompletedEventArgs.js" />
     <Content Include="Javascript\Controls\Primitives\DragDeltaEventArgs.js" />
@@ -182,6 +182,8 @@
     <Content Include="Javascript\Media\Effects\DropShadowEffect.js" />
     <Content Include="Javascript\Media\Effects\Effect.js" />
     <Content Include="Javascript\Media\GradientMetrics.js" />
+    <Content Include="Javascript\Media\Matrix3DProjection.js" />
+    <Content Include="Javascript\Media\Projection.js" />
     <Content Include="Javascript\Media\RotateTransform.js" />
     <Content Include="Javascript\Media\ScaleTransform.js" />
     <Content Include="Javascript\Media\SkewTransform.js" />

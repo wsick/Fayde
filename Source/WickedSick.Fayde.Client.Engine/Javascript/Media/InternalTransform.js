@@ -4,6 +4,21 @@
 //#region InternalTransform
 var InternalTransform = Nullstone.Create("InternalTransform", GeneralTransform);
 
+Nullstone.Property(InternalTransform, "Inverse", {
+    get: function () {
+        var it = new InternalTransform();
+        it.raw = mat4.create();
+        mat4.inverse(this.raw, it.raw);
+        return it;
+    }
+});
+
+Nullstone.Property(InternalTransform, "Matrix", {
+    get: function () {
+        return mat4.create(this.raw);
+    }
+});
+
 InternalTransform.Instance.Init = function () {
     this.Init$GeneralTransform();
     this.raw = mat4.identity();
