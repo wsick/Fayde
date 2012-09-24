@@ -3690,7 +3690,7 @@ App.GetGenericResourceDictionary = function () {
                                 Resources: [
                                 {
                                     Type: Style,
-                                    Name: "comboToggleStyle",
+                                    Key: "comboToggleStyle",
                                     Props: {
                                         TargetType: ToggleButton
                                     },
