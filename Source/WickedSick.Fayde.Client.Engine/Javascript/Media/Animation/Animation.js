@@ -1,6 +1,6 @@
-﻿/// <reference path="../../Runtime/Nullstone.js"/>
-/// <reference path="Timeline.js"/>
+﻿/// <reference path="Timeline.js"/>
 /// CODE
+/// <reference path="AnimationStorage.js"/>
 
 //#region Animation
 var Animation = Nullstone.Create("Animation", Timeline);
@@ -13,6 +13,10 @@ Animation.Instance.HookupStorage = function (targetObj, targetProp) {
     /// <returns type="AnimationStorage" />
     this._Storage = new AnimationStorage(this, targetObj, targetProp);
     return this._Storage;
+};
+Animation.Instance.Disable = function () {
+    if (this._Storage != null)
+        this._Storage.Disable();
 };
 Animation.Instance.Stop = function () {
     if (this._Storage == null)
