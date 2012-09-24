@@ -14,7 +14,7 @@ Shape.Instance.Init = function () {
     this._NaturalBounds = new Rect();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Brush; }, Shape);
 Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Stretch); }, Shape, Stretch.None);

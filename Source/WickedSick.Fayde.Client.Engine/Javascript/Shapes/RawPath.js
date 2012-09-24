@@ -57,6 +57,7 @@ RawPath.Instance.RoundedRectFull = function (left, top, width, height, topLeft, 
     //top left arc
     if (topLeft > 0)
         this.Quadratic(left, top, left + topLeft, top);
+    this.Close();
 };
 RawPath.Instance.RoundedRect = function (left, top, width, height, radiusX, radiusY) {
     if (radiusX === 0.0 && radiusY === 0.0) {
@@ -82,6 +83,7 @@ RawPath.Instance.RoundedRect = function (left, top, width, height, radiusX, radi
     this.Line(left, top + radiusY);
     //top left arc
     this.Quadratic(left, top, left + radiusX, top);
+    this.Close();
 };
 RawPath.Instance.Quadratic = function (cpx, cpy, x, y) {
     this._Path.push({
@@ -121,6 +123,7 @@ RawPath.Instance.Ellipse = function (x, y, width, height) {
     this.Bezier(right, centerY + oy, centerX + ox, bottom, centerX, bottom);
     //bottom left bezier curve
     this.Bezier(centerX - ox, bottom, x, centerY + oy, x, centerY);
+    this.Close();
 };
 RawPath.Instance.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
     NotImplemented("EllipticalArc");

@@ -10,7 +10,7 @@ Rectangle.Instance.Init = function () {
     this.Stretch = Stretch.Fill;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 Rectangle.RadiusXProperty = DependencyProperty.Register("RadiusX", function () { return Number; }, Rectangle, 0.0);
 Rectangle.RadiusYProperty = DependencyProperty.Register("RadiusY", function () { return Number; }, Rectangle, 0.0);
