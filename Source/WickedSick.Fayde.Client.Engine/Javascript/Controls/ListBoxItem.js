@@ -19,9 +19,7 @@ Nullstone.AutoProperties(ListBoxItem, [
 ]);
 
 Nullstone.Property(ListBoxItem, "ParentSelector", {
-    get: function () {
-        return this._ParentSelector;
-    },
+    get: function () { return this._ParentSelector; },
     set: function (value) {
         if (Nullstone.RefEquals(this._ParentSelector, value))
             return;
