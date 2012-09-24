@@ -99,3 +99,8 @@ PropertyCollisionException.Instance.Init = function (baseClass, targetClass, pro
 
 Nullstone.FinishCreate(PropertyCollisionException);
 //#endregion
+
+//#region ArgumentException
+var ArgumentException = Nullstone.Create("ArgumentException", Exception);
+Nullstone.FinishCreate(ArgumentException);
+//#endregion
