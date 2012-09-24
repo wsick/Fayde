@@ -63,15 +63,15 @@ Polyline.Instance._OnPropertyChanged = function (args, error) {
     this._Invalidate();
     this.PropertyChanged.Raise(this, args);
 };
-Polyline.Instance._OnCollectionChanged = function (sender, args) {
-    if (!this._PropertyHasValueNoAutoCreate(Polyline.PointsProperty, sender)) {
-        this._OnCollectionChanged$Shape(sender, args);
+Polyline.Instance._OnCollectionChanged = function (col, args) {
+    if (!this._PropertyHasValueNoAutoCreate(Polyline.PointsProperty, col)) {
+        this._OnCollectionChanged$Shape(col, args);
         return;
     }
     this._InvalidateNaturalBounds();
 };
-Polyline.Instance._OnCollectionItemChanged = function (sender, args) {
-    this._OnCollectionItemChanged$Shape(sender, args);
+Polyline.Instance._OnCollectionItemChanged = function (col, obj, args) {
+    this._OnCollectionItemChanged$Shape(col, obj, args);
     this._InvalidateNaturalBounds();
 };
 

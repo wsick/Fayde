@@ -763,11 +763,11 @@ DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args)
 DependencyObject.Instance._OnCollectionChangedEH = function (sender, args) {
     this._OnCollectionChanged(sender, args);
 };
-DependencyObject.Instance._OnCollectionChanged = function (sender, args) { };
+DependencyObject.Instance._OnCollectionChanged = function (col, args) { };
 DependencyObject.Instance._OnCollectionItemChangedEH = function (sender, args) {
-    this._OnCollectionItemChanged(sender, args);
+    this._OnCollectionItemChanged(sender, args.Item, args);
 };
-DependencyObject.Instance._OnCollectionItemChanged = function (sender, args) { };
+DependencyObject.Instance._OnCollectionItemChanged = function (col, obj, args) { };
 
 //#endregion
 

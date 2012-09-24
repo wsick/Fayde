@@ -35,9 +35,9 @@ PathFigure.Instance._OnPropertyChanged = function (args, error) {
     this._Path = null;
     this.PropertyChanged.Raise(this, args);
 };
-PathFigure.Instance._OnCollectionChanged = function (sender, args) {
-    if (!this._PropertyHasValueNoAutoCreate(PathFigure.SegmentsProperty, sender)) {
-        this._OnCollectionChanged$DependencyObject(sender, args);
+PathFigure.Instance._OnCollectionChanged = function (col, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathFigure.SegmentsProperty, col)) {
+        this._OnCollectionChanged$DependencyObject(col, args);
         return;
     }
     this._Path = null;
@@ -48,9 +48,9 @@ PathFigure.Instance._OnCollectionChanged = function (sender, args) {
     };
     this.PropertyChanged.Raise(this, newArgs);
 };
-PathFigure.Instance._OnCollectionItemChanged = function (sender, args) {
-    if (!this._PropertyHasValueNoAutoCreate(PathFigure.SegmentsProperty, sender)) {
-        this._OnCollectionItemChanged$DependencyObject(sender, args);
+PathFigure.Instance._OnCollectionItemChanged = function (col, obj, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathFigure.SegmentsProperty, col)) {
+        this._OnCollectionItemChanged$DependencyObject(col, obj, args);
         return;
     }
     this._Path = null;

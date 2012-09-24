@@ -724,7 +724,7 @@ UIElement.Instance._DoArrangeWithError = function (error) {
 
         if (this.IsLayoutContainer()) {
             desired = this._DesiredSize;
-            if (this._IsAttached && surface._IsTopLevel(this) && !this._GetParent()) {
+            if (this._IsAttached && surface._IsTopLevel(this) && !this._Parent) {
                 var measure = LayoutInformation.GetPreviousConstraint(this);
                 if (measure)
                     desired = desired.Max(measure);
