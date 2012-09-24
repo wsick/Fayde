@@ -45,6 +45,8 @@ Popup.Annotations = {
 
 //#endregion
 
+Popup.Instance._ComputeBounds = function () { };
+
 Popup.Instance._OnIsAttachedChanged = function (value) {
     this._OnIsAttachedChanged$FrameworkElement(value);
     if (!value && this.IsOpen)

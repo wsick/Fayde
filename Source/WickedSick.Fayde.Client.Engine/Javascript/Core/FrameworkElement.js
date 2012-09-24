@@ -42,7 +42,7 @@ FrameworkElement.Instance.Init = function () {
     };
 };
 
-//#region Dependency Properties
+//#region Properties
 
 FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return Number; }, FrameworkElement, NaN);

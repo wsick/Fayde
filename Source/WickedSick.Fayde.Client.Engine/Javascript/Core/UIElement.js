@@ -29,6 +29,7 @@ UIElement.Instance.Init = function () {
     this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
     this._HiddenDesire = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
+    this._Extents = new Rect();
     this._Bounds = new Rect();
     this._GlobalBounds = new Rect();
     this._SurfaceBounds = new Rect();
