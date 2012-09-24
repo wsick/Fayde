@@ -816,7 +816,8 @@ Surface.Instance._ResizeCanvas = function () {
 
 Surface.Instance._FocusElement = function (uie) {
     /// <param name="uie" type="UIElement"></param>
-    FocusDebug("Surface._FocusElement (" + uie.__DebugToString() + ")");
+    if (uie)
+        FocusDebug("Surface._FocusElement (" + uie.__DebugToString() + ")");
     if (Nullstone.RefEquals(uie, this._FocusedElement))
         return true;
 
