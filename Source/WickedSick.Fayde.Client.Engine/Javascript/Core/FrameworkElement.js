@@ -823,7 +823,7 @@ FrameworkElement.Instance.SetVisualParent = function (value) {
     }
 };
 FrameworkElement.Instance._SetLogicalParent = function (value, error) {
-    if (this._LogicalParent == value)
+    if (Nullstone.RefEquals(this._LogicalParent, value))
         return;
 
     if (false/* TODO: IsShuttingDown */) {
