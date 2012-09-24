@@ -85,14 +85,14 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
     }
 
     if (index < 0 || index >= this.Owner.Items.GetCount()) {
-        isNewlyRealized = false;
+        isNewlyRealized.Value = false;
         return null;
     }
 
     if (alreadyRealized) {
         this._GenerationState._positionIndex = this.RealizedElements.IndexOf(index);
         this._GenerationState._positionOffset = this._GenerationState._step;
-        isNewlyRealized = false;
+        isNewlyRealized.Value = false;
         return this.ContainerIndexMap.GetValueFromKey1(index);
     }
 
@@ -100,16 +100,16 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
     var item = this.Owner.Items.GetValueAt(index);
     if (this.Owner.IsItemItsOwnContainer(item)) {
         container = Nullstone.As(item, DependencyObject);
-        isNewlyRealized = true;
+        isNewlyRealized.Value = true;
     }
     else {
         if (this.Cache.length == 0) {
             container = this.Owner.GetContainerForItem();
-            isNewlyRealized = true;
+            isNewlyRealized.Value = true;
         }
         else {
             container = this.Cache.pop();
-            isNewlyRealized = false;
+            isNewlyRealized.Value = false;
         }
 
         var c = Nullstone.As(container, ContentControl);
@@ -245,10 +245,9 @@ ItemContainerGenerator.Instance.OnOwnerItemsItemsChanged = function (sender, e) 
             position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
             this.Remove(position.index, position.offset, 1);
 
-            var fresh;
             var newPos = this.GeneratorPositionFromIndex(e.NewStartingIndex);
             this.StartAt(newPos.index, newPos.offset, 0, true);
-            this.PrepareItemContainer(this.GenerateNext(fresh));
+            this.PrepareItemContainer(this.GenerateNext({}));
             break;
         case NotifyCollectionChangedAction.Reset:
             var itemCount;
