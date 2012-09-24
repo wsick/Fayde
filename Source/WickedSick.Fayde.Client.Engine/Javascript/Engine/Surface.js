@@ -178,6 +178,16 @@ Surface.Instance.GetHeight = function () {
     return this._Canvas.offsetHeight;
 };
 
+Nullstone.Property(Surface, "ActualWidth", {
+    get: function () { return this._Canvas.offsetWidth; }
+});
+Nullstone.Property(Surface, "ActualHeight", {
+    get: function () { return this._Canvas.offsetHeight; }
+});
+Nullstone.Property(Surface, "Root", {
+    get: function () { return this._TopLevel; }
+});
+
 //#endregion
 
 //#region Render

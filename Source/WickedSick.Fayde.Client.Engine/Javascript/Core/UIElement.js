@@ -134,6 +134,9 @@ Nullstone.AutoPropertiesReadOnly(UIElement, [
 Nullstone.AutoProperties(UIElement, [
     "_SubtreeObject"
 ]);
+Nullstone.Property(UIElement, "RenderSize", {
+    get: function () { return this._RenderSize; }
+});
 
 //#endregion
 
