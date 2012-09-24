@@ -506,6 +506,8 @@ FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error
 //#endregion
 
 FrameworkElement.Instance._GetTransformOrigin = function () {
+    return new Point();
+    //TODO: Implement RenderTransformOrigin
     var userXformOrigin = this.RenderTransformOrigin;
     var width = this.ActualWidth;
     var height = this.ActualHeight;
