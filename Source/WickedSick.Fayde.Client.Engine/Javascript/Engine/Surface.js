@@ -14,7 +14,7 @@
 /// <reference path="../Core/Input/Enums.js"/>
 
 //#region Surface
-var Surface = Nullstone.Create("Surface", null, 1);
+var Surface = Nullstone.Create("Surface", undefined, 1);
 
 Surface.Instance.Init = function (app) {
     this._App = app;
@@ -25,6 +25,7 @@ Surface.Instance.Init = function (app) {
     this._Cursor = CursorType.Default;
     if (Surface._Invalidations == null)
         Surface._Invalidations = [];
+    this.LayoutUpdated = new MulticastEvent();
 };
 
 //#region Initialization
@@ -290,7 +291,7 @@ Surface.Instance._UpdateLayout = function (error) {
 
         if (pass._Updated || dirty) {
             updatedLayout = true;
-            //TODO: LayoutUpdated Event
+            this.LayoutUpdated.Raise(this, new EventArgs());
         }
     }
 

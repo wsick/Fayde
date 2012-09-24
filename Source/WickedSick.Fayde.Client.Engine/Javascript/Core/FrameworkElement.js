@@ -28,6 +28,18 @@ FrameworkElement.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 
     this.SizeChanged = new MulticastEvent();
+    this.LayoutUpdated = {
+        Subscribe: function (callback, closure) {
+            var surface = App.Instance.MainSurface;
+            if (surface)
+                surface.LayoutUpdated.Subscribe(callback, closure);
+        },
+        Unsubscribe: function (callback, closure) {
+            var surface = App.Instance.MainSurface;
+            if (surface)
+                surface.LayoutUpdated.Unsubscribe(callback, closure);
+        }
+    };
 };
 
 //#region Dependency Properties
