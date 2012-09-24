@@ -42,7 +42,7 @@ ScaleTransform.Instance._BuildValue = function () {
     if (cx === 0 && cy === 0)
         return m;
 
-    mat3.multiply(m, mat3.createTranslate(-cx, -cy), m);
+    mat3.multiply(mat3.createTranslate(-cx, -cy), m, m); //m = m * translation
     mat3.translate(m, cx, cy);
     return m;
 };

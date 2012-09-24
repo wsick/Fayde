@@ -50,7 +50,7 @@ _RenderContext.Instance.PreTransform = function (matrix) {
     }
 
     var ct = this.CurrentTransform;
-    mat3.multiply(matrix, ct, ct);
+    mat3.multiply(matrix, ct, ct); //ct = ct * matrix
     this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
 
     //Matrix.Multiply(ct, ct, matrix);
@@ -62,7 +62,7 @@ _RenderContext.Instance.Transform = function (matrix) {
         matrix = matrix.Value.raw;
     }
     var ct = this.CurrentTransform;
-    mat3.multiply(ct, matrix, ct);
+    mat3.multiply(ct, matrix, ct); //ct = matrix * ct
     this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
 
     //Matrix.Multiply(ct, matrix, ct);

@@ -57,7 +57,7 @@ TransformGroup.Instance._BuildValue = function () {
     var count = children.GetCount();
     var cur = mat3.identity();
     for (var i = count - 1; i >= 0; i--) {
-        mat3.multiply(children.GetValueAt(i).Value.raw, cur, cur);
+        mat3.multiply(children.GetValueAt(i).Value.raw, cur, cur); //cur = cur * child
     }
     return cur;
 };
