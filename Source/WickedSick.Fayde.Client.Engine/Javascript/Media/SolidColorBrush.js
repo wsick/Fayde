@@ -16,7 +16,7 @@ SolidColorBrush.Instance.Init = function (args) {
 
 //#region Properties
 
-SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush);
+SolidColorBrush.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, SolidColorBrush, undefined, function (d, args) { d._InvalidateSurfaceCache(); });
 
 Nullstone.AutoProperties(SolidColorBrush, [
     SolidColorBrush.ColorProperty
