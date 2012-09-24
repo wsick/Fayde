@@ -44,7 +44,7 @@ ComboBox.Instance._IsDropDownOpenChanged = function (args) {
         this.$DropDownToggle.IsChecked = open;
 
     if (open) {
-        this._FocusedIndex = this.Items.GetCount > 0 ? Math.max(this.SelectedIndex, 0) : -1;
+        this._FocusedIndex = this.Items.GetCount() > 0 ? Math.max(this.SelectedIndex, 0) : -1;
         if (this._FocusedIndex > -1) {
             var cbi = Nullstone.As(this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex), ComboBoxItem);
             if (cbi != null)
