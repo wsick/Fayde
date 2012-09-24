@@ -29,11 +29,19 @@ Nullstone.AutoProperties(Popup, [
 Nullstone.Property(Popup, "RealChild", {
     get: function () {
         if (this._ClickCatcher != null) {
-            return this.Child.Children[1];
+            return this.Child.Children.GetValueAt(1);
         }
         return this.Child;
     }
 });
+
+//#endregion
+
+//#region Annotations
+
+Popup.Annotations = {
+    ContentProperty: Popup.ChildProperty
+};
 
 //#endregion
 
@@ -133,15 +141,20 @@ Popup.Instance._UpdateCatcher = function () {
     if (this._ClickCatcher == null)
         return;
 
-    var xform = this.Child.TransformToVisual(null);
-    if (xform instanceof Transform) {
-        this._ClickCatcher.Projection = null;
-        this._ClickCatcher.RenderTransform = xform.Inverse;
-    } else if (xform instanceof InternalTransform) {
-        var projection = new Matrix3DProjection();
-        projection.ProjectionMatrix = xform.Inverse.Matrix;
-        this._ClickCatcher.RenderTransform = null;
-        this._ClickCatcher.Projection = projection;
+    try {
+        var xform = this.Child.TransformToVisual(null);
+        if (xform instanceof Transform) {
+            this._ClickCatcher.Projection = null;
+            this._ClickCatcher.RenderTransform = xform.Inverse;
+        } else if (xform instanceof InternalTransform) {
+            var projection = new Matrix3DProjection();
+            projection.ProjectionMatrix = xform.Inverse.Matrix;
+            this._ClickCatcher.RenderTransform = null;
+            this._ClickCatcher.Projection = projection;
+        }
+    } catch (err) {
+        if (!(err instanceof ArgumentException))
+            throw err;
     }
 
     this._ClickCatcher.Width = App.Instance.MainSurface.ActualWidth;
