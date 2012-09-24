@@ -811,7 +811,7 @@ DependencyObject.Instance.SetNameOnScope = function (name, scope) {
     return true;
 };
 
-DependencyObject.Instance._RegisterAllNamesRootedAt = function (namescope, error) {
+DependencyObject.Instance._RegisterAllNamesRootedAt = function (toNs, error) {
     if (error.IsErrored())
         return;
     if (this._RegisteringNames)
@@ -826,6 +826,44 @@ DependencyObject.Instance._RegisterAllNamesRootedAt = function (namescope, error
     var recurse = false;
 
     var thisNs = NameScope.GetNameScope(this);
+
+    if (thisNs && thisNs._GetTemporary()) {
+        mergeNamescope = true;
+    } else if (!thisNs) {
+        recurse = true;
+        registerName = true;
+    } else if (true /* TODO: IsHydratedFromXaml */) {
+        registerName = true;
+    }
+
+    if (mergeNamescope) {
+        toNs._MergeTemporaryScope(thisNs, error);
+        this._ClearValue(NameScope.NameScopeProperty, false);
+    }
+
+    if (registerName) {
+        var n = this.Name;
+        if (n) {
+            var o = toNs.FindName(n);
+            if (o) {
+                if (!Nullstone.RefEquals(o, this)) {
+                    error.SetErrored(BError.Argument, "The name already exists in the tree: " + n);
+                    return;
+                }
+            } else {
+                toNs.RegisterName(n, this);
+            }
+        }
+    }
+
+    if (recurse) {
+        var data = {
+            toNs: toNs,
+            error: error
+        };
+        this._Providers[_PropertyPrecedence.AutoCreate].ForeachValue(DependencyObject._RegisterDONames, data);
+        this._Providers[_PropertyPrecedence.LocalValue].ForeachValue(DependencyObject._RegisterDONames, data);
+    }
 
     this._RegisteringNames = false;
 };
@@ -853,6 +891,13 @@ DependencyObject.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
 
     this._RegisteringNames = false;
 }
+DependencyObject._RegisterDONames = function (propd, value, data) {
+    if (data.error.IsErrored())
+        return;
+    if (value != null && value instanceof DependencyObject) {
+        value._RegisterAllNamesRootedAt(data.toNs, data.error);
+    }
+};
 DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
     if (!propd._IsCustom && value && value instanceof DependencyObject) {
         value._UnregisterAllNamesRootedAt(fromNs);
