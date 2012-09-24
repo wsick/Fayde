@@ -82,7 +82,7 @@ Canvas.Instance._ComputeBounds = function () {
     var surface = App.Instance.MainSurface;
     this._ComputeBounds$Panel();
 
-    if (surface && this._IsAttached && Nullstone.RefEquals(surface._TopLevel, this)) {
+    if (surface && this._IsAttached && surface._IsTopLevel(this)) {
         // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
         var aw = surface.ActualWidth;
         var ah = surface.ActualHeight;
