@@ -211,10 +211,10 @@ UIElement.Instance.TransformToVisual = function (uie) {
     var result = mat4.create();
     // A = From, B = To, M = what we want
     // A = M * B
-    // => M = A * inv (B)
+    // => M = inv (B) * A
     if (uie) {
         var inverse = uie._AbsoluteProjection.Inverse;
-        mat4.multiply(inverse, this._AbsoluteProjection, result); //result = abs * inverse
+        mat4.multiply(this._AbsoluteProjection, inverse, result); //result = inverse * abs
     } else {
         mat4.set(this._AbsoluteProjection, result); //result = absolute
     }
@@ -364,22 +364,43 @@ UIElement.Instance._ComputeTransform = function () {
     this._CacheXform = mat3.identity();
     this._AbsoluteProjection = mat4.identity();
     this._LocalProjection = mat4.identity();
+    
+    var renderXform = this._RenderXform;
 
     var visualParent = this.GetVisualParent();
     if (visualParent != null) {
         mat3.set(visualParent._AbsoluteXform, this._AbsoluteXform);
         mat4.set(visualParent._AbsoluteProjection, this._AbsoluteProjection);
     } else if (this._Parent != null && this._Parent instanceof Popup) {
-        throw new NotImplementedException();
+        var popup = this._Parent;
+        var el = popup;
+        while (el != null) {
+            this._Flags |= (el._Flags & UIElementFlags.RenderProjection);
+            el = el.GetVisualParent();
+        }
+
+        if (this._Flags & UIElementFlags.RenderProjection) {
+            mat4.set(popup._AbsoluteProjection, this._LocalProjection);
+            var m = mat4.createTranslate(popup.HorizontalOffset, popup.VerticalOffset, 0.0);
+            mat4.multiply(m, this._LocalProjection, this._LocalProjection); //local = local * m
+        } else {
+            var pap = popup._AbsoluteProjection;
+            renderXform[0] = pap[0];
+            renderXform[1] = pap[1];
+            renderXform[2] = pap[3];
+            renderXform[3] = pap[4];
+            renderXform[4] = pap[5];
+            renderXform[5] = pap[7];
+            mat3.translate(renderXform, popup.HorizontalOffset, popup.VerticalOffset);
+        }
     }
 
-    var renderXform = this._RenderXform;
     mat3.multiply(renderXform, this._LayoutXform, renderXform); //render = layout * render
     mat3.multiply(renderXform, this._LocalXform, renderXform); //render = local * render
 
 
     var m = mat3.toAffineMat4(renderXform);
-    mat4.multiply(this._LocalProjection, m, this._LocalProjection); //local = m * local
+    mat4.multiply(m, this._LocalProjection, this._LocalProjection); //local = local * m
 
     if (false) {
         //TODO: Render To Intermediate not implemented
@@ -389,11 +410,11 @@ UIElement.Instance._ComputeTransform = function () {
 
     if (projection) {
         m = projection.GetTransform();
-        mat4.multiply(this._LocalProjection, m, this._LocalProjection); //local = m * local
+        mat4.multiply(m, this._LocalProjection, this._LocalProjection); //local = local * m
         this._Flags |= UIElementFlags.RenderProjection;
     }
 
-    mat4.multiply(this._AbsoluteProjection, this._LocalProjection, this._AbsoluteProjection); //abs = local * abs
+    mat4.multiply(this._LocalProjection, this._AbsoluteProjection, this._AbsoluteProjection); //abs = abs * local
 
     if (this instanceof Popup) {
         var popupChild = this.Child;
@@ -419,7 +440,7 @@ UIElement.Instance._ComputeTransform = function () {
 
         var inverse = mat3.inverse(this._CacheXform);
         mat4.toAffineMat4(inverse, m);
-        mat4.multiply(this._LocalProjection, m, this._RenderProjection); //render = m * local
+        mat4.multiply(m, this._LocalProjection, this._RenderProjection); //render = local * m
     } else {
         // render = local
         mat4.set(this._LocalProjection, this._RenderProjection);
