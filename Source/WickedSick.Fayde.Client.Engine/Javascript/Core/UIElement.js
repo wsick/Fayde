@@ -223,8 +223,8 @@ UIElement.Instance.TransformToVisual = function (uie) {
     if (raw) {
         var mt = new MatrixTransform();
         var m = new Matrix();
-        matrix.raw = raw;
-        mt._SetValue(MatrixTransform.MatrixProperty, matrix);
+        m.raw = raw;
+        mt._SetValue(MatrixTransform.MatrixProperty, m);
         return mt;
     }
 
