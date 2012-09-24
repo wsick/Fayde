@@ -379,18 +379,12 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         response.Height = Math.max(response.Height, framework.Height);
 
     var flipHoriz = false;
-    
-    /*
-    TODO: FLOW DIRECTION NOT IMPLEMENTED YET
-
     if (parent)
         flipHoriz = parent.FlowDirection !== this.FlowDirection;
-    else if (this.GetParent() && this.GetParent()._IsPopup())
-        flipHoriz = this.GetParent().FlowDirection != this.FlowDirection;
+    else if (this._Parent instanceof Popup)
+        flipHoriz = this._Parent.FlowDirection !== this.FlowDirection;
     else
         flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
-
-    */
 
     var layoutXform = mat3.identity();
     mat3.translate(layoutXform, childRect.X, childRect.Y);
