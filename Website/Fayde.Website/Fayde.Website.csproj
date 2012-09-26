@@ -62,6 +62,7 @@
     <Content Include="contribute.aspx" />
     <Content Include="App_Themes\default\images\bg.jpg" />
     <Content Include="demo.aspx" />
+    <Content Include="features.aspx" />
     <Content Include="home.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -93,6 +94,13 @@
     </Compile>
     <Compile Include="demo.aspx.designer.cs">
       <DependentUpon>demo.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="features.aspx.cs">
+      <DependentUpon>features.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="features.aspx.designer.cs">
+      <DependentUpon>features.aspx</DependentUpon>
     </Compile>
     <Compile Include="home.aspx.cs">
       <DependentUpon>home.aspx</DependentUpon>
