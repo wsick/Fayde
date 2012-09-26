@@ -1,8 +1,5 @@
-/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Panel.js" />
 /// CODE
-/// <reference path="Primitives.js" />
-/// <reference path="DependencyObject.js" />
 
 //#region StackPanel
 var StackPanel = Nullstone.Create("StackPanel", Panel);

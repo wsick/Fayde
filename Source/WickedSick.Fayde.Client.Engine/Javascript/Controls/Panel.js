@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js" />
 /// CODE
-/// <reference path="../Primitives/Brush.js"/>
+/// <reference path="../Media/Brush.js"/>
 
 //#region Panel
 var Panel = Nullstone.Create("Panel", FrameworkElement);

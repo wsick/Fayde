@@ -1,12 +1,5 @@
-/// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Primitives/ButtonBase.js"/>
 /// CODE
-/// <reference path="Style.js"/>
-/// <reference path="JsonParser.js"/>
-/// <reference path="Brushes.js"/>
-/// <reference path="Primitives.js"/>
-/// <reference path="VisualStateManager.js"/>
-/// <reference path="Animation.js"/>
 
 //#region Button
 var Button = Nullstone.Create("Button", ButtonBase);

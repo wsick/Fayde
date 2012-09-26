@@ -3,7 +3,7 @@
 /// <reference path="../Core/DependencyObject.js" />
 /// <reference path="../Primitives/CornerRadius.js"/>
 /// <reference path="../Primitives/Thickness.js"/>
-/// <reference path="../Primitives/Brush.js"/>
+/// <reference path="../Media/Brush.js"/>
 /// <reference path="../Engine/RenderContext.js"/>
 
 //#region Border
