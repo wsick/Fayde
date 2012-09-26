@@ -1,0 +1,33 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="default.master.cs" Inherits="Fayde.Website._default" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Fayde</title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div id="all">
+        <div id="content">
+            <div style="margin-left: 20px;">
+                <h1>Fayde</h1>
+                <ul class="menu">
+                    <li><asp:HyperLink NavigateUrl="~/home.aspx" runat="server">home</asp:HyperLink></li>
+                    <li><asp:HyperLink NavigateUrl="~/contribute.aspx" runat="server">contribute</asp:HyperLink></li>
+                    <li><asp:HyperLink NavigateUrl="~/demo.aspx" runat="server">demo</asp:HyperLink></li>
+                    <li><asp:HyperLink NavigateUrl="~/contact.aspx" runat="server">contact</asp:HyperLink></li>
+                </ul>
+                <div class="main">
+                    <asp:ContentPlaceHolder ID="cphBody" runat="server">
+            
+                    </asp:ContentPlaceHolder>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</body>
+</html>
