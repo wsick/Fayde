@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Website", "Fayde.Website\Fayde.Website.csproj", "{14FE1CFA-B229-40CF-9C00-AA01BBDB922A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fayde.Website.FeaturesDataEditor", "Fayde.Website.FeaturesDataEditor\Fayde.Website.FeaturesDataEditor.csproj", "{D6292A10-B0BF-4141-8E28-1A5E9EE7B077}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{14FE1CFA-B229-40CF-9C00-AA01BBDB922A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14FE1CFA-B229-40CF-9C00-AA01BBDB922A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14FE1CFA-B229-40CF-9C00-AA01BBDB922A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6292A10-B0BF-4141-8E28-1A5E9EE7B077}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6292A10-B0BF-4141-8E28-1A5E9EE7B077}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6292A10-B0BF-4141-8E28-1A5E9EE7B077}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6292A10-B0BF-4141-8E28-1A5E9EE7B077}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
