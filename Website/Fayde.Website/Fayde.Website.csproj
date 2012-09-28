@@ -57,7 +57,11 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\features_list.xml" />
     <Content Include="App_Themes\default\default.css" />
+    <Content Include="App_Themes\default\images\class.jpg" />
+    <Content Include="App_Themes\default\images\event.jpg" />
+    <Content Include="App_Themes\default\images\property.jpg" />
     <Content Include="contact.aspx" />
     <Content Include="contribute.aspx" />
     <Content Include="App_Themes\default\images\bg.jpg" />
