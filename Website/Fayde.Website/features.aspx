@@ -16,14 +16,12 @@
     <p>
         The following is an up-to-date status of implementation of individual components.
     </p>
-    <p>
+    <div>
         Legend:
-    </p>
-    <ul>
-        <li>Full <asp:Image ImageUrl="~/App_Themes/default/images/full.png" runat="server" /></li>
-        <li>Partial <asp:Image ID="Image1" ImageUrl="~/App_Themes/default/images/partial.png" runat="server" /></li>
-        <li>None <asp:Image ID="Image2" ImageUrl="~/App_Themes/default/images/none.png" runat="server" /></li>
-    </ul>
+        <div style="padding-left: 2em;"><asp:Image ImageUrl="~/App_Themes/default/images/full.png" runat="server" /> Fully Implemented</div>
+        <div style="padding-left: 2em;"><asp:Image ImageUrl="~/App_Themes/default/images/partial.png" runat="server" /> Partially Implemented</div>
+        <div style="padding-left: 2em;"><asp:Image ImageUrl="~/App_Themes/default/images/none.png" runat="server" /> Not Implemented</div>
+    </div>
     <asp:Repeater ID="rptFeatures" runat="server" OnItemDataBound="rptFeatures_ItemDataBound">
         <HeaderTemplate>
             <ul>
