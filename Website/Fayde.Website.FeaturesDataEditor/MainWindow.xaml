@@ -40,13 +40,14 @@
                     <Button Content="Delete" Padding="5" Margin="0,5,5,5" Width="70" Command="{Binding DeleteFeatureCommand}" />
                     <Button Content="Deselect" Padding="5" Margin="0,5,5,5" Width="70" Click="Deselect_Click" />
                 </StackPanel>
-                <TreeView x:Name="FeaturesTreeView" Grid.Row="1" ItemsSource="{Binding Features}">
+                <TreeView x:Name="FeaturesTreeView" Grid.Row="1" Margin="5,0,5,5" ItemsSource="{Binding Features}">
                     <e:Interaction.Behaviors>
                         <mvvm:BindableSelectedItemBehavior SelectedItem="{Binding SelectedFeature, Mode=TwoWay}" />
                     </e:Interaction.Behaviors>
                     <TreeView.Resources>
                         <HierarchicalDataTemplate DataType="{x:Type models:Feature}" ItemsSource="{Binding Features}">
                             <StackPanel Orientation="Horizontal">
+                                <Image Source="Images/namespace.jpg" Visibility="{Binding Type, Converter={StaticResource enumVisibilityConverter}, ConverterParameter={x:Static models:FeatureTypes.Namespace}}" />
                                 <Image Source="Images/class.jpg" Visibility="{Binding Type, Converter={StaticResource enumVisibilityConverter}, ConverterParameter={x:Static models:FeatureTypes.Class}}" />
                                 <Image Source="Images/property.jpg" Visibility="{Binding Type, Converter={StaticResource enumVisibilityConverter}, ConverterParameter={x:Static models:FeatureTypes.AttachedDependencyProperty}}" />
                                 <Image Source="Images/property.jpg" Visibility="{Binding Type, Converter={StaticResource enumVisibilityConverter}, ConverterParameter={x:Static models:FeatureTypes.DependencyProperty}}" />

@@ -121,6 +121,11 @@
       <Link>Images\method.jpg</Link>
     </Resource>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\Fayde.Website\App_Themes\default\images\namespace.jpg">
+      <Link>Images\namespace.jpg</Link>
+    </Resource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

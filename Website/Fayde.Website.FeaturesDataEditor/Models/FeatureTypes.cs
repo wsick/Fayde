@@ -3,6 +3,7 @@ namespace Fayde.Website.FeaturesDataEditor.Models
 {
     public enum FeatureTypes
     {
+        Namespace,
         Class,
         AttachedDependencyProperty,
         DependencyProperty,

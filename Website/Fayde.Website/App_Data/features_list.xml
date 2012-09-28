@@ -3,8 +3,155 @@
   <Feature>
     <Name>Controls</Name>
     <SupportLevel>Partial</SupportLevel>
-    <Type>Class</Type>
+    <Type>Namespace</Type>
     <Features>
+      <Feature>
+        <Name>Primitives</Name>
+        <SupportLevel>Partial</SupportLevel>
+        <Type>Namespace</Type>
+        <Features>
+          <Feature>
+            <Name>ButtonBase</Name>
+            <SupportLevel>Partial</SupportLevel>
+            <Type>Class</Type>
+            <Features>
+              <Feature>
+                <Name>ClickMode</Name>
+                <SupportLevel>None</SupportLevel>
+                <Type>DependencyProperty</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>Command</Name>
+                <SupportLevel>None</SupportLevel>
+                <Type>DependencyProperty</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>CommandParameter</Name>
+                <SupportLevel>None</SupportLevel>
+                <Type>DependencyProperty</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>IsFocused</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>DependencyProperty</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>IsMouseOver</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>DependencyProperty</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>IsPressed</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>DependencyProperty</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>Click</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Event</Type>
+                <Features />
+              </Feature>
+            </Features>
+          </Feature>
+          <Feature>
+            <Name>CalendarButton</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>CalendarItem</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Popup</Name>
+            <SupportLevel>Partial</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>RangeBase</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>RepeatButton</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ScrollBar</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Selector</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>TabPanel</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Thumb</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Class</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ToggleButton</Name>
+            <SupportLevel>Partial</SupportLevel>
+            <Type>Class</Type>
+            <Features>
+              <Feature>
+                <Name>IsChecked</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>DependencyProperty</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>IsThreeState</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>DependencyProperty</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>Checked</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Event</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>Indeterminate</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Event</Type>
+                <Features />
+              </Feature>
+              <Feature>
+                <Name>Unchecked</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Event</Type>
+                <Features />
+              </Feature>
+            </Features>
+          </Feature>
+        </Features>
+      </Feature>
       <Feature>
         <Name>Border</Name>
         <SupportLevel>Full</SupportLevel>
@@ -341,6 +488,24 @@
             <Features />
           </Feature>
         </Features>
+      </Feature>
+      <Feature>
+        <Name>DataGrid</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>DataPager</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>DatePicker</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
       </Feature>
       <Feature>
         <Name>Frame</Name>
@@ -711,8 +876,20 @@
         </Features>
       </Feature>
       <Feature>
+        <Name>ItemsPanelTemplate</Name>
+        <SupportLevel>Partial</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
         <Name>ItemsPresenter</Name>
         <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>Label</Name>
+        <SupportLevel>None</SupportLevel>
         <Type>Class</Type>
         <Features />
       </Feature>
@@ -767,6 +944,12 @@
         </Features>
       </Feature>
       <Feature>
+        <Name>MediaElement</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
         <Name>Panel</Name>
         <SupportLevel>Full</SupportLevel>
         <Type>Class</Type>
@@ -778,13 +961,13 @@
             <Features />
           </Feature>
           <Feature>
-            <Name>Children</Name>
+            <Name>Background</Name>
             <SupportLevel>Full</SupportLevel>
             <Type>DependencyProperty</Type>
             <Features />
           </Feature>
           <Feature>
-            <Name>Background</Name>
+            <Name>Children</Name>
             <SupportLevel>Full</SupportLevel>
             <Type>DependencyProperty</Type>
             <Features />
@@ -796,6 +979,12 @@
             <Features />
           </Feature>
         </Features>
+      </Feature>
+      <Feature>
+        <Name>PasswordBox</Name>
+        <SupportLevel>Partial</SupportLevel>
+        <Type>Class</Type>
+        <Features />
       </Feature>
       <Feature>
         <Name>ProgressBar</Name>
@@ -824,26 +1013,93 @@
         </Features>
       </Feature>
       <Feature>
+        <Name>RichTextBlock</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>RichTextBox</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>ScrollContentPresenter</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>CanHorizontallyScroll</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>CanVerticallyScroll</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ExtentHeight</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ExtentWidth</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>HorizontalOffset</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ScrollOwner</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>VerticalOffset</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ViewportHeight</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ViewportWidth</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
         <Name>ScrollViewer</Name>
         <SupportLevel>Full</SupportLevel>
         <Type>Class</Type>
         <Features>
           <Feature>
-            <Name>InvalidateScrollInfo</Name>
+            <Name>ComputedHorizontalScrollBarVisibility</Name>
             <SupportLevel>Full</SupportLevel>
-            <Type>Method</Type>
+            <Type>DependencyProperty</Type>
             <Features />
           </Feature>
           <Feature>
-            <Name>ScrollToHorizontalOffset</Name>
+            <Name>ComputedVerticalScrollBarVisibility</Name>
             <SupportLevel>Full</SupportLevel>
-            <Type>Method</Type>
-            <Features />
-          </Feature>
-          <Feature>
-            <Name>ScrollToVerticalOffset</Name>
-            <SupportLevel>Full</SupportLevel>
-            <Type>Method</Type>
+            <Type>DependencyProperty</Type>
             <Features />
           </Feature>
           <Feature>
@@ -866,6 +1122,24 @@
           </Feature>
           <Feature>
             <Name>HorizontalScrollBarVisibility</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ManipulationMode</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ScrollableHeight</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>ScrollableWidth</Name>
             <SupportLevel>Full</SupportLevel>
             <Type>DependencyProperty</Type>
             <Features />
@@ -895,83 +1169,33 @@
             <Features />
           </Feature>
           <Feature>
-            <Name>ScrollableHeight</Name>
+            <Name>InvalidateScrollInfo</Name>
             <SupportLevel>Full</SupportLevel>
-            <Type>DependencyProperty</Type>
+            <Type>Method</Type>
             <Features />
           </Feature>
           <Feature>
-            <Name>ScrollableWidth</Name>
+            <Name>ScrollToHorizontalOffset</Name>
             <SupportLevel>Full</SupportLevel>
-            <Type>DependencyProperty</Type>
+            <Type>Method</Type>
             <Features />
           </Feature>
           <Feature>
-            <Name>ComputedHorizontalScrollBarVisibility</Name>
+            <Name>ScrollToVerticalOffset</Name>
             <SupportLevel>Full</SupportLevel>
-            <Type>DependencyProperty</Type>
-            <Features />
-          </Feature>
-          <Feature>
-            <Name>ComputedVerticalScrollBarVisibility</Name>
-            <SupportLevel>Full</SupportLevel>
-            <Type>DependencyProperty</Type>
-            <Features />
-          </Feature>
-          <Feature>
-            <Name>ManipulationMode</Name>
-            <SupportLevel>Full</SupportLevel>
-            <Type>DependencyProperty</Type>
+            <Type>Method</Type>
             <Features />
           </Feature>
         </Features>
       </Feature>
-    </Features>
-  </Feature>
-  <Feature>
-    <Name>Core</Name>
-    <SupportLevel>Partial</SupportLevel>
-    <Type>Class</Type>
-    <Features>
       <Feature>
-        <Name>FrameworkElement</Name>
-        <SupportLevel>Partial</SupportLevel>
-        <Type>Class</Type>
-        <Features />
-      </Feature>
-      <Feature>
-        <Name>UIElement</Name>
-        <SupportLevel>Partial</SupportLevel>
-        <Type>Class</Type>
-        <Features />
-      </Feature>
-    </Features>
-  </Feature>
-  <Feature>
-    <Name>Primitives</Name>
-    <SupportLevel>Partial</SupportLevel>
-    <Type>Class</Type>
-    <Features>
-      <Feature>
-        <Name>ButtonBase</Name>
-        <SupportLevel>Partial</SupportLevel>
+        <Name>Slider</Name>
+        <SupportLevel>Full</SupportLevel>
         <Type>Class</Type>
         <Features>
           <Feature>
-            <Name>ClickMode</Name>
-            <SupportLevel>None</SupportLevel>
-            <Type>DependencyProperty</Type>
-            <Features />
-          </Feature>
-          <Feature>
-            <Name>Command</Name>
-            <SupportLevel>None</SupportLevel>
-            <Type>DependencyProperty</Type>
-            <Features />
-          </Feature>
-          <Feature>
-            <Name>CommandParameter</Name>
-            <SupportLevel>None</SupportLevel>
+            <Name>IsDirectionReversed</Name>
+            <SupportLevel>Full</SupportLevel>
             <Type>DependencyProperty</Type>
             <Features />
           </Feature>
@@ -982,58 +1206,693 @@
             <Features />
           </Feature>
           <Feature>
-            <Name>IsMouseOver</Name>
+            <Name>Orientation</Name>
             <SupportLevel>Full</SupportLevel>
             <Type>DependencyProperty</Type>
-            <Features />
-          </Feature>
-          <Feature>
-            <Name>IsPressed</Name>
-            <SupportLevel>Full</SupportLevel>
-            <Type>DependencyProperty</Type>
-            <Features />
-          </Feature>
-          <Feature>
-            <Name>Click</Name>
-            <SupportLevel>Full</SupportLevel>
-            <Type>Event</Type>
             <Features />
           </Feature>
         </Features>
       </Feature>
       <Feature>
-        <Name>ToggleButton</Name>
+        <Name>StackPanel</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>Orientation</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
+        <Name>TabControl</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>TabItem</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>TextBlock</Name>
         <SupportLevel>Partial</SupportLevel>
         <Type>Class</Type>
         <Features>
           <Feature>
-            <Name>IsChecked</Name>
+            <Name>BaselineOffset</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>CharacterSpacing</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>FontFamily</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>FontSource</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>FontStretch</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>FontStyle</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>FontWeight</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Foreground</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Inlines</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>LineHeight</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>LineStackingStrategy</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Padding</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Text</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>TextAlignment</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>TextDecorations</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>TextTrimming</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>TextWrapping</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
+        <Name>TextBox</Name>
+        <SupportLevel>Partial</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>AcceptsReturn</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>BaselineOffset</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>CaretBrush</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>FontSource</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>HorizontalScrollBarVisibility</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>InputScope</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>IsReadOnly</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>LineHeight</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>MaxLength</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>SelectedText</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>SelectionBackground</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>SelectionForeground</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>SelectionLength</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Text</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>TextAlignment</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>TextWrapping</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>VerticalScrollBarVisibility</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Watermark</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>SelectionChanged</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Event</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>TextChanged</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Event</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>GetRectFromCharacterIndex</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>Method</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Select</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Method</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>SelectAll</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>Method</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
+        <Name>ToolTip</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>ToolTipService</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>TreeView</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>TreeViewItem</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>UserControl</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>Viewbox</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>VirtualizingPanel</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>VirtualizingStackPanel</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+    </Features>
+  </Feature>
+  <Feature>
+    <Name>Core</Name>
+    <SupportLevel>Partial</SupportLevel>
+    <Type>Namespace</Type>
+    <Features>
+      <Feature>
+        <Name>DataTemplate</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>DependencyObject</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>DependencyProperty</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>Expression</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>FrameworkElement</Name>
+        <SupportLevel>Partial</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>FrameworkTemplate</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>HierarchicalDataTemplate</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>MessageBox</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>NotificationWindow</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>ResourceDictionary</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>Setter</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>SetterBase</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>StaticResource</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>Style</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>TemplateBindingExpression</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>UIElement</Name>
+        <SupportLevel>Partial</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>VisualState</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>VisualStateGroup</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>VisualStateManager</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>VisualTreeHelper</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+    </Features>
+  </Feature>
+  <Feature>
+    <Name>Data</Name>
+    <SupportLevel>Partial</SupportLevel>
+    <Type>Namespace</Type>
+    <Features />
+  </Feature>
+  <Feature>
+    <Name>Documents</Name>
+    <SupportLevel>Partial</SupportLevel>
+    <Type>Namespace</Type>
+    <Features />
+  </Feature>
+  <Feature>
+    <Name>Media</Name>
+    <SupportLevel>Partial</SupportLevel>
+    <Type>Namespace</Type>
+    <Features>
+      <Feature>
+        <Name>Animation</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Namespace</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>Effects</Name>
+        <SupportLevel>None</SupportLevel>
+        <Type>Namespace</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>Imaging</Name>
+        <SupportLevel>Partial</SupportLevel>
+        <Type>Namespace</Type>
+        <Features />
+      </Feature>
+    </Features>
+  </Feature>
+  <Feature>
+    <Name>Shapes</Name>
+    <SupportLevel>Partial</SupportLevel>
+    <Type>Namespace</Type>
+    <Features>
+      <Feature>
+        <Name>Ellipse</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features />
+      </Feature>
+      <Feature>
+        <Name>Line</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>X1</Name>
             <SupportLevel>Full</SupportLevel>
             <Type>DependencyProperty</Type>
             <Features />
           </Feature>
           <Feature>
-            <Name>IsThreeState</Name>
+            <Name>X2</Name>
             <SupportLevel>Full</SupportLevel>
             <Type>DependencyProperty</Type>
             <Features />
           </Feature>
           <Feature>
-            <Name>Checked</Name>
+            <Name>Y1</Name>
             <SupportLevel>Full</SupportLevel>
-            <Type>Event</Type>
+            <Type>DependencyProperty</Type>
             <Features />
           </Feature>
           <Feature>
-            <Name>Indeterminate</Name>
+            <Name>Y2</Name>
             <SupportLevel>Full</SupportLevel>
-            <Type>Event</Type>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
+        <Name>Path</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>Data</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
+        <Name>Polygon</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>FillRule</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
             <Features />
           </Feature>
           <Feature>
-            <Name>Unchecked</Name>
+            <Name>Points</Name>
             <SupportLevel>Full</SupportLevel>
-            <Type>Event</Type>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
+        <Name>Polyline</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>FillRule</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Points</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
+        <Name>Rectangle</Name>
+        <SupportLevel>Full</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>RadiusX</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>RadiusY</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+        </Features>
+      </Feature>
+      <Feature>
+        <Name>Shape</Name>
+        <SupportLevel>Partial</SupportLevel>
+        <Type>Class</Type>
+        <Features>
+          <Feature>
+            <Name>Fill</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>GeometryTransform</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Stretch</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>Stroke</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>StrokeDashArray</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>StrokeDashCap</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>StrokeDashOffset</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>StrokeEndLineCap</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>StrokeLineJoin</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>StrokeMiterLimit</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>StrokeStartLineCap</Name>
+            <SupportLevel>None</SupportLevel>
+            <Type>DependencyProperty</Type>
+            <Features />
+          </Feature>
+          <Feature>
+            <Name>StokeThickness</Name>
+            <SupportLevel>Full</SupportLevel>
+            <Type>DependencyProperty</Type>
             <Features />
           </Feature>
         </Features>
