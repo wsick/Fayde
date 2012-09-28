@@ -61,6 +61,11 @@
     <Content Include="App_Themes\default\default.css" />
     <Content Include="App_Themes\default\images\class.jpg" />
     <Content Include="App_Themes\default\images\event.jpg" />
+    <Content Include="App_Themes\default\images\full.png" />
+    <Content Include="App_Themes\default\images\method.jpg" />
+    <Content Include="App_Themes\default\images\namespace.jpg" />
+    <Content Include="App_Themes\default\images\none.png" />
+    <Content Include="App_Themes\default\images\partial.png" />
     <Content Include="App_Themes\default\images\property.jpg" />
     <Content Include="contact.aspx" />
     <Content Include="contribute.aspx" />
@@ -124,7 +129,20 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Fayde.Website.IO\Fayde.Website.IO.csproj">
+      <Project>{1f0c408a-aba8-48cd-91b6-6fe857b018de}</Project>
+      <Name>Fayde.Website.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Fayde.Website.Models\Fayde.Website.Models.csproj">
+      <Project>{b283fd06-d1ad-4edb-bebe-c412665671ff}</Project>
+      <Name>Fayde.Website.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Fayde.Website.MVVM\Fayde.Website.MVVM.csproj">
+      <Project>{00ec9b3b-049a-4c6e-9a99-3cc9b0c5e61b}</Project>
+      <Name>Fayde.Website.MVVM</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

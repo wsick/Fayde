@@ -54,3 +54,59 @@ h1
 {
     padding: 0px 40px 0px 40px;
 }
+
+.expanded #subtree
+{
+    display: block;
+}
+
+.collapsed #subtree
+{
+    display: none;
+}
+
+.feature_has_children:hover
+{
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.feature_namespace
+{
+    list-style-image: url('images/namespace.jpg');
+}
+.feature_class
+{
+    list-style-image: url('images/class.jpg');
+}
+.feature_property
+{
+    list-style-image: url('images/property.jpg');
+}
+.feature_method
+{
+    list-style-image: url('images/method.jpg');
+}
+.feature_event
+{
+    list-style-image: url('images/event.jpg');
+}
+
+.support_level_full
+{
+    font-weight: bold;
+    font-size: 12px;
+    color: green;
+}
+.support_level_partial
+{
+    font-weight: bold;
+    font-size: 11px;
+    color: orange;
+}
+.support_level_none
+{
+    font-weight: bold;
+    font-size: 11px;
+    color: red;
+}
