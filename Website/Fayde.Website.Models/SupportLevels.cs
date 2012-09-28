@@ -1,5 +1,5 @@
 ﻿
-namespace Fayde.Website.FeaturesDataEditor.Models
+namespace Fayde.Website.Models
 {
     public enum SupportLevels
     {

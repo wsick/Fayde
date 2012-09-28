@@ -54,12 +54,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="IEnumerableEx.cs" />
-    <Compile Include="IO\FeaturesXmlLoader.cs" />
-    <Compile Include="IO\FeaturesXmlSaver.cs" />
-    <Compile Include="Models\FeatureTypes.cs" />
-    <Compile Include="MVVM\BindableSelectedItemBehavior.cs" />
-    <Compile Include="MVVM\RelayCommand.cs" />
     <Compile Include="Resources\EnumVisibilityConverter.cs" />
     <Compile Include="Resources\FeatureTypesDataSource.cs" />
     <Compile Include="Resources\NullVisibilityConverter.cs" />
@@ -79,9 +73,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Feature.cs" />
-    <Compile Include="MVVM\ObservableObject.cs" />
-    <Compile Include="Models\SupportLevels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -125,6 +116,20 @@
     <Resource Include="..\Fayde.Website\App_Themes\default\images\namespace.jpg">
       <Link>Images\namespace.jpg</Link>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Fayde.Website.IO\Fayde.Website.IO.csproj">
+      <Project>{1f0c408a-aba8-48cd-91b6-6fe857b018de}</Project>
+      <Name>Fayde.Website.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Fayde.Website.Models\Fayde.Website.Models.csproj">
+      <Project>{b283fd06-d1ad-4edb-bebe-c412665671ff}</Project>
+      <Name>Fayde.Website.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Fayde.Website.MVVM\Fayde.Website.MVVM.csproj">
+      <Project>{00ec9b3b-049a-4c6e-9a99-3cc9b0c5e61b}</Project>
+      <Name>Fayde.Website.MVVM</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

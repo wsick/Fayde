@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Fayde.Website.FeaturesDataEditor
+namespace Fayde.Website
 {
     public static class IEnumerableEx
     {

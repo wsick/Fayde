@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Fayde.Website.FeaturesDataEditor.MVVM
+namespace Fayde.Website.MVVM
 {
     public class ObservableObject : INotifyPropertyChanged
     {

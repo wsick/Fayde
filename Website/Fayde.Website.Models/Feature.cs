@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
-using Fayde.Website.FeaturesDataEditor.MVVM;
+using Fayde.Website.MVVM;
 
-namespace Fayde.Website.FeaturesDataEditor.Models
+namespace Fayde.Website.Models
 {
     public class Feature : ObservableObject
     {

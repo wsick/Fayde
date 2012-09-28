@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Interactivity;
 
-namespace Fayde.Website.FeaturesDataEditor.MVVM
+namespace Fayde.Website.MVVM
 {
     public class BindableSelectedItemBehavior : Behavior<TreeView>
     {

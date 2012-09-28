@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using Fayde.Website.FeaturesDataEditor.IO;
-using Fayde.Website.FeaturesDataEditor.Models;
-using Fayde.Website.FeaturesDataEditor.MVVM;
+using Fayde.Website.IO;
+using Fayde.Website.Models;
+using Fayde.Website.MVVM;
 using System.Linq;
 using Microsoft.Win32;
 

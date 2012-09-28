@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Fayde.Website.FeaturesDataEditor.Models;
+using Fayde.Website.Models;
 
 namespace Fayde.Website.FeaturesDataEditor.Resources
 {

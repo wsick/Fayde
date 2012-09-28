@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Fayde.Website.FeaturesDataEditor.MVVM
+namespace Fayde.Website.MVVM
 {
     public class RelayCommand : ICommand
     {

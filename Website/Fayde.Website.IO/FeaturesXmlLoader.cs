@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using Fayde.Website.FeaturesDataEditor.Models;
+using Fayde.Website.Models;
 
-namespace Fayde.Website.FeaturesDataEditor.IO
+namespace Fayde.Website.IO
 {
     public class FeaturesXmlLoader
     {
