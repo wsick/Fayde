@@ -67,6 +67,14 @@ Color.Instance.toString = function () {
     return "rgba(" + this.R.toString() + "," + this.G.toString() + "," + this.B.toString() + "," + this.A.toString() + ")";
 };
 
+Color.LERP = function (start, end, p) {
+    var r = start.R + (end.R - start.R) * p;
+    var g = start.G + (end.G - start.G) * p;
+    var b = start.B + (end.B - start.B) * p;
+    var a = start.A + (end.A - start.A) * p;
+    return new Color(r, g, b, a);
+};
+
 Nullstone.FinishCreate(Color);
 //#endregion
 

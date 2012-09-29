@@ -58,7 +58,7 @@ ColorAnimation.Instance.GetCurrentValue = function (defaultOriginValue, defaultD
     if (easingFunc != null)
         clockData.Progress = easingFunc.Ease(clockData.Progress);
 
-    return start.Add(end.Subtract(start).Multiply(clockData.Progress));
+    return Color.LERP(start, end, clockData.Progress);
 };
 ColorAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)

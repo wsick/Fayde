@@ -21,4 +21,10 @@ Point.Equals = function (p1, p2) {
     return p1.X === p2.X && p1.Y === p2.Y;
 };
 
+Point.LERP = function (start, end, p) {
+    var x = start.X + (end.X - start.X) * clockData.Progress;
+    var y = start.Y + (end.Y - start.Y) * clockData.Progress;
+    return new Point(x, y);
+};
+
 //#endregion

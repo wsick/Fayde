@@ -56,9 +56,7 @@ PointAnimation.Instance.GetCurrentValue = function (defaultOriginValue, defaultD
     if (easingFunc != null)
         clockData.Progress = easingFunc.Ease(clockData.Progress);
 
-    var x = start.X + ((end.X - start.X) * clockData.Progress);
-    var y = start.Y + ((end.Y - start.Y) * clockData.Progress);
-    return new Point(x, y);
+    return Point.LERP(start, end, clockData.Progress);
 };
 PointAnimation.Instance._EnsureCache = function () {
     if (this._HasCached)
