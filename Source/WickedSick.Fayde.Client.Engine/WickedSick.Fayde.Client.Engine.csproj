@@ -179,6 +179,9 @@
     <Content Include="Javascript\Media\Animation\ExponentialEase.js" />
     <Content Include="Javascript\Media\Animation\IEasingFunction.js" />
     <Content Include="Javascript\Media\Animation\KeySpline.js" />
+    <Content Include="Javascript\Media\Animation\LinearColorKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\LinearDoubleKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\LinearPointKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\PointAnimation.js" />
     <Content Include="Javascript\Media\Animation\PointAnimationUsingKeyFrames.js" />
     <Content Include="Javascript\Media\Animation\PointKeyFrame.js" />
