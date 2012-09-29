@@ -1,6 +1,7 @@
 ﻿var RelativeSourceMode = {
     TemplatedParent: 1,
-    Self: 2
+    Self: 2,
+    FindAncestor: 3
 };
 
 var BindingMode = {
