@@ -94,6 +94,7 @@ UIElement.Instance.Init = function () {
 
 //#region Properties
 
+//UIElement.AllowDropProperty;
 UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
 //UIElement.CacheModeProperty;
 UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Effect; }, UIElement);
@@ -103,8 +104,6 @@ UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function 
 //UIElement.ProjectionProperty;
 //UIElement.RenderTransformProperty;
 //UIElement.RenderTransformOriginProperty;
-//UIElement.AllowDropProperty;
-UIElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, UIElement, CursorType.Default, undefined); //, UIElement._CoerceCursor);
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, { GetValue: function () { return new ResourceDictionary(); } });
 UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, undefined, { GetValue: function () { } }*/);
 UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterCore("UseLayoutRounding", function () { return Boolean; }, UIElement, true);
@@ -119,7 +118,6 @@ Nullstone.AutoProperties(UIElement, [
     UIElement.IsHitTestVisibleProperty,
     UIElement.OpacityMaskProperty,
     UIElement.OpacityProperty,
-    UIElement.CursorProperty,
     UIElement.ResourcesProperty,
     UIElement.TriggersProperty,
     UIElement.UseLayoutRoundingProperty,

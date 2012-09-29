@@ -30,8 +30,9 @@ FrameworkElement.Instance.Init = function () {
     this.SizeChanged = new MulticastEvent();
 };
 
-//#region Dependency Properties
+//#region Properties
 
+FrameworkElement.CursorProperty = DependencyProperty.RegisterFull("Cursor", function () { return new Enum(CursorType); }, FrameworkElement, CursorType.Default, undefined); //, FrameworkElement._CoerceCursor);
 FrameworkElement.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return Number; }, FrameworkElement, NaN);
 FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
@@ -49,6 +50,7 @@ FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", functi
 FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterCore("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement);
 
 Nullstone.AutoProperties(FrameworkElement, [
+    FrameworkElement.CursorProperty,
     FrameworkElement.WidthProperty,
     FrameworkElement.HeightProperty,
     FrameworkElement.DataContextProperty,
