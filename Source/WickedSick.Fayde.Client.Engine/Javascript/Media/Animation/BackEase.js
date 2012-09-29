@@ -14,5 +14,10 @@ Nullstone.AutoProperties(BackEase, [
 
 //#endregion
 
+BackEase.Instance.EaseInCore = function (t) {
+    var a = this.Amplitude;
+    return (t * t * t) - (t * a * Math.sin(t * Math.PI));
+};
+
 Nullstone.FinishCreate(BackEase);
 //#endregion
