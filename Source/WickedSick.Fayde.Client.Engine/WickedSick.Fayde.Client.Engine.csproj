@@ -168,6 +168,9 @@
     <Content Include="Javascript\Media\Animation\ColorKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\ColorKeyFrameCollection.js" />
     <Content Include="Javascript\Media\Animation\CubicEase.js" />
+    <Content Include="Javascript\Media\Animation\DiscreteColorKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\DiscreteDoubleKeyFrame.js" />
+    <Content Include="Javascript\Media\Animation\DiscretePointKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\DoubleAnimationUsingKeyFrames.js" />
     <Content Include="Javascript\Media\Animation\DoubleKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\DoubleKeyFrameCollection.js" />
