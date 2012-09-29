@@ -1,6 +1,6 @@
 ﻿/// <reference path="ColorKeyFrame.js"/>
-/// CODE
 /// <reference path="IEasingFunction.js"/>
+/// CODE
 
 //#region EasingColorKeyFrame
 var EasingColorKeyFrame = Nullstone.Create("EasingColorKeyFrame", ColorKeyFrame);
@@ -18,6 +18,7 @@ Nullstone.AutoProperties(EasingColorKeyFrame, [
 EasingColorKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
     if (keyFrameProgress >= 1.0)
         return this.Value;
+
     var start = baseValue;
     var end = this.Value;
 
@@ -25,11 +26,7 @@ EasingColorKeyFrame.Instance.InterpolateValue = function (baseValue, keyFramePro
     if (easingFunction)
         keyFrameProgress = easingFunction.Ease(keyFrameProgress);
 
-    var r = start.R + (end.R - start.R) * keyFrameProgress;
-    var g = start.G + (end.G - start.G) * keyFrameProgress;
-    var b = start.B + (end.B - start.B) * keyFrameProgress;
-    var a = start.A + (end.A - start.A) * keyFrameProgress;
-    return new Color(r, b, g, a);
+    return Color.LERP(start, end, keyFrameProgress);
 };
 
 Nullstone.FinishCreate(EasingColorKeyFrame);
