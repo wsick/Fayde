@@ -2023,12 +2023,6 @@
                         <Features />
                     </Feature>
                     <Feature>
-                        <Name>DoubleTap</Name>
-                        <SupportLevel>None</SupportLevel>
-                        <Type>Event</Type>
-                        <Features />
-                    </Feature>
-                    <Feature>
                         <Name>DragEnter</Name>
                         <SupportLevel>None</SupportLevel>
                         <Type>Event</Type>
@@ -2059,12 +2053,6 @@
                         <Features />
                     </Feature>
                     <Feature>
-                        <Name>Hold</Name>
-                        <SupportLevel>None</SupportLevel>
-                        <Type>Event</Type>
-                        <Features />
-                    </Feature>
-                    <Feature>
                         <Name>KeyDown</Name>
                         <SupportLevel>Full</SupportLevel>
                         <Type>Event</Type>
@@ -2085,30 +2073,6 @@
                     <Feature>
                         <Name>LostMouseCapture</Name>
                         <SupportLevel>Full</SupportLevel>
-                        <Type>Event</Type>
-                        <Features />
-                    </Feature>
-                    <Feature>
-                        <Name>ManipulationCompleted</Name>
-                        <SupportLevel>None</SupportLevel>
-                        <Type>Event</Type>
-                        <Features />
-                    </Feature>
-                    <Feature>
-                        <Name>ManipulationDelta</Name>
-                        <SupportLevel>None</SupportLevel>
-                        <Type>Event</Type>
-                        <Features />
-                    </Feature>
-                    <Feature>
-                        <Name>ManipulationStarted</Name>
-                        <SupportLevel>None</SupportLevel>
-                        <Type>Event</Type>
-                        <Features />
-                    </Feature>
-                    <Feature>
-                        <Name>MediaCommand</Name>
-                        <SupportLevel>None</SupportLevel>
                         <Type>Event</Type>
                         <Features />
                     </Feature>
@@ -2157,12 +2121,6 @@
                     <Feature>
                         <Name>MouseWheel</Name>
                         <SupportLevel>Full</SupportLevel>
-                        <Type>Event</Type>
-                        <Features />
-                    </Feature>
-                    <Feature>
-                        <Name>Tap</Name>
-                        <SupportLevel>None</SupportLevel>
                         <Type>Event</Type>
                         <Features />
                     </Feature>
