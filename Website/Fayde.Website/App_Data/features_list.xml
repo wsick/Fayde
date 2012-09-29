@@ -2198,7 +2198,191 @@
         <Name>Data</Name>
         <SupportLevel>Partial</SupportLevel>
         <Type>Namespace</Type>
-        <Features />
+        <Features>
+            <Feature>
+                <Name>Binding</Name>
+                <SupportLevel>Partial</SupportLevel>
+                <Type>Class</Type>
+                <Features>
+                    <Feature>
+                        <Name>BindsDirectlyToSource</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>Converter</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>ConverterCulture</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>ConverterParameter</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>ElementName</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>Mode</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>NotifyOnValidationError</Name>
+                        <SupportLevel>None</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>Path</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>RelativeSource</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>Source</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>UpdateSourceTrigger</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>ValidatesOnDataErrors</Name>
+                        <SupportLevel>None</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>ValidatesOnExceptions</Name>
+                        <SupportLevel>None</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>ValidatesOnNotifyDataErrors</Name>
+                        <SupportLevel>None</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                </Features>
+            </Feature>
+            <Feature>
+                <Name>BindingBase</Name>
+                <SupportLevel>Partial</SupportLevel>
+                <Type>Class</Type>
+                <Features>
+                    <Feature>
+                        <Name>FallbackValue</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>StringFormat</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>TargetNullValue</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>CheckSealed</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Method</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>ProvideValue</Name>
+                        <SupportLevel>Partial</SupportLevel>
+                        <Type>Method</Type>
+                        <Features />
+                    </Feature>
+                </Features>
+            </Feature>
+            <Feature>
+                <Name>BindingExpression</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Class</Type>
+                <Features>
+                    <Feature>
+                        <Name>UpdateSource</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>Method</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>DataItem</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>ParentBinding</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                </Features>
+            </Feature>
+            <Feature>
+                <Name>BindingExpressionBase</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Class</Type>
+                <Features />
+            </Feature>
+            <Feature>
+                <Name>CollectionViewGroup</Name>
+                <SupportLevel>None</SupportLevel>
+                <Type>Class</Type>
+                <Features />
+            </Feature>
+            <Feature>
+                <Name>CollectionViewSource</Name>
+                <SupportLevel>None</SupportLevel>
+                <Type>Class</Type>
+                <Features />
+            </Feature>
+            <Feature>
+                <Name>PagedCollectionView</Name>
+                <SupportLevel>None</SupportLevel>
+                <Type>Class</Type>
+                <Features />
+            </Feature>
+            <Feature>
+                <Name>RelativeSource</Name>
+                <SupportLevel>Partial</SupportLevel>
+                <Type>Class</Type>
+                <Features />
+            </Feature>
+        </Features>
     </Feature>
     <Feature>
         <Name>Documents</Name>
