@@ -2482,7 +2482,7 @@
         <Features>
             <Feature>
                 <Name>Animation</Name>
-                <SupportLevel>Partial</SupportLevel>
+                <SupportLevel>Full</SupportLevel>
                 <Type>Namespace</Type>
                 <Features>
                     <Feature>
@@ -2500,7 +2500,7 @@
                     </Feature>
                     <Feature>
                         <Name>BeginStoryboard</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
@@ -2564,7 +2564,14 @@
                         <Name>ColorAnimationUsingKeyFrames</Name>
                         <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>KeyFrames</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>ColorKeyFrame</Name>
@@ -2580,13 +2587,13 @@
                     </Feature>
                     <Feature>
                         <Name>DiscreteColorKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
                     <Feature>
                         <Name>DiscreteDoubleKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
@@ -2598,7 +2605,7 @@
                     </Feature>
                     <Feature>
                         <Name>DiscretePointKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
@@ -2635,7 +2642,7 @@
                     </Feature>
                     <Feature>
                         <Name>DoubleAnimationUsingKeyFrames</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features>
                             <Feature>
@@ -2667,15 +2674,29 @@
                     </Feature>
                     <Feature>
                         <Name>EasingColorKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>EasingFunction</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>EasingDoubleKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>EasingFunction</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>EasingFunctionBase</Name>
@@ -2685,9 +2706,16 @@
                     </Feature>
                     <Feature>
                         <Name>EasingPointKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>EasingFunction</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>ElasticEase</Name>
@@ -2742,19 +2770,19 @@
                     </Feature>
                     <Feature>
                         <Name>LinearColorKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
                     <Feature>
                         <Name>LinearDoubleKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
                     <Feature>
                         <Name>LinearPointKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
@@ -2823,9 +2851,22 @@
                     </Feature>
                     <Feature>
                         <Name>PointKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>KeyTime</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                            <Feature>
+                                <Name>Value</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>PowerEase</Name>
@@ -2866,21 +2907,42 @@
                     </Feature>
                     <Feature>
                         <Name>SplineColorKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>KeySpline</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>SplineDoubleKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>KeySpline</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>SplinePointKeyFrame</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>KeySpline</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>Storyboard</Name>
@@ -2952,6 +3014,19 @@
                                 <Name>Completed</Name>
                                 <SupportLevel>Full</SupportLevel>
                                 <Type>Event</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
+                    </Feature>
+                    <Feature>
+                        <Name>PointAnimationUsingKeyFrames</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>Class</Type>
+                        <Features>
+                            <Feature>
+                                <Name>KeyFrames</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
                                 <Features />
                             </Feature>
                         </Features>
