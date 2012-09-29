@@ -2333,12 +2333,6 @@
                 <Type>Class</Type>
                 <Features>
                     <Feature>
-                        <Name>UpdateSource</Name>
-                        <SupportLevel>Full</SupportLevel>
-                        <Type>Method</Type>
-                        <Features />
-                    </Feature>
-                    <Feature>
                         <Name>DataItem</Name>
                         <SupportLevel>Full</SupportLevel>
                         <Type>Property</Type>
@@ -2348,6 +2342,12 @@
                         <Name>ParentBinding</Name>
                         <SupportLevel>Full</SupportLevel>
                         <Type>Property</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>UpdateSource</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>Method</Type>
                         <Features />
                     </Feature>
                 </Features>
@@ -2487,12 +2487,12 @@
                 <Features>
                     <Feature>
                         <Name>BackEase</Name>
-                        <SupportLevel>Partial</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features>
                             <Feature>
                                 <Name>Amplitude</Name>
-                                <SupportLevel>None</SupportLevel>
+                                <SupportLevel>Full</SupportLevel>
                                 <Type>DependencyProperty</Type>
                                 <Features />
                             </Feature>
@@ -2506,13 +2506,26 @@
                     </Feature>
                     <Feature>
                         <Name>BounceEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>Bounces</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                            <Feature>
+                                <Name>Bounciness</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>CircleEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
@@ -2561,7 +2574,7 @@
                     </Feature>
                     <Feature>
                         <Name>CubicEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
@@ -2666,7 +2679,7 @@
                     </Feature>
                     <Feature>
                         <Name>EasingFunctionBase</Name>
-                        <SupportLevel>Partial</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
@@ -2678,15 +2691,35 @@
                     </Feature>
                     <Feature>
                         <Name>ElasticEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>Springiness</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                            <Feature>
+                                <Name>Oscillations</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>ExponentialEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>Exponent</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>KeySpline</Name>
@@ -2796,31 +2829,38 @@
                     </Feature>
                     <Feature>
                         <Name>PowerEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
-                        <Features />
+                        <Features>
+                            <Feature>
+                                <Name>Power</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
                     </Feature>
                     <Feature>
                         <Name>QuadraticEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
                     <Feature>
                         <Name>QuarticEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
                     <Feature>
                         <Name>QuinticEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
                     <Feature>
                         <Name>SineEase</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features />
                     </Feature>
