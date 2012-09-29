@@ -13,6 +13,7 @@ var BindingMode = {
 
 var UpdateSourceTrigger = {
     Default: 0,
+    PropertyChanged: 1,
     Explicit: 3
 };
 
