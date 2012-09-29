@@ -2120,7 +2120,7 @@
                     </Feature>
                     <Feature>
                         <Name>MouseLeave</Name>
-                        <SupportLevel>Partial</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Event</Type>
                         <Features />
                     </Feature>
