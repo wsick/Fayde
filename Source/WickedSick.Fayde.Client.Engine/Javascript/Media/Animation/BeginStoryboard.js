@@ -23,5 +23,11 @@ BeginStoryboard.Annotations = {
 
 //#endregion
 
+BeginStoryboard.Instance.Fire = function () {
+    var sb = this.Storyboard;
+    if (sb)
+        sb.Begin();
+};
+
 Nullstone.FinishCreate(BeginStoryboard);
 //#endregion
