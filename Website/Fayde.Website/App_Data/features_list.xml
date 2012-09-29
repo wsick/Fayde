@@ -115,7 +115,7 @@
                     </Feature>
                     <Feature>
                         <Name>ToggleButton</Name>
-                        <SupportLevel>Partial</SupportLevel>
+                        <SupportLevel>Full</SupportLevel>
                         <Type>Class</Type>
                         <Features>
                             <Feature>
@@ -2723,13 +2723,13 @@
                         <Type>Class</Type>
                         <Features>
                             <Feature>
-                                <Name>Springiness</Name>
+                                <Name>Oscillations</Name>
                                 <SupportLevel>Full</SupportLevel>
                                 <Type>DependencyProperty</Type>
                                 <Features />
                             </Feature>
                             <Feature>
-                                <Name>Oscillations</Name>
+                                <Name>Springiness</Name>
                                 <SupportLevel>Full</SupportLevel>
                                 <Type>DependencyProperty</Type>
                                 <Features />
@@ -2843,6 +2843,19 @@
                             </Feature>
                             <Feature>
                                 <Name>To</Name>
+                                <SupportLevel>Full</SupportLevel>
+                                <Type>DependencyProperty</Type>
+                                <Features />
+                            </Feature>
+                        </Features>
+                    </Feature>
+                    <Feature>
+                        <Name>PointAnimationUsingKeyFrames</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>Class</Type>
+                        <Features>
+                            <Feature>
+                                <Name>KeyFrames</Name>
                                 <SupportLevel>Full</SupportLevel>
                                 <Type>DependencyProperty</Type>
                                 <Features />
@@ -3014,19 +3027,6 @@
                                 <Name>Completed</Name>
                                 <SupportLevel>Full</SupportLevel>
                                 <Type>Event</Type>
-                                <Features />
-                            </Feature>
-                        </Features>
-                    </Feature>
-                    <Feature>
-                        <Name>PointAnimationUsingKeyFrames</Name>
-                        <SupportLevel>Full</SupportLevel>
-                        <Type>Class</Type>
-                        <Features>
-                            <Feature>
-                                <Name>KeyFrames</Name>
-                                <SupportLevel>Full</SupportLevel>
-                                <Type>DependencyProperty</Type>
                                 <Features />
                             </Feature>
                         </Features>
