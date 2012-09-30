@@ -1011,11 +1011,24 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateClip();
     } else if (args.Property._ID === UIElement.OpacityMaskProperty._ID) {
         //TODO: OpacityMaskProperty
-    } else if (args.Property._ID === UIElement.RenderTransform._ID
-        || args.Property._ID === UIElement.RenderTransformOrigin._ID) {
+    } else if (args.Property._ID === UIElement.RenderTransformProperty._ID
+        || args.Property._ID === UIElement.RenderTransformOriginProperty._ID) {
         this._UpdateTransform();
     } else if (args.Property._ID === UIElement.TriggersProperty._ID) {
-        //TODO: TriggerProperty
+        var triggers = args.OldValue;
+        if (triggers) {
+            var count = triggers.GetCount();
+            for (var i = 0; i < count; i++) {
+                triggers.GetValueAt(i)._RemoveTarget(this);
+            }
+        }
+        triggers = args.NewValue;
+        if (triggers) {
+            var count = triggers.GetCount();
+            for (var i = 0; i < count; i++) {
+                triggers.GetValueAt(i)._SetTarget(this);
+            }
+        }
     } else if (args.Property._ID === UIElement.UseLayoutRoundingProperty._ID) {
         this._InvalidateMeasure();
         this._InvalidateArrange();
@@ -1042,6 +1055,31 @@ UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 };
 
 UIElement.Instance._OnCollectionChanged = function (col, args) {
+    if (this._PropertyHasValueNoAutoCreate(UIElement.TriggersProperty, col)) {
+        switch (args.Action) {
+            case CollectionChangedArgs.Action.Replace:
+                args.OldValue._RemoveTarget(this);
+                //NOTE: Intentionally falling through
+            case CollectionChangedArgs.Action.Add:
+                args.NewValue._SetTarget(this);
+                break;
+            case CollectionChangedArgs.Action.Remove:
+                args.OldValue._RemoveTarget(this);
+                break;
+            case CollectionChangedArgs.Action.Clearing:
+                var count = col.GetCount();
+                for (var i = 0; i < count; i++) {
+                    col.GetValueAt(i)._RemoveTarget(this);
+                }
+                break;
+            case CollectionChangedArgs.Action.Cleared:
+                break;
+        }
+    } else if (this._PropertyHasValueNoAutoCreate(UIElement.ResourcesProperty, col)) {
+        //TODO: ResourcesProperty
+    } else {
+        this._OnCollectionChanged$DependencyObject(col, args);
+    }
 };
 
 //#endregion
