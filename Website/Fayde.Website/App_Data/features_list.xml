@@ -3185,6 +3185,25 @@
                 <Type>Class</Type>
                 <Features />
             </Feature>
+            <Feature>
+                <Name>CacheMode</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Class</Type>
+                <Features />
+            </Feature>
+            <Feature>
+                <Name>BitmapCache</Name>
+                <SupportLevel>None</SupportLevel>
+                <Type>Class</Type>
+                <Features>
+                    <Feature>
+                        <Name>RenderAtScale</Name>
+                        <SupportLevel>None</SupportLevel>
+                        <Type>DependencyProperty</Type>
+                        <Features />
+                    </Feature>
+                </Features>
+            </Feature>
         </Features>
     </Feature>
     <Feature>
