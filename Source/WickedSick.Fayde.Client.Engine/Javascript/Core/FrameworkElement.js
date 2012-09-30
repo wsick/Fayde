@@ -28,6 +28,18 @@ FrameworkElement.Instance.Init = function () {
     this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
 
     this.SizeChanged = new MulticastEvent();
+    this.LayoutUpdated = {
+        Subscribe: function (callback, closure) {
+            var surface = App.Instance.MainSurface;
+            if (surface)
+                surface.LayoutUpdated.Subscribe(callback, closure);
+        },
+        Unsubscribe: function (callback, closure) {
+            var surface = App.Instance.MainSurface;
+            if (surface)
+                surface.LayoutUpdated.Unsubscribe(callback, closure);
+        }
+    };
 };
 
 //#region Properties
@@ -369,18 +381,12 @@ FrameworkElement.Instance._ArrangeWithError = function (finalRect, error) {
         response.Height = Math.max(response.Height, framework.Height);
 
     var flipHoriz = false;
-    
-    /*
-    TODO: FLOW DIRECTION NOT IMPLEMENTED YET
-
     if (parent)
         flipHoriz = parent.FlowDirection !== this.FlowDirection;
-    else if (this.GetParent() && this.GetParent()._IsPopup())
-        flipHoriz = this.GetParent().FlowDirection != this.FlowDirection;
+    else if (this._Parent instanceof Popup)
+        flipHoriz = this._Parent.FlowDirection !== this.FlowDirection;
     else
         flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
-
-    */
 
     var layoutXform = mat3.identity();
     mat3.translate(layoutXform, childRect.X, childRect.Y);
@@ -502,6 +508,8 @@ FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error
 //#endregion
 
 FrameworkElement.Instance._GetTransformOrigin = function () {
+    return new Point();
+    //TODO: Implement RenderTransformOrigin
     var userXformOrigin = this.RenderTransformOrigin;
     var width = this.ActualWidth;
     var height = this.ActualHeight;
@@ -825,7 +833,7 @@ FrameworkElement.Instance.SetVisualParent = function (value) {
     }
 };
 FrameworkElement.Instance._SetLogicalParent = function (value, error) {
-    if (this._LogicalParent == value)
+    if (Nullstone.RefEquals(this._LogicalParent, value))
         return;
 
     if (false/* TODO: IsShuttingDown */) {

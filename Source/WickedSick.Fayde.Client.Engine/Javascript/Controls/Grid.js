@@ -543,33 +543,33 @@ Grid.Instance._OnPropertyChanged = function (args, error) {
     this._InvalidateMeasure();
     this.PropertyChanged.Raise(this, args);
 };
-Grid.Instance._OnCollectionChanged = function (sender, args) {
-    if (this._PropertyHasValueNoAutoCreate(Grid.ColumnDefinitionsProperty, sender)
-        || this._PropertyHasValueNoAutoCreate(Grid.RowDefinitionsProperty, sender)) {
+Grid.Instance._OnCollectionChanged = function (col, args) {
+    if (this._PropertyHasValueNoAutoCreate(Grid.ColumnDefinitionsProperty, col)
+        || this._PropertyHasValueNoAutoCreate(Grid.RowDefinitionsProperty, col)) {
         this._InvalidateMeasure();
     } else {
-        this._OnCollectionChanged$Panel(sender, args);
+        this._OnCollectionChanged$Panel(col, args);
     }
 };
-Grid.Instance._OnCollectionItemChanged = function (sender, args) {
-    if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, sender)) {
+Grid.Instance._OnCollectionItemChanged = function (col, obj, args) {
+    if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
         if (args.Property._ID === Grid.ColumnProperty._ID
             || args.Property._ID === Grid.RowProperty._ID
             || args.Property._ID === Grid.ColumnSpanProperty._ID
             || args.Property._ID === Grid.RowSpanProperty._ID) {
             this._InvalidateMeasure();
-            args.Item._InvalidateMeasure();
+            obj._InvalidateMeasure();
             return;
         }
-    } else if (Nullstone.RefEquals(sender, this._GetColumnDefinitionsNoAutoCreate())
-        || Nullstone.RefEquals(sender, this._GetRowDefinitionsNoAutoCreate())) {
+    } else if (Nullstone.RefEquals(col, this._GetColumnDefinitionsNoAutoCreate())
+        || Nullstone.RefEquals(col, this._GetRowDefinitionsNoAutoCreate())) {
         if (args.Property._ID !== ColumnDefinition.ActualWidthProperty._ID
             && args.Property._ID !== RowDefinition.ActualHeightProperty._ID) {
             this._InvalidateMeasure();
         }
         return;
     }
-    this._OnCollectionChanged$Panel(sender, args);
+    this._OnCollectionItemChanged$Panel(col, obj, args);
 };
 
 //#endregion

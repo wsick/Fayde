@@ -26,9 +26,9 @@ PathGeometry.Annotations = {
 
 //#endregion
 
-PathGeometry.prototype._OnCollectionChanged = function (sender, args) {
-    if (!this._PropertyHasValueNoAutoCreate(PathGeometry.FiguresProperty, sender)) {
-        this._OnCollectionChanged$Geometry(sender, args);
+PathGeometry.prototype._OnCollectionChanged = function (col, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathGeometry.FiguresProperty, col)) {
+        this._OnCollectionChanged$Geometry(col, args);
         return;
     }
     this._InvalidateCache();
@@ -38,9 +38,9 @@ PathGeometry.prototype._OnCollectionChanged = function (sender, args) {
         NewValue: this.Figures
     });
 };
-PathGeometry.prototype._OnCollectionItemChanged = function (sender, args) {
-    if (!this._PropertyHasValueNoAutoCreate(PathGeometry.FiguresProperty, sender)) {
-        this._OnCollectionItemChanged$Geometry(sender, args);
+PathGeometry.prototype._OnCollectionItemChanged = function (col, obj, args) {
+    if (!this._PropertyHasValueNoAutoCreate(PathGeometry.FiguresProperty, col)) {
+        this._OnCollectionItemChanged$Geometry(col, obj, args);
         return;
     }
     this._InvalidateCache();

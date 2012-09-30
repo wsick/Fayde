@@ -14,7 +14,7 @@
 /// <reference path="../Core/Input/Enums.js"/>
 
 //#region Surface
-var Surface = Nullstone.Create("Surface", null, 1);
+var Surface = Nullstone.Create("Surface", undefined, 1);
 
 Surface.Instance.Init = function (app) {
     this._App = app;
@@ -25,6 +25,7 @@ Surface.Instance.Init = function (app) {
     this._Cursor = CursorType.Default;
     if (Surface._Invalidations == null)
         Surface._Invalidations = [];
+    this.LayoutUpdated = new MulticastEvent();
 };
 
 //#region Initialization
@@ -118,9 +119,29 @@ Surface.Instance._AttachLayer = function (layer) {
 };
 Surface.Instance._DetachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
+    if (!this._InputList.IsEmpty() && Nullstone.RefEquals(this._InputList.Tail.UIElement, layer)) {
+        this._InputList = new LinkedList();
+    }
+
+    if (this._FocusedElement != null) {
+        var inThisLayer = false;
+        var f = this._FocusedElement;
+        while (f != null) {
+            if (Nullstone.RefEquals(f, layer)) {
+                inThisLayer = true;
+                break;
+            }
+            f = f.GetVisualParent();
+        }
+        if (inThisLayer)
+            this._FocusElement();
+    }
+
     this._Layers.Remove(layer);
     layer._SetIsLoaded(false);
     layer._SetIsAttached(false);
+
+    this._Invalidate(layer._GetSubtreeBounds());
 };
 Surface.Instance._InitializeCanvas = function (canvas, width, widthType, height, heightType) {
     var resizesWithWindow = false;
@@ -177,6 +198,16 @@ Surface.Instance.GetWidth = function () {
 Surface.Instance.GetHeight = function () {
     return this._Canvas.offsetHeight;
 };
+
+Nullstone.Property(Surface, "ActualWidth", {
+    get: function () { return this._Canvas.offsetWidth; }
+});
+Nullstone.Property(Surface, "ActualHeight", {
+    get: function () { return this._Canvas.offsetHeight; }
+});
+Nullstone.Property(Surface, "Root", {
+    get: function () { return this._TopLevel; }
+});
 
 //#endregion
 
@@ -280,7 +311,7 @@ Surface.Instance._UpdateLayout = function (error) {
 
         if (pass._Updated || dirty) {
             updatedLayout = true;
-            //TODO: LayoutUpdated Event
+            this.LayoutUpdated.Raise(this, new EventArgs());
         }
     }
 
@@ -805,7 +836,8 @@ Surface.Instance._ResizeCanvas = function () {
 
 Surface.Instance._FocusElement = function (uie) {
     /// <param name="uie" type="UIElement"></param>
-    FocusDebug("Surface._FocusElement (" + uie.__DebugToString() + ")");
+    if (uie)
+        FocusDebug("Surface._FocusElement (" + uie.__DebugToString() + ")");
     if (Nullstone.RefEquals(uie, this._FocusedElement))
         return true;
 

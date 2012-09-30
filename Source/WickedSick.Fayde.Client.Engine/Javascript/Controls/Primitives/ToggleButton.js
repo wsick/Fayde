@@ -4,10 +4,19 @@
 //#region ToggleButton
 var ToggleButton = Nullstone.Create("ToggleButton", ButtonBase);
 
+ToggleButton.Instance.Init = function () {
+    this.Init$ButtonBase();
+    this.DefaultStyleKey = this.constructor;
+
+    this.Checked = new MulticastEvent();
+    this.Indeterminate = new MulticastEvent();
+    this.Unchecked = new MulticastEvent();
+};
+
 //#region Properties
 
-ToggleButton.IsCheckedProperty = DependencyProperty.Register("IsChecked", function () { return Boolean; }, ToggleButton, false, function (d, args) { d.OnIsCheckedChanged(args); });
-ToggleButton.IsThreeStateProperty = DependencyProperty.Register("IsThreeState", function () { return Boolean; }, ToggleButton, false);
+ToggleButton.IsCheckedProperty = DependencyProperty.RegisterCore("IsChecked", function () { return Boolean; }, ToggleButton, false, function (d, args) { d._OnIsCheckedChanged(args); });
+ToggleButton.IsThreeStateProperty = DependencyProperty.RegisterCore("IsThreeState", function () { return Boolean; }, ToggleButton, false);
 
 Nullstone.AutoProperties(ToggleButton, [
     ToggleButton.IsCheckedProperty,
@@ -16,15 +25,34 @@ Nullstone.AutoProperties(ToggleButton, [
 
 //#endregion
 
-ToggleButton.Instance.Init = function () {
-    this.Init$ButtonBase();
-    this.DefaultStyleKey = this.constructor;
+ToggleButton.Instance._OnIsCheckedChanged = function (e) {
+    var isChecked = e.NewValue;
+    this.$UpdateVisualState();
+    if (isChecked === true) {
+        this.Checked.Raise(this, new EventArgs());
+    } else if (isChecked === false) {
+        this.Unchecked.Raise(this, new EventArgs());
+    } else {
+        this.Indeterminate.Raise(this, new EventArgs());
+    }
 };
 
-ToggleButton.Instance.OnIsCheckedChanged = function (e) {
-    var isChecked = e.NewValue;
-    //TODO: add the code for raising the appropriate routed event
-    //      OnChecked, OnUnchecked, OnIndeterminate
+ToggleButton.Instance.OnApplyTemplate = function () {
+    this.OnApplyTemplate$ButtonBase();
+    this.$UpdateVisualState(false);
+};
+
+ToggleButton.Instance.OnClick = function () {
+    var isChecked = this.IsChecked;
+    if (isChecked === true) {
+        this.IsChecked = this.IsThreeState ? null : false;
+    } else {
+        this.IsChecked = isChecked != null;
+    }
+    this.OnClick$ButtonBase();
+};
+ToggleButton.Instance.OnContentChanged = function (oldContent, newContent) {
+    this.OnContentChanged$ButtonBase(oldContent, newContent);
     this.$UpdateVisualState();
 };
 
@@ -42,26 +70,6 @@ ToggleButton.Instance.$UpdateVisualState = function (useTransitions) {
         if (!VisualStateManager.GoToState(this, "Indeterminate", useTransitions)) {
             VisualStateManager.GoToState(this, "Unchecked", useTransitions)
         }
-    }
-};
-
-ToggleButton.Instance.OnClick = function () {
-    this.OnToggle();
-    this.OnClick$ButtonBase();
-};
-
-ToggleButton.Instance.OnToggle = function () {
-    var isChecked = this.IsChecked;
-    if (isChecked === true) {
-        if (this.IsThreeState) {
-            this.IsChecked = null;
-        } else {
-            this.IsChecked = false;
-        }
-    } else if (isChecked === false) {
-        this.IsChecked = true;
-    } else {
-        this.IsChecked = false;
     }
 };
 

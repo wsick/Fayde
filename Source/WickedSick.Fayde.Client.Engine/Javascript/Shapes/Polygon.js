@@ -141,12 +141,12 @@ Polygon.Instance._OnPropertyChanged = function (args, error) {
     this._Invalidate();
     this.PropertyChanged.Raise(this, args);
 };
-Polygon.Instance._OnCollectionChanged = function (sender, args) {
-    this._OnCollectionChanged$Shape(sender, args);
+Polygon.Instance._OnCollectionChanged = function (col, args) {
+    this._OnCollectionChanged$Shape(col, args);
     this._InvalidateNaturalBounds();
 };
-Polygon.Instance._OnCollectionItemChanged = function (sender, args) {
-    this._OnCollectionItemChanged$Shape(sender, args);
+Polygon.Instance._OnCollectionItemChanged = function (col, obj, args) {
+    this._OnCollectionItemChanged$Shape(col, obj, args);
     this._InvalidateNaturalBounds();
 };
 

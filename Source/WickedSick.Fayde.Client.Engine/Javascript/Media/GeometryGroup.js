@@ -51,10 +51,10 @@ GeometryGroup.Instance.Draw = function (ctx) {
         ctx.Restore();
 };
 
-GeometryGroup.prototype._OnCollectionChanged = function (sender, args) {
+GeometryGroup.prototype._OnCollectionChanged = function (col, args) {
     this._InvalidateCache();
-    if (!this._PropertyHasValueNoAutoCreate(GeometryGroup.ChildrenProperty, sender)) {
-        this._OnCollectionChanged(sender, args);
+    if (!this._PropertyHasValueNoAutoCreate(GeometryGroup.ChildrenProperty, col)) {
+        this._OnCollectionChanged$Geometry(col, args);
         return;
     }
     this.PropertyChanged.Raise(this, {
@@ -63,10 +63,10 @@ GeometryGroup.prototype._OnCollectionChanged = function (sender, args) {
         NewValue: this.Children
     });
 };
-GeometryGroup.prototype._OnCollectionItemChanged = function (sender, args) {
+GeometryGroup.prototype._OnCollectionItemChanged = function (col, obj, args) {
     this._InvalidateCache();
-    if (!this._PropertyHasValueNoAutoCreate(GeometryGroup.ChildrenProperty, sender)) {
-        this._OnCollectionItemChanged(sender, args);
+    if (!this._PropertyHasValueNoAutoCreate(GeometryGroup.ChildrenProperty, col)) {
+        this._OnCollectionItemChanged$Geometry(col, obj, args);
         return;
     }
     this.PropertyChanged.Raise(this, {

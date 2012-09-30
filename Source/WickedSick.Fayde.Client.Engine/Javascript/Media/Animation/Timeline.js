@@ -72,6 +72,7 @@ Timeline.Instance.OnCompleted = function () {
     var fill = this.FillBehavior;
     switch (fill) {
         case FillBehavior.HoldEnd:
+            this.Disable();
             break;
         case FillBehavior.Stop:
             this.Stop();
@@ -91,6 +92,8 @@ Timeline.Instance.Update = function (nowTime) {
         this.OnCompleted();
 };
 Timeline.Instance.UpdateInternal = function (clockData) { };
+
+Timeline.Instance.Disable = function () { };
 
 //#region Clock
 
@@ -117,8 +120,7 @@ Timeline.Instance.CreateClockData = function (nowTime) {
         progress = 1.0;
         completed = true;
     } else if (duration.HasTimeSpan) {
-        var durTicks = duration.TimeSpan._Ticks;
-        var d = durTicks;
+        var d = duration.TimeSpan._Ticks;
         if (d === 0) {
             progress = 1.0;
         } else if (this.AutoReverse === true) {
@@ -129,21 +131,23 @@ Timeline.Instance.CreateClockData = function (nowTime) {
             // Progress - Graph that repeats 3 times has shape: //////
             progress = (elapsedTicks / d) - Math.floor(elapsedTicks / d);
         }
-        currentTimeTicks = progress * d; //normalizes CurrentTime within [0,duration] constraints
 
         var repeat = this.RepeatBehavior;
         if (repeat.IsForever) {
         } else if (repeat.HasCount) {
-            if (Math.floor(elapsedTicks / durTicks) > repeat.Count) {
+            if ((d === 0) || (Math.floor(elapsedTicks / d) >= repeat.Count)) {
                 progress = 1.0;
                 completed = true;
             }
         } else if (repeat.HasDuration) {
-            if (elapsedTicks > repeat.Duration.TimeSpan._Ticks) {
+            if (elapsedTicks >= repeat.Duration.TimeSpan._Ticks) {
                 progress = 1.0;
                 completed = true;
             }
         }
+
+        if (d !== 0)
+            currentTimeTicks = progress * d; //normalizes CurrentTime within [0,duration] constraints
     }
     // else if (duration.IsForever) { // do nothing }
     

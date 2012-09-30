@@ -29,14 +29,14 @@ Nullstone.Property(Transform, "Inverse", {
             return;
 
         var mt = new MatrixTransform();
-        mt.Value = inverse;
+        mt.Matrix = inverse;
         return mt;
     }
 });
 
 //#endregion
 
-Transform.Instance.TransformPoint = function (point) {
+Transform.Instance.Transform = function (point) {
     var v = mat3.transformVec2(this.Value.raw, vec2.createFrom(point.X, point.Y));
     return new Point(v[0], v[1]);
 };

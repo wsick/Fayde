@@ -12,7 +12,7 @@ NameScope.Instance.Init = function () {
     this._Temporary = false;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 NameScope.NameScopeProperty = DependencyProperty.RegisterAttachedCore("NameScope", function () { return NameScope; }, NameScope);
 NameScope.GetNameScope = function (d) {
@@ -43,7 +43,7 @@ NameScope.Instance.RegisterName = function (name, obj) {
         this._Names = [];
 
     var existingObj = this._Names[name];
-    if (existingObj == obj)
+    if (Nullstone.RefEquals(existingObj, obj))
         return;
 
     if (existingObj) {
@@ -84,7 +84,7 @@ NameScope.Instance._MergeTemporaryScope = function (temp, error) {
     for (var name in temp._Names) {
         var value = temp._Names[name];
         var o = this.FindName(name);
-        if (o && o !== value) {
+        if (o && !Nullstone.RefEquals(o, value)) {
             error.SetErrored(BError.Argument, "The name already exists in the tree.");
             return;
         }

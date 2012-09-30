@@ -744,7 +744,7 @@
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
                         <Grid.Resources>
-                            <Style x:Name="comboToggleStyle" TargetType="ToggleButton">
+                            <Style x:Key="comboToggleStyle" TargetType="ToggleButton">
                                 <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
                                 <Setter Property="Background" Value="{StaticResource GrayBrush7}"/>
                                 <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderBrush}"/>
