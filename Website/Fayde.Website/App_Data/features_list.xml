@@ -1940,13 +1940,13 @@
                 <Features>
                     <Feature>
                         <Name>AllowDrop</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Partial</SupportLevel>
                         <Type>DependencyProperty</Type>
                         <Features />
                     </Feature>
                     <Feature>
                         <Name>CacheMode</Name>
-                        <SupportLevel>None</SupportLevel>
+                        <SupportLevel>Partial</SupportLevel>
                         <Type>DependencyProperty</Type>
                         <Features />
                     </Feature>
@@ -2190,7 +2190,38 @@
                         <Type>Method</Type>
                         <Features />
                     </Feature>
+                    <Feature>
+                        <Name>Triggers</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>DependencyProperty</Type>
+                        <Features />
+                    </Feature>
                 </Features>
+            </Feature>
+            <Feature>
+                <Name>EventTrigger</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Class</Type>
+                <Features>
+                    <Feature>
+                        <Name>RoutedEvent</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>DependencyProperty</Type>
+                        <Features />
+                    </Feature>
+                    <Feature>
+                        <Name>Actions</Name>
+                        <SupportLevel>Full</SupportLevel>
+                        <Type>DependencyProperty</Type>
+                        <Features />
+                    </Feature>
+                </Features>
+            </Feature>
+            <Feature>
+                <Name>TriggerAction</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Class</Type>
+                <Features />
             </Feature>
         </Features>
     </Feature>
@@ -3180,18 +3211,6 @@
                 </Features>
             </Feature>
             <Feature>
-                <Name>VisualTreeHelper</Name>
-                <SupportLevel>Full</SupportLevel>
-                <Type>Class</Type>
-                <Features />
-            </Feature>
-            <Feature>
-                <Name>CacheMode</Name>
-                <SupportLevel>Full</SupportLevel>
-                <Type>Class</Type>
-                <Features />
-            </Feature>
-            <Feature>
                 <Name>BitmapCache</Name>
                 <SupportLevel>None</SupportLevel>
                 <Type>Class</Type>
@@ -3203,6 +3222,18 @@
                         <Features />
                     </Feature>
                 </Features>
+            </Feature>
+            <Feature>
+                <Name>CacheMode</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Class</Type>
+                <Features />
+            </Feature>
+            <Feature>
+                <Name>VisualTreeHelper</Name>
+                <SupportLevel>Full</SupportLevel>
+                <Type>Class</Type>
+                <Features />
             </Feature>
         </Features>
     </Feature>
