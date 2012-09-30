@@ -13,6 +13,9 @@
 /// <reference path="../Engine/RenderContext.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Primitives/Thickness.js"/>
+/// <reference path="TriggerCollection.js"/>
+/// <reference path="../Media/CacheMode.js"/>
+/// <reference path="../Media/Projection.js"/>
 
 //#region UIElement
 var UIElement = Nullstone.Create("UIElement", DependencyObject);
@@ -95,18 +98,18 @@ UIElement.Instance.Init = function () {
 
 //#region Properties
 
-//UIElement.AllowDropProperty;
+UIElement.AllowDropProperty = DependencyProperty.Register("AllowDrop", function () { return Boolean; }, UIElement);
+UIElement.CacheModeProperty = DependencyProperty.Register("CacheMode", function () { return CacheMode; }, UIElement);
 UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
-//UIElement.CacheModeProperty;
 UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Effect; }, UIElement);
 UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
 UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);
 UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
-//UIElement.ProjectionProperty;
-//UIElement.RenderTransformProperty;
-//UIElement.RenderTransformOriginProperty;
+UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Projection; }, UIElement);
+UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Transform; }, UIElement);
+UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, new Point());
 UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, { GetValue: function () { return new ResourceDictionary(); } });
-UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return Object; }, UIElement/*, undefined, { GetValue: function () { } }*/);
+UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return TriggerCollection; }, UIElement, undefined, { GetValue: function () { return new TriggerCollection(); } });
 UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterCore("UseLayoutRounding", function () { return Boolean; }, UIElement, true);
 UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
@@ -114,11 +117,16 @@ UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return 
 UIElement.IsMouseOverProperty = DependencyProperty.RegisterReadOnlyCore("IsMouseOver", function () { return Boolean; }, UIElement);
 
 Nullstone.AutoProperties(UIElement, [
+    UIElement.AllowDropProperty,
+    UIElement.CacheModeProperty,
     UIElement.ClipProperty,
     UIElement.EffectProperty,
     UIElement.IsHitTestVisibleProperty,
     UIElement.OpacityMaskProperty,
     UIElement.OpacityProperty,
+    UIElement.ProjectionProperty,
+    UIElement.RenderTransformProperty,
+    UIElement.RenderTransformOriginProperty,
     UIElement.ResourcesProperty,
     UIElement.TriggersProperty,
     UIElement.UseLayoutRoundingProperty,
@@ -1001,6 +1009,13 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._UpdateTotalHitTestVisibility();
     } else if (args.Property._ID === UIElement.ClipProperty._ID) {
         this._InvalidateClip();
+    } else if (args.Property._ID === UIElement.OpacityMaskProperty._ID) {
+        //TODO: OpacityMaskProperty
+    } else if (args.Property._ID === UIElement.RenderTransform._ID
+        || args.Property._ID === UIElement.RenderTransformOrigin._ID) {
+        this._UpdateTransform();
+    } else if (args.Property._ID === UIElement.TriggersProperty._ID) {
+        //TODO: TriggerProperty
     } else if (args.Property._ID === UIElement.UseLayoutRoundingProperty._ID) {
         this._InvalidateMeasure();
         this._InvalidateArrange();
@@ -1010,8 +1025,11 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateEffect();
         if (oldEffect !== newEffect && this._IsAttached)
             App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Transform);
+    } else if (args.Property._ID === UIElement.ProjectionProperty._ID) {
+        this._UpdateProjection();
+    } else if (args.Property._ID === UIElement.CacheModeProperty._ID) {
+        //TODO: CacheModeProperty
     }
-    //TODO: Check invalidation of some properties
     this.PropertyChanged.Raise(this, args);
 };
 UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
@@ -1021,6 +1039,9 @@ UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
         this._InvalidateEffect();
     }
     this._OnSubPropertyChanged$DependencyObject(propd, sender, args);
+};
+
+UIElement.Instance._OnCollectionChanged = function (col, args) {
 };
 
 //#endregion

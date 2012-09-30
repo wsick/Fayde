@@ -199,6 +199,7 @@
     <Content Include="Javascript\Media\Animation\SplineColorKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\SplineDoubleKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\SplinePointKeyFrame.js" />
+    <Content Include="Javascript\Media\CacheMode.js" />
     <Content Include="Javascript\Media\Curves.js" />
     <Content Include="Javascript\Media\Effects\BlurEffect.js" />
     <Content Include="Javascript\Media\Effects\DropShadowEffect.js" />
