@@ -2,15 +2,15 @@
 
 function Keyboard() { }
 Keyboard.RefreshModifiers = function (e) {
-    if (e.shiftKey)
+    if (e.Shift)
         Keyboard.Modifiers |= ModifierKeys.Shift;
     else
         Keyboard.Modifiers &= ~ModifierKeys.Shift;
-    if (e.ctrlKey)
+    if (e.Ctrl)
         Keyboard.Modifiers |= ModifierKeys.Control;
     else
         Keyboard.Modifiers &= ~ModifierKeys.Control;
-    if (e.altKey)
+    if (e.Alt)
         Keyboard.Modifiers |= ModifierKeys.Alt;
     else
         Keyboard.Modifiers &= ~ModifierKeys.Alt;
