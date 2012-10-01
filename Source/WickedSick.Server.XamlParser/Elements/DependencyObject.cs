@@ -156,7 +156,7 @@ namespace WickedSick.Server.XamlParser.Elements
             if (apd == null)
             {
                 string ownerName = ownerType == null ? "null" : ownerType.Name;
-                throw new ArgumentException(string.Format("An unregistered attached property has been passed for the element {0}. {1}.{2}", GetType(), ownerName, name));
+                throw new ArgumentException(string.Format("An unregistered attached property has been passed for the element {0}: {1}.{2}", GetType(), ownerName, name));
             }
 
             if (apd.Type.IsGenericType && apd.Type.GetGenericTypeDefinition() == typeof(DependencyObjectCollection<>))
@@ -176,7 +176,7 @@ namespace WickedSick.Server.XamlParser.Elements
             else
             {
                 if (_attachedValues.ContainsKey(apd))
-                    throw new Exception(string.Format("The attached property has already been set on the element {0}. {1}.{2}", GetType(), ownerType.Name, name));
+                    throw new Exception(string.Format("The attached property has already been set on the element {0}: {1}.{2}", GetType(), ownerType.Name, name));
 
                 if (value is string)
                 {
