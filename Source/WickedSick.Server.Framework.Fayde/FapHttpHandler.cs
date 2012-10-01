@@ -107,7 +107,7 @@ namespace WickedSick.Server.Framework.Fayde
             catch (Exception ex)
             {
                 logger.Error("Could not load Fayde Application document.", ex);
-                return null;
+                throw;
             }
         }
 

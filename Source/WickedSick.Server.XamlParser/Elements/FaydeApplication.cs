@@ -9,14 +9,12 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription WidthProperty = PropertyDescription.Register("Width", typeof(PageLength), typeof(FaydeApplication));
         public static readonly PropertyDescription HeightProperty = PropertyDescription.Register("Height", typeof(PageLength), typeof(FaydeApplication));
 
-#if DEBUG
         public static readonly PropertyDescription DebugProperty = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
         public bool Debug
         {
             get { return (bool)GetValue("Debug"); }
             set { SetValue("Debug", value); }
         }
-#endif
 
         public static readonly PropertyDescription ResourcesProperty = PropertyDescription.Register("Resources", typeof(ResourceDictionary), typeof(FaydeApplication));
         public ResourceDictionary Resources
