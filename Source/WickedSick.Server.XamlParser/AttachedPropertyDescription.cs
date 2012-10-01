@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using WickedSick.Server.XamlParser.Elements;
 
@@ -26,6 +27,8 @@ namespace WickedSick.Server.XamlParser
             Type checkType = ownerType;
             while (checkType != null)
             {
+                PropertyHelper.EnsurePropertyRegistered(checkType);
+
                 string key = string.Format("{0}.{1}", checkType.Name, name);
                 if (_attachedProperties.Keys.Contains(key))
                     return _attachedProperties[key];
