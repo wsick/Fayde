@@ -24,7 +24,8 @@ namespace Fayde.Website
             "</FaydeApplication>",
         };
 
-        private readonly List<string> HOME_XAMLS = new List<string>{
+        private readonly List<string> HOME_XAMLS = new List<string>
+        {
             "<Page xmlns=\"WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements\"",
             "\txmlns:x=\"WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core\"",
             "\tTitle=\"Home\">",
@@ -34,10 +35,20 @@ namespace Fayde.Website
             "</Page>",
         };
 
+        private readonly List<string> WEB_CONFIG_XMLS = new List<string>
+        {
+            "<system.webServer>",
+            "\t<handlers>",
+            "\t\t<add verb=\"*\" path=\"*.fap\" name=\"FapHandler\" type=\"WickedSick.Server.Framework.Fayde.FapHttpHandler\" resourceType=\"Unspecified\" />",
+            "\t</handlers>",
+            "</system.webServer>",
+        };
+
         protected void Page_Load(object sender, EventArgs e)
         {
             ltrlDefaultFapXaml.Text = string.Join("<br />", DEFAULT_FAP_XAMLS.Select(x => Server.HtmlEncode(x).Replace("\t", "&nbsp;&nbsp;&nbsp;")));
             ltrlHomeXaml.Text = string.Join("<br />", HOME_XAMLS.Select(x => Server.HtmlEncode(x).Replace("\t", "&nbsp;&nbsp;&nbsp;")));
+            ltrlWebConfig.Text = string.Join("<br />", WEB_CONFIG_XMLS.Select(x => Server.HtmlEncode(x).Replace("\t", "&nbsp;&nbsp;&nbsp;")));
         }
     }
 }
