@@ -73,7 +73,9 @@
     <Content Include="contribute.aspx" />
     <Content Include="App_Themes\default\images\bg.jpg" />
     <Content Include="demo.aspx" />
+    <Content Include="download.aspx" />
     <Content Include="features.aspx" />
+    <Content Include="gettingstarted.aspx" />
     <Content Include="home.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -106,12 +108,26 @@
     <Compile Include="demo.aspx.designer.cs">
       <DependentUpon>demo.aspx</DependentUpon>
     </Compile>
+    <Compile Include="download.aspx.cs">
+      <DependentUpon>download.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="download.aspx.designer.cs">
+      <DependentUpon>download.aspx</DependentUpon>
+    </Compile>
     <Compile Include="features.aspx.cs">
       <DependentUpon>features.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="features.aspx.designer.cs">
       <DependentUpon>features.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="gettingstarted.aspx.cs">
+      <DependentUpon>gettingstarted.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="gettingstarted.aspx.designer.cs">
+      <DependentUpon>gettingstarted.aspx</DependentUpon>
     </Compile>
     <Compile Include="home.aspx.cs">
       <DependentUpon>home.aspx</DependentUpon>
@@ -124,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="default.Master" />
+    <Content Include="drops\Fayde.zip" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
