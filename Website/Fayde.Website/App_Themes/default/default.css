@@ -4,12 +4,12 @@
     background-position: center center;
     background-image: url('images/bg.jpg');
     background-repeat: repeat-y;
-    font-family: 'Segoe UI Light', 'Lucida Sans Unicode', Verdana;
+    font-family: 'Segoe UI', 'Lucida Sans Unicode', Verdana;
 }
 
 #all
 {
-    width: 1240px;
+    width: 1030px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -24,6 +24,17 @@ h1
 {
     color: #013C6C;
     font-size: 50px;
+    font-family: 'Segoe UI Light', 'Lucida Sans Unicode', Verdana;
+}
+
+h2
+{
+    font-family: 'Segoe UI Light', 'Lucida Sans Unicode', Verdana;
+}
+
+h3
+{
+    font-family: 'Segoe UI Light', 'Lucida Sans Unicode', Verdana;
 }
 
 .menu
@@ -43,11 +54,13 @@ h1
 {
     color: gray;
     text-decoration: none;
+    font-family: 'Segoe UI Light', 'Lucida Sans Unicode', Verdana;
 }
  
 .menu li a:hover
 {
     color: black;
+    font-family: 'Segoe UI Light', 'Lucida Sans Unicode', Verdana;
 }
 
 .main
