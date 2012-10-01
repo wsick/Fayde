@@ -140,7 +140,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="default.Master" />
-    <Content Include="drops\Fayde.zip" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -161,6 +160,9 @@
       <Project>{00ec9b3b-049a-4c6e-9a99-3cc9b0c5e61b}</Project>
       <Name>Fayde.Website.MVVM</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="drops\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
