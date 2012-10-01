@@ -441,7 +441,7 @@ TextBoxBase.Instance.OnKeyDown = function (args) {
             handled = this._KeyDownPageDown(args.Modifiers);
             break;
         case Key.PageUp:
-            handled = this._KeyUpPageDown(args.Modifiers);
+            handled = this._KeyDownPageUp(args.Modifiers);
             break;
         case Key.Home:
             handled = this._KeyDownHome(args.Modifiers);
