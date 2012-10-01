@@ -23,6 +23,8 @@ namespace WickedSick.Server.Framework.Fayde
 
         protected StreamWriter Writer { get; set; }
 
+        public bool Debug { get; set; }
+
         public void WriteStart()
         {
             Writer.WriteLine("<!DOCTYPE html>");
@@ -47,17 +49,20 @@ namespace WickedSick.Server.Framework.Fayde
             Writer.WriteLine(string.Format("\t\t<title>{0}</title>", title));
         }
 
-        public void WriteScriptIncludes(string directoryResolution, IEnumerable<string> includes)
+        public void WriteScriptIncludes(string scriptResolution, IEnumerable<string> includes)
         {
-#if DEBUG
-            foreach (var include in includes)
+            if (Debug)
             {
-                Writer.WriteLine(string.Format("\t\t<script src=\"{0}Javascript/{1}\" type=\"text/javascript\"></script>", directoryResolution, include));
+                foreach (var include in includes)
+                {
+                    Writer.WriteLine(string.Format("\t\t<script src=\"{0}Javascript/{1}\" type=\"text/javascript\"></script>", scriptResolution, include));
+                }
             }
-#else
-            Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", directoryResolution));
-#endif
-            Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.Generic.js\" type=\"text/javascript\"></script>", directoryResolution));
+            else
+            {
+                Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.js\" type=\"text/javascript\"></script>", scriptResolution));
+            }
+            Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.Generic.js\" type=\"text/javascript\"></script>", scriptResolution));
         }
 
         public void WriteAppLoadScript(FaydeApplication fap)

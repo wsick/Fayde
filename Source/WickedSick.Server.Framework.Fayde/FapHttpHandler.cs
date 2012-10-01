@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -16,14 +15,8 @@ namespace WickedSick.Server.Framework.Fayde
 
         public bool IsReusable { get { return true; } }
 
-        protected string DirectoryResolution { get; set; }
-        protected List<string> Includes { get; set; }
-
         public void ProcessRequest(HttpContext context)
         {
-            bool debug = false;
-            bool.TryParse(ConfigurationManager.AppSettings["FAP_DEBUG"], out debug);
-
             var fap = GetFaydeApplication(context);
             if (fap == null)
             {
@@ -38,24 +31,26 @@ namespace WickedSick.Server.Framework.Fayde
             }
             else
             {
-                if (debug)
-                {
-                    var orderFile = FindOrderFile(context.Request.MapPath("~/"));
-                    Includes = CollectIncludes(orderFile).ToList();
-                    DirectoryResolution = context.Request.ApplicationPath + "/" + ConfigurationManager.AppSettings["FAP_DEBUG_ROOT"];
-                }
-                WriteFapFull(fap, context.Response.OutputStream);
+                var includes = new List<string>();
+#if DEBUG
+                if (fap.Debug)
+                    includes = CollectIncludes(FindOrderFile(context.Request, fap)).ToList();
+#endif
+                WriteFapFull(fap, context.Response.OutputStream, includes);
             }
         }
 
 
-        private void WriteFapFull(FaydeApplication fap, Stream stream)
+        private void WriteFapFull(FaydeApplication fap, Stream stream, IEnumerable<string> includes)
         {
             using (var writer = new FapWriter(stream))
             {
+#if DEBUG
+                writer.Debug = fap.Debug;
+#endif
                 writer.WriteStart();
                 writer.WriteHeadStart();
-                writer.WriteScriptIncludes(DirectoryResolution, Includes);
+                writer.WriteScriptIncludes(fap.ScriptResolution, includes);
                 writer.WriteAppLoadScript(fap);
                 writer.WriteHeadEnd();
                 writer.WriteBodyStart();
@@ -126,10 +121,11 @@ namespace WickedSick.Server.Framework.Fayde
         }
 
 
-        private string FindOrderFile(string appPath)
+        private string FindOrderFile(HttpRequest request, FaydeApplication fap)
         {
-            var di = new DirectoryInfo(appPath);
-            return new FileInfo(Path.Combine(di.Parent.Parent.FullName, "JsBin", "Fayde.order")).FullName;
+            var localRes = request.MapPath(fap.ScriptResolution);
+            var orderFile = new FileInfo(Path.Combine(localRes, "Fayde.order"));
+            return orderFile.FullName;
         }
 
         private IEnumerable<string> CollectIncludes(string orderFilepath)

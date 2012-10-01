@@ -1,7 +1,8 @@
 ﻿<FaydeApplication
     xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
     xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
-    Debug="true">
+    Debug="true"
+    ScriptResolution="/Fayde/">
     <FaydeApplication.UriMappings>
         <UriMapping Uri="" MappedUri="/Views/home.fayde" />
         <UriMapping Uri="/{pageName}" MappedUri="/Views/{pageName}.fayde" />
@@ -229,6 +230,5 @@
                 </Border>
             </Grid>
         </Border>
-
     </Grid>
 </FaydeApplication>
