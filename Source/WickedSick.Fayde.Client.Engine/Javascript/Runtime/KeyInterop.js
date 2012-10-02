@@ -69,7 +69,7 @@ var IEKeyInterop = Nullstone.Create("IEKeyInterop", KeyInterop);
     keyFromKeyCode[16] = Key.Shift;
     keyFromKeyCode[17] = Key.Ctrl;
     keyFromKeyCode[18] = Key.Alt;
-    keyFromKeyCode[19] = Key.Pause/Break;
+    //keyFromKeyCode[19] = Key.Pause/Break;
     keyFromKeyCode[20] = Key.CapsLock;
     keyFromKeyCode[27] = Key.Escape;
     keyFromKeyCode[32] = Key.Space;
@@ -197,10 +197,12 @@ Nullstone.FinishCreate(IEKeyInterop);
 //#region NetscapeKeyInterop
 var NetscapeKeyInterop = Nullstone.Create("NetscapeKeyInterop", KeyInterop);
 
+/*
 NetscapeKeyInterop.Instance.CreateArgsPress = function (e) {
 };
 NetscapeKeyInterop.Instance.CreateArgsDown = function (e) {
 };
+*/
 
 Nullstone.FinishCreate(NetscapeKeyInterop);
 //#endregion
