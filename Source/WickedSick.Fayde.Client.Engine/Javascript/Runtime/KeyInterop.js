@@ -245,7 +245,7 @@ var NetscapeKeyInterop = Nullstone.Create("NetscapeKeyInterop", KeyInterop);
             Ctrl: e.ctrlKey,
             Alt: e.altKey
         };
-        return new KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode], String.fromCharCode(e.keyCode));
+        return new KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
     };
 })();
 
