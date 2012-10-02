@@ -25,23 +25,6 @@ KeyInterop.Instance.RegisterEvents = function () {
     };
 };
 
-KeyInterop.Instance.CreateArgsPress = function (e) {
-    var modifiers = {
-        Shift: e.shiftKey,
-        Ctrl: e.ctrlKey,
-        Alt: e.altKey
-    };
-    return new KeyEventArgs(modifiers, e.keyCode, _KeyFromKeyCode[keyCode]);
-};
-KeyInterop.Instance.CreateArgsDown = function (e) {
-    var modifiers = {
-        Shift: e.shiftKey,
-        Ctrl: e.ctrlKey,
-        Alt: e.altKey
-    };
-    return new KeyEventArgs(modifiers, e.keyCode, _KeyFromKeyCode[keyCode]);
-};
-
 Nullstone.FinishCreate(KeyInterop);
 //#endregion
 
@@ -58,10 +41,7 @@ KeyInterop.CreateInterop = function (surface) {
     return interop;
 };
 
-//#region IEKeyInterop
-var IEKeyInterop = Nullstone.Create("IEKeyInterop", KeyInterop);
-
-(function () {
+KeyInterop.KeyFromKeyCode = (function () {
     var keyFromKeyCode = [];
     keyFromKeyCode[8] = Key.Back;
     keyFromKeyCode[9] = Key.Tab;
@@ -149,6 +129,14 @@ var IEKeyInterop = Nullstone.Create("IEKeyInterop", KeyInterop);
     keyFromKeyCode[121] = Key.F10;
     keyFromKeyCode[122] = Key.F11;
     keyFromKeyCode[123] = Key.F12;
+    return keyFromKeyCode;
+})();
+
+//#region IEKeyInterop
+var IEKeyInterop = Nullstone.Create("IEKeyInterop", KeyInterop);
+
+(function () {
+    var keyFromKeyCode = KeyInterop.KeyFromKeyCode;
 
     var unshiftedDKeys = [];
     unshiftedDKeys[41] = 48;
@@ -166,16 +154,17 @@ var IEKeyInterop = Nullstone.Create("IEKeyInterop", KeyInterop);
         if (e.char == null)
             return;
 
-        var keyCode = e.keyCode;
-        var unshifted = unshiftedDKeys[keyCode];
-        if (unshifted)
-            keyCode = unshifted;
-
         var modifiers = {
             Shift: e.shiftKey,
             Ctrl: e.ctrlKey,
             Alt: e.altKey
         };
+
+        var keyCode = e.keyCode;
+        var unshifted = unshiftedDKeys[keyCode];
+        if (unshifted)
+            keyCode = unshifted;
+
         return new KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], e.char);
     });
 
@@ -197,12 +186,64 @@ Nullstone.FinishCreate(IEKeyInterop);
 //#region NetscapeKeyInterop
 var NetscapeKeyInterop = Nullstone.Create("NetscapeKeyInterop", KeyInterop);
 
-/*
-NetscapeKeyInterop.Instance.CreateArgsPress = function (e) {
-};
-NetscapeKeyInterop.Instance.CreateArgsDown = function (e) {
-};
-*/
+(function () {
+    var keyFromKeyCode = KeyInterop.KeyFromKeyCode;
+
+    var specialKeys = [];
+    specialKeys[8] = Key.Back;
+    specialKeys[9] = Key.Tab;
+    specialKeys[20] = Key.CapsLock;
+    specialKeys[27] = Key.Escape;
+    specialKeys[33] = Key.PageUp;
+    specialKeys[34] = Key.PageDown;
+    specialKeys[35] = Key.End;
+    specialKeys[36] = Key.Home;
+    specialKeys[37] = Key.Left;
+    specialKeys[38] = Key.Up;
+    specialKeys[39] = Key.Right;
+    specialKeys[40] = Key.Down;
+    specialKeys[45] = Key.Insert;
+    specialKeys[46] = Key.Delete;
+
+    var unshiftedDKeys = [];
+    unshiftedDKeys[41] = 48;
+    unshiftedDKeys[33] = 49;
+    unshiftedDKeys[64] = 50;
+    unshiftedDKeys[35] = 51;
+    unshiftedDKeys[36] = 52;
+    unshiftedDKeys[37] = 53;
+    unshiftedDKeys[94] = 54;
+    unshiftedDKeys[38] = 55;
+    unshiftedDKeys[42] = 56;
+    unshiftedDKeys[34] = Key.Unknown;
+
+    NetscapeKeyInterop.Instance.CreateArgsPress = (function (e) {
+        var modifiers = {
+            Shift: e.shiftKey,
+            Ctrl: e.ctrlKey,
+            Alt: e.altKey
+        };
+
+        var keyCode = e.keyCode;
+        var unshifted = unshiftedDKeys[keyCode];
+        if (unshifted)
+            keyCode = unshifted;
+
+        return new KeyEventArgs(modifiers, keyCode, keyFromKeyCode[keyCode], String.fromCharCode(e.which || e.keyCode));
+    });
+    NetscapeKeyInterop.Instance.CreateArgsDown = function (e) {
+        //only do for special keys
+        if (specialKeys[e.keyCode] === undefined)
+            return null;
+
+        var modifiers = {
+            Shift: e.shiftKey,
+            Ctrl: e.ctrlKey,
+            Alt: e.altKey
+        };
+        return new KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode], String.fromCharCode(e.keyCode));
+    };
+})();
 
 Nullstone.FinishCreate(NetscapeKeyInterop);
 //#endregion
