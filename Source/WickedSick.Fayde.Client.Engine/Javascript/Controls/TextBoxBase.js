@@ -401,9 +401,9 @@ TextBoxBase.Instance._EmitCursorPositionChanged = function (height, x, y) {
 
 TextBoxBase.Instance.OnKeyDown = function (args) {
     switch (args.Key) {
-        case 16: //shift
-        case 17: //ctrl
-        case 18: //alt
+        case Key.Shift: //shift
+        case Key.Ctrl: //ctrl
+        case Key.Alt: //alt
             return;
     }
 
@@ -528,17 +528,11 @@ TextBoxBase.Instance.PostOnKeyDown = function (args) {
     this._Emit = _TextBoxEmitChanged.NOTHING;
     this._BatchPush();
 
-    switch (args.Key) {
-        case Key.Enter:
-            this._KeyDownChar('\r');
-            break;
-        default:
-            if (!args.Modifiers.Ctrl && !args.Modifiers.Alt) {
-                this._KeyDownChar(String.fromCharCode(args.PlatformKeyCode));
-            }
-            break;
+    if (args.Key === Key.Enter) {
+        this._KeyDownChar('\r');
+    } else if (args.Char != null && !args.Modifiers.Ctrl && !args.Modifiers.Alt) {
+        this._KeyDownChar(args.Char);
     }
-
     this._BatchPop();
     this._SyncAndEmit();
 };

@@ -40,6 +40,12 @@ function DirtyDebug(message) {
     }
 }
 DirtyDebug.Level = 0;
+function KeyboardDebug(message) {
+    if (false)
+        return;
+    if (window.console && console.log)
+        console.log("KEYBOARD: " + message);
+}
 function AnimationDebug(message) {
     if (true)
         return;

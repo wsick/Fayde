@@ -12,6 +12,7 @@
 /// <reference path="../Core/Input/KeyCodes.js"/>
 /// <reference path="../Core/Input/Keyboard.js"/>
 /// <reference path="../Core/Input/Enums.js"/>
+/// <reference path="../Runtime/KeyInterop.js"/>
 
 //#region Surface
 var Surface = Nullstone.Create("Surface", undefined, 1);
@@ -26,6 +27,7 @@ Surface.Instance.Init = function (app) {
     if (Surface._Invalidations == null)
         Surface._Invalidations = [];
     this.LayoutUpdated = new MulticastEvent();
+    this._KeyInterop = KeyInterop.CreateInterop(this);
 };
 
 //#region Initialization
@@ -70,15 +72,7 @@ Surface.Instance.RegisterEvents = function () {
     //Firefox
     canvas.addEventListener("DOMMouseScroll", function (e) { surface._HandleWheel(window.event ? window.event : e); });
 
-    document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
-    document.onkeydown = function (e) {
-        e = window.event ? window.event : e;
-        var key = _KeyFromKeyCode[e.keyCode];
-        if (key === Key.Back || key === Key.Delete) { //backspace or delete
-            surface._HandleKeyPress(e);
-            return false;
-        }
-    };
+    this._KeyInterop.RegisterEvents();
 };
 Surface.Instance._Attach = function (element) {
     /// <param name="element" type="UIElement"></param>
@@ -761,39 +755,34 @@ Surface.Instance._PerformReleaseCapture = function () {
 
 //#region Keyboard
 
-Surface.Instance._HandleKeyPress = function (eve) {
+Surface.Instance._HandleKeyDown = function (args) {
     this._SetUserInitiatedEvent(true);
-    Keyboard.RefreshModifiers(eve);
+    Keyboard.RefreshModifiers(args);
     var handled = false;
     if (this._FocusedElement != null) {
         var focusToRoot = Surface._ElementPathToRoot(this._FocusedElement);
-        var modifiers = {
-            Shift: eve.shiftKey,
-            Ctrl: eve.ctrlKey,
-            Alt: eve.altKey
-        };
-        handled = this._EmitKeyDown(focusToRoot, modifiers, eve.keyCode);
+        handled = this._EmitKeyDown(focusToRoot, args);
     }
-    var key = _KeyFromKeyCode[eve.keyCode];
-    if (!handled && key === Key.Tab) { //Tab
+
+    if (!handled && args.Key === Key.Tab) {
         if (this._FocusedElement != null)
-            TabNavigationWalker.Focus(this._FocusedElement, eve.shiftKey);
+            TabNavigationWalker.Focus(this._FocusedElement, args.Shift);
         else
             this._EnsureElementFocused();
     }
     this._SetUserInitiatedEvent(false);
     return handled;
 };
-Surface.Instance._EmitKeyDown = function (list, modifiers, keyCode, endIndex) {
+Surface.Instance._EmitKeyDown = function (list, args, endIndex) {
     if (endIndex === 0)
         return;
     if (!endIndex || endIndex === -1)
         endIndex = list._Count;
     var i = 0;
-    var args = new KeyEventArgs(modifiers, keyCode);
     for (var node = list.Head; node && i < endIndex; node = node.Next, i++) {
         node.UIElement._EmitKeyDown(args);
     }
+    return args.Handled;
 };
 
 //#endregion
