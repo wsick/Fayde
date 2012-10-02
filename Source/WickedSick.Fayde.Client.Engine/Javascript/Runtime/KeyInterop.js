@@ -13,14 +13,18 @@ KeyInterop.Instance.RegisterEvents = function () {
         var args = interop.CreateArgsPress(e);
         if (args) {
             KeyboardDebug("[Press] - " + e.keyCode + " - " + e.char);
-            interop.Surface._HandleKeyDown(args);
+            if (interop.Surface._HandleKeyDown(args)) {
+                return false;
+            }
         }
     };
     document.onkeydown = function (e) {
         var args = interop.CreateArgsDown(e);
         if (args) {
             KeyboardDebug("[Down] - " + e.keyCode + " - " + e.char);
-            interop.Surface._HandleKeyDown(args);
+            if (interop.Surface._HandleKeyDown(args)) {
+                return false;
+            }
         }
     };
 };
@@ -169,14 +173,14 @@ var IEKeyInterop = Nullstone.Create("IEKeyInterop", KeyInterop);
     });
 
     IEKeyInterop.Instance.CreateArgsDown = (function (e) {
-        if (e.char != null)
+        if (e.char != null && e.keyCode !== 8)
             return;
         var modifiers = {
             Shift: e.shiftKey,
             Ctrl: e.ctrlKey,
             Alt: e.altKey
         };
-        return new KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode], e.char);
+        return new KeyEventArgs(modifiers, e.keyCode, keyFromKeyCode[e.keyCode]);
     });
 })();
 
