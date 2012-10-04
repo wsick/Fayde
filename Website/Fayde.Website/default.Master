@@ -5,6 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Fayde</title>
+    <meta name="keywords" content="silverlight, html5, silverlight html5 converter, fayde, xaml, silverlight xaml, xaml html5, javascript" />
     <asp:ContentPlaceHolder ID="head" runat="server">
     </asp:ContentPlaceHolder>
 </head>

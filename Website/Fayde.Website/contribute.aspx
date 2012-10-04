@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Fayde | Contribute" Language="C#" MasterPageFile="~/default.Master" AutoEventWireup="true" CodeBehind="contribute.aspx.cs" Inherits="Fayde.Website.contribute" Theme="default" %>
+﻿<%@ Page Title="Fayde | Contribute | Silverlight & HTML5" Language="C#" MasterPageFile="~/default.Master" AutoEventWireup="true" CodeBehind="contribute.aspx.cs" Inherits="Fayde.Website.contribute" Theme="default" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="cphBody" runat="server">
