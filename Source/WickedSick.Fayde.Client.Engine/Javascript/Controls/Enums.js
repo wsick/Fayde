@@ -46,3 +46,14 @@ var SelectionMode = {
     Multiple: 1,
     Extended: 2
 };
+
+var MediaElementState = {
+    Closed: 0,
+    Opening: 1,
+    //Individualizing: 2,
+    //AcquiringLicense: 3,
+    Buffering: 4,
+    Playing: 5,
+    Paused: 6,
+    Stopped: 7
+};
