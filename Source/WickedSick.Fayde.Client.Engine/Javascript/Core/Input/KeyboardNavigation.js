@@ -1,6 +1,5 @@
-﻿/// <reference path="../../Runtime/Nullstone.js"/>
+﻿/// <reference path="../DependencyObject.js"/>
 /// CODE
-/// <reference path="../DependencyObject.js"/>
 
 //#region KeyboardNavigation
 var KeyboardNavigation = Nullstone.Create("KeyboardNavigation", DependencyObject);
