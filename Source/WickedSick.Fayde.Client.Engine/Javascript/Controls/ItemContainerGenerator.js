@@ -174,10 +174,10 @@ ItemContainerGenerator.Instance.GetItemContainerGeneratorForPanel = function (pa
 };
 
 ItemContainerGenerator.Instance.IndexFromContainer = function (container) {
-    var data = {};
-    if (this.ContainerIndexMap.MapFromKey1(container, data))
-        return data.Value;
-    return -1;
+    var rv = this.ContainerIndexMap.MapFromKey1(container);
+    if (rv == null)
+        return -1;
+    return rv;
 };
 ItemContainerGenerator.Instance.IndexFromGeneratorPosition = function (positionIndex, positionOffset) {
     if (positionIndex == -1) {
