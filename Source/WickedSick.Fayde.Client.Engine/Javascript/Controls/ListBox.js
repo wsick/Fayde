@@ -150,7 +150,7 @@ ListBox.Instance._IsOnCurrentPage = function (item, itemsHostRectOut, listBoxIte
     ihro.Width = itemsHost.RenderSize.Width;
     ihro.Height = itemsHost.RenderSize.Height;
 
-    var lbi = this.ItemContainerGenerator.ContainerForItem(item);
+    var lbi = this.ItemContainerGenerator.ContainerFromItem(item);
     if (lbi == null)
         return false;
     
