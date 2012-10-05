@@ -220,7 +220,8 @@ UIElement.Instance.TransformToVisual = function (uie) {
     // A = M * B
     // => M = inv (B) * A
     if (uie) {
-        var inverse = uie._AbsoluteProjection.Inverse;
+        var inverse = mat4.create();
+        mat4.inverse(uie._AbsoluteProjection, inverse);
         mat4.multiply(this._AbsoluteProjection, inverse, result); //result = inverse * abs
     } else {
         mat4.set(this._AbsoluteProjection, result); //result = absolute
