@@ -90,5 +90,10 @@ namespace WickedSick.Thea.ViewModels
                 return VisualChildren.Concat(VisualChildren.SelectMany(vc => vc.AllChildren));
             }
         }
+
+        public string ResolveVisualWithJavascript(int faydeInteropId)
+        {
+            return string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Visual", faydeInteropId, IndexPath);
+        }
     }
 }

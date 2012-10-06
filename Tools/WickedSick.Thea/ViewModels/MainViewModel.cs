@@ -92,6 +92,29 @@ namespace WickedSick.Thea.ViewModels
 
         #endregion
 
+        #region Examine
+
+        private DialogViewModel<string, ExamineViewModel> _ExamineCommand;
+        public DialogViewModel<string, ExamineViewModel> ExamineCommand
+        {
+            get
+            {
+                if (_ExamineCommand == null)
+                    _ExamineCommand = CreateExamineCommand();
+                return _ExamineCommand;
+            }
+        }
+
+        private DialogViewModel<string, ExamineViewModel> CreateExamineCommand()
+        {
+            return new DialogViewModel<string, ExamineViewModel>
+            {
+                ViewModelBuilder = s => ExamineViewModel.CreateAndRun(_Interop, SelectedVisual, s),
+            };
+        }
+
+        #endregion
+
         #region ChooseVisualStudio
 
         private DialogViewModel<ChooseVisualStudioViewModel> _ChooseVisualStudioCommand;
@@ -116,6 +139,8 @@ namespace WickedSick.Thea.ViewModels
 
         #endregion
 
+        #region Attach
+
         private void AttachToBrowser(Browser browser)
         {
             AttachedBrowser = browser;
@@ -137,6 +162,10 @@ namespace WickedSick.Thea.ViewModels
             _Interop.AttachToVisualStudio(instance);
             StartTimer();
         }
+
+        #endregion
+
+        #region Helpers
 
         private void StartTimer()
         {
@@ -164,7 +193,6 @@ namespace WickedSick.Thea.ViewModels
             if (_Interop.IsCacheInvalidated)
                 MergeTree(_Interop.GetVisualTree());
         }
-
 
         private void RefreshThisVisual(List<VisualViewModel> allVisuals)
         {
@@ -200,6 +228,8 @@ namespace WickedSick.Thea.ViewModels
                 RootLayers.Add(v);
             }
         }
+
+        #endregion
 
         public void Dispose()
         {
