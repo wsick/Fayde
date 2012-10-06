@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.MVVM", "WickedSick.MVVM\WickedSick.MVVM.csproj", "{C90D69F2-9AB0-468E-8F42-E2C9F7705290}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WickedSick.FaydeSpy", "WickedSick.FaydeSpy\WickedSick.FaydeSpy.csproj", "{A98E0176-BB81-4DF1-AF91-C140D8B13560}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C90D69F2-9AB0-468E-8F42-E2C9F7705290}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C90D69F2-9AB0-468E-8F42-E2C9F7705290}.Debug|x86.Build.0 = Debug|Any CPU
+		{C90D69F2-9AB0-468E-8F42-E2C9F7705290}.Release|x86.ActiveCfg = Release|Any CPU
+		{C90D69F2-9AB0-468E-8F42-E2C9F7705290}.Release|x86.Build.0 = Release|Any CPU
+		{A98E0176-BB81-4DF1-AF91-C140D8B13560}.Debug|x86.ActiveCfg = Debug|x86
+		{A98E0176-BB81-4DF1-AF91-C140D8B13560}.Debug|x86.Build.0 = Debug|x86
+		{A98E0176-BB81-4DF1-AF91-C140D8B13560}.Release|x86.ActiveCfg = Release|x86
+		{A98E0176-BB81-4DF1-AF91-C140D8B13560}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
