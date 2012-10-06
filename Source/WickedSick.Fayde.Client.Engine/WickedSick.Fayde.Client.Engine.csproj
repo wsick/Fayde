@@ -468,6 +468,7 @@
     <Content Include="Styles\Thumb.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Javascript\tsc-all.bat" />
     <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />
