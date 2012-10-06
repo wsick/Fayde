@@ -146,3 +146,33 @@ FaydeInterop.prototype.SerializeValue = function (value) {
         return '"' + value.toString() + '"';
     return value;
 };
+
+FaydeInterop.StringifyEx = function (a) {
+    function censor(censor) {
+        //debugger;
+        return (function () {
+            var visited = [];
+            return function (key, value) {
+                if (!value)
+                    return;
+                if (key === "_Providers")
+                    return "_Providers";
+                if (key === "_ProviderBitmasks")
+                    return "_ProviderBitmasks";
+                if (key === "_Expressions")
+                    return "_Expressions";
+                if (value instanceof MulticastEvent)
+                    return "[MulticastEvent]";
+
+                if (value && value._ID != null) {
+                    if (visited.indexOf(value._ID) !== -1)
+                        return "[Already Visited]";
+                    visited.push(value._ID);
+                }
+                return value;
+            }
+        })(censor);
+    }
+
+    return JSON.stringify(a, censor(a));
+};

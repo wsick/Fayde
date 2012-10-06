@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Web.Script.Serialization;
+using System.Windows;
 using WickedSick.MVVM;
 using WickedSick.Thea.Helpers;
 
@@ -60,15 +62,21 @@ namespace WickedSick.Thea.ViewModels
 
         protected void Run()
         {
-            string js = "(function () { return (";
-            js += Visual.ResolveVisualWithJavascript((int)JsContext.ID);
-            js += ")";
+            var resolution = Visual.ResolveVisualWithJavascript((int)JsContext.ID);
             if (!string.IsNullOrWhiteSpace(ExamineText))
-                js += "." + ExamineText;
-            js += "; })()";
-            js = string.Format("JSON.stringify({0})", js);
-            var json = JsContext.Eval(js);
-            var serializer = new JavaScriptSerializer();
+                resolution += "." + ExamineText;
+            var js = string.Format("FaydeInterop.StringifyEx({0})", resolution);
+            string json;
+            try
+            {
+                json = JsContext.Eval(js);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error examining: " + ex.Message, "Eval Error", MessageBoxButton.OK);
+                return;
+            }
+            var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
             ObjectStructure = serializer.Deserialize<IDictionary<string, object>>(json);
         }
     }
