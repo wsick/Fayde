@@ -120,11 +120,9 @@ namespace WickedSick.Thea.ViewModels
         {
             AttachedBrowser = browser;
             _Interop = new FaydeInterop(AttachedBrowser);
-            foreach (var v in _Interop.GetVisualTree())
-            {
-                RootLayers.Add(v);
-            }
+            MergeTree(_Interop.GetVisualTree());
             //_Interop.PopulateProperties(RootLayers[0]);
+            StartTimer();
         }
 
         private void AttachToVisualStudio(VisualStudioInterop.VisualStudioInstance instance)
@@ -137,6 +135,11 @@ namespace WickedSick.Thea.ViewModels
             }
 
             _Interop.AttachToVisualStudio(instance);
+            StartTimer();
+        }
+
+        private void StartTimer()
+        {
             _Timer = new DispatcherTimer();
             _Timer.Tick += _Timer_Tick;
             _Timer.Interval = TimeSpan.FromSeconds(1);
@@ -145,14 +148,23 @@ namespace WickedSick.Thea.ViewModels
 
         private void _Timer_Tick(object sender, EventArgs e)
         {
+            RefreshTree();
+
             var allVisuals = RootLayers
                 .SelectMany(l => l.AllChildren)
                 .Concat(RootLayers)
                 .ToList();
 
-            RefreshThisVisual(allVisuals);
+            //RefreshThisVisual(allVisuals);
             RefreshHitTestVisuals(allVisuals);
         }
+
+        private void RefreshTree()
+        {
+            if (_Interop.IsCacheInvalidated)
+                MergeTree(_Interop.GetVisualTree());
+        }
+
 
         private void RefreshThisVisual(List<VisualViewModel> allVisuals)
         {
@@ -178,6 +190,15 @@ namespace WickedSick.Thea.ViewModels
 
             foreach (var v in allVisuals.Where(vvm => hitTested.Any(s => vvm.ID == s)))
                 v.IsInHitTest = true;
+        }
+
+        private void MergeTree(IEnumerable<VisualViewModel> allVisuals)
+        {
+            RootLayers.Clear();
+            foreach (var v in allVisuals)
+            {
+                RootLayers.Add(v);
+            }
         }
 
         public void Dispose()

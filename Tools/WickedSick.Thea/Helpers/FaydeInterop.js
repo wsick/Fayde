@@ -8,6 +8,7 @@
     FaydeInterop.Reg[this._ID] = this;
     this.App = app;
     this.RegisterHitTestDebugService();
+    this.RegisterLayerDebugService();
 }
 FaydeInterop.prototype.GenerateCache = function () {
     this._Cache = {
@@ -30,6 +31,7 @@ FaydeInterop.prototype.GenerateCache = function () {
 
     this._Cache.Serialized = "Surface" + "~|~" + "~|~" + surface._ID + "~|~" + layerCount;
     this.GenerateDPCache();
+    delete this._InvalidatedCache;
 };
 FaydeInterop.prototype.GenerateDPCache = function () {
     var dpCache = [];
@@ -114,12 +116,19 @@ FaydeInterop.prototype.GetVisualIDsInHitTest = function () {
         return "[]";
 
     var arr = [];
-    var cur = this._CachedHitTest.First();
+    var cur = this._CachedHitTest.Head;
     while (cur != null) {
         arr.push(cur.UIElement._ID);
         cur = cur.Next;
     }
     return "[" + arr.toString() + "]";
+};
+
+FaydeInterop.prototype.RegisterLayerDebugService = function () {
+    var fi = this;
+    this.App._SubscribeDebugService("Layer", function (isAdd, layer) {
+        fi._InvalidatedCache = true;
+    });
 };
 
 FaydeInterop.prototype.SerializeDependencyValue = function (dobj, dp) {

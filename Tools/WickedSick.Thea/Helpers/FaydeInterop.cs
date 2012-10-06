@@ -27,6 +27,15 @@ namespace WickedSick.Thea.Helpers
                 _ID = id;
         }
 
+        public bool IsCacheInvalidated
+        {
+            get
+            {
+                return Eval(string.Format("FaydeInterop.Reg[{0}]._InvalidatedCache", this._ID)) == "true";
+            }
+        }
+
+
         public IEnumerable<VisualViewModel> GetVisualTree()
         {
             RunFunc("GenerateCache");

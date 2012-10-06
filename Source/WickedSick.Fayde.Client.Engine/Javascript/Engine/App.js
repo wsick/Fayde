@@ -200,6 +200,8 @@ App.Instance._GetInternalDebugServiceID = function (id) {
         return 4;
     else if (id === "ParserTime")
         return 5;
+    else if (id === "Layer")
+        return 6;
     return null;
 };
 
@@ -214,6 +216,12 @@ App.Instance._NotifyDebugHitTest = function (inputList, elapsedTime) {
     if (!func)
         return;
     func(inputList, elapsedTime);
+};
+App.Instance._NotifyDebugLayer = function (isAdd, layer) {
+    var func = this._DebugFunc[6];
+    if (!func)
+        return;
+    func(isAdd, layer);
 };
 App.Instance._NotifyDebugLayoutPass = function (elapsedTime) {
     var func = this._DebugFunc[3];

@@ -110,6 +110,8 @@ Surface.Instance._AttachLayer = function (layer) {
     layer._InvalidateMeasure();
     layer._SetIsAttached(true);
     layer._SetIsLoaded(true);
+
+    this._App._NotifyDebugLayer(true, layer);
 };
 Surface.Instance._DetachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
@@ -136,6 +138,8 @@ Surface.Instance._DetachLayer = function (layer) {
     layer._SetIsAttached(false);
 
     this._Invalidate(layer._GetSubtreeBounds());
+
+    this._App._NotifyDebugLayer(false, layer);
 };
 Surface.Instance._InitializeCanvas = function (canvas, width, widthType, height, heightType) {
     var resizesWithWindow = false;
