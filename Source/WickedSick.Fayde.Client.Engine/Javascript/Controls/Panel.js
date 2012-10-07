@@ -55,12 +55,6 @@ Panel.Instance._ComputeBounds = function () {
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
-Panel.Instance._GetCoverageBounds = function () {
-    var background = this.Background;
-    if (background && background.IsOpaque())
-        return this._Bounds;
-    return new Rect();
-};
 Panel.Instance._ShiftPosition = function (point) {
     var dx = point.X - this._Bounds.X;
     var dy = point.Y - this._Bounds.Y;

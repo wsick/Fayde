@@ -108,30 +108,16 @@ FrameworkElement.Instance.SetBinding = function (propd, binding) {
     return BindingOperations.SetBinding(this, propd, binding);
 };
 
-//#region Bounds/Size
-
-FrameworkElement.Instance._ApplySizeConstraints = function (size) {
-    var specified = new Size(this.Width, this.Height);
-    var constrained = new Size(this.MinWidth, this.MinHeight);
-
-    constrained = constrained.Max(size);
-
-    if (!isNaN(specified.Width))
-        constrained.Width = specified.Width;
-
-    if (!isNaN(specified.Height))
-        constrained.Height = specified.Height;
-
-    constrained = constrained.Min(new Size(this.MaxWidth, this.MaxHeight));
-    constrained = constrained.Max(new Size(this.MinWidth, this.MinHeight));
-
-    if (this.UseLayoutRounding) {
-        constrained.Width = Math.round(constrained.Width);
-        constrained.Height = Math.round(constrained.Height);
-    }
-
-    return constrained;
+FrameworkElement.Instance._GetTransformOrigin = function () {
+    return new Point();
+    //TODO: Implement RenderTransformOrigin
+    var userXformOrigin = this.RenderTransformOrigin;
+    var width = this.ActualWidth;
+    var height = this.ActualHeight;
+    return new Point(width * userXformOrigin.X, height * userXformOrigin.Y);
 };
+
+//#region Actual Size
 
 FrameworkElement.Instance._GetSizeForBrush = function () {
     return {
@@ -156,6 +142,42 @@ FrameworkElement.Instance._ComputeActualSize = function () {
     actual = this._ApplySizeConstraints(actual);
     return actual;
 };
+
+FrameworkElement.Instance._ApplySizeConstraints = function (size) {
+    var specified = new Size(this.Width, this.Height);
+    var constrained = new Size(this.MinWidth, this.MinHeight);
+
+    constrained = constrained.Max(size);
+
+    if (!isNaN(specified.Width))
+        constrained.Width = specified.Width;
+
+    if (!isNaN(specified.Height))
+        constrained.Height = specified.Height;
+
+    constrained = constrained.Min(new Size(this.MaxWidth, this.MaxHeight));
+    constrained = constrained.Max(new Size(this.MinWidth, this.MinHeight));
+
+    if (this.UseLayoutRounding) {
+        constrained.Width = Math.round(constrained.Width);
+        constrained.Height = Math.round(constrained.Height);
+    }
+
+    return constrained;
+};
+
+//#endregion
+
+//#region Bounds
+
+FrameworkElement.Instance._GetSubtreeExtents = function () {
+    if (this._SubtreeObject)
+        return this._ExtentsWithChildren;
+    return this._Extents;
+};
+
+//#region Bounds
+
 FrameworkElement.Instance._ComputeBounds = function () {
     var size = new Size(this.ActualWidth, this.ActualHeight);
     size = this._ApplySizeConstraints(size);
@@ -176,30 +198,36 @@ FrameworkElement.Instance._ComputeBounds = function () {
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
 };
+
+//#endregion
+
+//#region Global Bounds
+
 FrameworkElement.Instance._ComputeGlobalBounds = function () {
     this._ComputeGlobalBounds$UIElement();
     this._GlobalBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform4(this._LocalProjection);
-};
-FrameworkElement.Instance._ComputeSurfaceBounds = function () {
-    this._ComputeSurfaceBounds$UIElement();
-    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform4(this._AbsoluteProjection);
-};
-
-FrameworkElement.Instance._GetSubtreeExtents = function () {
-    if (this._SubtreeObject)
-        return this._ExtentsWithChildren;
-    return this._Extents;
 };
 FrameworkElement.Instance._GetGlobalBounds = function () {
     if (this._SubtreeObject)
         return this._GlobalBoundsWithChildren;
     return this._GlobalBounds;
 };
+
+//#endregion
+
+//#region Surface Bounds
+
+FrameworkElement.Instance._ComputeSurfaceBounds = function () {
+    this._ComputeSurfaceBounds$UIElement();
+    this._SurfaceBoundsWithChildren = this._ExtentsWithChildren.GrowByThickness(this._EffectPadding).Transform4(this._AbsoluteProjection);
+};
 FrameworkElement.Instance._GetSubtreeBounds = function () {
     if (this._SubtreeObject)
         return this._SurfaceBoundsWithChildren;
     return this._SurfaceBounds;
 };
+
+//#endregion
 
 //#endregion
 
@@ -507,14 +535,7 @@ FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error
 
 //#endregion
 
-FrameworkElement.Instance._GetTransformOrigin = function () {
-    return new Point();
-    //TODO: Implement RenderTransformOrigin
-    var userXformOrigin = this.RenderTransformOrigin;
-    var width = this.ActualWidth;
-    var height = this.ActualHeight;
-    return new Point(width * userXformOrigin.X, height * userXformOrigin.Y);
-};
+//#region Hit Testing
 
 FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
     if (!this._GetRenderVisible())
@@ -551,11 +572,13 @@ FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
 
     return this._InsideObject$UIElement(ctx, x, y);
 };
-
 FrameworkElement.Instance._InsideLayoutClip = function (x, y) {
     //NotImplemented("FrameworkElement._InsideLayoutClip(x, y)");
     return true;
 };
+
+//#endregion
+
 FrameworkElement.Instance._HasLayoutClip = function () {
     var element = this;
     while (element) {
@@ -882,8 +905,6 @@ FrameworkElement.Instance._HasFocus = function () {
 };
 
 //#endregion
-
-FrameworkElement.Instance.OnMouseLeftButtonDown = function (sender, args) { };
 
 //#endregion
 
