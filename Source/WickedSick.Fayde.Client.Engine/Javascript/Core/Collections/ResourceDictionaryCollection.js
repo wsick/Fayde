@@ -9,7 +9,7 @@ var ResourceDictionaryCollection = Nullstone.Create("ResourceDictionaryCollectio
 ResourceDictionaryCollection.Instance.AddedToCollection = function (value, error) {
     if (!this.AddedToCollection$DependencyObjectCollection(value, error))
         return false;
-    var parent = this._GetParent();
+    var parent = this._Parent;
     if (!parent)
         return true;
 
@@ -36,7 +36,7 @@ ResourceDictionaryCollection.Instance._WalkSubtreeLookingForCycle = function (su
                 return false;
             }
         }
-        p = p._GetParent();
+        p = p._Parent;
     }
 
     var children = subtreeRoot.MergedDictionaries;

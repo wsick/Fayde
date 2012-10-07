@@ -908,9 +908,6 @@ DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
 
 //#region Parent Usage
 
-DependencyObject.Instance._GetParent = function () {
-    return this._Parent;
-};
 DependencyObject.Instance._PermitsMultipleParents = function () {
     return true;
 };
@@ -926,7 +923,7 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
             Warn("DependencyObject._AddParent - Cycle found.");
             return;
         }
-        current = current._GetParent();
+        current = current._Parent;
     }
 
     if (this._Parent && !this._PermitsMultipleParents()) {
