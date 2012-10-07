@@ -18,9 +18,9 @@ FaydeInterop.prototype.GenerateCache = function () {
 
     var surface = this.App.MainSurface;
     var layers = surface._Layers;
-    var layerCount = layers.GetCount();
+    var layerCount = layers.length;
     for (var i = 0; i < layerCount; i++) {
-        var cur = layers.GetValueAt(i);
+        var cur = layers[i];
         var item = {
             Visual: cur,
             Children: this.GetCacheChildren(cur)

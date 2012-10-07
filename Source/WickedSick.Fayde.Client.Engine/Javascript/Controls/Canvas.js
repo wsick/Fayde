@@ -77,8 +77,6 @@ Canvas.Instance._ArrangeOverrideWithError = function (finalSize, error) {
 
 Canvas.Instance._ComputeBounds = function () {
     var surface = App.Instance.MainSurface;
-    this._ComputeBounds$Panel();
-
     if (surface && this._IsAttached && surface._IsTopLevel(this)) {
         // a toplevel (non-popup) canvas doesn't subscribe to the same bounds computation as others
         var aw = surface.ActualWidth;
@@ -90,6 +88,8 @@ Canvas.Instance._ComputeBounds = function () {
 
         this._ComputeGlobalBounds();
         this._ComputeSurfaceBounds();
+    } else {
+        this._ComputeBounds$Panel();
     }
 };
 

@@ -105,6 +105,9 @@ mat4.toAffineMat3 = function (mat, dest) {
     dest[3] = mat[4];
     dest[4] = mat[5];
     dest[5] = mat[7];
+    dest[6] = 0;
+    dest[7] = 0;
+    dest[8] = 1;
 
     return dest;
 };
