@@ -786,7 +786,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     ctx.Save();
 
     ctx.Transform(this._RenderXform);
-    ctx.SetGlobalAlpha(this._TotalOpacity);
+    ctx.CanvasContext.globalAlpha = this._TotalOpacity;
 
     var canvasCtx = ctx.CanvasContext;
     var clip = this.Clip;

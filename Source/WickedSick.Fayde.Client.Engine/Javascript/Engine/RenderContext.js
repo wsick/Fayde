@@ -19,6 +19,8 @@ Nullstone.AutoProperties(_RenderContext, [
     "CanvasContext"
 ]);
 
+//#region Clip/Point Test
+
 _RenderContext.Instance.Clip = function (clip) {
     this._DrawClip(clip);
     this.CanvasContext.clip();
@@ -43,6 +45,10 @@ _RenderContext.Instance._DrawClip = function (clip) {
         DrawDebug("DrawClip (RawPath): " + clip.toString());
     }
 };
+
+//#endregion
+
+//#region Transforms
 
 _RenderContext.Instance.PreTransform = function (matrix) {
     if (matrix instanceof Transform) {
@@ -75,6 +81,10 @@ _RenderContext.Instance.Translate = function (x, y) {
     this.CanvasContext.translate(x, y);
 };
 
+//#endregion
+
+//#region State
+
 _RenderContext.Instance.Save = function () {
     this.CanvasContext.save();
     var ct = this.CurrentTransform;
@@ -86,6 +96,10 @@ _RenderContext.Instance.Restore = function () {
     this.CurrentTransform = curXform;
     this.CanvasContext.restore();
 };
+
+//#endregion
+
+//#region Stroke/Fill/Clear
 
 _RenderContext.Instance.Rect = function (rect) {
     var ctx = this.CanvasContext;
@@ -133,14 +147,12 @@ _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     ctx.stroke();
     DrawDebug("Stroke: [" + ctx.strokeStyle.toString() + "] -> " + ctx.lineWidth.toString());
 };
-
 _RenderContext.Instance.Clear = function (rect) {
     this.CanvasContext.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
     DrawDebug("Clear: " + rect.toString());
 };
-_RenderContext.Instance.SetGlobalAlpha = function (alpha) {
-    this.CanvasContext.globalAlpha = alpha;
-};
+
+//#endregion
 
 _RenderContext.ToArray = function (args) {
     var arr = [];

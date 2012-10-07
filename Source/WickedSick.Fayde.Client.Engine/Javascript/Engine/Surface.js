@@ -13,6 +13,7 @@
 /// <reference path="../Core/Input/Keyboard.js"/>
 /// <reference path="../Core/Input/Enums.js"/>
 /// <reference path="../Runtime/KeyInterop.js"/>
+/// <reference path="../Runtime/JsEx.js"/>
 
 //#region Surface
 var Surface = Nullstone.Create("Surface", undefined, 1);
@@ -34,7 +35,7 @@ Surface.Instance.Init = function (app) {
 
 Surface.Instance.Register = function (canvas, width, widthType, height, heightType) {
     Surface._TestCanvas = document.createElement('canvas');
-    this._Layers = new Collection();
+    this._Layers = [];
     this._DownDirty = new _DirtyList("Down");
     this._UpDirty = new _DirtyList("Up");
 
@@ -101,9 +102,9 @@ Surface.Instance._Attach = function (element) {
 Surface.Instance._AttachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
     if (Nullstone.RefEquals(layer, this._TopLevel))
-        this._Layers.Insert(0, layer);
+        this._Layers.splice(0, 0, layer);
     else
-        this._Layers.Add(layer);
+        this._Layers.push(layer);
 
     DirtyDebug("AttachLayer");
     layer._FullInvalidate(true);
@@ -133,7 +134,7 @@ Surface.Instance._DetachLayer = function (layer) {
             this._FocusElement();
     }
 
-    this._Layers.Remove(layer);
+    Array.removeNullstone(this._Layers, layer);
     layer._SetIsLoaded(false);
     layer._SetIsAttached(false);
 
@@ -247,17 +248,16 @@ Surface.Instance.Render = function (region) {
     if (isRenderPassTimed = (this._App._DebugFunc[4] != null))
         startRenderTime = new Date().getTime();
 
-    var ctx = new _RenderContext(this);
-
     var layers = this._Layers;
-    var layerCount = layers ? layers.GetCount() : 0;
+    var layerCount = layers ? layers.length : 0;
 
+    RenderDebug.Count = 0;
+    var ctx = new _RenderContext(this);
     ctx.Clear(region);
     ctx.CanvasContext.save();
     ctx.Clip(region);
-    RenderDebug.Count = 0;
     for (var i = 0; i < layerCount; i++) {
-        layers.GetValueAt(i)._DoRender(ctx, region);
+        layers[i]._DoRender(ctx, region);
     }
     ctx.CanvasContext.restore();
     RenderDebug("UIElement Count: " + RenderDebug.Count);
@@ -279,7 +279,8 @@ Surface.Instance.ProcessDirtyElements = function () {
     return dirty;
 };
 Surface.Instance._UpdateLayout = function (error) {
-    if (!this._Layers)
+    var layers = this._Layers;
+    if (!layers)
         return false;
     var pass = new LayoutPass();
     var dirty = false;
@@ -287,8 +288,8 @@ Surface.Instance._UpdateLayout = function (error) {
     var updatedLayout = false;
     while (pass._Count < LayoutPass.MaxCount && pass._Updated) {
         pass._Updated = false;
-        for (var i = 0; i < this._Layers.GetCount(); i++) {
-            var layer = this._Layers.GetValueAt(i);
+        for (var i = 0; i < layers.length; i++) {
+            var layer = layers[i];
             var element = layer;
             if (!element._HasFlag(UIElementFlags.DirtyMeasureHint) && !element._HasFlag(UIElementFlags.DirtyArrangeHint))
                 continue;
@@ -544,13 +545,8 @@ Surface.Instance._IsTopLevel = function (top) {
     /// <param name="top" type="UIElement"></param>
     if (!top || !this._Layers)
         return false;
-    var ret = false; //TODO: full-screen message
-    var count = this._Layers.GetCount();
-    for (var i = 0; i < count && !ret; i++) {
-        var layer = this._Layers.GetValueAt(i);
-        ret = Nullstone.RefEquals(top, layer);
-    }
-    return ret;
+    //TODO: full-screen message
+    return Array.containsNullstone(this._Layers, top);
 };
 
 //#endregion
@@ -638,11 +634,11 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, delta, emitLea
         var ctx = new _RenderContext(this);
         var newInputList = new LinkedList();
         var layers = this._Layers;
-        var layerCount = layers.GetCount();
+        var layerCount = layers.length;
 
         var startTime = new Date().getTime();
         for (var i = layerCount - 1; i >= 0 && newInputList.IsEmpty(); i--) {
-            var layer = layers.GetValueAt(i);
+            var layer = layers[i];
             layer._HitTestPoint(ctx, pos, newInputList);
         }
 
@@ -805,10 +801,10 @@ Surface.Instance._HandleResizeTimeout = function (evt) {
     this._ResizeCanvas();
 
     var layers = this._Layers;
-    var layersCount = layers.GetCount();
+    var layersCount = layers.length;
     var layer;
     for (var i = 0; i < layersCount; i++) {
-        layer = layers.GetValueAt(i);
+        layer = layers[i];
         //layer._FullInvalidate(true);
         layer._InvalidateMeasure();
     }
@@ -853,7 +849,7 @@ Surface.Instance._RemoveFocus = function (uie) {
 };
 Surface.Instance._EnsureElementFocused = function () {
     if (!this._FocusedElement) {
-        var last = this._Layers.GetCount() - 1;
+        var last = this._Layers.length - 1;
         for (var i = last; i >= 0; i--) {
             if (TabNavigationWalker.Focus(layers.GetValueAt(i)))
                 break;
