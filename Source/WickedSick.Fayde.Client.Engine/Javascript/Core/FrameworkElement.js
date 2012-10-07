@@ -772,6 +772,9 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         || args.Property._ID === FrameworkElement.MinHeightProperty._ID
         || args.Property._ID === FrameworkElement.MarginProperty._ID
         || args.Property._ID === FrameworkElement.FlowDirectionProperty._ID) {
+        delete this._CachedValues[FrameworkElement.ActualWidthProperty._ID];
+        delete this._CachedValues[FrameworkElement.ActualHeightProperty._ID];
+
         //var p = this._GetRenderTransformOrigin();
         //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
         this._FullInvalidate(false);
