@@ -1,0 +1,14 @@
+﻿UIElement:
+	- RenderTransform			--> 2d transform applied to UIElement only during render.  Size/Bounds will be unaffected.
+	- RenderTransformOrigin		--> [0.0, 1.0]	--> Multiplied by size of element to get local coordinates origin
+
+	- _Extents					--> (0, 0, ActualWidth, ActualHeight);
+	- _Bounds					--> extents -> grow by effect padding	-> Transform by 2d absolute xform
+	- _GlobalBounds				--> extents -> grow by effect padding	-> Transform by 3d local projection
+	- _SurfaceBounds			--> extents	-> grow by effect padding	-> Transform by 3d absolute projection
+
+FrameworkElement:
+	- _ExtentsWithChildren		--> union all child global bounds
+	- _BoundsWithChildren
+	- _GlobalBoundsWithChildren
+	- _SurfaceBoundsWithChildren
