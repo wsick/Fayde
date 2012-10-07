@@ -101,6 +101,6 @@ Nullstone.FinishCreate(PropertyCollisionException);
 //#endregion
 
 //#region ArgumentException
-var ArgumentException = Nullstone.Create("ArgumentException", Exception);
+var ArgumentException = Nullstone.Create("ArgumentException", Exception, 3);
 Nullstone.FinishCreate(ArgumentException);
 //#endregion

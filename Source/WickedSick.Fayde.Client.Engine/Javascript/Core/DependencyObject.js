@@ -236,12 +236,12 @@ DependencyObject.Instance._SetValueWithError = function (propd, value, error) {
             || !this._IsValueValid(propd, coerced, error)
             || !propd._Validate(this, propd, coerced, error)) {
         if (error.IsErrored())
-            throw new error.CreateException();
+            throw error.CreateException();
         return false;
     }
     var retVal = this._SetValueWithErrorImpl(propd, coerced, error);
     if (error.IsErrored())
-        throw new error.CreateException();
+        throw error.CreateException();
     return retVal;
 };
 DependencyObject.Instance._SetValueWithErrorImpl = function (propd, value, error) {
