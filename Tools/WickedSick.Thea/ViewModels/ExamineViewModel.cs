@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Script.Serialization;
 using System.Windows;
 using WickedSick.MVVM;
@@ -77,7 +78,16 @@ namespace WickedSick.Thea.ViewModels
                 return;
             }
             var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue };
-            ObjectStructure = serializer.Deserialize<IDictionary<string, object>>(json);
+            try
+            {
+                ObjectStructure = serializer.Deserialize<IDictionary<string, object>>(json);
+            }
+            catch (InvalidOperationException)
+            {
+                ObjectStructure = serializer.Deserialize<object[]>(json)
+                    .Select((o, i) => new { Key = i, Value = o })
+                    .ToDictionary(a => a.Key.ToString(), a => a.Value);
+            }
         }
     }
 }

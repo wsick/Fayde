@@ -156,13 +156,13 @@ FaydeInterop.StringifyEx = function (a) {
                 if (!value)
                     return;
                 if (key === "_Providers")
-                    return "_Providers";
+                    return "[_Providers]";
                 if (key === "_ProviderBitmasks")
-                    return "_ProviderBitmasks";
+                    return "[_ProviderBitmasks]";
                 if (key === "_Expressions")
-                    return "_Expressions";
+                    return "[_Expressions]";
                 if (value instanceof MulticastEvent)
-                    return "[MulticastEvent]";
+                    return "{MulticastEvent}";
 
                 if (value && value._ID != null) {
                     if (visited.indexOf(value._ID) !== -1)
