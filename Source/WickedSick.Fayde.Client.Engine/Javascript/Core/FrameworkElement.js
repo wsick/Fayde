@@ -543,8 +543,7 @@ FrameworkElement.Instance._HitTestPoint = function (ctx, p, uielist) {
 FrameworkElement.Instance._InsideObject = function (ctx, x, y) {
     var np = new Point(x, y);
     this._TransformPoint(np);
-    var extents = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
-    if (!extents.ContainsPointXY(np.X, np.Y))
+    if (np.X < 0 || np.Y < 0 || np.X > this.ActualWidth || np.Y > this.ActualHeight)
         return false;
 
     if (!this._InsideLayoutClip(x, y))

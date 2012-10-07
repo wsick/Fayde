@@ -645,10 +645,10 @@ UIElement.Instance._TransformPoint = function (p) {
     }
     
     var p4 = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
-    var m20 = inverse[8];
-    var m21 = inverse[9];
+    var m20 = inverse[2];
+    var m21 = inverse[6];
     var m22 = inverse[10];
-    var m23 = inverse[11];
+    var m23 = inverse[14];
     p4[2] = -(m20 * p4[0] + m21 * p4[1] + m23) / m22;
 
     mat4.transformVec4(inverse, p4);
