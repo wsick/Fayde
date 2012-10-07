@@ -85,13 +85,6 @@ var FontStretch = {
     UltraExpanded: "ultra-expanded"
 };
 
-var ScrollBarVisibility = {
-	Disabled: 0,
-	Auto: 1,
-	Hidden: 2,
-	Visible: 3
-};
-
 var ClickMode = {
     Release: 0,
     Press: 1,

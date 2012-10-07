@@ -19,13 +19,6 @@ var _TextBoxEmitChanged = {
     TEXT: 1 << 1
 };
 
-var Stretch = {
-    Fill: 0,
-    None: 1,
-    Uniform: 2,
-    UniformToFill: 3
-};
-
 var ScrollBarVisibility = {
     Disabled: 0,
     Auto: 1,
