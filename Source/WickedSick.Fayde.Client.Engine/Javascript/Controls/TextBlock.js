@@ -103,6 +103,12 @@ TextBlock.Instance._ComputeActualSize = function () {
     return result;
 };
 
+TextBlock.Instance._GetTransformOrigin = function () {
+    var userXformOrigin = this.RenderTransformOrigin;
+    var xformSize = this._ApplySizeConstraints(this.RenderSize);
+    return new Point (xformSize.Width * userXformOrigin.X, xformSize.height * userXformOrigin.Y);
+};
+
 //#region Measure
 
 TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
@@ -115,6 +121,8 @@ TextBlock.Instance._MeasureOverrideWithError = function (availableSize, error) {
 
 //#endregion
 
+//#region Arrange
+
 TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var padding = this.Padding;
     var constraint = finalSize.ShrinkByThickness(padding);
@@ -125,6 +133,10 @@ TextBlock.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     arranged = arranged.GrowByThickness(padding);
     return finalSize;
 };
+
+//#endregion
+
+//#region Render
 
 TextBlock.Instance._Render = function (ctx, region) {
     ctx.Save();
@@ -138,9 +150,11 @@ TextBlock.Instance._Render = function (ctx, region) {
     ctx.Restore();
 };
 
+//#endregion
+
 TextBlock.Instance.Layout = function (constraint) {
     /// <param name="constraint" type="Size"></param>
-    if (this._WasSet && this._GetValueNoDefault(TextBlock.TextProperty) == null) {
+    if (this._WasSet && this._GetValueNoDefault(TextBlock.TextProperty) === undefined) {
         this._ActualHeight = this._Font.GetActualHeight();
         this._ActualWidth = 0.0;
     } else if (!this._WasSet) {
@@ -155,6 +169,7 @@ TextBlock.Instance.Layout = function (constraint) {
     }
     this._Dirty = false;
 };
+
 TextBlock.Instance._UpdateFont = function (force) {
     this._Font.Family = this.FontFamily;
     this._Font.Stretch = this.FontStretch;
