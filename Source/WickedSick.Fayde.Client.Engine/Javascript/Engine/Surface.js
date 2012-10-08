@@ -326,6 +326,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
     var i = 0;
     this._DownDirty.Reduce();
     var node;
+    var dirtyEnum = _Dirty;
     while (node = this._DownDirty.Head) {
         var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
@@ -337,8 +338,8 @@ Surface.Instance._ProcessDownDirtyElements = function () {
         DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
         */
 
-        if (uie._DirtyFlags & _Dirty.RenderVisibility) {
-            uie._DirtyFlags &= ~_Dirty.RenderVisibility;
+        if (uie._DirtyFlags & dirtyEnum.RenderVisibility) {
+            uie._DirtyFlags &= ~dirtyEnum.RenderVisibility;
 
             var ovisible = uie._GetRenderVisible();
 
@@ -354,51 +355,51 @@ Surface.Instance._ProcessDownDirtyElements = function () {
                 uie._CacheInvalidateHint();
 
             if (ovisible !== uie._GetRenderVisible())
-                this._AddDirtyElement(uie, _Dirty.NewBounds);
+                this._AddDirtyElement(uie, dirtyEnum.NewBounds);
 
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.RenderVisibility);
+            this._PropagateDirtyFlagToChildren(uie, dirtyEnum.RenderVisibility);
         }
 
-        if (uie._DirtyFlags & _Dirty.HitTestVisibility) {
-            uie._DirtyFlags &= ~_Dirty.HitTestVisibility;
+        if (uie._DirtyFlags & dirtyEnum.HitTestVisibility) {
+            uie._DirtyFlags &= ~dirtyEnum.HitTestVisibility;
             uie._ComputeTotalHitTestVisibility();
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.HitTestVisibility);
+            this._PropagateDirtyFlagToChildren(uie, dirtyEnum.HitTestVisibility);
         }
 
-        if (uie._DirtyFlags & _Dirty.LocalTransform) {
-            uie._DirtyFlags &= ~_Dirty.LocalTransform;
-            uie._DirtyFlags |= _Dirty.Transform;
+        if (uie._DirtyFlags & dirtyEnum.LocalTransform) {
+            uie._DirtyFlags &= ~dirtyEnum.LocalTransform;
+            uie._DirtyFlags |= dirtyEnum.Transform;
             //DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
             uie._ComputeLocalTransform();
             //DirtyDebug("--> " + uie._LocalXform._Elements.toString());
         }
-        if (uie._DirtyFlags & _Dirty.LocalProjection) {
-            uie._DirtyFlags &= ~_Dirty.LocalProjection;
-            uie._DirtyFlags |= _Dirty.Transform;
+        if (uie._DirtyFlags & dirtyEnum.LocalProjection) {
+            uie._DirtyFlags &= ~dirtyEnum.LocalProjection;
+            uie._DirtyFlags |= dirtyEnum.Transform;
             //DirtyDebug("ComputeLocalProjection: [" + uie.__DebugToString() + "]");
             uie._ComputeLocalProjection();
         }
-        if (uie._DirtyFlags & _Dirty.Transform) {
-            uie._DirtyFlags &= ~_Dirty.Transform;
+        if (uie._DirtyFlags & dirtyEnum.Transform) {
+            uie._DirtyFlags &= ~dirtyEnum.Transform;
             //DirtyDebug("ComputeTransform: [" + uie.__DebugToString() + "]");
             uie._ComputeTransform();
             //DirtyDebug("--> " + uie._AbsoluteProjection._Elements.slice(0, 8).toString());
             if (visualParent)
                 visualParent._UpdateBounds();
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.Transform);
+            this._PropagateDirtyFlagToChildren(uie, dirtyEnum.Transform);
         }
 
-        if (uie._DirtyFlags & _Dirty.LocalClip) {
-            uie._DirtyFlags &= ~_Dirty.LocalClip;
-            uie._DirtyFlags |= _Dirty.Clip;
+        if (uie._DirtyFlags & dirtyEnum.LocalClip) {
+            uie._DirtyFlags &= ~dirtyEnum.LocalClip;
+            uie._DirtyFlags |= dirtyEnum.Clip;
         }
-        if (uie._DirtyFlags & _Dirty.Clip) {
-            uie._DirtyFlags &= ~_Dirty.Clip;
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.Clip);
+        if (uie._DirtyFlags & dirtyEnum.Clip) {
+            uie._DirtyFlags &= ~dirtyEnum.Clip;
+            this._PropagateDirtyFlagToChildren(uie, dirtyEnum.Clip);
         }
 
-        if (uie._DirtyFlags & _Dirty.ChildrenZIndices) {
-            uie._DirtyFlags &= ~_Dirty.ChildrenZIndices;
+        if (uie._DirtyFlags & dirtyEnum.ChildrenZIndices) {
+            uie._DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
             if (!(uie instanceof Panel)) {
                 Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
             } else {
@@ -407,7 +408,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             }
         }
 
-        if (!(uie._DirtyFlags & _Dirty.DownDirtyState) && uie._IsInDownDirty) {
+        if (!(uie._DirtyFlags & dirtyEnum.DownDirtyState) && uie._IsInDownDirty) {
             this._DownDirty.Remove(node);
             uie._IsInDownDirty = false;
         }
@@ -424,13 +425,14 @@ Surface.Instance._ProcessUpDirtyElements = function () {
     var i = 0;
     this._UpDirty.Reduce();
     var node;
+    var dirtyEnum = _Dirty;
     while (node = this._UpDirty.Head) {
         var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
         i++;
         DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
-        if (uie._DirtyFlags & _Dirty.Bounds) {
-            uie._DirtyFlags &= ~_Dirty.Bounds;
+        if (uie._DirtyFlags & dirtyEnum.Bounds) {
+            uie._DirtyFlags &= ~dirtyEnum.Bounds;
 
             var oextents = uie._GetSubtreeExtents();
             var oglobalbounds = uie._GetGlobalBounds();
@@ -456,16 +458,16 @@ Surface.Instance._ProcessUpDirtyElements = function () {
             }
         }
 
-        if (uie._DirtyFlags & _Dirty.NewBounds) {
+        if (uie._DirtyFlags & dirtyEnum.NewBounds) {
             if (visualParent)
                 visualParent._Invalidate(uie._GetSubtreeBounds());
             else if (this._IsTopLevel(uie))
                 uie._InvalidateSubtreePaint();
-            uie._DirtyFlags &= ~_Dirty.NewBounds;
+            uie._DirtyFlags &= ~dirtyEnum.NewBounds;
         }
 
-        if (uie._DirtyFlags & _Dirty.Invalidate) {
-            uie._DirtyFlags &= ~_Dirty.Invalidate;
+        if (uie._DirtyFlags & dirtyEnum.Invalidate) {
+            uie._DirtyFlags &= ~dirtyEnum.Invalidate;
             var dirty = uie._DirtyRegion;
             if (visualParent) {
                 visualParent._Invalidate(dirty);
@@ -484,7 +486,7 @@ Surface.Instance._ProcessUpDirtyElements = function () {
             uie._DirtyRegion = new Rect();
         }
 
-        if (!(uie._DirtyFlags & _Dirty.UpDirtyState)) {
+        if (!(uie._DirtyFlags & dirtyEnum.UpDirtyState)) {
             this._UpDirty.Remove(node);
             uie._IsInUpDirty = false;
         }
