@@ -305,8 +305,18 @@ Surface.Instance._UpdateLayout = function (error) {
         }
 
         dirty = dirty || !this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
+
+        //var startTime = new Date().getTime();
         this._ProcessDownDirtyElements();
+        //var elapsed = new Date().getTime() - startTime;
+        //if (elapsed > 0)
+        //DirtyDebug.DownTiming.push(elapsed);
+
+        //var startTime = new Date().getTime();
         this._ProcessUpDirtyElements();
+        //var elapsed = new Date().getTime() - startTime;
+        //if (elapsed > 0)
+        //DirtyDebug.UpTiming.push(elapsed);
 
         if (pass._Updated || dirty) {
             updatedLayout = true;
@@ -324,7 +334,7 @@ Surface.Instance._UpdateLayout = function (error) {
 //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
 Surface.Instance._ProcessDownDirtyElements = function () {
     //var i = 0;
-    //this._DownDirty.Reduce();
+    this._DownDirty.Reduce();
     var node;
     var dirtyEnum = _Dirty;
     while (node = this._DownDirty.Head) {
@@ -422,7 +432,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 //Up --> Bounds, Invalidation
 Surface.Instance._ProcessUpDirtyElements = function () {
     //var i = 0;
-    //this._UpDirty.Reduce();
+    this._UpDirty.Reduce();
     var node;
     var dirtyEnum = _Dirty;
     while (node = this._UpDirty.Head) {

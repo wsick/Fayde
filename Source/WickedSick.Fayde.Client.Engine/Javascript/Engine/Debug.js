@@ -40,6 +40,43 @@ function DirtyDebug(message) {
     }
 }
 DirtyDebug.Level = 0;
+DirtyDebug.UpTiming = [];
+DirtyDebug.DownTiming = [];
+DirtyDebug.Dump = function () {
+    var min;
+    var max;
+    var total;
+
+    var down = DirtyDebug.DownTiming;
+    for (var i = 0; i < down.length; i++) {
+        if (i === 0) {
+            min = down[i];
+            max = down[i];
+            total = down[i];
+        } else {
+            min = Math.min(down[i], min);
+            max = Math.max(down[i], max);
+            total += down[i];
+        }
+    }
+    var s = "Down[Min: " + min + "; Max: " + max + "; Avg: " + (total / down.length) + "; Count: " + down.length + "]";
+
+    var up = DirtyDebug.UpTiming;
+    for (var i = 0; i < up.length; i++) {
+        if (i === 0) {
+            min = up[i];
+            max = up[i];
+            total = up[i];
+        } else {
+            min = Math.min(up[i], min);
+            max = Math.max(up[i], max);
+            total += up[i];
+        }
+    }
+    s += "Up[Min: " + min + "; Max: " + max + "; Avg: " + (total / up.length) + "; Count: " + up.length + "]";
+
+    return s;
+}
 function KeyboardDebug(message) {
     if (false)
         return;
