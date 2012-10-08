@@ -29,9 +29,9 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     var propPrecEnum = _PropertyPrecedence;
     var bitmask = (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
     if (this._IsAutoCreated)
-        bitmask |= propPrecEnum.AutoCreate;
+        bitmask |= (1 << propPrecEnum.AutoCreate);
     if (this._HasDefaultValue)
-        bitmask |= propPrecEnum.DefaultValue;
+        bitmask |= (1 << propPrecEnum.DefaultValue);
     this._BitmaskCache = bitmask;
 };
 

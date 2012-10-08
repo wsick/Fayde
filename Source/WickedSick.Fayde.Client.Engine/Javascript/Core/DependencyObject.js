@@ -306,7 +306,7 @@ DependencyObject.Instance.$GetValue = function (propd) {
         throw new InvalidOperationException("Cannot get the DependencyProperty " + propd.Name + " on an object of type " + propd.OwnerType._TypeName);
     return this._GetValue(propd);
 };
-DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endingPrecedence) {
+DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endingPrecedence) {    
     var propPrecEnum = _PropertyPrecedence;
     if (startingPrecedence === undefined)
         startingPrecedence = propPrecEnum.Highest;
@@ -314,13 +314,7 @@ DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endin
         endingPrecedence = propPrecEnum.Lowest;
 
     //Establish providers used
-    var bitmask = this._ProviderBitmasks[propd._ID] || 0;
-    //bitmask |= propd._BitmaskCache;
-    bitmask |= (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
-    if (propd._IsAutoCreated)
-        bitmask |= 1 << propPrecEnum.AutoCreate;
-    if (propd._HasDefaultValue)
-        bitmask |= 1 << propPrecEnum.DefaultValue;
+    var bitmask = this._ProviderBitmasks[propd._ID] || propd._BitmaskCache;
 
     //Loop through providers and find the first provider that is on and contains the property value
     for (var i = startingPrecedence; i <= endingPrecedence; i++) {
