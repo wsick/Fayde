@@ -22,6 +22,8 @@ App.Instance.Init = function () {
     this.Loaded = new MulticastEvent();
 
     var app = this;
+    this._LayoutTiming = [];
+    this._RenderTiming = [];
     this._ParserTiming = [];
 
     //this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
@@ -32,9 +34,11 @@ App.Instance.Init = function () {
 
     this._SubscribeDebugService("LayoutTime", function (elapsedTime) {
         //Info("LayoutTime: " + elapsedTime.toString());
+        app._LayoutTiming.push(elapsedTime);
     });
     this._SubscribeDebugService("RenderTime", function (elapsedTime) {
         //Info("RenderTime: " + elapsedTime.toString());
+        app._RenderTiming.push(elapsedTime);
     });
     this._SubscribeDebugService("ParserTime", function (type, elapsedTime) {
         //Info("ParserTime: [" + type._TypeName + "]" + elapsedTime.toString());

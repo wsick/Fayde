@@ -61,8 +61,14 @@ function DumpTiming(arr) {
             total += arr[i];
         }
     }
+    var avg = total / arr.length;
+    var stddev = 0;
+    for (var i = 0; i < arr.length; i++) {
+        stddev += (arr[i] - avg) * (arr[i] - avg);
+    }
+    stddev = Math.sqrt(stddev / arr.length);
 
-    return "[Min: " + min + "; Max: " + max + "; Avg: " + (total / arr.length) + "; Total: " + total + "; Count: " + arr.length + "]";;
+    return "[Min: " + min + "; Max: " + max + "; Avg: " + avg + "; StdDev: " + stddev + "; Total: " + total + "; Count: " + arr.length + "]";;
 }
 
 function KeyboardDebug(message) {
