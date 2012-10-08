@@ -273,6 +273,9 @@ Surface.Instance.Render = function (region) {
 Surface.Instance.ProcessDirtyElements = function () {
     var error = new BError();
     var dirty = this._UpdateLayout(error);
+    if (dirty) {
+        this.LayoutUpdated.Raise(this, new EventArgs());
+    }
     if (error.IsErrored()) {
         throw error.CreateException();
     }
@@ -318,10 +321,8 @@ Surface.Instance._UpdateLayout = function (error) {
         //if (elapsed > 0)
         //DirtyDebug.UpTiming.push(elapsed);
 
-        if (pass._Updated || dirty) {
+        if (pass._Updated || dirty)
             updatedLayout = true;
-            this.LayoutUpdated.Raise(this, new EventArgs());
-        }
     }
 
     if (pass._Count >= LayoutPass.MaxCount) {
