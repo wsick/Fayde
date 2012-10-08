@@ -323,10 +323,11 @@ Surface.Instance._UpdateLayout = function (error) {
 };
 //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
 Surface.Instance._ProcessDownDirtyElements = function () {
-    var uie;
     var i = 0;
     this._DownDirty.Reduce();
-    while (uie = this._DownDirty.GetFirst()) {
+    var node;
+    while (node = this._DownDirty.Head) {
+        var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
         i++;
         DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
@@ -407,7 +408,7 @@ Surface.Instance._ProcessDownDirtyElements = function () {
         }
 
         if (!(uie._DirtyFlags & _Dirty.DownDirtyState) && uie._IsInDownDirty) {
-            this._DownDirty.RemoveFirst();
+            this._DownDirty.Remove(node);
             uie._IsInDownDirty = false;
         }
 
@@ -420,10 +421,11 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 };
 //Up --> Bounds, Invalidation
 Surface.Instance._ProcessUpDirtyElements = function () {
-    var uie;
     var i = 0;
     this._UpDirty.Reduce();
-    while (uie = this._UpDirty.GetFirst()) {
+    var node;
+    while (node = this._UpDirty.Head) {
+        var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
         i++;
         DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
@@ -483,7 +485,7 @@ Surface.Instance._ProcessUpDirtyElements = function () {
         }
 
         if (!(uie._DirtyFlags & _Dirty.UpDirtyState)) {
-            this._UpDirty.RemoveFirst();
+            this._UpDirty.Remove(node);
             uie._IsInUpDirty = false;
         }
     }
@@ -519,22 +521,22 @@ Surface.Instance._AddDirtyElement = function (element, dirt) {
         if (element._IsInDownDirty)
             return;
         element._IsInDownDirty = true
-        this._DownDirty.Add(element);
+        this._DownDirty.Append({ UIElement: element });
     }
     if (dirt & _Dirty.UpDirtyState) {
         if (element._IsInUpDirty)
             return;
         element._IsInUpDirty = true;
-        this._UpDirty.Add(element);
+        this._UpDirty.Append({ UIElement: element });
     }
     //this._Invalidate();
 };
 Surface.Instance._RemoveDirtyElement = function (element) {
     /// <param name="element" type="UIElement"></param>
     if (element._IsInUpDirty)
-        this._UpDirty.Remove(element);
+        this._UpDirty.RemoveElement(element);
     if (element._IsInDownDirty)
-        this._DownDirty.Remove(element);
+        this._DownDirty.RemoveElement(element);
     element._IsInUpDirty = false;
     element._IsInDownDirty = false;
 };

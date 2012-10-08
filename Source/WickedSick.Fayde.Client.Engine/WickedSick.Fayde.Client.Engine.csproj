@@ -325,7 +325,6 @@
     <Content Include="Javascript\Documents\Span.js" />
     <Content Include="Javascript\Documents\TextElementCollection.js" />
     <Content Include="Javascript\Engine\ClockTimer.js" />
-    <Content Include="Javascript\Engine\DirtyNode.js" />
     <Content Include="Javascript\Engine\FocusChangedNode.js" />
     <Content Include="Javascript\Engine\RenderContext.js" />
     <Content Include="Javascript\Markup\BindingMarkup.js" />
