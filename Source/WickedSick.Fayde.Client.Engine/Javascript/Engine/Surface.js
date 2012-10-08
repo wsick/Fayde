@@ -323,14 +323,15 @@ Surface.Instance._UpdateLayout = function (error) {
 };
 //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
 Surface.Instance._ProcessDownDirtyElements = function () {
-    var visualParent;
     var uie;
-    //var i = 0;
+    var i = 0;
+    this._DownDirty.Reduce();
     while (uie = this._DownDirty.GetFirst()) {
-        /*
+        var visualParent = uie.GetVisualParent();
         i++;
         DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
 
+        /*
         DirtyDebug.Level++;
         DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
         */
@@ -342,7 +343,6 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 
             uie._UpdateBounds();
 
-            visualParent = uie.GetVisualParent();
             if (visualParent)
                 visualParent._UpdateBounds();
 
@@ -382,7 +382,6 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             //DirtyDebug("ComputeTransform: [" + uie.__DebugToString() + "]");
             uie._ComputeTransform();
             //DirtyDebug("--> " + uie._AbsoluteProjection._Elements.slice(0, 8).toString());
-            visualParent = uie.GetVisualParent();
             if (visualParent)
                 visualParent._UpdateBounds();
             this._PropagateDirtyFlagToChildren(uie, _Dirty.Transform);
@@ -421,12 +420,13 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 };
 //Up --> Bounds, Invalidation
 Surface.Instance._ProcessUpDirtyElements = function () {
-    var visualParent;
     var uie;
-    //var i = 0;
+    var i = 0;
+    this._UpDirty.Reduce();
     while (uie = this._UpDirty.GetFirst()) {
-        //i++;
-        //DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
+        var visualParent = uie.GetVisualParent();
+        i++;
+        DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
         if (uie._DirtyFlags & _Dirty.Bounds) {
             uie._DirtyFlags &= ~_Dirty.Bounds;
 
@@ -437,7 +437,6 @@ Surface.Instance._ProcessUpDirtyElements = function () {
             uie._ComputeBounds();
 
             if (!Rect.Equals(oglobalbounds, uie._GetGlobalBounds())) {
-                visualParent = uie.GetVisualParent();
                 if (visualParent) {
                     visualParent._UpdateBounds();
                     visualParent._Invalidate(osubtreebounds);
@@ -456,7 +455,6 @@ Surface.Instance._ProcessUpDirtyElements = function () {
         }
 
         if (uie._DirtyFlags & _Dirty.NewBounds) {
-            visualParent = uie.GetVisualParent();
             if (visualParent)
                 visualParent._Invalidate(uie._GetSubtreeBounds());
             else if (this._IsTopLevel(uie))
@@ -467,7 +465,6 @@ Surface.Instance._ProcessUpDirtyElements = function () {
         if (uie._DirtyFlags & _Dirty.Invalidate) {
             uie._DirtyFlags &= ~_Dirty.Invalidate;
             var dirty = uie._DirtyRegion;
-            visualParent = uie.GetVisualParent();
             if (visualParent) {
                 visualParent._Invalidate(dirty);
             } else {

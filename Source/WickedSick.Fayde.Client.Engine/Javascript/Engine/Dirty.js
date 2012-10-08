@@ -105,6 +105,10 @@ _DirtyList.prototype.Clear = function () {
     this._DirtyNodes = [];
 };
 
+_DirtyList.prototype.Reduce = function () {
+    
+};
+
 _DirtyList.prototype.__DebugToString = function () {
     var s = new String();
     for (var i = 0; i < this._DirtyNodes.length; i++) {
