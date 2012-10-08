@@ -1,14 +1,13 @@
-/// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="../Runtime/LinkedList.js"/>
 /// CODE
 
 //#region LayoutPass
 function LayoutPass() {
-    this._MeasureList = [];
-    this._ArrangeList = [];
-    this._SizeList = [];
-    this._Count = 0;
-    this._Updated = false;
+    this.MeasureList = [];
+    this.ArrangeList = [];
+    this.SizeList = [];
+    this.Count = 0;
+    this.Updated = false;
+    this.StartTime = new Date().getTime();
 }
 LayoutPass.MaxCount = 250;
 //#endregion

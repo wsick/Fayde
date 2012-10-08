@@ -273,24 +273,24 @@ Surface.Instance.Render = function (region) {
 Surface.Instance.ProcessDirtyElements = function () {
     var error = new BError();
     var dirty = this._UpdateLayout(error);
-    if (dirty) {
-        this.LayoutUpdated.Raise(this, new EventArgs());
-    }
-    if (error.IsErrored()) {
+    if (error.IsErrored())
         throw error.CreateException();
-    }
-    return dirty;
+    if (!dirty)
+        return false;
+    this.LayoutUpdated.Raise(this, new EventArgs());
+    return true;
 };
 Surface.Instance._UpdateLayout = function (error) {
+    var startTime;
     var layers = this._Layers;
     if (!layers)
         return false;
     var pass = new LayoutPass();
     var dirty = false;
-    pass._Updated = true;
+    pass.Updated = true;
     var updatedLayout = false;
-    while (pass._Count < LayoutPass.MaxCount && pass._Updated) {
-        pass._Updated = false;
+    while (pass.Count < LayoutPass.MaxCount && pass.Updated) {
+        pass.Updated = false;
         for (var i = 0; i < layers.length; i++) {
             var layer = layers[i];
             var element = layer;
@@ -309,23 +309,23 @@ Surface.Instance._UpdateLayout = function (error) {
 
         dirty = dirty || !this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
 
-        //var startTime = new Date().getTime();
+        //startTime = new Date().getTime();
         this._ProcessDownDirtyElements();
         //var elapsed = new Date().getTime() - startTime;
         //if (elapsed > 0)
         //DirtyDebug.DownTiming.push(elapsed);
 
-        //var startTime = new Date().getTime();
+        //startTime = new Date().getTime();
         this._ProcessUpDirtyElements();
         //var elapsed = new Date().getTime() - startTime;
         //if (elapsed > 0)
         //DirtyDebug.UpTiming.push(elapsed);
 
-        if (pass._Updated || dirty)
+        if (pass.Updated || dirty)
             updatedLayout = true;
     }
 
-    if (pass._Count >= LayoutPass.MaxCount) {
+    if (pass.Count >= LayoutPass.MaxCount) {
         if (error)
             error.SetErrored(BError.Exception, "UpdateLayout has entered infinite loop and has been aborted.");
     }
