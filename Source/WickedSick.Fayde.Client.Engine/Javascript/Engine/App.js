@@ -22,8 +22,7 @@ App.Instance.Init = function () {
     this.Loaded = new MulticastEvent();
 
     var app = this;
-    this._TotalParserTime = 0;
-    this._ParserCount = 0;
+    this._ParserTiming = [];
 
     //this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
     this._SubscribeDebugService("HitTest", function (inputList, elapsedTime) {
@@ -39,8 +38,7 @@ App.Instance.Init = function () {
     });
     this._SubscribeDebugService("ParserTime", function (type, elapsedTime) {
         //Info("ParserTime: [" + type._TypeName + "]" + elapsedTime.toString());
-        app._TotalParserTime += elapsedTime;
-        app._ParserCount++;
+        app._ParserTiming.push(elapsedTime);
     });
 };
 

@@ -43,40 +43,28 @@ DirtyDebug.Level = 0;
 DirtyDebug.UpTiming = [];
 DirtyDebug.DownTiming = [];
 DirtyDebug.Dump = function () {
+    return "Down" + DumpTiming(DirtyDebug.DownTiming) + " Up" + DumpTiming(DirtyDebug.UpTiming);
+}
+function DumpTiming(arr) {
     var min;
     var max;
     var total;
 
-    var down = DirtyDebug.DownTiming;
-    for (var i = 0; i < down.length; i++) {
+    for (var i = 0; i < arr.length; i++) {
         if (i === 0) {
-            min = down[i];
-            max = down[i];
-            total = down[i];
+            min = arr[i];
+            max = arr[i];
+            total = arr[i];
         } else {
-            min = Math.min(down[i], min);
-            max = Math.max(down[i], max);
-            total += down[i];
+            min = Math.min(arr[i], min);
+            max = Math.max(arr[i], max);
+            total += arr[i];
         }
     }
-    var s = "Down[Min: " + min + "; Max: " + max + "; Avg: " + (total / down.length) + "; Count: " + down.length + "]";
 
-    var up = DirtyDebug.UpTiming;
-    for (var i = 0; i < up.length; i++) {
-        if (i === 0) {
-            min = up[i];
-            max = up[i];
-            total = up[i];
-        } else {
-            min = Math.min(up[i], min);
-            max = Math.max(up[i], max);
-            total += up[i];
-        }
-    }
-    s += "Up[Min: " + min + "; Max: " + max + "; Avg: " + (total / up.length) + "; Count: " + up.length + "]";
-
-    return s;
+    return "[Min: " + min + "; Max: " + max + "; Avg: " + (total / arr.length) + "; Total: " + total + "; Count: " + arr.length + "]";;
 }
+
 function KeyboardDebug(message) {
     if (false)
         return;
