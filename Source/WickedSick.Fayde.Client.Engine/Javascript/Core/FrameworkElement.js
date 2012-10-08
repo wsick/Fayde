@@ -637,14 +637,14 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
     while (parent = element.GetVisualParent())
         element = parent;
 
+    var uie;
     while (pass.Count < LayoutPass.MaxCount) {
-        var node;
-        while (node = pass.ArrangeList.shift()) {
-            node.UIElement._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
+        while (uie = pass.ArrangeList.shift()) {
+            uie._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
             LayoutDebug("PropagateFlagUp DirtyArrangeHint");
         }
-        while (node = pass.SizeList.shift()) {
-            node.UIElement._PropagateFlagUp(UIElementFlags.DirtySizeHint);
+        while (uie = pass.SizeList.shift()) {
+            uie._PropagateFlagUp(UIElementFlags.DirtySizeHint);
             LayoutDebug("PropagateFlagUp DirtySizeHint");
         }
         pass.Count = pass.Count + 1;
@@ -671,15 +671,15 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
                 switch (flag) {
                     case UIElementFlags.DirtyMeasureHint:
                         if (child._DirtyFlags & _Dirty.Measure)
-                            pass.MeasureList.push(new UIElementNode(child));
+                            pass.MeasureList.push(child);
                         break;
                     case UIElementFlags.DirtyArrangeHint:
                         if (child._DirtyFlags & _Dirty.Arrange)
-                            pass.ArrangeList.push(new UIElementNode(child));
+                            pass.ArrangeList.push(child);
                         break;
                     case UIElementFlags.DirtySizeHint:
                         if (child._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
-                            pass.SizeList.push(new UIElementNode(child));
+                            pass.SizeList.push(child);
                         break;
                     default:
                         break;
@@ -689,29 +689,28 @@ FrameworkElement.Instance._UpdateLayer = function (pass, error) {
 
         if (flag === UIElementFlags.DirtyMeasureHint) {
             LayoutDebug("Starting _MeasureList Update: " + pass.MeasureList.length);
-            while (node = pass.MeasureList.shift()) {
-                LayoutDebug("Measure [" + node.UIElement.__DebugToString() + "]");
-                node.UIElement._DoMeasureWithError(error);
+            while (uie = pass.MeasureList.shift()) {
+                LayoutDebug("Measure [" + uie.__DebugToString() + "]");
+                uie._DoMeasureWithError(error);
                 pass.Updated = true;
             }
         } else if (flag === UIElementFlags.DirtyArrangeHint) {
             LayoutDebug("Starting _ArrangeList Update: " + pass.ArrangeList.length);
-            while (node = pass.ArrangeList.shift()) {
-                LayoutDebug("Arrange [" + node.UIElement.__DebugToString() + "]");
-                node.UIElement._DoArrangeWithError(error);
+            while (uie = pass.ArrangeList.shift()) {
+                LayoutDebug("Arrange [" + uie.__DebugToString() + "]");
+                uie._DoArrangeWithError(error);
                 pass.Updated = true;
                 if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                     break;
             }
         } else if (flag === UIElementFlags.DirtySizeHint) {
-            while (node = pass.SizeList.shift()) {
-                var fe = node.UIElement;
+            while (uie = pass.SizeList.shift()) {
                 pass.Updated = true;
-                var last = LayoutInformation.GetLastRenderSize(fe);
+                var last = LayoutInformation.GetLastRenderSize(uie);
                 if (last) {
-                    fe._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
-                    fe._PurgeSizeCache();
-                    fe.SizeChanged.Raise(fe, new SizeChangedEventArgs(last, fe._RenderSize));
+                    uie._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                    uie._PurgeSizeCache();
+                    uie.SizeChanged.Raise(uie, new SizeChangedEventArgs(last, uie._RenderSize));
                 }
             }
             LayoutDebug("Completed _SizeList Update");
