@@ -893,7 +893,7 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
         var surface = App.Instance.MainSurface;
         if (surface) {
             surface._RemoveDirtyElement(this);
-            if (surface._FocusedElement === this)
+            if (Nullstone.RefEquals(surface._FocusedElement, this))
                 surface._FocusElement(null);
         }
     }
