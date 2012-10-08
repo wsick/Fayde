@@ -1,6 +1,7 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// <reference path="../Runtime/LinkedList.js"/>
 /// CODE
+/// <reference path="../Core/Enums.js"/>
 
 var _Dirty = {
     Transform: 1 << 0,
@@ -62,9 +63,76 @@ _Dirty.__DebugToString = function (dirty) {
 };
 
 //#region _DirtyList
-var _DirtyList = Nullstone.Create("_DirtyList", LinkedList);
+var _DirtyList = Nullstone.Create("_DirtyList", LinkedList, 1);
+
+_DirtyList.Instance.Init = function (type) {
+    this.Init$LinkedList();
+    this._Type = type;
+};
 
 _DirtyList.Instance.Reduce = function () {
+    if (!this.Head)
+        return;
+    var orderList = this._BuildOrderList();
+    var visited = [];
+
+    var list = [];
+    var cur = this.Head;
+    while (cur) {
+        if (!visited[cur.UIElement._ID]) {
+            list.push(cur);
+            visited[cur.UIElement._ID] = true;
+        }
+        cur = cur.Next;
+    }
+
+    list.sort(function (a, b) {
+        var ao = orderList[a.UIElement._ID];
+        var bo = orderList[b.UIElement._ID];
+        if (ao > bo)
+            return 1;
+        if (ao < bo)
+            return -1;
+        return 0;
+    });
+
+    var len = list.length;
+    this._Count = len;
+    this.Head = list[0];
+    this.Head.Previous = null;
+    var cur = this.Head;
+    for (var i = 0; i < len; i++) {
+        cur = list[i];
+        cur.Previous = list[i - 1];
+        cur.Next = list[i + 1];
+    }
+    this.Tail = list[len - 1];
+};
+_DirtyList.Instance._BuildOrderList = function () {
+    var cur = this.Head.UIElement;
+    var root = cur;
+    while (cur) {
+        cur = cur.GetVisualParent();
+        if (!cur)
+            break;
+        root = cur;
+    }
+
+    var orderings = [];
+    var i = 0;
+    var reverse = this._Type === "Up";
+    if (reverse)
+        i = this._Count - 1;
+    var walker = new _DeepTreeWalker(root);
+    var uie;
+    while (uie = walker.Step()) {
+        orderings[uie._ID] = i;
+        if (reverse)
+            i--;
+        else
+            i++;
+    }
+    return orderings;
 };
 _DirtyList.Instance.RemoveElement = function (element) {
     var node = this.Head;

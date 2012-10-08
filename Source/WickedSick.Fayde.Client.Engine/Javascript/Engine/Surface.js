@@ -323,16 +323,15 @@ Surface.Instance._UpdateLayout = function (error) {
 };
 //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
 Surface.Instance._ProcessDownDirtyElements = function () {
-    var i = 0;
-    this._DownDirty.Reduce();
+    //var i = 0;
+    //this._DownDirty.Reduce();
     var node;
     var dirtyEnum = _Dirty;
     while (node = this._DownDirty.Head) {
         var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
-        i++;
-        DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
-
+        //i++;
+        //DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
         /*
         DirtyDebug.Level++;
         DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
@@ -422,15 +421,15 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 };
 //Up --> Bounds, Invalidation
 Surface.Instance._ProcessUpDirtyElements = function () {
-    var i = 0;
-    this._UpDirty.Reduce();
+    //var i = 0;
+    //this._UpDirty.Reduce();
     var node;
     var dirtyEnum = _Dirty;
     while (node = this._UpDirty.Head) {
         var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
-        i++;
-        DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
+        //i++;
+        //DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
         if (uie._DirtyFlags & dirtyEnum.Bounds) {
             uie._DirtyFlags &= ~dirtyEnum.Bounds;
 
