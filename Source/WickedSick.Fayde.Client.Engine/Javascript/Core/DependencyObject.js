@@ -314,7 +314,7 @@ DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endin
         endingPrecedence = propPrecEnum.Lowest;
 
     //Establish providers used
-    var bitmask = this._ProviderBitmasks[propd._ID] || propd._BitmaskCache;
+    var bitmask = this._ProviderBitmasks[propd._ID] | propd._BitmaskCache;
 
     //Loop through providers and find the first provider that is on and contains the property value
     for (var i = startingPrecedence; i <= endingPrecedence; i++) {
