@@ -28,14 +28,14 @@ TextBlock.Instance.Init = function () {
 //#region Properties
 
 TextBlock.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, TextBlock, new Thickness());
-TextBlock.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, TextBlock, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextBlock.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY);
-TextBlock.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH);
-TextBlock.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE);
-TextBlock.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, TextBlock, Font.DEFAULT_WEIGHT);
-TextBlock.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, TextBlock, Font.DEFAULT_SIZE);
-TextBlock.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None);
-TextBlock.FontResourceProperty = DependencyProperty.RegisterInheritable("FontResource", function () { return Object; }, TextBlock);
+TextBlock.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, TextBlock, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } }, _Inheritable.Foreground);
+TextBlock.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY, undefined, undefined, _Inheritable.FontFamily);
+TextBlock.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH, undefined, undefined, _Inheritable.FontStretch);
+TextBlock.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE, undefined, undefined, _Inheritable.FontStyle);
+TextBlock.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, TextBlock, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
+TextBlock.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, TextBlock, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
+TextBlock.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
+TextBlock.FontResourceProperty = DependencyProperty.RegisterInheritable("FontResource", function () { return Object; }, TextBlock, undefined, undefined, undefined, _Inheritable.FontResource);
 TextBlock.FontSourceProperty = DependencyProperty.RegisterCore("FontSource", function () { return Object; }, TextBlock);
 TextBlock.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBlock, "");
 TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, undefined, undefined, { GetValue: function () { return new InlineCollection(); } });
