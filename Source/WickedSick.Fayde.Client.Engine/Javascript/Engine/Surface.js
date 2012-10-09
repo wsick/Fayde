@@ -335,12 +335,17 @@ Surface.Instance._UpdateLayout = function (error) {
 //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
 Surface.Instance._ProcessDownDirtyElements = function () {
     //var i = 0;
-    this._DownDirty.Reduce();
     var node;
     var dirtyEnum = _Dirty;
     while (node = this._DownDirty.Head) {
         var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
+        if (visualParent && visualParent._DownDirtyNode != null) {
+            //OPTIMIZATION: uie is overzealous. His parent will invalidate him later
+            this._DownDirty.Remove(node);
+            this._DownDirty.InsertAfter(node, visualParent._DownDirtyNode);
+            continue;
+        }
         //i++;
         //DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
         /*
@@ -418,9 +423,9 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             }
         }
 
-        if (!(uie._DirtyFlags & dirtyEnum.DownDirtyState) && uie._IsInDownDirty) {
-            this._DownDirty.Remove(node);
-            uie._IsInDownDirty = false;
+        if (!(uie._DirtyFlags & dirtyEnum.DownDirtyState) && uie._DownDirtyNode != null) {
+            this._DownDirty.Remove(uie._DownDirtyNode);
+            delete uie._DownDirtyNode;
         }
 
         //DirtyDebug.Level--;
@@ -433,12 +438,19 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 //Up --> Bounds, Invalidation
 Surface.Instance._ProcessUpDirtyElements = function () {
     //var i = 0;
-    this._UpDirty.Reduce();
     var node;
     var dirtyEnum = _Dirty;
     while (node = this._UpDirty.Head) {
         var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
+
+        if (this._AreChildrenInUpList(uie)) {
+            // OPTIMIZATION: Parent is overzealous, children will invalidate him
+            this._UpDirty.Remove(node);
+            this._UpDirty.Append(node);
+            continue;
+        }
+
         //i++;
         //DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
         if (uie._DirtyFlags & dirtyEnum.Bounds) {
@@ -496,9 +508,9 @@ Surface.Instance._ProcessUpDirtyElements = function () {
             uie._DirtyRegion = new Rect();
         }
 
-        if (!(uie._DirtyFlags & dirtyEnum.UpDirtyState)) {
-            this._UpDirty.Remove(node);
-            uie._IsInUpDirty = false;
+        if (!(uie._DirtyFlags & dirtyEnum.UpDirtyState) && uie._UpDirtyNode != null) {
+            this._UpDirty.Remove(uie._UpDirtyNode);
+            delete uie._UpDirtyNode;
         }
     }
 
@@ -529,28 +541,22 @@ Surface.Instance._AddDirtyElement = function (element, dirt) {
 
     element._DirtyFlags |= dirt;
 
-    if (dirt & _Dirty.DownDirtyState) {
-        if (element._IsInDownDirty)
-            return;
-        element._IsInDownDirty = true
-        this._DownDirty.Append({ UIElement: element });
-    }
-    if (dirt & _Dirty.UpDirtyState) {
-        if (element._IsInUpDirty)
-            return;
-        element._IsInUpDirty = true;
-        this._UpDirty.Append({ UIElement: element });
-    }
+    if (dirt & _Dirty.DownDirtyState && element._DownDirtyNode == null)
+        element._DownDirtyNode = this._DownDirty.Append({ UIElement: element });
+    if (dirt & _Dirty.UpDirtyState && element._UpDirtyNode == null)
+        element._UpDirtyNode = this._UpDirty.Append({ UIElement: element });
     //this._Invalidate();
 };
-Surface.Instance._RemoveDirtyElement = function (element) {
-    /// <param name="element" type="UIElement"></param>
-    if (element._IsInUpDirty)
-        this._UpDirty.RemoveElement(element);
-    if (element._IsInDownDirty)
-        this._DownDirty.RemoveElement(element);
-    element._IsInUpDirty = false;
-    element._IsInDownDirty = false;
+Surface.Instance._RemoveDirtyElement = function (uie) {
+    /// <param name="uie" type="UIElement"></param>
+    if (uie._UpDirtyNode != null) {
+        this._UpDirty.Remove(uie._UpDirtyNode);
+        delete uie._UpDirtyNode;
+    }
+    if (uie._DownDirtyNode != null) {
+        this._DownDirty.Remove(uie._DownDirtyNode);
+        delete uie._DownDirtyNode;
+    }
 };
 Surface.Instance._IsTopLevel = function (top) {
     /// <param name="top" type="UIElement"></param>
@@ -558,6 +564,25 @@ Surface.Instance._IsTopLevel = function (top) {
         return false;
     //TODO: full-screen message
     return Array.containsNullstone(this._Layers, top);
+};
+Surface.Instance._AreChildrenInUpList = function (uie) {
+    var subtree = uie._SubtreeObject;
+    if (!subtree)
+        return false;
+
+    if (subtree instanceof UIElement)
+        return subtree._DownDirtyNode != null;
+
+    if (subtree instanceof UIElementCollection) {
+        var children = subtree._ht;
+        var len = children.length;
+        for (var i = 0; i < len; i++) {
+            if (children[i]._UpDirtyNode != null)
+                return true;
+        }
+    }
+
+    return false;
 };
 
 //#endregion

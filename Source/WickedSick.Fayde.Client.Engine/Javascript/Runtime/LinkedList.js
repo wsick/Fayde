@@ -66,6 +66,23 @@ LinkedList.Instance.InsertBefore = function (node, before) {
     before.Previous = node;
     this._Count++;
 };
+LinkedList.Instance.InsertAfter = function (node, after) {
+    if (after == null) {
+        this.Append(node);
+        return;
+    }
+
+    node.Next = after.Next;
+    node.Previous = after;
+
+    if (node.Next)
+        node.Next.Previous = node;
+    else
+        this.Tail = node;
+
+    after.Next = node;
+    this._Count++;
+};
 LinkedList.Instance.Clear = function () {
     this._Count = 0;
     this.Head = null;
