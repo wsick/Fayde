@@ -19,9 +19,9 @@ DependencyObject.Instance.Init = function () {
     this._IsAttached = false;
     this._Providers = [];
     var propPrecEnum = _PropertyPrecedence;
-    this._Providers[propPrecEnum.LocalValue] = new _LocalValuePropertyValueProvider(this, propPrecEnum.LocalValue);
-    this._Providers[propPrecEnum.DefaultValue] = new _DefaultValuePropertyValueProvider(this, propPrecEnum.DefaultValue);
-    this._Providers[propPrecEnum.AutoCreate] = new _AutoCreatePropertyValueProvider(this, propPrecEnum.AutoCreate);
+    this.AddProvider(new _LocalValuePropertyValueProvider(this, propPrecEnum.LocalValue));
+    this.AddProvider(new _DefaultValuePropertyValueProvider(this, propPrecEnum.DefaultValue));
+    this.AddProvider(new _AutoCreatePropertyValueProvider(this, propPrecEnum.AutoCreate));
     this._ProviderBitmasks = [];
     this._SecondaryParents = [];
     this.PropertyChanged = new MulticastEvent();
@@ -128,6 +128,10 @@ DependencyObject.CloneLocalValue = function (propd, value, data) {
 
 DependencyObject.Instance.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);
+};
+
+DependencyObject.Instance.AddProvider = function (provider) {
+    this._Providers[provider._PropertyPrecedence] = provider;
 };
 
 //#region Set Value

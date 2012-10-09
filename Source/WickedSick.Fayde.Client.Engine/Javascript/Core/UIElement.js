@@ -27,7 +27,7 @@ UIElement.Instance.Init = function () {
     this.Loaded = new MulticastEvent();
     this.Invalidated = new MulticastEvent();
 
-    this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
+    this.AddProvider(new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited));
 
     this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 

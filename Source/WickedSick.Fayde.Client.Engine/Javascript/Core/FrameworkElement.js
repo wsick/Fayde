@@ -22,10 +22,10 @@ FrameworkElement.Instance.Init = function () {
     this._SurfaceBoundsWithChildren = new Rect();
     this._ExtentsWithChildren = new Rect();
 
-    this._Providers[_PropertyPrecedence.LocalStyle] = new _StylePropertyValueProvider(this, _PropertyPrecedence.LocalStyle);
-    this._Providers[_PropertyPrecedence.ImplicitStyle] = new _ImplicitStylePropertyValueProvider(this, _PropertyPrecedence.ImplicitStyle);
-    this._Providers[_PropertyPrecedence.DynamicValue] = new FrameworkElementPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
-    this._Providers[_PropertyPrecedence.InheritedDataContext] = new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext);
+    this.AddProvider(new _StylePropertyValueProvider(this, _PropertyPrecedence.LocalStyle));
+    this.AddProvider(new _ImplicitStylePropertyValueProvider(this, _PropertyPrecedence.ImplicitStyle));
+    this.AddProvider(new FrameworkElementPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
+    this.AddProvider(new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext));
 
     this.SizeChanged = new MulticastEvent();
     this.LayoutUpdated = {

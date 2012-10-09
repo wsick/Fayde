@@ -20,7 +20,7 @@ TextBlock.Instance.Init = function () {
     this._WasSet = true;
     this._Dirty = true;
 
-    this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
+    this.AddProvider(new _TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
 
     this._Font = new Font();
 };

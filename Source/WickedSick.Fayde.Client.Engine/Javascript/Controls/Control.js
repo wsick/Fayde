@@ -7,7 +7,7 @@ var Control = Nullstone.Create("Control", FrameworkElement);
 
 Control.Instance.Init = function () {
     this.Init$FrameworkElement();
-    this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
+    this.AddProvider(new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled));
 };
 
 //#region Properties

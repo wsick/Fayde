@@ -24,7 +24,7 @@ TextBox.Instance.Init = function () {
 
     this.DefaultStyleKey = this.constructor;
 
-    this._Providers[_PropertyPrecedence.DynamicValue] = new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue);
+    this.AddProvider(new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
 
     this._EventsMask = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
 
