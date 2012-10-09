@@ -593,15 +593,13 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
         if (propd && propd._ChangedCallback)
             propd._ChangedCallback(this, args, error);
 
-        var propPrecInherited = _PropertyPrecedence.Inherited;
-        var inheritedProvider = this._Providers[propPrecInherited];
-        if (inheritedProvider) {
-            if (providerPrecedence === propPrecInherited) {
-            } else {
-                if (_InheritedPropertyValueProvider.GetInheritable(this, propd) > 0
-                        && this._GetPropertyValueProvider(propd) < propPrecInherited) {
+        if (propd._Inheritable > 0) {
+            var propPrecInherited = _PropertyPrecedence.Inherited;
+            if (providerPrecedence !== propPrecInherited) {
+                // NOTE: We only propagate if inherited exists and has the highest priority in the bitmask
+                var inheritedProvider = this._Providers[propPrecInherited];
+                if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & (propPrecInherited - 1)) === 0))
                     inheritedProvider.PropagateInheritedProperty(propd, this, this);
-                }
             }
         }
     }
