@@ -444,10 +444,11 @@ Surface.Instance._ProcessUpDirtyElements = function () {
         var uie = node.UIElement;
         var visualParent = uie.GetVisualParent();
 
-        if (this._AreChildrenInUpList(uie)) {
+        var childNode = this._GetChildNodeInUpList(uie);
+        if (childNode) {
             // OPTIMIZATION: Parent is overzealous, children will invalidate him
             this._UpDirty.Remove(node);
-            this._UpDirty.Append(node);
+            this._UpDirty.InsertAfter(node, childNode);
             continue;
         }
 
@@ -565,24 +566,23 @@ Surface.Instance._IsTopLevel = function (top) {
     //TODO: full-screen message
     return Array.containsNullstone(this._Layers, top);
 };
-Surface.Instance._AreChildrenInUpList = function (uie) {
+Surface.Instance._GetChildNodeInUpList = function (uie) {
     var subtree = uie._SubtreeObject;
     if (!subtree)
-        return false;
+        return;
 
     if (subtree instanceof UIElement)
-        return subtree._DownDirtyNode != null;
+        return subtree._UpDirtyNode;
 
     if (subtree instanceof UIElementCollection) {
         var children = subtree._ht;
         var len = children.length;
         for (var i = 0; i < len; i++) {
-            if (children[i]._UpDirtyNode != null)
-                return true;
+            var child = children[i];
+            if (child._UpDirtyNode != null)
+                return child._UpDirtyNode;
         }
     }
-
-    return false;
 };
 
 //#endregion
