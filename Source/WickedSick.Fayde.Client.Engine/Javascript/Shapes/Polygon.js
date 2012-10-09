@@ -9,10 +9,10 @@ Polygon.Instance.Init = function () {
     this.Init$Shape();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polygon, FillRule.EvenOdd);
-Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, undefined, { GetValue: function () { return new PointCollection(); } });
+Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, undefined, undefined, { GetValue: function () { return new PointCollection(); } });
 
 Nullstone.AutoProperties(Polygon, [
     Polygon.FillRuleProperty

@@ -8,7 +8,7 @@ var ColorAnimationUsingKeyFrames = Nullstone.Create("ColorAnimationUsingKeyFrame
 
 //#region Properties
 
-ColorAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ColorKeyFrameCollection; }, ColorAnimationUsingKeyFrames, undefined, { GetValue: function () { return new ColorKeyFrameCollection(); } });
+ColorAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ColorKeyFrameCollection; }, ColorAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new ColorKeyFrameCollection(); } });
 
 Nullstone.AutoProperties(ColorAnimationUsingKeyFrames, [
     ColorAnimationUsingKeyFrames.KeyFramesProperty

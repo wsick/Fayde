@@ -48,7 +48,7 @@ App.Instance.Init = function () {
 
 //#region Properties
 
-App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, { GetValue: function () { return new ResourceDictionary(); } });
+App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, undefined, { GetValue: function () { return new ResourceDictionary(); } });
 
 Nullstone.AutoProperties(App, [
     App.ResourcesProperty,

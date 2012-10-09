@@ -16,7 +16,7 @@ BitmapImage.Instance.Init = function (uri) {
 
 //#region Dependency Properties
 
-BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Uri; }, BitmapImage, new Uri(), undefined, undefined, true);
+BitmapImage.UriSourceProperty = DependencyProperty.RegisterFull("UriSource", function () { return Uri; }, BitmapImage, new Uri(), undefined, undefined, undefined, true);
 
 Nullstone.AutoProperties(BitmapImage, [
     BitmapImage.UriSourceProperty

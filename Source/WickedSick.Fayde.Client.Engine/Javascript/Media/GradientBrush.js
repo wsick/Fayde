@@ -8,7 +8,7 @@ var GradientBrush = Nullstone.Create("GradientBrush", Brush);
 
 //#region Properties
 
-GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, undefined, { GetValue: function () { return new GradientStopCollection(); } });
+GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, undefined, undefined, { GetValue: function () { return new GradientStopCollection(); } });
 GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Enum(BrushMappingMode); }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
 GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () { return new Enum(GradientSpreadMethod); }, GradientBrush, GradientSpreadMethod.Pad);
 

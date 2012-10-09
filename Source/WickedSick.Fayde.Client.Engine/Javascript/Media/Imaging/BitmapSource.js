@@ -17,8 +17,8 @@ BitmapSource.IntGreaterThanZeroValidator = function (instance, propd, value, err
     return value > 0;
 };
 
-BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, undefined, undefined, undefined, BitmapSource.IntGreaterThanZeroValidator);
-BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, undefined, undefined, undefined, BitmapSource.IntGreaterThanZeroValidator);
+BitmapSource.PixelWidthProperty = DependencyProperty.RegisterFull("PixelWidth", function () { return Number; }, BitmapSource, 0, undefined, undefined, undefined, undefined, BitmapSource.IntGreaterThanZeroValidator);
+BitmapSource.PixelHeightProperty = DependencyProperty.RegisterFull("PixelHeight", function () { return Number; }, BitmapSource, 0, undefined, undefined, undefined, undefined, BitmapSource.IntGreaterThanZeroValidator);
 
 Nullstone.AutoProperty(BitmapSource, BitmapSource.PixelWidthProperty, undefined, true);
 Nullstone.AutoProperty(BitmapSource, BitmapSource.PixelHeightProperty, undefined, true);

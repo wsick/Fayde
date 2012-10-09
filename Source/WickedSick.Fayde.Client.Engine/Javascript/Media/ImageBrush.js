@@ -15,7 +15,7 @@ ImageBrush.Instance.Init = function () {
 
 //#region Properties
 
-ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 
 Nullstone.AutoProperty(ImageBrush, ImageBrush.ImageSourceProperty, function (value) {
     if (value instanceof Uri)

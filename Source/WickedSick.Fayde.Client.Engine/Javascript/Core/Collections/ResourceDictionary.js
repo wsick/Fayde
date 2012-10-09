@@ -12,7 +12,7 @@ ResourceDictionary.Instance.Init = function () {
 
 //#region Dependency Properties
 
-ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 
 Nullstone.AutoProperties(ResourceDictionary, [
     ResourceDictionary.MergedDictionariesProperty

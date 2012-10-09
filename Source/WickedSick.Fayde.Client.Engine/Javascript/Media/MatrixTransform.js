@@ -6,7 +6,7 @@ var MatrixTransform = Nullstone.Create("MatrixTransform", Transform);
 
 //#region Properties
 
-MatrixTransform.MatrixProperty = DependencyProperty.RegisterFull("Matrix", function () { return Matrix; }, MatrixTransform, undefined, { GetValue: function () { return new Matrix(); } });
+MatrixTransform.MatrixProperty = DependencyProperty.RegisterFull("Matrix", function () { return Matrix; }, MatrixTransform, undefined, undefined, { GetValue: function () { return new Matrix(); } });
 
 Nullstone.AutoProperty(MatrixTransform, MatrixTransform.MatrixProperty);
 

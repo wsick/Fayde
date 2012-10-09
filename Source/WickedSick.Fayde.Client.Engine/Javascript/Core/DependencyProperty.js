@@ -6,10 +6,10 @@
 /// <reference path="UnsetValue.js"/>
 
 //#region DependencyProperty
-var DependencyProperty = Nullstone.Create("DependencyProperty", null, 12);
+var DependencyProperty = Nullstone.Create("DependencyProperty", undefined, 13);
 
 DependencyProperty._LastID = 0;
-DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
+DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, defaultValue, autoCreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached, inheritable) {
     this.Name = name;
     this.GetTargetType = getTargetType;
     this.OwnerType = ownerType;
@@ -33,6 +33,8 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     if (this._HasDefaultValue)
         bitmask |= (1 << propPrecEnum.DefaultValue);
     this._BitmaskCache = bitmask;
+
+    this._Inheritable;
 };
 
 DependencyProperty.Instance.toString = function () {
@@ -63,33 +65,33 @@ DependencyProperty.Instance._Validate = function (instance, propd, value, error)
 };
 
 DependencyProperty.Register = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, true, changedCallback);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true);
 };
 DependencyProperty.RegisterReadOnly = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, true, changedCallback, true);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true, true);
 };
 DependencyProperty.RegisterAttached = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, true, changedCallback, false, true);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, true, false, true);
 }
 
 DependencyProperty.RegisterCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, false, changedCallback);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false);
 };
 DependencyProperty.RegisterReadOnlyCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, false, changedCallback, true);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, true);
 };
 DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, undefined, undefined, undefined, undefined, false, changedCallback, false, true);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, false, true);
 }
 
-DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached) {
+DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
     if (!DependencyProperty._IDs)
         DependencyProperty._IDs = [];
     if (!DependencyProperty._Registered)
         DependencyProperty._Registered = [];
     if (!DependencyProperty._Registered[ownerType._TypeName])
         DependencyProperty._Registered[ownerType._TypeName] = [];
-    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached);
+    var propd = new DependencyProperty(name, getTargetType, ownerType, defaultValue, autocreator, coercer, alwaysChange, validator, isCustom, changedCallback, isReadOnly, isAttached, inheritable);
     if (DependencyProperty._Registered[ownerType._TypeName][name] !== undefined)
         throw new InvalidOperationException("Dependency Property is already registered. [" + ownerType._TypeName + "." + name + "]");
     DependencyProperty._Registered[ownerType._TypeName][name] = propd;
