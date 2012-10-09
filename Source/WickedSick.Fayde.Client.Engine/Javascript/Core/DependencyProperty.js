@@ -34,7 +34,7 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
         bitmask |= (1 << propPrecEnum.DefaultValue);
     this._BitmaskCache = bitmask;
 
-    this._Inheritable;
+    this._Inheritable = inheritable;
 };
 
 DependencyProperty.Instance.toString = function () {
@@ -82,6 +82,10 @@ DependencyProperty.RegisterReadOnlyCore = function (name, getTargetType, ownerTy
 };
 DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerType, defaultValue, changedCallback) {
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, false, true);
+}
+
+DependencyProperty.RegisterInheritable = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator) {
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, undefined, undefined, true);
 }
 
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {

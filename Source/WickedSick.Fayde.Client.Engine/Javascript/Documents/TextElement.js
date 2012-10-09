@@ -15,15 +15,15 @@ TextElement.Instance.Init = function () {
 
 //#region Dependency Properties
 
-TextElement.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, TextElement, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
-TextElement.FontFamilyProperty = DependencyProperty.Register("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY);
-TextElement.FontStretchProperty = DependencyProperty.Register("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH);
-TextElement.FontStyleProperty = DependencyProperty.Register("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE);
-TextElement.FontWeightProperty = DependencyProperty.Register("FontWeight", function () { return new Enum(FontWeight); }, TextElement, Font.DEFAULT_WEIGHT);
-TextElement.FontSizeProperty = DependencyProperty.Register("FontSize", function () { return Number; }, TextElement, Font.DEFAULT_SIZE);
-TextElement.LanguageProperty = DependencyProperty.Register("Language", function () { return String; }, TextElement);
-TextElement.TextDecorationsProperty = DependencyProperty.Register("TextDecorations", function () { return new Enum(TextDecorations); }, TextElement, TextDecorations.None);
-TextElement.FontResourceProperty = DependencyProperty.Register("FontResource", function () { return Object; }, TextElement);
+TextElement.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, TextElement, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } });
+TextElement.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY);
+TextElement.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH);
+TextElement.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE);
+TextElement.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, TextElement, Font.DEFAULT_WEIGHT);
+TextElement.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, TextElement, Font.DEFAULT_SIZE);
+TextElement.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () { return String; }, TextElement);
+TextElement.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(TextDecorations); }, TextElement, TextDecorations.None);
+TextElement.FontResourceProperty = DependencyProperty.RegisterInheritable("FontResource", function () { return Object; }, TextElement);
 
 Nullstone.AutoProperties(TextElement, [
     TextElement.ForegroundProperty,
