@@ -39,7 +39,8 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
     if (inheritable !== undefined) {
         var i = DependencyProperty._Inherited;
         if (!i[inheritable])
-            i[inheritable] = [propd];
+            i[inheritable] = [];
+        i[inheritable].push(propd);
     }
 };
 
