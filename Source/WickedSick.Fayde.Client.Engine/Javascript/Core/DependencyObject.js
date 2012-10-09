@@ -518,7 +518,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
         newValue = newProviderValue;
     }
 
-    var equal = (oldValue === null && newValue === null) || (oldValue === undefined && newValue === undefined);
+    var equal = (oldValue === null && newValue === null) || (oldValue === undefined && newValue === undefined); //INTENTIONAL
     if (oldValue != null && newValue != null) {
         equal = !propd._AlwaysChange && Nullstone.Equals(oldValue, newValue);
     }
