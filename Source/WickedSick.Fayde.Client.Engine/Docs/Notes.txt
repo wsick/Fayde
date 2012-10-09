@@ -1,4 +1,8 @@
-﻿UIElement:
+﻿Dependency Property:
+	- Dependency Property Value Precendence: http://msdn.microsoft.com/en-us/library/cc265148
+	- Dependency Properties Overview: http://msdn.microsoft.com/en-us/library/cc221408
+
+UIElement:
 	- RenderTransform				--> 2d transform applied to UIElement only during render.  Size/Bounds will be unaffected.
 	- RenderTransformOrigin			--> [0.0, 1.0]	--> Multiplied by size of element to get local coordinates origin
 
