@@ -447,8 +447,8 @@ DependencyObject.Instance._ClearValueWithError = function (propd, notifyListener
     var count = propPrecEnum.Count;
     for (var i = propPrecEnum.LocalValue + 1; i < count; i++) {
         var provider = this._Providers[i];
-        if (provider && provider._RecomputesOnClear)
-            provider.RecomputePropertyValue(propd, false, false, true, error);
+        if (provider && provider.RecomputePropertyValueOnClear)
+            provider.RecomputePropertyValueOnClear(propd, error);
     }
 
     if (oldLocalValue !== undefined) {
@@ -612,18 +612,10 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     //Needs clock tick..
 };
 DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
-    var count = _PropertyPrecedence.Count;
-    for (var i = 0; i < count; i++) {
+    for (var i = 0; i < providerPrecedence; i++) {
         var provider = this._Providers[i];
-        if (!provider)
-            continue;
-        if (i === providerPrecedence)
-            continue;
-
-        if (i < providerPrecedence && provider._RecomputesOnLower)
-            provider.RecomputePropertyValue(propd, true, false, false, error);
-        //else if (i > providerPrecedence && provider._RecomputesOnHigher)
-            //provider.RecomputePropertyValue(propd, false, true, false, error);
+        if (provider && provider.RecomputePropertyValueOnLowerr)
+            provider.RecomputePropertyValueOnLower(propd, error);
     }
 };
 DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {

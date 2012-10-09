@@ -10,8 +10,6 @@ _InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj, propPrec
     this.Init$_PropertyValueProvider(obj, propPrecedence);
     this._Source = null;
     this._CurrentValue = this._Object._GetValue(Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
-
-    //this._RecomputesOnLower = true;
 };
 
 _InheritedIsEnabledPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
