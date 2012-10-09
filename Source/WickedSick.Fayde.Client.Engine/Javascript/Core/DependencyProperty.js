@@ -40,7 +40,7 @@ DependencyProperty.Instance.Init = function (name, getTargetType, ownerType, def
         var i = DependencyProperty._Inherited;
         if (!i[inheritable])
             i[inheritable] = [];
-        i[inheritable].push(propd);
+        i[inheritable].push(this);
     }
 };
 
