@@ -7,7 +7,7 @@
 var _InheritedContext = Nullstone.Create("_InheritedContext");
 
 _InheritedContext.FromSources = function (foregroundSource, fontFamilySource, fontStretchSource, fontStyleSource,
-        fontWeightSource, fontSizeSource, languageSource, flowDirectionSource, useLayoutRoundingSource, textDecorationsSource, fontResourceSource) {
+        fontWeightSource, fontSizeSource, languageSource, flowDirectionSource, useLayoutRoundingSource, textDecorationsSource) {
     var ic = new _InheritedContext();
     ic.ForegroundSource = foregroundSource;
     ic.FontFamilySource = fontFamilySource;
@@ -19,7 +19,6 @@ _InheritedContext.FromSources = function (foregroundSource, fontFamilySource, fo
     ic.FlowDirectionSource = flowDirectionSource;
     ic.UseLayoutRoundingSource = useLayoutRoundingSource;
     ic.TextDecorationsSource = textDecorationsSource;
-    ic.FontResourceSource = fontResourceSource;
     return ic;
 };
 _InheritedContext.FromObject = function (obj, parentContext) {
@@ -56,9 +55,6 @@ _InheritedContext.FromObject = function (obj, parentContext) {
     ic.TextDecorationsSource = ic.GetLocalSource(obj, inhEnum.TextDecorations);
     if (!ic.TextDecorationsSource && parentContext) ic.TextDecorationsSource = parentContext.TextDecorationsSource;
 
-    ic.FontResourceSource = ic.GetLocalSource(obj, inhEnum.FontResource);
-    if (!ic.FontResourceSource && parentContext) ic.FontResourceSource = parentContext.FontResourceSource;
-
     return ic;
 };
 
@@ -86,17 +82,15 @@ _InheritedContext.Instance.Compare = function (withContext, props) {
         rv |= inhEnum.UseLayoutRounding;
     if (props & inhEnum.TextDecorations && Nullstone.RefEquals(withContext.TextDecorationsSource, this.TextDecorationsSource))
         rv |= inhEnum.TextDecorations;
-    if (props & inhEnum.FontResource && Nullstone.RefEquals(withContext.FontResourceSource, this.FontResourceSource))
-        rv |= inhEnum.FontResource;
 
     return rv;
 };
 _InheritedContext.Instance.GetLocalSource = function (obj, prop) {
-    var source;
     var propd = _InheritedPropertyValueProvider.GetProperty(prop, obj);
-    if (propd && obj._GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited)
-        source = obj;
-    return source;
+    if (!propd)
+        return;
+    if ((obj._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0)
+        return obj;
 };
 
 Nullstone.FinishCreate(_InheritedContext);

@@ -83,7 +83,6 @@ _InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, elemen
         this.MaybePropagateInheritedValue(context.FlowDirectionSource, inhEnum.FlowDirection, props, element);
         this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, inhEnum.UseLayoutRounding, props, element);
         this.MaybePropagateInheritedValue(context.TextDecorationsSource, inhEnum.TextDecorations, props, element);
-        this.MaybePropagateInheritedValue(context.FontResourceSource, inhEnum.FontResource, props, element);
 
         var eleContext = _InheritedContext.FromObject(element, context);
 
@@ -105,7 +104,6 @@ _InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, elemen
         this.MaybeRemoveInheritedValue(context.FlowDirectionSource, inhEnum.FlowDirection, props, element);
         this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, inhEnum.UseLayoutRounding, props, element);
         this.MaybeRemoveInheritedValue(context.TextDecorationsSource, inhEnum.TextDecorations, props, element);
-        this.MaybeRemoveInheritedValue(context.FontResourceSource, inhEnum.FontResource, props, element);
 
         props = eleContext2.Compare(context, props);
         if (props === inhEnum.None)
@@ -144,8 +142,7 @@ _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToT
             this._GetPropertySource(inhEnum.Language),
             this._GetPropertySource(inhEnum.FlowDirection),
             this._GetPropertySource(inhEnum.UseLayoutRounding),
-            this._GetPropertySource(inhEnum.TextDecorations),
-            this._GetPropertySource(inhEnum.FontResource));
+            this._GetPropertySource(inhEnum.TextDecorations));
     var objContext = _InheritedContext.FromObject(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, inhEnum.All, true);
 };
@@ -168,8 +165,7 @@ _InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromT
             this._GetPropertySource(inhEnum.Language),
             this._GetPropertySource(inhEnum.FlowDirection),
             this._GetPropertySource(inhEnum.UseLayoutRounding),
-            this._GetPropertySource(inhEnum.TextDecorations),
-            this._GetPropertySource(inhEnum.FontResource));
+            this._GetPropertySource(inhEnum.TextDecorations));
     var objContext = _InheritedContext.FromObject(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, inhEnum.All, false);
 };

@@ -13,7 +13,7 @@ TextElement.Instance.Init = function () {
     this._UpdateFont(true);
 };
 
-//#region Dependency Properties
+//#region Properties
 
 TextElement.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, TextElement, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } }, _Inheritable.Foreground);
 TextElement.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY, undefined, undefined, _Inheritable.FontFamily);
@@ -23,7 +23,6 @@ TextElement.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWei
 TextElement.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, TextElement, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
 TextElement.LanguageProperty = DependencyProperty.RegisterInheritable("Language", function () { return String; }, TextElement, undefined, undefined, undefined, _Inheritable.Language);
 TextElement.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(TextDecorations); }, TextElement, TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
-TextElement.FontResourceProperty = DependencyProperty.RegisterInheritable("FontResource", function () { return Object; }, TextElement, undefined, undefined, undefined, _Inheritable.FontResource);
 
 Nullstone.AutoProperties(TextElement, [
     TextElement.ForegroundProperty,
@@ -33,8 +32,7 @@ Nullstone.AutoProperties(TextElement, [
     TextElement.FontWeightProperty,
     TextElement.FontSizeProperty,
     TextElement.LanguageProperty,
-    TextElement.TextDecorationsProperty,
-    TextElement.FontResourceProperty
+    TextElement.TextDecorationsProperty
 ]);
 
 //#endregion

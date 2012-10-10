@@ -602,7 +602,8 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
             if (providerPrecedence !== propPrecInherited) {
                 // NOTE: We only propagate if inherited exists and has the highest priority in the bitmask
                 var inheritedProvider = this._Providers[propPrecInherited];
-                if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & (propPrecInherited - 1)) === 0))
+                // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited
+                if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << propPrecInherited) - 1)) !== 0))
                     inheritedProvider.PropagateInheritedProperty(propd, this, this);
             }
         }

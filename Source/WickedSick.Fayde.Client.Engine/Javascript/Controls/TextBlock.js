@@ -35,7 +35,6 @@ TextBlock.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle"
 TextBlock.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, TextBlock, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
 TextBlock.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, TextBlock, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
 TextBlock.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
-TextBlock.FontResourceProperty = DependencyProperty.RegisterInheritable("FontResource", function () { return Object; }, TextBlock, undefined, undefined, undefined, _Inheritable.FontResource);
 TextBlock.FontSourceProperty = DependencyProperty.RegisterCore("FontSource", function () { return Object; }, TextBlock);
 TextBlock.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBlock, "");
 TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, undefined, undefined, { GetValue: function () { return new InlineCollection(); } });
@@ -54,7 +53,6 @@ Nullstone.AutoProperties(TextBlock, [
     TextBlock.FontWeightProperty,
     TextBlock.FontSizeProperty,
     TextBlock.TextDecorationsProperty,
-    TextBlock.FontResourceProperty,
     TextBlock.FontSourceProperty,
     TextBlock.TextProperty,
     TextBlock.InlinesProperty,

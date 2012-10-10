@@ -39,8 +39,7 @@ var _Inheritable = {
     Language: 1 << 6,
     FlowDirection: 1 << 7,
     UseLayoutRounding: 1 << 8,
-    TextDecorations: 1 << 9,
-    FontResource: 1 << 10
+    TextDecorations: 1 << 9
 };
 _Inheritable.All = 0x7ff;
 _Inheritable.None = 0; //None must always be 0
