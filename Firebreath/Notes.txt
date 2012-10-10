@@ -1,0 +1,3 @@
+
+cmake - http://www.cmake.org/cmake/resources/software.html
+Microsoft DDK - http://msdn.microsoft.com/en-us/library/windows/hardware/gg487428
