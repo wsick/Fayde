@@ -43,14 +43,18 @@ ToggleButton.Instance.OnApplyTemplate = function () {
 };
 
 ToggleButton.Instance.OnClick = function () {
+    this._OnToggle();
+    this.OnClick$ButtonBase(e);
+};
+ToggleButton.Instance._OnToggle = function () {
     var isChecked = this.IsChecked;
     if (isChecked === true) {
         this.IsChecked = this.IsThreeState ? null : false;
     } else {
         this.IsChecked = isChecked != null;
     }
-    this.OnClick$ButtonBase();
 };
+
 ToggleButton.Instance.OnContentChanged = function (oldContent, newContent) {
     this.OnContentChanged$ButtonBase(oldContent, newContent);
     this.$UpdateVisualState();

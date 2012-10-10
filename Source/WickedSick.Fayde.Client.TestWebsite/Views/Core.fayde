@@ -98,7 +98,7 @@
                         </ScrollViewer>
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="RADIOBUTTON" Margin="0,43,-68,0" />
                         <RadioButton Content="RadioButton" Margin="0,3" HorizontalAlignment="Left" IsChecked="True" />
-                        <RadioButton Content="RadioButton" Margin="0,3" HorizontalAlignment="Left" IsThreeState="True" />
+                        <RadioButton Content="RadioButton" Margin="0,3" HorizontalAlignment="Left" />
                         <RadioButton Content="RadioButton" Margin="0,3" HorizontalAlignment="Left" />
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="TEXTBLOCK" Margin="0,31,-77,0" />
                         <TextBlock Margin="0,5" TextWrapping="Wrap" Text="Pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer " />

@@ -10,7 +10,7 @@ RadioButton.Instance.Init = function () {
     this.DefaultStyleKey = this.constructor;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 RadioButton.GroupNameProperty = DependencyProperty.RegisterReadOnly("GroupName", function () { return RadioButton; }, RadioButton, false, function (d, args) { d.OnGroupNameChanged(args); });
 
@@ -54,14 +54,14 @@ RadioButton.Unregister = function (groupName, radioButton) {
     }
 };
 
-RadioButton.Instance.OnIsCheckedChanged = function (e) {
+RadioButton.Instance._OnIsCheckedChanged = function (e) {
     if (e.NewValue === true) {
         this.UpdateRadioButtonGroup();
     }
-    this.OnIsCheckedChanged$ToggleButton(e);
+    this._OnIsCheckedChanged$ToggleButton(e);
 };
 
-RadioButton.Instance.OnToggle = function () {
+RadioButton.Instance._OnToggle = function () {
     this.IsChecked = true;
 };
 
