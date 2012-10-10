@@ -59,7 +59,7 @@ FrameworkElement.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight"
 FrameworkElement.MinWidthProperty = DependencyProperty.RegisterCore("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
 FrameworkElement.VerticalAlignmentProperty = DependencyProperty.RegisterCore("VerticalAlignment", function () { return new Enum(VerticalAlignment); }, FrameworkElement, VerticalAlignment.Stretch);
 FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Style; }, FrameworkElement);
-FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement, undefined, undefined, undefined, _Inheritable.FlowDirection);
+FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement, FlowDirection.LeftToRight, undefined, undefined, _Inheritable.FlowDirection);
 
 Nullstone.AutoProperties(FrameworkElement, [
     FrameworkElement.CursorProperty,
