@@ -169,10 +169,9 @@ _InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromT
     var objContext = _InheritedContext.FromObject(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, inhEnum.All, false);
 };
-_InheritedPropertyValueProvider.Instance._GetPropertySource = function (inheritableOrProp) {
-    if (inheritableOrProp instanceof DependencyProperty)
-        return this._ht[GetInheritableFromProperty(inheritableOrProp)];
-    return this._ht[inheritableOrProp];
+
+_InheritedPropertyValueProvider.Instance._GetPropertySource = function (inheritable) {
+    return this._ht[inheritable];
 };
 _InheritedPropertyValueProvider.Instance._SetPropertySource = function (inheritable, source) {
     if (source)
@@ -187,7 +186,6 @@ _InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
         inh = 0;
     return inh;
 };
-
 _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
     var list = DependencyProperty._Inherited[inheritable];
     if (!list)
