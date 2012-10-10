@@ -632,7 +632,6 @@ DependencyObject.Instance._PropagateInheritedValue = function (inheritable, sour
 
     var error = new BError();
     this._ProviderValueChanged(propPrecInherited, propd, undefined, newValue, true, false, false, error);
-    return this._GetPropertyValueProvider(propd) === propPrecInherited;
 };
 DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
@@ -655,21 +654,6 @@ DependencyObject.Instance._SetInheritedValueSource = function (inheritable, sour
         this._ProviderBitmasks[propd._ID] = bitmask;
     }
     inheritedProvider._SetPropertySource(inheritable, source);
-};
-DependencyObject.Instance._GetPropertyValueProvider = function (propd) {
-    var propPrecEnum = _PropertyPrecedence;
-    var bitmask = this._ProviderBitmasks[propd._ID];
-    var lowest = propPrecEnum.Lowest;
-    for (var i = 0; i < lowest; i++) {
-        if (!(bitmask & (1 << i)))
-            continue;
-        return i;
-    }
-    if (propd._HasDefaultValue)
-        return propPrecEnum.DefaultValue;
-    if (propd._IsAutoCreated)
-        return propPrecEnum.AutoCreate;
-    return -1;
 };
 
 //#region Target
