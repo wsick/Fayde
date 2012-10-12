@@ -17,8 +17,11 @@ JsonParser.Parse = function (json, templateBindingSource, namescope, resChain) {
     if (resChain)
         parser._ResChain = resChain;
     parser._TemplateBindingSource = templateBindingSource;
-    if (!namescope)
+    var shouldSetNS = false;
+    if (!namescope) {
         namescope = new NameScope();
+        shouldSetNS = true;
+    }
 
     var app = App.Instance;
     var startTime;
@@ -27,6 +30,8 @@ JsonParser.Parse = function (json, templateBindingSource, namescope, resChain) {
         startTime = new Date().getTime();
 
     var obj = parser.CreateObject(json, namescope);
+    if (shouldSetNS && obj instanceof DependencyObject)
+        NameScope.SetNameScope(obj, namescope);
 
     if (isTimed)
         app._NotifyDebugParserPass(json.Type, new Date().getTime() - startTime);
