@@ -44,7 +44,7 @@ ToggleButton.Instance.OnApplyTemplate = function () {
 
 ToggleButton.Instance.OnClick = function () {
     this._OnToggle();
-    this.OnClick$ButtonBase(e);
+    this.OnClick$ButtonBase();
 };
 ToggleButton.Instance._OnToggle = function () {
     var isChecked = this.IsChecked;
