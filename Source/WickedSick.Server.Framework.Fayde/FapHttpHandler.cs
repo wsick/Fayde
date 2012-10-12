@@ -68,6 +68,9 @@ namespace WickedSick.Server.Framework.Fayde
             using (var sw = new StreamWriter(stream))
             {
                 var page = Parser.Parse(pageLocalPath) as Page;
+                var codeBehindFile = new FileInfo(string.Format("{0}.js", pageLocalPath));
+                if (codeBehindFile.Exists)
+                    page.InjectJavascriptType(File.ReadAllText(codeBehindFile.FullName));
                 sw.Write(page.ToJson(0));
             }
         }

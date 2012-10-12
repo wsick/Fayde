@@ -1,26 +1,16 @@
-﻿/// <reference path="../Core/DependencyObject.js"/>
+﻿/// <reference path="UserControl.js"/>
 /// CODE
 
 //#region Page
-var Page = Nullstone.Create("Page", DependencyObject);
+var Page = Nullstone.Create("Page", UserControl);
 
-//#region Dependency Properties
+//#region Properties
 
 Page.TitleProperty = DependencyProperty.Register("Title", function () { return String; }, Page);
-Page.ContentProperty = DependencyProperty.Register("Content", function () { return UIElement; }, Page);
 
 Nullstone.AutoProperties(Page, [
-    Page.TitleProperty,
-    Page.ContentProperty
+    Page.TitleProperty
 ]);
-
-//#endregion
-
-//#region Annotations
-
-Page.Annotations = {
-    ContentProperty: Page.ContentProperty
-};
 
 //#endregion
 

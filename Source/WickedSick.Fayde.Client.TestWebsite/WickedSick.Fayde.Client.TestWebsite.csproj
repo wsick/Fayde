@@ -72,6 +72,7 @@
     <Content Include="Silverlight.js" />
     <None Include="Views\SDK.fayde" />
     <None Include="Views\Toolkit.fayde" />
+    <Content Include="Views\Home.fayde.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
