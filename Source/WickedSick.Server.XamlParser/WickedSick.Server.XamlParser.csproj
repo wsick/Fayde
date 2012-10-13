@@ -68,6 +68,7 @@
     <Compile Include="Elements\Controls\ComboBox.cs" />
     <Compile Include="Elements\Controls\ComboBoxItem.cs" />
     <Compile Include="Elements\Controls\Frame.cs" />
+    <Compile Include="Elements\Controls\ItemsPanelTemplate.cs" />
     <Compile Include="Elements\Controls\ListBox.cs" />
     <Compile Include="Elements\Controls\ListBoxItem.cs" />
     <Compile Include="Elements\Controls\PasswordBox.cs" />
