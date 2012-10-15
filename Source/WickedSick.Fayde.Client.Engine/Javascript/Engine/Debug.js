@@ -95,6 +95,17 @@ function LayoutDebug(message) {
     if (window.console && console.log)
         console.log("LAYOUT: " + message);
 }
+function TransformDebug(message, matrix) {
+    if (true)
+        return;
+    var last = TransformDebug.Last;
+    if (last && mat3.equal(last, matrix))
+        return;
+    TransformDebug.Last = matrix;
+
+    if (window.console && console.log)
+        console.log("TRANSFORM: " + message + " --> " + matrix.toString());
+}
 function DrawDebug(message) {
     if (true)
         return;
