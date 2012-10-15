@@ -5,30 +5,35 @@
 var PropertyInfo = Nullstone.Create("PropertyInfo");
 
 PropertyInfo.Find = function (typeOrObj, name) {
+    var o = typeOrObj;
     var isType = typeOrObj instanceof Function;
-    var type = isType ? typeOrObj : typeOrObj.constructor;
-
-    var setFunc;
-    var getFunc;
-    for (var i in type.Instance) {
-        if (i.toString() === ("Set" + name))
-            setFunc = type.Instance[i];
-        if (i.toString() === ("Get" + name))
-            getFunc = type.Instance[i];
-        if (getFunc && setFunc) {
-            var pi = new PropertyInfo();
-            pi.Type = type;
-            pi.SetFunc = setFunc;
-            pi.GetFunc = getFunc;
-            return pi;
-        }
+    if (isType)
+        o = new typeOrObj();
+    
+    var nameClosure = name;
+    var propDesc = Object.getOwnPropertyDescriptor(o, name);
+    if (propDesc) {
+        var pi = new PropertyInfo();
+        pi.GetFunc = propDesc.get;
+        if (!pi.GetFunc)
+            pi.GetFunc = function () { return this[nameClosure]; }
+        pi.SetFunc = propDesc.set;
+        if (!pi.SetFunc && propDesc.writable)
+            pi.SetFunc = function (value) { this[nameClosure] = value; }
+        return pi;
     }
+
+    var type = isType ? typeOrObj : typeOrObj.constructor;
+    var pi = new PropertyInfo();
+    pi.GetFunc = type.prototype["Get" + name];
+    pi.SetFunc = type.prototype["Set" + name];
+    return pi;
 };
 
 PropertyInfo.Instance.GetValue = function (ro) {
-    if (!this.GetFunc)
-        return undefined;
-    return this.GetFunc.call(ro);
+    if (this.GetFunc)
+        return this.GetFunc.call(ro);
+    
 };
 PropertyInfo.Instance.SetValue = function (ro, value) {
     if (this.SetFunc)
