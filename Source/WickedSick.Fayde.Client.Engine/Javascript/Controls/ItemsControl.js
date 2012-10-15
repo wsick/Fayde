@@ -280,7 +280,7 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
     var items = this.Items;
     var children = panel.Children;
     for (var i = 0; i < count; i++) {
-        var item = items.GetValueAt(newIndex + 1);
+        var item = items.GetValueAt(newIndex + i);
         var container = this._ItemContainerGenerator.GenerateNext({});
         if (container instanceof ContentControl)
             container._ContentSetsParent = false;
