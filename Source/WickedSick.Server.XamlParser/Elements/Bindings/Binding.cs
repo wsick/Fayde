@@ -8,8 +8,8 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
 {
     public enum BindingMode
     {
-        OneTime,
         OneWay,
+        OneTime,
         TwoWay
     }
 
