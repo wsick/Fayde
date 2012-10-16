@@ -96,11 +96,15 @@ _RenderContext.Instance.Save = function () {
     var ct = this.CurrentTransform;
     this._Transforms.push(ct);
     this.CurrentTransform = ct == null ? mat3.identity() : mat3.create(ct);
+    if (this.CurrentTransform)
+        TransformDebug("Save", this.CurrentTransform);
 };
 _RenderContext.Instance.Restore = function () {
     var curXform = this._Transforms.pop();
     this.CurrentTransform = curXform;
     this.CanvasContext.restore();
+    if (this.CurrentTransform)
+        TransformDebug("Restore", this.CurrentTransform);
 };
 
 //#endregion
