@@ -225,7 +225,11 @@ DependencyObject.Instance._SetValue = function (propd, value) {
         return;
     }
 
-    //TODO: Type checks
+    if (propd.GetTargetType() === String) {
+        if (value != null && typeof value !== "string")
+            value = value.toString();
+        //TODO: More type checks
+    }
 
     this._SetValueWithError(propd, value, error);
     if (error.IsErrored())
