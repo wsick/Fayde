@@ -1074,8 +1074,14 @@ String.contains = function (str, match) {
     }
     return j >= match.length;
 };
-String.format = function (culture, format, str) {
-    return str;
+String.format = function (str) {
+    var args = arguments;
+    return str.replace(/{(\d+)}/g, function (match, number) {
+        var i = parseInt(number);
+        return typeof args[i + 1] != 'undefined'
+          ? args[i + 1]
+          : match;
+    });
 };
 window.onerror = function (msg, url, line) {
     alert("Error (" + url + ") @ " + line + "\n" + msg);
@@ -5300,7 +5306,7 @@ BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
             if (format) {
                 if (!String.contains(format, "{0"))
                     format = "{0:" + format + "}";
-                value = String.format({}, format, value);
+                value = String.format(format, value);
             }
         }
     } catch (err) {
@@ -10070,6 +10076,8 @@ BindingMarkup.Instance._BuildBinding = function () {
         b.FallbackValue = this._Data.FallbackValue;
     if (this._Data.Mode !== undefined)
         b.Mode = this._Data.Mode;
+    if (this._Data.StringFormat !== undefined)
+        b.StringFormat = this._Data.StringFormat;
     return b;
 };
 Nullstone.FinishCreate(BindingMarkup);
@@ -25384,7 +25392,10 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
     return destination;
 };
 HyperlinkButton.Instance._Navigate = function () {
-    window.location.href = this.NavigateUri.toString();
+    if (this.TargetName != null)
+        window.open(this.NavigateUri.toString(), this.TargetName);
+    else
+        window.location.href = this.NavigateUri.toString();
 };
 Nullstone.FinishCreate(HyperlinkButton);
 
