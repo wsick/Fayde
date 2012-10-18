@@ -46,8 +46,10 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
     return destination;
 };
 HyperlinkButton.Instance._Navigate = function () {
-    window.location.href = this.NavigateUri.toString();
-    //NotImplemented("HyperlinkButton._Navigate(this.NavigateUri, this.TargetName)");
+    if (this.TargetName != null)
+        window.open(this.NavigateUri.toString(), this.TargetName);
+    else
+        window.location.href = this.NavigateUri.toString();
 };
 
 Nullstone.FinishCreate(HyperlinkButton);
