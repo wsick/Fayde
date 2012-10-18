@@ -1,0 +1,65 @@
+﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+      Title="Fayde Page">
+    <Grid x:Name="LayoutRoot" MinWidth="700">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid>
+            <TextBlock Text="Stack Overflow Questions" FontFamily="Segoe UI,Lucida Grande,Verdana,Arial,Helvetica,sans-serif" FontSize="32" Foreground="#464646" FontWeight="Light" Margin="5" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <ToggleButton Style="{StaticResource MenuToggleButtonStyle}" Content="newest" Width="70" />
+                <ToggleButton Style="{StaticResource MenuToggleButtonStyle}" Content="votes" Width="70" />
+                <ToggleButton Style="{StaticResource MenuToggleButtonStyle}" Content="views" Width="70" HorizontalContentAlignment="Center" />
+            </StackPanel>
+        </Grid>
+        <Border Grid.Row="1" Background="White">
+            <ScrollViewer>
+                <ItemsControl x:Name="QuestionsItemsControl" Margin="20">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <StackPanel Width="60" Height="42">
+                                    <Border Width="50">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding score}" Foreground="#97989A" FontSize="17" HorizontalAlignment="Center" />
+                                            <TextBlock Text="votes" Foreground="#97989A" FontSize="10" HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Width="60" Height="42">
+                                    <Border Width="50" BorderBrush="#ADE988" BorderThickness="1">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding answer_count}" Foreground="#69A245" FontSize="17" HorizontalAlignment="Center" />
+                                            <TextBlock Text="answers" Foreground="#69A245" FontSize="10" HorizontalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Margin="5">
+                                    <TextBlock Text="{Binding title}" TextWrapping="Wrap"
+                                               Foreground="#5F5F5F" FontSize="15" FontFamily="Segoe UI,Lucida Grande,Verdana,Arial,Helvetica,sans-serif" />
+                                    <ItemsControl ItemsSource="{Binding tags}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="0,0,10,0" Background="#EFEFEF" Padding="2">
+                                                    <HyperlinkButton Content="{Binding}" Foreground="#5F5F5F" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Page>

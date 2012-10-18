@@ -1,0 +1,49 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    ScriptResolution="../../scripts/">
+    <FaydeApplication.UriMappings>
+        <UriMapping Uri="" MappedUri="default.fayde" />
+    </FaydeApplication.UriMappings>
+    <FaydeApplication.Resources>
+        <Style x:Key="MenuToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <ColorAnimation Duration="0" Storyboard.TargetName="contentControl" Storyboard.TargetProperty="(Control.Foreground).(SolidColorBrush.Color)" To="#C7631A" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ColorAnimation Duration="0" Storyboard.TargetName="contentControl" Storyboard.TargetProperty="(Control.Foreground).(SolidColorBrush.Color)" To="#444444" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled"/>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="FocusStates">
+                                    <VisualState x:Name="Focused"/>
+                                    <VisualState x:Name="Unfocused"/>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentControl x:Name="contentControl" Foreground="#5f5f5f" FontFamily="Segoe UI,Lucida Grande,Verdana,Arial,Helvetica,sans-serif" FontSize="15"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            Margin="{TemplateBinding Padding}">
+                                <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" />
+                            </ContentControl>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </FaydeApplication.Resources>
+    <Grid x:Name="LayoutRoot">
+        <Frame x:Name="ContentFrame" />
+    </Grid>
+</FaydeApplication>
