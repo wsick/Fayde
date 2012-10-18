@@ -68,6 +68,10 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
                 else
                     yield return string.Format("FallbackValue: {0}", FallbackValue);
             }
+            if (StringFormat != null)
+            {
+                yield return string.Format("StringFormat: \"{0}\"", StringFormat);
+            }
         }
     }
 }

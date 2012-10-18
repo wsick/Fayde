@@ -297,7 +297,7 @@ BindingExpressionBase.Instance._ConvertToType = function (propd, value) {
             if (format) {
                 if (!String.contains(format, "{0"))
                     format = "{0:" + format + "}";
-                value = String.format({}, format, value);
+                value = String.format(format, value);
             }
         }
     } catch (err) {
