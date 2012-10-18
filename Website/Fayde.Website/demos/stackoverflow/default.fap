@@ -42,6 +42,110 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="TagHyperlinkButtonStyle" TargetType="HyperlinkButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="HyperlinkButton">
+                        <Grid Background="{TemplateBinding Background}" Cursor="{TemplateBinding Cursor}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="ContentPresenterWrapperColor" Storyboard.TargetProperty="Color" To="#C7631A" Duration="0" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed" />
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
+                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Visible</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="FocusStates">
+                                    <VisualState x:Name="Focused">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" Storyboard.TargetName="FocusVisualElement" To="1" Duration="0" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Unfocused"/>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <TextBlock x:Name="DisabledOverlay" Foreground="#AAAAAA" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Canvas.ZIndex="1"/>
+                            <ContentControl>
+                                <ContentControl.Foreground>
+                                    <SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="#5F5F5F" />
+                                </ContentControl.Foreground>
+                                <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </ContentControl>
+                            <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
+                                <Rectangle.Stroke>
+                                    <SolidColorBrush Color="#C7631A"/>
+                                </Rectangle.Stroke>
+                            </Rectangle>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TitleHyperlinkButtonStyle" TargetType="HyperlinkButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="HyperlinkButton">
+                        <Grid Background="{TemplateBinding Background}" Cursor="{TemplateBinding Cursor}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal"/>
+                                    <VisualState x:Name="MouseOver">
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="ContentPresenterWrapperColor" Storyboard.TargetProperty="Color" To="#C7631A" Duration="0" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed" />
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetProperty="Visibility" Storyboard.TargetName="DisabledOverlay">
+                                                <DiscreteObjectKeyFrame KeyTime="0">
+                                                    <DiscreteObjectKeyFrame.Value>
+                                                        <Visibility>Visible</Visibility>
+                                                    </DiscreteObjectKeyFrame.Value>
+                                                </DiscreteObjectKeyFrame>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                                <VisualStateGroup x:Name="FocusStates">
+                                    <VisualState x:Name="Focused">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" Storyboard.TargetName="FocusVisualElement" To="1" Duration="0" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Unfocused"/>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <TextBlock x:Name="DisabledOverlay" Foreground="#AAAAAA" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" Text="{TemplateBinding Content}" Visibility="Collapsed" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Canvas.ZIndex="1"/>
+                            <ContentControl>
+                                <ContentControl.Foreground>
+                                    <SolidColorBrush x:Name="ContentPresenterWrapperColor" Color="#5F5F5F" />
+                                </ContentControl.Foreground>
+                                <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </ContentControl>
+                            <Rectangle x:Name="FocusVisualElement" IsHitTestVisible="false" Opacity="0" StrokeThickness="1">
+                                <Rectangle.Stroke>
+                                    <SolidColorBrush Color="#C7631A"/>
+                                </Rectangle.Stroke>
+                            </Rectangle>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </FaydeApplication.Resources>
     <Grid x:Name="LayoutRoot">
         <Frame x:Name="ContentFrame" />
