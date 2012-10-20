@@ -63,5 +63,9 @@
                 </ItemsControl>
             </ScrollViewer>
         </Border>
+        <Grid Grid.Row="2">
+            <Button x:Name="PreviousPageButton" Content="Previous" Margin="5" Padding="3" HorizontalAlignment="Left" Width="80" />
+            <Button x:Name="NextPageButton" Content="Next" Margin="5" Padding="3" HorizontalAlignment="Right" Width="80" />
+        </Grid>
     </Grid>
 </Page>
