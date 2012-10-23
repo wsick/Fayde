@@ -92,7 +92,7 @@ DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerTy
 };
 
 DependencyProperty.RegisterInheritable = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, inheritable) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, undefined, true, inheritable);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, undefined, undefined, undefined, false, undefined, true, inheritable);
 };
 
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
