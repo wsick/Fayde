@@ -72,7 +72,7 @@ function DumpTiming(arr) {
 }
 
 function KeyboardDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("KEYBOARD: " + message);
