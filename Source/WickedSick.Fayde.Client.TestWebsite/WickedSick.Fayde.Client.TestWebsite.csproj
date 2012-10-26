@@ -85,7 +85,9 @@
     <Content Include="default.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Views\Core.fayde" />
+    <Content Include="Views\Core.fayde">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Views\Home.fayde">
       <SubType>Designer</SubType>
     </Content>
