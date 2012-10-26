@@ -14,6 +14,7 @@ VisualStateGroup.Instance.Init = function () {
     this.Init$DependencyObject();
     this.CurrentStateChanging = new MulticastEvent();
     this.CurrentStateChanged = new MulticastEvent();
+    this._CurrentStoryboards = [];
 };
 
 //#region Properties
@@ -26,12 +27,6 @@ Nullstone.Property(VisualStateGroup, "States", {
         return this._States;        
     }
 });
-VisualStateGroup.Instance.GetCurrentStoryboards = function () {
-    ///<returns type="StoryboardCollection"></returns>
-    if (this._CurrentStoryboards == null)
-        this._CurrentStoryboards = new StoryboardCollection();
-    return this._CurrentStoryboards;
-};
 VisualStateGroup.Instance.GetTransitions = function () {
     ///<returns type="VisualTransitionCollection"></returns>
     if (this._Transitions == null)
@@ -69,8 +64,8 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
         } catch (err) {
             //clear storyboards on error
             for (var j = 0; j <= i; j++) {
-                if (newStoryboards[i] != null)
-                    element.Resources.Remove(newStoryboards[i]._ID);
+                if (newStoryboards[j] != null)
+                    element.Resources.Remove(newStoryboards[j]._ID);
             }
             throw err;
         }
@@ -78,24 +73,24 @@ VisualStateGroup.Instance.StartNewThenStopOld = function (element, newStoryboard
 
     this.StopCurrentStoryboards(element);
 
-    var currentStoryboards = this.GetCurrentStoryboards();
+    var curStoryboards = this._CurrentStoryboards;
     for (i = 0; i < newStoryboards.length; i++) {
         if (newStoryboards[i] == null)
             continue;
-        currentStoryboards.Add(newStoryboards[i]);
+        curStoryboards.push(newStoryboards[i]);
     }
 };
 VisualStateGroup.Instance.StopCurrentStoryboards = function (element) {
-    var currentStoryboards = this.GetCurrentStoryboards();
-    var count = currentStoryboards.GetCount();
-    for (i = 0; i < count ; i++) {
-        storyboard = currentStoryboards.GetValueAt(i);
+    var curStoryboards = this._CurrentStoryboards;
+    var len = curStoryboards.length;
+    for (i = 0; i < len; i++) {
+        storyboard = curStoryboards[i];
         if (storyboard == null)
             continue;
         element.Resources.Remove(storyboard._ID);
         storyboard.Stop();
     }
-    currentStoryboards.Clear();
+    this._CurrentStoryboards = [];
 };
 VisualStateGroup.Instance.RaiseCurrentStateChanging = function (element, oldState, newState, control) {
     /// <param name="element" type="FrameworkElement"></param>
@@ -124,11 +119,7 @@ Nullstone.FinishCreate(VisualStateGroup);
 //#endregion
 
 //#region VisualStateGroupCollection
-var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", DependencyObjectCollection);
-
-VisualStateGroupCollection.Instance.IsElementType = function (value) {
-    return value instanceof VisualStateGroup;
-}
+var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", Collection);
 
 Nullstone.FinishCreate(VisualStateGroupCollection);
 //#endregion

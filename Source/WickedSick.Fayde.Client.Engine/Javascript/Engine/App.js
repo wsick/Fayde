@@ -22,8 +22,9 @@ App.Instance.Init = function () {
     this.Loaded = new MulticastEvent();
 
     var app = this;
-    this._TotalParserTime = 0;
-    this._ParserCount = 0;
+    this._LayoutTiming = [];
+    this._RenderTiming = [];
+    this._ParserTiming = [];
 
     //this._SubscribeDebugService("Coordinates", function (position) { HUDUpdate("mouse", position.toString()); });
     this._SubscribeDebugService("HitTest", function (inputList, elapsedTime) {
@@ -33,20 +34,21 @@ App.Instance.Init = function () {
 
     this._SubscribeDebugService("LayoutTime", function (elapsedTime) {
         //Info("LayoutTime: " + elapsedTime.toString());
+        app._LayoutTiming.push(elapsedTime);
     });
     this._SubscribeDebugService("RenderTime", function (elapsedTime) {
         //Info("RenderTime: " + elapsedTime.toString());
+        app._RenderTiming.push(elapsedTime);
     });
     this._SubscribeDebugService("ParserTime", function (type, elapsedTime) {
         //Info("ParserTime: [" + type._TypeName + "]" + elapsedTime.toString());
-        app._TotalParserTime += elapsedTime;
-        app._ParserCount++;
+        app._ParserTiming.push(elapsedTime);
     });
 };
 
 //#region Properties
 
-App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, { GetValue: function () { return new ResourceDictionary(); } });
+App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, undefined, { GetValue: function () { return new ResourceDictionary(); } });
 
 Nullstone.AutoProperties(App, [
     App.ResourcesProperty,
@@ -200,6 +202,8 @@ App.Instance._GetInternalDebugServiceID = function (id) {
         return 4;
     else if (id === "ParserTime")
         return 5;
+    else if (id === "Layer")
+        return 6;
     return null;
 };
 
@@ -214,6 +218,12 @@ App.Instance._NotifyDebugHitTest = function (inputList, elapsedTime) {
     if (!func)
         return;
     func(inputList, elapsedTime);
+};
+App.Instance._NotifyDebugLayer = function (isAdd, layer) {
+    var func = this._DebugFunc[6];
+    if (!func)
+        return;
+    func(isAdd, layer);
 };
 App.Instance._NotifyDebugLayoutPass = function (elapsedTime) {
     var func = this._DebugFunc[3];
@@ -238,3 +248,5 @@ App.Instance._NotifyDebugParserPass = function (type, elapsedTime) {
 
 Nullstone.FinishCreate(App);
 //#endregion
+
+App.Version = "0.9.0.1";

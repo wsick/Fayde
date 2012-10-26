@@ -8,6 +8,7 @@
     FaydeInterop.Reg[this._ID] = this;
     this.App = app;
     this.RegisterHitTestDebugService();
+    this.RegisterLayerDebugService();
 }
 FaydeInterop.prototype.GenerateCache = function () {
     this._Cache = {
@@ -17,9 +18,9 @@ FaydeInterop.prototype.GenerateCache = function () {
 
     var surface = this.App.MainSurface;
     var layers = surface._Layers;
-    var layerCount = layers.GetCount();
+    var layerCount = layers.length;
     for (var i = 0; i < layerCount; i++) {
-        var cur = layers.GetValueAt(i);
+        var cur = layers[i];
         var item = {
             Visual: cur,
             Children: this.GetCacheChildren(cur)
@@ -30,6 +31,7 @@ FaydeInterop.prototype.GenerateCache = function () {
 
     this._Cache.Serialized = "Surface" + "~|~" + "~|~" + surface._ID + "~|~" + layerCount;
     this.GenerateDPCache();
+    delete this._InvalidatedCache;
 };
 FaydeInterop.prototype.GenerateDPCache = function () {
     var dpCache = [];
@@ -114,12 +116,19 @@ FaydeInterop.prototype.GetVisualIDsInHitTest = function () {
         return "[]";
 
     var arr = [];
-    var cur = this._CachedHitTest.First();
+    var cur = this._CachedHitTest.Head;
     while (cur != null) {
         arr.push(cur.UIElement._ID);
         cur = cur.Next;
     }
     return "[" + arr.toString() + "]";
+};
+
+FaydeInterop.prototype.RegisterLayerDebugService = function () {
+    var fi = this;
+    this.App._SubscribeDebugService("Layer", function (isAdd, layer) {
+        fi._InvalidatedCache = true;
+    });
 };
 
 FaydeInterop.prototype.SerializeDependencyValue = function (dobj, dp) {
@@ -136,4 +145,34 @@ FaydeInterop.prototype.SerializeValue = function (value) {
     if (value.constructor._IsNullstone)
         return '"' + value.toString() + '"';
     return value;
+};
+
+FaydeInterop.StringifyEx = function (a) {
+    function censor(censor) {
+        //debugger;
+        return (function () {
+            var visited = [];
+            return function (key, value) {
+                if (!value)
+                    return;
+                if (key === "_Providers")
+                    return "[_Providers]";
+                if (key === "_ProviderBitmasks")
+                    return "[_ProviderBitmasks]";
+                if (key === "_Expressions")
+                    return "[_Expressions]";
+                if (value instanceof MulticastEvent)
+                    return "{MulticastEvent}";
+
+                if (value && value._ID != null) {
+                    if (visited.indexOf(value._ID) !== -1)
+                        return "[Already Visited]";
+                    visited.push(value._ID);
+                }
+                return value;
+            }
+        })(censor);
+    }
+
+    return JSON.stringify(a, censor(a));
 };

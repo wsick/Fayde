@@ -19,9 +19,9 @@ DependencyObject.Instance.Init = function () {
     this._IsAttached = false;
     this._Providers = [];
     var propPrecEnum = _PropertyPrecedence;
-    this._Providers[propPrecEnum.LocalValue] = new _LocalValuePropertyValueProvider(this, propPrecEnum.LocalValue);
-    this._Providers[propPrecEnum.DefaultValue] = new _DefaultValuePropertyValueProvider(this, propPrecEnum.DefaultValue);
-    this._Providers[propPrecEnum.AutoCreate] = new _AutoCreatePropertyValueProvider(this, propPrecEnum.AutoCreate);
+    this.AddProvider(new _LocalValuePropertyValueProvider(this, propPrecEnum.LocalValue));
+    this.AddProvider(new _DefaultValuePropertyValueProvider(this, propPrecEnum.DefaultValue));
+    this.AddProvider(new _AutoCreatePropertyValueProvider(this, propPrecEnum.AutoCreate));
     this._ProviderBitmasks = [];
     this._SecondaryParents = [];
     this.PropertyChanged = new MulticastEvent();
@@ -31,7 +31,7 @@ DependencyObject.Instance.Init = function () {
 
 //#region Properties
 
-DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", undefined, undefined, false, DependencyObject._NameValidator);
+DependencyObject.NameProperty = DependencyProperty.RegisterFull("Name", function () { return String; }, DependencyObject, "", undefined, undefined, undefined, false, DependencyObject._NameValidator);
 
 //#endregion
 
@@ -130,6 +130,10 @@ DependencyObject.Instance.GetDependencyProperty = function (propName) {
     return DependencyProperty.GetDependencyProperty(this.constructor, propName);
 };
 
+DependencyObject.Instance.AddProvider = function (provider) {
+    this._Providers[provider._PropertyPrecedence] = provider;
+};
+
 //#region Set Value
 
 DependencyObject.Instance.$SetValue = function (propd, value) {
@@ -221,7 +225,11 @@ DependencyObject.Instance._SetValue = function (propd, value) {
         return;
     }
 
-    //TODO: Type checks
+    if (propd.GetTargetType() === String) {
+        if (value != null && typeof value !== "string")
+            value = value.toString();
+        //TODO: More type checks
+    }
 
     this._SetValueWithError(propd, value, error);
     if (error.IsErrored())
@@ -236,12 +244,12 @@ DependencyObject.Instance._SetValueWithError = function (propd, value, error) {
             || !this._IsValueValid(propd, coerced, error)
             || !propd._Validate(this, propd, coerced, error)) {
         if (error.IsErrored())
-            throw new error.CreateException();
+            throw error.CreateException();
         return false;
     }
     var retVal = this._SetValueWithErrorImpl(propd, coerced, error);
     if (error.IsErrored())
-        throw new error.CreateException();
+        throw error.CreateException();
     return retVal;
 };
 DependencyObject.Instance._SetValueWithErrorImpl = function (propd, value, error) {
@@ -306,7 +314,7 @@ DependencyObject.Instance.$GetValue = function (propd) {
         throw new InvalidOperationException("Cannot get the DependencyProperty " + propd.Name + " on an object of type " + propd.OwnerType._TypeName);
     return this._GetValue(propd);
 };
-DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endingPrecedence) {
+DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endingPrecedence) {    
     var propPrecEnum = _PropertyPrecedence;
     if (startingPrecedence === undefined)
         startingPrecedence = propPrecEnum.Highest;
@@ -314,13 +322,7 @@ DependencyObject.Instance._GetValue = function (propd, startingPrecedence, endin
         endingPrecedence = propPrecEnum.Lowest;
 
     //Establish providers used
-    var bitmask = this._ProviderBitmasks[propd._ID] || 0;
-    //bitmask |= propd._BitmaskCache;
-    bitmask |= (1 << propPrecEnum.Inherited) | (1 << propPrecEnum.DynamicValue);
-    if (propd._IsAutoCreated)
-        bitmask |= 1 << propPrecEnum.AutoCreate;
-    if (propd._HasDefaultValue)
-        bitmask |= 1 << propPrecEnum.DefaultValue;
+    var bitmask = this._ProviderBitmasks[propd._ID] | propd._BitmaskCache;
 
     //Loop through providers and find the first provider that is on and contains the property value
     for (var i = startingPrecedence; i <= endingPrecedence; i++) {
@@ -449,8 +451,8 @@ DependencyObject.Instance._ClearValueWithError = function (propd, notifyListener
     var count = propPrecEnum.Count;
     for (var i = propPrecEnum.LocalValue + 1; i < count; i++) {
         var provider = this._Providers[i];
-        if (provider && provider._RecomputesOnClear)
-            provider.RecomputePropertyValue(propd, false, false, true, error);
+        if (provider && provider.RecomputePropertyValueOnClear)
+            provider.RecomputePropertyValueOnClear(propd, error);
     }
 
     if (oldLocalValue !== undefined) {
@@ -524,7 +526,7 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
         newValue = newProviderValue;
     }
 
-    var equal = (oldValue === null && newValue === null) || (oldValue === undefined && newValue === undefined);
+    var equal = (oldValue === null && newValue === null) || (oldValue === undefined && newValue === undefined); //INTENTIONAL
     if (oldValue != null && newValue != null) {
         equal = !propd._AlwaysChange && Nullstone.Equals(oldValue, newValue);
     }
@@ -599,15 +601,14 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
         if (propd && propd._ChangedCallback)
             propd._ChangedCallback(this, args, error);
 
-        var propPrecInherited = _PropertyPrecedence.Inherited;
-        var inheritedProvider = this._Providers[propPrecInherited];
-        if (inheritedProvider) {
-            if (providerPrecedence === propPrecInherited) {
-            } else {
-                if (_InheritedPropertyValueProvider.GetInheritable(this, propd) > 0
-                        && this._GetPropertyValueProvider(propd) < propPrecInherited) {
+        if (propd._Inheritable > 0) {
+            var propPrecInherited = _PropertyPrecedence.Inherited;
+            if (providerPrecedence !== propPrecInherited) {
+                // NOTE: We only propagate if inherited exists and has the highest priority in the bitmask
+                var inheritedProvider = this._Providers[propPrecInherited];
+                // GetPropertyValueProvider(propd) < _PropertyPrecedence.Inherited
+                if (inheritedProvider && ((this._ProviderBitmasks[propd._ID] & ((1 << propPrecInherited) - 1)) !== 0))
                     inheritedProvider.PropagateInheritedProperty(propd, this, this);
-                }
             }
         }
     }
@@ -616,18 +617,10 @@ DependencyObject.Instance._ProviderValueChanged = function (providerPrecedence, 
     //Needs clock tick..
 };
 DependencyObject.Instance._CallRecomputePropertyValueForProviders = function (propd, providerPrecedence, error) {
-    var count = _PropertyPrecedence.Count;
-    for (var i = 0; i < count; i++) {
+    for (var i = 0; i < providerPrecedence; i++) {
         var provider = this._Providers[i];
-        if (!provider)
-            continue;
-        if (i === providerPrecedence)
-            continue;
-
-        if (i < providerPrecedence && provider._RecomputesOnLower)
-            provider.RecomputePropertyValue(propd, true, false, false, error);
-        //else if (i > providerPrecedence && provider._RecomputesOnHigher)
-            //provider.RecomputePropertyValue(propd, false, true, false, error);
+        if (provider && provider.RecomputePropertyValueOnLowerr)
+            provider.RecomputePropertyValueOnLower(propd, error);
     }
 };
 DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {
@@ -643,7 +636,6 @@ DependencyObject.Instance._PropagateInheritedValue = function (inheritable, sour
 
     var error = new BError();
     this._ProviderValueChanged(propPrecInherited, propd, undefined, newValue, true, false, false, error);
-    return this._GetPropertyValueProvider(propd) === propPrecInherited;
 };
 DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
     var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
@@ -666,21 +658,6 @@ DependencyObject.Instance._SetInheritedValueSource = function (inheritable, sour
         this._ProviderBitmasks[propd._ID] = bitmask;
     }
     inheritedProvider._SetPropertySource(inheritable, source);
-};
-DependencyObject.Instance._GetPropertyValueProvider = function (propd) {
-    var propPrecEnum = _PropertyPrecedence;
-    var bitmask = this._ProviderBitmasks[propd._ID];
-    var lowest = propPrecEnum.Lowest;
-    for (var i = 0; i < lowest; i++) {
-        if (!(bitmask & (1 << i)))
-            continue;
-        return i;
-    }
-    if (propd._HasDefaultValue)
-        return propPrecEnum.DefaultValue;
-    if (propd._IsAutoCreated)
-        return propPrecEnum.AutoCreate;
-    return -1;
 };
 
 //#region Target
@@ -908,9 +885,6 @@ DependencyObject._UnregisterDONames = function (propd, value, fromNs) {
 
 //#region Parent Usage
 
-DependencyObject.Instance._GetParent = function () {
-    return this._Parent;
-};
 DependencyObject.Instance._PermitsMultipleParents = function () {
     return true;
 };
@@ -926,7 +900,7 @@ DependencyObject.Instance._AddParent = function (parent, mergeNamesFromSubtree, 
             Warn("DependencyObject._AddParent - Cycle found.");
             return;
         }
-        current = current._GetParent();
+        current = current._Parent;
     }
 
     if (this._Parent && !this._PermitsMultipleParents()) {

@@ -7,7 +7,7 @@ var TransformGroup = Nullstone.Create("TransformGroup", Transform);
 
 //#region Properties
 
-TransformGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return TransformCollection; }, TransformGroup);
+TransformGroup.ChildrenProperty = DependencyProperty.RegisterCore("Children", function () { return TransformCollection; }, TransformGroup);
 
 Nullstone.AutoProperties(TransformGroup, [
     TransformGroup.ChildrenProperty

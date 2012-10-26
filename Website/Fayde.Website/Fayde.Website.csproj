@@ -38,6 +38,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\ThirdParty\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -55,6 +58,12 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
+    <Reference Include="WickedSick.Server.Framework.Fayde">
+      <HintPath>..\ThirdParty\WickedSick.Server.Framework.Fayde.dll</HintPath>
+    </Reference>
+    <Reference Include="WickedSick.Server.XamlParser">
+      <HintPath>..\ThirdParty\WickedSick.Server.XamlParser.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\features_list.xml">
@@ -73,8 +82,14 @@
     <Content Include="contribute.aspx" />
     <Content Include="App_Themes\default\images\bg.jpg" />
     <Content Include="demo.aspx" />
+    <Content Include="demos\stackoverflow\default.fayde.js" />
+    <Content Include="download.aspx" />
     <Content Include="features.aspx" />
+    <Content Include="gettingstarted.aspx" />
     <Content Include="home.aspx" />
+    <Content Include="qa.aspx" />
+    <Content Include="scripts\Fayde.Generic.js" />
+    <Content Include="scripts\Fayde.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -106,12 +121,29 @@
     <Compile Include="demo.aspx.designer.cs">
       <DependentUpon>demo.aspx</DependentUpon>
     </Compile>
+    <Compile Include="demos\stackoverflow\so.ashx.cs">
+      <DependentUpon>so.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="download.aspx.cs">
+      <DependentUpon>download.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="download.aspx.designer.cs">
+      <DependentUpon>download.aspx</DependentUpon>
+    </Compile>
     <Compile Include="features.aspx.cs">
       <DependentUpon>features.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="features.aspx.designer.cs">
       <DependentUpon>features.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="gettingstarted.aspx.cs">
+      <DependentUpon>gettingstarted.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="gettingstarted.aspx.designer.cs">
+      <DependentUpon>gettingstarted.aspx</DependentUpon>
     </Compile>
     <Compile Include="home.aspx.cs">
       <DependentUpon>home.aspx</DependentUpon>
@@ -121,9 +153,23 @@
       <DependentUpon>home.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="qa.aspx.cs">
+      <DependentUpon>qa.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="qa.aspx.designer.cs">
+      <DependentUpon>qa.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="default.Master" />
+    <Content Include="demos\stackoverflow\default.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="demos\stackoverflow\default.fayde">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="demos\stackoverflow\so.ashx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -144,6 +190,9 @@
       <Project>{00ec9b3b-049a-4c6e-9a99-3cc9b0c5e61b}</Project>
       <Name>Fayde.Website.MVVM</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="drops\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

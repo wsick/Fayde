@@ -230,21 +230,21 @@ ItemsControl.Instance.OnItemContainerGeneratorChanged = function (sender, e) {
         return;
 
     var panel = this._Presenter._ElementRoot;
-    switch (e.GetAction()) {
+    switch (e.Action) {
         case NotifyCollectionChangedAction.Reset:
             var count = panel.Children.GetCount();
             if (count > 0)
                 this.RemoveItemsFromPresenter(0, 0, count);
             break;
         case NotifyCollectionChangedAction.Add:
-            this.AddItemsToPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
+            this.AddItemsToPresenter(e.Position.index, e.Position.offset, e.ItemCount);
             break;
         case NotifyCollectionChangedAction.Remove:
-            this.RemoveItemsFromPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
+            this.RemoveItemsFromPresenter(e.Position.index, e.Position.offset, e.ItemCount);
             break;
         case NotifyCollectionChangedAction.Replace:
-            this.RemoveItemsFromPresenter(e.PositionIndex, e.PositionOffset, e.ItemCount);
-            this.AddItemsToPresenter(e.Position, e.ItemCount);
+            this.RemoveItemsFromPresenter(e.Position.index, e.Position.offset, e.ItemCount);
+            this.AddItemsToPresenter(e.Position.index, e.Position.offset, e.ItemCount);
             break;
     }
 };
@@ -280,7 +280,7 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
     var items = this.Items;
     var children = panel.Children;
     for (var i = 0; i < count; i++) {
-        var item = items.GetValueAt(newIndex + 1);
+        var item = items.GetValueAt(newIndex + i);
         var container = this._ItemContainerGenerator.GenerateNext({});
         if (container instanceof ContentControl)
             container._ContentSetsParent = false;
@@ -291,6 +291,7 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
         children.Insert(newIndex + i, container);
         this._ItemContainerGenerator.PrepareItemContainer(container);
     }
+    delete this._ItemContainerGenerator._GenerationState;
 };
 ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
     if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)

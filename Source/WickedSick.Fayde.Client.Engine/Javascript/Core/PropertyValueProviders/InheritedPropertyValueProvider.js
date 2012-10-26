@@ -83,7 +83,6 @@ _InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, elemen
         this.MaybePropagateInheritedValue(context.FlowDirectionSource, inhEnum.FlowDirection, props, element);
         this.MaybePropagateInheritedValue(context.UseLayoutRoundingSource, inhEnum.UseLayoutRounding, props, element);
         this.MaybePropagateInheritedValue(context.TextDecorationsSource, inhEnum.TextDecorations, props, element);
-        this.MaybePropagateInheritedValue(context.FontResourceSource, inhEnum.FontResource, props, element);
 
         var eleContext = _InheritedContext.FromObject(element, context);
 
@@ -105,7 +104,6 @@ _InheritedPropertyValueProvider.Instance.WalkTree = function (rootParent, elemen
         this.MaybeRemoveInheritedValue(context.FlowDirectionSource, inhEnum.FlowDirection, props, element);
         this.MaybeRemoveInheritedValue(context.UseLayoutRoundingSource, inhEnum.UseLayoutRounding, props, element);
         this.MaybeRemoveInheritedValue(context.TextDecorationsSource, inhEnum.TextDecorations, props, element);
-        this.MaybeRemoveInheritedValue(context.FontResourceSource, inhEnum.FontResource, props, element);
 
         props = eleContext2.Compare(context, props);
         if (props === inhEnum.None)
@@ -144,8 +142,7 @@ _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToT
             this._GetPropertySource(inhEnum.Language),
             this._GetPropertySource(inhEnum.FlowDirection),
             this._GetPropertySource(inhEnum.UseLayoutRounding),
-            this._GetPropertySource(inhEnum.TextDecorations),
-            this._GetPropertySource(inhEnum.FontResource));
+            this._GetPropertySource(inhEnum.TextDecorations));
     var objContext = _InheritedContext.FromObject(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, inhEnum.All, true);
 };
@@ -168,15 +165,13 @@ _InheritedPropertyValueProvider.Instance.ClearInheritedPropertiesOnRemovingFromT
             this._GetPropertySource(inhEnum.Language),
             this._GetPropertySource(inhEnum.FlowDirection),
             this._GetPropertySource(inhEnum.UseLayoutRounding),
-            this._GetPropertySource(inhEnum.TextDecorations),
-            this._GetPropertySource(inhEnum.FontResource));
+            this._GetPropertySource(inhEnum.TextDecorations));
     var objContext = _InheritedContext.FromObject(this._Object, baseContext);
     this.WalkTree(this._Object, subtree, objContext, inhEnum.All, false);
 };
-_InheritedPropertyValueProvider.Instance._GetPropertySource = function (inheritableOrProp) {
-    if (inheritableOrProp instanceof DependencyProperty)
-        return this._ht[GetInheritableFromProperty(inheritableOrProp)];
-    return this._ht[inheritableOrProp];
+
+_InheritedPropertyValueProvider.Instance._GetPropertySource = function (inheritable) {
+    return this._ht[inheritable];
 };
 _InheritedPropertyValueProvider.Instance._SetPropertySource = function (inheritable, source) {
     if (source)
@@ -186,156 +181,25 @@ _InheritedPropertyValueProvider.Instance._SetPropertySource = function (inherita
 };
 
 _InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
-    var inh = propd._CachedInheritable;
-    if (inh == null) {
-        var inhProvider = _InheritedPropertyValueProvider;
-        inhProvider._InitializeMappings();
-        inh = inhProvider._PropertyToInheritable[propd._ID];
-        if (!inh) {
-            inh = 0;
-        } else if (propd.Name === "FlowDirection" && (obj instanceof Image || obj instanceof MediaElement)) {
-            inh = 0;
-        }
-
-        //don't cache this property, object type dependent
-        if (propd._ID !== FrameworkElement.FlowDirectionProperty._ID)
-            propd._CachedInheritable = inh;
-    }
+    var inh = propd._Inheritable || 0;
+    if (inh && propd.Name === "FlowDirection" && (obj instanceof Image || obj instanceof MediaElement))
+        inh = 0;
     return inh;
 };
-
 _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
-    var c = Control;
-    var tb = TextBlock;
-    var te = TextElement;
-    var fe = FrameworkElement;
-
-    var inhProvider = _InheritedPropertyValueProvider;
-    inhProvider._InitializeMappings();
-    var propdGroup = inhProvider._InheritableToProperty[inheritable];
-    if (!propdGroup)
-        return undefined;
-    for (var typeID in propdGroup) {
-        var propd = propdGroup[typeID];
-        if (!propd) {
-            if (ancestor instanceof Fayde.Image || ancestor instanceof MediaElement)
-                return null;
-            continue;
-        }
+    var list = DependencyProperty._Inherited[inheritable];
+    if (!list)
+        return;
+    
+    var len = list.length;
+    if (len > 0 && list[0].Name === "FlowDirection") {
+        if (ancestor instanceof Fayde.Image || ancestor instanceof MediaElement)
+            return;
+    }
+    for (var i = 0; i < len; i++) {
+        var propd = list[i];
         if (ancestor instanceof propd.OwnerType)
             return propd;
-    }
-    return null;
-};
-
-_InheritedPropertyValueProvider._InitializeMappings = function () {
-    var inhProvider = _InheritedPropertyValueProvider;
-    if (!inhProvider._InheritableToProperty) {
-        var inhEnum = _Inheritable;
-
-        var c = Control;
-        var tb = TextBlock;
-        var te = TextElement;
-        var fe = FrameworkElement;
-        var r = Run;
-        var uie = UIElement;
-
-        var cKey = c._TypeID;
-        var tbKey = tb._TypeID;
-        var teKey = te._TypeID;
-        var feKey = fe._TypeID;
-
-        var itp = {};
-
-        var cur = {};
-        cur[cKey] = c.ForegroundProperty;
-        cur[tbKey] = tb.ForegroundProperty;
-        cur[teKey] = te.ForegroundProperty;
-        itp[inhEnum.Foreground] = cur;
-
-        var cur = {};
-        cur[cKey] = c.FontFamilyProperty;
-        cur[tbKey] = tb.FontFamilyProperty;
-        cur[teKey] = te.FontFamilyProperty;
-        itp[inhEnum.FontFamily] = cur;
-
-        var cur = {};
-        cur[cKey] = c.FontStretchProperty;
-        cur[tbKey] = tb.FontStretchProperty;
-        cur[teKey] = te.FontStretchProperty;
-        itp[inhEnum.FontStretch] = cur;
-
-        var cur = {};
-        cur[cKey] = c.FontStyleProperty;
-        cur[tbKey] = tb.FontStyleProperty;
-        cur[teKey] = te.FontStyleProperty;
-        itp[inhEnum.FontStyle] = cur;
-
-        var cur = {};
-        cur[cKey] = c.FontWeightProperty;
-        cur[tbKey] = tb.FontWeightProperty;
-        cur[teKey] = te.FontWeightProperty;
-        itp[inhEnum.FontWeight] = cur;
-
-        var cur = {};
-        cur[cKey] = c.FontSizeProperty;
-        cur[tbKey] = tb.FontSizeProperty;
-        cur[teKey] = te.FontSizeProperty;
-        itp[inhEnum.FontSize] = cur;
-
-        var cur = {};
-        cur[tbKey] = tb.TextDecorationsProperty;
-        cur[teKey] = te.TextDecorationsProperty;
-        itp[inhEnum.TextDecorations] = cur;
-
-        var cur = {};
-        cur[teKey] = te.LanguageProperty;
-        cur[feKey] = fe.LanguageProperty;
-        itp[inhEnum.Language] = cur;
-
-        var cur = {};
-        cur[tbKey] = tb.FontResourceProperty;
-        cur[teKey] = te.FontResourceProperty;
-        itp[inhEnum.FontResource] = cur;
-
-        var cur = {};
-        cur[Fayde.Image._TypeID] = null;
-        cur[MediaElement._TypeID] = null;
-        cur[feKey] = fe.FlowDirectionProperty;
-        cur[r._TypeID] = r.FlowDirectionProperty;
-        itp[inhEnum.FlowDirection] = cur;
-
-        var cur = {};
-        cur[uie._TypeID] = uie.UseLayoutRoundingProperty;
-        itp[inhEnum.UseLayoutRounding] = cur;
-
-        inhProvider._InheritableToProperty = itp;
-    }
-    if (!inhProvider._PropertyToInheritable) {
-        var c = Control;
-        var tb = TextBlock;
-        var te = TextElement;
-        var fe = FrameworkElement;
-        var r = Run;
-        var uie = UIElement;
-
-        var inhEnum = _Inheritable;
-
-        var pti = {};
-
-        pti[c.ForegroundProperty._ID] = pti[tb.ForegroundProperty._ID] = pti[te.ForegroundProperty._ID] = inhEnum.Foreground;
-        pti[c.FontFamilyProperty._ID] = pti[tb.FontFamilyProperty._ID] = pti[te.FontFamilyProperty._ID] = inhEnum.FontFamily;
-        pti[c.FontStretchProperty._ID] = pti[tb.FontStretchProperty._ID] = pti[te.FontStretchProperty._ID] = inhEnum.FontStretch;
-        pti[c.FontStyleProperty._ID] = pti[tb.FontStyleProperty._ID] = pti[te.FontStyleProperty._ID] = inhEnum.FontStyle;
-        pti[c.FontWeightProperty._ID] = pti[tb.FontWeightProperty._ID] = pti[te.FontWeightProperty._ID] = inhEnum.FontWeight;
-        pti[c.FontSizeProperty._ID] = pti[tb.FontSizeProperty._ID] = pti[te.FontSizeProperty._ID] = inhEnum.FontSize;
-        pti[tb.TextDecorationsProperty._ID] = pti[te.TextDecorationsProperty._ID] = inhEnum.TextDecorations;
-        pti[tb.FontResourceProperty._ID] = pti[te.FontResourceProperty._ID] = inhEnum.FontResource;
-        pti[te.LanguageProperty._ID] = pti[fe.LanguageProperty._ID] = inhEnum.Language;
-        pti[fe.FlowDirectionProperty._ID] = pti[r.FlowDirectionProperty._ID] = inhEnum.FlowDirection;
-        pti[uie.UseLayoutRoundingProperty._ID] = inhEnum.UseLayoutRounding;
-
-        inhProvider._PropertyToInheritable = pti;
     }
 };
 

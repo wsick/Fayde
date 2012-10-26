@@ -8,7 +8,7 @@ var DoubleAnimationUsingKeyFrames = Nullstone.Create("DoubleAnimationUsingKeyFra
 
 //#region Properties
 
-DoubleAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return DoubleKeyFrameCollection; }, DoubleAnimationUsingKeyFrames, undefined, { GetValue: function () { return new DoubleKeyFrameCollection(); } });
+DoubleAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return DoubleKeyFrameCollection; }, DoubleAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new DoubleKeyFrameCollection(); } });
 
 Nullstone.AutoProperties(DoubleAnimationUsingKeyFrames, [
     DoubleAnimationUsingKeyFrames.KeyFramesProperty

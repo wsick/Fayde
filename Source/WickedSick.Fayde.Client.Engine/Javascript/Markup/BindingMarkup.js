@@ -25,6 +25,8 @@ BindingMarkup.Instance._BuildBinding = function () {
         b.FallbackValue = this._Data.FallbackValue;
     if (this._Data.Mode !== undefined)
         b.Mode = this._Data.Mode;
+    if (this._Data.StringFormat !== undefined)
+        b.StringFormat = this._Data.StringFormat;
     return b;
 };
 

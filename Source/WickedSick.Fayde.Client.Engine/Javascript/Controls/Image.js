@@ -20,7 +20,7 @@ Fayde.Image.Instance.Init = function () {
 
 //#region Properties
 
-Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+Fayde.Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Fayde.Image, undefined, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
 // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
 Fayde.Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Fayde.Image, Stretch.Uniform);
 

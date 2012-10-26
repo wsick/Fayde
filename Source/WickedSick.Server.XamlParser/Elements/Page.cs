@@ -1,7 +1,8 @@
-﻿
+﻿using WickedSick.Server.XamlParser.Elements.Controls;
+
 namespace WickedSick.Server.XamlParser.Elements
 {
-    public class Page : FrameworkElement
+    public class Page : UserControl
     {
         public static readonly PropertyDescription TitleProperty = PropertyDescription.Register("Title", typeof(string), typeof(Page));
         public string Title
@@ -10,11 +11,17 @@ namespace WickedSick.Server.XamlParser.Elements
             set { SetValue("Title", value); }
         }
 
-        public static readonly PropertyDescription ContentProperty = PropertyDescription.Register("Content", typeof(UIElement), typeof(Page), true);
-        public UIElement Content
+        private string _DynamicType;
+        public void InjectJavascriptType(string js)
         {
-            get { return GetValue("Content") as UIElement; }
-            set { SetValue("Content", value); }
+            _DynamicType = js;
+        }
+
+        protected override string GetTypeName()
+        {
+            if (string.IsNullOrWhiteSpace(_DynamicType))
+                return base.GetTypeName();
+            return _DynamicType;
         }
     }
 }

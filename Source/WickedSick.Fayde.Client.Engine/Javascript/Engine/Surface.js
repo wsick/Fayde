@@ -12,6 +12,8 @@
 /// <reference path="../Core/Input/KeyCodes.js"/>
 /// <reference path="../Core/Input/Keyboard.js"/>
 /// <reference path="../Core/Input/Enums.js"/>
+/// <reference path="../Runtime/KeyInterop.js"/>
+/// <reference path="../Runtime/JsEx.js"/>
 
 //#region Surface
 var Surface = Nullstone.Create("Surface", undefined, 1);
@@ -26,13 +28,14 @@ Surface.Instance.Init = function (app) {
     if (Surface._Invalidations == null)
         Surface._Invalidations = [];
     this.LayoutUpdated = new MulticastEvent();
+    this._KeyInterop = KeyInterop.CreateInterop(this);
 };
 
 //#region Initialization
 
 Surface.Instance.Register = function (canvas, width, widthType, height, heightType) {
     Surface._TestCanvas = document.createElement('canvas');
-    this._Layers = new Collection();
+    this._Layers = [];
     this._DownDirty = new _DirtyList("Down");
     this._UpDirty = new _DirtyList("Up");
 
@@ -70,15 +73,7 @@ Surface.Instance.RegisterEvents = function () {
     //Firefox
     canvas.addEventListener("DOMMouseScroll", function (e) { surface._HandleWheel(window.event ? window.event : e); });
 
-    document.onkeypress = function (e) { surface._HandleKeyPress(window.event ? window.event : e); };
-    document.onkeydown = function (e) {
-        e = window.event ? window.event : e;
-        var key = _KeyFromKeyCode[e.keyCode];
-        if (key === Key.Back || key === Key.Delete) { //backspace or delete
-            surface._HandleKeyPress(e);
-            return false;
-        }
-    };
+    this._KeyInterop.RegisterEvents();
 };
 Surface.Instance._Attach = function (element) {
     /// <param name="element" type="UIElement"></param>
@@ -107,15 +102,17 @@ Surface.Instance._Attach = function (element) {
 Surface.Instance._AttachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
     if (Nullstone.RefEquals(layer, this._TopLevel))
-        this._Layers.Insert(0, layer);
+        this._Layers.splice(0, 0, layer);
     else
-        this._Layers.Add(layer);
+        this._Layers.push(layer);
 
     DirtyDebug("AttachLayer");
     layer._FullInvalidate(true);
     layer._InvalidateMeasure();
     layer._SetIsAttached(true);
     layer._SetIsLoaded(true);
+
+    this._App._NotifyDebugLayer(true, layer);
 };
 Surface.Instance._DetachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
@@ -137,11 +134,13 @@ Surface.Instance._DetachLayer = function (layer) {
             this._FocusElement();
     }
 
-    this._Layers.Remove(layer);
+    Array.removeNullstone(this._Layers, layer);
     layer._SetIsLoaded(false);
     layer._SetIsAttached(false);
 
     this._Invalidate(layer._GetSubtreeBounds());
+
+    this._App._NotifyDebugLayer(false, layer);
 };
 Surface.Instance._InitializeCanvas = function (canvas, width, widthType, height, heightType) {
     var resizesWithWindow = false;
@@ -249,17 +248,16 @@ Surface.Instance.Render = function (region) {
     if (isRenderPassTimed = (this._App._DebugFunc[4] != null))
         startRenderTime = new Date().getTime();
 
-    var ctx = new _RenderContext(this);
-
     var layers = this._Layers;
-    var layerCount = layers ? layers.GetCount() : 0;
+    var layerCount = layers ? layers.length : 0;
 
+    RenderDebug.Count = 0;
+    var ctx = new _RenderContext(this);
     ctx.Clear(region);
     ctx.CanvasContext.save();
     ctx.Clip(region);
-    RenderDebug.Count = 0;
     for (var i = 0; i < layerCount; i++) {
-        layers.GetValueAt(i)._DoRender(ctx, region);
+        layers[i]._DoRender(ctx, region);
     }
     ctx.CanvasContext.restore();
     RenderDebug("UIElement Count: " + RenderDebug.Count);
@@ -275,22 +273,26 @@ Surface.Instance.Render = function (region) {
 Surface.Instance.ProcessDirtyElements = function () {
     var error = new BError();
     var dirty = this._UpdateLayout(error);
-    if (error.IsErrored()) {
+    if (error.IsErrored())
         throw error.CreateException();
-    }
-    return dirty;
+    if (!dirty)
+        return false;
+    this.LayoutUpdated.Raise(this, new EventArgs());
+    return true;
 };
 Surface.Instance._UpdateLayout = function (error) {
-    if (!this._Layers)
+    var startTime;
+    var layers = this._Layers;
+    if (!layers)
         return false;
     var pass = new LayoutPass();
     var dirty = false;
-    pass._Updated = true;
+    pass.Updated = true;
     var updatedLayout = false;
-    while (pass._Count < LayoutPass.MaxCount && pass._Updated) {
-        pass._Updated = false;
-        for (var i = 0; i < this._Layers.GetCount(); i++) {
-            var layer = this._Layers.GetValueAt(i);
+    while (pass.Count < LayoutPass.MaxCount && pass.Updated) {
+        pass.Updated = false;
+        for (var i = 0; i < layers.length; i++) {
+            var layer = layers[i];
             var element = layer;
             if (!element._HasFlag(UIElementFlags.DirtyMeasureHint) && !element._HasFlag(UIElementFlags.DirtyArrangeHint))
                 continue;
@@ -306,16 +308,24 @@ Surface.Instance._UpdateLayout = function (error) {
         }
 
         dirty = dirty || !this._DownDirty.IsEmpty() || !this._UpDirty.IsEmpty();
-        this._ProcessDownDirtyElements();
-        this._ProcessUpDirtyElements();
 
-        if (pass._Updated || dirty) {
+        //startTime = new Date().getTime();
+        this._ProcessDownDirtyElements();
+        //var elapsed = new Date().getTime() - startTime;
+        //if (elapsed > 0)
+        //DirtyDebug.DownTiming.push(elapsed);
+
+        //startTime = new Date().getTime();
+        this._ProcessUpDirtyElements();
+        //var elapsed = new Date().getTime() - startTime;
+        //if (elapsed > 0)
+        //DirtyDebug.UpTiming.push(elapsed);
+
+        if (pass.Updated || dirty)
             updatedLayout = true;
-            this.LayoutUpdated.Raise(this, new EventArgs());
-        }
     }
 
-    if (pass._Count >= LayoutPass.MaxCount) {
+    if (pass.Count >= LayoutPass.MaxCount) {
         if (error)
             error.SetErrored(BError.Exception, "UpdateLayout has entered infinite loop and has been aborted.");
     }
@@ -324,26 +334,32 @@ Surface.Instance._UpdateLayout = function (error) {
 };
 //Down --> RenderVisibility, HitTestVisibility, Transformation, Clip, ChildrenZIndices
 Surface.Instance._ProcessDownDirtyElements = function () {
-    var visualParent;
-    var uie;
     //var i = 0;
-    while (uie = this._DownDirty.GetFirst()) {
+    var node;
+    var dirtyEnum = _Dirty;
+    while (node = this._DownDirty.Head) {
+        var uie = node.UIElement;
+        var visualParent = uie.GetVisualParent();
+        if (visualParent && visualParent._DownDirtyNode != null) {
+            //OPTIMIZATION: uie is overzealous. His parent will invalidate him later
+            this._DownDirty.Remove(node);
+            this._DownDirty.InsertAfter(node, visualParent._DownDirtyNode);
+            continue;
+        }
+        //i++;
+        //DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
         /*
-        i++;
-        DirtyDebug("Down Dirty Loop #" + i.toString() + " --> " + this._DownDirty.__DebugToString());
-
         DirtyDebug.Level++;
         DirtyDebug("[" + uie.__DebugToString() + "]" + uie.__DebugDownDirtyFlags());
         */
 
-        if (uie._DirtyFlags & _Dirty.RenderVisibility) {
-            uie._DirtyFlags &= ~_Dirty.RenderVisibility;
+        if (uie._DirtyFlags & dirtyEnum.RenderVisibility) {
+            uie._DirtyFlags &= ~dirtyEnum.RenderVisibility;
 
             var ovisible = uie._GetRenderVisible();
 
             uie._UpdateBounds();
 
-            visualParent = uie.GetVisualParent();
             if (visualParent)
                 visualParent._UpdateBounds();
 
@@ -354,52 +370,51 @@ Surface.Instance._ProcessDownDirtyElements = function () {
                 uie._CacheInvalidateHint();
 
             if (ovisible !== uie._GetRenderVisible())
-                this._AddDirtyElement(uie, _Dirty.NewBounds);
+                this._AddDirtyElement(uie, dirtyEnum.NewBounds);
 
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.RenderVisibility);
+            this._PropagateDirtyFlagToChildren(uie, dirtyEnum.RenderVisibility);
         }
 
-        if (uie._DirtyFlags & _Dirty.HitTestVisibility) {
-            uie._DirtyFlags &= ~_Dirty.HitTestVisibility;
+        if (uie._DirtyFlags & dirtyEnum.HitTestVisibility) {
+            uie._DirtyFlags &= ~dirtyEnum.HitTestVisibility;
             uie._ComputeTotalHitTestVisibility();
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.HitTestVisibility);
+            this._PropagateDirtyFlagToChildren(uie, dirtyEnum.HitTestVisibility);
         }
 
-        if (uie._DirtyFlags & _Dirty.LocalTransform) {
-            uie._DirtyFlags &= ~_Dirty.LocalTransform;
-            uie._DirtyFlags |= _Dirty.Transform;
+        if (uie._DirtyFlags & dirtyEnum.LocalTransform) {
+            uie._DirtyFlags &= ~dirtyEnum.LocalTransform;
+            uie._DirtyFlags |= dirtyEnum.Transform;
             //DirtyDebug("ComputeLocalTransform: [" + uie.__DebugToString() + "]");
             uie._ComputeLocalTransform();
             //DirtyDebug("--> " + uie._LocalXform._Elements.toString());
         }
-        if (uie._DirtyFlags & _Dirty.LocalProjection) {
-            uie._DirtyFlags &= ~_Dirty.LocalProjection;
-            uie._DirtyFlags |= _Dirty.Transform;
+        if (uie._DirtyFlags & dirtyEnum.LocalProjection) {
+            uie._DirtyFlags &= ~dirtyEnum.LocalProjection;
+            uie._DirtyFlags |= dirtyEnum.Transform;
             //DirtyDebug("ComputeLocalProjection: [" + uie.__DebugToString() + "]");
             uie._ComputeLocalProjection();
         }
-        if (uie._DirtyFlags & _Dirty.Transform) {
-            uie._DirtyFlags &= ~_Dirty.Transform;
+        if (uie._DirtyFlags & dirtyEnum.Transform) {
+            uie._DirtyFlags &= ~dirtyEnum.Transform;
             //DirtyDebug("ComputeTransform: [" + uie.__DebugToString() + "]");
             uie._ComputeTransform();
             //DirtyDebug("--> " + uie._AbsoluteProjection._Elements.slice(0, 8).toString());
-            visualParent = uie.GetVisualParent();
             if (visualParent)
                 visualParent._UpdateBounds();
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.Transform);
+            this._PropagateDirtyFlagToChildren(uie, dirtyEnum.Transform);
         }
 
-        if (uie._DirtyFlags & _Dirty.LocalClip) {
-            uie._DirtyFlags &= ~_Dirty.LocalClip;
-            uie._DirtyFlags |= _Dirty.Clip;
+        if (uie._DirtyFlags & dirtyEnum.LocalClip) {
+            uie._DirtyFlags &= ~dirtyEnum.LocalClip;
+            uie._DirtyFlags |= dirtyEnum.Clip;
         }
-        if (uie._DirtyFlags & _Dirty.Clip) {
-            uie._DirtyFlags &= ~_Dirty.Clip;
-            this._PropagateDirtyFlagToChildren(uie, _Dirty.Clip);
+        if (uie._DirtyFlags & dirtyEnum.Clip) {
+            uie._DirtyFlags &= ~dirtyEnum.Clip;
+            this._PropagateDirtyFlagToChildren(uie, dirtyEnum.Clip);
         }
 
-        if (uie._DirtyFlags & _Dirty.ChildrenZIndices) {
-            uie._DirtyFlags &= ~_Dirty.ChildrenZIndices;
+        if (uie._DirtyFlags & dirtyEnum.ChildrenZIndices) {
+            uie._DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
             if (!(uie instanceof Panel)) {
                 Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
             } else {
@@ -408,9 +423,9 @@ Surface.Instance._ProcessDownDirtyElements = function () {
             }
         }
 
-        if (!(uie._DirtyFlags & _Dirty.DownDirtyState) && uie._IsInDownDirty) {
-            this._DownDirty.RemoveFirst();
-            uie._IsInDownDirty = false;
+        if (!(uie._DirtyFlags & dirtyEnum.DownDirtyState) && uie._DownDirtyNode != null) {
+            this._DownDirty.Remove(uie._DownDirtyNode);
+            delete uie._DownDirtyNode;
         }
 
         //DirtyDebug.Level--;
@@ -422,14 +437,25 @@ Surface.Instance._ProcessDownDirtyElements = function () {
 };
 //Up --> Bounds, Invalidation
 Surface.Instance._ProcessUpDirtyElements = function () {
-    var visualParent;
-    var uie;
     //var i = 0;
-    while (uie = this._UpDirty.GetFirst()) {
+    var node;
+    var dirtyEnum = _Dirty;
+    while (node = this._UpDirty.Head) {
+        var uie = node.UIElement;
+        var visualParent = uie.GetVisualParent();
+
+        var childNode = this._GetChildNodeInUpList(uie);
+        if (childNode) {
+            // OPTIMIZATION: Parent is overzealous, children will invalidate him
+            this._UpDirty.Remove(node);
+            this._UpDirty.InsertAfter(node, childNode);
+            continue;
+        }
+
         //i++;
         //DirtyDebug("Up Dirty Loop #" + i.toString() + " --> " + this._UpDirty.__DebugToString());
-        if (uie._DirtyFlags & _Dirty.Bounds) {
-            uie._DirtyFlags &= ~_Dirty.Bounds;
+        if (uie._DirtyFlags & dirtyEnum.Bounds) {
+            uie._DirtyFlags &= ~dirtyEnum.Bounds;
 
             var oextents = uie._GetSubtreeExtents();
             var oglobalbounds = uie._GetGlobalBounds();
@@ -438,7 +464,6 @@ Surface.Instance._ProcessUpDirtyElements = function () {
             uie._ComputeBounds();
 
             if (!Rect.Equals(oglobalbounds, uie._GetGlobalBounds())) {
-                visualParent = uie.GetVisualParent();
                 if (visualParent) {
                     visualParent._UpdateBounds();
                     visualParent._Invalidate(osubtreebounds);
@@ -456,19 +481,17 @@ Surface.Instance._ProcessUpDirtyElements = function () {
             }
         }
 
-        if (uie._DirtyFlags & _Dirty.NewBounds) {
-            visualParent = uie.GetVisualParent();
+        if (uie._DirtyFlags & dirtyEnum.NewBounds) {
             if (visualParent)
                 visualParent._Invalidate(uie._GetSubtreeBounds());
             else if (this._IsTopLevel(uie))
                 uie._InvalidateSubtreePaint();
-            uie._DirtyFlags &= ~_Dirty.NewBounds;
+            uie._DirtyFlags &= ~dirtyEnum.NewBounds;
         }
 
-        if (uie._DirtyFlags & _Dirty.Invalidate) {
-            uie._DirtyFlags &= ~_Dirty.Invalidate;
+        if (uie._DirtyFlags & dirtyEnum.Invalidate) {
+            uie._DirtyFlags &= ~dirtyEnum.Invalidate;
             var dirty = uie._DirtyRegion;
-            visualParent = uie.GetVisualParent();
             if (visualParent) {
                 visualParent._Invalidate(dirty);
             } else {
@@ -486,9 +509,9 @@ Surface.Instance._ProcessUpDirtyElements = function () {
             uie._DirtyRegion = new Rect();
         }
 
-        if (!(uie._DirtyFlags & _Dirty.UpDirtyState)) {
-            this._UpDirty.RemoveFirst();
-            uie._IsInUpDirty = false;
+        if (!(uie._DirtyFlags & dirtyEnum.UpDirtyState) && uie._UpDirtyNode != null) {
+            this._UpDirty.Remove(uie._UpDirtyNode);
+            delete uie._UpDirtyNode;
         }
     }
 
@@ -519,40 +542,47 @@ Surface.Instance._AddDirtyElement = function (element, dirt) {
 
     element._DirtyFlags |= dirt;
 
-    if (dirt & _Dirty.DownDirtyState) {
-        if (element._IsInDownDirty)
-            return;
-        element._IsInDownDirty = true
-        this._DownDirty.Add(element);
-    }
-    if (dirt & _Dirty.UpDirtyState) {
-        if (element._IsInUpDirty)
-            return;
-        element._IsInUpDirty = true;
-        this._UpDirty.Add(element);
-    }
+    if (dirt & _Dirty.DownDirtyState && element._DownDirtyNode == null)
+        element._DownDirtyNode = this._DownDirty.Append({ UIElement: element });
+    if (dirt & _Dirty.UpDirtyState && element._UpDirtyNode == null)
+        element._UpDirtyNode = this._UpDirty.Append({ UIElement: element });
     //this._Invalidate();
 };
-Surface.Instance._RemoveDirtyElement = function (element) {
-    /// <param name="element" type="UIElement"></param>
-    if (element._IsInUpDirty)
-        this._UpDirty.Remove(element);
-    if (element._IsInDownDirty)
-        this._DownDirty.Remove(element);
-    element._IsInUpDirty = false;
-    element._IsInDownDirty = false;
+Surface.Instance._RemoveDirtyElement = function (uie) {
+    /// <param name="uie" type="UIElement"></param>
+    if (uie._UpDirtyNode != null) {
+        this._UpDirty.Remove(uie._UpDirtyNode);
+        delete uie._UpDirtyNode;
+    }
+    if (uie._DownDirtyNode != null) {
+        this._DownDirty.Remove(uie._DownDirtyNode);
+        delete uie._DownDirtyNode;
+    }
 };
 Surface.Instance._IsTopLevel = function (top) {
     /// <param name="top" type="UIElement"></param>
     if (!top || !this._Layers)
         return false;
-    var ret = false; //TODO: full-screen message
-    var count = this._Layers.GetCount();
-    for (var i = 0; i < count && !ret; i++) {
-        var layer = this._Layers.GetValueAt(i);
-        ret = Nullstone.RefEquals(top, layer);
+    //TODO: full-screen message
+    return Array.containsNullstone(this._Layers, top);
+};
+Surface.Instance._GetChildNodeInUpList = function (uie) {
+    var subtree = uie._SubtreeObject;
+    if (!subtree)
+        return;
+
+    if (subtree instanceof UIElement)
+        return subtree._UpDirtyNode;
+
+    if (subtree instanceof UIElementCollection) {
+        var children = subtree._ht;
+        var len = children.length;
+        for (var i = 0; i < len; i++) {
+            var child = children[i];
+            if (child._UpDirtyNode != null)
+                return child._UpDirtyNode;
+        }
     }
-    return ret;
 };
 
 //#endregion
@@ -640,11 +670,11 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, delta, emitLea
         var ctx = new _RenderContext(this);
         var newInputList = new LinkedList();
         var layers = this._Layers;
-        var layerCount = layers.GetCount();
+        var layerCount = layers.length;
 
         var startTime = new Date().getTime();
         for (var i = layerCount - 1; i >= 0 && newInputList.IsEmpty(); i--) {
-            var layer = layers.GetValueAt(i);
+            var layer = layers[i];
             layer._HitTestPoint(ctx, pos, newInputList);
         }
 
@@ -761,39 +791,34 @@ Surface.Instance._PerformReleaseCapture = function () {
 
 //#region Keyboard
 
-Surface.Instance._HandleKeyPress = function (eve) {
+Surface.Instance._HandleKeyDown = function (args) {
     this._SetUserInitiatedEvent(true);
-    Keyboard.RefreshModifiers(eve);
+    Keyboard.RefreshModifiers(args);
     var handled = false;
     if (this._FocusedElement != null) {
         var focusToRoot = Surface._ElementPathToRoot(this._FocusedElement);
-        var modifiers = {
-            Shift: eve.shiftKey,
-            Ctrl: eve.ctrlKey,
-            Alt: eve.altKey
-        };
-        handled = this._EmitKeyDown(focusToRoot, modifiers, eve.keyCode);
+        handled = this._EmitKeyDown(focusToRoot, args);
     }
-    var key = _KeyFromKeyCode[eve.keyCode];
-    if (!handled && key === Key.Tab) { //Tab
+
+    if (!handled && args.Key === Key.Tab) {
         if (this._FocusedElement != null)
-            TabNavigationWalker.Focus(this._FocusedElement, eve.shiftKey);
+            TabNavigationWalker.Focus(this._FocusedElement, args.Shift);
         else
             this._EnsureElementFocused();
     }
     this._SetUserInitiatedEvent(false);
     return handled;
 };
-Surface.Instance._EmitKeyDown = function (list, modifiers, keyCode, endIndex) {
+Surface.Instance._EmitKeyDown = function (list, args, endIndex) {
     if (endIndex === 0)
         return;
     if (!endIndex || endIndex === -1)
         endIndex = list._Count;
     var i = 0;
-    var args = new KeyEventArgs(modifiers, keyCode);
     for (var node = list.Head; node && i < endIndex; node = node.Next, i++) {
         node.UIElement._EmitKeyDown(args);
     }
+    return args.Handled;
 };
 
 //#endregion
@@ -812,10 +837,10 @@ Surface.Instance._HandleResizeTimeout = function (evt) {
     this._ResizeCanvas();
 
     var layers = this._Layers;
-    var layersCount = layers.GetCount();
+    var layersCount = layers.length;
     var layer;
     for (var i = 0; i < layersCount; i++) {
-        layer = layers.GetValueAt(i);
+        layer = layers[i];
         //layer._FullInvalidate(true);
         layer._InvalidateMeasure();
     }
@@ -860,7 +885,7 @@ Surface.Instance._RemoveFocus = function (uie) {
 };
 Surface.Instance._EnsureElementFocused = function () {
     if (!this._FocusedElement) {
-        var last = this._Layers.GetCount() - 1;
+        var last = this._Layers.length - 1;
         for (var i = last; i >= 0; i--) {
             if (TabNavigationWalker.Focus(layers.GetValueAt(i)))
                 break;

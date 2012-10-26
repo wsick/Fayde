@@ -10,10 +10,10 @@ Polyline.Instance.Init = function () {
     this.Init$Shape();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
-Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, undefined, { GetValue: function () { return new PointCollection(); } });
+Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, undefined, undefined, { GetValue: function () { return new PointCollection(); } });
 
 Nullstone.AutoProperties(Polyline, [
     Polyline.FillRuleProperty

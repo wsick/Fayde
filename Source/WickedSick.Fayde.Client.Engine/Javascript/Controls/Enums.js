@@ -19,13 +19,6 @@ var _TextBoxEmitChanged = {
     TEXT: 1 << 1
 };
 
-var Stretch = {
-    Fill: 0,
-    None: 1,
-    Uniform: 2,
-    UniformToFill: 3
-};
-
 var ScrollBarVisibility = {
     Disabled: 0,
     Auto: 1,
@@ -45,4 +38,15 @@ var SelectionMode = {
     Single: 0,
     Multiple: 1,
     Extended: 2
+};
+
+var MediaElementState = {
+    Closed: 0,
+    Opening: 1,
+    //Individualizing: 2,
+    //AcquiringLicense: 3,
+    Buffering: 4,
+    Playing: 5,
+    Paused: 6,
+    Stopped: 7
 };

@@ -70,6 +70,7 @@
     <Content Include="Benchmarks\Matrix\test.html" />
     <None Include="Fayde.Generic.js.old" />
     <Content Include="Docs\DebugServices.txt" />
+    <Content Include="Docs\Notes.txt" />
     <Content Include="Docs\Plugins.txt" />
     <Content Include="Fayde.Generic.js" />
     <Content Include="Fayde.js" />
@@ -146,6 +147,8 @@
     <Content Include="Javascript\Core\EventTrigger.js" />
     <Content Include="Javascript\Core\Input\Enums.js" />
     <Content Include="Javascript\Core\Input\Keyboard.js" />
+    <Content Include="Javascript\Core\Input\KeyboardNavigation.js" />
+    <Content Include="Javascript\Runtime\KeyInterop.js" />
     <Content Include="Javascript\Core\Input\KeyCodes.js" />
     <Content Include="Javascript\Core\ISupportInitialize.js" />
     <Content Include="Javascript\Core\ResourceTarget.js" />
@@ -322,7 +325,6 @@
     <Content Include="Javascript\Documents\Span.js" />
     <Content Include="Javascript\Documents\TextElementCollection.js" />
     <Content Include="Javascript\Engine\ClockTimer.js" />
-    <Content Include="Javascript\Engine\DirtyNode.js" />
     <Content Include="Javascript\Engine\FocusChangedNode.js" />
     <Content Include="Javascript\Engine\RenderContext.js" />
     <Content Include="Javascript\Markup\BindingMarkup.js" />
@@ -466,6 +468,7 @@
     <Content Include="Styles\Thumb.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Javascript\tsc-all.bat" />
     <None Include="jsTestDriver.conf" />
     <Content Include="Silo\heightTest.htm" />
     <Content Include="Docs\Tips.txt" />

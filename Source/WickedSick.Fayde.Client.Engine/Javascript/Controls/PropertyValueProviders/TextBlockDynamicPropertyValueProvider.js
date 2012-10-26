@@ -10,12 +10,14 @@ _TextBlockDynamicPropertyValueProvider.Instance.Init = function (obj, propPreced
     this._TextValue = null;
 };
 _TextBlockDynamicPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    if (propd == TextBlock.BaselineOffsetProperty) {
+    //TODO: Implement TextBlock.BaselineOffsetProperty
+    /*
+    if (propd._ID === TextBlock.BaselineOffsetProperty._ID) {
         var layout = this._Object._Layout;
-        if (!layout)
-            return 0;
-        return layout.GetBaselineOffset();
+        this._BaselineOffsetValue = (!layout) ? 0 : layout.GetBaselineOffset();
+        return this._BaselineOffsetValue;
     }
+    */
     return this.GetPropertyValue$FrameworkElementPropertyValueProvider(propd);
 };
 

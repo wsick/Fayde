@@ -10,13 +10,15 @@ using WickedSick.Thea.VisualStudioInterop;
 
 namespace WickedSick.Thea.Helpers
 {
-    public class FaydeInterop
+    public class FaydeInterop : IJavascriptContext
     {
         private static readonly string INITIALIZATION_SCRIPT = "(function() { var fi = new FaydeInterop(App.Instance); return fi._ID; })();";
 
         private Browser _Browser;
         private int? _ID = null;
         private VisualStudioInstance _VSI;
+
+        public int? ID { get { return _ID; } }
 
         public FaydeInterop(Browser browser)
         {
@@ -26,6 +28,15 @@ namespace WickedSick.Thea.Helpers
             if (int.TryParse(_Browser.Eval(INITIALIZATION_SCRIPT), out id))
                 _ID = id;
         }
+
+        public bool IsCacheInvalidated
+        {
+            get
+            {
+                return Eval(string.Format("FaydeInterop.Reg[{0}]._InvalidatedCache", this._ID)) == "true";
+            }
+        }
+
 
         public IEnumerable<VisualViewModel> GetVisualTree()
         {
@@ -133,7 +144,7 @@ namespace WickedSick.Thea.Helpers
 
         #region Execution Wrapper
 
-        private void RunScript(string script)
+        public void Execute(string script)
         {
             if (_VSI != null && _VSI.IsDebugging)
             {
@@ -150,7 +161,7 @@ namespace WickedSick.Thea.Helpers
             _Browser.RunScript(script);
         }
 
-        private string Eval(string expression)
+        public string Eval(string expression)
         {
             if (_VSI != null && _VSI.IsDebugging)
             {
@@ -190,13 +201,13 @@ namespace WickedSick.Thea.Helpers
             using (var sr = new StreamReader(jsStream))
             {
                 var js = sr.ReadToEnd();
-                RunScript(js);
+                Execute(js);
             }
         }
 
         private string GetJsCodeToGetVisual(VisualViewModel vvm)
         {
-            return string.Format("FaydeInterop.Reg[{0}]._Cache{1}.Visual", this._ID, vvm.IndexPath);
+            return vvm.ResolveVisualWithJavascript((int)this._ID);
         }
 
         private string RunFunc(string functionName, string args = null)

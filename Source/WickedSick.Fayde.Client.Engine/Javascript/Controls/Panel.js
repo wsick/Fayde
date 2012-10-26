@@ -6,7 +6,7 @@
 //#region Panel
 var Panel = Nullstone.Create("Panel", FrameworkElement);
 
-//#region Dependency Properties
+//#region Properties
 
 Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
 Panel._CreateChildren = {
@@ -18,7 +18,7 @@ Panel._CreateChildren = {
         return col;
     }
 };
-Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, undefined, Panel._CreateChildren);
+Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, undefined, undefined, Panel._CreateChildren);
 Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
 
 Nullstone.AutoProperties(Panel, [
@@ -54,12 +54,6 @@ Panel.Instance._ComputeBounds = function () {
 
     this._ComputeGlobalBounds();
     this._ComputeSurfaceBounds();
-};
-Panel.Instance._GetCoverageBounds = function () {
-    var background = this.Background;
-    if (background && background.IsOpaque())
-        return this._Bounds;
-    return new Rect();
 };
 Panel.Instance._ShiftPosition = function (point) {
     var dx = point.X - this._Bounds.X;

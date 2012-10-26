@@ -93,7 +93,7 @@ Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
     var page = JsonParser.Parse(responseJson);
     if (page instanceof Page) {
         document.title = page.Title;
-        this.Content = page.Content;
+        this.Content = page;
     }
     this._Request = null;
 };

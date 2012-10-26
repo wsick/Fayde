@@ -27,7 +27,7 @@ UIElement.Instance.Init = function () {
     this.Loaded = new MulticastEvent();
     this.Invalidated = new MulticastEvent();
 
-    this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
+    this.AddProvider(new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited));
 
     this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 
@@ -108,9 +108,9 @@ UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function 
 UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Projection; }, UIElement);
 UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Transform; }, UIElement);
 UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, new Point());
-UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, { GetValue: function () { return new ResourceDictionary(); } });
-UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return TriggerCollection; }, UIElement, undefined, { GetValue: function () { return new TriggerCollection(); } });
-UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterCore("UseLayoutRounding", function () { return Boolean; }, UIElement, true);
+UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, undefined, { GetValue: function () { return new ResourceDictionary(); } });
+UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return TriggerCollection; }, UIElement, undefined, undefined, { GetValue: function () { return new TriggerCollection(); } });
+UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, _Inheritable.UseLayoutRounding);
 UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
 
@@ -220,7 +220,8 @@ UIElement.Instance.TransformToVisual = function (uie) {
     // A = M * B
     // => M = inv (B) * A
     if (uie) {
-        var inverse = uie._AbsoluteProjection.Inverse;
+        var inverse = mat4.create();
+        mat4.inverse(uie._AbsoluteProjection, inverse);
         mat4.multiply(this._AbsoluteProjection, inverse, result); //result = inverse * abs
     } else {
         mat4.set(this._AbsoluteProjection, result); //result = absolute
@@ -238,17 +239,6 @@ UIElement.Instance.TransformToVisual = function (uie) {
     var it = new InternalTransform();
     it.raw = result;
     return it;
-};
-
-UIElement.Instance._GetSizeForBrush = function () {
-    AbstractMethod("UIElement._GetSizeForBrush");
-};
-UIElement.Instance._GetTransformOrigin = function () {
-    return new Point(0, 0);
-};
-UIElement.Instance._ShiftPosition = function (point) {
-    this._Bounds.X = point.X;
-    this._Bounds.Y = point.Y;
 };
 
 //#region Invalidation
@@ -332,13 +322,12 @@ UIElement.Instance._InvalidateBitmapCache = function () {
 
 //#endregion
 
-//#region Updates/Computes
-
-UIElement.Instance._UpdateBounds = function (forceRedraw) {
-    if (this._IsAttached)
-        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
-    this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
+UIElement.Instance._ComputeComposite = function () {
+    //NotImplemented("UIElement._ComputeComposite");
 };
+
+//#region Transforms
+
 UIElement.Instance._UpdateTransform = function () {
     if (this._IsAttached)
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.LocalTransform);
@@ -348,15 +337,6 @@ UIElement.Instance._UpdateProjection = function () {
         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.LocalProjection);
 };
 
-UIElement.Instance._ComputeBounds = function () {
-    AbstractMethod("UIElement._ComputeBounds()");
-};
-UIElement.Instance._ComputeGlobalBounds = function () {
-    this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform4(this._LocalProjection);
-};
-UIElement.Instance._ComputeSurfaceBounds = function () {
-    this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform4(this._AbsoluteProjection);
-};
 UIElement.Instance._ComputeTransform = function () {
     var projection = this.Projection;
     var cacheMode = this.CacheMode;
@@ -371,7 +351,7 @@ UIElement.Instance._ComputeTransform = function () {
     this._CacheXform = mat3.identity();
     this._AbsoluteProjection = mat4.identity();
     this._LocalProjection = mat4.identity();
-    
+
     var renderXform = this._RenderXform;
 
     var visualParent = this.GetVisualParent();
@@ -486,34 +466,7 @@ UIElement.Instance._ComputeLocalProjection = function () {
     projection._SetObjectSize(size.Width, size.Height);
     Canvas.SetZ(this, projection._GetDistanceFromXYPlane());
 };
-UIElement.Instance._ComputeComposite = function () {
-    //NotImplemented("UIElement._ComputeComposite");
-};
 
-UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
-    /// <returns type="Rect" />
-    var clip = this.Clip;
-    var layoutClip = transform ? undefined : LayoutInformation.GetLayoutClip(this);
-    var box;
-
-    if (!clip && !layoutClip)
-        return unclipped;
-    if (clip)
-        box = clip.GetBounds();
-    else
-        box = layoutClip.GetBounds();
-
-    if (layoutClip)
-        box = box.Intersection(layoutClip.GetBounds());
-
-    if (!this._GetRenderVisible())
-        box = new Rect(0, 0, 0, 0);
-
-    if (transform)
-        box = box.Transform(this._AbsoluteXform);
-
-    return box.Intersection(unclipped);
-};
 UIElement.Instance._TransformBounds = function (old, current) {
     var updated = new Rect();
 
@@ -552,6 +505,92 @@ UIElement.Instance._TransformBounds = function (old, current) {
 
     this._UpdateBounds();
 };
+
+UIElement.Instance._GetSizeForBrush = function () {
+    AbstractMethod("UIElement._GetSizeForBrush");
+};
+UIElement.Instance._GetTransformOrigin = function () {
+    return new Point(0, 0);
+};
+UIElement.Instance._ShiftPosition = function (point) {
+    this._Bounds.X = point.X;
+    this._Bounds.Y = point.Y;
+};
+
+//#endregion
+
+//#region Bounds
+
+UIElement.Instance._GetSubtreeExtents = function () {
+    /// <returns type="Rect" />
+    AbstractMethod("UIElement._GetSubtreeExtents()");
+};
+UIElement.Instance._GetOriginPoint = function () {
+    return new Point(0.0, 0.0);
+};
+
+UIElement.Instance._UpdateBounds = function (forceRedraw) {
+    if (this._IsAttached)
+        App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Bounds);
+    this._ForceInvalidateOfNewBounds = this._ForceInvalidateOfNewBounds || forceRedraw;
+};
+UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
+    /// <returns type="Rect" />
+    var clip = this.Clip;
+    var layoutClip = transform ? undefined : LayoutInformation.GetLayoutClip(this);
+    var box;
+
+    if (!clip && !layoutClip)
+        return unclipped;
+    if (clip)
+        box = clip.GetBounds();
+    else
+        box = layoutClip.GetBounds();
+
+    if (layoutClip)
+        box = box.Intersection(layoutClip.GetBounds());
+
+    if (!this._GetRenderVisible())
+        box = new Rect(0, 0, 0, 0);
+
+    if (transform)
+        box = box.Transform(this._AbsoluteXform);
+
+    return box.Intersection(unclipped);
+};
+
+//#region Bounds
+
+UIElement.Instance.GetBounds = function () {
+    return this._SurfaceBounds;
+};
+UIElement.Instance._ComputeBounds = function () {
+    AbstractMethod("UIElement._ComputeBounds()");
+};
+
+//#endregion
+
+//#region Global Bounds
+
+UIElement.Instance._GetGlobalBounds = function () {
+    return this._GlobalBounds;
+};
+UIElement.Instance._ComputeGlobalBounds = function () {
+    this._GlobalBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform4(this._LocalProjection);
+};
+
+//#endregion
+
+//#region Surface Bounds
+
+UIElement.Instance._GetSubtreeBounds = function () {
+    return this._SurfaceBounds;
+};
+UIElement.Instance._ComputeSurfaceBounds = function () {
+    this._SurfaceBounds = this._IntersectBoundsWithClipPath(this._Extents.GrowByThickness(this._EffectPadding), false).Transform4(this._AbsoluteProjection);
+};
+
+//#endregion
 
 //#endregion
 
@@ -644,10 +683,10 @@ UIElement.Instance._TransformPoint = function (p) {
     }
     
     var p4 = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
-    var m20 = inverse[8];
-    var m21 = inverse[9];
+    var m20 = inverse[2];
+    var m21 = inverse[6];
     var m22 = inverse[10];
-    var m23 = inverse[11];
+    var m23 = inverse[14];
     p4[2] = -(m20 * p4[0] + m21 * p4[1] + m23) / m22;
 
     mat4.transformVec4(inverse, p4);
@@ -656,31 +695,6 @@ UIElement.Instance._TransformPoint = function (p) {
 };
 UIElement.Instance._CanFindElement = function () {
     return false;
-};
-
-//#endregion
-
-//#region Measurements
-
-UIElement.Instance.GetBounds = function () {
-    return this._SurfaceBounds;
-};
-UIElement.Instance._GetGlobalBounds = function () {
-    return this._GlobalBounds;
-};
-UIElement.Instance._GetCoverageBounds = function () {
-    /// <returns type="Rect" />
-    return new Rect();
-};
-UIElement.Instance._GetSubtreeExtents = function () {
-    /// <returns type="Rect" />
-    AbstractMethod("UIElement._GetSubtreeExtents()");
-};
-UIElement.Instance._GetSubtreeBounds = function () {
-    return this._SurfaceBounds;
-};
-UIElement.Instance._GetOriginPoint = function () {
-    return new Point(0.0, 0.0);
 };
 
 //#endregion
@@ -785,7 +799,7 @@ UIElement.Instance._DoRender = function (ctx, parentRegion) {
     ctx.Save();
 
     ctx.Transform(this._RenderXform);
-    ctx.SetGlobalAlpha(this._TotalOpacity);
+    ctx.CanvasContext.globalAlpha = this._TotalOpacity;
 
     var canvasCtx = ctx.CanvasContext;
     var clip = this.Clip;
@@ -879,7 +893,7 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
         var surface = App.Instance.MainSurface;
         if (surface) {
             surface._RemoveDirtyElement(this);
-            if (surface._FocusedElement === this)
+            if (Nullstone.RefEquals(surface._FocusedElement, this))
                 surface._FocusElement(null);
         }
     }

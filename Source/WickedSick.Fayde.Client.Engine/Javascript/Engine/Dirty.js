@@ -1,5 +1,7 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
+/// <reference path="../Runtime/LinkedList.js"/>
 /// CODE
+/// <reference path="../Core/Enums.js"/>
 
 var _Dirty = {
     Transform: 1 << 0,
@@ -61,56 +63,22 @@ _Dirty.__DebugToString = function (dirty) {
 };
 
 //#region _DirtyList
-function _DirtyList(type) {
-    this._DirtyNodes = [];
+var _DirtyList = Nullstone.Create("_DirtyList", LinkedList, 1);
+
+_DirtyList.Instance.Init = function (type) {
+    this.Init$LinkedList();
     this._Type = type;
-}
-
-_DirtyList.prototype.Add = function (node) {
-    this._DirtyNodes.push(node);
-    /*
-    DirtyDebug.Level++;
-    if (this._Type === "Down")
-        DirtyDebug("Add(Down): [" + node.__DebugToString() + "]" + node.__DebugDownDirtyFlags());
-    if (this._Type === "Up")
-        DirtyDebug("Add(Up): [" + node.__DebugToString() + "]" + node.__DebugUpDirtyFlags());
-    DirtyDebug(this.__DebugToString());
-    DirtyDebug.Level--;
-    */
-};
-_DirtyList.prototype.RemoveFirst = function () {
-    var node = this._DirtyNodes.shift();
-};
-_DirtyList.prototype.Remove = function (node) {
-    Array.removeNullstone(this._DirtyNodes, node);
-    /*
-    DirtyDebug.Level++;
-    if (this._Type === "Down")
-    DirtyDebug("Remove(Down): [" + node.__DebugToString() + "]" + node.__DebugDownDirtyFlags());
-    if (this._Type === "Up")
-    DirtyDebug("Remove(Up): [" + node.__DebugToString() + "]" + node.__DebugUpDirtyFlags());
-    DirtyDebug("Remaining: " + this.__DebugToString());
-    DirtyDebug.Level--;
-    */
-};
-_DirtyList.prototype.GetFirst = function () {
-    if (this._DirtyNodes.length > 0)
-        return this._DirtyNodes[0];
-    return undefined;
-};
-_DirtyList.prototype.IsEmpty = function () {
-    return this._DirtyNodes.length < 1;
-};
-_DirtyList.prototype.Clear = function () {
-    this._DirtyNodes = [];
 };
 
-_DirtyList.prototype.__DebugToString = function () {
-    var s = new String();
-    for (var i = 0; i < this._DirtyNodes.length; i++) {
-        var cur = this._DirtyNodes[i];
-        s += "[" + cur.__DebugToString() + "]";
+_DirtyList.Instance.__DebugToString = function () {
+    var s = "";
+    var node = this.Head;
+    while (node) {
+        s += "[" + node.UIElement.__DebugToString() + "]";
+        node = node.Next;
     }
     return s;
 };
+
+Nullstone.FinishCreate(_DirtyList);
 //#endregion

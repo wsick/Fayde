@@ -29,10 +29,7 @@ namespace WickedSick.Server.XamlParser
             Type checkType = ownerType;
             while (checkType != null)
             {
-                checkType.GetMembers(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
-                    .Concat(checkType.GetMembers(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic))
-                    .OfType<FieldInfo>().Where(fi => fi.FieldType == typeof(PropertyDescription)).ToList()
-                    .ForEach(fi => fi.GetValue(null));
+                PropertyHelper.EnsurePropertyRegistered(checkType);
 
                 string key = string.Format("{0}.{1}", checkType.Name, name);
                 if (_dependencyProperties.Keys.Contains(key))
@@ -49,10 +46,7 @@ namespace WickedSick.Server.XamlParser
             Type checkType = ownerType;
             while (checkType != null)
             {
-                checkType.GetMembers(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
-                    .Concat(checkType.GetMembers(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic))
-                    .OfType<FieldInfo>().Where(fi => fi.FieldType == typeof(PropertyDescription)).ToList()
-                    .ForEach(fi => fi.GetValue(null));
+                PropertyHelper.EnsurePropertyRegistered(checkType);
 
                 foreach (string key in _dependencyProperties.Keys)
                 {

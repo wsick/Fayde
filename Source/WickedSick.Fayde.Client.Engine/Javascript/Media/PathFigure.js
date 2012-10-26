@@ -11,10 +11,10 @@ PathFigure.Instance.Init = function () {
     this._Path = null;
 };
 
-//#region Dependency Properties
+//#region Properties
 
 PathFigure.IsClosedProperty = DependencyProperty.RegisterCore("IsClosed", function () { return Boolean; }, PathFigure, false);
-PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, undefined, { GetValue: function () { return new PathSegmentCollection(); } });
+PathFigure.SegmentsProperty = DependencyProperty.RegisterFull("Segments", function () { return PathSegmentCollection; }, PathFigure, undefined, undefined, { GetValue: function () { return new PathSegmentCollection(); } });
 PathFigure.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, PathFigure, new Point());
 PathFigure.IsFilledProperty = DependencyProperty.RegisterCore("IsFilled", function () { return Boolean; }, PathFigure, true);
 

@@ -155,7 +155,7 @@ VisualStateManager.DestroyStoryboards = function (control) {
         return false;
     var count = groups.GetCount();
     for (var i = 0; i < count; i++) {
-        groups.GetValueAt(i).StopCurrentStoryboards(control);
+        groups.GetValueAt(i).StopCurrentStoryboards(root);
     }
 };
 

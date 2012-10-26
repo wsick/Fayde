@@ -130,16 +130,6 @@ Rectangle.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     /// <returns type="Rect" />
     return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
 };
-Rectangle.Instance._GetCoverageBounds = function () {
-    var fill = this.Fill;
-    if (fill != null && fill.IsOpaque()) {
-        var halfST = this.StrokeThickness / 2.0;
-        var xr = this.RadiusX + halfST;
-        var yr = this.RadiusY + halfST;
-        return this._Bounds.GrowBy(-xr, -yr).RoundIn();
-    }
-    return new Rect();
-}
 
 Rectangle.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Rectangle) {

@@ -92,6 +92,29 @@ namespace WickedSick.Thea.ViewModels
 
         #endregion
 
+        #region Examine
+
+        private DialogViewModel<string, ExamineViewModel> _ExamineCommand;
+        public DialogViewModel<string, ExamineViewModel> ExamineCommand
+        {
+            get
+            {
+                if (_ExamineCommand == null)
+                    _ExamineCommand = CreateExamineCommand();
+                return _ExamineCommand;
+            }
+        }
+
+        private DialogViewModel<string, ExamineViewModel> CreateExamineCommand()
+        {
+            return new DialogViewModel<string, ExamineViewModel>
+            {
+                ViewModelBuilder = s => ExamineViewModel.CreateAndRun(_Interop, SelectedVisual, s),
+            };
+        }
+
+        #endregion
+
         #region ChooseVisualStudio
 
         private DialogViewModel<ChooseVisualStudioViewModel> _ChooseVisualStudioCommand;
@@ -116,15 +139,15 @@ namespace WickedSick.Thea.ViewModels
 
         #endregion
 
+        #region Attach
+
         private void AttachToBrowser(Browser browser)
         {
             AttachedBrowser = browser;
             _Interop = new FaydeInterop(AttachedBrowser);
-            foreach (var v in _Interop.GetVisualTree())
-            {
-                RootLayers.Add(v);
-            }
+            MergeTree(_Interop.GetVisualTree());
             //_Interop.PopulateProperties(RootLayers[0]);
+            StartTimer();
         }
 
         private void AttachToVisualStudio(VisualStudioInterop.VisualStudioInstance instance)
@@ -137,6 +160,15 @@ namespace WickedSick.Thea.ViewModels
             }
 
             _Interop.AttachToVisualStudio(instance);
+            StartTimer();
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private void StartTimer()
+        {
             _Timer = new DispatcherTimer();
             _Timer.Tick += _Timer_Tick;
             _Timer.Interval = TimeSpan.FromSeconds(1);
@@ -145,13 +177,21 @@ namespace WickedSick.Thea.ViewModels
 
         private void _Timer_Tick(object sender, EventArgs e)
         {
+            RefreshTree();
+
             var allVisuals = RootLayers
                 .SelectMany(l => l.AllChildren)
                 .Concat(RootLayers)
                 .ToList();
 
-            RefreshThisVisual(allVisuals);
+            //RefreshThisVisual(allVisuals);
             RefreshHitTestVisuals(allVisuals);
+        }
+
+        private void RefreshTree()
+        {
+            if (_Interop.IsCacheInvalidated)
+                MergeTree(_Interop.GetVisualTree());
         }
 
         private void RefreshThisVisual(List<VisualViewModel> allVisuals)
@@ -179,6 +219,17 @@ namespace WickedSick.Thea.ViewModels
             foreach (var v in allVisuals.Where(vvm => hitTested.Any(s => vvm.ID == s)))
                 v.IsInHitTest = true;
         }
+
+        private void MergeTree(IEnumerable<VisualViewModel> allVisuals)
+        {
+            RootLayers.Clear();
+            foreach (var v in allVisuals)
+            {
+                RootLayers.Add(v);
+            }
+        }
+
+        #endregion
 
         public void Dispose()
         {

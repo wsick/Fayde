@@ -8,6 +8,7 @@ var RangeBase = Nullstone.Create("RangeBase", Control);
 
 RangeBase.Instance.Init = function () {
     this.Init$Control();
+    this.ValueChanged = new MulticastEvent();
 
     this._LevelsFromRootCall = 0;
     
@@ -17,7 +18,6 @@ RangeBase.Instance.Init = function () {
     this.LargeChange = 1;
     this.Value = 0;
 
-    this.ValueChanged = new MulticastEvent();
 };
 
 //#region Properties

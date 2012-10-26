@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/default.Master" AutoEventWireup="true" CodeBehind="features.aspx.cs" Inherits="Fayde.Website.features" Theme="default" %>
+﻿<%@ Page Title="Fayde | Features | Silverlight & HTML5" Language="C#" MasterPageFile="~/default.Master" AutoEventWireup="true" CodeBehind="features.aspx.cs" Inherits="Fayde.Website.features" Theme="default" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <script type="text/javascript">
         function toggle(li) {

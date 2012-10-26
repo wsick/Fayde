@@ -157,7 +157,7 @@ ScrollBar.Instance.$OnMaximumChanged = function (oldMax, newMax) {
 };
 ScrollBar.Instance.$OnMinimumChanged = function (oldMin, newMin) {
     var trackLength = this._GetTrackLength();
-    this.$OnMinimumChanged$RangeBase(oldMax, newMax);
+    this.$OnMinimumChanged$RangeBase(oldMin, newMin);
     this._UpdateTrackLayout(trackLength);
 };
 ScrollBar.Instance.$OnValueChanged = function (oldValue, newValue) {

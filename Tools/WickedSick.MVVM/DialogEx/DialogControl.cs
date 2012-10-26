@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -20,7 +21,7 @@ namespace WickedSick.MVVM.DialogEx
         public static readonly DependencyProperty ViewModelProperty = DependencyProperty.Register("ViewModel", typeof(ObservableObject), typeof(DialogControl),
             new FrameworkPropertyMetadata(new PropertyChangedCallback(TryShowDialog)));
         public static readonly DependencyProperty IsDialogVisibleProperty = DependencyProperty.Register("IsDialogVisible", typeof(bool), typeof(DialogControl),
-            new FrameworkPropertyMetadata(new PropertyChangedCallback(TryShowDialog)));
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, TryShowDialog));
         public static readonly DependencyProperty DialogCompleteCommandProperty = DependencyProperty.Register("DialogCompleteCommand", typeof(ICommand), typeof(DialogControl));
         public static readonly DependencyProperty StartupLocationProperty =
             DependencyProperty.Register("StartupLocation", typeof(WindowStartupLocation), typeof(DialogControl), new UIPropertyMetadata(WindowStartupLocation.CenterOwner));
@@ -29,6 +30,9 @@ namespace WickedSick.MVVM.DialogEx
         {
             // The control doesn't have any specific rendering of its own.
             Visibility = Visibility.Hidden;
+            SetBinding(ViewModelProperty, new Binding("DialogDataContext"));
+            SetBinding(IsDialogVisibleProperty, new Binding("IsRequestingChange") { Mode = BindingMode.TwoWay });
+            SetBinding(DialogCompleteCommandProperty, new Binding("ChangedCommand"));
         }
 
         public Type ViewType
@@ -70,8 +74,12 @@ namespace WickedSick.MVVM.DialogEx
             dc.TryShowDialog();
         }
 
+        private bool _IgnoreChanges;
         private void TryShowDialog()
         {
+            if (_IgnoreChanges)
+                return;
+
             if (!IsDialogVisible)
                 return;
             if (ViewType == null)
@@ -86,7 +94,18 @@ namespace WickedSick.MVVM.DialogEx
             newDialog.WindowStartupLocation = StartupLocation;
             newDialog.DataContext = ViewModel;
             bool? result = newDialog.ShowDialog();
-            IsDialogVisible = false;
+
+            try
+            {
+                _IgnoreChanges = true;
+                var be = GetBindingExpression(IsDialogVisibleProperty);
+                be.UpdateTarget();
+                SetCurrentValue(IsDialogVisibleProperty, false);
+            }
+            finally
+            {
+                _IgnoreChanges = false;
+            }
             ICommand completeCommand = DialogCompleteCommand;
             if (completeCommand != null)
             {

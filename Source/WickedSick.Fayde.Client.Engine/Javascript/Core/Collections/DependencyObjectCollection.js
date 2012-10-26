@@ -33,7 +33,7 @@ DependencyObjectCollection.Instance._OnMentorChanged = function (oldValue, newVa
 
 DependencyObjectCollection.Instance.AddedToCollection = function (value, error) {
     if (this._SetsParent) {
-        var existingParent = value._GetParent();
+        var existingParent = value._Parent;
         value._AddParent(this, true, error);
         if (!error.IsErrored() && existingParent == null && this._GetIsSecondaryParent() != null)
             value._AddParent(this, true, error);
@@ -64,7 +64,7 @@ DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isV
             if (this._GetIsSecondaryParent())
                 value._RemoveSecondaryParent(this);
 
-            if (this._SetsParent && Nullstone.RefEquals(value._GetParent(), this))
+            if (this._SetsParent && Nullstone.RefEquals(value._Parent, this))
                 value._RemoveParent(this, null);
             value._SetIsAttached(false);
         }

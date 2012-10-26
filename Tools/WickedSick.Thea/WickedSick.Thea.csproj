@@ -67,16 +67,21 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helpers\FaydeInterop.cs" />
+    <Compile Include="Helpers\IJavascriptContext.cs" />
     <Compile Include="Models\DependencyValue.cs" />
     <Compile Include="Resources\BoolSolidColorBrushConverter.cs" />
     <Compile Include="Resources\BoolFontWeightConverter.cs" />
     <Compile Include="Resources\BoolVisibilityConverter.cs" />
     <Compile Include="ViewModels\ChooseVisualStudioViewModel.cs" />
+    <Compile Include="ViewModels\ExamineViewModel.cs" />
     <Compile Include="ViewModels\LoadViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\VisualViewModel.cs" />
     <Compile Include="Views\ChooseVisualStudioWindow.xaml.cs">
       <DependentUpon>ChooseVisualStudioWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ExamineWindow.xaml.cs">
+      <DependentUpon>ExamineWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LoadWindow.xaml.cs">
       <DependentUpon>LoadWindow.xaml</DependentUpon>
@@ -97,6 +102,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\ChooseVisualStudioWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ExamineWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

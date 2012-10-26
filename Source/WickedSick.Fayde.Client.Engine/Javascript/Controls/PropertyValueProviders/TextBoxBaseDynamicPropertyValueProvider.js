@@ -8,9 +8,6 @@ var _TextBoxBaseDynamicPropertyValueProvider = Nullstone.Create("_TextBoxBaseDyn
 _TextBoxBaseDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
     this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence);
 
-    this._RecomputesOnClear = true;
-    this._RecomputesOnLower = true;
-
     this._ForegroundPropd = foregroundPropd;
     this._BackgroundPropd = backgroundPropd;
     this._BaselineOffsetPropd = baselineOffsetPropd;
@@ -19,7 +16,13 @@ _TextBoxBaseDynamicPropertyValueProvider.Instance.Init = function (obj, propPrec
     this._BaselineOffset = undefined;
 };
 
-_TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValue = function (propd, lower, higher, clear, error) {
+_TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValueOnClear = function (propd, error) {
+    if (propd._ID === this._BackgroundPropd._ID)
+        this._SelectionBackground = undefined;
+    else if (propd._ID === this._ForegroundPropd._ID)
+        this._SelectionForeground = undefined;
+};
+_TextBoxBaseDynamicPropertyValueProvider.Instance.RecomputePropertyValueOnLower = function (propd, error) {
     if (propd._ID === this._BackgroundPropd._ID)
         this._SelectionBackground = undefined;
     else if (propd._ID === this._ForegroundPropd._ID)

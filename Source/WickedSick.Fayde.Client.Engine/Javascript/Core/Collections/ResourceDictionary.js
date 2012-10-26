@@ -12,7 +12,7 @@ ResourceDictionary.Instance.Init = function () {
 
 //#region Dependency Properties
 
-ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
 
 Nullstone.AutoProperties(ResourceDictionary, [
     ResourceDictionary.MergedDictionariesProperty
@@ -76,7 +76,7 @@ ResourceDictionary.Instance.AddedToCollection = function (value, error) {
     var rv = false;
     var obj = Nullstone.As(value, DependencyObject);
     if (obj) {
-        if (obj._GetParent() && !ResourceDictionary._CanBeAddedTwice(value)) {
+        if (obj._Parent && !ResourceDictionary._CanBeAddedTwice(value)) {
             error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
             return false;
         }
@@ -161,8 +161,8 @@ ResourceDictionary._CanBeAddedTwice = function (value) {
     //  return true;
     //if (value instanceof StylusPointCollection)
     //  return true;
-    //if (value instanceof BitmapImage)
-    //  return true;
+    if (value instanceof BitmapImage)
+      return true;
     //if (value instanceof Stroke)
     //  return true;
     //if (value instanceof Invalid)

@@ -12,7 +12,7 @@ var Storyboard = Nullstone.Create("Storyboard", Timeline);
 
 //#region Properties
 
-Storyboard.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return TimelineCollection; }, Storyboard, undefined, { GetValue: function () { return new TimelineCollection(); }});
+Storyboard.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return TimelineCollection; }, Storyboard, undefined, undefined, { GetValue: function () { return new TimelineCollection(); }});
 
 Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () { return String }, Storyboard);
 Storyboard.GetTargetName = function (d) {

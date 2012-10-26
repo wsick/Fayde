@@ -93,9 +93,14 @@ String.contains = function (str, match) {
     }
     return j >= match.length;
 };
-String.format = function (culture, format, str) {
-    //TODO: Implement
-    return str;
+String.format = function (str) {
+    var args = arguments;
+    return str.replace(/{(\d+)}/g, function (match, number) {
+        var i = parseInt(number);
+        return typeof args[i + 1] != 'undefined'
+          ? args[i + 1]
+          : match;
+    });
 };
 
 window.onerror = function (msg, url, line) {

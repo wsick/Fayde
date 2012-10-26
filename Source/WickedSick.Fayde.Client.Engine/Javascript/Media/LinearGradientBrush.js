@@ -9,8 +9,8 @@ var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", GradientBrush)
 
 //#region Properties
 
-LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterFull("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
-LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterFull("EndPoint", function () { return Point; }, LinearGradientBrush, new Point(1, 1));
+LinearGradientBrush.StartPointProperty = DependencyProperty.RegisterCore("StartPoint", function () { return Point; }, LinearGradientBrush, new Point());
+LinearGradientBrush.EndPointProperty = DependencyProperty.RegisterCore("EndPoint", function () { return Point; }, LinearGradientBrush, new Point(1, 1));
 
 Nullstone.AutoProperties(LinearGradientBrush, [
     LinearGradientBrush.StartPointProperty,

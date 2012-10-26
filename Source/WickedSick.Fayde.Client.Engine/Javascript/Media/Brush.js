@@ -11,7 +11,7 @@ Brush.Instance.Init = function () {
 
 //#region Properties
 
-Brush.TransformProperty = DependencyProperty.RegisterFull("Transform", function () { return Transform; }, Brush);
+Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Transform; }, Brush);
 
 Nullstone.AutoProperties(Brush, [
     Brush.TransformProperty

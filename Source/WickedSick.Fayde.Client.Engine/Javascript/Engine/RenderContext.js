@@ -19,6 +19,8 @@ Nullstone.AutoProperties(_RenderContext, [
     "CanvasContext"
 ]);
 
+//#region Clip/Point Test
+
 _RenderContext.Instance.Clip = function (clip) {
     this._DrawClip(clip);
     this.CanvasContext.clip();
@@ -44,6 +46,10 @@ _RenderContext.Instance._DrawClip = function (clip) {
     }
 };
 
+//#endregion
+
+//#region Transforms
+
 _RenderContext.Instance.PreTransform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.Value.raw;
@@ -52,6 +58,8 @@ _RenderContext.Instance.PreTransform = function (matrix) {
     var ct = this.CurrentTransform;
     mat3.multiply(matrix, ct, ct); //ct = ct * matrix
     this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+
+    TransformDebug("PreTransform", this.CurrentTransform);
 
     //Matrix.Multiply(ct, ct, matrix);
     //var els = ct._Elements;
@@ -65,6 +73,8 @@ _RenderContext.Instance.Transform = function (matrix) {
     mat3.multiply(ct, matrix, ct); //ct = matrix * ct
     this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
 
+    TransformDebug("Transform", this.CurrentTransform);
+
     //Matrix.Multiply(ct, matrix, ct);
     //var els = ct._Elements;
     //this.CanvasContext.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
@@ -73,19 +83,33 @@ _RenderContext.Instance.Translate = function (x, y) {
     var ct = this.CurrentTransform;
     mat3.translate(x, y);
     this.CanvasContext.translate(x, y);
+
+    TransformDebug("Translate", this.CurrentTransform);
 };
+
+//#endregion
+
+//#region State
 
 _RenderContext.Instance.Save = function () {
     this.CanvasContext.save();
     var ct = this.CurrentTransform;
     this._Transforms.push(ct);
     this.CurrentTransform = ct == null ? mat3.identity() : mat3.create(ct);
+    if (this.CurrentTransform)
+        TransformDebug("Save", this.CurrentTransform);
 };
 _RenderContext.Instance.Restore = function () {
     var curXform = this._Transforms.pop();
     this.CurrentTransform = curXform;
     this.CanvasContext.restore();
+    if (this.CurrentTransform)
+        TransformDebug("Restore", this.CurrentTransform);
 };
+
+//#endregion
+
+//#region Stroke/Fill/Clear
 
 _RenderContext.Instance.Rect = function (rect) {
     var ctx = this.CanvasContext;
@@ -133,14 +157,12 @@ _RenderContext.Instance.Stroke = function (stroke, thickness, region) {
     ctx.stroke();
     DrawDebug("Stroke: [" + ctx.strokeStyle.toString() + "] -> " + ctx.lineWidth.toString());
 };
-
 _RenderContext.Instance.Clear = function (rect) {
     this.CanvasContext.clearRect(rect.X, rect.Y, rect.Width, rect.Height);
     DrawDebug("Clear: " + rect.toString());
 };
-_RenderContext.Instance.SetGlobalAlpha = function (alpha) {
-    this.CanvasContext.globalAlpha = alpha;
-};
+
+//#endregion
 
 _RenderContext.ToArray = function (args) {
     var arr = [];

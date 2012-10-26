@@ -8,8 +8,8 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
 {
     public enum BindingMode
     {
-        OneTime,
         OneWay,
+        OneTime,
         TwoWay
     }
 
@@ -67,6 +67,10 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
                     yield return string.Format("FallbackValue: \"{0}\"", FallbackValue);
                 else
                     yield return string.Format("FallbackValue: {0}", FallbackValue);
+            }
+            if (StringFormat != null)
+            {
+                yield return string.Format("StringFormat: \"{0}\"", StringFormat);
             }
         }
     }

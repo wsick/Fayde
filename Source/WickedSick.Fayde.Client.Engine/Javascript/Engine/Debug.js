@@ -40,6 +40,43 @@ function DirtyDebug(message) {
     }
 }
 DirtyDebug.Level = 0;
+DirtyDebug.UpTiming = [];
+DirtyDebug.DownTiming = [];
+DirtyDebug.Dump = function () {
+    return "Down" + DumpTiming(DirtyDebug.DownTiming) + " Up" + DumpTiming(DirtyDebug.UpTiming);
+}
+function DumpTiming(arr) {
+    var min;
+    var max;
+    var total;
+
+    for (var i = 0; i < arr.length; i++) {
+        if (i === 0) {
+            min = arr[i];
+            max = arr[i];
+            total = arr[i];
+        } else {
+            min = Math.min(arr[i], min);
+            max = Math.max(arr[i], max);
+            total += arr[i];
+        }
+    }
+    var avg = total / arr.length;
+    var stddev = 0;
+    for (var i = 0; i < arr.length; i++) {
+        stddev += (arr[i] - avg) * (arr[i] - avg);
+    }
+    stddev = Math.sqrt(stddev / arr.length);
+
+    return "[Min: " + min + "; Max: " + max + "; Avg: " + avg + "; StdDev: " + stddev + "; Total: " + total + "; Count: " + arr.length + "]";;
+}
+
+function KeyboardDebug(message) {
+    if (true)
+        return;
+    if (window.console && console.log)
+        console.log("KEYBOARD: " + message);
+}
 function AnimationDebug(message) {
     if (true)
         return;
@@ -57,6 +94,17 @@ function LayoutDebug(message) {
         return;
     if (window.console && console.log)
         console.log("LAYOUT: " + message);
+}
+function TransformDebug(message, matrix) {
+    if (true)
+        return;
+    var last = TransformDebug.Last;
+    if (last && mat3.equal(last, matrix))
+        return;
+    TransformDebug.Last = matrix;
+
+    if (window.console && console.log)
+        console.log("TRANSFORM: " + message + " --> " + matrix.toString());
 }
 function DrawDebug(message) {
     if (true)

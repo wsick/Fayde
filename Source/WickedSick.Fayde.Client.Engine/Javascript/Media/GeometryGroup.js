@@ -9,10 +9,10 @@ GeometryGroup.Instance.Init = function () {
     this.Init$Geometry();
 };
 
-//#region Dependency Properties
+//#region Properties
 
 GeometryGroup.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, GeometryGroup, FillRule.EvenOdd);
-GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, undefined, { GetValue: function () { return new GeometryCollection(); } });
+GeometryGroup.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return GeometryCollection; }, GeometryGroup, undefined, undefined, { GetValue: function () { return new GeometryCollection(); } });
 
 Nullstone.AutoProperties(GeometryGroup, [
     GeometryGroup.FillRuleProperty,

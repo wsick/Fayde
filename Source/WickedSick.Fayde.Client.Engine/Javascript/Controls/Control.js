@@ -7,7 +7,7 @@ var Control = Nullstone.Create("Control", FrameworkElement);
 
 Control.Instance.Init = function () {
     this.Init$FrameworkElement();
-    this._Providers[_PropertyPrecedence.IsEnabled] = new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled);
+    this.AddProvider(new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled));
 };
 
 //#region Properties
@@ -15,12 +15,12 @@ Control.Instance.Init = function () {
 Control.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Control);
 Control.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Control);
 Control.BorderThicknessProperty = DependencyProperty.RegisterCore("BorderThickness", function () { return Thickness; }, Control, new Thickness());
-Control.FontFamilyProperty = DependencyProperty.RegisterCore("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY);
-Control.FontSizeProperty = DependencyProperty.RegisterCore("FontSize", function () { return Number; }, Control, Font.DEFAULT_SIZE);
-Control.FontStretchProperty = DependencyProperty.RegisterCore("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH);
-Control.FontStyleProperty = DependencyProperty.RegisterCore("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE);
-Control.FontWeightProperty = DependencyProperty.RegisterCore("FontWeight", function () { return new Enum(FontWeight); }, Control, Font.DEFAULT_WEIGHT);
-Control.ForegroundProperty = DependencyProperty.RegisterFull("Foreground", function () { return Brush; }, Control, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0, 1.0)); } });
+Control.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, Control, Font.DEFAULT_FAMILY, undefined, undefined, _Inheritable.FontFamily);
+Control.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, Control, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
+Control.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH, undefined, undefined, _Inheritable.FontStretch);
+Control.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE, undefined, undefined, _Inheritable.FontStyle);
+Control.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, Control, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
+Control.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, Control, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0, 1.0)); } }, _Inheritable.Foreground);
 Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () { return new Enum(HorizontalAlignment); }, Control, HorizontalAlignment.Center);
 Control.IsEnabledProperty = DependencyProperty.RegisterCore("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
 Control.IsTabStopProperty = DependencyProperty.RegisterCore("IsTabStop", function () { return Boolean; }, Control, true);

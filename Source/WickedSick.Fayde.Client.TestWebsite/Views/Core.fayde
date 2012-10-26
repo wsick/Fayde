@@ -82,9 +82,9 @@
                     <StackPanel Margin="0" VerticalAlignment="Top" Grid.Column="3" Width="200">
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="COMBOBOX" Margin="0,10,-93,0" />
                         <ComboBox Margin="0,5">
-                            <ComboBoxItem Content="ComboBoxItem" />
-                            <ComboBoxItem Content="ComboBoxItem" />
-                            <ComboBoxItem Content="ComboBoxItem" />
+                            <ComboBoxItem Content="ComboBoxItem 1" />
+                            <ComboBoxItem Content="ComboBoxItem 2" />
+                            <ComboBoxItem Content="ComboBoxItem 3" />
                         </ComboBox>
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="SCROLLVIEWER" Padding="0" Margin="0,14,0,0" />
                         <ScrollViewer HorizontalAlignment="Left" Height="81" Width="200">
@@ -98,7 +98,7 @@
                         </ScrollViewer>
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="RADIOBUTTON" Margin="0,43,-68,0" />
                         <RadioButton Content="RadioButton" Margin="0,3" HorizontalAlignment="Left" IsChecked="True" />
-                        <RadioButton Content="RadioButton" Margin="0,3" HorizontalAlignment="Left" IsThreeState="True" />
+                        <RadioButton Content="RadioButton" Margin="0,3" HorizontalAlignment="Left" />
                         <RadioButton Content="RadioButton" Margin="0,3" HorizontalAlignment="Left" />
                         <TextBlock Style="{StaticResource ControlLabelStyle}" Text="TEXTBLOCK" Margin="0,31,-77,0" />
                         <TextBlock Margin="0,5" TextWrapping="Wrap" Text="Pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer pellentesque sollicitudin pellentesque consectetuer " />

@@ -8,7 +8,7 @@ var EventTrigger = Nullstone.Create("EventTrigger", TriggerBase);
 
 //#region Properties
 
-EventTrigger.ActionsProperty = DependencyProperty.RegisterFull("Actions", function () { return TriggerActionCollection; }, EventTrigger, undefined, { GetValue: function () { return new TriggerActionCollection(); } });
+EventTrigger.ActionsProperty = DependencyProperty.RegisterFull("Actions", function () { return TriggerActionCollection; }, EventTrigger, undefined, undefined, { GetValue: function () { return new TriggerActionCollection(); } });
 EventTrigger.RoutedEventProperty = DependencyProperty.Register("RoutedEvent", function () { return MulticastEvent; }, EventTrigger);
 
 Nullstone.AutoProperties(EventTrigger, [

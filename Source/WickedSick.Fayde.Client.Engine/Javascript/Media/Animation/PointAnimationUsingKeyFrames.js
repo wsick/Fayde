@@ -8,7 +8,7 @@ var PointAnimationUsingKeyFrames = Nullstone.Create("PointAnimationUsingKeyFrame
 
 //#region Properties
 
-PointAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return PointKeyFrameCollection; }, PointAnimationUsingKeyFrames, undefined, { GetValue: function () { return new PointKeyFrameCollection(); } });
+PointAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return PointKeyFrameCollection; }, PointAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new PointKeyFrameCollection(); } });
 
 Nullstone.AutoProperties(PointAnimationUsingKeyFrames, [
     PointAnimationUsingKeyFrames.KeyFramesProperty
