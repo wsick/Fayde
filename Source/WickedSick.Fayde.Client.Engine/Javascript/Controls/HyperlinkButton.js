@@ -46,10 +46,17 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
     return destination;
 };
 HyperlinkButton.Instance._Navigate = function () {
-    if (this.TargetName != null)
-        window.open(this.NavigateUri.toString(), this.TargetName);
-    else
+    var targetName = this.TargetName;
+    if (targetName == null) {
         window.location.href = this.NavigateUri.toString();
+        return;
+    }
+    var frame = Nullstone.As(this.FindName(targetName), Frame);
+    if (frame != null) {
+        window.location.href = this.NavigateUri.toString();
+        return;
+    }
+    window.open(this.NavigateUri.toString(), targetName);
 };
 
 Nullstone.FinishCreate(HyperlinkButton);
