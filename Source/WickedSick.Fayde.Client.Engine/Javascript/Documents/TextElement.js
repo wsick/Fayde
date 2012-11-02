@@ -8,7 +8,7 @@ var TextElement = Nullstone.Create("TextElement", DependencyObject);
 
 TextElement.Instance.Init = function () {
     this.Init$DependencyObject();
-    this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
+    this.AddProvider(new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited));
     this._Font = new Font();
     this._UpdateFont(true);
 };
