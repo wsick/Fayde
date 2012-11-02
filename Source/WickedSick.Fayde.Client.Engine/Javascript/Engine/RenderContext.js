@@ -77,7 +77,7 @@ _RenderContext.Instance.Transform = function (matrix) {
     }
 
     var ctx = this.CanvasContext;
-    var ct = ctx.CurrentTransform;
+    var ct = ctx.currentTransform;
     mat3.multiply(ct, matrix, ct); //ct = matrix * ct
     ctx.currentTransform = ct;
 
@@ -85,7 +85,7 @@ _RenderContext.Instance.Transform = function (matrix) {
 };
 _RenderContext.Instance.Translate = function (x, y) {
     var ctx = this.CanvasContext;
-    var ct = ctx.CurrentTransform;
+    var ct = ctx.currentTransform;
     mat3.translate(ct, x, y);
     ctx.translate(x, y);
 
