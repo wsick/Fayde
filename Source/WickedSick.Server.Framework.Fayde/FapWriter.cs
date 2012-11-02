@@ -7,6 +7,15 @@ namespace WickedSick.Server.Framework.Fayde
 {
     public class FapWriter : IDisposable
     {
+        private static readonly string START_INITIALIZATION_SCRIPT =
+@"      <script type=""text/javascript"">
+        Fayde.Run = function () {";
+
+        private static readonly string END_INITIALIZATION_SCRIPT =
+@"          Fayde.Start(rjson, json, document.getElementById(""canvas""));
+        }
+        </script>";
+
         public FapWriter(Stream outputStream)
         {
             Writer = new StreamWriter(outputStream);
@@ -67,34 +76,23 @@ namespace WickedSick.Server.Framework.Fayde
 
         public void WriteAppLoadScript(FaydeApplication fap)
         {
-            Writer.WriteLine("\t\t<script type=\"text/javascript\">");
-            Writer.WriteLine("\t\t\tfunction InitializeFayde() {");
-            Writer.WriteLine("\t\t\t\tApp.Instance = new App();");
-
+            string rjson = "{}";
             if (fap.Resources != null)
-            {
-                Writer.Write("\t\t\t\tvar rjson = ");
-                Writer.Write(fap.Resources.ToJson(4));
-                Writer.WriteLine(";");
-                Writer.WriteLine("\t\t\t\tApp.Instance.LoadResources(rjson);");
-            }
+                rjson = fap.Resources.ToJson(0);
 
-            Writer.Write("\t\t\t\tvar json = ");
+            string json = "{}";
             if (fap.Content != null)
-                Writer.Write(fap.Content.ToJson(4));
-            else
-                Writer.Write("{}");
-            Writer.WriteLine(";");
+                json = fap.Content.ToJson(0);
 
-            Writer.WriteLine("\t\t\t\tApp.Instance.LoadInitial(document.getElementById(\"canvas\"), json);");
-
-            Writer.WriteLine("\t\t\t};");
-            Writer.WriteLine("\t\t</script>");
+            Writer.WriteLine(START_INITIALIZATION_SCRIPT);
+            Writer.WriteLine(string.Format("var rjson = {0};", rjson));
+            Writer.WriteLine(string.Format("var json = {0};", json));
+            Writer.WriteLine(END_INITIALIZATION_SCRIPT);
         }
 
         public void WriteBodyStart()
         {
-            Writer.WriteLine("\t<body onload=\"InitializeFayde()\" onmousedown=\"return false;\" style=\"margin: 0;\">");
+            Writer.WriteLine("\t<body onload=\"Fayde.Initialize()\" onmousedown=\"return false;\" style=\"margin: 0;\">");
         }
         public void WriteBodyEnd()
         {

@@ -5,6 +5,15 @@
 //#region Fayde
 
 var Fayde = {
+    Run: function () { },
+    Initialize: function () {
+        Fayde.Run();
+    },
+    Start: function (rjson, json, canvas) {
+        App.Instance = new App();
+        App.Instance.LoadResources(rjson);
+        App.Instance.LoadInitial(canvas, json);
+    },
     TypeConverters: {
         Thickness: function (str) {
             /// <param name="str" type="String"></param>
