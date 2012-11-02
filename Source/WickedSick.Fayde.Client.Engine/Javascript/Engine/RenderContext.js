@@ -69,7 +69,7 @@ _RenderContext.Instance.PreTransform = function (matrix) {
     mat3.multiply(matrix, ct, ct); //ct = ct * matrix
     ctx.currentTransform = ct;
 
-    TransformDebug("PreTransform", this.CurrentTransform);
+    TransformDebug("PreTransform", ctx.currentTransform);
 };
 _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
@@ -81,7 +81,7 @@ _RenderContext.Instance.Transform = function (matrix) {
     mat3.multiply(ct, matrix, ct); //ct = matrix * ct
     ctx.currentTransform = ct;
 
-    TransformDebug("Transform", this.CurrentTransform);
+    TransformDebug("Transform", ctx.currentTransform);
 };
 _RenderContext.Instance.Translate = function (x, y) {
     var ctx = this.CanvasContext;
@@ -89,7 +89,7 @@ _RenderContext.Instance.Translate = function (x, y) {
     mat3.translate(ct, x, y);
     ctx.translate(x, y);
 
-    TransformDebug("Translate", this.CurrentTransform);
+    TransformDebug("Translate", ctx.currentTransform);
 };
 
 //#endregion
