@@ -17,7 +17,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
         return;
     var font = attrs.GetFont();
     var y0 = font._Ascender();
-    ctx.Transform(mat3.createTranslate(x, y - y0));
+    ctx.Translate(x, y - y0);
 
     var brush;
     var fontHeight = font.GetActualHeight();

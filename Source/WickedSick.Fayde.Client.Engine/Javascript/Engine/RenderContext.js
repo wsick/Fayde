@@ -12,10 +12,19 @@ _RenderContext.Instance.Init = function (surface) {
     this.Surface = surface;
     this.CanvasContext = this.Surface._Ctx;
     this._Transforms = [];
+
+    if (!this.CanvasContext.hasOwnProperty("currentTransform")) {
+        Object.defineProperty(this.CanvasContext, "currentTransform", {
+            get: function () { return this._CurrentTransform; },
+            set: function (value) {
+                this.setTransform(value[0], value[1], value[3], value[4], value[2], value[5]);
+                this._CurrentTransform = value;
+            }
+        });
+    }
 };
 
 Nullstone.AutoProperties(_RenderContext, [
-    "CurrentTransform",
     "CanvasContext"
 ]);
 
@@ -55,34 +64,30 @@ _RenderContext.Instance.PreTransform = function (matrix) {
         matrix = matrix.Value.raw;
     }
 
-    var ct = this.CurrentTransform;
+    var ctx = this.CanvasContext;
+    var ct = ctx.currentTransform;
     mat3.multiply(matrix, ct, ct); //ct = ct * matrix
-    this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+    ctx.currentTransform = ct;
 
     TransformDebug("PreTransform", this.CurrentTransform);
-
-    //Matrix.Multiply(ct, ct, matrix);
-    //var els = ct._Elements;
-    //this.CanvasContext.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
 _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.Value.raw;
     }
-    var ct = this.CurrentTransform;
+
+    var ctx = this.CanvasContext;
+    var ct = ctx.CurrentTransform;
     mat3.multiply(ct, matrix, ct); //ct = matrix * ct
-    this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
+    ctx.currentTransform = ct;
 
     TransformDebug("Transform", this.CurrentTransform);
-
-    //Matrix.Multiply(ct, matrix, ct);
-    //var els = ct._Elements;
-    //this.CanvasContext.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);
 };
 _RenderContext.Instance.Translate = function (x, y) {
-    var ct = this.CurrentTransform;
-    mat3.translate(x, y);
-    this.CanvasContext.translate(x, y);
+    var ctx = this.CanvasContext;
+    var ct = ctx.CurrentTransform;
+    mat3.translate(ct, x, y);
+    ctx.translate(x, y);
 
     TransformDebug("Translate", this.CurrentTransform);
 };
