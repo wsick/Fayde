@@ -48,7 +48,7 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
     var isChanged = !this._Styles || styleMask != this._StyleMask;
     if (!isChanged) {
         for (var i = 0; i < _StyleIndex.Count; i++) {
-            if (styles[i] != this._Styles[i]) {
+            if (!Nullstone.RefEquals(styles[i], this._Styles[i])) {
                 isChanged = true;
                 break;
             }
