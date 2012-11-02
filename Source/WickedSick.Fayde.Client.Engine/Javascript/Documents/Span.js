@@ -7,13 +7,15 @@ var Span = Nullstone.Create("Span", Inline);
 
 //#region Properties
 
-Span._CreateInlineCollection = function (obj) {
-    var inlines = new InlineCollection();
-    if (obj instanceof Hyperlink)
-        inlines._SetIsForHyperlink();
-    return inlines;
+Span._InlinesAutoCreator = {
+    GetValue: function (propd, obj) {
+        var inlines = new InlineCollection();
+        if (obj instanceof Hyperlink)
+            inlines._SetIsForHyperlink();
+        return inlines;
+    }
 };
-Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, undefined, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
+Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, undefined, Span._InlinesAutoCreator);
 
 Nullstone.AutoProperties(Span, [
     Span.InlinesProperty
