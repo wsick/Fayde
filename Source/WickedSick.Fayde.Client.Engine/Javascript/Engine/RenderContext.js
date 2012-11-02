@@ -25,6 +25,7 @@ _RenderContext.Instance.Init = function (surface) {
 };
 
 Nullstone.AutoProperties(_RenderContext, [
+    "CurrentTransform",
     "CanvasContext"
 ]);
 
@@ -64,32 +65,29 @@ _RenderContext.Instance.PreTransform = function (matrix) {
         matrix = matrix.Value.raw;
     }
 
-    var ctx = this.CanvasContext;
-    var ct = ctx.currentTransform;
+    var ct = this.CurrentTransform;
     mat3.multiply(matrix, ct, ct); //ct = ct * matrix
-    ctx.currentTransform = ct;
+    this.CanvasContext.currentTransform = ct;
 
-    TransformDebug("PreTransform", ctx.currentTransform);
+    TransformDebug("PreTransform", ct);
 };
 _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
         matrix = matrix.Value.raw;
     }
 
-    var ctx = this.CanvasContext;
-    var ct = ctx.currentTransform;
+    var ct = this.CurrentTransform;
     mat3.multiply(ct, matrix, ct); //ct = matrix * ct
-    ctx.currentTransform = ct;
+    this.CanvasContext.currentTransform = ct;
 
-    TransformDebug("Transform", ctx.currentTransform);
+    TransformDebug("Transform", ct);
 };
 _RenderContext.Instance.Translate = function (x, y) {
-    var ctx = this.CanvasContext;
-    var ct = ctx.currentTransform;
+    var ct = this.CurrentTransform;
     mat3.translate(ct, x, y);
-    ctx.translate(x, y);
+    this.CanvasContext.translate(x, y);
 
-    TransformDebug("Translate", ctx.currentTransform);
+    TransformDebug("Translate", ct);
 };
 
 //#endregion
