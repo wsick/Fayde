@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Layout</title>
+        <style type="text/css">
+            body { margin: 0px; }
+            .border
+            {
+                border: solid 1px black;
+            }
+        </style>
+    </head>
+    <body>
+        <table class="border" cellpadding="0" cellspacing="0">
+            <tr>
+                <td class="border" style="white-space: nowrap;"><div style="width: 200px;">Testing</div></td>
+                <td class="border" width="50%">50%</td>
+                <td class="border" width="50%">50% This column has 50% width. It should split remaining space with the other 50% column.</td>
+                <td class="border" style="white-space: nowrap;"><div>Auto This column should size itself to its contents. Auto This column should size itself to its contents.</div></td>
+            </tr>
+            <tr>
+                <td class="border"></td>
+                <td class="border" colspan="2">This should consume the first two columns.</td>
+                <td class="border">Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah </td>
+            </tr>
+        </table>
+    </body>
+</html>
