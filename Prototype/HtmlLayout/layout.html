@@ -1,28 +1,225 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Layout</title>
-        <style type="text/css">
-            body { margin: 0px; }
-            .border
-            {
-                border: solid 1px black;
-            }
-        </style>
-    </head>
-    <body>
-        <table class="border" cellpadding="0" cellspacing="0">
-            <tr>
-                <td class="border" style="white-space: nowrap;"><div style="width: 200px; height: 100px; overflow: hidden;">Testing</div></td>
-                <td class="border" style="width: 50%;"><div style="height: 100px; overflow: hidden;"><div class="border" style="margin: 0px;">50%</div></div></td>
-                <td class="border" style="width: 50%;"><div style="height: 100px; overflow: hidden;"><div style="margin: 0px;">50% This column has 50% width. It should split remaining space with the other 50% column.</div></div></td>
-                <td class="border"><div style="width: 100px; height: 100px; overflow: hidden;">Auto This column should size itself to its contents. Auto This column should size itself to its contents.</div></td>
+<head>
+    <title>Layout</title>
+    <style type="text/css">
+        body
+        {
+            margin: 0px;
+        }
+
+        table
+        {
+            border-spacing: 0px;
+        }
+
+        td
+        {
+            padding: 0px;
+        }
+
+        .border
+        {
+            border: dashed 1px black;
+        }
+
+        .inner-border
+        {
+            border: solid 1px green;
+        }
+    </style>
+</head>
+<body>
+    <table style="border: solid 1px black; table-layout: fixed; overflow: hidden; white-space: nowrap;">
+        <tr>
+            <td class="border" style="white-space: nowrap;">
+                <div style="width: 200px; height: 100px; overflow: hidden;">Testing</div>
+            </td>
+            <td class="border" style="width: 50%; max-height: 100px; overflow: hidden;">
+                <div class="border" style="height: 100px;">50%</div>
+            </td>
+            <td class="border" style="width: 50%; max-height: 100px; overflow: hidden; white-space: normal;">
+                <div style="height: 100px;">50% This column has 50% width. It should split remaining space with the other 50% column.</div>
+            </td>
+            <td class="border">
+                <div style="width: 100px; height: 100px; overflow: hidden;">Auto This column should size itself to its contents. Auto This column should size itself to its contents.</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="border">
+                <div style="width: 200px; height: 100px; overflow: hidden;"></div>
+            </td>
+            <td class="border" colspan="2">
+                <div style="height: 100px; overflow: hidden;">This should consume the first two columns.</div>
+            </td>
+            <td class="border">
+                <div style="width: 100px; height: 100px; overflow: hidden;">Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah</div>
+            </td>
+        </tr>
+    </table>
+    <br />
+        <table style="border: solid 1px black; width: 400px; height: 300px;">
+        <tr style="height: 55px;">
+            <td class="border">foo</td>
+            <td class="border">fooofooooofooooo</td>
+            <td class="border" style="width: 100%;">
+                <div style="position: relative; overflow: hidden; width: 100%; height: 100%;">
+                    <div style="overflow: hidden; position: absolute; width: 100%; height: 100%;">
+                        <div style="border: solid 1px red;">Long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr style="height: 55px;">
+            <td class="border">barbarbarbarbarbarbarbarbarbar</td>
+            <td class="border">bar</td>
+            <td class="border">
+                <div style="position: relative; overflow: hidden; width: 100%; height: 100%;">
+                    <div style="overflow: hidden; position: absolute; width: 100%; height: 100%;">
+                        <div style="border: solid 1px red;">Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text Some more long text</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="border"></td>
+            <td class="border"></td>
+            <td class="border"></td>
+        </tr>
+    </table>
+    <br />
+    SL Example 1
+        <table style="border: solid 1px black; width: 400px; height: 300px;">
+            <tr style="height: 50px;">
+                <td class="border" style="width: 100px; height: 50px;">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border" style="width: 100px;"></td>
+                <td class="border" style=""></td>
+                <td class="border" style="width: 50px;"></td>
+            </tr>
+            <tr style="height: 50px;">
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
             </tr>
             <tr>
-                <td class="border"><div style="width: 200px; height: 100px; overflow: hidden;"></div></td>
-                <td class="border" colspan="2"><div style="height: 100px; overflow: hidden;">This should consume the first two columns.</div></td>
-                <td class="border"><div style="width: 100px; height: 100px; overflow: hidden;">Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah</div></td>
+                <td class="border"></td>
+                <td class="border">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border"></td>
+                <td class="border"></td>
             </tr>
         </table>
-    </body>
+    <br />
+    SL Example 2
+        <table style="border: solid 1px black; width: 400px; height: 300px;">
+            <tr style="height: 50px;">
+                <td class="border" style="width: 20%;">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border" style="width: 20%;"></td>
+                <td class="border" style=""></td>
+                <td class="border" style="width: 10%;"></td>
+            </tr>
+            <tr style="height: 50px;">
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+            </tr>
+            <tr>
+                <td class="border"></td>
+                <td class="border">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border"></td>
+                <td class="border"></td>
+            </tr>
+        </table>
+    <br />
+    SL Example 3
+        <table style="border: solid 1px black; width: 400px; height: 300px;">
+            <tr style="height: 50px;">
+                <td class="border">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border" style="width: 100%;"></td>
+            </tr>
+            <tr style="height: 50px;">
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+            </tr>
+            <tr>
+                <td class="border"></td>
+                <td class="border">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border"></td>
+                <td class="border"></td>
+            </tr>
+        </table>
+    <br />
+    SL Example 4
+        <table style="border: solid 1px black; width: 400px; height: 300px;">
+            <tr style="height: 33%;">
+                <td class="border" style="width: 25%;">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border" style="width: 25%;"></td>
+                <td class="border" style="width: 25%;"></td>
+                <td class="border" style="width: 25%;"></td>
+            </tr>
+            <tr style="height: 33%;">
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+            </tr>
+            <tr style="height: 33%;">
+                <td class="border"></td>
+                <td class="border">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border"></td>
+                <td class="border"></td>
+            </tr>
+        </table>
+    <br />
+    SL Example 5
+        <table style="border: solid 1px black; width: 400px; height: 300px;">
+            <tr style="height: 33%;">
+                <td class="border" style="min-width: 30px; max-width: 150px;">
+                <div style="position: relative; overflow: hidden; width: 100%; height: 100%;">
+                    <div style="overflow: hidden; position: absolute; width: 100%; height: 100%; vertical-align: middle;">
+                        <div style="width: 200px; height: 20px; white-space: nowrap; border: solid 1px red;">Long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text long text</div>
+                    </div>
+                </div>
+                </td>
+                <td class="border" style="min-width: 30px; max-width: 150px;"></td>
+                <td class="border" style="min-width: 30px; max-width: 150px;"></td>
+                <td class="border" style="min-width: 30px; max-width: 150px;"></td>
+            </tr>
+            <tr style="height: 33%;">
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+                <td class="border"></td>
+            </tr>
+            <tr style="height: 33%;">
+                <td class="border"></td>
+                <td class="border">
+                    <div class="inner-border" style="width: 50px; height: 30px; margin: auto;">Test</div>
+                </td>
+                <td class="border"></td>
+                <td class="border"></td>
+            </tr>
+        </table>
+</body>
 </html>
