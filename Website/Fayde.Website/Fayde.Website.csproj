@@ -82,6 +82,13 @@
     <Content Include="contribute.aspx" />
     <Content Include="App_Themes\default\images\bg.jpg" />
     <Content Include="demo.aspx" />
+    <Content Include="demos\masterdetail\default.fayde.js" />
+    <Content Include="demos\masterdetail\Default.js" />
+    <Content Include="demos\masterdetail\Default.ts" />
+    <Content Include="demos\masterdetail\INflRepository.js" />
+    <Content Include="demos\masterdetail\INflRepository.ts" />
+    <Content Include="demos\masterdetail\Player.js" />
+    <Content Include="demos\masterdetail\Player.ts" />
     <Content Include="demos\stackoverflow\default.fayde.js" />
     <Content Include="download.aspx" />
     <Content Include="features.aspx" />
@@ -170,6 +177,8 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="demos\stackoverflow\so.ashx" />
+    <Content Include="demos\masterdetail\default.fap" />
+    <Content Include="demos\masterdetail\default.fayde" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
