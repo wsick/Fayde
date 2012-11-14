@@ -13,15 +13,15 @@
     <body>
         <table class="border" cellpadding="0" cellspacing="0">
             <tr>
-                <td class="border" style="white-space: nowrap;"><div style="width: 200px;">Testing</div></td>
-                <td class="border" width="50%">50%</td>
-                <td class="border" width="50%">50% This column has 50% width. It should split remaining space with the other 50% column.</td>
-                <td class="border" style="white-space: nowrap;"><div>Auto This column should size itself to its contents. Auto This column should size itself to its contents.</div></td>
+                <td class="border" style="white-space: nowrap;"><div style="width: 200px; height: 100px; overflow: hidden;">Testing</div></td>
+                <td class="border" style="width: 50%;"><div style="height: 100px; overflow: hidden;"><div class="border" style="margin: 0px;">50%</div></div></td>
+                <td class="border" style="width: 50%;"><div style="height: 100px; overflow: hidden;"><div style="margin: 0px;">50% This column has 50% width. It should split remaining space with the other 50% column.</div></div></td>
+                <td class="border"><div style="width: 100px; height: 100px; overflow: hidden;">Auto This column should size itself to its contents. Auto This column should size itself to its contents.</div></td>
             </tr>
             <tr>
-                <td class="border"></td>
-                <td class="border" colspan="2">This should consume the first two columns.</td>
-                <td class="border">Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah </td>
+                <td class="border"><div style="width: 200px; height: 100px; overflow: hidden;"></div></td>
+                <td class="border" colspan="2"><div style="height: 100px; overflow: hidden;">This should consume the first two columns.</div></td>
+                <td class="border"><div style="width: 100px; height: 100px; overflow: hidden;">Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah</div></td>
             </tr>
         </table>
     </body>
