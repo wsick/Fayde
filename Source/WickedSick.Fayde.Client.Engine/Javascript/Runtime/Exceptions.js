@@ -29,10 +29,10 @@ var InvalidOperationException = Nullstone.Create("InvalidOperationException", Ex
 Nullstone.FinishCreate(InvalidOperationException);
 //#endregion
 
-//#region NotImplementedException
-var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 3);
+//#region InterfaceNotImplementedException
+var InterfaceNotImplementedException = Nullstone.Create("InterfaceNotImplementedException", Exception, 3);
 
-NotImplementedException.Instance.Init = function (type, parentType, methodName) {
+InterfaceNotImplementedException.Instance.Init = function (type, parentType, methodName) {
     var msg;
     if (methodName)
         msg = type._TypeName + " does not implement " + parentType._TypeName + "." + this.MethodName;
@@ -42,6 +42,16 @@ NotImplementedException.Instance.Init = function (type, parentType, methodName) 
 
     this.Type = type;
     this.ParentType = parentType;
+    this.MethodName = methodName;
+};
+
+Nullstone.FinishCreate(InterfaceNotImplementedException);
+//#endregion
+
+//#region NotImplementedException
+var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 1);
+
+NotImplementedException.Instance.Init = function (methodName) {
     this.MethodName = methodName;
 };
 

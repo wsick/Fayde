@@ -24,9 +24,6 @@ DoubleKeyedDictionary.Instance.GetValueFromKey2 = function (key2) {
     return null;
 };
 
-DoubleKeyedDictionary.Instance.Add = function (key1, key2) {
-    this.Add(key1, key2, false);
-};
 DoubleKeyedDictionary.Instance.Add = function (key1, key2, ignoreExisting) {
     var result = {};
     if (!ignoreExisting && (this._forward.TryGetValue(key1, result) || this._backward.TryGetValue(key2, result))) {
@@ -41,9 +38,6 @@ DoubleKeyedDictionary.Instance.Clear = function () {
     this._backward.Clear();
 };
 
-DoubleKeyedDictionary.Instance.Remove = function (key1, key2) {
-    this.Remove(key1, key2, false);
-};
 DoubleKeyedDictionary.Instance.Remove = function (key1, key2, ignoreExisting) {
     var result = {};
     if (!ignoreExisting && (!this._forward.TryGetValue(key1, result) || !this._backward.TryGetValue(key2, result))) {

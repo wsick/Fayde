@@ -2,25 +2,6 @@
     return eval(uneval(o));
 };
 
-/*
-Function.prototype.Implement = function (interface) {
-    var interfaceName = (new interface())._TypeName;
-    for (var i in interface.prototype) {
-        if (!this.prototype[i])
-            this.prototype[i] = new Function("throw new NotImplementedException();");
-    }
-    if (this._Interfaces == null)
-        this._Interfaces = [];
-    this._Interfaces[interfaceName] = true;
-    return this;
-};
-Function.prototype.DoesImplement = function (interface) {
-    if (!this._Interfaces)
-        return false;
-    var interfaceName = (new interface())._TypeName;
-    return this._Interfaces[interfaceName] === true;
-};
-*/
 Function.prototype.Clone = function () {
     return eval(uneval(this));
 };

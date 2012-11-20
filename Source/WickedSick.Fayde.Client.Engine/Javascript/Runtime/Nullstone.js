@@ -58,7 +58,7 @@ Nullstone.FinishCreate = function (f) {
             var it = f.Interfaces[i].Instance;
             for (var m in it) {
                 if (!(m in f.prototype))
-                    throw new NotImplementedException(f, it, m);
+                    throw new InterfaceNotImplementedException(f, it, m);
             }
         }
     }
