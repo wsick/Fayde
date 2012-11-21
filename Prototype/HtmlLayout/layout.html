@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <title>Layout</title>
@@ -72,8 +72,8 @@
                             </div>
                         </td>
                         <td class="border" colspan="2">
-                            <div style="height: 100px; overflow: hidden;">
-                                This should consume the first two columns.
+                            <div style="height: 200px; width: 100%; overflow: hidden;">
+                                This should consume the first two columns. Blah Blah Blah
                             </div>
                         </td>
                         <td class="border">
@@ -1018,6 +1018,60 @@
                                                                                         style="font-family: 'courier new'; color: #0000ff; font-size: 10pt;">&gt;</span>
                 </div>
             </td>
+        </tr>
+        <tr>
+            <td>
+                SL Example 8
+                                <table style="width: 400px; height: 300px;">
+                    <tr>
+                        <td class="border" style="width: 25%; min-width: 30px; max-width: 150px;">
+                            <div style="position: relative; overflow: hidden; width: 100%; height: 100%;">
+                                <div style="overflow: hidden; position: absolute; width: 100%; height: 100%;">
+                                    <div style="width: 100%; height: 100%; display: table;">
+                                        <div style="display: table-cell; vertical-align: middle;">
+                                            <div style="width: 200px; height: 30px; display: table;">
+                                                <div class="button" style="display: table-cell; vertical-align: middle; text-align: center;">Text</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="border" colspan="2" style="width: 50%; min-width: 30px; max-width: 150px; overflow: hidden;">
+                                    <div style="width: 100%; height: 100%; display: table;">
+                                        <div style="display: table-cell; vertical-align: middle;">
+                                            <div style="width: 270px; height: 200px; display: table;">
+                                                <div class="button" style="display: table-cell; vertical-align: middle; text-align: center;">Text</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                        </td>
+                        <td class="border" style="width: 25%; min-width: 30px; max-width: 150px;"></td>
+                    </tr>
+                    <tr>
+                        <td class="border"></td>
+                        <td class="border"></td>
+                        <td class="border"></td>
+                        <td class="border"></td>
+                    </tr>
+                    <tr style="height: 100%;">
+                        <td class="border"></td>
+                        <td class="border" style="overflow: hidden;">
+                            <div style="position: relative; overflow: hidden; width: 100%; height: 32px; margin: auto;">
+                                <div style="overflow: hidden; position: absolute; width: 100%; height: 100%;">
+                                    <div class="box" style="width: 50px; height: 30px; white-space: nowrap; margin: auto; overflow: hidden;">
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="border"></td>
+                        <td class="border"></td>
+                    </tr>
+                </table>​
+            </td>
+            <td></td>
+            <td></td>
         </tr>
     </table>
 </body>
