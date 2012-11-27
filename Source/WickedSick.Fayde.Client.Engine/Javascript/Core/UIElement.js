@@ -1208,6 +1208,45 @@ UIElement.Instance.OnLostFocus = function (e) { };
 
 //#endregion
 
+
+
+
+
+UIElement.Instance.CreateHtmlObject = function () {
+    this._HtmlEl = this.CreateHtmlObjectImpl();
+};
+UIElement.Instance.CreateHtmlObjectImpl = function () {
+    AbstractMethod("CreateHtmlObjectImpl");
+};
+UIElement.Instance.InvalidateProperty = function (propd, oldValue, newValue) {
+    if (this._PropChanges == null)
+        this._PropChanges = [];
+    this._PropChanges.push({
+        Property: propd,
+        OldValue: oldValue,
+        NewValue: newValue,
+    });
+};
+UIElement.Instance.ApplyChanges = function () {
+    var changes = this._PropChanges.slice(0);
+    this._PropChanges = [];
+    var len = changes.length;
+    for (var i = 0; i < len; i++) {
+        ApplyChange(changes[i]);
+    }
+};
+UIElement.Instance.ApplyChange = function (change) {
+    //change.Property;
+    //change.OldValue;
+    //change.NewValue;
+};
+
+
+
+
+
+
+
 UIElement.Instance._IsOpacityInvisible = function () {
     return this._TotalOpacity * 255 < .5;
 };
