@@ -94,6 +94,8 @@ UIElement.Instance.Init = function () {
     this.RequestBringIntoView = new MulticastEvent();
 
     this.VisualParentChanged = new MulticastEvent();
+
+    this.CreateHtmlObject();
 };
 
 //#region Properties
@@ -1216,7 +1218,7 @@ UIElement.Instance.CreateHtmlObject = function () {
     this._HtmlEl = this.CreateHtmlObjectImpl();
 };
 UIElement.Instance.CreateHtmlObjectImpl = function () {
-    AbstractMethod("CreateHtmlObjectImpl");
+    return document.createElement("div");
 };
 UIElement.Instance.InvalidateProperty = function (propd, oldValue, newValue) {
     if (this._PropChanges == null)
@@ -1239,10 +1241,30 @@ UIElement.Instance.ApplyChange = function (change) {
     //change.Property;
     //change.OldValue;
     //change.NewValue;
+    var propd = change.Property;
+    if (propd._ID === UIElement.OpacityProperty._ID) {
+        this._HtmlEl.style.opacity = change.NewValue;
+    } else if (propd._ID === UIElement.VisibilityProperty._ID) {
+        if (change.NewValue === Visibility.Collapsed) {
+            this._HtmlEl.style.display = "none";
+        } else if (change.NewValue === Visibility.Visible) {
+            this._HtmlEl.style.display = this.GetHtmlDefaultDisplay();
+        }
+    } else if (propd._ID === UIElement.IsHitTestVisibleProperty._ID) {
+    } else if (propd._ID === UIElement.ClipProperty._ID) {
+    } else if (propd._ID === UIElement.OpacityMaskProperty._ID) {
+    } else if (propd._ID === UIElement.RenderTransformProperty._ID
+        || propd._ID === UIElement.RenderTransformOriginProperty._ID) {
+    } else if (propd._ID === UIElement.TriggersProperty._ID) {
+    } else if (propd._ID === UIElement.UseLayoutRoundingProperty._ID) {
+    } else if (propd._ID === UIElement.EffectProperty._ID) {
+    } else if (propd._ID === UIElement.ProjectionProperty._ID) {
+    } else if (propd._ID === UIElement.CacheModeProperty._ID) {
+    }
 };
-
-
-
+UIElement.Instance.GetHtmlDefaultDisplay = function () {
+    return "";
+}
 
 
 
