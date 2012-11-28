@@ -928,7 +928,9 @@ FrameworkElement.Instance.ApplyChange = function (change) {
     if (propd._ID === FrameworkElement.CursorProperty._ID) {
         rootEl.style.cursor = change.NewValue;
     } else if (propd._ID === FrameworkElement.WidthProperty._ID) {
+        rootEl.style.width = change.NewValue;
     } else if (propd._ID === FrameworkElement.HeightProperty._ID) {
+        rootEl.style.height = change.NewValue;
     } else if (propd._ID === FrameworkElement.MinWidthProperty._ID) {
     } else if (propd._ID === FrameworkElement.MinHeightProperty._ID) {
     } else if (propd._ID === FrameworkElement.MaxWidthProperty._ID) {
