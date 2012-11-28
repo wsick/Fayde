@@ -926,7 +926,7 @@ FrameworkElement.Instance.ApplyChange = function (change) {
 
     var rootEl = this.GetRootHtmlElement();
     if (propd._ID === FrameworkElement.CursorProperty._ID) {
-        rootEl.style.cursor = args.NewValue;
+        rootEl.style.cursor = change.NewValue;
     } else if (propd._ID === FrameworkElement.WidthProperty._ID) {
     } else if (propd._ID === FrameworkElement.HeightProperty._ID) {
     } else if (propd._ID === FrameworkElement.MinWidthProperty._ID) {
