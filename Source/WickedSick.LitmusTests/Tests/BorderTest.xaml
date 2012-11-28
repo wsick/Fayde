@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="WickedSick.LitmusTests.Tests.BorderTest"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300" d:DesignWidth="400" Background="Navy" FontFamily="Verdana" FontSize="16">
+    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid Background="White">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Border Background="Green">
+                <TextBlock>Testing</TextBlock>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
