@@ -1220,6 +1220,25 @@ UIElement.Instance.CreateHtmlObject = function () {
 UIElement.Instance.CreateHtmlObjectImpl = function () {
     return document.createElement("div");
 };
+UIElement.Instance.GetRootHtmlElement = function () {
+    if (!this._HtmlEl)
+        this.CreateHtmlObject();
+    return this._HtmlEl;
+};
+UIElement.Instance.OnHtmlAttached = function () {
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        this.GetRootHtmlElement().appendChild(subtree.GetRootHtmlElement());
+        subtree.OnHtmlAttached();
+    }
+};
+UIElement.Instance.OnHtmlDetached = function () {
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        subtree.OnHtmlDetached();
+        this.GetRootHtmlElement().removeChild(subtree.GetRootHtmlElement());
+    }
+};
 UIElement.Instance.InvalidateProperty = function (propd, oldValue, newValue) {
     if (this._PropChanges == null)
         this._PropChanges = [];
@@ -1241,14 +1260,15 @@ UIElement.Instance.ApplyChange = function (change) {
     //change.Property;
     //change.OldValue;
     //change.NewValue;
+    var rootEl = this.GetRootHtmlElement();
     var propd = change.Property;
     if (propd._ID === UIElement.OpacityProperty._ID) {
-        this._HtmlEl.style.opacity = change.NewValue;
+        rootEl.style.opacity = change.NewValue;
     } else if (propd._ID === UIElement.VisibilityProperty._ID) {
         if (change.NewValue === Visibility.Collapsed) {
-            this._HtmlEl.style.display = "none";
+            rootEl.style.display = "none";
         } else if (change.NewValue === Visibility.Visible) {
-            this._HtmlEl.style.display = this.GetHtmlDefaultDisplay();
+            rootEl.style.display = this.GetHtmlDefaultDisplay();
         }
     } else if (propd._ID === UIElement.IsHitTestVisibleProperty._ID) {
     } else if (propd._ID === UIElement.ClipProperty._ID) {

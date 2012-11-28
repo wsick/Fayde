@@ -917,6 +917,25 @@ FrameworkElement.Instance._HasFocus = function () {
 
 //#endregion
 
+FrameworkElement.Instance.ApplyChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== FrameworkElement) {
+        this.ApplyChange$UIElement(change);
+        return;
+    }
+
+    var rootEl = this.GetRootHtmlElement();
+    if (propd._ID === FrameworkElement.CursorProperty._ID) {
+        rootEl.style.cursor = args.NewValue;
+    } else if (propd._ID === FrameworkElement.WidthProperty._ID) {
+    } else if (propd._ID === FrameworkElement.HeightProperty._ID) {
+    } else if (propd._ID === FrameworkElement.MinWidthProperty._ID) {
+    } else if (propd._ID === FrameworkElement.MinHeightProperty._ID) {
+    } else if (propd._ID === FrameworkElement.MaxWidthProperty._ID) {
+    } else if (propd._ID === FrameworkElement.MaxHeightProperty._ID) {
+    }
+};
+
 //#endregion
 
 Nullstone.FinishCreate(FrameworkElement);
