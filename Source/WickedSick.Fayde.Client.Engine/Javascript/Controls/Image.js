@@ -284,6 +284,23 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
 
 //#endregion
 
+Fayde.Image.Instance.CreateHtmlObjectImpl = function () {
+    return document.createElement("img");
+};
+Fayde.Image.Instance.ApplyChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== Fayde.Image) {
+        this.ApplyChange$FrameworkElement(change);
+        return;
+    }
+
+    var rootEl = this.GetRootHtmlElement();
+    if (propd._ID === Fayde.Image.SourceProperty._ID) {
+        var source = change.NewValue;
+        rootEl.src = source._Image.src;
+    }
+};
+
 Fayde.Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
     /// <param name="width" type="Number"></param>
     /// <param name="height" type="Number"></param>
