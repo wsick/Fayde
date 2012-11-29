@@ -257,7 +257,7 @@ Fayde.Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     }
 };
 Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== FrameworkElement) {
+    if (args.Property.OwnerType !== Fayde.Image) {
         this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
