@@ -70,6 +70,7 @@
     <Content Include="Images\tile-test.png" />
     <Content Include="Images\twitter.png" />
     <Content Include="Silverlight.js" />
+    <Content Include="default2.fap" />
     <None Include="Views\SDK.fayde" />
     <None Include="Views\Toolkit.fayde" />
     <Content Include="Views\Home.fayde.js">

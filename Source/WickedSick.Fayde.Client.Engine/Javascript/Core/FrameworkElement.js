@@ -798,6 +798,7 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         return;
     }
 
+    var ivprop = false;
     if (args.Property._ID === FrameworkElement.WidthProperty._ID
         || args.Property._ID === FrameworkElement.MaxWidthProperty._ID
         || args.Property._ID === FrameworkElement.MinWidthProperty._ID
@@ -819,6 +820,9 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateMeasure();
         this._InvalidateArrange();
         this._UpdateBounds();
+        ivprop = true;
+    } else if (args.Property._ID === FrameworkElement.CursorProperty._ID) {
+        ivprop = true;
     } else if (args.Property._ID === FrameworkElement.StyleProperty._ID) {
         var newStyle = args.NewValue;
         if (!error.IsErrored())
@@ -830,6 +834,8 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateArrange();
         this._FullInvalidate(true);
     }
+    if (ivprop)
+        this.InvaliateProperty(args.Property, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
 

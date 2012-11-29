@@ -1003,8 +1003,11 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
+
+    var ivprop = false;
     if (args.Property._ID === UIElement.OpacityProperty._ID) {
         this._InvalidateVisibility();
+        ivprop = true;
     } else if (args.Property._ID === UIElement.VisibilityProperty._ID) {
         if (args.NewValue === Visibility.Visible)
             this._Flags |= UIElementFlags.RenderVisible;
@@ -1016,6 +1019,7 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         if (parent)
             parent._InvalidateMeasure();
         App.Instance.MainSurface._RemoveFocus(this);
+        ivprop = true;
     } else if (args.Property._ID === UIElement.IsHitTestVisibleProperty._ID) {
         if (args.NewValue === true) {
             this._Flags |= UIElementFlags.HitTestVisible;
@@ -1059,6 +1063,8 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
     } else if (args.Property._ID === UIElement.CacheModeProperty._ID) {
         //TODO: CacheModeProperty
     }
+    if (ivprop)
+        this.InvaliateProperty(args.Property, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
 UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
@@ -1211,8 +1217,7 @@ UIElement.Instance.OnLostFocus = function (e) { };
 //#endregion
 
 
-
-
+//#region Html Translations
 
 UIElement.Instance.CreateHtmlObject = function () {
     this._HtmlEl = this.CreateHtmlObjectImpl();
@@ -1240,20 +1245,24 @@ UIElement.Instance.OnHtmlDetached = function () {
     }
 };
 UIElement.Instance.InvalidateProperty = function (propd, oldValue, newValue) {
-    if (this._PropChanges == null)
-        this._PropChanges = [];
-    this._PropChanges.push({
+    if (UIElement._PropChanges == null)
+        UIElement._PropChanges = [];
+    UIElement._PropChanges.push({
+        Closure: this,
         Property: propd,
         OldValue: oldValue,
         NewValue: newValue,
     });
 };
-UIElement.Instance.ApplyChanges = function () {
-    var changes = this._PropChanges.slice(0);
-    this._PropChanges = [];
+UIElement.ApplyChanges = function () {
+    if (!UIElement._PropChanges)
+        return;
+    var changes = UIElement._PropChanges.slice(0);
+    UIElement._PropChanges = [];
     var len = changes.length;
     for (var i = 0; i < len; i++) {
-        ApplyChange(changes[i]);
+        var change = changes[i];
+        change.Closure.ApplyChange.call(change.Closure, change);
     }
 };
 UIElement.Instance.ApplyChange = function (change) {
@@ -1286,7 +1295,7 @@ UIElement.Instance.GetHtmlDefaultDisplay = function () {
     return "";
 }
 
-
+//#endregion
 
 
 UIElement.Instance._IsOpacityInvisible = function () {

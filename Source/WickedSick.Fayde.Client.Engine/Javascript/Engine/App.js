@@ -82,7 +82,8 @@ App.Instance.Start = function () {
 };
 App.Instance._Tick = function (lastTime, nowTime) {
     this.ProcessStoryboards(lastTime, nowTime);
-    this.ProcessDirty();
+    //this.ProcessDirty();
+    this.ProcessHtmlChanges();
 };
 App.Instance._Stop = function () {
     this._ClockTimer.UnregisterTimer(this);
@@ -113,6 +114,9 @@ App.Instance.ProcessDirty = function () {
 
     if (updated && isLayoutPassTimed)
         this._NotifyDebugLayoutPass(new Date().getTime() - startLayoutTime);
+};
+App.Instance.ProcessHtmlChanges = function () {
+    this.MainSurface.ProcessHtmlChanges();
 };
 
 App.Instance.RegisterStoryboard = function (storyboard) {

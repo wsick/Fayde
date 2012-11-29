@@ -252,6 +252,7 @@ Fayde.Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (propd && (propd._ID === Fayde.Image.SourceProperty._ID)) {
         this._InvalidateMeasure();
         this._Invalidate();
+        this.InvalidateProperty(propd, undefined, undefined);
         return;
     }
 };
@@ -261,6 +262,7 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
         return;
     }
 
+    var ivprop = false;
     if (args.Property._ID === Fayde.Image.SourceProperty._ID) {
         var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
         if (oldBmpSrc) {
@@ -277,8 +279,10 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
             this._Invalidate();
         }
         this._InvalidateMeasure();
+        ivprop = true;
     }
-
+    if (ivprop)
+        this.InvaliateProperty(args.Property, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
 
@@ -296,7 +300,7 @@ Fayde.Image.Instance.ApplyChange = function (change) {
 
     var rootEl = this.GetRootHtmlElement();
     if (propd._ID === Fayde.Image.SourceProperty._ID) {
-        var source = change.NewValue;
+        var source = this.Source;
         rootEl.src = source._Image.src;
     }
 };

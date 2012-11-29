@@ -194,6 +194,32 @@ Panel.Instance._OnIsAttachedChanged = function (value) {
     }
 };
 
+
+Panel.Instance.OnHtmlAttached = function () {
+    var children = this.Children;
+    if (children) {
+        var rootEl = this.GetRootHtmlElement();
+        var len = children.GetCount();
+        for (var i = 0; i < len; i++) {
+            var child = children.GetValueAt(i);
+            rootEl.appendChild(child.GetRootHtmlElement());
+            child.OnHtmlAttached();
+        }
+    }
+};
+Panel.Instance.OnHtmlDetached = function () {
+    var children = this.Children;
+    if (children) {
+        var rootEl = this.GetRootHtmlElement();
+        var len = children.GetCount();
+        for (var i = 0; i < len; i++) {
+            var child = children.GetValueAt(i);
+            rootEl.removeChild(child.GetRootHtmlElement());
+            child.OnHtmlDetached();
+        }
+    }
+};
+
 //#endregion
 
 //#region Annotations

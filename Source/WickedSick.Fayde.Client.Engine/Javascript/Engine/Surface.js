@@ -112,6 +112,10 @@ Surface.Instance._AttachLayer = function (layer) {
     layer._SetIsAttached(true);
     layer._SetIsLoaded(true);
 
+    var rootEl = layer.GetRootHtmlElement();
+    document.body.appendChild(rootEl);
+    layer.OnHtmlAttached();
+
     this._App._NotifyDebugLayer(true, layer);
 };
 Surface.Instance._DetachLayer = function (layer) {
@@ -213,6 +217,7 @@ Nullstone.Property(Surface, "Root", {
 //#region Render
 
 Surface.Instance._Invalidate = function (rect) {
+    return;
     RenderDebug("Invalidation: " + rect.toString());
     if (!rect) {
         var extents = this.GetExtents();
@@ -937,6 +942,10 @@ Surface.Instance._CreateEventArgs = function (type, pos, delta) {
 };
 
 //#endregion
+
+Surface.Instance.ProcessHtmlChanges = function () {
+    UIElement.ApplyChanges();
+};
 
 Surface.Instance._SetUserInitiatedEvent = function (val) {
     this._EmitFocusChangeEvents();
