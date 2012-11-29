@@ -9,6 +9,6 @@
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
     <Grid x:Name="LayoutRoot">
-        <Image Source="Images/page01.JPG" />
+        <Image Source="Images/page01.JPG" MaxHeight="200" />
     </Grid>
 </FaydeApplication>

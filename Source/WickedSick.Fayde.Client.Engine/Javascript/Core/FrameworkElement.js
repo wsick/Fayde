@@ -932,19 +932,19 @@ FrameworkElement.Instance.ApplyChange = function (change) {
 
     var rootEl = this.GetRootHtmlElement();
     if (propd._ID === FrameworkElement.CursorProperty._ID) {
-        rootEl.style.cursor = change.NewValue;
+        rootEl.style.cursor = change.NewValue + "px";
     } else if (propd._ID === FrameworkElement.WidthProperty._ID) {
-        rootEl.style.width = change.NewValue;
+        rootEl.style.width = change.NewValue + "px";
     } else if (propd._ID === FrameworkElement.HeightProperty._ID) {
-        rootEl.style.height = change.NewValue;
+        rootEl.style.height = change.NewValue + "px";
     } else if (propd._ID === FrameworkElement.MinWidthProperty._ID) {
-        rootEl.style.minWidth = change.NewValue;
+        rootEl.style.minWidth = change.NewValue + "px";
     } else if (propd._ID === FrameworkElement.MinHeightProperty._ID) {
-        rootEl.style.minHeight = change.NewValue;
+        rootEl.style.minHeight = change.NewValue + "px";
     } else if (propd._ID === FrameworkElement.MaxWidthProperty._ID) {
-        rootEl.style.maxWidth = change.NewValue;
+        rootEl.style.maxWidth = change.NewValue + "px";
     } else if (propd._ID === FrameworkElement.MaxHeightProperty._ID) {
-        rootEl.style.maxHeight = change.NewValue;
+        rootEl.style.maxHeight = change.NewValue + "px";
     }
 };
 
