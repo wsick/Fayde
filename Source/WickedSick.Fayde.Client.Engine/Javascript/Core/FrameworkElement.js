@@ -938,9 +938,13 @@ FrameworkElement.Instance.ApplyChange = function (change) {
     } else if (propd._ID === FrameworkElement.HeightProperty._ID) {
         rootEl.style.height = change.NewValue;
     } else if (propd._ID === FrameworkElement.MinWidthProperty._ID) {
+        rootEl.style.minWidth = change.NewValue;
     } else if (propd._ID === FrameworkElement.MinHeightProperty._ID) {
+        rootEl.style.minHeight = change.NewValue;
     } else if (propd._ID === FrameworkElement.MaxWidthProperty._ID) {
+        rootEl.style.maxWidth = change.NewValue;
     } else if (propd._ID === FrameworkElement.MaxHeightProperty._ID) {
+        rootEl.style.maxHeight = change.NewValue;
     }
 };
 
