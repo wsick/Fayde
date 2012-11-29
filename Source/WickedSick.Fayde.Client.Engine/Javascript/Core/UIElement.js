@@ -1064,7 +1064,7 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         //TODO: CacheModeProperty
     }
     if (ivprop)
-        this.InvaliateProperty(args.Property, args.OldValue, args.NewValue);
+        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
 UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
