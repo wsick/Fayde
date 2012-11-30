@@ -114,9 +114,10 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
-    if (args.Property == Panel.BackgroundProperty) {
+    if (args.Property._ID === Panel.BackgroundProperty._ID) {
         this._UpdateBounds();
         this._Invalidate();
+        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
     } else if (args.Property == Panel.ChildrenProperty) {
         var collection;
         var count;
@@ -198,11 +199,11 @@ Panel.Instance._OnIsAttachedChanged = function (value) {
 Panel.Instance.OnHtmlAttached = function () {
     var children = this.Children;
     if (children) {
-        var rootEl = this.GetRootHtmlElement();
+        var contentEl = this.GetRootHtmlElement().firstChild;
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
             var child = children.GetValueAt(i);
-            rootEl.appendChild(child.GetRootHtmlElement());
+            contentEl.appendChild(child.GetRootHtmlElement());
             child.OnHtmlAttached();
         }
     }
@@ -210,13 +211,28 @@ Panel.Instance.OnHtmlAttached = function () {
 Panel.Instance.OnHtmlDetached = function () {
     var children = this.Children;
     if (children) {
-        var rootEl = this.GetRootHtmlElement();
+        var contentEl = this.GetRootHtmlElement().firstChild;
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
             var child = children.GetValueAt(i);
-            rootEl.removeChild(child.GetRootHtmlElement());
+            contentEl.removeChild(child.GetRootHtmlElement());
             child.OnHtmlDetached();
         }
+    }
+};
+
+Panel.Instance.ApplyChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== Panel) {
+        this.ApplyChange$UIElement(change);
+        return;
+    }
+
+    var contentEl = this.GetRootHtmlElement().firstChild;
+    if (propd._ID === Panel.BackgroundProperty._ID) {
+        var brush = change.NewValue;
+        brush.SetupBrush(null, null);
+        contentEl.style.background = brush.ToHtml5Object();
     }
 };
 

@@ -289,7 +289,9 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
 //#endregion
 
 Fayde.Image.Instance.CreateHtmlObjectImpl = function () {
-    return document.createElement("img");
+    var rootEl = document.createElement("div");
+    rootEl.appendChild(document.createElement("img"));
+    return rootEl;
 };
 Fayde.Image.Instance.ApplyChange = function (change) {
     var propd = change.Property;
@@ -299,9 +301,10 @@ Fayde.Image.Instance.ApplyChange = function (change) {
     }
 
     var rootEl = this.GetRootHtmlElement();
+    var imgEl = rootEl.firstChild;
     if (propd._ID === Fayde.Image.SourceProperty._ID) {
         var source = this.Source;
-        rootEl.src = source._Image.src;
+        imgEl.src = source._Image.src;
     }
 };
 

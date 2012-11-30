@@ -29,6 +29,10 @@ Surface.Instance.Init = function (app) {
         Surface._Invalidations = [];
     this.LayoutUpdated = new MulticastEvent();
     this._KeyInterop = KeyInterop.CreateInterop(this);
+    this._RootHtmlEl = document.createElement("div");
+    this._RootHtmlEl.style.width = "100%";
+    this._RootHtmlEl.style.height = "100%";
+    document.body.appendChild(this._RootHtmlEl);
 };
 
 //#region Initialization
@@ -113,7 +117,7 @@ Surface.Instance._AttachLayer = function (layer) {
     layer._SetIsLoaded(true);
 
     var rootEl = layer.GetRootHtmlElement();
-    document.body.appendChild(rootEl);
+    this._RootHtmlEl.appendChild(rootEl);
     layer.OnHtmlAttached();
 
     this._App._NotifyDebugLayer(true, layer);
