@@ -30,6 +30,7 @@ Surface.Instance.Init = function (app) {
     this.LayoutUpdated = new MulticastEvent();
     this._KeyInterop = KeyInterop.CreateInterop(this);
     this._RootHtmlEl = document.createElement("div");
+    this._RootHtmlEl.style.position = "absolute";
     this._RootHtmlEl.style.width = "100%";
     this._RootHtmlEl.style.height = "100%";
     document.body.appendChild(this._RootHtmlEl);

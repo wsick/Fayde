@@ -951,8 +951,10 @@ FrameworkElement.Instance.OnHtmlDetached = function () {
 FrameworkElement.ApplyHorizontalAlignment = function (rootEl, value) {
     switch (value) {
         case HorizontalAlignment.Stretch:
-            rootEl.style.marginLeft = "0px";
-            rootEl.style.marginRight = "0px";
+            //rootEl.style.marginLeft = "0px";
+            //rootEl.style.marginRight = "0px";
+            rootEl.style.position = "absolute";
+            rootEl.style.width = "100%";
             break;
         case HorizontalAlignment.Left:
             rootEl.style.marginLeft = "0px";
@@ -971,8 +973,10 @@ FrameworkElement.ApplyHorizontalAlignment = function (rootEl, value) {
 FrameworkElement.ApplyVerticalAlignment = function (rootEl, value) {
     switch (value) {
         case VerticalAlignment.Stretch:
-            rootEl.style.marginTop = "0px";
-            rootEl.style.marginBottom = "0px";
+            //rootEl.style.marginTop = "0px";
+            //rootEl.style.marginBottom = "0px";
+            rootEl.style.position = "absolute";
+            rootEl.style.height = "100%";
             break;
         case VerticalAlignment.Top:
             rootEl.style.marginTop = "0px";
