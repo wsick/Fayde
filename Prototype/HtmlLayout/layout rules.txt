@@ -1,0 +1,2 @@
+To make an element take up 100% of its given width and height use:
+position: absolute; width: 100%; height: 100%;
