@@ -221,10 +221,10 @@ Panel.Instance.OnHtmlDetached = function () {
     }
 };
 
-Panel.Instance.ApplyChange = function (change) {
+Panel.Instance.ApplyHtmlChange = function (change) {
     var propd = change.Property;
     if (propd.OwnerType !== Panel) {
-        this.ApplyChange$UIElement(change);
+        this.ApplyHtmlChange$FrameworkElement(change);
         return;
     }
 

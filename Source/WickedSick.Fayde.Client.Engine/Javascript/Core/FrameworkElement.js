@@ -992,10 +992,14 @@ FrameworkElement.ApplyVerticalAlignment = function (rootEl, value) {
             break;
     }
 };
-FrameworkElement.Instance.ApplyChange = function (change) {
+
+FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
+    this.ApplyHtmlChanges$UIElement(invalidations);
+};
+FrameworkElement.Instance.ApplyHtmlChange = function (change) {
     var propd = change.Property;
     if (propd.OwnerType !== FrameworkElement) {
-        this.ApplyChange$UIElement(change);
+        this.ApplyHtmlChange$UIElement(change);
         return;
     }
 
