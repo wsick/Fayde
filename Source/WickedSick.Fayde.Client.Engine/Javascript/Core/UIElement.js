@@ -1236,32 +1236,6 @@ UIElement.Instance.ProcessHtmlChanges = function () {
     delete this._HtmlInvalidations;
     this.ApplyHtmlChanges(invalidations);
 };
-
-UIElement.Instance.CreateHtmlObject = function () {
-    this._HtmlEl = this.CreateHtmlObjectImpl();
-};
-UIElement.Instance.CreateHtmlObjectImpl = function () {
-    return document.createElement("div");
-};
-UIElement.Instance.GetRootHtmlElement = function () {
-    if (!this._HtmlEl)
-        this.CreateHtmlObject();
-    return this._HtmlEl;
-};
-UIElement.Instance.OnHtmlAttached = function () {
-    var subtree = this._SubtreeObject;
-    if (subtree) {
-        this.GetRootHtmlElement().appendChild(subtree.GetRootHtmlElement());
-        subtree.OnHtmlAttached();
-    }
-};
-UIElement.Instance.OnHtmlDetached = function () {
-    var subtree = this._SubtreeObject;
-    if (subtree) {
-        subtree.OnHtmlDetached();
-        this.GetRootHtmlElement().removeChild(subtree.GetRootHtmlElement());
-    }
-};
 UIElement.Instance.InvalidateProperty = function (propd, oldValue, newValue) {
     if (!this._HtmlInvalid) {
         this._HtmlInvalid = true;
@@ -1302,6 +1276,32 @@ UIElement.Instance.ApplyHtmlChange = function (change) {
     } else if (propd._ID === UIElement.EffectProperty._ID) {
     } else if (propd._ID === UIElement.ProjectionProperty._ID) {
     } else if (propd._ID === UIElement.CacheModeProperty._ID) {
+    }
+};
+
+UIElement.Instance.CreateHtmlObject = function () {
+    this._HtmlEl = this.CreateHtmlObjectImpl();
+};
+UIElement.Instance.CreateHtmlObjectImpl = function () {
+    return document.createElement("div");
+};
+UIElement.Instance.GetRootHtmlElement = function () {
+    if (!this._HtmlEl)
+        this.CreateHtmlObject();
+    return this._HtmlEl;
+};
+UIElement.Instance.OnHtmlAttached = function () {
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        this.GetRootHtmlElement().appendChild(subtree.GetRootHtmlElement());
+        subtree.OnHtmlAttached();
+    }
+};
+UIElement.Instance.OnHtmlDetached = function () {
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        subtree.OnHtmlDetached();
+        this.GetRootHtmlElement().removeChild(subtree.GetRootHtmlElement());
     }
 };
 UIElement.Instance.GetHtmlDefaultDisplay = function () {
