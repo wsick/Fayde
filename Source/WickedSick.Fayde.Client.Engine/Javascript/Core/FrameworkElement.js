@@ -930,6 +930,8 @@ FrameworkElement.Instance._HasFocus = function () {
 FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = document.createElement("div");
     rootEl.appendChild(document.createElement("div"));
+    FrameworkElement.ApplyHorizontalAlignment(rootEl, this.HorizontalAlignment);
+    FrameworkElement.ApplyVerticalAlignment(rootEl, this.VerticalAlignment);
     return rootEl;
 };
 FrameworkElement.Instance.OnHtmlAttached = function () {
@@ -944,6 +946,46 @@ FrameworkElement.Instance.OnHtmlDetached = function () {
     if (subtree) {
         subtree.OnHtmlDetached();
         this.GetRootHtmlElement().firstChild.removeChild(subtree.GetRootHtmlElement());
+    }
+};
+FrameworkElement.ApplyHorizontalAlignment = function (rootEl, value) {
+    switch (value) {
+        case HorizontalAlignment.Stretch:
+            rootEl.style.marginLeft = "0px";
+            rootEl.style.marginRight = "0px";
+            break;
+        case HorizontalAlignment.Left:
+            rootEl.style.marginLeft = "0px";
+            rootEl.style.marginRight = "auto";
+            break;
+        case HorizontalAlignment.Center:
+            rootEl.style.marginLeft = "auto";
+            rootEl.style.marginRight = "auto";
+            break;
+        case HorizontalAlignment.Right:
+            rootEl.style.marginLeft = "auto";
+            rootEl.style.marginRight = "0px";
+            break;
+    }
+};
+FrameworkElement.ApplyVerticalAlignment = function (rootEl, value) {
+    switch (value) {
+        case VerticalAlignment.Stretch:
+            rootEl.style.marginTop = "0px";
+            rootEl.style.marginBottom = "0px";
+            break;
+        case VerticalAlignment.Top:
+            rootEl.style.marginTop = "0px";
+            rootEl.style.marginBottom = "auto";
+            break;
+        case VerticalAlignment.Center:
+            rootEl.style.marginTop = "auto";
+            rootEl.style.marginBottom = "auto";
+            break;
+        case VerticalAlignment.Bottom:
+            rootEl.style.marginTop = "auto";
+            rootEl.style.marginBottom = "0px";
+            break;
     }
 };
 FrameworkElement.Instance.ApplyChange = function (change) {
@@ -977,44 +1019,9 @@ FrameworkElement.Instance.ApplyChange = function (change) {
         subEl.style.marginRight = thickness.Right + "px";
         subEl.style.marginBottom = thickness.Bottom + "px";
     } else if (propd._ID === FrameworkElement.HorizontalAlignmentProperty._ID) {
-        switch (newValue) {
-            case HorizontalAlignment.Stretch:
-                rootEl.style.marginLeft = "0px";
-                rootEl.style.marginRight = "0px";
-                break;
-            case HorizontalAlignment.Left:
-                rootEl.style.marginLeft = "0px";
-                rootEl.style.marginRight = "auto";
-                break;
-            case HorizontalAlignment.Center:
-                rootEl.style.marginLeft = "auto";
-                rootEl.style.marginRight = "auto";
-                break;
-            case HorizontalAlignment.Right:
-                rootEl.style.marginLeft = "auto";
-                rootEl.style.marginRight = "0px";
-                break;
-        }
-
+        FrameworkElement.ApplyHorizontalAlignment(rootEl, newValue);
     } else if (propd._ID === FrameworkElement.VerticalAlignmentProperty._ID) {
-        switch (newValue) {
-            case VerticalAlignment.Stretch:
-                rootEl.style.marginTop = "0px";
-                rootEl.style.marginBottom = "0px";
-                break;
-            case VerticalAlignment.Top:
-                rootEl.style.marginTop = "0px";
-                rootEl.style.marginBottom = "auto";
-                break;
-            case VerticalAlignment.Center:
-                rootEl.style.marginTop = "auto";
-                rootEl.style.marginBottom = "auto";
-                break;
-            case VerticalAlignment.Bottom:
-                rootEl.style.marginTop = "auto";
-                rootEl.style.marginBottom = "0px";
-                break;
-        }
+        FrameworkElement.ApplyVerticalAlignment(rootEl, newValue);
     }
 };
 
