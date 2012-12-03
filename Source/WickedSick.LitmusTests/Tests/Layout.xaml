@@ -1,0 +1,12 @@
+﻿<UserControl x:Class="WickedSick.LitmusTests.Tests.Layout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="400" d:DesignWidth="500">
+
+    <Grid x:Name="LayoutRoot" Background="Yellow">
+        <Image Source="Images/page01.JPG" MaxHeight="200" Margin="100,0,50,100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+    </Grid>
+</UserControl>

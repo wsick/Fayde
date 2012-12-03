@@ -948,6 +948,10 @@ FrameworkElement.Instance.OnHtmlDetached = function () {
         this.GetRootHtmlElement().firstChild.removeChild(subtree.GetRootHtmlElement());
     }
 };
+FrameworkElement.ApplySizing = function (rootEl, horizontalAlignment, verticalAlignment, margin,
+    width, height, maxWidth, maxHeight) {
+    
+};
 FrameworkElement.ApplyHorizontalAlignment = function (rootEl, value) {
     switch (value) {
         case HorizontalAlignment.Stretch:
