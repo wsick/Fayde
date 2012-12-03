@@ -1219,53 +1219,40 @@ UIElement.Instance.OnLostFocus = function (e) { };
 
 //#region Html Translations
 
-UIElement.Instance.CreateHtmlObject = function () {
-    this._HtmlEl = this.CreateHtmlObjectImpl();
-};
-UIElement.Instance.CreateHtmlObjectImpl = function () {
-    return document.createElement("div");
-};
-UIElement.Instance.GetRootHtmlElement = function () {
-    if (!this._HtmlEl)
-        this.CreateHtmlObject();
-    return this._HtmlEl;
-};
-UIElement.Instance.OnHtmlAttached = function () {
-    var subtree = this._SubtreeObject;
-    if (subtree) {
-        this.GetRootHtmlElement().appendChild(subtree.GetRootHtmlElement());
-        subtree.OnHtmlAttached();
+UIElement.ProcessHtmlChanges = function () {
+    var elsChanged = UIElement._ElsChanged;
+    if (!elsChanged)
+        return;
+    delete UIElement._ElsChanged;
+    var len = elsChanged.length;
+    for (var i = 0; i < len; i++) {
+        elsChanged[i].ProcessHtmlChanges();
     }
 };
-UIElement.Instance.OnHtmlDetached = function () {
-    var subtree = this._SubtreeObject;
-    if (subtree) {
-        subtree.OnHtmlDetached();
-        this.GetRootHtmlElement().removeChild(subtree.GetRootHtmlElement());
-    }
+UIElement.Instance.ProcessHtmlChanges = function () {
+    var invalidations = this._HtmlInvalidations;
+    if (!invalidations)
+        return;
+    delete this._HtmlInvalidations;
+    this.ApplyHtmlChanges(invalidations);
 };
 UIElement.Instance.InvalidateProperty = function (propd, oldValue, newValue) {
-    if (UIElement._PropChanges == null)
-        UIElement._PropChanges = [];
-    UIElement._PropChanges.push({
-        Closure: this,
-        Property: propd,
-        OldValue: oldValue,
-        NewValue: newValue,
-    });
+    if (!this._HtmlInvalid) {
+        this._HtmlInvalid = true;
+        if (!UIElement._ElsChanged)
+            UIElement._ElsChanged = [];
+        UIElement._ElsChanged.push(this);
+    }
+    if (!this._HtmlInvalidations)
+        this._HtmlInvalidations = [];
+    this._HtmlInvalidations[propd._ID] = { Property: propd, OldValue: oldValue, NewValue: newValue };
 };
-UIElement.ApplyChanges = function () {
-    if (!UIElement._PropChanges)
-        return;
-    var changes = UIElement._PropChanges.slice(0);
-    UIElement._PropChanges = [];
-    var len = changes.length;
-    for (var i = 0; i < len; i++) {
-        var change = changes[i];
-        change.Closure.ApplyChange.call(change.Closure, change);
+UIElement.Instance.ApplyHtmlChanges = function (invalidations) {
+    for (var i in invalidations) {
+        this.ApplyHtmlChange(invalidations[i]);
     }
 };
-UIElement.Instance.ApplyChange = function (change) {
+UIElement.Instance.ApplyHtmlChange = function (change) {
     //change.Property;
     //change.OldValue;
     //change.NewValue;
@@ -1289,6 +1276,32 @@ UIElement.Instance.ApplyChange = function (change) {
     } else if (propd._ID === UIElement.EffectProperty._ID) {
     } else if (propd._ID === UIElement.ProjectionProperty._ID) {
     } else if (propd._ID === UIElement.CacheModeProperty._ID) {
+    }
+};
+
+UIElement.Instance.CreateHtmlObject = function () {
+    this._HtmlEl = this.CreateHtmlObjectImpl();
+};
+UIElement.Instance.CreateHtmlObjectImpl = function () {
+    return document.createElement("div");
+};
+UIElement.Instance.GetRootHtmlElement = function () {
+    if (!this._HtmlEl)
+        this.CreateHtmlObject();
+    return this._HtmlEl;
+};
+UIElement.Instance.OnHtmlAttached = function () {
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        this.GetRootHtmlElement().appendChild(subtree.GetRootHtmlElement());
+        subtree.OnHtmlAttached();
+    }
+};
+UIElement.Instance.OnHtmlDetached = function () {
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        subtree.OnHtmlDetached();
+        this.GetRootHtmlElement().removeChild(subtree.GetRootHtmlElement());
     }
 };
 UIElement.Instance.GetHtmlDefaultDisplay = function () {

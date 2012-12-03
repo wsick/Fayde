@@ -29,11 +29,15 @@ Surface.Instance.Init = function (app) {
         Surface._Invalidations = [];
     this.LayoutUpdated = new MulticastEvent();
     this._KeyInterop = KeyInterop.CreateInterop(this);
+
+    var body = document.body;
+    body.style.height = "100%";
+    body.style.width = "100%";
     this._RootHtmlEl = document.createElement("div");
     this._RootHtmlEl.style.position = "absolute";
     this._RootHtmlEl.style.width = "100%";
     this._RootHtmlEl.style.height = "100%";
-    document.body.appendChild(this._RootHtmlEl);
+    body.appendChild(this._RootHtmlEl);
 };
 
 //#region Initialization
@@ -949,7 +953,7 @@ Surface.Instance._CreateEventArgs = function (type, pos, delta) {
 //#endregion
 
 Surface.Instance.ProcessHtmlChanges = function () {
-    UIElement.ApplyChanges();
+    UIElement.ProcessHtmlChanges();
 };
 
 Surface.Instance._SetUserInitiatedEvent = function (val) {

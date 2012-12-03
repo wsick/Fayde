@@ -293,10 +293,10 @@ Fayde.Image.Instance.CreateHtmlObjectImpl = function () {
     rootEl.appendChild(document.createElement("img"));
     return rootEl;
 };
-Fayde.Image.Instance.ApplyChange = function (change) {
+Fayde.Image.Instance.ApplyHtmlChange = function (change) {
     var propd = change.Property;
     if (propd.OwnerType !== Fayde.Image) {
-        this.ApplyChange$FrameworkElement(change);
+        this.ApplyHtmlChange$FrameworkElement(change);
         return;
     }
 
