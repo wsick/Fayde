@@ -195,6 +195,7 @@ Border.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error)
         return;
     }
+    var ivprop = false;
     if (args.Property._ID === Border.ChildProperty._ID) {
         if (args.OldValue && args.OldValue instanceof UIElement) {
             this._ElementRemoved(args.OldValue);
@@ -223,19 +224,25 @@ Border.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateMeasure();
     } else if (args.Property._ID === Border.PaddingProperty._ID || args.Property._ID === Border.BorderThicknessProperty._ID) {
         this._InvalidateMeasure();
+        ivprop = true;
     } else if (args.Property._ID === Border.BackgroundProperty._ID) {
         this._Invalidate();
+        ivprop = true;
     } else if (args.Property._ID === Border.BorderBrushProperty._ID) {
         this._Invalidate();
+        ivprop = true;
     }
-
+    if (ivprop)
+        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
 Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    if (propd && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID))
+    if (propd && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID)) {
         this._Invalidate();
-    else
+        this.InvalidateProperty(propd);
+    } else {
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+    }
 };
 
 Border.Instance.ApplyHtmlChange = function (change) {
@@ -249,12 +256,16 @@ Border.Instance.ApplyHtmlChange = function (change) {
     var contentEl = rootEl.firstChild;
     if (propd._ID === Border.BackgroundProperty._ID) {
         var brush = change.NewValue;
+        if (!brush)
+            brush = this.Background;
         brush.SetupBrush(null, null);
         contentEl.style.background = brush.ToHtml5Object();
     }
 
     if (propd._ID === Border.BorderBrushProperty._ID) {
         var brush = change.NewValue;
+        if (!brush)
+            brush = this.BorderBrush;
         brush.SetupBrush(null, null);
         rootEl.style.background = brush.ToHtml5Object();
     }
