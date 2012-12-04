@@ -238,6 +238,45 @@ Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
 };
 
+Border.Instance.ApplyHtmlChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== Border) {
+        this.ApplyHtmlChange$FrameworkElement(change);
+        return;
+    }
+
+    var rootEl = this.GetRootHtmlElement();
+    var contentEl = rootEl.firstChild;
+    if (propd._ID === Border.BackgroundProperty._ID) {
+        var brush = change.NewValue;
+        brush.SetupBrush(null, null);
+        contentEl.style.background = brush.ToHtml5Object();
+    }
+
+    if (propd._ID === Border.BorderBrushProperty._ID) {
+        var brush = change.NewValue;
+        brush.SetupBrush(null, null);
+        rootEl.style.background = brush.ToHtml5Object();
+    }
+
+    if (propd._ID === Border.BorderThicknessProperty._ID) {
+        var thickness = change.NewValue;
+        rootEl.style.paddingLeft = thickness.Left;
+        rootEl.style.paddingRight = thickness.Right;
+        rootEl.style.paddingTop = thickness.Top;
+        rootEl.style.paddingBottom = thickness.Bottom;
+    }
+
+    if (propd._ID == Border.CornerRadiusProperty._ID) {
+        var radius = change.NewValue;
+        rootEl.style.borderBottomLeftRadius = radius.BottomLeft;
+        rootEl.style.borderTopLeftRadius = radius.TopLeft;
+        rootEl.style.borderBottomRightRadius = radius.BottomRight;
+        rootEl.style.borderTopRightRadius = radius.TopRight;
+    }
+};
+
+
 //#endregion
 
 //#region Annotations

@@ -9,6 +9,6 @@
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
     <Grid x:Name="LayoutRoot" Background="Red" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-      <Grid MaxHeight="200" Width="100" Height="100" Margin="200,0,50,100" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="Green"></Grid>  
+      <Border BorderBrush="#0000FF" BorderThickness="2" CornerRadius="5" MaxHeight="200" Width="100" Height="100" Margin="200,0,50,100" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="#0000FF"></Border>  
     </Grid>
 </FaydeApplication>
