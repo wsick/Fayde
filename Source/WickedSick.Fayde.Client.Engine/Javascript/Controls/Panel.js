@@ -144,6 +144,7 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
 Panel.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (propd && propd._ID === Panel.BackgroundProperty._ID) {
         this._Invalidate();
+        this.InvalidateProperty(propd, undefined, undefined);
     } else {
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
     }
