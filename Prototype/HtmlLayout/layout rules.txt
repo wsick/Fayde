@@ -1,2 +1,7 @@
-To make an element take up 100% of its given width and height use:
+1. To make an element take up 100% of its given width and height use:
 position: absolute; width: 100%; height: 100%;
+
+2. Stretch overrules MaxWidth, MaxHeight
+
+3. Height, Width turns off Stretch, item plus margin is centered and then even margin added to each side
+set width/height of outer = intended width/height plus margins, set inner width/height = intended width/height

@@ -8,7 +8,7 @@
     </FaydeApplication.UriMappings>
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
-    <Grid x:Name="LayoutRoot" Background="Yellow">
-        <Image Source="Images/page01.JPG" MaxHeight="200" Margin="200,0,50,100" VerticalAlignment="Center" HorizontalAlignment="Center" />
+    <Grid x:Name="LayoutRoot" Background="Red" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Grid MaxHeight="200" Width="100" Height="100" Margin="200,0,50,100" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="Green"></Grid>  
     </Grid>
 </FaydeApplication>

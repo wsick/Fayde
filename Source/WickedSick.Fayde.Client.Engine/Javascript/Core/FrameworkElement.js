@@ -930,8 +930,8 @@ FrameworkElement.Instance._HasFocus = function () {
 FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = document.createElement("div");
     rootEl.appendChild(document.createElement("div"));
-    FrameworkElement.ApplyHorizontalAlignment(rootEl, this.HorizontalAlignment);
-    FrameworkElement.ApplyVerticalAlignment(rootEl, this.VerticalAlignment);
+    FrameworkElement.ApplySizing(rootEl, this.HorizontalAlignment, this.VerticalAlignment,
+        this.Margin, this.Width, this.Height, this.MaxWidth, this.maxHeight);
     return rootEl;
 };
 FrameworkElement.Instance.OnHtmlAttached = function () {
@@ -950,54 +950,103 @@ FrameworkElement.Instance.OnHtmlDetached = function () {
 };
 FrameworkElement.ApplySizing = function (rootEl, horizontalAlignment, verticalAlignment, margin,
     width, height, maxWidth, maxHeight) {
-    
-};
-FrameworkElement.ApplyHorizontalAlignment = function (rootEl, value) {
-    switch (value) {
+    //the outer element is used for the absolute sizing
+    //use padding on the outer element to represent margin
+    var subEl = rootEl.firstChild;
+
+    rootEl.style.boxSizing = "border-box";
+    rootEl.style.position = "absolute";
+    //apply resets
+    rootEl.style.width = "auto";
+    rootEl.style.left = "auto";
+    rootEl.style.right = "auto";
+    rootEl.style.height = "auto";
+    rootEl.style.top = "auto";
+    rootEl.style.bottom = "auto";
+    rootEl.style.paddingLeft = "auto";
+    rootEl.style.paddingRight = "auto";
+    rootEl.style.paddingTop = "auto";
+    rootEl.style.paddingBottom = "auto";
+
+    subEl.style.maxWidth = "auto";
+    subEl.style.maxHeight = "auto";
+    subEl.style.width = "auto";
+    subEl.style.height = "auto";
+
+    //horizontalAlignment
+    switch (horizontalAlignment) {
         case HorizontalAlignment.Stretch:
-            //rootEl.style.marginLeft = "0px";
-            //rootEl.style.marginRight = "0px";
-            rootEl.style.position = "absolute";
-            rootEl.style.width = "100%";
+            if (isNaN(width)) {
+                rootEl.style.width = "100%";
+                subEl.style.width = "100%";
+            }
             break;
         case HorizontalAlignment.Left:
-            rootEl.style.marginLeft = "0px";
-            rootEl.style.marginRight = "auto";
-            break;
-        case HorizontalAlignment.Center:
-            rootEl.style.marginLeft = "auto";
-            rootEl.style.marginRight = "auto";
+            rootEl.style.left = "0px";
             break;
         case HorizontalAlignment.Right:
-            rootEl.style.marginLeft = "auto";
-            rootEl.style.marginRight = "0px";
+            rootEl.style.right = "0px";
             break;
+        case HorizontalAlignment.Center:
+            throw "NotSupportedYetException";
     }
-};
-FrameworkElement.ApplyVerticalAlignment = function (rootEl, value) {
-    switch (value) {
+
+    if (!isNaN(width)) {
+        //explicit width
+        //add width + margin
+        var w = width + (isNaN(margin.Left) ? 0 : margin.Left) + (isNaN(margin.Right) ? 0 : margin.Right);
+        rootEl.style.width = w + "px";
+        //set inner element width to actual width
+        subEl.style.width = width + "px";
+    }
+        //verticalAlignment
+    switch (verticalAlignment) {
         case VerticalAlignment.Stretch:
-            //rootEl.style.marginTop = "0px";
-            //rootEl.style.marginBottom = "0px";
-            rootEl.style.position = "absolute";
-            rootEl.style.height = "100%";
+            if (isNaN(height)) {
+                rootEl.style.height = "100%";
+                subEl.style.height = "100%";
+            }
             break;
         case VerticalAlignment.Top:
-            rootEl.style.marginTop = "0px";
-            rootEl.style.marginBottom = "auto";
-            break;
-        case VerticalAlignment.Center:
-            rootEl.style.marginTop = "auto";
-            rootEl.style.marginBottom = "auto";
+            rootEl.style.top = "0px";
             break;
         case VerticalAlignment.Bottom:
-            rootEl.style.marginTop = "auto";
-            rootEl.style.marginBottom = "0px";
+            rootEl.style.bottom = "0px";
             break;
+        case VerticalAlignment.Center:
+            throw "NotSupportedYetException";
     }
-};
 
+    if (!isNaN(height)) {
+        //explicit height
+        //add height + margin
+        var h = height + (isNaN(margin.Top) ? 0 : margin.Top) + (isNaN(margin.Bottom) ? 0 : margin.Bottom);
+        rootEl.style.height = h + "px";
+        //set inner element height to actual height
+        subEl.style.height = height + "px";
+    }
+
+    //set max width and max height on inner element
+    subEl.style.maxHeight = maxHeight + "px";
+    subEl.style.maxWidth = maxWidth + "px";
+
+    //set margin as padding on the root element
+    rootEl.style.paddingLeft = margin.Left + "px";
+    rootEl.style.paddingRight = margin.Right + "px";
+    rootEl.style.paddingTop = margin.Top + "px";
+    rootEl.style.paddingBottom = margin.Bottom + "px";
+};
 FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
+    var sizingChecks = [FrameworkElement.HorizontalAlignmentProperty, FrameworkElement.VerticalAlignmentProperty,
+        FrameworkElement.MarginProperty, FrameworkElement.WidthProperty, FrameworkElement.HeightProperty, FrameworkElement.WidthProperty,
+        FrameworkElement.MaxWidthProperty, FrameworkElement.MaxHeightProperty];
+    for (var i = 0; i < sizingChecks.length; i++) {
+        if (invalidations[sizingChecks[i]._ID]) {
+            FrameworkElement.ApplySizing(this.GetRootHtmlElement(), this.HorizontalAlignment, this.VerticalAlignment, this.Margin,
+                this.Width, this.Height, this.MaxWidth, this.MaxHeight);
+            break;
+        }
+    }
     this.ApplyHtmlChanges$UIElement(invalidations);
 };
 FrameworkElement.Instance.ApplyHtmlChange = function (change) {
@@ -1012,28 +1061,6 @@ FrameworkElement.Instance.ApplyHtmlChange = function (change) {
     var newValue = change.NewValue;
     if (propd._ID === FrameworkElement.CursorProperty._ID) {
         subEl.style.cursor = newValue + "px";
-    } else if (propd._ID === FrameworkElement.WidthProperty._ID) {
-        subEl.style.width = newValue + "px";
-    } else if (propd._ID === FrameworkElement.HeightProperty._ID) {
-        subEl.style.height = newValue + "px";
-    } else if (propd._ID === FrameworkElement.MinWidthProperty._ID) {
-        subEl.style.minWidth = newValue + "px";
-    } else if (propd._ID === FrameworkElement.MinHeightProperty._ID) {
-        subEl.style.minHeight = newValue + "px";
-    } else if (propd._ID === FrameworkElement.MaxWidthProperty._ID) {
-        subEl.style.maxWidth = newValue + "px";
-    } else if (propd._ID === FrameworkElement.MaxHeightProperty._ID) {
-        subEl.style.maxHeight = newValue + "px";
-    } else if (propd._ID === FrameworkElement.MarginProperty._ID) {
-        var thickness = newValue;
-        subEl.style.marginLeft = thickness.Left + "px";
-        subEl.style.marginTop = thickness.Top + "px";
-        subEl.style.marginRight = thickness.Right + "px";
-        subEl.style.marginBottom = thickness.Bottom + "px";
-    } else if (propd._ID === FrameworkElement.HorizontalAlignmentProperty._ID) {
-        FrameworkElement.ApplyHorizontalAlignment(rootEl, newValue);
-    } else if (propd._ID === FrameworkElement.VerticalAlignmentProperty._ID) {
-        FrameworkElement.ApplyVerticalAlignment(rootEl, newValue);
     }
 };
 
