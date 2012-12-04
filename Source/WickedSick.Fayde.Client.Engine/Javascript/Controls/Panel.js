@@ -232,6 +232,8 @@ Panel.Instance.ApplyHtmlChange = function (change) {
     var contentEl = this.GetRootHtmlElement().firstChild;
     if (propd._ID === Panel.BackgroundProperty._ID) {
         var brush = change.NewValue;
+        if (!brush)
+            brush = this.Background;
         brush.SetupBrush(null, null);
         contentEl.style.background = brush.ToHtml5Object();
     }
