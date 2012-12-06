@@ -39,7 +39,7 @@ TextBlock.FontSourceProperty = DependencyProperty.RegisterCore("FontSource", fun
 TextBlock.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBlock, "");
 TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, TextBlock, undefined, undefined, { GetValue: function () { return new InlineCollection(); } });
 TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
-TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () { return Number; }, TextBlock, 0.0);
+TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () { return Number; }, TextBlock, NaN);
 TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
 TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
 TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
@@ -325,11 +325,13 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
         this._Dirty = this._Layout.SetLineStackingStrategy(args.NewValue);
     } else if (args.Property._ID === TextBlock.LineHeightProperty._ID) {
         this._Dirty = this._Layout.SetLineHeight(args.NewValue);
+        ivprop = true;
     } else if (args.Property._ID === TextBlock.TextDecorationsProperty._ID) {
         this._Dirty = true;
         ivprop = true;
     } else if (args.Property._ID === TextBlock.TextAlignmentProperty._ID) {
         this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
+        ivprop = true;
     } else if (args.Property._ID === TextBlock.TextTrimmingProperty._ID) {
         this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
     } else if (args.Property._ID === TextBlock.TextWrappingProperty._ID) {
@@ -338,6 +340,8 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
     } else if (args.Property._ID === TextBlock.PaddingProperty._ID) {
         this._Dirty = true;
     } else if (args.Property._ID === TextBlock.FontSourceProperty._ID) {
+    } else if (args.Property._ID === TextBlock.ForegroundProperty._ID) {
+        ivprop = true;
     }
 
     if (invalidate) {
@@ -355,6 +359,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
 TextBlock.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (propd && propd._ID === TextBlock.ForegroundProperty._ID) {
         this._Invalidate();
+        this.InvalidateProperty(propd);
     } else {
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
     }
@@ -386,6 +391,20 @@ TextBlock.Instance._OnCollectionChanged = function (sender, args) {
     this._Invalidate();
 };
 
+
+TextBlock.Instance.InitializeHtml = function (rootEl) {
+    this.InitializeHtml$FrameworkElement(rootEl);
+
+    var contentEl = rootEl.firstChild;
+    contentEl.style.fontFamily = this.FontFamily.toString();
+    contentEl.style.fontSize = this.FontSize + "px";
+    contentEl.style.fontStretch = this.FontStretch;
+    contentEl.style.fontStyle = this.FontStyle;
+    contentEl.style.fontWeight = this.FontWeight.toString();
+    this.ApplyTextAlignmentHtml(contentEl, this.TextAlignment);
+    this.ApplyLineHeightHtml(contentEl, this.LineHeight);
+    this.ApplyForegroundHtml(contentEl, this.Foreground);
+};
 TextBlock.Instance.ApplyHtmlChange = function (change) {
     var propd = change.Property;
     if (propd.OwnerType !== TextBlock) {
@@ -397,6 +416,51 @@ TextBlock.Instance.ApplyHtmlChange = function (change) {
     var contentEl = rootEl.firstChild;
     if (propd._ID === TextBlock.TextProperty._ID) {
         contentEl.textContent = change.NewValue;
+    } else if (propd._ID === TextBlock.FontFamilyProperty._ID) {
+        contentEl.style.fontFamily = change.NewValue.toString();
+    } else if (propd._ID === TextBlock.FontSizeProperty._ID) {
+        contentEl.style.fontSize = change.NewValue + "px";
+    } else if (propd._ID === TextBlock.FontStretchProperty._ID) {
+        contentEl.style.fontStretch = change.NewValue;
+    } else if (propd._ID === TextBlock.FontStyleProperty._ID) {
+        contentEl.style.fontStyle = change.NewValue;
+    } else if (propd._ID === TextBlock.FontWeightProperty._ID) {
+        contentEl.style.fontWeight = change.NewValue.toString();
+    } else if (propd._ID === TextBlock.ForegroundProperty._ID) {
+        var brush = change.NewValue;
+        if (!brush)
+            brush = this.Foreground;
+        this.ApplyForegroundHtml(contentEl, brush);
+    } else if (propd._ID === TextBlock.LineHeightProperty._ID) {
+        this.ApplyLineHeightHtml(contentEl, change.NewValue);
+    } else if (propd._ID === TextBlock.TextAlignmentProperty._ID) {
+        var alignment = change.NewValue;
+        this.ApplyTextAlignmentHtml(contentEl, alignment);
+    } else if (propd._ID === TextBlock.TextWrappingProperty._ID) {
+        var wrapping = change.NewValue;
+    }
+};
+TextBlock.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
+    foreground.SetupBrush(null, null);
+    contentEl.style.color = foreground.ToHtml5Object();
+};
+TextBlock.Instance.ApplyLineHeightHtml = function (contentEl, lineHeight) {
+    if (isNaN(lineHeight))
+        contentEl.style.lineHeight = "";
+    else
+        contentEl.style.lineHeight = lineHeight + "px";
+};
+TextBlock.Instance.ApplyTextAlignmentHtml = function (contentEl, alignment) {
+    switch (alignment) {
+        case TextAlignment.Left:
+            contentEl.style.textAlign = "left";
+            break;
+        case TextAlignment.Center:
+            contentEl.style.textAlign = "center";
+            break;
+        case TextAlignment.Right:
+            contentEl.style.textAlign = "right";
+            break;
     }
 };
 
