@@ -111,13 +111,16 @@
     <Compile Include="Elements\Core\Double.cs" />
     <Compile Include="Elements\Core\String.cs" />
     <Compile Include="Elements\DependencyObjectCollection.cs" />
+    <Compile Include="Elements\Documents\Bold.cs" />
     <Compile Include="Elements\Documents\Inline.cs" />
     <Compile Include="Elements\Documents\InlineCollection.cs" />
+    <Compile Include="Elements\Documents\Italic.cs" />
     <Compile Include="Elements\Documents\LineBreak.cs" />
     <Compile Include="Elements\Documents\Run.cs" />
     <Compile Include="Elements\Documents\Span.cs" />
     <Compile Include="Elements\Documents\TextElement.cs" />
     <Compile Include="Elements\Documents\TextElementCollection.cs" />
+    <Compile Include="Elements\Documents\Underline.cs" />
     <Compile Include="Elements\EventTrigger.cs" />
     <Compile Include="Elements\IElementTypeable.cs">
       <SubType>Code</SubType>
