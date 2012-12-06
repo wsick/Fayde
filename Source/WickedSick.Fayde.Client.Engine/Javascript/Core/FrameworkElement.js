@@ -930,9 +930,12 @@ FrameworkElement.Instance._HasFocus = function () {
 FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = document.createElement("div");
     rootEl.appendChild(document.createElement("div"));
+    this.InitializeHtml(rootEl);
+    return rootEl;
+};
+FrameworkElement.Instance.InitializeHtml = function (rootEl) {
     FrameworkElement.ApplySizing(rootEl, this.HorizontalAlignment, this.VerticalAlignment,
         this.Margin, this.Width, this.Height, this.MaxWidth, this.maxHeight);
-    return rootEl;
 };
 FrameworkElement.Instance.OnHtmlAttached = function () {
     var subtree = this._SubtreeObject;
