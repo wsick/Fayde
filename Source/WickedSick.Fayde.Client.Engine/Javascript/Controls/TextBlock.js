@@ -438,6 +438,9 @@ TextBlock.Instance.ApplyHtmlChange = function (change) {
         this.ApplyTextAlignmentHtml(contentEl, alignment);
     } else if (propd._ID === TextBlock.TextWrappingProperty._ID) {
         var wrapping = change.NewValue;
+    } else if (propd._ID === TextBlock.TextDecorationsProperty._ID) {
+        var decorations = change.NewValue;
+        this.ApplyTextDecorationsHtml(contentEl, decorations);
     }
 };
 TextBlock.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
@@ -462,6 +465,12 @@ TextBlock.Instance.ApplyTextAlignmentHtml = function (contentEl, alignment) {
             contentEl.style.textAlign = "right";
             break;
     }
+};
+TextBlock.Instance.ApplyTextDecorationsHtml = function (contentEl, decorations) {
+    var finalStyle = "";
+    if (decorations & TextDecorations.Underline)
+        finalStyle += "underline ";
+    contentEl.style.textDecoration = finalStyle;
 };
 
 //#endregion
