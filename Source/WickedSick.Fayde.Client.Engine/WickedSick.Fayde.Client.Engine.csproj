@@ -148,6 +148,9 @@
     <Content Include="Javascript\Core\Input\Enums.js" />
     <Content Include="Javascript\Core\Input\Keyboard.js" />
     <Content Include="Javascript\Core\Input\KeyboardNavigation.js" />
+    <Content Include="Javascript\Documents\Bold.js" />
+    <Content Include="Javascript\Documents\Italic.js" />
+    <Content Include="Javascript\Documents\Underline.js" />
     <Content Include="Javascript\Runtime\KeyInterop.js" />
     <Content Include="Javascript\Core\Input\KeyCodes.js" />
     <Content Include="Javascript\Core\ISupportInitialize.js" />
