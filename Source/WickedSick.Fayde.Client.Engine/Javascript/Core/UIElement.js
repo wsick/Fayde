@@ -1219,39 +1219,6 @@ UIElement.Instance.OnLostFocus = function (e) { };
 
 //#region Html Translations
 
-UIElement.ProcessHtmlChanges = function () {
-    var elsChanged = UIElement._ElsChanged;
-    if (!elsChanged)
-        return;
-    delete UIElement._ElsChanged;
-    var len = elsChanged.length;
-    for (var i = 0; i < len; i++) {
-        elsChanged[i].ProcessHtmlChanges();
-    }
-};
-UIElement.Instance.ProcessHtmlChanges = function () {
-    var invalidations = this._HtmlInvalidations;
-    if (!invalidations)
-        return;
-    delete this._HtmlInvalidations;
-    this.ApplyHtmlChanges(invalidations);
-};
-UIElement.Instance.InvalidateProperty = function (propd, oldValue, newValue) {
-    if (!this._HtmlInvalid) {
-        this._HtmlInvalid = true;
-        if (!UIElement._ElsChanged)
-            UIElement._ElsChanged = [];
-        UIElement._ElsChanged.push(this);
-    }
-    if (!this._HtmlInvalidations)
-        this._HtmlInvalidations = [];
-    this._HtmlInvalidations[propd._ID] = { Property: propd, OldValue: oldValue, NewValue: newValue };
-};
-UIElement.Instance.ApplyHtmlChanges = function (invalidations) {
-    for (var i in invalidations) {
-        this.ApplyHtmlChange(invalidations[i]);
-    }
-};
 UIElement.Instance.ApplyHtmlChange = function (change) {
     //change.Property;
     //change.OldValue;
@@ -1278,7 +1245,6 @@ UIElement.Instance.ApplyHtmlChange = function (change) {
     } else if (propd._ID === UIElement.CacheModeProperty._ID) {
     }
 };
-
 UIElement.Instance.CreateHtmlObject = function () {
     this._HtmlEl = this.CreateHtmlObjectImpl();
 };

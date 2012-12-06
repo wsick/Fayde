@@ -953,7 +953,7 @@ Surface.Instance._CreateEventArgs = function (type, pos, delta) {
 //#endregion
 
 Surface.Instance.ProcessHtmlChanges = function () {
-    UIElement.ProcessHtmlChanges();
+    DependencyObject.ProcessHtmlChanges();
 };
 
 Surface.Instance._SetUserInitiatedEvent = function (val) {
