@@ -15,7 +15,7 @@
                 <Run FontStyle="Italic" Foreground="Red" Text="This is red text. " />
                 <LineBreak />
                 <Underline Foreground="Blue">
-                    <Run Text="How about adding some green?" />
+                    <Run Text="How about adding some blue?" />
                 </Underline>
             </TextBlock.Inlines>
         </TextBlock>
