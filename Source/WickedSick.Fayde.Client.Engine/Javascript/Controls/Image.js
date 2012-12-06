@@ -291,6 +291,7 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
 Fayde.Image.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = document.createElement("div");
     rootEl.appendChild(document.createElement("img"));
+    this.InitializeHtml(rootEl);
     return rootEl;
 };
 Fayde.Image.Instance.ApplyHtmlChange = function (change) {
