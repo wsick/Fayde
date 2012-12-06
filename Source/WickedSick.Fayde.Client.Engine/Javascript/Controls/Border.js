@@ -231,6 +231,8 @@ Border.Instance._OnPropertyChanged = function (args, error) {
     } else if (args.Property._ID === Border.BorderBrushProperty._ID) {
         this._Invalidate();
         ivprop = true;
+    } else if (args.Property._ID === Border.CornerRadiusProperty._ID) {
+        ivprop = true;
     }
     if (ivprop)
         this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
@@ -267,23 +269,18 @@ Border.Instance.ApplyHtmlChange = function (change) {
         if (!brush)
             brush = this.BorderBrush;
         brush.SetupBrush(null, null);
-        rootEl.style.background = brush.ToHtml5Object();
+        contentEl.style.borderStyle = "solid";
+        contentEl.style.borderColor = brush.ToHtml5Object();
     }
 
     if (propd._ID === Border.BorderThicknessProperty._ID) {
         var thickness = change.NewValue;
-        rootEl.style.paddingLeft = thickness.Left;
-        rootEl.style.paddingRight = thickness.Right;
-        rootEl.style.paddingTop = thickness.Top;
-        rootEl.style.paddingBottom = thickness.Bottom;
+        contentEl.style.borderWidth = thickness.Top + "px " + thickness.Right + "px " + thickness.Bottom + "px " + thickness.Left + "px";
     }
 
     if (propd._ID == Border.CornerRadiusProperty._ID) {
         var radius = change.NewValue;
-        rootEl.style.borderBottomLeftRadius = radius.BottomLeft;
-        rootEl.style.borderTopLeftRadius = radius.TopLeft;
-        rootEl.style.borderBottomRightRadius = radius.BottomRight;
-        rootEl.style.borderTopRightRadius = radius.TopRight;
+        contentEl.style.borderRadius = radius.TopLeft + "px " + radius.TopRight + "px " + radius.BottomRight + "px " + radius.BottomLeft + "px";
     }
 };
 

@@ -8,7 +8,20 @@
     </FaydeApplication.UriMappings>
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
-    <Grid x:Name="LayoutRoot" Background="Red" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-      <Border BorderBrush="#0000FF" BorderThickness="2" CornerRadius="5" MaxHeight="200" Width="100" Height="100" Margin="200,0,50,100" VerticalAlignment="Bottom" HorizontalAlignment="Right" Background="#0000FF"></Border>  
+    <Grid x:Name="LayoutRoot" Background="Green" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Border BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Width="300" Height="300" Margin="200,0,50,100" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+        <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="10, 20, 30, 40">
+          <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
+            <TextBlock Margin="10" Text="Who's yo daddy?"/>
+          </Border>
+        </Border>
+      </Border>
+      <Border BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Width="300" Height="300" Margin="200,0,50,100">
+        <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="10, 20, 30, 40">
+          <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
+            <TextBlock Margin="10" Text="Holy Shit!"/>
+          </Border>
+        </Border>
+      </Border>
     </Grid>
 </FaydeApplication>

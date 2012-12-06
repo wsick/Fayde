@@ -290,11 +290,13 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
             return;
     }
 
+    var ivprop = false;
     if (args.Property._ID === TextBlock.FontFamilyProperty._ID
         || args.Property._ID === TextBlock.FontSizeProperty._ID
         || args.Property._ID === TextBlock.FontStretchProperty._ID
         || args.Property._ID === TextBlock.FontStyleProperty._ID
         || args.Property._ID === TextBlock.FontWeightProperty._ID) {
+        ivprop = true;
         this._UpdateFonts(false);
     } else if (args.Property._ID === TextBlock.TextProperty._ID) {
         if (this._SetsValue) {
@@ -306,6 +308,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
             this._UpdateLayoutAttributes();
             invalidate = false;
         }
+        ivprop = true;
     } else if (args.Property._ID === TextBlock.InlinesProperty._ID) {
         if (this._SetsValue) {
             this._SetsValue = false;
@@ -324,12 +327,14 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
         this._Dirty = this._Layout.SetLineHeight(args.NewValue);
     } else if (args.Property._ID === TextBlock.TextDecorationsProperty._ID) {
         this._Dirty = true;
+        ivprop = true;
     } else if (args.Property._ID === TextBlock.TextAlignmentProperty._ID) {
         this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
     } else if (args.Property._ID === TextBlock.TextTrimmingProperty._ID) {
         this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
     } else if (args.Property._ID === TextBlock.TextWrappingProperty._ID) {
         this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
+        ivprop = true;
     } else if (args.Property._ID === TextBlock.PaddingProperty._ID) {
         this._Dirty = true;
     } else if (args.Property._ID === TextBlock.FontSourceProperty._ID) {
@@ -343,6 +348,8 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
         }
         this._Invalidate();
     }
+    if (ivprop)
+        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
 TextBlock.Instance._OnSubPropertyChanged = function (propd, sender, args) {
@@ -377,6 +384,20 @@ TextBlock.Instance._OnCollectionChanged = function (sender, args) {
     this._InvalidateArrange();
     this._UpdateBounds(true);
     this._Invalidate();
+};
+
+TextBlock.Instance.ApplyHtmlChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== TextBlock) {
+        this.ApplyHtmlChange$FrameworkElement(change);
+        return;
+    }
+
+    var rootEl = this.GetRootHtmlElement();
+    var contentEl = rootEl.firstChild;
+    if (propd._ID === TextBlock.TextProperty._ID) {
+        contentEl.textContent = change.NewValue;
+    }
 };
 
 //#endregion
