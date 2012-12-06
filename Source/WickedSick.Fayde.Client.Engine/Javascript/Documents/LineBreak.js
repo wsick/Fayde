@@ -5,5 +5,9 @@
 //#region LineBreak
 var LineBreak = Nullstone.Create("LineBreak", Inline);
 
+LineBreak.Instance.CreateHtmlObjectImpl = function () {
+    return document.createElement("br");
+};
+
 Nullstone.FinishCreate(LineBreak);
 //#endregion

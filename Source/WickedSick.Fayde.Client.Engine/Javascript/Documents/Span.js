@@ -33,15 +33,99 @@ Span.Instance._SerializeText = function () {
     }
     return str;
 };
+Span.Instance._OnPropertyChanged = function (args, error) {
+    if (args.Property.OwnerType !== Span) {
+        this._OnPropertyChanged$Inline(args, error);
+        return;
+    }
+
+    if (args.Property._ID === Span.InlinesProperty._ID) {
+        this.SetChildrenHtml(args.NewValue);
+    }
+    this.PropertyChanged.Raise(this, args);
+};
 Span.Instance._OnCollectionChanged = function (sender, args) {
     if (this._PropertyHasValueNoAutoCreate(Span.InlinesProperty, sender)) {
         if (args.Action === CollectionChangedArgs.Action.Add)
             this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
-        this._NotifyLayoutContainerOnCollectionChanged(sender, args);
+        //this._NotifyLayoutContainerOnCollectionChanged(sender, args);
+        this.UpdateHtmlInlines(args);
     } else {
         this._OnCollectionChanged$Inline(sender, args);
     }
 };
+
+//#region Html Translations
+
+Span.Instance.CreateHtmlObjectImpl = function () {
+    return document.createElement("span");
+};
+Span.Instance.GetContentHtmlElement = function () {
+    return this._HtmlEl;
+};
+Span.Instance.UpdateHtmlInlines = function (args) {
+    switch (args.Action) {
+        case CollectionChangedArgs.Action.Cleared:
+            this.ClearChildrenHtml();
+            break;
+        case CollectionChangedArgs.Action.Add:
+            this.AddChildHtml(args.NewValue, args.Index);
+            break;
+        case CollectionChangedArgs.Action.Remove:
+            this.RemoveChildHtml(args.NewValue);
+            break;
+        case CollectionChangedArgs.Action.Replace:
+            this.ReplaceChildHtml(args.OldValue, args.NewValue);
+            break;
+    }
+};
+Span.Instance.SetChildrenHtml = function (inlines) {
+    var contentEl = this.GetContentHtmlElement();
+    while (contentEl.hasChildNodes()) {
+        contentEl.removeChild(contentEl.lastChild);
+    }
+    if (!inlines)
+        return;
+    var len = inlines.GetCount();
+    for (var i = 0; i < len; i++) {
+        var te = inlines.GetValueAt(i);
+        contentEl.appendChild(te.GetRootHtmlElement());
+    }
+};
+Span.Instance.AddChildHtml = function (inline, newIndex) {
+    var contentEl = this.GetContentHtmlElement();
+    var index = 0;
+    var curEl = contentEl.firstChild;
+    while (curEl && index < newIndex) {
+        curEl = curEl.nextSibling;
+        index++;
+    }
+    contentEl.insertBefore(inline.GetRootHtmlElement(), curEl);
+};
+Span.Instance.ReplaceChildHtml = function (oldInline, newInline) {
+    var contentEl = this.GetContentHtmlElement();
+    contentEl.replaceChild(newInline.GetRootHtmlElement(), oldInline.GetRootHtmlElement());
+};
+Span.Instance.RemoveChildHtml = function (inline) {
+    var contentEl = this.GetContentHtmlElement();
+    contentEl.removeChild(inline.GetRootHtmlElement());
+};
+Span.Instance.ClearChildrenHtml = function () {
+    var contentEl = this.GetContentHtmlElement();
+    while (contentEl.hasChildNodes()) {
+        contentEl.removeChild(contentEl.lastChild);
+    }
+};
+
+//#endregion
+
+//#region Annotations
+
+Span.Annotations = {
+    ContentProperty: Span.InlinesProperty
+};
+
+//#endregion
 
 Nullstone.FinishCreate(Span);
 //#endregion

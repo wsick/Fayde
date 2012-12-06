@@ -1,0 +1,23 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.UriMappings>
+        <UriMapping Uri="" MappedUri="/Views/default.fayde" />
+    </FaydeApplication.UriMappings>
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <Grid x:Name="LayoutRoot">
+        <TextBlock>
+            <TextBlock.Inlines>
+                <Run FontWeight="Bold" FontSize="14" Text="Hi! I am a TextBlock. " />
+                <Run FontStyle="Italic" Foreground="Red" Text="This is red text. " />
+                <LineBreak />
+                <Underline Foreground="Blue">
+                    <Run Text="How about adding some green?" />
+                </Underline>
+            </TextBlock.Inlines>
+        </TextBlock>
+    </Grid>
+</FaydeApplication>

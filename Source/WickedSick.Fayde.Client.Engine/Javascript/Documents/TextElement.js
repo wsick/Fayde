@@ -62,15 +62,69 @@ TextElement.Instance._OnPropertyChanged = function (args, error) {
         return;
     }
 
+    var ivprop = false;
     if (args.Property._ID === TextElement.FontFamilyProperty._ID
         || args.Property._ID === TextElement.FontSizeProperty._ID
         || args.Property._ID === TextElement.FontStretchProperty._ID
         || args.Property._ID === TextElement.FontStyleProperty._ID
         || args.Property._ID === TextElement.FontWeightProperty._ID) {
         this._UpdateFont(false);
+        ivprop = true;
+    } else if (args.Property._ID === TextElement.ForegroundProperty._ID) {
+        ivprop = true;
     }
+    if (ivprop)
+        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
+TextElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+    if (propd && propd._ID === TextElement.ForegroundProperty._ID) {
+        this.InvalidateProperty(propd);
+    } else {
+        this._OnSubPropertyChanged$DependencyObject(propd, sender, args);
+    }
+};
+
+
+//#region Html Translations
+
+TextElement.Instance.GetRootHtmlElement = function () {
+    if (!this._HtmlEl)
+        this.CreateHtmlObject();
+    return this._HtmlEl;
+};
+TextElement.Instance.CreateHtmlObject = function () {
+    this._HtmlEl = this.CreateHtmlObjectImpl();
+};
+TextElement.Instance.CreateHtmlObjectImpl = function () {
+    return document.createElement("span");
+};
+TextElement.Instance.ApplyHtmlChange = function (change) {
+    var propd = change.Property;
+    var rootEl = this.GetRootHtmlElement();
+    if (propd._ID === TextElement.FontFamilyProperty._ID) {
+        rootEl.style.fontFamily = change.NewValue.toString();
+    } else if (propd._ID === TextElement.FontSizeProperty._ID) {
+        rootEl.style.fontSize = change.NewValue + "px";
+    } else if (propd._ID === TextElement.FontStretchProperty._ID) {
+        rootEl.style.fontStretch = change.NewValue;
+    } else if (propd._ID === TextElement.FontStyleProperty._ID) {
+        rootEl.style.fontStyle = change.NewValue;
+    } else if (propd._ID === TextElement.FontWeightProperty._ID) {
+        rootEl.style.fontWeight = change.NewValue.toString();
+    } else if (propd._ID === TextElement.ForegroundProperty._ID) {
+        var brush = change.NewValue;
+        if (!brush)
+            brush = this.Foreground;
+        this.ApplyForegroundHtml(rootEl, brush);
+    }
+};
+TextElement.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
+    foreground.SetupBrush(null, null);
+    contentEl.style.color = foreground.ToHtml5Object();
+};
+
+//#endregion
 
 Nullstone.FinishCreate(TextElement);
 //#endregion

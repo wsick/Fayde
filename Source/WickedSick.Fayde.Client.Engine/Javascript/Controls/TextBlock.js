@@ -308,7 +308,6 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
             this._UpdateLayoutAttributes();
             invalidate = false;
         }
-        ivprop = true;
     } else if (args.Property._ID === TextBlock.InlinesProperty._ID) {
         if (this._SetsValue) {
             this._SetsValue = false;
@@ -317,6 +316,7 @@ TextBlock.Instance._OnPropertyChanged = function (args, error) {
 
             this._UpdateLayoutAttributes();
             this._Dirty = true;
+            this.SetChildrenHtml(args.NewValue);
         } else {
             this._UpdateLayoutAttributes();
             invalidate = false;
@@ -389,8 +389,24 @@ TextBlock.Instance._OnCollectionChanged = function (sender, args) {
     this._InvalidateArrange();
     this._UpdateBounds(true);
     this._Invalidate();
+
+    switch (args.Action) {
+        case CollectionChangedArgs.Action.Cleared:
+            this.ClearChildrenHtml();
+            break;
+        case CollectionChangedArgs.Action.Add:
+            this.AddChildHtml(args.NewValue, args.Index);
+            break;
+        case CollectionChangedArgs.Action.Remove:
+            this.RemoveChildHtml(args.NewValue);
+            break;
+        case CollectionChangedArgs.Action.Replace:
+            this.ReplaceChildHtml(args.OldValue, args.NewValue);
+            break;
+    }
 };
 
+//#region Html Translations
 
 TextBlock.Instance.InitializeHtml = function (rootEl) {
     this.InitializeHtml$FrameworkElement(rootEl);
@@ -414,9 +430,7 @@ TextBlock.Instance.ApplyHtmlChange = function (change) {
 
     var rootEl = this.GetRootHtmlElement();
     var contentEl = rootEl.firstChild;
-    if (propd._ID === TextBlock.TextProperty._ID) {
-        contentEl.textContent = change.NewValue;
-    } else if (propd._ID === TextBlock.FontFamilyProperty._ID) {
+    if (propd._ID === TextBlock.FontFamilyProperty._ID) {
         contentEl.style.fontFamily = change.NewValue.toString();
     } else if (propd._ID === TextBlock.FontSizeProperty._ID) {
         contentEl.style.fontSize = change.NewValue + "px";
@@ -472,6 +486,54 @@ TextBlock.Instance.ApplyTextDecorationsHtml = function (contentEl, decorations) 
         finalStyle += "underline ";
     contentEl.style.textDecoration = finalStyle;
 };
+
+TextBlock.Instance.SetChildrenHtml = function (inlines) {
+    var rootEl = this.GetRootHtmlElement();
+    var contentEl = rootEl.firstChild;
+
+    while (contentEl.hasChildNodes()) {
+        contentEl.removeChild(contentEl.lastChild);
+    }
+
+    var len = inlines.GetCount();
+    for (var i = 0; i < len; i++) {
+        var te = inlines.GetValueAt(i);
+        contentEl.appendChild(te.GetRootHtmlElement());
+    }
+};
+TextBlock.Instance.AddChildHtml = function (inline, newIndex) {
+    var rootEl = this.GetRootHtmlElement();
+    var contentEl = rootEl.firstChild;
+
+    var index = 0;
+    var curEl = contentEl.firstChild;
+    while (curEl && index < newIndex) {
+        curEl = curEl.nextSibling;
+        index++;
+    }
+
+    contentEl.insertBefore(inline.GetRootHtmlElement(), curEl);
+};
+TextBlock.Instance.ReplaceChildHtml = function (oldInline, newInline) {
+    var rootEl = this.GetRootHtmlElement();
+    var contentEl = rootEl.firstChild;
+    contentEl.replaceChild(newInline.GetRootHtmlElement(), oldInline.GetRootHtmlElement());
+};
+TextBlock.Instance.RemoveChildHtml = function (inline) {
+    var rootEl = this.GetRootHtmlElement();
+    var contentEl = rootEl.firstChild;
+    contentEl.removeChild(inline.GetRootHtmlElement());
+};
+TextBlock.Instance.ClearChildrenHtml = function () {
+    var rootEl = this.GetRootHtmlElement();
+    var contentEl = rootEl.firstChild;
+
+    while (contentEl.hasChildNodes()) {
+        contentEl.removeChild(contentEl.lastChild);
+    }
+};
+
+//#endregion
 
 //#endregion
 
