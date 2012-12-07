@@ -574,6 +574,37 @@ Grid.Instance._OnCollectionItemChanged = function (col, obj, args) {
 
 //#endregion
 
+//#region Html Translations
+Grid.Instance.CreateHtmlObjectImpl = function () {
+    var rootEl = document.createElement("div");
+    rootEl.appendChild(document.createElement("table"));
+    this.InitializeHtml(rootEl);
+    return rootEl;
+};
+Grid.Instance.InitializeHtml = function (rootEl) {
+    this.InitializeHtml$Panel(rootEl);
+    var table = rootEl.firstChild;
+    table.style.display = "block";
+};
+Grid.Instance.ApplyHtmlChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== TextBlock) {
+        this.ApplyHtmlChange$Panel(change);
+        return;
+    }
+
+    var rootEl = this.GetRootHtmlElement();
+    var contentEl = rootEl.firstChild;
+    if (propd._ID === Grid.ShowGridLinesProperty._ID) {
+        contentEl.style.borderCollapse = "collapse";
+        for(var i = 0; i < contentEl.Children.length; i++) {
+
+        }
+        //TODO: set all td's to have a border: solid 1px black
+    }
+};
+//#endregion
+
 //#region Definition Retrieval
 
 Grid.Instance._GetRowDefinitionsNoAutoCreate = function () {

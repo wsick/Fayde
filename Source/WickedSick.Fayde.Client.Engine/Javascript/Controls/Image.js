@@ -290,7 +290,7 @@ Fayde.Image.Instance._OnPropertyChanged = function (args, error) {
 
 Fayde.Image.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = document.createElement("div");
-    rootEl.appendChild(document.createElement("img"));
+    rootEl.appendChild(document.createElement("div"));
     this.InitializeHtml(rootEl);
     return rootEl;
 };
@@ -305,7 +305,10 @@ Fayde.Image.Instance.ApplyHtmlChange = function (change) {
     var imgEl = rootEl.firstChild;
     if (propd._ID === Fayde.Image.SourceProperty._ID) {
         var source = this.Source;
-        imgEl.src = source._Image.src;
+        //TODO: backgroundSize should be set according to the Stretch property
+        imgEl.style.backgroundSize = "contain";
+        imgEl.style.backgroundRepeat = "no-repeat";
+        imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
     }
 };
 
