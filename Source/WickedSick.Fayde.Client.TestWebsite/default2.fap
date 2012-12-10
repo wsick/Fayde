@@ -17,7 +17,7 @@
         <RowDefinition></RowDefinition>
         <RowDefinition></RowDefinition>
       </Grid.RowDefinitions>
-      <Border BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Width="300" Height="300" Margin="200,0,50,100" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+      <Border BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Width="300" Height="300" Margin="0,0,50,100" VerticalAlignment="Bottom" HorizontalAlignment="Right">
         <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="10, 20, 30, 40">
           <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
             <TextBlock Margin="10">
@@ -33,12 +33,13 @@
           </Border>
         </Border>
       </Border>
-      <Border BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Width="300" Height="300" Margin="200,0,50,100">
+      <Border Grid.Row="1" Grid.Column="1" BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Width="300" Height="300" Margin="0,0,50,100">
         <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="10, 20, 30, 40">
           <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
-            <Image Margin="10" Source="Images/page01.jpg"/>
+            <Image Margin="10" Source="Images/testing.jpg"/>
           </Border>
         </Border>
       </Border>
+      <Border Grid.Column="1" BorderBrush="Black" BorderThickness="2"/>
     </Grid>
 </FaydeApplication>

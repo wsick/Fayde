@@ -4,9 +4,39 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="600" d:DesignWidth="400">
-
-    <Grid x:Name="LayoutRoot" Background="Yellow">
-        <Image Source="Images/page01.JPG" MaxHeight="200" Margin="100,0,50,100" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+    d:DesignHeight="800" d:DesignWidth="800">
+    <Grid x:Name="LayoutRoot" Background="Green">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Width="300" Height="300" Margin="0,0,50,100" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="10, 20, 30, 40">
+                <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
+                    <TextBlock Margin="10">
+                        <TextBlock.Inlines>
+                            <Run FontWeight="Bold" FontSize="14" Text="Hi! I am a TextBlock. " />
+                            <Run FontStyle="Italic" Foreground="Red" Text="This is red italic text. " />
+                            <LineBreak />
+                            <Underline Foreground="Blue">
+                                <Run Text="How about adding some blue?" />
+                            </Underline>
+                        </TextBlock.Inlines>
+                    </TextBlock>
+                </Border>
+            </Border>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Width="300" Height="300" Margin="0,0,50,100">
+            <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="10, 20, 30, 40">
+                <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
+                    <Image Margin="10" Source="/WickedSick.LitmusTests;component/testing.jpg"/>
+                </Border>
+            </Border>
+        </Border>
+        <Border Grid.Column="1" BorderBrush="Black" BorderThickness="2"/>
     </Grid>
 </UserControl>

@@ -575,9 +575,62 @@ Grid.Instance._OnCollectionItemChanged = function (col, obj, args) {
 //#endregion
 
 //#region Html Translations
+Grid.Instance.OnHtmlAttached = function () {
+    var children = this.Children;
+    var table = this.GetRootHtmlElement().firstChild.firstChild;
+    var rows = this.RowDefinitions.GetCount();
+    var columns = this.ColumnDefinitions.GetCount();
+    for (var i = 0; i < rows; i++) {
+        var rowEl = table.appendChild(document.createElement("tr"));
+        for (var j = 0; j < columns; j++) {
+            var columnEl = rowEl.appendChild(document.createElement("td"));
+            columnEl.style.padding = "0px";
+            columnEl.style.height = "50%";
+            columnEl.style.width = "50%";
+            columnEl.style.fontSize = "0px";
+            columnEl.style.overflow = "hidden";
+            var sizingEl = columnEl.appendChild(document.createElement("div"));
+            sizingEl.style.position = "relative";
+            sizingEl.style.display = "inline-block";
+            sizingEl.style.width = "100%";
+            sizingEl.style.height = "100%";
+            var contentEl = sizingEl.appendChild(document.createElement("div"));
+            contentEl.style.position = "absolute";
+            contentEl.style.width = "100%";
+            contentEl.style.height = "100%";
+        }
+    }
+    if (children) {
+        var len = children.GetCount();
+        for (var i = 0; i < len; i++) {
+            var child = children.GetValueAt(i);
+            //TODO: what to do if row is set to a row number that doesn't exist?
+            var row = Grid.GetRow(child);
+            var column = Grid.GetColumn(child);
+            table.children[row].children[column].firstChild.firstChild.appendChild(child.GetRootHtmlElement());
+            child.OnHtmlAttached();
+        }
+    }
+};
+Grid.Instance.OnHtmlDetached = function () {
+    var children = this.Children;
+    if (children) {
+        var contentEl = this.GetRootHtmlElement().firstChild;
+        var len = children.GetCount();
+        for (var i = 0; i < len; i++) {
+            var child = children.GetValueAt(i);
+            contentEl.removeChild(child.GetRootHtmlElement());
+            child.OnHtmlDetached();
+        }
+    }
+};
 Grid.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = document.createElement("div");
-    rootEl.appendChild(document.createElement("table"));
+    var subEl = rootEl.appendChild(document.createElement("div"));
+    var table = subEl.appendChild(document.createElement("table"));
+    table.style.borderSpacing = "0px";
+    table.style.width = "100%";
+    table.style.height = "100%";
     this.InitializeHtml(rootEl);
     return rootEl;
 };
@@ -595,10 +648,15 @@ Grid.Instance.ApplyHtmlChange = function (change) {
 
     var rootEl = this.GetRootHtmlElement();
     var contentEl = rootEl.firstChild;
+    var table = contentEl.firstChild;
     if (propd._ID === Grid.ShowGridLinesProperty._ID) {
-        contentEl.style.borderCollapse = "collapse";
-        for(var i = 0; i < contentEl.Children.length; i++) {
-
+        table.style.borderCollapse = "collapse";
+        for(var i = 0; i < table.children.length; i++) {
+            var row = table.children[i];
+            for (var j = 0; j < row.children.length; j++) {
+                var cell = row.children[j];
+                cell.style.border = "solid 1px black";
+            }
         }
         //TODO: set all td's to have a border: solid 1px black
     }
