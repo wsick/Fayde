@@ -10,10 +10,12 @@
     </FaydeApplication.Resources>
     <Grid x:Name="LayoutRoot" Background="Green">
       <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="500"></ColumnDefinition>
         <ColumnDefinition></ColumnDefinition>
-        <ColumnDefinition></ColumnDefinition>
+        <ColumnDefinition Width="Auto"></ColumnDefinition>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
+        <RowDefinition></RowDefinition>
         <RowDefinition></RowDefinition>
         <RowDefinition></RowDefinition>
       </Grid.RowDefinitions>
@@ -41,5 +43,6 @@
         </Border>
       </Border>
       <Border Grid.Column="1" BorderBrush="Black" BorderThickness="2"/>
+      <Border Width="100" Grid.Column="2" BorderBrush="Black" BorderThickness="4"/>
     </Grid>
 </FaydeApplication>
