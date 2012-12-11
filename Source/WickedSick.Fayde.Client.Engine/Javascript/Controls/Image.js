@@ -308,6 +308,7 @@ Fayde.Image.Instance.ApplyHtmlChange = function (change) {
         //TODO: backgroundSize should be set according to the Stretch property
         imgEl.style.backgroundSize = "contain";
         imgEl.style.backgroundRepeat = "no-repeat";
+        imgEl.style.backgroundPosition = "center";
         imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
     }
 };
