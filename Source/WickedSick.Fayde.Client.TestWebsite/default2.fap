@@ -44,5 +44,6 @@
       </Border>
       <Border Grid.Column="1" BorderBrush="Black" BorderThickness="2"/>
       <Border Width="100" Grid.Column="2" BorderBrush="Black" BorderThickness="4"/>
+      <Image Grid.Row="2" Grid.Column="1" Source="Images/testing.jpg"/>
     </Grid>
 </FaydeApplication>

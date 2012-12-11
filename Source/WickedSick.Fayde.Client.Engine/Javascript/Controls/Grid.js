@@ -632,15 +632,17 @@ Grid.Instance.OnHtmlAttached = function () {
             columnEl.style.maxHeight = rd.MaxHeight + "px";
             columnEl.style.fontSize = "0px";
             columnEl.style.overflow = "hidden";
-            var sizingEl = columnEl.appendChild(document.createElement("div"));
-            sizingEl.style.position = "relative";
-            sizingEl.style.display = "inline-block";
-            sizingEl.style.width = "100%";
-            sizingEl.style.height = "100%";
-            var contentEl = sizingEl.appendChild(document.createElement("div"));
-            contentEl.style.position = "absolute";
-            contentEl.style.width = "100%";
-            contentEl.style.height = "100%";
+            //if (cd.Type == GridUnitType.Star) {
+                var sizingEl = columnEl.appendChild(document.createElement("div"));
+                sizingEl.style.position = "relative";
+                sizingEl.style.display = "inline-block";
+                sizingEl.style.width = "100%";
+                sizingEl.style.height = "100%";
+                var contentEl = sizingEl.appendChild(document.createElement("div"));
+                contentEl.style.position = "absolute";
+                contentEl.style.width = "100%";
+                contentEl.style.height = "100%";
+            //}
         }
     }
 
@@ -652,7 +654,14 @@ Grid.Instance.OnHtmlAttached = function () {
             //TODO: what to do if row is set to a row number that doesn't exist?
             var row = Grid.GetRow(child);
             var column = Grid.GetColumn(child);
-            table.children[row].children[column].firstChild.firstChild.appendChild(child.GetRootHtmlElement());
+            var contentEl;
+            //if (this.ColumnDefinitions.GetValueAt(column).Width.Type == GridUnitType.Star) {
+                contentEl = table.children[row].children[column].firstChild.firstChild;
+            //}
+            //else {
+            //    contentEl = table.children[row].children[column];
+            //}
+            contentEl.appendChild(child.GetRootHtmlElement());
             child.OnHtmlAttached();
         }
     }
