@@ -273,14 +273,21 @@ Border.Instance.ApplyHtmlChange = function (change) {
         contentEl.style.borderColor = brush.ToHtml5Object();
     }
 
-    if (propd._ID === Border.BorderThicknessProperty._ID) {
-        var thickness = change.NewValue;
-        contentEl.style.borderWidth = thickness.Top + "px " + thickness.Right + "px " + thickness.Bottom + "px " + thickness.Left + "px";
-    }
+    if (propd._ID === Border.BorderThicknessProperty._ID
+        || propd._ID === Border.CornerRadiusProperty._ID) {
+        var thickness = this.BorderThickness;
+        var radius = this.CornerRadius;
 
-    if (propd._ID == Border.CornerRadiusProperty._ID) {
-        var radius = change.NewValue;
-        contentEl.style.borderRadius = radius.TopLeft + "px " + radius.TopRight + "px " + radius.BottomRight + "px " + radius.BottomLeft + "px";
+        contentEl.style.borderWidth = thickness.Top + "px " + thickness.Right + "px " + thickness.Bottom + "px " + thickness.Left + "px";
+
+        var halfThickness = new Thickness(thickness.Left * 0.5, thickness.Top * 0.5, thickness.Right * 0.5, thickness.Bottom * 0.5);
+        var htmlRadius = new CornerRadius(
+            radius.TopLeft + (halfThickness.Top + halfThickness.Left) / 2,
+            radius.TopRight + (halfThickness.Top + halfThickness.Right) / 2,
+            radius.BottomRight + (halfThickness.Bottom + halfThickness.Right) / 2,
+            radius.BottomLeft + (halfThickness.Bottom + halfThickness.Left) / 2);
+
+        contentEl.style.borderRadius = htmlRadius.TopLeft + "px " + htmlRadius.TopRight + "px " + htmlRadius.BottomRight + "px " + htmlRadius.BottomLeft + "px";
     }
 };
 
