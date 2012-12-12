@@ -488,21 +488,21 @@ RawPath.Instance.Serialize = function () {
         var p = backing[i];
         switch (p.type) {
             case PathEntryType.Move:
-                s += "M " + p.x.toString() + " " + p.y.toString();
+                s += "M" + p.x.toString() + " " + p.y.toString();
                 break;
             case PathEntryType.Line:
-                s += "L " + p.x.toString() + " " + p.y.toString();
+                s += "L" + p.x.toString() + " " + p.y.toString();
                 break;
             case PathEntryType.Rect:
                 break;
             case PathEntryType.Quadratic:
-                s += "Q " + p.cpx.toString() + " " + p.cpy.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                s += "Q" + p.cpx.toString() + " " + p.cpy.toString() + ", " + p.x.toString() + " " + p.y.toString();
                 break;
             case PathEntryType.Bezier:
-                s += "C " + p.cp1x.toString() + " " + p.cp1y.toString() + ", " + p.cp2x.toString() + " " + p.cp2y.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                s += "C" + p.cp1x.toString() + " " + p.cp1y.toString() + ", " + p.cp2x.toString() + " " + p.cp2y.toString() + ", " + p.x.toString() + " " + p.y.toString();
                 break;
             case PathEntryType.EllipticalArc:
-                s += "A " + p.width.toString() + " " + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + " " + p.ey.toString();
+                s += "A" + p.width.toString() + " " + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + " " + p.ey.toString();
                 break;
             case PathEntryType.ArcTo:
                 break;

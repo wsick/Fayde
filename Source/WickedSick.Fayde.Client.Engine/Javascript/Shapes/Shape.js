@@ -542,8 +542,6 @@ Shape.Instance.CreateHtmlObjectImpl = function () {
 };
 Shape.Instance.CreateSvg = function () {
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("version", "1.2");
-    svg.setAttribute("baseProfile", "tiny");
     return svg;
 };
 Shape.Instance.GetSvg = function () {
