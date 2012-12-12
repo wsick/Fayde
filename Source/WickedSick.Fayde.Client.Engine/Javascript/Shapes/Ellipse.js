@@ -102,5 +102,18 @@ Ellipse.Instance._ComputeShapeBoundsImpl = function (logical, matrix) {
     return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
 };
 
+//#region Html Translations
+
+Ellipse.Instance.CreateSvgShape = function () {
+    var ellipse = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    ellipse.setAttribute("rx", "50%");
+    ellipse.setAttribute("ry", "50%");
+    ellipse.setAttribute("cx", "50%");
+    ellipse.setAttribute("cy", "50%");
+    return ellipse;
+};
+
+//#endregion
+
 Nullstone.FinishCreate(Ellipse);
 //#endregion
