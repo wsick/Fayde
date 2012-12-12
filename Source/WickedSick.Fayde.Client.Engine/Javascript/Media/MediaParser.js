@@ -335,9 +335,9 @@ Fayde._MediaParser.prototype.ParseGeometryImpl = function () {
                 break;
             case 'z':
             case 'Z':
-                path.Line(start.X, start.Y);
+                //path.Line(start.X, start.Y);
                 path.Close();
-                path.Move(start.X, start.Y);
+                //path.Move(start.X, start.Y);
 
                 cp.X = start.X;
                 cp.Y = start.Y;

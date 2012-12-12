@@ -99,6 +99,9 @@ Path.Instance.ApplyHtmlChange = function (change) {
         if (!data)
             data = this.Data;
         shape.setAttribute("d", data.Serialize());
+        var svg = this.GetSvg();
+        var bounds = data.GetBounds();
+        svg.setAttribute("viewBox", bounds.X.toString() + " " + bounds.Y.toString() + " " + bounds.Width.toString() + " " + bounds.Height.toString());
     }
 };
 

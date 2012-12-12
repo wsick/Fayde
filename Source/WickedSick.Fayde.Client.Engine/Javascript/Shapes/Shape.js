@@ -535,9 +535,9 @@ Shape.Instance._OnSubPropertyChanged = function (propd, sender, args) {
 Shape.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
     var contentEl = rootEl.firstChild;
-    this._Svg = this.CreateSvg();
-    this._Svg.appendChild(this.GetSvgShape());
-    contentEl.appendChild(this._Svg);
+    var svg = this.GetSvg();
+    svg.appendChild(this.GetSvgShape());
+    contentEl.appendChild(svg);
     return rootEl;
 };
 Shape.Instance.CreateSvg = function () {
@@ -545,6 +545,11 @@ Shape.Instance.CreateSvg = function () {
     svg.setAttribute("version", "1.2");
     svg.setAttribute("baseProfile", "tiny");
     return svg;
+};
+Shape.Instance.GetSvg = function () {
+    if (!this._Svg)
+        this._Svg = this.CreateSvg();
+    return this._Svg;
 };
 Shape.Instance.CreateSvgShape = function () { };
 Shape.Instance.GetSvgShape = function () {
