@@ -4,9 +4,10 @@
     Rect: 2,
     Quadratic: 3,
     Bezier: 4,
-    Arc: 5,
-    ArcTo: 6,
-    Close: 7
+    EllipticalArc: 5,
+    Arc: 6,
+    ArcTo: 7,
+    Close: 8
 };
 
 var ShapeFlags = {

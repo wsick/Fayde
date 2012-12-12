@@ -62,14 +62,47 @@ Path.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$Shape(args, error);
         return;
     }
+
+    if (args.Property._ID === Path.DataProperty._ID) {
+        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+    }
 };
 Path.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (propd != null && propd._ID === Path.DataProperty._ID) {
         this._InvalidateNaturalBounds();
+        this.InvalidateProperty(propd);
         return;
     }
     this._OnSubPropertyChanged$Shape(propd, sender, args);
 };
+
+//#region Html Translations
+
+Path.Instance.CreateSvgShape = function () {
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    var data = this.Data;
+    if (data)
+        path.setAttribute("d", this.Data.Serialize());
+    return path;
+};
+
+Path.Instance.ApplyHtmlChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== Path) {
+        this.ApplyHtmlChange$Shape(change);
+        return;
+    }
+
+    var shape = this.GetSvgShape();
+    if (propd._ID === Path.DataProperty._ID) {
+        var data = change.NewValue;
+        if (!data)
+            data = this.Data;
+        shape.setAttribute("d", data.Serialize());
+    }
+};
+
+//#endregion
 
 Nullstone.FinishCreate(Path);
 //#endregion
