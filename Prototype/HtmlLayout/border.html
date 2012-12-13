@@ -19,6 +19,8 @@
             //$("#testDiv1").width($("#testDiv").width());
             //$("#testDiv2").width($("#testDiv").width());
             //$("#testTd").width($("#testDiv").width());
+            var linkId = $(".faydeLinked").data("link-id");
+            $("#" + linkId).width($(".faydeLinked").width());
         });
     </script>
 </head>
@@ -84,11 +86,11 @@
                         </td>
                         <td style="padding: 0px; width: 99%; height: 33.33333333333333%; font-size: 0px;">
                         </td>
-                        <td style="padding: 0px; width: auto; height: 33.33333333333333%; font-size: 0px;" id="testTd">
-                            <div style="position: relative; width: 450px; height: 0px;" class="sizingHelper" data-linked></div>
-                            <div style="position: relative; display: inline-block; width: auto; height: 100%;" id="testDiv1">
-                                <div style="position: absolute; width: auto; height: 100%; overflow: hidden;" id="testDiv2">
-                                    <div id="testDiv" style="display: table; background-color: rgb(255, 255, 0); background-position: initial initial; background-repeat: initial initial;">
+                        <td style="padding: 0px; width: auto; height: 33.33333333333333%; font-size: 0px;">
+                            <div style="position: relative; height: 0px;" id="linked0001"></div>
+                            <div style="position: relative; display: inline-block; width: auto; height: 100%;">
+                                <div style="position: absolute; width: auto; height: 100%; overflow: hidden;">
+                                    <div class="faydeLinked" data-link-id="linked0001" style="display: table; background-color: rgb(255, 255, 0); background-position: initial initial; background-repeat: initial initial;">
 			                            <div style="display: table-cell; text-align: center; padding: 0px;">
 				                            <img src="../../Source/WickedSick.Fayde.Client.TestWebsite/Images/page01.JPG" style="width:200px; height: 400px; margin: 20px 50px 100px 200px;">
 			                            </div>
