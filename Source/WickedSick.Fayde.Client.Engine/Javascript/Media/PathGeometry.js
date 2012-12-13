@@ -65,5 +65,12 @@ PathGeometry.Instance._Build = function () {
     }
 };
 
+PathGeometry.Instance.Serialize = function () {
+    var path = this.$Path;
+    if (!path)
+        return;
+    return path.Serialize();
+};
+
 Nullstone.FinishCreate(PathGeometry);
 //#endregion

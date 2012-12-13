@@ -133,7 +133,16 @@ RawPath.Instance.Ellipse = function (x, y, width, height) {
     }
 };
 RawPath.Instance.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
-    NotImplemented("EllipticalArc");
+    this._Path.push({
+        type: PathEntryType.EllipticalArc,
+        width: width,
+        height: height,
+        rotationAngle: rotationAngle,
+        isLargeArcFlag: isLargeArcFlag,
+        sweepDirectionFlag: sweepDirectionFlag,
+        ex: ex,
+        ey: ey
+    });
 };
 RawPath.Instance.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
     this._Path.push({
@@ -467,6 +476,42 @@ RawPath.Merge = function (path1, path2) {
     /// <param name="path1" type="RawPath"></param>
     /// <param name="path2" type="RawPath"></param>
     NotImplemented("RawPath.Merge");
+};
+
+RawPath.Instance.Serialize = function () {
+    var s = "";
+    var len = this._Path.length;
+    var backing = this._Path;
+    for (var i = 0; i < len; i++) {
+        if (i > 0)
+            s += " ";
+        var p = backing[i];
+        switch (p.type) {
+            case PathEntryType.Move:
+                s += "M" + p.x.toString() + " " + p.y.toString();
+                break;
+            case PathEntryType.Line:
+                s += "L" + p.x.toString() + " " + p.y.toString();
+                break;
+            case PathEntryType.Rect:
+                break;
+            case PathEntryType.Quadratic:
+                s += "Q" + p.cpx.toString() + " " + p.cpy.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                break;
+            case PathEntryType.Bezier:
+                s += "C" + p.cp1x.toString() + " " + p.cp1y.toString() + ", " + p.cp2x.toString() + " " + p.cp2y.toString() + ", " + p.x.toString() + " " + p.y.toString();
+                break;
+            case PathEntryType.EllipticalArc:
+                s += "A" + p.width.toString() + " " + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + " " + p.ey.toString();
+                break;
+            case PathEntryType.ArcTo:
+                break;
+            case PathEntryType.Close:
+                s += "Z";
+                break;
+        }
+    }
+    return s;
 };
 
 Nullstone.FinishCreate(RawPath);

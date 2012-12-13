@@ -27,7 +27,7 @@
 //Loop until exhausted
 //  Parse FigureDescription
 //      Find "M" or "m"? - Parse MoveCommand (start point)
-//          <point> <point> <point>
+//          <point>
 //
 //      Find "L" or "l"? - Parse LineCommand (end point)
 //          <point>
@@ -38,7 +38,7 @@
 //      Find "C" or "c"? - Parse CubicBezierCurveCommand (control point 1, control point 2, end point)
 //          <point> <point> <point>
 //      Find "Q" or "q"? - Parse QuadraticBezierCurveCommand (control point, end point)
-//          <point> <point> <point>
+//          <point> <point>
 //      Find "S" or "s"? - Parse SmoothCubicBezierCurveCommand (control point 2, end point)
 //          <point> <point>
 //      Find "T" or "t"? - Parse SmoothQuadraticBezierCurveCommand (control point, end point)
@@ -335,9 +335,9 @@ Fayde._MediaParser.prototype.ParseGeometryImpl = function () {
                 break;
             case 'z':
             case 'Z':
-                path.Line(start.X, start.Y);
+                //path.Line(start.X, start.Y);
                 path.Close();
-                path.Move(start.X, start.Y);
+                //path.Move(start.X, start.Y);
 
                 cp.X = start.X;
                 cp.Y = start.Y;
