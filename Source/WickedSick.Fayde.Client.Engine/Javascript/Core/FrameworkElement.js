@@ -962,6 +962,7 @@ FrameworkElement.ApplySizing = function (rootEl, horizontalAlignment, verticalAl
 
     subEl.style.boxSizing = "border-box";
     subEl.style.position = "absolute";
+    //subEl.style.display = "table";
     //apply resets
     rootEl.style.width = "auto";
     rootEl.style.left = "auto";
