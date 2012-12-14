@@ -1,0 +1,15 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.UriMappings>
+        <UriMapping Uri="" MappedUri="/Views/default.fayde" />
+    </FaydeApplication.UriMappings>
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <Polygon Fill="#222222" Stroke="Red" StrokeThickness="5"
+             Points="150,0 200,300 0,100 300,100 100,300"
+             FillRule="NonZero">
+    </Polygon>
+</FaydeApplication>
