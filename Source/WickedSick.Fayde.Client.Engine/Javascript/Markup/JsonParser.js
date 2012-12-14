@@ -41,7 +41,7 @@ JsonParser.Parse = function (json, templateBindingSource, namescope, resChain) {
 
 JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
     if (json.Type == null) {
-        return null;
+        return json;
     }
 
     if (json.Type === Number || json.Type === String || json.Type === Boolean) {

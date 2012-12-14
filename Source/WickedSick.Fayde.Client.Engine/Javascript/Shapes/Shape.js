@@ -266,6 +266,8 @@ Shape.Instance._GetSizeForBrush = function (ctx) {
 //#region Bounds
 
 Shape.Instance._GetNaturalBounds = function () {
+    if (!this._NaturalBounds)
+        return;
     if (this._NaturalBounds.IsEmpty())
         this._NaturalBounds = this._ComputeShapeBoundsImpl(false, null);
     return this._NaturalBounds;
@@ -280,7 +282,7 @@ Shape.Instance._ComputeBounds = function () {
 };
 Shape.Instance._ComputeStretchBounds = function () {
     var shapeBounds = this._GetNaturalBounds();
-    if (shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
+    if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
         this._SetShapeFlags(ShapeFlags.Empty);
         return new Rect();
     }

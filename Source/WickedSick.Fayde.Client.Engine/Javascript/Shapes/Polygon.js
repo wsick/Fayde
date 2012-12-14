@@ -35,7 +35,7 @@ Polygon.Instance._BuildPath = function () {
         return;
     }
 
-    this.SetShapeFlags(ShapeFlags.Normal);
+    this._SetShapeFlags(ShapeFlags.Normal);
 
     var path = new RawPath();
     if (count === 2) {
@@ -138,17 +138,70 @@ Polygon.Instance._OnPropertyChanged = function (args, error) {
         this._InvalidateNaturalBounds();
     }
 
+    this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
     this._Invalidate();
     this.PropertyChanged.Raise(this, args);
 };
 Polygon.Instance._OnCollectionChanged = function (col, args) {
     this._OnCollectionChanged$Shape(col, args);
     this._InvalidateNaturalBounds();
+    this.InvalidateProperty(Polygon.PointsProperty);
 };
 Polygon.Instance._OnCollectionItemChanged = function (col, obj, args) {
     this._OnCollectionItemChanged$Shape(col, obj, args);
     this._InvalidateNaturalBounds();
+    this.InvalidateProperty(Polygon.PointsProperty);
 };
+
+//#region Html Translations
+
+Polygon.Instance.CreateSvgShape = function () {
+    var polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    this.ApplyHtmlFillRule(polygon, this.FillRule);
+    return polygon;
+};
+
+Polygon.Instance.ApplyHtmlChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== Polygon) {
+        this.ApplyHtmlChange$Shape(change);
+        return;
+    }
+
+    var shape = this.GetSvgShape();
+    if (propd._ID === Polygon.FillRuleProperty._ID) {
+        this.ApplyHtmlFillRule(shape, change.NewValue);
+    } else if (propd._ID === Polygon.PointsProperty._ID) {
+        var coll = change.NewValue;
+        if (!coll)
+            coll = this.Points;
+        shape.setAttribute("points", Polygon._SerializePoints(coll));
+    }
+};
+Polygon.Instance.ApplyHtmlFillRule = function (shape, fillRule) {
+    switch (fillRule) {
+        case FillRule.EvenOdd:
+            shape.setAttribute("fill-rule", "evenodd");
+            break;
+        case FillRule.NonZero:
+            shape.setAttribute("fill-rule", "nonzero");
+            break;
+    }
+
+};
+Polygon._SerializePoints = function (points) {
+    var s = "";
+    var len = points.GetCount();
+    for (var i = 0; i < len; i++) {
+        var p = points.GetValueAt(i);
+        if (i > 0)
+            s += " ";
+        s += p.X.toString() + "," + p.Y.toString();
+    }
+    return s;
+};
+
+//#endregion
 
 Nullstone.FinishCreate(Polygon);
 //#endregion
