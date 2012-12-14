@@ -77,6 +77,8 @@ Shape.Instance._MeasureOverrideWithError = function (availableSize, error) {
     /// <param name="availableSize" type="Size"></param>
     var desired = availableSize;
     var shapeBounds = this._GetNaturalBounds();
+    if (!shapeBounds)
+        return new Size();
     var sx = 0.0;
     var sy = 0.0;
     if (this instanceof Rectangle || this instanceof Ellipse) {
@@ -134,6 +136,8 @@ Shape.Instance._ArrangeOverrideWithError = function (finalSize, error) {
     var sy = 1.0;
 
     var shapeBounds = this._GetNaturalBounds();
+    if (!shapeBounds)
+        return new Size();
 
     this._InvalidateStretch();
 

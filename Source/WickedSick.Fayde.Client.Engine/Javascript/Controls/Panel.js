@@ -114,6 +114,7 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
         this._OnPropertyChanged$FrameworkElement(args, error);
         return;
     }
+    var item;
     if (args.Property._ID === Panel.BackgroundProperty._ID) {
         this._UpdateBounds();
         this._Invalidate();
@@ -127,14 +128,18 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
             collection = args.OldValue;
             count = collection.GetCount();
             for (i = 0; i < count; i++) {
-                this._ElementRemoved(collection.GetValueAt(i));
+                item = collection.GetValueAt(i);
+                this._ElementRemoved(item);
+                this.RemoveHtmlChild(item, i);
             }
         }
         if (args.NewValue) {
             collection = args.NewValue;
             count = collection.GetCount();
             for (i = 0; i < count; i++) {
-                this._ElementAdded(collection.GetValueAt(i));
+                item = collection.GetValueAt(i);
+                this._ElementAdded(item);
+                this.InsertHtmlChild(item, i);
             }
         }
         this._UpdateBounds();
@@ -144,7 +149,7 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
 Panel.Instance._OnSubPropertyChanged = function (propd, sender, args) {
     if (propd && propd._ID === Panel.BackgroundProperty._ID) {
         this._Invalidate();
-        this.InvalidateProperty(propd, undefined, undefined);
+        this.InvalidateProperty(propd);
     } else {
         this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
     }
@@ -157,16 +162,19 @@ Panel.Instance._OnCollectionChanged = function (col, args) {
                 if (args.OldValue instanceof FrameworkElement)
                     args.OldValue._SetLogicalParent(null, error);
                 this._ElementRemoved(args.OldValue);
+                this.RemoveHtmlChild(args.OldValue, args.Index);
                 //NOTE: falls into add on purpose
             case CollectionChangedArgs.Action.Add:
                 if (args.NewValue instanceof FrameworkElement)
                     args.NewValue._SetLogicalParent(this, error);
                 this._ElementAdded(args.NewValue);
+                this.InsertHtmlChild(args.NewValue, args.Index);
                 break;
             case CollectionChangedArgs.Action.Remove:
                 if (args.OldValue instanceof FrameworkElement)
                     args.OldValue._SetLogicalParent(null, error);
                 this._ElementRemoved(args.OldValue);
+                this.RemoveHtmlChild(args.OldValue, args.Index);
                 break;
             case CollectionChangedArgs.Action.Clearing:
                 break;
@@ -201,57 +209,26 @@ Panel.Instance._OnIsAttachedChanged = function (value) {
 //#region Html Translations
 
 Panel.Instance.OnHtmlAttached = function () {
-    var childWrappers = this._HtmlChildWrappers;
-    if (!childWrappers)
-        childWrappers = this._HtmlChildWrappers = [];
-
     var children = this.Children;
     if (children) {
         var contentEl = this.GetRootHtmlElement().firstChild;
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
             var child = children.GetValueAt(i);
-            var wrapper = this.WrapHtmlChild(child);
-            childWrappers.push(wrapper);
-            contentEl.appendChild(wrapper);
             child.OnHtmlAttached();
         }
     }
 };
 Panel.Instance.OnHtmlDetached = function () {
-    var childWrappers = this._HtmlChildWrappers;
-    if (!childWrappers)
-        childWrappers = this._HtmlChildWrappers = [];
-
     var children = this.Children;
     if (children) {
         var contentEl = this.GetRootHtmlElement().firstChild;
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
-            var wrapper = childWrappers[i];
-            if (!wrapper)
-                continue;
-            contentEl.removeChild(wrapper);
             var child = children.GetValueAt(i);
             child.OnHtmlDetached();
         }
     }
-};
-
-Panel.Instance.CreateHtmlObjectImpl = function () {
-    var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
-    rootEl.firstChild.appendChild(this.GetHtmlChildrenContainer());
-    return rootEl;
-};
-Panel.Instance.GetHtmlChildrenContainer = function () {
-    if (!this._HtmlChildrenContainer)
-        this._HtmlChildrenContainer = this.CreateHtmlChildrenContainer();
-    return this._HtmlChildrenContainer;
-};
-Panel.Instance.CreateHtmlChildrenContainer = function () { };
-
-Panel.Instance.WrapHtmlChild = function (child) {
-    return child.GetRootHtmlElement();
 };
 
 Panel.Instance.ApplyHtmlChange = function (change) {

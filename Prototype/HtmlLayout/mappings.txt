@@ -1,4 +1,4 @@
-UIElement, FrameworkElement, Border, Panel, StackPanel, Grid, Border, Image, TextBlock, TextBox
+UIElement, FrameworkElement, Panel, StackPanel, Grid, Border, Image, TextBlock, TextBox
 Rectangle, Ellipse, Line, Path, Polygon, Polyline
 
 UIElement

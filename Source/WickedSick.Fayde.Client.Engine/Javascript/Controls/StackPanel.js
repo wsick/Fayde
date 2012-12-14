@@ -22,8 +22,6 @@ Nullstone.AutoProperties(StackPanel, [
 
 //#endregion
 
-//#region Instance Methods
-
 StackPanel.Instance.MeasureOverride = function (constraint) {
     //Info("StackPanel.MeasureOverride [" + this._TypeName + "]");
     var childAvailable = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
@@ -113,36 +111,38 @@ StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
 
 };
 
-//#endregion
-
 //#region Html Translations
 
-StackPanel.Instance.CreateHtmlChildrenContainer = function () {
-    var ul = document.createElement("ul");
-    ul.style.listStyleType = "none";
-    ul.style.padding = "0px";
-    return ul;
+StackPanel.Instance.InsertHtmlChild = function (child, index) {
+    var container = this.GetContentHtmlElement();
+    var children = this.Children;
+    var nextEl;
+    if ((index + 1) < children.GetCount())
+        nextEl = children.GetValueAt(index + 1).GetRootHtmlElement();
+
+    if (nextEl)
+        container.insertBefore(child.GetRootHtmlElement(), nextEl);
+    else
+        container.appendChild(child.GetRootHtmlElement());
 };
-StackPanel.Instance.WrapHtmlChild = function (child) {
-    var li = document.createElement("li");
-    if (this.Orientation === Orientation.Horizontal)
-        li.style.display = "inline-block";
-    li.appendChild(child.GetRootHtmlElement());
-    return li;
+StackPanel.Instance.RemoveHtmlChild = function (child, index) {
+    var rootEl = child.GetRootHtmlElement();
+    rootEl.parentNode.removeChild(rootEl);
 };
 
 StackPanel.Instance._UpdateHtmlOrientation = function (orientation) {
-    var wrappers = this._HtmlChildWrappers;
-    if (!wrappers)
-        return;
-    var len = this.Children.GetCount();
+    var children = this.Children;
+    var len = children.GetCount();
+    var child;
     if (orientation === Orientation.Horizontal) {
         for (var i = 0; i < len; i++) {
-            wrappers[i].style.display = "inline-block";
+            child = children.GetValueAt(i);
+            child.GetRootHtmlElement().style.display = "inline-block";
         }
     } else if (orientation === Orientation.Vertical) {
         for (var i = 0; i < len; i++) {
-            wrappers[i].style.display = "block";
+            child = children.GetValueAt(i);
+            child.GetRootHtmlElement().style.display = "block";
         }
     }
 };

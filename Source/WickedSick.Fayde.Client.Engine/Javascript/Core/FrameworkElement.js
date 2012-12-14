@@ -927,6 +927,9 @@ FrameworkElement.Instance._HasFocus = function () {
 
 //#region Html Translations
 
+FrameworkElement.Instance.GetContentHtmlElement = function () {
+    return this.GetRootHtmlElement().firstChild;
+};
 FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = document.createElement("div");
     rootEl.appendChild(document.createElement("div"));
