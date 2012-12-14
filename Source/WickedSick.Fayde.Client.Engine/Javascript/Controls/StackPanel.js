@@ -4,7 +4,7 @@
 //#region StackPanel
 var StackPanel = Nullstone.Create("StackPanel", Panel);
 
-//#region Dependency Properties
+//#region Properties
 
 StackPanel._OrientationChanged = function (d, args) {
     var sp = Nullstone.As(d, StackPanel);
@@ -12,6 +12,7 @@ StackPanel._OrientationChanged = function (d, args) {
         return;
     d._InvalidateMeasure();
     d._InvalidateArrange();
+    d._UpdateHtmlOrientation(args.NewValue);
 };
 StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
 
@@ -110,6 +111,40 @@ StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
 
     return arranged;
 
+};
+
+//#endregion
+
+//#region Html Translations
+
+StackPanel.Instance.CreateHtmlChildrenContainer = function () {
+    var ul = document.createElement("ul");
+    ul.style.listStyleType = "none";
+    ul.style.padding = "0px";
+    return ul;
+};
+StackPanel.Instance.WrapHtmlChild = function (child) {
+    var li = document.createElement("li");
+    if (this.Orientation === Orientation.Horizontal)
+        li.style.display = "inline-block";
+    li.appendChild(child.GetRootHtmlElement());
+    return li;
+};
+
+StackPanel.Instance._UpdateHtmlOrientation = function (orientation) {
+    var wrappers = this._HtmlChildWrappers;
+    if (!wrappers)
+        return;
+    var len = this.Children.GetCount();
+    if (orientation === Orientation.Horizontal) {
+        for (var i = 0; i < len; i++) {
+            wrappers[i].style.display = "inline-block";
+        }
+    } else if (orientation === Orientation.Vertical) {
+        for (var i = 0; i < len; i++) {
+            wrappers[i].style.display = "block";
+        }
+    }
 };
 
 //#endregion

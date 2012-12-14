@@ -678,15 +678,12 @@ Grid.Instance.OnHtmlDetached = function () {
         }
     }
 };
-Grid.Instance.CreateHtmlObjectImpl = function () {
-    var rootEl = document.createElement("div");
-    var subEl = rootEl.appendChild(document.createElement("div"));
-    var table = subEl.appendChild(document.createElement("table"));
+Grid.Instance.CreateHtmlChildrenContainer = function () {
+    var table = document.createElement("table");
     table.style.borderSpacing = "0px";
     table.style.width = "100%";
     table.style.height = "100%";
-    this.InitializeHtml(rootEl);
-    return rootEl;
+    return table;
 };
 Grid.Instance.InitializeHtml = function (rootEl) {
     this.InitializeHtml$Panel(rootEl);

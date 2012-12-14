@@ -118,7 +118,7 @@ Panel.Instance._OnPropertyChanged = function (args, error) {
         this._UpdateBounds();
         this._Invalidate();
         this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-    } else if (args.Property == Panel.ChildrenProperty) {
+    } else if (args.Property._ID === Panel.ChildrenProperty._ID) {
         var collection;
         var count;
         var i;
@@ -196,30 +196,62 @@ Panel.Instance._OnIsAttachedChanged = function (value) {
     }
 };
 
+//#endregion
+
+//#region Html Translations
 
 Panel.Instance.OnHtmlAttached = function () {
+    var childWrappers = this._HtmlChildWrappers;
+    if (!childWrappers)
+        childWrappers = this._HtmlChildWrappers = [];
+
     var children = this.Children;
     if (children) {
         var contentEl = this.GetRootHtmlElement().firstChild;
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
             var child = children.GetValueAt(i);
-            contentEl.appendChild(child.GetRootHtmlElement());
+            var wrapper = this.WrapHtmlChild(child);
+            childWrappers.push(wrapper);
+            contentEl.appendChild(wrapper);
             child.OnHtmlAttached();
         }
     }
 };
 Panel.Instance.OnHtmlDetached = function () {
+    var childWrappers = this._HtmlChildWrappers;
+    if (!childWrappers)
+        childWrappers = this._HtmlChildWrappers = [];
+
     var children = this.Children;
     if (children) {
         var contentEl = this.GetRootHtmlElement().firstChild;
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
+            var wrapper = childWrappers[i];
+            if (!wrapper)
+                continue;
+            contentEl.removeChild(wrapper);
             var child = children.GetValueAt(i);
-            contentEl.removeChild(child.GetRootHtmlElement());
             child.OnHtmlDetached();
         }
     }
+};
+
+Panel.Instance.CreateHtmlObjectImpl = function () {
+    var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
+    rootEl.firstChild.appendChild(this.GetHtmlChildrenContainer());
+    return rootEl;
+};
+Panel.Instance.GetHtmlChildrenContainer = function () {
+    if (!this._HtmlChildrenContainer)
+        this._HtmlChildrenContainer = this.CreateHtmlChildrenContainer();
+    return this._HtmlChildrenContainer;
+};
+Panel.Instance.CreateHtmlChildrenContainer = function () { };
+
+Panel.Instance.WrapHtmlChild = function (child) {
+    return child.GetRootHtmlElement();
 };
 
 Panel.Instance.ApplyHtmlChange = function (change) {
