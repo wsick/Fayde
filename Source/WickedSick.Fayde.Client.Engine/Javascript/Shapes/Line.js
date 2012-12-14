@@ -5,11 +5,7 @@
 //#region Line
 var Line = Nullstone.Create("Line", Shape);
 
-Line.Instance.Init = function () {
-    this.Init$Shape();
-};
-
-//#region Dependency Properties
+//#region Properties
 
 Line.X1Property = DependencyProperty.Register("X1", function () { return Number; }, Line, 0);
 Line.Y1Property = DependencyProperty.Register("Y1", function () { return Number; }, Line, 0);
@@ -70,21 +66,49 @@ Line.Instance._ComputeShapeBounds = function (logical) {
     return shapeBounds;
 };
 
-Line.prototype._OnPropertyChanged = function (args, error) {
+Line.Instance._OnPropertyChanged = function (args, error) {
     if (args.Property.OwnerType !== Line) {
         this._OnPropertyChanged$Shape(args, error);
         return;
     }
 
-    if (args.Property._ID == Line.X1Property._ID
-        || args.Property._ID == Line.X2Property._ID
-        || args.Property._ID == Line.Y1Property._ID
-        || args.Property._ID == Line.Y2Property._ID) {
+    if (args.Property._ID === Line.X1Property._ID
+        || args.Property._ID === Line.X2Property._ID
+        || args.Property._ID === Line.Y1Property._ID
+        || args.Property._ID === Line.Y2Property._ID) {
         this._InvalidateNaturalBounds();
+        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
     }
 
     this.PropertyChanged.Raise(this, args);
 };
+//#region Html Translations
+
+Line.Instance.CreateSvgShape = function () {
+    var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    return line;
+};
+
+Line.Instance.ApplyHtmlChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== Line) {
+        this.ApplyHtmlChange$Shape(change);
+        return;
+    }
+
+    var shape = this.GetSvgShape();
+    if (propd._ID === Line.X1Property._ID) {
+        shape.setAttribute("x1", change.NewValue.toString());
+    } else if (propd._ID === Line.X2Property._ID) {
+        shape.setAttribute("x2", change.NewValue.toString());
+    } else if (propd._ID === Line.Y1Property._ID) {
+        shape.setAttribute("y1", change.NewValue.toString());
+    } else if (propd._ID === Line.Y2Property._ID) {
+        shape.setAttribute("y2", change.NewValue.toString());
+    }
+};
+
+//#endregion
 
 Nullstone.FinishCreate(Line);
 //#endregion
