@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using WickedSick.Server.XamlParser.TypeConverters;
-using WickedSick.Server.XamlParser.Elements.Types;
+﻿using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
