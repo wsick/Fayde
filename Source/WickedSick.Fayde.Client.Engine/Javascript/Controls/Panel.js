@@ -231,6 +231,14 @@ Panel.Instance.OnHtmlDetached = function () {
     }
 };
 
+Panel.Instance.GetHtmlChildrenContainer = function () {
+    var contentEl = this.GetContentHtmlElement();
+    if (!contentEl.firstChild)
+        contentEl.appendChild(this.CreateHtmlChildrenContainer());
+    return contentEl.firstChild;
+};
+Panel.Instance.CreateHtmlChildrenContainer = function () { };
+
 Panel.Instance.ApplyHtmlChange = function (change) {
     var propd = change.Property;
     if (propd.OwnerType !== Panel) {
@@ -247,6 +255,8 @@ Panel.Instance.ApplyHtmlChange = function (change) {
         contentEl.style.background = brush.ToHtml5Object();
     }
 };
+Panel.Instance.InsertHtmlChild = function () { };
+Panel.Instance.RemoveHtmlChild = function () { };
 
 //#endregion
 

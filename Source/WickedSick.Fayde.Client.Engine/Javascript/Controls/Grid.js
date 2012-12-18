@@ -595,7 +595,8 @@ Grid.Instance.OnHtmlAttached = function () {
         }
     }
 
-    var table = this.GetRootHtmlElement().firstChild.firstChild;
+    var contentEl = this.GetContentHtmlElement();
+    var table = this.GetHtmlChildrenContainer();
     for (var i = 0; i < rows; i++) {
         var rd = this.RowDefinitions.GetValueAt(i).Height;
         var rowEl = table.appendChild(document.createElement("tr"));
@@ -697,9 +698,7 @@ Grid.Instance.ApplyHtmlChange = function (change) {
         return;
     }
 
-    var rootEl = this.GetRootHtmlElement();
-    var contentEl = rootEl.firstChild;
-    var table = contentEl.firstChild;
+    var table = this.GetHtmlChildrenContainer();
     if (propd._ID === Grid.ShowGridLinesProperty._ID) {
         table.style.borderCollapse = "collapse";
         for(var i = 0; i < table.children.length; i++) {
