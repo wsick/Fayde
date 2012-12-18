@@ -8,8 +8,14 @@
     </FaydeApplication.UriMappings>
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
-    <Polygon Fill="#222222" Stroke="Red" StrokeThickness="5"
-             Points="150,0 200,300 0,100 300,100 100,300"
-             FillRule="NonZero">
-    </Polygon>
+    <StackPanel Background="AntiqueWhite">
+        <Polygon Fill="#222222" Stroke="Red" StrokeThickness="5"
+                 Points="150,0 200,300 0,100 300,100 100,300"
+                 FillRule="NonZero">
+        </Polygon>
+        <Polygon Fill="#222222" Stroke="Red" StrokeThickness="5"
+                 Points="150,0 200,300 0,100 300,100 100,300"
+                 FillRule="NonZero">
+        </Polygon>
+    </StackPanel>
 </FaydeApplication>
