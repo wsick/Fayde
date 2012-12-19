@@ -5,3 +5,9 @@ position: absolute; width: 100%; height: 100%;
 
 3. Height, Width turns off Stretch, item plus margin is centered and then even margin added to each side
 set width/height of outer = intended width/height plus margins, set inner width/height = intended width/height
+
+4. If the parent has a set size, position should be absolute
+   If the parent is looking to the child to provide size, position should be relative
+
+5. If relative positioning, use margin on root
+   If absolute positioning, use padding on sub

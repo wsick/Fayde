@@ -960,12 +960,12 @@ FrameworkElement.ApplySizing = function (rootEl, horizontalAlignment, verticalAl
     //use padding on the outer element to represent margin
     var subEl = rootEl.firstChild;
 
-    rootEl.style.boxSizing = "border-box";
     rootEl.style.position = "absolute";
+    //rootEl.style.boxSizing = "border-box";
 
-    subEl.style.boxSizing = "border-box";
+    //subEl.style.boxSizing = "border-box";
     subEl.style.position = "absolute";
-    //subEl.style.display = "table";
+
     //apply resets
     rootEl.style.width = "auto";
     rootEl.style.left = "auto";
@@ -985,6 +985,7 @@ FrameworkElement.ApplySizing = function (rootEl, horizontalAlignment, verticalAl
             rootEl.style.left = "0px";
             if (isNaN(width)) {
                 rootEl.style.right = "0px";
+                rootEl.style.width = "100%";
             }
             break;
         case HorizontalAlignment.Left:
@@ -1002,6 +1003,8 @@ FrameworkElement.ApplySizing = function (rootEl, horizontalAlignment, verticalAl
         //add width + margin
         var w = width + (isNaN(margin.Left) ? 0 : margin.Left) + (isNaN(margin.Right) ? 0 : margin.Right);
         rootEl.style.width = w + "px";
+        rootEl.style.display = "table";
+        subEl.style.display = "table-cell";
     }
 
     var left = (isNaN(margin.Left) ? 0 : margin.Left);
@@ -1015,6 +1018,7 @@ FrameworkElement.ApplySizing = function (rootEl, horizontalAlignment, verticalAl
             rootEl.style.top = "0px";
             if (isNaN(height)) {
                 rootEl.style.bottom = "0px";
+                rootEl.style.height = "100%";
             }
             break;
         case VerticalAlignment.Top:
