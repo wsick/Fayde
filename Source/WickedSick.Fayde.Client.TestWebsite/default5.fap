@@ -1,0 +1,14 @@
+﻿<FaydeApplication
+    xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+    xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    Debug="true"
+    ScriptResolution="/Fayde/">
+    <FaydeApplication.UriMappings>
+        <UriMapping Uri="" MappedUri="/Views/default.fayde" />
+    </FaydeApplication.UriMappings>
+    <FaydeApplication.Resources>
+    </FaydeApplication.Resources>
+    <StackPanel Background="AntiqueWhite">
+        <MediaElement Source="Media/freeze_gopher.mp3" />
+    </StackPanel>
+</FaydeApplication>

@@ -69,6 +69,7 @@
     <Content Include="Images\testing.jpg" />
     <Content Include="Images\tile-test.png" />
     <Content Include="Images\twitter.png" />
+    <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
     <Content Include="default2.fap">
       <SubType>Designer</SubType>
@@ -77,6 +78,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="default4.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="default5.fap">
       <SubType>Designer</SubType>
     </Content>
     <None Include="Views\SDK.fayde" />

@@ -680,7 +680,8 @@ Surface.Instance._HandleMouseEvent = function (type, button, pos, delta, emitLea
     if (this._Captured) {
         this._EmitMouseList(type, button, pos, delta, this._InputList);
     } else {
-        this.ProcessDirtyElements();
+        /// NOTE: Turned off for Html translation changes
+        //this.ProcessDirtyElements();
         var ctx = new _RenderContext(this);
         var newInputList = new LinkedList();
         var layers = this._Layers;

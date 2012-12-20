@@ -120,30 +120,75 @@ MediaElement.Instance._OnPropertyChanged = function (args, error) {
         return;
     }
 
-    if (args.Property._ID === MediaElement.SourceProperty._ID) {
-        if (this._Element) {
-            this._Element.src = args.NewValue.toString();
-            //TODO: Reset position to 00:00:00
-        }
-    } else if (args.Property._ID === MediaElement.AutoPlayProperty._ID) {
-        if (this._Element)
-            this._Element.autoplay = args.NewValue;
-    } else if (args.Property._ID === MediaElement.IsMutedProperty._ID) {
-        if (this._Element)
-            this._Element.muted = args.NewValue;
-    } else if (args.Property._ID === MediaElement.PlaybackRateProperty._ID) {
-        if (this._Element)
-            this._Element.playbackRate = args.NewValue;
+    var ivprop = false;
+    if (args.Property._ID === MediaElement.SourceProperty._ID
+        || args.Property._ID === MediaElement.AutoPlayProperty._ID
+        || args.Property._ID === MediaElement.IsMutedProperty._ID
+        || args.Property._ID === MediaElement.PlaybackRateProperty._ID
+        || args.Property._ID === MediaElement.VolumeProperty._ID) {
+        ivprop = true;
     } else if (args.Property._ID === MediaElement.StretchProperty._ID) {
         this._InvalidateMeasure();
-    } else if (args.Property._ID === MediaElement.VolumeProperty._ID) {
-        if (this._Element)
-            this._Element.volume = args.NewValue;
+        ivprop = true;
     }
 
+    if (ivprop)
+        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
 
+MediaElement.Instance.HandleMediaError = function (e) {
+};
+
+//#region Html Translations
+
+MediaElement.Instance.CreateHtmlObjectImpl = function () {
+    var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
+    var contentEl = rootEl.firstChild;
+    contentEl.appendChild(this.GetHtmlMediaEl());
+    return rootEl;
+};
+
+MediaElement.Instance.GetHtmlMediaEl = function () {
+    if (!this._Element)
+        this._Element = this.CreateHtmlMediaEl();
+    return this._Element;
+};
+MediaElement.Instance.CreateHtmlMediaEl = function () {
+    var video = document.createElement("video");
+    video.width = "100%";
+    video.height = "100%";
+    video.autoplay = this.AutoPlay;
+    var that = this;
+    video.onerror = function (e) { that.HandleMediaError(e); }
+    return video;
+};
+
+MediaElement.Instance.ApplyHtmlChange = function (change) {
+    var propd = change.Property;
+    if (propd.OwnerType !== MediaElement) {
+        this.ApplyChange$FrameworkElement(change);
+        return;
+    }
+
+    var el = this.GetHtmlMediaEl();
+    if (propd._ID === MediaElement.SourceProperty._ID) {
+        el.src = change.NewValue.toString();
+        //TODO: Reset position to 00:00:00
+    } else if (propd._ID === MediaElement.AutoPlayProperty._ID) {
+        el.autoplay = change.NewValue;
+    } else if (propd._ID === MediaElement.IsMutedProperty._ID) {
+        el.muted = change.NewValue;
+    } else if (propd._ID === MediaElement.PlaybackRateProperty._ID) {
+        el.playbackRate = change.NewValue;
+    } else if (propd._ID === MediaElement.StretchProperty._ID) {
+        //TODO: 
+    } else if (propd._ID === MediaElement.VolumeProperty._ID) {
+        el.volume = change.NewValue;
+    }
+};
+
+//#endregion
 
 Nullstone.FinishCreate(MediaElement);
 //#endregion
