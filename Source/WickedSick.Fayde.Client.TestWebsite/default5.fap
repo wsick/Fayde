@@ -9,6 +9,6 @@
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
     <StackPanel Background="AntiqueWhite">
-        <MediaElement Source="Media/freeze_gopher.mp3" />
+        <MediaElement Source="Media/test_movie.mp4" />
     </StackPanel>
 </FaydeApplication>

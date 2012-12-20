@@ -191,7 +191,7 @@ MediaElement.Instance.CreateHtmlMediaEl = function () {
     };
 
     video.addEventListener("progress", function (e) {
-
+        //TODO: Finish
     }, false);
     video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
 
