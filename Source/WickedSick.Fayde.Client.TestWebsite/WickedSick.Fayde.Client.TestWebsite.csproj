@@ -83,6 +83,7 @@
     <Content Include="default5.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Media\test_movie.mp4" />
     <None Include="Views\SDK.fayde" />
     <None Include="Views\Toolkit.fayde" />
     <Content Include="Views\Home.fayde.js">

@@ -6,6 +6,20 @@
 //#region MediaElement
 var MediaElement = Nullstone.Create("MediaElement", FrameworkElement);
 
+MediaElement.Instance.Init = function () {
+    this.Init$FrameworkElement();
+
+    this.BufferingProgressChanged = new MulticastEvent();
+    this.CurrentStateChanged = new MulticastEvent();
+    this.DownloadProgressChanged = new MulticastEvent();
+    this.MarkerReached = new MulticastEvent();
+    this.MarkerReached = new MulticastEvent();
+    this.MediaEnded = new MulticastEvent();
+    this.MediaFailed = new MulticastEvent();
+    this.MediaOpened = new MulticastEvent();
+    this.RateChanged = new MulticastEvent();
+};
+
 //#region Properties
 
 //MediaElement.AudioStreamCountProperty = DependencyProperty.Register("AudioStreamCount", function () { return Number; }, MediaElement);
@@ -138,9 +152,15 @@ MediaElement.Instance._OnPropertyChanged = function (args, error) {
 };
 
 MediaElement.Instance.HandleMediaError = function (e) {
+    var el = this.GetHtmlMediaEl();
+    if (!el.error)
+        return;
+    this.MediaFailed.Raise(this, new MediaFailedEventArgs(el.error.code));
 };
 
 //#region Html Translations
+
+// http://www.w3.org/2010/05/video/mediaevents.html
 
 MediaElement.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
@@ -156,11 +176,28 @@ MediaElement.Instance.GetHtmlMediaEl = function () {
 };
 MediaElement.Instance.CreateHtmlMediaEl = function () {
     var video = document.createElement("video");
-    video.width = "100%";
-    video.height = "100%";
+    video.style.position = "absolute";
+    video.style.width = "100%";
+    video.style.height = "100%";
     video.autoplay = this.AutoPlay;
     var that = this;
-    video.onerror = function (e) { that.HandleMediaError(e); }
+    video.onerror = function (e) { that.HandleMediaError(e); };
+
+    video.onvolumechange = function (e) { that.$SetValueInternal(MediaElement.VolumeProperty, video.volume); };
+    video.ondurationchange = function (e) { that.$SetValueInternal(MediaElement.NaturalDurationProperty, new Duration(new TimeSpan(0, 0, video.duration))); };
+    video.onratechange = function (e) {
+        that.$SetValueInternal(MediaElement.PlaybackRateProperty, video.playbackRate);
+        that.RateChanged.Raise(that, new RateChangedRoutedEventArgs(vide.playbackRate));
+    };
+
+    video.addEventListener("progress", function (e) {
+
+    }, false);
+    video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
+
+    video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new RoutedEventArgs()); };
+    video.onended = function (e) { that.MediaEnded.Raise(that, new RoutedEventArgs()); };
+
     return video;
 };
 
@@ -191,4 +228,40 @@ MediaElement.Instance.ApplyHtmlChange = function (change) {
 //#endregion
 
 Nullstone.FinishCreate(MediaElement);
+//#endregion
+
+//#region MediaFailedEventArgs
+var MediaFailedEventArgs = Nullstone.Create("MediaFailedEventArgs", RoutedEventArgs, 1);
+
+MediaFailedEventArgs.Instance.Init = function (code) {
+    this.Init$RoutedEventArgs();
+    this.Code = code;
+    switch (code) {
+        case 1: //MEDIA_ERR_ABORTED
+            this.Description = "Aborted";
+            break;
+        case 2: //MEDIA_ERR_NETWORK
+            this.Description = "Aborted";
+            break;
+        case 3: //MEDIA_ERR_DECODE
+            this.Description = "Decode";
+            break;
+        case 4: //MEDIA_ERR_SRC_NOT_SUPPORTED
+            this.Description = "Media Type Not Supported";
+            break;
+    }
+};
+
+Nullstone.FinishCreate(MediaFailedEventArgs);
+//#endregion
+
+//#region RateChangedRoutedEventArgs
+var RateChangedRoutedEventArgs = Nullstone.Create("RateChangedRoutedEventArgs", RoutedEventArgs, 1);
+
+RateChangedRoutedEventArgs.Instance.Init = function (newRate) {
+    this.Init$RoutedEventArgs();
+    this.NewRate = newRate;
+};
+
+Nullstone.FinishCreate(RateChangedRoutedEventArgs);
 //#endregion
