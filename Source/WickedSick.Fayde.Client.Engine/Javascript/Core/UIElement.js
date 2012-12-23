@@ -116,6 +116,9 @@ UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("Us
 UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
 UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
 
+UIElement.ParentIsFixedWidthProperty = DependencyProperty.Register("ParentIsFixedWidth", function () { return Boolean; }, UIElement, false);
+UIElement.ParentIsFixedHeightProperty = DependencyProperty.Register("ParentIsFixedHeight", function () { return Boolean; }, UIElement, false);
+
 UIElement.IsMouseOverProperty = DependencyProperty.RegisterReadOnlyCore("IsMouseOver", function () { return Boolean; }, UIElement);
 
 Nullstone.AutoProperties(UIElement, [
@@ -133,7 +136,9 @@ Nullstone.AutoProperties(UIElement, [
     UIElement.TriggersProperty,
     UIElement.UseLayoutRoundingProperty,
     UIElement.VisibilityProperty,
-    UIElement.TagProperty
+    UIElement.TagProperty,
+    UIElement.ParentIsFixedWidthProperty,
+    UIElement.ParentIsFixedHeightProperty
 ]);
 
 Nullstone.AutoPropertiesReadOnly(UIElement, [
@@ -944,6 +949,9 @@ UIElement.Instance._ElementAdded = function (item) {
     item._InvalidateArrange();
     if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
+
+    item.ParentIsFixedWidth = this.GetIsFixedWidth();
+    item.ParentIsFixedHeight = this.GetIsFixedHeight();
 }
 
 //#endregion
@@ -999,16 +1007,17 @@ UIElement.Instance.__DebugUpDirtyFlags = function () {
 //#region Property Changed
 
 UIElement.Instance._OnPropertyChanged = function (args, error) {
-    if (args.Property.OwnerType !== UIElement) {
+    var propd = args.Property;
+    if (propd.OwnerType !== UIElement) {
         this._OnPropertyChanged$DependencyObject(args, error);
         return;
     }
 
     var ivprop = false;
-    if (args.Property._ID === UIElement.OpacityProperty._ID) {
+    if (propd._ID === UIElement.OpacityProperty._ID) {
         this._InvalidateVisibility();
         ivprop = true;
-    } else if (args.Property._ID === UIElement.VisibilityProperty._ID) {
+    } else if (propd._ID === UIElement.VisibilityProperty._ID) {
         if (args.NewValue === Visibility.Visible)
             this._Flags |= UIElementFlags.RenderVisible;
         else
@@ -1020,21 +1029,21 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
             parent._InvalidateMeasure();
         App.Instance.MainSurface._RemoveFocus(this);
         ivprop = true;
-    } else if (args.Property._ID === UIElement.IsHitTestVisibleProperty._ID) {
+    } else if (propd._ID === UIElement.IsHitTestVisibleProperty._ID) {
         if (args.NewValue === true) {
             this._Flags |= UIElementFlags.HitTestVisible;
         } else {
             this._Flags &= ~UIElementFlags.HitTestVisible;
         }
         this._UpdateTotalHitTestVisibility();
-    } else if (args.Property._ID === UIElement.ClipProperty._ID) {
+    } else if (propd._ID === UIElement.ClipProperty._ID) {
         this._InvalidateClip();
-    } else if (args.Property._ID === UIElement.OpacityMaskProperty._ID) {
+    } else if (propd._ID === UIElement.OpacityMaskProperty._ID) {
         //TODO: OpacityMaskProperty
-    } else if (args.Property._ID === UIElement.RenderTransformProperty._ID
+    } else if (propd._ID === UIElement.RenderTransformProperty._ID
         || args.Property._ID === UIElement.RenderTransformOriginProperty._ID) {
         this._UpdateTransform();
-    } else if (args.Property._ID === UIElement.TriggersProperty._ID) {
+    } else if (propd._ID === UIElement.TriggersProperty._ID) {
         var triggers = args.OldValue;
         if (triggers) {
             var count = triggers.GetCount();
@@ -1049,22 +1058,22 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
                 triggers.GetValueAt(i)._SetTarget(this);
             }
         }
-    } else if (args.Property._ID === UIElement.UseLayoutRoundingProperty._ID) {
+    } else if (propd._ID === UIElement.UseLayoutRoundingProperty._ID) {
         this._InvalidateMeasure();
         this._InvalidateArrange();
-    } else if (args.Property._ID === UIElement.EffectProperty._ID) {
+    } else if (propd._ID === UIElement.EffectProperty._ID) {
         var oldEffect = args.OldValue != null;
         var newEffect = args.NewValue != null;
         this._InvalidateEffect();
         if (oldEffect !== newEffect && this._IsAttached)
             App.Instance.MainSurface._AddDirtyElement(this, _Dirty.Transform);
-    } else if (args.Property._ID === UIElement.ProjectionProperty._ID) {
+    } else if (propd._ID === UIElement.ProjectionProperty._ID) {
         this._UpdateProjection();
-    } else if (args.Property._ID === UIElement.CacheModeProperty._ID) {
+    } else if (propd._ID === UIElement.CacheModeProperty._ID) {
         //TODO: CacheModeProperty
     }
     if (ivprop)
-        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+        this.InvalidateProperty(propd, args.OldValue, args.NewValue);
     this.PropertyChanged.Raise(this, args);
 };
 UIElement.Instance._OnSubPropertyChanged = function (propd, sender, args) {
@@ -1273,6 +1282,49 @@ UIElement.Instance.OnHtmlDetached = function () {
 UIElement.Instance.GetHtmlDefaultDisplay = function () {
     return "";
 }
+
+UIElement.Instanc.GetIsFixedWidth = function () {
+    if (this._IsFixedWeight == null)
+        this._IsFixedWeight = this.CalculateIsFixedWidth();
+    return this._IsFixedWeight;
+};
+UIElement.Instanc.GetIsFixedHeight = function () {
+    if (this._IsFixedHeight == null)
+        this._IsFixedHeight = this.CalculateIsFixedHeight();
+    return this._IsFixedHeight;
+};
+UIElement.Instance.InvalidateIsFixedWidth = function () {
+    delete this._IsFixedWidth;
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        if (subtree instanceof Collection) {
+            var len = subtree.GetCount();
+            for (var i = 0; i < len; i++) {
+                var item = subtree.GetValueAt(i);
+                item.ParentIsFixedWidth = this.CalculateIsFixedWidth();
+            }
+        } else if (subtree instanceof UIElement) {
+            subtree.ParentIsFixedWidth = this.CalculateIsFixedWidth();
+        }
+    }
+};
+UIElement.Instance.InvalidateIsFixedHeight = function () {
+    delete this._IsFixedHeight;
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        if (subtree instanceof Collection) {
+            var len = subtree.GetCount();
+            for (var i = 0; i < len; i++) {
+                var item = subtree.GetValueAt(i);
+                item.ParentIsFixedHeight = this.CalculateIsFixedHeight();
+            }
+        } else if (subtree instanceof UIElement) {
+            subtree.ParentIsFixedHeight = this.CalculateIsFixedHeight();
+        }
+    }
+};
+UIElement.Instance.CalculateIsFixedWidth = function () { return false; };
+UIElement.Instance.CalculateIsFixedHeight = function () { return false; };
 
 //#endregion
 
