@@ -33,11 +33,12 @@ Surface.Instance.Init = function (app) {
     var body = document.body;
     body.style.height = "100%";
     body.style.width = "100%";
-    this._RootHtmlEl = document.createElement("div");
-    this._RootHtmlEl.style.position = "absolute";
-    this._RootHtmlEl.style.width = "100%";
-    this._RootHtmlEl.style.height = "100%";
-    body.appendChild(this._RootHtmlEl);
+    this._RootHtmlEl = body;
+    //this._RootHtmlEl = document.createElement("div");
+    //this._RootHtmlEl.style.position = "absolute";
+    //this._RootHtmlEl.style.width = "100%";
+    //this._RootHtmlEl.style.height = "100%";
+    //body.appendChild(this._RootHtmlEl);
 };
 
 //#region Initialization
