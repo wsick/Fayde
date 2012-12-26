@@ -1071,6 +1071,10 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         this._UpdateProjection();
     } else if (propd._ID === UIElement.CacheModeProperty._ID) {
         //TODO: CacheModeProperty
+    } else if (propd._ID === UIElement.ParentIsFixedHeightProperty._ID) {
+        ivprop = true;
+    } else if (propd._ID === UIElement.ParentIsFixedWidthProperty._ID) {
+        ivprop = true;
     }
     if (ivprop)
         this.InvalidateProperty(propd, args.OldValue, args.NewValue);
@@ -1283,12 +1287,12 @@ UIElement.Instance.GetHtmlDefaultDisplay = function () {
     return "";
 }
 
-UIElement.Instanc.GetIsFixedWidth = function () {
+UIElement.Instance.GetIsFixedWidth = function () {
     if (this._IsFixedWeight == null)
         this._IsFixedWeight = this.CalculateIsFixedWidth();
     return this._IsFixedWeight;
 };
-UIElement.Instanc.GetIsFixedHeight = function () {
+UIElement.Instance.GetIsFixedHeight = function () {
     if (this._IsFixedHeight == null)
         this._IsFixedHeight = this.CalculateIsFixedHeight();
     return this._IsFixedHeight;
