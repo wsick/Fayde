@@ -597,40 +597,76 @@ Grid.Instance.OnHtmlAttached = function () {
 
     var contentEl = this.GetContentHtmlElement();
     var table = this.GetHtmlChildrenContainer();
+    //a grid must have at least one row and column to place the content in
+    if (rows == 0) {
+        rows = 1;
+        totalRowStars = 1;
+    }
+    if (columns == 0) {
+        columns = 1;
+        totalColumnStars = 1;
+    }
     for (var i = 0; i < rows; i++) {
-        var rd = this.RowDefinitions.GetValueAt(i).Height;
+        var rd = this.RowDefinitions.GetValueAt(i);
+        var rowType;
+        var rowHeight;
+        if (rd) {
+            rowType = rd.Height.Type;
+            rowHeight = rd.Height.Value;
+        }
+        else {
+            rowType = GridUnitType.Star;
+            rowHeight = 1;
+        }
         var rowEl = table.appendChild(document.createElement("tr"));
         for (var j = 0; j < columns; j++) {
-            var cd = this.ColumnDefinitions.GetValueAt(j).Width;
+            var cd = this.ColumnDefinitions.GetValueAt(j);
+            var columnType;
+            var columnWidth;
+            if (cd) {
+                columnType = cd.Width.Type;
+                columnWidth = cd.Width.Value;
+            }
+            else {
+                columnType = GridUnitType.Star;
+                columnWidth = 1;
+            }
             var columnEl = rowEl.appendChild(document.createElement("td"));
             columnEl.style.padding = "0px";
-            switch (rd.Type) {
+            switch (rowType) {
                 case GridUnitType.Star:
-                    columnEl.style.height = (rd.Value / totalRowStars) * 100 + "%";
+                    columnEl.style.height = (rowHeight / totalRowStars) * 100 + "%";
                     break;
                 case GridUnitType.Pixel:
-                    columnEl.style.height = rd.Value + "px";
+                    columnEl.style.height = rowHeight + "px";
+                    columnEl.style.minHeight = rowHeight + "px";
                     break;
                 case GridUnitType.Auto:
                     columnEl.style.height = "auto";
                     break;
             }
-            switch (cd.Type) {
+            switch (columnType) {
                 case GridUnitType.Star:
-                    columnEl.style.width = (cd.Value / totalColumnStars) * 100 + "%";
+                    columnEl.style.width = (columnWidth / totalColumnStars) * 100 + "%";
                     break;
                 case GridUnitType.Pixel:
-                    columnEl.style.width = cd.Value + "px";
-                    columnEl.style.minWidth = cd.Value + "px";
+                    columnEl.style.width = columnWidth + "px";
+                    columnEl.style.minWidth = columnWidth + "px";
                     break;
                 case GridUnitType.Auto:
                     columnEl.style.width = "auto";
                     break;
             }
-            columnEl.style.minWidth = cd.MinWidth + "px";
-            columnEl.style.maxWidth = cd.MaxWidth + "px";
-            columnEl.style.minHeight = rd.MinHeight + "px";
-            columnEl.style.maxHeight = rd.MaxHeight + "px";
+            /*
+            if (cd) {
+                columnEl.style.minWidth = cd.MinWidth + "px";
+                columnEl.style.maxWidth = cd.MaxWidth + "px";
+            }
+            if (rd) {
+                columnEl.style.minHeight = rd.MinHeight + "px";
+                columnEl.style.maxHeight = rd.MaxHeight + "px";
+            }
+            */
             columnEl.style.fontSize = "0px";
             columnEl.style.overflow = "hidden";
             //if (cd.Type == GridUnitType.Star) {
