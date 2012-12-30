@@ -1305,10 +1305,10 @@ UIElement.Instance.InvalidateIsFixedWidth = function () {
             var len = subtree.GetCount();
             for (var i = 0; i < len; i++) {
                 var item = subtree.GetValueAt(i);
-                item.ParentIsFixedWidth = this.CalculateIsFixedWidth();
+                item.ParentIsFixedWidth = this.GetIsFixedWidth();
             }
         } else if (subtree instanceof UIElement) {
-            subtree.ParentIsFixedWidth = this.CalculateIsFixedWidth();
+            subtree.ParentIsFixedWidth = this.GetIsFixedWidth();
         }
     }
 };
@@ -1320,10 +1320,10 @@ UIElement.Instance.InvalidateIsFixedHeight = function () {
             var len = subtree.GetCount();
             for (var i = 0; i < len; i++) {
                 var item = subtree.GetValueAt(i);
-                item.ParentIsFixedHeight = this.CalculateIsFixedHeight();
+                item.ParentIsFixedHeight = this.GetIsFixedHeight();
             }
         } else if (subtree instanceof UIElement) {
-            subtree.ParentIsFixedHeight = this.CalculateIsFixedHeight();
+            subtree.ParentIsFixedHeight = this.GetIsFixedHeight();
         }
     }
 };
