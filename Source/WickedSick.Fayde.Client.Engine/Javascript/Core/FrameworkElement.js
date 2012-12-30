@@ -835,8 +835,16 @@ FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
         this._FullInvalidate(true);
         ivprop = true;
     }
-    if (ivprop)
+    if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
+        || args.Property._ID === FrameworkElement.WidthProperty._ID)
+        this.InvalidateIsFixedWidth();
+    if (args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID ||
+        args.Property._ID === FrameworkElement.HeightProperty._ID)
+        this.InvalidateIsFixedHeight();
+
+    if (ivprop) {
         this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+    }
     this.PropertyChanged.Raise(this, args);
 };
 
@@ -962,18 +970,11 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
     //use padding on the outer element to represent margin
     var subEl = rootEl.firstChild;
 
-    if (parentIsFixedWidth || parentIsFixedHeight) {
-        rootEl.style.position = "absolute";
-        subEl.style.position = "absolute";
-    }
-    else {
-        rootEl.style.position = "relative";
-        subEl.style.position = "relative";
-    }
-    rootEl.style.display = "table";
-    //rootEl.style.boxSizing = "border-box";
+    //if width is explicitly set, stretch is ignored
+    horizontalAlignment = FrameworkElement.RealHorizontalAlignment(width, horizontalAlignment);
+    verticalAlignment = FrameworkElement.RealVerticalAlignment(height, verticalAlignment);
 
-    //subEl.style.boxSizing = "border-box";
+    rootEl.style.display = "table";
     subEl.style.display = "table-cell";
 
     //apply resets
@@ -994,37 +995,44 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
     subEl.style.bottom = "auto";
 
     //horizontalAlignment
-    if (!parentIsFixedWidth && horizontalAlignment == HorizontalAlignment.Stretch) {
-        horizontalAlignment = HorizontalAlignment.Left;
-    }
     switch (horizontalAlignment) {
         case HorizontalAlignment.Stretch:
-            rootEl.style.left = "0px";
-            if (isNaN(width)) {
-                rootEl.style.right = "0px";
+            //rootEl.style.left = "0px";
+            //if (isNaN(width)) {
+            //    rootEl.style.right = "0px";
+            if (parentIsFixedWidth) {
+                rootEl.style.position = "absolute";
+                subEl.style.position = "absolute";
                 rootEl.style.width = "100%";
             }
+            else {
+                rootEl.style.position = "relative";
+                subEl.style.position = "relative";
+            }
+            //}
             break;
         case HorizontalAlignment.Left:
+            rootEl.style.position = "absolute";
+            subEl.style.position = "relative";
             rootEl.style.left = "0px";
             break;
         case HorizontalAlignment.Right:
+            rootEl.style.position = "absolute";
+            subEl.style.position = "relative";
             rootEl.style.right = "0px";
             break;
         case HorizontalAlignment.Center:
             throw "NotSupportedYetException";
     }
 
-    if (parentIsFixedWidth) {
-        if (!isNaN(width)) {
-            //explicit width
-            //add width + margin
-            var w = width + (isNaN(margin.Left) ? 0 : margin.Left) + (isNaN(margin.Right) ? 0 : margin.Right);
-            rootEl.style.width = w + "px";
-            //set inner element height to actual height
-            subEl.style.width = width + "px";
-        }
-
+    if (horizontalAlignment == HorizontalAlignment.Stretch && parentIsFixedWidth) {
+        //explicit width
+        //add width + margin
+        var w = width + (isNaN(margin.Left) ? 0 : margin.Left) + (isNaN(margin.Right) ? 0 : margin.Right);
+        rootEl.style.width = w + "px";
+        //set inner element height to actual height
+        subEl.style.width = width + "px";
+        subEl.style.overflowX = "hidden";
         var left = (isNaN(margin.Left) ? 0 : margin.Left);
         subEl.style.left = left + "px";
         var right = (isNaN(margin.Right) ? 0 : margin.Right);
@@ -1034,6 +1042,8 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
         if (!isNaN(width)) {
             //explicit width
             rootEl.style.width = width + "px";
+            subEl.style.width = width + "px";
+            subEl.style.overflowX = "hidden";
         }
         rootEl.style.marginLeft = margin.Left + "px";
         rootEl.style.marginRight = margin.Right + "px";
@@ -1041,36 +1051,45 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
     }
 
     //verticalAlignment
-    if (!parentIsFixedHeight && verticalAlignment == VerticalAlignment.Stretch) {
-        verticalAlignment = VerticalAlignment.Top;
-    }
     switch (verticalAlignment) {
         case VerticalAlignment.Stretch:
-            rootEl.style.top = "0px";
-            if (isNaN(height)) {
-                rootEl.style.bottom = "0px";
+            //rootEl.style.top = "0px";
+            //if (isNaN(height)) {
+            //    rootEl.style.bottom = "0px";
+            if (parentIsFixedHeight) {
+                rootEl.style.position = "absolute";
+                subEl.style.position = "absolute";
                 rootEl.style.height = "100%";
             }
+            else {
+                rootEl.style.position = "relative";
+                subEl.style.position = "relative";
+            }
+            //}
             break;
         case VerticalAlignment.Top:
+            rootEl.style.position = "absolute";
+            subEl.style.position = "relative";
             rootEl.style.top = "0px";
             break;
         case VerticalAlignment.Bottom:
+            rootEl.style.position = "absolute";
+            subEl.style.position = "relative";
             rootEl.style.bottom = "0px";
             break;
         case VerticalAlignment.Center:
             throw "NotSupportedYetException";
     }
 
-    if (parentIsFixedHeight) {
-        if (!isNaN(height)) {
-            //explicit height
-            //add height + margin
-            var h = height + (isNaN(margin.Top) ? 0 : margin.Top) + (isNaN(margin.Bottom) ? 0 : margin.Bottom);
-            rootEl.style.height = h + "px";
-            //set inner element height to actual height
-            subEl.style.height = height + "px";
-        }
+    if (verticalAlignment == VerticalAlignment.Stretch && parentIsFixedHeight) {
+        //explicit height
+        //add height + margin
+        var h = height + (isNaN(margin.Top) ? 0 : margin.Top) + (isNaN(margin.Bottom) ? 0 : margin.Bottom);
+        rootEl.style.height = h + "px";
+        //set inner element height to actual height
+        subEl.style.height = height + "px";
+        subEl.style.overflowY = "hidden";
+        subEl.style.position = "absolute";
 
         var top = (isNaN(margin.Top) ? 0 : margin.Top);
         subEl.style.top = top + "px";
@@ -1081,6 +1100,9 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
         if (!isNaN(height)) {
             //explicit height
             rootEl.style.height = height + "px";
+            subEl.style.height = height + "px";
+            subEl.style.overflowY = "hidden";
+            subEl.style.position = "absolute";
         }
         rootEl.style.marginTop = margin.Top + "px";
         rootEl.style.marginBottom = margin.Bottom + "px";
@@ -1106,8 +1128,30 @@ FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
     }
     this.ApplyHtmlChanges$UIElement(invalidations);
 };
+FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
+    //if width is defined, horizontal alignment is no longer stretched
+    if (!isNaN(width) && horizontalAlignment == HorizontalAlignment.Stretch) {
+        return HorizontalAlignment.Left;
+    }
+    else {
+        return horizontalAlignment;
+    }
+}
+FrameworkElement.RealVerticalAlignment = function (height, verticalAlignment) {
+    //if height is defined, vertical alignment is no longer stretched
+    if (!isNaN(height) && verticalAlignment == VerticalAlignment.Stretch) {
+        return VerticalAlignment.Top;
+    }
+    else {
+        return verticalAlignment;
+    }
+}
 FrameworkElement.Instance.CalculateIsFixedWidth = function () {
     if (!isNaN(this.Width)) {
+        return true;
+    }
+    if (FrameworkElement.RealHorizontalAlignment(this.Width, this.HorizontalAlignment) == HorizontalAlignment.Stretch
+        && this.ParentIsFixedWidth) {
         return true;
     }
     return false;
@@ -1116,11 +1160,15 @@ FrameworkElement.Instance.CalculateIsFixedHeight = function () {
     if (!isNaN(this.Height)) {
         return true;
     }
+    if (FrameworkElement.RealVerticalAlignment(this.Height, this.VerticalAlignment) == VerticalAlignment.Stretch
+        && this.ParentIsFixedHeight) {
+        return true;
+    }
     return false;
 }
-//#endregion
 
 //#endregion
 
 Nullstone.FinishCreate(FrameworkElement);
+
 //#endregion

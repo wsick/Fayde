@@ -688,6 +688,8 @@ Grid.Instance.OnHtmlAttached = function () {
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
             var child = children.GetValueAt(i);
+            child.ParentIsFixedWidth = true;
+            child.ParentIsFixedHeight = true;
             //TODO: what to do if row is set to a row number that doesn't exist?
             var row = Grid.GetRow(child);
             var column = Grid.GetColumn(child);

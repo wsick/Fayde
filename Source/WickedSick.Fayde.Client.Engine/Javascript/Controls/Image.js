@@ -294,22 +294,37 @@ Fayde.Image.Instance.CreateHtmlObjectImpl = function () {
     this.InitializeHtml(rootEl);
     return rootEl;
 };
-Fayde.Image.Instance.ApplyHtmlChange = function (change) {
-    var propd = change.Property;
-    if (propd.OwnerType !== Fayde.Image) {
-        this.ApplyHtmlChange$FrameworkElement(change);
-        return;
+Fayde.Image.Instance.ApplyHtmlChanges = function (invalidations) {
+    var imageChecks = [Fayde.Image.StretchProperty, Fayde.Image.SourceProperty];
+    for (var i = 0; i < imageChecks.length; i++) {
+        if (invalidations[imageChecks[i]._ID]) {
+            Fayde.Image.ApplyImage(this.GetRootHtmlElement(), this.ParentIsFixedWidth, this.ParentIsFixedHeight, this.Source, this.Stretch);
+            break;
+        }
     }
+    this.ApplyHtmlChanges$FrameworkElement(invalidations);
+};
 
-    var rootEl = this.GetRootHtmlElement();
+Fayde.Image.ApplyImage = function (rootEl, parentIsFixedWidth, parentIsFixedHeight, source, stretch) {
     var imgEl = rootEl.firstChild;
-    if (propd._ID === Fayde.Image.SourceProperty._ID) {
-        var source = this.Source;
-        //TODO: backgroundSize should be set according to the Stretch property
-        imgEl.style.backgroundSize = "contain";
-        imgEl.style.backgroundRepeat = "no-repeat";
-        imgEl.style.backgroundPosition = "center";
-        imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
+    //if (!parentIsFixedHeight && !parentIsFixedWidth) {
+    //    stretch = Stretch.None;
+    //}
+    switch (stretch) {
+        case Stretch.None:
+            var img = imgEl.appendChild(document.createElement("img"));
+            img.src = source._Image.src; 
+            break;
+        case Stretch.Fill:
+            break;
+        case Stretch.Uniform:
+            imgEl.style.backgroundSize = "contain";
+            imgEl.style.backgroundRepeat = "no-repeat";
+            imgEl.style.backgroundPosition = "center";
+            imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
+            break;
+        case Stretch.UniformToFill:
+            break;
     }
 };
 
