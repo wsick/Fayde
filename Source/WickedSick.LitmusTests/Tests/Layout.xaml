@@ -33,7 +33,7 @@
         </Border>
         <Border Grid.Column="1" Width="100" Height="100" BorderBrush="Black" BorderThickness="2"/>
         <Border Grid.Column="2" Width="100" Height="100" BorderBrush="Black" BorderThickness="4"/>
-        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5" Margin="0,0,50,100">
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Navy" Background="White" BorderThickness="1" CornerRadius="5">
             <Border BorderBrush="Red" Background="Orange" BorderThickness="8" CornerRadius="15" Margin="5, 10, 15, 20">
                 <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="20">
                     <Image Margin="10" Source="/WickedSick.LitmusTests;component/testing.jpg"/>

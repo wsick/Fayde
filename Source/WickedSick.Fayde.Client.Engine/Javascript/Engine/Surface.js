@@ -119,13 +119,13 @@ Surface.Instance._AttachLayer = function (layer) {
     DirtyDebug("AttachLayer");
     layer._FullInvalidate(true);
     layer._InvalidateMeasure();
+    layer.ParentIsFixedWidth = true;
+    layer.ParentIsFixedHeight = true;
     layer._SetIsAttached(true);
     layer._SetIsLoaded(true);
 
     var rootEl = layer.GetRootHtmlElement();
     this._RootHtmlEl.appendChild(rootEl);
-    layer.ParentIsFixedWidth = true;
-    layer.ParentIsFixedHeight = true;
     layer.OnHtmlAttached();
 
     this._App._NotifyDebugLayer(true, layer);

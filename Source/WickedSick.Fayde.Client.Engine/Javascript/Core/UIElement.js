@@ -889,8 +889,12 @@ UIElement.Instance._OnIsLoadedChanged = function (loaded) {
 UIElement.Instance._OnIsAttachedChanged = function (value) {
     this._UpdateTotalRenderVisibility();
 
-    if (this._SubtreeObject)
-        this._SubtreeObject._SetIsAttached(value);
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        this.InvalidateIsFixedWidth();
+        this.InvalidateIsFixedHeight();
+        subtree._SetIsAttached(value);
+    }
 
     this._OnIsAttachedChanged$DependencyObject(value);
 
@@ -950,8 +954,10 @@ UIElement.Instance._ElementAdded = function (item) {
     if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
         item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 
-    item.ParentIsFixedWidth = this.GetIsFixedWidth();
-    item.ParentIsFixedHeight = this.GetIsFixedHeight();
+    if (this._IsAttached) {
+        item.ParentIsFixedWidth = this.GetIsFixedWidth();
+        item.ParentIsFixedHeight = this.GetIsFixedHeight();
+    }
 }
 
 //#endregion

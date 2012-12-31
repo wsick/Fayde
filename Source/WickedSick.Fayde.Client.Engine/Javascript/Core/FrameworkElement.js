@@ -1131,6 +1131,7 @@ FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
 FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
     //if width is defined, horizontal alignment is no longer stretched
     if (!isNaN(width) && horizontalAlignment == HorizontalAlignment.Stretch) {
+        //TODO: this should be centered, not left
         return HorizontalAlignment.Left;
     }
     else {
@@ -1140,6 +1141,7 @@ FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment)
 FrameworkElement.RealVerticalAlignment = function (height, verticalAlignment) {
     //if height is defined, vertical alignment is no longer stretched
     if (!isNaN(height) && verticalAlignment == VerticalAlignment.Stretch) {
+        //TODO: this should be centered, not top
         return VerticalAlignment.Top;
     }
     else {
