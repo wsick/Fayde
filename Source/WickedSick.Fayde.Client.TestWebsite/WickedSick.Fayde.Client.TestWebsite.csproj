@@ -87,6 +87,9 @@
     <Content Include="default6.fap">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="default7.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Views\SDK.fayde" />
     <None Include="Views\Toolkit.fayde" />
     <Content Include="Views\Home.fayde.js">

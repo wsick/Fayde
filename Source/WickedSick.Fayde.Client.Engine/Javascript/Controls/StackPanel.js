@@ -113,38 +113,68 @@ StackPanel.Instance.ArrangeOverride = function (arrangeSize) {
 
 //#region Html Translations
 
+StackPanel.Instance.CreateHtmlObjectImpl = function () {
+    var rootEl = this.CreateHtmlObjectImpl$Panel();
+    rootEl.firstChild.style.fontSize = "0px";
+    return rootEl;
+};
 StackPanel.Instance.InsertHtmlChild = function (child, index) {
-    var container = this.GetContentHtmlElement();
+    var content = this.GetContentHtmlElement();
     var children = this.Children;
     var nextEl;
     if ((index + 1) < children.GetCount())
         nextEl = children.GetValueAt(index + 1).GetRootHtmlElement();
 
-    if (nextEl)
-        container.insertBefore(child.GetRootHtmlElement(), nextEl);
+    var wrapper = document.createElement("div");
+    wrapper.style.display = "inline-block";
+    wrapper.style.position = "relative";
+    if (this.Orientation === Orientation.Horizontal) {
+        wrapper.style.height = "100%";
+        wrapper.style.width = "auto";
+    }
+    else {
+        wrapper.style.width = "100%";
+        wrapper.style.height = "auto";
+    }
+    wrapper.appendChild(child.GetRootHtmlElement());
+    if (nextEl) {
+        content.insertBefore(wrapper, nextEl);
+    }
     else
-        container.appendChild(child.GetRootHtmlElement());
+        content.appendChild(wrapper);
 };
 StackPanel.Instance.RemoveHtmlChild = function (child, index) {
     var rootEl = child.GetRootHtmlElement();
-    rootEl.parentNode.removeChild(rootEl);
+    rootEl.parentNode.parentNode.removeChild(rootEl.parentNode);
 };
 
 StackPanel.Instance._UpdateHtmlOrientation = function (orientation) {
+    this.InvalidateIsFixedWidth();
+    this.InvalidateIsFixedHeight();
     var children = this.Children;
     var len = children.GetCount();
     var child;
-    if (orientation === Orientation.Horizontal) {
-        for (var i = 0; i < len; i++) {
-            child = children.GetValueAt(i);
-            child.GetRootHtmlElement().style.display = "inline-block";
+    for (var i = 0; i < len; i++) {
+        child = children.GetValueAt(i);
+        var wrapper = child.GetRootHtmlElement().parentNode;
+        if (orientation === Orientation.Horizontal) {
+            wrapper.style.height = "100%";
+            wrapper.style.width = "auto";
         }
-    } else if (orientation === Orientation.Vertical) {
-        for (var i = 0; i < len; i++) {
-            child = children.GetValueAt(i);
-            child.GetRootHtmlElement().style.display = "block";
+        else {
+            wrapper.style.width = "100%";
+            wrapper.style.height = "auto";
         }
     }
+};
+
+StackPanel.Instance.CalculateIsFixedWidth = function () {
+    //TODO: do a real calculation based on this.Orientation
+    return false;
+};
+StackPanel.Instance.CalculateIsFixedHeight = function () {
+    //TODO: do a real calculation based on this.Orientation
+    return false;
 };
 
 //#endregion
