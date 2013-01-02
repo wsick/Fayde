@@ -90,8 +90,7 @@
     <Content Include="demos\masterdetail\Player.js" />
     <Content Include="demos\masterdetail\Player.ts" />
     <Content Include="demos\sdb\root.fayde.js" />
-    <Content Include="demos\sdb\test.js" />
-    <Content Include="demos\stackoverflow\default.fayde.js" />
+    <Content Include="demos\stackoverflow\root.fayde.js" />
     <Content Include="download.aspx" />
     <Content Include="features.aspx" />
     <Content Include="gettingstarted.aspx" />
@@ -175,7 +174,7 @@
     <Content Include="demos\stackoverflow\default.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="demos\stackoverflow\default.fayde">
+    <Content Include="demos\stackoverflow\root.fayde">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="demos\stackoverflow\so.ashx" />

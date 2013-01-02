@@ -1,5 +1,6 @@
 ﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+      JsType="Fayde.Demos.StackOverflow.Root"
       Title="Fayde Page">
     <Grid x:Name="LayoutRoot" MinWidth="700">
         <Grid.RowDefinitions>
