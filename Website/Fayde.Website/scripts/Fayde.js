@@ -3590,8 +3590,8 @@ var Fayde;
     Fayde.Initialize = function () {
         Fayde.Run();
     };
-    Fayde.Start = function (rjson, json, canvas) {
-        App.Instance = new App();
+    Fayde.Start = function (appType, rjson, json, canvas) {
+        App.Instance = new appType();
         App.Instance.LoadResources(rjson);
         App.Instance.LoadInitial(canvas, json);
     };
@@ -13335,8 +13335,9 @@ App.Instance.LoadInitial = function (containerId, json) {
     if (element instanceof UIElement)
         this.MainSurface._Attach(element);
     this.Start();
+    this.EmitLoaded();
 };
-App.Instance.OnLoaded = function () {
+App.Instance.EmitLoaded = function () {
     this.Loaded.RaiseAsync(this, new EventArgs());
 };
 App.Instance.Start = function () {

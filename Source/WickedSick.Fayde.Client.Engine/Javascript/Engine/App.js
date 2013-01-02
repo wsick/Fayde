@@ -72,8 +72,9 @@ App.Instance.LoadInitial = function (containerId, json) {
         this.MainSurface._Attach(element);
 
     this.Start();
+    this.EmitLoaded();
 };
-App.Instance.OnLoaded = function () {
+App.Instance.EmitLoaded = function () {
     this.Loaded.RaiseAsync(this, new EventArgs());
 };
 

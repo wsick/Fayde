@@ -12,7 +12,7 @@ namespace WickedSick.Server.Framework.Fayde
         Fayde.Run = function () {";
 
         private static readonly string END_INITIALIZATION_SCRIPT =
-@"          Fayde.Start(rjson, json, document.getElementById(""canvas""));
+@"          Fayde.Start(appType, rjson, json, document.getElementById(""canvas""));
         }
         </script>";
 
@@ -90,6 +90,7 @@ namespace WickedSick.Server.Framework.Fayde
                 json = fap.Content.ToJson(0);
 
             Writer.WriteLine(START_INITIALIZATION_SCRIPT);
+            Writer.WriteLine(string.Format("var appType = {0};", fap.GetTypeName()));
             Writer.WriteLine(string.Format("var rjson = {0};", rjson));
             Writer.WriteLine(string.Format("var json = {0};", json));
             Writer.WriteLine(END_INITIALIZATION_SCRIPT);

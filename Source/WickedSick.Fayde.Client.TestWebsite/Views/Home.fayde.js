@@ -1,5 +1,4 @@
-﻿/// <reference path="../../scripts/Fayde.js"/>
-
+﻿
 var TestWebsite;
 (function (TestWebsite) {
     var Views;

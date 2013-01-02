@@ -12,8 +12,8 @@ var Fayde;
         Fayde.Run();
     };
 
-    Fayde.Start = function (rjson, json, canvas) {
-        App.Instance = new App();
+    Fayde.Start = function (appType, rjson, json, canvas) {
+        App.Instance = new appType();
         App.Instance.LoadResources(rjson);
         App.Instance.LoadInitial(canvas, json);
     };

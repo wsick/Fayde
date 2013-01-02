@@ -24,7 +24,7 @@ namespace WickedSick.Server.XamlParser.Elements
             _DynamicType = js;
         }
 
-        protected override string GetTypeName()
+        public override string GetTypeName()
         {
             var jsType = JsType;
             if (!string.IsNullOrWhiteSpace(jsType))
