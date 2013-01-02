@@ -74,6 +74,11 @@ namespace WickedSick.Server.Framework.Fayde
             Writer.WriteLine(string.Format("\t\t<script src=\"{0}Fayde.Generic.js\" type=\"text/javascript\"></script>", scriptResolution));
         }
 
+        public void WriteScriptInclude(string scriptPath)
+        {
+            Writer.WriteLine(string.Format("\t\t<script src=\"{0}\" type=\"text/javascript\"></script>", scriptPath));
+        }
+
         public void WriteAppLoadScript(FaydeApplication fap)
         {
             string rjson = "{}";

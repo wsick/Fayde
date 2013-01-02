@@ -40,13 +40,13 @@ namespace WickedSick.Server.Framework.Fayde
                 if (fap.Debug)
                     includes = CollectIncludes(FindOrderFile(context.Request, fap)).ToList();
 #endif
-                WriteFapFull(fap, context.Response.OutputStream, includes);
+                WriteFapFull(context, fap, includes);
             }
         }
 
-        private void WriteFapFull(FaydeApplication fap, Stream stream, IEnumerable<string> includes)
+        private void WriteFapFull(HttpContext context, FaydeApplication fap, IEnumerable<string> includes)
         {
-            using (var writer = new FapWriter(stream))
+            using (var writer = new FapWriter(context.Response.OutputStream))
             {
 #if DEBUG
                 writer.Debug = fap.Debug;
@@ -54,6 +54,10 @@ namespace WickedSick.Server.Framework.Fayde
                 writer.WriteStart();
                 writer.WriteHeadStart();
                 writer.WriteScriptIncludes(fap.ScriptResolution, includes);
+
+                var codeBehindPath = string.Format("{0}.js", context.Request.Path);
+                if (File.Exists(context.Server.MapPath(codeBehindPath)))
+                    writer.WriteScriptInclude(codeBehindPath);
                 writer.WriteAppLoadScript(fap);
                 writer.WriteHeadEnd();
                 writer.WriteBodyStart();
