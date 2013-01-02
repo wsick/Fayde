@@ -89,7 +89,9 @@
     <Content Include="demos\masterdetail\INflRepository.ts" />
     <Content Include="demos\masterdetail\Player.js" />
     <Content Include="demos\masterdetail\Player.ts" />
+    <Content Include="demos\sdb\default.fap.js" />
     <Content Include="demos\sdb\root.fayde.js" />
+    <Content Include="demos\sdb\ViewModels\MainViewModel.js" />
     <Content Include="demos\stackoverflow\root.fayde.js" />
     <Content Include="download.aspx" />
     <Content Include="features.aspx" />

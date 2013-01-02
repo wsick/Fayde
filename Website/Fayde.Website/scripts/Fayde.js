@@ -1670,11 +1670,11 @@ Nullstone.ImportJsFile = function (url, onComplete) {
     script.src = url;
     script.onreadystatechange = function (e) {
         if (this.readyState === "completed") {
-            onComplete(script);
+            if (onComplete) onComplete(script);
             return;
         }
     };
-    script.onload = function () { onComplete(script); };
+    script.onload = function () { if (onComplete) onComplete(script); };
     var head = document.getElementsByTagName("head")[0];
     head.appendChild(script);
 };
