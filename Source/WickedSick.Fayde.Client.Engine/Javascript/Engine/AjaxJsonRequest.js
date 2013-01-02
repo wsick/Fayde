@@ -45,7 +45,7 @@ AjaxJsonRequest.prototype._HandleStateChange = function () {
                 if (this.xmlhttp.responseText)
                     responseJson = eval("(" + this.xmlhttp.responseText + ")");
             } catch (err) {
-                this.OnError("Could not create json from response.");
+                this.OnError("Could not create json from response.", err);
                 return;
             }
             this.OnSuccess(responseJson);

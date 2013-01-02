@@ -27,7 +27,11 @@ namespace WickedSick.Server.Framework.Fayde
             var fragment = context.Request.QueryString["p"];
             if (fragment != null)
             {
-                WritePageJson(context.Response.OutputStream, GetPhysicalPath(context, fap, fragment));
+                var isJs = context.Request.QueryString["js"];
+                if (!string.IsNullOrWhiteSpace(isJs))
+                    RedirectToCodeBehindJs(context, fap, fragment);
+                else
+                    WritePageJson(context.Response, GetPhysicalPath(context, fap, fragment));
             }
             else
             {
@@ -39,7 +43,6 @@ namespace WickedSick.Server.Framework.Fayde
                 WriteFapFull(fap, context.Response.OutputStream, includes);
             }
         }
-
 
         private void WriteFapFull(FaydeApplication fap, Stream stream, IEnumerable<string> includes)
         {
@@ -59,20 +62,30 @@ namespace WickedSick.Server.Framework.Fayde
                 writer.WriteEnd();
             }
         }
-
-        private void WritePageJson(Stream stream, string pageLocalPath)
+        private void WritePageJson(HttpResponse response, string pageLocalPath)
         {
             if (string.IsNullOrWhiteSpace(pageLocalPath))
                 return;
 
-            using (var sw = new StreamWriter(stream))
+            using (var sw = new StreamWriter(response.OutputStream))
             {
                 var page = Parser.Parse(pageLocalPath) as Page;
-                var codeBehindFile = new FileInfo(string.Format("{0}.js", pageLocalPath));
-                if (codeBehindFile.Exists)
-                    page.InjectJavascriptType(File.ReadAllText(codeBehindFile.FullName));
                 sw.Write(page.ToJson(0));
             }
+        }
+        private void RedirectToCodeBehindJs(HttpContext context, FaydeApplication fap, string fragment)
+        {
+            var pageRelativePath = GetRelativePath(context, fap, fragment);
+            var codeBehindPath = string.Format("{0}.js", pageRelativePath);
+            var codeBehindFile = new FileInfo(context.Server.MapPath(codeBehindPath));
+            if (!codeBehindFile.Exists)
+            {
+                context.Response.End();
+                return;
+            }
+            context.Response.WriteFile(codeBehindFile.FullName);
+            context.Response.ContentType = "application/x-javascript";
+            context.Response.End();
         }
 
 
@@ -121,6 +134,13 @@ namespace WickedSick.Server.Framework.Fayde
             if (string.IsNullOrWhiteSpace(mappedPath))
                 return mappedPath;
             return Path.Combine(Path.GetDirectoryName(context.Request.PhysicalPath), mappedPath.Replace("/", "\\").TrimStart('\\'));
+        }
+        private string GetRelativePath(HttpContext context, FaydeApplication fap, string fragment)
+        {
+            var fapVirtualPath = context.Request.CurrentExecutionFilePath;
+            var fapVirtualDir =  System.Web.VirtualPathUtility.RemoveTrailingSlash(System.Web.VirtualPathUtility.GetDirectory(fapVirtualPath));
+            var mappedPath = fap.MapUri(fragment);
+            return string.Format("{0}/{1}", fapVirtualDir, mappedPath);
         }
 
 

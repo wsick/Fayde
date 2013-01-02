@@ -48,11 +48,14 @@ namespace WickedSick.Server.XamlParser
             {
                 PropertyHelper.EnsurePropertyRegistered(checkType);
 
-                foreach (string key in _dependencyProperties.Keys)
-                {
-                    if (key.StartsWith(checkType.Name + ".") && _dependencyProperties[key].IsContent)
-                        return _dependencyProperties[key];
-                }
+                var pd = _dependencyProperties
+                    .ToList()
+                    .Where(kvp => kvp.Key.StartsWith(checkType.Name + ".") && kvp.Value.IsContent)
+                    .Select(kvp => kvp.Value)
+                    .FirstOrDefault();
+                if (pd != null)
+                    return pd;
+
                 checkType = checkType.BaseType;
             }
             return null;

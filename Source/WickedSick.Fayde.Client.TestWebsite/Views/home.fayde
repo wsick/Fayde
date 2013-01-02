@@ -1,5 +1,6 @@
 ﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
       xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+      JsType="TestWebsite.Views.Home"
       Title="Fayde | Home">
     <StackPanel>
         <ListBox x:Name="HEYO" Margin="-7,0,5,0">

@@ -12,7 +12,7 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription DebugProperty = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
         public bool Debug
         {
-            get { return (bool)GetValue("Debug"); }
+            get { return (bool?)GetValue("Debug") == true; }
             set { SetValue("Debug", value); }
         }
 

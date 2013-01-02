@@ -289,3 +289,28 @@ Nullstone._GetTypeCountsAbove = function (count) {
     }
     return arr;
 };
+
+Nullstone.ImportJsFile = function (url, onComplete) {
+    var scripts = document.getElementsByTagName("script");
+    for (var i = 0; i < scripts.length; i++) {
+        if (scripts[i].src === url) {
+            if (onComplete) onComplete(scripts[i]);
+            return;
+        }
+    }
+
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+    script.onreadystatechange = function (e) {
+        if (this.readyState === "completed") {
+            onComplete(script);
+            return;
+        }
+        
+    };
+    script.onload = function () { onComplete(script); };
+
+    var head = document.getElementsByTagName("head")[0];
+    head.appendChild(script);
+};

@@ -464,7 +464,7 @@ AjaxJsonRequest.prototype._HandleStateChange = function () {
                 if (this.xmlhttp.responseText)
                     responseJson = eval("(" + this.xmlhttp.responseText + ")");
             } catch (err) {
-                this.OnError("Could not create json from response.");
+                this.OnError("Could not create json from response.", err);
                 return;
             }
             this.OnSuccess(responseJson);
@@ -537,7 +537,7 @@ function DumpTiming(arr) {
     return "[Min: " + min + "; Max: " + max + "; Avg: " + avg + "; StdDev: " + stddev + "; Total: " + total + "; Count: " + arr.length + "]";;
 }
 function KeyboardDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("KEYBOARD: " + message);
@@ -561,7 +561,7 @@ function LayoutDebug(message) {
         console.log("LAYOUT: " + message);
 }
 function TransformDebug(message, matrix) {
-    if (false)
+    if (true)
         return;
     var last = TransformDebug.Last;
     if (last && mat3.equal(last, matrix))
@@ -571,13 +571,13 @@ function TransformDebug(message, matrix) {
         console.log("TRANSFORM: " + message + " --> " + matrix.toString());
 }
 function DrawDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("DRAW: " + message);
 }
 function RenderDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("RENDER: " + message);
@@ -994,25 +994,6 @@ function Enum(object) {
 Object.Clone = function (o) {
     return eval(uneval(o));
 };
-/*
-Function.prototype.Implement = function (interface) {
-    var interfaceName = (new interface())._TypeName;
-    for (var i in interface.prototype) {
-        if (!this.prototype[i])
-            this.prototype[i] = new Function("throw new NotImplementedException();");
-    }
-    if (this._Interfaces == null)
-        this._Interfaces = [];
-    this._Interfaces[interfaceName] = true;
-    return this;
-};
-Function.prototype.DoesImplement = function (interface) {
-    if (!this._Interfaces)
-        return false;
-    var interfaceName = (new interface())._TypeName;
-    return this._Interfaces[interfaceName] === true;
-};
-*/
 Function.prototype.Clone = function () {
     return eval(uneval(this));
 };
@@ -1462,7 +1443,7 @@ Nullstone.FinishCreate = function (f) {
             var it = f.Interfaces[i].Instance;
             for (var m in it) {
                 if (!(m in f.prototype))
-                    throw new NotImplementedException(f, it, m);
+                    throw new InterfaceNotImplementedException(f, it, m);
             }
         }
     }
@@ -1675,6 +1656,27 @@ Nullstone._GetTypeCountsAbove = function (count) {
             arr[tn] = Nullstone._TypeCount[tn];
     }
     return arr;
+};
+Nullstone.ImportJsFile = function (url, onComplete) {
+    var scripts = document.getElementsByTagName("script");
+    for (var i = 0; i < scripts.length; i++) {
+        if (scripts[i].src === url) {
+            if (onComplete) onComplete(scripts[i]);
+            return;
+        }
+    }
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+    script.onreadystatechange = function (e) {
+        if (this.readyState === "completed") {
+            onComplete(script);
+            return;
+        }
+    };
+    script.onload = function () { onComplete(script); };
+    var head = document.getElementsByTagName("head")[0];
+    head.appendChild(script);
 };
 
 var PropertyInfo = Nullstone.Create("PropertyInfo");
@@ -2988,7 +2990,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
         return;
     var font = attrs.GetFont();
     var y0 = font._Ascender();
-    ctx.Transform(mat3.createTranslate(x, y - y0));
+    ctx.Translate(x, y - y0);
     var brush;
     var fontHeight = font.GetActualHeight();
     var area = new Rect(origin.X, origin.Y, this._Advance, fontHeight);
@@ -3582,8 +3584,18 @@ var BindingOperations = {
     }
 };
 
-var Fayde = {
-    TypeConverters: {
+var Fayde;
+(function (Fayde) {
+    Fayde.Run = function () { };
+    Fayde.Initialize = function () {
+        Fayde.Run();
+    };
+    Fayde.Start = function (rjson, json, canvas) {
+        App.Instance = new App();
+        App.Instance.LoadResources(rjson);
+        App.Instance.LoadInitial(canvas, json);
+    };
+    Fayde.TypeConverters = {
         Thickness: function (str) {
             if (!str)
                 return new Thickness();
@@ -3634,8 +3646,8 @@ var Fayde = {
             }
             return Color.FromHex(str);
         }
-    },
-    TypeConverter: {
+    };
+    Fayde.TypeConverter = {
         ConvertObject: function (propd, val, objectType, doStringConversion) {
             if (val == null)
                 return val;
@@ -3676,8 +3688,8 @@ var Fayde = {
         PointCollectionFromString: function (val) {
             return Fayde._MediaParser.ParsePointCollection(val);
         }
-    },
-    Clone: function (value) {
+    };
+    Fayde.Clone = function (value) {
         if (value instanceof DependencyObject)
             return value.Clone();
         if (typeof value === "number")
@@ -3724,8 +3736,8 @@ var Fayde = {
                 return new CornerRadius(value.TopLeft, value.TopRight, value.BottomRight, value.BottomLeft);
         }
         return new value.constructor();
-    }
-};
+    };
+})(Fayde || (Fayde = {}));
 
 var _DeepStyleWalker = Nullstone.Create("_DeepStyleWalker", null, 1);
 _DeepStyleWalker.Instance.Init = function (styles) {
@@ -3915,7 +3927,7 @@ DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerTy
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, false, true);
 };
 DependencyProperty.RegisterInheritable = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, inheritable) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, undefined, true, inheritable);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, undefined, undefined, undefined, false, undefined, true, inheritable);
 };
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
     if (!DependencyProperty._IDs)
@@ -5642,6 +5654,15 @@ _RenderContext.Instance.Init = function (surface) {
     this.Surface = surface;
     this.CanvasContext = this.Surface._Ctx;
     this._Transforms = [];
+    if (!this.CanvasContext.hasOwnProperty("currentTransform")) {
+        Object.defineProperty(this.CanvasContext, "currentTransform", {
+            get: function () { return this._CurrentTransform; },
+            set: function (value) {
+                this.setTransform(value[0], value[1], value[3], value[4], value[2], value[5]);
+                this._CurrentTransform = value;
+            }
+        });
+    }
 };
 Nullstone.AutoProperties(_RenderContext, [
     "CurrentTransform",
@@ -5677,8 +5698,8 @@ _RenderContext.Instance.PreTransform = function (matrix) {
     }
     var ct = this.CurrentTransform;
     mat3.multiply(matrix, ct, ct); //ct = ct * matrix
-    this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-    TransformDebug("PreTransform", this.CurrentTransform);
+    this.CanvasContext.currentTransform = ct;
+    TransformDebug("PreTransform", ct);
 };
 _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
@@ -5686,14 +5707,14 @@ _RenderContext.Instance.Transform = function (matrix) {
     }
     var ct = this.CurrentTransform;
     mat3.multiply(ct, matrix, ct); //ct = matrix * ct
-    this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-    TransformDebug("Transform", this.CurrentTransform);
+    this.CanvasContext.currentTransform = ct;
+    TransformDebug("Transform", ct);
 };
 _RenderContext.Instance.Translate = function (x, y) {
     var ct = this.CurrentTransform;
-    mat3.translate(x, y);
+    mat3.translate(ct, x, y);
     this.CanvasContext.translate(x, y);
-    TransformDebug("Translate", this.CurrentTransform);
+    TransformDebug("Translate", ct);
 };
 _RenderContext.Instance.Save = function () {
     this.CanvasContext.save();
@@ -7505,9 +7526,6 @@ BError.InvalidOperation = 3;
 BError.Exception = 4;
 BError.XamlParseException = 5;
 
-var Closure = Nullstone.Create("Closure");
-Nullstone.FinishCreate(Closure);
-
 var Dictionary = Nullstone.Create("Dictionary", undefined, 2);
 Dictionary.Instance.Init = function (type1, type2) {
     this._ht = [];
@@ -7590,9 +7608,6 @@ DoubleKeyedDictionary.Instance.GetValueFromKey2 = function (key2) {
         return result.Value;
     return null;
 };
-DoubleKeyedDictionary.Instance.Add = function (key1, key2) {
-    this.Add(key1, key2, false);
-};
 DoubleKeyedDictionary.Instance.Add = function (key1, key2, ignoreExisting) {
     var result = {};
     if (!ignoreExisting && (this._forward.TryGetValue(key1, result) || this._backward.TryGetValue(key2, result))) {
@@ -7603,9 +7618,6 @@ DoubleKeyedDictionary.Instance.Add = function (key1, key2, ignoreExisting) {
 DoubleKeyedDictionary.Instance.Clear = function () {
     this._forward.Clear();
     this._backward.Clear();
-};
-DoubleKeyedDictionary.Instance.Remove = function (key1, key2) {
-    this.Remove(key1, key2, false);
 };
 DoubleKeyedDictionary.Instance.Remove = function (key1, key2, ignoreExisting) {
     var result = {};
@@ -7650,8 +7662,8 @@ Exception.Instance.toString = function () {
 Nullstone.FinishCreate(Exception);
 var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception, 3);
 Nullstone.FinishCreate(InvalidOperationException);
-var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 3);
-NotImplementedException.Instance.Init = function (type, parentType, methodName) {
+var InterfaceNotImplementedException = Nullstone.Create("InterfaceNotImplementedException", Exception, 3);
+InterfaceNotImplementedException.Instance.Init = function (type, parentType, methodName) {
     var msg;
     if (methodName)
         msg = type._TypeName + " does not implement " + parentType._TypeName + "." + this.MethodName;
@@ -7660,6 +7672,11 @@ NotImplementedException.Instance.Init = function (type, parentType, methodName) 
     this.Init$Exception(msg);
     this.Type = type;
     this.ParentType = parentType;
+    this.MethodName = methodName;
+};
+Nullstone.FinishCreate(InterfaceNotImplementedException);
+var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 1);
+NotImplementedException.Instance.Init = function (methodName) {
     this.MethodName = methodName;
 };
 Nullstone.FinishCreate(NotImplementedException);
@@ -8402,7 +8419,7 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
     var isChanged = !this._Styles || styleMask != this._StyleMask;
     if (!isChanged) {
         for (var i = 0; i < _StyleIndex.Count; i++) {
-            if (styles[i] != this._Styles[i]) {
+            if (!Nullstone.RefEquals(styles[i], this._Styles[i])) {
                 isChanged = true;
                 break;
             }
@@ -11085,11 +11102,7 @@ DependencyObject.Instance.RemovePropertyChangedListener = function (ldo, propd) 
         break;
     }
 };
-DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
-    if (inheritedProvider)
-        inheritedProvider.PropagateInheritedProperty(propd, this, this);
-};
+DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) { };
 DependencyObject.Instance._OnCollectionChangedEH = function (sender, args) {
     this._OnCollectionChanged(sender, args);
 };
@@ -13227,7 +13240,7 @@ Nullstone.FinishCreate(_IndexedPropertyPathNode);
 var TextElement = Nullstone.Create("TextElement", DependencyObject);
 TextElement.Instance.Init = function () {
     this.Init$DependencyObject();
-    this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
+    this.AddProvider(new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited));
     this._Font = new Font();
     this._UpdateFont(true);
 };
@@ -13476,6 +13489,7 @@ App.Instance._NotifyDebugParserPass = function (type, elapsedTime) {
     func(type, elapsedTime);
 };
 Nullstone.FinishCreate(App);
+App.Version = "0.9.0.1";
 
 var Brush = Nullstone.Create("Brush", DependencyObject);
 Brush.Instance.Init = function () {
@@ -16304,13 +16318,15 @@ Nullstone.AutoProperties(Section, [
 Nullstone.FinishCreate(Section);
 
 var Span = Nullstone.Create("Span", Inline);
-Span._CreateInlineCollection = function (obj) {
-    var inlines = new InlineCollection();
-    if (obj instanceof Hyperlink)
-        inlines._SetIsForHyperlink();
-    return inlines;
+Span._InlinesAutoCreator = {
+    GetValue: function (propd, obj) {
+        var inlines = new InlineCollection();
+        if (obj instanceof Hyperlink)
+            inlines._SetIsForHyperlink();
+        return inlines;
+    }
 };
-Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, undefined, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
+Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, undefined, Span._InlinesAutoCreator);
 Nullstone.AutoProperties(Span, [
     Span.InlinesProperty
 ]);
@@ -24356,6 +24372,15 @@ ContentControl.Annotations = {
 Nullstone.FinishCreate(ContentControl);
 
 var Frame = Nullstone.Create("Frame", ContentControl);
+Frame.Instance.Init = function () {
+    this.Init$ContentControl();
+    this.Loaded.Subscribe(this._FrameLoaded, this);
+    this.Navigated = new MulticastEvent();
+    this.Navigating = new MulticastEvent();
+    this.NavigationFailed = new MulticastEvent();
+    this.NavigationStopped = new MulticastEvent();
+    this.FragmentNavigation = new MulticastEvent();
+};
 Frame.IsDeepLinkedProperty = DependencyProperty.Register("IsDeepLinked", function () { return Boolean; }, Frame, true);
 Frame.CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", function () { return Uri; }, Frame);
 Frame.SourceProperty = DependencyProperty.Register("Source", function () { return Uri; }, Frame, undefined, function (d, args) { d.SourcePropertyChanged(args); });
@@ -24368,15 +24393,6 @@ Nullstone.AutoProperties(Frame, [
     Frame.SourceProperty,
     Frame.UriMapperProperty
 ]);
-Frame.Instance.Init = function () {
-    this.Init$ContentControl();
-    this.Loaded.Subscribe(this._FrameLoaded, this);
-    this.Navigated = new MulticastEvent();
-    this.Navigating = new MulticastEvent();
-    this.NavigationFailed = new MulticastEvent();
-    this.NavigationStopped = new MulticastEvent();
-    this.FragmentNavigation = new MulticastEvent();
-};
 Frame.Instance.GoForward = function () {
 };
 Frame.Instance.GoBackward = function () {
@@ -24411,10 +24427,13 @@ Frame.Instance._HandleDeepLink = function () {
 };
 Frame.Instance._LoadContent = function (href, hash) {
     this.StopLoading();
+    var scriptUrl = href + "?js=true&p=" + hash;
     var ns = this;
-    this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
-        function (error) { ns._HandleErrorResponse(error); });
-    this._Request.Get(href, "p=" + hash);
+    Nullstone.ImportJsFile(scriptUrl, function (script) {
+        this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
+            function (error) { ns._HandleErrorResponse(error); });
+        this._Request.Get(href, "p=" + hash);
+    });
 };
 Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
     var page = JsonParser.Parse(responseJson);
@@ -25392,10 +25411,17 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
     return destination;
 };
 HyperlinkButton.Instance._Navigate = function () {
-    if (this.TargetName != null)
-        window.open(this.NavigateUri.toString(), this.TargetName);
-    else
+    var targetName = this.TargetName;
+    if (targetName == null) {
         window.location.href = this.NavigateUri.toString();
+        return;
+    }
+    var frame = Nullstone.As(this.FindName(targetName), Frame);
+    if (frame != null) {
+        window.location.href = this.NavigateUri.toString();
+        return;
+    }
+    window.open(this.NavigateUri.toString(), targetName);
 };
 Nullstone.FinishCreate(HyperlinkButton);
 

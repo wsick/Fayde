@@ -89,6 +89,8 @@
     <Content Include="demos\masterdetail\INflRepository.ts" />
     <Content Include="demos\masterdetail\Player.js" />
     <Content Include="demos\masterdetail\Player.ts" />
+    <Content Include="demos\sdb\root.fayde.js" />
+    <Content Include="demos\sdb\test.js" />
     <Content Include="demos\stackoverflow\default.fayde.js" />
     <Content Include="download.aspx" />
     <Content Include="features.aspx" />
@@ -179,6 +181,12 @@
     <Content Include="demos\stackoverflow\so.ashx" />
     <Content Include="demos\masterdetail\default.fap" />
     <Content Include="demos\masterdetail\default.fayde" />
+    <Content Include="demos\sdb\default.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="demos\sdb\root.fayde">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

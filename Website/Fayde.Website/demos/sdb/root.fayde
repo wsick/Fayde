@@ -1,0 +1,10 @@
+﻿<Page xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
+      xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+      JsType="Fayde.Demos.SDB.root"
+      Title="Fayde Page">
+    <Grid x:Name="LayoutRoot">
+        <Border BorderBrush="Yellow" BorderThickness="10">
+            
+        </Border>
+    </Grid>
+</Page>

@@ -4,17 +4,21 @@
 
 //#region Fayde
 
-var Fayde = {
-    Run: function () { },
-    Initialize: function () {
+var Fayde;
+(function (Fayde) {
+    Fayde.Run = function () { };
+
+    Fayde.Initialize = function () {
         Fayde.Run();
-    },
-    Start: function (rjson, json, canvas) {
+    };
+
+    Fayde.Start = function (rjson, json, canvas) {
         App.Instance = new App();
         App.Instance.LoadResources(rjson);
         App.Instance.LoadInitial(canvas, json);
-    },
-    TypeConverters: {
+    };
+
+    Fayde.TypeConverters = {
         Thickness: function (str) {
             /// <param name="str" type="String"></param>
             if (!str)
@@ -67,8 +71,8 @@ var Fayde = {
             }
             return Color.FromHex(str);
         }
-    },
-    TypeConverter: {
+    };
+    Fayde.TypeConverter = {
         ConvertObject: function (propd, val, objectType, doStringConversion) {
             /// <param name="propd" type="DependencyProperty"></param>
             /// <param name="val" type="Object"></param>
@@ -124,8 +128,8 @@ var Fayde = {
         PointCollectionFromString: function (val) {
             return Fayde._MediaParser.ParsePointCollection(val);
         }
-    },
-    Clone: function (value) {
+    };
+    Fayde.Clone = function (value) {
         if (value instanceof DependencyObject)
             return value.Clone();
 
@@ -175,7 +179,7 @@ var Fayde = {
         }
 
         return new value.constructor();
-    }
-};
+    };
+})(Fayde || (Fayde = {}));
 
 //#endregion
