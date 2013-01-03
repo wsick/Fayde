@@ -215,6 +215,20 @@ Nullstone.AutoNotifyProperty = function (type, name) {
     });
 };
 
+Nullstone.Namespace = function (namespace) {
+    var tokens = namespace.split(".");
+    var len = tokens.length;
+    var curNs = window[tokens[0]];
+    if (!curNs)
+        curNs = window[tokens[0]] = {};
+    for (var i = 1; i < len; i++) {
+        if (!curNs[tokens[i]])
+            curNs[tokens[i]] = {};
+        curNs = curNs[tokens[i]];
+    }
+    return curNs;
+};
+
 Nullstone._CreateProps = function (ns) {
     //Define Properties on prototype
     var props = ns.constructor.Properties;
