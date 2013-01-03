@@ -11,13 +11,7 @@ var Fayde;
                     this.PropertyChanged = new MulticastEvent();
                 };
 
-                Nullstone.Property(vm, "Rawr", {
-                    get: function () { return this._Rawr; },
-                    set: function (value) {
-                        this._Rawr = value;
-                        this.OnPropertyChanged("Rawr");
-                    }
-                });
+                Nullstone.AutoNotifyProperty(vm, "Rawr");
 
                 vm.Instance.Load = function () {
                     this.Rawr = "HEYO";

@@ -1577,6 +1577,21 @@ Nullstone.Property = function (type, name, data) {
         Data: data
     });
 };
+Nullstone.AutoNotifyProperty = function (type, name) {
+    var backingName = "z_" + name;
+    type.Instance[name] = null;
+    type.Properties.push({
+        Custom: true,
+        Name: name,
+        Data: {
+            get: function () { return this[backingName]; },
+            set: function (value) {
+                this[backingName] = value;
+                this.OnPropertyChanged(name);
+            }
+        }
+    });
+};
 Nullstone._CreateProps = function (ns) {
     var props = ns.constructor.Properties;
     for (var i = 0; i < props.length; i++) {
