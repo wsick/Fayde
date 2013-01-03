@@ -1506,7 +1506,13 @@ Nullstone.DoesImplement = function (obj, interfaceType) {
         return false;
     if (!obj.constructor.Interfaces)
         return false;
-    return interfaceType in obj.constructor.Interfaces;
+    var interfaces = obj.constructor.Interfaces;
+    var len = interfaces.length;
+    for (var i = 0; i < len; i++) {
+        if (interfaces[i]._TypeID === interfaceType._TypeID)
+            return true;
+    }
+    return false;
 };
 Nullstone.AutoProperties = function (type, arr) {
     for (var i = 0; i < arr.length; i++) {
@@ -8949,12 +8955,12 @@ INotifyPropertyChanged.Instance.RaisePropertyChanged = function (propertyName) {
 };
 Nullstone.FinishCreate(INotifyPropertyChanged);
 
-var PropertyChangedEventArgs = Nullstone.Create("PropertyChangedEventArgs", EventArgs);
-PropertyChangedEventArgs.Instance.GetPropertyName = function () {
-    return this._PropertyName;
-};
-PropertyChangedEventArgs.Instance.SetPropertyName = function (value) {
-    this._PropertyName = value;
+var PropertyChangedEventArgs = Nullstone.Create("PropertyChangedEventArgs", EventArgs, 1);
+Nullstone.Property(PropertyChangedEventArgs, "PropertyName", {
+    get: function () { return this._PropertyName; }
+});
+PropertyChangedEventArgs.Instance.Init = function (propertyName) {
+    this._PropertyName = propertyName;
 };
 Nullstone.FinishCreate(PropertyChangedEventArgs);
 

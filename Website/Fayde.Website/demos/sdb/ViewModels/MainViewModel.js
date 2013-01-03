@@ -1,13 +1,30 @@
-﻿
+﻿/// <reference path="../../../scripts/Fayde.js" />
+
 var Fayde;
 (function (Fayde) {
     (function (Demos) {
         (function (SDB) {
             (function (ViewModels) {
-                var vm = Nullstone.Create("MainViewModel");
+                var vm = Nullstone.Create("MainViewModel", undefined, 0, [INotifyPropertyChanged]);
+
+                vm.Instance.Init = function () {
+                    this.PropertyChanged = new MulticastEvent();
+                };
+
+                Nullstone.Property(vm, "Rawr", {
+                    get: function () { return this._Rawr; },
+                    set: function (value) {
+                        this._Rawr = value;
+                        this.OnPropertyChanged("Rawr");
+                    }
+                });
 
                 vm.Instance.Load = function () {
-                    alert("Load MainViewModel");
+                    this.Rawr = "HEYO";
+                };
+
+                vm.Instance.OnPropertyChanged = function (propertyName) {
+                    this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
                 };
 
                 Nullstone.FinishCreate(vm);

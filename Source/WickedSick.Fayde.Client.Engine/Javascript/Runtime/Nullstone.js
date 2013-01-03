@@ -127,7 +127,13 @@ Nullstone.DoesImplement = function (obj, interfaceType) {
         return false;
     if (!obj.constructor.Interfaces)
         return false;
-    return interfaceType in obj.constructor.Interfaces;
+    var interfaces = obj.constructor.Interfaces;
+    var len = interfaces.length;
+    for (var i = 0; i < len; i++) {
+        if (interfaces[i]._TypeID === interfaceType._TypeID)
+            return true;
+    }
+    return false;
 };
 
 Nullstone.AutoProperties = function (type, arr) {
