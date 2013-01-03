@@ -1,4 +1,5 @@
 ﻿/// <reference path="../../scripts/Fayde.js"/>
+/// <reference path="ViewModels/MainViewModel.js"/>
 
 Nullstone.ImportJsFile("ViewModels/ObservableObject.js");
 Nullstone.ImportJsFile("ViewModels/MainViewModel.js");
@@ -15,7 +16,7 @@ var Fayde;
             };
 
             app.Instance.OnLoaded = function (sender, e) {
-                var vm = new Fayde.Demos.SDB.ViewModels.MainViewModel();
+                var vm = new SDB.ViewModels.MainViewModel();
                 vm.Load();
                 this.RootVisual.DataContext = vm;
             };
