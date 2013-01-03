@@ -16,7 +16,7 @@ var Fayde;
             app.Instance.OnLoaded = function (sender, e) {
                 var vm = new Fayde.Demos.SDB.ViewModels.MainViewModel();
                 vm.Load();
-                this.DataContext = vm;
+                this.RootVisual.DataContext = vm;
             };
 
             Nullstone.FinishCreate(app);

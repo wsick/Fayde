@@ -55,6 +55,10 @@ Nullstone.AutoProperties(App, [
     "Address"
 ]);
 
+Nullstone.Property(App, "RootVisual", {
+    get: function () { return this.MainSurface._TopLevel; }
+});
+
 //#endregion
 
 App.Instance.LoadResources = function (json) {

@@ -13322,6 +13322,9 @@ Nullstone.AutoProperties(App, [
     App.ResourcesProperty,
     "Address"
 ]);
+Nullstone.Property(App, "RootVisual", {
+    get: function () { return this.MainSurface._TopLevel; }
+});
 App.Instance.LoadResources = function (json) {
     var rd = JsonParser.Parse(json);
     if (rd instanceof ResourceDictionary)

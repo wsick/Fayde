@@ -4,7 +4,7 @@
       Title="Fayde Page">
     <Grid x:Name="LayoutRoot">
         <Border BorderBrush="Yellow" BorderThickness="10">
-            
+            <TextBlock Text="{Binding Rawr}" />
         </Border>
     </Grid>
 </Page>
