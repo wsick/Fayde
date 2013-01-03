@@ -1,5 +1,4 @@
-﻿var TestWebsite;
-(function (TestWebsite) {
+﻿(function (namespace) {
     var app = Nullstone.Create("app", App);
 
     app.Instance.Init = function () {
@@ -10,7 +9,7 @@
     app.Instance.OnLoaded = function (sender, e) {
 
     };
-    
+
     Nullstone.FinishCreate(app);
-    TestWebsite.App = app;
-})(TestWebsite || (TestWebsite = {}));
+    namespace.App = app;
+})(Nullstone.Namespace("TestWebsite"));
