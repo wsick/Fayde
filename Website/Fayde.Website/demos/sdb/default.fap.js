@@ -1,5 +1,6 @@
 ﻿/// <reference path="../../scripts/Fayde.js"/>
 
+Nullstone.ImportJsFile("ViewModels/ObservableObject.js");
 Nullstone.ImportJsFile("ViewModels/MainViewModel.js");
 
 var Fayde;

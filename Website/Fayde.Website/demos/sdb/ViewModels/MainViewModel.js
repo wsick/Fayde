@@ -1,24 +1,17 @@
 ﻿/// <reference path="../../../scripts/Fayde.js" />
+/// <reference path="ObservableObject.js" />
 
 var Fayde;
 (function (Fayde) {
     (function (Demos) {
         (function (SDB) {
             (function (ViewModels) {
-                var vm = Nullstone.Create("MainViewModel", undefined, 0, [INotifyPropertyChanged]);
-
-                vm.Instance.Init = function () {
-                    this.PropertyChanged = new MulticastEvent();
-                };
+                var vm = Nullstone.Create("MainViewModel", ViewModels.ObservableObject);
 
                 Nullstone.AutoNotifyProperty(vm, "Rawr");
 
                 vm.Instance.Load = function () {
                     this.Rawr = "HEYO";
-                };
-
-                vm.Instance.OnPropertyChanged = function (propertyName) {
-                    this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
                 };
 
                 Nullstone.FinishCreate(vm);
