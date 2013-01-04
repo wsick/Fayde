@@ -1502,15 +1502,19 @@ Nullstone.DoesInheritFrom = function (t, type) {
     return temp != null;
 };
 Nullstone.DoesImplement = function (obj, interfaceType) {
-    if (!obj.constructor._IsNullstone)
+    var curType = obj.constructor;
+    if (!curType._IsNullstone)
         return false;
-    if (!obj.constructor.Interfaces)
-        return false;
-    var interfaces = obj.constructor.Interfaces;
-    var len = interfaces.length;
-    for (var i = 0; i < len; i++) {
-        if (interfaces[i]._TypeID === interfaceType._TypeID)
-            return true;
+    while (curType) {
+        var interfaces = curType.Interfaces;
+        if (interfaces) {
+            var len = interfaces.length;
+            for (var i = 0; i < len; i++) {
+                if (interfaces[i]._TypeID === interfaceType._TypeID)
+                    return true;
+            }
+        }
+        curType = curType._BaseClass;
     }
     return false;
 };
@@ -15546,6 +15550,12 @@ FrameworkElement.Instance.SetTemplateBinding = function (propd, tb) {
 };
 FrameworkElement.Instance.SetBinding = function (propd, binding) {
     return BindingOperations.SetBinding(this, propd, binding);
+};
+FrameworkElement.Instance.GetBindingExpression = function (propd) {
+    var data = {};
+    if (this._Expressions && this._Expressions.TryGetValue(propd, data))
+        return data.Value;
+    return null;
 };
 FrameworkElement.Instance._GetTransformOrigin = function () {
     var userXformOrigin = this.RenderTransformOrigin;

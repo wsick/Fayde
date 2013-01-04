@@ -107,6 +107,12 @@ FrameworkElement.Instance.SetBinding = function (propd, binding) {
     /// <returns type="BindingExpressionBase" />
     return BindingOperations.SetBinding(this, propd, binding);
 };
+FrameworkElement.Instance.GetBindingExpression = function (propd) {
+    var data = {};
+    if (this._Expressions && this._Expressions.TryGetValue(propd, data))
+        return data.Value;
+    return null;
+};
 
 FrameworkElement.Instance._GetTransformOrigin = function () {
     var userXformOrigin = this.RenderTransformOrigin;

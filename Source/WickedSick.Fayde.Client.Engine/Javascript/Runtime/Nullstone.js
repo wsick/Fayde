@@ -123,15 +123,20 @@ Nullstone.DoesInheritFrom = function (t, type) {
     return temp != null;
 };
 Nullstone.DoesImplement = function (obj, interfaceType) {
-    if (!obj.constructor._IsNullstone)
+    var curType = obj.constructor;
+    if (!curType._IsNullstone)
         return false;
-    if (!obj.constructor.Interfaces)
-        return false;
-    var interfaces = obj.constructor.Interfaces;
-    var len = interfaces.length;
-    for (var i = 0; i < len; i++) {
-        if (interfaces[i]._TypeID === interfaceType._TypeID)
-            return true;
+
+    while (curType) {
+        var interfaces = curType.Interfaces;
+        if (interfaces) {
+            var len = interfaces.length;
+            for (var i = 0; i < len; i++) {
+                if (interfaces[i]._TypeID === interfaceType._TypeID)
+                    return true;
+            }
+        }
+        curType = curType._BaseClass;
     }
     return false;
 };
