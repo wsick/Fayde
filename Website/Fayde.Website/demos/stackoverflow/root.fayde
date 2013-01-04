@@ -18,7 +18,7 @@
         </Grid>
         <Border Grid.Row="1" Background="White">
             <ScrollViewer>
-                <ItemsControl x:Name="QuestionsItemsControl" Margin="20">
+                <ItemsControl x:Name="QuestionsItemsControl" Margin="20" ItemsSource="{Binding Questions}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="5">
@@ -65,8 +65,10 @@
             </ScrollViewer>
         </Border>
         <Grid Grid.Row="2">
-            <Button x:Name="PreviousPageButton" Content="Previous" Margin="5" Padding="3" HorizontalAlignment="Left" Width="80" />
-            <Button x:Name="NextPageButton" Content="Next" Margin="5" Padding="3" HorizontalAlignment="Right" Width="80" />
+            <Button x:Name="PreviousPageButton" Content="Previous" Command="{Binding PreviousPageCommand}"
+                    Margin="5" Padding="3" HorizontalAlignment="Left" Width="80" />
+            <Button x:Name="NextPageButton" Content="Next" Command="{Binding NextPageCommand}"
+                    Margin="5" Padding="3" HorizontalAlignment="Right" Width="80" />
         </Grid>
     </Grid>
 </Page>

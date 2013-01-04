@@ -24,8 +24,34 @@ ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function
 ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
 ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
 
+ButtonBase.CommandProperty = DependencyProperty.RegisterCore("Command", function () { return ICommand; }, ButtonBase, undefined, function (d, args) { d.OnCommandPropertyChanged(args); });
+ButtonBase.CommandParameterProperty = DependencyProperty.RegisterCore("CommandParameter", function () { return Object; }, ButtonBase, undefined, function (d, args) { d.OnCommandParameterPropertyChanged(args); });
+
+ButtonBase.Instance.OnCommandPropertyChanged = function (args) {
+    var cmd = Nullstone.As(args.OldValue, ICommand);
+    if (cmd != null)
+        cmd.CanExecuteChanged.Unsubscribe(this.OnCommandCanExecuteChanged, this);
+
+    cmd = Nullstone.As(args.NewValue, ICommand);
+    if (cmd != null) {
+        cmd.CanExecuteChanged.Subscribe(this.OnCommandCanExecuteChanged, this);
+        this.IsEnabled = cmd.CanExecute(this.CommandParameter);
+    }
+};
+ButtonBase.Instance.OnCommandCanExecuteChanged = function (sender, e) {
+    this.IsEnabled = this.Command.CanExecute(this.CommandParameter);
+};
+ButtonBase.Instance.OnCommandParameterPropertyChanged = function (args) {
+    var cmd = this.Command;
+    if (cmd == null)
+        return;
+    this.IsEnabled = cmd.CanExecute(args.NewValue);
+};
+
 Nullstone.AutoProperties(ButtonBase, [
-    ButtonBase.ClickModeProperty
+    ButtonBase.ClickModeProperty,
+    ButtonBase.CommandProperty,
+    ButtonBase.CommandParameterProperty
 ]);
 
 Nullstone.AutoPropertiesReadOnly(ButtonBase, [
@@ -160,7 +186,11 @@ ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
 };
 
 ButtonBase.Instance.OnClick = function () {
-    //TODO: Execute Command
+    var cmd = this.Command;
+    var par = this.CommandParameter;
+    if (cmd != null && cmd.CanExecute(par))
+        cmd.Execute(par);
+
     this.Click.Raise(this, new EventArgs());
 };
 

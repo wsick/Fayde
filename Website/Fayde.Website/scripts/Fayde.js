@@ -4917,6 +4917,14 @@ RangeCollection.Instance.MergeRight = function (range, position) {
 };
 Nullstone.FinishCreate(RangeCollection);
 
+var ICommand = Nullstone.Create("ICommand");
+ICommand.Instance.Init = function () {
+    this.CanExecuteChanged = new MulticastEvent();
+};
+ICommand.Instance.Execute = function (parameter) { };
+ICommand.Instance.CanExecute = function (parameter) { return true; };
+Nullstone.FinishCreate(ICommand);
+
 var _InheritedContext = Nullstone.Create("_InheritedContext");
 _InheritedContext.FromSources = function (foregroundSource, fontFamilySource, fontStretchSource, fontStyleSource,
         fontWeightSource, fontSizeSource, languageSource, flowDirectionSource, useLayoutRoundingSource, textDecorationsSource) {
@@ -25023,8 +25031,31 @@ ButtonBase.Instance.Init = function () {
 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Enum(ClickMode); }, ButtonBase, ClickMode.Release);
 ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
 ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
+ButtonBase.CommandProperty = DependencyProperty.RegisterCore("Command", function () { return ICommand; }, ButtonBase, undefined, function (d, args) { d.OnCommandPropertyChanged(args); });
+ButtonBase.CommandParameterProperty = DependencyProperty.RegisterCore("CommandParameter", function () { return Object; }, ButtonBase, undefined, function (d, args) { d.OnCommandParameterPropertyChanged(args); });
+ButtonBase.Instance.OnCommandPropertyChanged = function (args) {
+    var cmd = Nullstone.As(args.OldValue, ICommand);
+    if (cmd != null)
+        cmd.CanExecuteChanged.Unsubscribe(this.OnCommandCanExecuteChanged, this);
+    cmd = Nullstone.As(args.NewValue, ICommand);
+    if (cmd != null) {
+        cmd.CanExecuteChanged.Subscribe(this.OnCommandCanExecuteChanged, this);
+        this.IsEnabled = cmd.CanExecute(this.CommandParameter);
+    }
+};
+ButtonBase.Instance.OnCommandCanExecuteChanged = function (sender, e) {
+    this.IsEnabled = this.Command.CanExecute(this.CommandParameter);
+};
+ButtonBase.Instance.OnCommandParameterPropertyChanged = function (args) {
+    var cmd = this.Command;
+    if (cmd == null)
+        return;
+    this.IsEnabled = cmd.CanExecute(args.NewValue);
+};
 Nullstone.AutoProperties(ButtonBase, [
-    ButtonBase.ClickModeProperty
+    ButtonBase.ClickModeProperty,
+    ButtonBase.CommandProperty,
+    ButtonBase.CommandParameterProperty
 ]);
 Nullstone.AutoPropertiesReadOnly(ButtonBase, [
     ButtonBase.IsPressedProperty
@@ -25135,6 +25166,10 @@ ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
     }
 };
 ButtonBase.Instance.OnClick = function () {
+    var cmd = this.Command;
+    var par = this.CommandParameter;
+    if (cmd != null && cmd.CanExecute(par))
+        cmd.Execute(par);
     this.Click.Raise(this, new EventArgs());
 };
 ButtonBase.Instance._CaptureMouseInternal = function () {
