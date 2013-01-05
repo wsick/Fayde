@@ -38,15 +38,23 @@ AjaxJsonRequest.prototype._PrepareRequest = function () {
     this.xmlhttp = xmlhttp;
 };
 AjaxJsonRequest.prototype._HandleStateChange = function () {
-    if (this.xmlhttp.readyState == 4) {
-        if (this.xmlhttp.status == 200) {
+    if (this.xmlhttp.readyState === 4) {
+        if (this.xmlhttp.status === 200) {
             var responseJson = {};
+            var data = this.xmlhttp.responseText;
             try {
-                if (this.xmlhttp.responseText)
-                    responseJson = eval("(" + this.xmlhttp.responseText + ")");
+                if (data) {
+                    responseJson = (window.JSON && window.JSON.parse) ?
+                        window.JSON.parse(data) :
+                        new Function("return " + data)();
+                }
             } catch (err) {
-                this.OnError("Could not create json from response.", err);
-                return;
+                try {
+                    responseJson = new Function("return " + data)();
+                } catch (err) {
+                    this.OnError("Could not create json from response.", err);
+                    return;
+                }
             }
             this.OnSuccess(responseJson);
         } else {
