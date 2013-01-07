@@ -40,5 +40,7 @@ IScrollInfo.Instance.PageDown = function () { };
 IScrollInfo.Instance.PageLeft = function () { };
 IScrollInfo.Instance.PageRight = function () { };
 
+IScrollInfo.Instance.MakeVisible = function (uie, rectangle) { return new Rect(); };
+
 Nullstone.FinishCreate(IScrollInfo);
 //#endregion

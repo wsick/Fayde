@@ -50,3 +50,8 @@ var MediaElementState = {
     Paused: 6,
     Stopped: 7
 };
+
+var VirtualizationMode = {
+    Standard: 0,
+    Recycling: 1
+};
