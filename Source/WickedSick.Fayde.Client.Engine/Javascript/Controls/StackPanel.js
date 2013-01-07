@@ -4,7 +4,7 @@
 //#region StackPanel
 var StackPanel = Nullstone.Create("StackPanel", Panel);
 
-//#region Dependency Properties
+//#region Properties
 
 StackPanel._OrientationChanged = function (d, args) {
     var sp = Nullstone.As(d, StackPanel);
