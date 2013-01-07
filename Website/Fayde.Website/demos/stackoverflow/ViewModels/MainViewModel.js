@@ -1,9 +1,7 @@
 ﻿/// <reference path="../../../scripts/Fayde.js" />
-/// <reference path="ObservableObject.js" />
-/// <reference path="RelayCommand.js" />
 
 (function (namespace) {
-    var vm = Nullstone.Create("MainViewModel", Fayde.Demos.StackOverflow.ViewModels.ObservableObject);
+    var vm = Nullstone.Create("MainViewModel", Fayde.MVVM.ViewModelBase);
 
     Nullstone.AutoNotifyProperty(vm, "Questions");
     Nullstone.AutoNotifyProperty(vm, "PreviousPageCommand");
@@ -11,8 +9,8 @@
 
     vm.Instance.Load = function () {
         var that = this;
-        this.PreviousPageCommand = new Fayde.Demos.StackOverflow.ViewModels.RelayCommand(function (parameter) { that.PreviousPage_Execute(parameter); });
-        this.NextPageCommand = new Fayde.Demos.StackOverflow.ViewModels.RelayCommand(function (parameter) { that.NextPage_Execute(parameter); });
+        this.PreviousPageCommand = new Fayde.MVVM.RelayCommand(function (parameter) { that.PreviousPage_Execute(parameter); });
+        this.NextPageCommand = new Fayde.MVVM.RelayCommand(function (parameter) { that.NextPage_Execute(parameter); });
         this.Questions = [];
         this.$PageNumber = 1;
         this.GetPage(1);

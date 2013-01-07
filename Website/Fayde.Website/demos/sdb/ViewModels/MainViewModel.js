@@ -2,11 +2,19 @@
 /// <reference path="ObservableObject.js" />
 
 (function (namespace) {
-    var vm = Nullstone.Create("MainViewModel", Fayde.Demos.SDB.ViewModels.ObservableObject);
-    Nullstone.AutoNotifyProperty(vm, "Rawr");
+    var vm = Nullstone.Create("MainViewModel", Fayde.MVVM.ViewModelBase);
+
+    Nullstone.AutoNotifyProperty(vm, "Songs");
 
     vm.Instance.Load = function () {
-        this.Rawr = "HEYO";
+        var that = this;
+        this.$Request = new AjaxJsonRequest(
+            function (json) {
+                that.Songs = json;
+            },
+            function (error) {
+            });
+        this.$Request.Get("Services/GetAllSongs.ashx");
     };
 
     Nullstone.FinishCreate(vm);

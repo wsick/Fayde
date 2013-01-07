@@ -4,7 +4,19 @@
       Title="Fayde Page">
     <Grid x:Name="LayoutRoot">
         <Border BorderBrush="Yellow" BorderThickness="10">
-            <TextBlock Text="{Binding Rawr}" />
+            <ListBox ItemsSource="{Binding Songs}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding artist}" />
+                            <TextBlock Text=" - " />
+                            <TextBlock Text="{Binding album}" />
+                            <TextBlock Text=" - " />
+                            <TextBlock Text="{Binding title}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Border>
     </Grid>
 </Page>

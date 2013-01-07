@@ -1,4 +1,5 @@
-﻿/// <reference path="../../../scripts/Fayde.js"/>
+﻿/// <reference path="../Runtime/Nullstone.js"/>
+/// <reference path="../Core/Input/ICommand.js"/>
 
 (function (namespace) {
     var RelayCommand = Nullstone.Create("RelayCommand", undefined, 2, [ICommand]);
@@ -15,4 +16,4 @@
 
     Nullstone.FinishCreate(RelayCommand);
     namespace.RelayCommand = RelayCommand;
-})(Nullstone.Namespace("Fayde.Demos.StackOverflow.ViewModels"));
+})(Nullstone.Namespace("Fayde.MVVM"));

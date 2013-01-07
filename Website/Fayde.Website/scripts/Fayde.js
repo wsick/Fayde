@@ -6592,6 +6592,21 @@ Nullstone.FinishCreate(RepeatBehavior);
 var VisualStateChangedEventArgs = Nullstone.Create("VisualStateChangedEventArgs");
 Nullstone.FinishCreate(VisualStateChangedEventArgs);
 
+(function (namespace) {
+    var RelayCommand = Nullstone.Create("RelayCommand", undefined, 2, [ICommand]);
+    RelayCommand.Instance.Init = function (execute, canExecute) {
+        this.CanExecuteChanged = new MulticastEvent();
+        if (execute)
+            this.Execute = execute;
+        if (canExecute)
+            this.CanExecute = canExecute;
+    };
+    RelayCommand.Instance.Execute = function (parameter) { };
+    RelayCommand.Instance.CanExecute = function (parameter) { return true; };
+    Nullstone.FinishCreate(RelayCommand);
+    namespace.RelayCommand = RelayCommand;
+})(Nullstone.Namespace("Fayde.MVVM"));
+
 var UriMapper = Nullstone.Create("UriMapper");
 Nullstone.AutoProperty(UriMapper, "UriMappings");
 UriMapper.Instance.MapUri = function (uri) {
@@ -10152,6 +10167,24 @@ BindingMarkup.Instance._BuildBinding = function () {
     return b;
 };
 Nullstone.FinishCreate(BindingMarkup);
+
+(function (namespace) {
+    var ObservableObject = Nullstone.Create("ObservableObject", undefined, 0, [INotifyPropertyChanged]);
+    ObservableObject.Instance.Init = function () {
+        this.PropertyChanged = new MulticastEvent();
+    };
+    ObservableObject.Instance.OnPropertyChanged = function (propertyName) {
+        this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
+    };
+    Nullstone.FinishCreate(ObservableObject);
+    namespace.ObservableObject = ObservableObject;
+})(Nullstone.Namespace("Fayde.MVVM"));
+
+(function (namespace) {
+    var ViewModelBase = Nullstone.Create("ViewModelBase", Fayde.MVVM.ObservableObject);
+    Nullstone.FinishCreate(ViewModelBase);
+    namespace.ViewModelBase = ViewModelBase;
+})(Nullstone.Namespace("Fayde.MVVM"));
 
 var Clip = Nullstone.Create("Clip", undefined, 1);
 Clip.Instance.Init = function (rect) {

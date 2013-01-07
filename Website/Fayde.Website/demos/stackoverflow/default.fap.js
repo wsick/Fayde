@@ -3,15 +3,12 @@
 
 var isLoaded = false;
 var onAppLoaded;
-Nullstone.ImportJsFile("ViewModels/RelayCommand.js");
-Nullstone.ImportJsFile("ViewModels/ObservableObject.js", function () {
-    Nullstone.ImportJsFile("ViewModels/MainViewModel.js", function () {
-        isLoaded = true;
-        if (onAppLoaded) {
-            onAppLoaded();
-            delete onAppLoaded;
-        }
-    });
+Nullstone.ImportJsFile("ViewModels/MainViewModel.js", function () {
+    isLoaded = true;
+    if (onAppLoaded) {
+        onAppLoaded();
+        delete onAppLoaded;
+    }
 });
 
 (function (namespace) {
