@@ -16,9 +16,9 @@
     <script type="text/javascript">
         $(document).ready(function () {
             var linkId = $(".faydeLinked2").data("link-id");
-            $("#" + linkId).width($(".faydeLinked2").width() + parseInt($(".faydeLinked2").css('marginLeft')) + parseInt($(".faydeLinked2").css('marginRight')));
+            $("#" + linkId).width($(".faydeLinked2").width() + parseInt($(".faydeLinked2").parent().css('marginLeft')) + parseInt($(".faydeLinked2").parent().css('marginRight')));
             var linkId = $(".faydeLinked").data("link-id");
-            $("#" + linkId).width($(".faydeLinked").width() + parseInt($(".faydeLinked").css('marginLeft')) + parseInt($(".faydeLinked").css('marginRight')));
+            $("#" + linkId).width($(".faydeLinked").width() + parseInt($(".faydeLinked").parent().css('marginLeft')) + parseInt($(".faydeLinked").parent().css('marginRight')));
         });
     </script>
 </head>
