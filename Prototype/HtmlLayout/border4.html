@@ -15,10 +15,8 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            //alert($("#testDiv").width());
-            //$("#testDiv1").width($("#testDiv").width());
-            //$("#testDiv2").width($("#testDiv").width());
-            //$("#testTd").width($("#testDiv").width());
+            var linkId = $(".faydeLinked2").data("link-id");
+            $("#" + linkId).width($(".faydeLinked2").width() + parseInt($(".faydeLinked2").css('marginLeft')) + parseInt($(".faydeLinked2").css('marginRight')));
             var linkId = $(".faydeLinked").data("link-id");
             $("#" + linkId).width($(".faydeLinked").width() + parseInt($(".faydeLinked").css('marginLeft')) + parseInt($(".faydeLinked").css('marginRight')));
         });
@@ -64,13 +62,14 @@
                         <div style="position: relative; display: inline-block; width: 100%; height: 100%;">
                             <div id="link001"></div>
                             <div style="position: absolute; width: 100%; height: 100%;">
-                                <div class="faydeLinked" data-link-id="link001" style="display: table; box-sizing: border-box; width: auto; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: relative; margin: 0px 20px;">
-                                    <div style="display: table-cell; box-sizing: border-box; width: auto; height: 100%; left: auto; right: auto; top: auto; bottom: auto; position: relative; background-color: rgb(255, 255, 255); border: 1px solid rgb(0, 0, 128); border-top-left-radius: 5.5px; border-top-right-radius: 5.5px; border-bottom-right-radius: 5.5px; border-bottom-left-radius: 5.5px; background-position: initial initial; background-repeat: initial initial;">
-                                <div class="faydeLinked" data-link-id="link001" style="display: table; box-sizing: border-box; width: auto; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: relative; margin: 0px 20px;">
-                                    <div style="display: table-cell; box-sizing: border-box; width: auto; height: 100%; left: auto; right: auto; top: auto; bottom: auto; position: relative; background-color: rgb(255, 255, 255); border: 1px solid rgb(0, 0, 128); border-top-left-radius: 5.5px; border-top-right-radius: 5.5px; border-bottom-right-radius: 5.5px; border-bottom-left-radius: 5.5px; background-position: initial initial; background-repeat: initial initial;">
-                                        <div style="width: 200px; height: 100%; background-color: silver;"></div>
-                                    </div>
-                                 </div>
+                                <div style="display: table; width: auto; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: absolute; margin: 0px 20px;">
+                                    <div class="faydeLinked" data-link-id="link001" id="link002" style="display: table-cell; width: auto; height: auto; left: auto; right: auto; top: 10px; bottom: 10px; position: absolute; background-color: rgb(255, 255, 255); border: 1px solid rgb(0, 0, 128); border-top-left-radius: 5.5px; border-top-right-radius: 5.5px; border-bottom-right-radius: 5.5px; border-bottom-left-radius: 5.5px; background-position: initial initial; background-repeat: initial initial;">
+                                        <div style="display: table; width: auto; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: absolute; margin: 0px 20px;">
+                                            <div class="faydeLinked2" data-link-id="link002" style="display: table-cell; width: auto; height: auto; left: auto; right: auto; top: 10px; bottom: 10px; position: absolute; background-color: rgb(255, 255, 255); border: 1px solid rgb(0, 0, 128); border-top-left-radius: 5.5px; border-top-right-radius: 5.5px; border-bottom-right-radius: 5.5px; border-bottom-left-radius: 5.5px; background-position: initial initial; background-repeat: initial initial;">
+                                                <div style="width: 200px; height: 100%; background-color: silver;">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
