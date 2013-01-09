@@ -264,7 +264,7 @@ VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
                 var size = child._DesiredSize;
                 nvisible++;
 
-                if (orientation == Orientation.Vertical) {
+                if (orientation === Orientation.Vertical) {
                     measured.Width = Math.max(measured.Width, size.Width);
                     measured.Height += size.Height;
 
@@ -353,7 +353,7 @@ VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     for (var i = 0; i < len; i++) {
         var child = children.GetValueAt(i);
         var size = child._DesiredSize;
-        if (orientation === Orientation.Horizontal) {
+        if (orientation === Orientation.Vertical) {
             size.Width = arrangeSize.Width;
             var childFinal = new Rect(-this.GetHorizontalOffset(), arranged.Height, size.Width, size.Height);
             if (childFinal.IsEmpty())
@@ -372,7 +372,7 @@ VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
         }
     }
 
-    if (orientation === Orientation.Horizontal)
+    if (orientation === Orientation.Vertical)
         arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
     else
         arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
