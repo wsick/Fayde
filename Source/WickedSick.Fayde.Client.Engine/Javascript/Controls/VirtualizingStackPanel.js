@@ -37,25 +37,25 @@ VirtualizingStackPanel.GetIsVirtualizing = function (d) {
     ///<returns type="Boolean"></returns>
     if (d == null)
         throw new ArgumentNullException("d");
-    return d.GetValue(VirtualizingStackPanel.IsVirtualizingProperty);
+    return d.$GetValue(VirtualizingStackPanel.IsVirtualizingProperty);
 };
 VirtualizingStackPanel.SetIsVirtualizing = function (d, value) {
     ///<param name="value" type="Boolean"></param>
     if (d == null)
         throw new ArgumentNullException("d");
-    d.SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value);
+    d.$SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value);
 };
 
 VirtualizingStackPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () { return new Enum(VirtualizationMode); }, VirtualizingStackPanel, VirtualizationMode.Recycling);
 VirtualizingStackPanel.GetVirtualizationMode = function (d) {
     if (d == null)
         throw new ArgumentNullException("d");
-    return d.GetValue(VirtualizingStackPanel.VirtualizationModeProperty);
+    return d.$GetValue(VirtualizingStackPanel.VirtualizationModeProperty);
 };
 VirtualizingStackPanel.SetVirtualizationMode = function (d, value) {
     if (d == null)
         throw new ArgumentNullException("d");
-    d.SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value);
+    d.$SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value);
 };
 
 //#endregion
