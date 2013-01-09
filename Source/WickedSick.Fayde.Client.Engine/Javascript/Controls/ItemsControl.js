@@ -275,23 +275,28 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
         return;
 
     var panel = this._Presenter._ElementRoot;
-    var newIndex = this._ItemContainerGenerator.IndexFromGeneratorPosition(positionIndex, positionOffset);
-    var p = this._ItemContainerGenerator.StartAt(positionIndex, positionOffset, 0, true);
+    var icg = this._ItemContainerGenerator;
+    var newIndex = icg.IndexFromGeneratorPosition(positionIndex, positionOffset);
     var items = this.Items;
     var children = panel.Children;
-    for (var i = 0; i < count; i++) {
-        var item = items.GetValueAt(newIndex + i);
-        var container = this._ItemContainerGenerator.GenerateNext({});
-        if (container instanceof ContentControl)
-            container._ContentSetsParent = false;
 
-        if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
-            container.DataContext = item;
+    var p = icg.StartAt(positionIndex, positionOffset, 0, true);
+    try{
+        for (var i = 0; i < count; i++) {
+            var item = items.GetValueAt(newIndex + i);
+            var container = icg.GenerateNext({});
+            if (container instanceof ContentControl)
+                container._ContentSetsParent = false;
 
-        children.Insert(newIndex + i, container);
-        this._ItemContainerGenerator.PrepareItemContainer(container);
+            if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
+                container.DataContext = item;
+
+            children.Insert(newIndex + i, container);
+            icg.PrepareItemContainer(container);
+        }
+    } finally {
+        icg.StopGeneration();
     }
-    delete this._ItemContainerGenerator._GenerationState;
 };
 ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
     if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)

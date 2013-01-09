@@ -297,7 +297,11 @@ ComboBox.Instance._UpdateDisplayedItem = function (selectedItem) {
         if (container == null) {
             var position = icg.GeneratorPositionFromIndex(selectedIndex);
             var state = icg.StartAt(position.index, position.offset, 0, true);
-            container = Nullstone.As(icg.GenerateNext({}), ComboBoxItem);
+            try{
+                container = Nullstone.As(icg.GenerateNext({}), ComboBoxItem);
+            } finally {
+                icg.StopGeneration();
+            }
             icg.PrepareItemContainer(container);
         }
         this.$SelectionBoxItemTemplate = container.ContentTemplate;

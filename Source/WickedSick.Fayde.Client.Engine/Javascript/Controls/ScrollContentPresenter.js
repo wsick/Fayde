@@ -134,7 +134,7 @@ ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
     /// <param name="arrangeSize" type="Size"></param>
     var scrollOwner = this.GetScrollOwner();
     if (!scrollOwner || !this._ContentRoot)
-        return this._ArrangeOverrideWithError(arrangeSize);
+        return this._ArrangeOverrideWithError(arrangeSize, new BError());
 
     if (this._ClampOffsets())
         scrollOwner._InvalidateScrollInfo();

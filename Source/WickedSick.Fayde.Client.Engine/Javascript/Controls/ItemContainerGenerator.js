@@ -93,7 +93,7 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
         this._GenerationState._positionIndex = this.RealizedElements.IndexOf(index);
         this._GenerationState._positionOffset = this._GenerationState._step;
         isNewlyRealized.Value = false;
-        return this.ContainerIndexMap.GetValueFromKey1(index);
+        return this.ContainerIndexMap.GetValueFromKey2(index);
     }
 
     var container;
@@ -346,6 +346,10 @@ ItemContainerGenerator.Instance.Recycle = function (positionIndex, positionOffse
         this.Cache.push(this.ContainerIndexMap.GetValueFromKey2(index + i));
     }
     this.Remove(positionIndex, positionOffset, count);
+};
+
+ItemContainerGenerator.Instance.StopGeneration = function () {
+    delete this._GenerationState;
 };
 
 Nullstone.FinishCreate(ItemContainerGenerator);

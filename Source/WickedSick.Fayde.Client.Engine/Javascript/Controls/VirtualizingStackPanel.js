@@ -98,7 +98,7 @@ VirtualizingStackPanel.Instance.SetHorizontalOffset = function (offset) {
 
     var scrollOwner = this.GetScrollOwner();
     if (scrollOwner)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 };
 
 VirtualizingStackPanel.Instance.GetVerticalOffset = function () { return this._VerticalOffset; };
@@ -119,7 +119,7 @@ VirtualizingStackPanel.Instance.SetVerticalOffset = function (offset) {
 
     var scrollOwner = this.GetScrollOwner();
     if (scrollOwner)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 };
 
 VirtualizingStackPanel.Instance.GetScrollOwner = function () { return this._ScrollOwner; };
@@ -247,35 +247,39 @@ VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
         var insertAt = (start.offset === 0) ? start.index : start.index + 1;
 
         var state = generator.StartAt(start.index, start.offset, 0, true);
-        var isNewlyRealized = { Value: false };
+        try {
+            var isNewlyRealized = { Value: false };
 
-        for (var i = 0; i < itemCount && beyond < 2; i++, insertAt++) {
-            var child = generator.GenerateNext(isNewlyRealized);
-            if (isNewlyRealized.Value || insertAt >= children.GetCount() || !Nullstone.RefEquals(children.GetValueAt(insertAt), child)) {
-                if (insertAt < children.GetCount())
-                    this.InsertInternalChild(insertAt, child)
-                else
-                    this.AddInternalChild(child);
-                generator.PrepareItemContainer(child);
+            for (var i = 0; i < itemCount && beyond < 2; i++, insertAt++) {
+                var child = generator.GenerateNext(isNewlyRealized);
+                if (isNewlyRealized.Value || insertAt >= children.GetCount() || !Nullstone.RefEquals(children.GetValueAt(insertAt), child)) {
+                    if (insertAt < children.GetCount())
+                        this.InsertInternalChild(insertAt, child)
+                    else
+                        this.AddInternalChild(child);
+                    generator.PrepareItemContainer(child);
+                }
+
+                child.Measure(childAvailable);
+                var size = child._DesiredSize;
+                nvisible++;
+
+                if (orientation == Orientation.Vertical) {
+                    measured.Width = Math.max(measured.Width, size.Width);
+                    measured.Height += size.Height;
+
+                    if (measured.Height > constraint.Height)
+                        beyond++;
+                } else {
+                    measured.Height = Math.max(measured.Height, size.Height);
+                    measured.Width += size.Width;
+
+                    if (measured.Width > constraint.Width)
+                        beyond++;
+                }
             }
-
-            child.Measure(childAvailable);
-            var size = child._DesiredSize;
-            nvisible++;
-
-            if (orientation == Orientation.Vertical) {
-                measured.Width = Math.max(measured.Width, size.Width);
-                measured.Height += size.Height;
-
-                if (measured.Height > constraint.Height)
-                    beyond++;
-            } else {
-                measured.Height = Math.max(measured.Height, size.Height);
-                measured.Width += size.Width;
-
-                if (measured.Width > constraint.Width)
-                    beyond++;
-            }
+        } finally {
+            generator.StopGeneration();
         }
     }
 
@@ -326,7 +330,7 @@ VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
 
     var scrollOwner = this.GetScrollOwner();
     if (invalidate && scrollOwner != null)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 
     return measured;
 };
@@ -421,7 +425,7 @@ VirtualizingStackPanel.Instance.OnClearChildren = function () {
 
     var scrollOwner = this.GetScrollOwner();
     if (scrollOwner)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 };
 VirtualizingStackPanel.Instance.OnItemsChanged = function (sender, args) {
     /// <param name="args" type="ItemsChangedEventArgs"></param>
@@ -490,7 +494,7 @@ VirtualizingStackPanel.Instance.OnItemsChanged = function (sender, args) {
 
     var scrollOwner = this.GetScrollOwner();
     if (scrollOwner)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 };
 
 //#endregion
