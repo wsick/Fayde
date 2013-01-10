@@ -413,7 +413,7 @@ VirtualizingStackPanel.Instance.RemoveUnusedContainers = function (first, count)
         posIndex--;
     }
 };
-VirtualizingStackPanel.OnCleanUpVirtualizedItem = function (args) {
+VirtualizingStackPanel.Instance.OnCleanUpVirtualizedItem = function (args) {
     this.CleanUpVirtualizedItemEvent.Raise(this, args);
 };
 
@@ -503,4 +503,22 @@ VirtualizingStackPanel.Instance.OnItemsChanged = function (sender, args) {
 //#endregion
 
 Nullstone.FinishCreate(VirtualizingStackPanel);
+//#endregion
+
+//#region CleanUpVirtualizedItemEventArgs
+var CleanUpVirtualizedItemEventArgs = Nullstone.Create("CleanUpVirtualizedItemEventArgs", RoutedEventArgs, 2);
+
+CleanUpVirtualizedItemEventArgs.Instance.Init = function (uie, value) {
+    this.UIElement = uie;
+    this.Value = value;
+    this.Cancel = false;
+};
+
+Nullstone.AutoProperty(CleanUpVirtualizedItemEventArgs, [
+    "UIElement",
+    "Value",
+    "Cancel"
+]);
+
+Nullstone.FinishCreate(CleanUpVirtualizedItemEventArgs);
 //#endregion

@@ -4771,12 +4771,14 @@ RangeCollection.Instance.Init = function () {
     this._generation = 0;
     this.Count = 0;
 };
-RangeCollection.Instance.Ranges = function () {
-    return RangeCollection.CopyRangeArray(this._ranges, 0, this._ranges.length, 0);
-};
+Nullstone.Property(RangeCollection, "Ranges", {
+    get: function () {
+        return RangeCollection.CopyRangeArray(this._ranges, 0, this._ranges.length, 0);
+    }
+});
 RangeCollection.CopyRangeArray = function (rangeArray, startIndex, length, destinationIndex) {
     var result = [];
-    for (startIndex; i < length; i++) {
+    for (var i = startIndex; i < length; i++) {
         var r = rangeArray[i];
         result[destinationIndex] = new Range(r.Start, r.End);
         destinationIndex++;
@@ -4786,40 +4788,56 @@ RangeCollection.CopyRangeArray = function (rangeArray, startIndex, length, desti
 RangeCollection.Instance.FindRangeIndexForValue = function (value) {
     var min = 0;
     var max = this.RangeCount - 1;
-    while (min <=  max) {
-        var mid = min + ((max - min) / 2);
+    while (min <= max) {
+        var mid = Math.floor(min + ((max - min) / 2));
         var range = this._ranges[mid];
-        if (value >= range.Start && value <= range.End) {
+        if (value >= range.Start && value <= range.End)
             return mid;
-        }
-        else if (value < range.Start) {
+        if (value < range.Start)
             max = mid - 1;
-        }
-        else {
+        else
+            min = mid + 1;
+    }
+    return ~min;
+};
+RangeCollection.Instance.FindInsertionPosition = function (range) {
+    var min = 0;
+    var max = this.RangeCount - 1;
+    while (min <= max) {
+        var mid = Math.floor(min + ((max - min) / 2));
+        var midRange = this._ranges[mid];
+        if (midRange.End === range.End)
+            return mid;
+        if (midRange.End > range.End) {
+            if (mid > 0 && (this._ranges[mid - 1].End < range.End))
+                return mid;
+            max = mid - 1;
+        } else {
             min = mid + 1;
         }
     }
-    return ~min;
+    return min;
 };
 RangeCollection.Instance.IndexOf = function (value) {
     var offset = 0;
     for (var i = 0; i < this._ranges.length; i++) {
         var range = this._ranges[i];
-        if (value >= range.Start && value <= range.End) {
+        if (value >= range.Start && value <= range.End)
             return offset + (value - range.Start);
-        }
         offset = offset + (range.End - range.Start + 1);
     }
     return -1;
+};
+RangeCollection.Instance.Contains = function (value) {
+    return this.FindRangeIndexForValue(value) >= 0;
 };
 RangeCollection.Instance.GetValueAt = function (index) {
     var i = 0;
     var cuml_count = 0;
     for (i; i < this.RangeCount && index >= 0; i++) {
         cuml_count = cuml_count + this._ranges[i].Count();
-        if (index < cuml_count) {
+        if (index < cuml_count)
             return this._ranges[i].End - (cuml_count - index) + 1;
-        }
     }
     throw new IndexOutOfRangeException(index);
 };
@@ -4832,18 +4850,8 @@ RangeCollection.Instance.Add = function (value) {
     }
     return false;
 };
-RangeCollection.Instance.Remove = function (value) {
-    this._generation++;
-    return this.RemoveIndexFromRange(value);
-};
-RangeCollection.Instance.Clear = function () {
-    this.RangeCount = 0;
-    this.Count = 0;
-    this._generation++;
-    this._ranges = [];
-};
-RangeCollection.Instance.Contains = function (value) {
-    return this.FindRangeIndexForValue(value) >= 0;
+RangeCollection.Instance.Insert = function (position, range) {
+    this._ranges.splice(position, 0, range);
 };
 RangeCollection.Instance.InsertRange = function (range) {
     var position = this.FindInsertionPosition(range);
@@ -4851,48 +4859,30 @@ RangeCollection.Instance.InsertRange = function (range) {
     var merged_right = this.MergeRight(range, position);
     if (!merged_left && !merged_right) {
         this.Insert(position, range);
-    }
-    else if (merged_left && merged_right) {
+    } else if (merged_left && merged_right) {
         this._ranges[position - 1].End = this._ranges[position].End;
         this.RemoveAt(position);
     }
 };
-RangeCollection.Instance.FindInsertionPosition = function (range) {
-    var min = 0;
-    var max = this.RangeCount - 1;
-    while (min <= max) {
-        var mid = min + ((max - min) / 2);
-        var midRange = this._ranges[mid];
-        if (midRange.End === range.End) {
-            return mid;
-        } else if (midRange.End > range.End) {
-            if (mid > 0 && (this._ranges[mid - 1].End < range.End)) {
-                return mid;
-            }
-            max = mid - 1;
-        }
-        else {
-            min = mid + 1;
-        }
-    }
-    return min;
+RangeCollection.Instance.Remove = function (value) {
+    this._generation++;
+    return this.RemoveIndexFromRange(value);
+};
+RangeCollection.Instance.RemoveAt = function (index) {
+    this._ranges.splice(index, 1);
 };
 RangeCollection.Instance.RemoveIndexFromRange = function (index) {
     var range_index = this.FindRangeIndexForValue(index);
-    if (range_index < 0) {
+    if (range_index < 0)
         return false;
-    }
     var range = this._ranges[range_index];
-    if (range.Start == index && range.End == index) {
+    if (range.Start === index && range.End === index) {
         this.RemoveAt(range_index);
-    }
-    else if (range.Start == index) {
+    } else if (range.Start === index) {
         range.Start++;
-    }
-    else if (range.End == index) {
+    } else if (range.End === index) {
         range.End--;
-    }
-    else {
+    } else {
         var split_range = new Range(index + 1, range.End);
         range.End = index - 1;
         this.Insert(range_index + 1, split_range);
@@ -4900,22 +4890,11 @@ RangeCollection.Instance.RemoveIndexFromRange = function (index) {
     this.Count--;
     return true;
 };
-RangeCollection.Instance.RemoveAt = function (index) {
-    this.Shift(index, -1);
-    this._ranges.pop();
-};
-RangeCollection.Instance.Insert = function (position, range) {
-    this.Shift(position, 1);
-    this._ranges[position] = range;
-};
-RangeCollection.Instance.Shift = function (start, delta) {
-    if (delta < 0) {
-        start -= delta;
-    }
-    if (start < this.RangeCount) {
-        this._ranges = RangeCollection.CopyRangeArray(this._ranges, start, range_count - start, start + delta);
-    }
-    this.RangeCount += delta;
+RangeCollection.Instance.Clear = function () {
+    this.RangeCount = 0;
+    this.Count = 0;
+    this._ranges = [];
+    this._generation++;
 };
 RangeCollection.Instance.MergeLeft = function (range, position) {
     var left = position - 1;
@@ -10230,9 +10209,9 @@ ItemContainerGenerator.Instance.CheckOffsetAndRealized = function (positionIndex
     if (positionOffset != 0) {
         throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
     }
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     var rangeIndex = this.RealizedElements.FindRangeIndexForValue(index);
-    var range = this.RealizedElements.Ranges.GetValueAt(rangeIndex);
+    var range = this.RealizedElements.Ranges[rangeIndex];
     if (index < range.Start || (index + count) > range.Start + range.Count) {
         throw new InvalidOperationException("Only items which have been Realized can be removed");
     }
@@ -10441,11 +10420,12 @@ ItemContainerGenerator.Instance.PrepareItemContainer = function (container) {
 };
 ItemContainerGenerator.Instance.Remove = function (positionIndex, positionOffset, count) {
     this.CheckOffsetAndRealized(positionIndex, positionOffset, count);
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     for (var i = 0; i < count; i++) {
-        var container = this.ContainerIndexMap.GetValueAtKey2(index + 1);
-        var item;
-        this.ContainerItemMap.TryGetValue(container, item);
+        var container = this.ContainerIndexMap.GetValueFromKey2(index + i);
+        var oitem = { Value: null };
+        this.ContainerItemMap.TryGetValue(container, oitem);
+        var item = oitem.Value;
         this.ContainerIndexMap.Remove(container, index + i);
         this.ContainerItemMap.Remove(container);
         this.RealizedElements.Remove(index + i);
@@ -10492,7 +10472,7 @@ ItemContainerGenerator.Instance.StartAt = function (positionIndex, positionOffse
 };
 ItemContainerGenerator.Instance.Recycle = function (positionIndex, positionOffset, count) {
     this.CheckOffsetAndRealized(positionIndex, positionOffset, count);
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     for (var i = 0; i < count; i++) {
         this.Cache.push(this.ContainerIndexMap.GetValueFromKey2(index + i));
     }
@@ -21357,7 +21337,7 @@ VirtualizingStackPanel.Instance.RemoveUnusedContainers = function (first, count)
         posIndex--;
     }
 };
-VirtualizingStackPanel.OnCleanUpVirtualizedItem = function (args) {
+VirtualizingStackPanel.Instance.OnCleanUpVirtualizedItem = function (args) {
     this.CleanUpVirtualizedItemEvent.Raise(this, args);
 };
 VirtualizingStackPanel.Instance.OnClearChildren = function () {
@@ -21424,6 +21404,18 @@ VirtualizingStackPanel.Instance.OnItemsChanged = function (sender, args) {
         scrollOwner._InvalidateScrollInfo();
 };
 Nullstone.FinishCreate(VirtualizingStackPanel);
+var CleanUpVirtualizedItemEventArgs = Nullstone.Create("CleanUpVirtualizedItemEventArgs", RoutedEventArgs, 2);
+CleanUpVirtualizedItemEventArgs.Instance.Init = function (uie, value) {
+    this.UIElement = uie;
+    this.Value = value;
+    this.Cancel = false;
+};
+Nullstone.AutoProperty(CleanUpVirtualizedItemEventArgs, [
+    "UIElement",
+    "Value",
+    "Cancel"
+]);
+Nullstone.FinishCreate(CleanUpVirtualizedItemEventArgs);
 
 var Popup = Nullstone.Create("Popup", FrameworkElement);
 Popup.Instance.Init = function () {
@@ -25240,7 +25232,7 @@ ScrollViewer.Instance._HandleHorizontalScroll = function (e) {
     newValue = Math.max(newValue, 0);
     newValue = Math.min(this.ScrollableWidth, newValue);
     if (!DoubleUtil.AreClose(offset, newValue))
-        scrollInfo.ChangeHorizontalOffset(newValue);
+        scrollInfo.SetHorizontalOffset(newValue);
 };
 ScrollViewer.Instance._HandleVerticalScroll = function (e) {
     var scrollInfo = this.GetScrollInfo();
@@ -25275,7 +25267,7 @@ ScrollViewer.Instance._HandleVerticalScroll = function (e) {
     newValue = Math.max(newValue, 0);
     newValue = Math.min(this.ScrollableHeight, newValue);
     if (!DoubleUtil.AreClose(offset, newValue))
-        scrollInfo.ChangeVerticalOffset(newValue);
+        scrollInfo.SetVerticalOffset(newValue);
 };
 ScrollViewer.Instance.OnMouseLeftButtonDown = function (sender, args) {
     if (!args.Handled && this.Focus())
