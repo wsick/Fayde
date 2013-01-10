@@ -24,6 +24,9 @@ VirtualizingStackPanel.Instance.Init = function () {
     this._VerticalOffset = 0;
 };
 
+VirtualizingStackPanel.LineDelta = 14.7;
+VirtualizingStackPanel.Wheelitude = 3;
+
 //#region Properties
 
 VirtualizingStackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, VirtualizingStackPanel, Orientation.Vertical, function (d, args) { d._InvalidateMeasure(); });
