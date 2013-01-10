@@ -343,7 +343,7 @@ VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     /// <param name="arrangeSize" type="Size"></param>
     var arranged = arrangeSize.Copy();
     var orientation = this.Orientation;
-    if (orientation === Orientation.Horizontal)
+    if (orientation === Orientation.Vertical)
         arranged.Height = 0;
     else
         arranged.Width = 0;
