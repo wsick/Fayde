@@ -84,9 +84,22 @@ namespace WickedSick.Thea.ViewModels
             }
             catch (InvalidOperationException)
             {
-                ObjectStructure = serializer.Deserialize<object[]>(json)
-                    .Select((o, i) => new { Key = i, Value = o })
-                    .ToDictionary(a => a.Key.ToString(), a => a.Value);
+                try
+                {
+                    ObjectStructure = serializer.Deserialize<object[]>(json)
+                        .Select((o, i) => new { Key = i, Value = o })
+                        .ToDictionary(a => a.Key.ToString(), a => a.Value);
+                }
+                catch (InvalidOperationException)
+                {
+                    if (json.StartsWith("\"") && json.EndsWith("\""))
+                    {
+                        ObjectStructure = new Dictionary<string, object>
+                        {
+                            { "Value", json }
+                        };
+                    }
+                }
             }
         }
     }
