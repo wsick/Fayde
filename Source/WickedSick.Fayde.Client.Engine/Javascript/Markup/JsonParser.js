@@ -105,7 +105,7 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
             this.SetValue(dobj, contentPropd, content);
         }
     } else if (contentPropd != null && contentPropd.constructor === String) {
-        var propDesc = Object.getOwnPropertyDescriptor(dobj, contentPropd);
+        var propDesc = Nullstone.GetPropertyDescriptor(dobj, contentPropd);
         if (propDesc.set || propDesc.writable) {
             dobj[contentPropd] = this.CreateObject(json.Content, namescope, true);
         } else if (propDesc.get) {
@@ -153,7 +153,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         if (!(propValue instanceof Expression)) {
             var targetType = propd.GetTargetType();
             if (targetType._IsNullstone && !(propValue instanceof targetType)) {
-                var propDesc = Object.getOwnPropertyDescriptor(dobj, propName);
+                var propDesc = Nullstone.GetPropertyDescriptor(dobj, propName);
                 if (propDesc) {
                     var setFunc = propDesc.set;
                     if (setFunc && setFunc.Converter && setFunc.Converter instanceof Function)
@@ -163,7 +163,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         }
         this.SetValue(dobj, propd, propValue);
     } else if (!isAttached) {
-        if (dobj.hasOwnProperty(propName)) {
+        if (Nullstone.HasProperty(dobj, propName)) {
             dobj[propName] = propValue;
         } else {
             var func = dobj["Set" + propName];

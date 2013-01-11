@@ -12,17 +12,17 @@ function Matrix3D() {
         0, 0, 1, 0,
         0, 0, 0, 1
     ];
-    Object.defineProperty(this, "Inverse", {
-        get: function () {
-            if (!this._InverseEls)
-                this._InverseEls = Matrix3D._CalculateInverse(this);
-            var m3 = new Matrix3D();
-            m3._Elements = this._InverseEls;
-            m3._InverseEls = this._Elements;
-            return m3;
-        }
-    });
 }
+Object.defineProperty(Matrix3D.prototype, "Inverse", {
+    get: function () {
+        if (!this._InverseEls)
+            this._InverseEls = Matrix3D._CalculateInverse(this);
+        var m3 = new Matrix3D();
+        m3._Elements = this._InverseEls;
+        m3._InverseEls = this._Elements;
+        return m3;
+    }
+});
 Matrix3D.prototype.toString = function () {
     return this._Elements.toString();
 };

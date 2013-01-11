@@ -11,7 +11,7 @@ PropertyInfo.Find = function (typeOrObj, name) {
         o = new typeOrObj();
     
     var nameClosure = name;
-    var propDesc = Object.getOwnPropertyDescriptor(o, name);
+    var propDesc = Nullstone.GetPropertyDescriptor(o, name);
     if (propDesc) {
         var pi = new PropertyInfo();
         pi.GetFunc = propDesc.get;

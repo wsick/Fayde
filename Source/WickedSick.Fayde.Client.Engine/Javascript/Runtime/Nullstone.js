@@ -25,7 +25,6 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
 
     var code = "var n = Nullstone; if (!n.IsReady) return;" +
         "n._LastID = this._ID = n._LastID + 1;" +
-        "n._CreateProps(this);" +
         "if (this.Init) this.Init(" + s + ");"
 
     if (Nullstone._RecordTypeCounts) {
@@ -73,6 +72,7 @@ Nullstone.FinishCreate = function (f) {
 
     //Bring up properties defined in base class
     Nullstone._PropagateBaseProperties(f, f._BaseClass);
+    Nullstone._CreateProps(f);
 
     delete f['Instance'];
 };
@@ -148,7 +148,6 @@ Nullstone.AutoProperties = function (type, arr) {
 };
 Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
     if (nameOrDp instanceof DependencyProperty) {
-        type.Instance[nameOrDp.Name] = null;
         type.Properties.push({
             Auto: true,
             DP: nameOrDp,
@@ -156,7 +155,6 @@ Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
             Override: isOverride === true
         });
     } else {
-        type.Instance[nameOrDp] = null;
         type.Properties.push({
             Auto: true,
             Name: nameOrDp,
@@ -172,14 +170,12 @@ Nullstone.AutoPropertiesReadOnly = function (type, arr) {
 };
 Nullstone.AutoPropertyReadOnly = function (type, nameOrDp, isOverride) {
     if (nameOrDp instanceof DependencyProperty) {
-        type.Instance[nameOrDp.Name] = null;
         type.Properties.push({
             Auto: true,
             DP: nameOrDp,
             Override: isOverride === true
         });
     } else {
-        type.Instance[nameOrDp] = null;
         type.Properties.push({
             Auto: true,
             Name: nameOrDp,
@@ -189,7 +185,6 @@ Nullstone.AutoPropertyReadOnly = function (type, nameOrDp, isOverride) {
     }
 };
 Nullstone.AbstractProperty = function (type, name, isReadOnly) {
-    type.Instance[name] = null;
     type.Properties.push({
         Name: name,
         IsAbstract: true,
@@ -197,7 +192,6 @@ Nullstone.AbstractProperty = function (type, name, isReadOnly) {
     });
 };
 Nullstone.Property = function (type, name, data) {
-    type.Instance[name] = null;
     type.Properties.push({
         Custom: true,
         Name: name,
@@ -206,7 +200,6 @@ Nullstone.Property = function (type, name, data) {
 };
 Nullstone.AutoNotifyProperty = function (type, name) {
     var backingName = "z_" + name;
-    type.Instance[name] = null;
     type.Properties.push({
         Custom: true,
         Name: name,
@@ -218,6 +211,24 @@ Nullstone.AutoNotifyProperty = function (type, name) {
             }
         }
     });
+};
+
+Nullstone.GetPropertyDescriptor = function (obj, name) {
+    if (obj == null)
+        return;
+    var type = obj.constructor;
+    var propDesc = Object.getOwnPropertyDescriptor(type.prototype, name);
+    if (propDesc)
+        return propDesc
+    return Object.getOwnPropertyDescriptor(obj, name);
+};
+Nullstone.HasProperty = function (obj, name) {
+    if (obj == null)
+        return false;
+    if (obj.hasOwnProperty(name))
+        return true;
+    var type = obj.constructor;
+    return type.prototype.hasOwnProperty(name);
 };
 
 Nullstone.Namespace = function (namespace) {
@@ -235,52 +246,55 @@ Nullstone.Namespace = function (namespace) {
 };
 
 Nullstone._CreateProps = function (ns) {
-    //Define Properties on prototype
-    var props = ns.constructor.Properties;
-    for (var i = 0; i < props.length; i++) {
-        var p = props[i];
-        if (p.IsAbstract) {
-            continue;
-        } else if (p.Custom) {
-            Object.defineProperty(ns, p.Name, p.Data);
-        } else if (p.DP) {
-            Nullstone._CreateDP(ns, p.DP, p.Converter);
-        } else {
-            Object.defineProperty(ns, p.Name, {
-                value: null,
-                writable: p.IsReadOnly !== true
-            });
-        }
+    var props = ns.Properties;
+    var len = props.length;
+    for (var i = 0; i < len; i++) {
+        Nullstone._CreateProp(ns, props[i]);
     }
 };
-Nullstone._CreateDP = function (ns, dp, converter) {
-    var getFunc = function () {
-        var value = undefined;
-        if (dp._ID in this._CachedValues) {
-            value = this._CachedValues[dp._ID];
-        } else {
-            value = this.$GetValue(dp);
-            this._CachedValues[dp._ID] = value;
+Nullstone._CreateProp = function (type, p) {
+    if (p.IsAbstract)
+        return;
+    
+    var name;
+    var data;
+    var dp = p.DP;
+    if (dp) {
+
+        name = dp.Name;
+        data = {
+            get: function () {
+                var value = undefined;
+                if (dp._ID in this._CachedValues) {
+                    value = this._CachedValues[dp._ID];
+                } else {
+                    value = this.$GetValue(dp);
+                    this._CachedValues[dp._ID] = value;
+                }
+                return value;
+            }
+        };
+        if (!dp.IsReadOnly) {
+            var converter = p.Converter;
+            if (converter) {
+                data.set = function (value) { value = converter(value); this.$SetValue(dp, value); };
+                data.set.Converter = converter;
+            } else {
+                data.set = function (value) { this.$SetValue(dp, value); };
+            }
         }
-        return value;
-    };
-    if (dp.IsReadOnly) {
-        Object.defineProperty(ns, dp.Name, {
-            get: getFunc
-        });
+    } else if (p.Custom) {
+        name = p.Name;
+        data = p.Data;
     } else {
-        var setFunc;
-        if (converter) {
-            setFunc = function (value) { value = converter(value); this.$SetValue(dp, value); };
-            setFunc.Converter = converter;
-        } else {
-            setFunc = function (value) { this.$SetValue(dp, value); };
-        }
-        Object.defineProperty(ns, dp.Name, {
-            get: getFunc,
-            set: setFunc
-        });
+        name = p.Name;
+        data = {
+            value: null,
+            writable: p.IsReadOnly !== true
+        };
     }
+
+    Object.defineProperty(type.prototype, name, data);
 };
 Nullstone._PropagateBaseProperties = function (targetNs, baseNs) {
     if (!baseNs)
@@ -306,11 +320,9 @@ Nullstone._PropagateBaseProperties = function (targetNs, baseNs) {
             continue;
         }
 
-        targetNs.prototype[name] = null;
         targetNs.Properties.push(p);
     }
 };
-
 Nullstone._FindProperty = function (props, name) {
     var count = props.length;
     for (var i = 0; i < count; i++) {
