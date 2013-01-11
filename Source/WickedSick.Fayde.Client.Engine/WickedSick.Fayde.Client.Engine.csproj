@@ -485,6 +485,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <Content Include="xaml.aspx" />
+    <TypeScriptCompile Include="Fayde.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Global.asax.cs">
@@ -515,7 +516,9 @@
       <Name>WickedSick.Server.XamlParser</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Typescript\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
