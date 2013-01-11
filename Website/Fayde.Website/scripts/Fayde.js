@@ -1425,7 +1425,6 @@ Nullstone.Create = function (typeName, parent, argCount, interfaces) {
         s = "arguments";
     var code = "var n = Nullstone; if (!n.IsReady) return;" +
         "n._LastID = this._ID = n._LastID + 1;" +
-        "n._CreateProps(this);" +
         "if (this.Init) this.Init(" + s + ");"
     if (Nullstone._RecordTypeCounts) {
         code += "n._TypeCount['" + typeName + "']++;";
@@ -1466,6 +1465,7 @@ Nullstone.FinishCreate = function (f) {
         f.prototype[k] = f.Instance[k];
     }
     Nullstone._PropagateBaseProperties(f, f._BaseClass);
+    Nullstone._CreateProps(f);
     delete f['Instance'];
 };
 Nullstone.RefEquals = function (obj1, obj2) {
@@ -1537,7 +1537,6 @@ Nullstone.AutoProperties = function (type, arr) {
 };
 Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
     if (nameOrDp instanceof DependencyProperty) {
-        type.Instance[nameOrDp.Name] = null;
         type.Properties.push({
             Auto: true,
             DP: nameOrDp,
@@ -1545,7 +1544,6 @@ Nullstone.AutoProperty = function (type, nameOrDp, converter, isOverride) {
             Override: isOverride === true
         });
     } else {
-        type.Instance[nameOrDp] = null;
         type.Properties.push({
             Auto: true,
             Name: nameOrDp,
@@ -1561,14 +1559,12 @@ Nullstone.AutoPropertiesReadOnly = function (type, arr) {
 };
 Nullstone.AutoPropertyReadOnly = function (type, nameOrDp, isOverride) {
     if (nameOrDp instanceof DependencyProperty) {
-        type.Instance[nameOrDp.Name] = null;
         type.Properties.push({
             Auto: true,
             DP: nameOrDp,
             Override: isOverride === true
         });
     } else {
-        type.Instance[nameOrDp] = null;
         type.Properties.push({
             Auto: true,
             Name: nameOrDp,
@@ -1578,7 +1574,6 @@ Nullstone.AutoPropertyReadOnly = function (type, nameOrDp, isOverride) {
     }
 };
 Nullstone.AbstractProperty = function (type, name, isReadOnly) {
-    type.Instance[name] = null;
     type.Properties.push({
         Name: name,
         IsAbstract: true,
@@ -1586,7 +1581,6 @@ Nullstone.AbstractProperty = function (type, name, isReadOnly) {
     });
 };
 Nullstone.Property = function (type, name, data) {
-    type.Instance[name] = null;
     type.Properties.push({
         Custom: true,
         Name: name,
@@ -1595,7 +1589,6 @@ Nullstone.Property = function (type, name, data) {
 };
 Nullstone.AutoNotifyProperty = function (type, name) {
     var backingName = "z_" + name;
-    type.Instance[name] = null;
     type.Properties.push({
         Custom: true,
         Name: name,
@@ -1607,6 +1600,23 @@ Nullstone.AutoNotifyProperty = function (type, name) {
             }
         }
     });
+};
+Nullstone.GetPropertyDescriptor = function (obj, name) {
+    if (obj == null)
+        return;
+    var type = obj.constructor;
+    var propDesc = Object.getOwnPropertyDescriptor(type.prototype, name);
+    if (propDesc)
+        return propDesc
+    return Object.getOwnPropertyDescriptor(obj, name);
+};
+Nullstone.HasProperty = function (obj, name) {
+    if (obj == null)
+        return false;
+    if (obj.hasOwnProperty(name))
+        return true;
+    var type = obj.constructor;
+    return type.prototype.hasOwnProperty(name);
 };
 Nullstone.Namespace = function (namespace) {
     var tokens = namespace.split(".");
@@ -1622,51 +1632,52 @@ Nullstone.Namespace = function (namespace) {
     return curNs;
 };
 Nullstone._CreateProps = function (ns) {
-    var props = ns.constructor.Properties;
-    for (var i = 0; i < props.length; i++) {
-        var p = props[i];
-        if (p.IsAbstract) {
-            continue;
-        } else if (p.Custom) {
-            Object.defineProperty(ns, p.Name, p.Data);
-        } else if (p.DP) {
-            Nullstone._CreateDP(ns, p.DP, p.Converter);
-        } else {
-            Object.defineProperty(ns, p.Name, {
-                value: null,
-                writable: p.IsReadOnly !== true
-            });
-        }
+    var props = ns.Properties;
+    var len = props.length;
+    for (var i = 0; i < len; i++) {
+        Nullstone._CreateProp(ns, props[i]);
     }
 };
-Nullstone._CreateDP = function (ns, dp, converter) {
-    var getFunc = function () {
-        var value = undefined;
-        if (dp._ID in this._CachedValues) {
-            value = this._CachedValues[dp._ID];
-        } else {
-            value = this.$GetValue(dp);
-            this._CachedValues[dp._ID] = value;
+Nullstone._CreateProp = function (type, p) {
+    if (p.IsAbstract)
+        return;
+    var name;
+    var data;
+    var dp = p.DP;
+    if (dp) {
+        name = dp.Name;
+        data = {
+            get: function () {
+                var value = undefined;
+                if (dp._ID in this._CachedValues) {
+                    value = this._CachedValues[dp._ID];
+                } else {
+                    value = this.$GetValue(dp);
+                    this._CachedValues[dp._ID] = value;
+                }
+                return value;
+            }
+        };
+        if (!dp.IsReadOnly) {
+            var converter = p.Converter;
+            if (converter) {
+                data.set = function (value) { value = converter(value); this.$SetValue(dp, value); };
+                data.set.Converter = converter;
+            } else {
+                data.set = function (value) { this.$SetValue(dp, value); };
+            }
         }
-        return value;
-    };
-    if (dp.IsReadOnly) {
-        Object.defineProperty(ns, dp.Name, {
-            get: getFunc
-        });
+    } else if (p.Custom) {
+        name = p.Name;
+        data = p.Data;
     } else {
-        var setFunc;
-        if (converter) {
-            setFunc = function (value) { value = converter(value); this.$SetValue(dp, value); };
-            setFunc.Converter = converter;
-        } else {
-            setFunc = function (value) { this.$SetValue(dp, value); };
-        }
-        Object.defineProperty(ns, dp.Name, {
-            get: getFunc,
-            set: setFunc
-        });
+        name = p.Name;
+        data = {
+            value: null,
+            writable: p.IsReadOnly !== true
+        };
     }
+    Object.defineProperty(type.prototype, name, data);
 };
 Nullstone._PropagateBaseProperties = function (targetNs, baseNs) {
     if (!baseNs)
@@ -1686,7 +1697,6 @@ Nullstone._PropagateBaseProperties = function (targetNs, baseNs) {
                 throw new PropertyCollisionException(baseNs, targetNs, name);
             continue;
         }
-        targetNs.prototype[name] = null;
         targetNs.Properties.push(p);
     }
 };
@@ -1736,7 +1746,7 @@ PropertyInfo.Find = function (typeOrObj, name) {
     if (isType)
         o = new typeOrObj();
     var nameClosure = name;
-    var propDesc = Object.getOwnPropertyDescriptor(o, name);
+    var propDesc = Nullstone.GetPropertyDescriptor(o, name);
     if (propDesc) {
         var pi = new PropertyInfo();
         pi.GetFunc = propDesc.get;
@@ -4767,7 +4777,6 @@ Nullstone.FinishCreate(Range);
 var RangeCollection = Nullstone.Create("RangeCollection");
 RangeCollection.Instance.Init = function () {
     this._ranges = [];
-    this.RangeCount = 0;
     this._generation = 0;
     this.Count = 0;
 };
@@ -4787,7 +4796,7 @@ RangeCollection.CopyRangeArray = function (rangeArray, startIndex, length, desti
 };
 RangeCollection.Instance.FindRangeIndexForValue = function (value) {
     var min = 0;
-    var max = this.RangeCount - 1;
+    var max = this._ranges.length - 1;
     while (min <= max) {
         var mid = Math.floor(min + ((max - min) / 2));
         var range = this._ranges[mid];
@@ -4802,7 +4811,7 @@ RangeCollection.Instance.FindRangeIndexForValue = function (value) {
 };
 RangeCollection.Instance.FindInsertionPosition = function (range) {
     var min = 0;
-    var max = this.RangeCount - 1;
+    var max = this._ranges.length - 1;
     while (min <= max) {
         var mid = Math.floor(min + ((max - min) / 2));
         var midRange = this._ranges[mid];
@@ -4832,9 +4841,10 @@ RangeCollection.Instance.Contains = function (value) {
     return this.FindRangeIndexForValue(value) >= 0;
 };
 RangeCollection.Instance.GetValueAt = function (index) {
-    var i = 0;
-    var cuml_count = 0;
-    for (i; i < this.RangeCount && index >= 0; i++) {
+    var i;
+    var cuml_count;
+    var rangeCount = this._ranges.length;
+    for (i = 0, cuml_count = 0; i < rangeCount && index >= 0; i++) {
         cuml_count = cuml_count + this._ranges[i].Count();
         if (index < cuml_count)
             return this._ranges[i].End - (cuml_count - index) + 1;
@@ -4891,7 +4901,6 @@ RangeCollection.Instance.RemoveIndexFromRange = function (index) {
     return true;
 };
 RangeCollection.Instance.Clear = function () {
-    this.RangeCount = 0;
     this.Count = 0;
     this._ranges = [];
     this._generation++;
@@ -4905,7 +4914,7 @@ RangeCollection.Instance.MergeLeft = function (range, position) {
     return false;
 };
 RangeCollection.Instance.MergeRight = function (range, position) {
-    if (position < this.RangeCount && this._ranges[position].Start - 1 == range.End) {
+    if (position < this._ranges.length && this._ranges[position].Start - 1 == range.End) {
         this._ranges[position].Start = range.End;
         return true;
     }
@@ -5907,7 +5916,7 @@ JsonParser.Instance.CreateObject = function (json, namescope, ignoreResolve) {
             this.SetValue(dobj, contentPropd, content);
         }
     } else if (contentPropd != null && contentPropd.constructor === String) {
-        var propDesc = Object.getOwnPropertyDescriptor(dobj, contentPropd);
+        var propDesc = Nullstone.GetPropertyDescriptor(dobj, contentPropd);
         if (propDesc.set || propDesc.writable) {
             dobj[contentPropd] = this.CreateObject(json.Content, namescope, true);
         } else if (propDesc.get) {
@@ -5946,7 +5955,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         if (!(propValue instanceof Expression)) {
             var targetType = propd.GetTargetType();
             if (targetType._IsNullstone && !(propValue instanceof targetType)) {
-                var propDesc = Object.getOwnPropertyDescriptor(dobj, propName);
+                var propDesc = Nullstone.GetPropertyDescriptor(dobj, propName);
                 if (propDesc) {
                     var setFunc = propDesc.set;
                     if (setFunc && setFunc.Converter && setFunc.Converter instanceof Function)
@@ -5956,7 +5965,7 @@ JsonParser.Instance.TrySetPropertyValue = function (dobj, propd, propValue, name
         }
         this.SetValue(dobj, propd, propValue);
     } else if (!isAttached) {
-        if (dobj.hasOwnProperty(propName)) {
+        if (Nullstone.HasProperty(dobj, propName)) {
             dobj[propName] = propValue;
         } else {
             var func = dobj["Set" + propName];
@@ -6807,72 +6816,72 @@ Nullstone.FinishCreate(KeyTime);
 
 function Matrix() {
     this.raw = mat3.identity();
-    Object.defineProperty(this, "M11", {
-        get: function () { return this.raw[0]; },
-        set: function (value) {
-            if (this.raw[0] !== value) {
-                this.raw[0] = value;
-                this._OnChanged();
-            }
-        }
-    });
-    Object.defineProperty(this, "M12", {
-        get: function () { return this.raw[1]; },
-        set: function (value) {
-            if (this.raw[1] !== value) {
-                this.raw[1] = value;
-                this._OnChanged();
-            }
-        }
-    });
-    Object.defineProperty(this, "M21", {
-        get: function () { return this.raw[3]; },
-        set: function (value) {
-            if (this.raw[3] !== value) {
-                this.raw[3] = value;
-                this._OnChanged();
-            }
-        }
-    });
-    Object.defineProperty(this, "M22", {
-        get: function () { return this.raw[4]; },
-        set: function (value) {
-            if (this.raw[4] !== value) {
-                this.raw[4] = value;
-                this._OnChanged();
-            }
-        }
-    });
-    Object.defineProperty(this, "OffsetX", {
-        get: function () { return this.raw[2]; },
-        set: function (value) {
-            if (this.raw[2] !== value) {
-                this.raw[2] = value;
-                this._OnChanged();
-            }
-        }
-    });
-    Object.defineProperty(this, "OffsetY", {
-        get: function () { return this.raw[5]; },
-        set: function (value) {
-            if (this.raw[5] !== value) {
-                this.raw[5] = value;
-                this._OnChanged();
-            }
-        }
-    });
-    Object.defineProperty(this, "Inverse", {
-        get: function () {
-            var inverse = mat3.identity();
-            mat3.inverse(this.raw, inverse);
-            if (inverse) {
-                var m = new Matrix();
-                m.raw = inverse;
-                return m;
-            }
-        }
-    });
 }
+Object.defineProperty(Matrix.prototype, "M11", {
+    get: function () { return this.raw[0]; },
+    set: function (value) {
+        if (this.raw[0] !== value) {
+            this.raw[0] = value;
+            this._OnChanged();
+        }
+    }
+});
+Object.defineProperty(Matrix.prototype, "M12", {
+    get: function () { return this.raw[1]; },
+    set: function (value) {
+        if (this.raw[1] !== value) {
+            this.raw[1] = value;
+            this._OnChanged();
+        }
+    }
+});
+Object.defineProperty(Matrix.prototype, "M21", {
+    get: function () { return this.raw[3]; },
+    set: function (value) {
+        if (this.raw[3] !== value) {
+            this.raw[3] = value;
+            this._OnChanged();
+        }
+    }
+});
+Object.defineProperty(Matrix.prototype, "M22", {
+    get: function () { return this.raw[4]; },
+    set: function (value) {
+        if (this.raw[4] !== value) {
+            this.raw[4] = value;
+            this._OnChanged();
+        }
+    }
+});
+Object.defineProperty(Matrix.prototype, "OffsetX", {
+    get: function () { return this.raw[2]; },
+    set: function (value) {
+        if (this.raw[2] !== value) {
+            this.raw[2] = value;
+            this._OnChanged();
+        }
+    }
+});
+Object.defineProperty(Matrix.prototype, "OffsetY", {
+    get: function () { return this.raw[5]; },
+    set: function (value) {
+        if (this.raw[5] !== value) {
+            this.raw[5] = value;
+            this._OnChanged();
+        }
+    }
+});
+Object.defineProperty(Matrix.prototype, "Inverse", {
+    get: function () {
+        var inverse = mat3.identity();
+        mat3.inverse(this.raw, inverse);
+        if (inverse) {
+            var m = new Matrix();
+            m.raw = inverse;
+            return m;
+        }
+    }
+});
 Matrix.prototype.toString = function () {
     return mat3.str(this.raw);
 };
@@ -6888,17 +6897,17 @@ function Matrix3D() {
         0, 0, 1, 0,
         0, 0, 0, 1
     ];
-    Object.defineProperty(this, "Inverse", {
-        get: function () {
-            if (!this._InverseEls)
-                this._InverseEls = Matrix3D._CalculateInverse(this);
-            var m3 = new Matrix3D();
-            m3._Elements = this._InverseEls;
-            m3._InverseEls = this._Elements;
-            return m3;
-        }
-    });
 }
+Object.defineProperty(Matrix3D.prototype, "Inverse", {
+    get: function () {
+        if (!this._InverseEls)
+            this._InverseEls = Matrix3D._CalculateInverse(this);
+        var m3 = new Matrix3D();
+        m3._Elements = this._InverseEls;
+        m3._InverseEls = this._Elements;
+        return m3;
+    }
+});
 Matrix3D.prototype.toString = function () {
     return this._Elements.toString();
 };
@@ -10224,20 +10233,15 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
     var startAt = this._GenerationState._positionIndex;
     var startOffset = this._GenerationState._positionOffset;
     if (startAt == -1) {
-        if (startOffset < 0) {
+        if (startOffset < 0)
             index = this.Owner.Items.GetCount() + startOffset;
-        }
-        else if (startOffset == 0) {
+        else if (startOffset == 0)
             index = 0;
-        }
-        else {
+        else
             index = startOffset - 1;
-        }
-    }
-    else if (startAt >= 0 && startAt < this.RealizedElements.Count) {
+    } else if (startAt >= 0 && startAt < this.RealizedElements.Count) {
         index = this.RealizedElements.GetValueAt(startAt) + startOffset;
-    }
-    else {
+    } else {
         index = -1;
     }
     var alreadyRealized = this.RealizedElements.Contains(index);
