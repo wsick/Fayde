@@ -257,3 +257,23 @@ class Style {
 
 class ResourceDictionary {
 }
+
+module Fayde.MVVM {
+    interface ICommand {
+        Execute(parameter): void;
+        CanExecute(parameter): bool;
+    }
+    
+    class RelayCommand implements ICommand { 
+        new (execute?: (parameter) => void, canExecute?: (parameter) => bool): RelayCommand;
+        Execute(parameter): void;
+        CanExecute(parameter): bool;
+    }
+
+    class ObservableObject {
+        PropertyChanged: MulticastEvent;
+        OnPropertyChanged(propertyName: string);
+    }
+
+    class ViewModelBase extends ObservableObject { }
+}
