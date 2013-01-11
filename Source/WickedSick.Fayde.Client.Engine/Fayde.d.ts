@@ -258,6 +258,18 @@ class Style {
 class ResourceDictionary {
 }
 
+class BindingBase {
+}
+class Binding {
+}
+
+class Expression {
+}
+class BindingExpressionBase extends Expression {
+}
+class BindingExpression extends BindingExpressionBase {
+}
+
 module Fayde.MVVM {
     interface ICommand {
         Execute(parameter): void;
