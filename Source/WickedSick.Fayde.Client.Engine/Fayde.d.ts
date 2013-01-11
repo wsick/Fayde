@@ -271,21 +271,21 @@ class BindingExpression extends BindingExpressionBase {
 }
 
 module Fayde.MVVM {
-    interface ICommand {
+    export interface ICommand {
         Execute(parameter): void;
         CanExecute(parameter): bool;
     }
     
-    class RelayCommand implements ICommand { 
+    export class RelayCommand implements ICommand { 
         new (execute?: (parameter) => void, canExecute?: (parameter) => bool): RelayCommand;
         Execute(parameter): void;
         CanExecute(parameter): bool;
     }
 
-    class ObservableObject {
+    export class ObservableObject {
         PropertyChanged: MulticastEvent;
         OnPropertyChanged(propertyName: string);
     }
 
-    class ViewModelBase extends ObservableObject { }
+    export class ViewModelBase extends ObservableObject { }
 }
