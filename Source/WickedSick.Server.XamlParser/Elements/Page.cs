@@ -11,17 +11,29 @@ namespace WickedSick.Server.XamlParser.Elements
             set { SetValue("Title", value); }
         }
 
+        public static readonly PropertyDescription JsTypeProperty = PropertyDescription.Register("JsType", typeof(string), typeof(Page));
+        public string JsType
+        {
+            get { return GetValue("JsType") as string; }
+            set { SetValue("JsType", value); }
+        }
+
         private string _DynamicType;
         public void InjectJavascriptType(string js)
         {
             _DynamicType = js;
         }
 
-        protected override string GetTypeName()
+        public override string GetTypeName()
         {
-            if (string.IsNullOrWhiteSpace(_DynamicType))
-                return base.GetTypeName();
-            return _DynamicType;
+            var jsType = JsType;
+            if (!string.IsNullOrWhiteSpace(jsType))
+                return jsType;
+
+            if (!string.IsNullOrWhiteSpace(_DynamicType))
+                return _DynamicType;
+
+            return base.GetTypeName();
         }
     }
 }

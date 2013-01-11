@@ -123,11 +123,22 @@ Nullstone.DoesInheritFrom = function (t, type) {
     return temp != null;
 };
 Nullstone.DoesImplement = function (obj, interfaceType) {
-    if (!obj.constructor._IsNullstone)
+    var curType = obj.constructor;
+    if (!curType._IsNullstone)
         return false;
-    if (!obj.constructor.Interfaces)
-        return false;
-    return interfaceType in obj.constructor.Interfaces;
+
+    while (curType) {
+        var interfaces = curType.Interfaces;
+        if (interfaces) {
+            var len = interfaces.length;
+            for (var i = 0; i < len; i++) {
+                if (interfaces[i]._TypeID === interfaceType._TypeID)
+                    return true;
+            }
+        }
+        curType = curType._BaseClass;
+    }
+    return false;
 };
 
 Nullstone.AutoProperties = function (type, arr) {
@@ -192,6 +203,35 @@ Nullstone.Property = function (type, name, data) {
         Name: name,
         Data: data
     });
+};
+Nullstone.AutoNotifyProperty = function (type, name) {
+    var backingName = "z_" + name;
+    type.Instance[name] = null;
+    type.Properties.push({
+        Custom: true,
+        Name: name,
+        Data: {
+            get: function () { return this[backingName]; },
+            set: function (value) {
+                this[backingName] = value;
+                this.OnPropertyChanged(name);
+            }
+        }
+    });
+};
+
+Nullstone.Namespace = function (namespace) {
+    var tokens = namespace.split(".");
+    var len = tokens.length;
+    var curNs = window[tokens[0]];
+    if (!curNs)
+        curNs = window[tokens[0]] = {};
+    for (var i = 1; i < len; i++) {
+        if (!curNs[tokens[i]])
+            curNs[tokens[i]] = {};
+        curNs = curNs[tokens[i]];
+    }
+    return curNs;
 };
 
 Nullstone._CreateProps = function (ns) {
@@ -288,4 +328,29 @@ Nullstone._GetTypeCountsAbove = function (count) {
             arr[tn] = Nullstone._TypeCount[tn];
     }
     return arr;
+};
+
+Nullstone.ImportJsFile = function (url, onComplete) {
+    var scripts = document.getElementsByTagName("script");
+    for (var i = 0; i < scripts.length; i++) {
+        if (scripts[i].src === url) {
+            if (onComplete) onComplete(scripts[i]);
+            return;
+        }
+    }
+
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+    script.onreadystatechange = function (e) {
+        if (this.readyState === "completed") {
+            if (onComplete) onComplete(script);
+            return;
+        }
+        
+    };
+    script.onload = function () { if (onComplete) onComplete(script); };
+
+    var head = document.getElementsByTagName("head")[0];
+    head.appendChild(script);
 };

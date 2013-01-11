@@ -1,9 +1,10 @@
 ﻿<FaydeApplication
     xmlns="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements"
     xmlns:x="WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Core"
+    JsType="Fayde.Demos.StackOverflow.App"
     ScriptResolution="../../scripts/">
     <FaydeApplication.UriMappings>
-        <UriMapping Uri="" MappedUri="default.fayde" />
+        <UriMapping Uri="" MappedUri="root.fayde" />
     </FaydeApplication.UriMappings>
     <FaydeApplication.Resources>
         <Style x:Key="MenuToggleButtonStyle" TargetType="ToggleButton">

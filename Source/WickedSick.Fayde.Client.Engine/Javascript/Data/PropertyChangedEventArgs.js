@@ -3,15 +3,14 @@
 /// CODE
 
 //#region PropertyChangedEventArgs
-var PropertyChangedEventArgs = Nullstone.Create("PropertyChangedEventArgs", EventArgs);
+var PropertyChangedEventArgs = Nullstone.Create("PropertyChangedEventArgs", EventArgs, 1);
 
-PropertyChangedEventArgs.Instance.GetPropertyName = function () {
-    /// <returns type="String" />
-    return this._PropertyName;
-};
-PropertyChangedEventArgs.Instance.SetPropertyName = function (value) {
-    /// <param name="value" type="String"></param>
-    this._PropertyName = value;
+Nullstone.Property(PropertyChangedEventArgs, "PropertyName", {
+    get: function () { return this._PropertyName; }
+});
+
+PropertyChangedEventArgs.Instance.Init = function (propertyName) {
+    this._PropertyName = propertyName;
 };
 
 Nullstone.FinishCreate(PropertyChangedEventArgs);

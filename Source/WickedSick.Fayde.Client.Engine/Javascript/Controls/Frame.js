@@ -6,7 +6,19 @@
 //#region Frame
 var Frame = Nullstone.Create("Frame", ContentControl);
 
-//#region Dependency Properties
+Frame.Instance.Init = function () {
+    this.Init$ContentControl();
+
+    this.Loaded.Subscribe(this._FrameLoaded, this);
+
+    this.Navigated = new MulticastEvent();
+    this.Navigating = new MulticastEvent();
+    this.NavigationFailed = new MulticastEvent();
+    this.NavigationStopped = new MulticastEvent();
+    this.FragmentNavigation = new MulticastEvent();
+};
+
+//#region Properties
 
 Frame.IsDeepLinkedProperty = DependencyProperty.Register("IsDeepLinked", function () { return Boolean; }, Frame, true);
 Frame.CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", function () { return Uri; }, Frame);
@@ -30,18 +42,6 @@ Nullstone.AutoProperties(Frame, [
 ]);
 
 //#endregion
-
-Frame.Instance.Init = function () {
-    this.Init$ContentControl();
-
-    this.Loaded.Subscribe(this._FrameLoaded, this);
-
-    this.Navigated = new MulticastEvent();
-    this.Navigating = new MulticastEvent();
-    this.NavigationFailed = new MulticastEvent();
-    this.NavigationStopped = new MulticastEvent();
-    this.FragmentNavigation = new MulticastEvent();
-};
 
 Frame.Instance.GoForward = function () {
 };
@@ -84,10 +84,14 @@ Frame.Instance._HandleDeepLink = function () {
 };
 Frame.Instance._LoadContent = function (href, hash) {
     this.StopLoading();
+
+    var scriptUrl = href + "?js=true&p=" + hash;
     var ns = this;
-    this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
-        function (error) { ns._HandleErrorResponse(error); });
-    this._Request.Get(href, "p=" + hash);
+    Nullstone.ImportJsFile(scriptUrl, function (script) {
+        this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
+            function (error) { ns._HandleErrorResponse(error); });
+        this._Request.Get(href, "p=" + hash);
+    });
 };
 Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
     var page = JsonParser.Parse(responseJson);

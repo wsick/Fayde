@@ -3,6 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
+    [Element(NullstoneName = "App")]
     public class FaydeApplication : DependencyObject
     {
         //public static readonly PropertyDescription DefaultPageUriProperty = PropertyDescription.Register("DefaultPageUri", typeof(string), typeof(FaydeApplication));
@@ -12,7 +13,7 @@ namespace WickedSick.Server.XamlParser.Elements
         public static readonly PropertyDescription DebugProperty = PropertyDescription.Register("Debug", typeof(bool), typeof(FaydeApplication));
         public bool Debug
         {
-            get { return (bool)GetValue("Debug"); }
+            get { return (bool?)GetValue("Debug") == true; }
             set { SetValue("Debug", value); }
         }
 
@@ -42,6 +43,20 @@ namespace WickedSick.Server.XamlParser.Elements
         {
             get { return GetValue("ScriptResolution") as string; }
             set { SetValue("ScriptResolution", value); }
+        }
+
+        public static readonly PropertyDescription JsTypeProperty = PropertyDescription.Register("JsType", typeof(string), typeof(FaydeApplication));
+        public string JsType
+        {
+            get { return GetValue("JsType") as string; }
+            set { SetValue("JsType", value); }
+        }
+
+        public override string GetTypeName()
+        {
+            if (!string.IsNullOrWhiteSpace(JsType))
+                return JsType;
+            return base.GetTypeName();
         }
 
 

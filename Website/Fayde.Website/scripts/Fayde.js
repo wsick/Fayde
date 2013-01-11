@@ -97,6 +97,10 @@ var MediaElementState = {
     Paused: 6,
     Stopped: 7
 };
+var VirtualizationMode = {
+    Standard: 0,
+    Recycling: 1
+};
 
 var ScrollEventType = {
 	SmallDecrement: 0,
@@ -457,15 +461,23 @@ AjaxJsonRequest.prototype._PrepareRequest = function () {
     this.xmlhttp = xmlhttp;
 };
 AjaxJsonRequest.prototype._HandleStateChange = function () {
-    if (this.xmlhttp.readyState == 4) {
-        if (this.xmlhttp.status == 200) {
+    if (this.xmlhttp.readyState === 4) {
+        if (this.xmlhttp.status === 200) {
             var responseJson = {};
+            var data = this.xmlhttp.responseText;
             try {
-                if (this.xmlhttp.responseText)
-                    responseJson = eval("(" + this.xmlhttp.responseText + ")");
+                if (data) {
+                    responseJson = (window.JSON && window.JSON.parse) ?
+                        window.JSON.parse(data) :
+                        new Function("return " + data)();
+                }
             } catch (err) {
-                this.OnError("Could not create json from response.");
-                return;
+                try {
+                    responseJson = new Function("return " + data)();
+                } catch (err) {
+                    this.OnError("Could not create json from response.", err);
+                    return;
+                }
             }
             this.OnSuccess(responseJson);
         } else {
@@ -537,7 +549,7 @@ function DumpTiming(arr) {
     return "[Min: " + min + "; Max: " + max + "; Avg: " + avg + "; StdDev: " + stddev + "; Total: " + total + "; Count: " + arr.length + "]";;
 }
 function KeyboardDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("KEYBOARD: " + message);
@@ -561,7 +573,7 @@ function LayoutDebug(message) {
         console.log("LAYOUT: " + message);
 }
 function TransformDebug(message, matrix) {
-    if (false)
+    if (true)
         return;
     var last = TransformDebug.Last;
     if (last && mat3.equal(last, matrix))
@@ -571,13 +583,13 @@ function TransformDebug(message, matrix) {
         console.log("TRANSFORM: " + message + " --> " + matrix.toString());
 }
 function DrawDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("DRAW: " + message);
 }
 function RenderDebug(message) {
-    if (false)
+    if (true)
         return;
     if (window.console && console.log)
         console.log("RENDER: " + message);
@@ -994,25 +1006,6 @@ function Enum(object) {
 Object.Clone = function (o) {
     return eval(uneval(o));
 };
-/*
-Function.prototype.Implement = function (interface) {
-    var interfaceName = (new interface())._TypeName;
-    for (var i in interface.prototype) {
-        if (!this.prototype[i])
-            this.prototype[i] = new Function("throw new NotImplementedException();");
-    }
-    if (this._Interfaces == null)
-        this._Interfaces = [];
-    this._Interfaces[interfaceName] = true;
-    return this;
-};
-Function.prototype.DoesImplement = function (interface) {
-    if (!this._Interfaces)
-        return false;
-    var interfaceName = (new interface())._TypeName;
-    return this._Interfaces[interfaceName] === true;
-};
-*/
 Function.prototype.Clone = function () {
     return eval(uneval(this));
 };
@@ -1462,7 +1455,7 @@ Nullstone.FinishCreate = function (f) {
             var it = f.Interfaces[i].Instance;
             for (var m in it) {
                 if (!(m in f.prototype))
-                    throw new NotImplementedException(f, it, m);
+                    throw new InterfaceNotImplementedException(f, it, m);
             }
         }
     }
@@ -1521,11 +1514,21 @@ Nullstone.DoesInheritFrom = function (t, type) {
     return temp != null;
 };
 Nullstone.DoesImplement = function (obj, interfaceType) {
-    if (!obj.constructor._IsNullstone)
+    var curType = obj.constructor;
+    if (!curType._IsNullstone)
         return false;
-    if (!obj.constructor.Interfaces)
-        return false;
-    return interfaceType in obj.constructor.Interfaces;
+    while (curType) {
+        var interfaces = curType.Interfaces;
+        if (interfaces) {
+            var len = interfaces.length;
+            for (var i = 0; i < len; i++) {
+                if (interfaces[i]._TypeID === interfaceType._TypeID)
+                    return true;
+            }
+        }
+        curType = curType._BaseClass;
+    }
+    return false;
 };
 Nullstone.AutoProperties = function (type, arr) {
     for (var i = 0; i < arr.length; i++) {
@@ -1589,6 +1592,34 @@ Nullstone.Property = function (type, name, data) {
         Name: name,
         Data: data
     });
+};
+Nullstone.AutoNotifyProperty = function (type, name) {
+    var backingName = "z_" + name;
+    type.Instance[name] = null;
+    type.Properties.push({
+        Custom: true,
+        Name: name,
+        Data: {
+            get: function () { return this[backingName]; },
+            set: function (value) {
+                this[backingName] = value;
+                this.OnPropertyChanged(name);
+            }
+        }
+    });
+};
+Nullstone.Namespace = function (namespace) {
+    var tokens = namespace.split(".");
+    var len = tokens.length;
+    var curNs = window[tokens[0]];
+    if (!curNs)
+        curNs = window[tokens[0]] = {};
+    for (var i = 1; i < len; i++) {
+        if (!curNs[tokens[i]])
+            curNs[tokens[i]] = {};
+        curNs = curNs[tokens[i]];
+    }
+    return curNs;
 };
 Nullstone._CreateProps = function (ns) {
     var props = ns.constructor.Properties;
@@ -1675,6 +1706,27 @@ Nullstone._GetTypeCountsAbove = function (count) {
             arr[tn] = Nullstone._TypeCount[tn];
     }
     return arr;
+};
+Nullstone.ImportJsFile = function (url, onComplete) {
+    var scripts = document.getElementsByTagName("script");
+    for (var i = 0; i < scripts.length; i++) {
+        if (scripts[i].src === url) {
+            if (onComplete) onComplete(scripts[i]);
+            return;
+        }
+    }
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+    script.onreadystatechange = function (e) {
+        if (this.readyState === "completed") {
+            if (onComplete) onComplete(script);
+            return;
+        }
+    };
+    script.onload = function () { if (onComplete) onComplete(script); };
+    var head = document.getElementsByTagName("head")[0];
+    head.appendChild(script);
 };
 
 var PropertyInfo = Nullstone.Create("PropertyInfo");
@@ -2988,7 +3040,7 @@ _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
         return;
     var font = attrs.GetFont();
     var y0 = font._Ascender();
-    ctx.Transform(mat3.createTranslate(x, y - y0));
+    ctx.Translate(x, y - y0);
     var brush;
     var fontHeight = font.GetActualHeight();
     var area = new Rect(origin.X, origin.Y, this._Advance, fontHeight);
@@ -3265,6 +3317,7 @@ IScrollInfo.Instance.PageUp = function () { };
 IScrollInfo.Instance.PageDown = function () { };
 IScrollInfo.Instance.PageLeft = function () { };
 IScrollInfo.Instance.PageRight = function () { };
+IScrollInfo.Instance.MakeVisible = function (uie, rectangle) { return new Rect(); };
 Nullstone.FinishCreate(IScrollInfo);
 
 var ScrollData = Nullstone.Create("ScrollData");
@@ -3582,8 +3635,18 @@ var BindingOperations = {
     }
 };
 
-var Fayde = {
-    TypeConverters: {
+var Fayde;
+(function (Fayde) {
+    Fayde.Run = function () { };
+    Fayde.Initialize = function () {
+        Fayde.Run();
+    };
+    Fayde.Start = function (appType, rjson, json, canvas) {
+        App.Instance = new appType();
+        App.Instance.LoadResources(rjson);
+        App.Instance.LoadInitial(canvas, json);
+    };
+    Fayde.TypeConverters = {
         Thickness: function (str) {
             if (!str)
                 return new Thickness();
@@ -3634,8 +3697,8 @@ var Fayde = {
             }
             return Color.FromHex(str);
         }
-    },
-    TypeConverter: {
+    };
+    Fayde.TypeConverter = {
         ConvertObject: function (propd, val, objectType, doStringConversion) {
             if (val == null)
                 return val;
@@ -3676,8 +3739,8 @@ var Fayde = {
         PointCollectionFromString: function (val) {
             return Fayde._MediaParser.ParsePointCollection(val);
         }
-    },
-    Clone: function (value) {
+    };
+    Fayde.Clone = function (value) {
         if (value instanceof DependencyObject)
             return value.Clone();
         if (typeof value === "number")
@@ -3724,8 +3787,8 @@ var Fayde = {
                 return new CornerRadius(value.TopLeft, value.TopRight, value.BottomRight, value.BottomLeft);
         }
         return new value.constructor();
-    }
-};
+    };
+})(Fayde || (Fayde = {}));
 
 var _DeepStyleWalker = Nullstone.Create("_DeepStyleWalker", null, 1);
 _DeepStyleWalker.Instance.Init = function (styles) {
@@ -3915,7 +3978,7 @@ DependencyProperty.RegisterAttachedCore = function (name, getTargetType, ownerTy
     return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, false, true);
 };
 DependencyProperty.RegisterInheritable = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, inheritable) {
-    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, undefined, undefined, undefined, undefined, false, undefined, true, inheritable);
+    return DependencyProperty.RegisterFull(name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, undefined, undefined, undefined, false, undefined, true, inheritable);
 };
 DependencyProperty.RegisterFull = function (name, getTargetType, ownerType, defaultValue, changedCallback, autocreator, coercer, alwaysChange, validator, isCustom, isReadOnly, isAttached, inheritable) {
     if (!DependencyProperty._IDs)
@@ -4708,12 +4771,14 @@ RangeCollection.Instance.Init = function () {
     this._generation = 0;
     this.Count = 0;
 };
-RangeCollection.Instance.Ranges = function () {
-    return RangeCollection.CopyRangeArray(this._ranges, 0, this._ranges.length, 0);
-};
+Nullstone.Property(RangeCollection, "Ranges", {
+    get: function () {
+        return RangeCollection.CopyRangeArray(this._ranges, 0, this._ranges.length, 0);
+    }
+});
 RangeCollection.CopyRangeArray = function (rangeArray, startIndex, length, destinationIndex) {
     var result = [];
-    for (startIndex; i < length; i++) {
+    for (var i = startIndex; i < length; i++) {
         var r = rangeArray[i];
         result[destinationIndex] = new Range(r.Start, r.End);
         destinationIndex++;
@@ -4723,40 +4788,56 @@ RangeCollection.CopyRangeArray = function (rangeArray, startIndex, length, desti
 RangeCollection.Instance.FindRangeIndexForValue = function (value) {
     var min = 0;
     var max = this.RangeCount - 1;
-    while (min <=  max) {
-        var mid = min + ((max - min) / 2);
+    while (min <= max) {
+        var mid = Math.floor(min + ((max - min) / 2));
         var range = this._ranges[mid];
-        if (value >= range.Start && value <= range.End) {
+        if (value >= range.Start && value <= range.End)
             return mid;
-        }
-        else if (value < range.Start) {
+        if (value < range.Start)
             max = mid - 1;
-        }
-        else {
+        else
+            min = mid + 1;
+    }
+    return ~min;
+};
+RangeCollection.Instance.FindInsertionPosition = function (range) {
+    var min = 0;
+    var max = this.RangeCount - 1;
+    while (min <= max) {
+        var mid = Math.floor(min + ((max - min) / 2));
+        var midRange = this._ranges[mid];
+        if (midRange.End === range.End)
+            return mid;
+        if (midRange.End > range.End) {
+            if (mid > 0 && (this._ranges[mid - 1].End < range.End))
+                return mid;
+            max = mid - 1;
+        } else {
             min = mid + 1;
         }
     }
-    return ~min;
+    return min;
 };
 RangeCollection.Instance.IndexOf = function (value) {
     var offset = 0;
     for (var i = 0; i < this._ranges.length; i++) {
         var range = this._ranges[i];
-        if (value >= range.Start && value <= range.End) {
+        if (value >= range.Start && value <= range.End)
             return offset + (value - range.Start);
-        }
         offset = offset + (range.End - range.Start + 1);
     }
     return -1;
+};
+RangeCollection.Instance.Contains = function (value) {
+    return this.FindRangeIndexForValue(value) >= 0;
 };
 RangeCollection.Instance.GetValueAt = function (index) {
     var i = 0;
     var cuml_count = 0;
     for (i; i < this.RangeCount && index >= 0; i++) {
         cuml_count = cuml_count + this._ranges[i].Count();
-        if (index < cuml_count) {
+        if (index < cuml_count)
             return this._ranges[i].End - (cuml_count - index) + 1;
-        }
     }
     throw new IndexOutOfRangeException(index);
 };
@@ -4769,18 +4850,8 @@ RangeCollection.Instance.Add = function (value) {
     }
     return false;
 };
-RangeCollection.Instance.Remove = function (value) {
-    this._generation++;
-    return this.RemoveIndexFromRange(value);
-};
-RangeCollection.Instance.Clear = function () {
-    this.RangeCount = 0;
-    this.Count = 0;
-    this._generation++;
-    this._ranges = [];
-};
-RangeCollection.Instance.Contains = function (value) {
-    return this.FindRangeIndexForValue(value) >= 0;
+RangeCollection.Instance.Insert = function (position, range) {
+    this._ranges.splice(position, 0, range);
 };
 RangeCollection.Instance.InsertRange = function (range) {
     var position = this.FindInsertionPosition(range);
@@ -4788,48 +4859,30 @@ RangeCollection.Instance.InsertRange = function (range) {
     var merged_right = this.MergeRight(range, position);
     if (!merged_left && !merged_right) {
         this.Insert(position, range);
-    }
-    else if (merged_left && merged_right) {
+    } else if (merged_left && merged_right) {
         this._ranges[position - 1].End = this._ranges[position].End;
         this.RemoveAt(position);
     }
 };
-RangeCollection.Instance.FindInsertionPosition = function (range) {
-    var min = 0;
-    var max = this.RangeCount - 1;
-    while (min <= max) {
-        var mid = min + ((max - min) / 2);
-        var midRange = this._ranges[mid];
-        if (midRange.End === range.End) {
-            return mid;
-        } else if (midRange.End > range.End) {
-            if (mid > 0 && (this._ranges[mid - 1].End < range.End)) {
-                return mid;
-            }
-            max = mid - 1;
-        }
-        else {
-            min = mid + 1;
-        }
-    }
-    return min;
+RangeCollection.Instance.Remove = function (value) {
+    this._generation++;
+    return this.RemoveIndexFromRange(value);
+};
+RangeCollection.Instance.RemoveAt = function (index) {
+    this._ranges.splice(index, 1);
 };
 RangeCollection.Instance.RemoveIndexFromRange = function (index) {
     var range_index = this.FindRangeIndexForValue(index);
-    if (range_index < 0) {
+    if (range_index < 0)
         return false;
-    }
     var range = this._ranges[range_index];
-    if (range.Start == index && range.End == index) {
+    if (range.Start === index && range.End === index) {
         this.RemoveAt(range_index);
-    }
-    else if (range.Start == index) {
+    } else if (range.Start === index) {
         range.Start++;
-    }
-    else if (range.End == index) {
+    } else if (range.End === index) {
         range.End--;
-    }
-    else {
+    } else {
         var split_range = new Range(index + 1, range.End);
         range.End = index - 1;
         this.Insert(range_index + 1, split_range);
@@ -4837,22 +4890,11 @@ RangeCollection.Instance.RemoveIndexFromRange = function (index) {
     this.Count--;
     return true;
 };
-RangeCollection.Instance.RemoveAt = function (index) {
-    this.Shift(index, -1);
-    this._ranges.pop();
-};
-RangeCollection.Instance.Insert = function (position, range) {
-    this.Shift(position, 1);
-    this._ranges[position] = range;
-};
-RangeCollection.Instance.Shift = function (start, delta) {
-    if (delta < 0) {
-        start -= delta;
-    }
-    if (start < this.RangeCount) {
-        this._ranges = RangeCollection.CopyRangeArray(this._ranges, start, range_count - start, start + delta);
-    }
-    this.RangeCount += delta;
+RangeCollection.Instance.Clear = function () {
+    this.RangeCount = 0;
+    this.Count = 0;
+    this._ranges = [];
+    this._generation++;
 };
 RangeCollection.Instance.MergeLeft = function (range, position) {
     var left = position - 1;
@@ -4870,6 +4912,14 @@ RangeCollection.Instance.MergeRight = function (range, position) {
     return false;
 };
 Nullstone.FinishCreate(RangeCollection);
+
+var ICommand = Nullstone.Create("ICommand");
+ICommand.Instance.Init = function () {
+    this.CanExecuteChanged = new MulticastEvent();
+};
+ICommand.Instance.Execute = function (parameter) { };
+ICommand.Instance.CanExecute = function (parameter) { return true; };
+Nullstone.FinishCreate(ICommand);
 
 var _InheritedContext = Nullstone.Create("_InheritedContext");
 _InheritedContext.FromSources = function (foregroundSource, fontFamilySource, fontStretchSource, fontStyleSource,
@@ -5642,6 +5692,15 @@ _RenderContext.Instance.Init = function (surface) {
     this.Surface = surface;
     this.CanvasContext = this.Surface._Ctx;
     this._Transforms = [];
+    if (!this.CanvasContext.hasOwnProperty("currentTransform")) {
+        Object.defineProperty(this.CanvasContext, "currentTransform", {
+            get: function () { return this._CurrentTransform; },
+            set: function (value) {
+                this.setTransform(value[0], value[1], value[3], value[4], value[2], value[5]);
+                this._CurrentTransform = value;
+            }
+        });
+    }
 };
 Nullstone.AutoProperties(_RenderContext, [
     "CurrentTransform",
@@ -5677,8 +5736,8 @@ _RenderContext.Instance.PreTransform = function (matrix) {
     }
     var ct = this.CurrentTransform;
     mat3.multiply(matrix, ct, ct); //ct = ct * matrix
-    this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-    TransformDebug("PreTransform", this.CurrentTransform);
+    this.CanvasContext.currentTransform = ct;
+    TransformDebug("PreTransform", ct);
 };
 _RenderContext.Instance.Transform = function (matrix) {
     if (matrix instanceof Transform) {
@@ -5686,14 +5745,14 @@ _RenderContext.Instance.Transform = function (matrix) {
     }
     var ct = this.CurrentTransform;
     mat3.multiply(ct, matrix, ct); //ct = matrix * ct
-    this.CanvasContext.setTransform(ct[0], ct[1], ct[3], ct[4], ct[2], ct[5]);
-    TransformDebug("Transform", this.CurrentTransform);
+    this.CanvasContext.currentTransform = ct;
+    TransformDebug("Transform", ct);
 };
 _RenderContext.Instance.Translate = function (x, y) {
     var ct = this.CurrentTransform;
-    mat3.translate(x, y);
+    mat3.translate(ct, x, y);
     this.CanvasContext.translate(x, y);
-    TransformDebug("Translate", this.CurrentTransform);
+    TransformDebug("Translate", ct);
 };
 _RenderContext.Instance.Save = function () {
     this.CanvasContext.save();
@@ -6516,6 +6575,21 @@ Nullstone.FinishCreate(RepeatBehavior);
 
 var VisualStateChangedEventArgs = Nullstone.Create("VisualStateChangedEventArgs");
 Nullstone.FinishCreate(VisualStateChangedEventArgs);
+
+(function (namespace) {
+    var RelayCommand = Nullstone.Create("RelayCommand", undefined, 2, [ICommand]);
+    RelayCommand.Instance.Init = function (execute, canExecute) {
+        this.CanExecuteChanged = new MulticastEvent();
+        if (execute)
+            this.Execute = execute;
+        if (canExecute)
+            this.CanExecute = canExecute;
+    };
+    RelayCommand.Instance.Execute = function (parameter) { };
+    RelayCommand.Instance.CanExecute = function (parameter) { return true; };
+    Nullstone.FinishCreate(RelayCommand);
+    namespace.RelayCommand = RelayCommand;
+})(Nullstone.Namespace("Fayde.MVVM"));
 
 var UriMapper = Nullstone.Create("UriMapper");
 Nullstone.AutoProperty(UriMapper, "UriMappings");
@@ -7505,9 +7579,6 @@ BError.InvalidOperation = 3;
 BError.Exception = 4;
 BError.XamlParseException = 5;
 
-var Closure = Nullstone.Create("Closure");
-Nullstone.FinishCreate(Closure);
-
 var Dictionary = Nullstone.Create("Dictionary", undefined, 2);
 Dictionary.Instance.Init = function (type1, type2) {
     this._ht = [];
@@ -7590,9 +7661,6 @@ DoubleKeyedDictionary.Instance.GetValueFromKey2 = function (key2) {
         return result.Value;
     return null;
 };
-DoubleKeyedDictionary.Instance.Add = function (key1, key2) {
-    this.Add(key1, key2, false);
-};
 DoubleKeyedDictionary.Instance.Add = function (key1, key2, ignoreExisting) {
     var result = {};
     if (!ignoreExisting && (this._forward.TryGetValue(key1, result) || this._backward.TryGetValue(key2, result))) {
@@ -7603,9 +7671,6 @@ DoubleKeyedDictionary.Instance.Add = function (key1, key2, ignoreExisting) {
 DoubleKeyedDictionary.Instance.Clear = function () {
     this._forward.Clear();
     this._backward.Clear();
-};
-DoubleKeyedDictionary.Instance.Remove = function (key1, key2) {
-    this.Remove(key1, key2, false);
 };
 DoubleKeyedDictionary.Instance.Remove = function (key1, key2, ignoreExisting) {
     var result = {};
@@ -7650,8 +7715,8 @@ Exception.Instance.toString = function () {
 Nullstone.FinishCreate(Exception);
 var InvalidOperationException = Nullstone.Create("InvalidOperationException", Exception, 3);
 Nullstone.FinishCreate(InvalidOperationException);
-var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 3);
-NotImplementedException.Instance.Init = function (type, parentType, methodName) {
+var InterfaceNotImplementedException = Nullstone.Create("InterfaceNotImplementedException", Exception, 3);
+InterfaceNotImplementedException.Instance.Init = function (type, parentType, methodName) {
     var msg;
     if (methodName)
         msg = type._TypeName + " does not implement " + parentType._TypeName + "." + this.MethodName;
@@ -7660,6 +7725,11 @@ NotImplementedException.Instance.Init = function (type, parentType, methodName) 
     this.Init$Exception(msg);
     this.Type = type;
     this.ParentType = parentType;
+    this.MethodName = methodName;
+};
+Nullstone.FinishCreate(InterfaceNotImplementedException);
+var NotImplementedException = Nullstone.Create("NotImplementedException", Exception, 1);
+NotImplementedException.Instance.Init = function (methodName) {
     this.MethodName = methodName;
 };
 Nullstone.FinishCreate(NotImplementedException);
@@ -8402,7 +8472,7 @@ _ImplicitStylePropertyValueProvider.Instance._ApplyStyles = function (styleMask,
     var isChanged = !this._Styles || styleMask != this._StyleMask;
     if (!isChanged) {
         for (var i = 0; i < _StyleIndex.Count; i++) {
-            if (styles[i] != this._Styles[i]) {
+            if (!Nullstone.RefEquals(styles[i], this._Styles[i])) {
                 isChanged = true;
                 break;
             }
@@ -8932,12 +9002,12 @@ INotifyPropertyChanged.Instance.RaisePropertyChanged = function (propertyName) {
 };
 Nullstone.FinishCreate(INotifyPropertyChanged);
 
-var PropertyChangedEventArgs = Nullstone.Create("PropertyChangedEventArgs", EventArgs);
-PropertyChangedEventArgs.Instance.GetPropertyName = function () {
-    return this._PropertyName;
-};
-PropertyChangedEventArgs.Instance.SetPropertyName = function (value) {
-    this._PropertyName = value;
+var PropertyChangedEventArgs = Nullstone.Create("PropertyChangedEventArgs", EventArgs, 1);
+Nullstone.Property(PropertyChangedEventArgs, "PropertyName", {
+    get: function () { return this._PropertyName; }
+});
+PropertyChangedEventArgs.Instance.Init = function (propertyName) {
+    this._PropertyName = propertyName;
 };
 Nullstone.FinishCreate(PropertyChangedEventArgs);
 
@@ -10082,6 +10152,24 @@ BindingMarkup.Instance._BuildBinding = function () {
 };
 Nullstone.FinishCreate(BindingMarkup);
 
+(function (namespace) {
+    var ObservableObject = Nullstone.Create("ObservableObject", undefined, 0, [INotifyPropertyChanged]);
+    ObservableObject.Instance.Init = function () {
+        this.PropertyChanged = new MulticastEvent();
+    };
+    ObservableObject.Instance.OnPropertyChanged = function (propertyName) {
+        this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
+    };
+    Nullstone.FinishCreate(ObservableObject);
+    namespace.ObservableObject = ObservableObject;
+})(Nullstone.Namespace("Fayde.MVVM"));
+
+(function (namespace) {
+    var ViewModelBase = Nullstone.Create("ViewModelBase", Fayde.MVVM.ObservableObject);
+    Nullstone.FinishCreate(ViewModelBase);
+    namespace.ViewModelBase = ViewModelBase;
+})(Nullstone.Namespace("Fayde.MVVM"));
+
 var Clip = Nullstone.Create("Clip", undefined, 1);
 Clip.Instance.Init = function (rect) {
     var rounded = rect.RoundOut();
@@ -10121,9 +10209,9 @@ ItemContainerGenerator.Instance.CheckOffsetAndRealized = function (positionIndex
     if (positionOffset != 0) {
         throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
     }
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     var rangeIndex = this.RealizedElements.FindRangeIndexForValue(index);
-    var range = this.RealizedElements.Ranges.GetValueAt(rangeIndex);
+    var range = this.RealizedElements.Ranges[rangeIndex];
     if (index < range.Start || (index + count) > range.Start + range.Count) {
         throw new InvalidOperationException("Only items which have been Realized can be removed");
     }
@@ -10165,7 +10253,7 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
         this._GenerationState._positionIndex = this.RealizedElements.IndexOf(index);
         this._GenerationState._positionOffset = this._GenerationState._step;
         isNewlyRealized.Value = false;
-        return this.ContainerIndexMap.GetValueFromKey1(index);
+        return this.ContainerIndexMap.GetValueFromKey2(index);
     }
     var container;
     var item = this.Owner.Items.GetValueAt(index);
@@ -10332,11 +10420,12 @@ ItemContainerGenerator.Instance.PrepareItemContainer = function (container) {
 };
 ItemContainerGenerator.Instance.Remove = function (positionIndex, positionOffset, count) {
     this.CheckOffsetAndRealized(positionIndex, positionOffset, count);
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     for (var i = 0; i < count; i++) {
-        var container = this.ContainerIndexMap.GetValueAtKey2(index + 1);
-        var item;
-        this.ContainerItemMap.TryGetValue(container, item);
+        var container = this.ContainerIndexMap.GetValueFromKey2(index + i);
+        var oitem = { Value: null };
+        this.ContainerItemMap.TryGetValue(container, oitem);
+        var item = oitem.Value;
         this.ContainerIndexMap.Remove(container, index + i);
         this.ContainerItemMap.Remove(container);
         this.RealizedElements.Remove(index + i);
@@ -10383,11 +10472,14 @@ ItemContainerGenerator.Instance.StartAt = function (positionIndex, positionOffse
 };
 ItemContainerGenerator.Instance.Recycle = function (positionIndex, positionOffset, count) {
     this.CheckOffsetAndRealized(positionIndex, positionOffset, count);
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     for (var i = 0; i < count; i++) {
         this.Cache.push(this.ContainerIndexMap.GetValueFromKey2(index + i));
     }
     this.Remove(positionIndex, positionOffset, count);
+};
+ItemContainerGenerator.Instance.StopGeneration = function () {
+    delete this._GenerationState;
 };
 Nullstone.FinishCreate(ItemContainerGenerator);
 
@@ -11085,11 +11177,7 @@ DependencyObject.Instance.RemovePropertyChangedListener = function (ldo, propd) 
         break;
     }
 };
-DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-    var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
-    if (inheritedProvider)
-        inheritedProvider.PropagateInheritedProperty(propd, this, this);
-};
+DependencyObject.Instance._OnSubPropertyChanged = function (propd, sender, args) { };
 DependencyObject.Instance._OnCollectionChangedEH = function (sender, args) {
     this._OnCollectionChanged(sender, args);
 };
@@ -13227,7 +13315,7 @@ Nullstone.FinishCreate(_IndexedPropertyPathNode);
 var TextElement = Nullstone.Create("TextElement", DependencyObject);
 TextElement.Instance.Init = function () {
     this.Init$DependencyObject();
-    this._Providers[_PropertyPrecedence.Inherited] = new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited);
+    this.AddProvider(new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited));
     this._Font = new Font();
     this._UpdateFont(true);
 };
@@ -13309,6 +13397,9 @@ Nullstone.AutoProperties(App, [
     App.ResourcesProperty,
     "Address"
 ]);
+Nullstone.Property(App, "RootVisual", {
+    get: function () { return this.MainSurface._TopLevel; }
+});
 App.Instance.LoadResources = function (json) {
     var rd = JsonParser.Parse(json);
     if (rd instanceof ResourceDictionary)
@@ -13322,8 +13413,9 @@ App.Instance.LoadInitial = function (containerId, json) {
     if (element instanceof UIElement)
         this.MainSurface._Attach(element);
     this.Start();
+    this.EmitLoaded();
 };
-App.Instance.OnLoaded = function () {
+App.Instance.EmitLoaded = function () {
     this.Loaded.RaiseAsync(this, new EventArgs());
 };
 App.Instance.Start = function () {
@@ -13476,6 +13568,7 @@ App.Instance._NotifyDebugParserPass = function (type, elapsedTime) {
     func(type, elapsedTime);
 };
 Nullstone.FinishCreate(App);
+App.Version = "0.9.0.1";
 
 var Brush = Nullstone.Create("Brush", DependencyObject);
 Brush.Instance.Init = function () {
@@ -15487,6 +15580,12 @@ FrameworkElement.Instance.SetTemplateBinding = function (propd, tb) {
 FrameworkElement.Instance.SetBinding = function (propd, binding) {
     return BindingOperations.SetBinding(this, propd, binding);
 };
+FrameworkElement.Instance.GetBindingExpression = function (propd) {
+    var data = {};
+    if (this._Expressions && this._Expressions.TryGetValue(propd, data))
+        return data.Value;
+    return null;
+};
 FrameworkElement.Instance._GetTransformOrigin = function () {
     var userXformOrigin = this.RenderTransformOrigin;
     var width = this.ActualWidth;
@@ -16304,13 +16403,15 @@ Nullstone.AutoProperties(Section, [
 Nullstone.FinishCreate(Section);
 
 var Span = Nullstone.Create("Span", Inline);
-Span._CreateInlineCollection = function (obj) {
-    var inlines = new InlineCollection();
-    if (obj instanceof Hyperlink)
-        inlines._SetIsForHyperlink();
-    return inlines;
+Span._InlinesAutoCreator = {
+    GetValue: function (propd, obj) {
+        var inlines = new InlineCollection();
+        if (obj instanceof Hyperlink)
+            inlines._SetIsForHyperlink();
+        return inlines;
+    }
 };
-Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, undefined, { GetValue: function (obj) { return Span._CreateInlineCollection(obj); } });
+Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, undefined, Span._InlinesAutoCreator);
 Nullstone.AutoProperties(Span, [
     Span.InlinesProperty
 ]);
@@ -18758,21 +18859,25 @@ ItemsControl.Instance.AddItemsToPresenter = function (positionIndex, positionOff
     if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)
         return;
     var panel = this._Presenter._ElementRoot;
-    var newIndex = this._ItemContainerGenerator.IndexFromGeneratorPosition(positionIndex, positionOffset);
-    var p = this._ItemContainerGenerator.StartAt(positionIndex, positionOffset, 0, true);
+    var icg = this._ItemContainerGenerator;
+    var newIndex = icg.IndexFromGeneratorPosition(positionIndex, positionOffset);
     var items = this.Items;
     var children = panel.Children;
-    for (var i = 0; i < count; i++) {
-        var item = items.GetValueAt(newIndex + i);
-        var container = this._ItemContainerGenerator.GenerateNext({});
-        if (container instanceof ContentControl)
-            container._ContentSetsParent = false;
-        if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
-            container.DataContext = item;
-        children.Insert(newIndex + i, container);
-        this._ItemContainerGenerator.PrepareItemContainer(container);
+    var p = icg.StartAt(positionIndex, positionOffset, 0, true);
+    try{
+        for (var i = 0; i < count; i++) {
+            var item = items.GetValueAt(newIndex + i);
+            var container = icg.GenerateNext({});
+            if (container instanceof ContentControl)
+                container._ContentSetsParent = false;
+            if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
+                container.DataContext = item;
+            children.Insert(newIndex + i, container);
+            icg.PrepareItemContainer(container);
+        }
+    } finally {
+        icg.StopGeneration();
     }
-    delete this._ItemContainerGenerator._GenerationState;
 };
 ItemsControl.Instance.RemoveItemsFromPresenter = function (positionIndex, positionOffset, count) {
     if (this._Presenter == null || this._Presenter._ElementRoot == null || this._Presenter._ElementRoot instanceof VirtualizingPanel)
@@ -18841,7 +18946,11 @@ ItemsPresenter.Instance._GetDefaultTemplateCallback = function () {
         this._ElementRoot = root;
     }
     if (this._ElementRoot == null) {
-        var template = this.StackPanelFallbackTemplate;
+        var template;
+        if (c instanceof ListBox)
+            template = this.VirtualizingStackPanelFallbackTemplate;
+        else
+            template = this.StackPanelFallbackTemplate;
         this._ElementRoot = template.GetVisualTree(this);
     }
     this._ElementRoot.IsItemsHost = true;
@@ -19205,7 +19314,7 @@ ScrollContentPresenter.Instance.MeasureOverride = function (constraint) {
 ScrollContentPresenter.Instance.ArrangeOverride = function (arrangeSize) {
     var scrollOwner = this.GetScrollOwner();
     if (!scrollOwner || !this._ContentRoot)
-        return this._ArrangeOverrideWithError(arrangeSize);
+        return this._ArrangeOverrideWithError(arrangeSize, new BError());
     if (this._ClampOffsets())
         scrollOwner._InvalidateScrollInfo();
     var desired = this._ContentRoot._DesiredSize;
@@ -20897,7 +21006,416 @@ VirtualizingPanel.Instance.OnItemsChanged = function (sender, args) { };
 Nullstone.FinishCreate(VirtualizingPanel);
 
 var VirtualizingStackPanel = Nullstone.Create("VirtualizingStackPanel", VirtualizingPanel, 0, [IScrollInfo]);
+VirtualizingStackPanel.Instance.Init = function () {
+    this.Init$VirtualizingPanel();
+    this.CleanUpVirtualizedItemEvent = new MulticastEvent();
+    this._CanHorizontallyScroll = false;
+    this._CanVerticallyScroll = false;
+    this._ExtentWidth = 0;
+    this._ExtentHeight = 0;
+    this._ViewportWidth = 0;
+    this._ViewportHeight = 0;
+    this._HorizontalOffset = 0;
+    this._VerticalOffset = 0;
+};
+VirtualizingStackPanel.LineDelta = 14.7;
+VirtualizingStackPanel.Wheelitude = 3;
+VirtualizingStackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, VirtualizingStackPanel, Orientation.Vertical, function (d, args) { d._InvalidateMeasure(); });
+Nullstone.AutoProperties(VirtualizingStackPanel, [
+    VirtualizingStackPanel.OrientationProperty
+]);
+VirtualizingStackPanel.IsVirtualizingProperty = DependencyProperty.RegisterAttached("IsVirtualizing", function () { return Boolean; }, VirtualizingStackPanel, false);
+VirtualizingStackPanel.GetIsVirtualizing = function (d) {
+    if (d == null)
+        throw new ArgumentNullException("d");
+    return d.$GetValue(VirtualizingStackPanel.IsVirtualizingProperty);
+};
+VirtualizingStackPanel.SetIsVirtualizing = function (d, value) {
+    if (d == null)
+        throw new ArgumentNullException("d");
+    d.$SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value);
+};
+VirtualizingStackPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () { return new Enum(VirtualizationMode); }, VirtualizingStackPanel, VirtualizationMode.Recycling);
+VirtualizingStackPanel.GetVirtualizationMode = function (d) {
+    if (d == null)
+        throw new ArgumentNullException("d");
+    return d.$GetValue(VirtualizingStackPanel.VirtualizationModeProperty);
+};
+VirtualizingStackPanel.SetVirtualizationMode = function (d, value) {
+    if (d == null)
+        throw new ArgumentNullException("d");
+    d.$SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value);
+};
+VirtualizingStackPanel.Instance.GetCanHorizontallyScroll = function () { return this._CanHorizontallyScroll; };
+VirtualizingStackPanel.Instance.SetCanHorizontallyScroll = function (value) {
+    this._CanHorizontallyScroll = value;
+    this._InvalidateMeasure();
+};
+VirtualizingStackPanel.Instance.GetCanVerticallyScroll = function () { return this._CanVerticallyScroll; };
+VirtualizingStackPanel.Instance.SetCanVerticallyScroll = function (value) {
+    this._CanVerticallyScroll = value;
+    this._InvalidateMeasure();
+};
+VirtualizingStackPanel.Instance.GetExtentWidth = function () { return this._ExtentWidth; };
+VirtualizingStackPanel.Instance.GetExtentHeight = function () { return this._ExtentHeight; };
+VirtualizingStackPanel.Instance.GetViewportWidth = function () { return this._ViewportWidth; };
+VirtualizingStackPanel.Instance.GetViewportHeight = function () { return this._ViewportHeight; };
+VirtualizingStackPanel.Instance.GetHorizontalOffset = function () { return this._HorizontalOffset; };
+VirtualizingStackPanel.Instance.SetHorizontalOffset = function (offset) {
+    if (offset < 0 || this._ViewportWidth >= this._ExtentWidth)
+        offset = 0;
+    else if ((offset + this._ViewportWidth) >= this._ExtentWidth)
+        offset = this._ExtentWidth - this._ViewportWidth;
+    if (this._HorizontalOffset === offset)
+        return;
+    this._HorizontalOffset = offset;
+    if (this.Orientation === Orientation.Horizontal)
+        this._InvalidateMeasure();
+    else
+        this._InvalidateArrange();
+    var scrollOwner = this.GetScrollOwner();
+    if (scrollOwner)
+        scrollOwner._InvalidateScrollInfo();
+};
+VirtualizingStackPanel.Instance.GetVerticalOffset = function () { return this._VerticalOffset; };
+VirtualizingStackPanel.Instance.SetVerticalOffset = function (offset) {
+    if (offset < 0 || this._ViewportHeight >= this._ExtentHeight)
+        offset = 0;
+    else if ((offset + this._ViewportHeight) >= this._ExtentHeight)
+        offset = this._ExtentHeight - this._ViewportHeight;
+    if (this._VerticalOffset == offset)
+        return;
+    this._VerticalOffset = offset;
+    if (this.Orientation === Orientation.Vertical)
+        this._InvalidateMeasure();
+    else
+        this._InvalidateArrange();
+    var scrollOwner = this.GetScrollOwner();
+    if (scrollOwner)
+        scrollOwner._InvalidateScrollInfo();
+};
+VirtualizingStackPanel.Instance.GetScrollOwner = function () { return this._ScrollOwner; };
+VirtualizingStackPanel.Instance.SetScrollOwner = function (value) { this._ScrollOwner = value; };
+VirtualizingStackPanel.Instance.LineUp = function () {
+    if (this.Orientation === Orientation.Horizontal)
+        this.SetVerticalOffset(this._VerticalOffset - VirtualizingStackPanel.LineDelta);
+    else
+        this.SetVerticalOffset(this._VerticalOffset - 1);
+};
+VirtualizingStackPanel.Instance.LineDown = function () {
+    if (this.Orientation === Orientation.Horizontal)
+        this.SetVerticalOffset(this._VerticalOffset + VirtualizingStackPanel.LineDelta);
+    else
+        this.SetVerticalOffset(this._VerticalOffset + 1);
+};
+VirtualizingStackPanel.Instance.LineLeft = function () {
+    if (this.Orientation === Orientation.Vertical)
+        this.SetHorizontalOffset(this._HorizontalOffset - VirtualizingStackPanel.LineDelta);
+    else
+        this.SetHorizontalOffset(this._HorizontalOffset - 1);
+};
+VirtualizingStackPanel.Instance.LineRight = function () {
+    if (this.Orientation === Orientation.Vertical)
+        this.SetHorizontalOffset(this._HorizontalOffset + VirtualizingStackPanel.LineDelta);
+    else
+        this.SetHorizontalOffset(this._HorizontalOffset + 1);
+};
+VirtualizingStackPanel.Instance.MouseWheelUp = function () {
+    if (this.Orientation === Orientation.Horizontal)
+        this.SetVerticalOffset(this._VerticalOffset - VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude);
+    else
+        this.SetVerticalOffset(this._VerticalOffset - VirtualizingStackPanel.Wheelitude);
+};
+VirtualizingStackPanel.Instance.MouseWheelDown = function () {
+    if (this.Orientation === Orientation.Horizontal)
+        this.SetVerticalOffset(this._VerticalOffset + VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude);
+    else
+        this.SetVerticalOffset(this._VerticalOffset + VirtualizingStackPanel.Wheelitude);
+};
+VirtualizingStackPanel.Instance.MouseWheelLeft = function () {
+    if (this.Orientation === Orientation.Vertical)
+        this.SetHorizontalOffset(this._HorizontalOffset - VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude);
+    else
+        this.SetHorizontalOffset(this._HorizontalOffset - VirtualizingStackPanel.Wheelitude);
+};
+VirtualizingStackPanel.Instance.MouseWheelRight = function () {
+    if (this.Orientation === Orientation.Vertical)
+        this.SetHorizontalOffset(this._HorizontalOffset + VirtualizingStackPanel.LineDelta * VirtualizingStackPanel.Wheelitude);
+    else
+        this.SetHorizontalOffset(this._HorizontalOffset + VirtualizingStackPanel.Wheelitude);
+};
+VirtualizingStackPanel.Instance.PageUp = function () { this.SetVerticalOffset(this._VerticalOffset - this._ViewportHeight); };
+VirtualizingStackPanel.Instance.PageDown = function () { this.SetVerticalOffset(this._VerticalOffset + this._ViewportHeight); };
+VirtualizingStackPanel.Instance.PageLeft = function () { this.SetHorizontalOffset(this._HorizontalOffset - this._ViewportWidth); };
+VirtualizingStackPanel.Instance.PageRight = function () { this.SetHorizontalOffset(this._HorizontalOffset + this._ViewportWidth); };
+VirtualizingStackPanel.Instance.MakeVisible = function (uie, rectangle) {
+    var exposed = new Rect();
+    var orientation = this.Orientation;
+    var children = this.Children;
+    var len = children.GetCount();
+    for (var i = 0; i < len; i++) {
+        var child = children.GetValueAt(i);
+        if (Nullstone.RefEquals(uie, child)) {
+            if (orientation === Orientation.Vertical) {
+                if (rectangle.X !== this._HorizontalOffset)
+                    this.SetHorizontalOffset(rectangle.X);
+                exposed.Width = Math.min(child.RenderSize.Width, this._ViewportWidth);
+                exposed.Height = child.RenderSize.Height;
+                exposed.X = this._HorizontalOffset;
+            } else {
+                if (rectangle.Y !== this._VerticalOffset)
+                    this.SetVerticalOffset(rectangle.Y);
+                exposed.Height = Math.min(child.RenderSize.Height, this._ViewportHeight);
+                exposed.Width = child.RenderSize.Width;
+                exposed.Y = this._VerticalOffset;
+            }
+            return exposed;
+        }
+        if (this.Orientation === Orientation.Vertical)
+            exposed.Y += child.RenderSize.Height;
+        else
+            exposed.X += child.RenderSize.Width;
+    }
+    throw new ArgumentException("Visual is not a child of this Panel");
+};
+VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
+    var owner = ItemsControl.GetItemsOwner(this);
+    var measured = new Size(0, 0);
+    var invalidate = false;
+    var nvisible = 0;
+    var beyond = 0;
+    var orientation = this.Orientation;
+    if (orientation === Orientation.Horizontal)
+        index = this.GetHorizontalOffset();
+    else
+        index = this.GetVerticalOffset();
+    var itemCount = owner.Items.GetCount();
+    var generator = this.ItemContainerGenerator;
+    if (itemCount > 0) {
+        var children = this.Children;
+        var childAvailable = constraint.Copy();
+        if (this.GetCanHorizontallyScroll() || orientation === Orientation.Horizontal)
+            childAvailable.Width = Number.POSITIVE_INFINITY;
+        if (this.GetCanVerticallyScroll() || orientation === Orientation.Vertical)
+            childAvailable.Height = Number.POSITIVE_INFINITY;
+        var start = generator.GeneratorPositionFromIndex(index);
+        var insertAt = (start.offset === 0) ? start.index : start.index + 1;
+        var state = generator.StartAt(start.index, start.offset, 0, true);
+        try {
+            var isNewlyRealized = { Value: false };
+            for (var i = 0; i < itemCount && beyond < 2; i++, insertAt++) {
+                var child = generator.GenerateNext(isNewlyRealized);
+                if (isNewlyRealized.Value || insertAt >= children.GetCount() || !Nullstone.RefEquals(children.GetValueAt(insertAt), child)) {
+                    if (insertAt < children.GetCount())
+                        this.InsertInternalChild(insertAt, child)
+                    else
+                        this.AddInternalChild(child);
+                    generator.PrepareItemContainer(child);
+                }
+                child.Measure(childAvailable);
+                var size = child._DesiredSize;
+                nvisible++;
+                if (orientation === Orientation.Vertical) {
+                    measured.Width = Math.max(measured.Width, size.Width);
+                    measured.Height += size.Height;
+                    if (measured.Height > constraint.Height)
+                        beyond++;
+                } else {
+                    measured.Height = Math.max(measured.Height, size.Height);
+                    measured.Width += size.Width;
+                    if (measured.Width > constraint.Width)
+                        beyond++;
+                }
+            }
+        } finally {
+            generator.StopGeneration();
+        }
+    }
+    VirtualizingStackPanel.SetIsVirtualizing(owner, true);
+    if (nvisible > 0)
+        this.RemoveUnusedContainers(index, nvisible);
+    nvisible -= beyond;
+    if (orientation === Orientation.Vertical) {
+        if (this.GetExtentHeight() !== itemCount) {
+            this._ExtentHeight = itemCount;
+            invalidate = true;
+        }
+        if (this.GetExtentWidth() !== measured.Width) {
+            this._ExtentWidth = measured.Width;
+            invalidate = true;
+        }
+        if (this.GetViewportHeight() !== nvisible) {
+            this._ViewportHeight = nvisible;
+            invalidate = true;
+        }
+        if (this.GetViewportWidth() != constraint.Width) {
+            this._ViewportWidth = constraint.Width;
+            invalidate = true;
+        }
+    } else {
+        if (this.GetExtentHeight() !== measured.Height) {
+            this._ExtentHeight = measured.Height;
+            invalidate = true;
+        }
+        if (this.GetExtentWidth() !== itemCount) {
+            this._ExtentWidth = itemCount;
+            invalidate = true;
+        }
+        if (this.GetViewportHeight() !== constraint.Height) {
+            this._ViewportHeight = constraint.Height;
+            invalidate = true;
+        }
+        if (this.GetViewportWidth() !== nvisible) {
+            this._ViewportWidth = nvisible;
+            invalidate = true;
+        }
+    }
+    var scrollOwner = this.GetScrollOwner();
+    if (invalidate && scrollOwner != null)
+        scrollOwner._InvalidateScrollInfo();
+    return measured;
+};
+VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
+    var arranged = arrangeSize.Copy();
+    var orientation = this.Orientation;
+    if (orientation === Orientation.Vertical)
+        arranged.Height = 0;
+    else
+        arranged.Width = 0;
+    var children = this.Children;
+    var len = children.GetCount();
+    for (var i = 0; i < len; i++) {
+        var child = children.GetValueAt(i);
+        var size = child._DesiredSize;
+        if (orientation === Orientation.Vertical) {
+            size.Width = arrangeSize.Width;
+            var childFinal = new Rect(-this.GetHorizontalOffset(), arranged.Height, size.Width, size.Height);
+            if (childFinal.IsEmpty())
+                childFinal = new Rect();
+            child.Arrange(childFinal);
+            arranged.Width = Math.max(arranged.Width, size.Width);
+            arranged.Height += size.Height;
+        } else {
+            size.Height = arrangeSize.Height;
+            var childFinal = new Rect(arranged.Width, -this.GetVerticalOffset(), size.Width, size.Height);
+            if (childFinal.IsEmpty())
+                childFinal = new Rect();
+            child.Arrange(childFinal);
+            arranged.Width += size.Width;
+            arranged.Height = Math.max(arranged.Height, size.Height);
+        }
+    }
+    if (orientation === Orientation.Vertical)
+        arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
+    else
+        arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
+    return arranged;
+};
+VirtualizingStackPanel.Instance.RemoveUnusedContainers = function (first, count) {
+    var generator = this.ItemContainerGenerator;
+    var owner = ItemsControl.GetItemsOwner(this);
+    var mode = VirtualizingStackPanel.GetVirtualizationMode(this);
+    var last = first + count - 1;
+    var item;
+    var args;
+    var children = this.Children;
+    var posIndex = children.GetCount() - 1;
+    var posOffset = 0;
+    while (posIndex >= 0) {
+        item = generator.IndexFromGeneratorPosition(posIndex, posOffset);
+        if (item < first || item > last) {
+            args = new CleanUpVirtualizedItemEventArgs(children.GetValueAt(posIndex), owner.Items.GetValueAt(item));
+            this.OnCleanUpVirtualizedItem(args);
+            if (!args.Cancel) {
+                this.RemoveInternalChildRange(posIndex, 1);
+                if (mode === VirtualizationMode.Recycling)
+                    generator.Recycle(posIndex, posOffset, 1);
+                else
+                    generator.Remove(posIndex, posOffset, 1);
+            }
+        }
+        posIndex--;
+    }
+};
+VirtualizingStackPanel.Instance.OnCleanUpVirtualizedItem = function (args) {
+    this.CleanUpVirtualizedItemEvent.Raise(this, args);
+};
+VirtualizingStackPanel.Instance.OnClearChildren = function () {
+    this.OnClearChildren$VirtualizingPanel();
+    this._HorizontalOffset = 0;
+    this._VerticalOffset = 0;
+    this._InvalidateMeasure();
+    var scrollOwner = this.GetScrollOwner();
+    if (scrollOwner)
+        scrollOwner._InvalidateScrollInfo();
+};
+VirtualizingStackPanel.Instance.OnItemsChanged = function (sender, args) {
+    this.OnItemsChanged$VirtualizingPanel(sender, args);
+    var generator = this.ItemContainerGenerator;
+    var owner = ItemsControl.GetItemsOwner(this);
+    var orientation = this.Orientation;
+    var index;
+    var offset;
+    var viewable
+    switch (args.Action) {
+        case NotifyCollectionChangedAction.Add:
+            var index = generator.IndexFromGeneratorPosition(args.Position.index, args.Position.offset);
+            if (orientation === Orientation.Horizontal)
+                offset = this.GetHorizontalOffset();
+            else
+                offset = this.GetVerticalOffset();
+            if (index <= offset) {
+                offset += args.ItemCount;
+            }
+            if (orientation === Orientation.Horizontal)
+                this.SetHorizontalOffset(offset);
+            else
+                this.SetVerticalOffset(offset);
+            break;
+        case NotifyCollectionChangedAction.Remove:
+            index = generator.IndexFromGeneratorPosition(args.Position.index, args.Position.offset);
+            if (orientation === Orientation.Horizontal) {
+                offset = this.GetHorizontalOffset();
+                viewable = this.GetViewportWidth();
+            } else {
+                offset = this.GetVerticalOffset();
+                viewable = this.GetViewportHeight();
+            }
+            if (index < offset) {
+                offset = Math.max(offset - args.ItemCount, 0);
+            }
+            offset = Math.min(offset, owner.Items.GetCount() - viewable);
+            offset = Math.max(offset, 0);
+            if (orientation === Orientation.Horizontal)
+                this.SetHorizontalOffset(offset);
+            else
+                this.SetVerticalOffset(offset);
+            this.RemoveInternalChildRange(args.Position.index, args.Position.ItemUICount);
+            break;
+        case NotifyCollectionChangedAction.Replace:
+            this.RemoveInternalChildRange(args.Position.index, args.ItemUICount);
+            break;
+        case NotifyCollectionChangedAction.Reset:
+            break;
+    }
+    this._InvalidateMeasure();
+    var scrollOwner = this.GetScrollOwner();
+    if (scrollOwner)
+        scrollOwner._InvalidateScrollInfo();
+};
 Nullstone.FinishCreate(VirtualizingStackPanel);
+var CleanUpVirtualizedItemEventArgs = Nullstone.Create("CleanUpVirtualizedItemEventArgs", RoutedEventArgs, 2);
+CleanUpVirtualizedItemEventArgs.Instance.Init = function (uie, value) {
+    this.UIElement = uie;
+    this.Value = value;
+    this.Cancel = false;
+};
+Nullstone.AutoProperty(CleanUpVirtualizedItemEventArgs, [
+    "UIElement",
+    "Value",
+    "Cancel"
+]);
+Nullstone.FinishCreate(CleanUpVirtualizedItemEventArgs);
 
 var Popup = Nullstone.Create("Popup", FrameworkElement);
 Popup.Instance.Init = function () {
@@ -22782,7 +23300,11 @@ ComboBox.Instance._UpdateDisplayedItem = function (selectedItem) {
         if (container == null) {
             var position = icg.GeneratorPositionFromIndex(selectedIndex);
             var state = icg.StartAt(position.index, position.offset, 0, true);
-            container = Nullstone.As(icg.GenerateNext({}), ComboBoxItem);
+            try{
+                container = Nullstone.As(icg.GenerateNext({}), ComboBoxItem);
+            } finally {
+                icg.StopGeneration();
+            }
             icg.PrepareItemContainer(container);
         }
         this.$SelectionBoxItemTemplate = container.ContentTemplate;
@@ -24356,6 +24878,15 @@ ContentControl.Annotations = {
 Nullstone.FinishCreate(ContentControl);
 
 var Frame = Nullstone.Create("Frame", ContentControl);
+Frame.Instance.Init = function () {
+    this.Init$ContentControl();
+    this.Loaded.Subscribe(this._FrameLoaded, this);
+    this.Navigated = new MulticastEvent();
+    this.Navigating = new MulticastEvent();
+    this.NavigationFailed = new MulticastEvent();
+    this.NavigationStopped = new MulticastEvent();
+    this.FragmentNavigation = new MulticastEvent();
+};
 Frame.IsDeepLinkedProperty = DependencyProperty.Register("IsDeepLinked", function () { return Boolean; }, Frame, true);
 Frame.CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", function () { return Uri; }, Frame);
 Frame.SourceProperty = DependencyProperty.Register("Source", function () { return Uri; }, Frame, undefined, function (d, args) { d.SourcePropertyChanged(args); });
@@ -24368,15 +24899,6 @@ Nullstone.AutoProperties(Frame, [
     Frame.SourceProperty,
     Frame.UriMapperProperty
 ]);
-Frame.Instance.Init = function () {
-    this.Init$ContentControl();
-    this.Loaded.Subscribe(this._FrameLoaded, this);
-    this.Navigated = new MulticastEvent();
-    this.Navigating = new MulticastEvent();
-    this.NavigationFailed = new MulticastEvent();
-    this.NavigationStopped = new MulticastEvent();
-    this.FragmentNavigation = new MulticastEvent();
-};
 Frame.Instance.GoForward = function () {
 };
 Frame.Instance.GoBackward = function () {
@@ -24411,10 +24933,13 @@ Frame.Instance._HandleDeepLink = function () {
 };
 Frame.Instance._LoadContent = function (href, hash) {
     this.StopLoading();
+    var scriptUrl = href + "?js=true&p=" + hash;
     var ns = this;
-    this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
-        function (error) { ns._HandleErrorResponse(error); });
-    this._Request.Get(href, "p=" + hash);
+    Nullstone.ImportJsFile(scriptUrl, function (script) {
+        this._Request = new AjaxJsonRequest(function (responseJson) { ns._HandleSuccessfulResponse(responseJson); },
+            function (error) { ns._HandleErrorResponse(error); });
+        this._Request.Get(href, "p=" + hash);
+    });
 };
 Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
     var page = JsonParser.Parse(responseJson);
@@ -24707,7 +25232,7 @@ ScrollViewer.Instance._HandleHorizontalScroll = function (e) {
     newValue = Math.max(newValue, 0);
     newValue = Math.min(this.ScrollableWidth, newValue);
     if (!DoubleUtil.AreClose(offset, newValue))
-        scrollInfo.ChangeHorizontalOffset(newValue);
+        scrollInfo.SetHorizontalOffset(newValue);
 };
 ScrollViewer.Instance._HandleVerticalScroll = function (e) {
     var scrollInfo = this.GetScrollInfo();
@@ -24742,7 +25267,7 @@ ScrollViewer.Instance._HandleVerticalScroll = function (e) {
     newValue = Math.max(newValue, 0);
     newValue = Math.min(this.ScrollableHeight, newValue);
     if (!DoubleUtil.AreClose(offset, newValue))
-        scrollInfo.ChangeVerticalOffset(newValue);
+        scrollInfo.SetVerticalOffset(newValue);
 };
 ScrollViewer.Instance.OnMouseLeftButtonDown = function (sender, args) {
     if (!args.Handled && this.Focus())
@@ -24966,8 +25491,31 @@ ButtonBase.Instance.Init = function () {
 ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Enum(ClickMode); }, ButtonBase, ClickMode.Release);
 ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
 ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
+ButtonBase.CommandProperty = DependencyProperty.RegisterCore("Command", function () { return ICommand; }, ButtonBase, undefined, function (d, args) { d.OnCommandPropertyChanged(args); });
+ButtonBase.CommandParameterProperty = DependencyProperty.RegisterCore("CommandParameter", function () { return Object; }, ButtonBase, undefined, function (d, args) { d.OnCommandParameterPropertyChanged(args); });
+ButtonBase.Instance.OnCommandPropertyChanged = function (args) {
+    var cmd = Nullstone.As(args.OldValue, ICommand);
+    if (cmd != null)
+        cmd.CanExecuteChanged.Unsubscribe(this.OnCommandCanExecuteChanged, this);
+    cmd = Nullstone.As(args.NewValue, ICommand);
+    if (cmd != null) {
+        cmd.CanExecuteChanged.Subscribe(this.OnCommandCanExecuteChanged, this);
+        this.IsEnabled = cmd.CanExecute(this.CommandParameter);
+    }
+};
+ButtonBase.Instance.OnCommandCanExecuteChanged = function (sender, e) {
+    this.IsEnabled = this.Command.CanExecute(this.CommandParameter);
+};
+ButtonBase.Instance.OnCommandParameterPropertyChanged = function (args) {
+    var cmd = this.Command;
+    if (cmd == null)
+        return;
+    this.IsEnabled = cmd.CanExecute(args.NewValue);
+};
 Nullstone.AutoProperties(ButtonBase, [
-    ButtonBase.ClickModeProperty
+    ButtonBase.ClickModeProperty,
+    ButtonBase.CommandProperty,
+    ButtonBase.CommandParameterProperty
 ]);
 Nullstone.AutoPropertiesReadOnly(ButtonBase, [
     ButtonBase.IsPressedProperty
@@ -25078,6 +25626,10 @@ ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
     }
 };
 ButtonBase.Instance.OnClick = function () {
+    var cmd = this.Command;
+    var par = this.CommandParameter;
+    if (cmd != null && cmd.CanExecute(par))
+        cmd.Execute(par);
     this.Click.Raise(this, new EventArgs());
 };
 ButtonBase.Instance._CaptureMouseInternal = function () {
@@ -25392,10 +25944,17 @@ HyperlinkButton.Instance._GetAbsoluteUri = function () {
     return destination;
 };
 HyperlinkButton.Instance._Navigate = function () {
-    if (this.TargetName != null)
-        window.open(this.NavigateUri.toString(), this.TargetName);
-    else
+    var targetName = this.TargetName;
+    if (targetName == null) {
         window.location.href = this.NavigateUri.toString();
+        return;
+    }
+    var frame = Nullstone.As(this.FindName(targetName), Frame);
+    if (frame != null) {
+        window.location.href = this.NavigateUri.toString();
+        return;
+    }
+    window.open(this.NavigateUri.toString(), targetName);
 };
 Nullstone.FinishCreate(HyperlinkButton);
 

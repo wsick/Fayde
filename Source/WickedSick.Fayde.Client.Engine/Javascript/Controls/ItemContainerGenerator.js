@@ -44,9 +44,9 @@ ItemContainerGenerator.Instance.CheckOffsetAndRealized = function (positionIndex
         throw new ArgumentException("position.Offset must be zero as the position must refer to a realized element");
     }
 
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     var rangeIndex = this.RealizedElements.FindRangeIndexForValue(index);
-    var range = this.RealizedElements.Ranges.GetValueAt(rangeIndex);
+    var range = this.RealizedElements.Ranges[rangeIndex];
     if (index < range.Start || (index + count) > range.Start + range.Count) {
         throw new InvalidOperationException("Only items which have been Realized can be removed");
     }
@@ -93,7 +93,7 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
         this._GenerationState._positionIndex = this.RealizedElements.IndexOf(index);
         this._GenerationState._positionOffset = this._GenerationState._step;
         isNewlyRealized.Value = false;
-        return this.ContainerIndexMap.GetValueFromKey1(index);
+        return this.ContainerIndexMap.GetValueFromKey2(index);
     }
 
     var container;
@@ -280,11 +280,12 @@ ItemContainerGenerator.Instance.PrepareItemContainer = function (container) {
 ItemContainerGenerator.Instance.Remove = function (positionIndex, positionOffset, count) {
     this.CheckOffsetAndRealized(positionIndex, positionOffset, count);
 
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     for (var i = 0; i < count; i++) {
-        var container = this.ContainerIndexMap.GetValueAtKey2(index + 1);
-        var item;
-        this.ContainerItemMap.TryGetValue(container, item);
+        var container = this.ContainerIndexMap.GetValueFromKey2(index + i);
+        var oitem = { Value: null };
+        this.ContainerItemMap.TryGetValue(container, oitem);
+        var item = oitem.Value;
         this.ContainerIndexMap.Remove(container, index + i);
         this.ContainerItemMap.Remove(container);
         this.RealizedElements.Remove(index + i);
@@ -341,11 +342,15 @@ ItemContainerGenerator.Instance.StartAt = function (positionIndex, positionOffse
 ItemContainerGenerator.Instance.Recycle = function (positionIndex, positionOffset, count) {
     this.CheckOffsetAndRealized(positionIndex, positionOffset, count);
 
-    var index = this.GetIndexFromGeneratorPosition(positionIndex, positionOffset);
+    var index = this.IndexFromGeneratorPosition(positionIndex, positionOffset);
     for (var i = 0; i < count; i++) {
         this.Cache.push(this.ContainerIndexMap.GetValueFromKey2(index + i));
     }
     this.Remove(positionIndex, positionOffset, count);
+};
+
+ItemContainerGenerator.Instance.StopGeneration = function () {
+    delete this._GenerationState;
 };
 
 Nullstone.FinishCreate(ItemContainerGenerator);

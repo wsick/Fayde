@@ -24,6 +24,9 @@ VirtualizingStackPanel.Instance.Init = function () {
     this._VerticalOffset = 0;
 };
 
+VirtualizingStackPanel.LineDelta = 14.7;
+VirtualizingStackPanel.Wheelitude = 3;
+
 //#region Properties
 
 VirtualizingStackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, VirtualizingStackPanel, Orientation.Vertical, function (d, args) { d._InvalidateMeasure(); });
@@ -37,25 +40,25 @@ VirtualizingStackPanel.GetIsVirtualizing = function (d) {
     ///<returns type="Boolean"></returns>
     if (d == null)
         throw new ArgumentNullException("d");
-    return d.GetValue(VirtualizingStackPanel.IsVirtualizingProperty);
+    return d.$GetValue(VirtualizingStackPanel.IsVirtualizingProperty);
 };
 VirtualizingStackPanel.SetIsVirtualizing = function (d, value) {
     ///<param name="value" type="Boolean"></param>
     if (d == null)
         throw new ArgumentNullException("d");
-    d.SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value);
+    d.$SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value);
 };
 
 VirtualizingStackPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () { return new Enum(VirtualizationMode); }, VirtualizingStackPanel, VirtualizationMode.Recycling);
 VirtualizingStackPanel.GetVirtualizationMode = function (d) {
     if (d == null)
         throw new ArgumentNullException("d");
-    return d.GetValue(VirtualizingStackPanel.VirtualizationModeProperty);
+    return d.$GetValue(VirtualizingStackPanel.VirtualizationModeProperty);
 };
 VirtualizingStackPanel.SetVirtualizationMode = function (d, value) {
     if (d == null)
         throw new ArgumentNullException("d");
-    d.SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value);
+    d.$SetValue(VirtualizingStackPanel.VirtualizationModeProperty, value);
 };
 
 //#endregion
@@ -98,7 +101,7 @@ VirtualizingStackPanel.Instance.SetHorizontalOffset = function (offset) {
 
     var scrollOwner = this.GetScrollOwner();
     if (scrollOwner)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 };
 
 VirtualizingStackPanel.Instance.GetVerticalOffset = function () { return this._VerticalOffset; };
@@ -119,7 +122,7 @@ VirtualizingStackPanel.Instance.SetVerticalOffset = function (offset) {
 
     var scrollOwner = this.GetScrollOwner();
     if (scrollOwner)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 };
 
 VirtualizingStackPanel.Instance.GetScrollOwner = function () { return this._ScrollOwner; };
@@ -247,35 +250,39 @@ VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
         var insertAt = (start.offset === 0) ? start.index : start.index + 1;
 
         var state = generator.StartAt(start.index, start.offset, 0, true);
-        var isNewlyRealized = { Value: false };
+        try {
+            var isNewlyRealized = { Value: false };
 
-        for (var i = 0; i < itemCount && beyond < 2; i++, insertAt++) {
-            var child = generator.GenerateNext(isNewlyRealized);
-            if (isNewlyRealized.Value || insertAt >= children.GetCount() || !Nullstone.RefEquals(children.GetValueAt(insertAt), child)) {
-                if (insertAt < children.GetCount())
-                    this.InsertInternalChild(insertAt, child)
-                else
-                    this.AddInternalChild(child);
-                generator.PrepareItemContainer(child);
+            for (var i = 0; i < itemCount && beyond < 2; i++, insertAt++) {
+                var child = generator.GenerateNext(isNewlyRealized);
+                if (isNewlyRealized.Value || insertAt >= children.GetCount() || !Nullstone.RefEquals(children.GetValueAt(insertAt), child)) {
+                    if (insertAt < children.GetCount())
+                        this.InsertInternalChild(insertAt, child)
+                    else
+                        this.AddInternalChild(child);
+                    generator.PrepareItemContainer(child);
+                }
+
+                child.Measure(childAvailable);
+                var size = child._DesiredSize;
+                nvisible++;
+
+                if (orientation === Orientation.Vertical) {
+                    measured.Width = Math.max(measured.Width, size.Width);
+                    measured.Height += size.Height;
+
+                    if (measured.Height > constraint.Height)
+                        beyond++;
+                } else {
+                    measured.Height = Math.max(measured.Height, size.Height);
+                    measured.Width += size.Width;
+
+                    if (measured.Width > constraint.Width)
+                        beyond++;
+                }
             }
-
-            child.Measure(childAvailable);
-            var size = child._DesiredSize;
-            nvisible++;
-
-            if (orientation == Orientation.Vertical) {
-                measured.Width = Math.max(measured.Width, size.Width);
-                measured.Height += size.Height;
-
-                if (measured.Height > constraint.Height)
-                    beyond++;
-            } else {
-                measured.Height = Math.max(measured.Height, size.Height);
-                measured.Width += size.Width;
-
-                if (measured.Width > constraint.Width)
-                    beyond++;
-            }
+        } finally {
+            generator.StopGeneration();
         }
     }
 
@@ -326,7 +333,7 @@ VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
 
     var scrollOwner = this.GetScrollOwner();
     if (invalidate && scrollOwner != null)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 
     return measured;
 };
@@ -339,7 +346,7 @@ VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     /// <param name="arrangeSize" type="Size"></param>
     var arranged = arrangeSize.Copy();
     var orientation = this.Orientation;
-    if (orientation === Orientation.Horizontal)
+    if (orientation === Orientation.Vertical)
         arranged.Height = 0;
     else
         arranged.Width = 0;
@@ -349,7 +356,7 @@ VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
     for (var i = 0; i < len; i++) {
         var child = children.GetValueAt(i);
         var size = child._DesiredSize;
-        if (orientation === Orientation.Horizontal) {
+        if (orientation === Orientation.Vertical) {
             size.Width = arrangeSize.Width;
             var childFinal = new Rect(-this.GetHorizontalOffset(), arranged.Height, size.Width, size.Height);
             if (childFinal.IsEmpty())
@@ -368,7 +375,7 @@ VirtualizingStackPanel.Instance.ArrangeOverride = function (arrangeSize) {
         }
     }
 
-    if (orientation === Orientation.Horizontal)
+    if (orientation === Orientation.Vertical)
         arranged.Height = Math.max(arranged.Height, arrangeSize.Height);
     else
         arranged.Width = Math.max(arranged.Width, arrangeSize.Width);
@@ -406,7 +413,7 @@ VirtualizingStackPanel.Instance.RemoveUnusedContainers = function (first, count)
         posIndex--;
     }
 };
-VirtualizingStackPanel.OnCleanUpVirtualizedItem = function (args) {
+VirtualizingStackPanel.Instance.OnCleanUpVirtualizedItem = function (args) {
     this.CleanUpVirtualizedItemEvent.Raise(this, args);
 };
 
@@ -421,7 +428,7 @@ VirtualizingStackPanel.Instance.OnClearChildren = function () {
 
     var scrollOwner = this.GetScrollOwner();
     if (scrollOwner)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 };
 VirtualizingStackPanel.Instance.OnItemsChanged = function (sender, args) {
     /// <param name="args" type="ItemsChangedEventArgs"></param>
@@ -490,10 +497,28 @@ VirtualizingStackPanel.Instance.OnItemsChanged = function (sender, args) {
 
     var scrollOwner = this.GetScrollOwner();
     if (scrollOwner)
-        scrollOwner.InvalidateScrollInfo();
+        scrollOwner._InvalidateScrollInfo();
 };
 
 //#endregion
 
 Nullstone.FinishCreate(VirtualizingStackPanel);
+//#endregion
+
+//#region CleanUpVirtualizedItemEventArgs
+var CleanUpVirtualizedItemEventArgs = Nullstone.Create("CleanUpVirtualizedItemEventArgs", RoutedEventArgs, 2);
+
+CleanUpVirtualizedItemEventArgs.Instance.Init = function (uie, value) {
+    this.UIElement = uie;
+    this.Value = value;
+    this.Cancel = false;
+};
+
+Nullstone.AutoProperty(CleanUpVirtualizedItemEventArgs, [
+    "UIElement",
+    "Value",
+    "Cancel"
+]);
+
+Nullstone.FinishCreate(CleanUpVirtualizedItemEventArgs);
 //#endregion

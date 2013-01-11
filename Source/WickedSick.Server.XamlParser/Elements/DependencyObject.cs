@@ -280,7 +280,7 @@ namespace WickedSick.Server.XamlParser.Elements
             return sb.ToString();
         }
 
-        protected virtual string GetTypeName()
+        public virtual string GetTypeName()
         {
             var elAttr = GetType()
                 .GetCustomAttributes(typeof(ElementAttribute), true)

@@ -42,6 +42,7 @@
       <HintPath>..\ThirdParty\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -89,7 +90,12 @@
     <Content Include="demos\masterdetail\INflRepository.ts" />
     <Content Include="demos\masterdetail\Player.js" />
     <Content Include="demos\masterdetail\Player.ts" />
-    <Content Include="demos\stackoverflow\default.fayde.js" />
+    <Content Include="demos\sdb\default.fap.js" />
+    <Content Include="demos\sdb\root.fayde.js" />
+    <Content Include="demos\sdb\ViewModels\MainViewModel.js" />
+    <Content Include="demos\stackoverflow\default.fap.js" />
+    <Content Include="demos\stackoverflow\root.fayde.js" />
+    <Content Include="demos\stackoverflow\ViewModels\MainViewModel.js" />
     <Content Include="download.aspx" />
     <Content Include="features.aspx" />
     <Content Include="gettingstarted.aspx" />
@@ -128,6 +134,14 @@
     <Compile Include="demo.aspx.designer.cs">
       <DependentUpon>demo.aspx</DependentUpon>
     </Compile>
+    <Compile Include="demos\sdb\Services\GetAllSongs.ashx.cs">
+      <DependentUpon>GetAllSongs.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="demos\sdb\Services\GoogleMusicAPI\API.cs" />
+    <Compile Include="demos\sdb\Services\GoogleMusicAPI\FormBuilder.cs" />
+    <Compile Include="demos\sdb\Services\GoogleMusicAPI\GoogleHTTP.cs" />
+    <Compile Include="demos\sdb\Services\GoogleMusicAPI\JSON.cs" />
+    <Compile Include="demos\sdb\Services\GoogleMusicAPI\Models.cs" />
     <Compile Include="demos\stackoverflow\so.ashx.cs">
       <DependentUpon>so.ashx</DependentUpon>
     </Compile>
@@ -173,12 +187,19 @@
     <Content Include="demos\stackoverflow\default.fap">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="demos\stackoverflow\default.fayde">
+    <Content Include="demos\stackoverflow\root.fayde">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="demos\stackoverflow\so.ashx" />
     <Content Include="demos\masterdetail\default.fap" />
     <Content Include="demos\masterdetail\default.fayde" />
+    <Content Include="demos\sdb\default.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="demos\sdb\root.fayde">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="demos\sdb\Services\GetAllSongs.ashx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
