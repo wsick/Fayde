@@ -950,6 +950,7 @@ FrameworkElement.Instance.InitializeHtml = function (rootEl) {
         this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight);
 };
 FrameworkElement.Instance.OnHtmlAttached = function () {
+    this.ApplyTemplate();
     var subtree = this._SubtreeObject;
     if (subtree) {
         this.GetRootHtmlElement().firstChild.appendChild(subtree.GetRootHtmlElement());

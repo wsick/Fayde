@@ -907,6 +907,8 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
             if (Nullstone.RefEquals(surface._FocusedElement, this))
                 surface._FocusElement(null);
         }
+    } else {
+        this.OnHtmlAttached();
     }
 };
 UIElement.Instance._OnInvalidated = function () {
