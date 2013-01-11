@@ -21,7 +21,6 @@ var RangeCollection = Nullstone.Create("RangeCollection");
 
 RangeCollection.Instance.Init = function () {
     this._ranges = [];
-    this.RangeCount = 0;
     this._generation = 0;
     this.Count = 0;
 };
@@ -48,7 +47,7 @@ RangeCollection.CopyRangeArray = function (rangeArray, startIndex, length, desti
 
 RangeCollection.Instance.FindRangeIndexForValue = function (value) {
     var min = 0;
-    var max = this.RangeCount - 1;
+    var max = this._ranges.length - 1;
     while (min <= max) {
         var mid = Math.floor(min + ((max - min) / 2));
         var range = this._ranges[mid];
@@ -64,7 +63,7 @@ RangeCollection.Instance.FindRangeIndexForValue = function (value) {
 };
 RangeCollection.Instance.FindInsertionPosition = function (range) {
     var min = 0;
-    var max = this.RangeCount - 1;
+    var max = this._ranges.length - 1;
     while (min <= max) {
         var mid = Math.floor(min + ((max - min) / 2));
         var midRange = this._ranges[mid];
@@ -100,7 +99,8 @@ RangeCollection.Instance.Contains = function (value) {
 RangeCollection.Instance.GetValueAt = function (index) {
     var i;
     var cuml_count;
-    for (i = 0, cuml_count = 0; i < this.RangeCount && index >= 0; i++) {
+    var rangeCount = this._ranges.length;
+    for (i = 0, cuml_count = 0; i < rangeCount && index >= 0; i++) {
         cuml_count = cuml_count + this._ranges[i].Count();
         if (index < cuml_count)
             return this._ranges[i].End - (cuml_count - index) + 1;
@@ -162,7 +162,6 @@ RangeCollection.Instance.RemoveIndexFromRange = function (index) {
     return true;
 };
 RangeCollection.Instance.Clear = function () {
-    this.RangeCount = 0;
     this.Count = 0;
     this._ranges = [];
     this._generation++;
@@ -177,7 +176,7 @@ RangeCollection.Instance.MergeLeft = function (range, position) {
     return false;
 };
 RangeCollection.Instance.MergeRight = function (range, position) {
-    if (position < this.RangeCount && this._ranges[position].Start - 1 == range.End) {
+    if (position < this._ranges.length && this._ranges[position].Start - 1 == range.End) {
         this._ranges[position].Start = range.End;
         return true;
     }

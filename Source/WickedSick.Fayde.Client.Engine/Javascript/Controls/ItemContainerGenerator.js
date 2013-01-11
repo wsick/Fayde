@@ -61,20 +61,15 @@ ItemContainerGenerator.Instance.GenerateNext = function (isNewlyRealized) {
     var startAt = this._GenerationState._positionIndex;
     var startOffset = this._GenerationState._positionOffset;
     if (startAt == -1) {
-        if (startOffset < 0) {
+        if (startOffset < 0)
             index = this.Owner.Items.GetCount() + startOffset;
-        }
-        else if (startOffset == 0) {
+        else if (startOffset == 0)
             index = 0;
-        }
-        else {
+        else
             index = startOffset - 1;
-        }
-    }
-    else if (startAt >= 0 && startAt < this.RealizedElements.Count) {
+    } else if (startAt >= 0 && startAt < this.RealizedElements.Count) {
         index = this.RealizedElements.GetValueAt(startAt) + startOffset;
-    }
-    else {
+    } else {
         index = -1;
     }
 
