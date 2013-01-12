@@ -457,7 +457,6 @@ class DependencyObject {
 }
 class DependencyProperty {
     Name: string;
-
     static Register(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
     static RegisterAttached(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
 }
@@ -643,16 +642,7 @@ class Style {
 class ResourceDictionary {
 }
 
-class BindingBase {
-}
-class Binding {
-}
-
 class Expression {
-}
-class BindingExpressionBase extends Expression {
-}
-class BindingExpression extends BindingExpressionBase {
 }
 
 module Fayde {
@@ -762,6 +752,74 @@ class Rectangle extends Shape {
     static RadiusYProperty: DependencyProperty;
     RadiusX: number;
     RadiusY: number;
+}
+
+//////////////////////////////////////////////////////////
+// DATA
+//////////////////////////////////////////////////////////
+interface INotifyPropertyChanged {
+    PropertyChanged: MulticastEvent;
+}
+class PropertyChangedEventArgs extends EventArgs {
+    constructor (propertyName: string);
+    PropertyName: string;
+}
+enum BindingMode {
+    TwoWay = 0,
+    OneWay = 1,
+    OneTime = 2,
+    OneWayToSource = 3,
+}
+enum RelativeSourceMode {
+    TemplatedParent = 1,
+    Self = 2,
+    FindAncestor = 3,
+}
+enum UpdateSourceTrigger {
+    Default = 0,
+    PropertyChanged = 1,
+    Explicit = 3,
+}
+interface IValueConverter {
+    Convert(value, targetType, parameter, culture): any;
+    ConvertBack(value, targetType, parameter, culture): any;
+}
+class RelativeSource implements IMarkupExtension {
+    AncestorLevel: number;
+    AncestorType;
+    Mode: RelativeSourceMode;
+}
+interface IMarkupExtension {
+}
+class BindingBase implements IMarkupExtension {
+    CheckSealed();
+    FallbackValue;
+    StringFormat: string;
+    TargetNullValue;
+}
+class Binding extends BindingBase {
+    BindsDirectlyToSource: bool;
+    Converter: IValueConverter;
+    ConverterCulture;
+    ConverterParameter;
+    ElementName: string;
+    Mode: BindingMode;
+    NotifyOnValidationError: bool;
+    Path: string;
+    RelativeSource: RelativeSource;
+    Source;
+    UpdateSourceTrigger: UpdateSourceTrigger;
+    ValidatesOnDataErrors: bool;
+    ValidatesOnExceptions: bool;
+    ValidatesOnNotifyDataErrors: bool;
+}
+class BindingExpressionBase extends Expression {
+
+}
+class BindingExpression extends BindingExpressionBase {
+    DataItem;
+    ParentBinding: Binding;
+    UpdateSource();
 }
 
 //////////////////////////////////////////////////////////
