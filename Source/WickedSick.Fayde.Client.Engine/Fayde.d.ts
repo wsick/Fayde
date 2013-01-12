@@ -851,6 +851,49 @@ class Rectangle extends Shape {
 //////////////////////////////////////////////////////////
 // DATA
 //////////////////////////////////////////////////////////
+enum NotifyCollectionChangedAction {
+    Add = 1,
+    Remove = 2,
+    Replace = 3,
+    Reset = 4,
+}
+interface INotifyCollectionChanged {
+    CollectionChanged: NotifyCollectionChangedEventHandler;
+}
+class NotifyCollectionChangedEventArgs extends EventArgs {
+    constructor (action: NotifyCollectionChangedAction);
+    constructor (action: NotifyCollectionChangedAction, items: any[], index: number);
+    constructor (action: NotifyCollectionChangedAction, newItems: any[], oldItems: any[], index: number);
+    Action: NotifyCollectionChangedAction;
+    NewItems: any[];
+    OldItems: any[];
+    OldStartingIndex: number;
+    NewStartingIndex: number;
+}
+class NotifyCollectionChangedEventHandler extends MulticastEvent {
+    Subscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure);
+    SubscribeSpecific(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure, matchClosure);
+    Unsubscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure, matchClosure?);
+    Raise(sender, args: NotifyCollectionChangedEventArgs);
+    RaiseAsync(sender, args: NotifyCollectionChangedEventArgs);
+}
+class ObservableCollection implements INotifyCollectionChanged, ICollection {
+    CollectionChanged: NotifyCollectionChangedEventHandler;
+
+    GetCount(): number;
+    GetValueAt(index: number): DependencyObject;
+    SetValueAt(index: number, value: DependencyObject);
+    Add(value: DependencyObject);
+    AddRange(newItems: DependencyObject[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: DependencyObject);
+    Remove(value: DependencyObject);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value: DependencyObject): number;
+    Contains(value: DependencyObject): bool;
+    ToArray(): DependencyObject[];
+}
 class BindingOperations {
     static SetBinding(target: DependencyObject, dp: DependencyProperty, binding: BindingBase): BindingExpressionBase;
 }
