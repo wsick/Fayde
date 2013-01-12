@@ -17,16 +17,72 @@ class Nullstone {
     static GetPropertyDescriptor(obj, name: string): PropertyDescriptor;
     static HasProperty(obj, name: string): PropertyDescriptor;
 }
-
 class EventArgs {
 }
-
 class MulticastEvent {
     Subscribe(callback: (sender, args: EventArgs) => void, closure);
     SubscribeSpecific(callback: (sender, args: EventArgs) => void, closure, matchClosure);
     Unsubscribe(callback: (sender, args: EventArgs) => void, closure, matchClosure?);
     Raise(sender, args: EventArgs);
     RaiseAsync(sender, args: EventArgs);
+}
+class Dictionary {
+    new (type1, type2): Dictionary;
+    TryGetValue(key, data);
+    GetValue(key): any;
+    GetKeyFromValue(value): any;
+    Add(key, value);
+    Remove(key);
+    Clear();
+}
+
+class AjaxJsonRequest {
+    constructor (onSuccess: (json: string) => void, onError: (msg: string, error?) => void);
+    Get(url: string, query: string);
+    Post(url: string, query: string, data);
+    Cancel();
+}
+
+class App extends DependencyObject {
+    Address: Uri;
+    Resources: ResourceDictionary;
+    RootVisual: UIElement;
+    Loaded: MulticastEvent;
+    static Instance: App;
+    static Version: string;
+}
+
+interface ICollection {
+    GetCount(): number;
+    GetValueAt(index: number): any;
+    SetValueAt(index: number, value);
+    Add(value);
+    AddRange(newItems: any[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value);
+    Remove(value);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value): number;
+    Contains(value): bool;
+    ToArray(): any[];
+}
+class DependencyObjectCollection implements ICollection {
+    GetCount(): number;
+    GetValueAt(index: number): DependencyObject;
+    SetValueAt(index: number, value: DependencyObject);
+    Add(value: DependencyObject);
+    AddRange(newItems: DependencyObject[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: DependencyObject);
+    Remove(value: DependencyObject);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value: DependencyObject): number;
+    Contains(value: DependencyObject): bool;
+    ToArray(): DependencyObject[];
+
+    IsElementType(element: any): bool;
 }
 
 //////////////////////////////////////////////////////////
@@ -217,7 +273,7 @@ class Font {
     Size: number;
 }
 class FontFamily {
-    new (familyNames: string): FontFamily;
+    constructor (familyNames: string);
     FamilyNames: string;
 }
 class KeyTime {
@@ -264,7 +320,7 @@ class Size {
     static Equals(size1: Size, size2: Size): bool;
 }
 class Thickness {
-    new (left?: number, top?: number, right?: number, bottom?: number): Thickness;
+    constructor (left?: number, top?: number, right?: number, bottom?: number);
     Left: number;
     Top: number;
     Right: number;
@@ -273,10 +329,10 @@ class Thickness {
     static Equals(thickness1: Thickness, thickness2: Thickness): bool;
 }
 class TimeSpan {
-    new (ticks: number): TimeSpan;
-    new (hours: number, minutes: number, seconds: number): TimeSpan;
-    new (days: number, hours: number, minutes: number, seconds: number): TimeSpan;
-    new (days: number, hours: number, minutes: number, seconds: number, milliseconds: number): TimeSpan;
+    constructor (ticks: number);
+    constructor (hours: number, minutes: number, seconds: number);
+    constructor (days: number, hours: number, minutes: number, seconds: number);
+    constructor (days: number, hours: number, minutes: number, seconds: number, milliseconds: number);
 
     AddTicks(ticks: number);
     AddMilliseconds(milliseconds: number);
@@ -341,6 +397,54 @@ enum ClickMode {
     Press = 1,
     Hover = 2,
 }
+enum GradientSpreadMethod {
+    Pad = 0,
+    Reflect = 1,
+    Repeat = 2,
+}
+enum BrushMappingMode {
+    Absolute = 0,
+    RelativeToBoundingBox = 1,
+}
+enum AlignmentX  {
+    Left = 0,
+    Center = 1,
+    Right = 2
+}
+enum AlignmentY {
+    Top = 0,
+    Center = 1,
+    Bottom = 2
+}
+enum Stretch {
+    None = 0,
+    Fill = 1,
+    Uniform = 2,
+    UniformToFill = 3
+}
+enum PenLineCap {
+    Flat = 0,
+    Square = 1,
+    Round = 2,
+    Triangle = 3,
+}
+enum PenLineJoin {
+    Miter = 0,
+    Bevel = 1,
+    Round = 2,
+}
+enum SweepDirection {
+    Counterclockwise = 0,
+    Clockwise = 1,
+}
+enum FillRule {
+    EvenOdd = 0,
+    Nonzero = 1,
+}
+enum TextHintingMode {
+    Fixed = 0,
+    Animated = 1,
+}
 
 //////////////////////////////////////////////////////////
 // CORE
@@ -351,14 +455,12 @@ class DependencyObject {
     $ReadLocalValue(propd: DependencyProperty): any;
     $ClearValue(propd: DependencyProperty);
 }
-
 class DependencyProperty {
     Name: string;
 
     static Register(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
     static RegisterAttached(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
 }
-
 class UIElement extends DependencyObject {
     //Dependency Properties
     static AllowDropProperty: DependencyProperty;
@@ -423,7 +525,6 @@ class UIElement extends DependencyObject {
 
     TransformToVisual(): GeneralTransform;
 }
-
 class FrameworkElement extends UIElement {
     //Dependency Properties
     static ActualHeightProperty: DependencyProperty;
@@ -482,19 +583,58 @@ class FrameworkElement extends UIElement {
 //////////////////////////////////////////////////////////
 // MEDIA
 //////////////////////////////////////////////////////////
-class Brush {
+class Brush extends DependencyObject {
+    static TransformProperty: DependencyProperty;
+    Transform: Transform;
 }
-class PointCollection {
+class SolidColorBrush extends Brush {
+    static ColorProperty: DependencyProperty;
+    Color: Color;
 }
-class GeneralTransform {
+class GradientBrush extends Brush {
+    static GradientStopsProperty: DependencyProperty;
+    static MappingModeProperty: DependencyProperty;
+    static SpreadMethodProperty: DependencyProperty;
+
+    GradientStops: GradientStopsCollection;
+    MappingMode: BrushMappingMode;
+    SpreadMethod: GradientSpreadMethod;
+
+}
+class GradientStop extends DependencyObject {
+    static ColorProperty: DependencyProperty;
+    static OffsetProperty: DependencyProperty;
+    Color: Color;
+    Offset: number;
+    toString(): string;
+}
+class GradientStopsCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): GradientStop;
+    SetValueAt(index: number, value: GradientStop);
+    Add(value: GradientStop);
+    AddRange(newItems: GradientStop[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: GradientStop);
+    Remove(value: GradientStop);
+    IndexOf(value: GradientStop): number;
+    Contains(value: GradientStop): bool;
+    ToArray(): GradientStop[];
+}
+class GeneralTransform extends DependencyObject {
+    Inverse: GeneralTransform;
+    Transform(point: Point): Point;
+    TransformBounds(rect: Rect): Rect;
 }
 class Transform extends GeneralTransform {
 }
-class Projection {
+class Projection extends DependencyObject {
 }
-class Geometry {
+class Geometry extends DependencyObject {
+    static TransformProperty: DependencyProperty;
+    Transform: Transform;
+    Bounds: Rect;
 }
-class Effect {
+class Effect extends DependencyObject {
 }
 
 class Style {
@@ -532,6 +672,99 @@ module Fayde {
 }
 
 //////////////////////////////////////////////////////////
+// SHAPES
+//////////////////////////////////////////////////////////
+class DoubleCollection implements ICollection {
+    GetCount(): number;
+    GetValueAt(index: number): number;
+    SetValueAt(index: number, value: number);
+    Add(value: number);
+    AddRange(newItems: number[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: number);
+    Remove(value: number);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value: number): number;
+    Contains(value: number): bool;
+    ToArray(): number[];
+}
+class PointCollection implements ICollection {
+    GetCount(): number;
+    GetValueAt(index: number): Point;
+    SetValueAt(index: number, value: Point);
+    Add(value: Point);
+    AddRange(newItems: Point[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: Point);
+    Remove(value: Point);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value: Point): number;
+    Contains(value: Point): bool;
+    ToArray(): Point[];
+}
+class Shape extends FrameworkElement {
+    static FillProperty: DependencyProperty;
+    static StretchProperty: DependencyProperty;
+    static StrokeDashArrayProperty: DependencyProperty;
+    static StrokeDashCapProperty: DependencyProperty;
+    static StrokeDashOffsetProperty: DependencyProperty;
+    static StrokeEndLineCapProperty: DependencyProperty;
+    static StrokeLineJoinProperty: DependencyProperty;
+    static StrokeMiterLimitProperty: DependencyProperty;
+    static StrokeProperty: DependencyProperty;
+    static StrokeStartLineCapProperty: DependencyProperty;
+    static StrokeThicknessProperty: DependencyProperty;
+    
+    Fill: Brush;
+    Stretch: Stretch;
+    StrokeDashArray: DoubleCollection;
+    StrokeDashCap: PenLineCap;
+    StrokeDashOffset: number;
+    StrokeEndLineCap: PenLineCap;
+    StrokeLineJoin: PenLineJoin;
+    StrokeMiterLimit: number;
+    Stroke: Brush;
+    StrokeStartLineCap: PenLineCap;
+    StrokeThickness: number;
+}
+class Ellipse extends Shape {
+}
+class Line extends Shape {
+    static X1Property: DependencyProperty;
+    static Y1Property: DependencyProperty;
+    static X2Property: DependencyProperty;
+    static Y2Property: DependencyProperty;
+    X1: number;
+    Y1: number;
+    X2: number;
+    Y2: number;
+}
+class Path extends Shape {
+    static DataProperty: DependencyProperty;
+    Data: Geometry;
+}
+class Polygon extends Shape {
+    static FillRuleProperty: DependencyProperty;
+    static PointsProperty: DependencyProperty;
+    FillRule: FillRule;
+    Points: PointCollection;
+}
+class Polyline extends Shape {
+    static FillRuleProperty: DependencyProperty;
+    static PointsProperty: DependencyProperty;
+    FillRule: FillRule;
+    Points: PointCollection;
+}
+class Rectangle extends Shape {
+    static RadiusXProperty: DependencyProperty;
+    static RadiusYProperty: DependencyProperty;
+    RadiusX: number;
+    RadiusY: number;
+}
+
+//////////////////////////////////////////////////////////
 // MVVM
 //////////////////////////////////////////////////////////
 module Fayde.MVVM {
@@ -541,7 +774,7 @@ module Fayde.MVVM {
     }
     
     export class RelayCommand implements ICommand { 
-        new (execute?: (parameter) => void, canExecute?: (parameter) => bool): RelayCommand;
+        constructor (execute?: (parameter) => void, canExecute?: (parameter) => bool);
         Execute(parameter): void;
         CanExecute(parameter): bool;
     }
