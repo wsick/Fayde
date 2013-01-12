@@ -449,6 +449,22 @@ enum TextHintingMode {
 //////////////////////////////////////////////////////////
 // CORE
 //////////////////////////////////////////////////////////
+module Fayde {
+    export class TypeConverters {
+        static Thickness(str: string): Thickness;
+        static CornerRadius(str: string): CornerRadius;
+        static Brush(str: string): Brush;
+        static Color(str: string): Color;
+    }
+    export class TypeConverter {
+        static ConvertObject(propd: DependencyProperty, val, objectType, doStringConversion: bool);
+        static GeometryFromString(val): Geometry;
+        static PointCollectionFromString(val): PointCollection;
+    }
+    export function Start(appType, rjson, json, canvas);
+    export function Clone(value): any;
+}
+
 class DependencyObject {
     $SetValue(propd: DependencyProperty, value): any;
     $GetValue(propd: DependencyProperty): any;
@@ -578,6 +594,109 @@ class FrameworkElement extends UIElement {
     SetBinding(dp: DependencyProperty, binding: Binding): BindingExpressionBase;
     OnApplyTemplate();
 }
+class RoutedEvent extends MulticastEvent {
+    Subscribe(callback: (sender, args: RoutedEventArgs) => void, closure);
+    SubscribeSpecific(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure);
+    Unsubscribe(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure?);
+    Raise(sender, args: RoutedEventArgs);
+    RaiseAsync(sender, args: RoutedEventArgs);
+}
+class RoutedEventArgs extends EventArgs {
+    Handled: bool;
+}
+class Expression {
+}
+class SetterBase extends DependencyObject {
+    IsSealed: bool;
+}
+class Setter extends SetterBase {
+    Property: DependencyProperty;
+    Value;
+}
+class SetterBaseCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): SetterBase;
+    SetValueAt(index: number, value: SetterBase);
+    Add(value: SetterBase);
+    AddRange(newItems: SetterBase[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: SetterBase);
+    Remove(value: SetterBase);
+    IndexOf(value: SetterBase): number;
+    Contains(value: SetterBase): bool;
+    ToArray(): SetterBase[];
+}
+class Style extends DependencyObject {
+    BasedOn: Style;
+    IsSealed: bool;
+    Setters: SetterBaseCollection;
+    TargetType;
+    Seal();
+}
+class ResourceDictionary extends DependencyObject implements ICollection {
+    static MergedDictionariesProperty: DependencyProperty;
+    MergedDictionaries: ResourceDictionaryCollection;
+
+    GetCount(): number;
+    GetValueAt(index: number): any;
+    SetValueAt(index: number, value);
+    Add(value);
+    AddRange(newItems: any[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value);
+    Remove(key);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value): number;
+    Contains(value): bool;
+    ToArray(): any[];
+
+    ContainsKey(key): bool;
+    Get(key): any;
+    Set(key, value);
+    Add(key, value);
+}
+class ResourceDictionaryCollection extends DependencyObjectCollection {
+}
+class VisualTreeHelper {
+    static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
+    static GetChildrenCount(d: DependencyObject): DependencyObject;
+    static GetParent(d: DependencyObject): DependencyObject;
+    static GetRoot(d: DependencyObject): DependencyObject;
+}
+class LayoutInformation {
+    static LayoutClipProperty: DependencyProperty;
+    static GetLayoutClip(d: DependencyObject): Geometry;
+    static SetLayoutClip(d: DependencyObject, value: Geometry);
+    
+    static LayoutExceptionElementProperty: DependencyProperty;
+    static GetLayoutExceptionElement(d: DependencyObject): UIElement;
+    static SetLayoutExceptionElement(d: DependencyObject, value: UIElement);
+
+    static LayoutSlotProperty: DependencyProperty;
+    static GetLayoutSlot(d: DependencyObject): Rect;
+    static SetLayoutSlot(d: DependencyObject, value: Rect);
+
+    static PreviousConstraintProperty: DependencyProperty;
+    static GetPreviousConstraint(d: DependencyObject): Size;
+    static SetPreviousConstraint(d: DependencyObject, value: Size);
+
+    static FinalRectProperty: DependencyProperty;
+    static GetFinalRect(d: DependencyObject): Rect;
+    static SetFinalRect(d: DependencyObject, value: Rect);
+
+    static LastRenderSizeProperty: DependencyProperty;
+    static GetLastRenderSize(d: DependencyObject): Size;
+    static SetLastRenderSize(d: DependencyObject, value: Size);
+
+    static VisualOffsetProperty: DependencyProperty;
+    static GetVisualOffset(d: DependencyObject): Point;
+    static SetVisualOffset(d: DependencyObject, value: Point);
+}
+class UIElementCollection extends DependencyObjectCollection {
+    GetValueAtZIndex();
+    GetZSortedCount();
+    ResortByZIndex();
+}
 
 //////////////////////////////////////////////////////////
 // MEDIA
@@ -634,31 +753,6 @@ class Geometry extends DependencyObject {
     Bounds: Rect;
 }
 class Effect extends DependencyObject {
-}
-
-class Style {
-}
-
-class ResourceDictionary {
-}
-
-class Expression {
-}
-
-module Fayde {
-    export class TypeConverters {
-        static Thickness(str: string): Thickness;
-        static CornerRadius(str: string): CornerRadius;
-        static Brush(str: string): Brush;
-        static Color(str: string): Color;
-    }
-    export class TypeConverter {
-        static ConvertObject(propd: DependencyProperty, val, objectType, doStringConversion: bool);
-        static GeometryFromString(val): Geometry;
-        static PointCollectionFromString(val): PointCollection;
-    }
-    export function Start(appType, rjson, json, canvas);
-    export function Clone(value): any;
 }
 
 //////////////////////////////////////////////////////////
@@ -757,6 +851,9 @@ class Rectangle extends Shape {
 //////////////////////////////////////////////////////////
 // DATA
 //////////////////////////////////////////////////////////
+class BindingOperations {
+    static SetBinding(target: DependencyObject, dp: DependencyProperty, binding: BindingBase): BindingExpressionBase;
+}
 interface INotifyPropertyChanged {
     PropertyChanged: MulticastEvent;
 }
