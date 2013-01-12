@@ -318,7 +318,7 @@ ComboBox.Instance._UpdatePopupSizeAndPosition = function (sender, e) {
         return;
     child.MinWidth = this.ActualWidth;
 
-    var root = App.Instance.MainSurface.Root;
+    var root = VisualTreeHelper.GetRoot(this);
     if (root == null)
         return;
     try {
