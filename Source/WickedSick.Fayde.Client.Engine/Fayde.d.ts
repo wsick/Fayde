@@ -352,6 +352,10 @@ class Uri {
 //////////////////////////////////////////////////////////
 // ENUMS
 //////////////////////////////////////////////////////////
+enum Orientation {
+    Horizontal = 0,
+    Vertical = 1,
+}
 enum FontWeight {
     Thin = 100,
     ExtraLight = 200,
@@ -444,6 +448,15 @@ enum FillRule {
 enum TextHintingMode {
     Fixed = 0,
     Animated = 1,
+}
+enum VirtualizationMode {
+    Standard = 0,
+    Recycling = 1,
+}
+enum SelectionMode {
+    Single = 0,
+    Multiple = 1,
+    Extended = 2,
 }
 
 //////////////////////////////////////////////////////////
@@ -697,6 +710,450 @@ class UIElementCollection extends DependencyObjectCollection {
     GetZSortedCount();
     ResortByZIndex();
 }
+class FrameworkTemplate extends DependencyObject {
+}
+class MouseEventArgs extends RoutedEventArgs {
+}
+class MouseButtonEventArgs extends MouseEventArgs {
+}
+class MouseWheelEventArgs extends MouseEventArgs {
+}
+class KeyEventArgs extends RoutedEventArgs {
+}
+class PresentationFrameworkCollection extends DependencyObject implements ICollection {
+    GetCount(): number;
+    GetValueAt(index: number): any;
+    SetValueAt(index: number, value);
+    Add(value);
+    AddRange(newItems: any[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value);
+    Remove(value);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value): number;
+    Contains(value): bool;
+    ToArray(): any[];
+}
+
+//////////////////////////////////////////////////////////
+// CONTROLS
+//////////////////////////////////////////////////////////
+interface IScrollInfo {
+    LineDown();
+    LineLeft();
+    LineRight();
+    LineUp();
+    MouseWheelDown();
+    MouseWheelLeft();
+    MouseWheelRight();
+    MouseWheelUp();
+    PageDown();
+    PageLeft();
+    PageRight();
+    PageUp();
+    SetHorizontalOffset(offset: number);
+    SetVerticalOffset(offset: number);
+    MakeVisible(visual: UIElement, rectangle: Rect);
+}
+class ItemsChangedEventArgs extends EventArgs {
+    Action: NotifyCollectionChangedAction;
+    ItemCount: number;
+    ItemUICount: number;
+    OldPosition: number;
+    Position: number;
+}
+class Border extends FrameworkElement {
+    static BackgroundProperty: DependencyProperty;
+    static BorderBrushProperty: DependencyProperty;
+    static BorderThicknessProperty: DependencyProperty;
+    static ChildProperty: DependencyProperty;
+    static CornerRadiusProperty: DependencyProperty;
+    static PaddingProperty: DependencyProperty;
+
+    Background: Brush;
+    BorderBrush: Brush;
+    BorderThickness: Thickness;
+    Child: UIElement;
+    CornerRadius: CornerRadius;
+    Padding: Thickness;
+}
+class Panel extends FrameworkElement {
+    static BackgroundProperty: DependencyProperty;
+    static ChildrenProperty: DependencyProperty;
+    static IsItemsHostProperty: DependencyProperty;
+    Background: Brush;
+    Children: UIElementCollection;
+    IsItemsHost: bool;
+}
+class StackPanel extends Panel {
+    static OrientationProperty: DependencyProperty;
+    Orientation: Orientation;
+    MeasureOverride(constraint: Size): Size;
+    ArrangeOverride(arrangeSize: Size): Size;
+}
+class Grid extends Panel {
+    static ColumnProperty: DependencyProperty;
+    static GetColumn(d: DependencyObject): number;
+    static SetColumn(d: DependencyObject, value: number);
+
+    static ColumnSpanProperty: DependencyProperty;
+    static GetColumnSpan(d: DependencyObject): number;
+    static SetColumnSpan(d: DependencyObject, value: number);
+
+    static RowProperty: DependencyProperty;
+    static GetRow(d: DependencyObject): number;
+    static SetRow(d: DependencyObject, value: number);
+
+    static RowSpanProperty: DependencyProperty;
+    static GetRowSpan(d: DependencyObject): number;
+    static SetRowSpan(d: DependencyObject, value: number);
+
+    static ShowGridLinesProperty: DependencyProperty;
+    static GetShowGridLines(d: DependencyObject): number;
+    static SetShowGridLines(d: DependencyObject, value: number);
+
+    ColumnDefinitions: ColumnDefinitionCollection;
+    RowDefinitions: RowDefinitionCollection;
+    ShowGridLines: bool;
+    
+    MeasureOverride(constraint: Size): Size;
+    ArrangeOverride(arrangeSize: Size): Size;
+}
+class ColumnDefinition extends DependencyObject {
+    static MaxWidthProperty: DependencyProperty;
+    static MinWidthProperty: DependencyProperty;
+    static WidthProperty: DependencyProperty;
+    ActualWidth: number;
+    MaxWidth: number;
+    MinWidth: number;
+    Width: number;
+}
+class ColumnDefinitionCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): ColumnDefinition;
+    SetValueAt(index: number, value: ColumnDefinition);
+    Add(value: ColumnDefinition);
+    AddRange(newItems: ColumnDefinition[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: ColumnDefinition);
+    Remove(value: ColumnDefinition);
+    IndexOf(value: ColumnDefinition): number;
+    Contains(value: ColumnDefinition): bool;
+    ToArray(): ColumnDefinition[];
+}
+class RowDefinition extends DependencyObject {
+    static MaxHeightProperty: DependencyProperty;
+    static MinHeightProperty: DependencyProperty;
+    static HeightProperty: DependencyProperty;
+    ActualHeight: number;
+    MaxHeight: number;
+    MinHeight: number;
+    Height: number;
+}
+class RowDefinitionCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): RowDefinition;
+    SetValueAt(index: number, value: RowDefinition);
+    Add(value: RowDefinition);
+    AddRange(newItems: RowDefinition[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: RowDefinition);
+    Remove(value: RowDefinition);
+    IndexOf(value: RowDefinition): number;
+    Contains(value: RowDefinition): bool;
+    ToArray(): RowDefinition[];
+}
+class Canvas extends Panel {
+    static LeftProperty: DependencyProperty;
+    static GetLeft(d: DependencyObject): number;
+    static SetLeft(d: DependencyObject, value: number);
+
+    static TopProperty: DependencyProperty;
+    static GetTop(d: DependencyObject): number;
+    static SetTop(d: DependencyObject, value: number);
+
+    static ZIndexProperty: DependencyProperty;
+    static GetZIndex(d: DependencyObject): number;
+    static SetZIndex(d: DependencyObject, value: number);
+    
+    MeasureOverride(constraint: Size): Size;
+    ArrangeOverride(arrangeSize: Size): Size;
+}
+class VirtualizingPanel extends Panel {
+    ItemContainerGenerator: ItemContainerGenerator;
+    AddInternalChild(child: UIElement);
+    BringIndexIntoView(index: number);
+    InsertInternalChild(index: number, child: UIElement);
+    OnClearChildren();
+    OnItemsChanged(sender, args: ItemsChangedEventArgs);
+    RemoveInternalChildRange(index: number, range: number);
+}
+class VirtualizingStackPanel extends VirtualizingPanel implements IScrollInfo {
+    static IsVirtualizingProperty: DependencyProperty;
+    static GetIsVirtualizing(d: DependencyObject): bool;
+    static SetIsVirtualizing(d: DependencyObject, value: bool);
+
+    static OrientationProperty: DependencyProperty;
+    
+    static VirtualizationMode: DependencyProperty;
+    static GetVirtualizationMode(d: DependencyObject): VirtualizationMode;
+    static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode);
+    
+    MeasureOverride(constraint: Size): Size;
+    ArrangeOverride(arrangeSize: Size): Size;
+
+    //IScrollInfo Members
+    LineDown();
+    LineLeft();
+    LineRight();
+    LineUp();
+    MouseWheelDown();
+    MouseWheelLeft();
+    MouseWheelRight();
+    MouseWheelUp();
+    PageDown();
+    PageLeft();
+    PageRight();
+    PageUp();
+    SetHorizontalOffset(offset: number);
+    SetVerticalOffset(offset: number);
+    MakeVisible(visual: UIElement, rectangle: Rect);
+}
+class ControlTemplate extends FrameworkTemplate {
+    TargetType;
+}
+class Control extends FrameworkElement {
+    static BackgroundProperty: DependencyProperty;
+    static BorderBrushProperty: DependencyProperty;
+    static BorderThicknessProperty: DependencyProperty;
+    static FontFamilyProperty: DependencyProperty;
+    static FontSizeProperty: DependencyProperty;
+    static FontStretchProperty: DependencyProperty;
+    static FontStyleProperty: DependencyProperty;
+    static FontWeightProperty: DependencyProperty;
+    static ForegroundProperty: DependencyProperty;
+    static HorizontalContentAlignmentProperty: DependencyProperty;
+    static IsEnabledProperty: DependencyProperty;
+    static IsTabStopProperty: DependencyProperty;
+    static PaddingProperty: DependencyProperty;
+    static TabIndexProperty: DependencyProperty;
+    static TabNavigationProperty: DependencyProperty;
+    static TemplateProperty: DependencyProperty;
+    static VerticalContentAlignmentProperty: DependencyProperty;
+
+    Background: Brush;
+    BorderBrush: Brush;
+    BorderThickness: Thickness;
+    FontFamily: string;
+    FontSize: number;
+    FontStretch: string;
+    FontStyle: string;
+    FontWeight: FontWeight;
+    Foreground: Brush;
+    HorizontalContentAlignment: HorizontalAlignment;
+    IsEnabled: bool;
+    IsTabStop: bool;
+    Padding: Thickness;
+    TabIndex: number;
+    TabNavigation: number;
+    Template: ControlTemplate;
+    VerticalContentAlignment: VerticalAlignment;
+    IsFocused: bool;
+
+    Focus(): bool;
+    GetTemplateChild(name: string): DependencyObject;
+    
+    IsEnabledChanged: RoutedEvent;
+}
+class ContentControl extends Control {
+    static ContentProperty: DependencyProperty;
+    static ContentTemplateProperty: DependencyProperty;
+    Content;
+    ContentTemplate: ControlTemplate;
+    OnContentChanged(oldContent, newContent);
+}
+class ButtonBase extends ContentControl {
+    static ClickModeProperty: DependencyProperty;
+    static CommandParameterProperty: DependencyProperty;
+    static CommandProperty: DependencyProperty;
+    static IsFocusedProperty: DependencyProperty;
+    static IsMouseOverProperty: DependencyProperty;
+    static IsPressedProperty: DependencyProperty;
+    ClickMode: ClickMode;
+    Command: Fayde.MVVM.ICommand;
+    CommandParameter;
+    IsFocused: bool;
+    IsMouseOver: bool;
+    IsPressed: bool;
+    OnApplyTemplate();
+    OnClick();
+    OnGotFocus(e: RoutedEventArgs);
+    OnIsPressedChanged(e: RoutedEvent);
+    OnKeyDown(e: KeyEventArgs);
+    OnKeyUp(e: KeyEventArgs);
+    OnLostFocus(e: RoutedEventArgs);
+    OnLostMouseCapture(e: MouseEventArgs);
+    OnMouseEnter(e: MouseEventArgs);
+    OnMouseLeave(e: MouseEventArgs);
+    OnMouseLeftButtonDown(e: MouseButtonEventArgs);
+    OnMouseLeftButtonUp(e: MouseButtonEventArgs);
+    OnMouseMove(e: MouseEventArgs);
+    Click: RoutedEvent;
+}
+class Button extends ButtonBase {
+}
+class RepeatButton extends ButtonBase {
+    static DelayProperty: DependencyProperty;
+    static IntervalProperty: DependencyProperty;
+    Delay: number;
+    Interval: number;
+}
+class ToggleButton extends ButtonBase {
+    static IsCheckedProperty: DependencyProperty;
+    static IsThreeStateProperty: DependencyProperty;
+    IsChecked: bool;
+    IsThreeState: bool;
+    OnToggle();
+    Checked: RoutedEvent;
+    Indeterminate: RoutedEvent;
+    Unchecked: RoutedEvent;
+}
+class HyperlinkButton extends ButtonBase {
+    static NavigateUriProperty: DependencyProperty;
+    static TargetNameProperty: DependencyProperty;
+    NavigateUri: Uri;
+    TargetName: string;
+}
+class CheckBox extends ToggleButton {
+}
+class RadioButton extends ToggleButton {
+    static GroupNameProperty: DependencyProperty;
+    GroupName: string;
+}
+class ItemContainerGenerator {
+    ItemsChanged: MulticastEvent;
+}
+class ItemsPanelTemplate extends FrameworkTemplate {
+}
+class ItemCollection extends PresentationFrameworkCollection implements INotifyCollectionChanged {
+    CollectionChanged: NotifyCollectionChangedEventHandler;
+}
+class ItemsControl extends Control {
+    static DisplayMemberPathProperty: DependencyProperty;
+    static ItemsPanelProperty: DependencyProperty;
+    static ItemsSourceProperty: DependencyProperty;
+    static ItemTemplateProperty: DependencyProperty;
+    DisplayMemberPath: string;
+    ItemsPanel: ItemsPanelTemplate;
+    ItemsSource;
+    ItemTemplate: DataTemplate;
+    Items: ItemCollection;
+    ItemContainerGenerator: ItemContainerGenerator;
+    ClearContainerForItemOverride(element: DependencyObject, item);
+    GetContainerForItemOverride(): DependencyObject;
+    IsItemItsOwnContainerOverride(item): bool;
+    ItemsControlFromItemContainer(container: DependencyObject): ItemsControl;
+    OnItemsChanged(e: NotifyCollectionChangedEventArgs);
+    PrepareContainerForItemOverride(element: DependencyObject, item);
+}
+class Selector extends ItemsControl {
+    static SelectedIndexProperty: DependencyProperty;
+    static SelectedItemProperty: DependencyProperty;
+    static SelectedValuePathProperty: DependencyProperty;
+    static SelectedValueProperty: DependencyProperty;
+    HasItems: bool;
+    SelectedIndex: number;
+    SelectedItem;
+    SelectedValue;
+    SelectedValuePath: string;
+    static GetIsSelectionActive(element: DependencyObject): bool;
+    SelectionChanged: MulticastEvent;
+}
+class ListBox extends Selector {
+    static IsSelectionActiveProperty: DependencyProperty;
+    static ItemContainerStyleProperty: DependencyProperty;
+    static SelectionModeProperty: DependencyProperty;
+    IsSelectionActive: bool;
+    ItemContainerStyle: Style;
+    SelectionMode: SelectionMode;
+    SelectAll();
+    ScrollIntoView(item);
+}
+class ListBoxItem extends ContentControl {
+    static IsSelectedProperty: DependencyProperty;
+    IsSelected: bool;
+}
+class ComboBox extends Selector {
+    static IsDropDownOpenProperty: DependencyProperty;
+    static IsSelectionActiveProperty: DependencyProperty;
+    static ItemContainerStyleProperty: DependencyProperty;
+    static MaxDropDownHeightProperty: DependencyProperty;
+    IsDropDownOpen: bool;
+    IsSelectionActive: bool;
+    ItemContainerStyle: Style;
+    MaxDropDownHeight: number;
+    IsEditable: bool;
+    IsSelectionBoxHighlighted: bool;
+    SelectionBoxItem;
+    SelectionBoxItemTemplate: DataTemplate;
+    DropDownClosed: RoutedEvent;
+    DropDownOpened: RoutedEvent;
+}
+class ComboBoxItem extends ListBoxItem {
+}
+class ContentPresenter extends FrameworkElement {
+    static ContentProperty: DependencyProperty;
+    static ContentTemplateProperty: DependencyProperty;
+    Content;
+    ContentTemplate: DataTemplate;
+}
+class ItemsPresenter extends FrameworkElement {
+}
+class ScrollContentPresenter extends ContentPresenter implements IScrollInfo {
+    LineDown();
+    LineLeft();
+    LineRight();
+    LineUp();
+    MouseWheelDown();
+    MouseWheelLeft();
+    MouseWheelRight();
+    MouseWheelUp();
+    PageDown();
+    PageLeft();
+    PageRight();
+    PageUp();
+    SetHorizontalOffset(offset: number);
+    SetVerticalOffset(offset: number);
+    MakeVisible(visual: UIElement, rectangle: Rect);
+}
+class ScrollViewer extends ContentControl {
+
+}
+class UserControl {
+}
+class Frame {
+}
+class Page {
+}
+class Image {
+}
+class MediaElement {
+}
+class ProgressBar {
+}
+class RichTextBox {
+}
+class Slider {
+}
+class TextBlock {
+}
+class TextBox {
+}
+class PasswordBox {
+}
+class ToolTip {
+}
+class ToolTipService {
+}
 
 //////////////////////////////////////////////////////////
 // MEDIA
@@ -851,6 +1308,10 @@ class Rectangle extends Shape {
 //////////////////////////////////////////////////////////
 // DATA
 //////////////////////////////////////////////////////////
+class DataTemplate extends FrameworkTemplate {
+    //LoadContent(): DependencyObject;
+    //DataType;
+}
 enum NotifyCollectionChangedAction {
     Add = 1,
     Remove = 2,
