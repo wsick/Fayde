@@ -908,6 +908,7 @@ UIElement.Instance._OnIsAttachedChanged = function (value) {
                 surface._FocusElement(null);
         }
     } else {
+        //TODO: revisit this, this was perhaps only an issue because the grid isn't coded right
         //this.OnHtmlAttached();
     }
 };
