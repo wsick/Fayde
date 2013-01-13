@@ -574,6 +574,26 @@ Grid.Instance._OnCollectionItemChanged = function (col, obj, args) {
 
 //#endregion
 
+Grid.Instance.GetRowDefinition = function (index) {
+    var rd = this.RowDefinitions.GetValueAt(index);
+    if (!rd) {
+        rd = new RowDefinition();
+        rd.Height.Type = GridUnitType.Star;
+        rd.Height.Value = 1;
+    }
+    return rd;
+};
+
+Grid.Instance.GetColumnDefinition = function (index) {
+    var cd = this.ColumnDefinitions.GetValueAt(index);
+    if (!cd) {
+        cd = new ColumnDefinition();
+        cd.Width.Type = GridUnitType.Star;
+        cd.Width.Value = 1;
+    }
+    return cd;
+};
+
 //#region Html Translations
 Grid.Instance.OnHtmlAttached = function () {
     var rows = this.RowDefinitions.GetCount();
@@ -607,51 +627,31 @@ Grid.Instance.OnHtmlAttached = function () {
         totalColumnStars = 1;
     }
     for (var i = 0; i < rows; i++) {
-        var rd = this.RowDefinitions.GetValueAt(i);
-        var rowType;
-        var rowHeight;
-        if (rd) {
-            rowType = rd.Height.Type;
-            rowHeight = rd.Height.Value;
-        }
-        else {
-            rowType = GridUnitType.Star;
-            rowHeight = 1;
-        }
+        var rd = this.GetRowDefinition(i);
         var rowEl = table.appendChild(document.createElement("tr"));
         for (var j = 0; j < columns; j++) {
-            var cd = this.ColumnDefinitions.GetValueAt(j);
-            var columnType;
-            var columnWidth;
-            if (cd) {
-                columnType = cd.Width.Type;
-                columnWidth = cd.Width.Value;
-            }
-            else {
-                columnType = GridUnitType.Star;
-                columnWidth = 1;
-            }
+            var cd = this.GetColumnDefinition(j);
             var columnEl = rowEl.appendChild(document.createElement("td"));
             columnEl.style.padding = "0px";
-            switch (rowType) {
+            switch (rd.Height.Type) {
                 case GridUnitType.Star:
-                    columnEl.style.height = (rowHeight / totalRowStars) * 100 + "%";
+                    columnEl.style.height = (rd.Height.Value / totalRowStars) * 100 + "%";
                     break;
                 case GridUnitType.Pixel:
-                    columnEl.style.height = rowHeight + "px";
-                    columnEl.style.minHeight = rowHeight + "px";
+                    columnEl.style.height = rd.Height.Value + "px";
+                    columnEl.style.minHeight = rd.Height.Value + "px";
                     break;
                 case GridUnitType.Auto:
                     columnEl.style.height = "auto";
                     break;
             }
-            switch (columnType) {
+            switch (cd.Width.Type) {
                 case GridUnitType.Star:
-                    columnEl.style.width = (columnWidth / totalColumnStars) * 100 + "%";
+                    columnEl.style.width = (cd.Width.Value / totalColumnStars) * 100 + "%";
                     break;
                 case GridUnitType.Pixel:
-                    columnEl.style.width = columnWidth + "px";
-                    columnEl.style.minWidth = columnWidth + "px";
+                    columnEl.style.width = cd.Width.Value + "px";
+                    columnEl.style.minWidth = cd.Width.Value + "px";
                     break;
                 case GridUnitType.Auto:
                     columnEl.style.width = "auto";
@@ -669,17 +669,16 @@ Grid.Instance.OnHtmlAttached = function () {
             */
             columnEl.style.fontSize = "0px";
             columnEl.style.overflow = "hidden";
-            //if (cd.Type == GridUnitType.Star) {
-                var sizingEl = columnEl.appendChild(document.createElement("div"));
-                sizingEl.style.position = "relative";
-                sizingEl.style.display = "inline-block";
-                sizingEl.style.width = "100%";
-                sizingEl.style.height = "100%";
-                var contentEl = sizingEl.appendChild(document.createElement("div"));
-                contentEl.style.position = "absolute";
-                contentEl.style.width = "100%";
-                contentEl.style.height = "100%";
-            //}
+            var sizingEl = columnEl.appendChild(document.createElement("div"));
+            sizingEl.style.position = "relative";
+            sizingEl.style.display = "table";
+            sizingEl.style.width = "100%";
+            sizingEl.style.height = "100%";
+            var contentEl = sizingEl.appendChild(document.createElement("div"));
+            contentEl.style.position = "absolute";
+            contentEl.style.display = "table-cell";
+            contentEl.style.width = "100%";
+            contentEl.style.height = "100%";
         }
     }
 
@@ -688,18 +687,15 @@ Grid.Instance.OnHtmlAttached = function () {
         var len = children.GetCount();
         for (var i = 0; i < len; i++) {
             var child = children.GetValueAt(i);
-            child.ParentIsFixedWidth = true;
-            child.ParentIsFixedHeight = true;
             //TODO: what to do if row is set to a row number that doesn't exist?
             var row = Grid.GetRow(child);
             var column = Grid.GetColumn(child);
+            var rd = this.GetRowDefinition(row);
+            var cd = this.GetColumnDefinition(column);
+            child.ParentIsFixedHeight = (rd.Height.Type != GridUnitType.Auto);
+            child.ParentIsFixedWidth = (cd.Width.Type != GridUnitType.Auto);
             var contentEl;
-            //if (this.ColumnDefinitions.GetValueAt(column).Width.Type == GridUnitType.Star) {
-                contentEl = table.children[row].children[column].firstChild.firstChild;
-            //}
-            //else {
-            //    contentEl = table.children[row].children[column];
-            //}
+            contentEl = table.children[row].children[column].firstChild.firstChild;
             contentEl.appendChild(child.GetRootHtmlElement());
             child.OnHtmlAttached();
         }

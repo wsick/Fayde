@@ -966,13 +966,7 @@ FrameworkElement.Instance.OnHtmlDetached = function () {
 FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFixedHeight,
     horizontalAlignment, verticalAlignment,
     margin, width, height, maxWidth, maxHeight) {
-    //the outer element is used for the absolute sizing
-    //use padding on the outer element to represent margin
     var subEl = rootEl.firstChild;
-
-    //if width is explicitly set, stretch is ignored
-    horizontalAlignment = FrameworkElement.RealHorizontalAlignment(width, horizontalAlignment);
-    verticalAlignment = FrameworkElement.RealVerticalAlignment(height, verticalAlignment);
 
     rootEl.style.display = "table";
     subEl.style.display = "table-cell";
@@ -994,119 +988,70 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
     subEl.style.top = "auto";
     subEl.style.bottom = "auto";
 
-    //horizontalAlignment
-    switch (horizontalAlignment) {
-        case HorizontalAlignment.Stretch:
-            //rootEl.style.left = "0px";
-            //if (isNaN(width)) {
-            //    rootEl.style.right = "0px";
-            if (parentIsFixedWidth) {
-                rootEl.style.position = "absolute";
-                subEl.style.position = "absolute";
-                rootEl.style.width = "100%";
-            }
-            else {
-                rootEl.style.position = "relative";
-                subEl.style.position = "relative";
-            }
-            //}
-            break;
-        case HorizontalAlignment.Left:
+    //if width is explicitly set, stretch is changed to centered
+    horizontalAlignment = FrameworkElement.RealHorizontalAlignment(width, horizontalAlignment);
+    //if height is explicitly set, stretch is changed to centered
+    verticalAlignment = FrameworkElement.RealVerticalAlignment(height, verticalAlignment);
+
+    var horizontalLayoutType = HorizontalLayoutType.Shrink;
+    if (horizontalAlignment == HorizontalAlignment.Stretch && parentIsFixedWidth)
+        //layout type only stays stretch if the parent is fixed width
+        horizontalLayoutType = HorizontalLayoutType.Stretch;
+    var verticalLayoutType = VerticalLayoutType.Shrink;
+    if (verticalAlignment == VerticalAlignment.Stretch && parentIsFixedHeight)
+        //layout type only stays stretch if the parent is fixed height
+        verticalLayoutType = VerticalLayoutType.Stretch;
+
+    if (horizontalLayoutType == HorizontalLayoutType.Stretch || verticalLayoutType == VerticalLayoutType.Stretch) {
+        rootEl.style.position = "absolute";
+        subEl.style.position = "absolute";
+        if (horizontalLayoutType == HorizontalLayoutType.Stretch) rootEl.style.width = "100%";
+        if (verticalLayoutType == VerticalLayoutType.Stretch) rootEl.style.height = "100%";
+    }
+    else {
+        if (horizontalAlignment == HorizontalAlignment.Left || horizontalAlignment == HorizontalAlignment.Right ||
+            verticalAlignment == VerticalAlignment.Top || verticalAlignment == VerticalAlignment.Bottom) {
             rootEl.style.position = "absolute";
             subEl.style.position = "relative";
-            rootEl.style.left = "0px";
-            break;
-        case HorizontalAlignment.Right:
-            rootEl.style.position = "absolute";
+            if (horizontalAlignment == HorizontalAlignment.Left) rootEl.style.left = "0px";
+            if (horizontalAlignment == HorizontalAlignment.Right) rootEl.style.right = "0px";
+            if (verticalAlignment == VerticalAlignment.Top) rootEl.style.top = "0px";
+            if (verticalAlignment == VerticalAlignment.Bottom) rootEl.style.bottom = "0px";
+        }
+        else {
+            rootEl.style.position = "relative";
             subEl.style.position = "relative";
-            rootEl.style.right = "0px";
-            break;
-        case HorizontalAlignment.Center:
-            throw "NotSupportedYetException";
+        }
     }
 
-    if (horizontalAlignment == HorizontalAlignment.Stretch && parentIsFixedWidth) {
-        //explicit width
-        //add width + margin
-        var w = width + (isNaN(margin.Left) ? 0 : margin.Left) + (isNaN(margin.Right) ? 0 : margin.Right);
-        rootEl.style.width = w + "px";
-        //set inner element height to actual height
-        subEl.style.width = width + "px";
-        subEl.style.overflowX = "hidden";
+    if (horizontalLayoutType == HorizontalLayoutType.Stretch) {
         var left = (isNaN(margin.Left) ? 0 : margin.Left);
         subEl.style.left = left + "px";
         var right = (isNaN(margin.Right) ? 0 : margin.Right);
         subEl.style.right = right + "px";
     }
     else {
-        if (!isNaN(width)) {
-            //explicit width
-            rootEl.style.width = width + "px";
-            subEl.style.width = width + "px";
-            subEl.style.overflowX = "hidden";
-        }
         rootEl.style.marginLeft = margin.Left + "px";
         rootEl.style.marginRight = margin.Right + "px";
-        //subEl.style.width = "100%";
     }
-
-    //verticalAlignment
-    switch (verticalAlignment) {
-        case VerticalAlignment.Stretch:
-            //rootEl.style.top = "0px";
-            //if (isNaN(height)) {
-            //    rootEl.style.bottom = "0px";
-            if (parentIsFixedHeight) {
-                rootEl.style.position = "absolute";
-                subEl.style.position = "absolute";
-                rootEl.style.height = "100%";
-            }
-            else {
-                rootEl.style.position = "relative";
-                subEl.style.position = "relative";
-            }
-            //}
-            break;
-        case VerticalAlignment.Top:
-            rootEl.style.position = "absolute";
-            subEl.style.position = "relative";
-            rootEl.style.top = "0px";
-            break;
-        case VerticalAlignment.Bottom:
-            rootEl.style.position = "absolute";
-            subEl.style.position = "relative";
-            rootEl.style.bottom = "0px";
-            break;
-        case VerticalAlignment.Center:
-            throw "NotSupportedYetException";
-    }
-
-    if (verticalAlignment == VerticalAlignment.Stretch && parentIsFixedHeight) {
-        //explicit height
-        //add height + margin
-        var h = height + (isNaN(margin.Top) ? 0 : margin.Top) + (isNaN(margin.Bottom) ? 0 : margin.Bottom);
-        rootEl.style.height = h + "px";
-        //set inner element height to actual height
-        subEl.style.height = height + "px";
-        subEl.style.overflowY = "hidden";
-        subEl.style.position = "absolute";
-
+    if (verticalLayoutType == VerticalLayoutType.Stretch) {
         var top = (isNaN(margin.Top) ? 0 : margin.Top);
         subEl.style.top = top + "px";
         var bottom = (isNaN(margin.Bottom) ? 0 : margin.Bottom);
         subEl.style.bottom = bottom + "px";
     }
     else {
-        if (!isNaN(height)) {
-            //explicit height
-            rootEl.style.height = height + "px";
-            subEl.style.height = height + "px";
-            subEl.style.overflowY = "hidden";
-            subEl.style.position = "absolute";
-        }
         rootEl.style.marginTop = margin.Top + "px";
         rootEl.style.marginBottom = margin.Bottom + "px";
-        //subEl.style.height = "100%";
+    }
+
+    if (!isNaN(width)) {
+        //explicit width
+        rootEl.style.width = width + "px";
+    }
+    if (!isNaN(height)) {
+        //explicit height
+        rootEl.style.height = height + "px";
     }
 
     //set max width and max height on inner element

@@ -123,3 +123,11 @@ var MatrixTypes = {
     Rotate: 8,
     Shear: 16
 };
+var HorizontalLayoutType = {
+    Stretch: 0,
+    Shrink: 1
+};
+var VerticalLayoutType = {
+    Stretch: 0,
+    Shrink: 1
+};
