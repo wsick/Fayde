@@ -3,6 +3,9 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="cphBody" runat="server">
     <p>
-        <asp:HyperLink NavigateUrl="~/drops/Fayde.zip" Text="Fayde.zip" runat="server" />
+        <ul>
+			<li><asp:HyperLink ID="HyperLink1" NavigateUrl="~/drops/Fayde-0.9.2.0.zip" Text="Fayde 0.9.2.0" runat="server" /> (Contains TypeScript definition)</li>
+			<li><asp:HyperLink ID="HyperLink2" NavigateUrl="~/drops/Fayde.zip" Text="Fayde 0.9.0.0" runat="server" /></li>
+		<ul>
     </p>
 </asp:Content>
