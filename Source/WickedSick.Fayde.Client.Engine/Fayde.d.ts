@@ -458,6 +458,40 @@ enum SelectionMode {
     Multiple = 1,
     Extended = 2,
 }
+enum ScrollBarVisibility {
+    Disabled = 0,
+    Auto = 1,
+    Hidden = 2,
+    Visible = 3,
+}
+enum TextAlignment {
+    Left = 0,
+    Center = 1,
+    Right = 2,
+}
+enum TextTrimming {
+    None = 0,
+}
+enum TextWrapping {
+    NoWrap = 0,
+    Wrap = 1,
+    WrapWithOverflow = 2,
+}
+enum PlacementMode {
+    Bottom = 0,
+    Right = 1,
+    Mouse = 2,
+    Left = 3,
+    Top = 4,
+}
+enum MediaElementState {
+    Closed = 0,
+    Opening = 1,
+    Buffering = 4,
+    Playing = 5,
+    Paused = 6,
+    Stopped = 7,
+}
 
 //////////////////////////////////////////////////////////
 // CORE
@@ -734,6 +768,111 @@ class PresentationFrameworkCollection extends DependencyObject implements IColle
     IndexOf(value): number;
     Contains(value): bool;
     ToArray(): any[];
+}
+
+//////////////////////////////////////////////////////////
+// DOCUMENTS
+//////////////////////////////////////////////////////////
+class TextElement extends DependencyObject {
+    static FontFamilyProperty: DependencyProperty;
+    static FontSizeProperty: DependencyProperty;
+    static FontStretchProperty: DependencyProperty;
+    static FontStyleProperty: DependencyProperty;
+    static FontWeightProperty: DependencyProperty;
+    static ForegroundProperty: DependencyProperty;
+    FontFamily: string;
+    FontSize: number;
+    FontStretch: string;
+    FontStyle: string;
+    FontWeight: FontWeight;
+    Foreground: Brush;
+}
+class Block extends TextElement {
+    static LineHeightProperty: DependencyProperty;
+    static LineStackStrategyProperty: DependencyProperty;
+    static TextAlignmentProperty: DependencyProperty;
+    LineHeight: number;
+    LineStackingStrategy: LineStackingStrategy;
+    TextAlignment: TextAlignment;
+}
+class Paragraph extends Block {
+    Inlines: InlineCollection;
+}
+class Section extends Block {
+    Blocks: BlockCollection;
+}
+class Inline extends TextElement {
+}
+class LineBreak extends Inline {
+}
+class Run extends Inline {
+    static FlowDirectionProperty: DependencyProperty;
+    FlowDirection: FlowDirection;
+    Text: string;
+}
+class Span extends Inline {
+    Inlines: InlineCollection;
+}
+class Bold extends Span {
+}
+class Italic extends Span {
+}
+class Underline extends Span {
+}
+class Hyperlink extends Span {
+    static CommandProperty: DependencyProperty;
+    static CommandParameterProperty: DependencyProperty;
+    static MouseOverForegroundProperty: DependencyProperty;
+    static MouseOverTextDecorationsProperty: DependencyProperty;
+    static NavigateUriProperty: DependencyProperty;
+    static TargetNameProperty: DependencyProperty;
+
+    Command: Fayde.MVVM.ICommand;
+    CommandParameter;
+    MouseOverForeground: Brush;
+    MouseOverTextDecorations: TextDecorations;
+    NavigateUri: Uri;
+    TargetName: string;
+    Click: RoutedEvent;
+}
+class TextElementCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): TextElement;
+    SetValueAt(index: number, value: TextElement);
+    Add(value: TextElement);
+    AddRange(newItems: TextElement[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: TextElement);
+    Remove(value: TextElement);
+    IndexOf(value: TextElement): number;
+    Contains(value: TextElement): bool;
+    ToArray(): TextElement[];
+}
+class InlineCollection extends TextElementCollection {
+    GetValueAt(index: number): Inline;
+    SetValueAt(index: number, value: Inline);
+    Add(value: Inline);
+    AddRange(newItems: Inline[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: Inline);
+    Remove(value: Inline);
+    IndexOf(value: Inline): number;
+    Contains(value: Inline): bool;
+    ToArray(): Inline[];
+}
+class BlockCollection extends TextElementCollection {
+    GetValueAt(index: number): Block;
+    SetValueAt(index: number, value: Block);
+    Add(value: Block);
+    AddRange(newItems: Block[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: Block);
+    Remove(value: Block);
+    IndexOf(value: Block): number;
+    Contains(value: Block): bool;
+    ToArray(): Block[];
+}
+class TextSelection {
+    //TODO: Finish
 }
 
 //////////////////////////////////////////////////////////
@@ -1126,33 +1265,298 @@ class ScrollContentPresenter extends ContentPresenter implements IScrollInfo {
     MakeVisible(visual: UIElement, rectangle: Rect);
 }
 class ScrollViewer extends ContentControl {
+    static HorizontalScrollBarVisibilityProperty: DependencyProperty;
+    static GetHorizontalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
+    static SetHorizontalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
 
+    static VerticalScrollBarVisibilityProperty: DependencyProperty;
+    static GetVerticalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
+    static SetVerticalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+
+    static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty;
+    static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty;
+    static HorizontalOffsetProperty: DependencyProperty;
+    static VerticalOffsetProperty: DependencyProperty;
+    static ScrollableWidthProperty: DependencyProperty;
+    static ScrollableHeightProperty: DependencyProperty;
+    static ExtentWidthProperty: DependencyProperty;
+    static ExtentHeightProperty: DependencyProperty;
+    static ViewportWidthProperty: DependencyProperty;
+    static ViewportHeightProperty: DependencyProperty;
+    
+    HorizontalScrollBarVisibility: ScrollBarVisibility;
+    VerticalScrollBarVisibility: ScrollBarVisibility;
+    ComputedHorizontalScrollBarVisibility: ScrollBarVisibility;
+    ComputedVerticalScrollBarVisibility: ScrollBarVisibility;
+    HorizontalOffset: number;
+    VerticalOffset: number;
+    ScrollableWidth: number;
+    ScrollableHeight: number;
+    ExtentWidth: number;
+    ExtentHeight: number;
+    ViewportWidth: number;
+    ViewportHeight: number;
+
+    InvalidateScrollInfo();
+    ScrollToHorizontalOffset(offset: number);
+    ScrollToVerticalOffset(offset: number);
 }
-class UserControl {
+class UserControl extends Control {
+    static ContentProperty: DependencyProperty;
+    Content: UIElement;
 }
-class Frame {
+class Frame extends ContentControl {
+    static IsDeepLinkedProperty: DependencyProperty;
+    static CurrentSourceProperty: DependencyProperty;
+    static SourceProperty: DependencyProperty;
+    IsDeepLinked: bool;
+    CurrentSource: Uri;
+    Source: Uri;
+    GoForward();
+    GoBackward();
+    StopLoading();
+    Navigate(source: Uri);
 }
-class Page {
+class Page extends UserControl {
+    static TitleProperty: DependencyProperty;
+    Title: string;
 }
-class Image {
+class Image extends FrameworkElement {
+    static SourceProperty: DependencyProperty;
+    static StretchProperty: DependencyProperty;
+    Source: ImageSource;
+    Stretch: Stretch;
+    ImageFailed: MulticastEvent;
+    ImageOpened: MulticastEvent;
 }
-class MediaElement {
+class MediaElement extends FrameworkElement {
+    static AutoPlayProperty: DependencyProperty;
+    static BufferingProgressProperty: DependencyProperty;
+    static BufferingTimeProperty: DependencyProperty;
+    static CanPauseProperty: DependencyProperty;
+    static CanSeekProperty: DependencyProperty;
+    static CurrentStateProperty: DependencyProperty;
+    static DownloadProgressProperty: DependencyProperty;
+    static DownloadProgressOffsetProperty: DependencyProperty;
+    static IsMutedProperty: DependencyProperty;
+    static NaturalDurationProperty: DependencyProperty;
+    static NaturalVideoHeightProperty: DependencyProperty;
+    static NaturalVideoWidthProperty: DependencyProperty;
+    static PlaybackRateProperty: DependencyProperty;
+    static PositionProperty: DependencyProperty;
+    static SourceProperty: DependencyProperty;
+    static StretchProperty: DependencyProperty;
+    static VolumeProperty: DependencyProperty;
+    
+    AutoPlay: bool;
+    BufferingProgress: number;
+    BufferingTime: TimeSpan;
+    CanPause: bool;
+    CanSeek: bool;
+    CurrentState: MediaElementState;
+    DownloadProgress: number;
+    DownloadProgressOffset: number;
+    IsMuted: bool;
+    NaturalDuration: Duration;
+    NaturalVideoHeight: number;
+    NaturalVideoWidth: number;
+    PlaybackRate: number;
+    Position: TimeSpan;
+    Source: Uri;
+    Stretch: Stretch;
+    Volume: number;
 }
-class ProgressBar {
+class RangeBase extends Control {
+    static LargeChangeProperty: DependencyProperty;
+    static MaximumProperty: DependencyProperty;
+    static MinimumProperty: DependencyProperty;
+    static SmallChangeProperty: DependencyProperty;
+    static ValueProperty: DependencyProperty;
+    LargeChange: number;
+    Maximum: number;
+    Minimum: number;
+    SmallChange: number;
+    Value: number;
+    OnMaximumChanged();
+    OnMinimumChanged();
+    OnValueChanged();
+    ValueChanged: RoutedEvent;
 }
-class RichTextBox {
+class ProgressBar extends RangeBase {
+    static IsIndeterminateProperty: DependencyProperty;
+    IsIndeterminate: bool;
 }
-class Slider {
+class ScrollBar extends RangeBase {
+    static OrientationProperty: DependencyProperty;
+    static ViewportSizeProperty: DependencyProperty;
+    Orientation: Orientation;
+    ViewportSize: number;
+    Scroll: MulticastEvent;
 }
-class TextBlock {
+class Slider extends RangeBase {
+    static IsDirectionReversedProperty: DependencyProperty;
+    static IsFocusedProperty: DependencyProperty;
+    static OrientationProperty: DependencyProperty;
+    IsDirectionReversed: bool;
+    IsFocused: bool;
+    Orientation: Orientation;
 }
-class TextBox {
+class TextBlock extends FrameworkElement {
+    static FontFamilyProperty: DependencyProperty;
+    static FontSizeProperty: DependencyProperty;
+    static FontStretchProperty: DependencyProperty;
+    static FontStyleProperty: DependencyProperty;
+    static FontWeightProperty: DependencyProperty;
+    static ForegroundProperty: DependencyProperty;
+    static InlinesProperty: DependencyProperty;
+    static LineHeightProperty: DependencyProperty;
+    static LineStackingStrategyProperty: DependencyProperty;
+    static PaddingProperty: DependencyProperty;
+    static TextAlignmentProperty: DependencyProperty;
+    static TextDecorationsProperty: DependencyProperty;
+    static TextProperty: DependencyProperty;
+    static TextTrimmingProperty: DependencyProperty;
+    static TextWrappingProperty: DependencyProperty;
+    FontFamily: string;
+    FontSize: number;
+    FontStretch: string;
+    FontStyle: string;
+    FontWeight: FontWeight;
+    Foreground: Brush;
+    Inlines: InlineCollection;
+    LineHeight: number;
+    LineStackingStrategy: LineStackingStrategy;
+    Padding: Thickness;
+    TextAlignment: TextAlignment;
+    TextDecorations: TextDecorations;
+    Text: string;
+    TextTrimming: TextTrimming;
+    TextWrapping: TextWrapping;
 }
-class PasswordBox {
+class TextBox extends Control {
+    static AcceptsReturnProperty: DependencyProperty;
+    static CaretBrushProperty: DependencyProperty;
+    static MaxLengthProperty: DependencyProperty;
+    static IsReadOnlyProperty: DependencyProperty;
+    static SelectionForegroundProperty: DependencyProperty;
+    static SelectionBackgroundProperty: DependencyProperty;
+    static BaselineOffsetProperty: DependencyProperty;
+    static SelectedTextProperty: DependencyProperty;
+    static SelectionLengthProperty: DependencyProperty;
+    static SelectionStartProperty: DependencyProperty;
+    static TextProperty: DependencyProperty;
+    static TextAlignmentProperty: DependencyProperty;
+    static TextWrappingProperty: DependencyProperty;
+    static HorizontalScrollBarVisibilityProperty: DependencyProperty;
+    static VerticalScrollBarVisibilityProperty: DependencyProperty;
+    AcceptsReturn: bool;
+    CaretBrush: Brush;
+    MaxLength: number;
+    IsReadOnly: bool;
+    SelectionForeground: Brush;
+    SelectionBackground: Brush;
+    BaselineOffset: number;
+    SelectedText: string;
+    SelectionLength: number;
+    SelectionStart: number;
+    Text: string;
+    TextAlignment: TextAlignment;
+    TextWrapping: TextWrapping;
+    HorizontalScrollBarVisibility: ScrollBarVisibility;
+    VerticalScrollBarVisibility: ScrollBarVisibility;
+    Select(start: number, length: number);
+    SelectAll();
+    SelectionChanged: RoutedEvent;
+    TextChanged: RoutedEvent;
 }
-class ToolTip {
+class PasswordBox extends Control {
+    static CaretBrushProperty: DependencyProperty;
+    static MaxLengthProperty: DependencyProperty;
+    static SelectionForegroundProperty: DependencyProperty;
+    static SelectionBackgroundProperty: DependencyProperty;
+    static PasswordProperty: DependencyProperty;
+    CaretBrush: Brush;
+    MaxLength: number;
+    SelectionForeground: Brush;
+    SelectionBackground: Brush;
+    Password: string;
+    SelectAll();
+    PasswordChanged: RoutedEvent;
+}
+class RichTextBox extends Control {
+    static AcceptsReturnProperty: DependencyProperty;
+    static CaretBrushProperty: DependencyProperty;
+    static IsReadOnlyProperty: DependencyProperty;
+    static LineHeightProperty: DependencyProperty;
+    static LineStackingStrategyProperty: DependencyProperty;
+    static TextAlignmentProperty: DependencyProperty;
+    static TextWrappingProperty: DependencyProperty;
+    AcceptsReturn: bool;
+    BaselineOffset: number;
+    Blocks: BlockCollection;
+    CaretBrush: Brush;
+    HorizontalScrollBarVisibility: ScrollBarVisibility;
+    IsReadOnly: bool;
+    LineHeight: number;
+    LineStackingStrategy: LineStackingStrategy;
+    Selection: TextSelection;
+    TextAlignment: TextAlignment;
+    TextWrapping: TextWrapping;
+    VerticalScrollBarVisibility: ScrollBarVisibility;
+    Xaml: string;
+    
+    ContentChanged: RoutedEvent;
+    SelectionChanged: RoutedEvent;
+}
+class ToolTip extends ContentControl {
+    static HorizontalOffsetProperty: DependencyProperty;
+    static IsOpenProperty: DependencyProperty;
+    static PlacementProperty: DependencyProperty;
+    static PlacementTargetProperty: DependencyProperty;
+    static VerticalOffsetProperty: DependencyProperty;
+    HorizontalOffset: number;
+    IsOpen: bool;
+    Placement: PlacementMode;
+    PlacementTarget: UIElement;
+    VerticalOffset: number;
+    Closed: RoutedEvent;
+    Opened: RoutedEvent;
 }
 class ToolTipService {
+    static PlacementProperty: DependencyProperty;
+    static GetPlacement(d: DependencyObject): PlacementMode;
+    static SetPlacement(d: DependencyObject, value: PlacementMode);
+
+    static PlacementTargetProperty: DependencyProperty;
+    static GetPlacementTarget(d: DependencyObject): UIElement;
+    static SetPlacementTarget(d: DependencyObject, value: UIElement);
+
+    static ToolTipProperty: DependencyProperty;
+    static GetToolTip(d: DependencyObject): ToolTip;
+    static SetToolTip(d: DependencyObject, value: ToolTip);
+}
+class Popup extends FrameworkElement {
+    static ChildProperty: DependencyProperty;
+    static HorizontalOffsetProperty: DependencyProperty;
+    static IsOpenProperty: DependencyProperty;
+    static VerticalOffsetProperty: DependencyProperty;
+    Child: UIElement;
+    HorizontalOffset: number;
+    IsOpen: bool;
+    VerticalOffset: number;
+
+    Opened: MulticastEvent;
+    Closed: MulticastEvent;
+}
+class Thumb extends Control {
+    static IsDraggingProperty: DependencyProperty;
+    static IsFocusedProperty: DependencyProperty;
+    IsDragging: bool;
+    IsFocused: bool;
+    CancelDrag();
+    DragCompleted: MulticastEvent;
+    DragDelta: MulticastEvent;
+    DragStarted: MulticastEvent;
 }
 
 //////////////////////////////////////////////////////////
@@ -1210,6 +1614,21 @@ class Geometry extends DependencyObject {
     Bounds: Rect;
 }
 class Effect extends DependencyObject {
+}
+class ImageSource extends DependencyObject {
+}
+class BitmapSource extends ImageSource {
+    static PixelWidthProperty: DependencyProperty;
+    static PixelHeightProperty: DependencyProperty;
+    PixelWidth: number;
+    PixelHeight: number;
+}
+class BitmapImage extends BitmapSource {
+    static UriSourceProperty: DependencyProperty;
+    UriSource: Uri;
+    ImageFailed: MulticastEvent;
+    ImageOpened: MulticastEvent;
+    DownloadProgress: MulticastEvent;
 }
 
 //////////////////////////////////////////////////////////
