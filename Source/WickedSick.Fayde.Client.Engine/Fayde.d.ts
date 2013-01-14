@@ -492,6 +492,15 @@ enum MediaElementState {
     Paused = 6,
     Stopped = 7,
 }
+enum FillBehavior {
+    HoldEnd = 0,
+    Stop = 1,
+}
+enum EasingMode {
+    EaseOut = 0,
+    EaseIn = 1,
+    EaseInOut = 2,
+}
 
 //////////////////////////////////////////////////////////
 // CORE
@@ -768,6 +777,9 @@ class PresentationFrameworkCollection extends DependencyObject implements IColle
     IndexOf(value): number;
     Contains(value): bool;
     ToArray(): any[];
+}
+class PropertyPath {
+    //TODO: Finish
 }
 
 //////////////////////////////////////////////////////////
@@ -1818,6 +1830,367 @@ class TextOptions {
     static TextHintingModeProperty: DependencyProperty;
     static GetTextHintingMode(d: DependencyObject): TextHintingMode;
     static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
+}
+
+//////////////////////////////////////////////////////////
+// VISUAL STATE MANAGER
+//////////////////////////////////////////////////////////
+class VisualTransition extends DependencyObject {
+    From: string;
+    To: string;
+    Storyboard: Storyboard;
+    GeneratedDuration: Duration;
+    GeneratedEasingFunction: IEasingFunction;
+}
+class VisualTransitionCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): VisualTransition;
+    SetValueAt(index: number, value: VisualTransition);
+    Add(value: VisualTransition);
+    AddRange(newItems: VisualTransition[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: VisualTransition);
+    Remove(value: VisualTransition);
+    IndexOf(value: VisualTransition): number;
+    Contains(value: VisualTransition): bool;
+    ToArray(): VisualTransition[];
+}
+class VisualStateGroup extends DependencyObject {
+    States: VisualStateCollection;
+    CurrentStateChanging: MulticastEvent;
+    CurrentStateChanged: MulticastEvent;
+}
+class VisualStateGroupCollection implements ICollection {
+    GetCount(): number;
+    GetValueAt(index: number): VisualStateGroup;
+    SetValueAt(index: number, value: VisualStateGroup);
+    Add(value: VisualStateGroup);
+    AddRange(newItems: VisualStateGroup[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: VisualStateGroup);
+    Remove(value: VisualStateGroup);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value: VisualStateGroup): number;
+    Contains(value: VisualStateGroup): bool;
+    ToArray(): VisualStateGroup[];
+}
+class VisualState extends DependencyObject {
+    static StoryboardProperty: DependencyProperty;
+    Storyboard: Storyboard;
+}
+class VisualStateCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): VisualState;
+    SetValueAt(index: number, value: VisualState);
+    Add(value: VisualState);
+    AddRange(newItems: VisualState[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: VisualState);
+    Remove(value: VisualState);
+    IndexOf(value: VisualState): number;
+    Contains(value: VisualState): bool;
+    ToArray(): VisualState[];
+}
+class VisualStateManager extends DependencyObject {
+    static VisualStateGroupsProperty: DependencyProperty;
+    static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection;
+
+    static CustomVisualStateManagerProperty: DependencyProperty;
+    static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager;
+    static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager);
+
+    static GoToStateCore(control: Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool;
+    static GoToState(control: Control, stateName: string, useTransitions: bool): bool;
+}
+
+//////////////////////////////////////////////////////////
+// ANIMATIONS
+//////////////////////////////////////////////////////////
+interface IEasingFunction {
+}
+class RepeatBehavior {
+    static FromRepeatDuration(duration: Duration): RepeatBehavior;
+    static FromIterationCount(count: number): RepeatBehavior;
+    static FromForever(): RepeatBehavior;
+    HasCount: bool;
+    Count: number;
+    HasDuration: bool;
+    Duration: Duration;
+    IsForever: bool;
+}
+class Timeline extends DependencyObject {
+    static AutoReverseProperty: DependencyProperty;
+    static BeginTimeProperty: DependencyProperty;
+    static DurationProperty: DependencyProperty;
+    static RepeatBehaviorProperty: DependencyProperty;
+    static SpeedRatioProperty: DependencyProperty;
+    static FillBehaviorProperty: DependencyProperty;
+    AutoReverse: bool;
+    BeginTime: TimeSpan;
+    Duration: Duration;
+    RepeatBehavior: RepeatBehavior;
+    SpeedRatio: number;
+    FillBehavior: FillBehavior;
+    Completed: MulticastEvent;
+}
+class TimelineCollection implements ICollection {
+    GetCount(): number;
+    GetValueAt(index: number): Timeline;
+    SetValueAt(index: number, value: Timeline);
+    Add(value: Timeline);
+    AddRange(newItems: Timeline[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: Timeline);
+    Remove(value: Timeline);
+    RemoveAt(index: number);
+    Clear();
+    IndexOf(value: Timeline): number;
+    Contains(value: Timeline): bool;
+    ToArray(): Timeline[];
+}
+class ColorAnimation extends Timeline {
+    static ByProperty: DependencyProperty;
+    static EasingFunctionProperty: DependencyProperty;
+    static FromProperty: DependencyProperty;
+    static ToProperty: DependencyProperty;
+    By: Color;
+    EasingFunction: IEasingFunction;
+    From: Color;
+    To: Color;
+}
+class ColorAnimationUsingKeyFrames extends Timeline {
+    static KeyFramesProperty: DependencyProperty;
+    KeyFrames: ColorKeyFrameCollection;
+}
+class DoubleAnimation extends Timeline {
+    static ByProperty: DependencyProperty;
+    static EasingFunctionProperty: DependencyProperty;
+    static FromProperty: DependencyProperty;
+    static ToProperty: DependencyProperty;
+    By: number;
+    EasingFunction: IEasingFunction;
+    From: number;
+    To: number;
+}
+class DoubleAnimationUsingKeyFrames extends Timeline {
+    static KeyFramesProperty: DependencyProperty;
+    KeyFrames: DoubleKeyFrameCollection;
+}
+class ObjectAnimationUsingKeyFrames extends Timeline {
+    static KeyFramesProperty: DependencyProperty;
+    KeyFrames: ObjectKeyFrameCollection;
+}
+class PointAnimation extends Timeline {
+    static ByProperty: DependencyProperty;
+    static EasingFunctionProperty: DependencyProperty;
+    static FromProperty: DependencyProperty;
+    static ToProperty: DependencyProperty;
+    By: Point;
+    EasingFunction: IEasingFunction;
+    From: Point;
+    To: Point;
+}
+class PointAnimationUsingKeyFrames extends Timeline {
+    static KeyFramesProperty: DependencyProperty;
+    KeyFrames: PointKeyFrameCollection;
+}
+class Storyboard extends Timeline {
+    static ChildrenProperty: DependencyProperty;
+
+    static TargetNameProperty: DependencyProperty;
+    static GetTargetName(t: Timeline): string;
+    static SetTargetName(t: Timeline, value: string);
+
+    static TargetPropertyProperty: DependencyProperty;
+    static GetTargetProperty(t: Timeline): PropertyPath;
+    static SetTargetProperty(t: Timeline, value: PropertyPath);
+
+    Children: TimelineCollection;
+
+    Begin();
+    Pause();
+    Resume();
+    Stop();
+    //GetCurrentState(): ClockState;
+    //GetCurrentTime(): TimeSpan;
+    //Seek(offset: TimeSpan);
+    //SeekAlignedToLastTick(offset: TimeSpan);
+    //SkipToFill();
+}
+class BeginStoryboard {
+    static StoryboardProperty: DependencyProperty;
+    Storyboard: Storyboard;
+}
+class KeySpline extends DependencyObject {
+    ControlPoint1: Point;
+    ControlPoint2: Point;
+}
+class KeyFrame extends DependencyObject {
+    KeyTime: KeyTime;
+    Value: any;
+}
+class ColorKeyFrame extends KeyFrame {
+    static KeyTimeProperty: DependencyProperty;
+    static ValueProperty: DependencyProperty;
+    KeyTime: KeyTime;
+    Value: Color;
+}
+class DoubleKeyFrame extends KeyFrame {
+    static KeyTimeProperty: DependencyProperty;
+    static ValueProperty: DependencyProperty;
+    KeyTime: KeyTime;
+    Value: number;
+}
+class ObjectKeyFrame extends KeyFrame {
+    static KeyTimeProperty: DependencyProperty;
+    static ValueProperty: DependencyProperty;
+    KeyTime: KeyTime;
+    Value: any;
+}
+class PointKeyFrame extends KeyFrame {
+    static KeyTimeProperty: DependencyProperty;
+    static ValueProperty: DependencyProperty;
+    KeyTime: KeyTime;
+    Value: Point;
+}
+class KeyFrameCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): KeyFrame;
+    SetValueAt(index: number, value: KeyFrame);
+    Add(value: KeyFrame);
+    AddRange(newItems: KeyFrame[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: KeyFrame);
+    Remove(value: KeyFrame);
+    IndexOf(value: KeyFrame): number;
+    Contains(value: KeyFrame): bool;
+    ToArray(): KeyFrame[];
+}
+class ColorKeyFrameCollection extends KeyFrameCollection {
+    GetValueAt(index: number): ColorKeyFrame;
+    SetValueAt(index: number, value: ColorKeyFrame);
+    Add(value: ColorKeyFrame);
+    AddRange(newItems: ColorKeyFrame[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: ColorKeyFrame);
+    Remove(value: ColorKeyFrame);
+    IndexOf(value: ColorKeyFrame): number;
+    Contains(value: ColorKeyFrame): bool;
+    ToArray(): ColorKeyFrame[];
+}
+class DoubleKeyFrameCollection extends KeyFrameCollection {
+    GetValueAt(index: number): DoubleKeyFrame;
+    SetValueAt(index: number, value: DoubleKeyFrame);
+    Add(value: DoubleKeyFrame);
+    AddRange(newItems: DoubleKeyFrame[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: DoubleKeyFrame);
+    Remove(value: DoubleKeyFrame);
+    IndexOf(value: DoubleKeyFrame): number;
+    Contains(value: DoubleKeyFrame): bool;
+    ToArray(): DoubleKeyFrame[];
+}
+class ObjectKeyFrameCollection extends KeyFrameCollection {
+    GetValueAt(index: number): ObjectKeyFrame;
+    SetValueAt(index: number, value: ObjectKeyFrame);
+    Add(value: ObjectKeyFrame);
+    AddRange(newItems: ObjectKeyFrame[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: ObjectKeyFrame);
+    Remove(value: ObjectKeyFrame);
+    IndexOf(value: ObjectKeyFrame): number;
+    Contains(value: ObjectKeyFrame): bool;
+    ToArray(): ObjectKeyFrame[];
+}
+class PointKeyFrameCollection extends KeyFrameCollection {
+    GetValueAt(index: number): PointKeyFrame;
+    SetValueAt(index: number, value: PointKeyFrame);
+    Add(value: PointKeyFrame);
+    AddRange(newItems: PointKeyFrame[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: PointKeyFrame);
+    Remove(value: PointKeyFrame);
+    IndexOf(value: PointKeyFrame): number;
+    Contains(value: PointKeyFrame): bool;
+    ToArray(): PointKeyFrame[];
+}
+class DiscreteColorKeyFrame extends ColorKeyFrame {
+}
+class DiscreteDoubleKeyFrame extends DoubleKeyFrame {
+}
+class DiscreteObjectKeyFrame extends ObjectKeyFrame {
+}
+class DiscretePointKeyFrame extends PointKeyFrame {
+}
+class EasingColorKeyFrame extends ColorKeyFrame {
+    static EasingFunctionProperty: DependencyProperty;
+    EasingFunction: IEasingFunction;
+}
+class EasingDoubleKeyFrame extends DoubleKeyFrame {
+    static EasingFunctionProperty: DependencyProperty;
+    EasingFunction: IEasingFunction;
+}
+class EasingPointKeyFrame extends PointKeyFrame {
+    static EasingFunctionProperty: DependencyProperty;
+    EasingFunction: IEasingFunction;
+}
+class LinearColorKeyFrame extends ColorKeyFrame {
+}
+class LinearDoubleKeyFrame extends DoubleKeyFrame {
+}
+class LinearPointKeyFrame extends PointKeyFrame {
+}
+class SplineColorKeyFrame extends ColorKeyFrame {
+    static KeySplineProperty: DependencyProperty;
+    KeySpline: KeySpline;
+}
+class SplineDoubleKeyFrame extends DoubleKeyFrame {
+    static KeySplineProperty: DependencyProperty;
+    KeySpline: KeySpline;
+}
+class SplinePointKeyFrame extends PointKeyFrame {
+    static KeySplineProperty: DependencyProperty;
+    KeySpline: KeySpline;
+}
+class EasingFunctionBase extends DependencyObject implements IEasingFunction {
+    static EasingModeProperty: DependencyProperty;
+    EasingMode: EasingMode;
+    Ease(normalizedTime: number): number;
+    EaseInCore(normalizedTime: number): number;
+}
+class BackEase extends EasingFunctionBase {
+    static AmplitudeProperty: DependencyProperty;
+    Amplitude: number;
+}
+class BounceEase extends EasingFunctionBase {
+    static BouncesProperty: DependencyProperty;
+    static BouncinessProperty: DependencyProperty;
+    Bounces: number;
+    Bounciness: number;
+}
+class CircleEase extends EasingFunctionBase {
+}
+class CubicEase extends EasingFunctionBase {
+}
+class ElasticEase extends EasingFunctionBase {
+    static OscillationsProperty: DependencyProperty;
+    static SpringinessProperty: DependencyProperty;
+    Oscillations: number;
+    Springiness: number;
+}
+class ExponentialEase extends EasingFunctionBase {
+    static ExponentProperty: DependencyProperty;
+    Exponent: number;
+}
+class PowerEase extends EasingFunctionBase {
+    static PowerProperty: DependencyProperty;
+    Power: number;
+}
+class QuadraticEase extends EasingFunctionBase {
+}
+class QuarticEase extends EasingFunctionBase {
+}
+class QuinticEase extends EasingFunctionBase {
+}
+class SineEase extends EasingFunctionBase {
 }
 
 //////////////////////////////////////////////////////////
