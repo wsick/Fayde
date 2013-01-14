@@ -1599,6 +1599,34 @@ class GradientStopsCollection extends DependencyObjectCollection {
     Contains(value: GradientStop): bool;
     ToArray(): GradientStop[];
 }
+class LinearGradientBrush extends GradientBrush {
+    static StartPointProperty: DependencyProperty;
+    static EndPointProperty: DependencyProperty;
+    StartPoint: Point;
+    EndPoint: Point;
+}
+class RadialGradientBrush extends GradientBrush {
+    static CenterProperty: DependencyProperty;
+    static GradientOriginProperty: DependencyProperty;
+    static RadiusXProperty: DependencyProperty;
+    static RadiusYProperty: DependencyProperty;
+    Center: Point;
+    GradientOrigin: Point;
+    RadiusX: number;
+    RadiusY: number;
+}
+class TileBrush extends Brush {
+    static AlignmentXProperty: DependencyProperty;
+    static AlignmentYProperty: DependencyProperty;
+    static StretchProperty: DependencyProperty;
+    AlignmentX: AlignmentX;
+    AlignmentY: AlignmentY;
+    Stretch: Stretch;
+}
+class ImageBrush extends TileBrush {
+    static ImageSourceProperty: DependencyProperty;
+    ImageSource: ImageBrush;
+}
 class GeneralTransform extends DependencyObject {
     Inverse: GeneralTransform;
     Transform(point: Point): Point;
@@ -1606,14 +1634,170 @@ class GeneralTransform extends DependencyObject {
 }
 class Transform extends GeneralTransform {
 }
+class MatrixTransform extends Transform {
+    static MatrixProperty: DependencyProperty;
+    Matrix: Matrix;
+}
+class RotateTransform extends Transform {
+    static AngleProperty: DependencyProperty;
+    static CenterXProperty: DependencyProperty;
+    static CenterYProperty: DependencyProperty;
+    Angle: number;
+    CenterX: number;
+    CenterY: number;
+}
+class ScaleTransform extends Transform {
+    static CenterXProperty: DependencyProperty;
+    static CenterYProperty: DependencyProperty;
+    static ScaleXProperty: DependencyProperty;
+    static ScaleYProperty: DependencyProperty;
+    CenterX: number;
+    CenterY: number;
+    ScaleX: number;
+    ScaleY: number;
+}
+class SkewTransform extends Transform {
+    static AngleXProperty: DependencyProperty;
+    static AngleYProperty: DependencyProperty;
+    static CenterXProperty: DependencyProperty;
+    static CenterYProperty: DependencyProperty;
+    AngleX: number;
+    AngleY: number;
+    CenterX: number;
+    CenterY: number;
+}
+class TranslateTransform extends Transform {
+    static XProperty: DependencyProperty;
+    static YProperty: DependencyProperty;
+    X: number;
+    Y: number;
+}
+class TransformCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): Transform;
+    SetValueAt(index: number, value: Transform);
+    Add(value: Transform);
+    AddRange(newItems: Transform[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: Transform);
+    Remove(value: Transform);
+    IndexOf(value: Transform): number;
+    Contains(value: Transform): bool;
+    ToArray(): Transform[];
+}
+class TransformGroup extends Transform {
+    static ChildrenProperty: DependencyProperty;
+    Children: TransformCollection;
+}
 class Projection extends DependencyObject {
+}
+class Matrix3DProjection extends Projection {
+    static ProjectionMatrixProperty: DependencyProperty;
+    ProjectionMatrix: Matrix3D;
 }
 class Geometry extends DependencyObject {
     static TransformProperty: DependencyProperty;
     Transform: Transform;
     Bounds: Rect;
 }
+class GeometryCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): Geometry;
+    SetValueAt(index: number, value: Geometry);
+    Add(value: Geometry);
+    AddRange(newItems: Geometry[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: Geometry);
+    Remove(value: Geometry);
+    IndexOf(value: Geometry): number;
+    Contains(value: Geometry): bool;
+    ToArray(): Geometry[];
+}
+class GeometryGroup extends Geometry {
+    static FillRuleProperty: DependencyProperty;
+    static ChildrenProperty: DependencyProperty;
+    FillRule: FillRule;
+    Children: GeometryCollection;
+}
+class PathSegment extends DependencyObject {
+}
+class PathSegmentCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): PathSegment;
+    SetValueAt(index: number, value: PathSegment);
+    Add(value: PathSegment);
+    AddRange(newItems: PathSegment[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: PathSegment);
+    Remove(value: PathSegment);
+    IndexOf(value: PathSegment): number;
+    Contains(value: PathSegment): bool;
+    ToArray(): PathSegment[];
+}
+class PathFigure extends DependencyObject {
+    static IsClosedProperty: DependencyProperty;
+    static SegmentsProperty: DependencyProperty;
+    static StartPointProperty: DependencyProperty;
+    static IsFilledProperty: DependencyProperty;
+    IsClosedProperty: bool;
+    SegmentsProperty: PathSegmentCollection;
+    StartPointProperty: Point;
+    IsFilledProperty: bool;
+}
+class PathFigureCollection extends DependencyObjectCollection {
+    GetValueAt(index: number): PathFigure;
+    SetValueAt(index: number, value: PathFigure);
+    Add(value: PathFigure);
+    AddRange(newItems: PathFigure[]);
+    AddRange(newItems: ICollection);
+    Insert(index: number, value: PathFigure);
+    Remove(value: PathFigure);
+    IndexOf(value: PathFigure): number;
+    Contains(value: PathFigure): bool;
+    ToArray(): PathFigure[];
+}
+class ArcSegment extends PathSegment {
+    static IsLargeArcProperty: DependencyProperty;
+    static PointProperty: DependencyProperty;
+    static RotationAngleProperty: DependencyProperty;
+    static SizeProperty: DependencyProperty;
+    static SweepDirectionProperty: DependencyProperty;
+    IsLargeArc: bool;
+    Point: Point;
+    RotationAngle: number;
+    Size: Size;
+    SweepDirection: SweepDirection;
+}
+class PathGeometry extends Geometry {
+    static FillRuleProperty: DependencyProperty;
+    static FiguresProperty: DependencyProperty;
+    FillRule: FillRule;
+    Figures: PathFigureCollection;
+}
+class RectangleGeometry extends Geometry {
+    static RectProperty: DependencyProperty;
+    static RadiusXProperty: DependencyProperty;
+    static RadiusYProperty: DependencyProperty;
+    Rect: Rect;
+    RadiusX: number;
+    RadiusY: number;
+}
 class Effect extends DependencyObject {
+    static EffectMappingProperty: DependencyProperty;
+    EffectMapping: GeneralTransform;
+}
+class BlurEffect extends Effect {
+    static RadiusProperty: DependencyProperty;
+    Radius: number;
+}
+class DropShadowEffect extends Effect {
+    static BlurRadiusProperty: DependencyProperty;
+    static ColorProperty: DependencyProperty;
+    static DirectionProperty: DependencyProperty;
+    static OpacityProperty: DependencyProperty;
+    static ShadowDepthProperty: DependencyProperty;
+    BlurRadius: number;
+    Color: Color;
+    Direction: number;
+    Opacity: number;
+    ShadowDepth: number;
 }
 class ImageSource extends DependencyObject {
 }
@@ -1629,6 +1813,11 @@ class BitmapImage extends BitmapSource {
     ImageFailed: MulticastEvent;
     ImageOpened: MulticastEvent;
     DownloadProgress: MulticastEvent;
+}
+class TextOptions {
+    static TextHintingModeProperty: DependencyProperty;
+    static GetTextHintingMode(d: DependencyObject): TextHintingMode;
+    static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
 }
 
 //////////////////////////////////////////////////////////
@@ -1850,17 +2039,14 @@ module Fayde.MVVM {
         Execute(parameter): void;
         CanExecute(parameter): bool;
     }
-    
     export class RelayCommand implements ICommand { 
         constructor (execute?: (parameter) => void, canExecute?: (parameter) => bool);
         Execute(parameter): void;
         CanExecute(parameter): bool;
     }
-
     export class ObservableObject {
         PropertyChanged: MulticastEvent;
         OnPropertyChanged(propertyName: string);
     }
-
     export class ViewModelBase extends ObservableObject { }
 }
