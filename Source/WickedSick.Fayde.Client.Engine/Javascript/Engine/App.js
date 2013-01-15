@@ -254,4 +254,4 @@ App.Instance._NotifyDebugParserPass = function (type, elapsedTime) {
 Nullstone.FinishCreate(App);
 //#endregion
 
-App.Version = "0.9.0.1";
+App.Version = "0.9.2.0";
