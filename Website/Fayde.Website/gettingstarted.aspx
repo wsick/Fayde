@@ -3,65 +3,21 @@
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="cphBody" runat="server">
     <h3>Hello World Example</h3>
-    <p>The following instructions are preliminary.  Templates are being created to ease this process.</p>
-    <ol>
-        <li>Download the latest drop on the <asp:HyperLink NavigateUrl="~/download.aspx" runat="server">download</asp:HyperLink> page.</li>
-        <li>Create a new web application project in Visual Studio.</li>
-        <li>Configure the project to use either IIS or IIS Express. The Visual Studio Development Server cannot run the Fayde handlers.</li>
-        <li>Copy files in the "&lt;Zip File&gt;\bin" directory to a directory in your web application project.</li>
-        <li>Add a reference to the dlls that were just extracted.</li>
-        <li>Copy the javascript files in the "&lt;Zip File&gt;\jsbin" directory to a directory in your web application project.</li>
-        <li>
-            Create a Fayde application.
-            <ol>
-                <li>Add New Item > XML File > "default.fap".</li>
-                <li>Add the following XAML to default.fap:
-                    <div>
-                        <code>
-                            <asp:Literal ID="ltrlDefaultFapXaml" runat="server" />
-                        </code>
-                    </div>
-                </li>
-                <li>Replace ScriptResolution="scripts/" with a resolution from "default.fap" to the directory that contains Fayde.js and Fayde.Generic.js.</li>
-            </ol>
-        </li>
-        <li>
-            Create the default view.
-            <ol>
-                <li>Add New Folder > "Views".</li>
-                <li>Add New Item > XML File > "home.fayde".</li>
-                <li>Add the following XAML to home.fayde.
-                    <div>
-                        <code>
-                            <asp:Literal ID="ltrlHomeXaml" runat="server" />
-                        </code>
-                    </div>
-                </li>
-            </ol>
-        </li>
-        <li>
-            Set default.fap as your start page.
-            <ol>
-                <li>Open web application project properties.</li>
-                <li>Choose Web tab.</li>
-                <li>Choose "Specific Page" radio button.</li>
-                <li>Type "default.fap".</li>
-                <li>Save project.</li>
-            </ol>
-        </li>
-        <li>
-            Configure fayde application handler.
-            <ol>
-                <li>Open web.config.</li>
-                <li>Add the following xml to the root &lt;configuration&gt; element:
-                    <div>
-                        <code>
-                            <asp:Literal ID="ltrlWebConfig" runat="server" />
-                        </code>
-                    </div>
-                </li>
-            </ol>
-        </li>
-        <li>Run web application.</li>
-    </ol>
+	<p>The zip file contains a Visual Studio 2012 solution that contains a project with a Hello World Example.</p>
+    <p><asp:HyperLink NavigateUrl="~/drops/HelloWorldExample.zip" Text="HelloWorldExample.zip" runat="server" /></p>
+	<ol>
+		<li>Configure the web project to run in IIS or IIS Express. (Visual Studio Development Server will not work)</li>
+		<li>Set the startup page to default.fap:
+			<ol>
+				<li>Right-click on web project.</li>
+				<li>Click Properties.</li>
+				<li>Choose the "Web" tab.</li>
+				<li>Under Start Action, choose Specific Page radio button.</li>
+				<li>Click the "..." button to browse for a file.</li>
+				<li>Change the "Files of type" filter to include All Files.</li>
+				<li>Select "default.fap". Click OK</li>
+			</ol>
+		</li>
+		<li>Run the project.</li>
+	</ol>
 </asp:Content>
