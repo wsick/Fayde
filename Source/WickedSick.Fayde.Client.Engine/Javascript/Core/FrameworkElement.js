@@ -945,9 +945,12 @@ FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
     return rootEl;
 };
 FrameworkElement.Instance.InitializeHtml = function (rootEl) {
-    FrameworkElement.ApplySizing(rootEl, this.ParentIsFixedWidth, this.ParentIsFixedHeight,
+    if (FrameworkElement.ApplySizing(rootEl, this.ParentIsFixedWidth, this.ParentIsFixedHeight,
         this.HorizontalAlignment, this.VerticalAlignment,
-        this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight);
+        this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight)) {
+        alert("adjustment");
+        Surface._SizingAdjustments.push(this._ID);
+    }
 };
 FrameworkElement.Instance.OnHtmlAttached = function () {
     this.ApplyTemplate();
@@ -1008,6 +1011,8 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
         subEl.style.position = "absolute";
         if (horizontalLayoutType == HorizontalLayoutType.Stretch) rootEl.style.width = "100%";
         if (verticalLayoutType == VerticalLayoutType.Stretch) rootEl.style.height = "100%";
+        //if we are here we know width or height is stretch, if one of them is shrink then we have a stretch plus shrink scenario
+        if (horizontalLayoutType == HorizontalLayoutType.Shrink || verticalLayoutType == VerticalLayoutType.Shrink) return true;
     }
     else {
         if (horizontalAlignment == HorizontalAlignment.Left || horizontalAlignment == HorizontalAlignment.Right ||
@@ -1059,11 +1064,7 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
     subEl.style.maxHeight = maxHeight + "px";
     subEl.style.maxWidth = maxWidth + "px";
 
-    var that = this;
-    setTimeout(function () { that.RAWR(); }, 0);
-};
-FrameworkElement.Instance.RAWR = function () {
-    alert("RAWR");
+    return false;
 };
 FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
     var sizingChecks = [UIElement.ParentIsFixedWidthProperty, UIElement.ParentIsFixedHeightProperty,
@@ -1072,13 +1073,22 @@ FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
         FrameworkElement.MaxWidthProperty, FrameworkElement.MaxHeightProperty];
     for (var i = 0; i < sizingChecks.length; i++) {
         if (invalidations[sizingChecks[i]._ID]) {
-            FrameworkElement.ApplySizing(this.GetRootHtmlElement(), this.ParentIsFixedWidth, this.ParentIsFixedHeight,
+            if (FrameworkElement.ApplySizing(this.GetRootHtmlElement(), this.ParentIsFixedWidth, this.ParentIsFixedHeight,
                 this.HorizontalAlignment, this.VerticalAlignment,
-                this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight);
+                this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight)) {
+                alert("adjustment");
+                Surface._SizingAdjustments.push(this._ID);
+            }
             break;
         }
     }
     this.ApplyHtmlChanges$UIElement(invalidations);
+};
+FrameworkElement.Instance.GetSizeFromChild = function () {
+    
+};
+FrameworkElement.Instance.ProvideSizeToParent = function () {
+
 };
 FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
     //if width is defined, horizontal alignment is no longer stretched
@@ -1089,7 +1099,7 @@ FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment)
     else {
         return horizontalAlignment;
     }
-}
+};
 FrameworkElement.RealVerticalAlignment = function (height, verticalAlignment) {
     //if height is defined, vertical alignment is no longer stretched
     if (!isNaN(height) && verticalAlignment == VerticalAlignment.Stretch) {
@@ -1099,7 +1109,7 @@ FrameworkElement.RealVerticalAlignment = function (height, verticalAlignment) {
     else {
         return verticalAlignment;
     }
-}
+};
 FrameworkElement.Instance.CalculateIsFixedWidth = function () {
     if (!isNaN(this.Width)) {
         return true;
@@ -1109,7 +1119,7 @@ FrameworkElement.Instance.CalculateIsFixedWidth = function () {
         return true;
     }
     return false;
-}
+};
 FrameworkElement.Instance.CalculateIsFixedHeight = function () {
     if (!isNaN(this.Height)) {
         return true;
@@ -1119,7 +1129,7 @@ FrameworkElement.Instance.CalculateIsFixedHeight = function () {
         return true;
     }
     return false;
-}
+};
 
 //#endregion
 

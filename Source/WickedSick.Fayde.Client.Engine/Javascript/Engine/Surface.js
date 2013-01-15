@@ -27,18 +27,13 @@ Surface.Instance.Init = function (app) {
     this._Cursor = CursorType.Default;
     if (Surface._Invalidations == null)
         Surface._Invalidations = [];
+    if (Surface._SizingAdjustments == null)
+        Surface._SizingAdjustments = [];
     this.LayoutUpdated = new MulticastEvent();
     this._KeyInterop = KeyInterop.CreateInterop(this);
 
     var body = document.body;
-    body.style.height = "100%";
-    body.style.width = "100%";
     this._RootHtmlEl = body;
-    //this._RootHtmlEl = document.createElement("div");
-    //this._RootHtmlEl.style.position = "absolute";
-    //this._RootHtmlEl.style.width = "100%";
-    //this._RootHtmlEl.style.height = "100%";
-    //body.appendChild(this._RootHtmlEl);
 };
 
 //#region Initialization
@@ -128,7 +123,12 @@ Surface.Instance._AttachLayer = function (layer) {
     this._RootHtmlEl.appendChild(rootEl);
     layer.OnHtmlAttached();
 
+    setTimeout(Surface.ProcessSizingAdjustments(), 0);
+
     this._App._NotifyDebugLayer(true, layer);
+};
+Surface.ProcessSizingAdjustments = function () {
+    alert(Surface._SizingAdjustments.length);
 };
 Surface.Instance._DetachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
