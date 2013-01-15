@@ -84,6 +84,7 @@ App.Instance._Tick = function (lastTime, nowTime) {
     this.ProcessStoryboards(lastTime, nowTime);
     //this.ProcessDirty();
     this.ProcessHtmlChanges();
+    this.MainSurface.ProcessSizingAdjustments();
 };
 App.Instance._Stop = function () {
     this._ClockTimer.UnregisterTimer(this);

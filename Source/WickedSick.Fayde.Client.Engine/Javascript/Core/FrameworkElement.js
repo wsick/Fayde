@@ -948,8 +948,7 @@ FrameworkElement.Instance.InitializeHtml = function (rootEl) {
     if (FrameworkElement.ApplySizing(rootEl, this.ParentIsFixedWidth, this.ParentIsFixedHeight,
         this.HorizontalAlignment, this.VerticalAlignment,
         this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight)) {
-        alert("adjustment");
-        Surface._SizingAdjustments.push(this._ID);
+        Surface._SizingAdjustments[this._ID] = this;
     }
 };
 FrameworkElement.Instance.OnHtmlAttached = function () {
@@ -1075,8 +1074,7 @@ FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
             if (FrameworkElement.ApplySizing(this.GetRootHtmlElement(), this.ParentIsFixedWidth, this.ParentIsFixedHeight,
                 this.HorizontalAlignment, this.VerticalAlignment,
                 this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight)) {
-                alert("adjustment");
-                Surface._SizingAdjustments.push(this._ID);
+                Surface._SizingAdjustments[this._ID] = this;
             }
             break;
         }
