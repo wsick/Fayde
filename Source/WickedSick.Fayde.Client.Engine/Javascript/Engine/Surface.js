@@ -123,12 +123,15 @@ Surface.Instance._AttachLayer = function (layer) {
     this._RootHtmlEl.appendChild(rootEl);
     layer.OnHtmlAttached();
 
-    setTimeout(Surface.ProcessSizingAdjustments(), 0);
+    setTimeout(function () { Surface.ProcessSizingAdjustments(); }, 0);
 
     this._App._NotifyDebugLayer(true, layer);
 };
 Surface.ProcessSizingAdjustments = function () {
     alert(Surface._SizingAdjustments.length);
+    for (var key in Surface._SizingAdjustments) {
+
+    }
 };
 Surface.Instance._DetachLayer = function (layer) {
     /// <param name="layer" type="UIElement"></param>
