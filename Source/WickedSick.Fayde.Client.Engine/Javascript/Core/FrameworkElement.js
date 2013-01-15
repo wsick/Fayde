@@ -1058,12 +1058,6 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
     //set max width and max height on inner element
     subEl.style.maxHeight = maxHeight + "px";
     subEl.style.maxWidth = maxWidth + "px";
-
-    var that = this;
-    setTimeout(function () { that.RAWR(); }, 0);
-};
-FrameworkElement.Instance.RAWR = function () {
-    alert("RAWR");
 };
 FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
     var sizingChecks = [UIElement.ParentIsFixedWidthProperty, UIElement.ParentIsFixedHeightProperty,
