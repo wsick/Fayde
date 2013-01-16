@@ -941,6 +941,7 @@ FrameworkElement.Instance.GetContentHtmlElement = function () {
 FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
     var rootEl = document.createElement("div");
     rootEl.appendChild(document.createElement("div"));
+    rootEl.title = this._ID;
     this.InitializeHtml(rootEl);
     return rootEl;
 };
@@ -969,6 +970,7 @@ FrameworkElement.Instance.OnHtmlDetached = function () {
 FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFixedHeight,
     horizontalAlignment, verticalAlignment,
     margin, width, height, maxWidth, maxHeight) {
+    var isStretchPlusShrink = false;
     var subEl = rootEl.firstChild;
 
     rootEl.style.display = "table";
@@ -1011,7 +1013,7 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
         if (horizontalLayoutType == HorizontalLayoutType.Stretch) rootEl.style.width = "100%";
         if (verticalLayoutType == VerticalLayoutType.Stretch) rootEl.style.height = "100%";
         //if we are here we know width or height is stretch, if one of them is shrink then we have a stretch plus shrink scenario
-        if (horizontalLayoutType == HorizontalLayoutType.Shrink || verticalLayoutType == VerticalLayoutType.Shrink) return true;
+        if (horizontalLayoutType == HorizontalLayoutType.Shrink || verticalLayoutType == VerticalLayoutType.Shrink) isStretchPlusShrink = true;
     }
     else {
         if (horizontalAlignment == HorizontalAlignment.Left || horizontalAlignment == HorizontalAlignment.Right ||
@@ -1062,7 +1064,7 @@ FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFix
     //set max width and max height on inner element
     subEl.style.maxHeight = maxHeight + "px";
     subEl.style.maxWidth = maxWidth + "px";
-    return false;
+    return isStretchPlusShrink;
 };
 FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
     var sizingChecks = [UIElement.ParentIsFixedWidthProperty, UIElement.ParentIsFixedHeightProperty,
@@ -1082,10 +1084,13 @@ FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
     this.ApplyHtmlChanges$UIElement(invalidations);
 };
 FrameworkElement.Instance.GetSizeFromChild = function () {
-    
+    var subtree = this._SubtreeObject;
+    if (subtree) {
+        alert(subtree._ID);
+    }
+    alert(this.GetVisualParent()._ID);
 };
 FrameworkElement.Instance.ProvideSizeToParent = function () {
-
 };
 FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
     //if width is defined, horizontal alignment is no longer stretched

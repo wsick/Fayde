@@ -128,6 +128,7 @@ Surface.Instance._AttachLayer = function (layer) {
 Surface.Instance.ProcessSizingAdjustments = function () {
     for (var key in Surface._SizingAdjustments) {
         alert(key);
+        Surface._SizingAdjustments[key].GetSizeFromChild();
         delete Surface._SizingAdjustments[key];
     }
 };
