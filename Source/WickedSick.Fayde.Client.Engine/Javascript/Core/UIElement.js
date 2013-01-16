@@ -1082,8 +1082,10 @@ UIElement.Instance._OnPropertyChanged = function (args, error) {
         //TODO: CacheModeProperty
     } else if (propd._ID === UIElement.ParentIsFixedHeightProperty._ID) {
         ivprop = true;
+        this.InvalidateIsFixedHeight();
     } else if (propd._ID === UIElement.ParentIsFixedWidthProperty._ID) {
         ivprop = true;
+        this.InvalidateIsFixedWidth();
     }
     if (ivprop)
         this.InvalidateProperty(propd, args.OldValue, args.NewValue);
@@ -1297,9 +1299,9 @@ UIElement.Instance.GetHtmlDefaultDisplay = function () {
 }
 
 UIElement.Instance.GetIsFixedWidth = function () {
-    if (this._IsFixedWeight == null)
-        this._IsFixedWeight = this.CalculateIsFixedWidth();
-    return this._IsFixedWeight;
+    if (this._IsFixedWidth == null)
+        this._IsFixedWidth = this.CalculateIsFixedWidth();
+    return this._IsFixedWidth;
 };
 UIElement.Instance.GetIsFixedHeight = function () {
     if (this._IsFixedHeight == null)
