@@ -3,24 +3,24 @@
 /// <reference path="GridLength.js"/>
 /// CODE
 
-//#region RowDefinition
-var RowDefinition = Nullstone.Create("RowDefinition", DependencyObject);
+(function (namespace) {
+    var RowDefinition = Nullstone.Create("RowDefinition", DependencyObject);
 
-//#region Properties
+    //#region Properties
 
-RowDefinition.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
-RowDefinition.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
-RowDefinition.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, RowDefinition, 0.0);
-RowDefinition.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
+    RowDefinition.HeightProperty = DependencyProperty.RegisterCore("Height", function () { return GridLength; }, RowDefinition, new GridLength(1.0, GridUnitType.Star));
+    RowDefinition.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, RowDefinition, Number.POSITIVE_INFINITY);
+    RowDefinition.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, RowDefinition, 0.0);
+    RowDefinition.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, RowDefinition, 0.0);
 
-Nullstone.AutoProperties(RowDefinition, [
-    RowDefinition.HeightProperty,
-    RowDefinition.MaxHeightProperty,
-    RowDefinition.MinHeightProperty,
-    RowDefinition.ActualHeightProperty
-]);
+    Nullstone.AutoProperties(RowDefinition, [
+        RowDefinition.HeightProperty,
+        RowDefinition.MaxHeightProperty,
+        RowDefinition.MinHeightProperty,
+        RowDefinition.ActualHeightProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(RowDefinition);
-//#endregion
+    namespace.RowDefinition = Nullstone.FinishCreate(RowDefinition);
+})(window);

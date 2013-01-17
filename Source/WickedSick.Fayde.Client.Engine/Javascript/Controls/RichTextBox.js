@@ -1,8 +1,7 @@
 ﻿/// <reference path="Control.js"/>
 /// CODE
 
-//#region RichTextBox
-var RichTextBox = Nullstone.Create("RichTextBox", Control);
-
-Nullstone.FinishCreate(RichTextBox);
-//#endregion
+(function (namespace) {
+    var RichTextBox = Nullstone.Create("RichTextBox", Control);
+    namespace.RichTextBox = Nullstone.FinishCreate(RichTextBox);
+})(window);

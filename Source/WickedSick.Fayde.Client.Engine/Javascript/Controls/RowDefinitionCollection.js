@@ -3,20 +3,20 @@
 /// CODE
 /// <reference path="RowDefinition.js"/>
 
-//#region RowDefinitionCollection
-var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", DependencyObjectCollection);
+(function (namespace) {
+    var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", DependencyObjectCollection);
 
-RowDefinitionCollection.Instance.AddedToCollection = function (value, error) {
-    if (this.Contains(value)) {
-        error.SetErrored(BError.Argument, "RowDefinition is already a member of this collection.");
-        return false;
-    }
-    return this.AddedToCollection$DependencyObjectCollection(value, error);
-};
+    RowDefinitionCollection.Instance.AddedToCollection = function (value, error) {
+        if (this.Contains(value)) {
+            error.SetErrored(BError.Argument, "RowDefinition is already a member of this collection.");
+            return false;
+        }
+        return this.AddedToCollection$DependencyObjectCollection(value, error);
+    };
 
-RowDefinitionCollection.Instance.IsElementType = function (value) {
-    return value instanceof RowDefinition;
-};
+    RowDefinitionCollection.Instance.IsElementType = function (value) {
+        return value instanceof RowDefinition;
+    };
 
-Nullstone.FinishCreate(RowDefinitionCollection);
-//#endregion
+    namespace.RowDefinitionCollection = Nullstone.FinishCreate(RowDefinitionCollection);
+})(window);
