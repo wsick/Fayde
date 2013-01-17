@@ -1,18 +1,18 @@
 ﻿/// <reference path="Effect.js"/>
 /// CODE
 
-//#region BlurEffect
-var BlurEffect = Nullstone.Create("BlurEffect", Effect);
+(function (namespace) {
+    var BlurEffect = Nullstone.Create("BlurEffect", Effect);
 
-//#region Properties
+    //#region Properties
 
-BlurEffect.RadiusProperty = DependencyProperty.Register("Radius", function () { return Number; }, BlurEffect);
+    BlurEffect.RadiusProperty = DependencyProperty.Register("Radius", function () { return Number; }, BlurEffect);
 
-Nullstone.AutoProperties(BlurEffect, [
-    BlurEffect.RadiusProperty
-]);
+    Nullstone.AutoProperties(BlurEffect, [
+        BlurEffect.RadiusProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(BlurEffect);
-//#endregion
+    namespace.BlurEffect = Nullstone.FinishCreate(BlurEffect);
+})(window);

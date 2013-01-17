@@ -3,24 +3,24 @@
 /// <reference path="../Primitives/Color.js"/>
 /// CODE
 
-//#region GradientStop
-var GradientStop = Nullstone.Create("GradientStop", DependencyObject);
+(function (namespace) {
+    var GradientStop = Nullstone.Create("GradientStop", DependencyObject);
 
-//#region Dependency Properties
+    //#region Properties
 
-GradientStop.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, GradientStop, new Color());
-GradientStop.OffsetProperty = DependencyProperty.Register("Offset", function () { return Number; }, GradientStop, 0.0);
+    GradientStop.ColorProperty = DependencyProperty.Register("Color", function () { return Color; }, GradientStop, new Color());
+    GradientStop.OffsetProperty = DependencyProperty.Register("Offset", function () { return Number; }, GradientStop, 0.0);
 
-Nullstone.AutoProperties(GradientStop, [
-    GradientStop.ColorProperty,
-    GradientStop.OffsetProperty
-]);
+    Nullstone.AutoProperties(GradientStop, [
+        GradientStop.ColorProperty,
+        GradientStop.OffsetProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-GradientStop.Instance.toString = function () {
-    return this.Color.toString() + " @ " + this.Offset.toString();
-};
+    GradientStop.Instance.toString = function () {
+        return this.Color.toString() + " @ " + this.Offset.toString();
+    };
 
-Nullstone.FinishCreate(GradientStop);
-//#endregion
+    namespace.GradientStop = Nullstone.FinishCreate(GradientStop);
+})(window);

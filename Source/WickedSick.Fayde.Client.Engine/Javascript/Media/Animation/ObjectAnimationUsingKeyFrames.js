@@ -2,44 +2,44 @@
 /// <reference path="ObjectKeyFrameCollection.js"/>
 /// CODE
 
-//#region ObjectAnimationUsingKeyFrames
-var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFrames", AnimationUsingKeyFrames);
+(function (namespace) {
+    var ObjectAnimationUsingKeyFrames = Nullstone.Create("ObjectAnimationUsingKeyFrames", AnimationUsingKeyFrames);
 
-//#region Properties
+    //#region Properties
 
-ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
+    ObjectAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ObjectKeyFrameCollection; }, ObjectAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new ObjectKeyFrameCollection(); } });
 
-Nullstone.AutoProperties(ObjectAnimationUsingKeyFrames, [
-    ObjectAnimationUsingKeyFrames.KeyFramesProperty
-]);
+    Nullstone.AutoProperties(ObjectAnimationUsingKeyFrames, [
+        ObjectAnimationUsingKeyFrames.KeyFramesProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-//#region Annotations
+    //#region Annotations
 
-ObjectAnimationUsingKeyFrames.Annotations = {
-    ContentProperty: ObjectAnimationUsingKeyFrames.KeyFramesProperty
-};
+    ObjectAnimationUsingKeyFrames.Annotations = {
+        ContentProperty: ObjectAnimationUsingKeyFrames.KeyFramesProperty
+    };
 
-//#endregion
+    //#endregion
 
-ObjectAnimationUsingKeyFrames.Instance.Resolve = function () {
-    var keyFrames = this.KeyFrames;
-    var count = keyFrames.GetCount();
-    for (var i = 0; i < count; i++) {
-        var frame = Nullstone.As(keyFrames.GetValueAt(i), ObjectKeyFrame);
-        var value = frame.Value;
-        if (value == null) {
-            frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, undefined);
-        } else {
-            var converted = value;
-            //TODO: Convert - return false if error converting
-            frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
+    ObjectAnimationUsingKeyFrames.Instance.Resolve = function () {
+        var keyFrames = this.KeyFrames;
+        var count = keyFrames.GetCount();
+        for (var i = 0; i < count; i++) {
+            var frame = Nullstone.As(keyFrames.GetValueAt(i), ObjectKeyFrame);
+            var value = frame.Value;
+            if (value == null) {
+                frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, undefined);
+            } else {
+                var converted = value;
+                //TODO: Convert - return false if error converting
+                frame._SetValue(ObjectKeyFrame.ConvertedValueProperty, converted);
+            }
         }
-    }
 
-    return this.Resolve$AnimationUsingKeyFrames();
-};
+        return this.Resolve$AnimationUsingKeyFrames();
+    };
 
-Nullstone.FinishCreate(ObjectAnimationUsingKeyFrames);
-//#endregion
+    namespace.ObjectAnimationUsingKeyFrames = Nullstone.FinishCreate(ObjectAnimationUsingKeyFrames);
+})(window);

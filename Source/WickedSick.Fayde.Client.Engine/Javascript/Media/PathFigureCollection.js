@@ -2,15 +2,12 @@
 /// CODE
 /// <reference path="PathFigure.js"/>
 
-//#region PathFigureCollection
-var PathFigureCollection = Nullstone.Create("PathFigureCollection", DependencyObjectCollection);
+(function (namespace) {
+    var PathFigureCollection = Nullstone.Create("PathFigureCollection", DependencyObjectCollection);
 
-PathFigureCollection.Instance.Init = function () {
-};
+    PathFigureCollection.Instance.IsElementType = function (value) {
+        return value instanceof PathFigure;
+    };
 
-PathFigureCollection.Instance.IsElementType = function (value) {
-    return value instanceof PathFigure;
-};
-
-Nullstone.FinishCreate(PathFigureCollection);
-//#endregion
+    namespace.PathFigureCollection = Nullstone.FinishCreate(PathFigureCollection);
+})(window);

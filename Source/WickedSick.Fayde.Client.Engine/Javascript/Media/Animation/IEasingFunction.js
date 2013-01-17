@@ -1,12 +1,12 @@
 ﻿/// <reference path="../../Runtime/Nullstone.js"/>
 /// CODE
 
-//#region IEasingFunction
-var IEasingFunction = Nullstone.Create("IEasingFunction");
+(function (namespace) {
+    var IEasingFunction = Nullstone.Create("IEasingFunction");
 
-IEasingFunction.Instance.Ease = function (normalizedTime) {
-    /// <param name="normalizedTime" type="Number"></param>
-};
+    IEasingFunction.Instance.Ease = function (normalizedTime) {
+        /// <param name="normalizedTime" type="Number"></param>
+    };
 
-Nullstone.FinishCreate(IEasingFunction);
-//#endregion
+    namespace.IEasingFunction = Nullstone.FinishCreate(IEasingFunction);
+})(window);

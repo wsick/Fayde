@@ -1,12 +1,12 @@
 ﻿/// <reference path="EasingFunctionBase.js"/>
 /// CODE
 
-//#region CircleEase
-var CircleEase = Nullstone.Create("CircleEase", EasingFunctionBase);
+(function (namespace) {
+    var CircleEase = Nullstone.Create("CircleEase", EasingFunctionBase);
 
-CircleEase.Instance.EaseInCore = function (t) {
-    return 1 - Math.sqrt(1 - (t * t));
-};
+    CircleEase.Instance.EaseInCore = function (t) {
+        return 1 - Math.sqrt(1 - (t * t));
+    };
 
-Nullstone.FinishCreate(CircleEase);
-//#endregion
+    namespace.CircleEase = Nullstone.FinishCreate(CircleEase);
+})(window);

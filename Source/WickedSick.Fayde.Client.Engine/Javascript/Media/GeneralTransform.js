@@ -2,8 +2,7 @@
 /// CODE
 /// <reference path="../Primitives/Point.js"/>
 
-//#region GeneralTransform
-var GeneralTransform = Nullstone.Create("GeneralTransform", DependencyObject);
-
-Nullstone.FinishCreate(GeneralTransform);
-//#endregion
+(function (namespace) {
+    var GeneralTransform = Nullstone.Create("GeneralTransform", DependencyObject);
+    namespace.GeneralTransform = Nullstone.FinishCreate(GeneralTransform);
+})(window);

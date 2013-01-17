@@ -3,26 +3,26 @@
 /// CODE
 /// <reference path="DoubleKeyFrame.js"/>
 
-//#region DoubleAnimationUsingKeyFrames
-var DoubleAnimationUsingKeyFrames = Nullstone.Create("DoubleAnimationUsingKeyFrames", AnimationUsingKeyFrames);
+(function (namespace) {
+    var DoubleAnimationUsingKeyFrames = Nullstone.Create("DoubleAnimationUsingKeyFrames", AnimationUsingKeyFrames);
 
-//#region Properties
+    //#region Properties
 
-DoubleAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return DoubleKeyFrameCollection; }, DoubleAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new DoubleKeyFrameCollection(); } });
+    DoubleAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return DoubleKeyFrameCollection; }, DoubleAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new DoubleKeyFrameCollection(); } });
 
-Nullstone.AutoProperties(DoubleAnimationUsingKeyFrames, [
-    DoubleAnimationUsingKeyFrames.KeyFramesProperty
-]);
+    Nullstone.AutoProperties(DoubleAnimationUsingKeyFrames, [
+        DoubleAnimationUsingKeyFrames.KeyFramesProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-//#region Annotations
+    //#region Annotations
 
-DoubleAnimationUsingKeyFrames.Annotations = {
-    ContentProperty: DoubleAnimationUsingKeyFrames.KeyFramesProperty
-};
+    DoubleAnimationUsingKeyFrames.Annotations = {
+        ContentProperty: DoubleAnimationUsingKeyFrames.KeyFramesProperty
+    };
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(DoubleAnimationUsingKeyFrames);
-//#endregion
+    namespace.DoubleAnimationUsingKeyFrames = Nullstone.FinishCreate(DoubleAnimationUsingKeyFrames);
+})(window);

@@ -2,37 +2,37 @@
 /// <reference path="KeySpline.js"/>
 /// CODE
 
-//#region SplineDoubleKeyFrame
-var SplineDoubleKeyFrame = Nullstone.Create("SplineDoubleKeyFrame", DoubleKeyFrame);
+(function (namespace) {
+    var SplineDoubleKeyFrame = Nullstone.Create("SplineDoubleKeyFrame", DoubleKeyFrame);
 
-//#region Properties
+    //#region Properties
 
-SplineDoubleKeyFrame.KeySplineProperty = DependencyProperty.Register("KeySpline", function () { return KeySpline; }, SplineDoubleKeyFrame);
+    SplineDoubleKeyFrame.KeySplineProperty = DependencyProperty.Register("KeySpline", function () { return KeySpline; }, SplineDoubleKeyFrame);
 
-Nullstone.AutoProperties(SplineDoubleKeyFrame, [
-    SplineDoubleKeyFrame.KeySplineProperty
-]);
+    Nullstone.AutoProperties(SplineDoubleKeyFrame, [
+        SplineDoubleKeyFrame.KeySplineProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-SplineDoubleKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
-    if (keyFrameProgress >= 1.0)
-        return this.Value;
+    SplineDoubleKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
+        if (keyFrameProgress >= 1.0)
+            return this.Value;
 
-    var start = baseValue;
-    var end = this.Value;
-    var splineProgress = keyFrameProgress;
-    var keySpline = this.KeySpline;
-    if (keySpline)
-        splineProgress = keySpline.GetSplineProgress(keyFrameProgress);
+        var start = baseValue;
+        var end = this.Value;
+        var splineProgress = keyFrameProgress;
+        var keySpline = this.KeySpline;
+        if (keySpline)
+            splineProgress = keySpline.GetSplineProgress(keyFrameProgress);
 
-    if (isNaN(start))
-        start = 0;
-    if (isNaN(end))
-        end = 0;
+        if (isNaN(start))
+            start = 0;
+        if (isNaN(end))
+            end = 0;
 
-    return start + (end - start) * splineProgress;
-};
+        return start + (end - start) * splineProgress;
+    };
 
-Nullstone.FinishCreate(SplineDoubleKeyFrame);
-//#endregion
+    namespace.SplineDoubleKeyFrame = Nullstone.FinishCreate(SplineDoubleKeyFrame);
+})(window);

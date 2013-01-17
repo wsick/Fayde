@@ -2,26 +2,26 @@
 /// CODE
 /// <reference path="../../Primitives/Thickness.js"/>
 
-//#region Effect
-var Effect = Nullstone.Create("Effect", DependencyObject);
+(function (namespace) {
+    var Effect = Nullstone.Create("Effect", DependencyObject);
 
-//#region Properties
+    //#region Properties
 
-Effect.EffectMappingProperty = DependencyProperty.Register("EffectMapping", function () { return GeneralTransform; }, Effect);
+    Effect.EffectMappingProperty = DependencyProperty.Register("EffectMapping", function () { return GeneralTransform; }, Effect);
 
-Nullstone.AutoProperties(Effect, [
-    Effect.EffectMappingProperty
-]);
+    Nullstone.AutoProperties(Effect, [
+        Effect.EffectMappingProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Effect.Instance.Padding = function () {
-    return new Thickness();
-};
+    Effect.Instance.Padding = function () {
+        return new Thickness();
+    };
 
-Effect.Instance.PreRender = function (ctx) {
-    AbstractMethod("Effect.PreRender");
-};
+    Effect.Instance.PreRender = function (ctx) {
+        AbstractMethod("Effect.PreRender");
+    };
 
-Nullstone.FinishCreate(Effect);
-//#endregion
+    namespace.Effect = Nullstone.FinishCreate(Effect);
+})(window);

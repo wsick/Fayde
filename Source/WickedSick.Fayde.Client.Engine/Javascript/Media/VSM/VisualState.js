@@ -3,36 +3,36 @@
 /// CODE
 /// <reference path="../Animation/Storyboard.js"/>
 
-//#region VisualState
-var VisualState = Nullstone.Create("VisualState", DependencyObject);
+(function (namespace) {
+    var VisualState = Nullstone.Create("VisualState", DependencyObject);
 
-//#region Dependency Properties
+    //#region Properties
 
-VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
+    VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
 
-Nullstone.AutoProperties(VisualState, [
-    VisualState.StoryboardProperty
-]);
+    Nullstone.AutoProperties(VisualState, [
+        VisualState.StoryboardProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-//#region Annotations
+    //#region Annotations
 
-VisualState.Annotations = {
-    ContentProperty: VisualState.StoryboardProperty
-};
+    VisualState.Annotations = {
+        ContentProperty: VisualState.StoryboardProperty
+    };
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(VisualState);
-//#endregion
+    namespace.VisualState = Nullstone.FinishCreate(VisualState);
+})(window);
 
-//#region VisualStateCollection
-var VisualStateCollection = Nullstone.Create("VisualStateCollection", DependencyObjectCollection);
+(function (namespace) {
+    var VisualStateCollection = Nullstone.Create("VisualStateCollection", DependencyObjectCollection);
 
-VisualStateCollection.Instance.IsElementType = function (value) {
-    return value instanceof VisualState;
-};
+    VisualStateCollection.Instance.IsElementType = function (value) {
+        return value instanceof VisualState;
+    };
 
-Nullstone.FinishCreate(VisualStateCollection);
-//#endregion
+    namespace.VisualStateCollection = Nullstone.FinishCreate(VisualStateCollection);
+})(window);

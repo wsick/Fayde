@@ -3,20 +3,20 @@
 /// <reference path="../../Primitives/Point.js"/>
 /// CODE
 
-//#region PointKeyFrame
-var PointKeyFrame = Nullstone.Create("PointKeyFrame", KeyFrame);
+(function (namespace) {
+    var PointKeyFrame = Nullstone.Create("PointKeyFrame", KeyFrame);
 
-//#region Properties
+    //#region Properties
 
-PointKeyFrame.KeyTimeProperty = DependencyProperty.Register("KeyTime", function () { return KeyTime; }, PointKeyFrame);
-PointKeyFrame.ValueProperty = DependencyProperty.Register("Value", function () { return Point; }, PointKeyFrame);
+    PointKeyFrame.KeyTimeProperty = DependencyProperty.Register("KeyTime", function () { return KeyTime; }, PointKeyFrame);
+    PointKeyFrame.ValueProperty = DependencyProperty.Register("Value", function () { return Point; }, PointKeyFrame);
 
-Nullstone.AutoProperties(PointKeyFrame, [
-    PointKeyFrame.KeyTimeProperty,
-    PointKeyFrame.ValueProperty
-]);
+    Nullstone.AutoProperties(PointKeyFrame, [
+        PointKeyFrame.KeyTimeProperty,
+        PointKeyFrame.ValueProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(PointKeyFrame);
-//#endregion
+    namespace.PointKeyFrame = Nullstone.FinishCreate(PointKeyFrame);
+})(window);

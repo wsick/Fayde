@@ -2,32 +2,32 @@
 /// <reference path="IEasingFunction.js"/>
 /// CODE
 
-//#region EasingColorKeyFrame
-var EasingColorKeyFrame = Nullstone.Create("EasingColorKeyFrame", ColorKeyFrame);
+(function (namespace) {
+    var EasingColorKeyFrame = Nullstone.Create("EasingColorKeyFrame", ColorKeyFrame);
 
-//#region Properties
+    //#region Properties
 
-EasingColorKeyFrame.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return IEasingFunction; }, EasingColorKeyFrame);
+    EasingColorKeyFrame.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return IEasingFunction; }, EasingColorKeyFrame);
 
-Nullstone.AutoProperties(EasingColorKeyFrame, [
-    EasingColorKeyFrame.EasingFunctionProperty
-]);
+    Nullstone.AutoProperties(EasingColorKeyFrame, [
+        EasingColorKeyFrame.EasingFunctionProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-EasingColorKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
-    if (keyFrameProgress >= 1.0)
-        return this.Value;
+    EasingColorKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
+        if (keyFrameProgress >= 1.0)
+            return this.Value;
 
-    var start = baseValue;
-    var end = this.Value;
+        var start = baseValue;
+        var end = this.Value;
 
-    var easingFunction = this.EasingFunction;
-    if (easingFunction)
-        keyFrameProgress = easingFunction.Ease(keyFrameProgress);
+        var easingFunction = this.EasingFunction;
+        if (easingFunction)
+            keyFrameProgress = easingFunction.Ease(keyFrameProgress);
 
-    return Color.LERP(start, end, keyFrameProgress);
-};
+        return Color.LERP(start, end, keyFrameProgress);
+    };
 
-Nullstone.FinishCreate(EasingColorKeyFrame);
-//#endregion
+    namespace.EasingColorKeyFrame = Nullstone.FinishCreate(EasingColorKeyFrame);
+})(window);

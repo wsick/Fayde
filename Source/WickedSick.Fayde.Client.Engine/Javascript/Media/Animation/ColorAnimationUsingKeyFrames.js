@@ -3,26 +3,26 @@
 /// CODE
 /// <reference path="ColorKeyFrame.js"/>
 
-//#region ColorAnimationUsingKeyFrames
-var ColorAnimationUsingKeyFrames = Nullstone.Create("ColorAnimationUsingKeyFrames", AnimationUsingKeyFrames);
+(function (namespace) {
+    var ColorAnimationUsingKeyFrames = Nullstone.Create("ColorAnimationUsingKeyFrames", AnimationUsingKeyFrames);
 
-//#region Properties
+    //#region Properties
 
-ColorAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ColorKeyFrameCollection; }, ColorAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new ColorKeyFrameCollection(); } });
+    ColorAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return ColorKeyFrameCollection; }, ColorAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new ColorKeyFrameCollection(); } });
 
-Nullstone.AutoProperties(ColorAnimationUsingKeyFrames, [
-    ColorAnimationUsingKeyFrames.KeyFramesProperty
-]);
+    Nullstone.AutoProperties(ColorAnimationUsingKeyFrames, [
+        ColorAnimationUsingKeyFrames.KeyFramesProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-//#region Annotations
+    //#region Annotations
 
-ColorAnimationUsingKeyFrames.Annotations = {
-    ContentProperty: ColorAnimationUsingKeyFrames.KeyFramesProperty
-};
+    ColorAnimationUsingKeyFrames.Annotations = {
+        ContentProperty: ColorAnimationUsingKeyFrames.KeyFramesProperty
+    };
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(ColorAnimationUsingKeyFrames);
-//#endregion
+    namespace.ColorAnimationUsingKeyFrames = Nullstone.FinishCreate(ColorAnimationUsingKeyFrames);
+})(window);

@@ -3,26 +3,26 @@
 /// CODE
 /// <reference path="PointKeyFrame.js"/>
 
-//#region PointAnimationUsingKeyFrames
-var PointAnimationUsingKeyFrames = Nullstone.Create("PointAnimationUsingKeyFrames", AnimationUsingKeyFrames);
+(function (namespace) {
+    var PointAnimationUsingKeyFrames = Nullstone.Create("PointAnimationUsingKeyFrames", AnimationUsingKeyFrames);
 
-//#region Properties
+    //#region Properties
 
-PointAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return PointKeyFrameCollection; }, PointAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new PointKeyFrameCollection(); } });
+    PointAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return PointKeyFrameCollection; }, PointAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new PointKeyFrameCollection(); } });
 
-Nullstone.AutoProperties(PointAnimationUsingKeyFrames, [
-    PointAnimationUsingKeyFrames.KeyFramesProperty
-]);
+    Nullstone.AutoProperties(PointAnimationUsingKeyFrames, [
+        PointAnimationUsingKeyFrames.KeyFramesProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-//#region Annotations
+    //#region Annotations
 
-PointAnimationUsingKeyFrames.Annotations = {
-    ContentProperty: PointAnimationUsingKeyFrames.KeyFramesProperty
-};
+    PointAnimationUsingKeyFrames.Annotations = {
+        ContentProperty: PointAnimationUsingKeyFrames.KeyFramesProperty
+    };
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(PointAnimationUsingKeyFrames);
-//#endregion
+    namespace.PointAnimationUsingKeyFrames = Nullstone.FinishCreate(PointAnimationUsingKeyFrames);
+})(window);
