@@ -5,12 +5,11 @@
     var RoutedEventArgs = Nullstone.Create("RoutedEventArgs", EventArgs);
 
     Nullstone.AutoProperties(RoutedEventArgs, [
-    "Handled",
-    "Source"
+        "Handled",
+        "Source"
     ]);
 
     RoutedEventArgs.Instance.Init = function () {
-        this.Init$EventArgs();
         this.Handled = false;
     };
 

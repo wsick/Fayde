@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var DependencyObject = Nullstone.Create("DependencyObject", RoutedEventArgs, 2);
+    var RequestBringIntoViewEventArgs = Nullstone.Create("RequestBringIntoViewEventArgs", RoutedEventArgs, 2);
 
     RequestBringIntoViewEventArgs.Instance.Init = function (targetObject, targetRect) {
         this.Init$RoutedEventArgs();
@@ -10,5 +10,5 @@
         this.TargetRect = targetRect;
     };
 
-    namespace.DependencyObject = Nullstone.FinishCreate(DependencyObject);
+    namespace.RequestBringIntoViewEventArgs = Nullstone.FinishCreate(RequestBringIntoViewEventArgs);
 })(window);
