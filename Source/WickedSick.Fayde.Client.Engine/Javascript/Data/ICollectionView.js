@@ -2,12 +2,12 @@
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// CODE
 
-//#region ICollectionView
-var ICollectionView = Nullstone.Create("ICollectionView");
+(function (namespace) {
+    var ICollectionView = Nullstone.Create("ICollectionView");
 
-ICollectionView.Instance.Init = function () {
-    this.CurrentChanged = new MulticastEvent();
-};
+    ICollectionView.Instance.Init = function () {
+        this.CurrentChanged = new MulticastEvent();
+    };
 
-Nullstone.FinishCreate(ICollectionView);
-//#endregion
+    namespace.ICollectionView = Nullstone.FinishCreate(ICollectionView);
+})(window);

@@ -1,21 +1,21 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
-//#region NPCListener
-var NPCListener = Nullstone.Create("NPCListener", null, 3);
+(function (namespace) {
+    var NPCListener = Nullstone.Create("NPCListener", null, 3);
 
-NPCListener.Instance.Init = function (source, closure, func) {
-    this._Source = source;
-    this._Closure = closure;
-    this._Func = func;
+    NPCListener.Instance.Init = function (source, closure, func) {
+        this._Source = source;
+        this._Closure = closure;
+        this._Func = func;
 
-    if (this._Source)
-        this._Source.PropertyChanged.Subscribe(this._Func, this._Closure);
-};
+        if (this._Source)
+            this._Source.PropertyChanged.Subscribe(this._Func, this._Closure);
+    };
 
-NPCListener.Instance.Detach = function () {
-    this._Source.PropertyChanged.Unsubscribe(this._Closure, this._Func);
-};
+    NPCListener.Instance.Detach = function () {
+        this._Source.PropertyChanged.Unsubscribe(this._Closure, this._Func);
+    };
 
-Nullstone.FinishCreate(NPCListener);
-//#endregion
+    namespace.NPCListener = Nullstone.FinishCreate(NPCListener);
+})(window);

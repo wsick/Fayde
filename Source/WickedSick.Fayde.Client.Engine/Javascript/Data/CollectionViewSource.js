@@ -3,20 +3,20 @@
 /// CODE
 /// <reference path="ICollectionView.js"/>
 
-//#region CollectionViewSource
-var CollectionViewSource = Nullstone.Create("CollectionViewSource", DependencyObject);
+(function (namespace) {
+    var CollectionViewSource = Nullstone.Create("CollectionViewSource", DependencyObject);
 
-//#region Dependency Properties
+    //#region Properties
 
-CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
-CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
+    CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
+    CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
 
-Nullstone.AutoProperties(CollectionViewSource, [
-    CollectionViewSource.SourceProperty,
-    CollectionViewSource.ViewProperty
-]);
+    Nullstone.AutoProperties(CollectionViewSource, [
+        CollectionViewSource.SourceProperty,
+        CollectionViewSource.ViewProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(CollectionViewSource);
-//#endregion
+    namespace.CollectionViewSource = Nullstone.FinishCreate(CollectionViewSource);
+})(window);

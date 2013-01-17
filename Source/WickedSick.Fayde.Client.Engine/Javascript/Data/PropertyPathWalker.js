@@ -2,119 +2,119 @@
 /// <reference path="../Runtime/MulticastEvent.js"/>
 /// CODE
 
-//#region _PropertyPathWalker
-var _PropertyPathWalker = Nullstone.Create("_PropertyPathWalker", undefined, 4);
+(function (namespace) {
+    var _PropertyPathWalker = Nullstone.Create("_PropertyPathWalker", undefined, 4);
 
-_PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
-    if (bindDirectlyToSource == null)
-        bindDirectlyToSource = true;
-    if (bindsToView == null)
-        bindsToView = false;
-    if (isDataContextBound == null)
-        isDataContextBound = false;
+    _PropertyPathWalker.Instance.Init = function (path, bindDirectlyToSource, bindsToView, isDataContextBound) {
+        if (bindDirectlyToSource == null)
+            bindDirectlyToSource = true;
+        if (bindsToView == null)
+            bindsToView = false;
+        if (isDataContextBound == null)
+            isDataContextBound = false;
 
-    this.IsBrokenChanged = new MulticastEvent();
-    this.ValueChanged = new MulticastEvent();
+        this.IsBrokenChanged = new MulticastEvent();
+        this.ValueChanged = new MulticastEvent();
 
-    //begin
+        //begin
 
-    this.Path = path;
-    this.IsDataContextBound = isDataContextBound;
+        this.Path = path;
+        this.IsDataContextBound = isDataContextBound;
 
-    var lastCVNode;
+        var lastCVNode;
 
-    if (!path || path === ".") {
-        lastCVNode = new _CollectionViewNode(bindDirectlyToSource, bindsToView);
-        this.Node = lastCVNode;
-        this.FinalNode = lastCVNode;
-    } else {
-        var data = {
-            typeName: undefined,
-            propertyName: undefined,
-            index: undefined
-        };
-        var type;
-        var parser = new _PropertyPathParser(path);
-        while ((type = parser.Step(data)) !== _PropertyNodeType.None) {
-            var isViewProperty = false;
-            var node = new _CollectionViewNode(bindDirectlyToSource, isViewProperty);
-            lastCVNode = node;
-            switch (type) {
-                case _PropertyNodeType.AttachedProperty:
-                case _PropertyNodeType.Property:
-                    node.Next = new _StandardPropertyPathNode(data.typeName, data.propertyName);
-                    break;
-                case _PropertyNodeType.Indexed:
-                    node.Next = new _IndexedPropertyPathNode(data.index);
-                    break;
-                default:
-                    break;
+        if (!path || path === ".") {
+            lastCVNode = new _CollectionViewNode(bindDirectlyToSource, bindsToView);
+            this.Node = lastCVNode;
+            this.FinalNode = lastCVNode;
+        } else {
+            var data = {
+                typeName: undefined,
+                propertyName: undefined,
+                index: undefined
+            };
+            var type;
+            var parser = new _PropertyPathParser(path);
+            while ((type = parser.Step(data)) !== _PropertyNodeType.None) {
+                var isViewProperty = false;
+                var node = new _CollectionViewNode(bindDirectlyToSource, isViewProperty);
+                lastCVNode = node;
+                switch (type) {
+                    case _PropertyNodeType.AttachedProperty:
+                    case _PropertyNodeType.Property:
+                        node.Next = new _StandardPropertyPathNode(data.typeName, data.propertyName);
+                        break;
+                    case _PropertyNodeType.Indexed:
+                        node.Next = new _IndexedPropertyPathNode(data.index);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (this.FinalNode)
+                    this.FinalNode.Next = node;
+                else
+                    this.Node = node;
+                this.FinalNode = node.Next;
             }
-
-            if (this.FinalNode)
-                this.FinalNode.Next = node;
-            else
-                this.Node = node;
-            this.FinalNode = node.Next;
         }
-    }
 
-    lastCVNode.BindToView = lastCVNode.BindToView || bindsToView;
-    this.FinalNode.IsBrokenChanged.Subscribe(
-        function (s, a) {
-            this.ValueInternal = Nullstone.As(s, _PropertyPathNode).Value;
-            this.IsBrokenChanged.Raise(this, new EventArgs());
-        }, this);
-    this.FinalNode.ValueChanged.Subscribe(
-        function (s, a) {
-            this.ValueInternal = Nullstone.As(s, _PropertyPathNode).Value;
-            this.ValueChanged.Raise(this, new EventArgs());
-        }, this);
-};
+        lastCVNode.BindToView = lastCVNode.BindToView || bindsToView;
+        this.FinalNode.IsBrokenChanged.Subscribe(
+            function (s, a) {
+                this.ValueInternal = Nullstone.As(s, _PropertyPathNode).Value;
+                this.IsBrokenChanged.Raise(this, new EventArgs());
+            }, this);
+        this.FinalNode.ValueChanged.Subscribe(
+            function (s, a) {
+                this.ValueInternal = Nullstone.As(s, _PropertyPathNode).Value;
+                this.ValueChanged.Raise(this, new EventArgs());
+            }, this);
+    };
 
-//#region Properties
+    //#region Properties
 
-Nullstone.AutoProperties(_PropertyPathWalker, [
-    "Source",
-    "Path",
-    "Node",
-    "FinalNode",
-    "ValueInternal",
-    "IsDataContextBound"
-]);
+    Nullstone.AutoProperties(_PropertyPathWalker, [
+        "Source",
+        "Path",
+        "Node",
+        "FinalNode",
+        "ValueInternal",
+        "IsDataContextBound"
+    ]);
 
-Nullstone.Property(_PropertyPathWalker, "Value", {
-    get: function () { return this._Value; }
-});
+    Nullstone.Property(_PropertyPathWalker, "Value", {
+        get: function () { return this._Value; }
+    });
 
-Nullstone.Property(_PropertyPathWalker, "IsPathBroken", {
-    get: function () {
-        var path = this.Path;
-        if (this.IsDataContextBound && (!path || path.length < 1))
+    Nullstone.Property(_PropertyPathWalker, "IsPathBroken", {
+        get: function () {
+            var path = this.Path;
+            if (this.IsDataContextBound && (!path || path.length < 1))
+                return false;
+
+            var node = this.Node;
+            while (node) {
+                if (node.IsBroken)
+                    return true;
+                node = node.Next;
+            }
             return false;
-
-        var node = this.Node;
-        while (node) {
-            if (node.IsBroken)
-                return true;
-            node = node.Next;
         }
-        return false;
-    }
-});
+    });
 
-//#endregion
+    //#endregion
 
-_PropertyPathWalker.Instance.GetValue = function (item) {
-    this.Update(item);
-    var o = this.FinalNode.GetValue();
-    this.Update(null);
-    return o;
-};
-_PropertyPathWalker.Instance.Update = function (source) {
-    this.Source = source;
-    this.Node.SetSource(source);
-};
+    _PropertyPathWalker.Instance.GetValue = function (item) {
+        this.Update(item);
+        var o = this.FinalNode.GetValue();
+        this.Update(null);
+        return o;
+    };
+    _PropertyPathWalker.Instance.Update = function (source) {
+        this.Source = source;
+        this.Node.SetSource(source);
+    };
 
-Nullstone.FinishCreate(_PropertyPathWalker);
-//#endregion
+    namespace._PropertyPathWalker = Nullstone.FinishCreate(_PropertyPathWalker);
+})(window);

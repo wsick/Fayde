@@ -2,27 +2,27 @@
 /// <reference path="BindingExpressionBase.js"/>
 /// CODE
 
-//#region BindingExpression
-var BindingExpression = Nullstone.Create("BindingExpression", BindingExpressionBase, 3);
+(function (namespace) {
+    var BindingExpression = Nullstone.Create("BindingExpression", BindingExpressionBase, 3);
 
-BindingExpression.Instance.Init = function (binding, target, propd) {
-    this.Init$BindingExpressionBase(binding, target, propd);
-};
+    BindingExpression.Instance.Init = function (binding, target, propd) {
+        this.Init$BindingExpressionBase(binding, target, propd);
+    };
 
-//#region Properties
+    //#region Properties
 
-Nullstone.Property(BindingExpression, "ParentBinding", {
-    get: function () { return this.Binding; }
-});
-Nullstone.Property(BindingExpression, "DataItem", {
-    get: function () { return this.DataSource; }
-});
+    Nullstone.Property(BindingExpression, "ParentBinding", {
+        get: function () { return this.Binding; }
+    });
+    Nullstone.Property(BindingExpression, "DataItem", {
+        get: function () { return this.DataSource; }
+    });
 
-//#endregion
+    //#endregion
 
-BindingExpression.Instance.UpdateSource = function () {
-    return this._UpdateSourceObject(undefined, true);
-};
+    BindingExpression.Instance.UpdateSource = function () {
+        return this._UpdateSourceObject(undefined, true);
+    };
 
-Nullstone.FinishCreate(BindingExpression);
-//#endregion
+    namespace.BindingExpression = Nullstone.FinishCreate(BindingExpression);
+})(window);
