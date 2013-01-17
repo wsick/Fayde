@@ -82,34 +82,33 @@
 
         this.PropertyChanged.Raise(this, args);
     };
+    
+    if (!Fayde.IsCanvasEnabled) {
+        //#region Html Translations
+        Line.Instance.CreateSvgShape = function () {
+            var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            return line;
+        };
+        Line.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Line) {
+                this.ApplyHtmlChange$Shape(change);
+                return;
+            }
 
-    //#region Html Translations
-
-    Line.Instance.CreateSvgShape = function () {
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        return line;
-    };
-
-    Line.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== Line) {
-            this.ApplyHtmlChange$Shape(change);
-            return;
-        }
-
-        var shape = this.GetSvgShape();
-        if (propd._ID === Line.X1Property._ID) {
-            shape.setAttribute("x1", change.NewValue.toString());
-        } else if (propd._ID === Line.X2Property._ID) {
-            shape.setAttribute("x2", change.NewValue.toString());
-        } else if (propd._ID === Line.Y1Property._ID) {
-            shape.setAttribute("y1", change.NewValue.toString());
-        } else if (propd._ID === Line.Y2Property._ID) {
-            shape.setAttribute("y2", change.NewValue.toString());
-        }
-    };
-
-    //#endregion
+            var shape = this.GetSvgShape();
+            if (propd._ID === Line.X1Property._ID) {
+                shape.setAttribute("x1", change.NewValue.toString());
+            } else if (propd._ID === Line.X2Property._ID) {
+                shape.setAttribute("x2", change.NewValue.toString());
+            } else if (propd._ID === Line.Y1Property._ID) {
+                shape.setAttribute("y1", change.NewValue.toString());
+            } else if (propd._ID === Line.Y2Property._ID) {
+                shape.setAttribute("y2", change.NewValue.toString());
+            }
+        };
+        //#endregion
+    }
 
     namespace.Line = Nullstone.FinishCreate(Line);
 })(window);

@@ -536,94 +536,94 @@
 
     //#endregion
 
-    //#region Html Translations
-
-    Shape.Instance.CreateHtmlObjectImpl = function () {
-        var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
-        var contentEl = rootEl.firstChild;
-        var svg = this.GetSvg();
-        svg.appendChild(this.GetSvgShape());
-        contentEl.appendChild(svg);
-        return rootEl;
-    };
-    Shape.Instance.CreateSvg = function () {
-        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        return svg;
-    };
-    Shape.Instance.GetSvg = function () {
-        if (!this._Svg)
-            this._Svg = this.CreateSvg();
-        return this._Svg;
-    };
-    Shape.Instance.CreateSvgShape = function () { };
-    Shape.Instance.GetSvgShape = function () {
-        if (!this._Shape) {
-            this._Shape = this.CreateSvgShape();
-            this._Shape.setAttribute("width", "100%");
-            this._Shape.setAttribute("height", "100%");
-        }
-        return this._Shape;
-    };
-
-    Shape.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== Shape) {
-            this.ApplyHtmlChange$FrameworkElement(change);
-            return;
-        }
-
-        var shape = this.GetSvgShape();
-        if (propd._ID === Shape.StretchProperty._ID) {
-            var stretch = change.NewValue;
-            if (!stretch)
-                stretch = this.Stretch;
-            //TODO: Stretch property
-        } else if (propd._ID === Shape.FillProperty._ID) {
-            var fill = change.NewValue;
-            if (!fill)
-                fill = this.Fill;
-            fill.SetupBrush(null, null);
-            shape.setAttribute("fill", fill.ToHtml5Object());
-        } else if (propd._ID === Shape.StrokeProperty._ID) {
-            var stroke = change.NewValue;
-            if (!stroke)
-                stroke = this.Stroke;
-            stroke.SetupBrush(null, null);
-            shape.setAttribute("stroke", stroke.ToHtml5Object());
-        } else if (propd._ID === Shape.StrokeThicknessProperty._ID) {
-            shape.setAttribute("stroke-width", change.NewValue);
-        } else if (propd._ID === Shape.StrokeDashArrayProperty._ID) {
-            shape.setAttribute("stroke-dasharray", Shape._SerializeDashArray(change.NewValue));
-        } else if (propd._ID === Shape.StrokeDashOffsetProperty._ID) {
-            shape.setAttribute("stroke-dashoffset", change.NewValue);
-        } else if (propd._ID === Shape.StrokeLineJoinProperty._ID) {
-            switch (change.NewValue) {
-                case Miter:
-                    shape.setAttribute("stroke-linejoin", "miter");
-                    break;
-                case Bevel:
-                    shape.setAttribute("stroke-linejoin", "bevel");
-                    break;
-                case Round:
-                    shape.setAttribute("stroke-linejoin", "round");
-                    break;
+    if (!Fayde.IsCanvasEnabled) {
+        //#region Html Translations
+        Shape.Instance.CreateHtmlObjectImpl = function () {
+            var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
+            var contentEl = rootEl.firstChild;
+            var svg = this.GetSvg();
+            svg.appendChild(this.GetSvgShape());
+            contentEl.appendChild(svg);
+            return rootEl;
+        };
+        Shape.Instance.CreateSvg = function () {
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            return svg;
+        };
+        Shape.Instance.GetSvg = function () {
+            if (!this._Svg)
+                this._Svg = this.CreateSvg();
+            return this._Svg;
+        };
+        Shape.Instance.CreateSvgShape = function () { };
+        Shape.Instance.GetSvgShape = function () {
+            if (!this._Shape) {
+                this._Shape = this.CreateSvgShape();
+                this._Shape.setAttribute("width", "100%");
+                this._Shape.setAttribute("height", "100%");
             }
-        } else if (propd._ID === Shape.StrokeMiterLimitProperty._ID) {
-            shape.setAttribute("stroke-miterlimit", change.NewValue);
-        }
-    };
-    Shape._SerializeDashArray = function (collection) {
-        var s = "";
-        var len = collection.GetCount();
-        for (var i = 0; i < len; i++) {
-            if (s)
-                s += ", ";
-            s = collection.GetValueAt(i).toString();
-        }
-        return s;
-    };
+            return this._Shape;
+        };
 
-    //#endregion
+        Shape.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Shape) {
+                this.ApplyHtmlChange$FrameworkElement(change);
+                return;
+            }
+
+            var shape = this.GetSvgShape();
+            if (propd._ID === Shape.StretchProperty._ID) {
+                var stretch = change.NewValue;
+                if (!stretch)
+                    stretch = this.Stretch;
+                //TODO: Stretch property
+            } else if (propd._ID === Shape.FillProperty._ID) {
+                var fill = change.NewValue;
+                if (!fill)
+                    fill = this.Fill;
+                fill.SetupBrush(null, null);
+                shape.setAttribute("fill", fill.ToHtml5Object());
+            } else if (propd._ID === Shape.StrokeProperty._ID) {
+                var stroke = change.NewValue;
+                if (!stroke)
+                    stroke = this.Stroke;
+                stroke.SetupBrush(null, null);
+                shape.setAttribute("stroke", stroke.ToHtml5Object());
+            } else if (propd._ID === Shape.StrokeThicknessProperty._ID) {
+                shape.setAttribute("stroke-width", change.NewValue);
+            } else if (propd._ID === Shape.StrokeDashArrayProperty._ID) {
+                shape.setAttribute("stroke-dasharray", Shape._SerializeDashArray(change.NewValue));
+            } else if (propd._ID === Shape.StrokeDashOffsetProperty._ID) {
+                shape.setAttribute("stroke-dashoffset", change.NewValue);
+            } else if (propd._ID === Shape.StrokeLineJoinProperty._ID) {
+                switch (change.NewValue) {
+                    case Miter:
+                        shape.setAttribute("stroke-linejoin", "miter");
+                        break;
+                    case Bevel:
+                        shape.setAttribute("stroke-linejoin", "bevel");
+                        break;
+                    case Round:
+                        shape.setAttribute("stroke-linejoin", "round");
+                        break;
+                }
+            } else if (propd._ID === Shape.StrokeMiterLimitProperty._ID) {
+                shape.setAttribute("stroke-miterlimit", change.NewValue);
+            }
+        };
+        Shape._SerializeDashArray = function (collection) {
+            var s = "";
+            var len = collection.GetCount();
+            for (var i = 0; i < len; i++) {
+                if (s)
+                    s += ", ";
+                s = collection.GetValueAt(i).toString();
+            }
+            return s;
+        };
+        //#endregion
+    }
 
     namespace.Shape = Nullstone.FinishCreate(Shape);
 })(window);

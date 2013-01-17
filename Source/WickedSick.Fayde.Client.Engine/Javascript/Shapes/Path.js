@@ -75,37 +75,36 @@
         }
         this._OnSubPropertyChanged$Shape(propd, sender, args);
     };
+    
+    if (!Fayde.IsCanvasEnabled) {
+        //#region Html Translations
+        Path.Instance.CreateSvgShape = function () {
+            var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            var data = this.Data;
+            if (data)
+                path.setAttribute("d", this.Data.Serialize());
+            return path;
+        };
+        Path.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Path) {
+                this.ApplyHtmlChange$Shape(change);
+                return;
+            }
 
-    //#region Html Translations
-
-    Path.Instance.CreateSvgShape = function () {
-        var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        var data = this.Data;
-        if (data)
-            path.setAttribute("d", this.Data.Serialize());
-        return path;
-    };
-
-    Path.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== Path) {
-            this.ApplyHtmlChange$Shape(change);
-            return;
-        }
-
-        var shape = this.GetSvgShape();
-        if (propd._ID === Path.DataProperty._ID) {
-            var data = change.NewValue;
-            if (!data)
-                data = this.Data;
-            shape.setAttribute("d", data.Serialize());
-            var svg = this.GetSvg();
-            var bounds = data.GetBounds();
-            svg.setAttribute("viewBox", bounds.X.toString() + " " + bounds.Y.toString() + " " + bounds.Width.toString() + " " + bounds.Height.toString());
-        }
-    };
-
-    //#endregion
+            var shape = this.GetSvgShape();
+            if (propd._ID === Path.DataProperty._ID) {
+                var data = change.NewValue;
+                if (!data)
+                    data = this.Data;
+                shape.setAttribute("d", data.Serialize());
+                var svg = this.GetSvg();
+                var bounds = data.GetBounds();
+                svg.setAttribute("viewBox", bounds.X.toString() + " " + bounds.Y.toString() + " " + bounds.Width.toString() + " " + bounds.Height.toString());
+            }
+        };
+        //#endregion
+    }
 
     namespace.Path = Nullstone.FinishCreate(Path);
 })(window);

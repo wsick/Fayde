@@ -147,29 +147,28 @@
         this.PropertyChanged.Raise(this, args);
     };
 
-    //#region Html Translations
+    if (!Fayde.IsCanvasEnabled) {
+        //#region Html Translations
+        Rectangle.Instance.CreateSvgShape = function () {
+            var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            return rect;
+        };
+        Rectangle.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Rectangle) {
+                this.ApplyHtmlChange$Shape(change);
+                return;
+            }
 
-    Rectangle.Instance.CreateSvgShape = function () {
-        var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        return rect;
-    };
-
-    Rectangle.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== Rectangle) {
-            this.ApplyHtmlChange$Shape(change);
-            return;
-        }
-
-        var shape = this.GetSvgShape();
-        if (propd._ID === Rectangle.RadiusXProperty._ID) {
-            shape.setAttribute("rx", change.NewValue);
-        } else if (propd._ID === Rectangle.RadiusYProperty._ID) {
-            shape.setAttribute("ry", change.NewValue);
-        }
-    };
-
-    //#endregion
+            var shape = this.GetSvgShape();
+            if (propd._ID === Rectangle.RadiusXProperty._ID) {
+                shape.setAttribute("rx", change.NewValue);
+            } else if (propd._ID === Rectangle.RadiusYProperty._ID) {
+                shape.setAttribute("ry", change.NewValue);
+            }
+        };
+        //#endregion
+    }
 
     namespace.Rectangle = Nullstone.FinishCreate(Rectangle);
 })(window);
