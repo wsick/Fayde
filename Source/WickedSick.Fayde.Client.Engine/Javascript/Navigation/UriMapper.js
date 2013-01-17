@@ -2,22 +2,22 @@
 ///CODE
 /// <reference path="../Primitives/Uri.js"/>
 
-//#region UriMapper
-var UriMapper = Nullstone.Create("UriMapper");
+(function (namespace) {
+    var UriMapper = Nullstone.Create("UriMapper");
 
-Nullstone.AutoProperty(UriMapper, "UriMappings");
+    Nullstone.AutoProperty(UriMapper, "UriMappings");
 
-UriMapper.Instance.MapUri = function (uri) {
-    /// <param name="uri" type="Uri"></param>
-};
+    UriMapper.Instance.MapUri = function (uri) {
+        /// <param name="uri" type="Uri"></param>
+    };
 
-//#region Annotations
+    //#region Annotations
 
-UriMapper.Annotations = {
-    ContentProperty: "UriMappings"
-};
+    UriMapper.Annotations = {
+        ContentProperty: "UriMappings"
+    };
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(UriMapper);
-//#endregion
+    namespace.UriMapper = Nullstone.FinishCreate(UriMapper);
+})(window);
