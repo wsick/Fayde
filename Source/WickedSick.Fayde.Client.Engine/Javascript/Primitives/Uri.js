@@ -1,31 +1,31 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 
-//#region Uri
-var Uri = Nullstone.Create("Uri", null, 1);
+(function (namespace) {
+    var Uri = Nullstone.Create("Uri", null, 1);
 
-Uri.Instance.Init = function (os) {
-    this._OriginalString = os;
-};
+    Uri.Instance.Init = function (os) {
+        this._OriginalString = os;
+    };
 
-Uri.Instance.GetFragment = function () {
-    ///<returns type="String"></returns>
+    Uri.Instance.GetFragment = function () {
+        ///<returns type="String"></returns>
 
-    //this._OriginalString.lastIndexOf("");
-};
+        //this._OriginalString.lastIndexOf("");
+    };
 
-Uri.Instance.toString = function () {
-    return this._OriginalString;
-};
+    Uri.Instance.toString = function () {
+        return this._OriginalString;
+    };
 
-Uri.IsNullOrEmpty = function (uri) {
-    /// <param name="uri" type="Uri"></param>
-    if (uri == null)
+    Uri.IsNullOrEmpty = function (uri) {
+        /// <param name="uri" type="Uri"></param>
+        if (uri == null)
+            return true;
+        if (uri._OriginalString)
+            return false;
         return true;
-    if (uri._OriginalString)
-        return false;
-    return true;
-};
+    };
 
-Nullstone.FinishCreate(Uri);
-//#endregion
+    namespace.Uri = Nullstone.FinishCreate(Uri);
+})(window);
