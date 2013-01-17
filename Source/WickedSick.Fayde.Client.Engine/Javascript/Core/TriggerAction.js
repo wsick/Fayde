@@ -1,10 +1,10 @@
 ﻿/// <reference path="DependencyObject.js"/>
 /// CODE
 
-//#region TriggerAction
-var TriggerAction = Nullstone.Create("TriggerAction", DependencyObject);
+(function (namespace) {
+    var TriggerAction = Nullstone.Create("TriggerAction", DependencyObject);
 
-TriggerAction.Instance.Fire = function () { };
+    TriggerAction.Instance.Fire = function () { };
 
-Nullstone.FinishCreate(TriggerAction);
-//#endregion
+    namespace.TriggerAction = Nullstone.FinishCreate(TriggerAction);
+})(window);

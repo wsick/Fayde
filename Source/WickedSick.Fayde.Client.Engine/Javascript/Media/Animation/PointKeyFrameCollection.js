@@ -2,12 +2,12 @@
 /// CODE
 /// <reference path="PointKeyFrame.js"/>
 
-//#region PointKeyFrameCollection
-var PointKeyFrameCollection = Nullstone.Create("PointKeyFrameCollection", KeyFrameCollection);
+(function (namespace) {
+    var PointKeyFrameCollection = Nullstone.Create("PointKeyFrameCollection", KeyFrameCollection);
 
-PointKeyFrameCollection.Instance.IsElementType = function (value) {
-    return value instanceof PointKeyFrame;
-};
+    PointKeyFrameCollection.Instance.IsElementType = function (value) {
+        return value instanceof PointKeyFrame;
+    };
 
-Nullstone.FinishCreate(PointKeyFrameCollection);
-//#endregion
+    namespace.PointKeyFrameCollection = Nullstone.FinishCreate(PointKeyFrameCollection);
+})(window);

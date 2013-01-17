@@ -2,8 +2,7 @@
 /// <reference path="Inline.js"/>
 /// CODE
 
-//#region LineBreak
-var LineBreak = Nullstone.Create("LineBreak", Inline);
-
-Nullstone.FinishCreate(LineBreak);
-//#endregion
+(function (namespace) {
+    var LineBreak = Nullstone.Create("LineBreak", Inline);
+    namespace.LineBreak = Nullstone.FinishCreate(LineBreak);
+})(window);

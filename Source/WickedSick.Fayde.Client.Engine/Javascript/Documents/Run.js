@@ -2,25 +2,25 @@
 /// <reference path="Inline.js"/>
 /// CODE
 
-//#region Run
-var Run = Nullstone.Create("Run", Inline);
+(function (namespace) {
+    var Run = Nullstone.Create("Run", Inline);
 
-//#region Dependency Properties
+    //#region Properties
 
-Run.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(FlowDirection); }, Run, FlowDirection.LeftToRight, undefined, undefined, _Inheritable.FlowDirection);
-Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
+    Run.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(FlowDirection); }, Run, FlowDirection.LeftToRight, undefined, undefined, _Inheritable.FlowDirection);
+    Run.TextProperty = DependencyProperty.Register("Text", function () { return String; }, Run);
 
-Nullstone.AutoProperties(Run, [
-    Run.FlowDirectionProperty,
-    Run.TextProperty
-]);
+    Nullstone.AutoProperties(Run, [
+        Run.FlowDirectionProperty,
+        Run.TextProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Run.Instance._SerializeText = function () {
-    /// <returns type="String" />
-    return this.Text;
-};
+    Run.Instance._SerializeText = function () {
+        /// <returns type="String" />
+        return this.Text;
+    };
 
-Nullstone.FinishCreate(Run);
-//#endregion
+    namespace.Run = Nullstone.FinishCreate(Run);
+})(window);

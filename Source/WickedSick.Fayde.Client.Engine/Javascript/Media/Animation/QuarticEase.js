@@ -1,12 +1,12 @@
 ﻿/// <reference path="EasingFunctionBase.js"/>
 /// CODE
 
-//#region QuarticEase
-var QuarticEase = Nullstone.Create("QuarticEase", EasingFunctionBase);
+(function (namespace) {
+    var QuarticEase = Nullstone.Create("QuarticEase", EasingFunctionBase);
 
-QuarticEase.Instance.EaseInCore = function (t) {
-    return t * t * t * t;
-};
+    QuarticEase.Instance.EaseInCore = function (t) {
+        return t * t * t * t;
+    };
 
-Nullstone.FinishCreate(QuarticEase);
-//#endregion
+    namespace.QuarticEase = Nullstone.FinishCreate(QuarticEase);
+})(window);

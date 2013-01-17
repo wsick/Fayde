@@ -2,31 +2,31 @@
 /// CODE
 /// <reference path="Enums.js"/>
 
-//#region ArcSegment
-var ArcSegment = Nullstone.Create("ArcSegment", PathSegment);
+(function (namespace) {
+    var ArcSegment = Nullstone.Create("ArcSegment", PathSegment);
 
-//#region Dependency Properties
+    //#region Properties
 
-ArcSegment.IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", function () { return Boolean; }, ArcSegment, false);
-ArcSegment.PointProperty = DependencyProperty.Register("Point", function () { return Point; }, ArcSegment, new Point());
-ArcSegment.RotationAngleProperty = DependencyProperty.Register("RotationAngle", function () { return Number; }, ArcSegment, 0.0);
-ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () { return Size; }, ArcSegment, new Size());
-ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return new Enum(SweepDirection); }, ArcSegment, SweepDirection.Counterclockwise);
+    ArcSegment.IsLargeArcProperty = DependencyProperty.RegisterCore("IsLargeArc", function () { return Boolean; }, ArcSegment, false);
+    ArcSegment.PointProperty = DependencyProperty.Register("Point", function () { return Point; }, ArcSegment, new Point());
+    ArcSegment.RotationAngleProperty = DependencyProperty.Register("RotationAngle", function () { return Number; }, ArcSegment, 0.0);
+    ArcSegment.SizeProperty = DependencyProperty.Register("Size", function () { return Size; }, ArcSegment, new Size());
+    ArcSegment.SweepDirectionProperty = DependencyProperty.Register("SweepDirection", function () { return new Enum(SweepDirection); }, ArcSegment, SweepDirection.Counterclockwise);
 
-Nullstone.AutoProperties(ArcSegment, [
-    ArcSegment.IsLargeArcProperty,
-    ArcSegment.PointProperty,
-    ArcSegment.RotationAngleProperty,
-    ArcSegment.SizeProperty,
-    ArcSegment.SweepDirectionProperty
-]);
+    Nullstone.AutoProperties(ArcSegment, [
+        ArcSegment.IsLargeArcProperty,
+        ArcSegment.PointProperty,
+        ArcSegment.RotationAngleProperty,
+        ArcSegment.SizeProperty,
+        ArcSegment.SweepDirectionProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-// http: //msdn.microsoft.com/en-us/library/system.windows.media.arcsegment(v=vs.95).aspx
-ArcSegment.Instance._Append = function (path) {
-    NotImplemented("ArcSegment._Append");
-};
+    // http: //msdn.microsoft.com/en-us/library/system.windows.media.arcsegment(v=vs.95).aspx
+    ArcSegment.Instance._Append = function (path) {
+        NotImplemented("ArcSegment._Append");
+    };
 
-Nullstone.FinishCreate(ArcSegment);
-//#endregion
+    namespace.ArcSegment = Nullstone.FinishCreate(ArcSegment);
+})(window);

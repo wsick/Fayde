@@ -2,8 +2,7 @@
 /// <reference path="../../Core/Collections/Collection.js"/>
 /// CODE
 
-//#region TimelineCollection
-var TimelineCollection = Nullstone.Create("TimelineCollection", Collection);
-
-Nullstone.FinishCreate(TimelineCollection);
-//#endregion
+(function (namespace) {
+    var TimelineCollection = Nullstone.Create("TimelineCollection", Collection);
+    namespace.TimelineCollection = Nullstone.FinishCreate(TimelineCollection);
+})(window);

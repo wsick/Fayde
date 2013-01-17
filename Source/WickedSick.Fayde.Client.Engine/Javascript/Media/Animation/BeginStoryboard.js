@@ -2,32 +2,32 @@
 /// <reference path="Storyboard.js"/>
 /// CODE
 
-//#region BeginStoryboard
-var BeginStoryboard = Nullstone.Create("BeginStoryboard", TriggerAction);
+(function (namespace) {
+    var BeginStoryboard = Nullstone.Create("BeginStoryboard", TriggerAction);
 
-//#region Properties
+    //#region Properties
 
-BeginStoryboard.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, BeginStoryboard);
+    BeginStoryboard.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, BeginStoryboard);
 
-Nullstone.AutoProperties(BeginStoryboard, [
-    BeginStoryboard.StoryboardProperty
-]);
+    Nullstone.AutoProperties(BeginStoryboard, [
+        BeginStoryboard.StoryboardProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-//#region Annotations
+    //#region Annotations
 
-BeginStoryboard.Annotations = {
-    ContentProperty: BeginStoryboard.StoryboardProperty
-};
+    BeginStoryboard.Annotations = {
+        ContentProperty: BeginStoryboard.StoryboardProperty
+    };
 
-//#endregion
+    //#endregion
 
-BeginStoryboard.Instance.Fire = function () {
-    var sb = this.Storyboard;
-    if (sb)
-        sb.Begin();
-};
+    BeginStoryboard.Instance.Fire = function () {
+        var sb = this.Storyboard;
+        if (sb)
+            sb.Begin();
+    };
 
-Nullstone.FinishCreate(BeginStoryboard);
-//#endregion
+    namespace.BeginStoryboard = Nullstone.FinishCreate(BeginStoryboard);
+})(window);

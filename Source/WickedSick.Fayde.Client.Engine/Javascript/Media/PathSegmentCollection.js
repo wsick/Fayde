@@ -2,15 +2,12 @@
 /// CODE
 /// <reference path="PathSegment.js"/>
 
-//#region PathSegmentCollection
-var PathSegmentCollection = Nullstone.Create("PathSegmentCollection", DependencyObjectCollection);
+(function (namespace) {
+    var PathSegmentCollection = Nullstone.Create("PathSegmentCollection", DependencyObjectCollection);
 
-PathSegmentCollection.Instance.Init = function () {
-};
+    PathSegmentCollection.Instance.IsElementType = function (value) {
+        return value instanceof PathSegment;
+    };
 
-PathSegmentCollection.Instance.IsElementType = function (value) {
-    return value instanceof PathSegment;
-};
-
-Nullstone.FinishCreate(PathSegmentCollection);
-//#endregion
+    namespace.PathSegmentCollection = Nullstone.FinishCreate(PathSegmentCollection);
+})(window);

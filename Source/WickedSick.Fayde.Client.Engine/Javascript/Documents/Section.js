@@ -3,18 +3,18 @@
 /// CODE
 /// <reference path="BlockCollection.js"/>
 
-//#region Section
-var Section = Nullstone.Create("Section", TextElement);
+(function (namespace) {
+    var Section = Nullstone.Create("Section", TextElement);
 
-//#region Dependency Properties
+    //#region Properties
 
-Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return BlockCollection; }, Section);
+    Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return BlockCollection; }, Section);
 
-Nullstone.AutoProperties(Section, [
-    Section.BlocksProperty
-]);
+    Nullstone.AutoProperties(Section, [
+        Section.BlocksProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(Section);
-//#endregion
+    namespace.Section = Nullstone.FinishCreate(Section);
+})(window);

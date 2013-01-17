@@ -3,30 +3,30 @@
 /// <reference path="../../Collections/INotifyCollectionChanged.js"/>
 /// CODE
 
-//#region ItemCollection
-var ItemCollection = Nullstone.Create("ItemCollection", PresentationFrameworkCollection, 0, [INotifyCollectionChanged]);
+(function (namespace) {
+    var ItemCollection = Nullstone.Create("ItemCollection", PresentationFrameworkCollection, 0, [INotifyCollectionChanged]);
 
-ItemCollection.Instance.Init = function () {
-    this.Init$PresentationFrameworkCollection();
-    this.CollectionChanged = this.ItemsChanged;
-    this._ReadOnly = false;
-};
+    ItemCollection.Instance.Init = function () {
+        this.Init$PresentationFrameworkCollection();
+        this.CollectionChanged = this.ItemsChanged;
+        this._ReadOnly = false;
+    };
 
-ItemCollection.Instance.$GetIsReadOnly = function () {
-    return this._ReadOnly;
-};
+    ItemCollection.Instance.$GetIsReadOnly = function () {
+        return this._ReadOnly;
+    };
 
-ItemCollection.Instance._IsReadOnlyImpl = function () {
-    return this._ReadOnly;
-};
+    ItemCollection.Instance._IsReadOnlyImpl = function () {
+        return this._ReadOnly;
+    };
 
-ItemCollection.Instance._CheckNull = function (action, value) {
-    if (value != null)
-        return false;
-    if (action === NotifyCollectionChangedAction.Remove)
-        return true;
-    throw new ArgumentException();
-};
+    ItemCollection.Instance._CheckNull = function (action, value) {
+        if (value != null)
+            return false;
+        if (action === NotifyCollectionChangedAction.Remove)
+            return true;
+        throw new ArgumentException();
+    };
 
-Nullstone.FinishCreate(ItemCollection);
-//#endregion
+    namespace.ItemCollection = Nullstone.FinishCreate(ItemCollection);
+})(window);

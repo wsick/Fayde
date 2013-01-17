@@ -3,66 +3,36 @@
 /// <reference path="Style.js"/>
 /// <reference path="Setter.js"/>
 
-//#region _DeepStyleWalker
-var _DeepStyleWalker = Nullstone.Create("_DeepStyleWalker", null, 1);
+(function (namespace) {
+    var _DeepStyleWalker = Nullstone.Create("_DeepStyleWalker", undefined, 1);
 
-_DeepStyleWalker.Instance.Init = function (styles) {
-    this._Setters = [];
-    this._Offset = 0;
+    _DeepStyleWalker.Instance.Init = function (styles) {
+        this._Setters = [];
+        this._Offset = 0;
 
-    if (styles instanceof Style)
-        this._InitializeStyle(styles);
-    else if (styles instanceof Array)
-        this._InitializeStyles(styles);
-};
+        if (styles instanceof Style)
+            this._InitializeStyle(styles);
+        else if (styles instanceof Array)
+            this._InitializeStyles(styles);
+    };
 
-_DeepStyleWalker.Instance.Step = function () {
-    /// <returns type="Setter" />
-    if (this._Offset < this._Setters.length) {
-        var s = this._Setters[this._Offset];
-        this._Offset++;
-        return s;
-    }
-    return undefined;
-};
-_DeepStyleWalker.Instance._InitializeStyle = function (style) {
-    var dps = [];
-    var cur = style;
-    while (cur) {
-        var setters = cur.Setters;
-        var count = setters.GetCount();
-        for (var i = count - 1; i >= 0; i--) {
-            var setter = Nullstone.As(setters.GetValueAt(i), Setter);
-            if (!setter)
-                continue;
-            var propd = setter._GetValue(Setter.PropertyProperty);
-            if (!propd)
-                continue;
-            if (dps[propd])
-                continue;
-            dps[propd] = setter;
-            this._Setters.push(setter);
+    _DeepStyleWalker.Instance.Step = function () {
+        /// <returns type="Setter" />
+        if (this._Offset < this._Setters.length) {
+            var s = this._Setters[this._Offset];
+            this._Offset++;
+            return s;
         }
-        cur = cur.BasedOn;
-    }
-    this._Setters.sort(_DeepStyleWalker.SetterSort);
-};
-_DeepStyleWalker.Instance._InitializeStyles = function (styles) {
-    if (!styles)
-        return;
-
-    var dps = [];
-    var stylesSeen = [];
-    for (var i = 0; i < _StyleIndex.Count; i++) {
-        var style = styles[i];
-        while (style) {
-            if (stylesSeen[style._ID])
-                continue;
-
-            var setters = style.Setters;
-            var count = setters ? setters.GetCount() : 0;
-            for (var j = count - 1; j >= 0; j--) {
-                var setter = Nullstone.As(setters.GetValueAt(j), Setter);
+        return undefined;
+    };
+    _DeepStyleWalker.Instance._InitializeStyle = function (style) {
+        var dps = [];
+        var cur = style;
+        while (cur) {
+            var setters = cur.Setters;
+            var count = setters.GetCount();
+            for (var i = count - 1; i >= 0; i--) {
+                var setter = Nullstone.As(setters.GetValueAt(i), Setter);
                 if (!setter)
                     continue;
                 var propd = setter._GetValue(Setter.PropertyProperty);
@@ -73,21 +43,51 @@ _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
                 dps[propd] = setter;
                 this._Setters.push(setter);
             }
-
-            stylesSeen[style._ID] = true;
-            style = style.BasedOn;
+            cur = cur.BasedOn;
         }
-    }
-    this._Setters.sort(_DeepStyleWalker.SetterSort);
-};
+        this._Setters.sort(_DeepStyleWalker.SetterSort);
+    };
+    _DeepStyleWalker.Instance._InitializeStyles = function (styles) {
+        if (!styles)
+            return;
 
-_DeepStyleWalker.SetterSort = function (setter1, setter2) {
-    /// <param name="setter1" type="Setter"></param>
-    /// <param name="setter2" type="Setter"></param>
-    var a = setter1._GetValue(Setter.PropertyProperty);
-    var b = setter2._GetValue(Setter.PropertyProperty);
-    return (a === b) ? 0 : ((a > b) ? 1 : -1);
-};
+        var dps = [];
+        var stylesSeen = [];
+        for (var i = 0; i < _StyleIndex.Count; i++) {
+            var style = styles[i];
+            while (style) {
+                if (stylesSeen[style._ID])
+                    continue;
 
-Nullstone.FinishCreate(_DeepStyleWalker);
-//#endregion
+                var setters = style.Setters;
+                var count = setters ? setters.GetCount() : 0;
+                for (var j = count - 1; j >= 0; j--) {
+                    var setter = Nullstone.As(setters.GetValueAt(j), Setter);
+                    if (!setter)
+                        continue;
+                    var propd = setter._GetValue(Setter.PropertyProperty);
+                    if (!propd)
+                        continue;
+                    if (dps[propd])
+                        continue;
+                    dps[propd] = setter;
+                    this._Setters.push(setter);
+                }
+
+                stylesSeen[style._ID] = true;
+                style = style.BasedOn;
+            }
+        }
+        this._Setters.sort(_DeepStyleWalker.SetterSort);
+    };
+
+    _DeepStyleWalker.SetterSort = function (setter1, setter2) {
+        /// <param name="setter1" type="Setter"></param>
+        /// <param name="setter2" type="Setter"></param>
+        var a = setter1._GetValue(Setter.PropertyProperty);
+        var b = setter2._GetValue(Setter.PropertyProperty);
+        return (a === b) ? 0 : ((a > b) ? 1 : -1);
+    };
+
+    namespace._DeepStyleWalker = Nullstone.FinishCreate(_DeepStyleWalker);
+})(window);

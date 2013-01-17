@@ -1,10 +1,7 @@
 ﻿/// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 
-//#region Projection
-var Projection = Nullstone.Create("Projection", DependencyObject);
-
-
-
-Nullstone.FinishCreate(Projection);
-//#endregion
+(function (namespace) {
+    var Projection = Nullstone.Create("Projection", DependencyObject);
+    namespace.Projection = Nullstone.FinishCreate(Projection);
+})(window);

@@ -1,14 +1,14 @@
 ﻿/// <reference path="DoubleKeyFrame.js"/>
 /// CODE
 
-//#region DiscreteDoubleKeyFrame
-var DiscreteDoubleKeyFrame = Nullstone.Create("DiscreteDoubleKeyFrame", DoubleKeyFrame);
+(function (namespace) {
+    var DiscreteDoubleKeyFrame = Nullstone.Create("DiscreteDoubleKeyFrame", DoubleKeyFrame);
 
-DiscreteDoubleKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
-    if (keyFrameProgress >= 1.0)
-        return this.Value;
-    return baseValue;
-};
+    DiscreteDoubleKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
+        if (keyFrameProgress >= 1.0)
+            return this.Value;
+        return baseValue;
+    };
 
-Nullstone.FinishCreate(DiscreteDoubleKeyFrame);
-//#endregion
+    namespace.DiscreteDoubleKeyFrame = Nullstone.FinishCreate(DiscreteDoubleKeyFrame);
+})(window);

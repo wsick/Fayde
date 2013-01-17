@@ -1,14 +1,14 @@
 ﻿/// <reference path="ObjectKeyFrame.js"/>
 /// CODE
 
-//#region DiscreteObjectKeyFrame
-var DiscreteObjectKeyFrame = Nullstone.Create("DiscreteObjectKeyFrame", ObjectKeyFrame);
+(function (namespace) {
+    var DiscreteObjectKeyFrame = Nullstone.Create("DiscreteObjectKeyFrame", ObjectKeyFrame);
 
-DiscreteObjectKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
-    if (keyFrameProgress >= 1.0)
-        return this.ConvertedValue;
-    return baseValue;
-};
+    DiscreteObjectKeyFrame.Instance.InterpolateValue = function (baseValue, keyFrameProgress) {
+        if (keyFrameProgress >= 1.0)
+            return this.ConvertedValue;
+        return baseValue;
+    };
 
-Nullstone.FinishCreate(DiscreteObjectKeyFrame);
-//#endregion
+    namespace.DiscreteObjectKeyFrame = Nullstone.FinishCreate(DiscreteObjectKeyFrame);
+})(window);

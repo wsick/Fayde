@@ -2,8 +2,7 @@
 /// <reference path="TextElementCollection.js"/>
 /// CODE
 
-//#region BlockCollection
-var BlockCollection = Nullstone.Create("BlockCollection", TextElementCollection);
-
-Nullstone.FinishCreate(BlockCollection);
-//#endregion
+(function (namespace) {
+    var BlockCollection = Nullstone.Create("BlockCollection", TextElementCollection);
+    namespace.BlockCollection = Nullstone.FinishCreate(BlockCollection);
+})(window);

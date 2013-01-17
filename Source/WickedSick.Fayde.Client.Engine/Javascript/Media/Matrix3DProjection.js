@@ -1,18 +1,18 @@
 ﻿/// <reference path="Projection.js"/>
 /// CODE
 
-//#region Matrix3DProjection
-var Matrix3DProjection = Nullstone.Create("Matrix3DProjection", Projection);
+(function (namespace) {
+    var Matrix3DProjection = Nullstone.Create("Matrix3DProjection", Projection);
 
-//#region Properties
+    //#region Properties
 
-Matrix3DProjection.ProjectionMatrixProperty = DependencyProperty.Register("ProjectionMatrix", function () { return Matrix3D; }, Matrix3DProjection);
+    Matrix3DProjection.ProjectionMatrixProperty = DependencyProperty.Register("ProjectionMatrix", function () { return Matrix3D; }, Matrix3DProjection);
 
-Nullstone.AutoProperties(Matrix3DProjection, [
-    Matrix3DProjection.ProjectionMatrixProperty
-]);
+    Nullstone.AutoProperties(Matrix3DProjection, [
+        Matrix3DProjection.ProjectionMatrixProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(Matrix3DProjection);
-//#endregion
+    namespace.Matrix3DProjection = Nullstone.FinishCreate(Matrix3DProjection);
+})(window);

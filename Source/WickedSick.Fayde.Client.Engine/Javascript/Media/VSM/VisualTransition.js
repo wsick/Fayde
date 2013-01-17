@@ -4,39 +4,39 @@
 /// CODE
 /// <reference path="../Animation/Storyboard.js"/>
 
-//#region VisualTransition
-var VisualTransition = Nullstone.Create("VisualTransition", DependencyObject);
+(function (namespace) {
+    var VisualTransition = Nullstone.Create("VisualTransition", DependencyObject);
 
-VisualTransition.Instance.Init = function () {
-    this.Init$DependencyObject();
-    this.DynamicStoryboardCompleted = true;
-    this.ExplicitStoryboardCompleted = true;
-    this._GeneratedDuration = new Duration();
-};
+    VisualTransition.Instance.Init = function () {
+        this.Init$DependencyObject();
+        this.DynamicStoryboardCompleted = true;
+        this.ExplicitStoryboardCompleted = true;
+        this._GeneratedDuration = new Duration();
+    };
 
-//#region Properties
+    //#region Properties
 
-Nullstone.AutoProperties(VisualTransition, [
-    "From",
-    "To",
-    "Storyboard",
-    "GeneratedDuration",
-    "DynamicStoryboardCompleted",
-    "ExplicitStoryboardCompleted",
-    "GeneratedEasingFunction"
-]);
+    Nullstone.AutoProperties(VisualTransition, [
+        "From",
+        "To",
+        "Storyboard",
+        "GeneratedDuration",
+        "DynamicStoryboardCompleted",
+        "ExplicitStoryboardCompleted",
+        "GeneratedEasingFunction"
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(VisualTransition);
-//#endregion
+    namespace.VisualTransition = Nullstone.FinishCreate(VisualTransition);
+})(window);
 
-//#region VisualTransitionCollection
-var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", DependencyObjectCollection);
+(function (namespace) {
+    var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", DependencyObjectCollection);
 
-VisualTransitionCollection.Instance.IsElementType = function (obj) {
-    return obj instanceof VisualTransition;
-};
+    VisualTransitionCollection.Instance.IsElementType = function (obj) {
+        return obj instanceof VisualTransition;
+    };
 
-Nullstone.FinishCreate(VisualTransitionCollection);
-//#endregion
+    namespace.VisualTransitionCollection = Nullstone.FinishCreate(VisualTransitionCollection);
+})(window);

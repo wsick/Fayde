@@ -75,6 +75,7 @@ Nullstone.FinishCreate = function (f) {
     Nullstone._CreateProps(f);
 
     delete f['Instance'];
+    return f;
 };
 
 Nullstone.RefEquals = function (obj1, obj2) {

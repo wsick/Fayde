@@ -1,23 +1,23 @@
 /// <reference path="Primitives/ButtonBase.js"/>
 /// CODE
 
-//#region Button
-var Button = Nullstone.Create("Button", ButtonBase);
+(function (namespace) {
+    var Button = Nullstone.Create("Button", ButtonBase);
 
-Button.Instance.Init = function () {
-    this.Init$ButtonBase();
-    this.DefaultStyleKey = this.constructor;
-};
+    Button.Instance.Init = function () {
+        this.Init$ButtonBase();
+        this.DefaultStyleKey = this.constructor;
+    };
 
-Button.Instance.OnApplyTemplate = function () {
-    this.OnApplyTemplate$ButtonBase();
-    this.$UpdateVisualState(false);
-};
+    Button.Instance.OnApplyTemplate = function () {
+        this.OnApplyTemplate$ButtonBase();
+        this.$UpdateVisualState(false);
+    };
 
-Button.Instance.OnIsEnabledChanged = function (e) {
-    this.OnIsEnabledChanged$ButtonBase(e);
-    this.IsTabStop = e.NewValue;
-};
+    Button.Instance.OnIsEnabledChanged = function (e) {
+        this.OnIsEnabledChanged$ButtonBase(e);
+        this.IsTabStop = e.NewValue;
+    };
 
-Nullstone.FinishCreate(Button);
-//#endregion
+    namespace.Button = Nullstone.FinishCreate(Button);
+})(window);

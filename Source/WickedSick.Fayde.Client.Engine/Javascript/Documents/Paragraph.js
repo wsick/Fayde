@@ -2,8 +2,7 @@
 /// <reference path="Block.js"/>
 /// CODE
 
-//#region Paragraph
-var Paragraph = Nullstone.Create("Paragraph", Block);
-
-Nullstone.FinishCreate(Paragraph);
-//#endregion
+(function (namespace) {
+    var Paragraph = Nullstone.Create("Paragraph", Block);
+    namespace.Paragraph = Nullstone.FinishCreate(Paragraph);
+})(window);

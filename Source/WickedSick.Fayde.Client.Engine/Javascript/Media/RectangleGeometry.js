@@ -4,41 +4,41 @@
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Shapes/RawPath.js"/>
 
-//#region RectangleGeometry
-var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
+(function (namespace) {
+    var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
 
-//#region Dependency Properties
+    //#region Properties
 
-RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () { return Rect; }, RectangleGeometry, new Rect());
-RectangleGeometry.RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", function () { return Number; }, RectangleGeometry, 0);
-RectangleGeometry.RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", function () { return Number; }, RectangleGeometry, 0);
+    RectangleGeometry.RectProperty = DependencyProperty.RegisterCore("Rect", function () { return Rect; }, RectangleGeometry, new Rect());
+    RectangleGeometry.RadiusXProperty = DependencyProperty.RegisterCore("RadiusX", function () { return Number; }, RectangleGeometry, 0);
+    RectangleGeometry.RadiusYProperty = DependencyProperty.RegisterCore("RadiusY", function () { return Number; }, RectangleGeometry, 0);
 
-Nullstone.AutoProperties(RectangleGeometry, [
-    RectangleGeometry.RectProperty,
-    RectangleGeometry.RadiusXProperty,
-    RectangleGeometry.RadiusYProperty
-]);
+    Nullstone.AutoProperties(RectangleGeometry, [
+        RectangleGeometry.RectProperty,
+        RectangleGeometry.RadiusXProperty,
+        RectangleGeometry.RadiusYProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-RectangleGeometry.Instance.ComputePathBounds = function () {
-    var rect = this.Rect;
-    if (rect)
-        return rect;
-    return new Rect(0.0, 0.0, 0.0, 0.0);
-};
+    RectangleGeometry.Instance.ComputePathBounds = function () {
+        var rect = this.Rect;
+        if (rect)
+            return rect;
+        return new Rect(0.0, 0.0, 0.0, 0.0);
+    };
 
-RectangleGeometry.Instance._Build = function () {
-    var rect = this.Rect;
-    if (!rect)
-        return;
+    RectangleGeometry.Instance._Build = function () {
+        var rect = this.Rect;
+        if (!rect)
+            return;
 
-    var radiusX = this.RadiusX;
-    var radiusY = this.RadiusY;
+        var radiusX = this.RadiusX;
+        var radiusY = this.RadiusY;
 
-    this.$Path = new RawPath();
-    this.$Path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
-};
+        this.$Path = new RawPath();
+        this.$Path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
+    };
 
-Nullstone.FinishCreate(RectangleGeometry);
-//#endregion
+    namespace.RectangleGeometry = Nullstone.FinishCreate(RectangleGeometry);
+})(window);

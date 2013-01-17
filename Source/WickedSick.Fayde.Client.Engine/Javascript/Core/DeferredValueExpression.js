@@ -1,12 +1,12 @@
 ﻿/// <reference path="Expression.js"/>
 /// CODE
 
-//#region DeferredValueExpression
-var DeferredValueExpression = Nullstone.Create("DeferredValueExpression", Expression);
+(function (namespace) {
+    var DeferredValueExpression = Nullstone.Create("DeferredValueExpression", Expression);
 
-DeferredValueExpression.Instance.GetValue = function (propd) {
-    return undefined;
-};
+    DeferredValueExpression.Instance.GetValue = function (propd) {
+        return undefined;
+    };
 
-Nullstone.FinishCreate(DeferredValueExpression);
-//#endregion
+    namespace.DeferredValueExpression = Nullstone.FinishCreate(DeferredValueExpression);
+})(window);

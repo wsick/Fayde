@@ -1,8 +1,7 @@
 ﻿/// <reference path="../../Runtime/Nullstone.js"/>
 /// CODE
 
-//#region VisualStateChangedEventArgs
-var VisualStateChangedEventArgs = Nullstone.Create("VisualStateChangedEventArgs");
-
-Nullstone.FinishCreate(VisualStateChangedEventArgs);
-//#endregion
+(function (namespace) {
+    var VisualStateChangedEventArgs = Nullstone.Create("VisualStateChangedEventArgs");
+    namespace.VisualStateChangedEventArgs = Nullstone.FinishCreate(VisualStateChangedEventArgs);
+})(window);

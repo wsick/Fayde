@@ -1,18 +1,18 @@
 ﻿/// <reference path="UserControl.js"/>
 /// CODE
 
-//#region Page
-var Page = Nullstone.Create("Page", UserControl);
+(function (namespace) {
+    var Page = Nullstone.Create("Page", UserControl);
 
-//#region Properties
+    //#region Properties
 
-Page.TitleProperty = DependencyProperty.Register("Title", function () { return String; }, Page);
+    Page.TitleProperty = DependencyProperty.Register("Title", function () { return String; }, Page);
 
-Nullstone.AutoProperties(Page, [
-    Page.TitleProperty
-]);
+    Nullstone.AutoProperties(Page, [
+        Page.TitleProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(Page);
-//#endregion
+    namespace.Page = Nullstone.FinishCreate(Page);
+})(window);

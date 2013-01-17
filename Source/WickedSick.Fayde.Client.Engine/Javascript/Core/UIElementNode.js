@@ -3,13 +3,13 @@
 /// CODE
 /// <reference path="UIElement.js"/>
 
-//#region UIElementNode
-var UIElementNode = Nullstone.Create("UIElementNode", LinkedListNode, 1);
+(function (namespace) {
+    var UIElementNode = Nullstone.Create("UIElementNode", LinkedListNode, 1);
 
-UIElementNode.Instance.Init = function (element) {
-    /// <param name="element" type="UIElement"></param>
-    this.UIElement = element;
-};
+    UIElementNode.Instance.Init = function (element) {
+        /// <param name="element" type="UIElement"></param>
+        this.UIElement = element;
+    };
 
-Nullstone.FinishCreate(UIElementNode);
-//#endregion
+    namespace.UIElementNode = Nullstone.FinishCreate(UIElementNode);
+})(window);

@@ -2,62 +2,62 @@
 /// <reference path="Primitives/ButtonBase.js"/>
 /// CODE
 
-//#region HyperlinkButton
-var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
+(function (namespace) {
+    var HyperlinkButton = Nullstone.Create("HyperlinkButton", ButtonBase);
 
-//#region Properties
+    //#region Properties
 
-HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton);
-HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton);
+    HyperlinkButton.NavigateUriProperty = DependencyProperty.Register("NavigateUri", function () { return Uri; }, HyperlinkButton);
+    HyperlinkButton.TargetNameProperty = DependencyProperty.Register("TargetName", function () { return String; }, HyperlinkButton);
 
-Nullstone.AutoProperties(HyperlinkButton, [
-    HyperlinkButton.NavigateUriProperty,
-    HyperlinkButton.TargetNameProperty
-]);
+    Nullstone.AutoProperties(HyperlinkButton, [
+        HyperlinkButton.NavigateUriProperty,
+        HyperlinkButton.TargetNameProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-HyperlinkButton.Instance.Init = function () {
-    this.Init$ButtonBase();
-    this.DefaultStyleKey = this.constructor;
-};
+    HyperlinkButton.Instance.Init = function () {
+        this.Init$ButtonBase();
+        this.DefaultStyleKey = this.constructor;
+    };
 
-HyperlinkButton.Instance.OnApplyTemplate = function () {
-    this.OnApplyTemplate$ButtonBase();
-    this.$UpdateVisualState(false);
-};
+    HyperlinkButton.Instance.OnApplyTemplate = function () {
+        this.OnApplyTemplate$ButtonBase();
+        this.$UpdateVisualState(false);
+    };
 
-HyperlinkButton.Instance.OnClick = function () {
-    this.OnClick$ButtonBase();
-    if (this.NavigateUri != null) {
-        this._Navigate();
-    }
-};
+    HyperlinkButton.Instance.OnClick = function () {
+        this.OnClick$ButtonBase();
+        if (this.NavigateUri != null) {
+            this._Navigate();
+        }
+    };
 
-HyperlinkButton.Instance._GetAbsoluteUri = function () {
-    /// <returns type="Uri" />
-    var destination = this.NavigateUri;
-    if (!destination.IsAbsoluteUri) {
-        var original = destination.OriginalString;
-        if (original && original.charAt(0) !== '/')
-            throw new NotSupportedException();
-        destination = new Uri(App.Instance.GetHost().GetSource(), destination);
-    }
-    return destination;
-};
-HyperlinkButton.Instance._Navigate = function () {
-    var targetName = this.TargetName;
-    if (targetName == null) {
-        window.location.href = this.NavigateUri.toString();
-        return;
-    }
-    var frame = Nullstone.As(this.FindName(targetName), Frame);
-    if (frame != null) {
-        window.location.href = this.NavigateUri.toString();
-        return;
-    }
-    window.open(this.NavigateUri.toString(), targetName);
-};
+    HyperlinkButton.Instance._GetAbsoluteUri = function () {
+        /// <returns type="Uri" />
+        var destination = this.NavigateUri;
+        if (!destination.IsAbsoluteUri) {
+            var original = destination.OriginalString;
+            if (original && original.charAt(0) !== '/')
+                throw new NotSupportedException();
+            destination = new Uri(App.Instance.GetHost().GetSource(), destination);
+        }
+        return destination;
+    };
+    HyperlinkButton.Instance._Navigate = function () {
+        var targetName = this.TargetName;
+        if (targetName == null) {
+            window.location.href = this.NavigateUri.toString();
+            return;
+        }
+        var frame = Nullstone.As(this.FindName(targetName), Frame);
+        if (frame != null) {
+            window.location.href = this.NavigateUri.toString();
+            return;
+        }
+        window.open(this.NavigateUri.toString(), targetName);
+    };
 
-Nullstone.FinishCreate(HyperlinkButton);
-//#endregion
+    namespace.HyperlinkButton = Nullstone.FinishCreate(HyperlinkButton);
+})(window);

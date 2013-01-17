@@ -3,16 +3,16 @@
 /// <reference path="Enums.js"/>
 /// CODE
 
-//#region _DefaultValuePropertyValueProvider
-var _DefaultValuePropertyValueProvider = Nullstone.Create("_DefaultValuePropertyValueProvider", _PropertyValueProvider, 2);
+(function (namespace) {
+    var _DefaultValuePropertyValueProvider = Nullstone.Create("_DefaultValuePropertyValueProvider", _PropertyValueProvider, 2);
 
-_DefaultValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-    this.Init$_PropertyValueProvider(obj, propPrecedence);
-}
+    _DefaultValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
+        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    }
 
-_DefaultValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-    return propd.DefaultValue;
-};
+    _DefaultValuePropertyValueProvider.Instance.GetPropertyValue = function (propd) {
+        return propd.DefaultValue;
+    };
 
-Nullstone.FinishCreate(_DefaultValuePropertyValueProvider);
-//#endregion
+    namespace._DefaultValuePropertyValueProvider = Nullstone.FinishCreate(_DefaultValuePropertyValueProvider);
+})(window);
