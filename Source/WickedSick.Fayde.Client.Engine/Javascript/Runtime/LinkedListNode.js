@@ -1,13 +1,13 @@
 ﻿/// <reference path="Nullstone.js"/>
 /// CODE
 
-//#region LinkedListNode
-var LinkedListNode = Nullstone.Create("LinkedListNode");
+(function (namespace) {
+    var LinkedListNode = Nullstone.Create("LinkedListNode");
 
-LinkedListNode.Instance.Init = function () {
-    this.Previous = null;
-    this.Next = null;
-};
+    LinkedListNode.Instance.Init = function () {
+        this.Previous = null;
+        this.Next = null;
+    };
 
-Nullstone.FinishCreate(LinkedListNode);
-//#endregion
+    namespace.LinkedListNode = Nullstone.FinishCreate(LinkedListNode);
+})(window);
