@@ -5,9 +5,9 @@
       <SnippetType>Expansion</SnippetType>
       <SnippetType>SurroundsWith</SnippetType>
     </SnippetTypes>
+    <Shortcut>nsi</Shortcut>
     <Title>nsi</Title>
     <Author>WickedSick</Author>
-    <Shortcut>nsi</Shortcut>
     <Description>Code snippet for a nullstone object with init</Description>
     <HelpUrl>
     </HelpUrl>
@@ -30,14 +30,14 @@
         </Function>
       </Literal>
     </Declarations>
-    <Code Language="javascript"><![CDATA[//#region $name$
+    <Code Language="javascript"><![CDATA[(function (namespace) {
 	var $name$ = Nullstone.Create("$name$", $base$);
 	
 	$name$.Instance.Init = function (args) {
 		$selected$$end$
 	};
 	$selected$
-Nullstone.FinishCreate($name$);
-//#endregion]]></Code>
+    namespace.$name$ = Nullstone.FinishCreate($name$);
+})(window);]]></Code>
   </Snippet>
 </CodeSnippet>

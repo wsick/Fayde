@@ -32,12 +32,12 @@
         </Function>
       </Literal>
     </Declarations>
-    <Code Language="javascript"><![CDATA[//#region $name$
+    <Code Language="javascript"><![CDATA[(function (namespace) {
 	var $name$ = Nullstone.Create("$name$", $base$);
 	
 	$selected$$end$
 
-Nullstone.FinishCreate($name$);
-//#endregion]]></Code>
+    namespace.$name$ = Nullstone.FinishCreate($name$);
+})(window);]]></Code>
   </Snippet>
 </CodeSnippet>
