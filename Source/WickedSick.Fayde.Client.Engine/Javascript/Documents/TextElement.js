@@ -120,7 +120,8 @@ TextElement.Instance.ApplyHtmlChange = function (change) {
     }
 };
 TextElement.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
-    foreground.SetupBrush(null, null);
+    var ctx = document.createElement("canvas").getContext("2d");
+    foreground.SetupBrush(ctx, null);
     contentEl.style.color = foreground.ToHtml5Object();
 };
 
