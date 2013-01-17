@@ -3,18 +3,18 @@
 /// CODE
 /// <reference path="InlineCollection.js"/>
 
-//#region Block
-var Block = Nullstone.Create("Block", TextElement);
+(function (namespace) {
+    var Block = Nullstone.Create("Block", TextElement);
 
-//#region Dependency Properties
+    //#region Properties
 
-Block.InlinesProperty = DependencyProperty.Register("Inlines", function () { return InlineCollection; }, Block);
+    Block.InlinesProperty = DependencyProperty.Register("Inlines", function () { return InlineCollection; }, Block);
 
-Nullstone.AutoProperties(Block, [
-    Block.InlinesProperty
-]);
+    Nullstone.AutoProperties(Block, [
+        Block.InlinesProperty
+    ]);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(Block);
-//#endregion
+    namespace.Block = Nullstone.FinishCreate(Block);
+})(window);
