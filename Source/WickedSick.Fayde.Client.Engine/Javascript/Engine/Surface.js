@@ -27,13 +27,10 @@
         this._Cursor = CursorType.Default;
         if (Surface._Invalidations == null)
             Surface._Invalidations = [];
-        if (Surface._SizingAdjustments == null)
-            Surface._SizingAdjustments = [];
         this.LayoutUpdated = new MulticastEvent();
         this._KeyInterop = KeyInterop.CreateInterop(this);
 
-        var body = document.body;
-        this._RootHtmlEl = body;
+        this.InitHtml();
     };
 
     //#region Initialization
@@ -114,30 +111,12 @@
         DirtyDebug("AttachLayer");
         layer._FullInvalidate(true);
         layer._InvalidateMeasure();
-        layer.ParentIsFixedWidth = true;
-        layer.ParentIsFixedHeight = true;
+        this.PrepareLayer(layer);
         layer._SetIsAttached(true);
         layer._SetIsLoaded(true);
-
-        var rootEl = layer.GetRootHtmlElement();
-        this._RootHtmlEl.style.overflow = "hidden";
-        this._RootHtmlEl.appendChild(rootEl);
-        layer.OnHtmlAttached();
+        this.FinishAttachLayer(layer);
 
         this._App._NotifyDebugLayer(true, layer);
-    };
-    Surface.Instance.ProcessSizingAdjustments = function () {
-        for (var key in Surface._SizingAdjustments) {
-            var el = Surface._SizingAdjustments[key];
-            var width = el.FindAndSetAdjustedWidth();
-            var height = el.FindAndSetAdjustedHeight();
-            var parent = el.GetVisualParent();
-            if (parent) {
-                parent.UpdateAdjustedWidth(el, width);
-                parent.UpdateAdjustedHeight(el, height);
-            }
-            delete Surface._SizingAdjustments[key];
-        }
     };
     Surface.Instance._DetachLayer = function (layer) {
         /// <param name="layer" type="UIElement"></param>
@@ -692,8 +671,7 @@
         if (this._Captured) {
             this._EmitMouseList(type, button, pos, delta, this._InputList);
         } else {
-            /// NOTE: Turned off for Html translation changes
-            //this.ProcessDirtyElements();
+            this.ProcessDirtyElements();
             var ctx = new _RenderContext(this);
             var newInputList = new LinkedList();
             var layers = this._Layers;
@@ -965,16 +943,48 @@
 
     //#endregion
 
-    Surface.Instance.ProcessHtmlChanges = function () {
-        DependencyObject.ProcessHtmlChanges();
-    };
-
     Surface.Instance._SetUserInitiatedEvent = function (val) {
         this._EmitFocusChangeEvents();
         this._FirstUserInitiatedEvent = this._FirstUserInitiatedEvent || val;
         this._UserInitiatedEvent = val;
     };
 
+    if (!Fayde.IsCanvasEnabled) {
+        //#region Html Translations
+        Surface.Instance.InitHtml = function () {
+            if (Surface._SizingAdjustments == null)
+                Surface._SizingAdjustments = [];
+            var body = document.body;
+            this._RootHtmlEl = body;
+        };
+        Surface.Instance.ProcessHtmlChanges = function () {
+            DependencyObject.ProcessHtmlChanges();
+        };
+        Surface.Instance.ProcessSizingAdjustments = function () {
+            for (var key in Surface._SizingAdjustments) {
+                var el = Surface._SizingAdjustments[key];
+                var width = el.FindAndSetAdjustedWidth();
+                var height = el.FindAndSetAdjustedHeight();
+                var parent = el.GetVisualParent();
+                if (parent) {
+                    parent.UpdateAdjustedWidth(el, width);
+                    parent.UpdateAdjustedHeight(el, height);
+                }
+                delete Surface._SizingAdjustments[key];
+            }
+        };
+        Surface.Instance.PrepareLayer = function (layer) {
+            layer.ParentIsFixedWidth = true;
+            layer.ParentIsFixedHeight = true;
+        };
+        Surface.Instance.FinishAttachLayer = function (layer) {
+            var rootEl = layer.GetRootHtmlElement();
+            this._RootHtmlEl.style.overflow = "hidden";
+            this._RootHtmlEl.appendChild(rootEl);
+            layer.OnHtmlAttached();
+        };
+        //#endregion
+    }
 
     Surface.MeasureText = function (text, font) {
         return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
@@ -1030,6 +1040,15 @@
             Context: ctx
         };
     };
+
+    if (!Fayde.IsCanvasEnabled) {
+        Surface.Instance._Invalidate = function () { };
+        Surface.Instance.ProcessDirtyElements = function () { };
+    } else {
+        Surface.Instance.InitHtml = function () { };
+        Surface.Instance.PrepareLayer = function (layer) { };
+        Surface.Instance.FinishAttachLayer = function (layer) { };
+    }
 
     namespace.Surface = Nullstone.FinishCreate(Surface);
 })(window);
