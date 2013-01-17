@@ -574,6 +574,8 @@ Grid.Instance._OnCollectionItemChanged = function (col, obj, args) {
 
 //#endregion
 
+//#region Html Translations
+
 Grid.Instance.GetRowDefinition = function (index) {
     var rd = this.RowDefinitions.GetValueAt(index);
     if (!rd) {
@@ -583,7 +585,6 @@ Grid.Instance.GetRowDefinition = function (index) {
     }
     return rd;
 };
-
 Grid.Instance.GetColumnDefinition = function (index) {
     var cd = this.ColumnDefinitions.GetValueAt(index);
     if (!cd) {
@@ -593,8 +594,6 @@ Grid.Instance.GetColumnDefinition = function (index) {
     }
     return cd;
 };
-
-//#region Html Translations
 Grid.Instance.OnHtmlAttached = function () {
     var rows = this.RowDefinitions.GetCount();
     var columns = this.ColumnDefinitions.GetCount();
@@ -745,6 +744,27 @@ Grid.Instance.ApplyHtmlChange = function (change) {
         //TODO: set all td's to have a border: solid 1px black
     }
 };
+Grid.Instance.UpdateAdjustedWidth = function (child, width) {
+    var column = Grid.GetColumn(child);
+    var row = Grid.GetRow(child);
+    var cd = this.GetColumnDefinition(column);
+    var rd = this.GetRowDefinition(row);
+    if (cd.Width.Type == GridUnitType.Auto) {
+        var table = this.GetHtmlChildrenContainer();
+        table.children[row].children[column].firstChild.style.width = width + "px";
+    }
+};
+Grid.Instance.UpdateAdjustedHeight = function (child, height) {
+    var column = Grid.GetColumn(child);
+    var row = Grid.GetRow(child);
+    var cd = this.GetColumnDefinition(column);
+    var rd = this.GetRowDefinition(row);
+    if (rd.Height.Type == GridUnitType.Auto) {
+        var table = this.GetHtmlChildrenContainer();
+        table.children[row].children[column].firstChild.style.height = height + "px";
+    }
+};
+
 //#endregion
 
 //#region Definition Retrieval

@@ -1083,14 +1083,53 @@ FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
     }
     this.ApplyHtmlChanges$UIElement(invalidations);
 };
-FrameworkElement.Instance.GetSizeFromChild = function () {
-    var subtree = this._SubtreeObject;
-    if (subtree) {
-        alert(subtree._ID);
-    }
-    alert(this.GetVisualParent()._ID);
+FrameworkElement.Instance.CalculateAdjustedWidth = function (width) {
+    var marginLeft = isNaN(this.Margin.Left) ? 0 : this.Margin.Left;
+    var marginRight = isNaN(this.Margin.Right) ? 0 : this.Margin.Right;
+    return width + marginLeft + marginRight;
 };
-FrameworkElement.Instance.ProvideSizeToParent = function () {
+FrameworkElement.Instance.CalculateAdjustedHeight = function (height) {
+    var marginTop = isNaN(this.Margin.Top) ? 0 : this.Margin.Top;
+    var marginBottom = isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom;
+    return height + marginTop + marginBottom;
+};
+FrameworkElement.Instance.UpdateAdjustedWidth = function (child, width) {
+    if (!this.GetIsFixedWidth()) {
+        this.GetContentHtmlElement().style.width = width + "px";
+        var myWidth = this.CalculateAdjustedWidth(width);
+        var parent = this.GetVisualParent();
+        if (parent) parent.UpdateAdjustedWidth(this, myWidth);
+    }
+};
+FrameworkElement.Instance.UpdateAdjustedHeight = function (child, height) {
+    if (!this.GetIsFixedHeight()) {
+        this.GetContentHtmlElement().style.height = height + "px";
+        var myHeight = this.CalculateAdjustedHeight(height);
+        var parent = this.GetVisualParent();
+        if (parent) parent.UpdateAdjustedHeight(this, myHeight);
+    }
+};
+FrameworkElement.Instance.FindAndSetAdjustedWidth = function () {
+    if (!this.GetIsFixedWidth()) {
+        var subtree = this._SubtreeObject;
+        var childWidth = 0;
+        if (subtree) childWidth = subtree.CalculateAdjustedWidth();
+        this.GetContentHtmlElement().style.width = childWidth + "px";
+        return this.CalculateAdjustedWidth(childWidth);
+    }
+    else
+        return this.GetRootHtmlElement().offsetWidth;
+};
+FrameworkElement.Instance.FindAndSetAdjustedHeight = function () {
+    if (!this.GetIsFixedHeight()) {
+        var subtree = this._SubtreeObject;
+        var childHeight = 0;
+        if (subtree) childHeight = subtree.CalculateAdjustedHeight();
+        this.GetContentHtmlElement().style.height = childHeight + "px";
+        return this.CalculateAdjustedHeight(childHeight);
+    }
+    else
+        return this.GetRootHtmlElement().offsetHeight;
 };
 FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
     //if width is defined, horizontal alignment is no longer stretched

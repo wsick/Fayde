@@ -127,8 +127,14 @@ Surface.Instance._AttachLayer = function (layer) {
 };
 Surface.Instance.ProcessSizingAdjustments = function () {
     for (var key in Surface._SizingAdjustments) {
-        alert(key);
-        Surface._SizingAdjustments[key].GetSizeFromChild();
+        var el = Surface._SizingAdjustments[key];
+        var width = el.FindAndSetAdjustedWidth();
+        var height = el.FindAndSetAdjustedHeight();
+        var parent = el.GetVisualParent();
+        if (parent) {
+            parent.UpdateAdjustedWidth(el, width);
+            parent.UpdateAdjustedHeight(el, height);
+        }
         delete Surface._SizingAdjustments[key];
     }
 };
