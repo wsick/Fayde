@@ -120,6 +120,7 @@ Surface.Instance._AttachLayer = function (layer) {
     layer._SetIsLoaded(true);
 
     var rootEl = layer.GetRootHtmlElement();
+    this._RootHtmlEl.style.overflow = "hidden";
     this._RootHtmlEl.appendChild(rootEl);
     layer.OnHtmlAttached();
 

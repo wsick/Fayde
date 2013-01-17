@@ -8,7 +8,7 @@
     </FaydeApplication.UriMappings>
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
-    <Grid x:Name="LayoutRoot" Background="Green">
+    <Grid x:Name="LayoutRoot" Background="Green" ShowGridLines="True">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="500"></ColumnDefinition>
         <ColumnDefinition></ColumnDefinition>

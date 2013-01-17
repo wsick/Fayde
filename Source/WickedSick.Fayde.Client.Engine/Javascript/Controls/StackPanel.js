@@ -131,10 +131,14 @@ StackPanel.Instance.InsertHtmlChild = function (child, index) {
     if (this.Orientation === Orientation.Horizontal) {
         wrapper.style.height = "100%";
         wrapper.style.width = "auto";
+        child.ParentIsFixedWidth = false;
+        child.ParentIsFixedHeight = true;
     }
     else {
         wrapper.style.width = "100%";
         wrapper.style.height = "auto";
+        child.ParentIsFixedWidth = true;
+        child.ParentIsFixedHeight = false;
     }
     wrapper.appendChild(child.GetRootHtmlElement());
     if (nextEl) {
@@ -157,24 +161,29 @@ StackPanel.Instance._UpdateHtmlOrientation = function (orientation) {
     for (var i = 0; i < len; i++) {
         child = children.GetValueAt(i);
         var wrapper = child.GetRootHtmlElement().parentNode;
-        if (orientation === Orientation.Horizontal) {
+        if (this.Orientation === Orientation.Horizontal) {
             wrapper.style.height = "100%";
             wrapper.style.width = "auto";
+            child.ParentIsFixedWidth = false;
+            child.ParentIsFixedHeight = true;
         }
         else {
             wrapper.style.width = "100%";
             wrapper.style.height = "auto";
+            child.ParentIsFixedWidth = true;
+            child.ParentIsFixedHeight = false;
         }
     }
 };
-
-StackPanel.Instance.CalculateIsFixedWidth = function () {
-    //TODO: do a real calculation based on this.Orientation
-    return false;
+StackPanel.Instance.UpdateAdjustedWidth = function (child, width) {
+    if (this.Orientation == Orientation.Horizontal) {
+        child.GetRootHtmlElement().GetParent().style.width = width + "px";
+    }
 };
-StackPanel.Instance.CalculateIsFixedHeight = function () {
-    //TODO: do a real calculation based on this.Orientation
-    return false;
+StackPanel.Instance.UpdateAdjustedHeight = function (child, height) {
+    if (this.Orientation == Orientation.Vertical) {
+        child.GetRootHtmlElement().GetParent().style.height = height + "px";
+    }
 };
 
 //#endregion

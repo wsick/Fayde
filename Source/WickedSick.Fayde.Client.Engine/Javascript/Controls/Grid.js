@@ -642,6 +642,8 @@ Grid.Instance.OnHtmlAttached = function () {
                     break;
                 case GridUnitType.Auto:
                     columnEl.style.height = "auto";
+                    columnEl.style.minHeight = rd.MinHeight + "px";
+                    columnEl.style.maxHeight = rd.MaxHeight + "px";
                     break;
             }
             switch (cd.Width.Type) {
@@ -654,18 +656,10 @@ Grid.Instance.OnHtmlAttached = function () {
                     break;
                 case GridUnitType.Auto:
                     columnEl.style.width = "auto";
+                    columnEl.style.minWidth = cd.MinWidth + "px";
+                    columnEl.style.maxWidth = cd.MaxWidth + "px";
                     break;
             }
-            /*
-            if (cd) {
-                columnEl.style.minWidth = cd.MinWidth + "px";
-                columnEl.style.maxWidth = cd.MaxWidth + "px";
-            }
-            if (rd) {
-                columnEl.style.minHeight = rd.MinHeight + "px";
-                columnEl.style.maxHeight = rd.MaxHeight + "px";
-            }
-            */
             columnEl.style.fontSize = "0px";
             columnEl.style.overflow = "hidden";
             var sizingEl = columnEl.appendChild(document.createElement("div"));
@@ -722,18 +716,16 @@ Grid.Instance.CreateHtmlChildrenContainer = function () {
 Grid.Instance.InitializeHtml = function (rootEl) {
     this.InitializeHtml$Panel(rootEl);
     var table = rootEl.firstChild;
-    table.style.display = "block";
 };
 Grid.Instance.ApplyHtmlChange = function (change) {
     var propd = change.Property;
-    if (propd.OwnerType !== TextBlock) {
+    if (propd.OwnerType !== Grid) {
         this.ApplyHtmlChange$Panel(change);
         return;
     }
 
-    var table = this.GetHtmlChildrenContainer();
     if (propd._ID === Grid.ShowGridLinesProperty._ID) {
-        table.style.borderCollapse = "collapse";
+        var table = this.GetHtmlChildrenContainer();
         for(var i = 0; i < table.children.length; i++) {
             var row = table.children[i];
             for (var j = 0; j < row.children.length; j++) {
@@ -741,7 +733,6 @@ Grid.Instance.ApplyHtmlChange = function (change) {
                 cell.style.border = "solid 1px black";
             }
         }
-        //TODO: set all td's to have a border: solid 1px black
     }
 };
 Grid.Instance.UpdateAdjustedWidth = function (child, width) {
