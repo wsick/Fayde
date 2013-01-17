@@ -1,17 +1,18 @@
 ﻿/// <reference path="../Runtime/EventArgs.js"/>
 /// CODE
 
-//#region RoutedEventArgs
-var RoutedEventArgs = Nullstone.Create("RoutedEventArgs", EventArgs);
+(function (namespace) {
+    var RoutedEventArgs = Nullstone.Create("RoutedEventArgs", EventArgs);
 
-Nullstone.AutoProperties(RoutedEventArgs, [
+    Nullstone.AutoProperties(RoutedEventArgs, [
     "Handled",
     "Source"
-]);
+    ]);
 
-RoutedEventArgs.Instance.Init = function () {
-    this.Handled = false;
-};
+    RoutedEventArgs.Instance.Init = function () {
+        this.Init$EventArgs();
+        this.Handled = false;
+    };
 
-Nullstone.FinishCreate(RoutedEventArgs);
-//#endregion
+    namespace.RoutedEventArgs = Nullstone.FinishCreate(RoutedEventArgs);
+})(window);

@@ -2,16 +2,16 @@
 /// <reference path="SetterBase.js"/>
 /// CODE
 
-//#region Setter
-var Setter = Nullstone.Create("Setter", SetterBase);
+(function (namespace) {
+    var Setter = Nullstone.Create("Setter", SetterBase);
 
-//#region Dependency Properties
+    //#region Properties
 
-Setter.PropertyProperty = DependencyProperty.RegisterCore("Property", function () { return DependencyProperty; }, Setter);
-Setter.ValueProperty = DependencyProperty.RegisterCore("Value", function () { return Object; }, Setter);
-Setter.ConvertedValueProperty = DependencyProperty.RegisterCore("ConvertedValue", function () { return Object; }, Setter);
+    Setter.PropertyProperty = DependencyProperty.RegisterCore("Property", function () { return DependencyProperty; }, Setter);
+    Setter.ValueProperty = DependencyProperty.RegisterCore("Value", function () { return Object; }, Setter);
+    Setter.ConvertedValueProperty = DependencyProperty.RegisterCore("ConvertedValue", function () { return Object; }, Setter);
 
-//#endregion
+    //#endregion
 
-Nullstone.FinishCreate(Setter);
-//#endregion
+    namespace.Setter = Nullstone.FinishCreate(Setter);
+})(window);

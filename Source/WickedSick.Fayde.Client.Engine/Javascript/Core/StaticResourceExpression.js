@@ -1,62 +1,62 @@
 ﻿/// <reference path="Expression.js"/>
 /// CODE
 
-//#region StaticResourceExpression
-var StaticResourceExpression = Nullstone.Create("StaticResourceExpression", Expression, 5);
+(function (namespace) {
+    var StaticResourceExpression = Nullstone.Create("StaticResourceExpression", Expression, 5);
 
-StaticResourceExpression.Instance.Init = function (key, target, propd, propName, templateBindingSource) {
-    this.Key = key;
-    this.Target = target;
-    this.Property = propd;
-    this.PropertyName = propName;
-};
+    StaticResourceExpression.Instance.Init = function (key, target, propd, propName, templateBindingSource) {
+        this.Key = key;
+        this.Target = target;
+        this.Property = propd;
+        this.PropertyName = propName;
+    };
 
-StaticResourceExpression.Instance.GetValue = function (resChain) {
-    var o;
-    var key = this.Key;
+    StaticResourceExpression.Instance.GetValue = function (resChain) {
+        var o;
+        var key = this.Key;
 
-    var len = resChain.length;
-    for (var i = len - 1; i >= 0; i--) {
-        o = resChain[i].Get(key);
-        if (o)
-            return o;
-    }
-
-    var cur = this.Target;
-    while (cur) {
-        if (cur instanceof FrameworkElement) {
-            o = cur.Resources.Get(key);
+        var len = resChain.length;
+        for (var i = len - 1; i >= 0; i--) {
+            o = resChain[i].Get(key);
             if (o)
                 return o;
         }
-        if (cur instanceof ResourceDictionary) {
-            o = cur.Get(key);
-            if (o)
-                return o;
+
+        var cur = this.Target;
+        while (cur) {
+            if (cur instanceof FrameworkElement) {
+                o = cur.Resources.Get(key);
+                if (o)
+                    return o;
+            }
+            if (cur instanceof ResourceDictionary) {
+                o = cur.Get(key);
+                if (o)
+                    return o;
+            }
+            cur = cur._Parent;
         }
-        cur = cur._Parent;
-    }
-    
-    return App.Instance.Resources.Get(key);
-};
 
-StaticResourceExpression.Instance.Resolve = function (parser) {
-    /// <param name="parser" type="JsonParser"></param>
-    var isAttached = false;
-    var ownerType;
-    var prop = this.Property;
-    if (prop) {
-        isAttached = prop._IsAttached;
-        ownerType = prop.OwnerType;
-    }
+        return App.Instance.Resources.Get(key);
+    };
 
-    var value = this.GetValue(parser._ResChain);
-    if (value instanceof ResourceTarget)
-        value = value.CreateResource();
-    if (!value)
-        throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
-    parser.TrySetPropertyValue(this.Target, prop, value, null, isAttached, ownerType, this.PropertyName);
-};
+    StaticResourceExpression.Instance.Resolve = function (parser) {
+        /// <param name="parser" type="JsonParser"></param>
+        var isAttached = false;
+        var ownerType;
+        var prop = this.Property;
+        if (prop) {
+            isAttached = prop._IsAttached;
+            ownerType = prop.OwnerType;
+        }
 
-Nullstone.FinishCreate(StaticResourceExpression);
-//#endregion
+        var value = this.GetValue(parser._ResChain);
+        if (value instanceof ResourceTarget)
+            value = value.CreateResource();
+        if (!value)
+            throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
+        parser.TrySetPropertyValue(this.Target, prop, value, null, isAttached, ownerType, this.PropertyName);
+    };
+
+    namespace.StaticResourceExpression = Nullstone.FinishCreate(StaticResourceExpression);
+})(window);

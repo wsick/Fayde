@@ -1,10 +1,7 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 
-//#region UnsetValue
-
-var UnsetValue = Nullstone.Create("UnsetValue");
-
-Nullstone.FinishCreate(UnsetValue);
-
-//#endregion
+(function (namespace) {
+    var UnsetValue = Nullstone.Create("UnsetValue");
+    namespace.UnsetValue = Nullstone.FinishCreate(UnsetValue);
+})(window);
