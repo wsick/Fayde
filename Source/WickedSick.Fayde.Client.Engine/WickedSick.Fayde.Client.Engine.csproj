@@ -149,6 +149,7 @@
     <Content Include="Javascript\Core\Input\ICommand.js" />
     <Content Include="Javascript\Core\Input\Keyboard.js" />
     <Content Include="Javascript\Core\Input\KeyboardNavigation.js" />
+    <Content Include="Javascript\Flags.js" />
     <Content Include="Javascript\MVVM\ObservableObject.js" />
     <Content Include="Javascript\MVVM\RelayCommand.js" />
     <Content Include="Javascript\MVVM\ViewModelBase.js" />
