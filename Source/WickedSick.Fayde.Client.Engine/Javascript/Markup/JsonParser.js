@@ -3,6 +3,7 @@
 /// <reference path="Markup.js"/>
 /// <reference path="../Core/Collections/Collection.js"/>
 /// <reference path="../Core/DeferredValueExpression.js"/>
+/// <reference path="../Runtime/PerfTimer.js"/>
 
 (function (namespace) {
     var JsonParser = Nullstone.Create("JsonParser");
@@ -24,17 +25,15 @@
         }
 
         var app = App.Instance;
-        var startTime;
-        var isTimed;
-        if (isTimed = (app._DebugFunc[5] != null))
-            startTime = new Date().getTime();
+        var perfTimer = new Fayde.PerfTimer();
+        perfTimer.ReportFunc = function (elapsed) { app._NotifyDebugParserPass(json.Type, elapsed); };
+        perfTimer.IsDisabled = app._DebugFunc[5] == null;
 
+        perfTimer.Start();
         var obj = parser.CreateObject(json, namescope);
         if (shouldSetNS && obj instanceof DependencyObject)
             NameScope.SetNameScope(obj, namescope);
-
-        if (isTimed)
-            app._NotifyDebugParserPass(json.Type, new Date().getTime() - startTime);
+        perfTimer.Stop();
 
         return obj;
     };

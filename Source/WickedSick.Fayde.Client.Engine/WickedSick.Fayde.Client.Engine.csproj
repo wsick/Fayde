@@ -249,6 +249,7 @@
     <Content Include="Javascript\Core\Input\MouseEventArgs.js" />
     <Content Include="Javascript\Core\RoutedPropertyChangedEventArgs.js" />
     <Content Include="Javascript\Runtime\gl-matrix-ex.js" />
+    <Content Include="Javascript\Runtime\PerfTimer.js" />
     <Content Include="Javascript\Runtime\Timer.js" />
     <Content Include="Javascript\Shapes\Ellipse.js" />
     <Content Include="Javascript\Shapes\Enums.js" />
