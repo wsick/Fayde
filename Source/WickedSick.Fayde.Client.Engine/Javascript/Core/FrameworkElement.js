@@ -1113,7 +1113,7 @@
         if (!this.GetIsFixedWidth()) {
             var subtree = this._SubtreeObject;
             var childWidth = 0;
-            if (subtree) childWidth = subtree.FindAndSetAdjustedWidth();
+            if (subtree && Nullstone.Is(subtree, FrameworkElement)) childWidth = subtree.FindAndSetAdjustedWidth();
             this.GetContentHtmlElement().style.width = childWidth + "px";
             return this.CalculateAdjustedWidth(childWidth);
         }
@@ -1123,7 +1123,7 @@
         if (!this.GetIsFixedHeight()) {
             var subtree = this._SubtreeObject;
             var childHeight = 0;
-            if (subtree) childHeight = subtree.FindAndSetAdjustedHeight();
+            if (subtree && Nullstone.Is(subtree, FrameworkElement)) childHeight = subtree.FindAndSetAdjustedHeight();
             this.GetContentHtmlElement().style.height = childHeight + "px";
             return this.CalculateAdjustedHeight(childHeight);
         }
