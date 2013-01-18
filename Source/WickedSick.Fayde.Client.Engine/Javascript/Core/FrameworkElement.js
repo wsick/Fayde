@@ -837,10 +837,10 @@
         }
         if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
             || args.Property._ID === FrameworkElement.WidthProperty._ID)
-            this.InvalidateIsFixedWidth();
+            this.IsFixedWidth = this.CalculateIsFixedWidth();
         if (args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID ||
             args.Property._ID === FrameworkElement.HeightProperty._ID)
-            this.InvalidateIsFixedHeight();
+            this.IsFixedHeight = this.CalculateIsFixedHeight();
 
         if (ivprop) {
             this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
@@ -946,7 +946,7 @@
         return rootEl;
     };
     FrameworkElement.Instance.InitializeHtml = function (rootEl) {
-        if (FrameworkElement.ApplySizing(rootEl, this.ParentIsFixedWidth, this.ParentIsFixedHeight,
+        if (FrameworkElement.ApplySizing(rootEl, this.GetParentIsFixedWidth(), this.GetParentIsFixedHeight(),
             this.HorizontalAlignment, this.VerticalAlignment,
             this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight)) {
             Surface._SizingAdjustments[this._ID] = this;
@@ -1067,13 +1067,13 @@
         return isStretchPlusShrink;
     };
     FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
-        var sizingChecks = [UIElement.ParentIsFixedWidthProperty, UIElement.ParentIsFixedHeightProperty,
+        var sizingChecks = [UIElement.IsFixedWidthProperty, UIElement.IsFixedHeightProperty,
             FrameworkElement.HorizontalAlignmentProperty, FrameworkElement.VerticalAlignmentProperty,
             FrameworkElement.MarginProperty, FrameworkElement.WidthProperty, FrameworkElement.HeightProperty,
             FrameworkElement.MaxWidthProperty, FrameworkElement.MaxHeightProperty];
         for (var i = 0; i < sizingChecks.length; i++) {
             if (invalidations[sizingChecks[i]._ID]) {
-                if (FrameworkElement.ApplySizing(this.GetRootHtmlElement(), this.ParentIsFixedWidth, this.ParentIsFixedHeight,
+                if (FrameworkElement.ApplySizing(this.GetRootHtmlElement(), this.GetParentIsFixedWidth(), this.GetParentIsFixedHeight(),
                     this.HorizontalAlignment, this.VerticalAlignment,
                     this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight)) {
                     Surface._SizingAdjustments[this._ID] = this;
@@ -1156,7 +1156,7 @@
             return true;
         }
         if (FrameworkElement.RealHorizontalAlignment(this.Width, this.HorizontalAlignment) == HorizontalAlignment.Stretch
-            && this.ParentIsFixedWidth) {
+            && this.GetParentIsFixedWidth()) {
             return true;
         }
         return false;
@@ -1166,7 +1166,7 @@
             return true;
         }
         if (FrameworkElement.RealVerticalAlignment(this.Height, this.VerticalAlignment) == VerticalAlignment.Stretch
-            && this.ParentIsFixedHeight) {
+            && this.GetParentIsFixedHeight()) {
             return true;
         }
         return false;

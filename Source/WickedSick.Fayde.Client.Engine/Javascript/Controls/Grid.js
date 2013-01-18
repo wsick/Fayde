@@ -685,8 +685,6 @@
                 var column = Grid.GetColumn(child);
                 var rd = this.GetRowDefinition(row);
                 var cd = this.GetColumnDefinition(column);
-                child.ParentIsFixedHeight = (rd.Height.Type != GridUnitType.Auto);
-                child.ParentIsFixedWidth = (cd.Width.Type != GridUnitType.Auto);
                 var contentEl;
                 contentEl = table.children[row].children[column].firstChild.firstChild;
                 contentEl.appendChild(child.GetRootHtmlElement());
@@ -754,6 +752,18 @@
             var table = this.GetHtmlChildrenContainer();
             table.children[row].children[column].firstChild.style.height = height + "px";
         }
+    };
+    Grid.Instance.GetIsFixedWidth = function (child) {
+        var column = Grid.GetColumn(child);
+        var cd = this.GetColumnDefinition(column);
+        if (cd.Width.Type == GridUnitType.Auto) return false;
+        else return true;
+    };
+    Grid.Instance.GetIsFixedHeight = function (child) {
+        var row = Grid.GetRow(child);
+        var rd = this.GetRowDefinition(row);
+        if (rd.Height.Type == GridUnitType.Auto) return false;
+        else return true;
     };
 
     //#endregion

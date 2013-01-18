@@ -298,7 +298,7 @@
         var imageChecks = [Image.StretchProperty, Image.SourceProperty];
         for (var i = 0; i < imageChecks.length; i++) {
             if (invalidations[imageChecks[i]._ID]) {
-                Image.ApplyImage(this.GetRootHtmlElement(), this.ParentIsFixedWidth, this.ParentIsFixedHeight, this.Source, this.Stretch);
+                Image.ApplyImage(this.GetRootHtmlElement(), this.GetParentIsFixedWidth(), this.GetParentIsFixedHeight(), this.Source, this.Stretch);
                 break;
             }
         }

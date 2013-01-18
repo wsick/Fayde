@@ -131,14 +131,10 @@
         if (this.Orientation === Orientation.Horizontal) {
             wrapper.style.height = "100%";
             wrapper.style.width = "auto";
-            child.ParentIsFixedWidth = false;
-            child.ParentIsFixedHeight = true;
         }
         else {
             wrapper.style.width = "100%";
             wrapper.style.height = "auto";
-            child.ParentIsFixedWidth = true;
-            child.ParentIsFixedHeight = false;
         }
         wrapper.appendChild(child.GetRootHtmlElement());
         if (nextEl) {
@@ -153,8 +149,8 @@
     };
 
     StackPanel.Instance._UpdateHtmlOrientation = function (orientation) {
-        this.InvalidateIsFixedWidth();
-        this.InvalidateIsFixedHeight();
+        this.InvalidateChildrenFixedWidth();
+        this.InvalidateChildrenFixedHeight();
         var children = this.Children;
         var len = children.GetCount();
         var child;
@@ -164,26 +160,30 @@
             if (this.Orientation === Orientation.Horizontal) {
                 wrapper.style.height = "100%";
                 wrapper.style.width = "auto";
-                child.ParentIsFixedWidth = false;
-                child.ParentIsFixedHeight = true;
             }
             else {
                 wrapper.style.width = "100%";
                 wrapper.style.height = "auto";
-                child.ParentIsFixedWidth = true;
-                child.ParentIsFixedHeight = false;
             }
         }
     };
     StackPanel.Instance.UpdateAdjustedWidth = function (child, width) {
         if (this.Orientation == Orientation.Horizontal) {
-            child.GetRootHtmlElement().GetParent().style.width = width + "px";
+            child.GetRootHtmlElement().parentNode.style.width = width + "px";
         }
     };
     StackPanel.Instance.UpdateAdjustedHeight = function (child, height) {
         if (this.Orientation == Orientation.Vertical) {
-            child.GetRootHtmlElement().GetParent().style.height = height + "px";
+            child.GetRootHtmlElement().parentNode.style.height = height + "px";
         }
+    };
+    StackPanel.Instance.GetIsFixedWidth = function (child) {
+        if (this.Orientation == Orientation.Horizontal) return false;
+        else return true;
+    };
+    StackPanel.Instance.GetIsFixedHeight = function (child) {
+        if (this.Orientation == Orientation.Vertical) return false;
+        else return true;
     };
 
     //#endregion

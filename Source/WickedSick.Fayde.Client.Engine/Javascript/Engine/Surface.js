@@ -111,7 +111,6 @@
         DirtyDebug("AttachLayer");
         layer._FullInvalidate(true);
         layer._InvalidateMeasure();
-        this.PrepareLayer(layer);
         layer._SetIsAttached(true);
         layer._SetIsLoaded(true);
         this.FinishAttachLayer(layer);
@@ -973,10 +972,6 @@
                 delete Surface._SizingAdjustments[key];
             }
         };
-        Surface.Instance.PrepareLayer = function (layer) {
-            layer.ParentIsFixedWidth = true;
-            layer.ParentIsFixedHeight = true;
-        };
         Surface.Instance.FinishAttachLayer = function (layer) {
             var rootEl = layer.GetRootHtmlElement();
             this._RootHtmlEl.style.overflow = "hidden";
@@ -1046,7 +1041,6 @@
         Surface.Instance.ProcessDirtyElements = function () { };
     } else {
         Surface.Instance.InitHtml = function () { };
-        Surface.Instance.PrepareLayer = function (layer) { };
         Surface.Instance.FinishAttachLayer = function (layer) { };
     }
 
