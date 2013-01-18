@@ -8,14 +8,30 @@
     </FaydeApplication.UriMappings>
     <FaydeApplication.Resources>
     </FaydeApplication.Resources>
-    <StackPanel Background="AntiqueWhite">
+    <Grid Background="AntiqueWhite">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
         <Polygon Fill="#222222" Stroke="Red" StrokeThickness="5"
                  Points="150,0 200,300 0,100 300,100 100,300"
-                 FillRule="NonZero">
+                 FillRule="NonZero" Stretch="Uniform">
         </Polygon>
-        <Polygon Fill="#222222" Stroke="Red" StrokeThickness="5"
+        <Polygon Grid.Column="1" Fill="#222222" Stroke="Red" StrokeThickness="5"
                  Points="150,0 200,300 0,100 300,100 100,300"
-                 FillRule="NonZero">
+                 FillRule="NonZero" Stretch="Fill">
         </Polygon>
-    </StackPanel>
+        <Polygon Grid.Row="1" Fill="#222222" Stroke="Red" StrokeThickness="5"
+                 Points="150,0 200,300 0,100 300,100 100,300"
+                 FillRule="NonZero" Stretch="UniformToFill">
+        </Polygon>
+        <Polygon Grid.Row="1" Grid.Column="1" Fill="#222222" Stroke="Red" StrokeThickness="5"
+                 Points="150,0 200,300 0,100 300,100 100,300"
+                 FillRule="NonZero" Stretch="None">
+        </Polygon>
+    </Grid>
 </FaydeApplication>
