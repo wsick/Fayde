@@ -977,21 +977,21 @@
         subEl.style.display = "table-cell";
 
         //apply resets
-        rootEl.style.width = "auto";
-        rootEl.style.left = "auto";
-        rootEl.style.right = "auto";
-        rootEl.style.height = "auto";
-        rootEl.style.top = "auto";
-        rootEl.style.bottom = "auto";
+        rootEl.style.width = "";
+        rootEl.style.left = "";
+        rootEl.style.right = "";
+        rootEl.style.height = "";
+        rootEl.style.top = "";
+        rootEl.style.bottom = "";
 
-        subEl.style.maxWidth = "auto";
-        subEl.style.maxHeight = "auto";
-        subEl.style.width = "auto";
-        subEl.style.height = "auto";
-        subEl.style.left = "auto";
-        subEl.style.right = "auto";
-        subEl.style.top = "auto";
-        subEl.style.bottom = "auto";
+        subEl.style.maxWidth = "";
+        subEl.style.maxHeight = "";
+        subEl.style.width = "";
+        subEl.style.height = "";
+        subEl.style.left = "";
+        subEl.style.right = "";
+        subEl.style.top = "";
+        subEl.style.bottom = "";
 
         //if width is explicitly set, stretch is changed to centered
         horizontalAlignment = FrameworkElement.RealHorizontalAlignment(width, horizontalAlignment);
@@ -1113,23 +1113,21 @@
         if (!this.GetIsFixedWidth()) {
             var subtree = this._SubtreeObject;
             var childWidth = 0;
-            if (subtree) childWidth = subtree.CalculateAdjustedWidth();
+            if (subtree) childWidth = subtree.FindAndSetAdjustedWidth();
             this.GetContentHtmlElement().style.width = childWidth + "px";
             return this.CalculateAdjustedWidth(childWidth);
         }
-        else
-            return this.GetRootHtmlElement().offsetWidth;
+        else return this.CalculateAdjustedWidth(this.GetRootHtmlElement().offsetWidth);
     };
     FrameworkElement.Instance.FindAndSetAdjustedHeight = function () {
         if (!this.GetIsFixedHeight()) {
             var subtree = this._SubtreeObject;
             var childHeight = 0;
-            if (subtree) childHeight = subtree.CalculateAdjustedHeight();
+            if (subtree) childHeight = subtree.FindAndSetAdjustedHeight();
             this.GetContentHtmlElement().style.height = childHeight + "px";
             return this.CalculateAdjustedHeight(childHeight);
         }
-        else
-            return this.GetRootHtmlElement().offsetHeight;
+        else return this.CalculateAdjustedHeight(this.GetRootHtmlElement().offsetHeight);
     };
     FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
         //if width is defined, horizontal alignment is no longer stretched

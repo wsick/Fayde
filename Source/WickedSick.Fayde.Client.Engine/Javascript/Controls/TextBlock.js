@@ -486,6 +486,18 @@
             finalStyle += "underline ";
         contentEl.style.textDecoration = finalStyle;
     };
+    TextBlock.Instance.GetIsFixedWidth = function () {
+        return true;
+    };
+    TextBlock.Instance.GetIsFixedHeight = function () {
+        return true;
+    };
+    TextBlock.Instance.GetParentIsFixedWidth = function () {
+        return false;
+    };
+    TextBlock.Instance.GetParentIsFixedHeight = function () {
+        return false;
+    };
 
     TextBlock.Instance.SetChildrenHtml = function (inlines) {
         var rootEl = this.GetRootHtmlElement();
