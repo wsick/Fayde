@@ -96,7 +96,6 @@
     <Content Include="demos\stackoverflow\default.fap.js" />
     <Content Include="demos\stackoverflow\root.fayde.js" />
     <Content Include="demos\stackoverflow\ViewModels\MainViewModel.js" />
-    <Content Include="download.aspx" />
     <Content Include="features.aspx" />
     <Content Include="gettingstarted.aspx" />
     <Content Include="home.aspx" />
@@ -144,13 +143,6 @@
     <Compile Include="demos\sdb\Services\GoogleMusicAPI\Models.cs" />
     <Compile Include="demos\stackoverflow\so.ashx.cs">
       <DependentUpon>so.ashx</DependentUpon>
-    </Compile>
-    <Compile Include="download.aspx.cs">
-      <DependentUpon>download.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="download.aspx.designer.cs">
-      <DependentUpon>download.aspx</DependentUpon>
     </Compile>
     <Compile Include="features.aspx.cs">
       <DependentUpon>features.aspx</DependentUpon>
