@@ -80,7 +80,6 @@
     <Content Include="App_Themes\default\images\partial.png" />
     <Content Include="App_Themes\default\images\property.jpg" />
     <Content Include="contact.aspx" />
-    <Content Include="contribute.aspx" />
     <Content Include="App_Themes\default\images\bg.jpg" />
     <Content Include="demo.aspx" />
     <Content Include="demos\masterdetail\default.fayde.js" />
@@ -111,13 +110,6 @@
     </Compile>
     <Compile Include="contact.aspx.designer.cs">
       <DependentUpon>contact.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="contribute.aspx.cs">
-      <DependentUpon>contribute.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="contribute.aspx.designer.cs">
-      <DependentUpon>contribute.aspx</DependentUpon>
     </Compile>
     <Compile Include="default.Master.cs">
       <DependentUpon>default.Master</DependentUpon>
