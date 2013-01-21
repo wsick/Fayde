@@ -89,9 +89,15 @@
     <Content Include="demos\masterdetail\INflRepository.ts" />
     <Content Include="demos\masterdetail\Player.js" />
     <Content Include="demos\masterdetail\Player.ts" />
-    <Content Include="demos\sdb\default.fap.js" />
-    <Content Include="demos\sdb\root.fayde.js" />
-    <Content Include="demos\sdb\ViewModels\MainViewModel.js" />
+    <Content Include="demos\sdb\default.fap.js">
+      <DependentUpon>default.fap.ts</DependentUpon>
+    </Content>
+    <Content Include="demos\sdb\root.fayde.js">
+      <DependentUpon>root.fayde.ts</DependentUpon>
+    </Content>
+    <Content Include="demos\sdb\ViewModels\MainViewModel.js">
+      <DependentUpon>MainViewModel.ts</DependentUpon>
+    </Content>
     <Content Include="demos\stackoverflow\default.fap.js" />
     <Content Include="demos\stackoverflow\root.fayde.js" />
     <Content Include="demos\stackoverflow\ViewModels\MainViewModel.js" />
@@ -184,6 +190,14 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="demos\sdb\Services\GetAllSongs.ashx" />
+    <Content Include="scripts\Fayde.d.ts" />
+    <TypeScriptCompile Include="demos\sdb\ViewModels\MainViewModel.ts" />
+    <TypeScriptCompile Include="demos\sdb\default.fap.ts">
+      <DependentUpon>default.fap</DependentUpon>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="demos\sdb\root.fayde.ts">
+      <DependentUpon>root.fayde</DependentUpon>
+    </TypeScriptCompile>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -233,10 +247,16 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptSourceMap> --sourcemap</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Target Name="BeforeBuild">
+    <Message Text="Compiling TypeScript files" />
+    <Message Text="Executing tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+    <Exec Command="tsc$(TypeScriptSourceMap) @(TypeScriptCompile ->'&quot;%(fullpath)&quot;', ' ')" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
   <Target Name="AfterBuild">
   </Target>
   -->

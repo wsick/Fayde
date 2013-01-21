@@ -78,6 +78,18 @@ Nullstone.FinishCreate = function (f) {
     return f;
 };
 
+Nullstone.RegisterType = function (f, typeName, baseClass, interfaces) {
+    f._TypeID = Nullstone._LastTypeID = Nullstone._LastTypeID + 1;
+    f._BaseClass = baseClass;
+    f._TypeName = typeName;
+    f.Interfaces = interfaces == null ? undefined : interfaces;
+    f._IsNullstone = true;
+    return f;
+};
+Nullstone.RegisterObject = function (o) {
+    o._ID = Nullstone._LastID = Nullstone._LastID + 1;
+};
+
 Nullstone.RefEquals = function (obj1, obj2) {
     if (obj1 == null && obj2 == null)
         return true;
@@ -201,17 +213,27 @@ Nullstone.Property = function (type, name, data) {
 };
 Nullstone.AutoNotifyProperty = function (type, name) {
     var backingName = "z_" + name;
-    type.Properties.push({
-        Custom: true,
-        Name: name,
-        Data: {
+    if (type.Properties) {
+        type.Properties.push({
+            Custom: true,
+            Name: name,
+            Data: {
+                get: function () { return this[backingName]; },
+                set: function (value) {
+                    this[backingName] = value;
+                    this.OnPropertyChanged(name);
+                }
+            }
+        });
+    } else {
+        Object.defineProperty(type.prototype, name, {
             get: function () { return this[backingName]; },
             set: function (value) {
                 this[backingName] = value;
                 this.OnPropertyChanged(name);
             }
-        }
-    });
+        });
+    }
 };
 
 Nullstone.GetPropertyDescriptor = function (obj, name) {
