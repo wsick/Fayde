@@ -350,7 +350,7 @@
     <Content Include="Javascript\Media\Animation\ObjectKeyFrameCollection.js" />
     <Content Include="Javascript\Media\GradientStop.js" />
     <Content Include="Javascript\Media\GradientStopCollection.js" />
-    <Content Include="Javascript\Media\ImageSource.js" />
+    <Content Include="Javascript\Media\Imaging\ImageSource.js" />
     <Content Include="Javascript\Media\Imaging\BitmapImage.js" />
     <Content Include="Javascript\Media\Imaging\BitmapSource.js" />
     <Content Include="Javascript\Primitives\KeyTime.js" />
@@ -388,7 +388,7 @@
     <Content Include="Javascript\Runtime\LinkedList.js" />
     <Content Include="Javascript\Media\Enums.js" />
     <Content Include="Javascript\Media\GradientBrush.js" />
-    <Content Include="Javascript\Media\ImageBrush.js" />
+    <Content Include="Javascript\Media\Imaging\ImageBrush.js" />
     <Content Include="Javascript\Media\LinearGradientBrush.js" />
     <Content Include="Javascript\Media\RadialGradientBrush.js" />
     <Content Include="Javascript\Media\RectangleGeometry.js" />

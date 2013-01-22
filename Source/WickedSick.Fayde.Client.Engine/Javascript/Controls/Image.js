@@ -1,6 +1,6 @@
 ﻿/// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
-/// <reference path="../Media/ImageSource.js"/>
+/// <reference path="../Media/Imaging/ImageSource.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Primitives/Enums.js"/>
@@ -20,7 +20,7 @@
 
     //#region Properties
 
-    Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return ImageSource; }, Image, undefined, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+    Image.SourceProperty = DependencyProperty.RegisterFull("Source", function () { return Fayde.Media.Imaging.ImageSource; }, Image, undefined, undefined, { GetValue: function (propd, obj) { return new Fayde.Media.Imaging.BitmapImage(); } });
     // http: //msdn.microsoft.com/en-us/library/system.windows.media.stretch(v=vs.95).aspx
     Image.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, Image, Stretch.Uniform);
 
@@ -30,7 +30,7 @@
 
     Nullstone.AutoProperty(Image, Image.SourceProperty, function (value) {
         if (value instanceof Uri)
-            return new BitmapImage(value);
+            return new Fayde.Media.Imaging.BitmapImage(value);
         return value;
     });
 
@@ -262,12 +262,12 @@
         }
 
         if (args.Property._ID === Image.SourceProperty._ID) {
-            var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
+            var oldBmpSrc = Nullstone.As(args.OldValue, Fayde.Media.Imaging.BitmapSource);
             if (oldBmpSrc) {
                 oldBmpSrc._ErroredCallback = null;
                 oldBmpSrc._LoadedCallback = null;
             }
-            var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
+            var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
             if (newBmpSrc) {
                 var i = this;
                 newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };

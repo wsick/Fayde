@@ -185,7 +185,7 @@
     <Compile Include="Elements\Media\Colors.cs" />
     <Compile Include="Elements\Media\Geometry.cs" />
     <Compile Include="Elements\Controls\Tooltip.cs" />
-    <Compile Include="Elements\Media\ImageBrush.cs" />
+    <Compile Include="Elements\Media\Imaging\ImageBrush.cs" />
     <Compile Include="Elements\Media\RotateTransform.cs" />
     <Compile Include="Elements\Media\SkewTransform.cs" />
     <Compile Include="Elements\Media\TileBrush.cs" />
@@ -254,13 +254,13 @@
     <Compile Include="Elements\Media\Animation\Timeline.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\ImageSource.cs">
+    <Compile Include="Elements\Media\Imaging\ImageSource.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\BitmapImage.cs">
+    <Compile Include="Elements\Media\Imaging\BitmapImage.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\BitmapSource.cs">
+    <Compile Include="Elements\Media\Imaging\BitmapSource.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Media\VSM\VisualState.cs">

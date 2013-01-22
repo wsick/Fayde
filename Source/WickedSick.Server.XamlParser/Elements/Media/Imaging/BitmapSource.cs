@@ -1,7 +1,8 @@
 ﻿using WickedSick.Server.XamlParser.TypeConverters;
 
-namespace WickedSick.Server.XamlParser.Elements.Media
+namespace WickedSick.Server.XamlParser.Elements.Media.Imaging
 {
+    [Element(NullstoneNamespace = "Fayde.Media.Imaging")]
     public class BitmapSource : ImageSource
     {
         public static readonly PropertyDescription PixelWidth = PropertyDescription.Register("PixelWidth", typeof(double), typeof(BitmapSource));

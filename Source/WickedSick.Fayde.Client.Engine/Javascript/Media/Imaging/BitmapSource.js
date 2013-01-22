@@ -1,8 +1,8 @@
-﻿/// <reference path="../ImageSource.js"/>
+﻿/// <reference path="ImageSource.js"/>
 /// CODE
 
 (function (namespace) {
-    var BitmapSource = Nullstone.Create("BitmapSource", ImageSource);
+    var BitmapSource = Nullstone.Create("BitmapSource", namespace.ImageSource);
 
     BitmapSource.Instance.Init = function () {
         this.Init$ImageSource();
@@ -50,4 +50,4 @@
     };
 
     namespace.BitmapSource = Nullstone.FinishCreate(BitmapSource);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Imaging"));

@@ -559,7 +559,7 @@ class UIElement extends DependencyObject {
     AllowDrop: bool;
     CacheMode: any;
     Clip: Geometry;
-    Effect: Effect;
+    Effect: Fayde.Media.Effects.Effect;
     IsHitTestVisible: bool;
     OpacityMask: Brush;
     Opacity: number;
@@ -1341,7 +1341,7 @@ class Page extends UserControl {
 class Image extends FrameworkElement {
     static SourceProperty: DependencyProperty;
     static StretchProperty: DependencyProperty;
-    Source: ImageSource;
+    Source: Fayde.Media.Imaging.ImageSource;
     Stretch: Stretch;
     ImageFailed: MulticastEvent;
     ImageOpened: MulticastEvent;
@@ -1640,10 +1640,6 @@ class TileBrush extends Brush {
     AlignmentY: AlignmentY;
     Stretch: Stretch;
 }
-class ImageBrush extends TileBrush {
-    static ImageSourceProperty: DependencyProperty;
-    ImageSource: ImageBrush;
-}
 class GeneralTransform extends DependencyObject {
     Inverse: GeneralTransform;
     Transform(point: Point): Point;
@@ -1796,45 +1792,54 @@ class RectangleGeometry extends Geometry {
     RadiusX: number;
     RadiusY: number;
 }
-class Effect extends DependencyObject {
-    static EffectMappingProperty: DependencyProperty;
-    EffectMapping: GeneralTransform;
-}
-class BlurEffect extends Effect {
-    static RadiusProperty: DependencyProperty;
-    Radius: number;
-}
-class DropShadowEffect extends Effect {
-    static BlurRadiusProperty: DependencyProperty;
-    static ColorProperty: DependencyProperty;
-    static DirectionProperty: DependencyProperty;
-    static OpacityProperty: DependencyProperty;
-    static ShadowDepthProperty: DependencyProperty;
-    BlurRadius: number;
-    Color: Color;
-    Direction: number;
-    Opacity: number;
-    ShadowDepth: number;
-}
-class ImageSource extends DependencyObject {
-}
-class BitmapSource extends ImageSource {
-    static PixelWidthProperty: DependencyProperty;
-    static PixelHeightProperty: DependencyProperty;
-    PixelWidth: number;
-    PixelHeight: number;
-}
-class BitmapImage extends BitmapSource {
-    static UriSourceProperty: DependencyProperty;
-    UriSource: Uri;
-    ImageFailed: MulticastEvent;
-    ImageOpened: MulticastEvent;
-    DownloadProgress: MulticastEvent;
-}
 class TextOptions {
     static TextHintingModeProperty: DependencyProperty;
     static GetTextHintingMode(d: DependencyObject): TextHintingMode;
     static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
+}
+
+module Fayde.Media.Imaging {
+    export class ImageSource extends DependencyObject {
+    }
+    export class BitmapSource extends ImageSource {
+        static PixelWidthProperty: DependencyProperty;
+        static PixelHeightProperty: DependencyProperty;
+        PixelWidth: number;
+        PixelHeight: number;
+    }
+    export class BitmapImage extends BitmapSource {
+        static UriSourceProperty: DependencyProperty;
+        UriSource: Uri;
+        ImageFailed: MulticastEvent;
+        ImageOpened: MulticastEvent;
+        DownloadProgress: MulticastEvent;
+    }
+    export class ImageBrush extends TileBrush {
+        static ImageSourceProperty: DependencyProperty;
+        ImageSource: ImageBrush;
+    }
+}
+module Fayde.Media.Effects {
+    export class Effect extends DependencyObject {
+        static EffectMappingProperty: DependencyProperty;
+        EffectMapping: GeneralTransform;
+    }
+    export class BlurEffect extends Effect {
+        static RadiusProperty: DependencyProperty;
+        Radius: number;
+    }
+    export class DropShadowEffect extends Effect {
+        static BlurRadiusProperty: DependencyProperty;
+        static ColorProperty: DependencyProperty;
+        static DirectionProperty: DependencyProperty;
+        static OpacityProperty: DependencyProperty;
+        static ShadowDepthProperty: DependencyProperty;
+        BlurRadius: number;
+        Color: Color;
+        Direction: number;
+        Opacity: number;
+        ShadowDepth: number;
+    }
 }
 
 //////////////////////////////////////////////////////////

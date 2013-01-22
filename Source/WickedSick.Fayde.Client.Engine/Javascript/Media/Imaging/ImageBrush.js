@@ -1,8 +1,8 @@
-/// <reference path="../Runtime/Nullstone.js" />
-/// <reference path="TileBrush.js"/>
+/// <reference path="../../Runtime/Nullstone.js" />
+/// <reference path="../TileBrush.js"/>
 /// CODE
-/// <reference path="Imaging/BitmapSource.js"/>
-/// <reference path="Imaging/BitmapImage.js"/>
+/// <reference path="BitmapSource.js"/>
+/// <reference path="BitmapImage.js"/>
 
 (function (namespace) {
     var ImageBrush = Nullstone.Create("ImageBrush", TileBrush);
@@ -15,11 +15,11 @@
 
     //#region Properties
 
-    ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, undefined, { GetValue: function (propd, obj) { return new BitmapImage(); } });
+    ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, undefined, { GetValue: function (propd, obj) { return new Fayde.Media.Imaging.BitmapImage(); } });
 
     Nullstone.AutoProperty(ImageBrush, ImageBrush.ImageSourceProperty, function (value) {
         if (value instanceof Uri)
-            return new BitmapImage(value);
+            return new Fayde.Media.Imaging.BitmapImage(value);
         return value;
     });
 
@@ -32,12 +32,12 @@
         }
 
         if (args.Property._ID === ImageBrush.ImageSourceProperty._ID) {
-            var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
+            var oldBmpSrc = Nullstone.As(args.OldValue, Fayde.Media.Imaging.BitmapSource);
             if (oldBmpSrc != null) {
                 oldBmpSrc._ErroredCallback = null;
                 oldBmpSrc._LoadedCallback = null;
             }
-            var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
+            var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
             if (newBmpSrc != null) {
                 var ib = this;
                 newBmpSrc._ErroredCallback = function () { ib.ImageFailed.Raise(this, new EventArgs()); };
@@ -71,4 +71,4 @@
     };
 
     namespace.ImageBrush = Nullstone.FinishCreate(ImageBrush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Imaging"));

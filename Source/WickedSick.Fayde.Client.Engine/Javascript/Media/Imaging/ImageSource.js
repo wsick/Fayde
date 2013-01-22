@@ -1,4 +1,4 @@
-﻿/// <reference path="../Core/DependencyObject.js"/>
+﻿/// <reference path="../../Core/DependencyObject.js"/>
 /// CODE
 
 (function (namespace) {
@@ -13,4 +13,4 @@
     ImageSource.Instance.Unlock = function () { };
 
     namespace.ImageSource = Nullstone.FinishCreate(ImageSource);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Imaging"));

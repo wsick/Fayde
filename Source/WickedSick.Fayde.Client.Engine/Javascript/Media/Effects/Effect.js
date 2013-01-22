@@ -24,4 +24,4 @@
     };
 
     namespace.Effect = Nullstone.FinishCreate(Effect);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Effects"));

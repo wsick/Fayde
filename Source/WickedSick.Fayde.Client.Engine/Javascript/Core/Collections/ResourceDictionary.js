@@ -161,7 +161,7 @@
         //  return true;
         //if (value instanceof StylusPointCollection)
         //  return true;
-        if (value instanceof BitmapImage)
+        if (value instanceof Fayde.Media.Imaging.BitmapImage)
             return true;
         //if (value instanceof Stroke)
         //  return true;

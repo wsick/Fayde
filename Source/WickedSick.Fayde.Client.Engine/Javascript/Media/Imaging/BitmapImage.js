@@ -3,7 +3,7 @@
 /// <reference path="../../Primitives/Uri.js"/>
 
 (function (namespace) {
-    var BitmapImage = Nullstone.Create("BitmapImage", BitmapSource, 1);
+    var BitmapImage = Nullstone.Create("BitmapImage", namespace.BitmapSource, 1);
 
     BitmapImage.Instance.Init = function (uri) {
         this.Init$BitmapSource();
@@ -51,4 +51,4 @@
     };
 
     namespace.BitmapImage = Nullstone.FinishCreate(BitmapImage);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Imaging"));

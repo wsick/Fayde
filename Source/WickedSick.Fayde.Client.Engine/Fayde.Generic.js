@@ -1184,7 +1184,7 @@ App.GetGenericResourceDictionary = function () {
 
         },
         {
-            Type: DropShadowEffect,
+            Type: Fayde.Media.Effects.DropShadowEffect,
             Key: "DropShadowBrush",
             Props: {
                 Direction: 330,
@@ -5191,7 +5191,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Opacity: 0,
                                                 Margin: new Thickness(1, 1, 0, 0),
                                                 Effect: {
-                                                    Type: BlurEffect
+                                                    Type: Fayde.Media.Effects.BlurEffect
                                                 },
                                                 Fill: {
                                                     Type: SolidColorBrush,
@@ -5385,7 +5385,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Opacity: 0,
                                                 Margin: new Thickness(0, 1, 0, 0),
                                                 Effect: {
-                                                    Type: BlurEffect
+                                                    Type: Fayde.Media.Effects.BlurEffect
                                                 },
                                                 Fill: {
                                                     Type: SolidColorBrush,
@@ -5570,7 +5570,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Opacity: 0,
                                                 Margin: new Thickness(1, 0, 0, 0),
                                                 Effect: {
-                                                    Type: BlurEffect
+                                                    Type: Fayde.Media.Effects.BlurEffect
                                                 },
                                                 Fill: {
                                                     Type: SolidColorBrush,
@@ -5821,7 +5821,7 @@ App.GetGenericResourceDictionary = function () {
                                                 Opacity: 0,
                                                 Margin: new Thickness(1, 0, 0, 0),
                                                 Effect: {
-                                                    Type: BlurEffect
+                                                    Type: Fayde.Media.Effects.BlurEffect
                                                 },
                                                 Fill: {
                                                     Type: SolidColorBrush,
