@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using WickedSick.Server.XamlParser.Elements;
-using System.Reflection;
 
 namespace WickedSick.Server.XamlParser
 {
@@ -14,6 +10,22 @@ namespace WickedSick.Server.XamlParser
         {
         }
 
+        public string NullstoneNamespace { get; set; }
         public string NullstoneName { get; set; }
+        
+        public static string GetFullNullstoneType(Type type)
+        {
+            var elAttr = type
+                .GetCustomAttributes(typeof(ElementAttribute), true)
+                .OfType<ElementAttribute>()
+                .FirstOrDefault();
+            if (elAttr == null)
+                return type.Name;
+            if (string.IsNullOrWhiteSpace(elAttr.NullstoneNamespace))
+                return elAttr.NullstoneName;
+            if (string.IsNullOrWhiteSpace(elAttr.NullstoneName))
+                return string.Format("{0}.{1}", elAttr.NullstoneNamespace, type.Name);
+            return string.Format("{0}.{1}", elAttr.NullstoneNamespace, elAttr.NullstoneName);
+        }
     }
 }

@@ -282,13 +282,7 @@ namespace WickedSick.Server.XamlParser.Elements
 
         public virtual string GetTypeName()
         {
-            var elAttr = GetType()
-                .GetCustomAttributes(typeof(ElementAttribute), true)
-                .OfType<ElementAttribute>()
-                .FirstOrDefault();
-            if (elAttr == null || string.IsNullOrWhiteSpace(elAttr.NullstoneName))
-                return GetType().Name;
-            return elAttr.NullstoneName;
+            return ElementAttribute.GetFullNullstoneType(GetType());
         }
 
         private string attachedPropsToJson(IDictionary<AttachedPropertyDescription, object> properties)
@@ -300,7 +294,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 if (needsComma)
                     sb.AppendLine(",");
                 sb.AppendLine("{");
-                sb.AppendFormat("Owner: {0}", apd.OwnerType.Name);
+                sb.AppendFormat("Owner: {0}", ElementAttribute.GetFullNullstoneType(apd.OwnerType));
                 sb.AppendLine(",");
                 sb.AppendFormat("Prop: \"{0}\"", apd.Name);
                 sb.AppendLine(",");
