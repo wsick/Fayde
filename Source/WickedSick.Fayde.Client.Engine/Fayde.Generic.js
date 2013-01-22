@@ -1,6 +1,10 @@
 ﻿/// <reference path="Fayde.js"/>
 
 App.GetGenericResourceDictionary = function () {
+    var VisualStateManager = Fayde.Media.VisualStateManager.VisualStateManager;
+    var VisualStateGroup = Fayde.Media.VisualStateManager.VisualStateGroup;
+    var VisualState = Fayde.Media.VisualStateManager.VisualState;
+    var VisualTransition = Fayde.Media.VisualStateManager.VisualTransition;
     var json = {
         Type: ResourceDictionary,
         Children: [

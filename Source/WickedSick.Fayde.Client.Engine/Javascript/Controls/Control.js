@@ -1,6 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="../Core/FrameworkElement.js" />
 /// CODE
+/// <reference path="../Media/VSM/VisualStateManager.js"/>
 
 (function (namespace) {
     var Control = Nullstone.Create("Control", FrameworkElement);
@@ -160,7 +161,7 @@
         this._OnIsAttachedChanged$FrameworkElement(value);
         this._Providers[_PropertyPrecedence.IsEnabled].SetDataSource(this._GetLogicalParent());
         if (!value)
-            VisualStateManager.DestroyStoryboards(this);
+            Fayde.Media.VisualStateManager.VisualStateManager.DestroyStoryboards(this);
     };
 
     Control.Instance._DoApplyTemplateWithError = function (error) {
@@ -258,7 +259,7 @@
         useTransitions = useTransitions !== false;
         var states = this.$GetVisualStateNamesToActivate();
         for (var i = 0; i < states.length; i++) {
-            VisualStateManager.GoToState(this, states[i], useTransitions);
+            Fayde.Media.VisualStateManager.VisualStateManager.GoToState(this, states[i], useTransitions);
         }
     };
     Control.Instance.$GetVisualStateNamesToActivate = function () {

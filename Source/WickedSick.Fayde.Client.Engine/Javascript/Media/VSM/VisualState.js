@@ -25,14 +25,14 @@
     //#endregion
 
     namespace.VisualState = Nullstone.FinishCreate(VisualState);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
 
 (function (namespace) {
     var VisualStateCollection = Nullstone.Create("VisualStateCollection", DependencyObjectCollection);
 
     VisualStateCollection.Instance.IsElementType = function (value) {
-        return value instanceof VisualState;
+        return value instanceof namespace.VisualState;
     };
 
     namespace.VisualStateCollection = Nullstone.FinishCreate(VisualStateCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));

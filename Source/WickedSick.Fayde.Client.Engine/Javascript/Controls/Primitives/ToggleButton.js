@@ -65,14 +65,15 @@
         this.$UpdateVisualState$ButtonBase(useTransitions);
 
         var isChecked = this.IsChecked;
+        var vsm = Fayde.Media.VisualStateManager.VisualStateManager;
         if (isChecked === true) {
-            VisualStateManager.GoToState(this, "Checked", useTransitions);
+            vsm.GoToState(this, "Checked", useTransitions);
         } else if (isChecked === false) {
-            VisualStateManager.GoToState(this, "Unchecked", useTransitions);
+            vsm.GoToState(this, "Unchecked", useTransitions);
         } else {
             // isChecked is null
-            if (!VisualStateManager.GoToState(this, "Indeterminate", useTransitions)) {
-                VisualStateManager.GoToState(this, "Unchecked", useTransitions)
+            if (!vsm.GoToState(this, "Indeterminate", useTransitions)) {
+                vsm.GoToState(this, "Unchecked", useTransitions)
             }
         }
     };

@@ -1840,71 +1840,73 @@ class TextOptions {
 //////////////////////////////////////////////////////////
 // VISUAL STATE MANAGER
 //////////////////////////////////////////////////////////
-class VisualTransition extends DependencyObject {
-    From: string;
-    To: string;
-    Storyboard: Storyboard;
-    GeneratedDuration: Duration;
-    GeneratedEasingFunction: IEasingFunction;
-}
-class VisualTransitionCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): VisualTransition;
-    SetValueAt(index: number, value: VisualTransition);
-    Add(value: VisualTransition);
-    AddRange(newItems: VisualTransition[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: VisualTransition);
-    Remove(value: VisualTransition);
-    IndexOf(value: VisualTransition): number;
-    Contains(value: VisualTransition): bool;
-    ToArray(): VisualTransition[];
-}
-class VisualStateGroup extends DependencyObject {
-    States: VisualStateCollection;
-    CurrentStateChanging: MulticastEvent;
-    CurrentStateChanged: MulticastEvent;
-}
-class VisualStateGroupCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): VisualStateGroup;
-    SetValueAt(index: number, value: VisualStateGroup);
-    Add(value: VisualStateGroup);
-    AddRange(newItems: VisualStateGroup[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: VisualStateGroup);
-    Remove(value: VisualStateGroup);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: VisualStateGroup): number;
-    Contains(value: VisualStateGroup): bool;
-    ToArray(): VisualStateGroup[];
-}
-class VisualState extends DependencyObject {
-    static StoryboardProperty: DependencyProperty;
-    Storyboard: Storyboard;
-}
-class VisualStateCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): VisualState;
-    SetValueAt(index: number, value: VisualState);
-    Add(value: VisualState);
-    AddRange(newItems: VisualState[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: VisualState);
-    Remove(value: VisualState);
-    IndexOf(value: VisualState): number;
-    Contains(value: VisualState): bool;
-    ToArray(): VisualState[];
-}
-class VisualStateManager extends DependencyObject {
-    static VisualStateGroupsProperty: DependencyProperty;
-    static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection;
+module Fayde.Media.VisualStateManager {
+    export class VisualTransition extends DependencyObject {
+        From: string;
+        To: string;
+        Storyboard: Storyboard;
+        GeneratedDuration: Duration;
+        GeneratedEasingFunction: IEasingFunction;
+    }
+    export class VisualTransitionCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): VisualTransition;
+        SetValueAt(index: number, value: VisualTransition);
+        Add(value: VisualTransition);
+        AddRange(newItems: VisualTransition[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: VisualTransition);
+        Remove(value: VisualTransition);
+        IndexOf(value: VisualTransition): number;
+        Contains(value: VisualTransition): bool;
+        ToArray(): VisualTransition[];
+    }
+    export class VisualStateGroup extends DependencyObject {
+        States: VisualStateCollection;
+        CurrentStateChanging: MulticastEvent;
+        CurrentStateChanged: MulticastEvent;
+    }
+    export class VisualStateGroupCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): VisualStateGroup;
+        SetValueAt(index: number, value: VisualStateGroup);
+        Add(value: VisualStateGroup);
+        AddRange(newItems: VisualStateGroup[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: VisualStateGroup);
+        Remove(value: VisualStateGroup);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: VisualStateGroup): number;
+        Contains(value: VisualStateGroup): bool;
+        ToArray(): VisualStateGroup[];
+    }
+    export class VisualState extends DependencyObject {
+        static StoryboardProperty: DependencyProperty;
+        Storyboard: Storyboard;
+    }
+    export class VisualStateCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): VisualState;
+        SetValueAt(index: number, value: VisualState);
+        Add(value: VisualState);
+        AddRange(newItems: VisualState[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: VisualState);
+        Remove(value: VisualState);
+        IndexOf(value: VisualState): number;
+        Contains(value: VisualState): bool;
+        ToArray(): VisualState[];
+    }
+    export class VisualStateManager extends DependencyObject {
+        static VisualStateGroupsProperty: DependencyProperty;
+        static GetVisualStateGroups(d: DependencyObject): VisualStateGroupCollection;
 
-    static CustomVisualStateManagerProperty: DependencyProperty;
-    static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager;
-    static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager);
+        static CustomVisualStateManagerProperty: DependencyProperty;
+        static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager;
+        static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager);
 
-    static GoToStateCore(control: Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool;
-    static GoToState(control: Control, stateName: string, useTransitions: bool): bool;
+        static GoToStateCore(control: Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool;
+        static GoToState(control: Control, stateName: string, useTransitions: bool): bool;
+    }
 }
 
 //////////////////////////////////////////////////////////

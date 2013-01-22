@@ -29,14 +29,14 @@
     //#endregion
 
     namespace.VisualTransition = Nullstone.FinishCreate(VisualTransition);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
 
 (function (namespace) {
     var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", DependencyObjectCollection);
 
     VisualTransitionCollection.Instance.IsElementType = function (obj) {
-        return obj instanceof VisualTransition;
+        return obj instanceof namespace.VisualTransition;
     };
 
     namespace.VisualTransitionCollection = Nullstone.FinishCreate(VisualTransitionCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));

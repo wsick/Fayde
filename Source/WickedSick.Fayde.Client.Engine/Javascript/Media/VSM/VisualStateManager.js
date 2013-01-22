@@ -15,7 +15,7 @@
 
     //#region Properties
 
-    VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", function () { return VisualStateGroupCollection; }, VisualStateManager, null);
+    VisualStateManager.VisualStateGroupsProperty = DependencyProperty.RegisterAttachedCore("VisualStateGroups", function () { return namespace.VisualStateGroupCollection; }, VisualStateManager, null);
     VisualStateManager.GetVisualStateGroups = function (d) {
         /// <param name="d" type="DependencyObject"></param>
         /// <returns type="VisualStateGroupCollection" />
@@ -30,13 +30,13 @@
         /// <param name="d" type="DependencyObject"></param>
         var groups = this.GetVisualStateGroups(d);
         if (groups == null) {
-            groups = new VisualStateGroupCollection();
+            groups = new namespace.VisualStateGroupCollection();
             VisualStateManager.SetVisualStateGroups(d, groups);
         }
         return groups;
     };
 
-    VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", function () { return VisualStateManager }, VisualStateManager, null);
+    VisualStateManager.CustomVisualStateManagerProperty = DependencyProperty.RegisterAttachedCore("CustomVisualStateManager", function () { return namespace.VisualStateManager }, VisualStateManager, null);
     VisualStateManager.GetCustomVisualStateManager = function (d) {
         ///<returns type="VisualStateManager"></returns>
         return d.$GetValue(VisualStateManager.CustomVisualStateManagerProperty);
@@ -258,4 +258,4 @@
     };
 
     namespace.VisualStateManager = Nullstone.FinishCreate(VisualStateManager);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
