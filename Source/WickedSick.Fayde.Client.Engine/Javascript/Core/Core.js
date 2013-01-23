@@ -1,6 +1,7 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 /// <reference path="../Media/MediaParser.js"/>
+/// <reference path="../Media/Animation/RepeatBehavior.js"/>
 
 //#region Fayde
 
@@ -153,7 +154,7 @@ var Fayde;
             case "Uri":
                 return new Uri(value._OriginalString);
             case "RepeatBehavior":
-                var rb = new RepeatBehavior();
+                var rb = new Fayde.Media.Animation.RepeatBehavior();
                 rb._Duration = value._Duration;
                 rb._Count = value._Count;
                 rb.IsForever = value.IsForever;

@@ -57,4 +57,4 @@
     };
 
     namespace.KeySpline = Nullstone.FinishCreate(KeySpline);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

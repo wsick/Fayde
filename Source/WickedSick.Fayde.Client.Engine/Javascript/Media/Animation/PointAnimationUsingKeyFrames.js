@@ -4,11 +4,11 @@
 /// <reference path="PointKeyFrame.js"/>
 
 (function (namespace) {
-    var PointAnimationUsingKeyFrames = Nullstone.Create("PointAnimationUsingKeyFrames", AnimationUsingKeyFrames);
+    var PointAnimationUsingKeyFrames = Nullstone.Create("PointAnimationUsingKeyFrames", namespace.AnimationUsingKeyFrames);
 
     //#region Properties
 
-    PointAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return PointKeyFrameCollection; }, PointAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new PointKeyFrameCollection(); } });
+    PointAnimationUsingKeyFrames.KeyFramesProperty = DependencyProperty.RegisterFull("KeyFrames", function () { return namespace.PointKeyFrameCollection; }, PointAnimationUsingKeyFrames, undefined, undefined, { GetValue: function () { return new namespace.PointKeyFrameCollection(); } });
 
     Nullstone.AutoProperties(PointAnimationUsingKeyFrames, [
         PointAnimationUsingKeyFrames.KeyFramesProperty
@@ -25,4 +25,4 @@
     //#endregion
 
     namespace.PointAnimationUsingKeyFrames = Nullstone.FinishCreate(PointAnimationUsingKeyFrames);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

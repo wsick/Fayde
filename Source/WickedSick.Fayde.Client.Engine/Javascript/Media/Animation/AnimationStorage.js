@@ -83,4 +83,4 @@
     };
 
     namespace.AnimationStorage = Nullstone.FinishCreate(AnimationStorage);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

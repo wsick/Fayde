@@ -1,13 +1,14 @@
 ﻿/// <reference path="Animation.js"/>
 /// CODE
+/// <reference path="IEasingFunction.js"/>
 
 (function (namespace) {
-    var PointAnimation = Nullstone.Create("PointAnimation", Animation);
+    var PointAnimation = Nullstone.Create("PointAnimation", namespace.Animation);
 
     //#region Properties
 
     PointAnimation.ByProperty = DependencyProperty.Register("By", function () { return Point; }, PointAnimation);
-    PointAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return IEasingFunction; }, PointAnimation);
+    PointAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return namespace.IEasingFunction; }, PointAnimation);
     PointAnimation.FromProperty = DependencyProperty.Register("From", function () { return Point; }, PointAnimation);
     PointAnimation.ToProperty = DependencyProperty.Register("To", function () { return Point; }, PointAnimation);
 
@@ -82,4 +83,4 @@
     };
 
     namespace.PointAnimation = Nullstone.FinishCreate(PointAnimation);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

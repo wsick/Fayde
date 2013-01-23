@@ -9,4 +9,4 @@
     };
 
     namespace.IEasingFunction = Nullstone.FinishCreate(IEasingFunction);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

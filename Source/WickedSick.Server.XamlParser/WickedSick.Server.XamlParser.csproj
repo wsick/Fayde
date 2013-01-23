@@ -128,7 +128,6 @@
     <Compile Include="Elements\IElementTypeable.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Media\Animation\BackEase.cs" />
     <Compile Include="Elements\Media\Animation\BeginStoryboard.cs" />
     <Compile Include="Elements\Media\Animation\ColorAnimationUsingKeyFrames.cs" />
     <Compile Include="Elements\Media\Animation\ColorKeyFrame.cs" />
@@ -137,6 +136,7 @@
     <Compile Include="Elements\Media\Animation\EasingColorKeyFrame.cs" />
     <Compile Include="Elements\Media\Animation\EasingDoubleKeyFrame.cs" />
     <Compile Include="Elements\Media\Animation\EasingFunctionBase.cs" />
+    <Compile Include="Elements\Media\Animation\EasingFunctions.cs" />
     <Compile Include="Elements\Media\Animation\IEasingFunction.cs" />
     <Compile Include="Elements\Media\Animation\KeySpline.cs" />
     <Compile Include="Elements\Media\Animation\ObjectAnimation.cs" />

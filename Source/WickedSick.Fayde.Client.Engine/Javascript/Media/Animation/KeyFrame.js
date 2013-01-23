@@ -32,4 +32,4 @@
     };
 
     namespace.KeyFrame = Nullstone.FinishCreate(KeyFrame);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

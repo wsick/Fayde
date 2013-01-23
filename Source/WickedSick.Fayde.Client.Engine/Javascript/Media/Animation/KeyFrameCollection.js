@@ -99,7 +99,7 @@
         var i;
         for (i = 0; i < count; i++) {
             value = coll.GetValueAt(i);
-            keyFrame = Nullstone.As(value, KeyFrame);
+            keyFrame = Nullstone.As(value, namespace.KeyFrame);
             keyFrame._ResolvedKeyTime = new TimeSpan();
             keyFrame._Resolved = false;
         }
@@ -108,7 +108,7 @@
         // resolve TimeSpan keyframes
         for (i = 0; i < count; i++) {
             value = coll.GetValueAt(i);
-            keyFrame = Nullstone.As(value, KeyFrame);
+            keyFrame = Nullstone.As(value, namespace.KeyFrame);
             keyTime = keyFrame.KeyTime;
             if (keyTime.HasTimeSpan) {
                 hasTimeSpanKeyFrame = true;
@@ -121,7 +121,7 @@
         }
 
         // calculate total animation interpolation time
-        var d = animation._GetValue(Timeline.DurationProperty);
+        var d = animation._GetValue(Fayde.Media.Animation.Timeline.DurationProperty);
         if (d.HasTimeSpan) {
             totalInterpolationTime = d.TimeSpan;
         } else if (hasTimeSpanKeyFrame) {
@@ -134,7 +134,7 @@
         // use the total interpolation time to resolve percent keytime keyframes
         for (i = 0; i < count; i++) {
             value = coll.GetValueAt(i);
-            keyFrame = Nullstone.As(value, KeyFrame);
+            keyFrame = Nullstone.As(value, namespace.KeyFrame);
             keyTime = keyFrame.KeyTime;
             if (keyTime.HasPercent) {
                 keyFrame._ResolvedTime = totalInterpolationTime.Multiply(keyTime.Percent)
@@ -145,7 +145,7 @@
         // if the last frame is KeyTime Uniform or Paced, resolve it to be equal to the total interpolation time
         if (count > 0) {
             value = coll.GetValueAt(count - 1);
-            keyFrame = Nullstone.As(value, KeyFrame);
+            keyFrame = Nullstone.As(value, namespace.KeyFrame);
             keyTime = keyFrame.KeyTime;
             if (keyTime.IsPaced || keyTime.IsUniform) {
                 keyFrame._ResolvedKeyTime = totalInterpolationTime;
@@ -162,7 +162,7 @@
         */
         if (count > 0) {
             value = coll.GetValueAt(count - 1);
-            keyFrame = Nullstone.As(value, KeyFrame);
+            keyFrame = Nullstone.As(value, namespace.KeyFrame);
             keyTime = keyFrame.KeyTime;
             if (!keyFrame._Resolved && keyTime.IsPaced) {
                 keyFrame._ResolvedKeyTime = new TimeSpan(0);
@@ -179,11 +179,11 @@
         coll._SortedList = [];
         for (i = 0; i < count; i++) {
             value = coll.GetValueAt(i);
-            keyFrame = Nullstone.As(value, KeyFrame);
+            keyFrame = Nullstone.As(value, namespace.KeyFrame);
             coll._SortedList.push(keyFrame);
         }
-        coll._SortedList.sort(KeyFrame.Comparer);
+        coll._SortedList.sort(namespace.KeyFrame.Comparer);
     };
 
     namespace.KeyFrameCollection = Nullstone.FinishCreate(KeyFrameCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

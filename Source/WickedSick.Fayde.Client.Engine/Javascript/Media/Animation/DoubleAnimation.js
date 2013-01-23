@@ -1,14 +1,15 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="Animation.js"/>
 /// CODE
+/// <reference path="IEasingFunction.js"/>
 
 (function (namespace) {
-    var DoubleAnimation = Nullstone.Create("DoubleAnimation", Animation);
+    var DoubleAnimation = Nullstone.Create("DoubleAnimation", namespace.Animation);
 
     //#region Properties
 
     DoubleAnimation.ByProperty = DependencyProperty.Register("By", function () { return Number; }, DoubleAnimation);
-    DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return IEasingFunction; }, DoubleAnimation);
+    DoubleAnimation.EasingFunctionProperty = DependencyProperty.Register("EasingFunction", function () { return namespace.IEasingFunction; }, DoubleAnimation);
     DoubleAnimation.FromProperty = DependencyProperty.Register("From", function () { return Number; }, DoubleAnimation);
     DoubleAnimation.ToProperty = DependencyProperty.Register("To", function () { return Number; }, DoubleAnimation);
 
@@ -83,4 +84,4 @@
     };
 
     namespace.DoubleAnimation = Nullstone.FinishCreate(DoubleAnimation);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

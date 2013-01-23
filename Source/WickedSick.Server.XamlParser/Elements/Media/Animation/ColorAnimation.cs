@@ -2,8 +2,9 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Media.Animation
 {
-    public class ColorAnimation: Timeline
+    [Element(NullstoneNamespace = "Fayde.Media.Animation")]
+    public class ColorAnimation : Timeline
     {
-        public static readonly PropertyDescription To = PropertyDescription.Register("To", typeof(Color), typeof(ColorAnimation));
+        public static readonly PropertyDescription ToProperty = PropertyDescription.Register("To", typeof(Color), typeof(ColorAnimation));
     }
 }

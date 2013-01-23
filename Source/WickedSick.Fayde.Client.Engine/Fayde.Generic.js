@@ -9,6 +9,22 @@ App.GetGenericResourceDictionary = function () {
     var TranslateTransform = Fayde.Media.TranslateTransform;
     var TransformGroup = Fayde.Media.TransformGroup;
     var SkewTransform = Fayde.Media.SkewTransform;
+    var Storyboard = Fayde.Media.Animation.Storyboard;
+    var ColorAnimation = Fayde.Media.Animation.ColorAnimation;
+    var DoubleAnimation = Fayde.Media.Animation.DoubleAnimation;
+    var PointAnimation = Fayde.Media.Animation.PointAnimation;
+    var DiscreteObjectKeyFrame = Fayde.Media.Animation.DiscreteObjectKeyFrame;
+    var SplineDoubleKeyFrame = Fayde.Media.Animation.SplineDoubleKeyFrame;
+    var ObjectAnimationUsingKeyFrames = Fayde.Media.Animation.ObjectAnimationUsingKeyFrames;
+    var DoubleAnimationUsingKeyFrames = Fayde.Media.Animation.DoubleAnimationUsingKeyFrames;
+    var BackEase = Fayde.Media.Animation.BackEase;
+    var EasingMode = Fayde.Media.Animation.EasingMode;
+    var BeginStoryboard = Fayde.Media.Animation.BeginStoryboard;
+    var EasingDoubleKeyFrame = Fayde.Media.Animation.EasingDoubleKeyFrame;
+    var ColorAnimationUsingKeyFrames = Fayde.Media.Animation.ColorAnimationUsingKeyFrames;
+    var EasingColorKeyFrame = Fayde.Media.Animation.EasingColorKeyFrame;
+    var RepeatBehavior = Fayde.Media.Animation.RepeatBehavior;
+
     var json = {
         Type: ResourceDictionary,
         Children: [

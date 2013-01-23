@@ -1,4 +1,6 @@
-﻿(function (namespace) {
+﻿/// <reference path="../../Runtime/Nullstone.js"/>
+
+(function (namespace) {
     namespace.EasingMode = {
         EaseOut: 0,
         EaseIn: 1,
@@ -9,4 +11,4 @@
         HoldEnd: 0,
         Stop: 1
     };
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

@@ -4,11 +4,11 @@
 /// CODE
 
 (function (namespace) {
-    var EasingFunctionBase = Nullstone.Create("EasingFunctionBase", DependencyObject, undefined, [IEasingFunction]);
+    var EasingFunctionBase = Nullstone.Create("EasingFunctionBase", DependencyObject, undefined, [namespace.IEasingFunction]);
 
     //#region Properties
 
-    EasingFunctionBase.EasingModeProperty = DependencyProperty.Register("EasingMode", function () { return new Enum(EasingMode); }, EasingFunctionBase);
+    EasingFunctionBase.EasingModeProperty = DependencyProperty.Register("EasingMode", function () { return new Enum(namespace.EasingMode); }, EasingFunctionBase);
 
     Nullstone.AutoProperties(EasingFunctionBase, [
         EasingFunctionBase.EasingModeProperty
@@ -21,11 +21,11 @@
         /// <returns type="Number" />
         var easingMode = this.EasingMode;
         switch (easingMode) {
-            case EasingMode.EaseIn:
+            case namespace.EasingMode.EaseIn:
                 return this.EaseInCore(normalizedTime);
-            case EasingMode.EaseOut:
+            case namespace.EasingMode.EaseOut:
                 return this.EaseInCore(1.0 - normalizedTime);
-            case EasingMode.EaseInOut:
+            case namespace.EasingMode.EaseInOut:
                 return normalizedTime <= 0.5 ?
                     this.EaseInCore(normalizedTime * 2) * 0.5 :
                     1.0 - this.EaseInCore(((1.0 - normalizedTime) * 2) * 0.5);
@@ -37,4 +37,4 @@
     EasingFunctionBase.Instance.EaseInCore = function (t) { };
 
     namespace.EasingFunctionBase = Nullstone.FinishCreate(EasingFunctionBase);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

@@ -240,7 +240,7 @@
         /// <param name="transition" type="VisualTransition"></param>
         /// <returns type="Storyboard" />
 
-        var dynamic = new Storyboard();
+        var dynamic = new Fayde.Media.Animation.Storyboard();
         if (transition != null) {
             dynamic.SetDuration(transition.GeneratedDuration);
         } else {

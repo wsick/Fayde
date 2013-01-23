@@ -1,18 +1,15 @@
-/// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="Timeline.js"/>
-/// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
-/// <reference path="TimelineCollection.js"/>
 /// <reference path="../../Primitives/TimeSpan.js"/>
 /// <reference path="../../Primitives/Duration.js"/>
 /// <reference path="Animation.js"/>
 
 (function (namespace) {
-    var Storyboard = Nullstone.Create("Storyboard", Timeline);
+    var Storyboard = Nullstone.Create("Storyboard", namespace.Timeline);
 
     //#region Properties
 
-    Storyboard.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return TimelineCollection; }, Storyboard, undefined, undefined, { GetValue: function () { return new TimelineCollection(); } });
+    Storyboard.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return namespace.TimelineCollection; }, Storyboard, undefined, undefined, { GetValue: function () { return new namespace.TimelineCollection(); } });
 
     Storyboard.TargetNameProperty = DependencyProperty.RegisterAttached("TargetName", function () { return String }, Storyboard);
     Storyboard.GetTargetName = function (d) {
@@ -187,14 +184,12 @@
     };
 
     namespace.Storyboard = Nullstone.FinishCreate(Storyboard);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));
 
 (function (namespace) {
     var StoryboardCollection = Nullstone.Create("StoryboardCollection", Collection);
-
     StoryboardCollection.Instance.IsElementType = function (obj) {
-        return obj instanceof Storyboard;
+        return obj instanceof namespace.Storyboard;
     };
-
     namespace.StoryboardCollection = Nullstone.FinishCreate(StoryboardCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

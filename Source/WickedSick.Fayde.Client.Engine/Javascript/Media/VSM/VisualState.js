@@ -8,7 +8,7 @@
 
     //#region Properties
 
-    VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Storyboard; }, VisualState, null);
+    VisualState.StoryboardProperty = DependencyProperty.Register("Storyboard", function () { return Fayde.Media.Animation.Storyboard; }, VisualState, null);
 
     Nullstone.AutoProperties(VisualState, [
         VisualState.StoryboardProperty
