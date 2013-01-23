@@ -311,43 +311,76 @@
 
     //#region Property Changed
 
-    Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd && (propd._ID === Image.SourceProperty._ID)) {
-            this._InvalidateMeasure();
-            this._Invalidate();
-            this.InvalidateProperty(propd, undefined, undefined);
-            return;
-        }
-    };
-    Image.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Image) {
-            this._OnPropertyChanged$FrameworkElement(args, error);
-            return;
-        }
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Image.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Image) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
 
-        var ivprop = false;
-        if (args.Property._ID === Image.SourceProperty._ID) {
-            var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
-            if (oldBmpSrc) {
-                oldBmpSrc._ErroredCallback = null;
-                oldBmpSrc._LoadedCallback = null;
+            var ivprop = false;
+            if (args.Property._ID === Image.SourceProperty._ID) {
+                var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
+                if (oldBmpSrc) {
+                    oldBmpSrc._ErroredCallback = null;
+                    oldBmpSrc._LoadedCallback = null;
+                }
+                var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
+                if (newBmpSrc) {
+                    var i = this;
+                    newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
+                    newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+                }
+                ivprop = true;
             }
-            var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
-            if (newBmpSrc) {
-                var i = this;
-                newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
-                newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
-            } else {
-                this._UpdateBounds();
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+        Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd && (propd._ID === Image.SourceProperty._ID)) {
+                this.InvalidateProperty(propd, undefined, undefined);
+                return;
+            }
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Image.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Image) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Image.SourceProperty._ID) {
+                var oldBmpSrc = Nullstone.As(args.OldValue, BitmapSource);
+                if (oldBmpSrc) {
+                    oldBmpSrc._ErroredCallback = null;
+                    oldBmpSrc._LoadedCallback = null;
+                }
+                var newBmpSrc = Nullstone.As(args.NewValue, BitmapSource);
+                if (newBmpSrc) {
+                    var i = this;
+                    newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
+                    newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+                } else {
+                    this._UpdateBounds();
+                    this._Invalidate();
+                }
+                this._InvalidateMeasure();
+            }
+            this.PropertyChanged.Raise(this, args);
+        };
+        Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd && (propd._ID === Image.SourceProperty._ID)) {
+                this._InvalidateMeasure();
                 this._Invalidate();
+                return;
             }
-            this._InvalidateMeasure();
-            ivprop = true;
-        }
-        if (ivprop)
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        this.PropertyChanged.Raise(this, args);
-    };
+        };
+    }
+    //#endif
 
     //#endregion
 

@@ -21,21 +21,26 @@
         /// <returns type="String" />
         return this.Text;
     };
-    Run.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Run) {
-            this._OnPropertyChanged$Inline(args, error);
-            return;
-        }
 
-        var ivprop = false;
-        if (args.Property._ID === Run.TextProperty._ID) {
-            ivprop = true;
-        }
-        if (ivprop)
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Run.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Run) {
+                this._OnPropertyChanged$Inline(args, error);
+                return;
+            }
 
-        this.PropertyChanged.Raise(this, args);
-    };
+            var ivprop = false;
+            if (args.Property._ID === Run.TextProperty._ID) {
+                ivprop = true;
+            }
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#endif
     
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {

@@ -9,10 +9,7 @@
     StackPanel._OrientationChanged = function (d, args) {
         var sp = Nullstone.As(d, StackPanel);
         if (!sp)
-            return;
-        d._InvalidateMeasure();
-        d._InvalidateArrange();
-        d._UpdateHtmlOrientation(args.NewValue);
+            sp._UpdateHtmlOrientation(args.NewValue);
     };
     StackPanel.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, StackPanel, Orientation.Vertical, StackPanel._OrientationChanged);
 
@@ -259,6 +256,13 @@
             else {
                 return this.IsFixedHeight;
             }
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        StackPanel.Instance._UpdateHtmlOrientation = function (orientation) {
+            this._InvalidateMeasure();
+            this._InvalidateArrange();
         };
     }
     //#endif

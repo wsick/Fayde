@@ -288,131 +288,225 @@
         return true;
     };
 
-    TextBlock.Instance._OnPropertyChanged = function (args, error) {
-        var invalidate = true;
-        if (args.Property.OwnerType !== TextBlock) {
-            this._OnPropertyChanged$FrameworkElement(args, error);
-            if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
-                return;
-            if (!this._UpdateFonts(false))
-                return;
-        }
+    //#endregion
 
-        var ivprop = false;
-        if (args.Property._ID === TextBlock.FontFamilyProperty._ID
-            || args.Property._ID === TextBlock.FontSizeProperty._ID
-            || args.Property._ID === TextBlock.FontStretchProperty._ID
-            || args.Property._ID === TextBlock.FontStyleProperty._ID
-            || args.Property._ID === TextBlock.FontWeightProperty._ID) {
-            ivprop = true;
-            this._UpdateFonts(false);
-        } else if (args.Property._ID === TextBlock.TextProperty._ID) {
-            if (this._SetsValue) {
-                this._SetTextInternal(args.NewValue);
+    //#region Changed
 
-                this._UpdateLayoutAttributes();
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        TextBlock.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== TextBlock) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
+                    return;
+                if (!this._UpdateFonts(false))
+                    return;
+            }
+
+            var ivprop = false;
+            if (args.Property._ID === TextBlock.FontFamilyProperty._ID
+                || args.Property._ID === TextBlock.FontSizeProperty._ID
+                || args.Property._ID === TextBlock.FontStretchProperty._ID
+                || args.Property._ID === TextBlock.FontStyleProperty._ID
+                || args.Property._ID === TextBlock.FontWeightProperty._ID) {
+                ivprop = true;
+                this._UpdateFonts(false);
+            } else if (args.Property._ID === TextBlock.TextProperty._ID) {
+                if (this._SetsValue) {
+                    this._SetTextInternal(args.NewValue);
+
+                    this._UpdateLayoutAttributes();
+                    this._Dirty = true;
+                } else {
+                    this._UpdateLayoutAttributes();
+                }
+            } else if (args.Property._ID === TextBlock.InlinesProperty._ID) {
+                if (this._SetsValue) {
+                    this._SetsValue = false;
+                    this._SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
+                    this._SetsValue = true;
+
+                    this._UpdateLayoutAttributes();
+                    this._Dirty = true;
+                    this.SetChildrenHtml(args.NewValue);
+                } else {
+                    this._UpdateLayoutAttributes();
+                }
+            } else if (args.Property._ID === TextBlock.LineStackingStrategyProperty._ID) {
+                this._Dirty = this._Layout.SetLineStackingStrategy(args.NewValue);
+            } else if (args.Property._ID === TextBlock.LineHeightProperty._ID) {
+                this._Dirty = this._Layout.SetLineHeight(args.NewValue);
+                ivprop = true;
+            } else if (args.Property._ID === TextBlock.TextDecorationsProperty._ID) {
                 this._Dirty = true;
-            } else {
-                this._UpdateLayoutAttributes();
-                invalidate = false;
-            }
-        } else if (args.Property._ID === TextBlock.InlinesProperty._ID) {
-            if (this._SetsValue) {
-                this._SetsValue = false;
-                this._SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
-                this._SetsValue = true;
-
-                this._UpdateLayoutAttributes();
+                ivprop = true;
+            } else if (args.Property._ID === TextBlock.TextAlignmentProperty._ID) {
+                this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
+                ivprop = true;
+            } else if (args.Property._ID === TextBlock.TextTrimmingProperty._ID) {
+                this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
+            } else if (args.Property._ID === TextBlock.TextWrappingProperty._ID) {
+                this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
+                ivprop = true;
+            } else if (args.Property._ID === TextBlock.PaddingProperty._ID) {
                 this._Dirty = true;
-                this.SetChildrenHtml(args.NewValue);
+            } else if (args.Property._ID === TextBlock.FontSourceProperty._ID) {
+            } else if (args.Property._ID === TextBlock.ForegroundProperty._ID) {
+                ivprop = true;
+            }
+
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+        TextBlock.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd && propd._ID === TextBlock.ForegroundProperty._ID) {
+                this.InvalidateProperty(propd);
             } else {
-                this._UpdateLayoutAttributes();
-                invalidate = false;
+                this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
             }
-        } else if (args.Property._ID === TextBlock.LineStackingStrategyProperty._ID) {
-            this._Dirty = this._Layout.SetLineStackingStrategy(args.NewValue);
-        } else if (args.Property._ID === TextBlock.LineHeightProperty._ID) {
-            this._Dirty = this._Layout.SetLineHeight(args.NewValue);
-            ivprop = true;
-        } else if (args.Property._ID === TextBlock.TextDecorationsProperty._ID) {
-            this._Dirty = true;
-            ivprop = true;
-        } else if (args.Property._ID === TextBlock.TextAlignmentProperty._ID) {
-            this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
-            ivprop = true;
-        } else if (args.Property._ID === TextBlock.TextTrimmingProperty._ID) {
-            this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
-        } else if (args.Property._ID === TextBlock.TextWrappingProperty._ID) {
-            this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
-            ivprop = true;
-        } else if (args.Property._ID === TextBlock.PaddingProperty._ID) {
-            this._Dirty = true;
-        } else if (args.Property._ID === TextBlock.FontSourceProperty._ID) {
-        } else if (args.Property._ID === TextBlock.ForegroundProperty._ID) {
-            ivprop = true;
-        }
-
-        if (invalidate) {
-            if (this._Dirty) {
-                this._InvalidateMeasure();
-                this._InvalidateArrange();
-                this._UpdateBounds(true);
+        };
+        TextBlock.Instance._OnCollectionChanged = function (sender, args) {
+            if (!this._PropertyHasValueNoAutoCreate(TextBlock.InlinesProperty, sender)) {
+                this._OnCollectionChanged$FrameworkElement(sender, args);
+                return;
             }
+
+            var inlines = this.Inlines;
+            if (args.Action === CollectionChangedArgs.Action.Clearing)
+                return;
+
+            if (!this._SetsValue)
+                return;
+
+            if (args.Action === CollectionChangedArgs.Add)
+                this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
+
+            this._SetsValue = false;
+            this._SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+            this._SetsValue = true;
+
+            this._UpdateLayoutAttributes();
+
+            switch (args.Action) {
+                case CollectionChangedArgs.Action.Cleared:
+                    this.ClearChildrenHtml();
+                    break;
+                case CollectionChangedArgs.Action.Add:
+                    this.AddChildHtml(args.NewValue, args.Index);
+                    break;
+                case CollectionChangedArgs.Action.Remove:
+                    this.RemoveChildHtml(args.NewValue);
+                    break;
+                case CollectionChangedArgs.Action.Replace:
+                    this.ReplaceChildHtml(args.OldValue, args.NewValue);
+                    break;
+            }
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        TextBlock.Instance._OnPropertyChanged = function (args, error) {
+            var invalidate = true;
+            if (args.Property.OwnerType !== TextBlock) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
+                    return;
+                if (!this._UpdateFonts(false))
+                    return;
+            }
+
+            if (args.Property._ID === TextBlock.FontFamilyProperty._ID
+                || args.Property._ID === TextBlock.FontSizeProperty._ID
+                || args.Property._ID === TextBlock.FontStretchProperty._ID
+                || args.Property._ID === TextBlock.FontStyleProperty._ID
+                || args.Property._ID === TextBlock.FontWeightProperty._ID) {
+                this._UpdateFonts(false);
+            } else if (args.Property._ID === TextBlock.TextProperty._ID) {
+                if (this._SetsValue) {
+                    this._SetTextInternal(args.NewValue);
+
+                    this._UpdateLayoutAttributes();
+                    this._Dirty = true;
+                } else {
+                    this._UpdateLayoutAttributes();
+                    invalidate = false;
+                }
+            } else if (args.Property._ID === TextBlock.InlinesProperty._ID) {
+                if (this._SetsValue) {
+                    this._SetsValue = false;
+                    this._SetValue(TextBlock.TextProperty, this._GetTextInternal(args.NewValue));
+                    this._SetsValue = true;
+
+                    this._UpdateLayoutAttributes();
+                    this._Dirty = true;
+                } else {
+                    this._UpdateLayoutAttributes();
+                    invalidate = false;
+                }
+            } else if (args.Property._ID === TextBlock.LineStackingStrategyProperty._ID) {
+                this._Dirty = this._Layout.SetLineStackingStrategy(args.NewValue);
+            } else if (args.Property._ID === TextBlock.LineHeightProperty._ID) {
+                this._Dirty = this._Layout.SetLineHeight(args.NewValue);
+            } else if (args.Property._ID === TextBlock.TextDecorationsProperty._ID) {
+                this._Dirty = true;
+            } else if (args.Property._ID === TextBlock.TextAlignmentProperty._ID) {
+                this._Dirty = this._Layout.SetTextAlignment(args.NewValue);
+            } else if (args.Property._ID === TextBlock.TextTrimmingProperty._ID) {
+                this._Dirty = this._Layout.SetTextTrimming(args.NewValue);
+            } else if (args.Property._ID === TextBlock.TextWrappingProperty._ID) {
+                this._Dirty = this._Layout.SetTextWrapping(args.NewValue);
+            } else if (args.Property._ID === TextBlock.PaddingProperty._ID) {
+                this._Dirty = true;
+            } else if (args.Property._ID === TextBlock.FontSourceProperty._ID) {
+            } else if (args.Property._ID === TextBlock.ForegroundProperty._ID) {
+            }
+
+            if (invalidate) {
+                if (this._Dirty) {
+                    this._InvalidateMeasure();
+                    this._InvalidateArrange();
+                    this._UpdateBounds(true);
+                }
+                this._Invalidate();
+            }
+            this.PropertyChanged.Raise(this, args);
+        };
+        TextBlock.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd && propd._ID === TextBlock.ForegroundProperty._ID) {
+                this._Invalidate();
+            } else {
+                this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+            }
+        };
+        TextBlock.Instance._OnCollectionChanged = function (sender, args) {
+            if (!this._PropertyHasValueNoAutoCreate(TextBlock.InlinesProperty, sender)) {
+                this._OnCollectionChanged$FrameworkElement(sender, args);
+                return;
+            }
+
+            var inlines = this.Inlines;
+            if (args.Action === CollectionChangedArgs.Action.Clearing)
+                return;
+
+            if (!this._SetsValue)
+                return;
+
+            if (args.Action === CollectionChangedArgs.Add)
+                this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
+
+            this._SetsValue = false;
+            this._SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
+            this._SetsValue = true;
+
+            this._UpdateLayoutAttributes();
+            this._InvalidateMeasure();
+            this._InvalidateArrange();
+            this._UpdateBounds(true);
             this._Invalidate();
-        }
-        if (ivprop)
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        this.PropertyChanged.Raise(this, args);
-    };
-    TextBlock.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd && propd._ID === TextBlock.ForegroundProperty._ID) {
-            this._Invalidate();
-            this.InvalidateProperty(propd);
-        } else {
-            this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
-        }
-    };
-    TextBlock.Instance._OnCollectionChanged = function (sender, args) {
-        if (!this._PropertyHasValueNoAutoCreate(TextBlock.InlinesProperty, sender)) {
-            this._OnCollectionChanged$FrameworkElement(sender, args);
-            return;
-        }
-
-        var inlines = this.Inlines;
-        if (args.Action === CollectionChangedArgs.Action.Clearing)
-            return;
-
-        if (!this._SetsValue)
-            return;
-
-        if (args.Action === CollectionChangedArgs.Add)
-            this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
-
-        this._SetsValue = false;
-        this._SetValue(TextBlock.TextProperty, this._GetTextInternal(inlines));
-        this._SetsValue = true;
-
-        this._UpdateLayoutAttributes();
-        this._InvalidateMeasure();
-        this._InvalidateArrange();
-        this._UpdateBounds(true);
-        this._Invalidate();
-
-        switch (args.Action) {
-            case CollectionChangedArgs.Action.Cleared:
-                this.ClearChildrenHtml();
-                break;
-            case CollectionChangedArgs.Action.Add:
-                this.AddChildHtml(args.NewValue, args.Index);
-                break;
-            case CollectionChangedArgs.Action.Remove:
-                this.RemoveChildHtml(args.NewValue);
-                break;
-            case CollectionChangedArgs.Action.Replace:
-                this.ReplaceChildHtml(args.OldValue, args.NewValue);
-                break;
-        }
-    };
+        };
+    }
+    //#endif
 
     //#endregion
 

@@ -198,63 +198,117 @@
         return this.Background != null || this.BorderBrush != null;
     };
 
-    Border.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Border) {
-            this._OnPropertyChanged$FrameworkElement(args, error)
-            return;
-        }
-        var ivprop = false;
-        if (args.Property._ID === Border.ChildProperty._ID) {
-            if (args.OldValue && args.OldValue instanceof UIElement) {
-                this._ElementRemoved(args.OldValue);
-                this._SubtreeObject = null;
-                if (args.OldValue instanceof FrameworkElement) {
-                    args.OldValue._SetLogicalParent(null, error);
-                    if (error.IsErrored())
-                        return;
-                }
-            }
-            if (args.NewValue && args.NewValue instanceof UIElement) {
-                this._SubtreeObject = args.NewValue;
-                this._ElementAdded(args.NewValue);
-                if (args.NewValue instanceof FrameworkElement) {
-                    var logicalParent = args.NewValue._GetLogicalParent();
-                    if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
-                        error.SetErrored(BError.Argument, "Content is already a child of another element.");
-                        return;
-                    }
-                    args.NewValue._SetLogicalParent(this, error);
-                    if (error.IsErrored())
-                        return;
-                }
-            }
-            this._UpdateBounds();
-            this._InvalidateMeasure();
-        } else if (args.Property._ID === Border.PaddingProperty._ID || args.Property._ID === Border.BorderThicknessProperty._ID) {
-            this._InvalidateMeasure();
-            ivprop = true;
-        } else if (args.Property._ID === Border.BackgroundProperty._ID) {
-            this._Invalidate();
-            ivprop = true;
-        } else if (args.Property._ID === Border.BorderBrushProperty._ID) {
-            this._Invalidate();
-            ivprop = true;
-        } else if (args.Property._ID === Border.CornerRadiusProperty._ID) {
-            ivprop = true;
-        }
-        if (ivprop)
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        this.PropertyChanged.Raise(this, args);
-    };
-    Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID)) {
-            this._Invalidate();
-            this.InvalidateProperty(propd);
-        } else {
-            this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
-        }
-    };
+    //#endregion
 
+    //#region Changed
+
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Border.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Border) {
+                this._OnPropertyChanged$FrameworkElement(args, error)
+                return;
+            }
+
+            var ivprop = false;
+            switch (args.Property._ID) {
+                case Border.ChildProperty._ID:
+                    if (args.OldValue && args.OldValue instanceof UIElement) {
+                        this._ElementRemoved(args.OldValue);
+                        this._SubtreeObject = null;
+                        if (args.OldValue instanceof FrameworkElement) {
+                            args.OldValue._SetLogicalParent(null, error);
+                            if (error.IsErrored())
+                                return;
+                        }
+                    }
+                    if (args.NewValue && args.NewValue instanceof UIElement) {
+                        this._SubtreeObject = args.NewValue;
+                        this._ElementAdded(args.NewValue);
+                        if (args.NewValue instanceof FrameworkElement) {
+                            var logicalParent = args.NewValue._GetLogicalParent();
+                            if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
+                                error.SetErrored(BError.Argument, "Content is already a child of another element.");
+                                return;
+                            }
+                            args.NewValue._SetLogicalParent(this, error);
+                            if (error.IsErrored())
+                                return;
+                        }
+                    }
+                    break;
+                case Border.BackgroundProperty._ID:
+                case Border.BorderThicknessProperty._ID:
+                case Border.BorderBrushProperty._ID:
+                case Border.CornerRadiusProperty._ID:
+                case Border.PaddingProperty._ID:
+                    ivprop = true;
+                    break;
+            }
+
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Border.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Border) {
+                this._OnPropertyChanged$FrameworkElement(args, error)
+                return;
+            }
+
+            
+            switch (args.Property._ID) {
+                case Border.ChildProperty._ID:
+                    if (args.OldValue && args.OldValue instanceof UIElement) {
+                        this._ElementRemoved(args.OldValue);
+                        this._SubtreeObject = null;
+                        if (args.OldValue instanceof FrameworkElement) {
+                            args.OldValue._SetLogicalParent(null, error);
+                            if (error.IsErrored())
+                                return;
+                        }
+                    }
+                    if (args.NewValue && args.NewValue instanceof UIElement) {
+                        this._SubtreeObject = args.NewValue;
+                        this._ElementAdded(args.NewValue);
+                        if (args.NewValue instanceof FrameworkElement) {
+                            var logicalParent = args.NewValue._GetLogicalParent();
+                            if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
+                                error.SetErrored(BError.Argument, "Content is already a child of another element.");
+                                return;
+                            }
+                            args.NewValue._SetLogicalParent(this, error);
+                            if (error.IsErrored())
+                                return;
+                        }
+                    }
+                    this._UpdateBounds();
+                    this._InvalidateMeasure();
+                    break;
+                case Border.PaddingProperty._ID:
+                case Border.BorderThicknessProperty._ID:
+                    this._InvalidateMeasure();
+                    break;
+                case Border.BackgroundProperty._ID:
+                case Border.BorderBrushProperty._ID:
+                    this._Invalidate();
+                    break;
+            }
+
+            this.PropertyChanged.Raise(this, args);
+        };
+        Border.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd && (propd._ID === Border.BackgroundProperty._ID || propd._ID === Border.BorderBrushProperty._ID)) {
+                this._Invalidate();
+            } else {
+                this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+            }
+        };
+    }
+    //#endif
 
     //#endregion
 

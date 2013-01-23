@@ -790,66 +790,6 @@
 
     //#endregion
 
-    //#region Property Changed
-
-    FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== FrameworkElement) {
-            this._OnPropertyChanged$UIElement(args, error);
-            return;
-        }
-
-        var ivprop = false;
-        if (args.Property._ID === FrameworkElement.WidthProperty._ID
-            || args.Property._ID === FrameworkElement.MaxWidthProperty._ID
-            || args.Property._ID === FrameworkElement.MinWidthProperty._ID
-            || args.Property._ID === FrameworkElement.HeightProperty._ID
-            || args.Property._ID === FrameworkElement.MaxHeightProperty._ID
-            || args.Property._ID === FrameworkElement.MinHeightProperty._ID
-            || args.Property._ID === FrameworkElement.MarginProperty._ID
-            || args.Property._ID === FrameworkElement.FlowDirectionProperty._ID) {
-            this._PurgeSizeCache();
-
-            //var p = this._GetRenderTransformOrigin();
-            //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
-            this._FullInvalidate(false);
-
-            var visualParent = this.GetVisualParent();
-            if (visualParent)
-                visualParent._InvalidateMeasure();
-
-            this._InvalidateMeasure();
-            this._InvalidateArrange();
-            this._UpdateBounds();
-            ivprop = true;
-        } else if (args.Property._ID === FrameworkElement.CursorProperty._ID) {
-            ivprop = true;
-        } else if (args.Property._ID === FrameworkElement.StyleProperty._ID) {
-            var newStyle = args.NewValue;
-            if (!error.IsErrored())
-                this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
-            if (error.IsErrored())
-                return;
-        } else if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
-            || args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID) {
-            this._InvalidateArrange();
-            this._FullInvalidate(true);
-            ivprop = true;
-        }
-        if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
-            || args.Property._ID === FrameworkElement.WidthProperty._ID)
-            this.IsFixedWidth = this.CalculateIsFixedWidth();
-        if (args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID ||
-            args.Property._ID === FrameworkElement.HeightProperty._ID)
-            this.IsFixedHeight = this.CalculateIsFixedHeight();
-
-        if (ivprop) {
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        }
-        this.PropertyChanged.Raise(this, args);
-    };
-
-    //#endregion
-
     //#region Loaded
 
     FrameworkElement.Instance.InvokeLoaded = function () {
@@ -931,6 +871,109 @@
     };
 
     //#endregion
+
+    //#endregion
+
+    //#region Property Changed
+
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== FrameworkElement) {
+                this._OnPropertyChanged$UIElement(args, error);
+                return;
+            }
+
+            var ivprop = false;
+            switch (args.Property._ID) {
+                case FrameworkElement.WidthProperty._ID:
+                case FrameworkElement.MaxWidthProperty._ID:
+                case FrameworkElement.MinWidthProperty._ID:
+                case FrameworkElement.HeightProperty._ID:
+                case FrameworkElement.MaxHeightProperty._ID:
+                case FrameworkElement.MinHeightProperty._ID:
+                case FrameworkElement.MarginProperty._ID:
+                case FrameworkElement.FlowDirectionProperty._ID:
+                    this._PurgeSizeCache();
+                    ivprop = true;
+                    break;
+                case FrameworkElement.CursorProperty._ID:
+                case FrameworkElement.HorizontalAlignmentProperty._ID:
+                case FrameworkElement.VerticalAlignmentProperty._ID:
+                    ivprop = true;
+                    break;
+                case FrameworkElement.StyleProperty._ID:
+                    var newStyle = args.NewValue;
+                    if (!error.IsErrored())
+                        this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
+                    if (error.IsErrored())
+                        return;
+                    break;
+            }
+
+            if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
+                || args.Property._ID === FrameworkElement.WidthProperty._ID) {
+                this.IsFixedWidth = this.CalculateIsFixedWidth();
+            }
+            if (args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID ||
+                args.Property._ID === FrameworkElement.HeightProperty._ID) {
+                this.IsFixedHeight = this.CalculateIsFixedHeight();
+            }
+
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== FrameworkElement) {
+                this._OnPropertyChanged$UIElement(args, error);
+                return;
+            }
+
+            switch (args.Property._ID) {
+                case FrameworkElement.WidthProperty._ID:
+                case FrameworkElement.MaxWidthProperty._ID:
+                case FrameworkElement.MinWidthProperty._ID:
+                case FrameworkElement.HeightProperty._ID:
+                case FrameworkElement.MaxHeightProperty._ID:
+                case FrameworkElement.MinHeightProperty._ID:
+                case FrameworkElement.MarginProperty._ID:
+                case FrameworkElement.FlowDirectionProperty._ID:
+                    this._PurgeSizeCache();
+
+                    //var p = this._GetRenderTransformOrigin();
+                    //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
+                    this._FullInvalidate(false);
+
+                    var visualParent = this.GetVisualParent();
+                    if (visualParent)
+                        visualParent._InvalidateMeasure();
+
+                    this._InvalidateMeasure();
+                    this._InvalidateArrange();
+                    this._UpdateBounds();
+                    break;
+                case FrameworkElement.HorizontalAlignmentProperty._ID:
+                case FrameworkElement.VerticalAlignmentProperty._ID:
+                    this._InvalidateArrange();
+                    this._FullInvalidate(true);
+                    break;
+                case FrameworkElement.StyleProperty._ID:
+                    var newStyle = args.NewValue;
+                    if (!error.IsErrored())
+                        this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
+                    if (error.IsErrored())
+                        return;
+                    break;
+            }
+
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#endif
 
     //#endregion
 

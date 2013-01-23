@@ -41,27 +41,44 @@
         }
         return str;
     };
-    Span.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Span) {
-            this._OnPropertyChanged$Inline(args, error);
-            return;
-        }
 
-        if (args.Property._ID === Span.InlinesProperty._ID) {
-            this.SetChildrenHtml(args.NewValue);
-        }
-        this.PropertyChanged.Raise(this, args);
-    };
-    Span.Instance._OnCollectionChanged = function (sender, args) {
-        if (this._PropertyHasValueNoAutoCreate(Span.InlinesProperty, sender)) {
-            if (args.Action === CollectionChangedArgs.Action.Add)
-                this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
-            //this._NotifyLayoutContainerOnCollectionChanged(sender, args);
-            this.UpdateHtmlInlines(args);
-        } else {
-            this._OnCollectionChanged$Inline(sender, args);
-        }
-    };
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Span.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Span) {
+                this._OnPropertyChanged$Inline(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Span.InlinesProperty._ID) {
+                this.SetChildrenHtml(args.NewValue);
+            }
+            this.PropertyChanged.Raise(this, args);
+        };
+        Span.Instance._OnCollectionChanged = function (sender, args) {
+            if (this._PropertyHasValueNoAutoCreate(Span.InlinesProperty, sender)) {
+                if (args.Action === CollectionChangedArgs.Action.Add)
+                    this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
+                //this._NotifyLayoutContainerOnCollectionChanged(sender, args);
+                this.UpdateHtmlInlines(args);
+            } else {
+                this._OnCollectionChanged$Inline(sender, args);
+            }
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Span.Instance._OnCollectionChanged = function (sender, args) {
+            if (this._PropertyHasValueNoAutoCreate(Span.InlinesProperty, sender)) {
+                if (args.Action === CollectionChangedArgs.Action.Add)
+                    this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
+            } else {
+                this._OnCollectionChanged$Inline(sender, args);
+            }
+        };
+    }
+    //#endif
+
 
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
