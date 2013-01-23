@@ -3,7 +3,7 @@
 /// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var ArcSegment = Nullstone.Create("ArcSegment", PathSegment);
+    var ArcSegment = Nullstone.Create("ArcSegment", namespace.PathSegment);
 
     //#region Properties
 
@@ -29,4 +29,4 @@
     };
 
     namespace.ArcSegment = Nullstone.FinishCreate(ArcSegment);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

@@ -519,7 +519,7 @@ module Fayde {
     }
     export class TypeConverter {
         static ConvertObject(propd: DependencyProperty, val, objectType, doStringConversion: bool);
-        static GeometryFromString(val): Geometry;
+        static GeometryFromString(val): Fayde.Media.Geometry;
         static PointCollectionFromString(val): PointCollection;
     }
     export function Start(appType, rjson, json, canvas);
@@ -558,7 +558,7 @@ class UIElement extends DependencyObject {
     //Properties
     AllowDrop: bool;
     CacheMode: any;
-    Clip: Geometry;
+    Clip: Fayde.Media.Geometry;
     Effect: Fayde.Media.Effects.Effect;
     IsHitTestVisible: bool;
     OpacityMask: Brush;
@@ -726,8 +726,8 @@ class VisualTreeHelper {
 }
 class LayoutInformation {
     static LayoutClipProperty: DependencyProperty;
-    static GetLayoutClip(d: DependencyObject): Geometry;
-    static SetLayoutClip(d: DependencyObject, value: Geometry);
+    static GetLayoutClip(d: DependencyObject): Fayde.Media.Geometry;
+    static SetLayoutClip(d: DependencyObject, value: Fayde.Media.Geometry);
     
     static LayoutExceptionElementProperty: DependencyProperty;
     static GetLayoutExceptionElement(d: DependencyObject): UIElement;
@@ -1640,95 +1640,98 @@ class TileBrush extends Brush {
     AlignmentY: AlignmentY;
     Stretch: Stretch;
 }
-class Geometry extends DependencyObject {
-    static TransformProperty: DependencyProperty;
-    Transform: Fayde.Media.Transform;
-    Bounds: Rect;
-}
-class GeometryCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): Geometry;
-    SetValueAt(index: number, value: Geometry);
-    Add(value: Geometry);
-    AddRange(newItems: Geometry[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Geometry);
-    Remove(value: Geometry);
-    IndexOf(value: Geometry): number;
-    Contains(value: Geometry): bool;
-    ToArray(): Geometry[];
-}
-class GeometryGroup extends Geometry {
-    static FillRuleProperty: DependencyProperty;
-    static ChildrenProperty: DependencyProperty;
-    FillRule: FillRule;
-    Children: GeometryCollection;
-}
-class PathSegment extends DependencyObject {
-}
-class PathSegmentCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): PathSegment;
-    SetValueAt(index: number, value: PathSegment);
-    Add(value: PathSegment);
-    AddRange(newItems: PathSegment[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: PathSegment);
-    Remove(value: PathSegment);
-    IndexOf(value: PathSegment): number;
-    Contains(value: PathSegment): bool;
-    ToArray(): PathSegment[];
-}
-class PathFigure extends DependencyObject {
-    static IsClosedProperty: DependencyProperty;
-    static SegmentsProperty: DependencyProperty;
-    static StartPointProperty: DependencyProperty;
-    static IsFilledProperty: DependencyProperty;
-    IsClosedProperty: bool;
-    SegmentsProperty: PathSegmentCollection;
-    StartPointProperty: Point;
-    IsFilledProperty: bool;
-}
-class PathFigureCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): PathFigure;
-    SetValueAt(index: number, value: PathFigure);
-    Add(value: PathFigure);
-    AddRange(newItems: PathFigure[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: PathFigure);
-    Remove(value: PathFigure);
-    IndexOf(value: PathFigure): number;
-    Contains(value: PathFigure): bool;
-    ToArray(): PathFigure[];
-}
-class ArcSegment extends PathSegment {
-    static IsLargeArcProperty: DependencyProperty;
-    static PointProperty: DependencyProperty;
-    static RotationAngleProperty: DependencyProperty;
-    static SizeProperty: DependencyProperty;
-    static SweepDirectionProperty: DependencyProperty;
-    IsLargeArc: bool;
-    Point: Point;
-    RotationAngle: number;
-    Size: Size;
-    SweepDirection: SweepDirection;
-}
-class PathGeometry extends Geometry {
-    static FillRuleProperty: DependencyProperty;
-    static FiguresProperty: DependencyProperty;
-    FillRule: FillRule;
-    Figures: PathFigureCollection;
-}
-class RectangleGeometry extends Geometry {
-    static RectProperty: DependencyProperty;
-    static RadiusXProperty: DependencyProperty;
-    static RadiusYProperty: DependencyProperty;
-    Rect: Rect;
-    RadiusX: number;
-    RadiusY: number;
-}
 class TextOptions {
     static TextHintingModeProperty: DependencyProperty;
     static GetTextHintingMode(d: DependencyObject): TextHintingMode;
     static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
+}
+
+module Fayde.Media {
+    export class Geometry extends DependencyObject {
+        static TransformProperty: DependencyProperty;
+        Transform: Fayde.Media.Transform;
+        Bounds: Rect;
+    }
+    export class GeometryCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): Geometry;
+        SetValueAt(index: number, value: Geometry);
+        Add(value: Geometry);
+        AddRange(newItems: Geometry[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Geometry);
+        Remove(value: Geometry);
+        IndexOf(value: Geometry): number;
+        Contains(value: Geometry): bool;
+        ToArray(): Geometry[];
+    }
+    export class GeometryGroup extends Geometry {
+        static FillRuleProperty: DependencyProperty;
+        static ChildrenProperty: DependencyProperty;
+        FillRule: FillRule;
+        Children: GeometryCollection;
+    }
+    export class PathSegment extends DependencyObject {
+    }
+    export class PathSegmentCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): PathSegment;
+        SetValueAt(index: number, value: PathSegment);
+        Add(value: PathSegment);
+        AddRange(newItems: PathSegment[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: PathSegment);
+        Remove(value: PathSegment);
+        IndexOf(value: PathSegment): number;
+        Contains(value: PathSegment): bool;
+        ToArray(): PathSegment[];
+    }
+    export class PathFigure extends DependencyObject {
+        static IsClosedProperty: DependencyProperty;
+        static SegmentsProperty: DependencyProperty;
+        static StartPointProperty: DependencyProperty;
+        static IsFilledProperty: DependencyProperty;
+        IsClosedProperty: bool;
+        SegmentsProperty: PathSegmentCollection;
+        StartPointProperty: Point;
+        IsFilledProperty: bool;
+    }
+    export class PathFigureCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): PathFigure;
+        SetValueAt(index: number, value: PathFigure);
+        Add(value: PathFigure);
+        AddRange(newItems: PathFigure[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: PathFigure);
+        Remove(value: PathFigure);
+        IndexOf(value: PathFigure): number;
+        Contains(value: PathFigure): bool;
+        ToArray(): PathFigure[];
+    }
+    export class ArcSegment extends PathSegment {
+        static IsLargeArcProperty: DependencyProperty;
+        static PointProperty: DependencyProperty;
+        static RotationAngleProperty: DependencyProperty;
+        static SizeProperty: DependencyProperty;
+        static SweepDirectionProperty: DependencyProperty;
+        IsLargeArc: bool;
+        Point: Point;
+        RotationAngle: number;
+        Size: Size;
+        SweepDirection: SweepDirection;
+    }
+    export class PathGeometry extends Geometry {
+        static FillRuleProperty: DependencyProperty;
+        static FiguresProperty: DependencyProperty;
+        FillRule: FillRule;
+        Figures: PathFigureCollection;
+    }
+    export class RectangleGeometry extends Geometry {
+        static RectProperty: DependencyProperty;
+        static RadiusXProperty: DependencyProperty;
+        static RadiusYProperty: DependencyProperty;
+        Rect: Rect;
+        RadiusX: number;
+        RadiusY: number;
+    }
 }
 
 module Fayde.Media {
@@ -2279,7 +2282,7 @@ class Line extends Shape {
 }
 class Path extends Shape {
     static DataProperty: DependencyProperty;
-    Data: Geometry;
+    Data: Fayde.Media.Geometry;
 }
 class Polygon extends Shape {
     static FillRuleProperty: DependencyProperty;

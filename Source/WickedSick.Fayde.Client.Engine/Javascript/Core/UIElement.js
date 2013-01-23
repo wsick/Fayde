@@ -100,7 +100,7 @@
 
     UIElement.AllowDropProperty = DependencyProperty.Register("AllowDrop", function () { return Boolean; }, UIElement);
     UIElement.CacheModeProperty = DependencyProperty.Register("CacheMode", function () { return CacheMode; }, UIElement);
-    UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Geometry; }, UIElement);
+    UIElement.ClipProperty = DependencyProperty.RegisterCore("Clip", function () { return Fayde.Media.Geometry; }, UIElement);
     UIElement.EffectProperty = DependencyProperty.Register("Effect", function () { return Fayde.Media.Effects.Effect; }, UIElement);
     UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
     UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);

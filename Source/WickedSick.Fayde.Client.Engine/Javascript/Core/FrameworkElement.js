@@ -511,7 +511,7 @@
         if (((!isTopLevel && !Rect.Equals(element, element.Intersection(layoutClip))) || !Rect.Equals(constrainedResponse, response)) && !(this instanceof Canvas) && ((parent && !(parent instanceof Canvas)) || this.IsContainer())) {
             var frameworkClip = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
             layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
-            var rectangle = new RectangleGeometry();
+            var rectangle = new Fayde.Media.RectangleGeometry();
             rectangle.Rect = layoutClip;
             LayoutInformation.SetLayoutClip(this, rectangle);
         }

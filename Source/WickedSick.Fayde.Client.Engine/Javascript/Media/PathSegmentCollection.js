@@ -4,10 +4,8 @@
 
 (function (namespace) {
     var PathSegmentCollection = Nullstone.Create("PathSegmentCollection", DependencyObjectCollection);
-
     PathSegmentCollection.Instance.IsElementType = function (value) {
-        return value instanceof PathSegment;
+        return value instanceof namespace.PathSegment;
     };
-
     namespace.PathSegmentCollection = Nullstone.FinishCreate(PathSegmentCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

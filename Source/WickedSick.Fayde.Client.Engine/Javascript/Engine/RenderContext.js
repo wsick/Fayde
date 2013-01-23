@@ -47,7 +47,7 @@
             this.CanvasContext.beginPath();
             this.CanvasContext.rect(clip.X, clip.Y, clip.Width, clip.Height);
             DrawDebug("DrawClip (Rect): " + clip.toString());
-        } else if (clip instanceof Geometry) {
+        } else if (clip instanceof Fayde.Media.Geometry) {
             clip.Draw(this);
             DrawDebug("DrawClip (Geometry): " + clip.toString());
         } else if (clip instanceof RawPath) {

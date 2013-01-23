@@ -4,10 +4,8 @@
 
 (function (namespace) {
     var PathFigureCollection = Nullstone.Create("PathFigureCollection", DependencyObjectCollection);
-
     PathFigureCollection.Instance.IsElementType = function (value) {
-        return value instanceof PathFigure;
+        return value instanceof namespace.PathFigure;
     };
-
     namespace.PathFigureCollection = Nullstone.FinishCreate(PathFigureCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

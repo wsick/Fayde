@@ -4,12 +4,12 @@
 /// <reference path="../Shapes/RawPath.js"/>
 
 (function (namespace) {
-    var PathGeometry = Nullstone.Create("PathGeometry", Geometry);
+    var PathGeometry = Nullstone.Create("PathGeometry", namespace.Geometry);
 
     //#region Properties
 
     PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, PathGeometry);
-    PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return PathFigureCollection; }, PathGeometry, undefined, undefined, { GetValue: function () { return new PathFigureCollection(); } });
+    PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return namespace.PathFigureCollection; }, PathGeometry, undefined, undefined, { GetValue: function () { return new namespace.PathFigureCollection(); } });
 
     Nullstone.AutoProperties(PathGeometry, [
         PathGeometry.FillRuleProperty,
@@ -66,4 +66,4 @@
     };
 
     namespace.PathGeometry = Nullstone.FinishCreate(PathGeometry);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

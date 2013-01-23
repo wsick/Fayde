@@ -12,7 +12,7 @@
 
     //#region Properties
 
-    LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Geometry; }, LayoutInformation);
+    LayoutInformation.LayoutClipProperty = DependencyProperty.RegisterAttachedCore("LayoutClip", function () { return Fayde.Media.Geometry; }, LayoutInformation);
     LayoutInformation.GetLayoutClip = function (d) {
         return d.$GetValue(LayoutInformation.LayoutClipProperty);
     };

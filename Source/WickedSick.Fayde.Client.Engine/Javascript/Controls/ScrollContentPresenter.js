@@ -254,7 +254,7 @@
     ScrollContentPresenter.Instance._UpdateClip = function (arrangeSize) {
         /// <param name="arrangeSize" type="Size"></param>
         if (!this.$IsClipPropertySet) {
-            this.$ClippingRectangle = new RectangleGeometry();
+            this.$ClippingRectangle = new Fayde.Media.RectangleGeometry();
             this.Clip = this.$ClippingRectangle;
             this.$IsClipPropertySet = true;
         }

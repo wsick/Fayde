@@ -1,12 +1,11 @@
 ﻿/// <reference path="../Core/Collections/DependencyObjectCollection.js"/>
 /// CODE
+/// <reference path="Geometry.js"/>
 
 (function (namespace) {
     var GeometryCollection = Nullstone.Create("GeometryCollection", DependencyObjectCollection);
-
     GeometryCollection.Instance.IsElementType = function (value) {
-        return val instanceof Geometry;
+        return val instanceof namespace.Geometry;
     };
-
     namespace.GeometryCollection = Nullstone.FinishCreate(GeometryCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

@@ -75,8 +75,8 @@
 
     Geometry.Instance._OnPropertyChanged = function (args, error) {
         if (args.Property.OwnerType !== Geometry
-            && args.Property._ID !== PathGeometry.FillRuleProperty
-            && args.Property._ID !== GeometryGroup.FillRuleProperty) {
+            && args.Property._ID !== namespace.PathGeometry.FillRuleProperty
+            && args.Property._ID !== namespace.GeometryGroup.FillRuleProperty) {
             this._OnPropertyChanged$DependencyObject(args, error);
             return;
         }
@@ -93,4 +93,4 @@
     };
 
     namespace.Geometry = Nullstone.FinishCreate(Geometry);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

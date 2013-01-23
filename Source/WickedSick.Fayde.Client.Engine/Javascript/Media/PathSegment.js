@@ -9,4 +9,4 @@
     };
 
     namespace.PathSegment = Nullstone.FinishCreate(PathSegment);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

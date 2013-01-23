@@ -6,17 +6,13 @@
 (function (namespace) {
     var Path = Nullstone.Create("Path", Shape);
 
-    Path.Instance.Init = function () {
-        this.Init$Shape();
-    };
-
     //#region Properties
 
     // Path.Data Description: http://msdn.microsoft.com/en-us/library/system.windows.shapes.path.data(v=vs.95).aspx
-    Path.DataProperty = DependencyProperty.RegisterCore("Data", function () { return Geometry; }, Path);
+    Path.DataProperty = DependencyProperty.RegisterCore("Data", function () { return Fayde.Media.Geometry; }, Path);
 
     Nullstone.AutoProperty(Path, Path.DataProperty, function (value) {
-        if (value instanceof Geometry)
+        if (value instanceof Fayde.Media.Geometry)
             return value;
         if (typeof value === "string")
             return Fayde.TypeConverter.GeometryFromString(value);

@@ -348,7 +348,7 @@
                     break;
             }
         }
-        var pg = new PathGeometry();
+        var pg = new Fayde.Media.PathGeometry();
         pg.$Path = path;
         pg.FillRule = fillRule;
         return pg;

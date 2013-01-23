@@ -5,7 +5,7 @@
 /// <reference path="../Shapes/RawPath.js"/>
 
 (function (namespace) {
-    var RectangleGeometry = Nullstone.Create("RectangleGeometry", Geometry);
+    var RectangleGeometry = Nullstone.Create("RectangleGeometry", namespace.Geometry);
 
     //#region Properties
 
@@ -41,4 +41,4 @@
     };
 
     namespace.RectangleGeometry = Nullstone.FinishCreate(RectangleGeometry);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));
