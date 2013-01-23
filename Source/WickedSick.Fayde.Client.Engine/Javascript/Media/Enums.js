@@ -1,4 +1,32 @@
-﻿(function (namespace) {
+﻿/// <reference path="../Runtime/Nullstone.js"/>
+
+(function (namespace) {
+    namespace.PenLineCap = {
+        Flat: 0,
+        Square: 1,
+        Round: 2,
+        Triangle: 3
+    };
+    namespace.PenLineJoin = {
+        Miter: 0,
+        Bevel: 1,
+        Round: 2
+    };
+    namespace.SweepDirection = {
+        Counterclockwise: 0,
+        Clockwise: 1
+    };
+    namespace.FillRule = {
+        EvenOdd: 0,
+        Nonzero: 1
+    };
+    namespace.TextHintingMode = {
+        Fixed: 0,
+        Animated: 1
+    };
+})(window);
+
+(function (namespace) {
     namespace.AlignmentX = {
         Left: 0,
         Center: 1,
@@ -19,32 +47,9 @@
         Absolute: 0,
         RelativeToBoundingBox: 1
     };
-    namespace.PenLineCap = {
-        Flat: 0,
-        Square: 1,
-        Round: 2,
-        Triangle: 3
-    };
-    namespace.PenLineJoin = {
-        Miter: 0,
-        Bevel: 1,
-        Round: 2
-    };
-    namespace.SweepDirection = {
-        Counterclockwise: 0,
-        Clockwise: 1
-    };
-    namespace.FillRule = {
-        EvenOdd: 0,
-        Nonzero: 1
-    };
     namespace.GradientSpreadMethod = {
         Pad: 0,
         Reflect: 1,
         Repeat: 2
     };
-    namespace.TextHintingMode = {
-        Fixed: 0,
-        Animated: 1
-    };
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

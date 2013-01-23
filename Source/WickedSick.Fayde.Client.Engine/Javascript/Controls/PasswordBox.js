@@ -16,8 +16,8 @@
 
     //#region Properties
 
-    PasswordBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () { return Brush; }, PasswordBox);
-    PasswordBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () { return Brush; }, PasswordBox);
+    PasswordBox.SelectionBackgroundProperty = DependencyProperty.RegisterCore("SelectionBackground", function () { return Fayde.Media.Brush; }, PasswordBox);
+    PasswordBox.SelectionForegroundProperty = DependencyProperty.RegisterCore("SelectionForeground", function () { return Fayde.Media.Brush; }, PasswordBox);
     PasswordBox.BaselineOffsetProperty = DependencyProperty.RegisterCore("BaselineOffset", function () { return Number; }, PasswordBox);
 
     Nullstone.AutoProperties(PasswordBox, [

@@ -153,7 +153,7 @@
             return true;
         if (value instanceof Fayde.Media.Transform)
             return true;
-        if (value instanceof Brush)
+        if (value instanceof Fayde.Media.Brush)
             return true;
         //if (value instanceof StrokeCollection)
         //  return true;

@@ -6,7 +6,7 @@
 
     Ellipse.Instance.Init = function () {
         this.Init$Shape();
-        this.Stretch = Stretch.Fill;
+        this.Stretch = Fayde.Media.Stretch.Fill;
     };
 
     Ellipse.Instance._DrawPath = function (ctx) {
@@ -20,16 +20,16 @@
         var rect = new Rect(0, 0, this.ActualWidth, this.ActualHeight);
 
         switch (stretch) {
-            case Stretch.None:
+            case Fayde.Media.Stretch.None:
                 rect.Width = rect.Height = 0;
                 break;
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
                 break;
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 break;
         }
 
@@ -74,16 +74,16 @@
 
         var t = this._IsStroked() ? this.StrokeThickness : 0.0;
         switch (this.Stretch) {
-            case Stretch.None:
+            case Fayde.Media.Stretch.None:
                 rect.Width = rect.Height = 0.0;
                 break;
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 rect.Width = rect.Height = Math.min(rect.Width, rect.Height);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 rect.Width = rect.Height = Math.max(rect.Width, rect.Height);
                 break;
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 break;
         }
 

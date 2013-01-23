@@ -3,13 +3,13 @@
 /// CODE
 
 (function (namespace) {
-    var TileBrush = Nullstone.Create("TileBrush", Brush);
+    var TileBrush = Nullstone.Create("TileBrush", namespace.Brush);
 
     //#region Properties
 
-    TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return new Enum(AlignmentX); }, TileBrush, AlignmentX.Center);
-    TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return new Enum(AlignmentY); }, TileBrush, AlignmentY.Center);
-    TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(Stretch); }, TileBrush, Stretch.Fill);
+    TileBrush.AlignmentXProperty = DependencyProperty.RegisterCore("AlignmentX", function () { return new Enum(namespace.AlignmentX); }, TileBrush, namespace.AlignmentX.Center);
+    TileBrush.AlignmentYProperty = DependencyProperty.RegisterCore("AlignmentY", function () { return new Enum(namespace.AlignmentY); }, TileBrush, namespace.AlignmentY.Center);
+    TileBrush.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return new Enum(namespace.Stretch); }, TileBrush, namespace.Stretch.Fill);
 
     Nullstone.AutoProperties(TileBrush, [
         TileBrush.AlignmentXProperty,
@@ -56,4 +56,4 @@
     };
 
     namespace.TileBrush = Nullstone.FinishCreate(TileBrush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

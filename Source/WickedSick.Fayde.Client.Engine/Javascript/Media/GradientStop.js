@@ -23,4 +23,12 @@
     };
 
     namespace.GradientStop = Nullstone.FinishCreate(GradientStop);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));
+
+(function (namespace) {
+    var GradientStopCollection = Nullstone.Create("GradientStopCollection", DependencyObjectCollection);
+    GradientStopCollection.Instance.IsElementType = function (value) {
+        return value instanceof namespace.GradientStop;
+    };
+    namespace.GradientStopCollection = Nullstone.FinishCreate(GradientStopCollection);
+})(Nullstone.Namespace("Fayde.Media"));

@@ -1,16 +1,17 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Brush.js"/>
+/// <reference path="GradientStop.js"/>
 /// CODE
 /// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var GradientBrush = Nullstone.Create("GradientBrush", Brush);
+    var GradientBrush = Nullstone.Create("GradientBrush", namespace.Brush);
 
     //#region Properties
 
-    GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return GradientStopCollection; }, GradientBrush, undefined, undefined, { GetValue: function () { return new GradientStopCollection(); } });
-    GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Enum(BrushMappingMode); }, GradientBrush, BrushMappingMode.RelativeToBoundingBox);
-    GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () { return new Enum(GradientSpreadMethod); }, GradientBrush, GradientSpreadMethod.Pad);
+    GradientBrush.GradientStopsProperty = DependencyProperty.RegisterFull("GradientStops", function () { return namespace.GradientStopCollection; }, GradientBrush, undefined, undefined, { GetValue: function () { return new namespace.GradientStopCollection(); } });
+    GradientBrush.MappingModeProperty = DependencyProperty.Register("MappingMode", function () { return new Enum(namespace.BrushMappingMode); }, GradientBrush, namespace.BrushMappingMode.RelativeToBoundingBox);
+    GradientBrush.SpreadMethodProperty = DependencyProperty.Register("SpreadMethod", function () { return new Enum(namespace.GradientSpreadMethod); }, GradientBrush, namespace.GradientSpreadMethod.Pad);
 
     Nullstone.AutoProperties(GradientBrush, [
         GradientBrush.GradientStopsProperty,
@@ -31,12 +32,12 @@
     GradientBrush.Instance.CreateBrush = function (ctx, bounds) {
         var spread = this.SpreadMethod;
         switch (spread) {
-            case GradientSpreadMethod.Pad:
+            case namespace.GradientSpreadMethod.Pad:
             default:
                 return this._CreatePad(ctx, bounds);
-            case GradientSpreadMethod.Repeat:
+            case namespace.GradientSpreadMethod.Repeat:
                 return this._CreateRepeat(ctx, bounds);
-            case GradientSpreadMethod.Reflect:
+            case namespace.GradientSpreadMethod.Reflect:
                 return this._CreateReflect(ctx, bounds);
         }
     };
@@ -47,10 +48,10 @@
     GradientBrush.Instance._GetMappingModeTransform = function (bounds) {
         /// <param name="bounds" type="Rect"></param>
         /// <returns type="Matrix" />
-        if (this.MappingMode === BrushMappingMode.Absolute)
+        if (this.MappingMode === namespace.BrushMappingMode.Absolute)
             return mat3.identity();
         return mat3.createScale(bounds.Width, bounds.Height);
     };
 
     namespace.GradientBrush = Nullstone.FinishCreate(GradientBrush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

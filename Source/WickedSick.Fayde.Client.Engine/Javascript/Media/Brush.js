@@ -5,10 +5,6 @@
 (function (namespace) {
     var Brush = Nullstone.Create("Brush", DependencyObject);
 
-    Brush.Instance.Init = function () {
-        this.Init$DependencyObject();
-    };
-
     //#region Properties
 
     Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Fayde.Media.Transform; }, Brush);
@@ -110,4 +106,4 @@
     };
 
     namespace.Brush = Nullstone.FinishCreate(Brush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

@@ -59,7 +59,7 @@ var Fayde;
             }
         },
         Brush: function (str) {
-            return new SolidColorBrush(Fayde.TypeConverters.Color(str));
+            return new Fayde.Media.SolidColorBrush(Fayde.TypeConverters.Color(str));
         },
         Color: function (str) {
             if (!str)

@@ -2,6 +2,7 @@
 /// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="Enums.js"/>
+/// <reference path="../Media/Enums.js"/>
 
 (function (namespace) {
     var MediaElement = Nullstone.Create("MediaElement", FrameworkElement);
@@ -31,7 +32,7 @@
     MediaElement.PositionProperty = DependencyProperty.RegisterCore("Position", function () { return TimeSpan; }, MediaElement);
     //MediaElement.RenderedFramesPerSecondProperty = DependencyProperty.Register("RenderedFramesPerSecond", function () { return Number; }, MediaElement);
     MediaElement.SourceProperty = DependencyProperty.RegisterCore("Source", function () { return Uri; }, MediaElement);
-    MediaElement.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Stretch; }, MediaElement, Stretch.Uniform);
+    MediaElement.StretchProperty = DependencyProperty.RegisterCore("Stretch", function () { return Fayde.Media.Stretch; }, MediaElement, Fayde.Media.Stretch.Uniform);
     MediaElement.VolumeProperty = DependencyProperty.RegisterCore("Volume", function () { return Number; }, MediaElement);
 
     Nullstone.AutoProperties(MediaElement, [

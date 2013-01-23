@@ -231,7 +231,7 @@
         if (this._CursorVisible) {
             var caretBrush = this._TextBox.CaretBrush;
             if (!caretBrush)
-                caretBrush = new SolidColorBrush(new Color(0, 0, 0));
+                caretBrush = new Fayde.Media.SolidColorBrush(new Color(0, 0, 0));
 
             var canvasCtx = ctx.CanvasContext;
             var rect = this._Cursor;

@@ -133,7 +133,7 @@
 
         var root = new Canvas();
         this._ClickCatcher = new Canvas();
-        this._ClickCatcher.Background = new SolidColorBrush(new Color(255, 255, 255, 0));
+        this._ClickCatcher.Background = new Fayde.Media.SolidColorBrush(new Color(255, 255, 255, 0));
         this.Child = root;
         root.Children.Add(this._ClickCatcher);
         root.Children.Add(child);

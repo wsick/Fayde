@@ -4,7 +4,7 @@
 /// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var RadialGradientBrush = Nullstone.Create("RadialGradientBrush", GradientBrush);
+    var RadialGradientBrush = Nullstone.Create("RadialGradientBrush", namespace.GradientBrush);
 
     //#region Properties
 

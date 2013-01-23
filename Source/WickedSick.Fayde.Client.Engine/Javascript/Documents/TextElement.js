@@ -15,7 +15,7 @@
 
     //#region Properties
 
-    TextElement.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Brush; }, TextElement, undefined, undefined, { GetValue: function () { return new SolidColorBrush(new Color(0, 0, 0)); } }, _Inheritable.Foreground);
+    TextElement.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Fayde.Media.Brush; }, TextElement, undefined, undefined, { GetValue: function () { return new Fayde.Media.SolidColorBrush(new Color(0, 0, 0)); } }, _Inheritable.Foreground);
     TextElement.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, TextElement, Font.DEFAULT_FAMILY, undefined, undefined, _Inheritable.FontFamily);
     TextElement.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, TextElement, Font.DEFAULT_STRETCH, undefined, undefined, _Inheritable.FontStretch);
     TextElement.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, TextElement, Font.DEFAULT_STYLE, undefined, undefined, _Inheritable.FontStyle);

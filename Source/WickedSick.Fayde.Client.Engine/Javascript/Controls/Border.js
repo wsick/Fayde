@@ -11,8 +11,8 @@
 
     //#region Properties
 
-    Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Brush; }, Border);
-    Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Brush; }, Border);
+    Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Fayde.Media.Brush; }, Border);
+    Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Fayde.Media.Brush; }, Border);
     Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, undefined, Border._ThicknessValidator);
     Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Border);
     Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), undefined, undefined, undefined, undefined, Border._CornerRadiusValidator);

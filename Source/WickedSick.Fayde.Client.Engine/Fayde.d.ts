@@ -406,31 +406,6 @@ enum ClickMode {
     Press = 1,
     Hover = 2,
 }
-enum GradientSpreadMethod {
-    Pad = 0,
-    Reflect = 1,
-    Repeat = 2,
-}
-enum BrushMappingMode {
-    Absolute = 0,
-    RelativeToBoundingBox = 1,
-}
-enum AlignmentX  {
-    Left = 0,
-    Center = 1,
-    Right = 2
-}
-enum AlignmentY {
-    Top = 0,
-    Center = 1,
-    Bottom = 2
-}
-enum Stretch {
-    None = 0,
-    Fill = 1,
-    Uniform = 2,
-    UniformToFill = 3
-}
 enum PenLineCap {
     Flat = 0,
     Square = 1,
@@ -1570,71 +1545,98 @@ class Thumb extends Control {
 //////////////////////////////////////////////////////////
 // MEDIA
 //////////////////////////////////////////////////////////
-class Brush extends DependencyObject {
-    static TransformProperty: DependencyProperty;
-    Transform: Fayde.Media.Transform;
-}
-class SolidColorBrush extends Brush {
-    static ColorProperty: DependencyProperty;
-    Color: Color;
-}
-class GradientBrush extends Brush {
-    static GradientStopsProperty: DependencyProperty;
-    static MappingModeProperty: DependencyProperty;
-    static SpreadMethodProperty: DependencyProperty;
-
-    GradientStops: GradientStopsCollection;
-    MappingMode: BrushMappingMode;
-    SpreadMethod: GradientSpreadMethod;
-
-}
-class GradientStop extends DependencyObject {
-    static ColorProperty: DependencyProperty;
-    static OffsetProperty: DependencyProperty;
-    Color: Color;
-    Offset: number;
-    toString(): string;
-}
-class GradientStopsCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): GradientStop;
-    SetValueAt(index: number, value: GradientStop);
-    Add(value: GradientStop);
-    AddRange(newItems: GradientStop[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: GradientStop);
-    Remove(value: GradientStop);
-    IndexOf(value: GradientStop): number;
-    Contains(value: GradientStop): bool;
-    ToArray(): GradientStop[];
-}
-class LinearGradientBrush extends GradientBrush {
-    static StartPointProperty: DependencyProperty;
-    static EndPointProperty: DependencyProperty;
-    StartPoint: Point;
-    EndPoint: Point;
-}
-class RadialGradientBrush extends GradientBrush {
-    static CenterProperty: DependencyProperty;
-    static GradientOriginProperty: DependencyProperty;
-    static RadiusXProperty: DependencyProperty;
-    static RadiusYProperty: DependencyProperty;
-    Center: Point;
-    GradientOrigin: Point;
-    RadiusX: number;
-    RadiusY: number;
-}
-class TileBrush extends Brush {
-    static AlignmentXProperty: DependencyProperty;
-    static AlignmentYProperty: DependencyProperty;
-    static StretchProperty: DependencyProperty;
-    AlignmentX: AlignmentX;
-    AlignmentY: AlignmentY;
-    Stretch: Stretch;
-}
 class TextOptions {
     static TextHintingModeProperty: DependencyProperty;
     static GetTextHintingMode(d: DependencyObject): TextHintingMode;
     static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
+}
+
+module Fayde.Media {
+    export enum AlignmentX  {
+        Left = 0,
+        Center = 1,
+        Right = 2
+    }
+    export enum AlignmentY {
+        Top = 0,
+        Center = 1,
+        Bottom = 2
+    }
+    export enum Stretch {
+        None = 0,
+        Fill = 1,
+        Uniform = 2,
+        UniformToFill = 3
+    }
+    export enum GradientSpreadMethod {
+        Pad = 0,
+        Reflect = 1,
+        Repeat = 2,
+    }
+    export enum BrushMappingMode {
+        Absolute = 0,
+        RelativeToBoundingBox = 1,
+    }
+    export class Brush extends DependencyObject {
+        static TransformProperty: DependencyProperty;
+        Transform: Fayde.Media.Transform;
+    }
+    export class SolidColorBrush extends Brush {
+        static ColorProperty: DependencyProperty;
+        Color: Color;
+    }
+    export class GradientBrush extends Brush {
+        static GradientStopsProperty: DependencyProperty;
+        static MappingModeProperty: DependencyProperty;
+        static SpreadMethodProperty: DependencyProperty;
+        GradientStops: GradientStopsCollection;
+        MappingMode: BrushMappingMode;
+        SpreadMethod: GradientSpreadMethod;
+
+    }
+    export class GradientStop extends DependencyObject {
+        static ColorProperty: DependencyProperty;
+        static OffsetProperty: DependencyProperty;
+        Color: Color;
+        Offset: number;
+        toString(): string;
+    }
+    export class GradientStopsCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): GradientStop;
+        SetValueAt(index: number, value: GradientStop);
+        Add(value: GradientStop);
+        AddRange(newItems: GradientStop[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: GradientStop);
+        Remove(value: GradientStop);
+        IndexOf(value: GradientStop): number;
+        Contains(value: GradientStop): bool;
+        ToArray(): GradientStop[];
+    }
+    export class LinearGradientBrush extends GradientBrush {
+        static StartPointProperty: DependencyProperty;
+        static EndPointProperty: DependencyProperty;
+        StartPoint: Point;
+        EndPoint: Point;
+    }
+    export class RadialGradientBrush extends GradientBrush {
+        static CenterProperty: DependencyProperty;
+        static GradientOriginProperty: DependencyProperty;
+        static RadiusXProperty: DependencyProperty;
+        static RadiusYProperty: DependencyProperty;
+        Center: Point;
+        GradientOrigin: Point;
+        RadiusX: number;
+        RadiusY: number;
+    }
+    export class TileBrush extends Brush {
+        static AlignmentXProperty: DependencyProperty;
+        static AlignmentYProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        AlignmentX: AlignmentX;
+        AlignmentY: AlignmentY;
+        Stretch: Stretch;
+    }
 }
 
 module Fayde.Media {
@@ -2201,11 +2203,11 @@ module Fayde.Media.Animation {
     }
     class SineEase extends EasingFunctionBase {
     }
-    enum FillBehavior {
+    export enum FillBehavior {
         HoldEnd = 0,
         Stop = 1,
     }
-    enum EasingMode {
+    export enum EasingMode {
         EaseOut = 0,
         EaseIn = 1,
         EaseInOut = 2,

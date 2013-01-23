@@ -1,4 +1,5 @@
 ﻿
+/// <reference path="../Runtime/Nullstone.js"/>
 
 (function (namespace) {
     function GradientMetrics() {
@@ -123,4 +124,4 @@
     GradientMetrics.Instance = new GradientMetrics();
 
     namespace.GradientMetrics = GradientMetrics;
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

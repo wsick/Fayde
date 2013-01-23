@@ -5,7 +5,7 @@
 /// <reference path="BitmapImage.js"/>
 
 (function (namespace) {
-    var ImageBrush = Nullstone.Create("ImageBrush", TileBrush);
+    var ImageBrush = Nullstone.Create("ImageBrush", Fayde.Media.TileBrush);
 
     ImageBrush.Instance.Init = function () {
         this.Init$TileBrush();
@@ -15,7 +15,7 @@
 
     //#region Properties
 
-    ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return ImageBrush; }, ImageBrush, undefined, undefined, { GetValue: function (propd, obj) { return new Fayde.Media.Imaging.BitmapImage(); } });
+    ImageBrush.ImageSourceProperty = DependencyProperty.RegisterFull("ImageSource", function () { return Fayde.Media.Imaging.ImageSource; }, ImageBrush, undefined, undefined, { GetValue: function (propd, obj) { return new Fayde.Media.Imaging.BitmapImage(); } });
 
     Nullstone.AutoProperty(ImageBrush, ImageBrush.ImageSourceProperty, function (value) {
         if (value instanceof Uri)

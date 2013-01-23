@@ -8,7 +8,7 @@
 
     //#region Properties
 
-    Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Brush; }, Panel);
+    Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Fayde.Media.Brush; }, Panel);
     Panel._CreateChildren = {
         GetValue: function (propd, obj) {
             var col = new UIElementCollection();

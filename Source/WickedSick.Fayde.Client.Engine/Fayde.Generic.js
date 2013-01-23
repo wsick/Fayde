@@ -24,6 +24,12 @@ App.GetGenericResourceDictionary = function () {
     var ColorAnimationUsingKeyFrames = Fayde.Media.Animation.ColorAnimationUsingKeyFrames;
     var EasingColorKeyFrame = Fayde.Media.Animation.EasingColorKeyFrame;
     var RepeatBehavior = Fayde.Media.Animation.RepeatBehavior;
+    var SolidColorBrush = Fayde.Media.SolidColorBrush;
+    var Stretch = Fayde.Media.Stretch;
+    var GradientStop = Fayde.Media.GradientStop;
+    var LinearGradientBrush = Fayde.Media.LinearGradientBrush;
+    var BrushMappingMode = Fayde.Media.BrushMappingMode;
+    var GradientSpreadMethod = Fayde.Media.GradientSpreadMethod;
 
     var json = {
         Type: ResourceDictionary,

@@ -328,7 +328,17 @@
 
         return true;
     };
+    var lookupNamespaces = [];
     DependencyProperty._LookupType = function (name) {
+        lookupNamespaces.push(Fayde.Media);
+        lookupNamespaces.push(window);
+
+        var len = lookupNamespaces.length;
+        for (var i = 0; i < len; i++) {
+            var potentialType = lookupNamespaces[i][name];
+            if (potentialType)
+                return potentialType;
+        }
         return eval(name);
     };
 

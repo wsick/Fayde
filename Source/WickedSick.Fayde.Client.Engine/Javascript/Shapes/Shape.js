@@ -16,9 +16,9 @@
 
     //#region Properties
 
-    Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Brush; }, Shape);
-    Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Stretch); }, Shape, Stretch.None);
-    Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Brush; }, Shape);
+    Shape.FillProperty = DependencyProperty.Register("Fill", function () { return Fayde.Media.Brush; }, Shape);
+    Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Fayde.Media.Stretch); }, Shape, Fayde.Media.Stretch.None);
+    Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Fayde.Media.Brush; }, Shape);
     Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () { return Number; }, Shape, 1.0);
     Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return DoubleCollection; }, Shape);
     Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
@@ -84,7 +84,7 @@
         }
 
         var stretch = this.Stretch;
-        if (stretch === Stretch.None)
+        if (stretch === Fayde.Media.Stretch.None)
             return new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height);
 
         if (!isFinite(availableSize.Width))
@@ -103,13 +103,13 @@
             sy = sx;
 
         switch (stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sx = sy = Math.min(sx, sy);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sx = sy = Math.max(sx, sy);
                 break;
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 if (!isFinite(availableSize.Width))
                     sx = 1.0;
                 if (!isFinite(availableSize.Height))
@@ -138,7 +138,7 @@
         this._InvalidateStretch();
 
         var stretch = this.Stretch;
-        if (stretch === Stretch.None)
+        if (stretch === Fayde.Media.Stretch.None)
             return arranged.Max(new Size(shapeBounds.X + shapeBounds.Width, shapeBounds.Y + shapeBounds.Height));
 
         if (shapeBounds.Width === 0)
@@ -152,10 +152,10 @@
             sy = arranged.Height / shapeBounds.Height;
 
         switch (stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sx = sy = Math.min(sx, sy);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sx = sy = Math.max(sx, sy);
                 break;
             default:
@@ -229,7 +229,7 @@
             return desired;
 
         var stretch = this.Stretch;
-        if (stretch === Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
+        if (stretch === Fayde.Media.Stretch.None && shapeBounds.Width > 0 && shapeBounds.Height > 0)
             return new Size(shapeBounds.Width, shapeBounds.Height);
 
         if (!isFinite(desired.Width))
@@ -243,10 +243,10 @@
             sy = desired.Height / shapeBounds.Height;
 
         switch (stretch) {
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sx = sy = Math.min(sx, sy);
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sx = sy = Math.max(sx, sy);
                 break;
             default:
@@ -309,7 +309,7 @@
         }
 
         var stretch = this.Stretch;
-        if (stretch === Stretch.None) {
+        if (stretch === Fayde.Media.Stretch.None) {
             shapeBounds = shapeBounds.Transform(this._StretchXform);
             return shapeBounds;
         }
@@ -331,14 +331,14 @@
 
         var center = false;
         switch (stretch) {
-            case Stretch.Fill:
+            case Fayde.Media.Stretch.Fill:
                 center = true;
                 break;
-            case Stretch.Uniform:
+            case Fayde.Media.Stretch.Uniform:
                 sw = sh = (sw < sh) ? sw : sh;
                 center = true;
                 break;
-            case Stretch.UniformToFill:
+            case Fayde.Media.Stretch.UniformToFill:
                 sw = sh = (sw > sh) ? sw : sh;
                 break;
         }
@@ -350,10 +350,10 @@
                 sw *= adjX ? (framework.Width - stretchBounds.Width + logicalBounds.Width * sw) / (logicalBounds.Width * sw) : 1.0;
                 sh *= adjY ? (framework.Height - stretchBounds.Height + logicalBounds.Height * sh) / (logicalBounds.Height * sh) : 1.0;
                 switch (stretch) {
-                    case Stretch.Uniform:
+                    case Fayde.Media.Stretch.Uniform:
                         sw = sh = (sw < sh) ? sw : sh;
                         break;
-                    case Stretch.UniformToFill:
+                    case Fayde.Media.Stretch.UniformToFill:
                         sw = sh = (sw > sh) ? sw : sh;
                         break;
                 }
@@ -486,7 +486,7 @@
             this._InvalidateMeasure();
             this._InvalidateStretch();
         } else if (args.Property._ID === Shape.StrokeProperty._ID) {
-            var newStroke = Nullstone.As(args.NewValue, Brush);
+            var newStroke = Nullstone.As(args.NewValue, Fayde.Media.Brush);
             if (this._Stroke == null || newStroke == null) {
                 this._InvalidateStrokeBounds();
             } else {
@@ -494,7 +494,7 @@
             }
             this._Stroke = newStroke;
         } else if (args.Property._ID === Shape.FillProperty._ID) {
-            var newFill = Nullstone.As(args.NewValue, Brush);
+            var newFill = Nullstone.As(args.NewValue, Fayde.Media.Brush);
             if (this._Fill == null || newFill == null) {
                 this._InvalidateFillBounds();
             } else {

@@ -50,9 +50,9 @@
 
     _TextBoxBaseDynamicPropertyValueProvider.Instance._InitializeSelectionBrushes = function () {
         if (!this._SelectionBackground)
-            this._SelectionBackground = new SolidColorBrush(Color.FromHex("#FF444444"));
+            this._SelectionBackground = new Fayde.Media.SolidColorBrush(Color.FromHex("#FF444444"));
         if (!this._SelectionForeground)
-            this._SelectionForeground = new SolidColorBrush(Color.FromHex("#FFFFFFFF"));
+            this._SelectionForeground = new Fayde.Media.SolidColorBrush(Color.FromHex("#FFFFFFFF"));
     };
 
     namespace._TextBoxBaseDynamicPropertyValueProvider = Nullstone.FinishCreate(_TextBoxBaseDynamicPropertyValueProvider);

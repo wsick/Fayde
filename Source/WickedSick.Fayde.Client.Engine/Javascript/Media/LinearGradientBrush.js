@@ -5,7 +5,7 @@
 /// <reference path="GradientMetrics.js"/>
 
 (function (namespace) {
-    var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", GradientBrush);
+    var LinearGradientBrush = Nullstone.Create("LinearGradientBrush", namespace.GradientBrush);
 
     //#region Properties
 
@@ -40,7 +40,7 @@
         var first = { x: start.X, y: start.Y };
         var last = { x: end.X, y: end.Y };
 
-        GradientMetrics.Calculate(dir, first, last, bounds);
+        namespace.GradientMetrics.Calculate(dir, first, last, bounds);
 
         var grd = ctx.createLinearGradient(first.x, first.y, last.x, last.y);
         var stops = this.GradientStops;
@@ -88,4 +88,4 @@
     };
 
     namespace.LinearGradientBrush = Nullstone.FinishCreate(LinearGradientBrush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

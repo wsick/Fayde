@@ -380,7 +380,7 @@ namespace WickedSick.Server.XamlParser.Elements
                 {
                     sb.Append(pd.Name);
                     sb.Append(": ");
-                    sb.Append(string.Format("{0}.{1}", value.GetType().Name, value.ToString()));
+                    sb.Append(string.Format("{0}.{1}", ElementAttribute.GetFullNullstoneType(value.GetType()), value.ToString()));
                     needsComma = true;
                     continue;
                 }
