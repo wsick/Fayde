@@ -96,7 +96,9 @@
         this._HtmlEl = this.CreateHtmlObjectImpl();
     };
     TextElement.Instance.CreateHtmlObjectImpl = function () {
-        return document.createElement("span");
+        var container = document.createElement("span");
+        container.style.whiteSpace = "nowrap";
+        return container;
     };
     TextElement.Instance.ApplyHtmlChange = function (change) {
         var propd = change.Property;
