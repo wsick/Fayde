@@ -29,6 +29,14 @@
 
     //#endregion
 
+    //#region Annotations
+
+    Border.Annotations = {
+        ContentProperty: Border.ChildProperty
+    };
+
+    //#endregion
+
     //#region Instance Methods
 
     Border.Instance.IsLayoutContainer = function () { return true; };
@@ -247,77 +255,70 @@
         }
     };
 
-    //#region Html Translations
-
-    Border.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== Border) {
-            this.ApplyHtmlChange$FrameworkElement(change);
-            return;
-        }
-
-        var rootEl = this.GetRootHtmlElement();
-        var contentEl = rootEl.firstChild;
-        if (propd._ID === Border.BackgroundProperty._ID) {
-            var brush = change.NewValue;
-            if (!brush)
-                brush = this.Background;
-            brush.SetupBrush(null, null);
-            contentEl.style.background = brush.ToHtml5Object();
-        }
-
-        if (propd._ID === Border.BorderBrushProperty._ID) {
-            var brush = change.NewValue;
-            if (!brush)
-                brush = this.BorderBrush;
-            brush.SetupBrush(null, null);
-            contentEl.style.borderStyle = "solid";
-            contentEl.style.borderColor = brush.ToHtml5Object();
-        }
-
-        if (propd._ID === Border.BorderThicknessProperty._ID
-            || propd._ID === Border.CornerRadiusProperty._ID) {
-            var thickness = this.BorderThickness;
-            var radius = this.CornerRadius;
-
-            contentEl.style.borderWidth = thickness.Top + "px " + thickness.Right + "px " + thickness.Bottom + "px " + thickness.Left + "px";
-
-            var halfThickness = new Thickness(thickness.Left * 0.5, thickness.Top * 0.5, thickness.Right * 0.5, thickness.Bottom * 0.5);
-            var htmlRadius = new CornerRadius(
-                radius.TopLeft + (halfThickness.Top + halfThickness.Left) / 2,
-                radius.TopRight + (halfThickness.Top + halfThickness.Right) / 2,
-                radius.BottomRight + (halfThickness.Bottom + halfThickness.Right) / 2,
-                radius.BottomLeft + (halfThickness.Bottom + halfThickness.Left) / 2);
-
-            contentEl.style.borderRadius = htmlRadius.TopLeft + "px " + htmlRadius.TopRight + "px " + htmlRadius.BottomRight + "px " + htmlRadius.BottomLeft + "px";
-        }
-    };
-    Border.Instance.CalculateAdjustedWidth = function (width) {
-        var marginLeft = isNaN(this.Margin.Left) ? 0 : this.Margin.Left;
-        var marginRight = isNaN(this.Margin.Right) ? 0 : this.Margin.Right;
-        var borderLeft = isNaN(this.BorderThickness.Left) ? 0 : this.BorderThickness.Left;
-        var borderRight = isNaN(this.BorderThickness.Right) ? 0 : this.BorderThickness.Right;
-        return width + marginLeft + marginRight + borderLeft + borderRight;
-    };
-    Border.Instance.CalculateAdjustedHeight = function (height) {
-        var marginTop = isNaN(this.Margin.Top) ? 0 : this.Margin.Top;
-        var marginBottom = isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom;
-        var borderTop = isNaN(this.BorderThickness.Top) ? 0 : this.BorderThickness.Top;
-        var borderBottom = isNaN(this.BorderThickness.Bottom) ? 0 : this.BorderThickness.Bottom;
-        return height + marginTop + marginBottom + borderTop + borderBottom;
-    };
 
     //#endregion
 
-    //#endregion
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Border.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Border) {
+                this.ApplyHtmlChange$FrameworkElement(change);
+                return;
+            }
 
-    //#region Annotations
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+            if (propd._ID === Border.BackgroundProperty._ID) {
+                var brush = change.NewValue;
+                if (!brush)
+                    brush = this.Background;
+                brush.SetupBrush(null, null);
+                contentEl.style.background = brush.ToHtml5Object();
+            }
 
-    Border.Annotations = {
-        ContentProperty: Border.ChildProperty
-    };
+            if (propd._ID === Border.BorderBrushProperty._ID) {
+                var brush = change.NewValue;
+                if (!brush)
+                    brush = this.BorderBrush;
+                brush.SetupBrush(null, null);
+                contentEl.style.borderStyle = "solid";
+                contentEl.style.borderColor = brush.ToHtml5Object();
+            }
 
-    //#endregion
+            if (propd._ID === Border.BorderThicknessProperty._ID
+                || propd._ID === Border.CornerRadiusProperty._ID) {
+                var thickness = this.BorderThickness;
+                var radius = this.CornerRadius;
+
+                contentEl.style.borderWidth = thickness.Top + "px " + thickness.Right + "px " + thickness.Bottom + "px " + thickness.Left + "px";
+
+                var halfThickness = new Thickness(thickness.Left * 0.5, thickness.Top * 0.5, thickness.Right * 0.5, thickness.Bottom * 0.5);
+                var htmlRadius = new CornerRadius(
+                    radius.TopLeft + (halfThickness.Top + halfThickness.Left) / 2,
+                    radius.TopRight + (halfThickness.Top + halfThickness.Right) / 2,
+                    radius.BottomRight + (halfThickness.Bottom + halfThickness.Right) / 2,
+                    radius.BottomLeft + (halfThickness.Bottom + halfThickness.Left) / 2);
+
+                contentEl.style.borderRadius = htmlRadius.TopLeft + "px " + htmlRadius.TopRight + "px " + htmlRadius.BottomRight + "px " + htmlRadius.BottomLeft + "px";
+            }
+        };
+        Border.Instance.CalculateAdjustedWidth = function (width) {
+            var marginLeft = isNaN(this.Margin.Left) ? 0 : this.Margin.Left;
+            var marginRight = isNaN(this.Margin.Right) ? 0 : this.Margin.Right;
+            var borderLeft = isNaN(this.BorderThickness.Left) ? 0 : this.BorderThickness.Left;
+            var borderRight = isNaN(this.BorderThickness.Right) ? 0 : this.BorderThickness.Right;
+            return width + marginLeft + marginRight + borderLeft + borderRight;
+        };
+        Border.Instance.CalculateAdjustedHeight = function (height) {
+            var marginTop = isNaN(this.Margin.Top) ? 0 : this.Margin.Top;
+            var marginBottom = isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom;
+            var borderTop = isNaN(this.BorderThickness.Top) ? 0 : this.BorderThickness.Top;
+            var borderBottom = isNaN(this.BorderThickness.Bottom) ? 0 : this.BorderThickness.Bottom;
+            return height + marginTop + marginBottom + borderTop + borderBottom;
+        };
+    }
+    //#endif
 
     Border._ThicknessValidator = function () {
     };

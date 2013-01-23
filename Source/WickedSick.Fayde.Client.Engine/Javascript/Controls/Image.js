@@ -204,6 +204,69 @@
 
         source.Unlock();
     };
+    var computeMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
+        /// <param name="width" type="Number"></param>
+        /// <param name="height" type="Number"></param>
+        /// <param name="sw" type="Number"></param>
+        /// <param name="sh" type="Number"></param>
+        /// <param name="stretch" type="Stretch"></param>
+        /// <param name="alignX" type="Number"></param>
+        /// <param name="alignY" type="Number"></param>
+
+        var sx = width / sw;
+        var sy = height / sh;
+        if (width === 0)
+            sx = 1.0;
+        if (height === 0)
+            sy = 1.0;
+
+        if (stretch === Stretch.Fill) {
+            return mat3.createScale(sx, sy);
+        }
+
+        var scale = 1.0;
+        var dx = 0.0;
+        var dy = 0.0;
+        switch (stretch) {
+            case Stretch.Uniform:
+                scale = sx < sy ? sx : sy;
+                break;
+            case Stretch.UniformToFill:
+                scale = sx < sy ? sy : sx;
+                break;
+            case Stretch.None:
+                break;
+        }
+
+        switch (alignX) {
+            case AlignmentX.Left:
+                dx = 0.0;
+                break;
+            case AlignmentX.Center:
+                dx = (width - (scale * sw)) / 2;
+                break;
+            case AlignmentX.Right:
+            default:
+                dx = width - (scale * sw);
+                break;
+        }
+
+        switch (alignY) {
+            case AlignmentY.Top:
+                dy = 0.0;
+                break;
+            case AlignmentY.Center:
+                dy = (height - (scale * sh)) / 2;
+                break;
+            case AlignmentY.Bottom:
+            default:
+                dy = height - (scale * sh);
+                break;
+        }
+        var m = mat3.createScale(scale, scale);
+        mat3.translate(m, dx, dy);
+        return m;
+    };
     Image.Instance._CalculateRenderMetrics = function (source) {
         var stretch = this.Stretch;
         var specified = new Size(this.ActualWidth, this.ActualHeight);
@@ -224,7 +287,7 @@
         if (stretch === Stretch.None)
             paint = paint.Union(image);
 
-        var matrix = Image.ComputeMatrix(paint.Width, paint.Height, image.Width, image.Height,
+        var matrix = computeMatrix(paint.Width, paint.Height, image.Width, image.Height,
             stretch, AlignmentX.Center, AlignmentY.Center);
 
         if (adjust) {
@@ -288,109 +351,48 @@
 
     //#endregion
 
-    Image.Instance.CreateHtmlObjectImpl = function () {
-        var rootEl = document.createElement("div");
-        rootEl.appendChild(document.createElement("div"));
-        this.InitializeHtml(rootEl);
-        return rootEl;
-    };
-    Image.Instance.ApplyHtmlChanges = function (invalidations) {
-        var imageChecks = [Image.StretchProperty, Image.SourceProperty];
-        for (var i = 0; i < imageChecks.length; i++) {
-            if (invalidations[imageChecks[i]._ID]) {
-                Image.ApplyImage(this.GetRootHtmlElement(), this.GetParentIsFixedWidth(), this.GetParentIsFixedHeight(), this.Source, this.Stretch);
-                break;
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Image.Instance.CreateHtmlObjectImpl = function () {
+            var rootEl = document.createElement("div");
+            rootEl.appendChild(document.createElement("div"));
+            this.InitializeHtml(rootEl);
+            return rootEl;
+        };
+        var applyImage = function (rootEl, parentIsFixedWidth, parentIsFixedHeight, source, stretch) {
+            var imgEl = rootEl.firstChild;
+            //if (!parentIsFixedHeight && !parentIsFixedWidth) {
+            //    stretch = Stretch.None;
+            //}
+            switch (stretch) {
+                case Stretch.None:
+                    var img = imgEl.appendChild(document.createElement("img"));
+                    img.src = source._Image.src;
+                    break;
+                case Stretch.Fill:
+                    break;
+                case Stretch.Uniform:
+                    imgEl.style.backgroundSize = "contain";
+                    imgEl.style.backgroundRepeat = "no-repeat";
+                    imgEl.style.backgroundPosition = "center";
+                    imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
+                    break;
+                case Stretch.UniformToFill:
+                    break;
             }
-        }
-        this.ApplyHtmlChanges$FrameworkElement(invalidations);
-    };
-
-    Image.ApplyImage = function (rootEl, parentIsFixedWidth, parentIsFixedHeight, source, stretch) {
-        var imgEl = rootEl.firstChild;
-        //if (!parentIsFixedHeight && !parentIsFixedWidth) {
-        //    stretch = Stretch.None;
-        //}
-        switch (stretch) {
-            case Stretch.None:
-                var img = imgEl.appendChild(document.createElement("img"));
-                img.src = source._Image.src;
-                break;
-            case Stretch.Fill:
-                break;
-            case Stretch.Uniform:
-                imgEl.style.backgroundSize = "contain";
-                imgEl.style.backgroundRepeat = "no-repeat";
-                imgEl.style.backgroundPosition = "center";
-                imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
-                break;
-            case Stretch.UniformToFill:
-                break;
-        }
-    };
-
-    Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
-        /// <param name="width" type="Number"></param>
-        /// <param name="height" type="Number"></param>
-        /// <param name="sw" type="Number"></param>
-        /// <param name="sh" type="Number"></param>
-        /// <param name="stretch" type="Stretch"></param>
-        /// <param name="alignX" type="Number"></param>
-        /// <param name="alignY" type="Number"></param>
-
-        var sx = width / sw;
-        var sy = height / sh;
-        if (width === 0)
-            sx = 1.0;
-        if (height === 0)
-            sy = 1.0;
-
-        if (stretch === Stretch.Fill) {
-            return mat3.createScale(sx, sy);
-        }
-
-        var scale = 1.0;
-        var dx = 0.0;
-        var dy = 0.0;
-        switch (stretch) {
-            case Stretch.Uniform:
-                scale = sx < sy ? sx : sy;
-                break;
-            case Stretch.UniformToFill:
-                scale = sx < sy ? sy : sx;
-                break;
-            case Stretch.None:
-                break;
-        }
-
-        switch (alignX) {
-            case AlignmentX.Left:
-                dx = 0.0;
-                break;
-            case AlignmentX.Center:
-                dx = (width - (scale * sw)) / 2;
-                break;
-            case AlignmentX.Right:
-            default:
-                dx = width - (scale * sw);
-                break;
-        }
-
-        switch (alignY) {
-            case AlignmentY.Top:
-                dy = 0.0;
-                break;
-            case AlignmentY.Center:
-                dy = (height - (scale * sh)) / 2;
-                break;
-            case AlignmentY.Bottom:
-            default:
-                dy = height - (scale * sh);
-                break;
-        }
-        var m = mat3.createScale(scale, scale);
-        mat3.translate(m, dx, dy);
-        return m;
-    };
+        };
+        Image.Instance.ApplyHtmlChanges = function (invalidations) {
+            var imageChecks = [Image.StretchProperty, Image.SourceProperty];
+            for (var i = 0; i < imageChecks.length; i++) {
+                if (invalidations[imageChecks[i]._ID]) {
+                    applyImage(this.GetRootHtmlElement(), this.GetParentIsFixedWidth(), this.GetParentIsFixedHeight(), this.Source, this.Stretch);
+                    break;
+                }
+            }
+            this.ApplyHtmlChanges$FrameworkElement(invalidations);
+        };
+    }
+    //#endif
 
     namespace.Image = Nullstone.FinishCreate(Image);
 })(Fayde);

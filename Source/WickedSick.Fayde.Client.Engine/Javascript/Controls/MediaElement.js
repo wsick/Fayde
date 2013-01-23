@@ -158,73 +158,70 @@
         this.MediaFailed.Raise(this, new MediaFailedEventArgs(el.error.code));
     };
 
-    //#region Html Translations
-
     // http://www.w3.org/2010/05/video/mediaevents.html
-
-    MediaElement.Instance.CreateHtmlObjectImpl = function () {
-        var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
-        var contentEl = rootEl.firstChild;
-        contentEl.appendChild(this.GetHtmlMediaEl());
-        return rootEl;
-    };
-
-    MediaElement.Instance.GetHtmlMediaEl = function () {
-        if (!this._Element)
-            this._Element = this.CreateHtmlMediaEl();
-        return this._Element;
-    };
-    MediaElement.Instance.CreateHtmlMediaEl = function () {
-        var video = document.createElement("video");
-        video.style.position = "absolute";
-        video.style.width = "100%";
-        video.style.height = "100%";
-        video.autoplay = this.AutoPlay;
-        var that = this;
-        video.onerror = function (e) { that.HandleMediaError(e); };
-
-        video.onvolumechange = function (e) { that.$SetValueInternal(MediaElement.VolumeProperty, video.volume); };
-        video.ondurationchange = function (e) { that.$SetValueInternal(MediaElement.NaturalDurationProperty, new Duration(new TimeSpan(0, 0, video.duration))); };
-        video.onratechange = function (e) {
-            that.$SetValueInternal(MediaElement.PlaybackRateProperty, video.playbackRate);
-            that.RateChanged.Raise(that, new RateChangedRoutedEventArgs(vide.playbackRate));
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        MediaElement.Instance.CreateHtmlObjectImpl = function () {
+            var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
+            var contentEl = rootEl.firstChild;
+            contentEl.appendChild(this.GetHtmlMediaEl());
+            return rootEl;
         };
+        MediaElement.Instance.GetHtmlMediaEl = function () {
+            if (!this._Element)
+                this._Element = this.CreateHtmlMediaEl();
+            return this._Element;
+        };
+        MediaElement.Instance.CreateHtmlMediaEl = function () {
+            var video = document.createElement("video");
+            video.style.position = "absolute";
+            video.style.width = "100%";
+            video.style.height = "100%";
+            video.autoplay = this.AutoPlay;
+            var that = this;
+            video.onerror = function (e) { that.HandleMediaError(e); };
 
-        video.addEventListener("progress", function (e) {
-            //TODO: Finish
-        }, false);
-        video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
+            video.onvolumechange = function (e) { that.$SetValueInternal(MediaElement.VolumeProperty, video.volume); };
+            video.ondurationchange = function (e) { that.$SetValueInternal(MediaElement.NaturalDurationProperty, new Duration(new TimeSpan(0, 0, video.duration))); };
+            video.onratechange = function (e) {
+                that.$SetValueInternal(MediaElement.PlaybackRateProperty, video.playbackRate);
+                that.RateChanged.Raise(that, new RateChangedRoutedEventArgs(vide.playbackRate));
+            };
 
-        video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new RoutedEventArgs()); };
-        video.onended = function (e) { that.MediaEnded.Raise(that, new RoutedEventArgs()); };
+            video.addEventListener("progress", function (e) {
+                //TODO: Finish
+            }, false);
+            video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
 
-        return video;
-    };
+            video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new RoutedEventArgs()); };
+            video.onended = function (e) { that.MediaEnded.Raise(that, new RoutedEventArgs()); };
 
-    MediaElement.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== MediaElement) {
-            this.ApplyChange$FrameworkElement(change);
-            return;
-        }
+            return video;
+        };
+        MediaElement.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== MediaElement) {
+                this.ApplyChange$FrameworkElement(change);
+                return;
+            }
 
-        var el = this.GetHtmlMediaEl();
-        if (propd._ID === MediaElement.SourceProperty._ID) {
-            el.src = change.NewValue.toString();
-            //TODO: Reset position to 00:00:00
-        } else if (propd._ID === MediaElement.AutoPlayProperty._ID) {
-            el.autoplay = change.NewValue;
-        } else if (propd._ID === MediaElement.IsMutedProperty._ID) {
-            el.muted = change.NewValue;
-        } else if (propd._ID === MediaElement.PlaybackRateProperty._ID) {
-            el.playbackRate = change.NewValue;
-        } else if (propd._ID === MediaElement.StretchProperty._ID) {
-            //TODO: 
-        } else if (propd._ID === MediaElement.VolumeProperty._ID) {
-            el.volume = change.NewValue;
-        }
-    };
-
+            var el = this.GetHtmlMediaEl();
+            if (propd._ID === MediaElement.SourceProperty._ID) {
+                el.src = change.NewValue.toString();
+                //TODO: Reset position to 00:00:00
+            } else if (propd._ID === MediaElement.AutoPlayProperty._ID) {
+                el.autoplay = change.NewValue;
+            } else if (propd._ID === MediaElement.IsMutedProperty._ID) {
+                el.muted = change.NewValue;
+            } else if (propd._ID === MediaElement.PlaybackRateProperty._ID) {
+                el.playbackRate = change.NewValue;
+            } else if (propd._ID === MediaElement.StretchProperty._ID) {
+                //TODO: 
+            } else if (propd._ID === MediaElement.VolumeProperty._ID) {
+                el.volume = change.NewValue;
+            }
+        };
+    }
     //#endregion
 
     namespace.MediaElement = Nullstone.FinishCreate(MediaElement);

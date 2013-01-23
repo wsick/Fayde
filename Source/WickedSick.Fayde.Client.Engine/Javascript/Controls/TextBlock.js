@@ -65,6 +65,14 @@
 
     //#endregion
 
+    //#region Annotations
+
+    TextBlock.Annotations = {
+        ContentProperty: TextBlock.InlinesProperty
+    };
+
+    //#endregion
+
     //#region Instance Methods
 
     TextBlock.Instance._ComputeBounds = function () {
@@ -406,156 +414,148 @@
         }
     };
 
-    //#region Html Translations
-
-    TextBlock.Instance.InitializeHtml = function (rootEl) {
-        this.InitializeHtml$FrameworkElement(rootEl);
-
-        var contentEl = rootEl.firstChild;
-        contentEl.style.fontFamily = this.FontFamily.toString();
-        contentEl.style.fontSize = this.FontSize + "px";
-        contentEl.style.fontStretch = this.FontStretch;
-        contentEl.style.fontStyle = this.FontStyle;
-        contentEl.style.fontWeight = this.FontWeight.toString();
-        this.ApplyTextAlignmentHtml(contentEl, this.TextAlignment);
-        this.ApplyLineHeightHtml(contentEl, this.LineHeight);
-        this.ApplyForegroundHtml(contentEl, this.Foreground);
-    };
-    TextBlock.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== TextBlock) {
-            this.ApplyHtmlChange$FrameworkElement(change);
-            return;
-        }
-
-        var rootEl = this.GetRootHtmlElement();
-        var contentEl = rootEl.firstChild;
-        if (propd._ID === TextBlock.FontFamilyProperty._ID) {
-            contentEl.style.fontFamily = change.NewValue.toString();
-        } else if (propd._ID === TextBlock.FontSizeProperty._ID) {
-            contentEl.style.fontSize = change.NewValue + "px";
-        } else if (propd._ID === TextBlock.FontStretchProperty._ID) {
-            contentEl.style.fontStretch = change.NewValue;
-        } else if (propd._ID === TextBlock.FontStyleProperty._ID) {
-            contentEl.style.fontStyle = change.NewValue;
-        } else if (propd._ID === TextBlock.FontWeightProperty._ID) {
-            contentEl.style.fontWeight = change.NewValue.toString();
-        } else if (propd._ID === TextBlock.ForegroundProperty._ID) {
-            var brush = change.NewValue;
-            if (!brush)
-                brush = this.Foreground;
-            this.ApplyForegroundHtml(contentEl, brush);
-        } else if (propd._ID === TextBlock.LineHeightProperty._ID) {
-            this.ApplyLineHeightHtml(contentEl, change.NewValue);
-        } else if (propd._ID === TextBlock.TextAlignmentProperty._ID) {
-            var alignment = change.NewValue;
-            this.ApplyTextAlignmentHtml(contentEl, alignment);
-        } else if (propd._ID === TextBlock.TextWrappingProperty._ID) {
-            var wrapping = change.NewValue;
-        } else if (propd._ID === TextBlock.TextDecorationsProperty._ID) {
-            var decorations = change.NewValue;
-            this.ApplyTextDecorationsHtml(contentEl, decorations);
-        }
-    };
-    TextBlock.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
-        foreground.SetupBrush(null, null);
-        contentEl.style.color = foreground.ToHtml5Object();
-    };
-    TextBlock.Instance.ApplyLineHeightHtml = function (contentEl, lineHeight) {
-        if (isNaN(lineHeight))
-            contentEl.style.lineHeight = "";
-        else
-            contentEl.style.lineHeight = lineHeight + "px";
-    };
-    TextBlock.Instance.ApplyTextAlignmentHtml = function (contentEl, alignment) {
-        switch (alignment) {
-            case TextAlignment.Left:
-                contentEl.style.textAlign = "left";
-                break;
-            case TextAlignment.Center:
-                contentEl.style.textAlign = "center";
-                break;
-            case TextAlignment.Right:
-                contentEl.style.textAlign = "right";
-                break;
-        }
-    };
-    TextBlock.Instance.ApplyTextDecorationsHtml = function (contentEl, decorations) {
-        var finalStyle = "";
-        if (decorations & TextDecorations.Underline)
-            finalStyle += "underline ";
-        contentEl.style.textDecoration = finalStyle;
-    };
-    TextBlock.Instance.GetIsFixedWidth = function () {
-        return true;
-    };
-    TextBlock.Instance.GetIsFixedHeight = function () {
-        return true;
-    };
-    TextBlock.Instance.GetParentIsFixedWidth = function () {
-        return false;
-    };
-    TextBlock.Instance.GetParentIsFixedHeight = function () {
-        return false;
-    };
-
-    TextBlock.Instance.SetChildrenHtml = function (inlines) {
-        var rootEl = this.GetRootHtmlElement();
-        var contentEl = rootEl.firstChild;
-
-        while (contentEl.hasChildNodes()) {
-            contentEl.removeChild(contentEl.lastChild);
-        }
-
-        var len = inlines.GetCount();
-        for (var i = 0; i < len; i++) {
-            var te = inlines.GetValueAt(i);
-            contentEl.appendChild(te.GetRootHtmlElement());
-        }
-    };
-    TextBlock.Instance.AddChildHtml = function (inline, newIndex) {
-        var rootEl = this.GetRootHtmlElement();
-        var contentEl = rootEl.firstChild;
-
-        var index = 0;
-        var curEl = contentEl.firstChild;
-        while (curEl && index < newIndex) {
-            curEl = curEl.nextSibling;
-            index++;
-        }
-
-        contentEl.insertBefore(inline.GetRootHtmlElement(), curEl);
-    };
-    TextBlock.Instance.ReplaceChildHtml = function (oldInline, newInline) {
-        var rootEl = this.GetRootHtmlElement();
-        var contentEl = rootEl.firstChild;
-        contentEl.replaceChild(newInline.GetRootHtmlElement(), oldInline.GetRootHtmlElement());
-    };
-    TextBlock.Instance.RemoveChildHtml = function (inline) {
-        var rootEl = this.GetRootHtmlElement();
-        var contentEl = rootEl.firstChild;
-        contentEl.removeChild(inline.GetRootHtmlElement());
-    };
-    TextBlock.Instance.ClearChildrenHtml = function () {
-        var rootEl = this.GetRootHtmlElement();
-        var contentEl = rootEl.firstChild;
-
-        while (contentEl.hasChildNodes()) {
-            contentEl.removeChild(contentEl.lastChild);
-        }
-    };
-
     //#endregion
 
-    //#endregion
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        TextBlock.Instance.InitializeHtml = function (rootEl) {
+            this.InitializeHtml$FrameworkElement(rootEl);
 
-    //#region Annotations
+            var contentEl = rootEl.firstChild;
+            contentEl.style.fontFamily = this.FontFamily.toString();
+            contentEl.style.fontSize = this.FontSize + "px";
+            contentEl.style.fontStretch = this.FontStretch;
+            contentEl.style.fontStyle = this.FontStyle;
+            contentEl.style.fontWeight = this.FontWeight.toString();
+            this.ApplyTextAlignmentHtml(contentEl, this.TextAlignment);
+            this.ApplyLineHeightHtml(contentEl, this.LineHeight);
+            this.ApplyForegroundHtml(contentEl, this.Foreground);
+        };
+        TextBlock.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== TextBlock) {
+                this.ApplyHtmlChange$FrameworkElement(change);
+                return;
+            }
 
-    TextBlock.Annotations = {
-        ContentProperty: TextBlock.InlinesProperty
-    };
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+            if (propd._ID === TextBlock.FontFamilyProperty._ID) {
+                contentEl.style.fontFamily = change.NewValue.toString();
+            } else if (propd._ID === TextBlock.FontSizeProperty._ID) {
+                contentEl.style.fontSize = change.NewValue + "px";
+            } else if (propd._ID === TextBlock.FontStretchProperty._ID) {
+                contentEl.style.fontStretch = change.NewValue;
+            } else if (propd._ID === TextBlock.FontStyleProperty._ID) {
+                contentEl.style.fontStyle = change.NewValue;
+            } else if (propd._ID === TextBlock.FontWeightProperty._ID) {
+                contentEl.style.fontWeight = change.NewValue.toString();
+            } else if (propd._ID === TextBlock.ForegroundProperty._ID) {
+                var brush = change.NewValue;
+                if (!brush)
+                    brush = this.Foreground;
+                this.ApplyForegroundHtml(contentEl, brush);
+            } else if (propd._ID === TextBlock.LineHeightProperty._ID) {
+                this.ApplyLineHeightHtml(contentEl, change.NewValue);
+            } else if (propd._ID === TextBlock.TextAlignmentProperty._ID) {
+                var alignment = change.NewValue;
+                this.ApplyTextAlignmentHtml(contentEl, alignment);
+            } else if (propd._ID === TextBlock.TextWrappingProperty._ID) {
+                var wrapping = change.NewValue;
+            } else if (propd._ID === TextBlock.TextDecorationsProperty._ID) {
+                var decorations = change.NewValue;
+                this.ApplyTextDecorationsHtml(contentEl, decorations);
+            }
+        };
+        TextBlock.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
+            foreground.SetupBrush(null, null);
+            contentEl.style.color = foreground.ToHtml5Object();
+        };
+        TextBlock.Instance.ApplyLineHeightHtml = function (contentEl, lineHeight) {
+            if (isNaN(lineHeight))
+                contentEl.style.lineHeight = "";
+            else
+                contentEl.style.lineHeight = lineHeight + "px";
+        };
+        TextBlock.Instance.ApplyTextAlignmentHtml = function (contentEl, alignment) {
+            switch (alignment) {
+                case TextAlignment.Left:
+                    contentEl.style.textAlign = "left";
+                    break;
+                case TextAlignment.Center:
+                    contentEl.style.textAlign = "center";
+                    break;
+                case TextAlignment.Right:
+                    contentEl.style.textAlign = "right";
+                    break;
+            }
+        };
+        TextBlock.Instance.ApplyTextDecorationsHtml = function (contentEl, decorations) {
+            var finalStyle = "";
+            if (decorations & TextDecorations.Underline)
+                finalStyle += "underline ";
+            contentEl.style.textDecoration = finalStyle;
+        };
+        TextBlock.Instance.GetIsFixedWidth = function () {
+            return true;
+        };
+        TextBlock.Instance.GetIsFixedHeight = function () {
+            return true;
+        };
+        TextBlock.Instance.GetParentIsFixedWidth = function () {
+            return false;
+        };
+        TextBlock.Instance.GetParentIsFixedHeight = function () {
+            return false;
+        };
 
-    //#endregion
+        TextBlock.Instance.SetChildrenHtml = function (inlines) {
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+
+            while (contentEl.hasChildNodes()) {
+                contentEl.removeChild(contentEl.lastChild);
+            }
+
+            var len = inlines.GetCount();
+            for (var i = 0; i < len; i++) {
+                var te = inlines.GetValueAt(i);
+                contentEl.appendChild(te.GetRootHtmlElement());
+            }
+        };
+        TextBlock.Instance.AddChildHtml = function (inline, newIndex) {
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+
+            var index = 0;
+            var curEl = contentEl.firstChild;
+            while (curEl && index < newIndex) {
+                curEl = curEl.nextSibling;
+                index++;
+            }
+
+            contentEl.insertBefore(inline.GetRootHtmlElement(), curEl);
+        };
+        TextBlock.Instance.ReplaceChildHtml = function (oldInline, newInline) {
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+            contentEl.replaceChild(newInline.GetRootHtmlElement(), oldInline.GetRootHtmlElement());
+        };
+        TextBlock.Instance.RemoveChildHtml = function (inline) {
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+            contentEl.removeChild(inline.GetRootHtmlElement());
+        };
+        TextBlock.Instance.ClearChildrenHtml = function () {
+            var rootEl = this.GetRootHtmlElement();
+            var contentEl = rootEl.firstChild;
+
+            while (contentEl.hasChildNodes()) {
+                contentEl.removeChild(contentEl.lastChild);
+            }
+        };
+    }
+    //#endif
 
     namespace.TextBlock = Nullstone.FinishCreate(TextBlock);
 })(window);

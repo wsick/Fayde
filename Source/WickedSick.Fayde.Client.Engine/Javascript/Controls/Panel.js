@@ -211,59 +211,59 @@
 
     //#endregion
 
-    //#region Html Translations
-
-    Panel.Instance.OnHtmlAttached = function () {
-        var children = this.Children;
-        if (children) {
-            var len = children.GetCount();
-            for (var i = 0; i < len; i++) {
-                var child = children.GetValueAt(i);
-                this.InsertHtmlChild(child, i);
-                child.OnHtmlAttached();
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Panel.Instance.OnHtmlAttached = function () {
+            var children = this.Children;
+            if (children) {
+                var len = children.GetCount();
+                for (var i = 0; i < len; i++) {
+                    var child = children.GetValueAt(i);
+                    this.InsertHtmlChild(child, i);
+                    child.OnHtmlAttached();
+                }
             }
-        }
-    };
-    Panel.Instance.OnHtmlDetached = function () {
-        var children = this.Children;
-        if (children) {
-            var len = children.GetCount();
-            for (var i = 0; i < len; i++) {
-                var child = children.GetValueAt(i);
-                this.RemoveHtmlChild(child, i);
-                child.OnHtmlDetached();
+        };
+        Panel.Instance.OnHtmlDetached = function () {
+            var children = this.Children;
+            if (children) {
+                var len = children.GetCount();
+                for (var i = 0; i < len; i++) {
+                    var child = children.GetValueAt(i);
+                    this.RemoveHtmlChild(child, i);
+                    child.OnHtmlDetached();
+                }
             }
-        }
-    };
+        };
 
-    Panel.Instance.GetHtmlChildrenContainer = function () {
-        var contentEl = this.GetContentHtmlElement();
-        if (!contentEl.firstChild)
-            contentEl.appendChild(this.CreateHtmlChildrenContainer());
-        return contentEl.firstChild;
-    };
-    Panel.Instance.CreateHtmlChildrenContainer = function () { };
+        Panel.Instance.GetHtmlChildrenContainer = function () {
+            var contentEl = this.GetContentHtmlElement();
+            if (!contentEl.firstChild)
+                contentEl.appendChild(this.CreateHtmlChildrenContainer());
+            return contentEl.firstChild;
+        };
+        Panel.Instance.CreateHtmlChildrenContainer = function () { };
 
-    Panel.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== Panel) {
-            this.ApplyHtmlChange$FrameworkElement(change);
-            return;
-        }
+        Panel.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Panel) {
+                this.ApplyHtmlChange$FrameworkElement(change);
+                return;
+            }
 
-        var contentEl = this.GetRootHtmlElement().firstChild;
-        if (propd._ID === Panel.BackgroundProperty._ID) {
-            var brush = change.NewValue;
-            if (!brush)
-                brush = this.Background;
-            brush.SetupBrush(null, null);
-            contentEl.style.background = brush.ToHtml5Object();
-        }
-    };
-    Panel.Instance.InsertHtmlChild = function () { };
-    Panel.Instance.RemoveHtmlChild = function () { };
-
-    //#endregion
+            var contentEl = this.GetRootHtmlElement().firstChild;
+            if (propd._ID === Panel.BackgroundProperty._ID) {
+                var brush = change.NewValue;
+                if (!brush)
+                    brush = this.Background;
+                brush.SetupBrush(null, null);
+                contentEl.style.background = brush.ToHtml5Object();
+            }
+        };
+        Panel.Instance.InsertHtmlChild = function () { };
+        Panel.Instance.RemoveHtmlChild = function () { };
+    }
+    //#endif
 
     //#region Annotations
 
