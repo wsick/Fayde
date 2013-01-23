@@ -147,8 +147,8 @@
         this.PropertyChanged.Raise(this, args);
     };
 
+    //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
-        //#region Html Translations
         Rectangle.Instance.CreateSvgShape = function () {
             var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             return rect;
@@ -167,8 +167,8 @@
                 shape.setAttribute("ry", change.NewValue);
             }
         };
-        //#endregion
     }
+    //#endif
 
     namespace.Rectangle = Nullstone.FinishCreate(Rectangle);
 })(window);

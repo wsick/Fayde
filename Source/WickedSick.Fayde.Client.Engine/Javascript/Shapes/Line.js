@@ -82,9 +82,9 @@
 
         this.PropertyChanged.Raise(this, args);
     };
-    
+
+    //#if !ENABLE_CANVAS  
     if (!Fayde.IsCanvasEnabled) {
-        //#region Html Translations
         Line.Instance.CreateSvgShape = function () {
             var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
             return line;
@@ -107,8 +107,8 @@
                 shape.setAttribute("y2", change.NewValue.toString());
             }
         };
-        //#endregion
     }
+    //#endif
 
     namespace.Line = Nullstone.FinishCreate(Line);
 })(window);

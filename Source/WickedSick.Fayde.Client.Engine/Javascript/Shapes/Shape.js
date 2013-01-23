@@ -536,8 +536,8 @@
 
     //#endregion
 
+    //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
-        //#region Html Translations
         Shape.Instance.CreateHtmlObjectImpl = function () {
             var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
             var contentEl = rootEl.firstChild;
@@ -565,6 +565,16 @@
             return this._Shape;
         };
 
+        var serializeDashArray = function (collection) {
+            var s = "";
+            var len = collection.GetCount();
+            for (var i = 0; i < len; i++) {
+                if (s)
+                    s += ", ";
+                s = collection.GetValueAt(i).toString();
+            }
+            return s;
+        };
         Shape.Instance.ApplyHtmlChange = function (change) {
             var propd = change.Property;
             if (propd.OwnerType !== Shape) {
@@ -593,7 +603,7 @@
             } else if (propd._ID === Shape.StrokeThicknessProperty._ID) {
                 shape.setAttribute("stroke-width", change.NewValue);
             } else if (propd._ID === Shape.StrokeDashArrayProperty._ID) {
-                shape.setAttribute("stroke-dasharray", Shape._SerializeDashArray(change.NewValue));
+                shape.setAttribute("stroke-dasharray", serializeDashArray(change.NewValue));
             } else if (propd._ID === Shape.StrokeDashOffsetProperty._ID) {
                 shape.setAttribute("stroke-dashoffset", change.NewValue);
             } else if (propd._ID === Shape.StrokeLineJoinProperty._ID) {
@@ -612,18 +622,8 @@
                 shape.setAttribute("stroke-miterlimit", change.NewValue);
             }
         };
-        Shape._SerializeDashArray = function (collection) {
-            var s = "";
-            var len = collection.GetCount();
-            for (var i = 0; i < len; i++) {
-                if (s)
-                    s += ", ";
-                s = collection.GetValueAt(i).toString();
-            }
-            return s;
-        };
-        //#endregion
     }
+    //#endif
 
     namespace.Shape = Nullstone.FinishCreate(Shape);
 })(window);

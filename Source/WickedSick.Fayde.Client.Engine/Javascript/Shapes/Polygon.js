@@ -152,13 +152,24 @@
         this._InvalidateNaturalBounds();
         this.InvalidateProperty(Polygon.PointsProperty);
     };
-    
+
+    //#if !ENABLE_CANVAS    
     if (!Fayde.IsCanvasEnabled) {
-        //#region Html Translations
         Polygon.Instance.CreateSvgShape = function () {
             var polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
             this.ApplyHtmlFillRule(polygon, this.FillRule);
             return polygon;
+        };
+        var serializePoints = function (points) {
+            var s = "";
+            var len = points.GetCount();
+            for (var i = 0; i < len; i++) {
+                var p = points.GetValueAt(i);
+                if (i > 0)
+                    s += " ";
+                s += p.X.toString() + "," + p.Y.toString();
+            }
+            return s;
         };
         Polygon.Instance.ApplyHtmlChange = function (change) {
             var propd = change.Property;
@@ -174,7 +185,7 @@
                 var coll = change.NewValue;
                 if (!coll)
                     coll = this.Points;
-                shape.setAttribute("points", Polygon._SerializePoints(coll));
+                shape.setAttribute("points", serializePoints(coll));
             }
         };
         Polygon.Instance.ApplyHtmlFillRule = function (shape, fillRule) {
@@ -188,19 +199,8 @@
             }
 
         };
-        Polygon._SerializePoints = function (points) {
-            var s = "";
-            var len = points.GetCount();
-            for (var i = 0; i < len; i++) {
-                var p = points.GetValueAt(i);
-                if (i > 0)
-                    s += " ";
-                s += p.X.toString() + "," + p.Y.toString();
-            }
-            return s;
-        };
-        //#endregion
     }
+    //#endif
 
     namespace.Polygon = Nullstone.FinishCreate(Polygon);
 })(window);

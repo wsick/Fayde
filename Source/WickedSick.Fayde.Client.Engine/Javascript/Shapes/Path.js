@@ -76,8 +76,8 @@
         this._OnSubPropertyChanged$Shape(propd, sender, args);
     };
     
+    //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
-        //#region Html Translations
         Path.Instance.CreateSvgShape = function () {
             var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
             var data = this.Data;
@@ -103,8 +103,8 @@
                 svg.setAttribute("viewBox", bounds.X.toString() + " " + bounds.Y.toString() + " " + bounds.Width.toString() + " " + bounds.Height.toString());
             }
         };
-        //#endregion
     }
+    //#endif
 
     namespace.Path = Nullstone.FinishCreate(Path);
 })(window);

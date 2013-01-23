@@ -77,13 +77,24 @@
         this._InvalidateNaturalBounds();
         this.InvalidateProperty(Polyline.PointsProperty);
     };
-    
+
+    //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
-        //#region Html Translations
         Polyline.Instance.CreateSvgShape = function () {
             var polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
             this.ApplyHtmlFillRule(polyline, this.FillRule);
             return polyline;
+        };
+        var serializePoints = function (points) {
+            var s = "";
+            var len = points.GetCount();
+            for (var i = 0; i < len; i++) {
+                var p = points.GetValueAt(i);
+                if (i > 0)
+                    s += " ";
+                s += p.X.toString() + "," + p.Y.toString();
+            }
+            return s;
         };
         Polyline.Instance.ApplyHtmlChange = function (change) {
             var propd = change.Property;
@@ -99,7 +110,7 @@
                 var coll = change.NewValue;
                 if (!coll)
                     coll = this.Points;
-                shape.setAttribute("points", Polyline._SerializePoints(coll));
+                shape.setAttribute("points", serializePoints(coll));
             }
         };
         Polyline.Instance.ApplyHtmlFillRule = function (shape, fillRule) {
@@ -113,19 +124,8 @@
             }
 
         };
-        Polyline._SerializePoints = function (points) {
-            var s = "";
-            var len = points.GetCount();
-            for (var i = 0; i < len; i++) {
-                var p = points.GetValueAt(i);
-                if (i > 0)
-                    s += " ";
-                s += p.X.toString() + "," + p.Y.toString();
-            }
-            return s;
-        };
-        //#endregion
     }
+    //#endif
 
     namespace.Polyline = Nullstone.FinishCreate(Polyline);
 })(window);
