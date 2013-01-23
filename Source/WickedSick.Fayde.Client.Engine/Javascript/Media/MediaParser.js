@@ -460,5 +460,5 @@
         return code >= 48 && code <= 57;
     };
 
-    namespace.MediaParser = _MediaParser;
+    namespace._MediaParser = _MediaParser;
 })(Fayde);

@@ -215,27 +215,7 @@
 
     //#region Render
 
-    Surface.Instance._Invalidate = function (rect) {
-        return;
-        RenderDebug("Invalidation: " + rect.toString());
-        if (!rect) {
-            var extents = this.GetExtents();
-            rect = new Rect(0, 0, extents.Width, extents.Height);
-        }
-        var invalidated = this._InvalidatedRect;
-        if (!invalidated)
-            invalidated = rect;
-        else
-            invalidated = invalidated.Union(rect);
-        this._InvalidatedRect = invalidated;
-
-        if (this._IsRenderQueued)
-            return;
-        this._IsRenderQueued = true;
-        Surface._Invalidations.push(this);
-        setTimeout(Surface.StaticRender, 1);
-    };
-    Surface.StaticRender = function () {
+    var staticRender = function () {
         var cur;
         var invalidations = Surface._Invalidations;
         while (cur = invalidations.pop()) {
@@ -246,6 +226,30 @@
             cur.Render(rect2);
         }
     };
+    Surface.Instance._Invalidate = function (rect) { };
+    //#if ENABLE_CANVAS
+    if (Fayde.IsCanvasEnabled) {
+        Surface.Instance._Invalidate = function (rect) {
+            RenderDebug("Invalidation: " + rect.toString());
+            if (!rect) {
+                var extents = this.GetExtents();
+                rect = new Rect(0, 0, extents.Width, extents.Height);
+            }
+            var invalidated = this._InvalidatedRect;
+            if (!invalidated)
+                invalidated = rect;
+            else
+                invalidated = invalidated.Union(rect);
+            this._InvalidatedRect = invalidated;
+
+            if (this._IsRenderQueued)
+                return;
+            this._IsRenderQueued = true;
+            Surface._Invalidations.push(this);
+            setTimeout(staticRender, 1);
+        };
+    }
+    //#endif
     Surface.Instance.Render = function (region) {
         var startRenderTime;
         var isRenderPassTimed;

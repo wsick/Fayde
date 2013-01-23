@@ -6,10 +6,6 @@
 (function (namespace) {
     var Path = Nullstone.Create("Path", Shape);
 
-    Path.Instance.Init = function () {
-        this.Init$Shape();
-    };
-
     //#region Properties
 
     // Path.Data Description: http://msdn.microsoft.com/en-us/library/system.windows.shapes.path.data(v=vs.95).aspx
@@ -57,25 +53,42 @@
         return shapeBounds;
     };
 
-    Path.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Path) {
-            this._OnPropertyChanged$Shape(args, error);
-            return;
-        }
+    //#region Property Changes
 
-        if (args.Property._ID === Path.DataProperty._ID) {
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        }
-    };
-    Path.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd != null && propd._ID === Path.DataProperty._ID) {
-            this._InvalidateNaturalBounds();
-            this.InvalidateProperty(propd);
-            return;
-        }
-        this._OnSubPropertyChanged$Shape(propd, sender, args);
-    };
-    
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Path.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Path) {
+                this._OnPropertyChanged$Shape(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Path.DataProperty._ID) {
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            }
+        };
+        Path.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd != null && propd._ID === Path.DataProperty._ID) {
+                this.InvalidateProperty(propd);
+                return;
+            }
+            this._OnSubPropertyChanged$Shape(propd, sender, args);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Path.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd != null && propd._ID === Path.DataProperty._ID) {
+                this._InvalidateNaturalBounds();
+                return;
+            }
+            this._OnSubPropertyChanged$Shape(propd, sender, args);
+        };
+    }
+    //#endif
+
+    //#endregion
+
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
         Path.Instance.CreateSvgShape = function () {

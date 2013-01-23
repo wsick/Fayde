@@ -480,59 +480,81 @@
 
     //#region Property Changed
 
-    Shape.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Shape) {
-            if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Shape.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Shape) {
+                if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+                    this.InvalidateProperty(Shape.StretchProperty);
+                }
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
+            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+        Shape.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd != null && (propd._ID === Shape.FillProperty._ID || propd._ID === Shape.StrokeProperty._ID)) {
+                this.InvalidateProperty(propd);
+            } else {
+                this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+            }
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Shape.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Shape) {
+                if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+                    this._InvalidateStretch();
+                }
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Shape.StretchProperty._ID) {
+                this._InvalidateMeasure();
                 this._InvalidateStretch();
-                this.InvalidateProperty(Shape.StretchProperty);
-            }
-            this._OnPropertyChanged$FrameworkElement(args, error);
-            return;
-        }
-
-        if (args.Property._ID === Shape.StretchProperty._ID) {
-            this._InvalidateMeasure();
-            this._InvalidateStretch();
-        } else if (args.Property._ID === Shape.StrokeProperty._ID) {
-            var newStroke = Nullstone.As(args.NewValue, Brush);
-            if (this._Stroke == null || newStroke == null) {
+            } else if (args.Property._ID === Shape.StrokeProperty._ID) {
+                var newStroke = Nullstone.As(args.NewValue, Brush);
+                if (this._Stroke == null || newStroke == null) {
+                    this._InvalidateStrokeBounds();
+                } else {
+                    this._InvalidateSurfaceCache();
+                }
+                this._Stroke = newStroke;
+            } else if (args.Property._ID === Shape.FillProperty._ID) {
+                var newFill = Nullstone.As(args.NewValue, Brush);
+                if (this._Fill == null || newFill == null) {
+                    this._InvalidateFillBounds();
+                } else {
+                    this._InvalidateSurfaceCache();
+                }
+                this._Fill = newFill;
+            } else if (args.Property._ID === Shape.StrokeThicknessProperty._ID) {
                 this._InvalidateStrokeBounds();
-            } else {
-                this._InvalidateSurfaceCache();
+            } else if (args.Property._ID === Shape.StrokeDashCapProperty._ID
+                || args.Property._ID === Shape.StrokeDashArrayProperty._ID
+                || args.Property._ID === Shape.StrokeEndLineCapProperty._ID
+                || args.Property._ID === Shape.StrokeLineJoinProperty._ID
+                || args.Property._ID === Shape.StrokeMiterLimitProperty._ID
+                || args.Property._ID === Shape.StrokeStartLineCapProperty._ID) {
+                this._InvalidateStrokeBounds();
             }
-            this._Stroke = newStroke;
-        } else if (args.Property._ID === Shape.FillProperty._ID) {
-            var newFill = Nullstone.As(args.NewValue, Brush);
-            if (this._Fill == null || newFill == null) {
-                this._InvalidateFillBounds();
-            } else {
-                this._InvalidateSurfaceCache();
-            }
-            this._Fill = newFill;
-        } else if (args.Property._ID === Shape.StrokeThicknessProperty._ID) {
-            this._InvalidateStrokeBounds();
-        } else if (args.Property._ID === Shape.StrokeDashCapProperty._ID
-            || args.Property._ID === Shape.StrokeDashArrayProperty._ID
-            || args.Property._ID === Shape.StrokeEndLineCapProperty._ID
-            || args.Property._ID === Shape.StrokeLineJoinProperty._ID
-            || args.Property._ID === Shape.StrokeMiterLimitProperty._ID
-            || args.Property._ID === Shape.StrokeStartLineCapProperty._ID) {
-            this._InvalidateStrokeBounds();
-        }
-        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
 
-        this._Invalidate();
-        this.PropertyChanged.Raise(this, args);
-    };
-    Shape.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd != null && (propd._ID === Shape.FillProperty._ID || propd._ID === Shape.StrokeProperty._ID)) {
             this._Invalidate();
-            this._InvalidateSurfaceCache();
-            this.InvalidateProperty(propd);
-        } else {
-            this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
-        }
-    };
+            this.PropertyChanged.Raise(this, args);
+        };
+        Shape.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd != null && (propd._ID === Shape.FillProperty._ID || propd._ID === Shape.StrokeProperty._ID)) {
+                this._Invalidate();
+                this._InvalidateSurfaceCache();
+            } else {
+                this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+            }
+        };
+    }
+    //#endif
 
     //#endregion
 

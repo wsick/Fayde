@@ -66,22 +66,47 @@
         return shapeBounds;
     };
 
-    Line.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Line) {
-            this._OnPropertyChanged$Shape(args, error);
-            return;
-        }
+    //#region Property Changes
 
-        if (args.Property._ID === Line.X1Property._ID
-            || args.Property._ID === Line.X2Property._ID
-            || args.Property._ID === Line.Y1Property._ID
-            || args.Property._ID === Line.Y2Property._ID) {
-            this._InvalidateNaturalBounds();
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        }
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Line.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Line) {
+                this._OnPropertyChanged$Shape(args, error);
+                return;
+            }
 
-        this.PropertyChanged.Raise(this, args);
-    };
+            if (args.Property._ID === Line.X1Property._ID
+                || args.Property._ID === Line.X2Property._ID
+                || args.Property._ID === Line.Y1Property._ID
+                || args.Property._ID === Line.Y2Property._ID) {
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            }
+
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Line.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Line) {
+                this._OnPropertyChanged$Shape(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Line.X1Property._ID
+                || args.Property._ID === Line.X2Property._ID
+                || args.Property._ID === Line.Y1Property._ID
+                || args.Property._ID === Line.Y2Property._ID) {
+                this._InvalidateNaturalBounds();
+            }
+
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#endif
+
+    //#endregion
 
     //#if !ENABLE_CANVAS  
     if (!Fayde.IsCanvasEnabled) {

@@ -5,11 +5,7 @@
 
 (function (namespace) {
     var Polyline = Nullstone.Create("Polyline", Shape);
-
-    Polyline.Instance.Init = function () {
-        this.Init$Shape();
-    };
-
+    
     //#region Properties
 
     Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
@@ -50,33 +46,57 @@
 
     Polyline.Instance._CanFill = function () { return true; };
 
-    Polyline.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Polyline) {
-            this._OnPropertyChanged$Shape(args, error);
-            return;
-        }
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Polyline.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Polyline) {
+                this._OnPropertyChanged$Shape(args, error);
+                return;
+            }
 
-        if (args.Property._ID === Polyline.PointsProperty._ID) {
+            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+        Polyline.Instance._OnCollectionChanged = function (col, args) {
+            if (!this._PropertyHasValueNoAutoCreate(Polyline.PointsProperty, col)) {
+                this._OnCollectionChanged$Shape(col, args);
+                return;
+            }
+            this.InvalidateProperty(Polyline.PointsProperty);
+        };
+        Polyline.Instance._OnCollectionItemChanged = function (col, obj, args) {
+            this._OnCollectionItemChanged$Shape(col, obj, args);
+            this.InvalidateProperty(Polyline.PointsProperty);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Polyline.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Polyline) {
+                this._OnPropertyChanged$Shape(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Polyline.PointsProperty._ID) {
+                this._InvalidateNaturalBounds();
+            }
+
+            this._Invalidate();
+            this.PropertyChanged.Raise(this, args);
+        };
+        Polyline.Instance._OnCollectionChanged = function (col, args) {
+            if (!this._PropertyHasValueNoAutoCreate(Polyline.PointsProperty, col)) {
+                this._OnCollectionChanged$Shape(col, args);
+                return;
+            }
             this._InvalidateNaturalBounds();
-        }
-
-        this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        this._Invalidate();
-        this.PropertyChanged.Raise(this, args);
-    };
-    Polyline.Instance._OnCollectionChanged = function (col, args) {
-        if (!this._PropertyHasValueNoAutoCreate(Polyline.PointsProperty, col)) {
-            this._OnCollectionChanged$Shape(col, args);
-            return;
-        }
-        this._InvalidateNaturalBounds();
-        this.InvalidateProperty(Polyline.PointsProperty);
-    };
-    Polyline.Instance._OnCollectionItemChanged = function (col, obj, args) {
-        this._OnCollectionItemChanged$Shape(col, obj, args);
-        this._InvalidateNaturalBounds();
-        this.InvalidateProperty(Polyline.PointsProperty);
-    };
+        };
+        Polyline.Instance._OnCollectionItemChanged = function (col, obj, args) {
+            this._OnCollectionItemChanged$Shape(col, obj, args);
+            this._InvalidateNaturalBounds();
+        };
+    }
+    //#endif
 
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
