@@ -3,7 +3,7 @@
 /// <reference path="MatrixTransform.js"/>
 
 (function (namespace) {
-    var Transform = Nullstone.Create("Transform", GeneralTransform);
+    var Transform = Nullstone.Create("Transform", namespace.GeneralTransform);
 
     Transform.Instance.Init = function () {
         this.Init$GeneralTransform();
@@ -28,7 +28,7 @@
             if (inverse == null)
                 return;
 
-            var mt = new MatrixTransform();
+            var mt = new namespace.MatrixTransform();
             mt.Matrix = inverse;
             return mt;
         }
@@ -57,4 +57,4 @@
     };
 
     namespace.Transform = Nullstone.FinishCreate(Transform);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

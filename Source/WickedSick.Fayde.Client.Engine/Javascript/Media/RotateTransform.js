@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var RotateTransform = Nullstone.Create("RotateTransform", Transform);
+    var RotateTransform = Nullstone.Create("RotateTransform", namespace.Transform);
 
     //#region Properties
 
@@ -46,4 +46,4 @@
     };
 
     namespace.RotateTransform = Nullstone.FinishCreate(RotateTransform);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

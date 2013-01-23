@@ -563,8 +563,8 @@ class UIElement extends DependencyObject {
     IsHitTestVisible: bool;
     OpacityMask: Brush;
     Opacity: number;
-    Projection: Projection;
-    RenderTransform: Transform;
+    Projection: Fayde.Media.Projection;
+    RenderTransform: Fayde.Media.Transform;
     RenderTransformOrigin: Point;
     Resources: ResourceDictionary;
     Triggers: any;
@@ -599,7 +599,7 @@ class UIElement extends DependencyObject {
     
     UpdateLayout();
 
-    TransformToVisual(): GeneralTransform;
+    TransformToVisual(): Fayde.Media.GeneralTransform;
 }
 class FrameworkElement extends UIElement {
     //Dependency Properties
@@ -1581,7 +1581,7 @@ class Thumb extends Control {
 //////////////////////////////////////////////////////////
 class Brush extends DependencyObject {
     static TransformProperty: DependencyProperty;
-    Transform: Transform;
+    Transform: Fayde.Media.Transform;
 }
 class SolidColorBrush extends Brush {
     static ColorProperty: DependencyProperty;
@@ -1640,76 +1640,9 @@ class TileBrush extends Brush {
     AlignmentY: AlignmentY;
     Stretch: Stretch;
 }
-class GeneralTransform extends DependencyObject {
-    Inverse: GeneralTransform;
-    Transform(point: Point): Point;
-    TransformBounds(rect: Rect): Rect;
-}
-class Transform extends GeneralTransform {
-}
-class MatrixTransform extends Transform {
-    static MatrixProperty: DependencyProperty;
-    Matrix: Matrix;
-}
-class RotateTransform extends Transform {
-    static AngleProperty: DependencyProperty;
-    static CenterXProperty: DependencyProperty;
-    static CenterYProperty: DependencyProperty;
-    Angle: number;
-    CenterX: number;
-    CenterY: number;
-}
-class ScaleTransform extends Transform {
-    static CenterXProperty: DependencyProperty;
-    static CenterYProperty: DependencyProperty;
-    static ScaleXProperty: DependencyProperty;
-    static ScaleYProperty: DependencyProperty;
-    CenterX: number;
-    CenterY: number;
-    ScaleX: number;
-    ScaleY: number;
-}
-class SkewTransform extends Transform {
-    static AngleXProperty: DependencyProperty;
-    static AngleYProperty: DependencyProperty;
-    static CenterXProperty: DependencyProperty;
-    static CenterYProperty: DependencyProperty;
-    AngleX: number;
-    AngleY: number;
-    CenterX: number;
-    CenterY: number;
-}
-class TranslateTransform extends Transform {
-    static XProperty: DependencyProperty;
-    static YProperty: DependencyProperty;
-    X: number;
-    Y: number;
-}
-class TransformCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): Transform;
-    SetValueAt(index: number, value: Transform);
-    Add(value: Transform);
-    AddRange(newItems: Transform[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Transform);
-    Remove(value: Transform);
-    IndexOf(value: Transform): number;
-    Contains(value: Transform): bool;
-    ToArray(): Transform[];
-}
-class TransformGroup extends Transform {
-    static ChildrenProperty: DependencyProperty;
-    Children: TransformCollection;
-}
-class Projection extends DependencyObject {
-}
-class Matrix3DProjection extends Projection {
-    static ProjectionMatrixProperty: DependencyProperty;
-    ProjectionMatrix: Matrix3D;
-}
 class Geometry extends DependencyObject {
     static TransformProperty: DependencyProperty;
-    Transform: Transform;
+    Transform: Fayde.Media.Transform;
     Bounds: Rect;
 }
 class GeometryCollection extends DependencyObjectCollection {
@@ -1798,6 +1731,75 @@ class TextOptions {
     static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
 }
 
+module Fayde.Media {
+    export class GeneralTransform extends DependencyObject {
+        Inverse: GeneralTransform;
+        Transform(point: Point): Point;
+        TransformBounds(rect: Rect): Rect;
+    }
+    export class Transform extends GeneralTransform {
+    }
+    export class MatrixTransform extends Transform {
+        static MatrixProperty: DependencyProperty;
+        Matrix: Matrix;
+    }
+    export class RotateTransform extends Transform {
+        static AngleProperty: DependencyProperty;
+        static CenterXProperty: DependencyProperty;
+        static CenterYProperty: DependencyProperty;
+        Angle: number;
+        CenterX: number;
+        CenterY: number;
+    }
+    export class ScaleTransform extends Transform {
+        static CenterXProperty: DependencyProperty;
+        static CenterYProperty: DependencyProperty;
+        static ScaleXProperty: DependencyProperty;
+        static ScaleYProperty: DependencyProperty;
+        CenterX: number;
+        CenterY: number;
+        ScaleX: number;
+        ScaleY: number;
+    }
+    export class SkewTransform extends Transform {
+        static AngleXProperty: DependencyProperty;
+        static AngleYProperty: DependencyProperty;
+        static CenterXProperty: DependencyProperty;
+        static CenterYProperty: DependencyProperty;
+        AngleX: number;
+        AngleY: number;
+        CenterX: number;
+        CenterY: number;
+    }
+    export class TranslateTransform extends Transform {
+        static XProperty: DependencyProperty;
+        static YProperty: DependencyProperty;
+        X: number;
+        Y: number;
+    }
+    export class TransformCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): Transform;
+        SetValueAt(index: number, value: Transform);
+        Add(value: Transform);
+        AddRange(newItems: Transform[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Transform);
+        Remove(value: Transform);
+        IndexOf(value: Transform): number;
+        Contains(value: Transform): bool;
+        ToArray(): Transform[];
+    }
+    export class TransformGroup extends Transform {
+        static ChildrenProperty: DependencyProperty;
+        Children: TransformCollection;
+    }
+    export class Projection extends DependencyObject {
+    }
+    export class Matrix3DProjection extends Projection {
+        static ProjectionMatrixProperty: DependencyProperty;
+        ProjectionMatrix: Matrix3D;
+    }
+}
 module Fayde.Media.Imaging {
     export class ImageSource extends DependencyObject {
     }

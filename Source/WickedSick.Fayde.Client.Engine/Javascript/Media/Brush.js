@@ -11,7 +11,7 @@
 
     //#region Properties
 
-    Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Transform; }, Brush);
+    Brush.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Fayde.Media.Transform; }, Brush);
 
     Nullstone.AutoProperties(Brush, [
         Brush.TransformProperty

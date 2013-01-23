@@ -4,4 +4,4 @@
 (function (namespace) {
     var Projection = Nullstone.Create("Projection", DependencyObject);
     namespace.Projection = Nullstone.FinishCreate(Projection);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

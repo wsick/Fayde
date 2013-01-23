@@ -151,7 +151,7 @@
             return true;
         if (value instanceof Style)
             return true;
-        if (value instanceof Transform)
+        if (value instanceof Fayde.Media.Transform)
             return true;
         if (value instanceof Brush)
             return true;

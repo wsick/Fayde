@@ -1,6 +1,7 @@
 /// <reference path="../../Core/FrameworkElement.js"/>
 /// CODE
 /// <reference path="../../Media/Matrix3DProjection.js"/>
+/// <reference path="../../Media/InternalTransform.js"/>
 
 (function (namespace) {
     var Popup = Nullstone.Create("Popup", FrameworkElement);
@@ -145,11 +146,11 @@
 
         try {
             var xform = this.Child.TransformToVisual(null);
-            if (xform instanceof Transform) {
+            if (xform instanceof Fayde.Media.Transform) {
                 this._ClickCatcher.Projection = null;
                 this._ClickCatcher.RenderTransform = xform.Inverse;
-            } else if (xform instanceof InternalTransform) {
-                var projection = new Matrix3DProjection();
+            } else if (xform instanceof Fayde.Media.InternalTransform) {
+                var projection = new Fayde.Media.Matrix3DProjection();
                 projection.ProjectionMatrix = xform.Inverse.Matrix;
                 this._ClickCatcher.RenderTransform = null;
                 this._ClickCatcher.Projection = projection;

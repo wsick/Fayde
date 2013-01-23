@@ -61,7 +61,7 @@
     //#region Transforms
 
     _RenderContext.Instance.PreTransform = function (matrix) {
-        if (matrix instanceof Transform) {
+        if (matrix instanceof Fayde.Media.Transform) {
             matrix = matrix.Value.raw;
         }
 
@@ -72,7 +72,7 @@
         TransformDebug("PreTransform", ct);
     };
     _RenderContext.Instance.Transform = function (matrix) {
-        if (matrix instanceof Transform) {
+        if (matrix instanceof Fayde.Media.Transform) {
             matrix = matrix.Value.raw;
         }
 

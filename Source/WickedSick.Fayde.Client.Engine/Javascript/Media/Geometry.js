@@ -12,9 +12,9 @@
         this._LocalBounds = new Rect(0, 0, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
     };
 
-    //#region Dependency Properties
+    //#region Properties
 
-    Geometry.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Transform; }, Geometry);
+    Geometry.TransformProperty = DependencyProperty.RegisterCore("Transform", function () { return Fayde.Media.Transform; }, Geometry);
 
     Nullstone.AutoProperties(Geometry, [
         Geometry.TransformProperty

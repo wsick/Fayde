@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var MatrixTransform = Nullstone.Create("MatrixTransform", Transform);
+    var MatrixTransform = Nullstone.Create("MatrixTransform", namespace.Transform);
 
     //#region Properties
 
@@ -44,4 +44,4 @@
     };
 
     namespace.MatrixTransform = Nullstone.FinishCreate(MatrixTransform);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

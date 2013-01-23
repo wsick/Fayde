@@ -5,6 +5,10 @@ App.GetGenericResourceDictionary = function () {
     var VisualStateGroup = Fayde.Media.VisualStateManager.VisualStateGroup;
     var VisualState = Fayde.Media.VisualStateManager.VisualState;
     var VisualTransition = Fayde.Media.VisualStateManager.VisualTransition;
+    var RotateTransform = Fayde.Media.RotateTransform;
+    var TranslateTransform = Fayde.Media.TranslateTransform;
+    var TransformGroup = Fayde.Media.TransformGroup;
+    var SkewTransform = Fayde.Media.SkewTransform;
     var json = {
         Type: ResourceDictionary,
         Children: [

@@ -187,6 +187,7 @@
     <Compile Include="Elements\Controls\Tooltip.cs" />
     <Compile Include="Elements\Media\Imaging\ImageBrush.cs" />
     <Compile Include="Elements\Media\RotateTransform.cs" />
+    <Compile Include="Elements\Media\ScaleTransform.cs" />
     <Compile Include="Elements\Media\SkewTransform.cs" />
     <Compile Include="Elements\Media\TileBrush.cs" />
     <Compile Include="Elements\Media\TransformGroup.cs" />

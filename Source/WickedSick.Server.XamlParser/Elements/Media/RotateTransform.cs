@@ -1,6 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Media
 {
+    [Element(NullstoneNamespace="Fayde.Media")]
     public class RotateTransform : Transform
     {
         public static readonly PropertyDescription AngleProperty = PropertyDescription.Register("Angle", typeof(double), typeof(RotateTransform));

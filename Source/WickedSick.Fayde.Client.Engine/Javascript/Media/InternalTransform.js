@@ -2,7 +2,12 @@
 /// CODE
 
 (function (namespace) {
-    var InternalTransform = Nullstone.Create("InternalTransform", GeneralTransform);
+    var InternalTransform = Nullstone.Create("InternalTransform", namespace.GeneralTransform);
+
+    InternalTransform.Instance.Init = function () {
+        this.Init$GeneralTransform();
+        this.raw = mat4.identity();
+    };
 
     Nullstone.Property(InternalTransform, "Inverse", {
         get: function () {
@@ -19,11 +24,6 @@
         }
     });
 
-    InternalTransform.Instance.Init = function () {
-        this.Init$GeneralTransform();
-        this.raw = mat4.identity();
-    };
-
     InternalTransform.Instance.Transform = function (p) {
         var pi = vec4.createFrom(p.X, p.Y, 0.0, 1.0);
         var po = vec4.create();
@@ -36,4 +36,4 @@
     };
 
     namespace.InternalTransform = Nullstone.FinishCreate(InternalTransform);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

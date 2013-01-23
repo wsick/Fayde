@@ -105,8 +105,8 @@
     UIElement.IsHitTestVisibleProperty = DependencyProperty.RegisterCore("IsHitTestVisible", function () { return Boolean; }, UIElement, true);
     UIElement.OpacityMaskProperty = DependencyProperty.RegisterCore("OpacityMask", function () { return Brush; }, UIElement);
     UIElement.OpacityProperty = DependencyProperty.RegisterCore("Opacity", function () { return Number; }, UIElement, 1.0);
-    UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Projection; }, UIElement);
-    UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Transform; }, UIElement);
+    UIElement.ProjectionProperty = DependencyProperty.Register("Projection", function () { return Fayde.Media.Projection; }, UIElement);
+    UIElement.RenderTransformProperty = DependencyProperty.Register("RenderTransform", function () { return Fayde.Media.Transform; }, UIElement);
     UIElement.RenderTransformOriginProperty = DependencyProperty.Register("RenderTransformOrigin", function () { return Point; }, UIElement, new Point());
     UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, undefined, { GetValue: function () { return new ResourceDictionary(); } });
     UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return TriggerCollection; }, UIElement, undefined, undefined, { GetValue: function () { return new TriggerCollection(); } });
@@ -229,14 +229,14 @@
 
         var raw = mat4.toAffineMat3(result);
         if (raw) {
-            var mt = new MatrixTransform();
+            var mt = new Fayde.Media.MatrixTransform();
             var m = new Matrix();
             m.raw = raw;
-            mt._SetValue(MatrixTransform.MatrixProperty, m);
+            mt._SetValue(Fayde.Media.MatrixTransform.MatrixProperty, m);
             return mt;
         }
 
-        var it = new InternalTransform();
+        var it = new Fayde.Media.InternalTransform();
         it.raw = result;
         return it;
     };

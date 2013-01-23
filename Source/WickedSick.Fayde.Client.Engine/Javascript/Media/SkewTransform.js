@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var SkewTransform = Nullstone.Create("SkewTransform", Transform);
+    var SkewTransform = Nullstone.Create("SkewTransform", namespace.Transform);
 
     //#region Properties
 
@@ -50,4 +50,4 @@
     };
 
     namespace.SkewTransform = Nullstone.FinishCreate(SkewTransform);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));

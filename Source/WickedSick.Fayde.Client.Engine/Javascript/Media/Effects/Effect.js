@@ -7,7 +7,7 @@
 
     //#region Properties
 
-    Effect.EffectMappingProperty = DependencyProperty.Register("EffectMapping", function () { return GeneralTransform; }, Effect);
+    Effect.EffectMappingProperty = DependencyProperty.Register("EffectMapping", function () { return Fayde.Media.GeneralTransform; }, Effect);
 
     Nullstone.AutoProperties(Effect, [
         Effect.EffectMappingProperty
