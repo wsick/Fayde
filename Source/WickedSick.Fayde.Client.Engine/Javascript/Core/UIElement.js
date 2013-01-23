@@ -1240,113 +1240,111 @@
 
     //#endregion
 
-
-    //#region Html Translations
-
-    UIElement.Instance.ApplyHtmlChange = function (change) {
-        //change.Property;
-        //change.OldValue;
-        //change.NewValue;
-        var rootEl = this.GetRootHtmlElement();
-        var propd = change.Property;
-        if (propd._ID === UIElement.OpacityProperty._ID) {
-            rootEl.style.opacity = change.NewValue;
-        } else if (propd._ID === UIElement.VisibilityProperty._ID) {
-            if (change.NewValue === Visibility.Collapsed) {
-                rootEl.style.display = "none";
-            } else if (change.NewValue === Visibility.Visible) {
-                rootEl.style.display = this.GetHtmlDefaultDisplay();
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        UIElement.Instance.ApplyHtmlChange = function (change) {
+            //change.Property;
+            //change.OldValue;
+            //change.NewValue;
+            var rootEl = this.GetRootHtmlElement();
+            var propd = change.Property;
+            if (propd._ID === UIElement.OpacityProperty._ID) {
+                rootEl.style.opacity = change.NewValue;
+            } else if (propd._ID === UIElement.VisibilityProperty._ID) {
+                if (change.NewValue === Visibility.Collapsed) {
+                    rootEl.style.display = "none";
+                } else if (change.NewValue === Visibility.Visible) {
+                    rootEl.style.display = this.GetHtmlDefaultDisplay();
+                }
+            } else if (propd._ID === UIElement.IsHitTestVisibleProperty._ID) {
+            } else if (propd._ID === UIElement.ClipProperty._ID) {
+            } else if (propd._ID === UIElement.OpacityMaskProperty._ID) {
+            } else if (propd._ID === UIElement.RenderTransformProperty._ID
+                || propd._ID === UIElement.RenderTransformOriginProperty._ID) {
+            } else if (propd._ID === UIElement.TriggersProperty._ID) {
+            } else if (propd._ID === UIElement.UseLayoutRoundingProperty._ID) {
+            } else if (propd._ID === UIElement.EffectProperty._ID) {
+            } else if (propd._ID === UIElement.ProjectionProperty._ID) {
+            } else if (propd._ID === UIElement.CacheModeProperty._ID) {
             }
-        } else if (propd._ID === UIElement.IsHitTestVisibleProperty._ID) {
-        } else if (propd._ID === UIElement.ClipProperty._ID) {
-        } else if (propd._ID === UIElement.OpacityMaskProperty._ID) {
-        } else if (propd._ID === UIElement.RenderTransformProperty._ID
-            || propd._ID === UIElement.RenderTransformOriginProperty._ID) {
-        } else if (propd._ID === UIElement.TriggersProperty._ID) {
-        } else if (propd._ID === UIElement.UseLayoutRoundingProperty._ID) {
-        } else if (propd._ID === UIElement.EffectProperty._ID) {
-        } else if (propd._ID === UIElement.ProjectionProperty._ID) {
-        } else if (propd._ID === UIElement.CacheModeProperty._ID) {
+        };
+        UIElement.Instance.CreateHtmlObject = function () {
+            this._HtmlEl = this.CreateHtmlObjectImpl();
+        };
+        UIElement.Instance.CreateHtmlObjectImpl = function () {
+            return document.createElement("div");
+        };
+        UIElement.Instance.GetRootHtmlElement = function () {
+            if (!this._HtmlEl)
+                this.CreateHtmlObject();
+            return this._HtmlEl;
+        };
+        UIElement.Instance.OnHtmlAttached = function () {
+            var subtree = this._SubtreeObject;
+            if (subtree) {
+                this.GetRootHtmlElement().appendChild(subtree.GetRootHtmlElement());
+                subtree.OnHtmlAttached();
+            }
+        };
+        UIElement.Instance.OnHtmlDetached = function () {
+            var subtree = this._SubtreeObject;
+            if (subtree) {
+                subtree.OnHtmlDetached();
+                this.GetRootHtmlElement().removeChild(subtree.GetRootHtmlElement());
+            }
+        };
+        UIElement.Instance.GetHtmlDefaultDisplay = function () {
+            return "";
         }
-    };
-    UIElement.Instance.CreateHtmlObject = function () {
-        this._HtmlEl = this.CreateHtmlObjectImpl();
-    };
-    UIElement.Instance.CreateHtmlObjectImpl = function () {
-        return document.createElement("div");
-    };
-    UIElement.Instance.GetRootHtmlElement = function () {
-        if (!this._HtmlEl)
-            this.CreateHtmlObject();
-        return this._HtmlEl;
-    };
-    UIElement.Instance.OnHtmlAttached = function () {
-        var subtree = this._SubtreeObject;
-        if (subtree) {
-            this.GetRootHtmlElement().appendChild(subtree.GetRootHtmlElement());
-            subtree.OnHtmlAttached();
-        }
-    };
-    UIElement.Instance.OnHtmlDetached = function () {
-        var subtree = this._SubtreeObject;
-        if (subtree) {
-            subtree.OnHtmlDetached();
-            this.GetRootHtmlElement().removeChild(subtree.GetRootHtmlElement());
-        }
-    };
-    UIElement.Instance.GetHtmlDefaultDisplay = function () {
-        return "";
+
+        UIElement.Instance.GetIsFixedWidth = function (child) {
+            return this.IsFixedWidth;
+        };
+        UIElement.Instance.GetIsFixedHeight = function (child) {
+            return this.IsFixedHeight;
+        };
+        UIElement.Instance.GetParentIsFixedWidth = function () {
+            var vp = this.GetVisualParent();
+            if (vp) return vp.GetIsFixedWidth(this);
+            else return true;
+        };
+        UIElement.Instance.GetParentIsFixedHeight = function () {
+            var vp = this.GetVisualParent();
+            if (vp) return vp.GetIsFixedHeight(this);
+            else return true;
+        };
+        UIElement.Instance.InvalidateChildrenFixedWidth = function () {
+            var subtree = this._SubtreeObject;
+            if (subtree) {
+                if (subtree instanceof Collection) {
+                    var len = subtree.GetCount();
+                    for (var i = 0; i < len; i++) {
+                        var item = subtree.GetValueAt(i);
+                        item.IsFixedWidth = item.CalculateIsFixedWidth();
+                    }
+                } else if (subtree instanceof UIElement) {
+                    subtree.IsFixedWidth = subtree.CalculateIsFixedWidth();
+                }
+            }
+        };
+        UIElement.Instance.InvalidateChildrenFixedHeight = function () {
+            var subtree = this._SubtreeObject;
+            if (subtree) {
+                if (subtree instanceof Collection) {
+                    var len = subtree.GetCount();
+                    for (var i = 0; i < len; i++) {
+                        var item = subtree.GetValueAt(i);
+                        item.IsFixedHeight = item.CalculateIsFixedHeight();
+                    }
+                } else if (subtree instanceof UIElement) {
+                    subtree.IsFixedHeight = subtree.CalculateIsFixedHeight();
+                }
+            }
+        };
+        UIElement.Instance.CalculateIsFixedWidth = function () { return false; };
+        UIElement.Instance.CalculateIsFixedHeight = function () { return false; };
     }
-
-    UIElement.Instance.GetIsFixedWidth = function (child) {
-        return this.IsFixedWidth;
-    };
-    UIElement.Instance.GetIsFixedHeight = function (child) {
-        return this.IsFixedHeight;
-    };
-    UIElement.Instance.GetParentIsFixedWidth = function () {
-        var vp = this.GetVisualParent();
-        if (vp) return vp.GetIsFixedWidth(this);
-        else return true;
-    };
-    UIElement.Instance.GetParentIsFixedHeight = function () {
-        var vp = this.GetVisualParent();
-        if (vp) return vp.GetIsFixedHeight(this);
-        else return true;
-    };
-    UIElement.Instance.InvalidateChildrenFixedWidth = function () {
-        var subtree = this._SubtreeObject;
-        if (subtree) {
-            if (subtree instanceof Collection) {
-                var len = subtree.GetCount();
-                for (var i = 0; i < len; i++) {
-                    var item = subtree.GetValueAt(i);
-                    item.IsFixedWidth = item.CalculateIsFixedWidth();
-                }
-            } else if (subtree instanceof UIElement) {
-                subtree.IsFixedWidth = subtree.CalculateIsFixedWidth();
-            }
-        }
-    };
-    UIElement.Instance.InvalidateChildrenFixedHeight = function () {
-        var subtree = this._SubtreeObject;
-        if (subtree) {
-            if (subtree instanceof Collection) {
-                var len = subtree.GetCount();
-                for (var i = 0; i < len; i++) {
-                    var item = subtree.GetValueAt(i);
-                    item.IsFixedHeight = item.CalculateIsFixedHeight();
-                }
-            } else if (subtree instanceof UIElement) {
-                subtree.IsFixedHeight = subtree.CalculateIsFixedHeight();
-            }
-        }
-    };
-    UIElement.Instance.CalculateIsFixedWidth = function () { return false; };
-    UIElement.Instance.CalculateIsFixedHeight = function () { return false; };
-
-    //#endregion
-
+    //#endif
 
     UIElement.Instance._IsOpacityInvisible = function () {
         return this._TotalOpacity * 255 < .5;
