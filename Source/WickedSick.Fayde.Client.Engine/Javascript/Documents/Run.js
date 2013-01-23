@@ -36,19 +36,24 @@
 
         this.PropertyChanged.Raise(this, args);
     };
-    Run.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        if (propd.OwnerType !== Run) {
-            this.ApplyHtmlChange$Inline(change);
-            return;
-        }
+    
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Run.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Run) {
+                this.ApplyHtmlChange$Inline(change);
+                return;
+            }
 
-        var propd = change.Property;
-        var rootEl = this.GetRootHtmlElement();
-        if (propd._ID === Run.TextProperty._ID) {
-            rootEl.textContent = change.NewValue;
-        }
-    };
+            var propd = change.Property;
+            var rootEl = this.GetRootHtmlElement();
+            if (propd._ID === Run.TextProperty._ID) {
+                rootEl.textContent = change.NewValue;
+            }
+        };
+    }
+    //#endif
 
     namespace.Run = Nullstone.FinishCreate(Run);
 })(window);

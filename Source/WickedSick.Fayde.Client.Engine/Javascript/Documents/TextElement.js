@@ -85,48 +85,48 @@
         }
     };
 
-    //#region Html Translations
-
-    TextElement.Instance.GetRootHtmlElement = function () {
-        if (!this._HtmlEl)
-            this.CreateHtmlObject();
-        return this._HtmlEl;
-    };
-    TextElement.Instance.CreateHtmlObject = function () {
-        this._HtmlEl = this.CreateHtmlObjectImpl();
-    };
-    TextElement.Instance.CreateHtmlObjectImpl = function () {
-        var container = document.createElement("span");
-        container.style.whiteSpace = "nowrap";
-        return container;
-    };
-    TextElement.Instance.ApplyHtmlChange = function (change) {
-        var propd = change.Property;
-        var rootEl = this.GetRootHtmlElement();
-        if (propd._ID === TextElement.FontFamilyProperty._ID) {
-            rootEl.style.fontFamily = change.NewValue.toString();
-        } else if (propd._ID === TextElement.FontSizeProperty._ID) {
-            rootEl.style.fontSize = change.NewValue + "px";
-        } else if (propd._ID === TextElement.FontStretchProperty._ID) {
-            rootEl.style.fontStretch = change.NewValue;
-        } else if (propd._ID === TextElement.FontStyleProperty._ID) {
-            rootEl.style.fontStyle = change.NewValue;
-        } else if (propd._ID === TextElement.FontWeightProperty._ID) {
-            rootEl.style.fontWeight = change.NewValue.toString();
-        } else if (propd._ID === TextElement.ForegroundProperty._ID) {
-            var brush = change.NewValue;
-            if (!brush)
-                brush = this.Foreground;
-            this.ApplyForegroundHtml(rootEl, brush);
-        }
-    };
-    TextElement.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
-        var ctx = document.createElement("canvas").getContext("2d");
-        foreground.SetupBrush(ctx, null);
-        contentEl.style.color = foreground.ToHtml5Object();
-    };
-
-    //#endregion
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        TextElement.Instance.GetRootHtmlElement = function () {
+            if (!this._HtmlEl)
+                this.CreateHtmlObject();
+            return this._HtmlEl;
+        };
+        TextElement.Instance.CreateHtmlObject = function () {
+            this._HtmlEl = this.CreateHtmlObjectImpl();
+        };
+        TextElement.Instance.CreateHtmlObjectImpl = function () {
+            var container = document.createElement("span");
+            container.style.whiteSpace = "nowrap";
+            return container;
+        };
+        TextElement.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            var rootEl = this.GetRootHtmlElement();
+            if (propd._ID === TextElement.FontFamilyProperty._ID) {
+                rootEl.style.fontFamily = change.NewValue.toString();
+            } else if (propd._ID === TextElement.FontSizeProperty._ID) {
+                rootEl.style.fontSize = change.NewValue + "px";
+            } else if (propd._ID === TextElement.FontStretchProperty._ID) {
+                rootEl.style.fontStretch = change.NewValue;
+            } else if (propd._ID === TextElement.FontStyleProperty._ID) {
+                rootEl.style.fontStyle = change.NewValue;
+            } else if (propd._ID === TextElement.FontWeightProperty._ID) {
+                rootEl.style.fontWeight = change.NewValue.toString();
+            } else if (propd._ID === TextElement.ForegroundProperty._ID) {
+                var brush = change.NewValue;
+                if (!brush)
+                    brush = this.Foreground;
+                this.ApplyForegroundHtml(rootEl, brush);
+            }
+        };
+        TextElement.Instance.ApplyForegroundHtml = function (contentEl, foreground) {
+            var ctx = document.createElement("canvas").getContext("2d");
+            foreground.SetupBrush(ctx, null);
+            contentEl.style.color = foreground.ToHtml5Object();
+        };
+    }
+    //#endif
 
     namespace.TextElement = Nullstone.FinishCreate(TextElement);
 })(window);
