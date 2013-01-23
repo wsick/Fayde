@@ -594,7 +594,27 @@
         }
         return cd;
     };
-    Grid.Instance.OnHtmlAttached = function () {
+    Grid.Instance.InsertHtmlChild = function (child, index) {
+        //TODO: what to do if row is set to a row number that doesn't exist?
+        var table = this.GetHtmlChildrenContainer();
+        var row = Grid.GetRow(child);
+        var column = Grid.GetColumn(child);
+        var rd = this.GetRowDefinition(row);
+        var cd = this.GetColumnDefinition(column);
+        var contentEl = table.children[row].children[column].firstChild.firstChild;
+        contentEl.appendChild(child.GetRootHtmlElement());
+    };
+    Grid.Instance.RemoveHtmlChild = function (child, index) {
+        //TODO: what to do if row is set to a row number that doesn't exist?
+        var table = this.GetHtmlChildrenContainer();
+        var row = Grid.GetRow(child);
+        var column = Grid.GetColumn(child);
+        var rd = this.GetRowDefinition(row);
+        var cd = this.GetColumnDefinition(column);
+        var contentEl = table.children[row].children[column].firstChild.firstChild;
+        contentEl.removeChild(child.GetRootHtmlElement());
+    };
+    Grid.Instance.CreateCells = function (table) {
         var rows = this.RowDefinitions.GetCount();
         var columns = this.ColumnDefinitions.GetCount();
 
@@ -614,8 +634,6 @@
             }
         }
 
-        var contentEl = this.GetContentHtmlElement();
-        var table = this.GetHtmlChildrenContainer();
         //a grid must have at least one row and column to place the content in
         if (rows == 0) {
             rows = 1;
@@ -674,46 +692,14 @@
                 contentEl.style.height = "100%";
             }
         }
-
-        var children = this.Children;
-        if (children) {
-            var len = children.GetCount();
-            for (var i = 0; i < len; i++) {
-                var child = children.GetValueAt(i);
-                //TODO: what to do if row is set to a row number that doesn't exist?
-                var row = Grid.GetRow(child);
-                var column = Grid.GetColumn(child);
-                var rd = this.GetRowDefinition(row);
-                var cd = this.GetColumnDefinition(column);
-                var contentEl;
-                contentEl = table.children[row].children[column].firstChild.firstChild;
-                contentEl.appendChild(child.GetRootHtmlElement());
-                child.OnHtmlAttached();
-            }
-        }
-    };
-    Grid.Instance.OnHtmlDetached = function () {
-        var children = this.Children;
-        if (children) {
-            var contentEl = this.GetRootHtmlElement().firstChild;
-            var len = children.GetCount();
-            for (var i = 0; i < len; i++) {
-                var child = children.GetValueAt(i);
-                contentEl.removeChild(child.GetRootHtmlElement());
-                child.OnHtmlDetached();
-            }
-        }
     };
     Grid.Instance.CreateHtmlChildrenContainer = function () {
         var table = document.createElement("table");
         table.style.borderSpacing = "0px";
         table.style.width = "100%";
         table.style.height = "100%";
+        this.CreateCells(table);
         return table;
-    };
-    Grid.Instance.InitializeHtml = function (rootEl) {
-        this.InitializeHtml$Panel(rootEl);
-        var table = rootEl.firstChild;
     };
     Grid.Instance.ApplyHtmlChange = function (change) {
         var propd = change.Property;
@@ -734,6 +720,7 @@
         }
     };
     Grid.Instance.UpdateAdjustedWidth = function (child, width) {
+        delete Surface._SizingAdjustments[this._ID];
         var column = Grid.GetColumn(child);
         var row = Grid.GetRow(child);
         var cd = this.GetColumnDefinition(column);
@@ -742,8 +729,16 @@
             var table = this.GetHtmlChildrenContainer();
             table.children[row].children[column].firstChild.style.width = width + "px";
         }
+        if (!this.GetIsFixedWidth()) {
+            var myWidth = this.GetHtmlChildrenContainer().offsetWidth;
+            this.GetContentHtmlElement().style.width = myWidth + "px";
+            myWidth = this.CalculateAdjustedWidth(myWidth);
+            var parent = this.GetVisualParent();
+            if (parent) parent.UpdateAdjustedWidth(this, myWidth);
+        }
     };
     Grid.Instance.UpdateAdjustedHeight = function (child, height) {
+        delete Surface._SizingAdjustments[this._ID];
         var column = Grid.GetColumn(child);
         var row = Grid.GetRow(child);
         var cd = this.GetColumnDefinition(column);
@@ -752,18 +747,31 @@
             var table = this.GetHtmlChildrenContainer();
             table.children[row].children[column].firstChild.style.height = height + "px";
         }
+        if (!this.GetIsFixedHeight()) {
+            var myHeight = this.GetHtmlChildrenContainer().offsetHeight;
+            this.GetContentHtmlElement().style.height = myHeight + "px";
+            myHeight = this.CalculateAdjustedHeight(myHeight);
+            var parent = this.GetVisualParent();
+            if (parent) parent.UpdateAdjustedHeight(this, myHeight);
+        }
     };
     Grid.Instance.GetIsFixedWidth = function (child) {
-        var column = Grid.GetColumn(child);
-        var cd = this.GetColumnDefinition(column);
-        if (cd.Width.Type == GridUnitType.Auto) return false;
-        else return true;
+        if (child) {
+            var column = Grid.GetColumn(child);
+            var cd = this.GetColumnDefinition(column);
+            if (cd.Width.Type == GridUnitType.Auto) return false;
+            else return true;
+        }
+        else return this.IsFixedWidth;
     };
     Grid.Instance.GetIsFixedHeight = function (child) {
-        var row = Grid.GetRow(child);
-        var rd = this.GetRowDefinition(row);
-        if (rd.Height.Type == GridUnitType.Auto) return false;
-        else return true;
+        if (child) {
+            var row = Grid.GetRow(child);
+            var rd = this.GetRowDefinition(row);
+            if (rd.Height.Type == GridUnitType.Auto) return false;
+            else return true;
+        }
+        else return this.IsFixedHeight;
     };
 
     //#endregion

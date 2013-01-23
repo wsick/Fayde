@@ -130,7 +130,8 @@
                 for (i = 0; i < count; i++) {
                     item = collection.GetValueAt(i);
                     this._ElementRemoved(item);
-                    this.RemoveHtmlChild(item, i);
+                    if (this._IsAttached)
+                        this.RemoveHtmlChild(item, i);
                 }
             }
             if (args.NewValue) {
@@ -139,7 +140,8 @@
                 for (i = 0; i < count; i++) {
                     item = collection.GetValueAt(i);
                     this._ElementAdded(item);
-                    this.InsertHtmlChild(item, i);
+                    if (this._IsAttached)
+                        this.InsertHtmlChild(item, i);
                 }
             }
             this._UpdateBounds();
@@ -162,19 +164,22 @@
                     if (args.OldValue instanceof FrameworkElement)
                         args.OldValue._SetLogicalParent(null, error);
                     this._ElementRemoved(args.OldValue);
-                    this.RemoveHtmlChild(args.OldValue, args.Index);
+                    if (this._IsAttached)
+                        this.RemoveHtmlChild(args.OldValue, args.Index);
                     //NOTE: falls into add on purpose
                 case CollectionChangedArgs.Action.Add:
                     if (args.NewValue instanceof FrameworkElement)
                         args.NewValue._SetLogicalParent(this, error);
                     this._ElementAdded(args.NewValue);
-                    this.InsertHtmlChild(args.NewValue, args.Index);
+                    if (this._IsAttached)
+                        this.InsertHtmlChild(args.NewValue, args.Index);
                     break;
                 case CollectionChangedArgs.Action.Remove:
                     if (args.OldValue instanceof FrameworkElement)
                         args.OldValue._SetLogicalParent(null, error);
                     this._ElementRemoved(args.OldValue);
-                    this.RemoveHtmlChild(args.OldValue, args.Index);
+                    if (this._IsAttached)
+                        this.RemoveHtmlChild(args.OldValue, args.Index);
                     break;
                 case CollectionChangedArgs.Action.Clearing:
                     break;
@@ -211,10 +216,10 @@
     Panel.Instance.OnHtmlAttached = function () {
         var children = this.Children;
         if (children) {
-            var contentEl = this.GetRootHtmlElement().firstChild;
             var len = children.GetCount();
             for (var i = 0; i < len; i++) {
                 var child = children.GetValueAt(i);
+                this.InsertHtmlChild(child, i);
                 child.OnHtmlAttached();
             }
         }
@@ -222,10 +227,10 @@
     Panel.Instance.OnHtmlDetached = function () {
         var children = this.Children;
         if (children) {
-            var contentEl = this.GetRootHtmlElement().firstChild;
             var len = children.GetCount();
             for (var i = 0; i < len; i++) {
                 var child = children.GetValueAt(i);
+                this.RemoveHtmlChild(child, i);
                 child.OnHtmlDetached();
             }
         }

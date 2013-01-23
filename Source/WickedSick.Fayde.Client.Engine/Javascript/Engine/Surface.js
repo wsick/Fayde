@@ -969,7 +969,6 @@
                     parent.UpdateAdjustedWidth(el, width);
                     parent.UpdateAdjustedHeight(el, height);
                 }
-                delete Surface._SizingAdjustments[key];
             }
         };
         Surface.Instance.FinishAttachLayer = function (layer) {

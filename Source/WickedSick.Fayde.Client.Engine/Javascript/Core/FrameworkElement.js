@@ -941,14 +941,11 @@
     FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
         var rootEl = document.createElement("div");
         rootEl.appendChild(document.createElement("div"));
-        rootEl.title = this._ID;
         this.InitializeHtml(rootEl);
         return rootEl;
     };
     FrameworkElement.Instance.InitializeHtml = function (rootEl) {
-        if (FrameworkElement.ApplySizing(rootEl, this.GetParentIsFixedWidth(), this.GetParentIsFixedHeight(),
-            this.HorizontalAlignment, this.VerticalAlignment,
-            this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight)) {
+        if (this.ApplySizing(rootEl)) {
             Surface._SizingAdjustments[this._ID] = this;
         }
     };
@@ -967,9 +964,7 @@
             this.GetRootHtmlElement().firstChild.removeChild(subtree.GetRootHtmlElement());
         }
     };
-    FrameworkElement.ApplySizing = function (rootEl, parentIsFixedWidth, parentIsFixedHeight,
-        horizontalAlignment, verticalAlignment,
-        margin, width, height, maxWidth, maxHeight) {
+    FrameworkElement.Instance.ApplySizing = function (rootEl) {
         var isStretchPlusShrink = false;
         var subEl = rootEl.firstChild;
 
@@ -994,16 +989,16 @@
         subEl.style.bottom = "";
 
         //if width is explicitly set, stretch is changed to centered
-        horizontalAlignment = FrameworkElement.RealHorizontalAlignment(width, horizontalAlignment);
+        var horizontalAlignment = FrameworkElement.RealHorizontalAlignment(this.Width, this.HorizontalAlignment);
         //if height is explicitly set, stretch is changed to centered
-        verticalAlignment = FrameworkElement.RealVerticalAlignment(height, verticalAlignment);
+        var verticalAlignment = FrameworkElement.RealVerticalAlignment(this.Height, this.VerticalAlignment);
 
         var horizontalLayoutType = HorizontalLayoutType.Shrink;
-        if (horizontalAlignment == HorizontalAlignment.Stretch && parentIsFixedWidth)
+        if (horizontalAlignment == HorizontalAlignment.Stretch && this.GetParentIsFixedWidth())
             //layout type only stays stretch if the parent is fixed width
             horizontalLayoutType = HorizontalLayoutType.Stretch;
         var verticalLayoutType = VerticalLayoutType.Shrink;
-        if (verticalAlignment == VerticalAlignment.Stretch && parentIsFixedHeight)
+        if (verticalAlignment == VerticalAlignment.Stretch && this.GetParentIsFixedHeight())
             //layout type only stays stretch if the parent is fixed height
             verticalLayoutType = VerticalLayoutType.Stretch;
 
@@ -1032,38 +1027,38 @@
         }
 
         if (horizontalLayoutType == HorizontalLayoutType.Stretch) {
-            var left = (isNaN(margin.Left) ? 0 : margin.Left);
+            var left = (isNaN(this.Margin.Left) ? 0 : this.Margin.Left);
             subEl.style.left = left + "px";
-            var right = (isNaN(margin.Right) ? 0 : margin.Right);
+            var right = (isNaN(this.Margin.Right) ? 0 : this.Margin.Right);
             subEl.style.right = right + "px";
         }
         else {
-            rootEl.style.marginLeft = margin.Left + "px";
-            rootEl.style.marginRight = margin.Right + "px";
+            rootEl.style.marginLeft = this.Margin.Left + "px";
+            rootEl.style.marginRight = this.Margin.Right + "px";
         }
         if (verticalLayoutType == VerticalLayoutType.Stretch) {
-            var top = (isNaN(margin.Top) ? 0 : margin.Top);
+            var top = (isNaN(this.Margin.Top) ? 0 : this.Margin.Top);
             subEl.style.top = top + "px";
-            var bottom = (isNaN(margin.Bottom) ? 0 : margin.Bottom);
+            var bottom = (isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom);
             subEl.style.bottom = bottom + "px";
         }
         else {
-            rootEl.style.marginTop = margin.Top + "px";
-            rootEl.style.marginBottom = margin.Bottom + "px";
+            rootEl.style.marginTop = this.Margin.Top + "px";
+            rootEl.style.marginBottom = this.Margin.Bottom + "px";
         }
 
-        if (!isNaN(width)) {
+        if (!isNaN(this.Width)) {
             //explicit width
-            rootEl.style.width = width + "px";
+            rootEl.style.width = this.Width + "px";
         }
-        if (!isNaN(height)) {
+        if (!isNaN(this.Height)) {
             //explicit height
-            rootEl.style.height = height + "px";
+            rootEl.style.height = this.Height + "px";
         }
 
         //set max width and max height on inner element
-        subEl.style.maxHeight = maxHeight + "px";
-        subEl.style.maxWidth = maxWidth + "px";
+        subEl.style.maxHeight = this.MaxHeight + "px";
+        subEl.style.maxWidth = this.MaxWidth + "px";
         return isStretchPlusShrink;
     };
     FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
@@ -1073,9 +1068,7 @@
             FrameworkElement.MaxWidthProperty, FrameworkElement.MaxHeightProperty];
         for (var i = 0; i < sizingChecks.length; i++) {
             if (invalidations[sizingChecks[i]._ID]) {
-                if (FrameworkElement.ApplySizing(this.GetRootHtmlElement(), this.GetParentIsFixedWidth(), this.GetParentIsFixedHeight(),
-                    this.HorizontalAlignment, this.VerticalAlignment,
-                    this.Margin, this.Width, this.Height, this.MaxWidth, this.MaxHeight)) {
+                if (this.ApplySizing(this.GetRootHtmlElement())) {
                     Surface._SizingAdjustments[this._ID] = this;
                 }
                 break;
@@ -1094,6 +1087,7 @@
         return height + marginTop + marginBottom;
     };
     FrameworkElement.Instance.UpdateAdjustedWidth = function (child, width) {
+        delete Surface._SizingAdjustments[this._ID];
         if (!this.GetIsFixedWidth()) {
             this.GetContentHtmlElement().style.width = width + "px";
             var myWidth = this.CalculateAdjustedWidth(width);
@@ -1102,6 +1096,7 @@
         }
     };
     FrameworkElement.Instance.UpdateAdjustedHeight = function (child, height) {
+        delete Surface._SizingAdjustments[this._ID];
         if (!this.GetIsFixedHeight()) {
             this.GetContentHtmlElement().style.height = height + "px";
             var myHeight = this.CalculateAdjustedHeight(height);
@@ -1110,24 +1105,30 @@
         }
     };
     FrameworkElement.Instance.FindAndSetAdjustedWidth = function () {
+        var result;
         if (!this.GetIsFixedWidth()) {
             var subtree = this._SubtreeObject;
             var childWidth = 0;
             if (subtree && Nullstone.Is(subtree, FrameworkElement)) childWidth = subtree.FindAndSetAdjustedWidth();
             this.GetContentHtmlElement().style.width = childWidth + "px";
-            return this.CalculateAdjustedWidth(childWidth);
+            result = this.CalculateAdjustedWidth(childWidth);
         }
-        else return this.CalculateAdjustedWidth(this.GetRootHtmlElement().offsetWidth);
+        else result = this.CalculateAdjustedWidth(this.GetRootHtmlElement().offsetWidth);
+        delete Surface._SizingAdjustments[this._ID];
+        return result;
     };
     FrameworkElement.Instance.FindAndSetAdjustedHeight = function () {
+        var result;
         if (!this.GetIsFixedHeight()) {
             var subtree = this._SubtreeObject;
             var childHeight = 0;
             if (subtree && Nullstone.Is(subtree, FrameworkElement)) childHeight = subtree.FindAndSetAdjustedHeight();
             this.GetContentHtmlElement().style.height = childHeight + "px";
-            return this.CalculateAdjustedHeight(childHeight);
+            result = this.CalculateAdjustedHeight(childHeight);
         }
-        else return this.CalculateAdjustedHeight(this.GetRootHtmlElement().offsetHeight);
+        else result = this.CalculateAdjustedHeight(this.GetRootHtmlElement().offsetHeight);
+        delete Surface._SizingAdjustments[this._ID];
+        return result;
     };
     FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
         //if width is defined, horizontal alignment is no longer stretched
