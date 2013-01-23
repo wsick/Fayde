@@ -26,7 +26,7 @@
             return 0.0;
         if (!this._QuadraticsArray)
             this._RegenerateQuadratics();
-        return Curves.QuadraticArrayYForX(this._QuadraticsArray, linearProgress, KeySpline.TOTAL_COUNT);
+        return namespace.Curves.QuadraticArrayYForX(this._QuadraticsArray, linearProgress, KeySpline.TOTAL_COUNT);
     };
 
     KeySpline.Instance._OnPropertyChanged = function (args, error) {
@@ -52,8 +52,8 @@
 
         var carr = [];
         this._QuadraticsArray = [];
-        Curves.SubdivideCubicAtLevel(carr, KeySpline.PRECISION_LEVEL, src);
-        this._QuadraticsArray = Curves.ConvertCubicsToQuadratics(carr, KeySpline.TOTAL_COUNT);
+        namespace.Curves.SubdivideCubicAtLevel(carr, KeySpline.PRECISION_LEVEL, src);
+        this._QuadraticsArray = namespace.Curves.ConvertCubicsToQuadratics(carr, KeySpline.TOTAL_COUNT);
     };
 
     namespace.KeySpline = Nullstone.FinishCreate(KeySpline);

@@ -184,7 +184,7 @@
     <Content Include="Javascript\Media\Animation\PointKeyFrame.js" />
     <Content Include="Javascript\Media\Animation\RepeatBehavior.js" />
     <Content Include="Javascript\Media\CacheMode.js" />
-    <Content Include="Javascript\Media\Curves.js" />
+    <Content Include="Javascript\Media\Animation\Curves.js" />
     <Content Include="Javascript\Media\Effects\BlurEffect.js" />
     <Content Include="Javascript\Media\Effects\DropShadowEffect.js" />
     <Content Include="Javascript\Media\Effects\Effect.js" />

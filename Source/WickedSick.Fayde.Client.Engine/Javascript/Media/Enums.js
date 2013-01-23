@@ -20,13 +20,13 @@
         EvenOdd: 0,
         Nonzero: 1
     };
+})(window);
+
+(function (namespace) {
     namespace.TextHintingMode = {
         Fixed: 0,
         Animated: 1
     };
-})(window);
-
-(function (namespace) {
     namespace.AlignmentX = {
         Left: 0,
         Center: 1,

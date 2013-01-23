@@ -1,4 +1,6 @@
-﻿(function (namespace) {
+﻿/// <reference path="../Runtime/Nullstone.js"/>
+
+(function (namespace) {
     var Curves = {};
 
     Curves.QuadraticArrayYForX = function (arr, x, count) {
@@ -91,4 +93,4 @@
     };
 
     namespace.Curves = Curves
-})(window);
+})(Nullstone.Namespace("Fayde.Media.Animation"));

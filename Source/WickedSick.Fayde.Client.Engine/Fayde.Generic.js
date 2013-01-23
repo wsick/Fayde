@@ -30,6 +30,7 @@ App.GetGenericResourceDictionary = function () {
     var LinearGradientBrush = Fayde.Media.LinearGradientBrush;
     var BrushMappingMode = Fayde.Media.BrushMappingMode;
     var GradientSpreadMethod = Fayde.Media.GradientSpreadMethod;
+    var TextOptions = Fayde.Media.TextOptions;
 
     var json = {
         Type: ResourceDictionary,

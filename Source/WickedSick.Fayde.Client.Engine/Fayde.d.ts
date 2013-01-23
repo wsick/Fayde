@@ -425,10 +425,6 @@ enum FillRule {
     EvenOdd = 0,
     Nonzero = 1,
 }
-enum TextHintingMode {
-    Fixed = 0,
-    Animated = 1,
-}
 enum VirtualizationMode {
     Standard = 0,
     Recycling = 1,
@@ -523,7 +519,7 @@ class UIElement extends DependencyObject {
     
     //Properties
     AllowDrop: bool;
-    CacheMode: any;
+    CacheMode: CacheMode;
     Clip: Fayde.Media.Geometry;
     Effect: Fayde.Media.Effects.Effect;
     IsHitTestVisible: bool;
@@ -1545,13 +1541,19 @@ class Thumb extends Control {
 //////////////////////////////////////////////////////////
 // MEDIA
 //////////////////////////////////////////////////////////
-class TextOptions {
-    static TextHintingModeProperty: DependencyProperty;
-    static GetTextHintingMode(d: DependencyObject): TextHintingMode;
-    static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
-}
-
 module Fayde.Media {
+    export class CacheMode extends DependencyObject {
+    }
+    export enum TextHintingMode {
+        Fixed = 0,
+        Animated = 1,
+    }
+    export class TextOptions {
+        static TextHintingModeProperty: DependencyProperty;
+        static GetTextHintingMode(d: DependencyObject): TextHintingMode;
+        static SetTextHintingMode(d: DependencyObject, value: TextHintingMode);
+    }
+    //Brushes
     export enum AlignmentX  {
         Left = 0,
         Center = 1,
@@ -1637,9 +1639,7 @@ module Fayde.Media {
         AlignmentY: AlignmentY;
         Stretch: Stretch;
     }
-}
-
-module Fayde.Media {
+    //Geometries
     export class Geometry extends DependencyObject {
         static TransformProperty: DependencyProperty;
         Transform: Fayde.Media.Transform;
@@ -1725,9 +1725,7 @@ module Fayde.Media {
         RadiusX: number;
         RadiusY: number;
     }
-}
-
-module Fayde.Media {
+    //Transforms/Projections
     export class GeneralTransform extends DependencyObject {
         Inverse: GeneralTransform;
         Transform(point: Point): Point;
@@ -1796,6 +1794,10 @@ module Fayde.Media {
         ProjectionMatrix: Matrix3D;
     }
 }
+
+//////////////////////////////////////////////////////////
+// IMAGING
+//////////////////////////////////////////////////////////
 module Fayde.Media.Imaging {
     export class ImageSource extends DependencyObject {
     }
@@ -1817,6 +1819,10 @@ module Fayde.Media.Imaging {
         ImageSource: ImageBrush;
     }
 }
+
+//////////////////////////////////////////////////////////
+// EFFECTS
+//////////////////////////////////////////////////////////
 module Fayde.Media.Effects {
     export class Effect extends DependencyObject {
         static EffectMappingProperty: DependencyProperty;
