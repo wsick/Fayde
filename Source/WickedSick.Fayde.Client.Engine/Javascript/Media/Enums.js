@@ -1,4 +1,6 @@
-﻿(function (namespace) {
+﻿/// <reference path="../Runtime/Nullstone.js"/>
+
+(function (namespace) {
     namespace.PenLineCap = {
         Flat: 0,
         Square: 1,

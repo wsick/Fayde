@@ -1,4 +1,4 @@
-﻿/// <reference path="../Runtime/Nullstone.js"/>
+﻿/// <reference path="../../Runtime/Nullstone.js"/>
 
 (function (namespace) {
     var Curves = {};
