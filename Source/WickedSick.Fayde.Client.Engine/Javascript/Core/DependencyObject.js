@@ -1096,5 +1096,45 @@
 
     //#endregion
 
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        DependencyObject.ProcessHtmlChanges = function () {
+            var elsChanged = DependencyObject._ElsChanged;
+            if (!elsChanged)
+                return;
+            delete DependencyObject._ElsChanged;
+            var len = elsChanged.length;
+            for (var i = 0; i < len; i++) {
+                elsChanged[i].ProcessHtmlChanges();
+            }
+        };
+        DependencyObject.Instance.ProcessHtmlChanges = function () {
+            var invalidations = this._HtmlInvalidations;
+            if (!invalidations)
+                return;
+            delete this._HtmlInvalidations;
+            this.ApplyHtmlChanges(invalidations);
+        };
+        DependencyObject.Instance.ApplyHtmlChanges = function (invalidations) {
+            for (var i in invalidations) {
+                this.ApplyHtmlChange(invalidations[i]);
+            }
+        };
+        DependencyObject.Instance.ApplyHtmlChange = function (change) {
+        };
+        DependencyObject.Instance.InvalidateProperty = function (propd, oldValue, newValue) {
+            if (!this._HtmlInvalid) {
+                this._HtmlInvalid = true;
+                if (!DependencyObject._ElsChanged)
+                    DependencyObject._ElsChanged = [];
+                DependencyObject._ElsChanged.push(this);
+            }
+            if (!this._HtmlInvalidations)
+                this._HtmlInvalidations = [];
+            this._HtmlInvalidations[propd._ID] = { Property: propd, OldValue: oldValue, NewValue: newValue };
+        };
+    }
+    //#endif
+
     namespace.DependencyObject = Nullstone.FinishCreate(DependencyObject);
 })(window);

@@ -87,7 +87,7 @@
     };
     App.Instance._Tick = function (lastTime, nowTime) {
         this.ProcessStoryboards(lastTime, nowTime);
-        this.ProcessDirty();
+        this.Update();
     };
     App.Instance._Stop = function () {
         this._ClockTimer.UnregisterTimer(this);
@@ -99,26 +99,33 @@
             this._Storyboards[i].Update(nowTime);
         }
     };
-    App.Instance.ProcessDirty = function () {
-        if (this._IsRunning)
-            return;
+    if (!Fayde.IsCanvasEnabled) {
+        App.Instance.Update = function () {
+            this.MainSurface.ProcessHtmlChanges();
+            this.MainSurface.ProcessSizingAdjustments();
+        };
+    } else {
+        App.Instance.Update = function () {
+            if (this._IsRunning)
+                return;
 
-        var startLayoutTime;
-        var isLayoutPassTimed;
-        if (isLayoutPassTimed = (this._DebugFunc[3] != null))
-            startLayoutTime = new Date().getTime();
+            var startLayoutTime;
+            var isLayoutPassTimed;
+            if (isLayoutPassTimed = (this._DebugFunc[3] != null))
+                startLayoutTime = new Date().getTime();
 
-        this._IsRunning = true;
-        //try {
-        var updated = this.MainSurface.ProcessDirtyElements();
-        //} catch (err) {
-        //Fatal("An error occurred processing dirty elements: " + err.toString());
-        //}
-        this._IsRunning = false;
+            this._IsRunning = true;
+            //try {
+            var updated = this.MainSurface.ProcessDirtyElements();
+            //} catch (err) {
+            //Fatal("An error occurred processing dirty elements: " + err.toString());
+            //}
+            this._IsRunning = false;
 
-        if (updated && isLayoutPassTimed)
-            this._NotifyDebugLayoutPass(new Date().getTime() - startLayoutTime);
-    };
+            if (updated && isLayoutPassTimed)
+                this._NotifyDebugLayoutPass(new Date().getTime() - startLayoutTime);
+        };
+    }
 
     App.Instance.RegisterStoryboard = function (storyboard) {
         Array.addDistinctNullstone(this._Storyboards, storyboard);

@@ -36,7 +36,7 @@
     };
     namespace.FillRule = {
         EvenOdd: 0,
-        Nonzero: 1
+        NonZero: 1
     };
     namespace.GradientSpreadMethod = {
         Pad: 0,

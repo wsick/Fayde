@@ -9,7 +9,6 @@
     Home.Instance.OnLoaded = function (o, e) {
         var HEYO = this.FindName("HEYO");
         setTimeout(function () {
-            //debugger;
             HEYO.ItemsSource = [{ Text: "I" }, { Text: "Heart" }, { Text: "Newbs" }];
         }, 4000);
     };

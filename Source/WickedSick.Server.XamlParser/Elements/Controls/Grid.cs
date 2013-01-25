@@ -15,5 +15,6 @@ namespace WickedSick.Server.XamlParser.Elements.Controls
         public static readonly AttachedPropertyDescription RowSpan = AttachedPropertyDescription.Register("RowSpan", typeof(int), typeof(Grid));
         public static readonly AttachedPropertyDescription Row = AttachedPropertyDescription.Register("Row", typeof(int), typeof(Grid));
         public static readonly AttachedPropertyDescription Column = AttachedPropertyDescription.Register("Column", typeof(int), typeof(Grid));
+        public static readonly PropertyDescription ShowGridLines = PropertyDescription.Register("ShowGridLines", typeof(bool), typeof(Grid));
     }
 }

@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style type="text/css">
+        body
+        {
+            margin: 0px;
+            font-family: Verdana;
+            font-size: 0px;
+        }
+    </style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //alert($("#testDiv").width());
+            //$("#testDiv1").width($("#testDiv").width());
+            //$("#testDiv2").width($("#testDiv").width());
+            //$("#testTd").width($("#testDiv").width());
+            var linkId = $(".faydeLinked").data("link-id");
+            $("#" + linkId).width($(".faydeLinked").width());
+        });
+    </script>
+</head>
+<body>
+    <div style="position: absolute; width: 100px; height: auto; background-color: green; overflow: hidden;">
+
+
+        
+                                        <div style="display: table; width: 100%; left: auto; right: auto; height: auto; top: auto; bottom: auto; position: relative; margin: 10px 0px 10px 0px; padding: 0px 10px 0px 10px;">
+                                            <div style="display: table-cell; width: auto; height: auto; left: auto; right: auto; top: auto; bottom: auto; position: relative; font-family: 'Segoe UI', 'Lucida Sans Unicode', Verdana; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; color: rgb(0, 0, 0);"><span style="font-weight: 700;">Hi! I am a TextBlock.</span><span style="color: rgb(255, 0, 0); font-style: italic;">This is red italic text.</span><br>
+                                                <span style="color: rgb(0, 0, 255);"><u><span style="color: rgb(0, 0, 255);">How about adding some blue?</span></u></span></div>
+                                        </div>
+                <!--
+                <div style="display: table; width: auto; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: relative; margin: 0px 50px 0px 50px; padding: 10px 0px 10px 0px;">
+                    <div style="display: table-cell; width: auto; height: auto; left: auto; right: auto; top: auto; bottom: auto; position: relative; background-color: rgb(255, 255, 255); border: 1px solid rgb(0, 0, 128); border-top-left-radius: 5.5px; border-top-right-radius: 5.5px; border-bottom-right-radius: 5.5px; border-bottom-left-radius: 5.5px; background-position: initial initial; background-repeat: initial initial;">
+                        <div style="display: table; width: auto; left: auto; ri ght: auto; height: 100%; top: auto; bottom: auto; position: relative; margin: 0px 15px 0px 5px; padding: 10px 0px 20px 0px;">
+                            <div style="display: table-cell; width: auto; height: auto; left: auto; right: auto; top: auto; bottom: auto; position: relative; background-color: rgb(255, 165, 0); border: 8px solid rgb(255, 0, 0); border-top-left-radius: 19px; border-top-right-radius: 19px; border-bottom-right-radius: 19px; border-bottom-left-radius: 19px; background-position: initial initial; background-repeat: initial initial;">
+                                <div style="display: table; width: auto; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: relative; margin: 0px 20px 0px 20px; padding: 20px 0px 20px 0px;">
+                                    <div style="overflow: hidden; display: table-cell; width: auto; height: auto; left: auto; right: auto; top: auto; bottom: auto; position: relative; background-color: rgb(255, 255, 255); border: 3px solid rgb(0, 0, 0); border-top-left-radius: 6.5px; border-top-right-radius: 6.5px; border-bottom-right-radius: 21.5px; border-bottom-left-radius: 21.5px; background-position: initial initial; background-repeat: initial initial;">
+                                        <div style="display: table; width: auto; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: relative; margin: 0px 10px 0px 10px; padding: 10px 0px 10px 0px;">
+                                            <div style="display: table-cell; width: auto; height: auto; left: auto; right: auto; top: auto; bottom: auto; position: relative; font-family: 'Segoe UI', 'Lucida Sans Unicode', Verdana; font-size: 14px; font-style: normal; font-weight: 400; text-align: left; color: rgb(0, 0, 0);"><span style="font-weight: 700;">Hi! I am a TextBlock.</span><span style="color: rgb(255, 0, 0); font-style: italic;">This is red italic text.</span><br>
+                                                <span style="color: rgb(0, 0, 255);"><u><span style="color: rgb(0, 0, 255);">How about adding some blue?</span></u></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: table; width: 100%; left: auto; right: auto; height: 400px; top: auto; bottom: auto; position: absolute; margin: 0px;">
+                    <div style="display: table-cell; width: auto; height: auto; left: 0px; right: 0px; top: 0px; bottom: 0px; position: absolute; overflow: hidden; background-color: rgb(255, 255, 255); border: 1px solid rgb(0, 0, 128); border-top-left-radius: 5.5px; border-top-right-radius: 5.5px; border-bottom-right-radius: 5.5px; border-bottom-left-radius: 5.5px; background-position: initial initial; background-repeat: initial initial;">
+                        <div style="display: table; width: 100%; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: absolute; margin: 0px;">
+                            <div style="display: table-cell; width: auto; height: auto; left: 5px; right: 15px; top: 10px; bottom: 20px; position: absolute; overflow: hidden; background-color: rgb(255, 165, 0); border: 8px solid rgb(255, 0, 0); border-top-left-radius: 19px; border-top-right-radius: 19px; border-bottom-right-radius: 19px; border-bottom-left-radius: 19px; background-position: initial initial; background-repeat: initial initial;">
+                                <div style="display: table; width: 100%; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: absolute; margin: 0px;">
+                                    <div style="display: table-cell; width: auto; height: auto; left: 20px; right: 20px; top: 20px; bottom: 20px; position: absolute; overflow: hidden; background-color: rgb(255, 255, 255); border: 3px solid rgb(0, 0, 0); border-top-left-radius: 6.5px; border-top-right-radius: 6.5px; border-bottom-right-radius: 21.5px; border-bottom-left-radius: 21.5px; background-position: initial initial; background-repeat: initial initial;">
+                                        <div style="display: table; width: 100%; left: auto; right: auto; height: 100%; top: auto; bottom: auto; position: absolute; margin: 0px;">
+                                            <div style="display: table-cell; width: auto; height: auto; left: 10px; right: 10px; top: 10px; bottom: 10px; position: absolute; background-size: contain; background-image: url(http://localhost/WickedSick.Fayde.Client.TestWebsite/Images/testing.jpg); overflow: hidden; background-position: 50% 50%; background-repeat: no-repeat no-repeat;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+-->
+    </div>
+</body>
+</html>

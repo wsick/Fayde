@@ -29,6 +29,8 @@
             Surface._Invalidations = [];
         this.LayoutUpdated = new MulticastEvent();
         this._KeyInterop = KeyInterop.CreateInterop(this);
+
+        this.InitHtml();
     };
 
     //#region Initialization
@@ -111,6 +113,7 @@
         layer._InvalidateMeasure();
         layer._SetIsAttached(true);
         layer._SetIsLoaded(true);
+        this.FinishAttachLayer(layer);
 
         this._App._NotifyDebugLayer(true, layer);
     };
@@ -212,26 +215,7 @@
 
     //#region Render
 
-    Surface.Instance._Invalidate = function (rect) {
-        RenderDebug("Invalidation: " + rect.toString());
-        if (!rect) {
-            var extents = this.GetExtents();
-            rect = new Rect(0, 0, extents.Width, extents.Height);
-        }
-        var invalidated = this._InvalidatedRect;
-        if (!invalidated)
-            invalidated = rect;
-        else
-            invalidated = invalidated.Union(rect);
-        this._InvalidatedRect = invalidated;
-
-        if (this._IsRenderQueued)
-            return;
-        this._IsRenderQueued = true;
-        Surface._Invalidations.push(this);
-        setTimeout(Surface.StaticRender, 1);
-    };
-    Surface.StaticRender = function () {
+    var staticRender = function () {
         var cur;
         var invalidations = Surface._Invalidations;
         while (cur = invalidations.pop()) {
@@ -242,6 +226,30 @@
             cur.Render(rect2);
         }
     };
+    Surface.Instance._Invalidate = function (rect) { };
+    //#if ENABLE_CANVAS
+    if (Fayde.IsCanvasEnabled) {
+        Surface.Instance._Invalidate = function (rect) {
+            RenderDebug("Invalidation: " + rect.toString());
+            if (!rect) {
+                var extents = this.GetExtents();
+                rect = new Rect(0, 0, extents.Width, extents.Height);
+            }
+            var invalidated = this._InvalidatedRect;
+            if (!invalidated)
+                invalidated = rect;
+            else
+                invalidated = invalidated.Union(rect);
+            this._InvalidatedRect = invalidated;
+
+            if (this._IsRenderQueued)
+                return;
+            this._IsRenderQueued = true;
+            Surface._Invalidations.push(this);
+            setTimeout(staticRender, 1);
+        };
+        }
+    //#endif
     Surface.Instance.Render = function (region) {
         var startRenderTime;
         var isRenderPassTimed;
@@ -944,6 +952,37 @@
         this._UserInitiatedEvent = val;
     };
 
+    if (!Fayde.IsCanvasEnabled) {
+        //#region Html Translations
+        Surface.Instance.InitHtml = function () {
+            if (Surface._SizingAdjustments == null)
+                Surface._SizingAdjustments = [];
+            var body = document.body;
+            this._RootHtmlEl = body;
+        };
+        Surface.Instance.ProcessHtmlChanges = function () {
+            DependencyObject.ProcessHtmlChanges();
+        };
+        Surface.Instance.ProcessSizingAdjustments = function () {
+            for (var key in Surface._SizingAdjustments) {
+                var el = Surface._SizingAdjustments[key];
+                var width = el.FindAndSetAdjustedWidth();
+                var height = el.FindAndSetAdjustedHeight();
+                var parent = el.GetVisualParent();
+                if (parent) {
+                    parent.UpdateAdjustedWidth(el, width);
+                    parent.UpdateAdjustedHeight(el, height);
+                }
+            }
+        };
+        Surface.Instance.FinishAttachLayer = function (layer) {
+            var rootEl = layer.GetRootHtmlElement();
+            this._RootHtmlEl.style.overflow = "hidden";
+            this._RootHtmlEl.appendChild(rootEl);
+            layer.OnHtmlAttached();
+        };
+        //#endregion
+    }
 
     Surface.MeasureText = function (text, font) {
         return new Size(Surface._MeasureWidth(text, font), Surface._MeasureHeight(font));
@@ -999,6 +1038,14 @@
             Context: ctx
         };
     };
+
+    if (!Fayde.IsCanvasEnabled) {
+        Surface.Instance._Invalidate = function () { };
+        Surface.Instance.ProcessDirtyElements = function () { };
+    } else {
+        Surface.Instance.InitHtml = function () { };
+        Surface.Instance.FinishAttachLayer = function (layer) { };
+    }
 
     namespace.Surface = Nullstone.FinishCreate(Surface);
 })(window);

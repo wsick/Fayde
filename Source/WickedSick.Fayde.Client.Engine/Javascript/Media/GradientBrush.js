@@ -49,6 +49,8 @@
         /// <returns type="Matrix" />
         if (this.MappingMode === BrushMappingMode.Absolute)
             return mat3.identity();
+        if (!bounds)
+            return mat3.identity();
         return mat3.createScale(bounds.Width, bounds.Height);
     };
 

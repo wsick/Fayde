@@ -2,12 +2,10 @@
 /// CODE
 /// <reference path="../Media/MediaParser.js"/>
 
-//#region Fayde
-
 var Fayde;
 (function (Fayde) {
     Fayde.Run = function () { };
-
+    
     Fayde.Initialize = function () {
         Fayde.Run();
     };
@@ -181,5 +179,3 @@ var Fayde;
         return new value.constructor();
     };
 })(Fayde || (Fayde = {}));
-
-//#endregion

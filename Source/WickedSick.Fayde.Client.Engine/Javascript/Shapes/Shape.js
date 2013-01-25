@@ -77,6 +77,8 @@
         /// <param name="availableSize" type="Size"></param>
         var desired = availableSize;
         var shapeBounds = this._GetNaturalBounds();
+        if (!shapeBounds)
+            return new Size();
         var sx = 0.0;
         var sy = 0.0;
         if (this instanceof Rectangle || this instanceof Ellipse) {
@@ -134,6 +136,8 @@
         var sy = 1.0;
 
         var shapeBounds = this._GetNaturalBounds();
+        if (!shapeBounds)
+            return new Size();
 
         this._InvalidateStretch();
 
@@ -266,6 +270,8 @@
     //#region Bounds
 
     Shape.Instance._GetNaturalBounds = function () {
+        if (!this._NaturalBounds)
+            return;
         if (this._NaturalBounds.IsEmpty())
             this._NaturalBounds = this._ComputeShapeBoundsImpl(false, null);
         return this._NaturalBounds;
@@ -280,7 +286,7 @@
     };
     Shape.Instance._ComputeStretchBounds = function () {
         var shapeBounds = this._GetNaturalBounds();
-        if (shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
+        if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
             this._SetShapeFlags(ShapeFlags.Empty);
             return new Rect();
         }
@@ -474,57 +480,172 @@
 
     //#region Property Changed
 
-    Shape.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Shape) {
-            if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty)
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Shape.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Shape) {
+                if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+                    this.InvalidateProperty(Shape.StretchProperty);
+                }
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
+            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+        Shape.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd != null && (propd._ID === Shape.FillProperty._ID || propd._ID === Shape.StrokeProperty._ID)) {
+                this.InvalidateProperty(propd);
+            } else {
+                this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+            }
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Shape.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Shape) {
+                if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+                    this._InvalidateStretch();
+                }
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Shape.StretchProperty._ID) {
+                this._InvalidateMeasure();
                 this._InvalidateStretch();
-            this._OnPropertyChanged$FrameworkElement(args, error);
-            return;
-        }
-
-        if (args.Property._ID === Shape.StretchProperty._ID) {
-            this._InvalidateMeasure();
-            this._InvalidateStretch();
-        } else if (args.Property._ID === Shape.StrokeProperty._ID) {
-            var newStroke = Nullstone.As(args.NewValue, Brush);
-            if (this._Stroke == null || newStroke == null) {
+            } else if (args.Property._ID === Shape.StrokeProperty._ID) {
+                var newStroke = Nullstone.As(args.NewValue, Brush);
+                if (this._Stroke == null || newStroke == null) {
+                    this._InvalidateStrokeBounds();
+                } else {
+                    this._InvalidateSurfaceCache();
+                }
+                this._Stroke = newStroke;
+            } else if (args.Property._ID === Shape.FillProperty._ID) {
+                var newFill = Nullstone.As(args.NewValue, Brush);
+                if (this._Fill == null || newFill == null) {
+                    this._InvalidateFillBounds();
+                } else {
+                    this._InvalidateSurfaceCache();
+                }
+                this._Fill = newFill;
+            } else if (args.Property._ID === Shape.StrokeThicknessProperty._ID) {
                 this._InvalidateStrokeBounds();
-            } else {
-                this._InvalidateSurfaceCache();
+            } else if (args.Property._ID === Shape.StrokeDashCapProperty._ID
+                || args.Property._ID === Shape.StrokeDashArrayProperty._ID
+                || args.Property._ID === Shape.StrokeEndLineCapProperty._ID
+                || args.Property._ID === Shape.StrokeLineJoinProperty._ID
+                || args.Property._ID === Shape.StrokeMiterLimitProperty._ID
+                || args.Property._ID === Shape.StrokeStartLineCapProperty._ID) {
+                this._InvalidateStrokeBounds();
             }
-            this._Stroke = newStroke;
-        } else if (args.Property._ID === Shape.FillProperty._ID) {
-            var newFill = Nullstone.As(args.NewValue, Brush);
-            if (this._Fill == null || newFill == null) {
-                this._InvalidateFillBounds();
-            } else {
-                this._InvalidateSurfaceCache();
-            }
-            this._Fill = newFill;
-        } else if (args.Property._ID === Shape.StrokeThicknessProperty._ID) {
-            this._InvalidateStrokeBounds();
-        } else if (args.Property._ID === Shape.StrokeDashCapProperty._ID
-            || args.Property._ID === Shape.StrokeDashArrayProperty._ID
-            || args.Property._ID === Shape.StrokeEndLineCapProperty._ID
-            || args.Property._ID === Shape.StrokeLineJoinProperty._ID
-            || args.Property._ID === Shape.StrokeMiterLimitProperty._ID
-            || args.Property._ID === Shape.StrokeStartLineCapProperty._ID) {
-            this._InvalidateStrokeBounds();
-        }
 
-        this._Invalidate();
-        this.PropertyChanged.Raise(this, args);
-    };
-    Shape.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd != null && (propd._ID === Shape.FillProperty._ID || propd._ID === Shape.StrokeProperty._ID)) {
             this._Invalidate();
-            this._InvalidateSurfaceCache();
-        } else {
-            this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
-        }
-    };
+            this.PropertyChanged.Raise(this, args);
+        };
+        Shape.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd != null && (propd._ID === Shape.FillProperty._ID || propd._ID === Shape.StrokeProperty._ID)) {
+                this._Invalidate();
+                this._InvalidateSurfaceCache();
+            } else {
+                this._OnSubPropertyChanged$FrameworkElement(propd, sender, args);
+            }
+        };
+    }
+    //#endif
 
     //#endregion
+
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Shape.Instance.CreateHtmlObjectImpl = function () {
+            var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
+            var contentEl = rootEl.firstChild;
+            var svg = this.GetSvg();
+            svg.appendChild(this.GetSvgShape());
+            contentEl.appendChild(svg);
+            return rootEl;
+        };
+        Shape.Instance.CreateSvg = function () {
+            var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            return svg;
+        };
+        Shape.Instance.GetSvg = function () {
+            if (!this._Svg)
+                this._Svg = this.CreateSvg();
+            return this._Svg;
+        };
+        Shape.Instance.CreateSvgShape = function () { };
+        Shape.Instance.GetSvgShape = function () {
+            if (!this._Shape) {
+                this._Shape = this.CreateSvgShape();
+                this._Shape.setAttribute("width", "100%");
+                this._Shape.setAttribute("height", "100%");
+            }
+            return this._Shape;
+        };
+
+        var serializeDashArray = function (collection) {
+            var s = "";
+            var len = collection.GetCount();
+            for (var i = 0; i < len; i++) {
+                if (s)
+                    s += ", ";
+                s = collection.GetValueAt(i).toString();
+            }
+            return s;
+        };
+        Shape.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Shape) {
+                this.ApplyHtmlChange$FrameworkElement(change);
+                return;
+            }
+
+            var shape = this.GetSvgShape();
+            if (propd._ID === Shape.StretchProperty._ID) {
+                var stretch = change.NewValue;
+                if (!stretch)
+                    stretch = this.Stretch;
+                //TODO: Stretch property
+            } else if (propd._ID === Shape.FillProperty._ID) {
+                var fill = change.NewValue;
+                if (!fill)
+                    fill = this.Fill;
+                fill.SetupBrush(null, null);
+                shape.setAttribute("fill", fill.ToHtml5Object());
+            } else if (propd._ID === Shape.StrokeProperty._ID) {
+                var stroke = change.NewValue;
+                if (!stroke)
+                    stroke = this.Stroke;
+                stroke.SetupBrush(null, null);
+                shape.setAttribute("stroke", stroke.ToHtml5Object());
+            } else if (propd._ID === Shape.StrokeThicknessProperty._ID) {
+                shape.setAttribute("stroke-width", change.NewValue);
+            } else if (propd._ID === Shape.StrokeDashArrayProperty._ID) {
+                shape.setAttribute("stroke-dasharray", serializeDashArray(change.NewValue));
+            } else if (propd._ID === Shape.StrokeDashOffsetProperty._ID) {
+                shape.setAttribute("stroke-dashoffset", change.NewValue);
+            } else if (propd._ID === Shape.StrokeLineJoinProperty._ID) {
+                switch (change.NewValue) {
+                    case Miter:
+                        shape.setAttribute("stroke-linejoin", "miter");
+                        break;
+                    case Bevel:
+                        shape.setAttribute("stroke-linejoin", "bevel");
+                        break;
+                    case Round:
+                        shape.setAttribute("stroke-linejoin", "round");
+                        break;
+                }
+            } else if (propd._ID === Shape.StrokeMiterLimitProperty._ID) {
+                shape.setAttribute("stroke-miterlimit", change.NewValue);
+            }
+        };
+    }
+    //#endif
 
     namespace.Shape = Nullstone.FinishCreate(Shape);
 })(window);
