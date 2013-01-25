@@ -131,20 +131,62 @@
         return logical ? new Rect(0, 0, 1.0, 1.0) : new Rect();
     };
 
-    Rectangle.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== Rectangle) {
-            this._OnPropertyChanged$Shape(args, error);
-            return;
-        }
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Rectangle.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Rectangle) {
+                this._OnPropertyChanged$Shape(args, error);
+                return;
+            }
 
-        if (args.Property._ID === Rectangle.RadiusXProperty || args.Property._ID === Rectangle.RadiusYProperty) {
-            this._InvalidateMeasure();
-            this._InvalidatePathCache();
-        }
+            if (args.Property._ID === Rectangle.RadiusXProperty._ID || args.Property._ID === Rectangle.RadiusYProperty._ID) {
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            }
 
-        this._Invalidate();
-        this.PropertyChanged.Raise(this, args);
-    };
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Rectangle.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Rectangle) {
+                this._OnPropertyChanged$Shape(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Rectangle.RadiusXProperty._ID || args.Property._ID === Rectangle.RadiusYProperty._ID) {
+                this._InvalidateMeasure();
+                this._InvalidatePathCache();
+            }
+
+            this._Invalidate();
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#endif
+
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Rectangle.Instance.CreateSvgShape = function () {
+            var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            return rect;
+        };
+        Rectangle.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== Rectangle) {
+                this.ApplyHtmlChange$Shape(change);
+                return;
+            }
+
+            var shape = this.GetSvgShape();
+            if (propd._ID === Rectangle.RadiusXProperty._ID) {
+                shape.setAttribute("rx", change.NewValue);
+            } else if (propd._ID === Rectangle.RadiusYProperty._ID) {
+                shape.setAttribute("ry", change.NewValue);
+            }
+        };
+    }
+    //#endif
 
     namespace.Rectangle = Nullstone.FinishCreate(Rectangle);
 })(window);

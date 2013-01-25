@@ -70,7 +70,30 @@
     <Content Include="Images\testing.jpg" />
     <Content Include="Images\tile-test.png" />
     <Content Include="Images\twitter.png" />
+    <Content Include="Media\freeze_gopher.mp3" />
     <Content Include="Silverlight.js" />
+    <Content Include="default2.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="default3.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="default4.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="default5.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Media\test_movie.mp4" />
+    <Content Include="default6.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="default7.fap">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="default8.fap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="Views\SDK.fayde" />
     <None Include="Views\Toolkit.fayde" />
     <Content Include="Views\Home.fayde.js">

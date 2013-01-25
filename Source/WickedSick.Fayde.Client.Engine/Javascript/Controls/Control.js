@@ -178,7 +178,7 @@
         if (!root)
             return this._DoApplyTemplateWithError$FrameworkElement(error);
 
-        if (this._TemplateRoot != null  && !Nullstone.RefEquals(this._TemplateRoot, root)) {
+        if (this._TemplateRoot != null && !Nullstone.RefEquals(this._TemplateRoot, root)) {
             this._TemplateRoot._RemoveParent(this, null);
             this._TemplateRoot = null;
         }

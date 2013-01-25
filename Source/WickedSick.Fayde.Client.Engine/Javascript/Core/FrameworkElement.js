@@ -796,51 +796,6 @@
 
     //#endregion
 
-    //#region Property Changed
-
-    FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== FrameworkElement) {
-            this._OnPropertyChanged$UIElement(args, error);
-            return;
-        }
-
-        if (args.Property._ID === FrameworkElement.WidthProperty._ID
-            || args.Property._ID === FrameworkElement.MaxWidthProperty._ID
-            || args.Property._ID === FrameworkElement.MinWidthProperty._ID
-            || args.Property._ID === FrameworkElement.HeightProperty._ID
-            || args.Property._ID === FrameworkElement.MaxHeightProperty._ID
-            || args.Property._ID === FrameworkElement.MinHeightProperty._ID
-            || args.Property._ID === FrameworkElement.MarginProperty._ID
-            || args.Property._ID === FrameworkElement.FlowDirectionProperty._ID) {
-            this._PurgeSizeCache();
-
-            //var p = this._GetRenderTransformOrigin();
-            //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
-            this._FullInvalidate(false);
-
-            var visualParent = this.GetVisualParent();
-            if (visualParent)
-                visualParent._InvalidateMeasure();
-
-            this._InvalidateMeasure();
-            this._InvalidateArrange();
-            this._UpdateBounds();
-        } else if (args.Property._ID === FrameworkElement.StyleProperty._ID) {
-            var newStyle = args.NewValue;
-            if (!error.IsErrored())
-                this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
-            if (error.IsErrored())
-                return;
-        } else if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
-            || args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID) {
-            this._InvalidateArrange();
-            this._FullInvalidate(true);
-        }
-        this.PropertyChanged.Raise(this, args);
-    };
-
-    //#endregion
-
     //#region Loaded
 
     FrameworkElement.Instance.InvokeLoaded = function () {
@@ -924,6 +879,349 @@
     //#endregion
 
     //#endregion
+
+    //#region Property Changed
+
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== FrameworkElement) {
+                this._OnPropertyChanged$UIElement(args, error);
+                return;
+            }
+
+            var ivprop = false;
+            switch (args.Property._ID) {
+                case FrameworkElement.WidthProperty._ID:
+                case FrameworkElement.MaxWidthProperty._ID:
+                case FrameworkElement.MinWidthProperty._ID:
+                case FrameworkElement.HeightProperty._ID:
+                case FrameworkElement.MaxHeightProperty._ID:
+                case FrameworkElement.MinHeightProperty._ID:
+                case FrameworkElement.MarginProperty._ID:
+                case FrameworkElement.FlowDirectionProperty._ID:
+                    this._PurgeSizeCache();
+                    ivprop = true;
+                    break;
+                case FrameworkElement.CursorProperty._ID:
+                case FrameworkElement.HorizontalAlignmentProperty._ID:
+                case FrameworkElement.VerticalAlignmentProperty._ID:
+                    ivprop = true;
+                    break;
+                case FrameworkElement.StyleProperty._ID:
+                    var newStyle = args.NewValue;
+                    if (!error.IsErrored())
+                        this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
+                    if (error.IsErrored())
+                        return;
+                    break;
+            }
+
+            if (args.Property._ID === FrameworkElement.HorizontalAlignmentProperty._ID
+                || args.Property._ID === FrameworkElement.WidthProperty._ID) {
+                this.IsFixedWidth = this.CalculateIsFixedWidth();
+            }
+            if (args.Property._ID === FrameworkElement.VerticalAlignmentProperty._ID ||
+                args.Property._ID === FrameworkElement.HeightProperty._ID) {
+                this.IsFixedHeight = this.CalculateIsFixedHeight();
+            }
+
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        FrameworkElement.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== FrameworkElement) {
+                this._OnPropertyChanged$UIElement(args, error);
+                return;
+            }
+
+            switch (args.Property._ID) {
+                case FrameworkElement.WidthProperty._ID:
+                case FrameworkElement.MaxWidthProperty._ID:
+                case FrameworkElement.MinWidthProperty._ID:
+                case FrameworkElement.HeightProperty._ID:
+                case FrameworkElement.MaxHeightProperty._ID:
+                case FrameworkElement.MinHeightProperty._ID:
+                case FrameworkElement.MarginProperty._ID:
+                case FrameworkElement.FlowDirectionProperty._ID:
+                    this._PurgeSizeCache();
+
+                    //var p = this._GetRenderTransformOrigin();
+                    //this._FullInvalidate(p.X != 0.0 || p.Y != 0.0);
+                    this._FullInvalidate(false);
+
+                    var visualParent = this.GetVisualParent();
+                    if (visualParent)
+                        visualParent._InvalidateMeasure();
+
+                    this._InvalidateMeasure();
+                    this._InvalidateArrange();
+                    this._UpdateBounds();
+                    break;
+                case FrameworkElement.HorizontalAlignmentProperty._ID:
+                case FrameworkElement.VerticalAlignmentProperty._ID:
+                    this._InvalidateArrange();
+                    this._FullInvalidate(true);
+                    break;
+                case FrameworkElement.StyleProperty._ID:
+                    var newStyle = args.NewValue;
+                    if (!error.IsErrored())
+                        this._Providers[_PropertyPrecedence.LocalStyle]._UpdateStyle(newStyle, error);
+                    if (error.IsErrored())
+                        return;
+                    break;
+            }
+
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#endif
+
+    //#endregion
+
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        FrameworkElement.Instance.GetContentHtmlElement = function () {
+            return this.GetRootHtmlElement().firstChild;
+        };
+        FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
+            var rootEl = document.createElement("div");
+            rootEl.appendChild(document.createElement("div"));
+            this.InitializeHtml(rootEl);
+            return rootEl;
+        };
+        FrameworkElement.Instance.InitializeHtml = function (rootEl) {
+            if (this.ApplySizing(rootEl)) {
+                Surface._SizingAdjustments[this._ID] = this;
+            }
+        };
+        FrameworkElement.Instance.OnHtmlAttached = function () {
+            this.ApplyTemplate();
+            var subtree = this._SubtreeObject;
+            if (subtree) {
+                this.GetRootHtmlElement().firstChild.appendChild(subtree.GetRootHtmlElement());
+                subtree.OnHtmlAttached();
+            }
+        };
+        FrameworkElement.Instance.OnHtmlDetached = function () {
+            var subtree = this._SubtreeObject;
+            if (subtree) {
+                subtree.OnHtmlDetached();
+                this.GetRootHtmlElement().firstChild.removeChild(subtree.GetRootHtmlElement());
+            }
+        };
+        FrameworkElement.Instance.ApplySizing = function (rootEl) {
+            var isStretchPlusShrink = false;
+            var subEl = rootEl.firstChild;
+
+            rootEl.style.display = "table";
+            subEl.style.display = "table-cell";
+
+            //apply resets
+            rootEl.style.width = "";
+            rootEl.style.left = "";
+            rootEl.style.right = "";
+            rootEl.style.height = "";
+            rootEl.style.top = "";
+            rootEl.style.bottom = "";
+
+            subEl.style.maxWidth = "";
+            subEl.style.maxHeight = "";
+            subEl.style.width = "";
+            subEl.style.height = "";
+            subEl.style.left = "";
+            subEl.style.right = "";
+            subEl.style.top = "";
+            subEl.style.bottom = "";
+
+            //if width is explicitly set, stretch is changed to centered
+            var horizontalAlignment = FrameworkElement.RealHorizontalAlignment(this.Width, this.HorizontalAlignment);
+            //if height is explicitly set, stretch is changed to centered
+            var verticalAlignment = FrameworkElement.RealVerticalAlignment(this.Height, this.VerticalAlignment);
+
+            var horizontalLayoutType = HorizontalLayoutType.Shrink;
+            if (horizontalAlignment == HorizontalAlignment.Stretch && this.GetParentIsFixedWidth())
+                //layout type only stays stretch if the parent is fixed width
+                horizontalLayoutType = HorizontalLayoutType.Stretch;
+            var verticalLayoutType = VerticalLayoutType.Shrink;
+            if (verticalAlignment == VerticalAlignment.Stretch && this.GetParentIsFixedHeight())
+                //layout type only stays stretch if the parent is fixed height
+                verticalLayoutType = VerticalLayoutType.Stretch;
+
+            if (horizontalLayoutType == HorizontalLayoutType.Stretch || verticalLayoutType == VerticalLayoutType.Stretch) {
+                rootEl.style.position = "absolute";
+                subEl.style.position = "absolute";
+                if (horizontalLayoutType == HorizontalLayoutType.Stretch) rootEl.style.width = "100%";
+                if (verticalLayoutType == VerticalLayoutType.Stretch) rootEl.style.height = "100%";
+                //if we are here we know width or height is stretch, if one of them is shrink then we have a stretch plus shrink scenario
+                if (horizontalLayoutType == HorizontalLayoutType.Shrink || verticalLayoutType == VerticalLayoutType.Shrink) isStretchPlusShrink = true;
+            }
+            else {
+                if (horizontalAlignment == HorizontalAlignment.Left || horizontalAlignment == HorizontalAlignment.Right ||
+                    verticalAlignment == VerticalAlignment.Top || verticalAlignment == VerticalAlignment.Bottom) {
+                    rootEl.style.position = "absolute";
+                    subEl.style.position = "relative";
+                    if (horizontalAlignment == HorizontalAlignment.Left) rootEl.style.left = "0px";
+                    if (horizontalAlignment == HorizontalAlignment.Right) rootEl.style.right = "0px";
+                    if (verticalAlignment == VerticalAlignment.Top) rootEl.style.top = "0px";
+                    if (verticalAlignment == VerticalAlignment.Bottom) rootEl.style.bottom = "0px";
+                }
+                else {
+                    rootEl.style.position = "relative";
+                    subEl.style.position = "relative";
+                }
+            }
+
+            if (horizontalLayoutType == HorizontalLayoutType.Stretch) {
+                var left = (isNaN(this.Margin.Left) ? 0 : this.Margin.Left);
+                subEl.style.left = left + "px";
+                var right = (isNaN(this.Margin.Right) ? 0 : this.Margin.Right);
+                subEl.style.right = right + "px";
+            }
+            else {
+                rootEl.style.marginLeft = this.Margin.Left + "px";
+                rootEl.style.marginRight = this.Margin.Right + "px";
+            }
+            if (verticalLayoutType == VerticalLayoutType.Stretch) {
+                var top = (isNaN(this.Margin.Top) ? 0 : this.Margin.Top);
+                subEl.style.top = top + "px";
+                var bottom = (isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom);
+                subEl.style.bottom = bottom + "px";
+            }
+            else {
+                rootEl.style.marginTop = this.Margin.Top + "px";
+                rootEl.style.marginBottom = this.Margin.Bottom + "px";
+            }
+
+            if (!isNaN(this.Width)) {
+                //explicit width
+                rootEl.style.width = this.Width + "px";
+            }
+            if (!isNaN(this.Height)) {
+                //explicit height
+                rootEl.style.height = this.Height + "px";
+            }
+
+            //set max width and max height on inner element
+            subEl.style.maxHeight = this.MaxHeight + "px";
+            subEl.style.maxWidth = this.MaxWidth + "px";
+            return isStretchPlusShrink;
+        };
+        FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
+            var sizingChecks = [UIElement.IsFixedWidthProperty, UIElement.IsFixedHeightProperty,
+                FrameworkElement.HorizontalAlignmentProperty, FrameworkElement.VerticalAlignmentProperty,
+                FrameworkElement.MarginProperty, FrameworkElement.WidthProperty, FrameworkElement.HeightProperty,
+                FrameworkElement.MaxWidthProperty, FrameworkElement.MaxHeightProperty];
+            for (var i = 0; i < sizingChecks.length; i++) {
+                if (invalidations[sizingChecks[i]._ID]) {
+                    if (this.ApplySizing(this.GetRootHtmlElement())) {
+                        Surface._SizingAdjustments[this._ID] = this;
+                    }
+                    break;
+                }
+            }
+            this.ApplyHtmlChanges$UIElement(invalidations);
+        };
+        FrameworkElement.Instance.CalculateAdjustedWidth = function (width) {
+            var marginLeft = isNaN(this.Margin.Left) ? 0 : this.Margin.Left;
+            var marginRight = isNaN(this.Margin.Right) ? 0 : this.Margin.Right;
+            return width + marginLeft + marginRight;
+        };
+        FrameworkElement.Instance.CalculateAdjustedHeight = function (height) {
+            var marginTop = isNaN(this.Margin.Top) ? 0 : this.Margin.Top;
+            var marginBottom = isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom;
+            return height + marginTop + marginBottom;
+        };
+        FrameworkElement.Instance.UpdateAdjustedWidth = function (child, width) {
+            delete Surface._SizingAdjustments[this._ID];
+            if (!this.GetIsFixedWidth()) {
+                this.GetContentHtmlElement().style.width = width + "px";
+                var myWidth = this.CalculateAdjustedWidth(width);
+                var parent = this.GetVisualParent();
+                if (parent) parent.UpdateAdjustedWidth(this, myWidth);
+            }
+        };
+        FrameworkElement.Instance.UpdateAdjustedHeight = function (child, height) {
+            delete Surface._SizingAdjustments[this._ID];
+            if (!this.GetIsFixedHeight()) {
+                this.GetContentHtmlElement().style.height = height + "px";
+                var myHeight = this.CalculateAdjustedHeight(height);
+                var parent = this.GetVisualParent();
+                if (parent) parent.UpdateAdjustedHeight(this, myHeight);
+            }
+        };
+        FrameworkElement.Instance.FindAndSetAdjustedWidth = function () {
+            var result;
+            if (!this.GetIsFixedWidth()) {
+                var subtree = this._SubtreeObject;
+                var childWidth = 0;
+                if (subtree && Nullstone.Is(subtree, FrameworkElement)) childWidth = subtree.FindAndSetAdjustedWidth();
+                this.GetContentHtmlElement().style.width = childWidth + "px";
+                result = this.CalculateAdjustedWidth(childWidth);
+            }
+            else result = this.CalculateAdjustedWidth(this.GetRootHtmlElement().offsetWidth);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
+        };
+        FrameworkElement.Instance.FindAndSetAdjustedHeight = function () {
+            var result;
+            if (!this.GetIsFixedHeight()) {
+                var subtree = this._SubtreeObject;
+                var childHeight = 0;
+                if (subtree && Nullstone.Is(subtree, FrameworkElement)) childHeight = subtree.FindAndSetAdjustedHeight();
+                this.GetContentHtmlElement().style.height = childHeight + "px";
+                result = this.CalculateAdjustedHeight(childHeight);
+            }
+            else result = this.CalculateAdjustedHeight(this.GetRootHtmlElement().offsetHeight);
+            delete Surface._SizingAdjustments[this._ID];
+            return result;
+        };
+        FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
+            //if width is defined, horizontal alignment is no longer stretched
+            if (!isNaN(width) && horizontalAlignment == HorizontalAlignment.Stretch) {
+                //TODO: this should be centered, not left
+                return HorizontalAlignment.Left;
+            }
+            else {
+                return horizontalAlignment;
+            }
+        };
+        FrameworkElement.RealVerticalAlignment = function (height, verticalAlignment) {
+            //if height is defined, vertical alignment is no longer stretched
+            if (!isNaN(height) && verticalAlignment == VerticalAlignment.Stretch) {
+                //TODO: this should be centered, not top
+                return VerticalAlignment.Top;
+            }
+            else {
+                return verticalAlignment;
+            }
+        };
+        FrameworkElement.Instance.CalculateIsFixedWidth = function () {
+            if (!isNaN(this.Width)) {
+                return true;
+            }
+            if (FrameworkElement.RealHorizontalAlignment(this.Width, this.HorizontalAlignment) == HorizontalAlignment.Stretch
+                && this.GetParentIsFixedWidth()) {
+                return true;
+            }
+            return false;
+        };
+        FrameworkElement.Instance.CalculateIsFixedHeight = function () {
+            if (!isNaN(this.Height)) {
+                return true;
+            }
+            if (FrameworkElement.RealVerticalAlignment(this.Height, this.VerticalAlignment) == VerticalAlignment.Stretch
+                && this.GetParentIsFixedHeight()) {
+                return true;
+            }
+            return false;
+        };
+    }
+    //#endif
 
     namespace.FrameworkElement = Nullstone.FinishCreate(FrameworkElement);
 })(window);

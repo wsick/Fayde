@@ -65,5 +65,12 @@
         }
     };
 
+    PathGeometry.Instance.Serialize = function () {
+        var path = this.$Path;
+        if (!path)
+            return;
+        return path.Serialize();
+    };
+
     namespace.PathGeometry = Nullstone.FinishCreate(PathGeometry);
 })(Nullstone.Namespace("Fayde.Media"));

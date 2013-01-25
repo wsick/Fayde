@@ -7,6 +7,20 @@
 (function (namespace) {
     var MediaElement = Nullstone.Create("MediaElement", FrameworkElement);
 
+    MediaElement.Instance.Init = function () {
+        this.Init$FrameworkElement();
+
+        this.BufferingProgressChanged = new MulticastEvent();
+        this.CurrentStateChanged = new MulticastEvent();
+        this.DownloadProgressChanged = new MulticastEvent();
+        this.MarkerReached = new MulticastEvent();
+        this.MarkerReached = new MulticastEvent();
+        this.MediaEnded = new MulticastEvent();
+        this.MediaFailed = new MulticastEvent();
+        this.MediaOpened = new MulticastEvent();
+        this.RateChanged = new MulticastEvent();
+    };
+
     //#region Properties
 
     //MediaElement.AudioStreamCountProperty = DependencyProperty.Register("AudioStreamCount", function () { return Number; }, MediaElement);
@@ -121,29 +135,130 @@
             return;
         }
 
-        if (args.Property._ID === MediaElement.SourceProperty._ID) {
-            if (this._Element) {
-                this._Element.src = args.NewValue.toString();
-                //TODO: Reset position to 00:00:00
-            }
-        } else if (args.Property._ID === MediaElement.AutoPlayProperty._ID) {
-            if (this._Element)
-                this._Element.autoplay = args.NewValue;
-        } else if (args.Property._ID === MediaElement.IsMutedProperty._ID) {
-            if (this._Element)
-                this._Element.muted = args.NewValue;
-        } else if (args.Property._ID === MediaElement.PlaybackRateProperty._ID) {
-            if (this._Element)
-                this._Element.playbackRate = args.NewValue;
+        var ivprop = false;
+        if (args.Property._ID === MediaElement.SourceProperty._ID
+            || args.Property._ID === MediaElement.AutoPlayProperty._ID
+            || args.Property._ID === MediaElement.IsMutedProperty._ID
+            || args.Property._ID === MediaElement.PlaybackRateProperty._ID
+            || args.Property._ID === MediaElement.VolumeProperty._ID) {
+            ivprop = true;
         } else if (args.Property._ID === MediaElement.StretchProperty._ID) {
             this._InvalidateMeasure();
-        } else if (args.Property._ID === MediaElement.VolumeProperty._ID) {
-            if (this._Element)
-                this._Element.volume = args.NewValue;
+            ivprop = true;
         }
 
+        if (ivprop)
+            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
         this.PropertyChanged.Raise(this, args);
     };
 
+    MediaElement.Instance.HandleMediaError = function (e) {
+        var el = this.GetHtmlMediaEl();
+        if (!el.error)
+            return;
+        this.MediaFailed.Raise(this, new MediaFailedEventArgs(el.error.code));
+    };
+    // http://www.w3.org/2010/05/video/mediaevents.html
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        MediaElement.Instance.CreateHtmlObjectImpl = function () {
+            var rootEl = this.CreateHtmlObjectImpl$FrameworkElement();
+            var contentEl = rootEl.firstChild;
+            contentEl.appendChild(this.GetHtmlMediaEl());
+            return rootEl;
+        };
+        MediaElement.Instance.GetHtmlMediaEl = function () {
+            if (!this._Element)
+                this._Element = this.CreateHtmlMediaEl();
+            return this._Element;
+        };
+        MediaElement.Instance.CreateHtmlMediaEl = function () {
+            var video = document.createElement("video");
+            video.style.position = "absolute";
+            video.style.width = "100%";
+            video.style.height = "100%";
+            video.autoplay = this.AutoPlay;
+            var that = this;
+            video.onerror = function (e) { that.HandleMediaError(e); };
+
+            video.onvolumechange = function (e) { that.$SetValueInternal(MediaElement.VolumeProperty, video.volume); };
+            video.ondurationchange = function (e) { that.$SetValueInternal(MediaElement.NaturalDurationProperty, new Duration(new TimeSpan(0, 0, video.duration))); };
+            video.onratechange = function (e) {
+                that.$SetValueInternal(MediaElement.PlaybackRateProperty, video.playbackRate);
+                that.RateChanged.Raise(that, new RateChangedRoutedEventArgs(vide.playbackRate));
+            };
+
+            video.addEventListener("progress", function (e) {
+                //TODO: Finish
+            }, false);
+            video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
+
+            video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new RoutedEventArgs()); };
+            video.onended = function (e) { that.MediaEnded.Raise(that, new RoutedEventArgs()); };
+
+            return video;
+        };
+        MediaElement.Instance.ApplyHtmlChange = function (change) {
+            var propd = change.Property;
+            if (propd.OwnerType !== MediaElement) {
+                this.ApplyChange$FrameworkElement(change);
+                return;
+            }
+
+            var el = this.GetHtmlMediaEl();
+            if (propd._ID === MediaElement.SourceProperty._ID) {
+                el.src = change.NewValue.toString();
+                //TODO: Reset position to 00:00:00
+            } else if (propd._ID === MediaElement.AutoPlayProperty._ID) {
+                el.autoplay = change.NewValue;
+            } else if (propd._ID === MediaElement.IsMutedProperty._ID) {
+                el.muted = change.NewValue;
+            } else if (propd._ID === MediaElement.PlaybackRateProperty._ID) {
+                el.playbackRate = change.NewValue;
+            } else if (propd._ID === MediaElement.StretchProperty._ID) {
+                //TODO: 
+            } else if (propd._ID === MediaElement.VolumeProperty._ID) {
+                el.volume = change.NewValue;
+            }
+        };
+    }
+    //#endregion
+
     namespace.MediaElement = Nullstone.FinishCreate(MediaElement);
+})(window);
+
+(function (namespace) {
+    var MediaFailedEventArgs = Nullstone.Create("MediaFailedEventArgs", RoutedEventArgs, 1);
+
+    MediaFailedEventArgs.Instance.Init = function (code) {
+        this.Init$RoutedEventArgs();
+        this.Code = code;
+        switch (code) {
+            case 1: //MEDIA_ERR_ABORTED
+                this.Description = "Aborted";
+                break;
+            case 2: //MEDIA_ERR_NETWORK
+                this.Description = "Aborted";
+                break;
+            case 3: //MEDIA_ERR_DECODE
+                this.Description = "Decode";
+                break;
+            case 4: //MEDIA_ERR_SRC_NOT_SUPPORTED
+                this.Description = "Media Type Not Supported";
+                break;
+        }
+    };
+
+    namespace.MediaFailedEventArgs = Nullstone.FinishCreate(MediaFailedEventArgs);
+})(window);
+
+(function (namespace) {
+    var RateChangedRoutedEventArgs = Nullstone.Create("RateChangedRoutedEventArgs", RoutedEventArgs, 1);
+
+    RateChangedRoutedEventArgs.Instance.Init = function (newRate) {
+        this.Init$RoutedEventArgs();
+        this.NewRate = newRate;
+    };
+
+    namespace.RateChangedRoutedEventArgs = Nullstone.FinishCreate(RateChangedRoutedEventArgs);
 })(window);

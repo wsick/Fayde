@@ -1,6 +1,4 @@
-﻿/// <reference path="../Runtime/Nullstone.js"/>
-
-(function (namespace) {
+﻿(function (namespace) {
     namespace.PenLineCap = {
         Flat: 0,
         Square: 1,
@@ -18,15 +16,11 @@
     };
     namespace.FillRule = {
         EvenOdd: 0,
-        Nonzero: 1
+        NonZero: 1
     };
 })(window);
 
 (function (namespace) {
-    namespace.TextHintingMode = {
-        Fixed: 0,
-        Animated: 1
-    };
     namespace.AlignmentX = {
         Left: 0,
         Center: 1,
@@ -51,5 +45,9 @@
         Pad: 0,
         Reflect: 1,
         Repeat: 2
+    };
+    namespace.TextHintingMode = {
+        Fixed: 0,
+        Animated: 1
     };
 })(Nullstone.Namespace("Fayde.Media"));

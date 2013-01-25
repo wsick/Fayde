@@ -1,6 +1,6 @@
 ﻿/// <reference path="../Core/FrameworkElement.js"/>
 /// CODE
-/// <reference path="../Media/Imaging/ImageSource.js"/>
+/// <reference path="../Media/ImageSource.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="../Primitives/Rect.js"/>
 /// <reference path="../Primitives/Enums.js"/>
@@ -204,87 +204,7 @@
 
         source.Unlock();
     };
-    Image.Instance._CalculateRenderMetrics = function (source) {
-        var stretch = this.Stretch;
-        var specified = new Size(this.ActualWidth, this.ActualHeight);
-        var stretched = this._ApplySizeConstraints(specified);
-        var adjust = !Rect.Equals(specified, this._RenderSize);
-
-        var pixelWidth = source.PixelWidth;
-        var pixelHeight = source.PixelHeight;
-        if (pixelWidth === 0 || pixelHeight === 0)
-            return null;
-
-        if (stretch !== Fayde.Media.Stretch.UniformToFill)
-            specified = specified.Min(stretched);
-
-        var paint = new Rect(0, 0, specified.Width, specified.Height);
-        var image = new Rect(0, 0, pixelWidth, pixelHeight);
-
-        if (stretch === Fayde.Media.Stretch.None)
-            paint = paint.Union(image);
-
-        var matrix = Image.ComputeMatrix(paint.Width, paint.Height, image.Width, image.Height,
-            stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
-
-        if (adjust) {
-            var error = new BError();
-            this._MeasureOverrideWithError(specified, error);
-            paint = new Rect((stretched.Width - specified.Width) * 0.5, (stretched.Height - specified.Height) * 0.5, specified.Width, specified.Height);
-        }
-
-        var overlap = RectOverlap.In;
-        if (stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
-            var bounds = new Rect(paint.RoundOut());
-            var box = image.Transform(matrix).RoundIn();
-            overlap = bounds.RectIn(box);
-        }
-
-        return {
-            Matrix: matrix,
-            Overlap: overlap
-        };
-    };
-
-    //#region Property Changed
-
-    Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd && (propd._ID === Image.SourceProperty._ID)) {
-            this._InvalidateMeasure();
-            this._Invalidate();
-            return;
-        }
-    };
-    Image.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== FrameworkElement) {
-            this._OnPropertyChanged$FrameworkElement(args, error);
-            return;
-        }
-
-        if (args.Property._ID === Image.SourceProperty._ID) {
-            var oldBmpSrc = Nullstone.As(args.OldValue, Fayde.Media.Imaging.BitmapSource);
-            if (oldBmpSrc) {
-                oldBmpSrc._ErroredCallback = null;
-                oldBmpSrc._LoadedCallback = null;
-            }
-            var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
-            if (newBmpSrc) {
-                var i = this;
-                newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
-                newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
-            } else {
-                this._UpdateBounds();
-                this._Invalidate();
-            }
-            this._InvalidateMeasure();
-        }
-
-        this.PropertyChanged.Raise(this, args);
-    };
-
-    //#endregion
-
-    Image.ComputeMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
+    var computeMatrix = function (width, height, sw, sh, stretch, alignX, alignY) {
         /// <param name="width" type="Number"></param>
         /// <param name="height" type="Number"></param>
         /// <param name="sw" type="Number"></param>
@@ -347,6 +267,165 @@
         mat3.translate(m, dx, dy);
         return m;
     };
+    Image.Instance._CalculateRenderMetrics = function (source) {
+        var stretch = this.Stretch;
+        var specified = new Size(this.ActualWidth, this.ActualHeight);
+        var stretched = this._ApplySizeConstraints(specified);
+        var adjust = !Rect.Equals(specified, this._RenderSize);
+
+        var pixelWidth = source.PixelWidth;
+        var pixelHeight = source.PixelHeight;
+        if (pixelWidth === 0 || pixelHeight === 0)
+            return null;
+
+        if (stretch !== Fayde.Media.Stretch.UniformToFill)
+            specified = specified.Min(stretched);
+
+        var paint = new Rect(0, 0, specified.Width, specified.Height);
+        var image = new Rect(0, 0, pixelWidth, pixelHeight);
+
+        if (stretch === Fayde.Media.Stretch.None)
+            paint = paint.Union(image);
+
+        var matrix = computeMatrix(paint.Width, paint.Height, image.Width, image.Height,
+            stretch, Fayde.Media.AlignmentX.Center, Fayde.Media.AlignmentY.Center);
+
+        if (adjust) {
+            var error = new BError();
+            this._MeasureOverrideWithError(specified, error);
+            paint = new Rect((stretched.Width - specified.Width) * 0.5, (stretched.Height - specified.Height) * 0.5, specified.Width, specified.Height);
+        }
+
+        var overlap = RectOverlap.In;
+        if (stretch === Fayde.Media.Stretch.UniformToFill || adjust) {
+            var bounds = new Rect(paint.RoundOut());
+            var box = image.Transform(matrix).RoundIn();
+            overlap = bounds.RectIn(box);
+        }
+
+        return {
+            Matrix: matrix,
+            Overlap: overlap
+        };
+    };
+
+    //#region Property Changed
+
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Image.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Image) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
+
+            var ivprop = false;
+            if (args.Property._ID === Image.SourceProperty._ID) {
+                var oldBmpSrc = Nullstone.As(args.OldValue, Fayde.Media.Imaging.BitmapSource);
+                if (oldBmpSrc) {
+                    oldBmpSrc._ErroredCallback = null;
+                    oldBmpSrc._LoadedCallback = null;
+                }
+                var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
+                if (newBmpSrc) {
+                    var i = this;
+                    newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
+                    newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+                }
+                ivprop = true;
+            }
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+        Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd && (propd._ID === Image.SourceProperty._ID)) {
+                this.InvalidateProperty(propd, undefined, undefined);
+                return;
+            }
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        Image.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Image) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
+
+            if (args.Property._ID === Image.SourceProperty._ID) {
+                var oldBmpSrc = Nullstone.As(args.OldValue, Fayde.Media.Imaging.BitmapSource);
+                if (oldBmpSrc) {
+                    oldBmpSrc._ErroredCallback = null;
+                    oldBmpSrc._LoadedCallback = null;
+                }
+                var newBmpSrc = Nullstone.As(args.NewValue, Fayde.Media.Imaging.BitmapSource);
+                if (newBmpSrc) {
+                    var i = this;
+                    newBmpSrc._ErroredCallback = function () { i.ImageFailed.Raise(this, new EventArgs()); };
+                    newBmpSrc._LoadedCallback = function () { i.ImageOpened.Raise(this, new EventArgs()); };
+                } else {
+                    this._UpdateBounds();
+                    this._Invalidate();
+                }
+                this._InvalidateMeasure();
+            }
+            this.PropertyChanged.Raise(this, args);
+        };
+        Image.Instance._OnSubPropertyChanged = function (propd, sender, args) {
+            if (propd && (propd._ID === Image.SourceProperty._ID)) {
+                this._InvalidateMeasure();
+                this._Invalidate();
+                return;
+            }
+        };
+    }
+    //#endif
+
+    //#endregion
+
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        Image.Instance.CreateHtmlObjectImpl = function () {
+            var rootEl = document.createElement("div");
+            rootEl.appendChild(document.createElement("div"));
+            this.InitializeHtml(rootEl);
+            return rootEl;
+        };
+        var applyImage = function (rootEl, parentIsFixedWidth, parentIsFixedHeight, source, stretch) {
+            var imgEl = rootEl.firstChild;
+            //if (!parentIsFixedHeight && !parentIsFixedWidth) {
+            //    stretch = Stretch.None;
+            //}
+            switch (stretch) {
+                case Fayde.Media.Stretch.None:
+                    var img = imgEl.appendChild(document.createElement("img"));
+                    img.src = source._Image.src;
+                    break;
+                case Fayde.Media.Stretch.Fill:
+                    break;
+                case Fayde.Media.Stretch.Uniform:
+                    imgEl.style.backgroundSize = "contain";
+                    imgEl.style.backgroundRepeat = "no-repeat";
+                    imgEl.style.backgroundPosition = "center";
+                    imgEl.style.backgroundImage = "url('" + source._Image.src + "')";
+                    break;
+                case Fayde.Media.Stretch.UniformToFill:
+                    break;
+            }
+        };
+        Image.Instance.ApplyHtmlChanges = function (invalidations) {
+            var imageChecks = [Image.StretchProperty, Image.SourceProperty];
+            for (var i = 0; i < imageChecks.length; i++) {
+                if (invalidations[imageChecks[i]._ID]) {
+                    applyImage(this.GetRootHtmlElement(), this.GetParentIsFixedWidth(), this.GetParentIsFixedHeight(), this.Source, this.Stretch);
+                    break;
+                }
+            }
+            this.ApplyHtmlChanges$FrameworkElement(invalidations);
+        };
+    }
+    //#endif
 
     namespace.Image = Nullstone.FinishCreate(Image);
 })(Fayde);
