@@ -15,6 +15,8 @@ namespace WickedSick.Server.XamlParser.Elements
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(DependencyObject));
 
+        private static readonly string DEFAULT_NS = "WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements";
+
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
         public static Type GetElementType(string nameSpace, string elementName)
         {
@@ -436,6 +438,9 @@ namespace WickedSick.Server.XamlParser.Elements
                 if (tokens.Length != 2)
                     throw new XamlParseException("A property can only contain a '.' if it is an attached property with the following signature: '<Owner Type>.<Property Name>'.");
                 typeName = tokens[0];
+                if (typeName.Contains(":"))
+                    throw new NotSupportedException("Namespaces in owner types for setter properties.");
+                typeName = ElementAttribute.GetFullNullstoneType(GetElementType(DEFAULT_NS, typeName));
                 prop = tokens[1];
             }
             return string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, prop);

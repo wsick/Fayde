@@ -189,6 +189,7 @@
     <Compile Include="Elements\Media\RotateTransform.cs" />
     <Compile Include="Elements\Media\ScaleTransform.cs" />
     <Compile Include="Elements\Media\SkewTransform.cs" />
+    <Compile Include="Elements\Media\TextOptions.cs" />
     <Compile Include="Elements\Media\TileBrush.cs" />
     <Compile Include="Elements\Media\TransformGroup.cs" />
     <Compile Include="Elements\Media\VSM\VisualTransition.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Elements\Types\ScrollBarVisibility.cs" />
     <Compile Include="Elements\Types\SelectionMode.cs" />
     <Compile Include="Elements\Types\TextDecorationCollection.cs" />
+    <Compile Include="Elements\Types\TextHintingMode.cs" />
     <Compile Include="Elements\UriMapping.cs" />
     <Compile Include="Elements\UriMappingCollection.cs" />
     <Compile Include="Elements\UriMatcher.cs" />
