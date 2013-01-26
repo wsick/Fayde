@@ -53,7 +53,7 @@
       </Border>
     </Border>
     <Image Grid.Row="2" Grid.Column="1" Source="Images/tile-test.png"/>
-    <StackPanel Grid.Row="2" Grid.Column="2" Background="AntiqueWhite" Orientation="Horizontal" Margin="5">
+    <StackPanel Grid.Row="2" Grid.Column="2" Background="AntiqueWhite" Orientation="Horizontal">
       <Border BorderBrush="Black" Background="White" BorderThickness="3" CornerRadius="5, 5, 20, 20" Margin="10">
         <TextBlock Margin="10">
           <TextBlock.Inlines>

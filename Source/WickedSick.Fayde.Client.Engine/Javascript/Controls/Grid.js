@@ -574,6 +574,25 @@
             this._OnCollectionItemChanged$Panel(col, obj, args);
         };
     }
+    //#else
+    if (!Fayde.IsCanvasEnabled) {
+        Grid.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== Grid) {
+                this._OnPropertyChanged$Panel(args, error);
+                return;
+            }
+
+            var ivprop = false;
+            if (args.Property._ID === Grid.ShowGridLinesProperty._ID) {
+                this._Invalidate();
+                ivprop = true;
+            }
+            this._InvalidateMeasure();
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
     //#endif
 
     //#endregion
@@ -698,6 +717,7 @@
                     var sizingEl = columnEl.appendChild(document.createElement("div"));
                     sizingEl.style.position = "relative";
                     sizingEl.style.display = "table";
+                    sizingEl.style.borderCollapse = "separate";
                     sizingEl.style.width = "100%";
                     sizingEl.style.height = "100%";
                     var contentEl = sizingEl.appendChild(document.createElement("div"));
@@ -710,6 +730,7 @@
         };
         Grid.Instance.CreateHtmlChildrenContainer = function () {
             var table = document.createElement("table");
+            table.style.borderCollapse = "collapse";
             table.style.borderSpacing = "0px";
             table.style.width = "100%";
             table.style.height = "100%";
@@ -725,11 +746,12 @@
 
             if (propd._ID === Grid.ShowGridLinesProperty._ID) {
                 var table = this.GetHtmlChildrenContainer();
+                var style = this.ShowGridLines ? "solid 1px black" : "";
                 for (var i = 0; i < table.children.length; i++) {
                     var row = table.children[i];
                     for (var j = 0; j < row.children.length; j++) {
                         var cell = row.children[j];
-                        cell.style.border = "solid 1px black";
+                        cell.style.border = style;
                     }
                 }
             }
