@@ -1,7 +1,7 @@
 ﻿/// <reference path="Span.js"/>
 
 (function (namespace) {
-    var Bold = Nullstone.Create("Bold", Span);
+    var Bold = Nullstone.Create("Bold", namespace.Span);
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
         Bold.Instance.CreateHtmlObjectImpl = function () {
@@ -15,4 +15,4 @@
     }
     //#endif
     namespace.Bold = Nullstone.FinishCreate(Bold);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

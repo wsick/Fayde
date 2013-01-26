@@ -1,21 +1,22 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="Inline.js"/>
 /// CODE
+/// <reference path="InlineCollection.js"/>
 
 (function (namespace) {
-    var Span = Nullstone.Create("Span", Inline);
+    var Span = Nullstone.Create("Span", namespace.Inline);
 
     //#region Properties
 
     Span._InlinesAutoCreator = {
         GetValue: function (propd, obj) {
-            var inlines = new InlineCollection();
-            if (obj instanceof Hyperlink)
+            var inlines = new namespace.InlineCollection();
+            if (obj instanceof namespace.Hyperlink)
                 inlines._SetIsForHyperlink();
             return inlines;
         }
     };
-    Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return InlineCollection; }, Span, undefined, undefined, Span._InlinesAutoCreator);
+    Span.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return namespace.InlineCollection; }, Span, undefined, undefined, Span._InlinesAutoCreator);
 
     Nullstone.AutoProperties(Span, [
         Span.InlinesProperty
@@ -145,4 +146,4 @@
     //#endif
 
     namespace.Span = Nullstone.FinishCreate(Span);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

@@ -1,7 +1,7 @@
 ﻿/// <reference path="Span.js"/>
 
 (function (namespace) {
-    var Italic = Nullstone.Create("Italic", Span);
+    var Italic = Nullstone.Create("Italic", namespace.Span);
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
         Italic.Instance.CreateHtmlObjectImpl = function () {
@@ -15,4 +15,4 @@
     }
     //#endif
     namespace.Italic = Nullstone.FinishCreate(Italic);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

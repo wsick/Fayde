@@ -749,106 +749,108 @@ class PresentationFrameworkCollection extends DependencyObject implements IColle
 //////////////////////////////////////////////////////////
 // DOCUMENTS
 //////////////////////////////////////////////////////////
-class TextElement extends DependencyObject {
-    static FontFamilyProperty: DependencyProperty;
-    static FontSizeProperty: DependencyProperty;
-    static FontStretchProperty: DependencyProperty;
-    static FontStyleProperty: DependencyProperty;
-    static FontWeightProperty: DependencyProperty;
-    static ForegroundProperty: DependencyProperty;
-    FontFamily: string;
-    FontSize: number;
-    FontStretch: string;
-    FontStyle: string;
-    FontWeight: FontWeight;
-    Foreground: Fayde.Media.Brush;
-}
-class Block extends TextElement {
-    static LineHeightProperty: DependencyProperty;
-    static LineStackStrategyProperty: DependencyProperty;
-    static TextAlignmentProperty: DependencyProperty;
-    LineHeight: number;
-    LineStackingStrategy: LineStackingStrategy;
-    TextAlignment: TextAlignment;
-}
-class Paragraph extends Block {
-    Inlines: InlineCollection;
-}
-class Section extends Block {
-    Blocks: BlockCollection;
-}
-class Inline extends TextElement {
-}
-class LineBreak extends Inline {
-}
-class Run extends Inline {
-    static FlowDirectionProperty: DependencyProperty;
-    FlowDirection: FlowDirection;
-    Text: string;
-}
-class Span extends Inline {
-    Inlines: InlineCollection;
-}
-class Bold extends Span {
-}
-class Italic extends Span {
-}
-class Underline extends Span {
-}
-class Hyperlink extends Span {
-    static CommandProperty: DependencyProperty;
-    static CommandParameterProperty: DependencyProperty;
-    static MouseOverForegroundProperty: DependencyProperty;
-    static MouseOverTextDecorationsProperty: DependencyProperty;
-    static NavigateUriProperty: DependencyProperty;
-    static TargetNameProperty: DependencyProperty;
+module Fayde.Documents {
+    export class TextElement extends DependencyObject {
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        FontFamily: string;
+        FontSize: number;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        Foreground: Fayde.Media.Brush;
+    }
+    export class Block extends TextElement {
+        static LineHeightProperty: DependencyProperty;
+        static LineStackStrategyProperty: DependencyProperty;
+        static TextAlignmentProperty: DependencyProperty;
+        LineHeight: number;
+        LineStackingStrategy: LineStackingStrategy;
+        TextAlignment: TextAlignment;
+    }
+    export class Paragraph extends Block {
+        Inlines: InlineCollection;
+    }
+    export class Section extends Block {
+        Blocks: BlockCollection;
+    }
+    export class Inline extends TextElement {
+    }
+    export class LineBreak extends Inline {
+    }
+    export class Run extends Inline {
+        static FlowDirectionProperty: DependencyProperty;
+        FlowDirection: FlowDirection;
+        Text: string;
+    }
+    export class Span extends Inline {
+        Inlines: InlineCollection;
+    }
+    export class Bold extends Span {
+    }
+    export class Italic extends Span {
+    }
+    export class Underline extends Span {
+    }
+    export class Hyperlink extends Span {
+        static CommandProperty: DependencyProperty;
+        static CommandParameterProperty: DependencyProperty;
+        static MouseOverForegroundProperty: DependencyProperty;
+        static MouseOverTextDecorationsProperty: DependencyProperty;
+        static NavigateUriProperty: DependencyProperty;
+        static TargetNameProperty: DependencyProperty;
 
-    Command: Fayde.MVVM.ICommand;
-    CommandParameter;
-    MouseOverForeground: Fayde.Media.Brush;
-    MouseOverTextDecorations: TextDecorations;
-    NavigateUri: Uri;
-    TargetName: string;
-    Click: RoutedEvent;
-}
-class TextElementCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): TextElement;
-    SetValueAt(index: number, value: TextElement);
-    Add(value: TextElement);
-    AddRange(newItems: TextElement[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: TextElement);
-    Remove(value: TextElement);
-    IndexOf(value: TextElement): number;
-    Contains(value: TextElement): bool;
-    ToArray(): TextElement[];
-}
-class InlineCollection extends TextElementCollection {
-    GetValueAt(index: number): Inline;
-    SetValueAt(index: number, value: Inline);
-    Add(value: Inline);
-    AddRange(newItems: Inline[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Inline);
-    Remove(value: Inline);
-    IndexOf(value: Inline): number;
-    Contains(value: Inline): bool;
-    ToArray(): Inline[];
-}
-class BlockCollection extends TextElementCollection {
-    GetValueAt(index: number): Block;
-    SetValueAt(index: number, value: Block);
-    Add(value: Block);
-    AddRange(newItems: Block[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Block);
-    Remove(value: Block);
-    IndexOf(value: Block): number;
-    Contains(value: Block): bool;
-    ToArray(): Block[];
-}
-class TextSelection {
-    //TODO: Finish
+        Command: Fayde.MVVM.ICommand;
+        CommandParameter;
+        MouseOverForeground: Fayde.Media.Brush;
+        MouseOverTextDecorations: TextDecorations;
+        NavigateUri: Uri;
+        TargetName: string;
+        Click: RoutedEvent;
+    }
+    export class TextElementCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): TextElement;
+        SetValueAt(index: number, value: TextElement);
+        Add(value: TextElement);
+        AddRange(newItems: TextElement[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: TextElement);
+        Remove(value: TextElement);
+        IndexOf(value: TextElement): number;
+        Contains(value: TextElement): bool;
+        ToArray(): TextElement[];
+    }
+    export class InlineCollection extends TextElementCollection {
+        GetValueAt(index: number): Inline;
+        SetValueAt(index: number, value: Inline);
+        Add(value: Inline);
+        AddRange(newItems: Inline[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Inline);
+        Remove(value: Inline);
+        IndexOf(value: Inline): number;
+        Contains(value: Inline): bool;
+        ToArray(): Inline[];
+    }
+    export class BlockCollection extends TextElementCollection {
+        GetValueAt(index: number): Block;
+        SetValueAt(index: number, value: Block);
+        Add(value: Block);
+        AddRange(newItems: Block[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Block);
+        Remove(value: Block);
+        IndexOf(value: Block): number;
+        Contains(value: Block): bool;
+        ToArray(): Block[];
+    }
+    export class TextSelection {
+        //TODO: Finish
+    }
 }
 
 //////////////////////////////////////////////////////////
@@ -1919,7 +1921,7 @@ module Fayde.Media.VisualStateManager {
 // ANIMATIONS
 //////////////////////////////////////////////////////////
 module Fayde.Media.Animation {
-    class RepeatBehavior {
+    export class RepeatBehavior {
         static FromRepeatDuration(duration: Duration): RepeatBehavior;
         static FromIterationCount(count: number): RepeatBehavior;
         static FromForever(): RepeatBehavior;
@@ -1929,7 +1931,7 @@ module Fayde.Media.Animation {
         Duration: Duration;
         IsForever: bool;
     }
-    class Timeline extends DependencyObject {
+    export class Timeline extends DependencyObject {
         static AutoReverseProperty: DependencyProperty;
         static BeginTimeProperty: DependencyProperty;
         static DurationProperty: DependencyProperty;
@@ -1944,7 +1946,7 @@ module Fayde.Media.Animation {
         FillBehavior: FillBehavior;
         Completed: MulticastEvent;
     }
-    class TimelineCollection implements ICollection {
+    export class TimelineCollection implements ICollection {
         GetCount(): number;
         GetValueAt(index: number): Timeline;
         SetValueAt(index: number, value: Timeline);
@@ -1959,7 +1961,7 @@ module Fayde.Media.Animation {
         Contains(value: Timeline): bool;
         ToArray(): Timeline[];
     }
-    class ColorAnimation extends Timeline {
+    export class ColorAnimation extends Timeline {
         static ByProperty: DependencyProperty;
         static EasingFunctionProperty: DependencyProperty;
         static FromProperty: DependencyProperty;
@@ -1969,11 +1971,11 @@ module Fayde.Media.Animation {
         From: Color;
         To: Color;
     }
-    class ColorAnimationUsingKeyFrames extends Timeline {
+    export class ColorAnimationUsingKeyFrames extends Timeline {
         static KeyFramesProperty: DependencyProperty;
         KeyFrames: ColorKeyFrameCollection;
     }
-    class DoubleAnimation extends Timeline {
+    export class DoubleAnimation extends Timeline {
         static ByProperty: DependencyProperty;
         static EasingFunctionProperty: DependencyProperty;
         static FromProperty: DependencyProperty;
@@ -1983,15 +1985,15 @@ module Fayde.Media.Animation {
         From: number;
         To: number;
     }
-    class DoubleAnimationUsingKeyFrames extends Timeline {
+    export class DoubleAnimationUsingKeyFrames extends Timeline {
         static KeyFramesProperty: DependencyProperty;
         KeyFrames: DoubleKeyFrameCollection;
     }
-    class ObjectAnimationUsingKeyFrames extends Timeline {
+    export class ObjectAnimationUsingKeyFrames extends Timeline {
         static KeyFramesProperty: DependencyProperty;
         KeyFrames: ObjectKeyFrameCollection;
     }
-    class PointAnimation extends Timeline {
+    export class PointAnimation extends Timeline {
         static ByProperty: DependencyProperty;
         static EasingFunctionProperty: DependencyProperty;
         static FromProperty: DependencyProperty;
@@ -2001,11 +2003,11 @@ module Fayde.Media.Animation {
         From: Point;
         To: Point;
     }
-    class PointAnimationUsingKeyFrames extends Timeline {
+    export class PointAnimationUsingKeyFrames extends Timeline {
         static KeyFramesProperty: DependencyProperty;
         KeyFrames: PointKeyFrameCollection;
     }
-    class Storyboard extends Timeline {
+    export class Storyboard extends Timeline {
         static ChildrenProperty: DependencyProperty;
 
         static TargetNameProperty: DependencyProperty;
@@ -2028,43 +2030,43 @@ module Fayde.Media.Animation {
         //SeekAlignedToLastTick(offset: TimeSpan);
         //SkipToFill();
     }
-    class BeginStoryboard {
+    export class BeginStoryboard {
         static StoryboardProperty: DependencyProperty;
         Storyboard: Storyboard;
     }
-    class KeySpline extends DependencyObject {
+    export class KeySpline extends DependencyObject {
         ControlPoint1: Point;
         ControlPoint2: Point;
     }
-    class KeyFrame extends DependencyObject {
+    export class KeyFrame extends DependencyObject {
         KeyTime: KeyTime;
         Value: any;
     }
-    class ColorKeyFrame extends KeyFrame {
+    export class ColorKeyFrame extends KeyFrame {
         static KeyTimeProperty: DependencyProperty;
         static ValueProperty: DependencyProperty;
         KeyTime: KeyTime;
         Value: Color;
     }
-    class DoubleKeyFrame extends KeyFrame {
+    export class DoubleKeyFrame extends KeyFrame {
         static KeyTimeProperty: DependencyProperty;
         static ValueProperty: DependencyProperty;
         KeyTime: KeyTime;
         Value: number;
     }
-    class ObjectKeyFrame extends KeyFrame {
+    export class ObjectKeyFrame extends KeyFrame {
         static KeyTimeProperty: DependencyProperty;
         static ValueProperty: DependencyProperty;
         KeyTime: KeyTime;
         Value: any;
     }
-    class PointKeyFrame extends KeyFrame {
+    export class PointKeyFrame extends KeyFrame {
         static KeyTimeProperty: DependencyProperty;
         static ValueProperty: DependencyProperty;
         KeyTime: KeyTime;
         Value: Point;
     }
-    class KeyFrameCollection extends DependencyObjectCollection {
+    export class KeyFrameCollection extends DependencyObjectCollection {
         GetValueAt(index: number): KeyFrame;
         SetValueAt(index: number, value: KeyFrame);
         Add(value: KeyFrame);
@@ -2076,7 +2078,7 @@ module Fayde.Media.Animation {
         Contains(value: KeyFrame): bool;
         ToArray(): KeyFrame[];
     }
-    class ColorKeyFrameCollection extends KeyFrameCollection {
+    export class ColorKeyFrameCollection extends KeyFrameCollection {
         GetValueAt(index: number): ColorKeyFrame;
         SetValueAt(index: number, value: ColorKeyFrame);
         Add(value: ColorKeyFrame);
@@ -2088,7 +2090,7 @@ module Fayde.Media.Animation {
         Contains(value: ColorKeyFrame): bool;
         ToArray(): ColorKeyFrame[];
     }
-    class DoubleKeyFrameCollection extends KeyFrameCollection {
+    export class DoubleKeyFrameCollection extends KeyFrameCollection {
         GetValueAt(index: number): DoubleKeyFrame;
         SetValueAt(index: number, value: DoubleKeyFrame);
         Add(value: DoubleKeyFrame);
@@ -2100,7 +2102,7 @@ module Fayde.Media.Animation {
         Contains(value: DoubleKeyFrame): bool;
         ToArray(): DoubleKeyFrame[];
     }
-    class ObjectKeyFrameCollection extends KeyFrameCollection {
+    export class ObjectKeyFrameCollection extends KeyFrameCollection {
         GetValueAt(index: number): ObjectKeyFrame;
         SetValueAt(index: number, value: ObjectKeyFrame);
         Add(value: ObjectKeyFrame);
@@ -2112,7 +2114,7 @@ module Fayde.Media.Animation {
         Contains(value: ObjectKeyFrame): bool;
         ToArray(): ObjectKeyFrame[];
     }
-    class PointKeyFrameCollection extends KeyFrameCollection {
+    export class PointKeyFrameCollection extends KeyFrameCollection {
         GetValueAt(index: number): PointKeyFrame;
         SetValueAt(index: number, value: PointKeyFrame);
         Add(value: PointKeyFrame);
@@ -2124,87 +2126,87 @@ module Fayde.Media.Animation {
         Contains(value: PointKeyFrame): bool;
         ToArray(): PointKeyFrame[];
     }
-    class DiscreteColorKeyFrame extends ColorKeyFrame {
+    export class DiscreteColorKeyFrame extends ColorKeyFrame {
     }
-    class DiscreteDoubleKeyFrame extends DoubleKeyFrame {
+    export class DiscreteDoubleKeyFrame extends DoubleKeyFrame {
     }
-    class DiscreteObjectKeyFrame extends ObjectKeyFrame {
+    export class DiscreteObjectKeyFrame extends ObjectKeyFrame {
     }
-    class DiscretePointKeyFrame extends PointKeyFrame {
+    export class DiscretePointKeyFrame extends PointKeyFrame {
     }
-    class EasingColorKeyFrame extends ColorKeyFrame {
+    export class EasingColorKeyFrame extends ColorKeyFrame {
         static EasingFunctionProperty: DependencyProperty;
         EasingFunction: IEasingFunction;
     }
-    class EasingDoubleKeyFrame extends DoubleKeyFrame {
+    export class EasingDoubleKeyFrame extends DoubleKeyFrame {
         static EasingFunctionProperty: DependencyProperty;
         EasingFunction: IEasingFunction;
     }
-    class EasingPointKeyFrame extends PointKeyFrame {
+    export class EasingPointKeyFrame extends PointKeyFrame {
         static EasingFunctionProperty: DependencyProperty;
         EasingFunction: IEasingFunction;
     }
-    class LinearColorKeyFrame extends ColorKeyFrame {
+    export class LinearColorKeyFrame extends ColorKeyFrame {
     }
-    class LinearDoubleKeyFrame extends DoubleKeyFrame {
+    export class LinearDoubleKeyFrame extends DoubleKeyFrame {
     }
-    class LinearPointKeyFrame extends PointKeyFrame {
+    export class LinearPointKeyFrame extends PointKeyFrame {
     }
-    class SplineColorKeyFrame extends ColorKeyFrame {
+    export class SplineColorKeyFrame extends ColorKeyFrame {
         static KeySplineProperty: DependencyProperty;
         KeySpline: KeySpline;
     }
-    class SplineDoubleKeyFrame extends DoubleKeyFrame {
+    export class SplineDoubleKeyFrame extends DoubleKeyFrame {
         static KeySplineProperty: DependencyProperty;
         KeySpline: KeySpline;
     }
-    class SplinePointKeyFrame extends PointKeyFrame {
+    export class SplinePointKeyFrame extends PointKeyFrame {
         static KeySplineProperty: DependencyProperty;
         KeySpline: KeySpline;
     }
-    interface IEasingFunction {
+    export interface IEasingFunction {
     }
-    class EasingFunctionBase extends DependencyObject implements IEasingFunction {
+    export class EasingFunctionBase extends DependencyObject implements IEasingFunction {
         static EasingModeProperty: DependencyProperty;
         EasingMode: EasingMode;
         Ease(normalizedTime: number): number;
         EaseInCore(normalizedTime: number): number;
     }
-    class BackEase extends EasingFunctionBase {
+    export class BackEase extends EasingFunctionBase {
         static AmplitudeProperty: DependencyProperty;
         Amplitude: number;
     }
-    class BounceEase extends EasingFunctionBase {
+    export class BounceEase extends EasingFunctionBase {
         static BouncesProperty: DependencyProperty;
         static BouncinessProperty: DependencyProperty;
         Bounces: number;
         Bounciness: number;
     }
-    class CircleEase extends EasingFunctionBase {
+    export class CircleEase extends EasingFunctionBase {
     }
-    class CubicEase extends EasingFunctionBase {
+    export class CubicEase extends EasingFunctionBase {
     }
-    class ElasticEase extends EasingFunctionBase {
+    export class ElasticEase extends EasingFunctionBase {
         static OscillationsProperty: DependencyProperty;
         static SpringinessProperty: DependencyProperty;
         Oscillations: number;
         Springiness: number;
     }
-    class ExponentialEase extends EasingFunctionBase {
+    export class ExponentialEase extends EasingFunctionBase {
         static ExponentProperty: DependencyProperty;
         Exponent: number;
     }
-    class PowerEase extends EasingFunctionBase {
+    export class PowerEase extends EasingFunctionBase {
         static PowerProperty: DependencyProperty;
         Power: number;
     }
-    class QuadraticEase extends EasingFunctionBase {
+    export class QuadraticEase extends EasingFunctionBase {
     }
-    class QuarticEase extends EasingFunctionBase {
+    export class QuarticEase extends EasingFunctionBase {
     }
-    class QuinticEase extends EasingFunctionBase {
+    export class QuinticEase extends EasingFunctionBase {
     }
-    class SineEase extends EasingFunctionBase {
+    export class SineEase extends EasingFunctionBase {
     }
     export enum FillBehavior {
         HoldEnd = 0,

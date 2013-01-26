@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var LineBreak = Nullstone.Create("LineBreak", Inline);
+    var LineBreak = Nullstone.Create("LineBreak", namespace.Inline);
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
         LineBreak.Instance.CreateHtmlObjectImpl = function () {
@@ -12,4 +12,4 @@
     }
     //#endif
     namespace.LineBreak = Nullstone.FinishCreate(LineBreak);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

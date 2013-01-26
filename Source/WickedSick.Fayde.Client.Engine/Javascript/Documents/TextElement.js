@@ -152,4 +152,12 @@
     //#endif
 
     namespace.TextElement = Nullstone.FinishCreate(TextElement);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));
+
+(function (namespace) {
+    var TextElementCollection = Nullstone.Create("TextElementCollection", DependencyObjectCollection);
+    TextElementCollection.Instance.IsElementType = function (value) {
+        return value instanceof namespace.TextElement;
+    };
+    namespace.TextElementCollection = Nullstone.FinishCreate(TextElementCollection);
+})(Nullstone.Namespace("Fayde.Documents"));

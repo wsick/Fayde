@@ -1,7 +1,7 @@
 ﻿/// <reference path="Span.js"/>
 
 (function (namespace) {
-    var Underline = Nullstone.Create("Underline", Span);
+    var Underline = Nullstone.Create("Underline", namespace.Span);
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
         Underline.Instance.CreateHtmlObjectImpl = function () {
@@ -15,4 +15,4 @@
     }
     //#endif
     namespace.Underline = Nullstone.FinishCreate(Underline);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

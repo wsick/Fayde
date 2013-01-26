@@ -1,14 +1,14 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// <reference path="TextElement.js"/>
 /// CODE
-/// <reference path="BlockCollection.js"/>
+/// <reference path="Block.js"/>
 
 (function (namespace) {
-    var Section = Nullstone.Create("Section", TextElement);
+    var Section = Nullstone.Create("Section", namespace.TextElement);
 
     //#region Properties
 
-    Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return BlockCollection; }, Section);
+    Section.BlocksProperty = DependencyProperty.Register("Blocks", function () { return namespace.BlockCollection; }, Section);
 
     Nullstone.AutoProperties(Section, [
         Section.BlocksProperty
@@ -17,4 +17,4 @@
     //#endregion
 
     namespace.Section = Nullstone.FinishCreate(Section);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

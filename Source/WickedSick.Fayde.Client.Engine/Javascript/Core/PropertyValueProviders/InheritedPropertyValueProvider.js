@@ -33,16 +33,16 @@
         return undefined;
     };
     _InheritedPropertyValueProvider.Instance.WalkSubtree = function (rootParent, element, context, props, adding) {
-        if (element instanceof TextElement || element instanceof TextBlock) {
+        if (element instanceof Fayde.Documents.TextElement || element instanceof TextBlock) {
             var childProp;
             if (element instanceof TextBlock)
                 childProp = TextBlock.InlinesProperty;
-            else if (element instanceof Paragraph)
-                childProp = Paragraph.InlinesProperty;
-            else if (element instanceof Span)
-                childProp = Span.InlinesProperty;
-            else if (element instanceof Section)
-                childProp = Section.BlocksProperty;
+            else if (element instanceof Fayde.Documents.Paragraph)
+                childProp = Fayde.Documents.Paragraph.InlinesProperty;
+            else if (element instanceof Fayde.Documents.Span)
+                childProp = Fayde.Documents.Span.InlinesProperty;
+            else if (element instanceof Fayde.Documents.Section)
+                childProp = Fayde.Documents.Section.BlocksProperty;
 
             if (childProp) {
                 var col = element._GetValueNoAutoCreate(childProp);

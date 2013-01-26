@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var Run = Nullstone.Create("Run", Inline);
+    var Run = Nullstone.Create("Run", namespace.Inline);
 
     //#region Properties
 
@@ -61,4 +61,4 @@
     //#endif
 
     namespace.Run = Nullstone.FinishCreate(Run);
-})(window);
+})(Nullstone.Namespace("Fayde.Documents"));

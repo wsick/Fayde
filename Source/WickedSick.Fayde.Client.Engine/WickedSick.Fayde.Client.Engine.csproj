@@ -299,16 +299,13 @@
     <Content Include="Javascript\Data\PropertyPathWalker.js" />
     <Content Include="Javascript\Data\StandardPropertyPathNode.js" />
     <Content Include="Javascript\Documents\Block.js" />
-    <Content Include="Javascript\Documents\BlockCollection.js" />
     <Content Include="Javascript\Documents\Hyperlink.js" />
     <Content Include="Javascript\Documents\Inline.js" />
-    <Content Include="Javascript\Documents\InlineCollection.js" />
     <Content Include="Javascript\Documents\LineBreak.js" />
     <Content Include="Javascript\Documents\Paragraph.js" />
     <Content Include="Javascript\Documents\Run.js" />
     <Content Include="Javascript\Documents\Section.js" />
     <Content Include="Javascript\Documents\Span.js" />
-    <Content Include="Javascript\Documents\TextElementCollection.js" />
     <Content Include="Javascript\Engine\ClockTimer.js" />
     <Content Include="Javascript\Engine\FocusChangedNode.js" />
     <Content Include="Javascript\Engine\RenderContext.js" />
