@@ -113,7 +113,7 @@
 
     MediaElement.Instance._MeasureOverrideWithError = function (availableSize, error) {
         /// <param name="availableSize" type="Size"></param>
-        return new Rect();
+        return new Size();
         //TODO: Implement video
     };
 
@@ -123,41 +123,54 @@
 
     MediaElement.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         /// <param name="finalSize" type="Size"></param>
-        return new Rect();
+        return new Size();
         //TODO: Implement video
     };
 
     //#endregion
 
-    MediaElement.Instance._OnPropertyChanged = function (args, error) {
-        if (args.Property.OwnerType !== MediaElement) {
-            this._OnPropertyChanged$FrameworkElement(args, error);
-            return;
-        }
+    //#if !ENABLE_CANVAS
+    if (!Fayde.IsCanvasEnabled) {
+        MediaElement.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== MediaElement) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
 
-        var ivprop = false;
-        if (args.Property._ID === MediaElement.SourceProperty._ID
-            || args.Property._ID === MediaElement.AutoPlayProperty._ID
-            || args.Property._ID === MediaElement.IsMutedProperty._ID
-            || args.Property._ID === MediaElement.PlaybackRateProperty._ID
-            || args.Property._ID === MediaElement.VolumeProperty._ID) {
-            ivprop = true;
-        } else if (args.Property._ID === MediaElement.StretchProperty._ID) {
-            this._InvalidateMeasure();
-            ivprop = true;
-        }
+            var ivprop = false;
+            switch (args.Property._ID) {
+                case MediaElement.SourceProperty._ID:
+                case MediaElement.AutoPlayProperty._ID:
+                case MediaElement.IsMutedProperty._ID:
+                case MediaElement.PlaybackRateProperty._ID:
+                case MediaElement.VolumeProperty._ID:
+                case MediaElement.StretchProperty._ID:
+                    ivprop = true;
+                    break;
+            }
 
-        if (ivprop)
-            this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
-        this.PropertyChanged.Raise(this, args);
-    };
+            if (ivprop)
+                this.InvalidateProperty(args.Property, args.OldValue, args.NewValue);
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#else
+    if (Fayde.IsCanvasEnabled) {
+        MediaElement.Instance._OnPropertyChanged = function (args, error) {
+            if (args.Property.OwnerType !== MediaElement) {
+                this._OnPropertyChanged$FrameworkElement(args, error);
+                return;
+            }
 
-    MediaElement.Instance.HandleMediaError = function (e) {
-        var el = this.GetHtmlMediaEl();
-        if (!el.error)
-            return;
-        this.MediaFailed.Raise(this, new MediaFailedEventArgs(el.error.code));
-    };
+            if (args.Property._ID === MediaElement.StretchProperty._ID) {
+                this._InvalidateMeasure();
+            }
+
+            this.PropertyChanged.Raise(this, args);
+        };
+    }
+    //#endif
+
     // http://www.w3.org/2010/05/video/mediaevents.html
     //#if !ENABLE_CANVAS
     if (!Fayde.IsCanvasEnabled) {
@@ -197,6 +210,12 @@
             video.onended = function (e) { that.MediaEnded.Raise(that, new RoutedEventArgs()); };
 
             return video;
+        };
+        MediaElement.Instance.HandleMediaError = function (e) {
+            var el = this.GetHtmlMediaEl();
+            if (!el.error)
+                return;
+            this.MediaFailed.Raise(this, new MediaFailedEventArgs(el.error.code));
         };
         MediaElement.Instance.ApplyHtmlChange = function (change) {
             var propd = change.Property;
