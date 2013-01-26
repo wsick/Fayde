@@ -354,7 +354,7 @@
     _MediaParser.prototype.ParsePointCollectionImpl = function () {
         /// <returns type="PointCollection" />
         var p;
-        var points = new PointCollection();
+        var points = new Fayde.Shapes.PointCollection();
         while (this.MorePointsAvailable() && (p = this.ParsePoint()) != null) {
             points.Add(p);
         }

@@ -9,13 +9,13 @@
     //#region Properties
 
     Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
-    Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polyline, undefined, undefined, { GetValue: function () { return new PointCollection(); } });
+    Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return namespace.PointCollection; }, Polyline, undefined, undefined, { GetValue: function () { return new namespace.PointCollection(); } });
 
     Nullstone.AutoProperties(Polyline, [
         Polyline.FillRuleProperty
     ]);
     Nullstone.AutoProperty(Polyline, Polyline.PointsProperty, function (value) {
-        if (value instanceof PointCollection)
+        if (value instanceof namespace.PointCollection)
             return value;
         if (typeof value === "string")
             return Fayde.TypeConverter.PointCollectionFromString(value);

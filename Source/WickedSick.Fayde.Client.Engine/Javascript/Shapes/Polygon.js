@@ -8,13 +8,13 @@
     //#region Properties
 
     Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polygon, FillRule.EvenOdd);
-    Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return PointCollection; }, Polygon, undefined, undefined, { GetValue: function () { return new PointCollection(); } });
+    Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return namespace.PointCollection; }, Polygon, undefined, undefined, { GetValue: function () { return new namespace.PointCollection(); } });
 
     Nullstone.AutoProperties(Polygon, [
         Polygon.FillRuleProperty
     ]);
     Nullstone.AutoProperty(Polygon, Polygon.PointsProperty, function (value) {
-        if (value instanceof PointCollection)
+        if (value instanceof namespace.PointCollection)
             return value;
         if (typeof value === "string")
             return Fayde.TypeConverter.PointCollectionFromString(value);
