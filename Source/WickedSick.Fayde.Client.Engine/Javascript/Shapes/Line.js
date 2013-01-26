@@ -3,7 +3,7 @@
 /// <reference path="RawPath.js"/>
 
 (function (namespace) {
-    var Line = Nullstone.Create("Line", Shape);
+    var Line = Nullstone.Create("Line", namespace.Shape);
 
     //#region Properties
 
@@ -27,9 +27,9 @@
         this._DrawPath$Shape(ctx);
     };
     Line.Instance._BuildPath = function () {
-        this._SetShapeFlags(ShapeFlags.Normal);
+        this._SetShapeFlags(namespace.ShapeFlags.Normal);
 
-        this._Path = new RawPath();
+        this._Path = new Fayde.Shapes.RawPath();
 
         var x1 = this.X1;
         var y1 = this.Y1;
@@ -136,4 +136,4 @@
     //#endif
 
     namespace.Line = Nullstone.FinishCreate(Line);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

@@ -36,7 +36,7 @@
         var radiusX = this.RadiusX;
         var radiusY = this.RadiusY;
 
-        this.$Path = new RawPath();
+        this.$Path = new Fayde.Shapes.RawPath();
         this.$Path.RoundedRect(rect.X, rect.Y, rect.Width, rect.Height, radiusX, radiusY);
     };
 

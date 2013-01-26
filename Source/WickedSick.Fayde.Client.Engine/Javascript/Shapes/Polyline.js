@@ -4,7 +4,7 @@
 /// <reference path="PointCollection.js"/>
 
 (function (namespace) {
-    var Polyline = Nullstone.Create("Polyline", Shape);
+    var Polyline = Nullstone.Create("Polyline", namespace.Shape);
     
     //#region Properties
 
@@ -28,13 +28,13 @@
         var points = this.Points;
         var count;
         if (points == null || (count = points.GetCount()) < 2) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return;
         }
 
-        this._SetShapeFlags(ShapeFlags.Normal);
+        this._SetShapeFlags(namespace.ShapeFlags.Normal);
 
-        this._Path = new RawPath();
+        this._Path = new Fayde.Shapes.RawPath();
         var p = points.GetValueAt(0);
         this._Path.Move(p.X, p.Y);
 
@@ -148,4 +148,4 @@
     //#endif
 
     namespace.Polyline = Nullstone.FinishCreate(Polyline);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

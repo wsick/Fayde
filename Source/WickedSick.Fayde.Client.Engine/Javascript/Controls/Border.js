@@ -112,7 +112,7 @@
             return;
         }
 
-        var rawPath = new RawPath();
+        var rawPath = new Fayde.Shapes.RawPath();
         rawPath.RoundedRectFull(fillExtents.X, fillExtents.Y, fillExtents.Width, fillExtents.Height,
             cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
         rawPath.Draw(ctx);
@@ -138,7 +138,7 @@
                 ctx.Stroke(borderBrush, thickness.Left, extents);
             }
         } else {
-            var rawPath = new RawPath();
+            var rawPath = new Fayde.Shapes.RawPath();
             rawPath.RoundedRectFull(fillPlusHalfExtents.X, fillPlusHalfExtents.Y, fillPlusHalfExtents.Width, fillPlusHalfExtents.Height,
                 cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);
             rawPath.Draw(ctx);
@@ -158,8 +158,8 @@
         var hasCornerRadius = !cornerRadius.IsZero();
         var innerExtents = extents.ShrinkByThickness(thickness);
 
-        var innerPath = new RawPath();
-        var outerPath = new RawPath();
+        var innerPath = new Fayde.Shapes.RawPath();
+        var outerPath = new Fayde.Shapes.RawPath();
         if (hasCornerRadius) {
             outerPath.RoundedRectFull(0, 0, extents.Width, extents.Height,
                 cornerRadius.TopLeft, cornerRadius.TopRight, cornerRadius.BottomRight, cornerRadius.BottomLeft);

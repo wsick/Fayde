@@ -3,7 +3,7 @@
 /// <reference path="PointCollection.js"/>
 
 (function (namespace) {
-    var Polygon = Nullstone.Create("Polygon", Shape);
+    var Polygon = Nullstone.Create("Polygon", namespace.Shape);
     
     //#region Properties
 
@@ -72,13 +72,13 @@
         var points = this.Points;
         var count;
         if (points == null || (count = points.GetCount()) < 2) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return;
         }
 
-        this._SetShapeFlags(ShapeFlags.Normal);
+        this._SetShapeFlags(namespace.ShapeFlags.Normal);
 
-        var path = new RawPath();
+        var path = new Fayde.Shapes.RawPath();
         if (count === 2) {
             var thickness = this.StrokeThickness;
             var p1 = points.GetValueAt(0);
@@ -250,4 +250,4 @@
     //#endif
 
     namespace.Polygon = Nullstone.FinishCreate(Polygon);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

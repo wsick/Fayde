@@ -1,17 +1,6 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 
 (function (namespace) {
-    namespace.PenLineCap = {
-        Flat: 0,
-        Square: 1,
-        Round: 2,
-        Triangle: 3
-    };
-    namespace.PenLineJoin = {
-        Miter: 0,
-        Bevel: 1,
-        Round: 2
-    };
     namespace.SweepDirection = {
         Counterclockwise: 0,
         Clockwise: 1

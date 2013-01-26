@@ -4,4 +4,4 @@
 (function (namespace) {
     var PointCollection = Nullstone.Create("PointCollection", Collection);
     namespace.PointCollection = Nullstone.FinishCreate(PointCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

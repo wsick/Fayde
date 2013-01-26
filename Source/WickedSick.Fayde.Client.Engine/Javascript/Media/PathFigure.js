@@ -66,7 +66,7 @@
         this._Path = [];
 
         var start = this.StartPoint;
-        this._Path.push({ type: PathEntryType.Move, x: start.X, y: start.Y });
+        this._Path.push({ type: Fayde.Shapes.PathEntryType.Move, x: start.X, y: start.Y });
 
         var segments = this.Segments;
         var count = segments.GetCount();
@@ -75,7 +75,7 @@
             segment._Append(this._Path);
         }
         if (this.IsClosed)
-            this._Path.push({ type: PathEntryType.Close });
+            this._Path.push({ type: Fayde.Shapes.PathEntryType.Close });
     };
 
     namespace.PathFigure = Nullstone.FinishCreate(PathFigure);

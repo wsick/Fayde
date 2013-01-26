@@ -1,6 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
+    [Element(NullstoneNamespace = "Fayde.Shapes")]
     public class Line : Shape
     {
         public static readonly PropertyDescription X1Property = PropertyDescription.Register("X1", typeof(double), typeof(Line));

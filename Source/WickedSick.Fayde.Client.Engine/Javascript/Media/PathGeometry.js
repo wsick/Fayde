@@ -52,7 +52,7 @@
     };
 
     PathGeometry.Instance._Build = function () {
-        this.$Path = new RawPath();
+        this.$Path = new Fayde.Shapes.RawPath();
         var figures = this.Figures;
         if (figures == null)
             return;
@@ -61,7 +61,7 @@
         for (var i = 0; i < count; i++) {
             var f = figures.GetValueAt(i);
             f._EnsureBuilt();
-            RawPath.Merge(this.$Path, f.$Path);
+            Fayde.Shapes.RawPath.Merge(this.$Path, f.$Path);
         }
     };
 

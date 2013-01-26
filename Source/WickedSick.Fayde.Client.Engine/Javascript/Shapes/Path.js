@@ -4,7 +4,7 @@
 /// <reference path="../Core/Core.js"/>
 
 (function (namespace) {
-    var Path = Nullstone.Create("Path", Shape);
+    var Path = Nullstone.Create("Path", namespace.Shape);
 
     //#region Properties
 
@@ -42,7 +42,7 @@
         /// <returns type="Rect" />
         var geom = this.Data;
         if (geom == null) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return new Rect();
         }
         if (logical)
@@ -120,4 +120,4 @@
     //#endif
 
     namespace.Path = Nullstone.FinishCreate(Path);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

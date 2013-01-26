@@ -476,13 +476,13 @@ module Fayde {
     export class TypeConverters {
         static Thickness(str: string): Thickness;
         static CornerRadius(str: string): CornerRadius;
-        static Brush(str: string): Brush;
+        static Brush(str: string): Fayde.Media.Brush;
         static Color(str: string): Color;
     }
     export class TypeConverter {
         static ConvertObject(propd: DependencyProperty, val, objectType, doStringConversion: bool);
         static GeometryFromString(val): Fayde.Media.Geometry;
-        static PointCollectionFromString(val): PointCollection;
+        static PointCollectionFromString(val): Fayde.Shapes.PointCollection;
     }
     export function Start(appType, rjson, json, canvas);
     export function Clone(value): any;
@@ -519,11 +519,11 @@ class UIElement extends DependencyObject {
     
     //Properties
     AllowDrop: bool;
-    CacheMode: CacheMode;
+    CacheMode: Fayde.Media.CacheMode;
     Clip: Fayde.Media.Geometry;
     Effect: Fayde.Media.Effects.Effect;
     IsHitTestVisible: bool;
-    OpacityMask: Brush;
+    OpacityMask: Fayde.Media.Brush;
     Opacity: number;
     Projection: Fayde.Media.Projection;
     RenderTransform: Fayde.Media.Transform;
@@ -764,7 +764,7 @@ class TextElement extends DependencyObject {
     FontStretch: string;
     FontStyle: string;
     FontWeight: FontWeight;
-    Foreground: Brush;
+    Foreground: Fayde.Media.Brush;
 }
 class Block extends TextElement {
     static LineHeightProperty: DependencyProperty;
@@ -808,7 +808,7 @@ class Hyperlink extends Span {
 
     Command: Fayde.MVVM.ICommand;
     CommandParameter;
-    MouseOverForeground: Brush;
+    MouseOverForeground: Fayde.Media.Brush;
     MouseOverTextDecorations: TextDecorations;
     NavigateUri: Uri;
     TargetName: string;
@@ -889,8 +889,8 @@ class Border extends FrameworkElement {
     static CornerRadiusProperty: DependencyProperty;
     static PaddingProperty: DependencyProperty;
 
-    Background: Brush;
-    BorderBrush: Brush;
+    Background: Fayde.Media.Brush;
+    BorderBrush: Fayde.Media.Brush;
     BorderThickness: Thickness;
     Child: UIElement;
     CornerRadius: CornerRadius;
@@ -900,7 +900,7 @@ class Panel extends FrameworkElement {
     static BackgroundProperty: DependencyProperty;
     static ChildrenProperty: DependencyProperty;
     static IsItemsHostProperty: DependencyProperty;
-    Background: Brush;
+    Background: Fayde.Media.Brush;
     Children: UIElementCollection;
     IsItemsHost: bool;
 }
@@ -1058,15 +1058,15 @@ class Control extends FrameworkElement {
     static TemplateProperty: DependencyProperty;
     static VerticalContentAlignmentProperty: DependencyProperty;
 
-    Background: Brush;
-    BorderBrush: Brush;
+    Background: Fayde.Media.Brush;
+    BorderBrush: Fayde.Media.Brush;
     BorderThickness: Thickness;
     FontFamily: string;
     FontSize: number;
     FontStretch: string;
     FontStyle: string;
     FontWeight: FontWeight;
-    Foreground: Brush;
+    Foreground: Fayde.Media.Brush;
     HorizontalContentAlignment: HorizontalAlignment;
     IsEnabled: bool;
     IsTabStop: bool;
@@ -1304,7 +1304,7 @@ class Image extends FrameworkElement {
     static SourceProperty: DependencyProperty;
     static StretchProperty: DependencyProperty;
     Source: Fayde.Media.Imaging.ImageSource;
-    Stretch: Stretch;
+    Stretch: Fayde.Media.Stretch;
     ImageFailed: MulticastEvent;
     ImageOpened: MulticastEvent;
 }
@@ -1342,7 +1342,7 @@ class MediaElement extends FrameworkElement {
     PlaybackRate: number;
     Position: TimeSpan;
     Source: Uri;
-    Stretch: Stretch;
+    Stretch: Fayde.Media.Stretch;
     Volume: number;
 }
 class RangeBase extends Control {
@@ -1401,7 +1401,7 @@ class TextBlock extends FrameworkElement {
     FontStretch: string;
     FontStyle: string;
     FontWeight: FontWeight;
-    Foreground: Brush;
+    Foreground: Fayde.Media.Brush;
     Inlines: InlineCollection;
     LineHeight: number;
     LineStackingStrategy: LineStackingStrategy;
@@ -1429,11 +1429,11 @@ class TextBox extends Control {
     static HorizontalScrollBarVisibilityProperty: DependencyProperty;
     static VerticalScrollBarVisibilityProperty: DependencyProperty;
     AcceptsReturn: bool;
-    CaretBrush: Brush;
+    CaretBrush: Fayde.Media.Brush;
     MaxLength: number;
     IsReadOnly: bool;
-    SelectionForeground: Brush;
-    SelectionBackground: Brush;
+    SelectionForeground: Fayde.Media.Brush;
+    SelectionBackground: Fayde.Media.Brush;
     BaselineOffset: number;
     SelectedText: string;
     SelectionLength: number;
@@ -1454,10 +1454,10 @@ class PasswordBox extends Control {
     static SelectionForegroundProperty: DependencyProperty;
     static SelectionBackgroundProperty: DependencyProperty;
     static PasswordProperty: DependencyProperty;
-    CaretBrush: Brush;
+    CaretBrush: Fayde.Media.Brush;
     MaxLength: number;
-    SelectionForeground: Brush;
-    SelectionBackground: Brush;
+    SelectionForeground: Fayde.Media.Brush;
+    SelectionBackground: Fayde.Media.Brush;
     Password: string;
     SelectAll();
     PasswordChanged: RoutedEvent;
@@ -1473,7 +1473,7 @@ class RichTextBox extends Control {
     AcceptsReturn: bool;
     BaselineOffset: number;
     Blocks: BlockCollection;
-    CaretBrush: Brush;
+    CaretBrush: Fayde.Media.Brush;
     HorizontalScrollBarVisibility: ScrollBarVisibility;
     IsReadOnly: bool;
     LineHeight: number;
@@ -2223,94 +2223,96 @@ module Fayde.Media.Animation {
 //////////////////////////////////////////////////////////
 // SHAPES
 //////////////////////////////////////////////////////////
-class DoubleCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): number;
-    SetValueAt(index: number, value: number);
-    Add(value: number);
-    AddRange(newItems: number[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: number);
-    Remove(value: number);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: number): number;
-    Contains(value: number): bool;
-    ToArray(): number[];
-}
-class PointCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): Point;
-    SetValueAt(index: number, value: Point);
-    Add(value: Point);
-    AddRange(newItems: Point[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: Point);
-    Remove(value: Point);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: Point): number;
-    Contains(value: Point): bool;
-    ToArray(): Point[];
-}
-class Shape extends FrameworkElement {
-    static FillProperty: DependencyProperty;
-    static StretchProperty: DependencyProperty;
-    static StrokeDashArrayProperty: DependencyProperty;
-    static StrokeDashCapProperty: DependencyProperty;
-    static StrokeDashOffsetProperty: DependencyProperty;
-    static StrokeEndLineCapProperty: DependencyProperty;
-    static StrokeLineJoinProperty: DependencyProperty;
-    static StrokeMiterLimitProperty: DependencyProperty;
-    static StrokeProperty: DependencyProperty;
-    static StrokeStartLineCapProperty: DependencyProperty;
-    static StrokeThicknessProperty: DependencyProperty;
-    
-    Fill: Brush;
-    Stretch: Stretch;
-    StrokeDashArray: DoubleCollection;
-    StrokeDashCap: PenLineCap;
-    StrokeDashOffset: number;
-    StrokeEndLineCap: PenLineCap;
-    StrokeLineJoin: PenLineJoin;
-    StrokeMiterLimit: number;
-    Stroke: Brush;
-    StrokeStartLineCap: PenLineCap;
-    StrokeThickness: number;
-}
-class Ellipse extends Shape {
-}
-class Line extends Shape {
-    static X1Property: DependencyProperty;
-    static Y1Property: DependencyProperty;
-    static X2Property: DependencyProperty;
-    static Y2Property: DependencyProperty;
-    X1: number;
-    Y1: number;
-    X2: number;
-    Y2: number;
-}
-class Path extends Shape {
-    static DataProperty: DependencyProperty;
-    Data: Fayde.Media.Geometry;
-}
-class Polygon extends Shape {
-    static FillRuleProperty: DependencyProperty;
-    static PointsProperty: DependencyProperty;
-    FillRule: FillRule;
-    Points: PointCollection;
-}
-class Polyline extends Shape {
-    static FillRuleProperty: DependencyProperty;
-    static PointsProperty: DependencyProperty;
-    FillRule: FillRule;
-    Points: PointCollection;
-}
-class Rectangle extends Shape {
-    static RadiusXProperty: DependencyProperty;
-    static RadiusYProperty: DependencyProperty;
-    RadiusX: number;
-    RadiusY: number;
+module Fayde.Shapes {
+    class DoubleCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): number;
+        SetValueAt(index: number, value: number);
+        Add(value: number);
+        AddRange(newItems: number[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: number);
+        Remove(value: number);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: number): number;
+        Contains(value: number): bool;
+        ToArray(): number[];
+    }
+    class PointCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): Point;
+        SetValueAt(index: number, value: Point);
+        Add(value: Point);
+        AddRange(newItems: Point[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: Point);
+        Remove(value: Point);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: Point): number;
+        Contains(value: Point): bool;
+        ToArray(): Point[];
+    }
+    class Shape extends FrameworkElement {
+        static FillProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        static StrokeDashArrayProperty: DependencyProperty;
+        static StrokeDashCapProperty: DependencyProperty;
+        static StrokeDashOffsetProperty: DependencyProperty;
+        static StrokeEndLineCapProperty: DependencyProperty;
+        static StrokeLineJoinProperty: DependencyProperty;
+        static StrokeMiterLimitProperty: DependencyProperty;
+        static StrokeProperty: DependencyProperty;
+        static StrokeStartLineCapProperty: DependencyProperty;
+        static StrokeThicknessProperty: DependencyProperty;
+
+        Fill: Fayde.Media.Brush;
+        Stretch: Fayde.Media.Stretch;
+        StrokeDashArray: DoubleCollection;
+        StrokeDashCap: PenLineCap;
+        StrokeDashOffset: number;
+        StrokeEndLineCap: PenLineCap;
+        StrokeLineJoin: PenLineJoin;
+        StrokeMiterLimit: number;
+        Stroke: Fayde.Media.Brush;
+        StrokeStartLineCap: PenLineCap;
+        StrokeThickness: number;
+    }
+    class Ellipse extends Shape {
+    }
+    class Line extends Shape {
+        static X1Property: DependencyProperty;
+        static Y1Property: DependencyProperty;
+        static X2Property: DependencyProperty;
+        static Y2Property: DependencyProperty;
+        X1: number;
+        Y1: number;
+        X2: number;
+        Y2: number;
+    }
+    class Path extends Shape {
+        static DataProperty: DependencyProperty;
+        Data: Fayde.Media.Geometry;
+    }
+    class Polygon extends Shape {
+        static FillRuleProperty: DependencyProperty;
+        static PointsProperty: DependencyProperty;
+        FillRule: FillRule;
+        Points: PointCollection;
+    }
+    class Polyline extends Shape {
+        static FillRuleProperty: DependencyProperty;
+        static PointsProperty: DependencyProperty;
+        FillRule: FillRule;
+        Points: PointCollection;
+    }
+    class Rectangle extends Shape {
+        static RadiusXProperty: DependencyProperty;
+        static RadiusYProperty: DependencyProperty;
+        RadiusX: number;
+        RadiusY: number;
+    }
 }
 
 //////////////////////////////////////////////////////////

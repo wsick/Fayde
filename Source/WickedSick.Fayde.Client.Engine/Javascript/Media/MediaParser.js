@@ -75,7 +75,7 @@
         var cbzp = new Point(); // points needed to create "smooth" beziers
         var qbzp = new Point(); // points needed to create "smooth" beziers
 
-        var path = new RawPath();
+        var path = new Fayde.Shapes.RawPath();
         while (this.index < this.len) {
             var c;
             while (this.index < this.len && (c = this.str.charAt(this.index)) === ' ') {

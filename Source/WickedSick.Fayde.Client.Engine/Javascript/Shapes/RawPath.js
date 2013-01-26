@@ -11,21 +11,21 @@
 
     RawPath.Instance.Move = function (x, y) {
         this._Path.push({
-            type: PathEntryType.Move,
+            type: namespace.PathEntryType.Move,
             x: x,
             y: y
         });
     };
     RawPath.Instance.Line = function (x, y) {
         this._Path.push({
-            type: PathEntryType.Line,
+            type: namespace.PathEntryType.Line,
             x: x,
             y: y
         });
     };
     RawPath.Instance.Rect = function (x, y, width, height) {
         this._Path.push({
-            type: PathEntryType.Rect,
+            type: namespace.PathEntryType.Rect,
             x: x,
             y: y,
             width: width,
@@ -87,7 +87,7 @@
     };
     RawPath.Instance.Quadratic = function (cpx, cpy, x, y) {
         this._Path.push({
-            type: PathEntryType.Quadratic,
+            type: namespace.PathEntryType.Quadratic,
             cpx: cpx,
             cpy: cpy,
             x: x,
@@ -96,7 +96,7 @@
     };
     RawPath.Instance.Bezier = function (cp1x, cp1y, cp2x, cp2y, x, y) {
         this._Path.push({
-            type: PathEntryType.Bezier,
+            type: namespace.PathEntryType.Bezier,
             cp1x: cp1x,
             cp1y: cp1y,
             cp2x: cp2x,
@@ -134,7 +134,7 @@
     };
     RawPath.Instance.EllipticalArc = function (width, height, rotationAngle, isLargeArcFlag, sweepDirectionFlag, ex, ey) {
         this._Path.push({
-            type: PathEntryType.EllipticalArc,
+            type: namespace.PathEntryType.EllipticalArc,
             width: width,
             height: height,
             rotationAngle: rotationAngle,
@@ -146,7 +146,7 @@
     };
     RawPath.Instance.Arc = function (x, y, r, sAngle, eAngle, aClockwise) {
         this._Path.push({
-            type: PathEntryType.Arc,
+            type: namespace.PathEntryType.Arc,
             x: x,
             y: y,
             r: r,
@@ -157,7 +157,7 @@
     };
     RawPath.Instance.ArcTo = function (cpx, cpy, x, y, radius) {
         this._Path.push({
-            type: PathEntryType.ArcTo,
+            type: namespace.PathEntryType.ArcTo,
             cpx: cpx,
             cpy: cpy,
             x: x,
@@ -167,7 +167,7 @@
     };
     RawPath.Instance.Close = function () {
         this._Path.push({
-            type: PathEntryType.Close
+            type: namespace.PathEntryType.Close
         });
     };
 
@@ -180,32 +180,32 @@
         for (var i = 0; i < backing.length; i++) {
             var p = backing[i];
             switch (p.type) {
-                case PathEntryType.Move:
+                case namespace.PathEntryType.Move:
                     canvasCtx.moveTo(p.x, p.y);
                     DrawDebug("\t\tMoveTo: [X = " + p.x + "; Y = " + p.y + "]");
                     break;
-                case PathEntryType.Line:
+                case namespace.PathEntryType.Line:
                     canvasCtx.lineTo(p.x, p.y);
                     DrawDebug("\t\tLineTo: [X = " + p.x + "; Y = " + p.y + "]");
                     break;
-                case PathEntryType.Rect:
+                case namespace.PathEntryType.Rect:
                     canvasCtx.rect(p.x, p.y, p.width, p.height);
                     DrawDebug("\t\tRect: [X = " + p.x + "; Y = " + p.y + "; Width = " + p.width + "; Height = " + p.height + "]");
                     break;
-                case PathEntryType.Quadratic:
+                case namespace.PathEntryType.Quadratic:
                     canvasCtx.quadraticCurveTo(p.cpx, p.cpy, p.x, p.y);
                     DrawDebug("\t\tQuadratic: [CPX = " + p.cpx + "; CPY = " + p.cpy + "; X = " + p.x + "; Y = " + p.y + "]");
                     break;
-                case PathEntryType.Bezier:
+                case namespace.PathEntryType.Bezier:
                     canvasCtx.bezierCurveTo(p.cp1x, p.cp1y, p.cp2x, p.cp2y, p.x, p.y);
                     break;
-                case PathEntryType.Arc:
+                case namespace.PathEntryType.Arc:
                     canvasCtx.arc(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
                     break;
-                case PathEntryType.ArcTo:
+                case namespace.PathEntryType.ArcTo:
                     canvasCtx.arcTo(p.cpx, p.cpy, p.x, p.y, p.r);
                     break;
-                case PathEntryType.Close:
+                case namespace.PathEntryType.Close:
                     canvasCtx.closePath();
                     break;
             }
@@ -221,7 +221,7 @@
         for (var i = 0; i < backing.length; i++) {
             var p = backing[i];
             switch (p.type) {
-                case PathEntryType.Move:
+                case namespace.PathEntryType.Move:
                     if (xMin == null && yMin == null) {
                         xMin = xMax = p.x;
                         yMin = yMax = p.y;
@@ -234,7 +234,7 @@
                     startX = p.x;
                     startY = p.y;
                     break;
-                case PathEntryType.Line:
+                case namespace.PathEntryType.Line:
                     xMin = Math.min(p.x, xMin);
                     yMin = Math.min(p.y, yMin);
                     xMax = Math.max(p.x, xMax);
@@ -242,13 +242,13 @@
                     startX = p.x;
                     startY = p.y;
                     break;
-                case PathEntryType.Rect: //does not use current x,y
+                case namespace.PathEntryType.Rect: //does not use current x,y
                     xMin = Math.min(p.x, xMin);
                     yMin = Math.min(p.y, yMin);
                     xMax = Math.max(p.x + p.width, xMax);
                     yMax = Math.max(p.y + p.height, yMax);
                     break;
-                case PathEntryType.Quadratic:
+                case namespace.PathEntryType.Quadratic:
                     xRange = RawPath._CalculateQuadraticBezierRange(startX, p.cpx, p.x);
                     xMin = Math.min(xMin, xRange.min);
                     xMax = Math.max(xMax, xRange.max);
@@ -258,7 +258,7 @@
                     startX = p.x;
                     startY = p.y;
                     break;
-                case PathEntryType.Bezier:
+                case namespace.PathEntryType.Bezier:
                     xRange = RawPath._CalculateCubicBezierRange(startX, p.cp1x, p.cp2x, p.x);
                     xMin = Math.min(xMin, xRange.min);
                     xMax = Math.max(xMax, xRange.max);
@@ -268,7 +268,7 @@
                     startX = p.x;
                     startY = p.y;
                     break;
-                case PathEntryType.Arc: //does not use current x,y
+                case namespace.PathEntryType.Arc: //does not use current x,y
                     if (p.sAngle !== p.eAngle) {
                         var r = RawPath._CalculateArcRange(p.x, p.y, p.r, p.sAngle, p.eAngle, p.aClockwise);
                         xMin = Math.min(xMin, r.xMin);
@@ -277,7 +277,7 @@
                         yMax = Math.max(yMax, r.yMax);
                     }
                     break;
-                case PathEntryType.ArcTo:
+                case namespace.PathEntryType.ArcTo:
                     var r = RawPath._CalculateArcToRange(startX, startY, p.cpx, p.cpy, p.x, p.y, p.r);
                     xMin = Math.min(xMin, r.xMin);
                     xMax = Math.max(xMax, r.xMax);
@@ -487,26 +487,26 @@
                 s += " ";
             var p = backing[i];
             switch (p.type) {
-                case PathEntryType.Move:
+                case namespace.PathEntryType.Move:
                     s += "M" + p.x.toString() + " " + p.y.toString();
                     break;
-                case PathEntryType.Line:
+                case namespace.PathEntryType.Line:
                     s += "L" + p.x.toString() + " " + p.y.toString();
                     break;
-                case PathEntryType.Rect:
+                case namespace.PathEntryType.Rect:
                     break;
-                case PathEntryType.Quadratic:
+                case namespace.PathEntryType.Quadratic:
                     s += "Q" + p.cpx.toString() + " " + p.cpy.toString() + ", " + p.x.toString() + " " + p.y.toString();
                     break;
-                case PathEntryType.Bezier:
+                case namespace.PathEntryType.Bezier:
                     s += "C" + p.cp1x.toString() + " " + p.cp1y.toString() + ", " + p.cp2x.toString() + " " + p.cp2y.toString() + ", " + p.x.toString() + " " + p.y.toString();
                     break;
-                case PathEntryType.EllipticalArc:
+                case namespace.PathEntryType.EllipticalArc:
                     s += "A" + p.width.toString() + " " + p.height.toString() + " " + p.rotationAngle.toString() + " " + p.isLargeArcFlag.toString() + " " + p.sweepDirectionFlag.toString() + " " + p.ex.toString() + " " + p.ey.toString();
                     break;
-                case PathEntryType.ArcTo:
+                case namespace.PathEntryType.ArcTo:
                     break;
-                case PathEntryType.Close:
+                case namespace.PathEntryType.Close:
                     s += "Z";
                     break;
             }
@@ -515,4 +515,4 @@
     };
 
     namespace.RawPath = Nullstone.FinishCreate(RawPath);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));

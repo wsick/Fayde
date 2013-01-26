@@ -50,7 +50,7 @@
         } else if (clip instanceof Fayde.Media.Geometry) {
             clip.Draw(this);
             DrawDebug("DrawClip (Geometry): " + clip.toString());
-        } else if (clip instanceof RawPath) {
+        } else if (clip instanceof Fayde.Shapes.RawPath) {
             clip.Draw(this);
             DrawDebug("DrawClip (RawPath): " + clip.toString());
         }

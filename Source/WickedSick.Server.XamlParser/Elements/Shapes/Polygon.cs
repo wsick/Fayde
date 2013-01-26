@@ -2,6 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
+    [Element(NullstoneNamespace = "Fayde.Shapes")]
     public class Polygon : Shape
     {
         public static readonly PropertyDescription FillRuleProperty = PropertyDescription.Register("FillRule", typeof(FillRule), typeof(Polygon));

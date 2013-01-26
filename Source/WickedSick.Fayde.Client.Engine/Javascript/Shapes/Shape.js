@@ -3,6 +3,7 @@
 /// <reference path="../Media/Enums.js"/>
 /// <reference path="../Engine/RenderContext.js"/>
 /// <reference path="Enums.js"/>
+/// <reference path="DoubleCollection.js"/>
 
 (function (namespace) {
     var Shape = Nullstone.Create("Shape", FrameworkElement);
@@ -20,13 +21,13 @@
     Shape.StretchProperty = DependencyProperty.Register("Stretch", function () { return new Enum(Fayde.Media.Stretch); }, Shape, Fayde.Media.Stretch.None);
     Shape.StrokeProperty = DependencyProperty.Register("Stroke", function () { return Fayde.Media.Brush; }, Shape);
     Shape.StrokeThicknessProperty = DependencyProperty.Register("StrokeThickness", function () { return Number; }, Shape, 1.0);
-    Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return DoubleCollection; }, Shape);
-    Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
+    Shape.StrokeDashArrayProperty = DependencyProperty.Register("StrokeDashArray", function () { return namespace.DoubleCollection; }, Shape);
+    Shape.StrokeDashCapProperty = DependencyProperty.Register("StrokeDashCap", function () { return new Enum(namespace.PenLineCap); }, Shape, namespace.PenLineCap.Flat);
     Shape.StrokeDashOffsetProperty = DependencyProperty.Register("StrokeDashOffset", function () { return Number; }, Shape, 0.0);
-    Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
-    Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Enum(PenLineJoin); }, Shape, PenLineJoin.Miter);
+    Shape.StrokeEndLineCapProperty = DependencyProperty.Register("StrokeEndLineCap", function () { return new Enum(namespace.PenLineCap); }, Shape, namespace.PenLineCap.Flat);
+    Shape.StrokeLineJoinProperty = DependencyProperty.Register("StrokeLineJoin", function () { return new Enum(namespace.PenLineJoin); }, Shape, namespace.PenLineJoin.Miter);
     Shape.StrokeMiterLimitProperty = DependencyProperty.Register("StrokeMiterLimit", function () { return Number; }, Shape, 10.0);
-    Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Enum(PenLineCap); }, Shape, PenLineCap.Flat);
+    Shape.StrokeStartLineCapProperty = DependencyProperty.Register("StrokeStartLineCap", function () { return new Enum(namespace.PenLineCap); }, Shape, namespace.PenLineCap.Flat);
 
     Nullstone.AutoProperties(Shape, [
         Shape.FillProperty,
@@ -46,10 +47,10 @@
 
     //#region Helpers
 
-    Shape.Instance._IsEmpty = function () { return this._ShapeFlags & ShapeFlags.Empty; };
-    Shape.Instance._IsNormal = function () { return this._ShapeFlags & ShapeFlags.Normal; };
-    Shape.Instance._IsDegenerate = function () { return this._ShapeFlags & ShapeFlags.Degenerate; };
-    Shape.Instance._HasRadii = function () { return this._ShapeFlags & ShapeFlags.Radii; };
+    Shape.Instance._IsEmpty = function () { return this._ShapeFlags & namespace.ShapeFlags.Empty; };
+    Shape.Instance._IsNormal = function () { return this._ShapeFlags & namespace.ShapeFlags.Normal; };
+    Shape.Instance._IsDegenerate = function () { return this._ShapeFlags & namespace.ShapeFlags.Degenerate; };
+    Shape.Instance._HasRadii = function () { return this._ShapeFlags & namespace.ShapeFlags.Radii; };
     Shape.Instance._SetShapeFlags = function (sf) { this._ShapeFlags = sf; };
     Shape.Instance._AddShapeFlags = function (sf) { this._ShapeFlags |= sf; };
 
@@ -81,7 +82,7 @@
             return new Size();
         var sx = 0.0;
         var sy = 0.0;
-        if (this instanceof Rectangle || this instanceof Ellipse) {
+        if (this instanceof namespace.Rectangle || this instanceof namespace.Ellipse) {
             desired = new Size(0, 0);
         }
 
@@ -287,7 +288,7 @@
     Shape.Instance._ComputeStretchBounds = function () {
         var shapeBounds = this._GetNaturalBounds();
         if (!shapeBounds || shapeBounds.Width <= 0.0 || shapeBounds.Height <= 0.0) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return new Rect();
         }
 
@@ -296,7 +297,7 @@
         var framework = new Size(this.ActualWidth, this.ActualHeight);
 
         if (specified.Width <= 0.0 || specified.Height <= 0.0) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return new Rect();
         }
 
@@ -321,7 +322,7 @@
         }
 
         if (framework.Width === 0.0 || framework.Height === 0.0) {
-            this._SetShapeFlags(ShapeFlags.Empty);
+            this._SetShapeFlags(namespace.ShapeFlags.Empty);
             return new Rect();
         }
 
@@ -370,7 +371,7 @@
         var y = (!autoDim || adjY) ? shapeBounds.Y : 0;
 
         var st = this._StretchXform;
-        if (!(this instanceof Line) || !autoDim)
+        if (!(this instanceof namespace.Line) || !autoDim)
             mat3.translate(st, -x, -y);
         mat3.translate(st,
             adjX ? -shapeBounds.Width * 0.5 : 0.0,
@@ -648,4 +649,4 @@
     //#endif
 
     namespace.Shape = Nullstone.FinishCreate(Shape);
-})(window);
+})(Nullstone.Namespace("Fayde.Shapes"));
