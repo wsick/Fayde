@@ -704,6 +704,31 @@ module Fayde.Input {
         Contained = 4,
         Local = 5
     }
+    export class KeyboardNavigation {
+        AcceptsReturnProperty: DependencyProperty;
+        GetAcceptsReturn(d: DependencyObject): bool;
+        SetAcceptsReturn(d: DependencyObject, value: bool);
+
+        ControlTabNavigationProperty: DependencyProperty;
+        GetControlTabNavigation(d: DependencyObject): KeyboardNavigationMode;
+        SetControlTabNavigation(d: DependencyObject, value: KeyboardNavigationMode);
+
+        DirectionalNavigationProperty: DependencyProperty;
+        GetDirectionalNavigation(d: DependencyObject): KeyboardNavigationMode;
+        SetDirectionalNavigation(d: DependencyObject, value: KeyboardNavigationMode);
+
+        IsTabStopProperty: DependencyProperty;
+        GetIsTabStop(d: DependencyObject): bool;
+        SetIsTabStop(d: DependencyObject, value: bool);
+
+        TabIndexProperty: DependencyProperty;
+        GetTabIndex(d: DependencyObject): number;
+        SetTabIndex(d: DependencyObject, value: number);
+
+        TabNavigationProperty: DependencyProperty;
+        GetTabNavigation(d: DependencyObject): KeyboardNavigationMode;
+        SetTabNavigation(d: DependencyObject, value: KeyboardNavigationMode);
+    }
 }
 
 //////////////////////////////////////////////////////////

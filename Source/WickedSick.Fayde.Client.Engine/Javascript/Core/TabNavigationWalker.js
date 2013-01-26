@@ -38,7 +38,7 @@
                 curIndex = i;
         }
 
-        if (curIndex !== -1 && TabNavigationWalker.GetActiveNavigationMode(this._Root) === KeyboardNavigationMode.Once) {
+        if (curIndex !== -1 && TabNavigationWalker.GetActiveNavigationMode(this._Root) === Fayde.Input.KeyboardNavigationMode.Once) {
             if (!this._Forwards && this._Root instanceof Fayde.Controls.Control)
                 return this.TabTo(this._Root);
             return false;
@@ -47,7 +47,7 @@
         var len = this._TabSorted.length;
         if (len > 0) {
             for (var j = 0; j < len; j++) {
-                if ((j + curIndex + 1) === len && TabNavigationWalker.GetActiveNavigationMode(this._Root) !== KeyboardNavigationMode.Cycle)
+                if ((j + curIndex + 1) === len && TabNavigationWalker.GetActiveNavigationMode(this._Root) !== Fayde.Input.KeyboardNavigationMode.Cycle)
                     break;
                 child = this._TabSorted[(j + curIndex + 1) % len];
                 childIsControl = child instanceof Fayde.Controls.Control;
@@ -87,7 +87,7 @@
         var cur = uie;
         var root = uie;
 
-        if ((root.GetVisualParent() && TabNavigationWalker.GetParentNavigationMode(root.GetVisualParent()) === KeyboardNavigationMode.Once)
+        if ((root.GetVisualParent() && TabNavigationWalker.GetParentNavigationMode(root.GetVisualParent()) === Fayde.Input.KeyboardNavigationMode.Once)
             || (!forwards && root && root.GetVisualParent())) {
             while (root = root.GetVisualParent())
                 if (root instanceof Fayde.Controls.Control || !root.GetVisualParent())
@@ -97,7 +97,7 @@
         do {
             focused |= TabNavigationWalker.WalkChildren(root, cur, forwards);
 
-            if (!focused && TabNavigationWalker.GetActiveNavigationMode(root) === KeyboardNavigationMode.Cycle)
+            if (!focused && TabNavigationWalker.GetActiveNavigationMode(root) === Fayde.Input.KeyboardNavigationMode.Cycle)
                 return true;
 
             cur = root;
@@ -117,9 +117,9 @@
         while (uie) {
             if (uie instanceof Fayde.Controls.Control)
                 return uie.TabNavigation;
-            return KeyboardNavigationMode.Local;
+            return Fayde.Input.KeyboardNavigationMode.Local;
         }
-        return KeyboardNavigationMode.Local;
+        return Fayde.Input.KeyboardNavigationMode.Local;
     };
     TabNavigationWalker.GetActiveNavigationMode = function (uie) {
         /// <param name="uie" type="UIElement"></param>
@@ -129,7 +129,7 @@
                 return uie.TabNavigation;
             uie = uie.GetVisualParent();
         }
-        return KeyboardNavigationMode.Local;
+        return Fayde.Input.KeyboardNavigationMode.Local;
     };
 
     TabNavigationWalker.WalkChildren = function (root, cur, forwards) {

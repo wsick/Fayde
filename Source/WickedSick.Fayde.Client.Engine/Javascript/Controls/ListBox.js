@@ -213,7 +213,7 @@
         switch (args.Key) {
             case Key.Space:
             case Key.Enter:
-                if (Key.Enter !== args.Key || KeyboardNavigation.GetAcceptsReturn(this)) {
+                if (Key.Enter !== args.Key || Fayde.Input.KeyboardNavigation.GetAcceptsReturn(this)) {
                     if ((Keyboard.Modifiers & ModifierKeys.Alt) !== ModifierKeys.Alt) {
                         var lbi = Nullstone.As(FocusManager.GetFocusedElement(), namespace.ListBoxItem);
                         if (lbi != null) {

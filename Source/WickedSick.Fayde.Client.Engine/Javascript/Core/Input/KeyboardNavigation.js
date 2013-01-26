@@ -1,8 +1,8 @@
-﻿/// <reference path="../DependencyObject.js"/>
+﻿/// <reference path="../../Runtime/Nullstone.js"/>
 /// CODE
 
 (function (namespace) {
-    var KeyboardNavigation = Nullstone.Create("KeyboardNavigation", DependencyObject);
+    var KeyboardNavigation = Nullstone.Create("KeyboardNavigation");
 
     KeyboardNavigation.AcceptsReturnProperty = DependencyProperty.RegisterAttached("AcceptsReturn", function () { return Boolean; }, KeyboardNavigation);
     KeyboardNavigation.GetAcceptsReturn = function (d) {
@@ -65,4 +65,4 @@
     };
 
     namespace.KeyboardNavigation = Nullstone.FinishCreate(KeyboardNavigation);
-})(window);
+})(Nullstone.Namespace("Fayde.Input"));
