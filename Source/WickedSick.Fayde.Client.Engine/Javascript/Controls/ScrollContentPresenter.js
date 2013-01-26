@@ -278,7 +278,7 @@
         var x = this.$ScrollData.Offset.X;
         var textbox = Nullstone.As(templatedParent.TemplateOwner, namespace.TextBox);
         var richtextbox = Nullstone.As(templatedParent.TemplateOwner, namespace.RichTextBox);
-        var textWrapping = TextWrapping.NoWrap;
+        var textWrapping = namespace.TextWrapping.NoWrap;
         var horizontalScrollBarVisibility = namespace.ScrollBarVisibility.Disabled;
 
         if (richtextbox) {
@@ -290,7 +290,7 @@
         }
 
         var padding = templatedParent.Padding;
-        if (textWrapping !== TextWrapping.Wrap) {
+        if (textWrapping !== namespace.TextWrapping.Wrap) {
             if (num > width || x === 0)
                 left = padding.Left + 1;
             if (num > width || horizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled && Math.abs(width - x + num) <= 1)

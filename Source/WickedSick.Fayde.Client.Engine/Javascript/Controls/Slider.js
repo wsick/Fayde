@@ -26,7 +26,7 @@
     Slider.OrientationPropertyChanged = function (d, args) {
         d._OnOrientationChanged();
     };
-    Slider.OrientationProperty = DependencyProperty.RegisterCore("Orientation", function () { return Orientation; }, Slider, Orientation.Horizontal, Slider.OrientationPropertyChanged);
+    Slider.OrientationProperty = DependencyProperty.RegisterCore("Orientation", function () { return Fayde.Orientation; }, Slider, Fayde.Orientation.Horizontal, Slider.OrientationPropertyChanged);
 
     Nullstone.AutoProperties(Slider, [
         Slider.IsDirectionReversedProperty,
@@ -94,11 +94,11 @@
     };
 
     Slider.Instance._OnOrientationChanged = function () {
-        var isHorizontal = this.Orientation === Orientation.Horizontal;
+        var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
         if (this.$HorizontalTemplate != null)
-            this.$HorizontalTemplate.Visibility = isHorizontal ? Visibility.Visible : Visibility.Collapsed;
+            this.$HorizontalTemplate.Visibility = isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
         if (this.$VerticalTemplate != null)
-            this.$VerticalTemplate.Visibility = !isHorizontal ? Visibility.Visible : Visibility.Collapsed;
+            this.$VerticalTemplate.Visibility = !isHorizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
         this._UpdateTrackLayout();
     };
     Slider.Instance._UpdateTrackLayout = function () {
@@ -106,7 +106,7 @@
         var min = this.Minimum;
         var val = this.Value;
 
-        var isHorizontal = this.Orientation === Orientation.Horizontal;
+        var isHorizontal = this.Orientation === Fayde.Orientation.Horizontal;
         var templateGrid = Nullstone.As(isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate, namespace.Grid);
         if (templateGrid == null)
             return;
@@ -165,9 +165,9 @@
     };
     Slider.Instance._OnThumbDragDelta = function (e) {
         var offset = 0;
-        if (this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null) {
+        if (this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null) {
             offset = e.HorizontalChange / (this.ActualWidth - this.$HorizontalThumb.ActualWidth) * (this.Maximum - this.Minimum);
-        } else if (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null) {
+        } else if (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null) {
             offset = -e.VerticalChange / (this.ActualHeight - this.$VerticalThumb.ActualHeight) * (this.Maximum - this.Minimum);
         }
         if (!isNaN(offset) && isFinite(offset)) {
@@ -182,15 +182,15 @@
 
     Slider.Instance.OnMouseEnter = function (e) {
         this.OnMouseEnter$RangeBase(e);
-        if ((this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
-            (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+        if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+            (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
             this.$UpdateVisualState();
         }
     };
     Slider.Instance.OnMouseLeave = function (e) {
         this.OnMouseLeave$RangeBase(e);
-        if ((this.Orientation === Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
-            (this.Orientation === Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
+        if ((this.Orientation === Fayde.Orientation.Horizontal && this.$HorizontalThumb != null && this.$HorizontalThumb.IsDragging) ||
+            (this.Orientation === Fayde.Orientation.Vertical && this.$VerticalThumb != null && this.$VerticalThumb.IsDragging)) {
             this.$UpdateVisualState();
         }
     };

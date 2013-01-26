@@ -22,7 +22,7 @@
     };
     _TextLayoutAttributes.Instance.GetFont = function () { return this._Source.GetFont(); };
     _TextLayoutAttributes.Instance.GetDirection = function () { return this._Source.GetDirection(); };
-    _TextLayoutAttributes.Instance.IsUnderlined = function () { return this._Source.TextDecorations & TextDecorations.Underline; };
+    _TextLayoutAttributes.Instance.IsUnderlined = function () { return this._Source.TextDecorations & Fayde.TextDecorations.Underline; };
 
     namespace._TextLayoutAttributes = Nullstone.FinishCreate(_TextLayoutAttributes);
 })(window);

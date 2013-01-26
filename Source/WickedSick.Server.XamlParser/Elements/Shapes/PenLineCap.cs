@@ -1,9 +1,10 @@
 ﻿using System;
 using WickedSick.Server.XamlParser.Elements;
 
-namespace WickedSick.Server.XamlParser.Elements.Types
+namespace WickedSick.Server.XamlParser.Elements.Shapes
 {
-    internal enum PenLineCap
+    [Element(NullstoneNamespace = "Fayde.Shapes")]
+    public enum PenLineCap
     {
         Flat,
         Square,

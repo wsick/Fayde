@@ -8,7 +8,7 @@
     
     //#region Properties
 
-    Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polyline, FillRule.EvenOdd);
+    Polyline.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(namespace.FillRule); }, Polyline, namespace.FillRule.EvenOdd);
     Polyline.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return namespace.PointCollection; }, Polyline, undefined, undefined, { GetValue: function () { return new namespace.PointCollection(); } });
 
     Nullstone.AutoProperties(Polyline, [
@@ -135,10 +135,10 @@
         };
         Polyline.Instance.ApplyHtmlFillRule = function (shape, fillRule) {
             switch (fillRule) {
-                case FillRule.EvenOdd:
+                case namespace.FillRule.EvenOdd:
                     shape.setAttribute("fill-rule", "evenodd");
                     break;
-                case FillRule.NonZero:
+                case namespace.FillRule.NonZero:
                     shape.setAttribute("fill-rule", "nonzero");
                     break;
             }

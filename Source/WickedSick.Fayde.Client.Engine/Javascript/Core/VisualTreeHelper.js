@@ -93,7 +93,7 @@
             return "";
         /// <param name="uie" type="UIElement"></param>
         var str = "(";
-        if (uie.Visibility === Visibility.Visible)
+        if (uie.Visibility === Fayde.Visibility.Visible)
             str += "Visible";
         else
             str += "Collapsed";

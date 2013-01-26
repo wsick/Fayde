@@ -50,16 +50,16 @@
     FrameworkElement.ActualHeightProperty = DependencyProperty.RegisterReadOnlyCore("ActualHeight", function () { return Number; }, FrameworkElement);
     FrameworkElement.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, FrameworkElement);
     FrameworkElement.DataContextProperty = DependencyProperty.RegisterCore("DataContext", function () { return Object; }, FrameworkElement);
-    FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.RegisterCore("HorizontalAlignment", function () { return new Enum(HorizontalAlignment); }, FrameworkElement, HorizontalAlignment.Stretch);
+    FrameworkElement.HorizontalAlignmentProperty = DependencyProperty.RegisterCore("HorizontalAlignment", function () { return new Enum(Fayde.HorizontalAlignment); }, FrameworkElement, Fayde.HorizontalAlignment.Stretch);
     FrameworkElement.LanguageProperty = DependencyProperty.RegisterCore("Language", function () { return String; }, FrameworkElement);
     FrameworkElement.MarginProperty = DependencyProperty.RegisterCore("Margin", function () { return Thickness; }, FrameworkElement, new Thickness());
     FrameworkElement.MaxHeightProperty = DependencyProperty.RegisterCore("MaxHeight", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
     FrameworkElement.MaxWidthProperty = DependencyProperty.RegisterCore("MaxWidth", function () { return Number; }, FrameworkElement, Number.POSITIVE_INFINITY);
     FrameworkElement.MinHeightProperty = DependencyProperty.RegisterCore("MinHeight", function () { return Number; }, FrameworkElement, 0.0);
     FrameworkElement.MinWidthProperty = DependencyProperty.RegisterCore("MinWidth", function () { return Number; }, FrameworkElement, 0.0);
-    FrameworkElement.VerticalAlignmentProperty = DependencyProperty.RegisterCore("VerticalAlignment", function () { return new Enum(VerticalAlignment); }, FrameworkElement, VerticalAlignment.Stretch);
+    FrameworkElement.VerticalAlignmentProperty = DependencyProperty.RegisterCore("VerticalAlignment", function () { return new Enum(Fayde.VerticalAlignment); }, FrameworkElement, Fayde.VerticalAlignment.Stretch);
     FrameworkElement.StyleProperty = DependencyProperty.RegisterCore("Style", function () { return Style; }, FrameworkElement);
-    FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(FlowDirection); }, FrameworkElement, FlowDirection.LeftToRight, undefined, undefined, _Inheritable.FlowDirection);
+    FrameworkElement.FlowDirectionProperty = DependencyProperty.RegisterInheritable("FlowDirection", function () { return new Enum(Fayde.FlowDirection); }, FrameworkElement, Fayde.FlowDirection.LeftToRight, undefined, undefined, _Inheritable.FlowDirection);
 
     Nullstone.AutoProperties(FrameworkElement, [
         FrameworkElement.CursorProperty,
@@ -135,7 +135,7 @@
         delete this._CachedValues[FrameworkElement.ActualHeightProperty];
     };
     FrameworkElement.Instance._ComputeActualSize = function () {
-        if (this.Visibility !== Visibility.Visible)
+        if (this.Visibility !== Fayde.Visibility.Visible)
             return new Size(0.0, 0.0);
 
         var parent = this.GetVisualParent();
@@ -257,7 +257,7 @@
         var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
         shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
 
-        if (this.Visibility !== Visibility.Visible) {
+        if (this.Visibility !== Fayde.Visibility.Visible) {
             LayoutInformation.SetPreviousConstraint(this, availableSize);
             this._DesiredSize = new Size(0, 0);
             return;
@@ -360,7 +360,7 @@
 
         var parent = this.GetVisualParent();
 
-        if (this.Visibility !== Visibility.Visible) {
+        if (this.Visibility !== Fayde.Visibility.Visible) {
             LayoutInformation.SetLayoutSlot(this, finalRect);
             return;
         }
@@ -390,10 +390,10 @@
         var horiz = this.HorizontalAlignment;
         var vert = this.VerticalAlignment;
 
-        if (horiz === HorizontalAlignment.Stretch)
+        if (horiz === Fayde.HorizontalAlignment.Stretch)
             framework.Width = Math.max(framework.Width, stretched.Width);
 
-        if (vert === VerticalAlignment.Stretch)
+        if (vert === Fayde.VerticalAlignment.Stretch)
             framework.Height = Math.max(framework.Height, stretched.Height);
 
         offer = offer.Max(framework);
@@ -406,10 +406,10 @@
         else
             response = this._ArrangeOverrideWithError(offer, error);
 
-        if (horiz === HorizontalAlignment.Stretch)
+        if (horiz === Fayde.HorizontalAlignment.Stretch)
             response.Width = Math.max(response.Width, framework.Width);
 
-        if (vert === VerticalAlignment.Stretch)
+        if (vert === Fayde.VerticalAlignment.Stretch)
             response.Height = Math.max(response.Height, framework.Height);
 
         var flipHoriz = false;
@@ -418,7 +418,7 @@
         else if (this._Parent instanceof Fayde.Controls.Primitives.Popup)
             flipHoriz = this._Parent.FlowDirection !== this.FlowDirection;
         else
-            flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
+            flipHoriz = this.FlowDirection === Fayde.FlowDirection.RightToLeft;
 
         var layoutXform = mat3.identity();
         mat3.translate(layoutXform, childRect.X, childRect.Y);
@@ -456,12 +456,12 @@
         var isTopLevel = this._IsAttached && surface._IsTopLevel(this);
         if (!isTopLevel) {
             switch (horiz) {
-                case HorizontalAlignment.Left:
+                case Fayde.HorizontalAlignment.Left:
                     break;
-                case HorizontalAlignment.Right:
+                case Fayde.HorizontalAlignment.Right:
                     visualOffset.X += childRect.Width - constrainedResponse.Width;
                     break;
-                case HorizontalAlignment.Center:
+                case Fayde.HorizontalAlignment.Center:
                     visualOffset.X += (childRect.Width - constrainedResponse.Width) * 0.5;
                     break;
                 default:
@@ -470,12 +470,12 @@
             }
 
             switch (vert) {
-                case VerticalAlignment.Top:
+                case Fayde.VerticalAlignment.Top:
                     break;
-                case VerticalAlignment.Bottom:
+                case Fayde.VerticalAlignment.Bottom:
                     visualOffset.Y += childRect.Height - constrainedResponse.Height;
                     break;
-                case VerticalAlignment.Center:
+                case Fayde.VerticalAlignment.Center:
                     visualOffset.Y += (childRect.Height - constrainedResponse.Height) * 0.5;
                     break;
                 default:
@@ -656,7 +656,7 @@
             pass.Count = pass.Count + 1;
 
             var flag = UIElementFlags.None;
-            if (element.Visibility === Visibility.Visible) {
+            if (element.Visibility === Fayde.Visibility.Visible) {
                 if (element._HasFlag(UIElementFlags.DirtyMeasureHint))
                     flag = UIElementFlags.DirtyMeasureHint;
                 else if (element._HasFlag(UIElementFlags.DirtyArrangeHint))
@@ -669,7 +669,7 @@
                 var measureWalker = new _DeepTreeWalker(element);
                 var child;
                 while (child = measureWalker.Step()) {
-                    if (child.Visibility !== Visibility.Visible || !child._HasFlag(flag)) {
+                    if (child.Visibility !== Fayde.Visibility.Visible || !child._HasFlag(flag)) {
                         measureWalker.SkipBranch();
                         continue;
                     }
@@ -1044,31 +1044,31 @@
             var verticalAlignment = FrameworkElement.RealVerticalAlignment(this.Height, this.VerticalAlignment);
 
             var horizontalLayoutType = HorizontalLayoutType.Shrink;
-            if (horizontalAlignment == HorizontalAlignment.Stretch && this.GetParentIsFixedWidth())
+            if (horizontalAlignment === Fayde.HorizontalAlignment.Stretch && this.GetParentIsFixedWidth())
                 //layout type only stays stretch if the parent is fixed width
                 horizontalLayoutType = HorizontalLayoutType.Stretch;
             var verticalLayoutType = VerticalLayoutType.Shrink;
-            if (verticalAlignment == VerticalAlignment.Stretch && this.GetParentIsFixedHeight())
+            if (verticalAlignment === Fayde.VerticalAlignment.Stretch && this.GetParentIsFixedHeight())
                 //layout type only stays stretch if the parent is fixed height
                 verticalLayoutType = VerticalLayoutType.Stretch;
 
-            if (horizontalLayoutType == HorizontalLayoutType.Stretch || verticalLayoutType == VerticalLayoutType.Stretch) {
+            if (horizontalLayoutType == HorizontalLayoutType.Stretch || verticalLayoutType === VerticalLayoutType.Stretch) {
                 rootEl.style.position = "absolute";
                 subEl.style.position = "absolute";
-                if (horizontalLayoutType == HorizontalLayoutType.Stretch) rootEl.style.width = "100%";
-                if (verticalLayoutType == VerticalLayoutType.Stretch) rootEl.style.height = "100%";
+                if (horizontalLayoutType === HorizontalLayoutType.Stretch) rootEl.style.width = "100%";
+                if (verticalLayoutType === VerticalLayoutType.Stretch) rootEl.style.height = "100%";
                 //if we are here we know width or height is stretch, if one of them is shrink then we have a stretch plus shrink scenario
-                if (horizontalLayoutType == HorizontalLayoutType.Shrink || verticalLayoutType == VerticalLayoutType.Shrink) isStretchPlusShrink = true;
+                if (horizontalLayoutType === HorizontalLayoutType.Shrink || verticalLayoutType === VerticalLayoutType.Shrink) isStretchPlusShrink = true;
             }
             else {
-                if (horizontalAlignment == HorizontalAlignment.Left || horizontalAlignment == HorizontalAlignment.Right ||
-                    verticalAlignment == VerticalAlignment.Top || verticalAlignment == VerticalAlignment.Bottom) {
+                if (horizontalAlignment === Fayde.HorizontalAlignment.Left || horizontalAlignment === Fayde.HorizontalAlignment.Right ||
+                    verticalAlignment === Fayde.VerticalAlignment.Top || verticalAlignment === Fayde.VerticalAlignment.Bottom) {
                     rootEl.style.position = "absolute";
                     subEl.style.position = "relative";
-                    if (horizontalAlignment == HorizontalAlignment.Left) rootEl.style.left = "0px";
-                    if (horizontalAlignment == HorizontalAlignment.Right) rootEl.style.right = "0px";
-                    if (verticalAlignment == VerticalAlignment.Top) rootEl.style.top = "0px";
-                    if (verticalAlignment == VerticalAlignment.Bottom) rootEl.style.bottom = "0px";
+                    if (horizontalAlignment === Fayde.HorizontalAlignment.Left) rootEl.style.left = "0px";
+                    if (horizontalAlignment === Fayde.HorizontalAlignment.Right) rootEl.style.right = "0px";
+                    if (verticalAlignment === Fayde.VerticalAlignment.Top) rootEl.style.top = "0px";
+                    if (verticalAlignment === Fayde.VerticalAlignment.Bottom) rootEl.style.bottom = "0px";
                 }
                 else {
                     rootEl.style.position = "relative";
@@ -1076,7 +1076,7 @@
                 }
             }
 
-            if (horizontalLayoutType == HorizontalLayoutType.Stretch) {
+            if (horizontalLayoutType === HorizontalLayoutType.Stretch) {
                 var left = (isNaN(this.Margin.Left) ? 0 : this.Margin.Left);
                 subEl.style.left = left + "px";
                 var right = (isNaN(this.Margin.Right) ? 0 : this.Margin.Right);
@@ -1086,7 +1086,7 @@
                 rootEl.style.marginLeft = this.Margin.Left + "px";
                 rootEl.style.marginRight = this.Margin.Right + "px";
             }
-            if (verticalLayoutType == VerticalLayoutType.Stretch) {
+            if (verticalLayoutType === VerticalLayoutType.Stretch) {
                 var top = (isNaN(this.Margin.Top) ? 0 : this.Margin.Top);
                 subEl.style.top = top + "px";
                 var bottom = (isNaN(this.Margin.Bottom) ? 0 : this.Margin.Bottom);
@@ -1182,9 +1182,9 @@
         };
         FrameworkElement.RealHorizontalAlignment = function (width, horizontalAlignment) {
             //if width is defined, horizontal alignment is no longer stretched
-            if (!isNaN(width) && horizontalAlignment == HorizontalAlignment.Stretch) {
+            if (!isNaN(width) && horizontalAlignment === Fayde.HorizontalAlignment.Stretch) {
                 //TODO: this should be centered, not left
-                return HorizontalAlignment.Left;
+                return Fayde.HorizontalAlignment.Left;
             }
             else {
                 return horizontalAlignment;
@@ -1192,9 +1192,9 @@
         };
         FrameworkElement.RealVerticalAlignment = function (height, verticalAlignment) {
             //if height is defined, vertical alignment is no longer stretched
-            if (!isNaN(height) && verticalAlignment == VerticalAlignment.Stretch) {
+            if (!isNaN(height) && verticalAlignment === Fayde.VerticalAlignment.Stretch) {
                 //TODO: this should be centered, not top
-                return VerticalAlignment.Top;
+                return Fayde.VerticalAlignment.Top;
             }
             else {
                 return verticalAlignment;
@@ -1204,7 +1204,7 @@
             if (!isNaN(this.Width)) {
                 return true;
             }
-            if (FrameworkElement.RealHorizontalAlignment(this.Width, this.HorizontalAlignment) == HorizontalAlignment.Stretch
+            if (FrameworkElement.RealHorizontalAlignment(this.Width, this.HorizontalAlignment) === Fayde.HorizontalAlignment.Stretch
                 && this.GetParentIsFixedWidth()) {
                 return true;
             }
@@ -1214,7 +1214,7 @@
             if (!isNaN(this.Height)) {
                 return true;
             }
-            if (FrameworkElement.RealVerticalAlignment(this.Height, this.VerticalAlignment) == VerticalAlignment.Stretch
+            if (FrameworkElement.RealVerticalAlignment(this.Height, this.VerticalAlignment) === Fayde.VerticalAlignment.Stretch
                 && this.GetParentIsFixedHeight()) {
                 return true;
             }

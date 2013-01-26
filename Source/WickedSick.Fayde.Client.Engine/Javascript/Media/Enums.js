@@ -1,17 +1,6 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 
 (function (namespace) {
-    namespace.SweepDirection = {
-        Counterclockwise: 0,
-        Clockwise: 1
-    };
-    namespace.FillRule = {
-        EvenOdd: 0,
-        NonZero: 1
-    };
-})(window);
-
-(function (namespace) {
     namespace.AlignmentX = {
         Left: 0,
         Center: 1,

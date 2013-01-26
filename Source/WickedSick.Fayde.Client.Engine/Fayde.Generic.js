@@ -71,6 +71,11 @@ App.GetGenericResourceDictionary = function () {
     var ProgressBar = Fayde.Controls.ProgressBar;
     var RadioButton = Fayde.Controls.RadioButton;
     var Slider = Fayde.Controls.Slider;
+    var Visibility = Fayde.Visibility;
+    var HorizontalAlignment = Fayde.HorizontalAlignment;
+    var VerticalAlignment = Fayde.VerticalAlignment;
+    var TextDecorations = Fayde.TextDecorations;
+    var TextWrapping = Fayde.Controls.TextWrapping;
 
     var json = {
         Type: ResourceDictionary,
@@ -6734,7 +6739,7 @@ App.GetGenericResourceDictionary = function () {
                                         Maximum: new TemplateBindingMarkup("ScrollableHeight"),
                                         Margin: new Thickness(0, -1, -3, -1),
                                         Minimum: 0,
-                                        Orientation: Orientation.Vertical,
+                                        Orientation: Fayde.Orientation.Vertical,
                                         Visibility: new TemplateBindingMarkup("ComputedVerticalScrollBarVisibility"),
                                         Value: new TemplateBindingMarkup("VerticalOffset"),
                                         ViewportSize: new TemplateBindingMarkup("ViewportHeight"),
@@ -6761,7 +6766,7 @@ App.GetGenericResourceDictionary = function () {
                                         Maximum: new TemplateBindingMarkup("ScrollableWidth"),
                                         Margin: new Thickness(-1, 0, -1, -3),
                                         Minimum: 0,
-                                        Orientation: Orientation.Horizontal,
+                                        Orientation: Fayde.Orientation.Horizontal,
                                         Visibility: new TemplateBindingMarkup("ComputedHorizontalScrollBarVisibility"),
                                         Value: new TemplateBindingMarkup("HorizontalOffset"),
                                         ViewportSize: new TemplateBindingMarkup("ViewportWidth")

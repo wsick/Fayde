@@ -29,6 +29,19 @@
 
 
 (function (namespace) {
+    namespace.ClickMode = {
+        Release: 0,
+        Press: 1,
+        Hover: 2
+    };
+    namespace.TextTrimming = {
+        None: 0
+    };
+    namespace.TextWrapping = {
+        NoWrap: 0,
+        Wrap: 1,
+        WrapWithOverflow: 2
+    };
     namespace.GridUnitType = {
         Auto: 0,
         Pixel: 1,

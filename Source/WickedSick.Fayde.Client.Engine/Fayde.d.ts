@@ -274,7 +274,7 @@ class Font {
     Family: string;
     Stretch: string;
     Style: string;
-    Weight: FontWeight;
+    Weight: Fayde.FontWeight;
     Size: number;
 }
 class FontFamily {
@@ -357,76 +357,6 @@ class Uri {
 //////////////////////////////////////////////////////////
 // ENUMS
 //////////////////////////////////////////////////////////
-enum Orientation {
-    Horizontal = 0,
-    Vertical = 1,
-}
-enum FontWeight {
-    Thin = 100,
-    ExtraLight = 200,
-    Light = 300,
-    Normal = 400,
-    Medium = 500,
-    SemiBold = 600,
-    Bold = 700,
-    ExtraBold = 800,
-    Black = 900,
-    ExtraBlack = 950,
-}
-enum Visibility {
-    Visible = 0,
-    Collapsed = 1,
-}
-enum HorizontalAlignment {
-    Left = 0,
-    Center = 1,
-    Right = 2,
-    Stretch = 3,
-}
-enum VerticalAlignment {
-    Top = 0,
-    Center = 1,
-    Bottom = 2,
-    Stretch = 3,
-}
-enum FlowDirection {
-    LeftToRight = 0,
-    RightToLeft = 1,
-}
-enum TextDecorations {
-    None = 0,
-    Underline = 1,
-}
-enum LineStackingStrategy {
-    MaxHeight = 0,
-    BlockLineHeight = 1,
-}
-enum ClickMode {
-    Release = 0,
-    Press = 1,
-    Hover = 2,
-}
-enum SweepDirection {
-    Counterclockwise = 0,
-    Clockwise = 1,
-}
-enum FillRule {
-    EvenOdd = 0,
-    Nonzero = 1,
-}
-enum TextAlignment {
-    Left = 0,
-    Center = 1,
-    Right = 2,
-}
-enum TextTrimming {
-    None = 0,
-}
-enum TextWrapping {
-    NoWrap = 0,
-    Wrap = 1,
-    WrapWithOverflow = 2,
-}
 enum MediaElementState {
     Closed = 0,
     Opening = 1,
@@ -453,6 +383,58 @@ module Fayde {
     }
     export function Start(appType, rjson, json, canvas);
     export function Clone(value): any;
+}
+
+module Fayde {
+    export enum Orientation {
+        Horizontal = 0,
+        Vertical = 1,
+    }
+    export enum Visibility {
+        Visible = 0,
+        Collapsed = 1,
+    }
+    export enum HorizontalAlignment {
+        Left = 0,
+        Center = 1,
+        Right = 2,
+        Stretch = 3,
+    }
+    export enum VerticalAlignment {
+        Top = 0,
+        Center = 1,
+        Bottom = 2,
+        Stretch = 3,
+    }
+    export enum TextDecorations {
+        None = 0,
+        Underline = 1,
+    }
+    export enum TextAlignment {
+        Left = 0,
+        Center = 1,
+        Right = 2,
+    }
+    export enum FontWeight {
+        Thin = 100,
+        ExtraLight = 200,
+        Light = 300,
+        Normal = 400,
+        Medium = 500,
+        SemiBold = 600,
+        Bold = 700,
+        ExtraBold = 800,
+        Black = 900,
+        ExtraBlack = 950,
+    }
+    export enum FlowDirection {
+        LeftToRight = 0,
+        RightToLeft = 1,
+    }
+    export enum LineStackingStrategy {
+        MaxHeight = 0,
+        BlockLineHeight = 1,
+    }
 }
 
 class DependencyObject {
@@ -498,7 +480,7 @@ class UIElement extends DependencyObject {
     Resources: ResourceDictionary;
     Triggers: any;
     UseLayoutRounding: bool;
-    Visibility: Visibility;
+    Visibility: Fayde.Visibility;
     Tag: any;
 
     //Events
@@ -555,9 +537,9 @@ class FrameworkElement extends UIElement {
     ActualWidth: number;
     Cursor: string;
     DataContext: any;
-    FlowDirection: FlowDirection;
+    FlowDirection: Fayde.FlowDirection;
     Height: number;
-    HorizontalAlignment: HorizontalAlignment;
+    HorizontalAlignment: Fayde.HorizontalAlignment;
     Language: any;
     Margin: Thickness;
     MaxHeight: number;
@@ -566,7 +548,7 @@ class FrameworkElement extends UIElement {
     MinWidth: number;;
     Style: Style;
     Tag: any;
-    VerticalAlignment: VerticalAlignment;
+    VerticalAlignment: Fayde.VerticalAlignment;
     Width: number;
 
     //Events
@@ -713,6 +695,17 @@ class PresentationFrameworkCollection extends DependencyObject implements IColle
     ToArray(): any[];
 }
 
+module Fayde.Input {
+    export enum KeyboardNavigationMode {
+        Continue = 0,
+        Once = 1,
+        Cycle = 2,
+        None = 3,
+        Contained = 4,
+        Local = 5
+    }
+}
+
 //////////////////////////////////////////////////////////
 // DOCUMENTS
 //////////////////////////////////////////////////////////
@@ -823,7 +816,6 @@ module Fayde.Documents {
 //////////////////////////////////////////////////////////
 // CONTROLS
 //////////////////////////////////////////////////////////
-
 module Fayde.Controls {
     module Primitives {
         export enum ScrollEventType {
@@ -1013,6 +1005,19 @@ module Fayde.Controls {
     export enum VirtualizationMode {
         Standard = 0,
         Recycling = 1,
+    }
+    export enum TextTrimming {
+        None = 0,
+    }
+    export enum TextWrapping {
+        NoWrap = 0,
+        Wrap = 1,
+        WrapWithOverflow = 2,
+    }
+    export enum ClickMode {
+        Release = 0,
+        Press = 1,
+        Hover = 2,
     }
 
     export class Border extends FrameworkElement {
@@ -1455,7 +1460,7 @@ module Fayde.Controls {
         FontStyle: string;
         FontWeight: FontWeight;
         Foreground: Fayde.Media.Brush;
-        Inlines: InlineCollection;
+        Inlines: Fayde.Documents.InlineCollection;
         LineHeight: number;
         LineStackingStrategy: LineStackingStrategy;
         Padding: Thickness;
@@ -1696,7 +1701,7 @@ module Fayde.Media {
     export class GeometryGroup extends Geometry {
         static FillRuleProperty: DependencyProperty;
         static ChildrenProperty: DependencyProperty;
-        FillRule: FillRule;
+        FillRule: Fayde.Shapes.FillRule;
         Children: GeometryCollection;
     }
     export class PathSegment extends DependencyObject {
@@ -1745,12 +1750,12 @@ module Fayde.Media {
         Point: Point;
         RotationAngle: number;
         Size: Size;
-        SweepDirection: SweepDirection;
+        SweepDirection: Fayde.Shapes.SweepDirection;
     }
     export class PathGeometry extends Geometry {
         static FillRuleProperty: DependencyProperty;
         static FiguresProperty: DependencyProperty;
-        FillRule: FillRule;
+        FillRule: Fayde.Shapes.FillRule;
         Figures: PathFigureCollection;
     }
     export class RectangleGeometry extends Geometry {
@@ -1949,8 +1954,8 @@ module Fayde.Media.VisualStateManager {
         static GetCustomVisualStateManager(d: DependencyObject): VisualStateManager;
         static SetCustomVisualStateManager(d: DependencyObject, value: VisualStateManager);
 
-        static GoToStateCore(control: Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool;
-        static GoToState(control: Control, stateName: string, useTransitions: bool): bool;
+        static GoToStateCore(control: Fayde.Controls.Control, element: FrameworkElement, stateName: string, group: VisualStateGroup, state: VisualState, useTransitions: bool): bool;
+        static GoToState(control: Fayde.Controls.Control, stateName: string, useTransitions: bool): bool;
     }
 }
 
@@ -2260,6 +2265,14 @@ module Fayde.Media.Animation {
 // SHAPES
 //////////////////////////////////////////////////////////
 module Fayde.Shapes {
+    export enum FillRule {
+        EvenOdd = 0,
+        NonZero = 1,
+    }
+    export enum SweepDirection {
+        Counterclockwise = 0,
+        Clockwise = 1,
+    }
     export enum PenLineCap {
         Flat = 0,
         Square = 1,

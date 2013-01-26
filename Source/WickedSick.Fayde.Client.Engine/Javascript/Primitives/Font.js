@@ -95,7 +95,7 @@
     Font.DEFAULT_FAMILY = "Segoe UI, Lucida Sans Unicode, Verdana";
     Font.DEFAULT_STRETCH = FontStretch.Normal;
     Font.DEFAULT_STYLE = FontStyle.Normal;
-    Font.DEFAULT_WEIGHT = FontWeight.Normal;
+    Font.DEFAULT_WEIGHT = Fayde.FontWeight.Normal;
     Font.DEFAULT_SIZE = 14;
 
     namespace.Font = Nullstone.FinishCreate(Font);

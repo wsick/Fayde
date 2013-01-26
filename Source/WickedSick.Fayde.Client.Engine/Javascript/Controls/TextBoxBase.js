@@ -52,7 +52,7 @@
         return this._Font;
     };
     TextBoxBase.Instance.GetTextDecorations = function () {
-        return TextDecorations.None;
+        return Fayde.TextDecorations.None;
     };
     TextBoxBase.Instance.GetSelectionCursor = function () {
         return this._SelectionCursor;

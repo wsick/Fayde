@@ -50,8 +50,8 @@
     TextBox.SelectionLengthProperty = DependencyProperty.RegisterFull("SelectionLength", function () { return Number; }, TextBox, 0, undefined, undefined, undefined, true, TextBox.PositiveIntValidator);
     TextBox.SelectionStartProperty = DependencyProperty.RegisterFull("SelectionStart", function () { return Number; }, TextBox, 0, undefined, undefined, undefined, true, TextBox.PositiveIntValidator);
     TextBox.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBox);
-    TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBox, TextAlignment.Left);
-    TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBox, TextWrapping.NoWrap);
+    TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(Fayde.TextAlignment); }, TextBox, Fayde.TextAlignment.Left);
+    TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(namespace.TextWrapping); }, TextBox, namespace.TextWrapping.NoWrap);
     TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return new Enum(namespace.ScrollBarVisibility); }, TextBox, namespace.ScrollBarVisibility.Hidden);
     TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return new Enum(namespace.ScrollBarVisibility); }, TextBox, namespace.ScrollBarVisibility.Hidden);
 
@@ -88,7 +88,7 @@
 
         prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
         if (prop) {
-            if (this.TextWrapping === TextWrapping.Wrap)
+            if (this.TextWrapping === namespace.TextWrapping.Wrap)
                 this._ContentElement._SetValue(prop, namespace.ScrollBarVisibility.Disabled);
             else
                 this._ContentElement._SetValue(prop, this._GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
@@ -277,7 +277,7 @@
             if (this._ContentElement) {
                 propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
                 if (propd) {
-                    if (args.NewValue === TextWrapping.Wrap)
+                    if (args.NewValue === namespace.TextWrapping.Wrap)
                         this._ContentElement._SetValue(propd, namespace.ScrollBarVisibility.Disabled);
                     else
                         this._ContentElement._SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
@@ -288,7 +288,7 @@
             if (this._ContentElement) {
                 propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
                 if (propd) {
-                    if (this.TextWrapping === TextWrapping.Wrap)
+                    if (this.TextWrapping === namespace.TextWrapping.Wrap)
                         this._ContentElement._SetValue(propd, namespace.ScrollBarVisibility.Disabled);
                     else
                         this._ContentElement._SetValue(propd, args.NewValue);

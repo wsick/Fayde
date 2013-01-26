@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
+    [Element(NullstoneNamespace = "Fayde")]
     public class TextDecorationCollection : IJsonConvertible
     {
         private List<string> _Items = new List<string>();
@@ -24,7 +25,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         public string ToJson(int tabIndents)
         {
             //TextDecorations are a flags enum in javascript, bitwise OR all items
-            return string.Join(" | ", _Items.Select(i => string.Format("TextDecorations.{0}", i)));
+            return string.Join(" | ", _Items.Select(i => string.Format("Fayde.TextDecorations.{0}", i)));
         }
     }
 }

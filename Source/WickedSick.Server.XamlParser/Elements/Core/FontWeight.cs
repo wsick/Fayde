@@ -1,6 +1,7 @@
 ﻿
-namespace WickedSick.Server.XamlParser.Elements.Types
+namespace WickedSick.Server.XamlParser.Elements.Core
 {
+    [Element(NullstoneNamespace = "Fayde")]
     public enum FontWeight
     {
         Thin,

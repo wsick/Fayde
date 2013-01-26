@@ -113,7 +113,7 @@
     UIElement.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, UIElement, undefined, undefined, { GetValue: function () { return new ResourceDictionary(); } });
     UIElement.TriggersProperty = DependencyProperty.RegisterFull("Triggers", function () { return TriggerCollection; }, UIElement, undefined, undefined, { GetValue: function () { return new TriggerCollection(); } });
     UIElement.UseLayoutRoundingProperty = DependencyProperty.RegisterInheritable("UseLayoutRounding", function () { return Boolean; }, UIElement, true, undefined, undefined, _Inheritable.UseLayoutRounding);
-    UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Visibility); }, UIElement, Visibility.Visible);
+    UIElement.VisibilityProperty = DependencyProperty.RegisterCore("Visibility", function () { return new Enum(Fayde.Visibility); }, UIElement, Fayde.Visibility.Visible);
     UIElement.TagProperty = DependencyProperty.Register("Tag", function () { return Object; }, UIElement);
 
     UIElement.IsFixedWidthProperty = DependencyProperty.Register("IsFixedWidth", function () { return Boolean; }, UIElement, false);
@@ -1062,7 +1062,7 @@
             if (propd._ID === UIElement.OpacityProperty._ID) {
                 this._InvalidateVisibility();
             } else if (propd._ID === UIElement.VisibilityProperty._ID) {
-                if (args.NewValue === Visibility.Visible)
+                if (args.NewValue === Fayde.Visibility.Visible)
                     this._Flags |= UIElementFlags.RenderVisible;
                 else
                     this._Flags &= ~UIElementFlags.RenderVisible;
@@ -1279,9 +1279,9 @@
             if (propd._ID === UIElement.OpacityProperty._ID) {
                 rootEl.style.opacity = change.NewValue;
             } else if (propd._ID === UIElement.VisibilityProperty._ID) {
-                if (change.NewValue === Visibility.Collapsed) {
+                if (change.NewValue === Fayde.Visibility.Collapsed) {
                     rootEl.style.display = "none";
-                } else if (change.NewValue === Visibility.Visible) {
+                } else if (change.NewValue === Fayde.Visibility.Visible) {
                     rootEl.style.display = this.GetHtmlDefaultDisplay();
                 }
             } else if (propd._ID === UIElement.IsHitTestVisibleProperty._ID) {

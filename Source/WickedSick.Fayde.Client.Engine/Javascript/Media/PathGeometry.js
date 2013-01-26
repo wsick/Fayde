@@ -8,7 +8,7 @@
 
     //#region Properties
 
-    PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, PathGeometry);
+    PathGeometry.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(Fayde.Shapes.FillRule); }, PathGeometry);
     PathGeometry.FiguresProperty = DependencyProperty.RegisterFull("Figures", function () { return namespace.PathFigureCollection; }, PathGeometry, undefined, undefined, { GetValue: function () { return new namespace.PathFigureCollection(); } });
 
     Nullstone.AutoProperties(PathGeometry, [

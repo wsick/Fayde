@@ -29,4 +29,12 @@
         Bevel: 1,
         Round: 2
     };
+    namespace.FillRule = {
+        EvenOdd: 0,
+        NonZero: 1
+    };
+    namespace.SweepDirection = {
+        Counterclockwise: 0,
+        Clockwise: 1
+    };
 })(Nullstone.Namespace("Fayde.Shapes"));

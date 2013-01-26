@@ -30,7 +30,7 @@
         get: function () {
             var p = this.$Panel;
             if (p instanceof namespace.StackPanel || p instanceof namespace.VirtualizingStackPanel)
-                return p.Orientation === Orientation.Vertical;
+                return p.Orientation === Fayde.Orientation.Vertical;
             return true;
         }
     });

@@ -60,7 +60,7 @@
     Shape.Instance._CanFindElement = function () { return this._IsFilled() || this._IsStroked(); };
 
     Shape.Instance._GetFillRule = function () {
-        return FillRule.Nonzero;
+        return namespace.FillRule.NonZero;
     };
 
     //#endregion

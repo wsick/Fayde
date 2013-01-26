@@ -7,7 +7,7 @@
     
     //#region Properties
 
-    Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(FillRule); }, Polygon, FillRule.EvenOdd);
+    Polygon.FillRuleProperty = DependencyProperty.RegisterCore("FillRule", function () { return new Enum(namespace.FillRule); }, Polygon, namespace.FillRule.EvenOdd);
     Polygon.PointsProperty = DependencyProperty.RegisterFull("Points", function () { return namespace.PointCollection; }, Polygon, undefined, undefined, { GetValue: function () { return new namespace.PointCollection(); } });
 
     Nullstone.AutoProperties(Polygon, [
@@ -237,10 +237,10 @@
         };
         Polygon.Instance.ApplyHtmlFillRule = function (shape, fillRule) {
             switch (fillRule) {
-                case FillRule.EvenOdd:
+                case namespace.FillRule.EvenOdd:
                     shape.setAttribute("fill-rule", "evenodd");
                     break;
-                case FillRule.NonZero:
+                case namespace.FillRule.NonZero:
                     shape.setAttribute("fill-rule", "nonzero");
                     break;
             }

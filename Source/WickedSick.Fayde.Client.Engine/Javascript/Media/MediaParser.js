@@ -69,7 +69,7 @@
         var cp = new Point();
         var cp1, cp2, cp3;
         var start = new Point();
-        var fillRule = FillRule.EvenOdd;
+        var fillRule = namespace.Shapes.FillRule.EvenOdd;
         var cbz = false; // last figure is a cubic bezier curve
         var qbz = false; // last figure is a quadratic bezier curve
         var cbzp = new Point(); // points needed to create "smooth" beziers
@@ -88,9 +88,9 @@
                 case 'F':
                     c = this.str.charAt(this.index);
                     if (c === '0')
-                        fillRule = FillRule.EvenOdd;
+                        fillRule = namespace.Shapes.FillRule.EvenOdd;
                     else if (c === '1')
-                        fillRule = FillRule.Nonzero;
+                        fillRule = namespace.Shapes.FillRule.NonZero;
                     else
                         return null;
                     this.index++

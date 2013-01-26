@@ -21,7 +21,7 @@
     ScrollBar._OnOrientationPropertyChanged = function (d, args) {
         d._OnOrientationChanged();
     };
-    ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Orientation); }, ScrollBar, Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
+    ScrollBar.OrientationProperty = DependencyProperty.Register("Orientation", function () { return new Enum(Fayde.Orientation); }, ScrollBar, Fayde.Orientation.Horizontal, ScrollBar._OnOrientationPropertyChanged);
 
     ScrollBar._OnViewportSizePropertyChanged = function (d, args) {
         d._UpdateTrackLayout(d._GetTrackLength());
@@ -112,9 +112,9 @@
         this.OnMouseEnter$RangeBase(args);
         var orientation = this.Orientation;
         var shouldUpdate = false;
-        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
+        if (orientation === Fayde.Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
             shouldUpdate = true;
-        if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
+        if (orientation === Fayde.Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
             shouldUpdate = true;
         if (shouldUpdate)
             this.$UpdateVisualState();
@@ -123,9 +123,9 @@
         this.OnMouseLeave$RangeBase(args);
         var orientation = this.Orientation;
         var shouldUpdate = false;
-        if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
+        if (orientation === Fayde.Orientation.Horizontal && this.$ElementHorizontalThumb && !this.$ElementHorizontalThumb.IsDragging)
             shouldUpdate = true;
-        if (orientation === Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
+        if (orientation === Fayde.Orientation.Vertical && this.$ElementVerticalThumb && !this.$ElementVerticalThumb.IsDragging)
             shouldUpdate = true;
         if (shouldUpdate)
             this.$UpdateVisualState();
@@ -184,10 +184,10 @@
         var diff = max - min;
         var trackLength = this._GetTrackLength();
         var orientation = this.Orientation;
-        if (this.$ElementVerticalThumb && orientation === Orientation.Vertical) {
+        if (this.$ElementVerticalThumb && orientation === Fayde.Orientation.Vertical) {
             change = num * args.VerticalChange / (trackLength - this.$ElementVerticalThumb.ActualHeight) * diff;
         }
-        if (this.$ElementHorizontalThumb && orientation === Orientation.Horizontal) {
+        if (this.$ElementHorizontalThumb && orientation === Fayde.Orientation.Horizontal) {
             change = num * args.HorizontalChange / (trackLength - this.$ElementHorizontalThumb.ActualWidth) * diff;
         }
         if (!isNaN(change) && isFinite(change)) {
@@ -249,10 +249,10 @@
     ScrollBar.Instance._OnOrientationChanged = function () {
         var orientation = this.Orientation;
         if (this.$ElementHorizontalTemplate) {
-            this.$ElementHorizontalTemplate.Visibility = orientation === Orientation.Horizontal ? Visibility.Visible : Visibility.Collapsed;
+            this.$ElementHorizontalTemplate.Visibility = orientation === Fayde.Orientation.Horizontal ? Fayde.Visibility.Visible : Fayde.Visibility.Collapsed;
         }
         if (this.$ElementVerticalTemplate) {
-            this.$ElementVerticalTemplate.Visibility = orientation === Orientation.Horizontal ? Visibility.Collapsed : Visibility.Visible;
+            this.$ElementVerticalTemplate.Visibility = orientation === Fayde.Orientation.Horizontal ? Fayde.Visibility.Collapsed : Fayde.Visibility.Visible;
         }
         this._UpdateTrackLayout(this._GetTrackLength());
     };
@@ -264,9 +264,9 @@
         var thumbSize = this._UpdateThumbSize(trackLength);
 
         var orientation = this.Orientation;
-        if (orientation === Orientation.Horizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
+        if (orientation === Fayde.Orientation.Horizontal && this.$ElementHorizontalLargeDecrease && this.$ElementHorizontalThumb) {
             this.$ElementHorizontalLargeDecrease.Width = Math.max(0, multiplier * (trackLength - thumbSize));
-        } else if (orientation === Orientation.Vertical && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
+        } else if (orientation === Fayde.Orientation.Vertical && this.$ElementVerticalLargeDecrease && this.$ElementVerticalThumb) {
             this.$ElementVerticalLargeDecrease.Height = Math.max(0, multiplier * (trackLength - thumbSize));
         }
     };
@@ -277,39 +277,39 @@
             var orientation = this.Orientation;
             var max = this.Maximum;
             var min = this.Minimum;
-            if (orientation === Orientation.Horizontal && this.$ElementHorizontalThumb) {
+            if (orientation === Fayde.Orientation.Horizontal && this.$ElementHorizontalThumb) {
                 if (max - min !== 0)
                     result = Math.max(this.$ElementHorizontalThumb.MinWidth, this._ConvertViewportSizeToDisplayUnits(trackLength));
                 if (max - min === 0 || result > this.ActualWidth || trackLength <= this.$ElementHorizontalThumb.MinWidth) {
                     hideThumb = true;
                 } else {
-                    this.$ElementHorizontalThumb.Visibility = Visibility.Visible;
+                    this.$ElementHorizontalThumb.Visibility = Fayde.Visibility.Visible;
                     this.$ElementHorizontalThumb.Width = result;
                 }
-            } else if (orientation === Orientation.Vertical && this.$ElementVerticalThumb) {
+            } else if (orientation === Fayde.Orientation.Vertical && this.$ElementVerticalThumb) {
                 if (max - min !== 0)
                     result = Math.max(this.$ElementVerticalThumb.MinHeight, this._ConvertViewportSizeToDisplayUnits(trackLength));
                 if (max - min === 0 || result > this.ActualHeight || trackLength <= this.$ElementVerticalThumb.MinHeight) {
                     hideThumb = true;
                 } else {
-                    this.$ElementVerticalThumb.Visibility = Visibility.Visible;
+                    this.$ElementVerticalThumb.Visibility = Fayde.Visibility.Visible;
                     this.$ElementVerticalThumb.Height = result;
                 }
             }
         }
         if (hideThumb) {
             if (this.$ElementHorizontalThumb) {
-                this.$ElementHorizontalThumb.Visibility = Visibility.Collapsed;
+                this.$ElementHorizontalThumb.Visibility = Fayde.Visibility.Collapsed;
             }
             if (this.$ElementVerticalThumb) {
-                this.$ElementVerticalThumb.Visibility = Visibility.Collapsed;
+                this.$ElementVerticalThumb.Visibility = Fayde.Visibility.Collapsed;
             }
         }
         return result;
     };
     ScrollBar.Instance._GetTrackLength = function () {
         var actual = NaN;
-        if (this.Orientation === Orientation.Horizontal) {
+        if (this.Orientation === Fayde.Orientation.Horizontal) {
             actual = this.ActualWidth;
             if (this.$ElementHorizontalSmallDecrease) {
                 var thickness = this.$ElementHorizontalSmallDecrease.Margin;

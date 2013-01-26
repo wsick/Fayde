@@ -1,6 +1,7 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../ContentControl.js"/>
 /// CODE
+/// <reference path="../Enums.js"/>
 
 (function (namespace) {
     var ButtonBase = Nullstone.Create("ButtonBase", Fayde.Controls.ContentControl);
@@ -20,7 +21,7 @@
 
     //#region Properties
 
-    ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Enum(ClickMode); }, ButtonBase, ClickMode.Release);
+    ButtonBase.ClickModeProperty = DependencyProperty.Register("ClickMode", function () { return new Enum(Fayde.Controls.ClickMode); }, ButtonBase, Fayde.Controls.ClickMode.Release);
     ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
     ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
 
@@ -110,7 +111,7 @@
 
         this._SuspendStateChanges = true;
         try {
-            if (this.ClickMode === ClickMode.Hover && this.IsEnabled) {
+            if (this.ClickMode === Fayde.Controls.ClickMode.Hover && this.IsEnabled) {
                 this.$SetValueInternal(ButtonBase.IsPressedProperty, true);
                 this.OnClick();
             }
@@ -124,7 +125,7 @@
 
         this._SuspendStateChanges = true;
         try {
-            if (this.ClickMode === ClickMode.Hover && this.IsEnabled)
+            if (this.ClickMode === Fayde.Controls.ClickMode.Hover && this.IsEnabled)
                 this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
         } finally {
             this._SuspendStateChanges = false;
@@ -136,7 +137,7 @@
 
         this._MousePosition = args.GetPosition(this);
 
-        if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
+        if (this._IsMouseLeftButtonDown && this.IsEnabled && this.ClickMode !== Fayde.Controls.ClickMode.Hover && this._IsMouseCaptured && !this._IsSpaceKeyDown) {
             this.$SetValueInternal(ButtonBase.IsPressedProperty, this._IsValidMousePosition());
         }
     };
@@ -147,7 +148,7 @@
         if (!this.IsEnabled)
             return;
         var clickMode = this.ClickMode;
-        if (clickMode === ClickMode.Hover)
+        if (clickMode === Fayde.Controls.ClickMode.Hover)
             return;
 
         args.Handled = true;
@@ -162,7 +163,7 @@
             this.$UpdateVisualState();
         }
 
-        if (clickMode === ClickMode.Press)
+        if (clickMode === Fayde.Controls.ClickMode.Press)
             this.OnClick();
     };
     ButtonBase.Instance.OnMouseLeftButtonUp = function (sender, args) {
@@ -172,11 +173,11 @@
         if (!this.IsEnabled)
             return;
         var clickMode = this.ClickMode;
-        if (clickMode === ClickMode.Hover)
+        if (clickMode === Fayde.Controls.ClickMode.Hover)
             return;
 
         args.Handled = true;
-        if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === ClickMode.Release)
+        if (!this._IsSpaceKeyDown && this.IsPressed && clickMode === Fayde.Controls.ClickMode.Release)
             this.OnClick();
 
         if (!this._IsSpaceKeyDown) {
@@ -224,7 +225,7 @@
 
         this._SuspendStateChanges = true;
         try {
-            if (this.ClickMode !== ClickMode.Hover) {
+            if (this.ClickMode !== Fayde.Controls.ClickMode.Hover) {
                 this.$SetValueInternal(ButtonBase.IsPressedProperty, false);
                 this._ReleaseMouseCaptureInternal();
                 this._IsSpaceKeyDown = false;

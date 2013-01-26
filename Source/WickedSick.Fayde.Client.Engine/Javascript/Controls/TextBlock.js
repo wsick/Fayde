@@ -5,6 +5,7 @@
 /// CODE
 /// <reference path="../Runtime/LinkedList.js"/>
 /// <reference path="../Text/TextLayout.js"/>
+/// <reference path="Enums.js"/>
 
 (function (namespace) {
     var TextBlock = Nullstone.Create("TextBlock", FrameworkElement);
@@ -32,17 +33,17 @@
     TextBlock.FontFamilyProperty = DependencyProperty.RegisterInheritable("FontFamily", function () { return String; }, TextBlock, Font.DEFAULT_FAMILY, undefined, undefined, _Inheritable.FontFamily);
     TextBlock.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, TextBlock, Font.DEFAULT_STRETCH, undefined, undefined, _Inheritable.FontStretch);
     TextBlock.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, TextBlock, Font.DEFAULT_STYLE, undefined, undefined, _Inheritable.FontStyle);
-    TextBlock.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, TextBlock, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
+    TextBlock.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(Fayde.FontWeight); }, TextBlock, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
     TextBlock.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, TextBlock, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
-    TextBlock.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(TextDecorations); }, TextBlock, TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
+    TextBlock.TextDecorationsProperty = DependencyProperty.RegisterInheritable("TextDecorations", function () { return new Enum(Fayde.TextDecorations); }, TextBlock, Fayde.TextDecorations.None, undefined, undefined, _Inheritable.TextDecorations);
     TextBlock.FontSourceProperty = DependencyProperty.RegisterCore("FontSource", function () { return Object; }, TextBlock);
     TextBlock.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBlock, "");
     TextBlock.InlinesProperty = DependencyProperty.RegisterFull("Inlines", function () { return Fayde.Documents.InlineCollection; }, TextBlock, undefined, undefined, { GetValue: function () { return new Fayde.Documents.InlineCollection(); } });
-    TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Enum(LineStackingStrategy); }, TextBlock);
+    TextBlock.LineStackingStrategyProperty = DependencyProperty.RegisterCore("LineStackingStrategy", function () { return new Enum(Fayde.LineStackingStrategy); }, TextBlock);
     TextBlock.LineHeightProperty = DependencyProperty.RegisterCore("LineHeight", function () { return Number; }, TextBlock, NaN);
-    TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBlock, TextAlignment.Left);
-    TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Enum(TextTrimming); }, TextBlock, TextTrimming.None);
-    TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBlock, TextWrapping.NoWrap);
+    TextBlock.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(Fayde.TextAlignment); }, TextBlock, Fayde.TextAlignment.Left);
+    TextBlock.TextTrimmingProperty = DependencyProperty.RegisterCore("TextTrimming", function () { return new Enum(namespace.TextTrimming); }, TextBlock, namespace.TextTrimming.None);
+    TextBlock.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(namespace.TextWrapping); }, TextBlock, namespace.TextWrapping.NoWrap);
 
     Nullstone.AutoProperties(TextBlock, [
         TextBlock.PaddingProperty,
@@ -149,7 +150,7 @@
         this._RenderLayoutClip(ctx);
         var padding = this.Padding;
         var offset = new Point(padding.Left, padding.Top);
-        if (this.FlowDirection === FlowDirection.RightToLeft) {
+        if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
             NotImplemented("TextBlock._Render: Right to left");
         }
         this._Layout._Render(ctx, this._GetOriginPoint(), offset);
@@ -573,20 +574,20 @@
         };
         TextBlock.Instance.ApplyTextAlignmentHtml = function (contentEl, alignment) {
             switch (alignment) {
-                case TextAlignment.Left:
+                case Fayde.TextAlignment.Left:
                     contentEl.style.textAlign = "left";
                     break;
-                case TextAlignment.Center:
+                case Fayde.TextAlignment.Center:
                     contentEl.style.textAlign = "center";
                     break;
-                case TextAlignment.Right:
+                case Fayde.TextAlignment.Right:
                     contentEl.style.textAlign = "right";
                     break;
             }
         };
         TextBlock.Instance.ApplyTextDecorationsHtml = function (contentEl, decorations) {
             var finalStyle = "";
-            if (decorations & TextDecorations.Underline)
+            if (decorations & Fayde.TextDecorations.Underline)
                 finalStyle += "underline ";
             contentEl.style.textDecoration = finalStyle;
         };

@@ -177,7 +177,7 @@
         e.Handled = true;
 
         var key = e.Key;
-        if (this.FlowDirection === FlowDirection.RightToLeft) {
+        if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
             if (key === Key.Left)
                 key = Key.Right;
             else if (key === Key.Right)
@@ -334,7 +334,7 @@
         var topLeft = xform.Transform(offset);
         bottomRight = xform.Transform(bottomRight);
 
-        var isRightToLeft = (this.FlowDirection === FlowDirection.RightToLeft);
+        var isRightToLeft = (this.FlowDirection === Fayde.FlowDirection.RightToLeft);
         if (isRightToLeft) {
             var left = bottomRight.X;
             bottomRight.X = topLeft.X;

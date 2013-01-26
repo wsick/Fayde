@@ -1,4 +1,4 @@
-﻿using WickedSick.Server.XamlParser.Elements.Types;
+﻿using WickedSick.Server.XamlParser.Elements.Core;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls.Primitives
 {

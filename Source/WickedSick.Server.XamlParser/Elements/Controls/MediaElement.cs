@@ -1,5 +1,5 @@
 ﻿using WickedSick.Server.XamlParser.Elements.Core;
-using WickedSick.Server.XamlParser.Elements.Types;
+using WickedSick.Server.XamlParser.Elements.Media;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {

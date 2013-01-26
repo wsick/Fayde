@@ -9,10 +9,10 @@
         this._SelectionStart = 0;
         this._SelectionLength = 0;
 
-        this._Strategy = LineStackingStrategy.MaxHeight;
-        this._Alignment = TextAlignment.Left;
-        this._Trimming = TextTrimming.None;
-        this._Wrapping = TextWrapping.NoWrap;
+        this._Strategy = Fayde.LineStackingStrategy.MaxHeight;
+        this._Alignment = Fayde.TextAlignment.Left;
+        this._Trimming = Fayde.Controls.TextTrimming.None;
+        this._Wrapping = Fayde.Controls.TextWrapping.NoWrap;
 
         this._AvailableWidth = Number.POSITIVE_INFINITY;
         this._MaxHeight = Number.POSITIVE_INFINITY;
@@ -81,11 +81,11 @@
     };
     TextLayout.Instance.SetTextWrapping = function (value) {
         switch (value) {
-            case TextWrapping.NoWrap:
-            case TextWrapping.Wrap:
+            case Fayde.Controls.TextWrapping.NoWrap:
+            case Fayde.Controls.TextWrapping.Wrap:
                 break;
             default:
-                value = TextWrapping.Wrap;
+                value = Fayde.Controls.TextWrapping.Wrap;
                 break;
         }
 
@@ -160,7 +160,7 @@
         return line._Height + line._Descend;
     };
     TextLayout.Instance.OverrideLineHeight = function () {
-        return this.GetLineStackingStrategy() === LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
+        return this.GetLineStackingStrategy() === Fayde.LineStackingStrategy.BlockLineHeight && this.GetLineHeight() !== 0;
     };
     TextLayout.Instance.GetLineHeightOverride = function () {
         if (isNaN(this.GetLineHeight()))
@@ -342,12 +342,12 @@
             return;
 
         var word = new _LayoutWord();
-        if (this._Wrapping === TextWrapping.Wrap)
+        if (this._Wrapping === Fayde.Controls.TextWrapping.Wrap)
             word._BreakOps = [];
         else
             word._BreakOps = null;
 
-        var layoutWordFunc = this._Wrapping === TextWrapping.NoWrap ? TextLayout._LayoutWordNoWrap : TextLayout._LayoutWordWrap;
+        var layoutWordFunc = this._Wrapping === Fayde.Controls.TextWrapping.NoWrap ? TextLayout._LayoutWordNoWrap : TextLayout._LayoutWordWrap;
 
         var line = new _TextLayoutLine(this, 0, 0);
         if (this.OverrideLineHeight()) {
@@ -481,12 +481,12 @@
         var deltax = 0.0;
         var width;
         switch (this._Alignment) {
-            case TextAlignment.Center:
+            case Fayde.TextAlignment.Center:
                 width = TextLayout._GetWidthConstraint(this._AvailableWidth, this._MaxWidth, this._ActualWidth);
                 if (lineWidth < width)
                     deltax = (width - lineWidth) / 2.0;
                 break;
-            case TextAlignment.Right:
+            case Fayde.TextAlignment.Right:
                 width = TextLayout._GetWidthConstraint(this._AvailableWidth, this._MaxWidth, this._ActualWidth);
                 if (lineWidth < width)
                     deltax = width - lineWidth;

@@ -224,7 +224,7 @@
     _TextBoxView.Instance._RenderImpl = function (ctx, region) {
         /// <param name="ctx" type="_RenderContext"></param>
         ctx.Save();
-        if (this.FlowDirection === FlowDirection.RightToLeft) {
+        if (this.FlowDirection === Fayde.FlowDirection.RightToLeft) {
             //TODO: Invert
         }
         this._Layout._Render(ctx, this._GetOriginPoint(), new Point());

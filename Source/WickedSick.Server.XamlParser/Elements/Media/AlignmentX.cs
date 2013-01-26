@@ -1,5 +1,5 @@
 ﻿
-namespace WickedSick.Server.XamlParser.Elements.Types
+namespace WickedSick.Server.XamlParser.Elements.Media
 {
     [Element(NullstoneNamespace = "Fayde.Media")]
     public enum AlignmentX

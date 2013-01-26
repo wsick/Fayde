@@ -20,16 +20,16 @@
     Control.FontSizeProperty = DependencyProperty.RegisterInheritable("FontSize", function () { return Number; }, Control, Font.DEFAULT_SIZE, undefined, undefined, _Inheritable.FontSize);
     Control.FontStretchProperty = DependencyProperty.RegisterInheritable("FontStretch", function () { return String; }, Control, Font.DEFAULT_STRETCH, undefined, undefined, _Inheritable.FontStretch);
     Control.FontStyleProperty = DependencyProperty.RegisterInheritable("FontStyle", function () { return String; }, Control, Font.DEFAULT_STYLE, undefined, undefined, _Inheritable.FontStyle);
-    Control.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(FontWeight); }, Control, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
+    Control.FontWeightProperty = DependencyProperty.RegisterInheritable("FontWeight", function () { return new Enum(Fayde.FontWeight); }, Control, Font.DEFAULT_WEIGHT, undefined, undefined, _Inheritable.FontWeight);
     Control.ForegroundProperty = DependencyProperty.RegisterInheritable("Foreground", function () { return Fayde.Media.Brush; }, Control, undefined, undefined, { GetValue: function () { return new Fayde.Media.SolidColorBrush(new Color(0, 0, 0, 1.0)); } }, _Inheritable.Foreground);
-    Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () { return new Enum(HorizontalAlignment); }, Control, HorizontalAlignment.Center);
+    Control.HorizontalContentAlignmentProperty = DependencyProperty.RegisterCore("HorizontalContentAlignment", function () { return new Enum(Fayde.HorizontalAlignment); }, Control, Fayde.HorizontalAlignment.Center);
     Control.IsEnabledProperty = DependencyProperty.RegisterCore("IsEnabled", function () { return Boolean; }, Control, true, function (d, args, error) { d.OnIsEnabledChanged(args); });
     Control.IsTabStopProperty = DependencyProperty.RegisterCore("IsTabStop", function () { return Boolean; }, Control, true);
     Control.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, Control, new Thickness());
     Control.TabIndexProperty = DependencyProperty.RegisterCore("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
     Control.TabNavigationProperty = DependencyProperty.RegisterCore("TabNavigation", function () { return Number; }, Control);
     Control.TemplateProperty = DependencyProperty.RegisterCore("Template", function () { return namespace.ControlTemplate; }, Control);
-    Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () { return new Enum(VerticalAlignment); }, Control, VerticalAlignment.Center);
+    Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () { return new Enum(Fayde.VerticalAlignment); }, Control, Fayde.VerticalAlignment.Center);
     Control.DefaultStyleKeyProperty = DependencyProperty.RegisterCore("DefaultStyleKey", function () { return Function; }, Control);
 
     Control.IsTemplateItemProperty = DependencyProperty.RegisterAttachedCore("IsTemplateItem", function () { return Boolean; }, Control, false);
@@ -209,7 +209,7 @@
         var walker = new _DeepTreeWalker(this);
         var uie;
         while (uie = walker.Step()) {
-            if (uie.Visibility !== Visibility.Visible) {
+            if (uie.Visibility !== Fayde.Visibility.Visible) {
                 walker.SkipBranch();
                 continue;
             }

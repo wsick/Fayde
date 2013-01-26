@@ -1,14 +1,6 @@
 ﻿
-namespace WickedSick.Server.XamlParser.Elements.Types
+namespace WickedSick.Server.XamlParser.Elements.Controls
 {
-    [Element(NullstoneNamespace = "Fayde.Controls")]
-    public enum GridUnitType
-    {
-        Auto,
-        Pixel,
-        Star
-    }
-
     [Element(NullstoneNamespace = "Fayde.Controls")]
     public class GridLength : IJsonConvertible
     {
