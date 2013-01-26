@@ -71,4 +71,4 @@
     //#endregion
 
     namespace.LayoutInformation = Nullstone.FinishCreate(LayoutInformation);
-})(window);
+})(Nullstone.Namespace("Fayde"));

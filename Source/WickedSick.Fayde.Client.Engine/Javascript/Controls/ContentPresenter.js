@@ -62,7 +62,7 @@
             }
         }
 
-        var template = Nullstone.As(this.ContentTemplate, DataTemplate);
+        var template = Nullstone.As(this.ContentTemplate, Fayde.DataTemplate);
         if (template != null) {
             this._ContentRoot = Nullstone.As(template.GetVisualTree(this), UIElement);
         } else {

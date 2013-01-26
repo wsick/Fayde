@@ -164,7 +164,7 @@
         var source = this.Source;
 
         if (parent && !Nullstone.Is(parent, namespace.Canvas))
-            if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined)
+            if (this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined)
                 return result;
 
         if (source) {

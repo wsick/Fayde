@@ -53,8 +53,8 @@
             template._ResChain = this._ResChain;
             return template;
         }
-        if (json.Type === DataTemplate) {
-            var template = new DataTemplate(json.Content);
+        if (json.Type === Fayde.DataTemplate) {
+            var template = new Fayde.DataTemplate(json.Content);
             template._ResChain = this._ResChain;
             return template;
         }

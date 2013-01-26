@@ -22,7 +22,7 @@
     ItemsControl.ItemsProperty = DependencyProperty.RegisterCore("Items", function () { return ItemCollection; }, ItemsControl);
     ItemsControl.ItemsPanelProperty = DependencyProperty.RegisterCore("ItemsPanel", function () { return namespace.ItemsPanelTemplate; }, ItemsControl);
     ItemsControl.ItemsSourceProperty = DependencyProperty.RegisterCore("ItemsSource", function () { return Object; }, ItemsControl, null, function (d, args) { d.OnItemsSourceChanged(args); });
-    ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
+    ItemsControl.ItemTemplateProperty = DependencyProperty.RegisterCore("ItemTemplate", function () { return Fayde.DataTemplate; }, ItemsControl, undefined, function (d, args) { d.OnItemTemplateChanged(args); });
 
     Nullstone.AutoProperties(ItemsControl, [
         ItemsControl.DisplayMemberPathProperty,
@@ -72,7 +72,7 @@
                         }
                     ]
                 };
-                this._DisplayMemberTemplate = new DataTemplate(json);
+                this._DisplayMemberTemplate = new Fayde.DataTemplate(json);
             }
             return this._DisplayMemberTemplate;
         }

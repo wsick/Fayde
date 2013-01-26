@@ -105,7 +105,7 @@
         /// <param name="propd" type="DependencyProperty"></param>
         /// <param name="binding" type="Binding"></param>
         /// <returns type="BindingExpressionBase" />
-        return BindingOperations.SetBinding(this, propd, binding);
+        return Fayde.BindingOperations.SetBinding(this, propd, binding);
     };
     FrameworkElement.Instance.GetBindingExpression = function (propd) {
         var data = {};
@@ -249,16 +249,16 @@
 
         if (isNaN(availableSize.Width) || isNaN(availableSize.Height)) {
             error.SetErrored("Cannot call Measure using a size with NaN values");
-            //LayoutInformation.SetLayoutExceptionElement(this);
+            Fayde.LayoutInformation.SetLayoutExceptionElement(this);
             return;
         }
 
-        var last = LayoutInformation.GetPreviousConstraint(this);
+        var last = Fayde.LayoutInformation.GetPreviousConstraint(this);
         var shouldMeasure = (this._DirtyFlags & _Dirty.Measure) > 0;
         shouldMeasure = shouldMeasure || (!last || last.Width !== availableSize.Width || last.Height !== availableSize.Height);
 
         if (this.Visibility !== Fayde.Visibility.Visible) {
-            LayoutInformation.SetPreviousConstraint(this, availableSize);
+            Fayde.LayoutInformation.SetPreviousConstraint(this, availableSize);
             this._DesiredSize = new Size(0, 0);
             return;
         }
@@ -270,7 +270,7 @@
         if (!shouldMeasure)
             return;
 
-        LayoutInformation.SetPreviousConstraint(this, availableSize);
+        Fayde.LayoutInformation.SetPreviousConstraint(this, availableSize);
 
         this._InvalidateArrange();
         this._UpdateBounds();
@@ -338,7 +338,7 @@
         if (error.IsErrored())
             return;
 
-        var slot = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+        var slot = this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty);
         if (slot === null)
             slot = undefined;
 
@@ -361,19 +361,19 @@
         var parent = this.GetVisualParent();
 
         if (this.Visibility !== Fayde.Visibility.Visible) {
-            LayoutInformation.SetLayoutSlot(this, finalRect);
+            Fayde.LayoutInformation.SetLayoutSlot(this, finalRect);
             return;
         }
 
         if (!shouldArrange)
             return;
 
-        var measure = LayoutInformation.GetPreviousConstraint(this);
+        var measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
         if (this.IsContainer() && !measure)
             this._MeasureWithError(new Size(finalRect.Width, finalRect.Height), error);
-        measure = LayoutInformation.GetPreviousConstraint(this);
+        measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
 
-        this._ClearValue(LayoutInformation.LayoutClipProperty);
+        this._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
 
         var margin = this.Margin;
         var childRect = finalRect.ShrinkByThickness(margin);
@@ -398,7 +398,7 @@
 
         offer = offer.Max(framework);
 
-        LayoutInformation.SetLayoutSlot(this, finalRect);
+        Fayde.LayoutInformation.SetLayoutSlot(this, finalRect);
 
         var response;
         if (this.ArrangeOverride)
@@ -433,7 +433,7 @@
 
         this._DirtyFlags &= ~_Dirty.Arrange;
         var visualOffset = new Point(childRect.X, childRect.Y);
-        LayoutInformation.SetVisualOffset(this, visualOffset);
+        Fayde.LayoutInformation.SetVisualOffset(this, visualOffset);
 
         var oldSize = this._RenderSize;
 
@@ -497,7 +497,7 @@
         }
         this._LayoutXform = layoutXform;
 
-        LayoutInformation.SetVisualOffset(this, visualOffset);
+        Fayde.LayoutInformation.SetVisualOffset(this, visualOffset);
 
         var element = new Rect(0, 0, response.Width, response.Height);
         var layoutClip = childRect;
@@ -513,12 +513,12 @@
             layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
             var rectangle = new Fayde.Media.RectangleGeometry();
             rectangle.Rect = layoutClip;
-            LayoutInformation.SetLayoutClip(this, rectangle);
+            Fayde.LayoutInformation.SetLayoutClip(this, rectangle);
         }
 
         if (!Rect.Equals(oldSize, response)) {
-            if (!LayoutInformation.GetLastRenderSize(this)) {
-                LayoutInformation.SetLastRenderSize(this, oldSize);
+            if (!Fayde.LayoutInformation.GetLastRenderSize(this)) {
+                Fayde.LayoutInformation.SetLastRenderSize(this, oldSize);
                 this._PropagateFlagUp(UIElementFlags.DirtySizeHint);
             }
         }
@@ -586,7 +586,7 @@
     FrameworkElement.Instance._HasLayoutClip = function () {
         var element = this;
         while (element) {
-            if (LayoutInformation.GetLayoutClip(element))
+            if (Fayde.LayoutInformation.GetLayoutClip(element))
                 return true;
             if (element instanceof Fayde.Controls.Canvas || element instanceof Fayde.Controls.UserControl)
                 break;
@@ -600,13 +600,13 @@
         var iY = 0;
 
         while (element) {
-            var geom = LayoutInformation.GetLayoutClip(element);
+            var geom = Fayde.LayoutInformation.GetLayoutClip(element);
             if (geom)
                 ctx.Clip(geom);
 
             if (element instanceof Fayde.Controls.Canvas || element instanceof Fayde.Controls.UserControl)
                 break;
-            var visualOffset = LayoutInformation.GetVisualOffset(element);
+            var visualOffset = Fayde.LayoutInformation.GetVisualOffset(element);
             if (visualOffset) {
                 ctx.Translate(-visualOffset.X, -visualOffset.Y);
                 iX += visualOffset.X;
@@ -684,7 +684,7 @@
                                 pass.ArrangeList.push(child);
                             break;
                         case UIElementFlags.DirtySizeHint:
-                            if (child._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
+                            if (child._ReadLocalValue(Fayde.LayoutInformation.LastRenderSizeProperty) !== undefined)
                                 pass.SizeList.push(child);
                             break;
                         default:
@@ -712,9 +712,9 @@
             } else if (flag === UIElementFlags.DirtySizeHint) {
                 while (uie = pass.SizeList.shift()) {
                     pass.Updated = true;
-                    var last = LayoutInformation.GetLastRenderSize(uie);
+                    var last = Fayde.LayoutInformation.GetLastRenderSize(uie);
                     if (last) {
-                        uie._ClearValue(LayoutInformation.LastRenderSizeProperty, false);
+                        uie._ClearValue(Fayde.LayoutInformation.LastRenderSizeProperty, false);
                         uie._PurgeSizeCache();
                         uie.SizeChanged.Raise(uie, new SizeChangedEventArgs(last, uie._RenderSize));
                     }

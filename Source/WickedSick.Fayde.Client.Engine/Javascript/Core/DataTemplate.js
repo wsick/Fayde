@@ -5,7 +5,7 @@
 /// <reference path="../Markup/JsonParser.js"/>
 
 (function (namespace) {
-    var DataTemplate = Nullstone.Create("DataTemplate", FrameworkTemplate, 1);
+    var DataTemplate = Nullstone.Create("DataTemplate", namespace.FrameworkTemplate, 1);
 
     DataTemplate.Instance.Init = function (json) {
         this.Init$FrameworkTemplate();
@@ -25,4 +25,4 @@
     };
 
     namespace.DataTemplate = Nullstone.FinishCreate(DataTemplate);
-})(window);
+})(Nullstone.Namespace("Fayde"));

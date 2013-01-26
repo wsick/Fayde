@@ -435,8 +435,47 @@ module Fayde {
         MaxHeight = 0,
         BlockLineHeight = 1,
     }
-
+    
+    export class DataTemplate extends FrameworkTemplate {
+        //LoadContent(): DependencyObject;
+        //DataType;
+    }
     export class Expression {
+    }
+    export class FrameworkTemplate extends DependencyObject {
+    }
+    export interface ISupportInitialize {
+        BeginInit();
+        EndInit();
+    }
+    export class LayoutInformation {
+        static LayoutClipProperty: DependencyProperty;
+        static GetLayoutClip(d: DependencyObject): Fayde.Media.Geometry;
+        static SetLayoutClip(d: DependencyObject, value: Fayde.Media.Geometry);
+    
+        static LayoutExceptionElementProperty: DependencyProperty;
+        static GetLayoutExceptionElement(d: DependencyObject): UIElement;
+        static SetLayoutExceptionElement(d: DependencyObject, value: UIElement);
+
+        static LayoutSlotProperty: DependencyProperty;
+        static GetLayoutSlot(d: DependencyObject): Rect;
+        static SetLayoutSlot(d: DependencyObject, value: Rect);
+
+        static PreviousConstraintProperty: DependencyProperty;
+        static GetPreviousConstraint(d: DependencyObject): Size;
+        static SetPreviousConstraint(d: DependencyObject, value: Size);
+
+        static FinalRectProperty: DependencyProperty;
+        static GetFinalRect(d: DependencyObject): Rect;
+        static SetFinalRect(d: DependencyObject, value: Rect);
+
+        static LastRenderSizeProperty: DependencyProperty;
+        static GetLastRenderSize(d: DependencyObject): Size;
+        static SetLastRenderSize(d: DependencyObject, value: Size);
+
+        static VisualOffsetProperty: DependencyProperty;
+        static GetVisualOffset(d: DependencyObject): Point;
+        static SetVisualOffset(d: DependencyObject, value: Point);
     }
     export class VisualTreeHelper {
         static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
@@ -636,42 +675,12 @@ class ResourceDictionary extends DependencyObject implements ICollection {
 }
 class ResourceDictionaryCollection extends DependencyObjectCollection {
 }
-class LayoutInformation {
-    static LayoutClipProperty: DependencyProperty;
-    static GetLayoutClip(d: DependencyObject): Fayde.Media.Geometry;
-    static SetLayoutClip(d: DependencyObject, value: Fayde.Media.Geometry);
-    
-    static LayoutExceptionElementProperty: DependencyProperty;
-    static GetLayoutExceptionElement(d: DependencyObject): UIElement;
-    static SetLayoutExceptionElement(d: DependencyObject, value: UIElement);
-
-    static LayoutSlotProperty: DependencyProperty;
-    static GetLayoutSlot(d: DependencyObject): Rect;
-    static SetLayoutSlot(d: DependencyObject, value: Rect);
-
-    static PreviousConstraintProperty: DependencyProperty;
-    static GetPreviousConstraint(d: DependencyObject): Size;
-    static SetPreviousConstraint(d: DependencyObject, value: Size);
-
-    static FinalRectProperty: DependencyProperty;
-    static GetFinalRect(d: DependencyObject): Rect;
-    static SetFinalRect(d: DependencyObject, value: Rect);
-
-    static LastRenderSizeProperty: DependencyProperty;
-    static GetLastRenderSize(d: DependencyObject): Size;
-    static SetLastRenderSize(d: DependencyObject, value: Size);
-
-    static VisualOffsetProperty: DependencyProperty;
-    static GetVisualOffset(d: DependencyObject): Point;
-    static SetVisualOffset(d: DependencyObject, value: Point);
-}
 class UIElementCollection extends DependencyObjectCollection {
     GetValueAtZIndex();
     GetZSortedCount();
     ResortByZIndex();
 }
-class FrameworkTemplate extends DependencyObject {
-}
+
 class MouseEventArgs extends RoutedEventArgs {
 }
 class MouseButtonEventArgs extends MouseEventArgs {
@@ -970,7 +979,7 @@ module Fayde.Controls {
             OldValues: any[];
             NewValues: any[];
         }
-        export class Selector extends ItemsControl {
+        export class Selector extends ItemsControl implements ISupportInitialize {
             static SelectedIndexProperty: DependencyProperty;
             static SelectedItemProperty: DependencyProperty;
             static SelectedValuePathProperty: DependencyProperty;
@@ -982,6 +991,8 @@ module Fayde.Controls {
             SelectedValuePath: string;
             static GetIsSelectionActive(element: DependencyObject): bool;
             SelectionChanged: MulticastEvent;
+            BeginInit();
+            EndInit();
         }
         export class Thumb extends Control {
             static IsDraggingProperty: DependencyProperty;
@@ -1114,7 +1125,7 @@ module Fayde.Controls {
         IsEditable: bool;
         IsSelectionBoxHighlighted: bool;
         SelectionBoxItem;
-        SelectionBoxItemTemplate: Fayde.Data.DataTemplate;
+        SelectionBoxItemTemplate: DataTemplate;
         DropDownClosed: RoutedEvent;
         DropDownOpened: RoutedEvent;
     }
@@ -1131,7 +1142,7 @@ module Fayde.Controls {
         static ContentProperty: DependencyProperty;
         static ContentTemplateProperty: DependencyProperty;
         Content;
-        ContentTemplate: Fayde.Data.DataTemplate;
+        ContentTemplate: DataTemplate;
     }
     export class Control extends FrameworkElement {
         static BackgroundProperty: DependencyProperty;
@@ -1251,7 +1262,7 @@ module Fayde.Controls {
         DisplayMemberPath: string;
         ItemsPanel: ItemsPanelTemplate;
         ItemsSource;
-        ItemTemplate: Fayde.Data.DataTemplate;
+        ItemTemplate: DataTemplate;
         Items: ItemCollection;
         ItemContainerGenerator: ItemContainerGenerator;
         ClearContainerForItemOverride(element: DependencyObject, item);
@@ -2405,10 +2416,6 @@ module Fayde.Shapes {
 // DATA
 //////////////////////////////////////////////////////////
 module Fayde.Data {
-    export class DataTemplate extends FrameworkTemplate {
-        //LoadContent(): DependencyObject;
-        //DataType;
-    }
     export enum NotifyCollectionChangedAction {
         Add = 1,
         Remove = 2,

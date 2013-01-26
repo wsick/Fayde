@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var ItemsPanelTemplate = Nullstone.Create("ItemsPanelTemplate", FrameworkTemplate, 1);
+    var ItemsPanelTemplate = Nullstone.Create("ItemsPanelTemplate", Fayde.FrameworkTemplate, 1);
 
     ItemsPanelTemplate.Instance.Init = function (json) {
         this.Init$FrameworkTemplate();

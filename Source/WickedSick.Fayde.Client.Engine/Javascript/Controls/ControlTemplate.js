@@ -5,7 +5,7 @@
 /// <reference path="../Markup/JsonParser.js"/>
 
 (function (namespace) {
-    var ControlTemplate = Nullstone.Create("ControlTemplate", FrameworkTemplate, 2);
+    var ControlTemplate = Nullstone.Create("ControlTemplate", Fayde.FrameworkTemplate, 2);
 
     ControlTemplate.Instance.Init = function (targetType, json) {
         this.Init$FrameworkTemplate();

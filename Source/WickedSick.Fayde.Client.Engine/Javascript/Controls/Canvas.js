@@ -143,7 +143,7 @@
                     childFinal.Height = Math.round(childFinal.Height);
                 }
 
-                LayoutInformation.SetLayoutSlot(child, childFinal);
+                Fayde.LayoutInformation.SetLayoutSlot(child, childFinal);
                 child._InvalidateArrange();
                 return;
             }

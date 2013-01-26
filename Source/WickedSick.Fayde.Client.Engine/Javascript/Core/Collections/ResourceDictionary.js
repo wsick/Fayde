@@ -147,7 +147,7 @@
 
     ResourceDictionary._CanBeAddedTwice = function (value) {
         //TODO: Uncomment when implemented
-        if (value instanceof FrameworkTemplate)
+        if (value instanceof Fayde.FrameworkTemplate)
             return true;
         if (value instanceof Style)
             return true;

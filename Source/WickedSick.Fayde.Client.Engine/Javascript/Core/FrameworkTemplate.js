@@ -20,4 +20,4 @@
     };
 
     namespace.FrameworkTemplate = Nullstone.FinishCreate(FrameworkTemplate);
-})(window);
+})(Nullstone.Namespace("Fayde"));

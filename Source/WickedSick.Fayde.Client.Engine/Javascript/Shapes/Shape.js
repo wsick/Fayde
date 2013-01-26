@@ -222,7 +222,7 @@
         var parent = this.GetVisualParent();
 
         if (parent != null && !(parent instanceof Fayde.Controls.Canvas)) {
-            if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
+            if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined) {
                 return desired;
             }
         }
@@ -310,7 +310,7 @@
             if (!isNaN(specified.Height))
                 framework.Height = specified.Height;
 
-        } else if (!LayoutInformation.GetPreviousConstraint(this)) {
+        } else if (!Fayde.LayoutInformation.GetPreviousConstraint(this)) {
             framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
             framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
         }

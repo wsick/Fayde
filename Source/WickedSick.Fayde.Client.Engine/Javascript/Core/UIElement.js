@@ -544,7 +544,7 @@
     UIElement.Instance._IntersectBoundsWithClipPath = function (unclipped, transform) {
         /// <returns type="Rect" />
         var clip = this.Clip;
-        var layoutClip = transform ? undefined : LayoutInformation.GetLayoutClip(this);
+        var layoutClip = transform ? undefined : Fayde.LayoutInformation.GetLayoutClip(this);
         var box;
 
         if (!clip && !layoutClip)
@@ -709,7 +709,7 @@
     //#region Measure
 
     UIElement.Instance._DoMeasureWithError = function (error) {
-        var last = LayoutInformation.GetPreviousConstraint(this);
+        var last = Fayde.LayoutInformation.GetPreviousConstraint(this);
         var parent = this.GetVisualParent();
         var infinite = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
 
@@ -740,7 +740,7 @@
     //#region Arrange
 
     UIElement.Instance._DoArrangeWithError = function (error) {
-        var last = this._ReadLocalValue(LayoutInformation.LayoutSlotProperty);
+        var last = this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty);
         if (last === null)
             last = undefined;
         var parent = this.GetVisualParent();
@@ -752,7 +752,7 @@
             if (this.IsLayoutContainer()) {
                 desired = this._DesiredSize;
                 if (this._IsAttached && surface._IsTopLevel(this) && !this._Parent) {
-                    var measure = LayoutInformation.GetPreviousConstraint(this);
+                    var measure = Fayde.LayoutInformation.GetPreviousConstraint(this);
                     if (measure)
                         desired = desired.Max(measure);
                     else
@@ -925,8 +925,8 @@
         item.SetMentor(null);
 
         var emptySlot = new Rect();
-        LayoutInformation.SetLayoutSlot(item, emptySlot);
-        item._ClearValue(LayoutInformation.LayoutClipProperty);
+        Fayde.LayoutInformation.SetLayoutSlot(item, emptySlot);
+        item._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
 
         this._InvalidateMeasure();
 
@@ -949,14 +949,14 @@
         this._UpdateBounds(true);
 
         this._InvalidateMeasure();
-        this._ClearValue(LayoutInformation.LayoutClipProperty);
-        this._ClearValue(LayoutInformation.PreviousConstraintProperty);
+        this._ClearValue(Fayde.LayoutInformation.LayoutClipProperty);
+        this._ClearValue(Fayde.LayoutInformation.PreviousConstraintProperty);
         item._RenderSize = new Size(0, 0);
         item._UpdateTransform();
         item._UpdateProjection();
         item._InvalidateMeasure();
         item._InvalidateArrange();
-        if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(LayoutInformation.LastRenderSizeProperty) !== undefined)
+        if (item._HasFlag(UIElementFlags.DirtySizeHint) || item._ReadLocalValue(Fayde.LayoutInformation.LastRenderSizeProperty) !== undefined)
             item._PropagateFlagUp(UIElementFlags.DirtySizeHint);
 
         if (!Fayde.IsCanvasEnabled) {

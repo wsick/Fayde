@@ -20,4 +20,4 @@
             return e;
         }
     };
-})(window);
+})(Nullstone.Namespace("Fayde"));

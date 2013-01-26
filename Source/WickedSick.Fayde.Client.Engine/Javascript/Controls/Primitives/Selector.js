@@ -8,7 +8,7 @@
 /// <reference path="../../Collections/ObservableCollection.js"/>
 
 (function (namespace) {
-    var Selector = Nullstone.Create("Selector", Fayde.Controls.ItemsControl, 0, [ISupportInitialize]);
+    var Selector = Nullstone.Create("Selector", Fayde.Controls.ItemsControl, 0, [Fayde.ISupportInitialize]);
 
     Selector.Instance.Init = function () {
         this.Init$ItemsControl();

@@ -96,7 +96,7 @@
         var constraint = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
         var result = new Size(0.0, 0.0);
 
-        if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
+        if (Fayde.LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(Fayde.LayoutInformation.LayoutSlotProperty) !== undefined) {
             this._Layout.Layout();
             var actuals = this._Layout.GetActualExtents();
             this._ActualWidth = actuals.Width;

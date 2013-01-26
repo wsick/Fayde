@@ -305,11 +305,11 @@
                 if (!element._HasFlag(UIElementFlags.DirtyMeasureHint) && !element._HasFlag(UIElementFlags.DirtyArrangeHint))
                     continue;
 
-                var last = LayoutInformation.GetPreviousConstraint(element);
+                var last = Fayde.LayoutInformation.GetPreviousConstraint(element);
                 var available = new Size(this.GetWidth(), this.GetHeight());
                 if (element.IsContainer() && (!last || (!Size.Equals(last, available)))) {
                     element._InvalidateMeasure();
-                    LayoutInformation.SetPreviousConstraint(element, available);
+                    Fayde.LayoutInformation.SetPreviousConstraint(element, available);
                 }
 
                 element._UpdateLayer(pass, error);
