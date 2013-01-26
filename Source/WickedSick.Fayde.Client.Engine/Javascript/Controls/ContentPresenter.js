@@ -54,11 +54,11 @@
         if (templateOwner != null) {
             if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
                 this.$SetValue(ContentPresenter.ContentProperty,
-                    new TemplateBindingExpression(namespace.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+                    new Fayde.TemplateBindingExpression(namespace.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
             }
             if (this.$ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
                 this.$SetValue(ContentPresenter.ContentTemplateProperty,
-                    new TemplateBindingExpression(namespace.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+                    new Fayde.TemplateBindingExpression(namespace.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
             }
         }
 

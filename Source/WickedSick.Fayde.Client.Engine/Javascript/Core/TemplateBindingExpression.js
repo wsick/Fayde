@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", Expression, 2);
+    var TemplateBindingExpression = Nullstone.Create("TemplateBindingExpression", namespace.Expression, 2);
 
     TemplateBindingExpression.Instance.Init = function (sourcePropd, targetPropd) {
         this.SourceProperty = sourcePropd;
@@ -83,4 +83,4 @@
     };
 
     namespace.TemplateBindingExpression = Nullstone.FinishCreate(TemplateBindingExpression);
-})(window);
+})(Nullstone.Namespace("Fayde"));

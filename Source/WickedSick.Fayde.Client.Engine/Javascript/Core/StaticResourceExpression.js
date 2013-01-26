@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var StaticResourceExpression = Nullstone.Create("StaticResourceExpression", Expression, 5);
+    var StaticResourceExpression = Nullstone.Create("StaticResourceExpression", namespace.Expression, 5);
 
     StaticResourceExpression.Instance.Init = function (key, target, propd, propName, templateBindingSource) {
         this.Key = key;
@@ -59,4 +59,4 @@
     };
 
     namespace.StaticResourceExpression = Nullstone.FinishCreate(StaticResourceExpression);
-})(window);
+})(Nullstone.Namespace("Fayde"));

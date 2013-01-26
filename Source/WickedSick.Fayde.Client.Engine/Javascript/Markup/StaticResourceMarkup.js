@@ -15,7 +15,7 @@
         /// <param name="propd" type="DependencyProperty"></param>
         /// <param name="propName" type="String"></param>
         /// <param name="templateBindingSource" type="DependencyObject"></param>
-        return new StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource);
+        return new Fayde.StaticResourceExpression(this.Key, target, propd, propName, templateBindingSource);
     };
 
     namespace.StaticResourceMarkup = Nullstone.FinishCreate(StaticResourceMarkup);

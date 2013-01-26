@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var BindingExpressionBase = Nullstone.Create("BindingExpressionBase", Expression, 3);
+    var BindingExpressionBase = Nullstone.Create("BindingExpressionBase", Fayde.Expression, 3);
 
     BindingExpressionBase.Instance.Init = function (binding, target, propd) {
         if (!binding)

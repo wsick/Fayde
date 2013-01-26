@@ -138,7 +138,7 @@
         if (propValue instanceof Markup)
             propValue = propValue.Transmute(dobj, propd, propName, this._TemplateBindingSource);
 
-        if (propValue instanceof StaticResourceExpression) {
+        if (propValue instanceof Fayde.StaticResourceExpression) {
             this.SetValue(dobj, propd, propValue);
             return;
         }
@@ -149,7 +149,7 @@
             if (this.TrySetCollectionProperty(propValue, dobj, propd, namescope))
                 return;
 
-            if (!(propValue instanceof Expression)) {
+            if (!(propValue instanceof Fayde.Expression)) {
                 var targetType = propd.GetTargetType();
                 if (targetType._IsNullstone && !(propValue instanceof targetType)) {
                     var propDesc = Nullstone.GetPropertyDescriptor(dobj, propName);
@@ -244,10 +244,10 @@
         this.$SRExpressions = [];
     };
     JsonParser.Instance.SetValue = function (dobj, propd, value) {
-        if (value instanceof StaticResourceExpression) {
+        if (value instanceof Fayde.StaticResourceExpression) {
             this.$SRExpressions.push(value);
-            dobj.$SetValueInternal(propd, new DeferredValueExpression());
-        } else if (value instanceof Expression) {
+            dobj.$SetValueInternal(propd, new Fayde.DeferredValueExpression());
+        } else if (value instanceof Fayde.Expression) {
             dobj.$SetValueInternal(propd, value);
         } else {
             dobj._SetValue(propd, value);

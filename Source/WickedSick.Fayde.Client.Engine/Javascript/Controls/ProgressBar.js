@@ -62,7 +62,7 @@
         if (this.$Indicator == null)
             return;
 
-        var parent = VisualTreeHelper.GetParent(this);
+        var parent = Fayde.VisualTreeHelper.GetParent(this);
         if (parent == null)
             return;
 

@@ -153,7 +153,7 @@
             return;
         }
 
-        var expression = Nullstone.As(value, Expression);
+        var expression = Nullstone.As(value, Fayde.Expression);
         if (expression instanceof Fayde.Data.BindingExpressionBase) {
             var binding = expression.Binding;
             var path = binding.Path.Path;
@@ -177,7 +177,7 @@
                 if (existing)
                     this.$RemoveExpression(propd);
                 if (!this._Expressions)
-                    this._Expressions = new Dictionary(DependencyProperty, Expression);
+                    this._Expressions = new Dictionary(DependencyProperty, Fayde.Expression);
                 this._Expressions.Add(propd, expression);
                 expression._OnAttached(this);
             }
@@ -298,7 +298,7 @@
     DependencyObject.Instance._HasDeferredValueExpression = function (propd) {
         var data = {};
         if (this._Expressions != null && this._Expressions.TryGetValue(propd, data)) {
-            return data.Value instanceof DeferredValueExpression;
+            return data.Value instanceof Fayde.DeferredValueExpression;
         }
         return false;
     };

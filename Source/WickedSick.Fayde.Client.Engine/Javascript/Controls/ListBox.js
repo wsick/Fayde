@@ -131,7 +131,7 @@
         if (itemsHostRectOut === undefined) itemsHostRectOut = {};
         if (listBoxItemsRectOut === undefined) listBoxItemsRectOut = {};
 
-        var itemsHost = VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(this, 0), 0);
+        var itemsHost = Fayde.VisualTreeHelper.GetChild(VisualTreeHelper.GetChild(this, 0), 0);
 
         var tsv = this.$TemplateScrollViewer;
         if (tsv != null) {

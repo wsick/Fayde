@@ -318,7 +318,7 @@
             return;
         child.MinWidth = this.ActualWidth;
 
-        var root = VisualTreeHelper.GetRoot(this);
+        var root = Fayde.VisualTreeHelper.GetRoot(this);
         if (root == null)
             return;
         try {

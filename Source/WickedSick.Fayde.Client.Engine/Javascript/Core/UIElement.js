@@ -161,7 +161,7 @@
         var cur = this;
         while (cur && !args.Handled) {
             cur.RequestBringIntoView.Raise(this, args);
-            cur = VisualTreeHelper.GetParent(cur);
+            cur = Fayde.VisualTreeHelper.GetParent(cur);
         }
     };
     UIElement.Instance.SetVisualParent = function (value) {
@@ -185,7 +185,7 @@
         /// <param name="el" type="UIElement"></param>
         var parent = el;
         while (parent && !Nullstone.RefEquals(parent, this))
-            parent = VisualTreeHelper.GetParent(parent);
+            parent = Fayde.VisualTreeHelper.GetParent(parent);
         return Nullstone.RefEquals(parent, this);
     };
     UIElement.Instance.TransformToVisual = function (uie) {

@@ -149,7 +149,7 @@
             return;
         }
 
-        var els = VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition);
+        var els = Fayde.VisualTreeHelper.FindElementsInHostCoordinates(this._MousePosition);
         for (var i = 0; i < els.length; i++) {
             if (Nullstone.RefEquals(els[i], this)) {
                 this.OnClick();

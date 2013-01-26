@@ -435,6 +435,15 @@ module Fayde {
         MaxHeight = 0,
         BlockLineHeight = 1,
     }
+
+    export class Expression {
+    }
+    export class VisualTreeHelper {
+        static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
+        static GetChildrenCount(d: DependencyObject): DependencyObject;
+        static GetParent(d: DependencyObject): DependencyObject;
+        static GetRoot(d: DependencyObject): DependencyObject;
+    }
 }
 
 class DependencyObject {
@@ -576,8 +585,6 @@ class RoutedEvent extends MulticastEvent {
 class RoutedEventArgs extends EventArgs {
     Handled: bool;
 }
-class Expression {
-}
 class SetterBase extends DependencyObject {
     IsSealed: bool;
 }
@@ -628,12 +635,6 @@ class ResourceDictionary extends DependencyObject implements ICollection {
     Add(key, value);
 }
 class ResourceDictionaryCollection extends DependencyObjectCollection {
-}
-class VisualTreeHelper {
-    static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
-    static GetChildrenCount(d: DependencyObject): DependencyObject;
-    static GetParent(d: DependencyObject): DependencyObject;
-    static GetRoot(d: DependencyObject): DependencyObject;
 }
 class LayoutInformation {
     static LayoutClipProperty: DependencyProperty;

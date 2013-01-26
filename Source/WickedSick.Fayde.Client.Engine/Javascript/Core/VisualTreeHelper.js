@@ -146,4 +146,4 @@
     };
 
     namespace.VisualTreeHelper = VisualTreeHelper;
-})(window);
+})(Nullstone.Namespace("Fayde"));
