@@ -1277,7 +1277,9 @@
             var rootEl = this.GetRootHtmlElement();
             var propd = change.Property;
             if (propd._ID === UIElement.OpacityProperty._ID) {
-                rootEl.style.opacity = change.NewValue;
+                var contentEl = rootEl.firstChild;
+                contentEl.style.opacity = change.NewValue;
+                contentEl.style.filter = "alpha(opacity = " + change.NewValue * 100 + ")";
             } else if (propd._ID === UIElement.VisibilityProperty._ID) {
                 if (change.NewValue === Visibility.Collapsed) {
                     rootEl.style.display = "none";
@@ -1300,7 +1302,7 @@
             this._HtmlEl = this.CreateHtmlObjectImpl();
         };
         UIElement.Instance.CreateHtmlObjectImpl = function () {
-            return document.createElement("div");
+            return null;
         };
         UIElement.Instance.GetRootHtmlElement = function () {
             if (!this._HtmlEl)

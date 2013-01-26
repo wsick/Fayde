@@ -990,7 +990,11 @@
         };
         FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
             var rootEl = document.createElement("div");
-            rootEl.appendChild(document.createElement("div"));
+            var contentEl = rootEl.appendChild(document.createElement("div"));
+            if (navigator.appName === "Microsoft Internet Explorer") {
+                contentEl.style.filter = "inherit";
+                contentEl.style.opacity = "inherit";
+            }
             this.InitializeHtml(rootEl);
             return rootEl;
         };
@@ -1061,8 +1065,8 @@
                 if (horizontalLayoutType == HorizontalLayoutType.Shrink || verticalLayoutType == VerticalLayoutType.Shrink) isStretchPlusShrink = true;
             }
             else {
-                if (horizontalAlignment == HorizontalAlignment.Left || horizontalAlignment == HorizontalAlignment.Right ||
-                    verticalAlignment == VerticalAlignment.Top || verticalAlignment == VerticalAlignment.Bottom) {
+                if (horizontalAlignment == HorizontalAlignment.Left || horizontalAlignment == HorizontalAlignment.Right || horizontalAlignment == HorizontalAlignment.Center ||
+                    verticalAlignment == VerticalAlignment.Top || verticalAlignment == VerticalAlignment.Bottom || verticalAlignment == VerticalAlignment.Center) {
                     rootEl.style.position = "absolute";
                     subEl.style.position = "relative";
                     if (horizontalAlignment == HorizontalAlignment.Left) rootEl.style.left = "0px";
