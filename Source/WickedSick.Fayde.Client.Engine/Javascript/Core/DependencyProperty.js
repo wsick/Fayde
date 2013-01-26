@@ -127,7 +127,7 @@
 
     DependencyProperty.ResolvePropertyPath = function (refobj, propertyPath, promotedValues) {
         /// <param name="refobj" type="Object"></param>
-        /// <param name="propertyPath" type="_PropertyPath"></param>
+        /// <param name="propertyPath" type="PropertyPath"></param>
         /// <returns type="DependencyProperty" />
 
         if (propertyPath.HasDependencyProperty)

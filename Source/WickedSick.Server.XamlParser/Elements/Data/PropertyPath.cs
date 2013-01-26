@@ -1,7 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Data
 {
-    [Element(NullstoneNamespace = "Fayde.Data", NullstoneName = "_PropertyPath")]
+    [Element(NullstoneNamespace = "Fayde.Data")]
     public class PropertyPath : IJsonConvertible
     {
         public string Path { get; set; }

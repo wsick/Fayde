@@ -21,13 +21,13 @@
         d.$SetValue(Storyboard.TargetNameProperty, value);
     };
 
-    Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return Fayde.Data._PropertyPath }, Storyboard);
+    Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return Fayde.Data.PropertyPath }, Storyboard);
     Storyboard.GetTargetProperty = function (d) {
-        ///<returns type="_PropertyPath"></returns>
+        ///<returns type="PropertyPath"></returns>
         return d.$GetValue(Storyboard.TargetPropertyProperty);
     };
     Storyboard.SetTargetProperty = function (d, value) {
-        ///<param name="value" type="_PropertyPath"></param>
+        ///<param name="value" type="PropertyPath"></param>
         d.$SetValue(Storyboard.TargetPropertyProperty, value);
     };
 
@@ -100,7 +100,7 @@
     Storyboard.Instance._HookupAnimation = function (animation, targetObject, targetPropertyPath, promotedValues, error) {
         /// <param name="animation" type="Animation"></param>
         /// <param name="targetObject" type="DependencyObject"></param>
-        /// <param name="targetPropertyPath" type="_PropertyPath"></param>
+        /// <param name="targetPropertyPath" type="PropertyPath"></param>
         /// <param name="error" type="BError">Description</param>
         animation.Reset();
         var localTargetObject = null;

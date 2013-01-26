@@ -745,9 +745,6 @@ class PresentationFrameworkCollection extends DependencyObject implements IColle
     Contains(value): bool;
     ToArray(): any[];
 }
-class PropertyPath {
-    //TODO: Finish
-}
 
 //////////////////////////////////////////////////////////
 // DOCUMENTS
@@ -2016,8 +2013,8 @@ module Fayde.Media.Animation {
         static SetTargetName(t: Timeline, value: string);
 
         static TargetPropertyProperty: DependencyProperty;
-        static GetTargetProperty(t: Timeline): PropertyPath;
-        static SetTargetProperty(t: Timeline, value: PropertyPath);
+        static GetTargetProperty(t: Timeline): Fayde.Data.PropertyPath;
+        static SetTargetProperty(t: Timeline, value: Fayde.Data.PropertyPath);
 
         Children: TimelineCollection;
 
@@ -2432,6 +2429,8 @@ module Fayde.Data {
         DataItem;
         ParentBinding: Binding;
         UpdateSource();
+    }
+    export class PropertyPath {
     }
 }
 

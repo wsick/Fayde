@@ -12,7 +12,7 @@
             path = "";
 
         this.Mode = namespace.BindingMode.OneWay;
-        this.Path = new namespace._PropertyPath(path);
+        this.Path = new namespace.PropertyPath(path);
         this.ValidatesOnNotifyDataErrors = true;
         this.UpdateSourceTrigger = namespace.UpdateSourceTrigger.Default;
     };

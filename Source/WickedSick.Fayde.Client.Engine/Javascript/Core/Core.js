@@ -139,8 +139,8 @@ var Fayde;
         switch (typeName) {
             case "FontFamily":
                 return new FontFamily(value.FamilyNames);
-            case "_PropertyPath":
-                return new Fayde.Data._PropertyPath(value._Path, value._ExpandedPath);
+            case "PropertyPath":
+                return new Fayde.Data.PropertyPath(value._Path, value._ExpandedPath);
             case "Color":
                 return new Color(value.R, value.G, value.B, value.A);
             case "Point":
