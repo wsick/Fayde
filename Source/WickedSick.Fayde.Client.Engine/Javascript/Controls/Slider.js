@@ -4,7 +4,7 @@
 /// <reference path="GridLength.js"/>
 
 (function (namespace) {
-    var Slider = Nullstone.Create("Slider", RangeBase);
+    var Slider = Nullstone.Create("Slider", namespace.Primitives.RangeBase);
 
     Slider.Instance.Init = function () {
         this.Init$RangeBase();
@@ -40,9 +40,9 @@
         this.OnApplyTemplate$RangeBase();
 
         this.$HorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalTemplate"), FrameworkElement);
-        this.$HorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeIncreaseRepeatButton"), RepeatButton);
-        this.$HorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
-        this.$HorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), Thumb);
+        this.$HorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeIncreaseRepeatButton"), namespace.Primitives.RepeatButton);
+        this.$HorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), namespace.Primitives.RepeatButton);
+        this.$HorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), namespace.Primitives.Thumb);
 
         if (this.$HorizontalThumb != null) {
             this.$HorizontalThumb.DragStarted.Subscribe(function (sender, e) { this.Focus(); this._OnThumbDragStarted(); }, this);
@@ -56,9 +56,9 @@
         }
 
         this.$VerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalTemplate"), FrameworkElement);
-        this.$VerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeIncreaseRepeatButton"), RepeatButton);
-        this.$VerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeDecreaseRepeatButton"), RepeatButton);
-        this.$VerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), Thumb);
+        this.$VerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeIncreaseRepeatButton"), namespace.Primitives.RepeatButton);
+        this.$VerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeDecreaseRepeatButton"), namespace.Primitives.RepeatButton);
+        this.$VerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), namespace.Primitives.Thumb);
 
         if (this.$VerticalThumb != null) {
             this.$VerticalThumb.DragStarted.Subscribe(function (sender, e) { this.Focus(); this._OnThumbDragStarted(); }, this);
@@ -107,7 +107,7 @@
         var val = this.Value;
 
         var isHorizontal = this.Orientation === Orientation.Horizontal;
-        var templateGrid = Nullstone.As(isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate, Grid);
+        var templateGrid = Nullstone.As(isHorizontal ? this.$HorizontalTemplate : this.$VerticalTemplate, namespace.Grid);
         if (templateGrid == null)
             return;
 
@@ -130,21 +130,21 @@
 
         if (defs != null && defs.GetCount() === 3) {
             if (isHorizontal) {
-                defs.GetValueAt(0).Width = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
-                defs.GetValueAt(2).Width = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
+                defs.GetValueAt(0).Width = new namespace.GridLength(1, isReversed ? namespace.GridUnitType.Star : namespace.GridUnitType.Auto);
+                defs.GetValueAt(2).Width = new namespace.GridLength(1, isReversed ? namespace.GridUnitType.Auto : namespace.GridUnitType.Star);
 
                 if (largeDecrease != null)
-                    Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
+                    namespace.Grid.SetColumn(largeDecrease, isReversed ? 2 : 0);
                 if (largeIncrease != null)
-                    Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
+                    namespace.Grid.SetColumn(largeIncrease, isReversed ? 0 : 2);
             } else {
-                defs.GetValueAt(0).Height = new GridLength(1, isReversed ? GridUnitType.Auto : GridUnitType.Star);
-                defs.GetValueAt(2).Height = new GridLength(1, isReversed ? GridUnitType.Star : GridUnitType.Auto);
+                defs.GetValueAt(0).Height = new namespace.GridLength(1, isReversed ? namespace.GridUnitType.Auto : namespace.GridUnitType.Star);
+                defs.GetValueAt(2).Height = new namespace.GridLength(1, isReversed ? namespace.GridUnitType.Star : namespace.GridUnitType.Auto);
 
                 if (largeDecrease != null)
-                    Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
+                    namespace.Grid.SetRow(largeDecrease, isReversed ? 0 : 2);
                 if (largeIncrease != null)
-                    Grid.SetRow(largeIncrease, isReversed ? 2 : 0);
+                    namespace.Grid.SetRow(largeIncrease, isReversed ? 2 : 0);
             }
         }
 
@@ -253,4 +253,4 @@
     //#endregion
 
     namespace.Slider = Nullstone.FinishCreate(Slider);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

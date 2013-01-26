@@ -1,4 +1,6 @@
-﻿(function (namespace) {
+﻿/// <reference path="../../Runtime/Nullstone.js"/>
+
+(function (namespace) {
     namespace.ScrollEventType = {
         SmallDecrement: 0,
         SmallIncrement: 1,
@@ -10,4 +12,4 @@
         Last: 7,
         EndScroll: 8
     };
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

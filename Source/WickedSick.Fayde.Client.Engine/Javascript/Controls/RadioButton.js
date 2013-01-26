@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var RadioButton = Nullstone.Create("RadioButton", ToggleButton);
+    var RadioButton = Nullstone.Create("RadioButton", namespace.Primitives.ToggleButton);
 
     RadioButton.Instance.Init = function () {
         this.Init$ToggleButton();
@@ -100,4 +100,4 @@
     };
 
     namespace.RadioButton = Nullstone.FinishCreate(RadioButton);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -10,4 +10,4 @@
     ToolTipService.PlacementTargetProperty = DependencyProperty.RegisterAttached("PlacementTarget", function () { return UIElement; }, ToolTipService);
 
     namespace.ToolTipService = Nullstone.FinishCreate(ToolTipService);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -274,7 +274,7 @@
             if (c === '.') {
                 // we found a type name, now find the property name
                 if ((data.index - start) === 11 && data.path.substr(start, 11).toLowerCase() === "textelement") { //bug workaround from Blend
-                    data.type = TextBlock;
+                    data.type = Fayde.Controls.TextBlock;
                     data.explicitType = true;
                 } else {
                     var s = data.index;
@@ -330,7 +330,9 @@
     };
     var lookupNamespaces = [];
     DependencyProperty._LookupType = function (name) {
+        lookupNamespaces.push(Fayde.Controls);
         lookupNamespaces.push(Fayde.Media);
+        lookupNamespaces.push(Fayde.Controls.Primitives);
         lookupNamespaces.push(window);
 
         var len = lookupNamespaces.length;

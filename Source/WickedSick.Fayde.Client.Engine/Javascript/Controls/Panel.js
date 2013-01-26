@@ -267,7 +267,7 @@
         };
         Panel.Instance._OnCollectionItemChanged = function (col, obj, args) {
             if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
-                if (args.Property._ID === Canvas.ZIndexProperty._ID || args.Property._ID === Canvas.ZProperty._ID) {
+                if (args.Property._ID === namespace.Canvas.ZIndexProperty._ID || args.Property._ID === namespace.Canvas.ZProperty._ID) {
                     args.Item._Invalidate();
                     if (this._IsAttached) {
                         App.Instance.MainSurface._AddDirtyElement(this, _Dirty.ChildrenZIndices);
@@ -351,4 +351,4 @@
     //#endregion
 
     namespace.Panel = Nullstone.FinishCreate(Panel);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

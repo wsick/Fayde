@@ -58,7 +58,7 @@
         get: function () {
             return this.IsBoundToAnyDataContext
                 && (this.Target instanceof FrameworkElement)
-                && (this.Property._ID === FrameworkElement.DataContextProperty._ID || this.Property._ID === ContentPresenter.ContentProperty._ID);
+                && (this.Property._ID === FrameworkElement.DataContextProperty._ID || this.Property._ID === Fayde.Controls.ContentPresenter.ContentProperty._ID);
         }
     });
     Nullstone.Property(BindingExpressionBase, "IsMentorDataContextBound", {
@@ -69,8 +69,8 @@
     });
     Nullstone.Property(BindingExpressionBase, "IsTwoWayTextBoxText", {
         get: function () {
-            return (this.Target instanceof TextBox)
-                && (this.Property._ID === TextBox.TextProperty._ID)
+            return (this.Target instanceof Fayde.Controls.TextBox)
+                && (this.Property._ID === Fayde.Controls.TextBox.TextProperty._ID)
                 && (this.Binding.Mode === namespace.BindingMode.TwoWay);
         }
     });
@@ -335,7 +335,7 @@
         } else {
             var fe = Nullstone.As(this.Target, FrameworkElement);
             var propd = this.Property;
-            if (fe && (propd._ID === FrameworkElement.DataContextProperty._ID || propd._ID === ContentPresenter.ContentProperty._ID)) {
+            if (fe && (propd._ID === FrameworkElement.DataContextProperty._ID || propd._ID === Fayde.Controls.ContentPresenter.ContentProperty._ID)) {
                 fe.VisualParentChanged.Subscribe(this._ParentChanged, this);
                 fe = fe.GetVisualParent();
                 this.SetDataContextSource(fe);
@@ -400,7 +400,7 @@
             source = fe.FindName(this.Binding.ElementName);
             if (!source && fe.TemplateOwner)
                 fe = fe.GetTemplateOwner();
-            else if (fe.GetMentor() && ItemsControl.GetItemsOwner(fe.GetMentor()))
+            else if (fe.GetMentor() && Fayde.Controls.ItemsControl.GetItemsOwner(fe.GetMentor()))
                 fe = fe.GetMentor();
             else
                 fe = null;

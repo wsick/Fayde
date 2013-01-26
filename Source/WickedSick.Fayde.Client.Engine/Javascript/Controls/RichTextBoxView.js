@@ -4,4 +4,4 @@
 (function (namespace) {
     var _RichTextBoxView = Nullstone.Create("_RichTextBoxView", FrameworkElement);
     namespace._RichTextBoxView = Nullstone.FinishCreate(_RichTextBoxView);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

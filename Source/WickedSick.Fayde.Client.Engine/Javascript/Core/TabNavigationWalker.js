@@ -21,7 +21,7 @@
 
         var childWalker = new _DeepTreeWalker(this._Root);
         while (child = childWalker.Step()) {
-            if (Nullstone.RefEquals(child, this._Root) || !(child instanceof Control))
+            if (Nullstone.RefEquals(child, this._Root) || !(child instanceof Fayde.Controls.Control))
                 continue;
             this._TabSorted.push(child);
             childWalker.SkipBranch();
@@ -39,7 +39,7 @@
         }
 
         if (curIndex !== -1 && TabNavigationWalker.GetActiveNavigationMode(this._Root) === KeyboardNavigationMode.Once) {
-            if (!this._Forwards && this._Root instanceof Control)
+            if (!this._Forwards && this._Root instanceof Fayde.Controls.Control)
                 return this.TabTo(this._Root);
             return false;
         }
@@ -50,7 +50,7 @@
                 if ((j + curIndex + 1) === len && TabNavigationWalker.GetActiveNavigationMode(this._Root) !== KeyboardNavigationMode.Cycle)
                     break;
                 child = this._TabSorted[(j + curIndex + 1) % len];
-                childIsControl = child instanceof Control;
+                childIsControl = child instanceof Fayde.Controls.Control;
 
                 if (childIsControl && !child.IsEnabled)
                     continue;
@@ -67,7 +67,7 @@
         }
 
         if (curIndex !== -1 && !this._Forwards) {
-            if (this._Root instanceof Control)
+            if (this._Root instanceof Fayde.Controls.Control)
                 return this.TabTo(this._Root);
         }
 
@@ -90,7 +90,7 @@
         if ((root.GetVisualParent() && TabNavigationWalker.GetParentNavigationMode(root.GetVisualParent()) === KeyboardNavigationMode.Once)
             || (!forwards && root && root.GetVisualParent())) {
             while (root = root.GetVisualParent())
-                if (root instanceof Control || !root.GetVisualParent())
+                if (root instanceof Fayde.Controls.Control || !root.GetVisualParent())
                     break;
         }
 
@@ -102,7 +102,7 @@
 
             cur = root;
             root = root.GetVisualParent();
-            while (root && !(root instanceof Control) && root.GetVisualParent())
+            while (root && !(root instanceof Fayde.Controls.Control) && root.GetVisualParent())
                 root = root.GetVisualParent();
         } while (!focused && root);
 
@@ -115,7 +115,7 @@
         /// <param name="uie" type="UIElement"></param>
         /// <returns type="KeyboardNavigationMode" />
         while (uie) {
-            if (uie instanceof Control)
+            if (uie instanceof Fayde.Controls.Control)
                 return uie.TabNavigation;
             return KeyboardNavigationMode.Local;
         }
@@ -125,7 +125,7 @@
         /// <param name="uie" type="UIElement"></param>
         /// <returns type="KeyboardNavigationMode" />
         while (uie) {
-            if (uie instanceof Control)
+            if (uie instanceof Fayde.Controls.Control)
                 return uie.TabNavigation;
             uie = uie.GetVisualParent();
         }

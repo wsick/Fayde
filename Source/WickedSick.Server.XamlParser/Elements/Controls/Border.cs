@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using WickedSick.Server.XamlParser.TypeConverters;
-using WickedSick.Server.XamlParser.Elements.Media;
+﻿using WickedSick.Server.XamlParser.Elements.Media;
 using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
+    [Element(NullstoneNamespace = "Fayde.Controls")]
     public class Border : FrameworkElement
     {
         public static readonly PropertyDescription ChildProperty = PropertyDescription.Register("Child", typeof(UIElement), typeof(Border), true);

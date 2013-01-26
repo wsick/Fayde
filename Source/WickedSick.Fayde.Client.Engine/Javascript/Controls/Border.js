@@ -378,4 +378,4 @@
     };
 
     namespace.Border = Nullstone.FinishCreate(Border);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

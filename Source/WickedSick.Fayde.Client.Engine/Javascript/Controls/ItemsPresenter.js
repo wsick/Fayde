@@ -11,7 +11,7 @@
     Nullstone.Property(ItemsPresenter, "StackPanelFallbackTemplate", {
         get: function () {
             if (this._SPFT == null)
-                this._SPFT = new ItemsPanelTemplate({ Type: StackPanel });
+                this._SPFT = new namespace.ItemsPanelTemplate({ Type: namespace.StackPanel });
             return this._SPFT;
         }
     });
@@ -19,7 +19,7 @@
     Nullstone.Property(ItemsPresenter, "VirtualizingStackPanelFallbackTemplate", {
         get: function () {
             if (this._VSPFT == null)
-                this._VSPFT = new ItemsPanelTemplate({ Type: VirtualizingStackPanel });
+                this._VSPFT = new namespace.ItemsPanelTemplate({ Type: namespace.VirtualizingStackPanel });
             return this._VSPFT;
         }
     });
@@ -31,7 +31,7 @@
         this.OnApplyTemplate$FrameworkElement();
     };
     ItemsPresenter.Instance._GetDefaultTemplateCallback = function () {
-        var c = Nullstone.As(this.TemplateOwner, ItemsControl);
+        var c = Nullstone.As(this.TemplateOwner, namespace.ItemsControl);
         if (c == null)
             return null;
 
@@ -40,14 +40,14 @@
 
         if (c.ItemsPanel != null) {
             var root = c.ItemsPanel.GetVisualTree(this);
-            if (root != null && !(root instanceof Panel))
+            if (root != null && !(root instanceof namespace.Panel))
                 throw new InvalidOperationException("The root element of an ItemsPanelTemplate must be a Panel subclass");
             this._ElementRoot = root;
         }
 
         if (this._ElementRoot == null) {
             var template;
-            if (c instanceof ListBox)
+            if (c instanceof namespace.ListBox)
                 template = this.VirtualizingStackPanelFallbackTemplate;
             else
                 template = this.StackPanelFallbackTemplate;
@@ -59,4 +59,4 @@
     };
 
     namespace.ItemsPresenter = Nullstone.FinishCreate(ItemsPresenter);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

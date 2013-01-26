@@ -7,12 +7,12 @@
 /// <reference path="../Runtime/Utils.js"/>
 
 (function (namespace) {
-    var ScrollContentPresenter = Nullstone.Create("ScrollContentPresenter", ContentPresenter, 0, [IScrollInfo]);
+    var ScrollContentPresenter = Nullstone.Create("ScrollContentPresenter", namespace.ContentPresenter, 0, [namespace.Primitives.IScrollInfo]);
 
     ScrollContentPresenter.Instance.Init = function () {
         this.Init$ContentPresenter();
         this.$IsClipPropertySet = false;
-        this.$ScrollData = new ScrollData();
+        this.$ScrollData = new namespace.Primitives.ScrollData();
     };
 
     //#region Properties
@@ -154,26 +154,26 @@
     ScrollContentPresenter.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$ContentPresenter();
 
-        var sv = Nullstone.As(this.TemplateOwner, ScrollViewer);
+        var sv = Nullstone.As(this.TemplateOwner, namespace.ScrollViewer);
         if (!sv)
             return;
 
         var content = this.Content;
-        var info = Nullstone.As(content, IScrollInfo);
+        var info = Nullstone.As(content, namespace.Primitives.IScrollInfo);
         if (!info) {
-            var presenter = Nullstone.As(content, ItemsPresenter);
+            var presenter = Nullstone.As(content, namespace.ItemsPresenter);
             if (presenter) {
                 if (!presenter._ElementRoot)
                     presenter.ApplyTemplate();
-                info = Nullstone.As(presenter._ElementRoot, IScrollInfo);
+                info = Nullstone.As(presenter._ElementRoot, namespace.Primitives.IScrollInfo);
             }
         }
 
         if (!info)
             info = this;
 
-        info.SetCanHorizontallyScroll(sv.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
-        info.SetCanVerticallyScroll(sv.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+        info.SetCanHorizontallyScroll(sv.HorizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
+        info.SetCanVerticallyScroll(sv.VerticalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
         info.SetScrollOwner(sv);
         sv.SetScrollInfo(info);
         sv._InvalidateScrollInfo();
@@ -260,7 +260,7 @@
         }
 
         var content;
-        if (Nullstone.Is(this.TemplateOwner, ScrollViewer) && (content = this.Content) && (Nullstone.Is(content, _TextBoxView) || Nullstone.Is(content, _RichTextBoxView))) {
+        if (Nullstone.Is(this.TemplateOwner, Fayde.Controls.ScrollViewer) && (content = this.Content) && (Nullstone.Is(content, Fayde.Controls._TextBoxView) || Nullstone.Is(content, Fayde.Controls._RichTextBoxView))) {
             //ScrollViewer inside TextBox/RichTextBox
             this.$ClippingRectangle.Rect = this._CalculateTextBoxClipRect(arrangeSize);
         } else {
@@ -272,14 +272,14 @@
         /// <returns type="Rect" />
         var left = 0;
         var right = 0;
-        var templatedParent = Nullstone.As(this.TemplateOwner, ScrollViewer);
+        var templatedParent = Nullstone.As(this.TemplateOwner, namespace.ScrollViewer);
         var width = this.$ScrollData.Extent.Width;
         var num = this.$ScrollData.Viewport.Width;
         var x = this.$ScrollData.Offset.X;
-        var textbox = Nullstone.As(templatedParent.TemplateOwner, TextBox);
-        var richtextbox = Nullstone.As(templatedParent.TemplateOwner, RichTextBox);
+        var textbox = Nullstone.As(templatedParent.TemplateOwner, namespace.TextBox);
+        var richtextbox = Nullstone.As(templatedParent.TemplateOwner, namespace.RichTextBox);
         var textWrapping = TextWrapping.NoWrap;
-        var horizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
+        var horizontalScrollBarVisibility = namespace.ScrollBarVisibility.Disabled;
 
         if (richtextbox) {
             textWrapping = richtextbox.TextWrapping;
@@ -293,7 +293,7 @@
         if (textWrapping !== TextWrapping.Wrap) {
             if (num > width || x === 0)
                 left = padding.Left + 1;
-            if (num > width || horizontalScrollBarVisibility !== ScrollBarVisibility.Disabled && Math.abs(width - x + num) <= 1)
+            if (num > width || horizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled && Math.abs(width - x + num) <= 1)
                 right = padding.Right + 1;
         } else {
             left = padding.Left + 1;
@@ -358,4 +358,4 @@
     //#endregion
 
     namespace.ScrollContentPresenter = Nullstone.FinishCreate(ScrollContentPresenter);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -43,4 +43,4 @@
     IScrollInfo.Instance.MakeVisible = function (uie, rectangle) { return new Rect(); };
 
     namespace.IScrollInfo = Nullstone.FinishCreate(IScrollInfo);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

@@ -170,7 +170,7 @@ var Fayde;
                 kt._Percent = value._Percent;
                 return kt;
             case "GridLength":
-                return new GridLength(value.Value, value.Type);
+                return new Fayde.Controls.GridLength(value.Value, value.Type);
             case "Thickness":
                 return new Thickness(value.Left, value.Top, value.Right, value.Bottom);
             case "CornerRadius":

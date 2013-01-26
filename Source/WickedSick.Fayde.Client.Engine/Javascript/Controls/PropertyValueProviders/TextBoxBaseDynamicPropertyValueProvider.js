@@ -39,8 +39,8 @@
             if (!v)
                 v = this._SelectionForeground;
         } else if (propd._ID === this._BaselineOffsetPropd._ID) {
-            var _TextBoxView = this._Object._View;
-            this._BaselineOffset = !_TextBoxView ? 0 : _TextBoxView.GetBaselineOffset();
+            var tbv = this._Object._View;
+            this._BaselineOffset = (tbv == null) ? 0 : tbv.GetBaselineOffset();
             v = this._BaselineOffset;
         }
         if (v != undefined)
@@ -56,4 +56,4 @@
     };
 
     namespace._TextBoxBaseDynamicPropertyValueProvider = Nullstone.FinishCreate(_TextBoxBaseDynamicPropertyValueProvider);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

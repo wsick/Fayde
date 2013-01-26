@@ -163,7 +163,7 @@
         var parent = this.GetVisualParent();
         var source = this.Source;
 
-        if (parent && !Nullstone.Is(parent, Canvas))
+        if (parent && !Nullstone.Is(parent, namespace.Canvas))
             if (this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined)
                 return result;
 
@@ -428,4 +428,4 @@
     //#endif
 
     namespace.Image = Nullstone.FinishCreate(Image);
-})(Fayde);
+})(Nullstone.Namespace("Fayde.Controls"));

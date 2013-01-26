@@ -36,4 +36,4 @@
     };
 
     namespace.ControlTemplate = Nullstone.FinishCreate(ControlTemplate);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

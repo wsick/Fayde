@@ -6,7 +6,7 @@
 /// CODE
 
 (function (namespace) {
-    var ContentControl = Nullstone.Create("ContentControl", Control);
+    var ContentControl = Nullstone.Create("ContentControl", namespace.Control);
 
     ContentControl.Instance.Init = function () {
         this.Init$Control();
@@ -16,7 +16,7 @@
     //#region Properties
 
     ContentControl.ContentProperty = DependencyProperty.RegisterCore("Content", function () { return Object; }, ContentControl, undefined, function (d, args) { d.OnContentChanged(args.OldValue, args.NewValue); });
-    ContentControl.ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return ControlTemplate; }, ContentControl, undefined, function (d, args) { d.OnContentTemplateChanged(args.OldValue, args.NewValue); });
+    ContentControl.ContentTemplateProperty = DependencyProperty.RegisterCore("ContentTemplate", function () { return namespace.ControlTemplate; }, ContentControl, undefined, function (d, args) { d.OnContentTemplateChanged(args.OldValue, args.NewValue); });
 
     Nullstone.AutoProperties(ContentControl, [
         ContentControl.ContentProperty,
@@ -29,11 +29,11 @@
 
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
     ContentControl.Instance._CreateFallbackTemplate = function () {
-        return new ControlTemplate(ContentControl, {
-            Type: Grid,
+        return new namespace.ControlTemplate(ContentControl, {
+            Type: namespace.Grid,
             Children: [
                 {
-                    Type: TextBlock,
+                    Type: namespace.TextBlock,
                     Props: {
                         Text: new BindingMarkup()
                     }
@@ -44,9 +44,9 @@
     ContentControl.Instance._GetFallbackRoot = function () {
         /// <returns type="UIElement" />
         if (this._FallbackRoot == null) {
-            if (!ContentPresenter._FallbackTemplate)
-                ContentPresenter._FallbackTemplate = this._CreateFallbackTemplate();
-            this._FallbackRoot = ContentPresenter._FallbackTemplate.GetVisualTree(this);
+            if (!ContentControl._FallbackTemplate)
+                ContentControl._FallbackTemplate = this._CreateFallbackTemplate();
+            this._FallbackRoot = ContentControl._FallbackTemplate.GetVisualTree(this);
         }
         return this._FallbackRoot;
     };
@@ -114,4 +114,4 @@
     //#endregion
 
     namespace.ContentControl = Nullstone.FinishCreate(ContentControl);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

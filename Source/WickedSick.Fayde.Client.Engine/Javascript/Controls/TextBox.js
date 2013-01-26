@@ -17,14 +17,14 @@
 /// <reference path="../Text/History/TextBoxUndoActionReplace.js"/>
 
 (function (namespace) {
-    var TextBox = Nullstone.Create("TextBox", TextBoxBase);
+    var TextBox = Nullstone.Create("TextBox", namespace.TextBoxBase);
 
     TextBox.Instance.Init = function () {
         this.Init$TextBoxBase();
 
         this.DefaultStyleKey = this.constructor;
 
-        this.AddProvider(new _TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
+        this.AddProvider(new namespace._TextBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
 
         this._EventsMask = _TextBoxEmitChanged.TEXT | _TextBoxEmitChanged.SELECTION;
 
@@ -52,8 +52,8 @@
     TextBox.TextProperty = DependencyProperty.RegisterCore("Text", function () { return String; }, TextBox);
     TextBox.TextAlignmentProperty = DependencyProperty.RegisterCore("TextAlignment", function () { return new Enum(TextAlignment); }, TextBox, TextAlignment.Left);
     TextBox.TextWrappingProperty = DependencyProperty.RegisterCore("TextWrapping", function () { return new Enum(TextWrapping); }, TextBox, TextWrapping.NoWrap);
-    TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
-    TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, TextBox, ScrollBarVisibility.Hidden);
+    TextBox.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("HorizontalScrollBarVisibility", function () { return new Enum(namespace.ScrollBarVisibility); }, TextBox, namespace.ScrollBarVisibility.Hidden);
+    TextBox.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterCore("VerticalScrollBarVisibility", function () { return new Enum(namespace.ScrollBarVisibility); }, TextBox, namespace.ScrollBarVisibility.Hidden);
 
     Nullstone.AutoProperties(TextBox, [
         TextBox.AcceptsReturnProperty,
@@ -89,7 +89,7 @@
         prop = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
         if (prop) {
             if (this.TextWrapping === TextWrapping.Wrap)
-                this._ContentElement._SetValue(prop, ScrollBarVisibility.Disabled);
+                this._ContentElement._SetValue(prop, namespace.ScrollBarVisibility.Disabled);
             else
                 this._ContentElement._SetValue(prop, this._GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
         }
@@ -278,7 +278,7 @@
                 propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
                 if (propd) {
                     if (args.NewValue === TextWrapping.Wrap)
-                        this._ContentElement._SetValue(propd, ScrollBarVisibility.Disabled);
+                        this._ContentElement._SetValue(propd, namespace.ScrollBarVisibility.Disabled);
                     else
                         this._ContentElement._SetValue(propd, this.$GetValue(TextBox.HorizontalScrollBarVisibilityProperty));
                 }
@@ -289,7 +289,7 @@
                 propd = this._ContentElement.GetDependencyProperty("HorizontalScrollBarVisibility");
                 if (propd) {
                     if (this.TextWrapping === TextWrapping.Wrap)
-                        this._ContentElement._SetValue(propd, ScrollBarVisibility.Disabled);
+                        this._ContentElement._SetValue(propd, namespace.ScrollBarVisibility.Disabled);
                     else
                         this._ContentElement._SetValue(propd, args.NewValue);
                 }
@@ -303,14 +303,14 @@
 
         }
         if (changed !== _TextBoxModelChanged.Nothing)
-            this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
+            this.ModelChanged.Raise(this, new namespace._TextBoxModelChangedEventArgs(changed, args));
 
         this.PropertyChanged.Raise(this, args);
     };
     TextBox.Instance._OnSubPropertyChanged = function (propd, sender, args) {
         if (propd && (propd._ID === TextBox.SelectionBackgroundProperty._ID
             || propd._ID === TextBox.SelectionForegroundProperty._ID)) {
-            this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
+            this.ModelChanged.Raise(this, new namespace._TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush));
             this._Invalidate();
         }
 
@@ -352,4 +352,4 @@
     };
 
     namespace.TextBox = Nullstone.FinishCreate(TextBox);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

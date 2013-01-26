@@ -365,7 +365,7 @@
         if (visualParent != null) {
             mat3.set(visualParent._AbsoluteXform, this._AbsoluteXform);
             mat4.set(visualParent._AbsoluteProjection, this._AbsoluteProjection);
-        } else if (this._Parent != null && this._Parent instanceof Popup) {
+        } else if (this._Parent != null && this._Parent instanceof Fayde.Controls.Primitives.Popup) {
             var popup = this._Parent;
             var el = popup;
             while (el != null) {
@@ -410,7 +410,7 @@
 
         mat4.multiply(this._LocalProjection, this._AbsoluteProjection, this._AbsoluteProjection); //abs = abs * local
 
-        if (this instanceof Popup) {
+        if (this instanceof Fayde.Controls.Primitives.Popup) {
             var popupChild = this.Child;
             if (popupChild)
                 popupChild._UpdateTransform();
@@ -465,13 +465,13 @@
     UIElement.Instance._ComputeLocalProjection = function () {
         var projection = this.Projection;
         if (!projection) {
-            Canvas.SetZ(this, NaN);
+            Fayde.Controls.Canvas.SetZ(this, NaN);
             return;
         }
 
         var size = this._GetSizeForBrush();
         projection._SetObjectSize(size.Width, size.Height);
-        Canvas.SetZ(this, projection._GetDistanceFromXYPlane());
+        Fayde.Controls.Canvas.SetZ(this, projection._GetDistanceFromXYPlane());
     };
 
     UIElement.Instance._TransformBounds = function (old, current) {
@@ -762,7 +762,7 @@
                 desired = new Size(this.ActualWidth, this.ActualHeight);
             }
 
-            viewport = new Rect(Canvas.GetLeft(this), Canvas.GetTop(this), desired.Width, desired.Height)
+            viewport = new Rect(Fayde.Controls.Canvas.GetLeft(this), Fayde.Controls.Canvas.GetTop(this), desired.Width, desired.Height)
 
             last = viewport;
         }
@@ -1381,7 +1381,7 @@
         return this._TotalOpacity * 255 < 245.5;
     };
     UIElement.ZIndexComparer = function (uie1, uie2) {
-        var c = Canvas;
+        var c = Fayde.Controls.Canvas;
         var zi1 = c.GetZIndex(uie1);
         var zi2 = c.GetZIndex(uie2);
         if (zi1 == zi2) {

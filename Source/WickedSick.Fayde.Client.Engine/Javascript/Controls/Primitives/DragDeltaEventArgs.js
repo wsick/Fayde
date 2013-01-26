@@ -11,4 +11,4 @@
     };
 
     namespace.DragDeltaEventArgs = Nullstone.FinishCreate(DragDeltaEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

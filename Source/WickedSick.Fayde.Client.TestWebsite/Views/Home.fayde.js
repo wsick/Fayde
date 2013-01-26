@@ -1,5 +1,5 @@
 ﻿(function (namespace) {
-    var Home = Nullstone.Create("Home", Page);
+    var Home = Nullstone.Create("Home", Fayde.Controls.Page);
 
     Home.Instance.Init = function () {
         this.Init$Page();

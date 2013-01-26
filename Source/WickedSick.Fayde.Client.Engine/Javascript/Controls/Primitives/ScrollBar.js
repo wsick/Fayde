@@ -7,7 +7,7 @@
 /// <reference path="DragCompletedEventArgs.js"/>
 
 (function (namespace) {
-    var ScrollBar = Nullstone.Create("ScrollBar", RangeBase);
+    var ScrollBar = Nullstone.Create("ScrollBar", namespace.RangeBase);
 
     ScrollBar.Instance.Init = function () {
         this.Init$RangeBase();
@@ -47,17 +47,17 @@
     ScrollBar.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$RangeBase();
         this.$ElementHorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalRoot"), FrameworkElement);
-        this.$ElementHorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeIncrease"), RepeatButton);
-        this.$ElementHorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeDecrease"), RepeatButton);
-        this.$ElementHorizontalSmallIncrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallIncrease"), RepeatButton);
-        this.$ElementHorizontalSmallDecrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallDecrease"), RepeatButton);
-        this.$ElementHorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), Thumb);
+        this.$ElementHorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeIncrease"), namespace.RepeatButton);
+        this.$ElementHorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeDecrease"), namespace.RepeatButton);
+        this.$ElementHorizontalSmallIncrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallIncrease"), namespace.RepeatButton);
+        this.$ElementHorizontalSmallDecrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallDecrease"), namespace.RepeatButton);
+        this.$ElementHorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), namespace.Thumb);
         this.$ElementVerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalRoot"), FrameworkElement);
-        this.$ElementVerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalLargeIncrease"), RepeatButton);
-        this.$ElementVerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalLargeDecrease"), RepeatButton);
-        this.$ElementVerticalSmallIncrease = Nullstone.As(this.GetTemplateChild("VerticalSmallIncrease"), RepeatButton);
-        this.$ElementVerticalSmallDecrease = Nullstone.As(this.GetTemplateChild("VerticalSmallDecrease"), RepeatButton);
-        this.$ElementVerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), Thumb);
+        this.$ElementVerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalLargeIncrease"), namespace.RepeatButton);
+        this.$ElementVerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalLargeDecrease"), namespace.RepeatButton);
+        this.$ElementVerticalSmallIncrease = Nullstone.As(this.GetTemplateChild("VerticalSmallIncrease"), namespace.RepeatButton);
+        this.$ElementVerticalSmallDecrease = Nullstone.As(this.GetTemplateChild("VerticalSmallDecrease"), namespace.RepeatButton);
+        this.$ElementVerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), namespace.Thumb);
 
         if (this.$ElementHorizontalThumb) {
             this.$ElementHorizontalThumb.DragStarted.Subscribe(this._OnThumbDragStarted, this);
@@ -338,10 +338,10 @@
     };
 
     ScrollBar.Instance._RaiseScroll = function (scrollEvtType) {
-        var args = new ScrollEventArgs(scrollEvtType, this.Value);
+        var args = new namespace.ScrollEventArgs(scrollEvtType, this.Value);
         args.OriginalSource = this;
         this.Scroll.Raise(this, args);
     };
 
     namespace.ScrollBar = Nullstone.FinishCreate(ScrollBar);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

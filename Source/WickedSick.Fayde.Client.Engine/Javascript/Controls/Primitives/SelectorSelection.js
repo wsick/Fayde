@@ -11,13 +11,13 @@
         this._Owner = owner;
         this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
         this._SelectedItems = new Collection();
-        this.Mode = SelectionMode.Single;
+        this.Mode = Fayde.Controls.SelectionMode.Single;
     };
 
     SelectorSelection.Instance._HandleOwnerSelectionChanged = function (sender, e) {
         if (this._Updating)
             return;
-        if (this.Mode === SelectionMode.Single)
+        if (this.Mode === Fayde.Controls.SelectionMode.Single)
             throw new InvalidOperationException("SelectedItems cannot be modified directly when in Single select mode");
         try {
             this._Updating = true;
@@ -110,7 +110,7 @@
             this._Updating = true;
 
             switch (this.Mode) {
-                case SelectionMode.Single:
+                case Fayde.Controls.SelectionMode.Single:
                     if (selected) {
                         if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control)
                             this.ClearSelection(ignoreSelectedValue);
@@ -120,7 +120,7 @@
                         this.ReplaceSelection(item);
                     }
                     break;
-                case SelectionMode.Extended:
+                case Fayde.Controls.SelectionMode.Extended:
                     if ((Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift) {
                         var sIndex = ownerItems.IndexOf(this._SelectedItem);
                         if (this._SelectedItems.GetCount() === 0)
@@ -137,7 +137,7 @@
                             this.AddToSelected(item);
                     }
                     break;
-                case SelectionMode.Multiple:
+                case Fayde.Controls.SelectionMode.Multiple:
                     if (this._SelectedItems.Contains(item))
                         this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
                     else
@@ -191,7 +191,7 @@
     SelectorSelection.Instance.SelectAll = function (items) {
         try {
             this._Updating = true;
-            if (this.Mode === SelectionMode.Single)
+            if (this.Mode === Fayde.Controls.SelectionMode.Single)
                 throw new NotSupportedException("Cannot call SelectAll when in Single select mode");
 
             var selectedItems = this._SelectedItems;
@@ -323,4 +323,4 @@
     };
 
     namespace.SelectorSelection = Nullstone.FinishCreate(SelectorSelection);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

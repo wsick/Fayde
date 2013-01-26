@@ -10,4 +10,4 @@
     };
 
     namespace._TextBoxModelChangedEventArgs = Nullstone.FinishCreate(_TextBoxModelChangedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

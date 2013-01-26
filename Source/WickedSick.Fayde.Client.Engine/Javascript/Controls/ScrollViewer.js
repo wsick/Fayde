@@ -6,7 +6,7 @@
 /// <reference path="Primitives/Enums.js"/>
 
 (function (namespace) {
-    var ScrollViewer = Nullstone.Create("ScrollViewer", ContentControl);
+    var ScrollViewer = Nullstone.Create("ScrollViewer", namespace.ContentControl);
 
     ScrollViewer.Instance.Init = function () {
         this.Init$ContentControl();
@@ -24,21 +24,21 @@
             d._InvalidateMeasure();
             var scrollInfo = d.GetScrollInfo();
             if (scrollInfo) {
-                scrollInfo.SetCanHorizontallyScroll(d.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
-                scrollInfo.SetCanVerticallyScroll(d.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+                scrollInfo.SetCanHorizontallyScroll(d.HorizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
+                scrollInfo.SetCanVerticallyScroll(d.VerticalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
             }
             d._UpdateScrollBarVisibility();
             return;
         }
 
-        var listbox = Nullstone.As(d, ListBox);
+        var listbox = Nullstone.As(d, namespace.ListBox);
         if (listbox != null && listbox.$TemplateScrollViewer != null) {
             listbox.$TemplateScrollViewer.$SetValue(args.Property, args.NewValue);
             return;
         }
     };
-    ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
-    ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Enum(ScrollBarVisibility); }, ScrollViewer, ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
+    ScrollViewer.HorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("HorizontalScrollBarVisibility", function () { return new Enum(namespace.ScrollBarVisibility); }, ScrollViewer, namespace.ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
+    ScrollViewer.VerticalScrollBarVisibilityProperty = DependencyProperty.RegisterAttachedCore("VerticalScrollBarVisibility", function () { return new Enum(namespace.ScrollBarVisibility); }, ScrollViewer, namespace.ScrollBarVisibility.Disabled, ScrollViewer.OnScrollBarVisibilityPropertyChanged);
     ScrollViewer.ComputedHorizontalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedHorizontalScrollBarVisibility", function () { return new Enum(Visibility); }, ScrollViewer);
     ScrollViewer.ComputedVerticalScrollBarVisibilityProperty = DependencyProperty.RegisterReadOnlyCore("ComputedVerticalScrollBarVisibility", function () { return new Enum(Visibility); }, ScrollViewer);
     ScrollViewer.HorizontalOffsetProperty = DependencyProperty.RegisterReadOnlyCore("HorizontalOffset", function () { return Number; }, ScrollViewer);
@@ -107,8 +107,8 @@
         ///<param name="value" type="IScrollInfo"></param>
         this.$ScrollInfo = value;
         if (value) {
-            value.SetCanHorizontallyScroll(this.HorizontalScrollBarVisibility !== ScrollBarVisibility.Disabled);
-            value.SetCanVerticallyScroll(this.VerticalScrollBarVisibility !== ScrollBarVisibility.Disabled);
+            value.SetCanHorizontallyScroll(this.HorizontalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
+            value.SetCanVerticallyScroll(this.VerticalScrollBarVisibility !== namespace.ScrollBarVisibility.Disabled);
         }
     };
 
@@ -117,16 +117,16 @@
     //#region Line
 
     ScrollViewer.Instance.LineUp = function () {
-        this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.SmallDecrement, 0));
+        this._HandleVerticalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.SmallDecrement, 0));
     };
     ScrollViewer.Instance.LineDown = function () {
-        this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.SmallIncrement, 0));
+        this._HandleVerticalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.SmallIncrement, 0));
     };
     ScrollViewer.Instance.LineLeft = function () {
-        this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.SmallDecrement, 0));
+        this._HandleHorizontalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.SmallDecrement, 0));
     };
     ScrollViewer.Instance.LineRight = function () {
-        this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.SmallIncrement, 0));
+        this._HandleHorizontalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.SmallIncrement, 0));
     };
 
     //#endregion
@@ -134,23 +134,23 @@
     //#region Page
 
     ScrollViewer.Instance.PageHome = function () {
-        this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.First, 0));
+        this._HandleHorizontalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.First, 0));
     };
     ScrollViewer.Instance.PageEnd = function () {
-        this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.Last, 0));
+        this._HandleHorizontalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.Last, 0));
     };
 
     ScrollViewer.Instance.PageUp = function () {
-        this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.LargeDecrement, 0));
+        this._HandleVerticalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.LargeDecrement, 0));
     };
     ScrollViewer.Instance.PageDown = function () {
-        this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.LargeIncrement, 0));
+        this._HandleVerticalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.LargeIncrement, 0));
     };
     ScrollViewer.Instance.PageLeft = function () {
-        this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.LargeDecrement, 0));
+        this._HandleHorizontalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.LargeDecrement, 0));
     };
     ScrollViewer.Instance.PageRight = function () {
-        this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.LargeIncrement, 0));
+        this._HandleHorizontalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.LargeIncrement, 0));
     };
 
     //#endregion
@@ -188,10 +188,10 @@
         }
     };
     ScrollViewer.Instance.ScrollToHorizontalOffset = function (offset) {
-        this._HandleHorizontalScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, offset));
+        this._HandleHorizontalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.ThumbPosition, offset));
     };
     ScrollViewer.Instance.ScrollToVerticalOffset = function (offset) {
-        this._HandleVerticalScroll(new ScrollEventArgs(ScrollEventType.ThumbPosition, offset));
+        this._HandleVerticalScroll(new namespace.Primitives.ScrollEventArgs(namespace.Primitives.ScrollEventType.ThumbPosition, offset));
     };
     ScrollViewer.Instance._HandleScroll = function (orientation, e) {
         /// <param name="e" type="ScrollEventArgs"></param>
@@ -208,26 +208,26 @@
         var offset = scrollInfo.GetHorizontalOffset();
         var newValue = offset;
         switch (e.ScrollEventType) {
-            case ScrollEventType.SmallDecrement:
+            case namespace.Primitives.ScrollEventType.SmallDecrement:
                 scrollInfo.LineLeft();
                 break;
-            case ScrollEventType.SmallIncrement:
+            case namespace.Primitives.ScrollEventType.SmallIncrement:
                 scrollInfo.LineRight();
                 break;
-            case ScrollEventType.LargeDecrement:
+            case namespace.Primitives.ScrollEventType.LargeDecrement:
                 scrollInfo.PageLeft();
                 break;
-            case ScrollEventType.LargeIncrement:
+            case namespace.Primitives.ScrollEventType.LargeIncrement:
                 scrollInfo.PageRight();
                 break;
-            case ScrollEventType.ThumbPosition:
-            case ScrollEventType.ThumbTrack:
+            case namespace.Primitives.ScrollEventType.ThumbPosition:
+            case namespace.Primitives.ScrollEventType.ThumbTrack:
                 newValue = e.Value;
                 break;
-            case ScrollEventType.First:
+            case namespace.Primitives.ScrollEventType.First:
                 newValue = -1.79769313486232E+308;
                 break;
-            case ScrollEventType.Last:
+            case namespace.Primitives.ScrollEventType.Last:
                 newValue = 1.79769313486232E+308;
                 break;
         }
@@ -244,26 +244,26 @@
         var offset = scrollInfo.GetVerticalOffset();
         var newValue = offset;
         switch (e.ScrollEventType) {
-            case ScrollEventType.SmallDecrement:
+            case namespace.Primitives.ScrollEventType.SmallDecrement:
                 scrollInfo.LineUp();
                 break;
-            case ScrollEventType.SmallIncrement:
+            case namespace.Primitives.ScrollEventType.SmallIncrement:
                 scrollInfo.LineDown();
                 break;
-            case ScrollEventType.LargeDecrement:
+            case namespace.Primitives.ScrollEventType.LargeDecrement:
                 scrollInfo.PageUp();
                 break;
-            case ScrollEventType.LargeIncrement:
+            case namespace.Primitives.ScrollEventType.LargeIncrement:
                 scrollInfo.PageDown();
                 break;
-            case ScrollEventType.ThumbPosition:
-            case ScrollEventType.ThumbTrack:
+            case namespace.Primitives.ScrollEventType.ThumbPosition:
+            case namespace.Primitives.ScrollEventType.ThumbTrack:
                 newValue = e.Value;
                 break;
-            case ScrollEventType.First:
+            case namespace.Primitives.ScrollEventType.First:
                 newValue = -1.79769313486232E+308;
                 break;
-            case ScrollEventType.Last:
+            case namespace.Primitives.ScrollEventType.Last:
                 newValue = 1.79769313486232E+308;
                 break;
         }
@@ -313,41 +313,41 @@
             return;
 
         var orientation = Orientation.Vertical;
-        var scrollEventType = ScrollEventType.ThumbTrack;
+        var scrollEventType = namespace.Primitives.ScrollEventType.ThumbTrack;
         //TODO: FlowDirection
         //var flowDirection = base.FlowDirection === FlowDirection.RightToLeft;
         switch (args.Key) {
             case Key.PageUp:
-                scrollEventType = ScrollEventType.LargeDecrement;
+                scrollEventType = namespace.Primitives.ScrollEventType.LargeDecrement;
                 break;
             case Key.PageDown:
-                scrollEventType = ScrollEventType.LargeIncrement;
+                scrollEventType = namespace.Primitives.ScrollEventType.LargeIncrement;
                 break;
             case Key.End:
                 if (!args.Modifiers.Ctrl)
                     orientation = Orientation.Horizontal;
-                scrollEventType = ScrollEventType.Last;
+                scrollEventType = namespace.Primitives.ScrollEventType.Last;
                 break;
             case Key.Home:
                 if (!args.Modifiers.Ctrl)
                     orientation = Orientation.Horizontal;
-                scrollEventType = ScrollEventType.First;
+                scrollEventType = namespace.Primitives.ScrollEventType.First;
                 break;
             case Key.Left:
                 orientation = Orientation.Horizontal;
-                scrollEventType = ScrollEventType.SmallDecrement;
+                scrollEventType = namespace.Primitives.ScrollEventType.SmallDecrement;
             case Key.Up:
-                scrollEventType = ScrollEventType.SmallDecrement;
+                scrollEventType = namespace.Primitives.ScrollEventType.SmallDecrement;
                 break;
             case Key.Right:
                 orientation = Orientation.Horizontal;
-                scrollEventType = ScrollEventType.SmallIncrement;
+                scrollEventType = namespace.Primitives.ScrollEventType.SmallIncrement;
             case Key.Down:
-                scrollEventType = ScrollEventType.SmallIncrement;
+                scrollEventType = namespace.Primitives.ScrollEventType.SmallIncrement;
                 break;
         }
-        if (scrollEventType !== ScrollEventType.ThumbTrack) {
-            this._HandleScroll(orientation, new ScrollEventArgs(scrollEventType, 0));
+        if (scrollEventType !== namespace.Primitives.ScrollEventType.ThumbTrack) {
+            this._HandleScroll(orientation, new namespace.Primitives.ScrollEventArgs(scrollEventType, 0));
             args.Handled = true;
         }
     };
@@ -356,12 +356,12 @@
 
     ScrollViewer.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$ContentControl();
-        this.$ElementScrollContentPresenter = Nullstone.As(this.GetTemplateChild("ScrollContentPresenter"), ScrollContentPresenter);
-        this.$ElementHorizontalScrollBar = Nullstone.As(this.GetTemplateChild("HorizontalScrollBar"), ScrollBar);
+        this.$ElementScrollContentPresenter = Nullstone.As(this.GetTemplateChild("ScrollContentPresenter"), namespace.ScrollContentPresenter);
+        this.$ElementHorizontalScrollBar = Nullstone.As(this.GetTemplateChild("HorizontalScrollBar"), namespace.Primitives.ScrollBar);
         if (this.$ElementHorizontalScrollBar) {
             this.$ElementHorizontalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Horizontal, e); }, this);
         }
-        this.$ElementVerticalScrollBar = Nullstone.As(this.GetTemplateChild("VerticalScrollBar"), ScrollBar);
+        this.$ElementVerticalScrollBar = Nullstone.As(this.GetTemplateChild("VerticalScrollBar"), namespace.Primitives.ScrollBar);
         if (this.$ElementVerticalScrollBar) {
             this.$ElementVerticalScrollBar.Scroll.Subscribe(function (sender, e) { this._HandleScroll(Orientation.Vertical, e); }, this);
         }
@@ -419,13 +419,13 @@
         var horizontalVisibility = Visibility.Visible;
         var hsbv = this.HorizontalScrollBarVisibility;
         switch (hsbv) {
-            case ScrollBarVisibility.Visible:
+            case namespace.ScrollBarVisibility.Visible:
                 break;
-            case ScrollBarVisibility.Disabled:
-            case ScrollBarVisibility.Hidden:
+            case namespace.ScrollBarVisibility.Disabled:
+            case namespace.ScrollBarVisibility.Hidden:
                 horizontalVisibility = Visibility.Collapsed;
                 break;
-            case ScrollBarVisibility.Auto:
+            case namespace.ScrollBarVisibility.Auto:
             default:
                 horizontalVisibility = (!scrollInfo || scrollInfo.GetExtentWidth() <= scrollInfo.GetViewportWidth()) ? Visibility.Collapsed : Visibility.Visible;
                 break;
@@ -440,13 +440,13 @@
         var verticalVisibility = Visibility.Visible;
         var vsbv = this.VerticalScrollBarVisibility;
         switch (vsbv) {
-            case ScrollBarVisibility.Visible:
+            case namespace.ScrollBarVisibility.Visible:
                 break;
-            case ScrollBarVisibility.Disabled:
-            case ScrollBarVisibility.Hidden:
+            case namespace.ScrollBarVisibility.Disabled:
+            case namespace.ScrollBarVisibility.Hidden:
                 verticalVisibility = Visibility.Collapsed;
                 break;
-            case ScrollBarVisibility.Auto:
+            case namespace.ScrollBarVisibility.Auto:
             default:
                 verticalVisibility = (!scrollInfo || scrollInfo.GetExtentHeight() <= scrollInfo.GetViewportHeight()) ? Visibility.Collapsed : Visibility.Visible;
                 break;
@@ -502,4 +502,4 @@
     };
 
     namespace.ScrollViewer = Nullstone.FinishCreate(ScrollViewer);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

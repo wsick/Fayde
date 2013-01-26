@@ -15,8 +15,8 @@
     };
 
     RowDefinitionCollection.Instance.IsElementType = function (value) {
-        return value instanceof RowDefinition;
+        return value instanceof namespace.RowDefinition;
     };
 
     namespace.RowDefinitionCollection = Nullstone.FinishCreate(RowDefinitionCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -22,4 +22,4 @@
     };
 
     namespace._TextBlockDynamicPropertyValueProvider = Nullstone.FinishCreate(_TextBlockDynamicPropertyValueProvider);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

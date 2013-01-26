@@ -12,7 +12,92 @@
 /// <reference path="../Core/VisualTreeWalker.js"/>
 
 (function (namespace) {
-    var Grid = Nullstone.Create("Grid", Panel);
+    var _Segment = (function () {
+        function _Segment(offered, min, max, unitType) {
+            if (offered == null) offered = 0.0;
+            if (min == null) min = 0.0;
+            if (max == null) max = Number.POSITIVE_INFINITY;
+            if (unitType == null) unitType = namespace.GridUnitType.Pixel;
+
+            this._DesiredSize = 0;
+            this._Min = min;
+            this._Max = max;
+            this._Stars = 0;
+            this._Type = unitType;
+
+            this._OfferedSize = this._Clamp(offered);
+            this._OriginalSize = this._OfferedSize;
+        }
+        _Segment.prototype._SetOfferedToDesired = function () {
+            this._OfferedSize = this._DesiredSize;
+            return this._OfferedSize;
+        };
+        _Segment.prototype._SetDesiredToOffered = function () {
+            this._DesiredSize = this._OfferedSize;
+            return this._DesiredSize;
+        };
+        _Segment.prototype._Clamp = function (value) {
+            if (value < this._Min)
+                return this._Min;
+            if (value > this._Max)
+                return this._Max;
+            return value;
+        }
+        _Segment.prototype.toString = function () {
+            return this._OfferedSize.toString() + ";" + this._DesiredSize.toString();
+        };
+        return _Segment;
+    })();
+    var _GridNode = (function () {
+        var _GridNode = Nullstone.Create("_GridNode", LinkedListNode, 4);
+        _GridNode.Instance.Init = function (matrix, row, col, size) {
+            this._Matrix = matrix;
+            this._Row = row;
+            this._Col = col;
+            this._Size = size;
+            this._Cell = this._Matrix == null ? null : this._Matrix[row][col];
+        };
+        return Nullstone.FinishCreate(_GridNode);
+    })();
+    var _GridWalker = (function () {
+        var _GridWalker = Nullstone.Create("_GridWalker", undefined, 5);
+        _GridWalker.Instance.Init = function (grid, rowMatrix, rowCount, colMatrix, colCount) {
+            this._HasAutoAuto = false;
+            this._HasStarAuto = false;
+            this._HasAutoStar = false;
+
+            var walker = new _VisualTreeWalker(grid, _VisualTreeWalkerDirection.Logical);
+            var child;
+            while (child = walker.Step()) {
+                var starCol = false;
+                var starRow = false;
+                var autoCol = false;
+                var autoRow = false;
+
+                var col = Math.min(Grid.GetColumn(child), colCount - 1);
+                var row = Math.min(Grid.GetRow(child), rowCount - 1);
+                var colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
+                var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
+
+                for (var r = row; r < row + rowspan; r++) {
+                    starRow |= rowMatrix[r][r].Type === namespace.GridUnitType.Star;
+                    autoRow |= rowMatrix[r][r].Type === namespace.GridUnitType.Auto;
+                }
+                for (var c = col; c < col + colspan; c++) {
+                    starCol |= colMatrix[c][c].Type === namespace.GridUnitType.Star;
+                    autoCol |= colMatrix[c][c].Type === namespace.GridUnitType.Auto;
+                }
+
+                this._HasAutoAuto |= autoRow && autoCol && !starRow && !starCol;
+                this._HasStarAuto |= starRow && autoCol;
+                this._HasAutoStar |= autoRow && starCol;
+            }
+        };
+        return Nullstone.FinishCreate(_GridWalker);
+    })();
+
+
+    var Grid = Nullstone.Create("Grid", namespace.Panel);
 
     Grid.Instance.Init = function () {
         this.Init$Panel();
@@ -59,8 +144,8 @@
     //#region Properties
 
     Grid.ShowGridLinesProperty = DependencyProperty.Register("ShowGridLines", function () { return Boolean; }, Grid, false);
-    Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return ColumnDefinitionCollection; }, Grid, undefined, undefined, { GetValue: function () { return new ColumnDefinitionCollection(); } });
-    Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return RowDefinitionCollection; }, Grid, undefined, undefined, { GetValue: function () { return new RowDefinitionCollection(); } });
+    Grid.ColumnDefinitionsProperty = DependencyProperty.RegisterFull("ColumnDefinitions", function () { return namespace.ColumnDefinitionCollection; }, Grid, undefined, undefined, { GetValue: function () { return new namespace.ColumnDefinitionCollection(); } });
+    Grid.RowDefinitionsProperty = DependencyProperty.RegisterFull("RowDefinitions", function () { return namespace.RowDefinitionCollection; }, Grid, undefined, undefined, { GetValue: function () { return new namespace.RowDefinitionCollection(); } });
 
     Nullstone.AutoProperties(Grid, [
         Grid.ShowGridLinesProperty,
@@ -92,7 +177,7 @@
         var i;
         var cell;
         if (emptyRows) {
-            cell = new _Segment(0.0, 0, Number.POSITIVE_INFINITY, GridUnitType.Star);
+            cell = new _Segment(0.0, 0, Number.POSITIVE_INFINITY, namespace.GridUnitType.Star);
             cell._Stars = 1.0;
             this._RowMatrix[0][0] = cell;
             totalStars.Height += 1.0;
@@ -101,16 +186,16 @@
                 var rowdef = rows.GetValueAt(i);
                 var height = rowdef.Height;
 
-                rowdef.$SetValueInternal(RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
+                rowdef.$SetValueInternal(namespace.RowDefinition.ActualHeightProperty, Number.POSITIVE_INFINITY);
                 cell = new _Segment(0.0, rowdef.MinHeight, rowdef.MaxHeight, height.Type);
 
-                if (height.Type === GridUnitType.Pixel) {
+                if (height.Type === namespace.GridUnitType.Pixel) {
                     cell._OfferedSize = cell._Clamp(height.Value);
-                    rowdef.$SetValueInternal(RowDefinition.ActualHeightProperty, cell._SetDesiredToOffered());
-                } else if (height.Type === GridUnitType.Star) {
+                    rowdef.$SetValueInternal(namespace.RowDefinition.ActualHeightProperty, cell._SetDesiredToOffered());
+                } else if (height.Type === namespace.GridUnitType.Star) {
                     cell._Stars = height.Value;
                     totalStars.Height += height.Value;
-                } else if (height.Type === GridUnitType.Auto) {
+                } else if (height.Type === namespace.GridUnitType.Auto) {
                     cell._OfferedSize = cell._Clamp(0);
                     cell._SetDesiredToOffered();
                 }
@@ -120,7 +205,7 @@
         }
 
         if (emptyCols) {
-            cell = new _Segment(0.0, 0, Number.POSITIVE_INFINITY, GridUnitType.Star);
+            cell = new _Segment(0.0, 0, Number.POSITIVE_INFINITY, namespace.GridUnitType.Star);
             cell._Stars = 1.0;
             this._ColMatrix[0][0] = cell;
             totalStars.Width += 1.0;
@@ -129,16 +214,16 @@
                 var coldef = cols.GetValueAt(i);
                 var width = coldef.Width;
 
-                coldef.$SetValueInternal(ColumnDefinition.ActualWidthProperty, Number.POSITIVE_INFINITY);
+                coldef.$SetValueInternal(namespace.ColumnDefinition.ActualWidthProperty, Number.POSITIVE_INFINITY);
                 cell = new _Segment(0.0, coldef.MinWidth, coldef.MaxWidth, width.Type);
 
-                if (width.Type === GridUnitType.Pixel) {
+                if (width.Type === namespace.GridUnitType.Pixel) {
                     cell._OfferedSize = cell._Clamp(width.Value);
-                    coldef.$SetValueInternal(ColumnDefinition.ActualWidthProperty, cell._SetDesiredToOffered());
-                } else if (width.Type === GridUnitType.Star) {
+                    coldef.$SetValueInternal(namespace.ColumnDefinition.ActualWidthProperty, cell._SetDesiredToOffered());
+                } else if (width.Type === namespace.GridUnitType.Star) {
                     cell._Stars = width.Value;
                     totalStars.Width += width.Value;
-                } else if (width.Type === GridUnitType.Auto) {
+                } else if (width.Type === namespace.GridUnitType.Auto) {
                     cell._OfferedSize = cell._Clamp(0);
                     cell._SetDesiredToOffered();
                 }
@@ -183,12 +268,12 @@
                 var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
 
                 for (r = row; r < row + rowspan; r++) {
-                    starRow |= this._RowMatrix[r][r]._Type === GridUnitType.Star;
-                    autoRow |= this._RowMatrix[r][r]._Type === GridUnitType.Auto;
+                    starRow |= this._RowMatrix[r][r]._Type === namespace.GridUnitType.Star;
+                    autoRow |= this._RowMatrix[r][r]._Type === namespace.GridUnitType.Auto;
                 }
                 for (c = col; c < col + colspan; c++) {
-                    starCol |= this._ColMatrix[c][c]._Type === GridUnitType.Star;
-                    autoCol |= this._ColMatrix[c][c]._Type === GridUnitType.Auto;
+                    starCol |= this._ColMatrix[c][c]._Type === namespace.GridUnitType.Star;
+                    autoCol |= this._ColMatrix[c][c]._Type === namespace.GridUnitType.Auto;
                 }
 
                 if (autoRow && autoCol && !starRow && !starCol) {
@@ -289,10 +374,10 @@
             this._ExpandStarRows(finalSize);
 
         for (c = 0; c < colCount; c++) {
-            columns.GetValueAt(c).$SetValueInternal(ColumnDefinition.ActualWidthProperty, this._ColMatrix[c][c]._OfferedSize);
+            columns.GetValueAt(c).$SetValueInternal(namespace.ColumnDefinition.ActualWidthProperty, this._ColMatrix[c][c]._OfferedSize);
         }
         for (r = 0; r < rowCount; r++) {
-            rows.GetValueAt(r).$SetValueInternal(RowDefinition.ActualHeightProperty, this._RowMatrix[r][r]._OfferedSize);
+            rows.GetValueAt(r).$SetValueInternal(namespace.RowDefinition.ActualHeightProperty, this._RowMatrix[r][r]._OfferedSize);
         }
 
         var walker = new _VisualTreeWalker(this);
@@ -332,17 +417,17 @@
         var cur;
         for (i = 0; i < this._RowMatrixDim; i++) {
             cur = this._RowMatrix[i][i];
-            if (cur._Type === GridUnitType.Star)
+            if (cur._Type === namespace.GridUnitType.Star)
                 cur._OfferedSize = 0;
             else
                 availSize.Height = Math.max(availSize.Height - cur._OfferedSize, 0);
         }
-        availSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availSize.Height, GridUnitType.Star, false);
+        availSize.Height = this._AssignSize(this._RowMatrix, 0, this._RowMatrixDim - 1, availSize.Height, namespace.GridUnitType.Star, false);
         if (rowsCount > 0) {
             for (i = 0; i < this._RowMatrixDim; i++) {
                 cur = this._RowMatrix[i][i];
-                if (cur._Type === GridUnitType.Star)
-                    rows.GetValueAt(i).$SetValueInternal(RowDefinition.ActualHeightProperty, cur._OfferedSize);
+                if (cur._Type === namespace.GridUnitType.Star)
+                    rows.GetValueAt(i).$SetValueInternal(namespace.RowDefinition.ActualHeightProperty, cur._OfferedSize);
             }
         }
     };
@@ -355,17 +440,17 @@
         var cur;
         for (i = 0; i < this._ColMatrixDim; i++) {
             cur = this._ColMatrix[i][i];
-            if (cur._Type === GridUnitType.Star)
+            if (cur._Type === namespace.GridUnitType.Star)
                 cur._OfferedSize = 0;
             else
                 availSize.Width = Math.max(availSize.Width - cur._OfferedSize, 0);
         }
-        availSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availSize.Width, GridUnitType.Star, false);
+        availSize.Width = this._AssignSize(this._ColMatrix, 0, this._ColMatrixDim - 1, availSize.Width, namespace.GridUnitType.Star, false);
         if (columnsCount > 0) {
             for (i = 0; i < this._ColMatrixDim; i++) {
                 cur = this._ColMatrix[i][i];
-                if (cur._Type === GridUnitType.Star) {
-                    columns.GetValueAt(i).$SetValueInternal(ColumnDefinition.ActualWidthProperty, cur._OfferedSize);
+                if (cur._Type === namespace.GridUnitType.Star) {
+                    columns.GetValueAt(i).$SetValueInternal(namespace.ColumnDefinition.ActualWidthProperty, cur._OfferedSize);
                 }
             }
         }
@@ -379,7 +464,7 @@
                 for (var col = row; col >= 0; col--) {
                     var spansStar = false;
                     for (var j = row; j >= col; j--) {
-                        spansStar |= matrix[j][j]._Type === GridUnitType.Star;
+                        spansStar |= matrix[j][j]._Type === namespace.GridUnitType.Star;
                     }
                     var current = matrix[row][col]._DesiredSize;
                     var totalAllocated = 0;
@@ -389,10 +474,10 @@
                     if (totalAllocated < current) {
                         var additional = current - totalAllocated;
                         if (spansStar) {
-                            additional = this._AssignSize(matrix, col, row, additional, GridUnitType.Star, true);
+                            additional = this._AssignSize(matrix, col, row, additional, namespace.GridUnitType.Star, true);
                         } else {
-                            additional = this._AssignSize(matrix, col, row, additional, GridUnitType.Pixel, true);
-                            additional = this._AssignSize(matrix, col, row, additional, GridUnitType.Auto, true);
+                            additional = this._AssignSize(matrix, col, row, additional, namespace.GridUnitType.Pixel, true);
+                            additional = this._AssignSize(matrix, col, row, additional, namespace.GridUnitType.Auto, true);
                         }
                     }
                 }
@@ -415,7 +500,7 @@
             cur = matrix[i][i];
             segmentSize = desiredSize ? cur._DesiredSize : cur._OfferedSize;
             if (segmentSize < cur._Max)
-                count += (unitType === GridUnitType.Star) ? cur._Stars : 1;
+                count += (unitType === namespace.GridUnitType.Star) ? cur._Stars : 1;
         }
         do {
             assigned = false;
@@ -426,7 +511,7 @@
                 if (!(cur._Type === unitType && segmentSize < cur._Max))
                     continue;
                 var newSize = segmentSize;
-                newSize += contribution * (unitType === GridUnitType.Star ? cur._Stars : 1);
+                newSize += contribution * (unitType === namespace.GridUnitType.Star ? cur._Stars : 1);
                 newSize = Math.min(newSize, cur._Max);
                 assigned |= newSize > segmentSize;
                 size -= newSize - segmentSize;
@@ -554,7 +639,7 @@
             }
         };
         Grid.Instance._OnCollectionItemChanged = function (col, obj, args) {
-            if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
+            if (this._PropertyHasValueNoAutoCreate(namespace.Panel.ChildrenProperty, col)) {
                 if (args.Property._ID === Grid.ColumnProperty._ID
                     || args.Property._ID === Grid.RowProperty._ID
                     || args.Property._ID === Grid.ColumnSpanProperty._ID
@@ -565,8 +650,8 @@
                 }
             } else if (Nullstone.RefEquals(col, this._GetColumnDefinitionsNoAutoCreate())
                 || Nullstone.RefEquals(col, this._GetRowDefinitionsNoAutoCreate())) {
-                if (args.Property._ID !== ColumnDefinition.ActualWidthProperty._ID
-                    && args.Property._ID !== RowDefinition.ActualHeightProperty._ID) {
+                if (args.Property._ID !== namespace.ColumnDefinition.ActualWidthProperty._ID
+                    && args.Property._ID !== namespace.RowDefinition.ActualHeightProperty._ID) {
                     this._InvalidateMeasure();
                 }
                 return;
@@ -594,8 +679,8 @@
         Grid.Instance.GetRowDefinition = function (index) {
             var rd = this.RowDefinitions.GetValueAt(index);
             if (!rd) {
-                rd = new RowDefinition();
-                rd.Height.Type = GridUnitType.Star;
+                rd = new namespace.RowDefinition();
+                rd.Height.Type = namespace.GridUnitType.Star;
                 rd.Height.Value = 1;
             }
             return rd;
@@ -603,8 +688,8 @@
         Grid.Instance.GetColumnDefinition = function (index) {
             var cd = this.ColumnDefinitions.GetValueAt(index);
             if (!cd) {
-                cd = new ColumnDefinition();
-                cd.Width.Type = GridUnitType.Star;
+                cd = new namespace.ColumnDefinition();
+                cd.Width.Type = namespace.GridUnitType.Star;
                 cd.Width.Value = 1;
             }
             return cd;
@@ -636,7 +721,7 @@
             var totalRowStars = 0;
             for (var i = 0; i < rows; i++) {
                 var rd = this.RowDefinitions.GetValueAt(i).Height;
-                if (rd.Type == GridUnitType.Star) {
+                if (rd.Type === namespace.GridUnitType.Star) {
                     totalRowStars += rd.Value;
                 }
             }
@@ -644,7 +729,7 @@
             var totalColumnStars = 0;
             for (var i = 0; i < columns; i++) {
                 var cd = this.ColumnDefinitions.GetValueAt(i).Width;
-                if (cd.Type == GridUnitType.Star) {
+                if (cd.Type === namespace.GridUnitType.Star) {
                     totalColumnStars += cd.Value;
                 }
             }
@@ -666,28 +751,28 @@
                     var columnEl = rowEl.appendChild(document.createElement("td"));
                     columnEl.style.padding = "0px";
                     switch (rd.Height.Type) {
-                        case GridUnitType.Star:
+                        case namespace.GridUnitType.Star:
                             columnEl.style.height = (rd.Height.Value / totalRowStars) * 100 + "%";
                             break;
-                        case GridUnitType.Pixel:
+                        case namespace.GridUnitType.Pixel:
                             columnEl.style.height = rd.Height.Value + "px";
                             columnEl.style.minHeight = rd.Height.Value + "px";
                             break;
-                        case GridUnitType.Auto:
+                        case namespace.GridUnitType.Auto:
                             columnEl.style.height = "auto";
                             columnEl.style.minHeight = rd.MinHeight + "px";
                             columnEl.style.maxHeight = rd.MaxHeight + "px";
                             break;
                     }
                     switch (cd.Width.Type) {
-                        case GridUnitType.Star:
+                        case namespace.GridUnitType.Star:
                             columnEl.style.width = (cd.Width.Value / totalColumnStars) * 100 + "%";
                             break;
-                        case GridUnitType.Pixel:
+                        case namespace.GridUnitType.Pixel:
                             columnEl.style.width = cd.Width.Value + "px";
                             columnEl.style.minWidth = cd.Width.Value + "px";
                             break;
-                        case GridUnitType.Auto:
+                        case namespace.GridUnitType.Auto:
                             columnEl.style.width = "auto";
                             columnEl.style.minWidth = cd.MinWidth + "px";
                             columnEl.style.maxWidth = cd.MaxWidth + "px";
@@ -740,7 +825,7 @@
             var row = Grid.GetRow(child);
             var cd = this.GetColumnDefinition(column);
             var rd = this.GetRowDefinition(row);
-            if (cd.Width.Type == GridUnitType.Auto) {
+            if (cd.Width.Type === namespace.GridUnitType.Auto) {
                 var table = this.GetHtmlChildrenContainer();
                 table.children[row].children[column].firstChild.style.width = width + "px";
             }
@@ -758,7 +843,7 @@
             var row = Grid.GetRow(child);
             var cd = this.GetColumnDefinition(column);
             var rd = this.GetRowDefinition(row);
-            if (rd.Height.Type == GridUnitType.Auto) {
+            if (rd.Height.Type === namespace.GridUnitType.Auto) {
                 var table = this.GetHtmlChildrenContainer();
                 table.children[row].children[column].firstChild.style.height = height + "px";
             }
@@ -774,7 +859,7 @@
             if (child) {
                 var column = Grid.GetColumn(child);
                 var cd = this.GetColumnDefinition(column);
-                if (cd.Width.Type == GridUnitType.Auto) return false;
+                if (cd.Width.Type === namespace.GridUnitType.Auto) return false;
                 else return true;
             }
             else return this.IsFixedWidth;
@@ -783,7 +868,7 @@
             if (child) {
                 var row = Grid.GetRow(child);
                 var rd = this.GetRowDefinition(row);
-                if (rd.Height.Type == GridUnitType.Auto) return false;
+                if (rd.Height.Type === namespace.GridUnitType.Auto) return false;
                 else return true;
             }
             else return this.IsFixedHeight;
@@ -815,96 +900,4 @@
     };
 
     namespace.Grid = Nullstone.FinishCreate(Grid);
-})(window);
-
-(function (namespace) {
-    function _Segment(offered, min, max, unitType) {
-        if (offered == null) offered = 0.0;
-        if (min == null) min = 0.0;
-        if (max == null) max = Number.POSITIVE_INFINITY;
-        if (unitType == null) unitType = GridUnitType.Pixel;
-
-        this._DesiredSize = 0;
-        this._Min = min;
-        this._Max = max;
-        this._Stars = 0;
-        this._Type = unitType;
-
-        this._OfferedSize = this._Clamp(offered);
-        this._OriginalSize = this._OfferedSize;
-    }
-
-    _Segment.prototype._SetOfferedToDesired = function () {
-        this._OfferedSize = this._DesiredSize;
-        return this._OfferedSize;
-    };
-    _Segment.prototype._SetDesiredToOffered = function () {
-        this._DesiredSize = this._OfferedSize;
-        return this._DesiredSize;
-    };
-    _Segment.prototype._Clamp = function (value) {
-        if (value < this._Min)
-            return this._Min;
-        if (value > this._Max)
-            return this._Max;
-        return value;
-    }
-    _Segment.prototype.toString = function () {
-        return this._OfferedSize.toString() + ";" + this._DesiredSize.toString();
-    };
-
-    namespace._Segment = _Segment;
-})(window);
-
-(function (namespace) {
-    var _GridNode = Nullstone.Create("_GridNode", LinkedListNode, 4);
-
-    _GridNode.Instance.Init = function (matrix, row, col, size) {
-        this._Matrix = matrix;
-        this._Row = row;
-        this._Col = col;
-        this._Size = size;
-        this._Cell = this._Matrix == null ? null : this._Matrix[row][col];
-    };
-
-    namespace._GridNode = Nullstone.FinishCreate(_GridNode);
-})(window);
-
-(function (namespace) {
-    var _GridWalker = Nullstone.Create("_GridWalker", undefined, 5);
-
-    _GridWalker.Instance.Init = function (grid, rowMatrix, rowCount, colMatrix, colCount) {
-        this._HasAutoAuto = false;
-        this._HasStarAuto = false;
-        this._HasAutoStar = false;
-
-        var walker = new _VisualTreeWalker(grid, _VisualTreeWalkerDirection.Logical);
-        var child;
-        while (child = walker.Step()) {
-            var starCol = false;
-            var starRow = false;
-            var autoCol = false;
-            var autoRow = false;
-
-            var col = Math.min(Grid.GetColumn(child), colCount - 1);
-            var row = Math.min(Grid.GetRow(child), rowCount - 1);
-            var colspan = Math.min(Grid.GetColumnSpan(child), colCount - col);
-            var rowspan = Math.min(Grid.GetRowSpan(child), rowCount - row);
-
-            for (var r = row; r < row + rowspan; r++) {
-                starRow |= rowMatrix[r][r].Type === GridUnitType.Star;
-                autoRow |= rowMatrix[r][r].Type === GridUnitType.Auto;
-            }
-            for (var c = col; c < col + colspan; c++) {
-                starCol |= colMatrix[c][c].Type === GridUnitType.Star;
-                autoCol |= colMatrix[c][c].Type === GridUnitType.Auto;
-            }
-
-            this._HasAutoAuto |= autoRow && autoCol && !starRow && !starCol;
-            this._HasStarAuto |= starRow && autoCol;
-            this._HasAutoStar |= autoRow && starCol;
-        }
-    };
-
-    namespace._GridWalker = Nullstone.FinishCreate(_GridWalker);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

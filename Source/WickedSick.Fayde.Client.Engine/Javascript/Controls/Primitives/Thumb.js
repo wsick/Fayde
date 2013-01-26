@@ -5,7 +5,7 @@
 /// <reference path="DragCompletedEventArgs.js"/>
 
 (function (namespace) {
-    var Thumb = Nullstone.Create("Thumb", Control);
+    var Thumb = Nullstone.Create("Thumb", Fayde.Controls.Control);
 
     Thumb.Instance.Init = function () {
         this.Init$Control();
@@ -119,13 +119,13 @@
     //#endregion
 
     Thumb.Instance._RaiseDragStarted = function () {
-        this.DragStarted.Raise(this, new DragStartedEventArgs(this._Origin.X, this._Origin.Y));
+        this.DragStarted.Raise(this, new namespace.DragStartedEventArgs(this._Origin.X, this._Origin.Y));
     };
     Thumb.Instance._RaiseDragDelta = function (x, y) {
-        this.DragDelta.Raise(this, new DragDeltaEventArgs(x, y));
+        this.DragDelta.Raise(this, new namespace.DragDeltaEventArgs(x, y));
     };
     Thumb.Instance._RaiseDragCompleted = function (canceled) {
-        this.DragCompleted.Raise(this, new DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
+        this.DragCompleted.Raise(this, new namespace.DragCompletedEventArgs(this._PreviousPosition.X - this._Origin.X, this._PreviousPosition.Y - this._Origin.Y, canceled));
     };
 
     Thumb.Instance.$GetVisualStateCommon = function () {
@@ -141,4 +141,4 @@
     };
 
     namespace.Thumb = Nullstone.FinishCreate(Thumb);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

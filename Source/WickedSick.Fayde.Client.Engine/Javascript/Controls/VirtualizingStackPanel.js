@@ -5,7 +5,7 @@
 /// <reference path="Primitives/ItemsChangedEventArgs.js"/>
 
 (function (namespace) {
-    var VirtualizingStackPanel = Nullstone.Create("VirtualizingStackPanel", VirtualizingPanel, 0, [IScrollInfo]);
+    var VirtualizingStackPanel = Nullstone.Create("VirtualizingStackPanel", namespace.VirtualizingPanel, 0, [namespace.Primitives.IScrollInfo]);
 
     VirtualizingStackPanel.Instance.Init = function () {
         this.Init$VirtualizingPanel();
@@ -49,7 +49,7 @@
         d.$SetValue(VirtualizingStackPanel.IsVirtualizingProperty, value);
     };
 
-    VirtualizingStackPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () { return new Enum(VirtualizationMode); }, VirtualizingStackPanel, VirtualizationMode.Recycling);
+    VirtualizingStackPanel.VirtualizationModeProperty = DependencyProperty.RegisterAttached("VirtualizationMode", function () { return new Enum(namespace.VirtualizationMode); }, VirtualizingStackPanel, namespace.VirtualizationMode.Recycling);
     VirtualizingStackPanel.GetVirtualizationMode = function (d) {
         if (d == null)
             throw new ArgumentNullException("d");
@@ -224,7 +224,7 @@
     //#region Measure
 
     VirtualizingStackPanel.Instance.MeasureOverride = function (constraint) {
-        var owner = ItemsControl.GetItemsOwner(this);
+        var owner = namespace.ItemsControl.GetItemsOwner(this);
         var measured = new Size(0, 0);
         var invalidate = false;
         var nvisible = 0;
@@ -386,7 +386,7 @@
 
     VirtualizingStackPanel.Instance.RemoveUnusedContainers = function (first, count) {
         var generator = this.ItemContainerGenerator;
-        var owner = ItemsControl.GetItemsOwner(this);
+        var owner = namespace.ItemsControl.GetItemsOwner(this);
         var mode = VirtualizingStackPanel.GetVirtualizationMode(this);
 
         var last = first + count - 1;
@@ -400,11 +400,11 @@
         while (posIndex >= 0) {
             item = generator.IndexFromGeneratorPosition(posIndex, posOffset);
             if (item < first || item > last) {
-                args = new CleanUpVirtualizedItemEventArgs(children.GetValueAt(posIndex), owner.Items.GetValueAt(item));
+                args = new namespace.CleanUpVirtualizedItemEventArgs(children.GetValueAt(posIndex), owner.Items.GetValueAt(item));
                 this.OnCleanUpVirtualizedItem(args);
                 if (!args.Cancel) {
                     this.RemoveInternalChildRange(posIndex, 1);
-                    if (mode === VirtualizationMode.Recycling)
+                    if (mode === namespace.VirtualizationMode.Recycling)
                         generator.Recycle(posIndex, posOffset, 1);
                     else
                         generator.Remove(posIndex, posOffset, 1);
@@ -435,7 +435,7 @@
         this.OnItemsChanged$VirtualizingPanel(sender, args);
 
         var generator = this.ItemContainerGenerator;
-        var owner = ItemsControl.GetItemsOwner(this);
+        var owner = namespace.ItemsControl.GetItemsOwner(this);
         var orientation = this.Orientation;
 
         var index;
@@ -503,7 +503,7 @@
     //#endregion
 
     namespace.VirtualizingStackPanel = Nullstone.FinishCreate(VirtualizingStackPanel);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));
 
 (function (namespace) {
     var CleanUpVirtualizedItemEventArgs = Nullstone.Create("CleanUpVirtualizedItemEventArgs", RoutedEventArgs, 2);
@@ -521,4 +521,4 @@
     ]);
 
     namespace.CleanUpVirtualizedItemEventArgs = Nullstone.FinishCreate(CleanUpVirtualizedItemEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

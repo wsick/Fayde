@@ -112,7 +112,7 @@
             group.RaiseCurrentStateChanged(element, lastState, state, control);
         } else {
             var dynamicTransition = VisualStateManager._GenerateDynamicTransitionAnimations(element, group, state, transition);
-            dynamicTransition.$SetValue(Control.IsTemplateItemProperty, true);
+            dynamicTransition.$SetValue(Fayde.Controls.Control.IsTemplateItemProperty, true);
 
             var eventClosure = new Closure();
             transition.DynamicStoryboardCompleted = false;
@@ -162,7 +162,7 @@
     VisualStateManager._GetTemplateRoot = function (control) {
         /// <param name="control" type="Control"></param>
         /// <returns type="FrameworkElement" />
-        var userControl = Nullstone.As(control, UserControl);
+        var userControl = Nullstone.As(control, Fayde.Controls.UserControl);
         if (userControl != null)
             return Nullstone.As(userControl.Content, FrameworkElement);
         if (VisualTreeHelper.GetChildrenCount(control) > 0)

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace WickedSick.Server.XamlParser.Elements.Types
 {
+    [Element(NullstoneNamespace = "Fayde.Controls")]
     public enum GridUnitType
     {
         Auto,
@@ -12,6 +9,7 @@ namespace WickedSick.Server.XamlParser.Elements.Types
         Star
     }
 
+    [Element(NullstoneNamespace = "Fayde.Controls")]
     public class GridLength : IJsonConvertible
     {
         public double Value { get; set; }
@@ -19,7 +17,8 @@ namespace WickedSick.Server.XamlParser.Elements.Types
 
         public string ToJson(int tabIndents)
         {
-            return string.Format("new GridLength({0}, {1}.{2})", Value, UnitType.GetType().Name, UnitType.ToString());
+            return string.Format("new {0}({1}, {2}.{3})", ElementAttribute.GetFullNullstoneType(GetType()), Value, 
+                ElementAttribute.GetFullNullstoneType(UnitType.GetType()), UnitType.ToString());
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
+    [Element(NullstoneNamespace = "Fayde.Controls")]
     public class ScrollViewer : ContentControl
     {
         public static readonly PropertyDescription HorizontalScrollBarVisibilityProperty = PropertyDescription.Register("HorizontalScrollBarVisibility", typeof(ScrollBarVisibility), typeof(ScrollViewer));

@@ -195,7 +195,7 @@
     <Compile Include="Elements\Media\VSM\VisualTransition.cs" />
     <Compile Include="Elements\ResourceDictionary.cs" />
     <Compile Include="Elements\Shapes\PointCollection.cs" />
-    <Compile Include="Elements\ToolTipService.cs" />
+    <Compile Include="Elements\Controls\ToolTipService.cs" />
     <Compile Include="Elements\Media\Transform.cs" />
     <Compile Include="Elements\Media\TranslateTransform.cs" />
     <Compile Include="Elements\TriggerAction.cs" />
@@ -275,7 +275,7 @@
     <Compile Include="Elements\Media\VSM\VisualStateManager.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Page.cs">
+    <Compile Include="Elements\Controls\Page.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Panel.cs">
@@ -333,7 +333,7 @@
     <Compile Include="Elements\Types\FillRule.cs" />
     <Compile Include="TypeConverters\FontFamilyConverter.cs" />
     <Compile Include="TypeConverters\GridLengthConverter.cs" />
-    <Compile Include="Elements\Types\GridLength.cs" />
+    <Compile Include="Elements\Controls\GridLength.cs" />
     <Compile Include="Elements\Types\HorizontalAlignment.cs" />
     <Compile Include="TypeConverters\ImageSourceConverter.cs" />
     <Compile Include="TypeConverters\IntConverter.cs" />

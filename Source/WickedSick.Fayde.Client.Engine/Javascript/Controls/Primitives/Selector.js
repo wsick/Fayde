@@ -8,13 +8,13 @@
 /// <reference path="../../Collections/ObservableCollection.js"/>
 
 (function (namespace) {
-    var Selector = Nullstone.Create("Selector", ItemsControl, 0, [ISupportInitialize]);
+    var Selector = Nullstone.Create("Selector", Fayde.Controls.ItemsControl, 0, [ISupportInitialize]);
 
     Selector.Instance.Init = function () {
         this.Init$ItemsControl();
         this.SelectionChanged = new MulticastEvent();
         this._SelectedItems = new ObservableCollection();
-        this._Selection = new SelectorSelection(this);
+        this._Selection = new namespace.SelectorSelection(this);
     };
 
     //#region Properties
@@ -114,11 +114,11 @@
 
     Selector.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$ItemsControl();
-        this.$TemplateScrollViewer = Nullstone.As(this.GetTemplateChild("ScrollViewer"), ScrollViewer);
+        this.$TemplateScrollViewer = Nullstone.As(this.GetTemplateChild("ScrollViewer"), Fayde.Controls.ScrollViewer);
         if (this.$TemplateScrollViewer != null) {
             this.$TemplateScrollViewer.TemplatedParentHandlesScrolling = true;
-            this.$TemplateScrollViewer.HorizontalScrollBarVisibility = ScrollViewer.GetHorizontalScrollBarVisibility(this);
-            this.$TemplateScrollViewer.VerticalScrollBarVisibility = ScrollViewer.GetVerticalScrollBarVisibility(this);
+            this.$TemplateScrollViewer.HorizontalScrollBarVisibility = Fayde.Controls.ScrollViewer.GetHorizontalScrollBarVisibility(this);
+            this.$TemplateScrollViewer.VerticalScrollBarVisibility = Fayde.Controls.ScrollViewer.GetVerticalScrollBarVisibility(this);
         }
     };
 
@@ -131,7 +131,7 @@
         var item;
         switch (e.Action) {
             case NotifyCollectionChangedAction.Add:
-                item = Nullstone.As(e.NewItems[0], ListBoxItem);
+                item = Nullstone.As(e.NewItems[0], Fayde.Controls.ListBoxItem);
                 if (item != null && item.IsSelected && !this.SelectedItems.Contains(item)) {
                     this._Selection.Select(item);
                 } else if (this.SelectedItem != null) {
@@ -248,7 +248,7 @@
             oldValue = oldVals[i];
             if (oldValue == null)
                 continue;
-            var oldItem = Nullstone.As(oldValue, ListBoxItem);
+            var oldItem = Nullstone.As(oldValue, Fayde.Controls.ListBoxItem);
             if (oldItem == null)
                 oldItem = this.ItemContainerGenerator.ContainerFromItem(oldValue);
             if (oldItem != null)
@@ -261,7 +261,7 @@
             newValue = newVals[i];
             if (newValue == null)
                 continue;
-            var newItem = Nullstone.As(newValue, ListBoxItem);
+            var newItem = Nullstone.As(newValue, Fayde.Controls.ListBoxItem);
             if (newItem == null)
                 newItem = this.ItemContainerGenerator.ContainerFromItem(newValue);
             if (newItem != null) {
@@ -270,7 +270,7 @@
             }
         }
 
-        this.SelectionChanged.Raise(this, new SelectionChangedEventArgs(oldVals, newVals));
+        this.SelectionChanged.Raise(this, new namespace.SelectionChangedEventArgs(oldVals, newVals));
     };
 
     Selector.Instance.NotifyListItemClicked = function (lbi) {
@@ -315,4 +315,4 @@
     //#endregion
     
     namespace.Selector = Nullstone.FinishCreate(Selector);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

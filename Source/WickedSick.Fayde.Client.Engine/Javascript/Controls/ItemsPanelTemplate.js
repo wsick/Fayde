@@ -23,4 +23,4 @@
     };
 
     namespace.ItemsPanelTemplate = Nullstone.FinishCreate(ItemsPanelTemplate);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

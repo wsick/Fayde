@@ -406,17 +406,6 @@ enum ClickMode {
     Press = 1,
     Hover = 2,
 }
-enum PenLineCap {
-    Flat = 0,
-    Square = 1,
-    Round = 2,
-    Triangle = 3,
-}
-enum PenLineJoin {
-    Miter = 0,
-    Bevel = 1,
-    Round = 2,
-}
 enum SweepDirection {
     Counterclockwise = 0,
     Clockwise = 1,
@@ -424,21 +413,6 @@ enum SweepDirection {
 enum FillRule {
     EvenOdd = 0,
     Nonzero = 1,
-}
-enum VirtualizationMode {
-    Standard = 0,
-    Recycling = 1,
-}
-enum SelectionMode {
-    Single = 0,
-    Multiple = 1,
-    Extended = 2,
-}
-enum ScrollBarVisibility {
-    Disabled = 0,
-    Auto = 1,
-    Hidden = 2,
-    Visible = 3,
 }
 enum TextAlignment {
     Left = 0,
@@ -452,13 +426,6 @@ enum TextWrapping {
     NoWrap = 0,
     Wrap = 1,
     WrapWithOverflow = 2,
-}
-enum PlacementMode {
-    Bottom = 0,
-    Right = 1,
-    Mouse = 2,
-    Left = 3,
-    Top = 4,
 }
 enum MediaElementState {
     Closed = 0,
@@ -856,685 +823,755 @@ module Fayde.Documents {
 //////////////////////////////////////////////////////////
 // CONTROLS
 //////////////////////////////////////////////////////////
-interface IScrollInfo {
-    LineDown();
-    LineLeft();
-    LineRight();
-    LineUp();
-    MouseWheelDown();
-    MouseWheelLeft();
-    MouseWheelRight();
-    MouseWheelUp();
-    PageDown();
-    PageLeft();
-    PageRight();
-    PageUp();
-    SetHorizontalOffset(offset: number);
-    SetVerticalOffset(offset: number);
-    MakeVisible(visual: UIElement, rectangle: Rect);
-}
-class ItemsChangedEventArgs extends EventArgs {
-    Action: Fayde.Data.NotifyCollectionChangedAction;
-    ItemCount: number;
-    ItemUICount: number;
-    OldPosition: number;
-    Position: number;
-}
-class Border extends FrameworkElement {
-    static BackgroundProperty: DependencyProperty;
-    static BorderBrushProperty: DependencyProperty;
-    static BorderThicknessProperty: DependencyProperty;
-    static ChildProperty: DependencyProperty;
-    static CornerRadiusProperty: DependencyProperty;
-    static PaddingProperty: DependencyProperty;
 
-    Background: Fayde.Media.Brush;
-    BorderBrush: Fayde.Media.Brush;
-    BorderThickness: Thickness;
-    Child: UIElement;
-    CornerRadius: CornerRadius;
-    Padding: Thickness;
-}
-class Panel extends FrameworkElement {
-    static BackgroundProperty: DependencyProperty;
-    static ChildrenProperty: DependencyProperty;
-    static IsItemsHostProperty: DependencyProperty;
-    Background: Fayde.Media.Brush;
-    Children: UIElementCollection;
-    IsItemsHost: bool;
-}
-class StackPanel extends Panel {
-    static OrientationProperty: DependencyProperty;
-    Orientation: Orientation;
-    MeasureOverride(constraint: Size): Size;
-    ArrangeOverride(arrangeSize: Size): Size;
-}
-class Grid extends Panel {
-    static ColumnProperty: DependencyProperty;
-    static GetColumn(d: DependencyObject): number;
-    static SetColumn(d: DependencyObject, value: number);
+module Fayde.Controls {
+    module Primitives {
+        export enum ScrollEventType {
+            SmallDecrement = 0,
+            SmallIncrement = 1,
+            LargeDecrement = 2,
+            LargeIncrement = 3,
+            ThumbPosition = 4,
+            ThumbTrack = 5,
+            First = 6,
+            Last = 7,
+            EndScroll = 8
+        }
+        export class ButtonBase extends ContentControl {
+            static ClickModeProperty: DependencyProperty;
+            static CommandParameterProperty: DependencyProperty;
+            static CommandProperty: DependencyProperty;
+            static IsFocusedProperty: DependencyProperty;
+            static IsMouseOverProperty: DependencyProperty;
+            static IsPressedProperty: DependencyProperty;
+            ClickMode: ClickMode;
+            Command: Fayde.MVVM.ICommand;
+            CommandParameter;
+            IsFocused: bool;
+            IsMouseOver: bool;
+            IsPressed: bool;
+            OnApplyTemplate();
+            OnClick();
+            OnGotFocus(e: RoutedEventArgs);
+            OnIsPressedChanged(e: RoutedEvent);
+            OnKeyDown(e: KeyEventArgs);
+            OnKeyUp(e: KeyEventArgs);
+            OnLostFocus(e: RoutedEventArgs);
+            OnLostMouseCapture(e: MouseEventArgs);
+            OnMouseEnter(e: MouseEventArgs);
+            OnMouseLeave(e: MouseEventArgs);
+            OnMouseLeftButtonDown(e: MouseButtonEventArgs);
+            OnMouseLeftButtonUp(e: MouseButtonEventArgs);
+            OnMouseMove(e: MouseEventArgs);
+            Click: RoutedEvent;
+        }
+        export class DragCompletedEventArgs extends RoutedEventArgs {
+            HorizontalChange: number;
+            VerticalChanged: number;
+            Canceled: bool;
+        }
+        export class DragDeltaEventArgs extends RoutedEventArgs {
+            HorizontalChange: number;
+            VerticalChanged: number;
+        }
+        export class DragStartedEventArgs extends RoutedEventArgs {
+            HorizontalOffset: number;
+            VerticalOffset: number;
+        }
+        export interface IScrollInfo {
+            LineDown();
+            LineLeft();
+            LineRight();
+            LineUp();
+            MouseWheelDown();
+            MouseWheelLeft();
+            MouseWheelRight();
+            MouseWheelUp();
+            PageDown();
+            PageLeft();
+            PageRight();
+            PageUp();
+            SetHorizontalOffset(offset: number);
+            SetVerticalOffset(offset: number);
+            MakeVisible(visual: UIElement, rectangle: Rect);
+        }
+        export class ItemsChangedEventArgs extends EventArgs {
+            Action: Fayde.Data.NotifyCollectionChangedAction;
+            ItemCount: number;
+            ItemUICount: number;
+            OldPosition: number;
+            Position: number;
+        }
+        export class Popup extends FrameworkElement {
+            static ChildProperty: DependencyProperty;
+            static HorizontalOffsetProperty: DependencyProperty;
+            static IsOpenProperty: DependencyProperty;
+            static VerticalOffsetProperty: DependencyProperty;
+            Child: UIElement;
+            HorizontalOffset: number;
+            IsOpen: bool;
+            VerticalOffset: number;
 
-    static ColumnSpanProperty: DependencyProperty;
-    static GetColumnSpan(d: DependencyObject): number;
-    static SetColumnSpan(d: DependencyObject, value: number);
+            Opened: MulticastEvent;
+            Closed: MulticastEvent;
+        }
+        export class RangeBase extends Control {
+            static LargeChangeProperty: DependencyProperty;
+            static MaximumProperty: DependencyProperty;
+            static MinimumProperty: DependencyProperty;
+            static SmallChangeProperty: DependencyProperty;
+            static ValueProperty: DependencyProperty;
+            LargeChange: number;
+            Maximum: number;
+            Minimum: number;
+            SmallChange: number;
+            Value: number;
+            OnMaximumChanged();
+            OnMinimumChanged();
+            OnValueChanged();
+            ValueChanged: RoutedEvent;
+        }
+        export class RepeatButton extends ButtonBase {
+            static DelayProperty: DependencyProperty;
+            static IntervalProperty: DependencyProperty;
+            Delay: number;
+            Interval: number;
+        }
+        export class ScrollBar extends RangeBase {
+            static OrientationProperty: DependencyProperty;
+            static ViewportSizeProperty: DependencyProperty;
+            Orientation: Orientation;
+            ViewportSize: number;
+            Scroll: MulticastEvent;
+        }
+        export class ScrollEventArgs extends EventArgs {
+            ScrollEvent: ScrollEventType;
+            Value: number;
+        }
+        export class SelectionChangedEventArgs extends EventArgs {
+            OldValues: any[];
+            NewValues: any[];
+        }
+        export class Selector extends ItemsControl {
+            static SelectedIndexProperty: DependencyProperty;
+            static SelectedItemProperty: DependencyProperty;
+            static SelectedValuePathProperty: DependencyProperty;
+            static SelectedValueProperty: DependencyProperty;
+            HasItems: bool;
+            SelectedIndex: number;
+            SelectedItem;
+            SelectedValue;
+            SelectedValuePath: string;
+            static GetIsSelectionActive(element: DependencyObject): bool;
+            SelectionChanged: MulticastEvent;
+        }
+        export class Thumb extends Control {
+            static IsDraggingProperty: DependencyProperty;
+            static IsFocusedProperty: DependencyProperty;
+            IsDragging: bool;
+            IsFocused: bool;
+            CancelDrag();
+            DragCompleted: MulticastEvent;
+            DragDelta: MulticastEvent;
+            DragStarted: MulticastEvent;
+        }
+        export class ToggleButton extends ButtonBase {
+            static IsCheckedProperty: DependencyProperty;
+            static IsThreeStateProperty: DependencyProperty;
+            IsChecked: bool;
+            IsThreeState: bool;
+            OnToggle();
+            Checked: RoutedEvent;
+            Indeterminate: RoutedEvent;
+            Unchecked: RoutedEvent;
+        }
+    }
 
-    static RowProperty: DependencyProperty;
-    static GetRow(d: DependencyObject): number;
-    static SetRow(d: DependencyObject, value: number);
+    export enum GridUnitType {
+        Auto = 0,
+        Pixel = 1,
+        Star = 2,
+    }
+    export enum PlacementMode {
+        Bottom = 0,
+        Right = 1,
+        Mouse = 2,
+        Left = 3,
+        Top = 4,
+    }
+    export enum ScrollBarVisibility {
+        Disabled = 0,
+        Auto = 1,
+        Hidden = 2,
+        Visible = 3,
+    }
+    export enum SelectionMode {
+        Single = 0,
+        Multiple = 1,
+        Extended = 2,
+    }
+    export enum VirtualizationMode {
+        Standard = 0,
+        Recycling = 1,
+    }
 
-    static RowSpanProperty: DependencyProperty;
-    static GetRowSpan(d: DependencyObject): number;
-    static SetRowSpan(d: DependencyObject, value: number);
+    export class Border extends FrameworkElement {
+        static BackgroundProperty: DependencyProperty;
+        static BorderBrushProperty: DependencyProperty;
+        static BorderThicknessProperty: DependencyProperty;
+        static ChildProperty: DependencyProperty;
+        static CornerRadiusProperty: DependencyProperty;
+        static PaddingProperty: DependencyProperty;
 
-    static ShowGridLinesProperty: DependencyProperty;
-    static GetShowGridLines(d: DependencyObject): number;
-    static SetShowGridLines(d: DependencyObject, value: number);
+        Background: Fayde.Media.Brush;
+        BorderBrush: Fayde.Media.Brush;
+        BorderThickness: Thickness;
+        Child: UIElement;
+        CornerRadius: CornerRadius;
+        Padding: Thickness;
+    }
+    export class Button extends Primitives.ButtonBase {
+    }
+    export class Canvas extends Panel {
+        static LeftProperty: DependencyProperty;
+        static GetLeft(d: DependencyObject): number;
+        static SetLeft(d: DependencyObject, value: number);
 
-    ColumnDefinitions: ColumnDefinitionCollection;
-    RowDefinitions: RowDefinitionCollection;
-    ShowGridLines: bool;
-    
-    MeasureOverride(constraint: Size): Size;
-    ArrangeOverride(arrangeSize: Size): Size;
-}
-class ColumnDefinition extends DependencyObject {
-    static MaxWidthProperty: DependencyProperty;
-    static MinWidthProperty: DependencyProperty;
-    static WidthProperty: DependencyProperty;
-    ActualWidth: number;
-    MaxWidth: number;
-    MinWidth: number;
-    Width: number;
-}
-class ColumnDefinitionCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): ColumnDefinition;
-    SetValueAt(index: number, value: ColumnDefinition);
-    Add(value: ColumnDefinition);
-    AddRange(newItems: ColumnDefinition[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: ColumnDefinition);
-    Remove(value: ColumnDefinition);
-    IndexOf(value: ColumnDefinition): number;
-    Contains(value: ColumnDefinition): bool;
-    ToArray(): ColumnDefinition[];
-}
-class RowDefinition extends DependencyObject {
-    static MaxHeightProperty: DependencyProperty;
-    static MinHeightProperty: DependencyProperty;
-    static HeightProperty: DependencyProperty;
-    ActualHeight: number;
-    MaxHeight: number;
-    MinHeight: number;
-    Height: number;
-}
-class RowDefinitionCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): RowDefinition;
-    SetValueAt(index: number, value: RowDefinition);
-    Add(value: RowDefinition);
-    AddRange(newItems: RowDefinition[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: RowDefinition);
-    Remove(value: RowDefinition);
-    IndexOf(value: RowDefinition): number;
-    Contains(value: RowDefinition): bool;
-    ToArray(): RowDefinition[];
-}
-class Canvas extends Panel {
-    static LeftProperty: DependencyProperty;
-    static GetLeft(d: DependencyObject): number;
-    static SetLeft(d: DependencyObject, value: number);
+        static TopProperty: DependencyProperty;
+        static GetTop(d: DependencyObject): number;
+        static SetTop(d: DependencyObject, value: number);
 
-    static TopProperty: DependencyProperty;
-    static GetTop(d: DependencyObject): number;
-    static SetTop(d: DependencyObject, value: number);
+        static ZIndexProperty: DependencyProperty;
+        static GetZIndex(d: DependencyObject): number;
+        static SetZIndex(d: DependencyObject, value: number);
 
-    static ZIndexProperty: DependencyProperty;
-    static GetZIndex(d: DependencyObject): number;
-    static SetZIndex(d: DependencyObject, value: number);
-    
-    MeasureOverride(constraint: Size): Size;
-    ArrangeOverride(arrangeSize: Size): Size;
-}
-class VirtualizingPanel extends Panel {
-    ItemContainerGenerator: ItemContainerGenerator;
-    AddInternalChild(child: UIElement);
-    BringIndexIntoView(index: number);
-    InsertInternalChild(index: number, child: UIElement);
-    OnClearChildren();
-    OnItemsChanged(sender, args: ItemsChangedEventArgs);
-    RemoveInternalChildRange(index: number, range: number);
-}
-class VirtualizingStackPanel extends VirtualizingPanel implements IScrollInfo {
-    static IsVirtualizingProperty: DependencyProperty;
-    static GetIsVirtualizing(d: DependencyObject): bool;
-    static SetIsVirtualizing(d: DependencyObject, value: bool);
+        MeasureOverride(constraint: Size): Size;
+        ArrangeOverride(arrangeSize: Size): Size;
+    }
+    export class CheckBox extends Primitives.ToggleButton {
+    }
+    export class ColumnDefinition extends DependencyObject {
+        static MaxWidthProperty: DependencyProperty;
+        static MinWidthProperty: DependencyProperty;
+        static WidthProperty: DependencyProperty;
+        ActualWidth: number;
+        MaxWidth: number;
+        MinWidth: number;
+        Width: GridLength;
+    }
+    export class ColumnDefinitionCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): ColumnDefinition;
+        SetValueAt(index: number, value: ColumnDefinition);
+        Add(value: ColumnDefinition);
+        AddRange(newItems: ColumnDefinition[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: ColumnDefinition);
+        Remove(value: ColumnDefinition);
+        IndexOf(value: ColumnDefinition): number;
+        Contains(value: ColumnDefinition): bool;
+        ToArray(): ColumnDefinition[];
+    }
+    export class ComboBox extends Primitives.Selector {
+        static IsDropDownOpenProperty: DependencyProperty;
+        static IsSelectionActiveProperty: DependencyProperty;
+        static ItemContainerStyleProperty: DependencyProperty;
+        static MaxDropDownHeightProperty: DependencyProperty;
+        IsDropDownOpen: bool;
+        IsSelectionActive: bool;
+        ItemContainerStyle: Style;
+        MaxDropDownHeight: number;
+        IsEditable: bool;
+        IsSelectionBoxHighlighted: bool;
+        SelectionBoxItem;
+        SelectionBoxItemTemplate: Fayde.Data.DataTemplate;
+        DropDownClosed: RoutedEvent;
+        DropDownOpened: RoutedEvent;
+    }
+    export class ComboBoxItem extends ListBoxItem {
+    }
+    export class ContentControl extends Control {
+        static ContentProperty: DependencyProperty;
+        static ContentTemplateProperty: DependencyProperty;
+        Content;
+        ContentTemplate: ControlTemplate;
+        OnContentChanged(oldContent, newContent);
+    }
+    export class ContentPresenter extends FrameworkElement {
+        static ContentProperty: DependencyProperty;
+        static ContentTemplateProperty: DependencyProperty;
+        Content;
+        ContentTemplate: Fayde.Data.DataTemplate;
+    }
+    export class Control extends FrameworkElement {
+        static BackgroundProperty: DependencyProperty;
+        static BorderBrushProperty: DependencyProperty;
+        static BorderThicknessProperty: DependencyProperty;
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        static HorizontalContentAlignmentProperty: DependencyProperty;
+        static IsEnabledProperty: DependencyProperty;
+        static IsTabStopProperty: DependencyProperty;
+        static PaddingProperty: DependencyProperty;
+        static TabIndexProperty: DependencyProperty;
+        static TabNavigationProperty: DependencyProperty;
+        static TemplateProperty: DependencyProperty;
+        static VerticalContentAlignmentProperty: DependencyProperty;
 
-    static OrientationProperty: DependencyProperty;
-    
-    static VirtualizationMode: DependencyProperty;
-    static GetVirtualizationMode(d: DependencyObject): VirtualizationMode;
-    static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode);
-    
-    MeasureOverride(constraint: Size): Size;
-    ArrangeOverride(arrangeSize: Size): Size;
+        Background: Fayde.Media.Brush;
+        BorderBrush: Fayde.Media.Brush;
+        BorderThickness: Thickness;
+        FontFamily: string;
+        FontSize: number;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        Foreground: Fayde.Media.Brush;
+        HorizontalContentAlignment: HorizontalAlignment;
+        IsEnabled: bool;
+        IsTabStop: bool;
+        Padding: Thickness;
+        TabIndex: number;
+        TabNavigation: number;
+        Template: ControlTemplate;
+        VerticalContentAlignment: VerticalAlignment;
+        IsFocused: bool;
 
-    //IScrollInfo Members
-    LineDown();
-    LineLeft();
-    LineRight();
-    LineUp();
-    MouseWheelDown();
-    MouseWheelLeft();
-    MouseWheelRight();
-    MouseWheelUp();
-    PageDown();
-    PageLeft();
-    PageRight();
-    PageUp();
-    SetHorizontalOffset(offset: number);
-    SetVerticalOffset(offset: number);
-    MakeVisible(visual: UIElement, rectangle: Rect);
-}
-class ControlTemplate extends FrameworkTemplate {
-    TargetType;
-}
-class Control extends FrameworkElement {
-    static BackgroundProperty: DependencyProperty;
-    static BorderBrushProperty: DependencyProperty;
-    static BorderThicknessProperty: DependencyProperty;
-    static FontFamilyProperty: DependencyProperty;
-    static FontSizeProperty: DependencyProperty;
-    static FontStretchProperty: DependencyProperty;
-    static FontStyleProperty: DependencyProperty;
-    static FontWeightProperty: DependencyProperty;
-    static ForegroundProperty: DependencyProperty;
-    static HorizontalContentAlignmentProperty: DependencyProperty;
-    static IsEnabledProperty: DependencyProperty;
-    static IsTabStopProperty: DependencyProperty;
-    static PaddingProperty: DependencyProperty;
-    static TabIndexProperty: DependencyProperty;
-    static TabNavigationProperty: DependencyProperty;
-    static TemplateProperty: DependencyProperty;
-    static VerticalContentAlignmentProperty: DependencyProperty;
+        Focus(): bool;
+        GetTemplateChild(name: string): DependencyObject;
 
-    Background: Fayde.Media.Brush;
-    BorderBrush: Fayde.Media.Brush;
-    BorderThickness: Thickness;
-    FontFamily: string;
-    FontSize: number;
-    FontStretch: string;
-    FontStyle: string;
-    FontWeight: FontWeight;
-    Foreground: Fayde.Media.Brush;
-    HorizontalContentAlignment: HorizontalAlignment;
-    IsEnabled: bool;
-    IsTabStop: bool;
-    Padding: Thickness;
-    TabIndex: number;
-    TabNavigation: number;
-    Template: ControlTemplate;
-    VerticalContentAlignment: VerticalAlignment;
-    IsFocused: bool;
+        IsEnabledChanged: RoutedEvent;
+    }
+    export class ControlTemplate extends FrameworkTemplate {
+        TargetType;
+    }
+    export class Frame extends ContentControl {
+        static IsDeepLinkedProperty: DependencyProperty;
+        static CurrentSourceProperty: DependencyProperty;
+        static SourceProperty: DependencyProperty;
+        IsDeepLinked: bool;
+        CurrentSource: Uri;
+        Source: Uri;
+        GoForward();
+        GoBackward();
+        StopLoading();
+        Navigate(source: Uri);
+    }
+    export class Grid extends Panel {
+        static ColumnProperty: DependencyProperty;
+        static GetColumn(d: DependencyObject): number;
+        static SetColumn(d: DependencyObject, value: number);
 
-    Focus(): bool;
-    GetTemplateChild(name: string): DependencyObject;
-    
-    IsEnabledChanged: RoutedEvent;
-}
-class ContentControl extends Control {
-    static ContentProperty: DependencyProperty;
-    static ContentTemplateProperty: DependencyProperty;
-    Content;
-    ContentTemplate: ControlTemplate;
-    OnContentChanged(oldContent, newContent);
-}
-class ButtonBase extends ContentControl {
-    static ClickModeProperty: DependencyProperty;
-    static CommandParameterProperty: DependencyProperty;
-    static CommandProperty: DependencyProperty;
-    static IsFocusedProperty: DependencyProperty;
-    static IsMouseOverProperty: DependencyProperty;
-    static IsPressedProperty: DependencyProperty;
-    ClickMode: ClickMode;
-    Command: Fayde.MVVM.ICommand;
-    CommandParameter;
-    IsFocused: bool;
-    IsMouseOver: bool;
-    IsPressed: bool;
-    OnApplyTemplate();
-    OnClick();
-    OnGotFocus(e: RoutedEventArgs);
-    OnIsPressedChanged(e: RoutedEvent);
-    OnKeyDown(e: KeyEventArgs);
-    OnKeyUp(e: KeyEventArgs);
-    OnLostFocus(e: RoutedEventArgs);
-    OnLostMouseCapture(e: MouseEventArgs);
-    OnMouseEnter(e: MouseEventArgs);
-    OnMouseLeave(e: MouseEventArgs);
-    OnMouseLeftButtonDown(e: MouseButtonEventArgs);
-    OnMouseLeftButtonUp(e: MouseButtonEventArgs);
-    OnMouseMove(e: MouseEventArgs);
-    Click: RoutedEvent;
-}
-class Button extends ButtonBase {
-}
-class RepeatButton extends ButtonBase {
-    static DelayProperty: DependencyProperty;
-    static IntervalProperty: DependencyProperty;
-    Delay: number;
-    Interval: number;
-}
-class ToggleButton extends ButtonBase {
-    static IsCheckedProperty: DependencyProperty;
-    static IsThreeStateProperty: DependencyProperty;
-    IsChecked: bool;
-    IsThreeState: bool;
-    OnToggle();
-    Checked: RoutedEvent;
-    Indeterminate: RoutedEvent;
-    Unchecked: RoutedEvent;
-}
-class HyperlinkButton extends ButtonBase {
-    static NavigateUriProperty: DependencyProperty;
-    static TargetNameProperty: DependencyProperty;
-    NavigateUri: Uri;
-    TargetName: string;
-}
-class CheckBox extends ToggleButton {
-}
-class RadioButton extends ToggleButton {
-    static GroupNameProperty: DependencyProperty;
-    GroupName: string;
-}
-class ItemContainerGenerator {
-    ItemsChanged: MulticastEvent;
-}
-class ItemsPanelTemplate extends FrameworkTemplate {
-}
-class ItemCollection extends PresentationFrameworkCollection implements Fayde.Data.INotifyCollectionChanged {
-    CollectionChanged: Fayde.Data.NotifyCollectionChangedEventHandler;
-}
-class ItemsControl extends Control {
-    static DisplayMemberPathProperty: DependencyProperty;
-    static ItemsPanelProperty: DependencyProperty;
-    static ItemsSourceProperty: DependencyProperty;
-    static ItemTemplateProperty: DependencyProperty;
-    DisplayMemberPath: string;
-    ItemsPanel: ItemsPanelTemplate;
-    ItemsSource;
-    ItemTemplate: Fayde.Data.DataTemplate;
-    Items: ItemCollection;
-    ItemContainerGenerator: ItemContainerGenerator;
-    ClearContainerForItemOverride(element: DependencyObject, item);
-    GetContainerForItemOverride(): DependencyObject;
-    IsItemItsOwnContainerOverride(item): bool;
-    ItemsControlFromItemContainer(container: DependencyObject): ItemsControl;
-    OnItemsChanged(e: Fayde.Data.NotifyCollectionChangedEventArgs);
-    PrepareContainerForItemOverride(element: DependencyObject, item);
-}
-class Selector extends ItemsControl {
-    static SelectedIndexProperty: DependencyProperty;
-    static SelectedItemProperty: DependencyProperty;
-    static SelectedValuePathProperty: DependencyProperty;
-    static SelectedValueProperty: DependencyProperty;
-    HasItems: bool;
-    SelectedIndex: number;
-    SelectedItem;
-    SelectedValue;
-    SelectedValuePath: string;
-    static GetIsSelectionActive(element: DependencyObject): bool;
-    SelectionChanged: MulticastEvent;
-}
-class ListBox extends Selector {
-    static IsSelectionActiveProperty: DependencyProperty;
-    static ItemContainerStyleProperty: DependencyProperty;
-    static SelectionModeProperty: DependencyProperty;
-    IsSelectionActive: bool;
-    ItemContainerStyle: Style;
-    SelectionMode: SelectionMode;
-    SelectAll();
-    ScrollIntoView(item);
-}
-class ListBoxItem extends ContentControl {
-    static IsSelectedProperty: DependencyProperty;
-    IsSelected: bool;
-}
-class ComboBox extends Selector {
-    static IsDropDownOpenProperty: DependencyProperty;
-    static IsSelectionActiveProperty: DependencyProperty;
-    static ItemContainerStyleProperty: DependencyProperty;
-    static MaxDropDownHeightProperty: DependencyProperty;
-    IsDropDownOpen: bool;
-    IsSelectionActive: bool;
-    ItemContainerStyle: Style;
-    MaxDropDownHeight: number;
-    IsEditable: bool;
-    IsSelectionBoxHighlighted: bool;
-    SelectionBoxItem;
-    SelectionBoxItemTemplate: Fayde.Data.DataTemplate;
-    DropDownClosed: RoutedEvent;
-    DropDownOpened: RoutedEvent;
-}
-class ComboBoxItem extends ListBoxItem {
-}
-class ContentPresenter extends FrameworkElement {
-    static ContentProperty: DependencyProperty;
-    static ContentTemplateProperty: DependencyProperty;
-    Content;
-    ContentTemplate: Fayde.Data.DataTemplate;
-}
-class ItemsPresenter extends FrameworkElement {
-}
-class ScrollContentPresenter extends ContentPresenter implements IScrollInfo {
-    LineDown();
-    LineLeft();
-    LineRight();
-    LineUp();
-    MouseWheelDown();
-    MouseWheelLeft();
-    MouseWheelRight();
-    MouseWheelUp();
-    PageDown();
-    PageLeft();
-    PageRight();
-    PageUp();
-    SetHorizontalOffset(offset: number);
-    SetVerticalOffset(offset: number);
-    MakeVisible(visual: UIElement, rectangle: Rect);
-}
-class ScrollViewer extends ContentControl {
-    static HorizontalScrollBarVisibilityProperty: DependencyProperty;
-    static GetHorizontalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
-    static SetHorizontalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+        static ColumnSpanProperty: DependencyProperty;
+        static GetColumnSpan(d: DependencyObject): number;
+        static SetColumnSpan(d: DependencyObject, value: number);
 
-    static VerticalScrollBarVisibilityProperty: DependencyProperty;
-    static GetVerticalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
-    static SetVerticalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+        static RowProperty: DependencyProperty;
+        static GetRow(d: DependencyObject): number;
+        static SetRow(d: DependencyObject, value: number);
 
-    static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty;
-    static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty;
-    static HorizontalOffsetProperty: DependencyProperty;
-    static VerticalOffsetProperty: DependencyProperty;
-    static ScrollableWidthProperty: DependencyProperty;
-    static ScrollableHeightProperty: DependencyProperty;
-    static ExtentWidthProperty: DependencyProperty;
-    static ExtentHeightProperty: DependencyProperty;
-    static ViewportWidthProperty: DependencyProperty;
-    static ViewportHeightProperty: DependencyProperty;
-    
-    HorizontalScrollBarVisibility: ScrollBarVisibility;
-    VerticalScrollBarVisibility: ScrollBarVisibility;
-    ComputedHorizontalScrollBarVisibility: ScrollBarVisibility;
-    ComputedVerticalScrollBarVisibility: ScrollBarVisibility;
-    HorizontalOffset: number;
-    VerticalOffset: number;
-    ScrollableWidth: number;
-    ScrollableHeight: number;
-    ExtentWidth: number;
-    ExtentHeight: number;
-    ViewportWidth: number;
-    ViewportHeight: number;
+        static RowSpanProperty: DependencyProperty;
+        static GetRowSpan(d: DependencyObject): number;
+        static SetRowSpan(d: DependencyObject, value: number);
 
-    InvalidateScrollInfo();
-    ScrollToHorizontalOffset(offset: number);
-    ScrollToVerticalOffset(offset: number);
-}
-class UserControl extends Control {
-    static ContentProperty: DependencyProperty;
-    Content: UIElement;
-}
-class Frame extends ContentControl {
-    static IsDeepLinkedProperty: DependencyProperty;
-    static CurrentSourceProperty: DependencyProperty;
-    static SourceProperty: DependencyProperty;
-    IsDeepLinked: bool;
-    CurrentSource: Uri;
-    Source: Uri;
-    GoForward();
-    GoBackward();
-    StopLoading();
-    Navigate(source: Uri);
-}
-class Page extends UserControl {
-    static TitleProperty: DependencyProperty;
-    Title: string;
-}
-class Image extends FrameworkElement {
-    static SourceProperty: DependencyProperty;
-    static StretchProperty: DependencyProperty;
-    Source: Fayde.Media.Imaging.ImageSource;
-    Stretch: Fayde.Media.Stretch;
-    ImageFailed: MulticastEvent;
-    ImageOpened: MulticastEvent;
-}
-class MediaElement extends FrameworkElement {
-    static AutoPlayProperty: DependencyProperty;
-    static BufferingProgressProperty: DependencyProperty;
-    static BufferingTimeProperty: DependencyProperty;
-    static CanPauseProperty: DependencyProperty;
-    static CanSeekProperty: DependencyProperty;
-    static CurrentStateProperty: DependencyProperty;
-    static DownloadProgressProperty: DependencyProperty;
-    static DownloadProgressOffsetProperty: DependencyProperty;
-    static IsMutedProperty: DependencyProperty;
-    static NaturalDurationProperty: DependencyProperty;
-    static NaturalVideoHeightProperty: DependencyProperty;
-    static NaturalVideoWidthProperty: DependencyProperty;
-    static PlaybackRateProperty: DependencyProperty;
-    static PositionProperty: DependencyProperty;
-    static SourceProperty: DependencyProperty;
-    static StretchProperty: DependencyProperty;
-    static VolumeProperty: DependencyProperty;
-    
-    AutoPlay: bool;
-    BufferingProgress: number;
-    BufferingTime: TimeSpan;
-    CanPause: bool;
-    CanSeek: bool;
-    CurrentState: MediaElementState;
-    DownloadProgress: number;
-    DownloadProgressOffset: number;
-    IsMuted: bool;
-    NaturalDuration: Duration;
-    NaturalVideoHeight: number;
-    NaturalVideoWidth: number;
-    PlaybackRate: number;
-    Position: TimeSpan;
-    Source: Uri;
-    Stretch: Fayde.Media.Stretch;
-    Volume: number;
-}
-class RangeBase extends Control {
-    static LargeChangeProperty: DependencyProperty;
-    static MaximumProperty: DependencyProperty;
-    static MinimumProperty: DependencyProperty;
-    static SmallChangeProperty: DependencyProperty;
-    static ValueProperty: DependencyProperty;
-    LargeChange: number;
-    Maximum: number;
-    Minimum: number;
-    SmallChange: number;
-    Value: number;
-    OnMaximumChanged();
-    OnMinimumChanged();
-    OnValueChanged();
-    ValueChanged: RoutedEvent;
-}
-class ProgressBar extends RangeBase {
-    static IsIndeterminateProperty: DependencyProperty;
-    IsIndeterminate: bool;
-}
-class ScrollBar extends RangeBase {
-    static OrientationProperty: DependencyProperty;
-    static ViewportSizeProperty: DependencyProperty;
-    Orientation: Orientation;
-    ViewportSize: number;
-    Scroll: MulticastEvent;
-}
-class Slider extends RangeBase {
-    static IsDirectionReversedProperty: DependencyProperty;
-    static IsFocusedProperty: DependencyProperty;
-    static OrientationProperty: DependencyProperty;
-    IsDirectionReversed: bool;
-    IsFocused: bool;
-    Orientation: Orientation;
-}
-class TextBlock extends FrameworkElement {
-    static FontFamilyProperty: DependencyProperty;
-    static FontSizeProperty: DependencyProperty;
-    static FontStretchProperty: DependencyProperty;
-    static FontStyleProperty: DependencyProperty;
-    static FontWeightProperty: DependencyProperty;
-    static ForegroundProperty: DependencyProperty;
-    static InlinesProperty: DependencyProperty;
-    static LineHeightProperty: DependencyProperty;
-    static LineStackingStrategyProperty: DependencyProperty;
-    static PaddingProperty: DependencyProperty;
-    static TextAlignmentProperty: DependencyProperty;
-    static TextDecorationsProperty: DependencyProperty;
-    static TextProperty: DependencyProperty;
-    static TextTrimmingProperty: DependencyProperty;
-    static TextWrappingProperty: DependencyProperty;
-    FontFamily: string;
-    FontSize: number;
-    FontStretch: string;
-    FontStyle: string;
-    FontWeight: FontWeight;
-    Foreground: Fayde.Media.Brush;
-    Inlines: InlineCollection;
-    LineHeight: number;
-    LineStackingStrategy: LineStackingStrategy;
-    Padding: Thickness;
-    TextAlignment: TextAlignment;
-    TextDecorations: TextDecorations;
-    Text: string;
-    TextTrimming: TextTrimming;
-    TextWrapping: TextWrapping;
-}
-class TextBox extends Control {
-    static AcceptsReturnProperty: DependencyProperty;
-    static CaretBrushProperty: DependencyProperty;
-    static MaxLengthProperty: DependencyProperty;
-    static IsReadOnlyProperty: DependencyProperty;
-    static SelectionForegroundProperty: DependencyProperty;
-    static SelectionBackgroundProperty: DependencyProperty;
-    static BaselineOffsetProperty: DependencyProperty;
-    static SelectedTextProperty: DependencyProperty;
-    static SelectionLengthProperty: DependencyProperty;
-    static SelectionStartProperty: DependencyProperty;
-    static TextProperty: DependencyProperty;
-    static TextAlignmentProperty: DependencyProperty;
-    static TextWrappingProperty: DependencyProperty;
-    static HorizontalScrollBarVisibilityProperty: DependencyProperty;
-    static VerticalScrollBarVisibilityProperty: DependencyProperty;
-    AcceptsReturn: bool;
-    CaretBrush: Fayde.Media.Brush;
-    MaxLength: number;
-    IsReadOnly: bool;
-    SelectionForeground: Fayde.Media.Brush;
-    SelectionBackground: Fayde.Media.Brush;
-    BaselineOffset: number;
-    SelectedText: string;
-    SelectionLength: number;
-    SelectionStart: number;
-    Text: string;
-    TextAlignment: TextAlignment;
-    TextWrapping: TextWrapping;
-    HorizontalScrollBarVisibility: ScrollBarVisibility;
-    VerticalScrollBarVisibility: ScrollBarVisibility;
-    Select(start: number, length: number);
-    SelectAll();
-    SelectionChanged: RoutedEvent;
-    TextChanged: RoutedEvent;
-}
-class PasswordBox extends Control {
-    static CaretBrushProperty: DependencyProperty;
-    static MaxLengthProperty: DependencyProperty;
-    static SelectionForegroundProperty: DependencyProperty;
-    static SelectionBackgroundProperty: DependencyProperty;
-    static PasswordProperty: DependencyProperty;
-    CaretBrush: Fayde.Media.Brush;
-    MaxLength: number;
-    SelectionForeground: Fayde.Media.Brush;
-    SelectionBackground: Fayde.Media.Brush;
-    Password: string;
-    SelectAll();
-    PasswordChanged: RoutedEvent;
-}
-class RichTextBox extends Control {
-    static AcceptsReturnProperty: DependencyProperty;
-    static CaretBrushProperty: DependencyProperty;
-    static IsReadOnlyProperty: DependencyProperty;
-    static LineHeightProperty: DependencyProperty;
-    static LineStackingStrategyProperty: DependencyProperty;
-    static TextAlignmentProperty: DependencyProperty;
-    static TextWrappingProperty: DependencyProperty;
-    AcceptsReturn: bool;
-    BaselineOffset: number;
-    Blocks: BlockCollection;
-    CaretBrush: Fayde.Media.Brush;
-    HorizontalScrollBarVisibility: ScrollBarVisibility;
-    IsReadOnly: bool;
-    LineHeight: number;
-    LineStackingStrategy: LineStackingStrategy;
-    Selection: TextSelection;
-    TextAlignment: TextAlignment;
-    TextWrapping: TextWrapping;
-    VerticalScrollBarVisibility: ScrollBarVisibility;
-    Xaml: string;
-    
-    ContentChanged: RoutedEvent;
-    SelectionChanged: RoutedEvent;
-}
-class ToolTip extends ContentControl {
-    static HorizontalOffsetProperty: DependencyProperty;
-    static IsOpenProperty: DependencyProperty;
-    static PlacementProperty: DependencyProperty;
-    static PlacementTargetProperty: DependencyProperty;
-    static VerticalOffsetProperty: DependencyProperty;
-    HorizontalOffset: number;
-    IsOpen: bool;
-    Placement: PlacementMode;
-    PlacementTarget: UIElement;
-    VerticalOffset: number;
-    Closed: RoutedEvent;
-    Opened: RoutedEvent;
-}
-class ToolTipService {
-    static PlacementProperty: DependencyProperty;
-    static GetPlacement(d: DependencyObject): PlacementMode;
-    static SetPlacement(d: DependencyObject, value: PlacementMode);
+        static ShowGridLinesProperty: DependencyProperty;
+        static GetShowGridLines(d: DependencyObject): number;
+        static SetShowGridLines(d: DependencyObject, value: number);
 
-    static PlacementTargetProperty: DependencyProperty;
-    static GetPlacementTarget(d: DependencyObject): UIElement;
-    static SetPlacementTarget(d: DependencyObject, value: UIElement);
+        ColumnDefinitions: ColumnDefinitionCollection;
+        RowDefinitions: RowDefinitionCollection;
+        ShowGridLines: bool;
 
-    static ToolTipProperty: DependencyProperty;
-    static GetToolTip(d: DependencyObject): ToolTip;
-    static SetToolTip(d: DependencyObject, value: ToolTip);
-}
-class Popup extends FrameworkElement {
-    static ChildProperty: DependencyProperty;
-    static HorizontalOffsetProperty: DependencyProperty;
-    static IsOpenProperty: DependencyProperty;
-    static VerticalOffsetProperty: DependencyProperty;
-    Child: UIElement;
-    HorizontalOffset: number;
-    IsOpen: bool;
-    VerticalOffset: number;
+        MeasureOverride(constraint: Size): Size;
+        ArrangeOverride(arrangeSize: Size): Size;
+    }
+    export class GridLength {
+        Value: number;
+        Type: GridUnitType;
+    }
+    export class HyperlinkButton extends Primitives.ButtonBase {
+        static NavigateUriProperty: DependencyProperty;
+        static TargetNameProperty: DependencyProperty;
+        NavigateUri: Uri;
+        TargetName: string;
+    }
+    export class Image extends FrameworkElement {
+        static SourceProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        Source: Fayde.Media.Imaging.ImageSource;
+        Stretch: Fayde.Media.Stretch;
+        ImageFailed: MulticastEvent;
+        ImageOpened: MulticastEvent;
+    }
+    export class ItemCollection extends PresentationFrameworkCollection implements Fayde.Data.INotifyCollectionChanged {
+        CollectionChanged: Fayde.Data.NotifyCollectionChangedEventHandler;
+    }
+    export class ItemContainerGenerator {
+        ItemsChanged: MulticastEvent;
+    }
+    export class ItemsControl extends Control {
+        static DisplayMemberPathProperty: DependencyProperty;
+        static ItemsPanelProperty: DependencyProperty;
+        static ItemsSourceProperty: DependencyProperty;
+        static ItemTemplateProperty: DependencyProperty;
+        DisplayMemberPath: string;
+        ItemsPanel: ItemsPanelTemplate;
+        ItemsSource;
+        ItemTemplate: Fayde.Data.DataTemplate;
+        Items: ItemCollection;
+        ItemContainerGenerator: ItemContainerGenerator;
+        ClearContainerForItemOverride(element: DependencyObject, item);
+        GetContainerForItemOverride(): DependencyObject;
+        IsItemItsOwnContainerOverride(item): bool;
+        ItemsControlFromItemContainer(container: DependencyObject): ItemsControl;
+        OnItemsChanged(e: Fayde.Data.NotifyCollectionChangedEventArgs);
+        PrepareContainerForItemOverride(element: DependencyObject, item);
+    }
+    export class ItemsPanelTemplate extends FrameworkTemplate {
+    }
+    export class ItemsPresenter extends FrameworkElement {
+    }
+    export class ListBox extends Primitives.Selector {
+        static IsSelectionActiveProperty: DependencyProperty;
+        static ItemContainerStyleProperty: DependencyProperty;
+        static SelectionModeProperty: DependencyProperty;
+        IsSelectionActive: bool;
+        ItemContainerStyle: Style;
+        SelectionMode: SelectionMode;
+        SelectAll();
+        ScrollIntoView(item);
+    }
+    export class ListBoxItem extends ContentControl {
+        static IsSelectedProperty: DependencyProperty;
+        IsSelected: bool;
+    }
+    export class MediaElement extends FrameworkElement {
+        static AutoPlayProperty: DependencyProperty;
+        static BufferingProgressProperty: DependencyProperty;
+        static BufferingTimeProperty: DependencyProperty;
+        static CanPauseProperty: DependencyProperty;
+        static CanSeekProperty: DependencyProperty;
+        static CurrentStateProperty: DependencyProperty;
+        static DownloadProgressProperty: DependencyProperty;
+        static DownloadProgressOffsetProperty: DependencyProperty;
+        static IsMutedProperty: DependencyProperty;
+        static NaturalDurationProperty: DependencyProperty;
+        static NaturalVideoHeightProperty: DependencyProperty;
+        static NaturalVideoWidthProperty: DependencyProperty;
+        static PlaybackRateProperty: DependencyProperty;
+        static PositionProperty: DependencyProperty;
+        static SourceProperty: DependencyProperty;
+        static StretchProperty: DependencyProperty;
+        static VolumeProperty: DependencyProperty;
 
-    Opened: MulticastEvent;
-    Closed: MulticastEvent;
-}
-class Thumb extends Control {
-    static IsDraggingProperty: DependencyProperty;
-    static IsFocusedProperty: DependencyProperty;
-    IsDragging: bool;
-    IsFocused: bool;
-    CancelDrag();
-    DragCompleted: MulticastEvent;
-    DragDelta: MulticastEvent;
-    DragStarted: MulticastEvent;
+        AutoPlay: bool;
+        BufferingProgress: number;
+        BufferingTime: TimeSpan;
+        CanPause: bool;
+        CanSeek: bool;
+        CurrentState: MediaElementState;
+        DownloadProgress: number;
+        DownloadProgressOffset: number;
+        IsMuted: bool;
+        NaturalDuration: Duration;
+        NaturalVideoHeight: number;
+        NaturalVideoWidth: number;
+        PlaybackRate: number;
+        Position: TimeSpan;
+        Source: Uri;
+        Stretch: Fayde.Media.Stretch;
+        Volume: number;
+    }
+    export class Page extends UserControl {
+        static TitleProperty: DependencyProperty;
+        Title: string;
+    }
+    export class Panel extends FrameworkElement {
+        static BackgroundProperty: DependencyProperty;
+        static ChildrenProperty: DependencyProperty;
+        static IsItemsHostProperty: DependencyProperty;
+        Background: Fayde.Media.Brush;
+        Children: UIElementCollection;
+        IsItemsHost: bool;
+    }
+    export class PasswordBox extends Control {
+        static CaretBrushProperty: DependencyProperty;
+        static MaxLengthProperty: DependencyProperty;
+        static SelectionForegroundProperty: DependencyProperty;
+        static SelectionBackgroundProperty: DependencyProperty;
+        static PasswordProperty: DependencyProperty;
+        CaretBrush: Fayde.Media.Brush;
+        MaxLength: number;
+        SelectionForeground: Fayde.Media.Brush;
+        SelectionBackground: Fayde.Media.Brush;
+        Password: string;
+        SelectAll();
+        PasswordChanged: RoutedEvent;
+    }
+    export class ProgressBar extends Primitives.RangeBase {
+        static IsIndeterminateProperty: DependencyProperty;
+        IsIndeterminate: bool;
+    }
+    export class RadioButton extends Primitives.ToggleButton {
+        static GroupNameProperty: DependencyProperty;
+        GroupName: string;
+    }
+    export class RichTextBox extends Control {
+        static AcceptsReturnProperty: DependencyProperty;
+        static CaretBrushProperty: DependencyProperty;
+        static IsReadOnlyProperty: DependencyProperty;
+        static LineHeightProperty: DependencyProperty;
+        static LineStackingStrategyProperty: DependencyProperty;
+        static TextAlignmentProperty: DependencyProperty;
+        static TextWrappingProperty: DependencyProperty;
+        AcceptsReturn: bool;
+        BaselineOffset: number;
+        Blocks: Documents.BlockCollection;
+        CaretBrush: Fayde.Media.Brush;
+        HorizontalScrollBarVisibility: ScrollBarVisibility;
+        IsReadOnly: bool;
+        LineHeight: number;
+        LineStackingStrategy: LineStackingStrategy;
+        Selection: Documents.TextSelection;
+        TextAlignment: TextAlignment;
+        TextWrapping: TextWrapping;
+        VerticalScrollBarVisibility: ScrollBarVisibility;
+        Xaml: string;
+
+        ContentChanged: RoutedEvent;
+        SelectionChanged: RoutedEvent;
+    }
+    export class RowDefinition extends DependencyObject {
+        static MaxHeightProperty: DependencyProperty;
+        static MinHeightProperty: DependencyProperty;
+        static HeightProperty: DependencyProperty;
+        ActualHeight: number;
+        MaxHeight: number;
+        MinHeight: number;
+        Height: GridLength;
+    }
+    export class RowDefinitionCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): RowDefinition;
+        SetValueAt(index: number, value: RowDefinition);
+        Add(value: RowDefinition);
+        AddRange(newItems: RowDefinition[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: RowDefinition);
+        Remove(value: RowDefinition);
+        IndexOf(value: RowDefinition): number;
+        Contains(value: RowDefinition): bool;
+        ToArray(): RowDefinition[];
+    }
+    export class ScrollContentPresenter extends ContentPresenter implements Primitives.IScrollInfo {
+        LineDown();
+        LineLeft();
+        LineRight();
+        LineUp();
+        MouseWheelDown();
+        MouseWheelLeft();
+        MouseWheelRight();
+        MouseWheelUp();
+        PageDown();
+        PageLeft();
+        PageRight();
+        PageUp();
+        SetHorizontalOffset(offset: number);
+        SetVerticalOffset(offset: number);
+        MakeVisible(visual: UIElement, rectangle: Rect);
+    }
+    export class ScrollViewer extends ContentControl {
+        static HorizontalScrollBarVisibilityProperty: DependencyProperty;
+        static GetHorizontalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
+        static SetHorizontalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+
+        static VerticalScrollBarVisibilityProperty: DependencyProperty;
+        static GetVerticalScrollBarVisibility(d: DependencyObject): ScrollBarVisibility;
+        static SetVerticalScrollBarVisibility(d: DependencyObject, value: ScrollBarVisibility);
+
+        static ComputedHorizontalScrollBarVisibilityProperty: DependencyProperty;
+        static ComputedVerticalScrollBarVisibilityProperty: DependencyProperty;
+        static HorizontalOffsetProperty: DependencyProperty;
+        static VerticalOffsetProperty: DependencyProperty;
+        static ScrollableWidthProperty: DependencyProperty;
+        static ScrollableHeightProperty: DependencyProperty;
+        static ExtentWidthProperty: DependencyProperty;
+        static ExtentHeightProperty: DependencyProperty;
+        static ViewportWidthProperty: DependencyProperty;
+        static ViewportHeightProperty: DependencyProperty;
+
+        HorizontalScrollBarVisibility: ScrollBarVisibility;
+        VerticalScrollBarVisibility: ScrollBarVisibility;
+        ComputedHorizontalScrollBarVisibility: ScrollBarVisibility;
+        ComputedVerticalScrollBarVisibility: ScrollBarVisibility;
+        HorizontalOffset: number;
+        VerticalOffset: number;
+        ScrollableWidth: number;
+        ScrollableHeight: number;
+        ExtentWidth: number;
+        ExtentHeight: number;
+        ViewportWidth: number;
+        ViewportHeight: number;
+
+        InvalidateScrollInfo();
+        ScrollToHorizontalOffset(offset: number);
+        ScrollToVerticalOffset(offset: number);
+    }
+    export class Slider extends Primitives.RangeBase {
+        static IsDirectionReversedProperty: DependencyProperty;
+        static IsFocusedProperty: DependencyProperty;
+        static OrientationProperty: DependencyProperty;
+        IsDirectionReversed: bool;
+        IsFocused: bool;
+        Orientation: Orientation;
+    }
+    export class StackPanel extends Panel {
+        static OrientationProperty: DependencyProperty;
+        Orientation: Orientation;
+        MeasureOverride(constraint: Size): Size;
+        ArrangeOverride(arrangeSize: Size): Size;
+    }
+    export class TextBlock extends FrameworkElement {
+        static FontFamilyProperty: DependencyProperty;
+        static FontSizeProperty: DependencyProperty;
+        static FontStretchProperty: DependencyProperty;
+        static FontStyleProperty: DependencyProperty;
+        static FontWeightProperty: DependencyProperty;
+        static ForegroundProperty: DependencyProperty;
+        static InlinesProperty: DependencyProperty;
+        static LineHeightProperty: DependencyProperty;
+        static LineStackingStrategyProperty: DependencyProperty;
+        static PaddingProperty: DependencyProperty;
+        static TextAlignmentProperty: DependencyProperty;
+        static TextDecorationsProperty: DependencyProperty;
+        static TextProperty: DependencyProperty;
+        static TextTrimmingProperty: DependencyProperty;
+        static TextWrappingProperty: DependencyProperty;
+        FontFamily: string;
+        FontSize: number;
+        FontStretch: string;
+        FontStyle: string;
+        FontWeight: FontWeight;
+        Foreground: Fayde.Media.Brush;
+        Inlines: InlineCollection;
+        LineHeight: number;
+        LineStackingStrategy: LineStackingStrategy;
+        Padding: Thickness;
+        TextAlignment: TextAlignment;
+        TextDecorations: TextDecorations;
+        Text: string;
+        TextTrimming: TextTrimming;
+        TextWrapping: TextWrapping;
+    }
+    export class TextBox extends Control {
+        static AcceptsReturnProperty: DependencyProperty;
+        static CaretBrushProperty: DependencyProperty;
+        static MaxLengthProperty: DependencyProperty;
+        static IsReadOnlyProperty: DependencyProperty;
+        static SelectionForegroundProperty: DependencyProperty;
+        static SelectionBackgroundProperty: DependencyProperty;
+        static BaselineOffsetProperty: DependencyProperty;
+        static SelectedTextProperty: DependencyProperty;
+        static SelectionLengthProperty: DependencyProperty;
+        static SelectionStartProperty: DependencyProperty;
+        static TextProperty: DependencyProperty;
+        static TextAlignmentProperty: DependencyProperty;
+        static TextWrappingProperty: DependencyProperty;
+        static HorizontalScrollBarVisibilityProperty: DependencyProperty;
+        static VerticalScrollBarVisibilityProperty: DependencyProperty;
+        AcceptsReturn: bool;
+        CaretBrush: Fayde.Media.Brush;
+        MaxLength: number;
+        IsReadOnly: bool;
+        SelectionForeground: Fayde.Media.Brush;
+        SelectionBackground: Fayde.Media.Brush;
+        BaselineOffset: number;
+        SelectedText: string;
+        SelectionLength: number;
+        SelectionStart: number;
+        Text: string;
+        TextAlignment: TextAlignment;
+        TextWrapping: TextWrapping;
+        HorizontalScrollBarVisibility: ScrollBarVisibility;
+        VerticalScrollBarVisibility: ScrollBarVisibility;
+        Select(start: number, length: number);
+        SelectAll();
+        SelectionChanged: RoutedEvent;
+        TextChanged: RoutedEvent;
+    }
+    export class ToolTip extends ContentControl {
+        static HorizontalOffsetProperty: DependencyProperty;
+        static IsOpenProperty: DependencyProperty;
+        static PlacementProperty: DependencyProperty;
+        static PlacementTargetProperty: DependencyProperty;
+        static VerticalOffsetProperty: DependencyProperty;
+        HorizontalOffset: number;
+        IsOpen: bool;
+        Placement: PlacementMode;
+        PlacementTarget: UIElement;
+        VerticalOffset: number;
+        Closed: RoutedEvent;
+        Opened: RoutedEvent;
+    }
+    export class ToolTipService {
+        static PlacementProperty: DependencyProperty;
+        static GetPlacement(d: DependencyObject): PlacementMode;
+        static SetPlacement(d: DependencyObject, value: PlacementMode);
+
+        static PlacementTargetProperty: DependencyProperty;
+        static GetPlacementTarget(d: DependencyObject): UIElement;
+        static SetPlacementTarget(d: DependencyObject, value: UIElement);
+
+        static ToolTipProperty: DependencyProperty;
+        static GetToolTip(d: DependencyObject): ToolTip;
+        static SetToolTip(d: DependencyObject, value: ToolTip);
+    }
+    export class UserControl extends Control {
+        static ContentProperty: DependencyProperty;
+        Content: UIElement;
+    }
+    export class VirtualizingPanel extends Panel {
+        ItemContainerGenerator: ItemContainerGenerator;
+        AddInternalChild(child: UIElement);
+        BringIndexIntoView(index: number);
+        InsertInternalChild(index: number, child: UIElement);
+        OnClearChildren();
+        OnItemsChanged(sender, args: Primitives.ItemsChangedEventArgs);
+        RemoveInternalChildRange(index: number, range: number);
+    }
+    export class VirtualizingStackPanel extends VirtualizingPanel implements Primitives.IScrollInfo {
+        static IsVirtualizingProperty: DependencyProperty;
+        static GetIsVirtualizing(d: DependencyObject): bool;
+        static SetIsVirtualizing(d: DependencyObject, value: bool);
+
+        static OrientationProperty: DependencyProperty;
+
+        static VirtualizationMode: DependencyProperty;
+        static GetVirtualizationMode(d: DependencyObject): VirtualizationMode;
+        static SetVirtualizationMode(d: DependencyObject, value: VirtualizationMode);
+
+        MeasureOverride(constraint: Size): Size;
+        ArrangeOverride(arrangeSize: Size): Size;
+
+        //IScrollInfo Members
+        LineDown();
+        LineLeft();
+        LineRight();
+        LineUp();
+        MouseWheelDown();
+        MouseWheelLeft();
+        MouseWheelRight();
+        MouseWheelUp();
+        PageDown();
+        PageLeft();
+        PageRight();
+        PageUp();
+        SetHorizontalOffset(offset: number);
+        SetVerticalOffset(offset: number);
+        MakeVisible(visual: UIElement, rectangle: Rect);
+    }
 }
 
 //////////////////////////////////////////////////////////
@@ -2223,6 +2260,17 @@ module Fayde.Media.Animation {
 // SHAPES
 //////////////////////////////////////////////////////////
 module Fayde.Shapes {
+    export enum PenLineCap {
+        Flat = 0,
+        Square = 1,
+        Round = 2,
+        Triangle = 3,
+    }
+    export enum PenLineJoin {
+        Miter = 0,
+        Bevel = 1,
+        Round = 2,
+    }
     export class DoubleCollection implements ICollection {
         GetCount(): number;
         GetValueAt(index: number): number;

@@ -12,4 +12,4 @@
     };
 
     namespace.DragCompletedEventArgs = Nullstone.FinishCreate(DragCompletedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

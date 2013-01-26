@@ -221,7 +221,7 @@
         var sy = 1.0;
         var parent = this.GetVisualParent();
 
-        if (parent != null && !(parent instanceof Canvas)) {
+        if (parent != null && !(parent instanceof Fayde.Controls.Canvas)) {
             if (LayoutInformation.GetPreviousConstraint(this) !== undefined || this._ReadLocalValue(LayoutInformation.LayoutSlotProperty) !== undefined) {
                 return desired;
             }
@@ -302,7 +302,7 @@
         }
 
         var visualParent = this.GetVisualParent();
-        if (visualParent != null && visualParent instanceof Canvas) {
+        if (visualParent != null && visualParent instanceof Fayde.Controls.Canvas) {
             framework.Width = framework.Width === 0.0 ? shapeBounds.Width : framework.Width;
             framework.Height = framework.Height === 0.0 ? shapeBounds.Height : framework.Height;
             if (!isNaN(specified.Width))

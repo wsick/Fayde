@@ -198,7 +198,7 @@
             video.ondurationchange = function (e) { that.$SetValueInternal(MediaElement.NaturalDurationProperty, new Duration(new TimeSpan(0, 0, video.duration))); };
             video.onratechange = function (e) {
                 that.$SetValueInternal(MediaElement.PlaybackRateProperty, video.playbackRate);
-                that.RateChanged.Raise(that, new RateChangedRoutedEventArgs(vide.playbackRate));
+                that.RateChanged.Raise(that, new namespace.RateChangedRoutedEventArgs(vide.playbackRate));
             };
 
             video.addEventListener("progress", function (e) {
@@ -215,7 +215,7 @@
             var el = this.GetHtmlMediaEl();
             if (!el.error)
                 return;
-            this.MediaFailed.Raise(this, new MediaFailedEventArgs(el.error.code));
+            this.MediaFailed.Raise(this, new namespace.MediaFailedEventArgs(el.error.code));
         };
         MediaElement.Instance.ApplyHtmlChange = function (change) {
             var propd = change.Property;
@@ -244,7 +244,7 @@
     //#endregion
 
     namespace.MediaElement = Nullstone.FinishCreate(MediaElement);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));
 
 (function (namespace) {
     var MediaFailedEventArgs = Nullstone.Create("MediaFailedEventArgs", RoutedEventArgs, 1);
@@ -269,7 +269,7 @@
     };
 
     namespace.MediaFailedEventArgs = Nullstone.FinishCreate(MediaFailedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));
 
 (function (namespace) {
     var RateChangedRoutedEventArgs = Nullstone.Create("RateChangedRoutedEventArgs", RoutedEventArgs, 1);
@@ -280,4 +280,4 @@
     };
 
     namespace.RateChangedRoutedEventArgs = Nullstone.FinishCreate(RateChangedRoutedEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

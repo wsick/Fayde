@@ -6,11 +6,11 @@
 /// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var PasswordBox = Nullstone.Create("PasswordBox", TextBoxBase);
+    var PasswordBox = Nullstone.Create("PasswordBox", namespace.TextBoxBase);
 
     PasswordBox.Instance.Init = function () {
         this.Init$TextBoxBase();
-        this.AddProvider(new _PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
+        this.AddProvider(new namespace._PasswordBoxDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
         this._EventsMask = _TextBoxEmitChanged.TEXT;
     };
 
@@ -30,4 +30,4 @@
     //#endregion
 
     namespace.PasswordBox = Nullstone.FinishCreate(PasswordBox);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

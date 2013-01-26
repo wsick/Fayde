@@ -20,7 +20,7 @@
         this._WasSet = true;
         this._Dirty = true;
 
-        this.AddProvider(new _TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
+        this.AddProvider(new namespace._TextBlockDynamicPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
 
         this._Font = new Font();
     };
@@ -652,4 +652,4 @@
     //#endif
 
     namespace.TextBlock = Nullstone.FinishCreate(TextBlock);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

@@ -107,7 +107,7 @@ Nullstone.FinishCreate(GenerationState);
                 isNewlyRealized.Value = false;
             }
 
-            var c = Nullstone.As(container, ContentControl);
+            var c = Nullstone.As(container, namespace.ContentControl);
             if (c) {
                 c.ContentSetsParent = false;
             }
@@ -261,7 +261,7 @@ Nullstone.FinishCreate(GenerationState);
                 break;
         }
 
-        var args = new ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position);
+        var args = new namespace.Primitives.ItemsChangedEventArgs(e.Action, itemCount, itemUICount, oldPosition, position);
         this.ItemsChanged.Raise(this, args);
     };
 
@@ -349,4 +349,4 @@ Nullstone.FinishCreate(GenerationState);
     };
 
     namespace.ItemContainerGenerator = Nullstone.FinishCreate(ItemContainerGenerator);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

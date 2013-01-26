@@ -47,7 +47,7 @@
             return json.Value;
         }
 
-        if (json.Type === ControlTemplate) {
+        if (json.Type === Fayde.Controls.ControlTemplate) {
             var targetType = json.Props == null ? null : json.Props.TargetType;
             var template = new json.Type(targetType, json.Content);
             template._ResChain = this._ResChain;

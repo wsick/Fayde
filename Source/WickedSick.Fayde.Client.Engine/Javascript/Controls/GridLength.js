@@ -7,7 +7,7 @@
 
     GridLength.Instance.Init = function (value, unitType) {
         this.Value = value == null ? 0 : value;
-        this.Type = unitType == null ? GridUnitType.Auto : unitType;
+        this.Type = unitType == null ? namespace.GridUnitType.Auto : unitType;
     };
 
     GridLength.Equals = function (gl1, gl2) {
@@ -15,4 +15,4 @@
     };
 
     namespace.GridLength = Nullstone.FinishCreate(GridLength);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

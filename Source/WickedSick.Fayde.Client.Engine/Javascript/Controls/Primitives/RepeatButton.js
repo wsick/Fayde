@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var RepeatButton = Nullstone.Create("RepeatButton", ButtonBase);
+    var RepeatButton = Nullstone.Create("RepeatButton", namespace.ButtonBase);
 
     RepeatButton.Instance.Init = function () {
         this.Init$ButtonBase();
@@ -158,4 +158,4 @@
     };
 
     namespace.RepeatButton = Nullstone.FinishCreate(RepeatButton);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

@@ -9,7 +9,7 @@
     //#region Properties
 
     ContentPresenter.ContentProperty = DependencyProperty.Register("Content", function () { return Object; }, ContentPresenter);
-    ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return ControlTemplate; }, ContentPresenter);
+    ContentPresenter.ContentTemplateProperty = DependencyProperty.Register("ContentTemplate", function () { return namespace.ControlTemplate; }, ContentPresenter);
 
     Nullstone.AutoProperties(ContentPresenter, [
         ContentPresenter.ContentProperty,
@@ -22,11 +22,11 @@
 
     // <ControlTemplate><Grid><TextBlock Text="{Binding}" /></Grid></ControlTemplate>
     ContentPresenter.Instance._CreateFallbackTemplate = function () {
-        return new ControlTemplate(ContentControl, {
-            Type: Grid,
+        return new namespace.ControlTemplate(ContentPresenter, {
+            Type: namespace.Grid,
             Children: [
                 {
-                    Type: TextBlock,
+                    Type: namespace.TextBlock,
                     Props: {
                         Text: new BindingMarkup()
                     }
@@ -50,15 +50,15 @@
 
     ContentPresenter.Instance._GetDefaultTemplateCallback = function () {
         /// <returns type="UIElement" />
-        var templateOwner = Nullstone.As(this.TemplateOwner, ContentControl);
+        var templateOwner = Nullstone.As(this.TemplateOwner, namespace.ContentControl);
         if (templateOwner != null) {
             if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
                 this.$SetValue(ContentPresenter.ContentProperty,
-                    new TemplateBindingExpression(ContentControl.ContentProperty, ContentPresenter.ContentProperty));
+                    new TemplateBindingExpression(namespace.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
             }
             if (this.$ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
                 this.$SetValue(ContentPresenter.ContentTemplateProperty,
-                    new TemplateBindingExpression(ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
+                    new TemplateBindingExpression(namespace.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
             }
         }
 
@@ -119,4 +119,4 @@
     //#endregion
 
     namespace.ContentPresenter = Nullstone.FinishCreate(ContentPresenter);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

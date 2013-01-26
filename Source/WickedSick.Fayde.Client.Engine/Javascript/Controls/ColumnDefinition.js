@@ -8,7 +8,7 @@
 
     //#region Properties
 
-    ColumnDefinition.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return GridLength; }, ColumnDefinition, new GridLength(1.0, GridUnitType.Star));
+    ColumnDefinition.WidthProperty = DependencyProperty.RegisterCore("Width", function () { return namespace.GridLength; }, ColumnDefinition, new namespace.GridLength(1.0, namespace.GridUnitType.Star));
     ColumnDefinition.MaxWidthProperty = DependencyProperty.RegisterCore("MaxWidth", function () { return Number; }, ColumnDefinition, Number.POSITIVE_INFINITY);
     ColumnDefinition.MinWidthProperty = DependencyProperty.RegisterCore("MinWidth", function () { return Number; }, ColumnDefinition, 0.0);
     ColumnDefinition.ActualWidthProperty = DependencyProperty.RegisterReadOnlyCore("ActualWidth", function () { return Number; }, ColumnDefinition, 0.0);
@@ -23,4 +23,4 @@
     //#endregion
 
     namespace.ColumnDefinition = Nullstone.FinishCreate(ColumnDefinition);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

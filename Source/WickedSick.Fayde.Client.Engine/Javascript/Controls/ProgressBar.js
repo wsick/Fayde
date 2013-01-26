@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var ProgressBar = Nullstone.Create("ProgressBar", RangeBase);
+    var ProgressBar = Nullstone.Create("ProgressBar", namespace.Primitives.RangeBase);
 
     ProgressBar.Instance.Init = function () {
         this.Init$RangeBase();
@@ -67,7 +67,7 @@
             return;
 
         var margin = this.$Indicator.Margin.Left + this.$Indicator.Margin.Right;
-        if (parent instanceof Border || parent instanceof Control) {
+        if (parent instanceof namespace.Border || parent instanceof namespace.Control) {
             margin += parent.Padding.Left;
             margin += parent.Padding.Right;
         }
@@ -82,4 +82,4 @@
     };
 
     namespace.ProgressBar = Nullstone.FinishCreate(ProgressBar);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

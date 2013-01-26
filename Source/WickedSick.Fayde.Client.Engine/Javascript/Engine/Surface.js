@@ -423,7 +423,7 @@
 
             if (uie._DirtyFlags & dirtyEnum.ChildrenZIndices) {
                 uie._DirtyFlags &= ~dirtyEnum.ChildrenZIndices;
-                if (!(uie instanceof Panel)) {
+                if (!(uie instanceof Fayde.Controls.Panel)) {
                     Warn("_Dirty.ChildrenZIndices only applies to Panel subclasses");
                 } else {
                     //DirtyDebug("ResortByZIndex: [" + uie.__DebugToString() + "]");

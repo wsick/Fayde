@@ -112,7 +112,7 @@
         return str;
     };
     VisualTreeHelper.__DebugGrid = function (uie, tabIndex) {
-        var grid = Nullstone.As(uie, Grid);
+        var grid = Nullstone.As(uie, Fayde.Controls.Grid);
         if (!grid)
             return "";
         var rds = grid.RowDefinitions;

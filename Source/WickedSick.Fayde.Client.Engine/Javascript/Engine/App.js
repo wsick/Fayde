@@ -139,7 +139,7 @@
         var appResourcesStyle = undefined;
         var visualTreeStyle = undefined;
         if ((styleMask & _StyleMask.GenericXaml) != 0) {
-            if (fe instanceof Control) {
+            if (fe instanceof Fayde.Controls.Control) {
                 genericXamlStyle = fe.GetDefaultStyle();
                 if (!genericXamlStyle) {
                     var styleKey = fe.DefaultStyleKey;
@@ -156,7 +156,7 @@
                 appResourcesStyle._ResChain = [this.Resources];
         }
         if ((styleMask & _StyleMask.VisualTree) != 0) {
-            var isControl = fe instanceof Control;
+            var isControl = fe instanceof Fayde.Controls.Control;
             var el = fe;
             while (el != null) {
                 if (el.TemplateOwner != null && fe.TemplateOwner == null) {

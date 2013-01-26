@@ -28,7 +28,7 @@
     Control.PaddingProperty = DependencyProperty.RegisterCore("Padding", function () { return Thickness; }, Control, new Thickness());
     Control.TabIndexProperty = DependencyProperty.RegisterCore("TabIndex", function () { return Number; }, Control, Number.MAX_VALUE);
     Control.TabNavigationProperty = DependencyProperty.RegisterCore("TabNavigation", function () { return Number; }, Control);
-    Control.TemplateProperty = DependencyProperty.RegisterCore("Template", function () { return ControlTemplate; }, Control);
+    Control.TemplateProperty = DependencyProperty.RegisterCore("Template", function () { return namespace.ControlTemplate; }, Control);
     Control.VerticalContentAlignmentProperty = DependencyProperty.RegisterCore("VerticalContentAlignment", function () { return new Enum(VerticalAlignment); }, Control, VerticalAlignment.Center);
     Control.DefaultStyleKeyProperty = DependencyProperty.RegisterCore("DefaultStyleKey", function () { return Function; }, Control);
 
@@ -286,4 +286,4 @@
     //#endregion
 
     namespace.Control = Nullstone.FinishCreate(Control);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

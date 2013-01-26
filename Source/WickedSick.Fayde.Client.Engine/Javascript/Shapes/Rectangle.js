@@ -89,7 +89,7 @@
         }
 
         var visualParent = this.GetVisualParent();
-        if (visualParent != null && visualParent instanceof Canvas) {
+        if (visualParent != null && visualParent instanceof Fayde.Controls.Canvas) {
             if (isNaN(width) !== isNaN(height)) {
                 this._SetShapeFlags(namespace.ShapeFlags.Empty);
                 return new Rect();

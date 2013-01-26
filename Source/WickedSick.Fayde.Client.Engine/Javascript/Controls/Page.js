@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var Page = Nullstone.Create("Page", UserControl);
+    var Page = Nullstone.Create("Page", namespace.UserControl);
 
     //#region Properties
 
@@ -15,4 +15,4 @@
     //#endregion
 
     namespace.Page = Nullstone.FinishCreate(Page);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

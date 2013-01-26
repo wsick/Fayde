@@ -4,7 +4,7 @@
 /// <reference path="../Navigation/UriMapper.js"/>
 
 (function (namespace) {
-    var Frame = Nullstone.Create("Frame", ContentControl);
+    var Frame = Nullstone.Create("Frame", namespace.ContentControl);
 
     Frame.Instance.Init = function () {
         this.Init$ContentControl();
@@ -95,7 +95,7 @@
     };
     Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
         var page = JsonParser.Parse(responseJson);
-        if (page instanceof Page) {
+        if (page instanceof namespace.Page) {
             document.title = page.Title;
             this.Content = page;
         }
@@ -106,4 +106,4 @@
     };
 
     namespace.Frame = Nullstone.FinishCreate(Frame);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

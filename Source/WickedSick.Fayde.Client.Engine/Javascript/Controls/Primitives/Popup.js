@@ -131,8 +131,8 @@
         if (child == null)
             return;
 
-        var root = new Canvas();
-        this._ClickCatcher = new Canvas();
+        var root = new Fayde.Controls.Canvas();
+        this._ClickCatcher = new Fayde.Controls.Canvas();
         this._ClickCatcher.Background = new Fayde.Media.SolidColorBrush(new Color(255, 255, 255, 0));
         this.Child = root;
         root.Children.Add(this._ClickCatcher);
@@ -168,4 +168,4 @@
     };
 
     namespace.Popup = Nullstone.FinishCreate(Popup);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

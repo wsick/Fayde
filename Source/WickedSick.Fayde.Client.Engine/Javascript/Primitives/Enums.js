@@ -16,8 +16,8 @@
         Stretch: 3
     };
     namespace.Orientation = {
-        Vertical: "Vertical",
-        Horizontal: "Horizontal"
+        Horizontal: 0,
+        Vertical: 1
     };
     namespace.TextAlignment = {
         Left: 0,

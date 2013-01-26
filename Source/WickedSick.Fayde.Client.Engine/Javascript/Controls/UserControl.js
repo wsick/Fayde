@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var UserControl = Nullstone.Create("UserControl", Control);
+    var UserControl = Nullstone.Create("UserControl", namespace.Control);
 
     //#region Properties
 
@@ -90,4 +90,4 @@
     //#endregion
 
     namespace.UserControl = Nullstone.FinishCreate(UserControl);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

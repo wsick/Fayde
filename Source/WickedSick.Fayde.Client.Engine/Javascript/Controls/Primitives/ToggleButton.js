@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var ToggleButton = Nullstone.Create("ToggleButton", ButtonBase);
+    var ToggleButton = Nullstone.Create("ToggleButton", namespace.ButtonBase);
 
     ToggleButton.Instance.Init = function () {
         this.Init$ButtonBase();
@@ -79,4 +79,4 @@
     };
 
     namespace.ToggleButton = Nullstone.FinishCreate(ToggleButton);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

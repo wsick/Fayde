@@ -15,7 +15,7 @@ namespace WickedSick.Server.XamlParser.Elements
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(DependencyObject));
 
-        private static readonly string DEFAULT_NS = "WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements";
+        internal static readonly string DEFAULT_NS = "WickedSick.Server.XamlParser;WickedSick.Server.XamlParser.Elements";
 
         private static IDictionary<Type, ITypeConverter> _converters = new Dictionary<Type, ITypeConverter>();
         public static Type GetElementType(string nameSpace, string elementName)
@@ -46,7 +46,7 @@ namespace WickedSick.Server.XamlParser.Elements
             }
 
             new Elements.Media.VSM.VisualStateManager();
-            new Elements.ToolTipService();
+            new Elements.Controls.ToolTipService();
             new Elements.Controls.Canvas();
         }
         
@@ -440,7 +440,9 @@ namespace WickedSick.Server.XamlParser.Elements
                 typeName = tokens[0];
                 if (typeName.Contains(":"))
                     throw new NotSupportedException("Namespaces in owner types for setter properties.");
-                typeName = ElementAttribute.GetFullNullstoneType(GetElementType(DEFAULT_NS, typeName));
+                var type = GetElementType(DEFAULT_NS, typeName);
+                if (type != null)
+                    typeName = ElementAttribute.GetFullNullstoneType(type);
                 prop = tokens[1];
             }
             return string.Format("DependencyProperty.GetDependencyProperty({0}, \"{1}\")", typeName, prop);

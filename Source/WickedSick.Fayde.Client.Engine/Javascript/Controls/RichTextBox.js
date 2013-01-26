@@ -2,6 +2,6 @@
 /// CODE
 
 (function (namespace) {
-    var RichTextBox = Nullstone.Create("RichTextBox", Control);
+    var RichTextBox = Nullstone.Create("RichTextBox", namespace.Control);
     namespace.RichTextBox = Nullstone.FinishCreate(RichTextBox);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

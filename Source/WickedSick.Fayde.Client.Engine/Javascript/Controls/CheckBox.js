@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var CheckBox = Nullstone.Create("CheckBox", ToggleButton);
+    var CheckBox = Nullstone.Create("CheckBox", namespace.Primitives.ToggleButton);
 
     CheckBox.Instance.Init = function () {
         this.Init$ToggleButton();
@@ -10,4 +10,4 @@
     };
 
     namespace.CheckBox = Nullstone.FinishCreate(CheckBox);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

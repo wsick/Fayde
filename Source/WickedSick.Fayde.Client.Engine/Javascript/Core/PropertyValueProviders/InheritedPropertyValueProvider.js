@@ -33,10 +33,10 @@
         return undefined;
     };
     _InheritedPropertyValueProvider.Instance.WalkSubtree = function (rootParent, element, context, props, adding) {
-        if (element instanceof Fayde.Documents.TextElement || element instanceof TextBlock) {
+        if (element instanceof Fayde.Documents.TextElement || element instanceof Fayde.Controls.TextBlock) {
             var childProp;
-            if (element instanceof TextBlock)
-                childProp = TextBlock.InlinesProperty;
+            if (element instanceof Fayde.Controls.TextBlock)
+                childProp = Fayde.Controls.TextBlock.InlinesProperty;
             else if (element instanceof Fayde.Documents.Paragraph)
                 childProp = Fayde.Documents.Paragraph.InlinesProperty;
             else if (element instanceof Fayde.Documents.Span)
@@ -54,7 +54,7 @@
                 }
             }
         }
-        if (element instanceof Popup) {
+        if (element instanceof Fayde.Controls.Primitives.Popup) {
             var child = element.Child;
             if (child)
                 this.WalkTree(rootParent, child, context, props, adding);
@@ -182,7 +182,7 @@
 
     _InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
         var inh = propd._Inheritable || 0;
-        if (inh && propd.Name === "FlowDirection" && (obj instanceof Image || obj instanceof MediaElement))
+        if (inh && propd.Name === "FlowDirection" && (obj instanceof Fayde.Controls.Image || obj instanceof Fayde.Controls.MediaElement))
             inh = 0;
         return inh;
     };
@@ -193,7 +193,7 @@
 
         var len = list.length;
         if (len > 0 && list[0].Name === "FlowDirection") {
-            if (ancestor instanceof Fayde.Image || ancestor instanceof MediaElement)
+            if (ancestor instanceof Fayde.Controls.Image || ancestor instanceof Fayde.Controls.MediaElement)
                 return;
         }
         for (var i = 0; i < len; i++) {

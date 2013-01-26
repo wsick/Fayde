@@ -6,7 +6,7 @@
 /// <reference path="Primitives/Popup.js"/>
 
 (function (namespace) {
-    var ComboBox = Nullstone.Create("ComboBox", Selector);
+    var ComboBox = Nullstone.Create("ComboBox", namespace.Primitives.Selector);
 
     ComboBox.Instance.Init = function () {
         this.Init$Selector();
@@ -23,7 +23,7 @@
     ComboBox.IsDropDownOpenProperty = DependencyProperty.RegisterCore("IsDropDownOpen", function () { return Boolean; }, ComboBox, false, function (d, args) { d._IsDropDownOpenChanged(args); });
     ComboBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () { return Style; }, ComboBox);
     ComboBox.MaxDropDownHeightProperty = DependencyProperty.RegisterCore("MaxDropDownHeight", function () { return Number; }, ComboBox, Number.POSITIVE_INFINITY, function (d, args) { d._MaxDropDownHeightChanged(args); });
-    ComboBox.IsSelectionActiveProperty = Selector.IsSelectionActiveProperty;
+    ComboBox.IsSelectionActiveProperty = namespace.Primitives.Selector.IsSelectionActiveProperty;
 
     Nullstone.AutoProperties(ComboBox, [
         ComboBox.IsDropDownOpenProperty,
@@ -46,7 +46,7 @@
         if (open) {
             this._FocusedIndex = this.Items.GetCount() > 0 ? Math.max(this.SelectedIndex, 0) : -1;
             if (this._FocusedIndex > -1) {
-                var cbi = Nullstone.As(this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex), ComboBoxItem);
+                var cbi = Nullstone.As(this.ItemContainerGenerator.ContainerFromIndex(this._FocusedIndex), namespace.ComboBoxItem);
                 if (cbi != null)
                     cbi.Focus();
             }
@@ -73,9 +73,9 @@
         this.OnApplyTemplate$Selector();
         this.$UpdateVisualState(false);
 
-        this.$ContentPresenter = Nullstone.As(this.GetTemplateChild("ContentPresenter"), ContentPresenter);
-        this.$Popup = Nullstone.As(this.GetTemplateChild("Popup"), Popup);
-        this.$DropDownToggle = Nullstone.As(this.GetTemplateChild("DropDownToggle"), ToggleButton);
+        this.$ContentPresenter = Nullstone.As(this.GetTemplateChild("ContentPresenter"), namespace.ContentPresenter);
+        this.$Popup = Nullstone.As(this.GetTemplateChild("Popup"), namespace.Primitives.Popup);
+        this.$DropDownToggle = Nullstone.As(this.GetTemplateChild("DropDownToggle"), namespace.Primitives.ToggleButton);
 
         if (this.$ContentPresenter != null)
             this._NullSelFallback = this.$ContentPresenter.Content;
@@ -115,10 +115,10 @@
         }
     };
     ComboBox.Instance.IsItemItsOwnContainer = function (item) {
-        return item instanceof ComboBoxItem;
+        return item instanceof namespace.ComboBoxItem;
     };
     ComboBox.Instance.GetContainerForItem = function () {
-        return new ComboBoxItem();
+        return new namespace.ComboBoxItem();
     };
     ComboBox.Instance.PrepareContainerForItem = function (element, item) {
         this.PrepareContainerForItem$Selector(element, item);
@@ -276,12 +276,12 @@
         }
 
         var content = selectedItem;
-        if (content instanceof ComboBoxItem)
+        if (content instanceof namespace.ComboBoxItem)
             content = content.Content;
 
         var icg = this.ItemContainerGenerator;
         var selectedIndex = this.SelectedIndex;
-        this.$DisplayedItem = Nullstone.As(icg.ContainerFromIndex(selectedIndex), ComboBoxItem);
+        this.$DisplayedItem = Nullstone.As(icg.ContainerFromIndex(selectedIndex), namespace.ComboBoxItem);
 
         this.$SelectionBoxItem = content;
         this.$SelectionBoxItemTemplate = this.ItemTemplate;
@@ -293,12 +293,12 @@
             else
                 this.$DisplayedItem = null;
         } else {
-            var container = Nullstone.As(icg.ContainerFromIndex(selectedIndex), ComboBoxItem);
+            var container = Nullstone.As(icg.ContainerFromIndex(selectedIndex), namespace.ComboBoxItem);
             if (container == null) {
                 var position = icg.GeneratorPositionFromIndex(selectedIndex);
                 var state = icg.StartAt(position.index, position.offset, 0, true);
                 try {
-                    container = Nullstone.As(icg.GenerateNext({}), ComboBoxItem);
+                    container = Nullstone.As(icg.GenerateNext({}), namespace.ComboBoxItem);
                 } finally {
                     icg.StopGeneration();
                 }
@@ -375,4 +375,4 @@
     };
 
     namespace.ComboBox = Nullstone.FinishCreate(ComboBox);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

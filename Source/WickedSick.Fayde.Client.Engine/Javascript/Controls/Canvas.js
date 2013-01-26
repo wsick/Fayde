@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var Canvas = Nullstone.Create("Canvas", Panel);
+    var Canvas = Nullstone.Create("Canvas", namespace.Panel);
 
     Canvas.Instance.Init = function () {
         this.Init$Panel();
@@ -129,7 +129,7 @@
         this.PropertyChanged.Raise(this, args);
     };
     Canvas.Instance._OnCollectionItemChanged = function (col, obj, args) {
-        if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
+        if (this._PropertyHasValueNoAutoCreate(namespace.Panel.ChildrenProperty, col)) {
             if (args.Property._ID === Canvas.TopProperty._ID
                 || args.Property._ID === Canvas.LeftProperty._ID) {
                 var child = obj;
@@ -152,4 +152,4 @@
     };
 
     namespace.Canvas = Nullstone.FinishCreate(Canvas);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

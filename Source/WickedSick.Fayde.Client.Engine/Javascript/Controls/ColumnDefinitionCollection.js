@@ -14,8 +14,8 @@
         return this.AddedToCollection$DependencyObjectCollection(value, error);
     };
     ColumnDefinitionCollection.Instance.IsElementType = function (value) {
-        return value instanceof ColumnDefinition;
+        return value instanceof namespace.ColumnDefinition;
     };
 
     namespace.ColumnDefinitionCollection = Nullstone.FinishCreate(ColumnDefinitionCollection);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

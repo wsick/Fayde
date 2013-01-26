@@ -4,6 +4,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
+    [Element(NullstoneNamespace = "Fayde.Controls")]
     public class TextBlock : FrameworkElement
     {
         //BaselineOffset

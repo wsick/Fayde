@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var ButtonBase = Nullstone.Create("ButtonBase", ContentControl);
+    var ButtonBase = Nullstone.Create("ButtonBase", Fayde.Controls.ContentControl);
 
     ButtonBase.Instance.Init = function () {
         this.Init$ContentControl();
@@ -238,4 +238,4 @@
     //#endregion
 
     namespace.ButtonBase = Nullstone.FinishCreate(ButtonBase);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

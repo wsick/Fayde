@@ -28,7 +28,7 @@
 
         var tmpCtx = tmpCanvas.getContext("2d");
 
-        var mat = Fayde.Image.ComputeMatrix(bounds.Width, bounds.Height,
+        var mat = Fayde.Controls.Image.ComputeMatrix(bounds.Width, bounds.Height,
             imgExtents.Width, imgExtents.Height, this.Stretch, this.AlignmentX, this.AlignmentY);
         var els = mat._Elements;
         tmpCtx.setTransform(els[0], els[1], els[3], els[4], els[2], els[5]);

@@ -4,7 +4,7 @@
 /// <reference path="../../Core/RoutedPropertyChangedEventArgs.js"/>
 
 (function (namespace) {
-    var RangeBase = Nullstone.Create("RangeBase", Control);
+    var RangeBase = Nullstone.Create("RangeBase", Fayde.Controls.Control);
 
     RangeBase.Instance.Init = function () {
         this.Init$Control();
@@ -164,4 +164,4 @@
     RangeBase.Instance.$OnValueChanged = function (oldValue, newValue) { };
 
     namespace.RangeBase = Nullstone.FinishCreate(RangeBase);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls.Primitives"));

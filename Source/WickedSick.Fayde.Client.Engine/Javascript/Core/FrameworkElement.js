@@ -139,7 +139,7 @@
             return new Size(0.0, 0.0);
 
         var parent = this.GetVisualParent();
-        if ((parent && !(parent instanceof Canvas)) || this.IsLayoutContainer())
+        if ((parent && !(parent instanceof Fayde.Controls.Canvas)) || this.IsLayoutContainer())
             return this._RenderSize;
 
         var actual = new Size(0, 0);
@@ -291,8 +291,8 @@
         this._DirtyFlags &= ~_Dirty.Measure;
         this._HiddenDesire = size;
 
-        if (!parent || parent instanceof Canvas) {
-            if (this instanceof Canvas || !this.IsLayoutContainer()) {
+        if (!parent || parent instanceof Fayde.Controls.Canvas) {
+            if (this instanceof Fayde.Controls.Canvas || !this.IsLayoutContainer()) {
                 this._DesiredSize = new Size(0, 0);
                 return;
             }
@@ -415,7 +415,7 @@
         var flipHoriz = false;
         if (parent)
             flipHoriz = parent.FlowDirection !== this.FlowDirection;
-        else if (this._Parent instanceof Popup)
+        else if (this._Parent instanceof Fayde.Controls.Primitives.Popup)
             flipHoriz = this._Parent.FlowDirection !== this.FlowDirection;
         else
             flipHoriz = this.FlowDirection === FlowDirection.RightToLeft;
@@ -445,7 +445,7 @@
         this._RenderSize = response;
         var constrainedResponse = response.Min(this._ApplySizeConstraints(response));
 
-        if (!parent || parent instanceof Canvas) {
+        if (!parent || parent instanceof Fayde.Controls.Canvas) {
             if (!this.IsLayoutContainer()) {
                 this._RenderSize = new Size(0, 0);
                 return;
@@ -508,7 +508,7 @@
             layoutClip.Y = Math.round(layoutClip.Y);
         }
 
-        if (((!isTopLevel && !Rect.Equals(element, element.Intersection(layoutClip))) || !Rect.Equals(constrainedResponse, response)) && !(this instanceof Canvas) && ((parent && !(parent instanceof Canvas)) || this.IsContainer())) {
+        if (((!isTopLevel && !Rect.Equals(element, element.Intersection(layoutClip))) || !Rect.Equals(constrainedResponse, response)) && !(this instanceof Fayde.Controls.Canvas) && ((parent && !(parent instanceof Fayde.Controls.Canvas)) || this.IsContainer())) {
             var frameworkClip = this._ApplySizeConstraints(new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY));
             layoutClip = layoutClip.Intersection(new Rect(0, 0, frameworkClip.Width, frameworkClip.Height));
             var rectangle = new Fayde.Media.RectangleGeometry();
@@ -588,7 +588,7 @@
         while (element) {
             if (LayoutInformation.GetLayoutClip(element))
                 return true;
-            if (element instanceof Canvas || element instanceof UserControl)
+            if (element instanceof Fayde.Controls.Canvas || element instanceof Fayde.Controls.UserControl)
                 break;
             element = element.GetVisualParent();
         }
@@ -604,7 +604,7 @@
             if (geom)
                 ctx.Clip(geom);
 
-            if (element instanceof Canvas || element instanceof UserControl)
+            if (element instanceof Fayde.Controls.Canvas || element instanceof Fayde.Controls.UserControl)
                 break;
             var visualOffset = LayoutInformation.GetVisualOffset(element);
             if (visualOffset) {

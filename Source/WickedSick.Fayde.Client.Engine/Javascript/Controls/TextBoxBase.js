@@ -12,7 +12,7 @@
 /// <reference path="../Core/Input/Enums.js"/>
 
 (function (namespace) {
-    var TextBoxBase = Nullstone.Create("TextBoxBase", Control);
+    var TextBoxBase = Nullstone.Create("TextBoxBase", namespace.Control);
 
     TextBoxBase.Instance.Init = function () {
         this.Init$Control();
@@ -76,17 +76,17 @@
             this._View.SetTextBox(null);
         }
 
-        this._View = new _TextBoxView();
+        this._View = new namespace._TextBoxView();
         this._View.SetEnableCursor(!this._IsReadOnly);
         this._View.SetTextBox(this);
 
-        if (this._ContentElement instanceof ContentPresenter) {
-            this._ContentElement._SetValue(ContentPresenter.ContentProperty, this._View);
-        } else if (this._ContentElement instanceof ContentControl) {
-            this._ContentElement._SetValue(ContentControl.ContentProperty, this._View);
-        } else if (this._ContentElement instanceof Border) {
-            this._ContentElement._SetValue(Border.ChildProperty, this._View);
-        } else if (this._ContentElement instanceof Panel) {
+        if (this._ContentElement instanceof namespace.ContentPresenter) {
+            this._ContentElement._SetValue(namespace.ContentPresenter.ContentProperty, this._View);
+        } else if (this._ContentElement instanceof namespace.ContentControl) {
+            this._ContentElement._SetValue(namespace.ContentControl.ContentProperty, this._View);
+        } else if (this._ContentElement instanceof namespace.Border) {
+            this._ContentElement._SetValue(namespace.Border.ChildProperty, this._View);
+        } else if (this._ContentElement instanceof namespace.Panel) {
             this._ContentElement.Children.Add(this._View);
         } else {
             Warn("Can't handle ContentElement.");
@@ -265,25 +265,25 @@
 
     TextBoxBase.Instance._OnPropertyChanged = function (args, error) {
         var changed = _TextBoxModelChanged.Nothing;
-        if (args.Property._ID === Control.FontFamilyProperty._ID) {
+        if (args.Property._ID === Fayde.Controls.Control.FontFamilyProperty._ID) {
             this._Font.Family = args.NewValue;
             changed = _TextBoxModelChanged.Font;
-        } else if (args.Property._ID === Control.FontSizeProperty._ID) {
+        } else if (args.Property._ID === Fayde.Controls.Control.FontSizeProperty._ID) {
             this._Font.Size = args.NewValue;
             changed = _TextBoxModelChanged.Font;
-        } else if (args.Property._ID === Control.FontStretchProperty._ID) {
+        } else if (args.Property._ID === Fayde.Controls.Control.FontStretchProperty._ID) {
             this._Font.Stretch = args.NewValue;
             changed = _TextBoxModelChanged.Font;
-        } else if (args.Property._ID === Control.FontStyleProperty._ID) {
+        } else if (args.Property._ID === Fayde.Controls.Control.FontStyleProperty._ID) {
             this._Font.Style = args.NewValue;
             changed = _TextBoxModelChanged.Font;
-        } else if (args.Property._ID === Control.FontWeightProperty._ID) {
+        } else if (args.Property._ID === Fayde.Controls.Control.FontWeightProperty._ID) {
             this._Font.Weight = args.NewValue;
             changed = _TextBoxModelChanged.Font;
         }
 
         if (changed !== _TextBoxModelChanged.Nothing)
-            this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(changed, args));
+            this.ModelChanged.Raise(this, new namespace._TextBoxModelChangedEventArgs(changed, args));
 
         if (args.Property.OwnerType !== TextBoxBase) {
             this._OnPropertyChanged$Control(args, error);
@@ -293,9 +293,9 @@
         this.PropertyChanged.Raise(this, args);
     };
     TextBoxBase.Instance._OnSubPropertyChanged = function (propd, sender, args) {
-        if (propd && (propd._ID === Control.BackgroundProperty._ID
-            || propd._ID === Control.ForegroundProperty._ID)) {
-            this.ModelChanged.Raise(this, new _TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
+        if (propd && (propd._ID === Fayde.Controls.Control.BackgroundProperty._ID
+            || propd._ID === Fayde.Controls.Control.ForegroundProperty._ID)) {
+            this.ModelChanged.Raise(this, new namespace._TextBoxModelChangedEventArgs(_TextBoxModelChanged.Brush, args));
             this._Invalidate();
         }
 
@@ -938,4 +938,4 @@
     //#endregion
 
     namespace.TextBoxBase = Nullstone.FinishCreate(TextBoxBase);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

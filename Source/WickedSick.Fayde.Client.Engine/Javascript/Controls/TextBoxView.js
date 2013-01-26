@@ -306,4 +306,4 @@
     _TextBoxView.CURSOR_BLINK_TIMEOUT_DEFAULT = 900;
 
     namespace._TextBoxView = Nullstone.FinishCreate(_TextBoxView);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));

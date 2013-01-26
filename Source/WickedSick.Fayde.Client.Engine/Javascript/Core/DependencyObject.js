@@ -751,7 +751,7 @@
         /// <param name="isTemplateItem" type="Boolean"></param>
         /// <returns type="DependencyObject" />
         if (isTemplateItem === undefined)
-            isTemplateItem = Control.GetIsTemplateItem(this);
+            isTemplateItem = Fayde.Controls.Control.GetIsTemplateItem(this);
 
         var scope = NameScope.GetNameScope(this);
         if (scope && (isTemplateItem === scope.GetIsLocked()))
@@ -764,7 +764,7 @@
     };
     DependencyObject.Instance.FindNameScope = function (templateNamescope) {
         if (templateNamescope === undefined)
-            templateNamescope = Control.GetIsTemplateItem(this);
+            templateNamescope = Fayde.Controls.Control.GetIsTemplateItem(this);
 
         var scope = NameScope.GetNameScope(this);
         if (scope && (templateNamescope === scope.GetIsLocked()))

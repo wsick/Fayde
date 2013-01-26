@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var StackPanel = Nullstone.Create("StackPanel", Panel);
+    var StackPanel = Nullstone.Create("StackPanel", namespace.Panel);
 
     //#region Properties
 
@@ -268,4 +268,4 @@
     //#endif
 
     namespace.StackPanel = Nullstone.FinishCreate(StackPanel);
-})(window);
+})(Nullstone.Namespace("Fayde.Controls"));
