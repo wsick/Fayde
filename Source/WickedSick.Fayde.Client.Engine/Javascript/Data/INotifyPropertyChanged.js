@@ -10,8 +10,8 @@
     };
 
     INotifyPropertyChanged.Instance.RaisePropertyChanged = function (propertyName) {
-        this.PropertyChanged.Raise(this, new PropertyChangedEventArgs(propertyName));
+        this.PropertyChanged.Raise(this, new namespace.PropertyChangedEventArgs(propertyName));
     };
 
     namespace.INotifyPropertyChanged = Nullstone.FinishCreate(INotifyPropertyChanged);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

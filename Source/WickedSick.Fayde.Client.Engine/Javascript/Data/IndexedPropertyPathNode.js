@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var _IndexedPropertyPathNode = Nullstone.Create("_IndexedPropertyPathNode", _PropertyPathNode, 1);
+    var _IndexedPropertyPathNode = Nullstone.Create("_IndexedPropertyPathNode", namespace._PropertyPathNode, 1);
 
     _IndexedPropertyPathNode.Instance.Init = function (index) {
         this.Init$_PropertyPathNode();
@@ -78,4 +78,4 @@
     });
 
     namespace._IndexedPropertyPathNode = Nullstone.FinishCreate(_IndexedPropertyPathNode);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

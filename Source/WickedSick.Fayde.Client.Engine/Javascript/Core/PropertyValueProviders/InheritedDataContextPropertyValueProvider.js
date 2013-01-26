@@ -35,7 +35,7 @@
     };
     _InheritedDataContextPropertyValueProvider.Instance._AttachListener = function (source) {
         if (source) {
-            this._DataContextListener = new PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
+            this._DataContextListener = new Fayde.Data.PropertyChangedListener(source, FrameworkElement.DataContextProperty, this, this._SourceDataContextChanged);
             //TODO: Add Handler - Destroyed Event
         }
     };

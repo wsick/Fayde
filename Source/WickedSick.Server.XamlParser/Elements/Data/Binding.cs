@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Globalization;
 
-namespace WickedSick.Server.XamlParser.Elements.Bindings
+namespace WickedSick.Server.XamlParser.Elements.Data
 {
+    [Element(NullstoneNamespace = "Fayde.Data")]
     public enum BindingMode
     {
         OneWay,
@@ -13,12 +14,14 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
         TwoWay
     }
 
+    [Element(NullstoneNamespace = "Fayde.Data")]
     public enum UpdateSourceTrigger
     {
         Default,
         Explicit
     }
 
+    [Element(NullstoneNamespace = "Fayde.Data")]
     public class Binding : IJsonConvertible
     {
         public object FallbackValue { get; set; }
@@ -55,7 +58,7 @@ namespace WickedSick.Server.XamlParser.Elements.Bindings
         private IEnumerable<string> GetPropertiesJson(int tabIndents)
         {
             if (Mode != BindingMode.OneWay)
-                yield return string.Format("Mode: BindingMode.{0}", Mode);
+                yield return string.Format("Mode: {0}.{1}", ElementAttribute.GetFullNullstoneType(typeof(BindingMode)), Mode);
             if (Path != null)
                 yield return string.Format("Path: \"{0}\"", Path);
             if (FallbackValue != null)

@@ -140,7 +140,7 @@ var Fayde;
             case "FontFamily":
                 return new FontFamily(value.FamilyNames);
             case "_PropertyPath":
-                return new _PropertyPath(value._Path, value._ExpandedPath);
+                return new Fayde.Data._PropertyPath(value._Path, value._ExpandedPath);
             case "Color":
                 return new Color(value.R, value.G, value.B, value.A);
             case "Point":

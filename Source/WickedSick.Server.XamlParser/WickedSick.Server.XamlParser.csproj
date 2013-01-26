@@ -78,19 +78,19 @@
     <Compile Include="Elements\Controls\Slider.cs" />
     <Compile Include="Elements\Core\Array.cs" />
     <Compile Include="Elements\Core\Boolean.cs" />
-    <Compile Include="Elements\Bindings\Binding.cs">
+    <Compile Include="Elements\Data\Binding.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Bindings\IValueConverter.cs">
+    <Compile Include="Elements\Data\IValueConverter.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Bindings\RelativeSource.cs">
+    <Compile Include="Elements\Data\RelativeSource.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Bindings\StaticResource.cs">
+    <Compile Include="Elements\Core\StaticResource.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Bindings\TemplateBinding.cs">
+    <Compile Include="Elements\Core\TemplateBinding.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\Border.cs">
@@ -171,7 +171,7 @@
     <Compile Include="Elements\Controls\ControlTemplate.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\DataTemplate.cs">
+    <Compile Include="Elements\Core\DataTemplate.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\DependencyObject.cs">
@@ -355,7 +355,7 @@
     <Compile Include="TypeConverters\RepeatBehaviorConverter.cs" />
     <Compile Include="TypeConverters\SetterValueConverter.cs" />
     <Compile Include="Elements\Types\Point.cs" />
-    <Compile Include="Elements\Types\PropertyPath.cs" />
+    <Compile Include="Elements\Data\PropertyPath.cs" />
     <Compile Include="Elements\Types\Stretch.cs" />
     <Compile Include="Elements\Types\TextWrapping.cs">
       <SubType>Code</SubType>

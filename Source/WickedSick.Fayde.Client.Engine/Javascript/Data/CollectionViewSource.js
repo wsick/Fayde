@@ -9,7 +9,7 @@
     //#region Properties
 
     CollectionViewSource.SourceProperty = DependencyProperty.Register("Source", function () { return Object; }, CollectionViewSource);
-    CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return ICollectionView; }, CollectionViewSource);
+    CollectionViewSource.ViewProperty = DependencyProperty.Register("View", function () { return namespace.ICollectionView; }, CollectionViewSource);
 
     Nullstone.AutoProperties(CollectionViewSource, [
         CollectionViewSource.SourceProperty,
@@ -19,4 +19,4 @@
     //#endregion
 
     namespace.CollectionViewSource = Nullstone.FinishCreate(CollectionViewSource);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

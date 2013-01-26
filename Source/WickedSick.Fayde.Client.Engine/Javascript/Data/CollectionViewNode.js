@@ -4,7 +4,7 @@
 /// <reference path="CurrentChangedListener.js"/>
 
 (function (namespace) {
-    var _CollectionViewNode = Nullstone.Create("_CollectionViewNode", _PropertyPathNode, 3);
+    var _CollectionViewNode = Nullstone.Create("_CollectionViewNode", namespace._PropertyPathNode, 3);
 
     _CollectionViewNode.Instance.Init = function (bindsDirectlyToSource, bindToView, viewChanged) {
         this.Init$_PropertyPathNode();
@@ -25,7 +25,7 @@
     _CollectionViewNode.Instance.OnSourceChanged = function (oldSource, newSource) {
         this.OnSourceChanged$_PropertyPathNode(oldSource, newSource);
         this.DisconnectViewHandlers();
-        this.ConnectViewHandlers(Nullstone.As(newSource, CollectionViewSource), Nullstone.As(newSource, ICollectionView));
+        this.ConnectViewHandlers(Nullstone.As(newSource, namespace.CollectionViewSource), Nullstone.As(newSource, namespace.ICollectionView));
     };
     _CollectionViewNode.Instance.ViewChanged = function (sender, e) {
         this.DisconnectViewHandlers(true);
@@ -47,10 +47,10 @@
         } else {
             var usableSource = this.Source;
             var view;
-            if (this.Source instanceof CollectionViewSource) {
+            if (this.Source instanceof namespace.CollectionViewSource) {
                 usableSource = null;
                 view = this.Source.View;
-            } else if (this.Source.DoesImplement(ICollectionView)) {
+            } else if (this.Source.DoesImplement(namespace.ICollectionView)) {
                 view = this.Source;
             }
 
@@ -76,11 +76,11 @@
         /// <param name="source" type="CollectionViewSource"></param>
         /// <param name="view" type="ICollectionView"></param>
         if (source) {
-            this._ViewPropertyListener = new PropertyChangedListener(source, CollectionViewSource.ViewProperty, this, this.ViewChanged);
+            this._ViewPropertyListener = new namespace.PropertyChangedListener(source, namespace.CollectionViewSource.ViewProperty, this, this.ViewChanged);
             view = source.View;
         }
         if (view)
-            this._ViewListener = new CurrentChangedListener(view, this, this.ViewCurrentChanged);
+            this._ViewListener = new namespace.CurrentChangedListener(view, this, this.ViewCurrentChanged);
 
     };
     _CollectionViewNode.Instance.DisconnectViewHandlers = function (onlyView) {
@@ -98,4 +98,4 @@
     };
 
     namespace._CollectionViewNode = Nullstone.FinishCreate(_CollectionViewNode);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

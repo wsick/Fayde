@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace WickedSick.Server.XamlParser.Elements.Bindings
+﻿
+namespace WickedSick.Server.XamlParser.Elements.Core
 {
-    public class TemplateBinding: IJsonConvertible
+    public class TemplateBinding : IJsonConvertible
     {
         public string SourcePropertyName { get; set; }
 

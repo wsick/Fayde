@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using WickedSick.Server.XamlParser.Elements;
-using WickedSick.Server.XamlParser.Elements.Types;
+using WickedSick.Server.XamlParser.Elements.Data;
 
 namespace WickedSick.Server.XamlParser.TypeConverters
 {
-    public class PropertyPathConverter: ITypeConverter
+    public class PropertyPathConverter : ITypeConverter
     {
         public Type ConversionType
         {

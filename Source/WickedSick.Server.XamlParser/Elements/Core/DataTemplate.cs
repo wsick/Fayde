@@ -1,5 +1,5 @@
 ﻿
-namespace WickedSick.Server.XamlParser.Elements
+namespace WickedSick.Server.XamlParser.Elements.Data
 {
     public class DataTemplate : DependencyObject
     {

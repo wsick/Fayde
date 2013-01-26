@@ -1,4 +1,5 @@
-﻿
+﻿using WickedSick.Server.XamlParser.Elements.Data;
+
 namespace WickedSick.Server.XamlParser.Elements.Controls
 {
     public class ItemsControl : Control

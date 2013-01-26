@@ -1,5 +1,5 @@
 ﻿
-namespace WickedSick.Server.XamlParser.Elements.Bindings
+namespace WickedSick.Server.XamlParser.Elements.Core
 {
     public class StaticResource : DependencyObject
     {

@@ -37,7 +37,7 @@
 
         var source = this.Target.TemplateOwner;
         if (source) {
-            listener = new PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
+            listener = new Fayde.Data.PropertyChangedListener(source, this.SourceProperty, this, this.OnPropertyChanged);
             this.SetListener(listener);
         }
     };

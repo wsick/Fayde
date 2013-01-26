@@ -1,3 +1,4 @@
+/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 
 (function (namespace) {
@@ -5,7 +6,7 @@
         this.Path = path;
     }
     _PropertyPathParser.prototype.Step = function (data) {
-        var type = _PropertyNodeType.None;
+        var type = namespace._PropertyNodeType.None;
         var path = this.Path;
         if (path.length === 0) {
             data.typeName = null;
@@ -16,7 +17,7 @@
 
         var end;
         if (path.charAt(0) === '(') {
-            type = _PropertyNodeType.AttachedProperty;
+            type = namespace._PropertyNodeType.AttachedProperty;
             end = path.indexOf(')');
             if (end === -1)
                 throw new ArgumentException("Invalid property path. Attached property is missing the closing bracket");
@@ -60,7 +61,7 @@
                 end++;
             path = path.substr(end + 1);
         } else if (path.charAt(0) === '[') {
-            type = _PropertyNodeType.Indexed;
+            type = namespace._PropertyNodeType.Indexed;
             end = path.indexOf(']');
 
             data.typeName = null;
@@ -70,7 +71,7 @@
             if (path.charAt(0) === '.')
                 path = path.substr(1);
         } else {
-            type = _PropertyNodeType.Property;
+            type = namespace._PropertyNodeType.Property;
             end = path.indexOfAny(['.', '[']);
 
             if (end === -1) {
@@ -92,4 +93,4 @@
         return type;
     };
     namespace._PropertyPathParser = _PropertyPathParser;
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

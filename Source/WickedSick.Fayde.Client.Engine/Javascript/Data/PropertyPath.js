@@ -53,4 +53,4 @@
     //#endregion
 
     namespace._PropertyPath = Nullstone.FinishCreate(_PropertyPath);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

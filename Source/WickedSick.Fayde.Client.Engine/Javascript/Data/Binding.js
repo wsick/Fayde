@@ -5,16 +5,16 @@
 /// <reference path="RelativeSource.js"/>
 
 (function (namespace) {
-    var Binding = Nullstone.Create("Binding", BindingBase, 1);
+    var Binding = Nullstone.Create("Binding", namespace.BindingBase, 1);
 
     Binding.Instance.Init = function (path) {
         if (!path)
             path = "";
 
-        this.Mode = BindingMode.OneWay;
-        this.Path = new _PropertyPath(path);
+        this.Mode = namespace.BindingMode.OneWay;
+        this.Path = new namespace._PropertyPath(path);
         this.ValidatesOnNotifyDataErrors = true;
-        this.UpdateSourceTrigger = UpdateSourceTrigger.Default;
+        this.UpdateSourceTrigger = namespace.UpdateSourceTrigger.Default;
     };
 
     //#region Properties
@@ -130,4 +130,4 @@
     //#endregion
 
     namespace.Binding = Nullstone.FinishCreate(Binding);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

@@ -1,21 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace WickedSick.Server.XamlParser.Elements.Bindings
+namespace WickedSick.Server.XamlParser.Elements.Data
 {
     /// <summary>
     /// Only two modes are supported right now (Self, TemplatedParent)
     /// Modes not supported are PreviousData and FindAncestor
     /// </summary>
+    [Element(NullstoneNamespace = "Fayde.Data")]
     public enum RelativeSourceMode
     {
         Self,
         TemplatedParent
     }
 
-    public class RelativeSource: IJsonConvertible
+    [Element(NullstoneNamespace = "Fayde.Data")]
+    public class RelativeSource : IJsonConvertible
     {
         public RelativeSourceMode Mode { get; set; }
 

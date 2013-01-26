@@ -1,4 +1,5 @@
-﻿
+﻿/// <reference path="../Runtime/Nullstone.js"/>
+
 (function (namespace) {
     namespace.RelativeSourceMode = {
         TemplatedParent: 1,
@@ -25,4 +26,4 @@
         Indexed: 2,
         None: 3
     };
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

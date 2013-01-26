@@ -35,6 +35,8 @@ App.GetGenericResourceDictionary = function () {
     var Ellipse = Fayde.Shapes.Ellipse;
     var Path = Fayde.Shapes.Path;
     var PenLineCap = Fayde.Shapes.PenLineCap;
+    var _PropertyPath = Fayde.Data._PropertyPath;
+    var BindingMode = Fayde.Data.BindingMode;
 
     var json = {
         Type: ResourceDictionary,

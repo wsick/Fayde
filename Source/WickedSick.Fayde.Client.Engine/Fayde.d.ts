@@ -613,8 +613,8 @@ class FrameworkElement extends UIElement {
     FindName(name: string): any;
     MeasureOverride(availableSize): Size;
     ArrangeOverride(finalSize: Size): Size;
-    GetBindingExpression(dp: DependencyProperty): BindingExpression;
-    SetBinding(dp: DependencyProperty, binding: Binding): BindingExpressionBase;
+    GetBindingExpression(dp: DependencyProperty): Fayde.Data.BindingExpression;
+    SetBinding(dp: DependencyProperty, binding: Fayde.Data.Binding): Fayde.Data.BindingExpressionBase;
     OnApplyTemplate();
 }
 class RoutedEvent extends MulticastEvent {
@@ -875,7 +875,7 @@ interface IScrollInfo {
     MakeVisible(visual: UIElement, rectangle: Rect);
 }
 class ItemsChangedEventArgs extends EventArgs {
-    Action: NotifyCollectionChangedAction;
+    Action: Fayde.Data.NotifyCollectionChangedAction;
     ItemCount: number;
     ItemUICount: number;
     OldPosition: number;
@@ -1152,8 +1152,8 @@ class ItemContainerGenerator {
 }
 class ItemsPanelTemplate extends FrameworkTemplate {
 }
-class ItemCollection extends PresentationFrameworkCollection implements INotifyCollectionChanged {
-    CollectionChanged: NotifyCollectionChangedEventHandler;
+class ItemCollection extends PresentationFrameworkCollection implements Fayde.Data.INotifyCollectionChanged {
+    CollectionChanged: Fayde.Data.NotifyCollectionChangedEventHandler;
 }
 class ItemsControl extends Control {
     static DisplayMemberPathProperty: DependencyProperty;
@@ -1163,14 +1163,14 @@ class ItemsControl extends Control {
     DisplayMemberPath: string;
     ItemsPanel: ItemsPanelTemplate;
     ItemsSource;
-    ItemTemplate: DataTemplate;
+    ItemTemplate: Fayde.Data.DataTemplate;
     Items: ItemCollection;
     ItemContainerGenerator: ItemContainerGenerator;
     ClearContainerForItemOverride(element: DependencyObject, item);
     GetContainerForItemOverride(): DependencyObject;
     IsItemItsOwnContainerOverride(item): bool;
     ItemsControlFromItemContainer(container: DependencyObject): ItemsControl;
-    OnItemsChanged(e: NotifyCollectionChangedEventArgs);
+    OnItemsChanged(e: Fayde.Data.NotifyCollectionChangedEventArgs);
     PrepareContainerForItemOverride(element: DependencyObject, item);
 }
 class Selector extends ItemsControl {
@@ -1212,7 +1212,7 @@ class ComboBox extends Selector {
     IsEditable: bool;
     IsSelectionBoxHighlighted: bool;
     SelectionBoxItem;
-    SelectionBoxItemTemplate: DataTemplate;
+    SelectionBoxItemTemplate: Fayde.Data.DataTemplate;
     DropDownClosed: RoutedEvent;
     DropDownOpened: RoutedEvent;
 }
@@ -1222,7 +1222,7 @@ class ContentPresenter extends FrameworkElement {
     static ContentProperty: DependencyProperty;
     static ContentTemplateProperty: DependencyProperty;
     Content;
-    ContentTemplate: DataTemplate;
+    ContentTemplate: Fayde.Data.DataTemplate;
 }
 class ItemsPresenter extends FrameworkElement {
 }
@@ -2224,7 +2224,7 @@ module Fayde.Media.Animation {
 // SHAPES
 //////////////////////////////////////////////////////////
 module Fayde.Shapes {
-    class DoubleCollection implements ICollection {
+    export class DoubleCollection implements ICollection {
         GetCount(): number;
         GetValueAt(index: number): number;
         SetValueAt(index: number, value: number);
@@ -2239,7 +2239,7 @@ module Fayde.Shapes {
         Contains(value: number): bool;
         ToArray(): number[];
     }
-    class PointCollection implements ICollection {
+    export class PointCollection implements ICollection {
         GetCount(): number;
         GetValueAt(index: number): Point;
         SetValueAt(index: number, value: Point);
@@ -2254,7 +2254,7 @@ module Fayde.Shapes {
         Contains(value: Point): bool;
         ToArray(): Point[];
     }
-    class Shape extends FrameworkElement {
+    export class Shape extends FrameworkElement {
         static FillProperty: DependencyProperty;
         static StretchProperty: DependencyProperty;
         static StrokeDashArrayProperty: DependencyProperty;
@@ -2279,9 +2279,9 @@ module Fayde.Shapes {
         StrokeStartLineCap: PenLineCap;
         StrokeThickness: number;
     }
-    class Ellipse extends Shape {
+    export class Ellipse extends Shape {
     }
-    class Line extends Shape {
+    export class Line extends Shape {
         static X1Property: DependencyProperty;
         static Y1Property: DependencyProperty;
         static X2Property: DependencyProperty;
@@ -2291,23 +2291,23 @@ module Fayde.Shapes {
         X2: number;
         Y2: number;
     }
-    class Path extends Shape {
+    export class Path extends Shape {
         static DataProperty: DependencyProperty;
         Data: Fayde.Media.Geometry;
     }
-    class Polygon extends Shape {
+    export class Polygon extends Shape {
         static FillRuleProperty: DependencyProperty;
         static PointsProperty: DependencyProperty;
         FillRule: FillRule;
         Points: PointCollection;
     }
-    class Polyline extends Shape {
+    export class Polyline extends Shape {
         static FillRuleProperty: DependencyProperty;
         static PointsProperty: DependencyProperty;
         FillRule: FillRule;
         Points: PointCollection;
     }
-    class Rectangle extends Shape {
+    export class Rectangle extends Shape {
         static RadiusXProperty: DependencyProperty;
         static RadiusYProperty: DependencyProperty;
         RadiusX: number;
@@ -2318,119 +2318,121 @@ module Fayde.Shapes {
 //////////////////////////////////////////////////////////
 // DATA
 //////////////////////////////////////////////////////////
-class DataTemplate extends FrameworkTemplate {
-    //LoadContent(): DependencyObject;
-    //DataType;
-}
-enum NotifyCollectionChangedAction {
-    Add = 1,
-    Remove = 2,
-    Replace = 3,
-    Reset = 4,
-}
-interface INotifyCollectionChanged {
-    CollectionChanged: NotifyCollectionChangedEventHandler;
-}
-class NotifyCollectionChangedEventArgs extends EventArgs {
-    constructor (action: NotifyCollectionChangedAction);
-    constructor (action: NotifyCollectionChangedAction, items: any[], index: number);
-    constructor (action: NotifyCollectionChangedAction, newItems: any[], oldItems: any[], index: number);
-    Action: NotifyCollectionChangedAction;
-    NewItems: any[];
-    OldItems: any[];
-    OldStartingIndex: number;
-    NewStartingIndex: number;
-}
-class NotifyCollectionChangedEventHandler extends MulticastEvent {
-    Subscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure);
-    SubscribeSpecific(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure, matchClosure);
-    Unsubscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void, closure, matchClosure?);
-    Raise(sender, args: NotifyCollectionChangedEventArgs);
-    RaiseAsync(sender, args: NotifyCollectionChangedEventArgs);
-}
-class ObservableCollection implements INotifyCollectionChanged, ICollection {
-    CollectionChanged: NotifyCollectionChangedEventHandler;
+module Fayde.Data {
+    export class DataTemplate extends FrameworkTemplate {
+        //LoadContent(): DependencyObject;
+        //DataType;
+    }
+    export enum NotifyCollectionChangedAction {
+        Add = 1,
+        Remove = 2,
+        Replace = 3,
+        Reset = 4,
+    }
+    export interface INotifyCollectionChanged {
+        CollectionChanged: Fayde.Data.NotifyCollectionChangedEventHandler;
+    }
+    export class NotifyCollectionChangedEventArgs extends EventArgs {
+        constructor (action: NotifyCollectionChangedAction);
+        constructor (action: NotifyCollectionChangedAction, items: any[], index: number);
+        constructor (action: NotifyCollectionChangedAction, newItems: any[], oldItems: any[], index: number);
+        Action: NotifyCollectionChangedAction;
+        NewItems: any[];
+        OldItems: any[];
+        OldStartingIndex: number;
+        NewStartingIndex: number;
+    }
+    export class NotifyCollectionChangedEventHandler extends MulticastEvent {
+        Subscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure);
+        SubscribeSpecific(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure);
+        Unsubscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure? );
+        Raise(sender, args: NotifyCollectionChangedEventArgs);
+        RaiseAsync(sender, args: NotifyCollectionChangedEventArgs);
+    }
+    export class ObservableCollection implements INotifyCollectionChanged, ICollection {
+        CollectionChanged: NotifyCollectionChangedEventHandler;
 
-    GetCount(): number;
-    GetValueAt(index: number): DependencyObject;
-    SetValueAt(index: number, value: DependencyObject);
-    Add(value: DependencyObject);
-    AddRange(newItems: DependencyObject[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: DependencyObject);
-    Remove(value: DependencyObject);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: DependencyObject): number;
-    Contains(value: DependencyObject): bool;
-    ToArray(): DependencyObject[];
-}
-class BindingOperations {
-    static SetBinding(target: DependencyObject, dp: DependencyProperty, binding: BindingBase): BindingExpressionBase;
-}
-interface INotifyPropertyChanged {
-    PropertyChanged: MulticastEvent;
-}
-class PropertyChangedEventArgs extends EventArgs {
-    constructor (propertyName: string);
-    PropertyName: string;
-}
-enum BindingMode {
-    TwoWay = 0,
-    OneWay = 1,
-    OneTime = 2,
-    OneWayToSource = 3,
-}
-enum RelativeSourceMode {
-    TemplatedParent = 1,
-    Self = 2,
-    FindAncestor = 3,
-}
-enum UpdateSourceTrigger {
-    Default = 0,
-    PropertyChanged = 1,
-    Explicit = 3,
-}
-interface IValueConverter {
-    Convert(value, targetType, parameter, culture): any;
-    ConvertBack(value, targetType, parameter, culture): any;
-}
-class RelativeSource implements IMarkupExtension {
-    AncestorLevel: number;
-    AncestorType;
-    Mode: RelativeSourceMode;
-}
-interface IMarkupExtension {
-}
-class BindingBase implements IMarkupExtension {
-    CheckSealed();
-    FallbackValue;
-    StringFormat: string;
-    TargetNullValue;
-}
-class Binding extends BindingBase {
-    BindsDirectlyToSource: bool;
-    Converter: IValueConverter;
-    ConverterCulture;
-    ConverterParameter;
-    ElementName: string;
-    Mode: BindingMode;
-    NotifyOnValidationError: bool;
-    Path: string;
-    RelativeSource: RelativeSource;
-    Source;
-    UpdateSourceTrigger: UpdateSourceTrigger;
-    ValidatesOnDataErrors: bool;
-    ValidatesOnExceptions: bool;
-    ValidatesOnNotifyDataErrors: bool;
-}
-class BindingExpressionBase extends Expression {
+        GetCount(): number;
+        GetValueAt(index: number): DependencyObject;
+        SetValueAt(index: number, value: DependencyObject);
+        Add(value: DependencyObject);
+        AddRange(newItems: DependencyObject[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: DependencyObject);
+        Remove(value: DependencyObject);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: DependencyObject): number;
+        Contains(value: DependencyObject): bool;
+        ToArray(): DependencyObject[];
+    }
+    export class BindingOperations {
+        static SetBinding(target: DependencyObject, dp: DependencyProperty, binding: BindingBase): BindingExpressionBase;
+    }
+    export interface INotifyPropertyChanged {
+        PropertyChanged: MulticastEvent;
+    }
+    export class PropertyChangedEventArgs extends EventArgs {
+        constructor (propertyName: string);
+        PropertyName: string;
+    }
+    export enum BindingMode {
+        TwoWay = 0,
+        OneWay = 1,
+        OneTime = 2,
+        OneWayToSource = 3,
+    }
+    export enum RelativeSourceMode {
+        TemplatedParent = 1,
+        Self = 2,
+        FindAncestor = 3,
+    }
+    export enum UpdateSourceTrigger {
+        Default = 0,
+        PropertyChanged = 1,
+        Explicit = 3,
+    }
+    export interface IValueConverter {
+        Convert(value, targetType, parameter, culture): any;
+        ConvertBack(value, targetType, parameter, culture): any;
+    }
+    export class RelativeSource implements IMarkupExtension {
+        AncestorLevel: number;
+        AncestorType;
+        Mode: RelativeSourceMode;
+    }
+    export interface IMarkupExtension {
+    }
+    export class BindingBase implements IMarkupExtension {
+        CheckSealed();
+        FallbackValue;
+        StringFormat: string;
+        TargetNullValue;
+    }
+    export class Binding extends BindingBase {
+        BindsDirectlyToSource: bool;
+        Converter: IValueConverter;
+        ConverterCulture;
+        ConverterParameter;
+        ElementName: string;
+        Mode: BindingMode;
+        NotifyOnValidationError: bool;
+        Path: string;
+        RelativeSource: RelativeSource;
+        Source;
+        UpdateSourceTrigger: UpdateSourceTrigger;
+        ValidatesOnDataErrors: bool;
+        ValidatesOnExceptions: bool;
+        ValidatesOnNotifyDataErrors: bool;
+    }
+    export class BindingExpressionBase extends Expression {
 
-}
-class BindingExpression extends BindingExpressionBase {
-    DataItem;
-    ParentBinding: Binding;
-    UpdateSource();
+    }
+    export class BindingExpression extends BindingExpressionBase {
+        DataItem;
+        ParentBinding: Binding;
+        UpdateSource();
+    }
 }
 
 //////////////////////////////////////////////////////////

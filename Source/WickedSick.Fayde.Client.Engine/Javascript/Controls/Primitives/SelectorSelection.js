@@ -314,7 +314,7 @@
         this.UpdateCollectionView(item);
     };
     SelectorSelection.Instance.UpdateCollectionView = function (item) {
-        var icv = Nullstone.As(this._Owner.ItemsSource, ICollectionView);
+        var icv = Nullstone.As(this._Owner.ItemsSource, Fayde.Data.ICollectionView);
         if (icv != null) {
             icv.MoveCurrentTo(item);
             return Nullstone.Equals(item, icv.CurrentItem);

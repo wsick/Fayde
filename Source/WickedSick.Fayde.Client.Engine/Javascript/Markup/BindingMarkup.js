@@ -16,11 +16,11 @@
         /// <param name="propd" type="DependencyProperty"></param>
         /// <param name="propName" type="String"></param>
         /// <param name="templateBindingSource" type="DependencyObject"></param>
-        return new BindingExpression(this._BuildBinding(), target, propd);
+        return new Fayde.Data.BindingExpression(this._BuildBinding(), target, propd);
     };
     BindingMarkup.Instance._BuildBinding = function () {
         /// <returns type="Binding" />
-        var b = new Binding(this._Data.Path);
+        var b = new Fayde.Data.Binding(this._Data.Path);
         if (this._Data.FallbackValue !== undefined)
             b.FallbackValue = this._Data.FallbackValue;
         if (this._Data.Mode !== undefined)

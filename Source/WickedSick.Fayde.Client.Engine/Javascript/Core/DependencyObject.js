@@ -154,10 +154,10 @@
         }
 
         var expression = Nullstone.As(value, Expression);
-        if (expression instanceof BindingExpressionBase) {
+        if (expression instanceof Fayde.Data.BindingExpressionBase) {
             var binding = expression.Binding;
             var path = binding.Path.Path;
-            if ((!path || path === ".") && binding.Mode === BindingMode.TwoWay)
+            if ((!path || path === ".") && binding.Mode === Fayde.Data.BindingMode.TwoWay)
                 throw new ArgumentException("TwoWay bindings require a non-empty Path.");
             binding.Seal();
         }
@@ -184,11 +184,11 @@
             addingExpression = true;
             value = expression.GetValue(propd);
         } else if (existing) {
-            if (existing instanceof BindingExpressionBase) {
+            if (existing instanceof Fayde.Data.BindingExpressionBase) {
                 var binding = existing.Binding;
-                if (binding.Mode === BindingMode.TwoWay) {
+                if (binding.Mode === Fayde.Data.BindingMode.TwoWay) {
                     updateTwoWay = !existing.Updating && !propd._IsCustom;
-                } else if (!existing.Updating || binding.Mode === BindingMode.OneTime) {
+                } else if (!existing.Updating || binding.Mode === Fayde.Data.BindingMode.OneTime) {
                     this.$RemoveExpression(propd);
                 }
             } else if (!existing.Updating) {

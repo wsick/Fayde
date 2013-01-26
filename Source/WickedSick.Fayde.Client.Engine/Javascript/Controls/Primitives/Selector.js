@@ -45,7 +45,7 @@
 
     Nullstone.Property(Selector, "$SynchronizeWithCurrentItem", {
         get: function () {
-            if (!Nullstone.Is(this.ItemsSource, ICollectionView))
+            if (!Nullstone.Is(this.ItemsSource, Fayde.Data.ICollectionView))
                 return false;
             if (this.IsSynchronizedWithCurrentItem === false)
                 return false;
@@ -69,7 +69,7 @@
         if (args.NewValue === true)
             throw new ArgumentException("Setting IsSynchronizedWithCurrentItem to 'true' is not supported");
 
-        if (args.NewValue == null && Nullstone.Is(this.ItemsSource, ICollectionView))
+        if (args.NewValue == null && Nullstone.Is(this.ItemsSource, Fayde.Data.ICollectionView))
             this.SelectedItem = this.ItemsSource.CurrentItem;
         else
             this.SelectedItem = null;
@@ -103,7 +103,7 @@
         this._SelectItemFromValue(args.NewValue, false);
     };
     Selector.Instance._OnSelectedValuePathChanged = function (args) {
-        this._SelectedValueWalker = !args.NewValue ? null : new _PropertyPathWalker(args.NewValue);
+        this._SelectedValueWalker = !args.NewValue ? null : new Fayde.Data._PropertyPathWalker(args.NewValue);
 
         if (this._Initializing)
             return;
@@ -141,7 +141,7 @@
             case NotifyCollectionChangedAction.Reset:
                 var o;
                 var itemsSource = this.ItemsSource;
-                if (Nullstone.Is(itemsSource, ICollectionView) && this.$SynchronizeWithCurrentItem)
+                if (Nullstone.Is(itemsSource, Fayde.Data.ICollectionView) && this.$SynchronizeWithCurrentItem)
                     o = itemsSource.CurrentItem;
                 else
                     o = this.SelectedItem;
@@ -170,11 +170,11 @@
     Selector.Instance.OnItemsSourceChanged = function (args) {
         this.OnItemsSourceChanged$ItemsControl(args);
 
-        var view = Nullstone.As(args.OldValue, ICollectionView);
+        var view = Nullstone.As(args.OldValue, Fayde.Data.ICollectionView);
         if (view != null)
             view.CurrentChanged.Unsubscribe(this._OnCurrentItemChanged, this);
 
-        view = Nullstone.As(args.NewValue, ICollectionView);
+        view = Nullstone.As(args.NewValue, Fayde.Data.ICollectionView);
         if (view != null) {
             view.CurrentChanged.Subscribe(this._OnCurrentItemChanged, this);
             if (this.$SynchronizeWithCurrentItem)

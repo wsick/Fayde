@@ -33,4 +33,4 @@
     };
 
     namespace.PropertyChangedListener = Nullstone.FinishCreate(PropertyChangedListener);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

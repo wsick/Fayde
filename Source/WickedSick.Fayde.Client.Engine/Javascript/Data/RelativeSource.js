@@ -7,7 +7,7 @@
 
     RelativeSource.Instance.Init = function (mode) {
         if (mode == null)
-            mode = RelativeSourceMode.TemplatedParent;
+            mode = namespace.RelativeSourceMode.TemplatedParent;
         this.Mode = mode;
     };
 
@@ -16,4 +16,4 @@
     ]);
 
     namespace.RelativeSource = Nullstone.FinishCreate(RelativeSource);
-})(window);
+})(Nullstone.Namespace("Fayde.Data"));

@@ -21,7 +21,7 @@
         d.$SetValue(Storyboard.TargetNameProperty, value);
     };
 
-    Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return _PropertyPath }, Storyboard);
+    Storyboard.TargetPropertyProperty = DependencyProperty.RegisterAttached("TargetProperty", function () { return Fayde.Data._PropertyPath }, Storyboard);
     Storyboard.GetTargetProperty = function (d) {
         ///<returns type="_PropertyPath"></returns>
         return d.$GetValue(Storyboard.TargetPropertyProperty);
