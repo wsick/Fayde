@@ -27,7 +27,7 @@
 })(Nullstone.Namespace("Fayde.Input"));
 
 (function (namespace) {
-    var MouseButtonEventArgs = Nullstone.Create("MouseButtonEventArgs", MouseEventArgs, 1);
+    var MouseButtonEventArgs = Nullstone.Create("MouseButtonEventArgs", namespace.MouseEventArgs, 1);
 
     MouseButtonEventArgs.Instance.Init = function (absolutePos) {
         this.Init$MouseEventArgs(absolutePos);
@@ -37,7 +37,7 @@
 })(Nullstone.Namespace("Fayde.Input"));
 
 (function (namespace) {
-    var MouseWheelEventArgs = Nullstone.Create("MouseWheelEventArgs", MouseEventArgs, 2);
+    var MouseWheelEventArgs = Nullstone.Create("MouseWheelEventArgs", namespace.MouseEventArgs, 2);
 
     MouseWheelEventArgs.Instance.Init = function (absolutePos, delta) {
         this.Init$MouseEventArgs(absolutePos);
