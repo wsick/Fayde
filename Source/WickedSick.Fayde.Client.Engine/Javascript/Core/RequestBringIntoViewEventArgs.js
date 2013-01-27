@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var RequestBringIntoViewEventArgs = Nullstone.Create("RequestBringIntoViewEventArgs", RoutedEventArgs, 2);
+    var RequestBringIntoViewEventArgs = Nullstone.Create("RequestBringIntoViewEventArgs", Fayde.RoutedEventArgs, 2);
 
     RequestBringIntoViewEventArgs.Instance.Init = function (targetObject, targetRect) {
         this.Init$RoutedEventArgs();

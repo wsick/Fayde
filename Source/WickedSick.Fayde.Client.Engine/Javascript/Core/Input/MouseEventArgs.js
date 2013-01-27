@@ -3,7 +3,7 @@
 /// <reference path="../../Primitives/Point.js"/>
 
 (function (namespace) {
-    var MouseEventArgs = Nullstone.Create("MouseEventArgs", RoutedEventArgs, 1);
+    var MouseEventArgs = Nullstone.Create("MouseEventArgs", Fayde.RoutedEventArgs, 1);
 
     MouseEventArgs.Instance.Init = function (absolutePos) {
         this.Init$RoutedEventArgs();
@@ -24,7 +24,7 @@
     };
 
     namespace.MouseEventArgs = Nullstone.FinishCreate(MouseEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Input"));
 
 (function (namespace) {
     var MouseButtonEventArgs = Nullstone.Create("MouseButtonEventArgs", MouseEventArgs, 1);
@@ -34,7 +34,7 @@
     };
 
     namespace.MouseButtonEventArgs = Nullstone.FinishCreate(MouseButtonEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Input"));
 
 (function (namespace) {
     var MouseWheelEventArgs = Nullstone.Create("MouseWheelEventArgs", MouseEventArgs, 2);
@@ -45,4 +45,4 @@
     };
 
     namespace.MouseWheelEventArgs = Nullstone.FinishCreate(MouseWheelEventArgs);
-})(window);
+})(Nullstone.Namespace("Fayde.Input"));

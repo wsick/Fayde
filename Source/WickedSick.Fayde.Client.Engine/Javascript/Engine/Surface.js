@@ -744,7 +744,7 @@
         var i = 0;
         var args = this._CreateEventArgs(type, pos, delta);
         var node = list.Head;
-        if (node && args instanceof RoutedEventArgs)
+        if (node && args instanceof Fayde.RoutedEventArgs)
             args.Source = node.UIElement;
         for (node = list.Head; node && i < endIndex; node = node.Next, i++) {
             if (type === "leave")
@@ -930,17 +930,17 @@
 
     Surface.Instance._CreateEventArgs = function (type, pos, delta) {
         if (type === "up") {
-            return new MouseButtonEventArgs(pos);
+            return new Fayde.Input.MouseButtonEventArgs(pos);
         } else if (type === "down") {
-            return new MouseButtonEventArgs(pos);
+            return new Fayde.Input.MouseButtonEventArgs(pos);
         } else if (type === "leave") {
-            return new MouseEventArgs(pos);
+            return new Fayde.Input.MouseEventArgs(pos);
         } else if (type === "enter") {
-            return new MouseEventArgs(pos);
+            return new Fayde.Input.MouseEventArgs(pos);
         } else if (type === "move") {
-            return new MouseEventArgs(pos);
+            return new Fayde.Input.MouseEventArgs(pos);
         } else if (type === "wheel") {
-            return new MouseWheelEventArgs(pos, delta);
+            return new Fayde.Input.MouseWheelEventArgs(pos, delta);
         }
     };
 

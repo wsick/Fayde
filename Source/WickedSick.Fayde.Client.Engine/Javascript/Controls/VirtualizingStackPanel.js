@@ -506,7 +506,7 @@
 })(Nullstone.Namespace("Fayde.Controls"));
 
 (function (namespace) {
-    var CleanUpVirtualizedItemEventArgs = Nullstone.Create("CleanUpVirtualizedItemEventArgs", RoutedEventArgs, 2);
+    var CleanUpVirtualizedItemEventArgs = Nullstone.Create("CleanUpVirtualizedItemEventArgs", Fayde.RoutedEventArgs, 2);
 
     CleanUpVirtualizedItemEventArgs.Instance.Init = function (uie, value) {
         this.UIElement = uie;

@@ -477,6 +477,16 @@ module Fayde {
         static GetVisualOffset(d: DependencyObject): Point;
         static SetVisualOffset(d: DependencyObject, value: Point);
     }
+    export class RoutedEvent extends MulticastEvent {
+        Subscribe(callback: (sender, args: RoutedEventArgs) => void, closure);
+        SubscribeSpecific(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure);
+        Unsubscribe(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure?);
+        Raise(sender, args: RoutedEventArgs);
+        RaiseAsync(sender, args: RoutedEventArgs);
+    }
+    export class RoutedEventArgs extends EventArgs {
+        Handled: bool;
+    }
     export class VisualTreeHelper {
         static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
         static GetChildrenCount(d: DependencyObject): DependencyObject;
@@ -614,16 +624,6 @@ class FrameworkElement extends UIElement {
     SetBinding(dp: DependencyProperty, binding: Fayde.Data.Binding): Fayde.Data.BindingExpressionBase;
     OnApplyTemplate();
 }
-class RoutedEvent extends MulticastEvent {
-    Subscribe(callback: (sender, args: RoutedEventArgs) => void, closure);
-    SubscribeSpecific(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure);
-    Unsubscribe(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure?);
-    Raise(sender, args: RoutedEventArgs);
-    RaiseAsync(sender, args: RoutedEventArgs);
-}
-class RoutedEventArgs extends EventArgs {
-    Handled: bool;
-}
 class SetterBase extends DependencyObject {
     IsSealed: bool;
 }
@@ -681,14 +681,6 @@ class UIElementCollection extends DependencyObjectCollection {
     ResortByZIndex();
 }
 
-class MouseEventArgs extends RoutedEventArgs {
-}
-class MouseButtonEventArgs extends MouseEventArgs {
-}
-class MouseWheelEventArgs extends MouseEventArgs {
-}
-class KeyEventArgs extends RoutedEventArgs {
-}
 class PresentationFrameworkCollection extends DependencyObject implements ICollection {
     GetCount(): number;
     GetValueAt(index: number): any;
@@ -738,6 +730,14 @@ module Fayde.Input {
         TabNavigationProperty: DependencyProperty;
         GetTabNavigation(d: DependencyObject): KeyboardNavigationMode;
         SetTabNavigation(d: DependencyObject, value: KeyboardNavigationMode);
+    }
+    export class MouseEventArgs extends RoutedEventArgs {
+    }
+    export class MouseButtonEventArgs extends MouseEventArgs {
+    }
+    export class MouseWheelEventArgs extends MouseEventArgs {
+    }
+    export class KeyEventArgs extends RoutedEventArgs {
     }
 }
 
@@ -881,15 +881,15 @@ module Fayde.Controls {
             OnClick();
             OnGotFocus(e: RoutedEventArgs);
             OnIsPressedChanged(e: RoutedEvent);
-            OnKeyDown(e: KeyEventArgs);
-            OnKeyUp(e: KeyEventArgs);
+            OnKeyDown(e: Input.KeyEventArgs);
+            OnKeyUp(e: Input.KeyEventArgs);
             OnLostFocus(e: RoutedEventArgs);
-            OnLostMouseCapture(e: MouseEventArgs);
-            OnMouseEnter(e: MouseEventArgs);
-            OnMouseLeave(e: MouseEventArgs);
-            OnMouseLeftButtonDown(e: MouseButtonEventArgs);
-            OnMouseLeftButtonUp(e: MouseButtonEventArgs);
-            OnMouseMove(e: MouseEventArgs);
+            OnLostMouseCapture(e: Input.MouseEventArgs);
+            OnMouseEnter(e: Input.MouseEventArgs);
+            OnMouseLeave(e: Input.MouseEventArgs);
+            OnMouseLeftButtonDown(e: Input.MouseButtonEventArgs);
+            OnMouseLeftButtonUp(e: Input.MouseButtonEventArgs);
+            OnMouseMove(e: Input.MouseEventArgs);
             Click: RoutedEvent;
         }
         export class DragCompletedEventArgs extends RoutedEventArgs {

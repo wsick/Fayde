@@ -206,8 +206,8 @@
             }, false);
             video.ontimeupdate = function (e) { that.$SetValueInternal(MediaElement.PositionProperty, new TimeSpan(0, 0, video.currentTime)); };
 
-            video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new RoutedEventArgs()); };
-            video.onended = function (e) { that.MediaEnded.Raise(that, new RoutedEventArgs()); };
+            video.onloadeddata = function (e) { that.MediaOpened.Raise(that, new Fayde.RoutedEventArgs()); };
+            video.onended = function (e) { that.MediaEnded.Raise(that, new Fayde.RoutedEventArgs()); };
 
             return video;
         };
@@ -247,7 +247,7 @@
 })(Nullstone.Namespace("Fayde.Controls"));
 
 (function (namespace) {
-    var MediaFailedEventArgs = Nullstone.Create("MediaFailedEventArgs", RoutedEventArgs, 1);
+    var MediaFailedEventArgs = Nullstone.Create("MediaFailedEventArgs", Fayde.RoutedEventArgs, 1);
 
     MediaFailedEventArgs.Instance.Init = function (code) {
         this.Init$RoutedEventArgs();
@@ -272,7 +272,7 @@
 })(Nullstone.Namespace("Fayde.Controls"));
 
 (function (namespace) {
-    var RateChangedRoutedEventArgs = Nullstone.Create("RateChangedRoutedEventArgs", RoutedEventArgs, 1);
+    var RateChangedRoutedEventArgs = Nullstone.Create("RateChangedRoutedEventArgs", Fayde.RoutedEventArgs, 1);
 
     RateChangedRoutedEventArgs.Instance.Init = function (newRate) {
         this.Init$RoutedEventArgs();

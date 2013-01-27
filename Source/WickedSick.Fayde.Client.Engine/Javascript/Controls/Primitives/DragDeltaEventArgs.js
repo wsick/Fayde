@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var DragDeltaEventArgs = Nullstone.Create("DragDeltaEventArgs", RoutedEventArgs, 2);
+    var DragDeltaEventArgs = Nullstone.Create("DragDeltaEventArgs", Fayde.RoutedEventArgs, 2);
 
     DragDeltaEventArgs.Instance.Init = function (horizontal, vertical) {
         this.Init$RoutedEventArgs();

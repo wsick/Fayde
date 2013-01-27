@@ -3,7 +3,7 @@
 /// <reference path="../Primitives/Size.js"/>
 
 (function (namespace) {
-    var SizeChangedEventArgs = Nullstone.Create("SizeChangedEventArgs", RoutedEventArgs, 2);
+    var SizeChangedEventArgs = Nullstone.Create("SizeChangedEventArgs", Fayde.RoutedEventArgs, 2);
 
     SizeChangedEventArgs.Instance.Init = function (prevSize, newSize) {
         /// <param name="prevSize" type="Size"></param>

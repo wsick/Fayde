@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var RoutedPropertyChangedEventArgs = Nullstone.Create("RoutedPropertyChangedEventArgs", RoutedEventArgs, 2);
+    var RoutedPropertyChangedEventArgs = Nullstone.Create("RoutedPropertyChangedEventArgs", Fayde.RoutedEventArgs, 2);
 
     RoutedPropertyChangedEventArgs.Instance.Init = function (oldValue, newValue) {
         this.Init$RoutedEventArgs();

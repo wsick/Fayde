@@ -1,4 +1,5 @@
-﻿/// CODE
+﻿/// <reference path="../Runtime/Nullstone.js"/>
+/// CODE
 
 (function (namespace) {
     function RoutedEvent() {
@@ -42,4 +43,4 @@
     };
 
     namespace.RoutedEvent = RoutedEvent;
-})(window);
+})(Nullstone.Namespace("Fayde"));

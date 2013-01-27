@@ -1216,7 +1216,7 @@
     UIElement.Instance.OnMouseWheel = function (sender, e) { };
 
     UIElement.Instance._EmitLostMouseCapture = function (absolutePos) {
-        this.LostMouseCapture.Raise(this, new MouseEventArgs(absolutePos));
+        this.LostMouseCapture.Raise(this, new Fayde.Input.MouseEventArgs(absolutePos));
     };
     UIElement.Instance.OnLostMouseCapture = function (sender, e) { };
 
@@ -1252,14 +1252,14 @@
     };
 
     UIElement.Instance._EmitGotFocus = function () {
-        var e = new RoutedEventArgs();
+        var e = new Fayde.RoutedEventArgs();
         this.OnGotFocus(e);
         this.GotFocus.Raise(this, e);
     };
     UIElement.Instance.OnGotFocus = function (e) { };
 
     UIElement.Instance._EmitLostFocus = function () {
-        var e = new RoutedEventArgs();
+        var e = new Fayde.RoutedEventArgs();
         this.OnLostFocus(e);
         this.LostFocus.Raise(this, e);
     };
