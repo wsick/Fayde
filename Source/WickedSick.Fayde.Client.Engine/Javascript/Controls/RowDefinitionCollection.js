@@ -4,7 +4,7 @@
 /// <reference path="RowDefinition.js"/>
 
 (function (namespace) {
-    var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", DependencyObjectCollection);
+    var RowDefinitionCollection = Nullstone.Create("RowDefinitionCollection", Fayde.DependencyObjectCollection);
 
     RowDefinitionCollection.Instance.AddedToCollection = function (value, error) {
         if (this.Contains(value)) {

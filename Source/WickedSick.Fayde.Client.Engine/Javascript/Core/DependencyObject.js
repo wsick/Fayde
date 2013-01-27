@@ -900,7 +900,7 @@
         }
 
         if (this._Parent && !this._PermitsMultipleParents()) {
-            if (parent instanceof DependencyObjectCollection && (!parent._GetIsSecondaryParent() || this._HasSecondaryParents())) {
+            if (parent instanceof Fayde.DependencyObjectCollection && (!parent._GetIsSecondaryParent() || this._HasSecondaryParents())) {
                 error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
                 return;
             }
@@ -910,7 +910,7 @@
             this._AddSecondaryParent(parent);
             if (this._Parent && !(this._Parent instanceof ResourceDictionary))
                 this.SetMentor(null);
-            if (this._SecondaryParents.length > 1 || !(parent instanceof DependencyObjectCollection) || !parent._GetIsSecondaryParent())
+            if (this._SecondaryParents.length > 1 || !(parent instanceof Fayde.DependencyObjectCollection) || !parent._GetIsSecondaryParent())
                 return;
         }
 
@@ -962,7 +962,7 @@
     };
     DependencyObject.Instance._RemoveParent = function (parent, error) {
         if (this._RemoveSecondaryParent(parent)) {
-            if (this._HasSecondaryParents() || !(parent instanceof DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
+            if (this._HasSecondaryParents() || !(parent instanceof Fayde.DependencyObjectCollection) || !(parent._GetIsSecondaryParent()))
                 return;
         } else {
             if (!Nullstone.RefEquals(this._Parent, parent))

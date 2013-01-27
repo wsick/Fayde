@@ -4,7 +4,7 @@
 /// <reference path="ResourceDictionary.js"/>
 
 (function (namespace) {
-    var ResourceDictionaryCollection = Nullstone.Create("ResourceDictionaryCollection", DependencyObjectCollection);
+    var ResourceDictionaryCollection = Nullstone.Create("ResourceDictionaryCollection", Fayde.DependencyObjectCollection);
 
     ResourceDictionaryCollection.Instance.AddedToCollection = function (value, error) {
         if (!this.AddedToCollection$DependencyObjectCollection(value, error))

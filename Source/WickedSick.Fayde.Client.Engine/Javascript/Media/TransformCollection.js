@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var TransformCollection = Nullstone.Create("TransformCollection", DependencyObjectCollection);
+    var TransformCollection = Nullstone.Create("TransformCollection", Fayde.DependencyObjectCollection);
 
     TransformCollection.Instance.IsElementType = function (value) {
         return value instanceof namespace.Transform;

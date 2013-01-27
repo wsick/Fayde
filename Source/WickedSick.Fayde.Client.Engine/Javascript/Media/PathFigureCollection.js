@@ -3,7 +3,7 @@
 /// <reference path="PathFigure.js"/>
 
 (function (namespace) {
-    var PathFigureCollection = Nullstone.Create("PathFigureCollection", DependencyObjectCollection);
+    var PathFigureCollection = Nullstone.Create("PathFigureCollection", Fayde.DependencyObjectCollection);
     PathFigureCollection.Instance.IsElementType = function (value) {
         return value instanceof namespace.PathFigure;
     };

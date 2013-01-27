@@ -83,4 +83,4 @@
     };
 
     namespace.DependencyObjectCollection = Nullstone.FinishCreate(DependencyObjectCollection);
-})(window);
+})(Nullstone.Namespace("Fayde"));

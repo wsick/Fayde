@@ -4,7 +4,7 @@
 /// <reference path="ColumnDefinition.js"/>
 
 (function (namespace) {
-    var ColumnDefinitionCollection = Nullstone.Create("ColumnDefinitionCollection", DependencyObjectCollection);
+    var ColumnDefinitionCollection = Nullstone.Create("ColumnDefinitionCollection", Fayde.DependencyObjectCollection);
 
     ColumnDefinitionCollection.Instance.AddedToCollection = function (value, error) {
         if (this.Contains(value)) {

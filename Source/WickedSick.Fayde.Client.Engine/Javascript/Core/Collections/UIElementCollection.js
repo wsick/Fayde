@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var UIElementCollection = Nullstone.Create("UIElementCollection", DependencyObjectCollection);
+    var UIElementCollection = Nullstone.Create("UIElementCollection", Fayde.DependencyObjectCollection);
 
     UIElementCollection.Instance.Init = function () {
         this.Init$DependencyObjectCollection();

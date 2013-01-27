@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var TriggerActionCollection = Nullstone.Create("TriggerActionCollection", DependencyObjectCollection);
+    var TriggerActionCollection = Nullstone.Create("TriggerActionCollection", Fayde.DependencyObjectCollection);
 
     TriggerActionCollection.Instance.IsElementType = function (value) {
         return value instanceof TriggerAction;

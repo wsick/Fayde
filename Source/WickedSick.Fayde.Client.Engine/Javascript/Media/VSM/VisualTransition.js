@@ -32,7 +32,7 @@
 })(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
 
 (function (namespace) {
-    var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", DependencyObjectCollection);
+    var VisualTransitionCollection = Nullstone.Create("VisualTransitionCollection", Fayde.DependencyObjectCollection);
 
     VisualTransitionCollection.Instance.IsElementType = function (obj) {
         return obj instanceof namespace.VisualTransition;

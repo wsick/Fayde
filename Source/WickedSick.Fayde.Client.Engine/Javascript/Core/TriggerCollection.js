@@ -3,7 +3,7 @@
 /// <reference path="EventTrigger.js"/>
 
 (function (namespace) {
-    var TriggerCollection = Nullstone.Create("TriggerCollection", DependencyObjectCollection);
+    var TriggerCollection = Nullstone.Create("TriggerCollection", Fayde.DependencyObjectCollection);
 
     TriggerCollection.Instance.IsElementType = function (value) {
         return value instanceof EventTrigger;

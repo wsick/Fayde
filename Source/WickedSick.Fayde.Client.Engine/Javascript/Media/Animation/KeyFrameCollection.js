@@ -4,7 +4,7 @@
 /// <reference path="Animation.js"/>
 
 (function (namespace) {
-    var KeyFrameCollection = Nullstone.Create("KeyFrameCollection", DependencyObjectCollection);
+    var KeyFrameCollection = Nullstone.Create("KeyFrameCollection", Fayde.DependencyObjectCollection);
 
     KeyFrameCollection.Instance.Init = function () {
         this.Init$DependencyObjectCollection();

@@ -28,7 +28,7 @@
 })(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
 
 (function (namespace) {
-    var VisualStateCollection = Nullstone.Create("VisualStateCollection", DependencyObjectCollection);
+    var VisualStateCollection = Nullstone.Create("VisualStateCollection", Fayde.DependencyObjectCollection);
 
     VisualStateCollection.Instance.IsElementType = function (value) {
         return value instanceof namespace.VisualState;

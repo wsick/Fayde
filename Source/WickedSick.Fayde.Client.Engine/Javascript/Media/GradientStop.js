@@ -26,7 +26,7 @@
 })(Nullstone.Namespace("Fayde.Media"));
 
 (function (namespace) {
-    var GradientStopCollection = Nullstone.Create("GradientStopCollection", DependencyObjectCollection);
+    var GradientStopCollection = Nullstone.Create("GradientStopCollection", Fayde.DependencyObjectCollection);
     GradientStopCollection.Instance.IsElementType = function (value) {
         return value instanceof namespace.GradientStop;
     };

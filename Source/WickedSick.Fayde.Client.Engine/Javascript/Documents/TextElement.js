@@ -155,7 +155,7 @@
 })(Nullstone.Namespace("Fayde.Documents"));
 
 (function (namespace) {
-    var TextElementCollection = Nullstone.Create("TextElementCollection", DependencyObjectCollection);
+    var TextElementCollection = Nullstone.Create("TextElementCollection", Fayde.DependencyObjectCollection);
     TextElementCollection.Instance.IsElementType = function (value) {
         return value instanceof namespace.TextElement;
     };

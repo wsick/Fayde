@@ -3,7 +3,7 @@
 /// <reference path="Geometry.js"/>
 
 (function (namespace) {
-    var GeometryCollection = Nullstone.Create("GeometryCollection", DependencyObjectCollection);
+    var GeometryCollection = Nullstone.Create("GeometryCollection", Fayde.DependencyObjectCollection);
     GeometryCollection.Instance.IsElementType = function (value) {
         return val instanceof namespace.Geometry;
     };

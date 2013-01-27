@@ -4,7 +4,7 @@
 /// <reference path="SetterBase.js"/>
 
 (function (namespace) {
-    var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", DependencyObjectCollection);
+    var SetterBaseCollection = Nullstone.Create("SetterBaseCollection", Fayde.DependencyObjectCollection);
 
     //#region Properties
 

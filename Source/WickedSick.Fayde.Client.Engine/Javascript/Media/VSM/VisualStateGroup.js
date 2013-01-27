@@ -1,7 +1,7 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="../../Runtime/MulticastEvent.js"/>
-/// <reference path="../../Core/Collections/DependencyObjectCollection.js"/>
+/// <reference path="../../Core/Collections/Collection.js"/>
 /// CODE
 /// <reference path="VisualTransition.js"/>
 /// <reference path="VisualState.js"/>

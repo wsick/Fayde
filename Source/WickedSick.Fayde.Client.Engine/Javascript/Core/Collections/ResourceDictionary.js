@@ -1,5 +1,5 @@
 /// <reference path="../../Runtime/Nullstone.js" />
-/// <reference path="DependencyObjectCollection.js"/>
+/// <reference path="Collection.js"/>
 /// CODE
 
 (function (namespace) {
