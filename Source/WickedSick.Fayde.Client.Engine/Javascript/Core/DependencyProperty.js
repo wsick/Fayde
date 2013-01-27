@@ -330,6 +330,7 @@
     };
     var lookupNamespaces = [];
     DependencyProperty._LookupType = function (name) {
+        lookupNamespaces.push(Fayde);
         lookupNamespaces.push(Fayde.Controls);
         lookupNamespaces.push(Fayde.Media);
         lookupNamespaces.push(Fayde.Controls.Primitives);
