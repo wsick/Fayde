@@ -64,10 +64,10 @@
 
         var template = Nullstone.As(this.ContentTemplate, Fayde.DataTemplate);
         if (template != null) {
-            this._ContentRoot = Nullstone.As(template.GetVisualTree(this), UIElement);
+            this._ContentRoot = Nullstone.As(template.GetVisualTree(this), Fayde.UIElement);
         } else {
             var content = this.Content;
-            this._ContentRoot = Nullstone.As(content, UIElement);
+            this._ContentRoot = Nullstone.As(content, Fayde.UIElement);
             if (this._ContentRoot == null && content != null)
                 this._ContentRoot = this._GetFallbackRoot();
         }
@@ -79,7 +79,7 @@
         this._ContentRoot = null;
     };
     ContentPresenter.Instance.InvokeLoaded = function () {
-        if (Nullstone.Is(this.Content, UIElement))
+        if (Nullstone.Is(this.Content, Fayde.UIElement))
             this.$ClearValue(FrameworkElement.DataContextProperty);
         else
             this.DataContext = this.Content;
@@ -92,11 +92,11 @@
             return;
         }
         if (args.Property._ID === ContentPresenter.ContentProperty._ID) {
-            if ((args.NewValue && args.NewValue instanceof UIElement)
-                || (args.OldValue && args.OldValue instanceof UIElement)) {
+            if ((args.NewValue && args.NewValue instanceof Fayde.UIElement)
+                || (args.OldValue && args.OldValue instanceof Fayde.UIElement)) {
                 this._ClearRoot();
             }
-            if (args.NewValue && !(args.NewValue instanceof UIElement))
+            if (args.NewValue && !(args.NewValue instanceof Fayde.UIElement))
                 this._SetValue(FrameworkElement.DataContextProperty, args.NewValue);
             else
                 this._ClearValue(FrameworkElement.DataContextProperty);

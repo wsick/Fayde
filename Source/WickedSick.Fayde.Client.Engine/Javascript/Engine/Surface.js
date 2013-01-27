@@ -88,7 +88,7 @@
             return;
         }
 
-        if (!(element instanceof UIElement)) {
+        if (!(element instanceof Fayde.UIElement)) {
             _Console.WriteLine("Unsupported top level element.");
             return;
         }
@@ -579,10 +579,10 @@
         if (!subtree)
             return;
 
-        if (subtree instanceof UIElement)
+        if (subtree instanceof Fayde.UIElement)
             return subtree._UpDirtyNode;
 
-        if (subtree instanceof UIElementCollection) {
+        if (subtree instanceof Fayde.UIElementCollection) {
             var children = subtree._ht;
             var len = children.length;
             for (var i = 0; i < len; i++) {

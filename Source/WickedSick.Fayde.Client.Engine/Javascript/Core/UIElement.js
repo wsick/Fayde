@@ -1399,4 +1399,4 @@
     };
 
     namespace.UIElement = Nullstone.FinishCreate(UIElement);
-})(window);
+})(Nullstone.Namespace("Fayde"));

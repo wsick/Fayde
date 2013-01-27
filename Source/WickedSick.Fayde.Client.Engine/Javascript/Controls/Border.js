@@ -14,7 +14,7 @@
     Border.BackgroundProperty = DependencyProperty.RegisterCore("Background", function () { return Fayde.Media.Brush; }, Border);
     Border.BorderBrushProperty = DependencyProperty.RegisterCore("BorderBrush", function () { return Fayde.Media.Brush; }, Border);
     Border.BorderThicknessProperty = DependencyProperty.RegisterFull("BorderThickness", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, undefined, Border._ThicknessValidator);
-    Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Border);
+    Border.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return Fayde.UIElement; }, Border);
     Border.CornerRadiusProperty = DependencyProperty.RegisterFull("CornerRadius", function () { return CornerRadius; }, Border, new CornerRadius(0), undefined, undefined, undefined, undefined, Border._CornerRadiusValidator);
     Border.PaddingProperty = DependencyProperty.RegisterFull("Padding", function () { return Thickness; }, Border, new Thickness(0), undefined, undefined, undefined, undefined, Border._ThicknessValidator);
 
@@ -213,7 +213,7 @@
             var ivprop = false;
             switch (args.Property._ID) {
                 case Border.ChildProperty._ID:
-                    if (args.OldValue && args.OldValue instanceof UIElement) {
+                    if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                         this._ElementRemoved(args.OldValue);
                         this._SubtreeObject = null;
                         if (args.OldValue instanceof FrameworkElement) {
@@ -222,7 +222,7 @@
                                 return;
                         }
                     }
-                    if (args.NewValue && args.NewValue instanceof UIElement) {
+                    if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
                         this._SubtreeObject = args.NewValue;
                         this._ElementAdded(args.NewValue);
                         if (args.NewValue instanceof FrameworkElement) {
@@ -262,7 +262,7 @@
             
             switch (args.Property._ID) {
                 case Border.ChildProperty._ID:
-                    if (args.OldValue && args.OldValue instanceof UIElement) {
+                    if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                         this._ElementRemoved(args.OldValue);
                         this._SubtreeObject = null;
                         if (args.OldValue instanceof FrameworkElement) {
@@ -271,7 +271,7 @@
                                 return;
                         }
                     }
-                    if (args.NewValue && args.NewValue instanceof UIElement) {
+                    if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
                         this._SubtreeObject = args.NewValue;
                         this._ElementAdded(args.NewValue);
                         if (args.NewValue instanceof FrameworkElement) {

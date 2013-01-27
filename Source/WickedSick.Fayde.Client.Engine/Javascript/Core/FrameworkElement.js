@@ -12,7 +12,7 @@
 /// <reference path="VisualTreeHelper.js"/>
 
 (function (namespace) {
-    var FrameworkElement = Nullstone.Create("FrameworkElement", UIElement);
+    var FrameworkElement = Nullstone.Create("FrameworkElement", Fayde.UIElement);
 
     FrameworkElement.Instance.Init = function () {
         this.Init$UIElement();
@@ -1112,7 +1112,7 @@
             return isStretchPlusShrink;
         };
         FrameworkElement.Instance.ApplyHtmlChanges = function (invalidations) {
-            var sizingChecks = [UIElement.IsFixedWidthProperty, UIElement.IsFixedHeightProperty,
+            var sizingChecks = [Fayde.UIElement.IsFixedWidthProperty, Fayde.UIElement.IsFixedHeightProperty,
                 FrameworkElement.HorizontalAlignmentProperty, FrameworkElement.VerticalAlignmentProperty,
                 FrameworkElement.MarginProperty, FrameworkElement.WidthProperty, FrameworkElement.HeightProperty,
                 FrameworkElement.MaxWidthProperty, FrameworkElement.MaxHeightProperty];

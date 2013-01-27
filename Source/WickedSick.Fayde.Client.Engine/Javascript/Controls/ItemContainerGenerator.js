@@ -114,7 +114,7 @@ Nullstone.FinishCreate(GenerationState);
         }
 
         var f = Nullstone.As(container, FrameworkElement);
-        if (f && !Nullstone.Is(item, UIElement)) {
+        if (f && !(item instanceof Fayde.UIElement)) {
             f.DataContext = item;
         }
 

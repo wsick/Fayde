@@ -64,7 +64,7 @@
         var content = this.Content;
         if (!content)
             return null;
-        var uie = Nullstone.As(content, UIElement);
+        var uie = Nullstone.As(content, Fayde.UIElement);
         if (uie)
             return uie;
         return this._GetDefaultTemplate$Control();
@@ -80,7 +80,7 @@
         }
 
         if (args.Property._ID === ContentControl.ContentProperty._ID) {
-            if (args.OldValue && args.OldValue instanceof UIElement) {
+            if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                 if (args.OldValue instanceof FrameworkElement) {
                     if (this._ContentSetsParent) {
                         args.OldValue._SetLogicalParent(null, error);

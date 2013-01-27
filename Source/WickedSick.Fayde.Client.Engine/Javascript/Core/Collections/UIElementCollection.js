@@ -27,12 +27,12 @@
         }
 
         if (count > 1) {
-            this._ZSorted.sort(UIElement.ZIndexComparer);
+            this._ZSorted.sort(Fayde.UIElement.ZIndexComparer);
         }
     };
     UIElementCollection.Instance.IsElementType = function (value) {
-        return value instanceof UIElement;
+        return value instanceof Fayde.UIElement;
     };
 
     namespace.UIElementCollection = Nullstone.FinishCreate(UIElementCollection);
-})(window);
+})(Nullstone.Namespace("Fayde"));

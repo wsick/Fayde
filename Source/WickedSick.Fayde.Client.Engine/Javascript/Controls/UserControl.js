@@ -58,7 +58,7 @@
         }
 
         if (args.Property._ID === UserControl.ContentProperty._ID) {
-            if (args.OldValue && args.OldValue instanceof UIElement) {
+            if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                 if (args.OldValue instanceof FrameworkElement) {
                     args.OldValue._SetLogicalParent(null, error);
                     if (error.IsErrored())
@@ -66,7 +66,7 @@
                 }
                 this._ElementRemoved(args.OldValue);
             }
-            if (args.NewValue && args.NewValue instanceof UIElement) {
+            if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
                 if (args.NewValue instanceof FrameworkElement) {
                     args.NewValue._SetLogicalParent(this, error);
                     if (error.IsErrored())

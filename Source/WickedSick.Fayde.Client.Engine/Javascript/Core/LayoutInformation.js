@@ -20,7 +20,7 @@
         d.$SetValue(LayoutInformation.LayoutClipProperty, value);
     };
 
-    LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttachedCore("LayoutExceptionElement", function () { return UIElement; }, LayoutInformation);
+    LayoutInformation.LayoutExceptionElementProperty = DependencyProperty.RegisterAttachedCore("LayoutExceptionElement", function () { return Fayde.UIElement; }, LayoutInformation);
     LayoutInformation.GetLayoutExceptionElement = function (d) {
         return d.$GetValue(LayoutInformation.LayoutExceptionElementProperty);
     };

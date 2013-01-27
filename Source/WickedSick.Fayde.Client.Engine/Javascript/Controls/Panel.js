@@ -11,14 +11,14 @@
     Panel.BackgroundProperty = DependencyProperty.Register("Background", function () { return Fayde.Media.Brush; }, Panel);
     Panel._CreateChildren = {
         GetValue: function (propd, obj) {
-            var col = new UIElementCollection();
+            var col = new Fayde.UIElementCollection();
             col._SetIsSecondaryParent(true);
             if (obj)
                 obj._SubtreeObject = col;
             return col;
         }
     };
-    Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return UIElementCollection; }, Panel, undefined, undefined, Panel._CreateChildren);
+    Panel.ChildrenProperty = DependencyProperty.RegisterFull("Children", function () { return Fayde.UIElementCollection; }, Panel, undefined, undefined, Panel._CreateChildren);
     Panel.IsItemsHostProperty = DependencyProperty.Register("IsItemsHost", function () { return Boolean; }, Panel, false);
 
     Nullstone.AutoProperties(Panel, [

@@ -322,7 +322,7 @@
         var control = Nullstone.As(element, namespace.ContentControl);
 
         var template;
-        if (!(item instanceof UIElement)) {
+        if (!(item instanceof Fayde.UIElement)) {
             template = this.ItemTemplate;
             if (template == null)
                 template = this.$DisplayMemberTemplate;

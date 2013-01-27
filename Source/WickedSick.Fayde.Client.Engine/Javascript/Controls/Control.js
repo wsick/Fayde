@@ -170,7 +170,7 @@
             return this._DoApplyTemplateWithError$FrameworkElement(error);
 
         var root = t._GetVisualTreeWithError(this, error);
-        if (root && !(root instanceof UIElement)) {
+        if (root && !(root instanceof Fayde.UIElement)) {
             Warn("Root element in template was not a UIElement.");
             root = null;
         }
@@ -250,7 +250,7 @@
 
     Control.Instance.OnIsEnabledChanged = function (args) {
         if (!this.IsEnabled)
-            this.$SetValueInternal(UIElement.IsMouseOverProperty, false);
+            this.$SetValueInternal(Fayde.UIElement.IsMouseOverProperty, false);
     }
 
     //#region Visual State Management

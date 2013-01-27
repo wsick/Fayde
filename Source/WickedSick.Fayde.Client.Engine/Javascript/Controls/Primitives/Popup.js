@@ -15,7 +15,7 @@
 
     //#region Properties
 
-    Popup.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return UIElement; }, Popup);
+    Popup.ChildProperty = DependencyProperty.RegisterCore("Child", function () { return Fayde.UIElement; }, Popup);
     Popup.HorizontalOffsetProperty = DependencyProperty.RegisterCore("HorizontalOffset", function () { return Number; }, Popup, 0.0);
     Popup.VerticalOffsetProperty = DependencyProperty.RegisterCore("VerticalOffset", function () { return Number; }, Popup, 0.0);
     Popup.IsOpenProperty = DependencyProperty.RegisterCore("IsOpen", function () { return Boolean; }, Popup, false);

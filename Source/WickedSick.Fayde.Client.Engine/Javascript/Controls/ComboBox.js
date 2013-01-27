@@ -60,7 +60,7 @@
         }
 
         var selectedItem = this.SelectedItem;
-        this._UpdateDisplayedItem(open && selectedItem instanceof UIElement ? null : selectedItem);
+        this._UpdateDisplayedItem(open && selectedItem instanceof Fayde.UIElement ? null : selectedItem);
         this.$UpdateVisualState(true);
     };
     ComboBox.Instance._MaxDropDownHeightChanged = function (args) {
@@ -288,7 +288,7 @@
 
         if (this.$DisplayedItem != null) {
             this.$SelectionBoxItemTemplate = this.$DisplayedItem.ContentTemplate;
-            if (content instanceof UIElement)
+            if (content instanceof Fayde.UIElement)
                 this.$DisplayedItem.Content = null
             else
                 this.$DisplayedItem = null;

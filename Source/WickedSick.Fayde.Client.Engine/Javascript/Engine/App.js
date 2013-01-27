@@ -72,7 +72,7 @@
         this.NavService = new NavService(this);
 
         var element = JsonParser.Parse(json);
-        if (element instanceof UIElement)
+        if (element instanceof Fayde.UIElement)
             this.MainSurface._Attach(element);
 
         this.Start();

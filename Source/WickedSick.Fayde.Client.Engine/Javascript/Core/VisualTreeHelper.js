@@ -9,10 +9,10 @@
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
         var subtree = d._SubtreeObject;
-        if (subtree instanceof UIElementCollection)
+        if (subtree instanceof Fayde.UIElementCollection)
             return subtree.GetValueAt(childIndex);
 
-        if ((subtree instanceof UIElement) && childIndex === 0)
+        if ((subtree instanceof Fayde.UIElement) && childIndex === 0)
             return subtree;
 
         throw new ArgumentOutOfRangeException();
@@ -22,10 +22,10 @@
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
         var subtree = d._SubtreeObject;
-        if (subtree instanceof UIElementCollection)
+        if (subtree instanceof Fayde.UIElementCollection)
             return subtree.GetCount();
 
-        if (subtree instanceof UIElement)
+        if (subtree instanceof Fayde.UIElement)
             return 1;
 
         return 0;

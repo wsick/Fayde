@@ -194,7 +194,7 @@
                 return false;
 
             var newLu = value;
-            if (data.promotedValues != null && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
+            if (data.promotedValues != null && data.promotedValues[value._ID] == null && !(value instanceof Fayde.UIElement)) {
                 var clonedValue = Fayde.Clone(value);
                 if (clonedValue instanceof Fayde.DependencyObject) {
                     newLu = clonedValue;

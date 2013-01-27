@@ -20,7 +20,7 @@
         if (this._Content) {
             if (this._Content instanceof Collection) {
                 this._Collection = this._Content;
-                if (!(this._Content instanceof UIElementCollection))
+                if (!(this._Content instanceof Fayde.UIElementCollection))
                     this._Direction = _VisualTreeWalkerDirection.Logical;
             }
         }
