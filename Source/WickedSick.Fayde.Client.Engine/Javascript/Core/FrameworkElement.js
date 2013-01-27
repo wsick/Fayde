@@ -1224,4 +1224,4 @@
     //#endif
 
     namespace.FrameworkElement = Nullstone.FinishCreate(FrameworkElement);
-})(window);
+})(Nullstone.Namespace("Fayde"));

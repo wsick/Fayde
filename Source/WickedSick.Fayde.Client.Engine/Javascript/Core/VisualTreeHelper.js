@@ -5,7 +5,7 @@
 (function (namespace) {
     var VisualTreeHelper = {};
     VisualTreeHelper.GetChild = function (d, childIndex) {
-        if (!(d instanceof FrameworkElement))
+        if (!(d instanceof Fayde.FrameworkElement))
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
         var subtree = d._SubtreeObject;
@@ -18,7 +18,7 @@
         throw new ArgumentOutOfRangeException();
     };
     VisualTreeHelper.GetChildrenCount = function (d) {
-        if (!(d instanceof FrameworkElement))
+        if (!(d instanceof Fayde.FrameworkElement))
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
 
         var subtree = d._SubtreeObject;
@@ -31,7 +31,7 @@
         return 0;
     };
     VisualTreeHelper.GetParent = function (d) {
-        if (!(d instanceof FrameworkElement))
+        if (!(d instanceof Fayde.FrameworkElement))
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
         return Nullstone.As(d.GetVisualParent(), Fayde.DependencyObject);
     };

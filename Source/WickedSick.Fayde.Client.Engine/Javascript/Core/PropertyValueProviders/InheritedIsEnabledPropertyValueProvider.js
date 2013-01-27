@@ -22,7 +22,7 @@
             while (source) {
                 if (source instanceof Fayde.Controls.Control)
                     break;
-                else if (source instanceof FrameworkElement)
+                else if (source instanceof Fayde.FrameworkElement)
                     source = source._GetLogicalParent();
                 else
                     source = null;

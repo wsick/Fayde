@@ -104,7 +104,7 @@
         return null;
     };
     ItemsControl.ItemsControlFromItemContainer = function (container) {
-        var e = Nullstone.As(container, FrameworkElement);
+        var e = Nullstone.As(container, Fayde.FrameworkElement);
         if (e == null)
             return null;
 
@@ -201,7 +201,7 @@
         return new namespace.ContentPresenter();
     };
     ItemsControl.Instance.IsItemItsOwnContainer = function (item) {
-        return item instanceof FrameworkElement;
+        return item instanceof Fayde.FrameworkElement;
     };
     ItemsControl.Instance.OnItemsChanged = function (e) { };
     ItemsControl.Instance.OnItemsClearing = function (object, e) {
@@ -262,7 +262,7 @@
         var error = new BError();
         var count = items.length;
         for (var i = 0; i < count; i++) {
-            var fe = Nullstone.As(items[i], FrameworkElement);
+            var fe = Nullstone.As(items[i], Fayde.FrameworkElement);
             if (fe == null)
                 continue;
             this._SetLogicalParent(parent, error);
@@ -288,7 +288,7 @@
                 if (container instanceof namespace.ContentControl)
                     container._ContentSetsParent = false;
 
-                if (container instanceof FrameworkElement && !(item instanceof FrameworkElement))
+                if (container instanceof Fayde.FrameworkElement && !(item instanceof Fayde.FrameworkElement))
                     container.DataContext = item;
 
                 children.Insert(newIndex + i, container);

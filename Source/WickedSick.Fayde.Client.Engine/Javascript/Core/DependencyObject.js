@@ -54,7 +54,7 @@
         this._OnMentorChanged(oldMentor, value);
     };
     DependencyObject.Instance._OnMentorChanged = function (oldValue, newValue) {
-        if (!(this instanceof FrameworkElement)) {
+        if (!(this instanceof Fayde.FrameworkElement)) {
             var propPrecEnum = _PropertyPrecedence;
             this._Providers[propPrecEnum.AutoCreate].ForeachValue(DependencyObject._PropagateMentor, newValue);
             this._Providers[propPrecEnum.LocalValue].ForeachValue(DependencyObject._PropagateMentor, newValue);
@@ -583,7 +583,7 @@
                 newDO._AddTarget(this);
             } else {
                 var cur = this;
-                while (cur && !(cur instanceof FrameworkElement))
+                while (cur && !(cur instanceof Fayde.FrameworkElement))
                     cur = cur.GetMentor();
                 newDO.SetMentor(cur);
             }
@@ -954,7 +954,7 @@
         if (!error || !error.IsErrored()) {
             this._Parent = parent;
             var d = parent;
-            while (d && !(d instanceof FrameworkElement)) {
+            while (d && !(d instanceof Fayde.FrameworkElement)) {
                 d = d.GetMentor();
             }
             this.SetMentor(d);

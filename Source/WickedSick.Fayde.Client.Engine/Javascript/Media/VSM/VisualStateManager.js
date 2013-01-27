@@ -164,9 +164,9 @@
         /// <returns type="FrameworkElement" />
         var userControl = Nullstone.As(control, Fayde.Controls.UserControl);
         if (userControl != null)
-            return Nullstone.As(userControl.Content, FrameworkElement);
+            return Nullstone.As(userControl.Content, Fayde.FrameworkElement);
         if (Fayde.VisualTreeHelper.GetChildrenCount(control) > 0)
-            return Nullstone.As(Fayde.VisualTreeHelper.GetChild(control, 0), FrameworkElement);
+            return Nullstone.As(Fayde.VisualTreeHelper.GetChild(control, 0), Fayde.FrameworkElement);
         return null;
     };
     VisualStateManager._TryGetState = function (groups, stateName, data) {

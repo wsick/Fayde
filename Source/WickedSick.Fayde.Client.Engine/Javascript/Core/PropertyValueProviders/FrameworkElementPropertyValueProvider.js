@@ -14,7 +14,7 @@
     };
 
     FrameworkElementPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-        if (propd._ID !== FrameworkElement.ActualHeightProperty._ID && propd._ID !== FrameworkElement.ActualWidthProperty._ID)
+        if (propd._ID !== Fayde.FrameworkElement.ActualHeightProperty._ID && propd._ID !== Fayde.FrameworkElement.ActualWidthProperty._ID)
             return undefined;
 
         var actual = this._Object._ComputeActualSize();
@@ -24,7 +24,7 @@
             this._ActualWidth = actual.Width;
         }
 
-        if (propd._ID === FrameworkElement.ActualHeightProperty._ID) {
+        if (propd._ID === Fayde.FrameworkElement.ActualHeightProperty._ID) {
             return this._ActualHeight;
         } else {
             return this._ActualWidth;

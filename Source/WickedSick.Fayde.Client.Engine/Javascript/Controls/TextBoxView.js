@@ -8,7 +8,7 @@
 /// <reference path="../Engine/RenderContext.js"/>
 
 (function (namespace) {
-    var _TextBoxView = Nullstone.Create("_TextBoxView", FrameworkElement);
+    var _TextBoxView = Nullstone.Create("_TextBoxView", Fayde.FrameworkElement);
 
     _TextBoxView.Instance.Init = function () {
         this.Init$FrameworkElement();

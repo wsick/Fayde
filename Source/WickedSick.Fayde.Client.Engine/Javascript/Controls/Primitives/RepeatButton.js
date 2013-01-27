@@ -71,7 +71,7 @@
 
         var parent = this;
         while (true) {
-            var fe = Nullstone.As(parent, FrameworkElement);
+            var fe = Nullstone.As(parent, Fayde.FrameworkElement);
             if (!fe)
                 break;
             parent = fe._GetLogicalParent();
@@ -108,7 +108,7 @@
     RepeatButton.Instance.OnMouseMove = function (sender, args) {
         var parent = this;
         while (true) {
-            var fe = Nullstone.As(parent, FrameworkElement);
+            var fe = Nullstone.As(parent, Fayde.FrameworkElement);
             if (!fe)
                 break;
             parent = fe._GetLogicalParent();

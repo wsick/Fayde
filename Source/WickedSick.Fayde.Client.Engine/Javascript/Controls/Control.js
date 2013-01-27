@@ -4,7 +4,7 @@
 /// <reference path="../Media/VSM/VisualStateManager.js"/>
 
 (function (namespace) {
-    var Control = Nullstone.Create("Control", FrameworkElement);
+    var Control = Nullstone.Create("Control", Fayde.FrameworkElement);
 
     Control.Instance.Init = function () {
         this.Init$FrameworkElement();

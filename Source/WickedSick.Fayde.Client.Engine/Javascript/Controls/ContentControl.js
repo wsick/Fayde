@@ -81,7 +81,7 @@
 
         if (args.Property._ID === ContentControl.ContentProperty._ID) {
             if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
-                if (args.OldValue instanceof FrameworkElement) {
+                if (args.OldValue instanceof Fayde.FrameworkElement) {
                     if (this._ContentSetsParent) {
                         args.OldValue._SetLogicalParent(null, error);
                         if (error.IsErrored())
@@ -91,7 +91,7 @@
                 this._ElementRemoved(args.OldValue);
                 this._SubtreeObject = null;
             }
-            if (args.NewValue && args.NewValue instanceof FrameworkElement) {
+            if (args.NewValue && args.NewValue instanceof Fayde.FrameworkElement) {
                 if (this._ContentSetsParent) {
                     args.NewValue._SetLogicalParent(this, error);
                     if (error.IsErrored())

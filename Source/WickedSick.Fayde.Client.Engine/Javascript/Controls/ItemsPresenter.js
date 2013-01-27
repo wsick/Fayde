@@ -4,7 +4,7 @@
 /// <reference path="VirtualizingStackPanel.js"/>
 
 (function (namespace) {
-    var ItemsPresenter = Nullstone.Create("ItemsPresenter", FrameworkElement);
+    var ItemsPresenter = Nullstone.Create("ItemsPresenter", Fayde.FrameworkElement);
 
     //#region Properties
 

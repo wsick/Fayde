@@ -4,7 +4,7 @@
 /// <reference path="../../Media/InternalTransform.js"/>
 
 (function (namespace) {
-    var Popup = Nullstone.Create("Popup", FrameworkElement);
+    var Popup = Nullstone.Create("Popup", Fayde.FrameworkElement);
 
     Popup.Instance.Init = function () {
         this.Init$FrameworkElement();
@@ -70,7 +70,7 @@
             }
         } else if (args.Property._ID === Popup.ChildProperty._ID) {
             if (args.OldValue != null) {
-                var oldFE = Nullstone.As(args.OldValue, FrameworkElement);
+                var oldFE = Nullstone.As(args.OldValue, Fayde.FrameworkElement);
                 if (this.IsOpen)
                     this._Hide(oldFE);
 
@@ -81,7 +81,7 @@
                     return;
             }
             if (args.NewValue != null) {
-                var newFE = Nullstone.As(args.NewValue, FrameworkElement);
+                var newFE = Nullstone.As(args.NewValue, Fayde.FrameworkElement);
                 newFE._SetLogicalParent(this, error);
                 if (error.IsErrored())
                     return;

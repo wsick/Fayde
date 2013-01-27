@@ -113,7 +113,7 @@ Nullstone.FinishCreate(GenerationState);
             }
         }
 
-        var f = Nullstone.As(container, FrameworkElement);
+        var f = Nullstone.As(container, Fayde.FrameworkElement);
         if (f && !(item instanceof Fayde.UIElement)) {
             f.DataContext = item;
         }

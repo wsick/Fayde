@@ -24,7 +24,7 @@
 
         var cur = this.Target;
         while (cur) {
-            if (cur instanceof FrameworkElement) {
+            if (cur instanceof Fayde.FrameworkElement) {
                 o = cur.Resources.Get(key);
                 if (o)
                     return o;

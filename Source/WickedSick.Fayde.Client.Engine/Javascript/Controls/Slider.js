@@ -39,7 +39,7 @@
     Slider.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$RangeBase();
 
-        this.$HorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalTemplate"), FrameworkElement);
+        this.$HorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalTemplate"), Fayde.FrameworkElement);
         this.$HorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeIncreaseRepeatButton"), namespace.Primitives.RepeatButton);
         this.$HorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalTrackLargeChangeDecreaseRepeatButton"), namespace.Primitives.RepeatButton);
         this.$HorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), namespace.Primitives.Thumb);
@@ -55,7 +55,7 @@
             this.$HorizontalLargeIncrease.Click.Subscribe(function (sender, e) { this.Focus(); this.Value += this.LargeChange; }, this);
         }
 
-        this.$VerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalTemplate"), FrameworkElement);
+        this.$VerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalTemplate"), Fayde.FrameworkElement);
         this.$VerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeIncreaseRepeatButton"), namespace.Primitives.RepeatButton);
         this.$VerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalTrackLargeChangeDecreaseRepeatButton"), namespace.Primitives.RepeatButton);
         this.$VerticalThumb = Nullstone.As(this.GetTemplateChild("VerticalThumb"), namespace.Primitives.Thumb);

@@ -7,7 +7,7 @@
 /// <reference path="../Engine/RenderContext.js"/>
 
 (function (namespace) {
-    var Border = Nullstone.Create("Border", FrameworkElement);
+    var Border = Nullstone.Create("Border", Fayde.FrameworkElement);
 
     //#region Properties
 
@@ -216,7 +216,7 @@
                     if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                         this._ElementRemoved(args.OldValue);
                         this._SubtreeObject = null;
-                        if (args.OldValue instanceof FrameworkElement) {
+                        if (args.OldValue instanceof Fayde.FrameworkElement) {
                             args.OldValue._SetLogicalParent(null, error);
                             if (error.IsErrored())
                                 return;
@@ -225,7 +225,7 @@
                     if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
                         this._SubtreeObject = args.NewValue;
                         this._ElementAdded(args.NewValue);
-                        if (args.NewValue instanceof FrameworkElement) {
+                        if (args.NewValue instanceof Fayde.FrameworkElement) {
                             var logicalParent = args.NewValue._GetLogicalParent();
                             if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
                                 error.SetErrored(BError.Argument, "Content is already a child of another element.");
@@ -265,7 +265,7 @@
                     if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
                         this._ElementRemoved(args.OldValue);
                         this._SubtreeObject = null;
-                        if (args.OldValue instanceof FrameworkElement) {
+                        if (args.OldValue instanceof Fayde.FrameworkElement) {
                             args.OldValue._SetLogicalParent(null, error);
                             if (error.IsErrored())
                                 return;
@@ -274,7 +274,7 @@
                     if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
                         this._SubtreeObject = args.NewValue;
                         this._ElementAdded(args.NewValue);
-                        if (args.NewValue instanceof FrameworkElement) {
+                        if (args.NewValue instanceof Fayde.FrameworkElement) {
                             var logicalParent = args.NewValue._GetLogicalParent();
                             if (logicalParent && !Nullstone.RefEquals(logicalParent, this)) {
                                 error.SetErrored(BError.Argument, "Content is already a child of another element.");

@@ -6,7 +6,7 @@
 /// <reference path="DoubleCollection.js"/>
 
 (function (namespace) {
-    var Shape = Nullstone.Create("Shape", FrameworkElement);
+    var Shape = Nullstone.Create("Shape", Fayde.FrameworkElement);
 
     Shape.Instance.Init = function () {
         this.Init$FrameworkElement();
@@ -485,7 +485,7 @@
     if (!Fayde.IsCanvasEnabled) {
         Shape.Instance._OnPropertyChanged = function (args, error) {
             if (args.Property.OwnerType !== Shape) {
-                if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+                if (args.Property._ID === Fayde.FrameworkElement.HeightProperty || args.Property._ID === Fayde.FrameworkElement.WidthProperty) {
                     this.InvalidateProperty(Shape.StretchProperty);
                 }
                 this._OnPropertyChanged$FrameworkElement(args, error);
@@ -506,7 +506,7 @@
     if (Fayde.IsCanvasEnabled) {
         Shape.Instance._OnPropertyChanged = function (args, error) {
             if (args.Property.OwnerType !== Shape) {
-                if (args.Property._ID === FrameworkElement.HeightProperty || args.Property._ID === FrameworkElement.WidthProperty) {
+                if (args.Property._ID === Fayde.FrameworkElement.HeightProperty || args.Property._ID === Fayde.FrameworkElement.WidthProperty) {
                     this._InvalidateStretch();
                 }
                 this._OnPropertyChanged$FrameworkElement(args, error);

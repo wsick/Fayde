@@ -46,13 +46,13 @@
 
     ScrollBar.Instance.OnApplyTemplate = function () {
         this.OnApplyTemplate$RangeBase();
-        this.$ElementHorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalRoot"), FrameworkElement);
+        this.$ElementHorizontalTemplate = Nullstone.As(this.GetTemplateChild("HorizontalRoot"), Fayde.FrameworkElement);
         this.$ElementHorizontalLargeIncrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeIncrease"), namespace.RepeatButton);
         this.$ElementHorizontalLargeDecrease = Nullstone.As(this.GetTemplateChild("HorizontalLargeDecrease"), namespace.RepeatButton);
         this.$ElementHorizontalSmallIncrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallIncrease"), namespace.RepeatButton);
         this.$ElementHorizontalSmallDecrease = Nullstone.As(this.GetTemplateChild("HorizontalSmallDecrease"), namespace.RepeatButton);
         this.$ElementHorizontalThumb = Nullstone.As(this.GetTemplateChild("HorizontalThumb"), namespace.Thumb);
-        this.$ElementVerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalRoot"), FrameworkElement);
+        this.$ElementVerticalTemplate = Nullstone.As(this.GetTemplateChild("VerticalRoot"), Fayde.FrameworkElement);
         this.$ElementVerticalLargeIncrease = Nullstone.As(this.GetTemplateChild("VerticalLargeIncrease"), namespace.RepeatButton);
         this.$ElementVerticalLargeDecrease = Nullstone.As(this.GetTemplateChild("VerticalLargeDecrease"), namespace.RepeatButton);
         this.$ElementVerticalSmallIncrease = Nullstone.As(this.GetTemplateChild("VerticalSmallIncrease"), namespace.RepeatButton);

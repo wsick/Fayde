@@ -4,7 +4,7 @@
 /// <reference path="ContentControl.js"/>
 
 (function (namespace) {
-    var ContentPresenter = Nullstone.Create("ContentPresenter", FrameworkElement);
+    var ContentPresenter = Nullstone.Create("ContentPresenter", Fayde.FrameworkElement);
 
     //#region Properties
 
@@ -80,7 +80,7 @@
     };
     ContentPresenter.Instance.InvokeLoaded = function () {
         if (Nullstone.Is(this.Content, Fayde.UIElement))
-            this.$ClearValue(FrameworkElement.DataContextProperty);
+            this.$ClearValue(Fayde.FrameworkElement.DataContextProperty);
         else
             this.DataContext = this.Content;
         this.InvokeLoaded$FrameworkElement();
@@ -97,9 +97,9 @@
                 this._ClearRoot();
             }
             if (args.NewValue && !(args.NewValue instanceof Fayde.UIElement))
-                this._SetValue(FrameworkElement.DataContextProperty, args.NewValue);
+                this._SetValue(Fayde.FrameworkElement.DataContextProperty, args.NewValue);
             else
-                this._ClearValue(FrameworkElement.DataContextProperty);
+                this._ClearValue(Fayde.FrameworkElement.DataContextProperty);
             this._InvalidateMeasure();
         } else if (args.Property._ID === ContentPresenter.ContentTemplateProperty._ID) {
             this._ClearRoot();

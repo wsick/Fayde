@@ -5,7 +5,7 @@
 /// <reference path="../Media/Enums.js"/>
 
 (function (namespace) {
-    var MediaElement = Nullstone.Create("MediaElement", FrameworkElement);
+    var MediaElement = Nullstone.Create("MediaElement", Fayde.FrameworkElement);
 
     MediaElement.Instance.Init = function () {
         this.Init$FrameworkElement();

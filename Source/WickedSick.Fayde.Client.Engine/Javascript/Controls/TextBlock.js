@@ -8,7 +8,7 @@
 /// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var TextBlock = Nullstone.Create("TextBlock", FrameworkElement);
+    var TextBlock = Nullstone.Create("TextBlock", Fayde.FrameworkElement);
 
     TextBlock.Instance.Init = function () {
         this.Init$FrameworkElement();
@@ -298,7 +298,7 @@
         TextBlock.Instance._OnPropertyChanged = function (args, error) {
             if (args.Property.OwnerType !== TextBlock) {
                 this._OnPropertyChanged$FrameworkElement(args, error);
-                if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
+                if (args.Property._ID !== Fayde.FrameworkElement.LanguageProperty._ID)
                     return;
                 if (!this._UpdateFonts(false))
                     return;
@@ -411,7 +411,7 @@
             var invalidate = true;
             if (args.Property.OwnerType !== TextBlock) {
                 this._OnPropertyChanged$FrameworkElement(args, error);
-                if (args.Property._ID !== FrameworkElement.LanguageProperty._ID)
+                if (args.Property._ID !== Fayde.FrameworkElement.LanguageProperty._ID)
                     return;
                 if (!this._UpdateFonts(false))
                     return;

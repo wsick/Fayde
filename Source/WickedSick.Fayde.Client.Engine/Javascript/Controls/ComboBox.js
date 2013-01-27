@@ -314,7 +314,7 @@
         if (this.$Popup == null)
             return;
         var child = this.$Popup.RealChild;
-        if (!(child instanceof FrameworkElement))
+        if (!(child instanceof Fayde.FrameworkElement))
             return;
         child.MinWidth = this.ActualWidth;
 
@@ -367,7 +367,7 @@
         this._UpdatePopupMaxHeight(this.MaxDropDownHeight);
     };
     ComboBox.Instance._UpdatePopupMaxHeight = function (height) {
-        if (this.$Popup != null && this.$Popup.Child instanceof FrameworkElement) {
+        if (this.$Popup != null && this.$Popup.Child instanceof Fayde.FrameworkElement) {
             if (height === Number.POSITIVE_INFINITY)
                 height = App.Instance.MainSurface.ActualHeight / 2.0;
             this.$Popup.RealChild.MaxHeight = height;

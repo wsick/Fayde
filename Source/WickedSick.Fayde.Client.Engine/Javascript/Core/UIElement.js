@@ -857,7 +857,7 @@
             iter = new CollectionIterator(this.Resources);
             while (iter.Next()) {
                 v = iter.GetCurrent();
-                v = Nullstone.As(v, FrameworkElement);
+                v = Nullstone.As(v, Fayde.FrameworkElement);
                 if (v)
                     v._SetIsLoaded(loaded);
             }
@@ -873,7 +873,7 @@
             iter = new CollectionIterator(this.Resources);
             while (iter.Next()) {
                 v = iter.GetCurrent();
-                v = Nullstone.As(v, FrameworkElement);
+                v = Nullstone.As(v, Fayde.FrameworkElement);
                 if (v)
                     v._SetIsLoaded(loaded);
             }
@@ -942,7 +942,7 @@
         item._SetIsAttached(this._IsAttached);
         item._SetIsLoaded(this._IsLoaded);
         var o = this;
-        while (o && !(o instanceof FrameworkElement))
+        while (o && !(o instanceof Fayde.FrameworkElement))
             o = o.GetMentor();
         item.SetMentor(o);
 

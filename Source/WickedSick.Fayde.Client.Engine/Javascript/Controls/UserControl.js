@@ -59,7 +59,7 @@
 
         if (args.Property._ID === UserControl.ContentProperty._ID) {
             if (args.OldValue && args.OldValue instanceof Fayde.UIElement) {
-                if (args.OldValue instanceof FrameworkElement) {
+                if (args.OldValue instanceof Fayde.FrameworkElement) {
                     args.OldValue._SetLogicalParent(null, error);
                     if (error.IsErrored())
                         return;
@@ -67,7 +67,7 @@
                 this._ElementRemoved(args.OldValue);
             }
             if (args.NewValue && args.NewValue instanceof Fayde.UIElement) {
-                if (args.NewValue instanceof FrameworkElement) {
+                if (args.NewValue instanceof Fayde.FrameworkElement) {
                     args.NewValue._SetLogicalParent(this, error);
                     if (error.IsErrored())
                         return;

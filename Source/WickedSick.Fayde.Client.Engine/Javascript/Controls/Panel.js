@@ -4,7 +4,7 @@
 /// <reference path="../Media/Brush.js"/>
 
 (function (namespace) {
-    var Panel = Nullstone.Create("Panel", FrameworkElement);
+    var Panel = Nullstone.Create("Panel", Fayde.FrameworkElement);
 
     //#region Properties
 
@@ -167,21 +167,21 @@
                 var error = new BError();
                 switch (args.Action) {
                     case CollectionChangedArgs.Action.Replace:
-                        if (args.OldValue instanceof FrameworkElement)
+                        if (args.OldValue instanceof Fayde.FrameworkElement)
                             args.OldValue._SetLogicalParent(null, error);
                         this._ElementRemoved(args.OldValue);
                         if (this._IsAttached)
                             this.RemoveHtmlChild(args.OldValue, args.Index);
                         //NOTE: falls into add on purpose
                     case CollectionChangedArgs.Action.Add:
-                        if (args.NewValue instanceof FrameworkElement)
+                        if (args.NewValue instanceof Fayde.FrameworkElement)
                             args.NewValue._SetLogicalParent(this, error);
                         this._ElementAdded(args.NewValue);
                         if (this._IsAttached)
                             this.InsertHtmlChild(args.NewValue, args.Index);
                         break;
                     case CollectionChangedArgs.Action.Remove:
-                        if (args.OldValue instanceof FrameworkElement)
+                        if (args.OldValue instanceof Fayde.FrameworkElement)
                             args.OldValue._SetLogicalParent(null, error);
                         this._ElementRemoved(args.OldValue);
                         if (this._IsAttached)
@@ -242,17 +242,17 @@
                 var error = new BError();
                 switch (args.Action) {
                     case CollectionChangedArgs.Action.Replace:
-                        if (args.OldValue instanceof FrameworkElement)
+                        if (args.OldValue instanceof Fayde.FrameworkElement)
                             args.OldValue._SetLogicalParent(null, error);
                         this._ElementRemoved(args.OldValue);
                         //NOTE: falls into add on purpose
                     case CollectionChangedArgs.Action.Add:
-                        if (args.NewValue instanceof FrameworkElement)
+                        if (args.NewValue instanceof Fayde.FrameworkElement)
                             args.NewValue._SetLogicalParent(this, error);
                         this._ElementAdded(args.NewValue);
                         break;
                     case CollectionChangedArgs.Action.Remove:
-                        if (args.OldValue instanceof FrameworkElement)
+                        if (args.OldValue instanceof Fayde.FrameworkElement)
                             args.OldValue._SetLogicalParent(null, error);
                         this._ElementRemoved(args.OldValue);
                         break;

@@ -139,7 +139,7 @@
             if (tsv.$ElementScrollContentPresenter != null)
                 itemsHost = tsv.$ElementScrollContentPresenter;
         }
-        itemsHost = Nullstone.As(itemsHost, FrameworkElement);
+        itemsHost = Nullstone.As(itemsHost, Fayde.FrameworkElement);
 
         var ihro = itemsHostRectOut.Value = new Rect();
         var lbiro = listBoxItemsRectOut.Value = new Rect();

@@ -10,7 +10,7 @@
 /// <reference path="../Engine/RenderContext.js"/>
 
 (function (namespace) {
-    var Image = Nullstone.Create("Image", FrameworkElement);
+    var Image = Nullstone.Create("Image", Fayde.FrameworkElement);
 
     Image.Instance.Init = function () {
         this.Init$FrameworkElement();
