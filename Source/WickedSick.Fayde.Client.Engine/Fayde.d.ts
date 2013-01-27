@@ -355,18 +355,6 @@ class Uri {
 }
 
 //////////////////////////////////////////////////////////
-// ENUMS
-//////////////////////////////////////////////////////////
-enum MediaElementState {
-    Closed = 0,
-    Opening = 1,
-    Buffering = 4,
-    Playing = 5,
-    Paused = 6,
-    Stopped = 7,
-}
-
-//////////////////////////////////////////////////////////
 // CORE
 //////////////////////////////////////////////////////////
 module Fayde {
@@ -697,6 +685,9 @@ class PresentationFrameworkCollection extends DependencyObject implements IColle
     ToArray(): any[];
 }
 
+//////////////////////////////////////////////////////////
+// INPUT
+//////////////////////////////////////////////////////////
 module Fayde.Input {
     export enum KeyboardNavigationMode {
         Continue = 0,
@@ -1055,6 +1046,14 @@ module Fayde.Controls {
         Release = 0,
         Press = 1,
         Hover = 2,
+    }
+    export enum MediaElementState {
+        Closed = 0,
+        Opening = 1,
+        Buffering = 4,
+        Playing = 5,
+        Paused = 6,
+        Stopped = 7,
     }
 
     export class Border extends FrameworkElement {

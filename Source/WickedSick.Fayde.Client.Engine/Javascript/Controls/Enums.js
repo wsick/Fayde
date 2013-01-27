@@ -15,16 +15,6 @@
         SELECTION: 1 << 0,
         TEXT: 1 << 1
     };
-    namespace.MediaElementState = {
-        Closed: 0,
-        Opening: 1,
-        //Individualizing: 2,
-        //AcquiringLicense: 3,
-        Buffering: 4,
-        Playing: 5,
-        Paused: 6,
-        Stopped: 7
-    };
 })(window);
 
 
@@ -46,6 +36,16 @@
         Auto: 0,
         Pixel: 1,
         Star: 2
+    };
+    namespace.MediaElementState = {
+        Closed: 0,
+        Opening: 1,
+        //Individualizing: 2,
+        //AcquiringLicense: 3,
+        Buffering: 4,
+        Playing: 5,
+        Paused: 6,
+        Stopped: 7
     };
     namespace.PlacementMode = {
         Bottom: 0,

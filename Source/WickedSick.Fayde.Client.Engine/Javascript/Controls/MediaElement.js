@@ -31,7 +31,7 @@
     MediaElement.BufferingTimeProperty = DependencyProperty.RegisterReadOnlyCore("BufferingTime", function () { return TimeSpan; }, MediaElement);
     MediaElement.CanPauseProperty = DependencyProperty.RegisterReadOnlyCore("CanPause", function () { return Boolean; }, MediaElement);
     MediaElement.CanSeekProperty = DependencyProperty.RegisterReadOnlyCore("CanSeek", function () { return Boolean; }, MediaElement);
-    MediaElement.CurrentStateProperty = DependencyProperty.RegisterReadOnlyCore("CurrentState", function () { return new Enum(MediaElementState); }, MediaElement);
+    MediaElement.CurrentStateProperty = DependencyProperty.RegisterReadOnlyCore("CurrentState", function () { return new Enum(namespace.MediaElementState); }, MediaElement);
     MediaElement.DownloadProgressProperty = DependencyProperty.RegisterReadOnlyCore("DownloadProgress", function () { return Number; }, MediaElement);
     MediaElement.DownloadProgressOffsetProperty = DependencyProperty.RegisterReadOnlyCore("DownloadProgressOffset", function () { return Number; }, MediaElement);
     //MediaElement.DroppedFramesPerSecondProperty = DependencyProperty.Register("DroppedFramesPerSecond", function () { return Number; }, MediaElement);
@@ -73,7 +73,7 @@
     ]);
 
     Nullstone.Property(MediaElement, "IsClosed", {
-        get: function () { return this._State === MediaElementState.Closed; }
+        get: function () { return this._State === namespace.MediaElementState.Closed; }
     });
 
     //#endregion
