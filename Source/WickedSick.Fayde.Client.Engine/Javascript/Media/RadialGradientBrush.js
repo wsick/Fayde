@@ -27,4 +27,4 @@
     };
 
     namespace.RadialGradientBrush = Nullstone.FinishCreate(RadialGradientBrush);
-})(window);
+})(Nullstone.Namespace("Fayde.Media"));
