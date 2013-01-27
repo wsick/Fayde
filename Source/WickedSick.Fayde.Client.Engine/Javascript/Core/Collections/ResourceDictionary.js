@@ -12,7 +12,7 @@
 
     //#region Properties
 
-    ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return ResourceDictionaryCollection; }, ResourceDictionary, undefined, undefined, { GetValue: function () { return new ResourceDictionaryCollection(); } });
+    ResourceDictionary.MergedDictionariesProperty = DependencyProperty.RegisterFull("MergedDictionaries", function () { return Fayde.ResourceDictionaryCollection; }, ResourceDictionary, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionaryCollection(); } });
 
     Nullstone.AutoProperties(ResourceDictionary, [
         ResourceDictionary.MergedDictionariesProperty
@@ -171,4 +171,4 @@
     };
 
     namespace.ResourceDictionary = Nullstone.FinishCreate(ResourceDictionary);
-})(window);
+})(Nullstone.Namespace("Fayde"));

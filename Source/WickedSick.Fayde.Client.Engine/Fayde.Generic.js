@@ -79,6 +79,7 @@ App.GetGenericResourceDictionary = function () {
     var Setter = Fayde.Setter;
     var Style = Fayde.Style;
     var DataTemplate = Fayde.DataTemplate;
+    var ResourceDictionary = Fayde.ResourceDictionary;
 
     var json = {
         Type: ResourceDictionary,

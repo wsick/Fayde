@@ -123,7 +123,7 @@
         if (!ignoreResolve) {
             this.ResolveStaticResourceExpressions();
         }
-        if (json.Type === ResourceDictionary) {
+        if (json.Type === Fayde.ResourceDictionary) {
             delete this._ContextResourceDictionary;
         }
         return dobj;
@@ -202,7 +202,7 @@
             }
         }
 
-        var rd = Nullstone.As(coll, ResourceDictionary);
+        var rd = Nullstone.As(coll, Fayde.ResourceDictionary);
         var oldChain = this._ResChain;
         if (rd) {
             this._ResChain = this._ResChain.slice(0);

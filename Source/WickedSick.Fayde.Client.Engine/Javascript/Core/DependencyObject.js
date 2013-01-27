@@ -908,7 +908,7 @@
 
         if (this._Parent || this._HasSecondaryParents()) {
             this._AddSecondaryParent(parent);
-            if (this._Parent && !(this._Parent instanceof ResourceDictionary))
+            if (this._Parent && !(this._Parent instanceof Fayde.ResourceDictionary))
                 this.SetMentor(null);
             if (this._SecondaryParents.length > 1 || !(parent instanceof Fayde.DependencyObjectCollection) || !parent._GetIsSecondaryParent())
                 return;

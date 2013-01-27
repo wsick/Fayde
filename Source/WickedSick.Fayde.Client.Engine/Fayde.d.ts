@@ -48,10 +48,10 @@ class AjaxJsonRequest {
     Cancel();
 }
 
-class App extends DependencyObject {
+class App extends Fayde.DependencyObject {
     Address: Uri;
-    Resources: ResourceDictionary;
-    RootVisual: UIElement;
+    Resources: Fayde.ResourceDictionary;
+    RootVisual: Fayde.UIElement;
     Loaded: MulticastEvent;
     static Instance: App;
     static Version: string;
@@ -71,23 +71,6 @@ interface ICollection {
     IndexOf(value): number;
     Contains(value): bool;
     ToArray(): any[];
-}
-class DependencyObjectCollection implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): DependencyObject;
-    SetValueAt(index: number, value: DependencyObject);
-    Add(value: DependencyObject);
-    AddRange(newItems: DependencyObject[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: DependencyObject);
-    Remove(value: DependencyObject);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value: DependencyObject): number;
-    Contains(value: DependencyObject): bool;
-    ToArray(): DependencyObject[];
-
-    IsElementType(element: any): bool;
 }
 
 //////////////////////////////////////////////////////////
@@ -423,12 +406,89 @@ module Fayde {
         MaxHeight = 0,
         BlockLineHeight = 1,
     }
-    
+
     export class DataTemplate extends FrameworkTemplate {
         //LoadContent(): DependencyObject;
         //DataType;
     }
+    export class DependencyObject {
+        $SetValue(propd: DependencyProperty, value): any;
+        $GetValue(propd: DependencyProperty): any;
+        $ReadLocalValue(propd: DependencyProperty): any;
+        $ClearValue(propd: DependencyProperty);
+    }
+    export class DependencyObjectCollection implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): DependencyObject;
+        SetValueAt(index: number, value: DependencyObject);
+        Add(value: DependencyObject);
+        AddRange(newItems: DependencyObject[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: DependencyObject);
+        Remove(value: DependencyObject);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value: DependencyObject): number;
+        Contains(value: DependencyObject): bool;
+        ToArray(): DependencyObject[];
+
+        IsElementType(element: any): bool;
+    }
     export class Expression {
+    }
+    export class FrameworkElement extends UIElement {
+        //Dependency Properties
+        static ActualHeightProperty: DependencyProperty;
+        static ActualWidthProperty: DependencyProperty;
+        static CursorProperty: DependencyProperty;
+        static DataContextProperty: DependencyProperty;
+        static FlowDirectionProperty: DependencyProperty;
+        static HeightProperty: DependencyProperty;
+        static HorizontalAlignmentProperty: DependencyProperty;
+        static LanguageProperty: DependencyProperty;
+        static MarginProperty: DependencyProperty;
+        static MaxHeightProperty: DependencyProperty;
+        static MaxWidthProperty: DependencyProperty;
+        static MinHeightProperty: DependencyProperty;
+        static MinWidthProperty: DependencyProperty;
+        static NameProperty: DependencyProperty;
+        static StyleProperty: DependencyProperty;
+        static VerticalAlignmentProperty: DependencyProperty;
+        static WidthProperty: DependencyProperty;
+
+        //Properties
+        ActualHeight: number;
+        ActualWidth: number;
+        Cursor: string;
+        DataContext: any;
+        FlowDirection: Fayde.FlowDirection;
+        Height: number;
+        HorizontalAlignment: Fayde.HorizontalAlignment;
+        Language: any;
+        Margin: Thickness;
+        MaxHeight: number;
+        MaxWidth: number;
+        MinHeight: number;
+        MinWidth: number;;
+            Style: Fayde.Style;
+        Tag: any;
+        VerticalAlignment: Fayde.VerticalAlignment;
+        Width: number;
+
+        //Events
+        DataContextChanged: MulticastEvent;
+        LayoutUpdated: MulticastEvent;
+        Loaded: MulticastEvent;
+        SizeChanged: MulticastEvent;
+        Unloaded: MulticastEvent;
+
+        //Methods
+        FindName(name: string): any;
+        MeasureOverride(availableSize): Size;
+        ArrangeOverride(finalSize: Size): Size;
+        GetBindingExpression(dp: DependencyProperty): Fayde.Data.BindingExpression;
+        SetBinding(dp: DependencyProperty, binding: Fayde.Data.Binding): Fayde.Data.BindingExpressionBase;
+        OnApplyTemplate();
     }
     export class FrameworkTemplate extends DependencyObject {
     }
@@ -440,7 +500,7 @@ module Fayde {
         static LayoutClipProperty: DependencyProperty;
         static GetLayoutClip(d: DependencyObject): Fayde.Media.Geometry;
         static SetLayoutClip(d: DependencyObject, value: Fayde.Media.Geometry);
-    
+
         static LayoutExceptionElementProperty: DependencyProperty;
         static GetLayoutExceptionElement(d: DependencyObject): UIElement;
         static SetLayoutExceptionElement(d: DependencyObject, value: UIElement);
@@ -465,10 +525,50 @@ module Fayde {
         static GetVisualOffset(d: DependencyObject): Point;
         static SetVisualOffset(d: DependencyObject, value: Point);
     }
+    export class PresentationFrameworkCollection extends DependencyObject implements ICollection {
+        GetCount(): number;
+        GetValueAt(index: number): any;
+        SetValueAt(index: number, value);
+        Add(value);
+        AddRange(newItems: any[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value);
+        Remove(value);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value): number;
+        Contains(value): bool;
+        ToArray(): any[];
+    }
+    export class ResourceDictionary extends DependencyObject implements ICollection {
+        static MergedDictionariesProperty: DependencyProperty;
+        MergedDictionaries: ResourceDictionaryCollection;
+
+        GetCount(): number;
+        GetValueAt(index: number): any;
+        SetValueAt(index: number, value);
+        Add(value);
+        AddRange(newItems: any[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value);
+        Remove(key);
+        RemoveAt(index: number);
+        Clear();
+        IndexOf(value): number;
+        Contains(value): bool;
+        ToArray(): any[];
+
+        ContainsKey(key): bool;
+        Get(key): any;
+        Set(key, value);
+        Add(key, value);
+    }
+    export class ResourceDictionaryCollection extends DependencyObjectCollection {
+    }
     export class RoutedEvent extends MulticastEvent {
-        Subscribe(callback: (sender, args: RoutedEventArgs) => void, closure);
-        SubscribeSpecific(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure);
-        Unsubscribe(callback: (sender, args: RoutedEventArgs) => void, closure, matchClosure?);
+        Subscribe(callback: (sender, args: RoutedEventArgs) => void , closure);
+        SubscribeSpecific(callback: (sender, args: RoutedEventArgs) => void , closure, matchClosure);
+        Unsubscribe(callback: (sender, args: RoutedEventArgs) => void , closure, matchClosure? );
         Raise(sender, args: RoutedEventArgs);
         RaiseAsync(sender, args: RoutedEventArgs);
     }
@@ -501,6 +601,75 @@ module Fayde {
         TargetType;
         Seal();
     }
+    export class UIElement extends DependencyObject {
+        //Dependency Properties
+        static AllowDropProperty: DependencyProperty;
+        static CacheModeProperty: DependencyProperty;
+        static ClipProperty: DependencyProperty;
+        static EffectProperty: DependencyProperty;
+        static IsHitTestVisibleProperty: DependencyProperty;
+        static OpacityMaskProperty: DependencyProperty;
+        static OpacityProperty: DependencyProperty;
+        static ProjectionProperty: DependencyProperty;
+        static RenderTransformProperty: DependencyProperty;
+        static RenderTransformOriginProperty: DependencyProperty;
+        static ResourcesProperty: DependencyProperty;
+        static TriggersProperty: DependencyProperty;
+        static UseLayoutRoundingProperty: DependencyProperty;
+        static VisibilityProperty: DependencyProperty;
+        static TagProperty: DependencyProperty;
+
+        //Properties
+        AllowDrop: bool;
+        CacheMode: Fayde.Media.CacheMode;
+        Clip: Fayde.Media.Geometry;
+        Effect: Fayde.Media.Effects.Effect;
+        IsHitTestVisible: bool;
+        OpacityMask: Fayde.Media.Brush;
+        Opacity: number;
+        Projection: Fayde.Media.Projection;
+        RenderTransform: Fayde.Media.Transform;
+        RenderTransformOrigin: Point;
+        Resources: ResourceDictionary;
+        Triggers: any;
+        UseLayoutRounding: bool;
+        Visibility: Fayde.Visibility;
+        Tag: any;
+
+        //Events
+        GotFocus: MulticastEvent;
+        KeyDown: MulticastEvent;
+        KeyUp: MulticastEvent;
+        LostFocus: MulticastEvent;
+        LostMouseCapture: MulticastEvent;
+        MouseEnter: MulticastEvent;
+        MouseLeave: MulticastEvent;
+        MouseLeftButtonDown: MulticastEvent;
+        MouseLeftButtonUp: MulticastEvent;
+        MouseMove: MulticastEvent;
+        MouseRightButtonDown: MulticastEvent;
+        MouseRightButtonUp: MulticastEvent;
+        MouseWheel: MulticastEvent;
+
+        //Methods
+        CaptureMouse(): bool;
+        ReleaseMouseCapture();
+
+        InvalidateMeasure();
+        Measure(availableSize: Size);
+
+        InvalidateArrange();
+        Arrange(finalRect: Rect);
+
+        UpdateLayout();
+
+        TransformToVisual(): Fayde.Media.GeneralTransform;
+    }
+    export class UIElementCollection extends DependencyObjectCollection {
+        GetValueAtZIndex();
+        GetZSortedCount();
+        ResortByZIndex();
+    }
     export class VisualTreeHelper {
         static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
         static GetChildrenCount(d: DependencyObject): DependencyObject;
@@ -509,180 +678,10 @@ module Fayde {
     }
 }
 
-class DependencyObject {
-    $SetValue(propd: DependencyProperty, value): any;
-    $GetValue(propd: DependencyProperty): any;
-    $ReadLocalValue(propd: DependencyProperty): any;
-    $ClearValue(propd: DependencyProperty);
-}
 class DependencyProperty {
     Name: string;
     static Register(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
     static RegisterAttached(name: string, getTargetType: Function, ownerType, defaultValue, changedCallback): DependencyProperty;
-}
-class UIElement extends DependencyObject {
-    //Dependency Properties
-    static AllowDropProperty: DependencyProperty;
-    static CacheModeProperty: DependencyProperty;
-    static ClipProperty: DependencyProperty;
-    static EffectProperty: DependencyProperty;
-    static IsHitTestVisibleProperty: DependencyProperty;
-    static OpacityMaskProperty: DependencyProperty;
-    static OpacityProperty: DependencyProperty;
-    static ProjectionProperty: DependencyProperty;
-    static RenderTransformProperty: DependencyProperty;
-    static RenderTransformOriginProperty: DependencyProperty;
-    static ResourcesProperty: DependencyProperty;
-    static TriggersProperty: DependencyProperty;
-    static UseLayoutRoundingProperty: DependencyProperty;
-    static VisibilityProperty: DependencyProperty;
-    static TagProperty: DependencyProperty;
-    
-    //Properties
-    AllowDrop: bool;
-    CacheMode: Fayde.Media.CacheMode;
-    Clip: Fayde.Media.Geometry;
-    Effect: Fayde.Media.Effects.Effect;
-    IsHitTestVisible: bool;
-    OpacityMask: Fayde.Media.Brush;
-    Opacity: number;
-    Projection: Fayde.Media.Projection;
-    RenderTransform: Fayde.Media.Transform;
-    RenderTransformOrigin: Point;
-    Resources: ResourceDictionary;
-    Triggers: any;
-    UseLayoutRounding: bool;
-    Visibility: Fayde.Visibility;
-    Tag: any;
-
-    //Events
-    GotFocus: MulticastEvent;
-    KeyDown: MulticastEvent;
-    KeyUp: MulticastEvent;
-    LostFocus: MulticastEvent;
-    LostMouseCapture: MulticastEvent;
-    MouseEnter: MulticastEvent;
-    MouseLeave: MulticastEvent;
-    MouseLeftButtonDown: MulticastEvent;
-    MouseLeftButtonUp: MulticastEvent;
-    MouseMove: MulticastEvent;
-    MouseRightButtonDown: MulticastEvent;
-    MouseRightButtonUp: MulticastEvent;
-    MouseWheel: MulticastEvent;
-
-    //Methods
-    CaptureMouse(): bool;
-    ReleaseMouseCapture();
-
-    InvalidateMeasure();
-    Measure(availableSize: Size);
-
-    InvalidateArrange();
-    Arrange(finalRect: Rect);
-    
-    UpdateLayout();
-
-    TransformToVisual(): Fayde.Media.GeneralTransform;
-}
-class FrameworkElement extends UIElement {
-    //Dependency Properties
-    static ActualHeightProperty: DependencyProperty;
-    static ActualWidthProperty: DependencyProperty;
-    static CursorProperty: DependencyProperty;
-    static DataContextProperty: DependencyProperty;
-    static FlowDirectionProperty: DependencyProperty;
-    static HeightProperty: DependencyProperty;
-    static HorizontalAlignmentProperty: DependencyProperty;
-    static LanguageProperty: DependencyProperty;
-    static MarginProperty: DependencyProperty;
-    static MaxHeightProperty: DependencyProperty;
-    static MaxWidthProperty: DependencyProperty;
-    static MinHeightProperty: DependencyProperty;
-    static MinWidthProperty: DependencyProperty;
-    static NameProperty: DependencyProperty;
-    static StyleProperty: DependencyProperty;
-    static VerticalAlignmentProperty: DependencyProperty;
-    static WidthProperty: DependencyProperty;
-
-    //Properties
-    ActualHeight: number;
-    ActualWidth: number;
-    Cursor: string;
-    DataContext: any;
-    FlowDirection: Fayde.FlowDirection;
-    Height: number;
-    HorizontalAlignment: Fayde.HorizontalAlignment;
-    Language: any;
-    Margin: Thickness;
-    MaxHeight: number;
-    MaxWidth: number;
-    MinHeight: number;
-    MinWidth: number;;
-    Style: Fayde.Style;
-    Tag: any;
-    VerticalAlignment: Fayde.VerticalAlignment;
-    Width: number;
-
-    //Events
-    DataContextChanged: MulticastEvent;
-    LayoutUpdated: MulticastEvent;
-    Loaded: MulticastEvent;
-    SizeChanged: MulticastEvent;
-    Unloaded: MulticastEvent;
-
-    //Methods
-    FindName(name: string): any;
-    MeasureOverride(availableSize): Size;
-    ArrangeOverride(finalSize: Size): Size;
-    GetBindingExpression(dp: DependencyProperty): Fayde.Data.BindingExpression;
-    SetBinding(dp: DependencyProperty, binding: Fayde.Data.Binding): Fayde.Data.BindingExpressionBase;
-    OnApplyTemplate();
-}
-class ResourceDictionary extends DependencyObject implements ICollection {
-    static MergedDictionariesProperty: DependencyProperty;
-    MergedDictionaries: ResourceDictionaryCollection;
-
-    GetCount(): number;
-    GetValueAt(index: number): any;
-    SetValueAt(index: number, value);
-    Add(value);
-    AddRange(newItems: any[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value);
-    Remove(key);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value): number;
-    Contains(value): bool;
-    ToArray(): any[];
-
-    ContainsKey(key): bool;
-    Get(key): any;
-    Set(key, value);
-    Add(key, value);
-}
-class ResourceDictionaryCollection extends DependencyObjectCollection {
-}
-class UIElementCollection extends DependencyObjectCollection {
-    GetValueAtZIndex();
-    GetZSortedCount();
-    ResortByZIndex();
-}
-
-class PresentationFrameworkCollection extends DependencyObject implements ICollection {
-    GetCount(): number;
-    GetValueAt(index: number): any;
-    SetValueAt(index: number, value);
-    Add(value);
-    AddRange(newItems: any[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value);
-    Remove(value);
-    RemoveAt(index: number);
-    Clear();
-    IndexOf(value): number;
-    Contains(value): bool;
-    ToArray(): any[];
 }
 
 //////////////////////////////////////////////////////////

@@ -29,7 +29,7 @@
                 if (o)
                     return o;
             }
-            if (cur instanceof ResourceDictionary) {
+            if (cur instanceof Fayde.ResourceDictionary) {
                 o = cur.Get(key);
                 if (o)
                     return o;

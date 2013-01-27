@@ -3,6 +3,7 @@ using WickedSick.Server.XamlParser.Elements.Types;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
+    [Element(NullstoneNamespace = "Fayde")]
     public abstract class FrameworkElement : UIElement
     {
         public static readonly PropertyDescription MarginProperty = PropertyDescription.Register("Margin", typeof(Thickness), typeof(FrameworkElement));

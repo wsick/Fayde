@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var ItemCollection = Nullstone.Create("ItemCollection", PresentationFrameworkCollection, 0, [INotifyCollectionChanged]);
+    var ItemCollection = Nullstone.Create("ItemCollection", Fayde.PresentationFrameworkCollection, 0, [INotifyCollectionChanged]);
 
     ItemCollection.Instance.Init = function () {
         this.Init$PresentationFrameworkCollection();

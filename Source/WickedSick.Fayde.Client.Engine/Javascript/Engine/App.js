@@ -48,7 +48,7 @@
 
     //#region Properties
 
-    App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return ResourceDictionary; }, App, undefined, undefined, { GetValue: function () { return new ResourceDictionary(); } });
+    App.ResourcesProperty = DependencyProperty.RegisterFull("Resources", function () { return Fayde.ResourceDictionary; }, App, undefined, undefined, { GetValue: function () { return new Fayde.ResourceDictionary(); } });
 
     Nullstone.AutoProperties(App, [
         App.ResourcesProperty,
@@ -63,7 +63,7 @@
 
     App.Instance.LoadResources = function (json) {
         var rd = JsonParser.Parse(json);
-        if (rd instanceof ResourceDictionary)
+        if (rd instanceof Fayde.ResourceDictionary)
             this.Resources = rd;
     };
     App.Instance.LoadInitial = function (containerId, json) {

@@ -130,4 +130,4 @@
     };
 
     namespace.PresentationFrameworkCollection = Nullstone.FinishCreate(PresentationFrameworkCollection);
-})(window);
+})(Nullstone.Namespace("Fayde"));
