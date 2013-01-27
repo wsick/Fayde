@@ -15,7 +15,7 @@
 
     //#region Properties
 
-    ListBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () { return Style; }, ListBox, undefined, function (d, args) { d.OnItemContainerStyleChanged(args.OldValue, args.NewValue); });
+    ListBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () { return Fayde.Style; }, ListBox, undefined, function (d, args) { d.OnItemContainerStyleChanged(args.OldValue, args.NewValue); });
     ListBox.SelectionModeProperty = DependencyProperty.RegisterCore("SelectionMode", function () { return new Enum(namespace.SelectionMode); }, ListBox, undefined, function (d, args) { d._Selection.Mode = args.NewValue; });
     ListBox.IsSelectionActiveProperty = namespace.Primitives.Selector.IsSelectionActiveProperty;
 

@@ -10,7 +10,7 @@
         this._Setters = [];
         this._Offset = 0;
 
-        if (styles instanceof Style)
+        if (styles instanceof Fayde.Style)
             this._InitializeStyle(styles);
         else if (styles instanceof Array)
             this._InitializeStyles(styles);
@@ -32,10 +32,10 @@
             var setters = cur.Setters;
             var count = setters.GetCount();
             for (var i = count - 1; i >= 0; i--) {
-                var setter = Nullstone.As(setters.GetValueAt(i), Setter);
+                var setter = Nullstone.As(setters.GetValueAt(i), Fayde.Setter);
                 if (!setter)
                     continue;
-                var propd = setter._GetValue(Setter.PropertyProperty);
+                var propd = setter._GetValue(Fayde.Setter.PropertyProperty);
                 if (!propd)
                     continue;
                 if (dps[propd])
@@ -62,10 +62,10 @@
                 var setters = style.Setters;
                 var count = setters ? setters.GetCount() : 0;
                 for (var j = count - 1; j >= 0; j--) {
-                    var setter = Nullstone.As(setters.GetValueAt(j), Setter);
+                    var setter = Nullstone.As(setters.GetValueAt(j), Fayde.Setter);
                     if (!setter)
                         continue;
-                    var propd = setter._GetValue(Setter.PropertyProperty);
+                    var propd = setter._GetValue(Fayde.Setter.PropertyProperty);
                     if (!propd)
                         continue;
                     if (dps[propd])
@@ -84,8 +84,8 @@
     _DeepStyleWalker.SetterSort = function (setter1, setter2) {
         /// <param name="setter1" type="Setter"></param>
         /// <param name="setter2" type="Setter"></param>
-        var a = setter1._GetValue(Setter.PropertyProperty);
-        var b = setter2._GetValue(Setter.PropertyProperty);
+        var a = setter1._GetValue(Fayde.Setter.PropertyProperty);
+        var b = setter2._GetValue(Fayde.Setter.PropertyProperty);
         return (a === b) ? 0 : ((a > b) ? 1 : -1);
     };
 

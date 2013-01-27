@@ -76,6 +76,9 @@ App.GetGenericResourceDictionary = function () {
     var VerticalAlignment = Fayde.VerticalAlignment;
     var TextDecorations = Fayde.TextDecorations;
     var TextWrapping = Fayde.Controls.TextWrapping;
+    var Setter = Fayde.Setter;
+    var Style = Fayde.Style;
+    var DataTemplate = Fayde.DataTemplate;
 
     var json = {
         Type: ResourceDictionary,

@@ -1,7 +1,8 @@
 ﻿using WickedSick.Server.XamlParser.Elements.Types;
 
-namespace WickedSick.Server.XamlParser.Elements
+namespace WickedSick.Server.XamlParser.Elements.Core
 {
+    [Element(NullstoneNamespace = "Fayde")]
     public class Style : DependencyObject
     {
         public static readonly PropertyDescription SettersProperty = PropertyDescription.Register("Setters", typeof(DependencyObjectCollection<Setter>), typeof(Style), true);

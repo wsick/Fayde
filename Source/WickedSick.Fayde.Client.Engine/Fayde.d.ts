@@ -487,6 +487,32 @@ module Fayde {
     export class RoutedEventArgs extends EventArgs {
         Handled: bool;
     }
+    export class SetterBase extends DependencyObject {
+        IsSealed: bool;
+    }
+    export class SetterBaseCollection extends DependencyObjectCollection {
+        GetValueAt(index: number): SetterBase;
+        SetValueAt(index: number, value: SetterBase);
+        Add(value: SetterBase);
+        AddRange(newItems: SetterBase[]);
+        AddRange(newItems: ICollection);
+        Insert(index: number, value: SetterBase);
+        Remove(value: SetterBase);
+        IndexOf(value: SetterBase): number;
+        Contains(value: SetterBase): bool;
+        ToArray(): SetterBase[];
+    }
+    export class Setter extends SetterBase {
+        Property: DependencyProperty;
+        Value;
+    }
+    export class Style extends DependencyObject {
+        BasedOn: Style;
+        IsSealed: bool;
+        Setters: SetterBaseCollection;
+        TargetType;
+        Seal();
+    }
     export class VisualTreeHelper {
         static GetChild(d: DependencyObject, childIndex: number): DependencyObject;
         static GetChildrenCount(d: DependencyObject): DependencyObject;
@@ -604,7 +630,7 @@ class FrameworkElement extends UIElement {
     MaxWidth: number;
     MinHeight: number;
     MinWidth: number;;
-    Style: Style;
+    Style: Fayde.Style;
     Tag: any;
     VerticalAlignment: Fayde.VerticalAlignment;
     Width: number;
@@ -623,32 +649,6 @@ class FrameworkElement extends UIElement {
     GetBindingExpression(dp: DependencyProperty): Fayde.Data.BindingExpression;
     SetBinding(dp: DependencyProperty, binding: Fayde.Data.Binding): Fayde.Data.BindingExpressionBase;
     OnApplyTemplate();
-}
-class SetterBase extends DependencyObject {
-    IsSealed: bool;
-}
-class Setter extends SetterBase {
-    Property: DependencyProperty;
-    Value;
-}
-class SetterBaseCollection extends DependencyObjectCollection {
-    GetValueAt(index: number): SetterBase;
-    SetValueAt(index: number, value: SetterBase);
-    Add(value: SetterBase);
-    AddRange(newItems: SetterBase[]);
-    AddRange(newItems: ICollection);
-    Insert(index: number, value: SetterBase);
-    Remove(value: SetterBase);
-    IndexOf(value: SetterBase): number;
-    Contains(value: SetterBase): bool;
-    ToArray(): SetterBase[];
-}
-class Style extends DependencyObject {
-    BasedOn: Style;
-    IsSealed: bool;
-    Setters: SetterBaseCollection;
-    TargetType;
-    Seal();
 }
 class ResourceDictionary extends DependencyObject implements ICollection {
     static MergedDictionariesProperty: DependencyProperty;

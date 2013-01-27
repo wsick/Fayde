@@ -14,7 +14,7 @@
         var errorMessage;
         if (value) {
             var root;
-            var style = Nullstone.As(value, Style);
+            var style = Nullstone.As(value, Fayde.Style);
 
             if (style.IsSealed) {
                 if (!Nullstone.DoesInheritFrom(parentType, style.TargetType)) {

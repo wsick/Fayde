@@ -286,7 +286,7 @@
     <Compile Include="Elements\Controls\RowDefinition.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Setter.cs">
+    <Compile Include="Elements\Core\Setter.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Shapes\Ellipse.cs" />
@@ -302,7 +302,7 @@
     <Compile Include="Elements\Controls\StackPanel.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Elements\Style.cs">
+    <Compile Include="Elements\Core\Style.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Elements\Controls\TextBlock.cs">

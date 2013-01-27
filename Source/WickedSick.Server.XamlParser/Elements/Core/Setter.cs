@@ -1,6 +1,7 @@
 ﻿
-namespace WickedSick.Server.XamlParser.Elements
+namespace WickedSick.Server.XamlParser.Elements.Core
 {
+    [Element(NullstoneNamespace = "Fayde")]
     public class Setter : DependencyObject
     {
         //TODO: Rewire specific SetterValueConverter

@@ -21,7 +21,7 @@
     //#region Properties
 
     ComboBox.IsDropDownOpenProperty = DependencyProperty.RegisterCore("IsDropDownOpen", function () { return Boolean; }, ComboBox, false, function (d, args) { d._IsDropDownOpenChanged(args); });
-    ComboBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () { return Style; }, ComboBox);
+    ComboBox.ItemContainerStyleProperty = DependencyProperty.RegisterCore("ItemContainerStyle", function () { return Fayde.Style; }, ComboBox);
     ComboBox.MaxDropDownHeightProperty = DependencyProperty.RegisterCore("MaxDropDownHeight", function () { return Number; }, ComboBox, Number.POSITIVE_INFINITY, function (d, args) { d._MaxDropDownHeightChanged(args); });
     ComboBox.IsSelectionActiveProperty = namespace.Primitives.Selector.IsSelectionActiveProperty;
 

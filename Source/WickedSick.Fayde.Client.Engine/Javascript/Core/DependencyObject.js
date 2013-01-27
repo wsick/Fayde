@@ -709,7 +709,7 @@
         this.PropertyChanged.Raise(this, args);
     };
     DependencyObject.Instance.AddPropertyChangedListener = function (ldo, propd) {
-        if (!(ldo instanceof Setter)) {
+        if (!(ldo instanceof Fayde.Setter)) {
             var listener = new SubPropertyListener(ldo, propd);
             this._SubPropertyListeners.push(listener);
             this.PropertyChanged.Subscribe(listener.OnSubPropertyChanged, listener);

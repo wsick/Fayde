@@ -149,7 +149,7 @@
         //TODO: Uncomment when implemented
         if (value instanceof Fayde.FrameworkTemplate)
             return true;
-        if (value instanceof Style)
+        if (value instanceof Fayde.Style)
             return true;
         if (value instanceof Fayde.Media.Transform)
             return true;

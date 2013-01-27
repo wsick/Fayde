@@ -27,4 +27,4 @@
     };
 
     namespace.SetterBase = Nullstone.FinishCreate(SetterBase);
-})(window);
+})(Nullstone.Namespace("Fayde"));

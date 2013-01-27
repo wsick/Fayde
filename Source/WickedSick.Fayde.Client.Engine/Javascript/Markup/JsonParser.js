@@ -217,7 +217,7 @@
                 coll.Add(fobj);
             } else {
                 var key = subJson[i].Key;
-                if (subJson[i].Type !== Style) {
+                if (subJson[i].Type !== Fayde.Style) {
                     fobj = new ResourceTarget(subJson[i], namescope, this._TemplateBindingSource, this._ResChain);
                 } else {
                     fobj = this.CreateObject(subJson[i], namescope, true);
@@ -266,7 +266,7 @@
     };
 
     JsonParser.CreateSetter = function (dobj, propName, value) {
-        var setter = new Setter();
+        var setter = new Fayde.Setter();
         var propd = dobj.GetDependencyProperty(propName);
         setter.SetProperty(propd);
         setter.SetValue_Prop(value);
