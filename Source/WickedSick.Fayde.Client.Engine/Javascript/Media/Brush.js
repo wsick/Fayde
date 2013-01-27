@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var Brush = Nullstone.Create("Brush", DependencyObject);
+    var Brush = Nullstone.Create("Brush", Fayde.DependencyObject);
 
     //#region Properties
 

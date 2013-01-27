@@ -74,7 +74,7 @@
 
     ResourceDictionary.Instance.AddedToCollection = function (value, error) {
         var rv = false;
-        var obj = Nullstone.As(value, DependencyObject);
+        var obj = Nullstone.As(value, Fayde.DependencyObject);
         if (obj) {
             if (obj._Parent && !ResourceDictionary._CanBeAddedTwice(value)) {
                 error.SetErrored(BError.InvalidOperation, "Element is already a child of another element.");
@@ -98,8 +98,8 @@
         return rv;
     };
     ResourceDictionary.Instance.RemovedFromCollection = function (value, isValueSafe) {
-        if (isValueSafe && value instanceof DependencyObject) {
-            var obj = Nullstone.As(value, DependencyObject);
+        if (isValueSafe && value instanceof Fayde.DependencyObject) {
+            var obj = Nullstone.As(value, Fayde.DependencyObject);
             if (obj) {
                 obj.RemovePropertyChangedListener(this);
                 obj._RemoveParent(this, null);
@@ -114,14 +114,14 @@
 
         for (var i = 0; i < this._ht.length; i++) {
             var obj = this._ht[i];
-            if (obj instanceof DependencyObject)
+            if (obj instanceof Fayde.DependencyObject)
                 obj._SetIsAttached(value);
         }
     };
     ResourceDictionary.Instance._OnMentorChanged = function (oldValue, newValue) {
         this._OnMentorChanged$Collection(oldValue, newValue);
         for (var i = 0; i < this._KeyIndex.length; i++) {
-            DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
+            Fayde.DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
         }
     };
 
@@ -130,7 +130,7 @@
         /// <param name="error" type="BError"></param>
         for (var i = 0; i < this.GetCount() ; i++) {
             var obj = this.GetValueAt(i);
-            if (obj && obj instanceof DependencyObject)
+            if (obj && obj instanceof Fayde.DependencyObject)
                 obj._RegisterAllNamesRootedAt(namescope, error);
         }
         this._RegisterAllNamesRootedAt$Collection(namescope, error);
@@ -139,7 +139,7 @@
         /// <param name="fromNs" type="NameScope"></param>
         for (var i = 0; i < this.GetCount() ; i++) {
             var obj = this.GetValueAt(i);
-            if (obj && obj instanceof DependencyObject)
+            if (obj && obj instanceof Fayde.DependencyObject)
                 obj._UnregisterAllNamesRootedAt(fromNs);
         }
         this._UnregisterAllNamesRootedAt$Collection(fromNs);

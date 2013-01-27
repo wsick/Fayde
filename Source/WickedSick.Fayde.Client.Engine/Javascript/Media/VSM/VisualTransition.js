@@ -5,7 +5,7 @@
 /// <reference path="../Animation/Storyboard.js"/>
 
 (function (namespace) {
-    var VisualTransition = Nullstone.Create("VisualTransition", DependencyObject);
+    var VisualTransition = Nullstone.Create("VisualTransition", Fayde.DependencyObject);
 
     VisualTransition.Instance.Init = function () {
         this.Init$DependencyObject();

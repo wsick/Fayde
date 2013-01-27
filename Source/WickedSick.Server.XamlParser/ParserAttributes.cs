@@ -16,7 +16,7 @@ namespace WickedSick.Server.XamlParser
         public static string GetFullNullstoneType(Type type)
         {
             var elAttr = type
-                .GetCustomAttributes(typeof(ElementAttribute), true)
+                .GetCustomAttributes(typeof(ElementAttribute), false)
                 .OfType<ElementAttribute>()
                 .FirstOrDefault();
             if (elAttr == null)

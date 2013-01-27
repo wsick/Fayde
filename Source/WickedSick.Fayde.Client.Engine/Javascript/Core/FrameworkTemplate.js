@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var FrameworkTemplate = Nullstone.Create("FrameworkTemplate", DependencyObject);
+    var FrameworkTemplate = Nullstone.Create("FrameworkTemplate", Fayde.DependencyObject);
 
     FrameworkTemplate.Instance.GetVisualTree = function (bindingSource) {
         /// <param name="bindingSource" type="DependencyObject"></param>

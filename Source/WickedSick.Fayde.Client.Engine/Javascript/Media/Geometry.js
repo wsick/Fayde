@@ -4,7 +4,7 @@
 /// <reference path="../Primitives/Rect.js"/>
 
 (function (namespace) {
-    var Geometry = Nullstone.Create("Geometry", DependencyObject);
+    var Geometry = Nullstone.Create("Geometry", Fayde.DependencyObject);
 
     Geometry.Instance.Init = function () {
         this.Init$DependencyObject();

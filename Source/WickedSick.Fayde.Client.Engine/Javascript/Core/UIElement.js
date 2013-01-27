@@ -18,7 +18,7 @@
 /// <reference path="../Media/Projection.js"/>
 
 (function (namespace) {
-    var UIElement = Nullstone.Create("UIElement", DependencyObject);
+    var UIElement = Nullstone.Create("UIElement", Fayde.DependencyObject);
 
     UIElement.Instance.Init = function () {
         this.Init$DependencyObject();

@@ -4,7 +4,7 @@
 /// <reference path="../Shapes/Enums.js"/>
 
 (function (namespace) {
-    var PathFigure = Nullstone.Create("PathFigure", DependencyObject);
+    var PathFigure = Nullstone.Create("PathFigure", Fayde.DependencyObject);
 
     PathFigure.Instance.Init = function () {
         this.Init$DependencyObject();

@@ -33,7 +33,7 @@
     VisualTreeHelper.GetParent = function (d) {
         if (!(d instanceof FrameworkElement))
             throw new InvalidOperationException("Reference is not a valid visual DependencyObject");
-        return Nullstone.As(d.GetVisualParent(), DependencyObject);
+        return Nullstone.As(d.GetVisualParent(), Fayde.DependencyObject);
     };
     VisualTreeHelper.GetRoot = function (d) {
         var root = d;

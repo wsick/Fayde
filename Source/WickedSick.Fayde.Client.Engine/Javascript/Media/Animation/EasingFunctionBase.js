@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var EasingFunctionBase = Nullstone.Create("EasingFunctionBase", DependencyObject, undefined, [namespace.IEasingFunction]);
+    var EasingFunctionBase = Nullstone.Create("EasingFunctionBase", Fayde.DependencyObject, undefined, [namespace.IEasingFunction]);
 
     //#region Properties
 

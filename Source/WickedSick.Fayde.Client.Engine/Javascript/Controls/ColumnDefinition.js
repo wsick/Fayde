@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var ColumnDefinition = Nullstone.Create("ColumnDefinition", DependencyObject);
+    var ColumnDefinition = Nullstone.Create("ColumnDefinition", Fayde.DependencyObject);
 
     //#region Properties
 

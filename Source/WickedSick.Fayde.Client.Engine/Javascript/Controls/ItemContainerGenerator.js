@@ -23,8 +23,8 @@ Nullstone.FinishCreate(GenerationState);
         this.ItemsChanged = new MulticastEvent();
 
         this.Cache = [];
-        this.ContainerIndexMap = new DoubleKeyedDictionary(DependencyObject, Number);
-        this.ContainerItemMap = new Dictionary(DependencyObject, Object);
+        this.ContainerIndexMap = new DoubleKeyedDictionary(Fayde.DependencyObject, Number);
+        this.ContainerItemMap = new Dictionary(Fayde.DependencyObject, Object);
         this.Owner = owner;
         this.RealizedElements = new RangeCollection();
     };
@@ -94,7 +94,7 @@ Nullstone.FinishCreate(GenerationState);
         var container;
         var item = this.Owner.Items.GetValueAt(index);
         if (this.Owner.IsItemItsOwnContainer(item)) {
-            container = Nullstone.As(item, DependencyObject);
+            container = Nullstone.As(item, Fayde.DependencyObject);
             isNewlyRealized.Value = true;
         }
         else {

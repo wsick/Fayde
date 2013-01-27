@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var GradientStop = Nullstone.Create("GradientStop", DependencyObject);
+    var GradientStop = Nullstone.Create("GradientStop", Fayde.DependencyObject);
 
     //#region Properties
 

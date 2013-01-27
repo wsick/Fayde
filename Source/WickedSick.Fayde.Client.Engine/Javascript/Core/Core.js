@@ -129,7 +129,7 @@ var Fayde;
         }
     };
     Fayde.Clone = function (value) {
-        if (value instanceof DependencyObject)
+        if (value instanceof Fayde.DependencyObject)
             return value.Clone();
 
         if (typeof value === "number")

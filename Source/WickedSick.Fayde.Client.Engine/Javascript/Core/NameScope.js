@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var NameScope = Nullstone.Create("NameScope", DependencyObject);
+    var NameScope = Nullstone.Create("NameScope", Fayde.DependencyObject);
 
     NameScope.Instance.Init = function () {
         this.Init$DependencyObject();
@@ -60,7 +60,7 @@
             return;
 
         var objd = this._Names[name];
-        if (objd instanceof DependencyObject) {
+        if (objd instanceof Fayde.DependencyObject) {
             //TODO: Remove handler - Destroyed Event
             delete this._Names[name];
         }

@@ -8,7 +8,7 @@
 /// <reference path="../Animation/Storyboard.js"/>
 
 (function (namespace) {
-    var VisualStateGroup = Nullstone.Create("VisualStateGroup", DependencyObject);
+    var VisualStateGroup = Nullstone.Create("VisualStateGroup", Fayde.DependencyObject);
 
     VisualStateGroup.Instance.Init = function () {
         this.Init$DependencyObject();

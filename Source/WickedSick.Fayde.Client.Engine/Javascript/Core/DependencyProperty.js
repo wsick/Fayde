@@ -190,13 +190,13 @@
             var value = null;
             if ((value = data.lu._GetValue(data.res)) == null)
                 return false;
-            if (!(value instanceof DependencyObject))
+            if (!(value instanceof Fayde.DependencyObject))
                 return false;
 
             var newLu = value;
             if (data.promotedValues != null && data.promotedValues[value._ID] == null && !(value instanceof UIElement)) {
                 var clonedValue = Fayde.Clone(value);
-                if (clonedValue instanceof DependencyObject) {
+                if (clonedValue instanceof Fayde.DependencyObject) {
                     newLu = clonedValue;
                     data.lu._SetValue(data.res, clonedValue);
                     clonedValue = data.lu._GetValue(data.res);
@@ -243,7 +243,7 @@
             return false;
         if ((value = data.collection.GetValueAt(data.i)) == null)
             return false;
-        if ((data.lu = Nullstone.As(value, DependencyObject)) == null)
+        if ((data.lu = Nullstone.As(value, Fayde.DependencyObject)) == null)
             return false;
         return true;
     };

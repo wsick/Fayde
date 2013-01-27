@@ -11,7 +11,7 @@
 /// <reference path="../../Runtime/Closure.js"/>
 
 (function (namespace) {
-    var VisualStateManager = Nullstone.Create("VisualStateManager", DependencyObject);
+    var VisualStateManager = Nullstone.Create("VisualStateManager", Fayde.DependencyObject);
 
     //#region Properties
 

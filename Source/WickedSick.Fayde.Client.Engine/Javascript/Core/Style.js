@@ -5,7 +5,7 @@
 /// <reference path="Core.js"/>
 
 (function (namespace) {
-    var Style = Nullstone.Create("Style", DependencyObject);
+    var Style = Nullstone.Create("Style", Fayde.DependencyObject);
 
     //#region Properties
 

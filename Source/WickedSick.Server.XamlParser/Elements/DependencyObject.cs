@@ -12,6 +12,7 @@ using WickedSick.Server.XamlParser.TypeConverters;
 
 namespace WickedSick.Server.XamlParser.Elements
 {
+    [Element(NullstoneNamespace = "Fayde")]
     public abstract class DependencyObject : IJsonConvertible
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(DependencyObject));
@@ -50,7 +51,7 @@ namespace WickedSick.Server.XamlParser.Elements
             new Elements.Controls.ToolTipService();
             new Elements.Controls.Canvas();
         }
-        
+
         private IDictionary<AttachedPropertyDescription, object> _attachedValues = new Dictionary<AttachedPropertyDescription, object>();
         private IDictionary<PropertyDescription, object> _dependencyValues = new Dictionary<PropertyDescription, object>();
 
@@ -134,7 +135,7 @@ namespace WickedSick.Server.XamlParser.Elements
             //TODO: check and make sure the property type is correct
             if (contentProperty == null)
                 throw new XamlParseException(string.Format("Content cannot be added to an element with no content property definition. {0}", GetType().Name));
-            
+
             if (IsSubclassOfRawGeneric(contentProperty.Type, typeof(DependencyObjectCollection<>)))
             {
                 if (!_dependencyValues.Keys.Contains(contentProperty))

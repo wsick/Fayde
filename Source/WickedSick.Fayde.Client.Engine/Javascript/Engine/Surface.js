@@ -961,7 +961,7 @@
             this._RootHtmlEl = body;
         };
         Surface.Instance.ProcessHtmlChanges = function () {
-            DependencyObject.ProcessHtmlChanges();
+            Fayde.DependencyObject.ProcessHtmlChanges();
         };
         Surface.Instance.ProcessSizingAdjustments = function () {
             for (var key in Surface._SizingAdjustments) {

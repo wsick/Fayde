@@ -31,7 +31,7 @@
 
         perfTimer.Start();
         var obj = parser.CreateObject(json, namescope);
-        if (shouldSetNS && obj instanceof DependencyObject)
+        if (shouldSetNS && obj instanceof Fayde.DependencyObject)
             NameScope.SetNameScope(obj, namescope);
         perfTimer.Stop();
 
@@ -73,7 +73,7 @@
                 if (propValue == undefined)
                     continue;
 
-                if (dobj instanceof DependencyObject)
+                if (dobj instanceof Fayde.DependencyObject)
                     propd = dobj.GetDependencyProperty(propName);
                 this.TrySetPropertyValue(dobj, propd, propValue, namescope, false, dobj.constructor, propName);
             }
@@ -111,7 +111,7 @@
                 var coll = dobj[contentPropd];
                 for (var j in json.Children) {
                     var fobj = this.CreateObject(json.Children[j], namescope, true);
-                    if (fobj instanceof DependencyObject)
+                    if (fobj instanceof Fayde.DependencyObject)
                         fobj._AddParent(coll, true);
                     coll.Add(fobj);
                 }
@@ -196,7 +196,7 @@
                 coll = dobj.$GetValue(propd);
             } else {
                 coll = new targetType();
-                if (coll instanceof DependencyObject)
+                if (coll instanceof Fayde.DependencyObject)
                     coll._AddParent(dobj, true);
                 dobj.$SetValue(propd, coll);
             }
@@ -212,7 +212,7 @@
             var fobj;
             if (rd == null) {
                 fobj = this.CreateObject(subJson[i], namescope, true);
-                if (fobj instanceof DependencyObject)
+                if (fobj instanceof Fayde.DependencyObject)
                     fobj._AddParent(coll, true);
                 coll.Add(fobj);
             } else {

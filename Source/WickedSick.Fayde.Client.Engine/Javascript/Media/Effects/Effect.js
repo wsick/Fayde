@@ -3,7 +3,7 @@
 /// <reference path="../../Primitives/Thickness.js"/>
 
 (function (namespace) {
-    var Effect = Nullstone.Create("Effect", DependencyObject);
+    var Effect = Nullstone.Create("Effect", Fayde.DependencyObject);
 
     //#region Properties
 

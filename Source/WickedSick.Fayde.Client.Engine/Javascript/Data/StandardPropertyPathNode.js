@@ -49,8 +49,8 @@
     _StandardPropertyPathNode.Instance.OnSourceChanged = function (oldSource, newSource) {
         this.OnSourceChanged$_PropertyPathNode(oldSource, newSource);
 
-        var oldDO = Nullstone.As(oldSource, DependencyObject);
-        var newDO = Nullstone.As(newSource, DependencyObject);
+        var oldDO = Nullstone.As(oldSource, Fayde.DependencyObject);
+        var newDO = Nullstone.As(newSource, Fayde.DependencyObject);
         var listener = this.Listener;
         if (listener) {
             listener.Detach();

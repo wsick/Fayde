@@ -6,7 +6,7 @@
 /// <reference path="CollectionChangedArgs.js"/>
 
 (function (namespace) {
-    var Collection = Nullstone.Create("Collection", DependencyObject);
+    var Collection = Nullstone.Create("Collection", Fayde.DependencyObject);
 
     Collection.Instance.Init = function () {
         this.Init$DependencyObject();

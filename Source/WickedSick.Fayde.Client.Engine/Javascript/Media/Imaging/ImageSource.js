@@ -2,7 +2,7 @@
 /// CODE
 
 (function (namespace) {
-    var ImageSource = Nullstone.Create("ImageSource", DependencyObject);
+    var ImageSource = Nullstone.Create("ImageSource", Fayde.DependencyObject);
 
     Nullstone.AutoProperties(ImageSource, [
         "PixelWidth",

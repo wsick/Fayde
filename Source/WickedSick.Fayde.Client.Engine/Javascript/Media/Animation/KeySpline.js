@@ -3,7 +3,7 @@
 /// <reference path="Curves.js"/>
 
 (function (namespace) {
-    var KeySpline = Nullstone.Create("KeySpline", DependencyObject);
+    var KeySpline = Nullstone.Create("KeySpline", Fayde.DependencyObject);
 
     //#region Properties
 

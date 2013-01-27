@@ -13,7 +13,7 @@
     };
 
     DependencyObjectCollection.Instance.IsElementType = function (value) {
-        return value instanceof DependencyObject;
+        return value instanceof Fayde.DependencyObject;
     };
 
     DependencyObjectCollection.Instance._GetIsSecondaryParent = function () {
@@ -26,7 +26,7 @@
     DependencyObjectCollection.Instance._OnMentorChanged = function (oldValue, newValue) {
         this._OnMentorChanged$Collection(oldValue, newValue);
         for (var i = 0; i < this._ht.length; i++) {
-            if (this._ht[i] instanceof DependencyObject)
+            if (this._ht[i] instanceof Fayde.DependencyObject)
                 this._ht[i].SetMentor(newValue);
         }
     };
@@ -59,7 +59,7 @@
     };
     DependencyObjectCollection.Instance.RemovedFromCollection = function (value, isValueSafe) {
         if (isValueSafe) {
-            if (value instanceof DependencyObject) {
+            if (value instanceof Fayde.DependencyObject) {
                 value.RemovePropertyChangedListener(this);
                 if (this._GetIsSecondaryParent())
                     value._RemoveSecondaryParent(this);
@@ -74,7 +74,7 @@
         this._OnIsAttachedChanged$Collection(value);
         for (var i = 0; i < this.GetCount() ; i++) {
             var val = this.GetValueAt(i);
-            if (val instanceof DependencyObject)
+            if (val instanceof Fayde.DependencyObject)
                 val._SetIsAttached(value);
         }
     };

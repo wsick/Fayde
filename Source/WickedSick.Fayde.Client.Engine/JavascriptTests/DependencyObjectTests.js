@@ -5,7 +5,7 @@
 DependencyObjectTest = TestCase("DependencyObjectTests");
 
 DependencyObjectTest.prototype.testBasicValueStorage = function () {
-    var TestClass = Nullstone.Create("TestClass", DependencyObject);
+    var TestClass = Nullstone.Create("TestClass", Fayde.DependencyObject);
     TestClass.SomeProperty = DependencyProperty.Register("Some", function () { return Number; }, TestClass);
     Nullstone.FinishCreate(TestClass);
 

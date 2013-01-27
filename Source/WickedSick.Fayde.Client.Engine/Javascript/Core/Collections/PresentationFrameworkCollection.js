@@ -4,7 +4,7 @@
 /// <reference path="../../Collections/NotifyCollectionChangedEventArgs.js"/>
 
 (function (namespace) {
-    var PresentationFrameworkCollection = Nullstone.Create("PresentationFrameworkCollection", DependencyObject);
+    var PresentationFrameworkCollection = Nullstone.Create("PresentationFrameworkCollection", Fayde.DependencyObject);
 
     PresentationFrameworkCollection.Instance.Init = function () {
         this.Init$DependencyObject();

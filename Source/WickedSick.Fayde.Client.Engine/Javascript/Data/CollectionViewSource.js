@@ -4,7 +4,7 @@
 /// <reference path="ICollectionView.js"/>
 
 (function (namespace) {
-    var CollectionViewSource = Nullstone.Create("CollectionViewSource", DependencyObject);
+    var CollectionViewSource = Nullstone.Create("CollectionViewSource", Fayde.DependencyObject);
 
     //#region Properties
 

@@ -2,6 +2,6 @@
 /// CODE
 
 (function (namespace) {
-    var TriggerBase = Nullstone.Create("TriggerBase", DependencyObject);
+    var TriggerBase = Nullstone.Create("TriggerBase", Fayde.DependencyObject);
     namespace.TriggerBase = Nullstone.FinishCreate(TriggerBase);
 })(window);

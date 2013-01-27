@@ -10,7 +10,7 @@
 /// <reference path="AjaxJsonRequest.js"/>
 
 (function (namespace) {
-    var App = Nullstone.Create("App", DependencyObject);
+    var App = Nullstone.Create("App", Fayde.DependencyObject);
 
     App.Instance.Init = function () {
         this.Init$DependencyObject();

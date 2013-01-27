@@ -4,7 +4,7 @@
 /// <reference path="PropertyValueProviders.js"/>
 
 (function (namespace) {
-    var TextElement = Nullstone.Create("TextElement", DependencyObject);
+    var TextElement = Nullstone.Create("TextElement", Fayde.DependencyObject);
 
     TextElement.Instance.Init = function () {
         this.Init$DependencyObject();

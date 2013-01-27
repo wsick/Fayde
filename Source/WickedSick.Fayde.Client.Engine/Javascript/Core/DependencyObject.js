@@ -1137,4 +1137,4 @@
     //#endif
 
     namespace.DependencyObject = Nullstone.FinishCreate(DependencyObject);
-})(window);
+})(Nullstone.Namespace("Fayde"));

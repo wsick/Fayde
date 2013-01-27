@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var RowDefinition = Nullstone.Create("RowDefinition", DependencyObject);
+    var RowDefinition = Nullstone.Create("RowDefinition", Fayde.DependencyObject);
 
     //#region Properties
 

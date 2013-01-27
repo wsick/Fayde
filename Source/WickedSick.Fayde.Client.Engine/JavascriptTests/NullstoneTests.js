@@ -10,7 +10,7 @@ NullstoneTests.prototype.testCreateInherited = function () {
 };
 
 NullstoneTests.prototype.testAutoProperty = function () {
-    var Mock1 = Nullstone.Create("Mock1", DependencyObject);
+    var Mock1 = Nullstone.Create("Mock1", Fayde.DependencyObject);
     Mock1.SomeDProperty = DependencyProperty.Register("SomeD", function () { return Number; }, Mock1, null);
     Nullstone.AutoProperties(Mock1, [
         "Test",
@@ -40,7 +40,7 @@ NullstoneTests.prototype.testAutoProperty = function () {
     assertSame("SomeD", 27, m.SomeD);
 };
 NullstoneTests.prototype.testAutoPropertyReadOnly = function () {
-    var Mock2 = Nullstone.Create("Mock2", DependencyObject);
+    var Mock2 = Nullstone.Create("Mock2", Fayde.DependencyObject);
     Mock2.SomeDProperty = DependencyProperty.RegisterReadOnly("SomeD", function () { return Number; }, Mock2, null);
     Nullstone.AutoPropertiesReadOnly(Mock2, [
         "Test",
@@ -71,7 +71,7 @@ NullstoneTests.prototype.testAutoPropertyReadOnly = function () {
     assertSame("SomeD", 27, m.SomeD);
 };
 NullstoneTests.prototype.testAbstractProperty = function () {
-    var MockBase1 = Nullstone.Create("MockBase1", DependencyObject);
+    var MockBase1 = Nullstone.Create("MockBase1", Fayde.DependencyObject);
     Nullstone.AbstractProperty(MockBase1, "IsNoisy");
     Nullstone.FinishCreate(MockBase1);
 

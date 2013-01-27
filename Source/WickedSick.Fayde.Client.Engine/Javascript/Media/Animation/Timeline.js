@@ -5,7 +5,7 @@
 /// <reference path="Enums.js"/>
 
 (function (namespace) {
-    var Timeline = Nullstone.Create("Timeline", DependencyObject);
+    var Timeline = Nullstone.Create("Timeline", Fayde.DependencyObject);
 
     Timeline.Instance.Init = function () {
         this.Init$DependencyObject();

@@ -4,7 +4,7 @@
 /// <reference path="../Animation/Storyboard.js"/>
 
 (function (namespace) {
-    var VisualState = Nullstone.Create("VisualState", DependencyObject);
+    var VisualState = Nullstone.Create("VisualState", Fayde.DependencyObject);
 
     //#region Properties
 
