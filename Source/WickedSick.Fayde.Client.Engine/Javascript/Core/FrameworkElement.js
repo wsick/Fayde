@@ -991,6 +991,7 @@
         FrameworkElement.Instance.CreateHtmlObjectImpl = function () {
             var rootEl = document.createElement("div");
             var contentEl = rootEl.appendChild(document.createElement("div"));
+            contentEl.style.zoom = "1";
             if (navigator.appName === "Microsoft Internet Explorer") {
                 contentEl.style.filter = "inherit";
                 contentEl.style.opacity = "inherit";

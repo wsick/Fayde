@@ -30,8 +30,8 @@
           </Border>
         </Border>
       </Border>
-      <Border Grid.Column="1" Width="100" Height="100" BorderBrush="Black" BorderThickness="2"/>
-      <Border Grid.Column="2" BorderBrush="Navy" Background="White" BorderThickness="2" CornerRadius="4" Margin="20, 10, 20, 10">
+      <Border Grid.Column="2" Width="100" Height="100" BorderBrush="Black" BorderThickness="2"/>
+      <Border Grid.Column="1" BorderBrush="Navy" Background="White" BorderThickness="2" CornerRadius="4" Margin="20, 10, 20, 10">
         <Border BorderBrush="Navy" Background="Silver" BorderThickness="2" CornerRadius="4" Margin="20, 10, 20, 10">
             <TextBlock Margin="10">
               <TextBlock.Inlines>
