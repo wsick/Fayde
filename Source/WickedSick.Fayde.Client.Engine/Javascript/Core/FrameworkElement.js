@@ -629,7 +629,7 @@
         if (this._IsAttached) {
             App.Instance.MainSurface._UpdateLayout(error);
         } else {
-            var pass = LayoutPass.Create();
+            var pass = new Fayde.LayoutPass();
             this._UpdateLayer(pass, error);
             if (pass.Updated)
                 App.Instance.MainSurface.LayoutUpdated.Raise(this, new EventArgs());
@@ -644,7 +644,7 @@
             element = parent;
 
         var uie;
-        while (pass.Count < LayoutPass.MaxCount) {
+        while (pass.Count < Fayde.LayoutPass.MaxCount) {
             while (uie = pass.ArrangeList.shift()) {
                 uie._PropagateFlagUp(UIElementFlags.DirtyArrangeHint);
                 LayoutDebug("PropagateFlagUp DirtyArrangeHint");

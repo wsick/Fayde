@@ -293,11 +293,11 @@
         var layers = this._Layers;
         if (!layers)
             return false;
-        var pass = new LayoutPass();
+        var pass = new Fayde.LayoutPass();
         var dirty = false;
         pass.Updated = true;
         var updatedLayout = false;
-        while (pass.Count < LayoutPass.MaxCount && pass.Updated) {
+        while (pass.Count < Fayde.LayoutPass.MaxCount && pass.Updated) {
             pass.Updated = false;
             for (var i = 0; i < layers.length; i++) {
                 var layer = layers[i];
@@ -333,7 +333,7 @@
                 updatedLayout = true;
         }
 
-        if (pass.Count >= LayoutPass.MaxCount) {
+        if (pass.Count >= Fayde.LayoutPass.MaxCount) {
             if (error)
                 error.SetErrored(BError.Exception, "UpdateLayout has entered infinite loop and has been aborted.");
         }
