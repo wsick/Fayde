@@ -289,6 +289,7 @@
         return true;
     };
     Surface.Instance._UpdateLayout = function (error) {
+        var UIElementFlags = Fayde.UIElementFlags;
         var startTime;
         var layers = this._Layers;
         if (!layers)

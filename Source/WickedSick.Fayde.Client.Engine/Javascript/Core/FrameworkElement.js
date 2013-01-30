@@ -12,6 +12,8 @@
 /// <reference path="VisualTreeHelper.js"/>
 
 (function (Fayde) {
+    var UIElementFlags = Fayde.UIElementFlags;
+
     var FrameworkElement = Nullstone.Create("FrameworkElement", Fayde.UIElement);
 
     FrameworkElement.Instance.Init = function () {
