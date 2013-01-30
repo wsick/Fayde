@@ -271,7 +271,6 @@
     <Content Include="Javascript\Core\Setter.js" />
     <Content Include="Javascript\Core\SetterBase.js" />
     <Content Include="Javascript\Core\SetterBaseCollection.js" />
-    <Content Include="Javascript\Core\SubPropertyListener.js" />
     <Content Include="Javascript\Core\TemplateBindingExpression.js" />
     <Content Include="Javascript\Core\UIElementNode.js" />
     <Content Include="Javascript\Core\UnsetValue.js" />

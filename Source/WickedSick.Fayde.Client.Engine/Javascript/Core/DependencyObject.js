@@ -10,9 +10,26 @@
 /// <reference path="NameScope.js"/>
 /// <reference path="../Data/Binding.js"/>
 /// <reference path="../Runtime/BError.js" />
-/// <reference path="SubPropertyListener.js"/>
 
-(function (namespace) {
+(function (Fayde) {
+
+    //#region SubPropertyListener
+
+    function SubPropertyListener(dobj, propd) {
+        this._Dobj = dobj;
+        this._Propd = propd;
+    }
+    SubPropertyListener.prototype.OnSubPropertyChanged = function (sender, args) {
+        this._Dobj._OnSubPropertyChanged(this._Propd, sender, args);
+    };
+    //SubPropertyListener.prototype.Unsubscribe = function () {
+    //this._Dobj.PropertyChanged.Unsubscribe(this.OnSubPropertyChanged, this);
+    //};
+
+    //#endregion
+
+    //#region DependencyObject
+
     var DependencyObject = Nullstone.Create("DependencyObject");
 
     DependencyObject.Instance.Init = function () {
@@ -1136,5 +1153,7 @@
     }
     //#endif
 
-    namespace.DependencyObject = Nullstone.FinishCreate(DependencyObject);
+    Fayde.DependencyObject = Nullstone.FinishCreate(DependencyObject);
+
+    //#endregion
 })(Nullstone.Namespace("Fayde"));
