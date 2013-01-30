@@ -156,7 +156,7 @@
 
     UIElement.Instance.BringIntoView = function (rect) {
         if (!rect) rect = new Rect();
-        var args = new RequestBringIntoViewEventArgs(this, rect);
+        var args = new Fayde.RequestBringIntoViewEventArgs(this, rect);
 
         var cur = this;
         while (cur && !args.Handled) {

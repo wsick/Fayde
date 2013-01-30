@@ -676,6 +676,18 @@ module Fayde {
         static GetParent(d: DependencyObject): DependencyObject;
         static GetRoot(d: DependencyObject): DependencyObject;
     }
+    export class RequestBringIntoViewEventArgs extends RoutedEventArgs {
+        TargetObject: DependencyObject;
+        TargetRect: Rect;
+    }
+    export class RoutedPropertyChangedEventArgs extends RoutedEventArgs {
+        OldValue;
+        NewValue;
+    }
+    export class SizeChangedEventArgs extends RoutedEventArgs {
+        PreviousSize: Size;
+        NewSize: Size;
+    }
 }
 
 class DependencyProperty {

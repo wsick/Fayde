@@ -716,7 +716,7 @@
                     if (last) {
                         uie._ClearValue(Fayde.LayoutInformation.LastRenderSizeProperty, false);
                         uie._PurgeSizeCache();
-                        uie.SizeChanged.Raise(uie, new SizeChangedEventArgs(last, uie._RenderSize));
+                        uie.SizeChanged.Raise(uie, new Fayde.SizeChangedEventArgs(last, uie._RenderSize));
                     }
                 }
                 LayoutDebug("Completed _SizeList Update");

@@ -2,7 +2,7 @@
 /// CODE
 /// <reference path="../Primitives/Size.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var SizeChangedEventArgs = Nullstone.Create("SizeChangedEventArgs", Fayde.RoutedEventArgs, 2);
 
     SizeChangedEventArgs.Instance.Init = function (prevSize, newSize) {
@@ -13,5 +13,5 @@
         this.NewSize = newSize.Copy();
     };
 
-    namespace.SizeChangedEventArgs = Nullstone.FinishCreate(SizeChangedEventArgs);
-})(window);
+    Fayde.SizeChangedEventArgs = Nullstone.FinishCreate(SizeChangedEventArgs);
+})(Nullstone.Namespace("Fayde"));

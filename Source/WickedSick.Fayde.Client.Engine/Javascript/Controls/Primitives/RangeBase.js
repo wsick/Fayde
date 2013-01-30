@@ -158,7 +158,7 @@
     RangeBase.Instance.$OnMinimumChanged = function (oldMin, newMin) { };
     RangeBase.Instance.$OnMaximumChanged = function (oldMax, newMax) { };
     RangeBase.Instance._OnValueChanged = function (oldValue, newValue) {
-        this.ValueChanged.Raise(this, new RoutedPropertyChangedEventArgs(oldValue, newValue));
+        this.ValueChanged.Raise(this, new Fayde.RoutedPropertyChangedEventArgs(oldValue, newValue));
         this.$OnValueChanged(oldValue, newValue);
     };
     RangeBase.Instance.$OnValueChanged = function (oldValue, newValue) { };
