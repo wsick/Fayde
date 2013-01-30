@@ -13,7 +13,7 @@
     };
 
     ResourceTarget.Instance.CreateResource = function () {
-        return JsonParser.Parse(this._Json, this._Namescope, this._TemplateBindingSource, this._ResChain);
+        return Fayde.JsonParser.Parse(this._Json, this._Namescope, this._TemplateBindingSource, this._ResChain);
     };
 
     Fayde.ResourceTarget = Nullstone.FinishCreate(ResourceTarget);

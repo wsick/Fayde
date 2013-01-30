@@ -13,7 +13,7 @@ namespace WickedSick.Server.XamlParser.Elements.Data
         TemplatedParent
     }
 
-    [Element(NullstoneNamespace = "Fayde.Data")]
+    [Element(NullstoneNamespace = "Fayde", NullstoneName = "RelativeSourceMarkup")]
     public class RelativeSource : IJsonConvertible
     {
         public RelativeSourceMode Mode { get; set; }

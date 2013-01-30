@@ -61,7 +61,7 @@
     //#endregion
 
     App.Instance.LoadResources = function (json) {
-        var rd = JsonParser.Parse(json);
+        var rd = Fayde.JsonParser.Parse(json);
         if (rd instanceof Fayde.ResourceDictionary)
             this.Resources = rd;
     };
@@ -70,7 +70,7 @@
         this.MainSurface.Register(containerId);
         this.NavService = new Fayde.Navigation.NavService(this);
 
-        var element = JsonParser.Parse(json);
+        var element = Fayde.JsonParser.Parse(json);
         if (element instanceof Fayde.UIElement)
             this.MainSurface._Attach(element);
 

@@ -67,7 +67,7 @@
                         {
                             Type: namespace.TextBlock,
                             Props: {
-                                Text: new BindingMarkup({ Path: this.DisplayMemberPath })
+                                Text: new Fayde.BindingMarkup({ Path: this.DisplayMemberPath })
                             }
                         }
                     ]

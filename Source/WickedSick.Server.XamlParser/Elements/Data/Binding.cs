@@ -21,7 +21,7 @@ namespace WickedSick.Server.XamlParser.Elements.Data
         Explicit
     }
 
-    [Element(NullstoneNamespace = "Fayde.Data")]
+    [Element(NullstoneNamespace = "Fayde", NullstoneName = "BindingMarkup")]
     public class Binding : IJsonConvertible
     {
         public object FallbackValue { get; set; }
@@ -49,7 +49,9 @@ namespace WickedSick.Server.XamlParser.Elements.Data
         public string ToJson(int tabIndents)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("new BindingMarkup({ ");
+            sb.Append("new ");
+            sb.Append(ElementAttribute.GetFullNullstoneType(GetType()));
+            sb.Append("({ ");
             sb.Append(string.Join(", ", GetPropertiesJson(tabIndents)));
             sb.Append(" })");
             return sb.ToString();

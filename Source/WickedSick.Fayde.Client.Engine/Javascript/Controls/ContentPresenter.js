@@ -28,7 +28,7 @@
                 {
                     Type: namespace.TextBlock,
                     Props: {
-                        Text: new BindingMarkup()
+                        Text: new Fayde.BindingMarkup()
                     }
                 }
             ]

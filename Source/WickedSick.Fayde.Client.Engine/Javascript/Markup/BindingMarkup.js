@@ -2,8 +2,8 @@
 /// <reference path="Markup.js"/>
 /// CODE
 
-(function (namespace) {
-    var BindingMarkup = Nullstone.Create("BindingMarkup", Markup, 1);
+(function (Fayde) {
+    var BindingMarkup = Nullstone.Create("BindingMarkup", Fayde.Markup, 1);
 
     BindingMarkup.Instance.Init = function (data) {
         if (!data)
@@ -30,5 +30,5 @@
         return b;
     };
 
-    namespace.BindingMarkup = Nullstone.FinishCreate(BindingMarkup);
-})(window);
+    Fayde.BindingMarkup = Nullstone.FinishCreate(BindingMarkup);
+})(Nullstone.Namespace("Fayde"));

@@ -81,6 +81,9 @@ App.GetGenericResourceDictionary = function () {
     var DataTemplate = Fayde.DataTemplate;
     var ResourceDictionary = Fayde.ResourceDictionary;
     var EventTrigger = Fayde.EventTrigger;
+    var StaticResourceMarkup = Fayde.StaticResourceMarkup;
+    var TemplateBindingMarkup = Fayde.TemplateBindingMarkup;
+    var BindingMarkup = Fayde.BindingMarkup;
 
     var json = {
         Type: ResourceDictionary,
@@ -11945,5 +11948,5 @@ App.GetGenericResourceDictionary = function () {
         }]
 
     };
-    return JsonParser.Parse(json);
+    return Fayde.JsonParser.Parse(json);
 };

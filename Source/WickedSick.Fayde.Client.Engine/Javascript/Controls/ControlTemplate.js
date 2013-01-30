@@ -28,7 +28,7 @@
         /// <returns type="DependencyObject" />
         if (this._TempJson) {
             var namescope = new Fayde.NameScope();
-            var root = JsonParser.Parse(this._TempJson, templateBindingSource, namescope, this._ResChain);
+            var root = Fayde.JsonParser.Parse(this._TempJson, templateBindingSource, namescope, this._ResChain);
             Fayde.NameScope.SetNameScope(root, namescope);
             return root;
         }

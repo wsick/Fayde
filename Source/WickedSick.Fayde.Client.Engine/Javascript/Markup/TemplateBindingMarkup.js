@@ -3,8 +3,8 @@
 /// CODE
 /// <reference path="../Core/TemplateBindingExpression.js"/>
 
-(function (namespace) {
-    var TemplateBindingMarkup = Nullstone.Create("TemplateBindingMarkup", Markup, 1);
+(function (Fayde) {
+    var TemplateBindingMarkup = Nullstone.Create("TemplateBindingMarkup", Fayde.Markup, 1);
 
     TemplateBindingMarkup.Instance.Init = function (path) {
         this.Path = path;
@@ -19,5 +19,5 @@
         return new Fayde.TemplateBindingExpression(sourcePropd, propd);
     };
 
-    namespace.TemplateBindingMarkup = Nullstone.FinishCreate(TemplateBindingMarkup);
-})(window);
+    Fayde.TemplateBindingMarkup = Nullstone.FinishCreate(TemplateBindingMarkup);
+})(Nullstone.Namespace("Fayde"));

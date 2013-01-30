@@ -6,7 +6,7 @@
 /// <reference path="../Runtime/PerfTimer.js"/>
 /// <reference path="../Core/ResourceTarget.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var JsonParser = Nullstone.Create("JsonParser");
 
     JsonParser.Instance.Init = function () {
@@ -98,7 +98,7 @@
                 this.TrySetCollectionProperty(json.Children, dobj, contentPropd, namescope);
             } else if (json.Content) {
                 var content = json.Content;
-                if (content instanceof Markup)
+                if (content instanceof Fayde.Markup)
                     content = content.Transmute(dobj, contentPropd, "Content", this._TemplateBindingSource);
                 else
                     content = this.CreateObject(json.Content, namescope, true);
@@ -136,7 +136,7 @@
             propValue = this.CreateObject(propValue, namescope, true);
         }
 
-        if (propValue instanceof Markup)
+        if (propValue instanceof Fayde.Markup)
             propValue = propValue.Transmute(dobj, propd, propName, this._TemplateBindingSource);
 
         if (propValue instanceof Fayde.StaticResourceExpression) {
@@ -274,5 +274,5 @@
         return setter;
     };
 
-    namespace.JsonParser = Nullstone.FinishCreate(JsonParser);
-})(window);
+    Fayde.JsonParser = Nullstone.FinishCreate(JsonParser);
+})(Nullstone.Namespace("Fayde"));

@@ -94,7 +94,7 @@
         });
     };
     Frame.Instance._HandleSuccessfulResponse = function (responseJson) {
-        var page = JsonParser.Parse(responseJson);
+        var page = Fayde.JsonParser.Parse(responseJson);
         if (page instanceof namespace.Page) {
             document.title = page.Title;
             this.Content = page;

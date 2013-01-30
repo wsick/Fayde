@@ -1,6 +1,7 @@
 ﻿
 namespace WickedSick.Server.XamlParser.Elements.Core
 {
+    [Element(NullstoneNamespace = "Fayde", NullstoneName = "StaticResourceMarkup")]
     public class StaticResource : DependencyObject
     {
         public StaticResource() { }
@@ -19,7 +20,7 @@ namespace WickedSick.Server.XamlParser.Elements.Core
 
         public override string ToJson(int tabIndents)
         {
-            return string.Format("new StaticResourceMarkup(\"{0}\")", ResourceKey);
+            return string.Format("new {0}(\"{1}\")", ElementAttribute.GetFullNullstoneType(GetType()), ResourceKey);
         }
     }
 }
