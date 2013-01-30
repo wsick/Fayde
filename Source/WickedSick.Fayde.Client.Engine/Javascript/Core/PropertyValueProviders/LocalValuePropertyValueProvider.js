@@ -3,11 +3,11 @@
 /// <reference path="PropertyValueProvider.js"/>
 /// CODE
 
-(function (namespace) {
-    var _LocalValuePropertyValueProvider = Nullstone.Create("_LocalValuePropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    var _LocalValuePropertyValueProvider = Nullstone.Create("_LocalValuePropertyValueProvider", Fayde._PropertyValueProvider, 1);
 
-    _LocalValuePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    _LocalValuePropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.LocalValue);
         this._ht = [];
 
         //this._ProvidesLocalValue = true;
@@ -23,5 +23,5 @@
         delete this._ht[propd._ID];
     };
 
-    namespace._LocalValuePropertyValueProvider = Nullstone.FinishCreate(_LocalValuePropertyValueProvider);
-})(window);
+    Fayde._LocalValuePropertyValueProvider = Nullstone.FinishCreate(_LocalValuePropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

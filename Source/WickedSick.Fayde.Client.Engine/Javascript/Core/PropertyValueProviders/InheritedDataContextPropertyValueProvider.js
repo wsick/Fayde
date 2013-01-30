@@ -4,11 +4,11 @@
 /// CODE
 /// <reference path="../../Data/PropertyChangedListener.js"/>
 
-(function (namespace) {
-    var _InheritedDataContextPropertyValueProvider = Nullstone.Create("_InheritedDataContextPropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    var _InheritedDataContextPropertyValueProvider = Nullstone.Create("_InheritedDataContextPropertyValueProvider", Fayde._PropertyValueProvider, 1);
 
-    _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    _InheritedDataContextPropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.InheritedDataContext);
         this._Source = null;
     };
 
@@ -59,5 +59,5 @@
         }
     };
 
-    namespace._InheritedDataContextPropertyValueProvider = Nullstone.FinishCreate(_InheritedDataContextPropertyValueProvider);
-})(window);
+    Fayde._InheritedDataContextPropertyValueProvider = Nullstone.FinishCreate(_InheritedDataContextPropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

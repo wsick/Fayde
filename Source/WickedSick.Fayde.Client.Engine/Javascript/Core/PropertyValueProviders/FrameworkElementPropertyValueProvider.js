@@ -3,11 +3,11 @@
 /// <reference path="../FrameworkElement.js"/>
 /// <reference path="../../Primitives/Size.js"/>
 
-(function (namespace) {
-    var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    var FrameworkElementPropertyValueProvider = Nullstone.Create("FrameworkElementPropertyValueProvider", Fayde._PropertyValueProvider, 1);
 
-    FrameworkElementPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    FrameworkElementPropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.DynamicValue);
         this._ActualHeight = null;
         this._ActualWidth = null;
         this._Last = new Size(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
@@ -31,5 +31,5 @@
         }
     };
 
-    namespace.FrameworkElementPropertyValueProvider = Nullstone.FinishCreate(FrameworkElementPropertyValueProvider);
-})(window);
+    Fayde.FrameworkElementPropertyValueProvider = Nullstone.FinishCreate(FrameworkElementPropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

@@ -3,11 +3,11 @@
 /// <reference path="Enums.js"/>
 /// CODE
 
-(function (namespace) {
-    var _ImplicitStylePropertyValueProvider = Nullstone.Create("_ImplicitStylePropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    var _ImplicitStylePropertyValueProvider = Nullstone.Create("_ImplicitStylePropertyValueProvider", Fayde._PropertyValueProvider, 1);
 
-    _ImplicitStylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    _ImplicitStylePropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.ImplicitStyle);
         this._Styles = null;
         this._StyleMask = _StyleMask.None;
         this._ht = [];
@@ -138,5 +138,5 @@
         this._ApplyStyles(this._StyleMask & ~styleMask, newStyles, error);
     };
 
-    namespace._ImplicitStylePropertyValueProvider = Nullstone.FinishCreate(_ImplicitStylePropertyValueProvider);
-})(window);
+    Fayde._ImplicitStylePropertyValueProvider = Nullstone.FinishCreate(_ImplicitStylePropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

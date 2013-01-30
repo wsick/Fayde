@@ -256,7 +256,6 @@
     <Content Include="Javascript\Core\PropertyValueProviders\DefaultValuePropertyValueProvider.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\Enums.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\ImplicitStylePropertyValueProvider.js" />
-    <Content Include="Javascript\Core\PropertyValueProviders\InheritedContext.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\InheritedDataContextPropertyValueProvider.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\InheritedIsEnabledPropertyValueProvider.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\InheritedPropertyValueProvider.js" />

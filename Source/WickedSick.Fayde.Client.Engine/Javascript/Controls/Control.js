@@ -8,7 +8,7 @@
 
     Control.Instance.Init = function () {
         this.Init$FrameworkElement();
-        this.AddProvider(new _InheritedIsEnabledPropertyValueProvider(this, _PropertyPrecedence.IsEnabled));
+        this.AddProvider(new Fayde._InheritedIsEnabledPropertyValueProvider(this));
     };
 
     //#region Properties

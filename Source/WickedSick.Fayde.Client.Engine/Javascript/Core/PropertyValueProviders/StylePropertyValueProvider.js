@@ -6,11 +6,11 @@
 /// <reference path="../Setter.js"/>
 /// <reference path="../Walkers.js"/>
 
-(function (namespace) {
-    var _StylePropertyValueProvider = Nullstone.Create("_StylePropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    var _StylePropertyValueProvider = Nullstone.Create("_StylePropertyValueProvider", Fayde._PropertyValueProvider, 1);
 
-    _StylePropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    _StylePropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.LocalStyle);
         this._ht = [];
 
         this._RecomputesOnClear = true;
@@ -88,5 +88,5 @@
         this._Style = style;
     };
 
-    namespace._StylePropertyValueProvider = Nullstone.FinishCreate(_StylePropertyValueProvider);
-})(window);
+    Fayde._StylePropertyValueProvider = Nullstone.FinishCreate(_StylePropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

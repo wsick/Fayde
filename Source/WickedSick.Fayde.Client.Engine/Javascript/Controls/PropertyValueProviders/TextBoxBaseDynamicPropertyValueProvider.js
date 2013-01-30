@@ -3,7 +3,7 @@
 /// CODE
 
 (function (namespace) {
-    var _TextBoxBaseDynamicPropertyValueProvider = Nullstone.Create("_TextBoxBaseDynamicPropertyValueProvider", FrameworkElementPropertyValueProvider, 5);
+    var _TextBoxBaseDynamicPropertyValueProvider = Nullstone.Create("_TextBoxBaseDynamicPropertyValueProvider", Fayde.FrameworkElementPropertyValueProvider, 5);
 
     _TextBoxBaseDynamicPropertyValueProvider.Instance.Init = function (obj, propPrecedence, foregroundPropd, backgroundPropd, baselineOffsetPropd) {
         this.Init$FrameworkElementPropertyValueProvider(obj, propPrecedence);

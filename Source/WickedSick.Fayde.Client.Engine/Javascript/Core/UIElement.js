@@ -47,7 +47,7 @@
         this.Loaded = new MulticastEvent();
         this.Invalidated = new MulticastEvent();
 
-        this.AddProvider(new _InheritedPropertyValueProvider(this, _PropertyPrecedence.Inherited));
+        this.AddProvider(new Fayde._InheritedPropertyValueProvider(this));
 
         this._Flags = UIElementFlags.RenderVisible | UIElementFlags.HitTestVisible;
 

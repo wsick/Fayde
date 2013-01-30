@@ -24,10 +24,10 @@
         this._SurfaceBoundsWithChildren = new Rect();
         this._ExtentsWithChildren = new Rect();
 
-        this.AddProvider(new _StylePropertyValueProvider(this, _PropertyPrecedence.LocalStyle));
-        this.AddProvider(new _ImplicitStylePropertyValueProvider(this, _PropertyPrecedence.ImplicitStyle));
-        this.AddProvider(new FrameworkElementPropertyValueProvider(this, _PropertyPrecedence.DynamicValue));
-        this.AddProvider(new _InheritedDataContextPropertyValueProvider(this, _PropertyPrecedence.InheritedDataContext));
+        this.AddProvider(new Fayde._StylePropertyValueProvider(this));
+        this.AddProvider(new Fayde._ImplicitStylePropertyValueProvider(this));
+        this.AddProvider(new Fayde.FrameworkElementPropertyValueProvider(this));
+        this.AddProvider(new Fayde._InheritedDataContextPropertyValueProvider(this));
 
         this.SizeChanged = new MulticastEvent();
         this.LayoutUpdated = {

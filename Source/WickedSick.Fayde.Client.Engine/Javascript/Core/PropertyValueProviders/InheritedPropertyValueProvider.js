@@ -4,27 +4,167 @@
 /// CODE
 /// <reference path="InheritedContext.js"/>
 
-(function (namespace) {
-    var _InheritedPropertyValueProvider = Nullstone.Create("_InheritedPropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    function getInheritable(obj, propd) {
+        var inh = propd._Inheritable || 0;
+        if (inh && propd.Name === "FlowDirection" && (obj instanceof Fayde.Controls.Image || obj instanceof Fayde.Controls.MediaElement))
+            inh = 0;
+        return inh;
+    }
+    function getProperty(inheritable, ancestor) {
+        var list = DependencyProperty._Inherited[inheritable];
+        if (!list)
+            return;
 
-    _InheritedPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+        var len = list.length;
+        if (len > 0 && list[0].Name === "FlowDirection") {
+            if (ancestor instanceof Fayde.Controls.Image || ancestor instanceof Fayde.Controls.MediaElement)
+                return;
+        }
+        for (var i = 0; i < len; i++) {
+            var propd = list[i];
+            if (ancestor instanceof propd.OwnerType)
+                return propd;
+        }
+    }
+
+    /// "this" needs to be scoped to a DependencyObject
+    function propagateInheritedValue(inheritable, source, newValue) {
+        var propPrecInherited = _PropertyPrecedence.Inherited;
+        var provider = this._Providers[propPrecInherited];
+        if (!provider)
+            return true;
+
+        provider._SetPropertySource(inheritable, source);
+        var propd = getProperty(inheritable, this);
+        if (!propd)
+            return false;
+
+        var error = new BError();
+        this._ProviderValueChanged(propPrecInherited, propd, undefined, newValue, true, false, false, error);
+    }
+    /// "this" needs to be scoped to a DependencyObject
+    function getInheritedValueSource (inheritable) {
+        var provider = this._Providers[_PropertyPrecedence.Inherited];
+        if (!provider)
+            return undefined;
+        return provider._GetPropertySource(inheritable);
+    };
+
+    //#region _InheritedContext
+
+    var _InheritedContext = Nullstone.Create("_InheritedContext");
+
+    _InheritedContext.FromSources = function (foregroundSource, fontFamilySource, fontStretchSource, fontStyleSource,
+        fontWeightSource, fontSizeSource, languageSource, flowDirectionSource, useLayoutRoundingSource, textDecorationsSource) {
+        var ic = new _InheritedContext();
+        ic.ForegroundSource = foregroundSource;
+        ic.FontFamilySource = fontFamilySource;
+        ic.FontStretchSource = fontStretchSource;
+        ic.FontStyleSource = fontStyleSource;
+        ic.FontWeightSource = fontWeightSource;
+        ic.FontSizeSource = fontSizeSource;
+        ic.LanguageSource = languageSource;
+        ic.FlowDirectionSource = flowDirectionSource;
+        ic.UseLayoutRoundingSource = useLayoutRoundingSource;
+        ic.TextDecorationsSource = textDecorationsSource;
+        return ic;
+    };
+    _InheritedContext.FromObject = function (obj, parentContext) {
+        var ic = new _InheritedContext();
+
+        var inhEnum = _Inheritable;
+        ic.ForegroundSource = ic.GetLocalSource(obj, inhEnum.Foreground);
+        if (!ic.ForegroundSource && parentContext) ic.ForegroundSource = parentContext.ForegroundSource;
+
+        ic.FontFamilySource = ic.GetLocalSource(obj, inhEnum.FontFamily);
+        if (!ic.FontFamilySource && parentContext) ic.FontFamilySource = parentContext.FontFamilySource;
+
+        ic.FontStretchSource = ic.GetLocalSource(obj, inhEnum.FontStretch);
+        if (!ic.FontStretchSource && parentContext) ic.FontStretchSource = parentContext.FontStretchSource;
+
+        ic.FontStyleSource = ic.GetLocalSource(obj, inhEnum.FontStyle);
+        if (!ic.FontStretchSource && parentContext) ic.FontStretchSource = parentContext.FontStretchSource;
+
+        ic.FontWeightSource = ic.GetLocalSource(obj, inhEnum.FontWeight);
+        if (!ic.FontWeightSource && parentContext) ic.FontWeightSource = parentContext.FontWeightSource;
+
+        ic.FontSizeSource = ic.GetLocalSource(obj, inhEnum.FontSize);
+        if (!ic.FontSizeSource && parentContext) ic.FontSizeSource = parentContext.FontSizeSource;
+
+        ic.LanguageSource = ic.GetLocalSource(obj, inhEnum.Language);
+        if (!ic.LanguageSource && parentContext) ic.LanguageSource = parentContext.LanguageSource;
+
+        ic.FlowDirectionSource = ic.GetLocalSource(obj, inhEnum.FlowDirection);
+        if (!ic.FlowDirectionSource && parentContext) ic.FlowDirectionSource = parentContext.FlowDirectionSource;
+
+        ic.UseLayoutRoundingSource = ic.GetLocalSource(obj, inhEnum.UseLayoutRounding);
+        if (!ic.UseLayoutRoundingSource && parentContext) ic.UseLayoutRoundingSource = parentContext.UseLayoutRoundingSource;
+
+        ic.TextDecorationsSource = ic.GetLocalSource(obj, inhEnum.TextDecorations);
+        if (!ic.TextDecorationsSource && parentContext) ic.TextDecorationsSource = parentContext.TextDecorationsSource;
+
+        return ic;
+    };
+
+    _InheritedContext.Instance.Compare = function (withContext, props) {
+        var inhEnum = _Inheritable;
+        var rv = inhEnum.None;
+
+        if (props & inhEnum.Foreground && Nullstone.RefEquals(withContext.ForegroundSource, this.ForegroundSource))
+            rv |= inhEnum.Foreground;
+        if (props & inhEnum.FontFamily && Nullstone.RefEquals(withContext.FontFamilySource, this.FontFamilySource))
+            rv |= inhEnum.FontFamily;
+        if (props & inhEnum.FontStretch && Nullstone.RefEquals(withContext.FontStretchSource, this.FontStretchSource))
+            rv |= inhEnum.FontStretch;
+        if (props & inhEnum.FontStyle && Nullstone.RefEquals(withContext.FontStyleSource, this.FontStyleSource))
+            rv |= inhEnum.FontStyle;
+        if (props & inhEnum.FontWeight && Nullstone.RefEquals(withContext.FontWeightSource, this.FontWeightSource))
+            rv |= inhEnum.FontWeight;
+        if (props & inhEnum.FontSize && Nullstone.RefEquals(withContext.FontSizeSource, this.FontSizeSource))
+            rv |= inhEnum.FontSize;
+        if (props & inhEnum.Language && Nullstone.RefEquals(withContext.LanguageSource, this.LanguageSource))
+            rv |= inhEnum.Language;
+        if (props & inhEnum.FlowDirection && Nullstone.RefEquals(withContext.FlowDirectionSource, this.FlowDirectionSource))
+            rv |= inhEnum.FlowDirection;
+        if (props & inhEnum.UseLayoutRounding && Nullstone.RefEquals(withContext.UseLayoutRoundingSource, this.UseLayoutRoundingSource))
+            rv |= inhEnum.UseLayoutRounding;
+        if (props & inhEnum.TextDecorations && Nullstone.RefEquals(withContext.TextDecorationsSource, this.TextDecorationsSource))
+            rv |= inhEnum.TextDecorations;
+
+        return rv;
+    };
+    _InheritedContext.Instance.GetLocalSource = function (obj, prop) {
+        var propd = getProperty(prop, obj);
+        if (!propd)
+            return;
+        if ((obj._ProviderBitmasks[propd._ID] & ((1 << _PropertyPrecedence.Inherited) - 1)) !== 0)
+            return obj;
+    };
+
+    Nullstone.FinishCreate(_InheritedContext);
+
+    //#endregion
+
+    //#region _InheritedPropertyValueProvider
+
+    var _InheritedPropertyValueProvider = Nullstone.Create("_InheritedPropertyValueProvider", Fayde._PropertyValueProvider, 1);
+
+    _InheritedPropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.Inherited);
         this._ht = [];
-
-        this._GetInheritableFunc = _InheritedPropertyValueProvider.GetInheritable;
-        this._GetPropertyFunc = _InheritedPropertyValueProvider.GetProperty;
     };
 
     _InheritedPropertyValueProvider.Instance.GetPropertyValue = function (propd) {
-        if (!this._GetInheritableFunc(this._Object, propd))
+        if (!getInheritable(this._Object, propd))
             return undefined;
 
-        var inheritable = _InheritedPropertyValueProvider.GetInheritable(this._Object, propd);
+        var inheritable = getInheritable(this._Object, propd);
         var ancestor = this._GetPropertySource(inheritable);
         if (!ancestor)
             return undefined;
 
-        var ancestorPropd = this._GetPropertyFunc(inheritable, ancestor);
+        var ancestorPropd = getProperty(inheritable, ancestor);
         if (!ancestorPropd)
             return undefined;
         var v = ancestor.$GetValue(ancestorPropd);
@@ -116,10 +256,10 @@
         if (!source) return;
         if ((props & prop) == 0) return;
 
-        var sourceProperty = this._GetPropertyFunc(prop, source);
+        var sourceProperty = getProperty(prop, source);
         var value = source.$GetValue(sourceProperty);
         if (value)
-            element._PropagateInheritedValue(prop, source, value);
+            propagateInheritedValue.call(element, prop, source, value);
     };
     _InheritedPropertyValueProvider.Instance.MaybeRemoveInheritedValue = function (source, prop, props, element) {
         /// <param name="source" type="DependencyObject"></param>
@@ -127,8 +267,8 @@
         if (!source) return;
         if ((props & prop) == 0) return;
 
-        if (Nullstone.RefEquals(source, element._GetInheritedValueSource(prop)))
-            element._PropagateInheritedValue(prop, undefined, undefined);
+        if (Nullstone.RefEquals(source, getInheritedValueSource.call(element, prop)))
+            propagateInheritedValue.call(element, prop, undefined, undefined);
     };
     _InheritedPropertyValueProvider.Instance.PropagateInheritedPropertiesOnAddingToTree = function (subtree) {
         var inhEnum = _Inheritable;
@@ -147,7 +287,7 @@
         this.WalkTree(this._Object, subtree, objContext, inhEnum.All, true);
     };
     _InheritedPropertyValueProvider.Instance.PropagateInheritedProperty = function (propd, source, subtree) {
-        var inheritable = this._GetInheritableFunc(source, propd);
+        var inheritable = getInheritable(source, propd);
         if (inheritable === 0)
             return;
         var objContext = _InheritedContext.FromObject(this._Object, null);
@@ -180,28 +320,8 @@
             delete this._ht[inheritable];
     };
 
-    _InheritedPropertyValueProvider.GetInheritable = function (obj, propd) {
-        var inh = propd._Inheritable || 0;
-        if (inh && propd.Name === "FlowDirection" && (obj instanceof Fayde.Controls.Image || obj instanceof Fayde.Controls.MediaElement))
-            inh = 0;
-        return inh;
-    };
-    _InheritedPropertyValueProvider.GetProperty = function (inheritable, ancestor) {
-        var list = DependencyProperty._Inherited[inheritable];
-        if (!list)
-            return;
+    Fayde._InheritedPropertyValueProvider = Nullstone.FinishCreate(_InheritedPropertyValueProvider);
 
-        var len = list.length;
-        if (len > 0 && list[0].Name === "FlowDirection") {
-            if (ancestor instanceof Fayde.Controls.Image || ancestor instanceof Fayde.Controls.MediaElement)
-                return;
-        }
-        for (var i = 0; i < len; i++) {
-            var propd = list[i];
-            if (ancestor instanceof propd.OwnerType)
-                return propd;
-        }
-    };
+    //#endregion
 
-    namespace._InheritedPropertyValueProvider = Nullstone.FinishCreate(_InheritedPropertyValueProvider);
-})(window);
+})(Nullstone.Namespace("Fayde"));

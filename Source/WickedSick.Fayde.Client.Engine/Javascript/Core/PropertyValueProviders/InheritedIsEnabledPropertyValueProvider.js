@@ -3,11 +3,11 @@
 /// <reference path="Enums.js"/>
 /// CODE
 
-(function (namespace) {
-    var _InheritedIsEnabledPropertyValueProvider = Nullstone.Create("_InheritedIsEnabledPropertyValueProvider", _PropertyValueProvider, 2);
+(function (Fayde) {
+    var _InheritedIsEnabledPropertyValueProvider = Nullstone.Create("_InheritedIsEnabledPropertyValueProvider", Fayde._PropertyValueProvider, 1);
 
-    _InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj, propPrecedence) {
-        this.Init$_PropertyValueProvider(obj, propPrecedence);
+    _InheritedIsEnabledPropertyValueProvider.Instance.Init = function (obj) {
+        this.Init$_PropertyValueProvider(obj, _PropertyPrecedence.IsEnabled);
         this._Source = null;
         this._CurrentValue = this._Object._GetValue(Fayde.Controls.Control.IsEnabledProperty, _PropertyPrecedence.LocalValue);
     };
@@ -74,5 +74,5 @@
         return false;
     };
 
-    namespace._InheritedIsEnabledPropertyValueProvider = Nullstone.FinishCreate(_InheritedIsEnabledPropertyValueProvider);
-})(window);
+    Fayde._InheritedIsEnabledPropertyValueProvider = Nullstone.FinishCreate(_InheritedIsEnabledPropertyValueProvider);
+})(Nullstone.Namespace("Fayde"));

@@ -35,10 +35,9 @@
     DependencyObject.Instance.Init = function () {
         this._IsAttached = false;
         this._Providers = [];
-        var propPrecEnum = _PropertyPrecedence;
-        this.AddProvider(new _LocalValuePropertyValueProvider(this, propPrecEnum.LocalValue));
-        this.AddProvider(new _DefaultValuePropertyValueProvider(this, propPrecEnum.DefaultValue));
-        this.AddProvider(new _AutoCreatePropertyValueProvider(this, propPrecEnum.AutoCreate));
+        this.AddProvider(new Fayde._LocalValuePropertyValueProvider(this));
+        this.AddProvider(new Fayde._DefaultValuePropertyValueProvider(this));
+        this.AddProvider(new Fayde._AutoCreatePropertyValueProvider(this));
         this._ProviderBitmasks = [];
         this._SecondaryParents = [];
         this.PropertyChanged = new MulticastEvent();
@@ -639,42 +638,6 @@
             if (provider && provider.RecomputePropertyValueOnLowerr)
                 provider.RecomputePropertyValueOnLower(propd, error);
         }
-    };
-    DependencyObject.Instance._PropagateInheritedValue = function (inheritable, source, newValue) {
-        var propPrecInherited = _PropertyPrecedence.Inherited;
-        var inheritedProvider = this._Providers[propPrecInherited];
-        if (!inheritedProvider)
-            return true;
-
-        inheritedProvider._SetPropertySource(inheritable, source);
-        var propd = inheritedProvider._GetPropertyFunc(inheritable, this);
-        if (!propd)
-            return false;
-
-        var error = new BError();
-        this._ProviderValueChanged(propPrecInherited, propd, undefined, newValue, true, false, false, error);
-    };
-    DependencyObject.Instance._GetInheritedValueSource = function (inheritable) {
-        var inheritedProvider = this._Providers[_PropertyPrecedence.Inherited];
-        if (!inheritedProvider)
-            return undefined;
-        return inheritedProvider._GetPropertySource(inheritable);
-    };
-    DependencyObject.Instance._SetInheritedValueSource = function (inheritable, source) {
-        var propPrecInherited = _PropertyPrecedence.Inherited;
-        var inheritedProvider = this._Providers[propPrecInherited];
-        if (!inheritedProvider)
-            return;
-
-        if (!source) {
-            var propd = inheritedProvider._GetPropertyFunc(inheritable, this);
-            if (propd)
-                return;
-            var bitmask = this._ProviderBitmasks[propd._ID];
-            bitmask &= ~(1 << propPrecInherited);
-            this._ProviderBitmasks[propd._ID] = bitmask;
-        }
-        inheritedProvider._SetPropertySource(inheritable, source);
     };
 
     //#region Target
