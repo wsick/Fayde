@@ -206,7 +206,7 @@
             return false;
 
         var surface = App.Instance.MainSurface;
-        var walker = new _DeepTreeWalker(this);
+        var walker = new Fayde._DeepTreeWalker(this);
         var uie;
         while (uie = walker.Step()) {
             if (uie.Visibility !== Fayde.Visibility.Visible) {

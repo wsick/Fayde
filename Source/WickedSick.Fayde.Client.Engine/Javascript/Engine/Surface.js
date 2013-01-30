@@ -8,7 +8,7 @@
 /// <reference path="../Runtime/EventArgs.js"/>
 /// <reference path="DirtyNode.js"/>
 /// <reference path="../Primitives/Font.js"/>
-/// <reference path="../Core/TabNavigationWalker.js"/>
+/// <reference path="../Core/Walkers.js"/>
 /// <reference path="../Core/Input/KeyCodes.js"/>
 /// <reference path="../Core/Input/Keyboard.js"/>
 /// <reference path="../Core/Input/Enums.js"/>
@@ -528,7 +528,7 @@
         }
     };
     Surface.Instance._PropagateDirtyFlagToChildren = function (element, dirt) {
-        var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical);
+        var walker = Fayde._VisualTreeWalker.Logical(element);
         var child;
         while (child = walker.Step()) {
             this._AddDirtyElement(child, dirt);
@@ -810,7 +810,7 @@
 
         if (!handled && args.Key === Key.Tab) {
             if (this._FocusedElement != null)
-                TabNavigationWalker.Focus(this._FocusedElement, args.Shift);
+                Fayde.TabNavigationWalker.Focus(this._FocusedElement, args.Shift);
             else
                 this._EnsureElementFocused();
         }
@@ -895,7 +895,7 @@
         if (!this._FocusedElement) {
             var last = this._Layers.length - 1;
             for (var i = last; i >= 0; i--) {
-                if (TabNavigationWalker.Focus(layers.GetValueAt(i)))
+                if (Fayde.TabNavigationWalker.Focus(layers.GetValueAt(i)))
                     break;
             }
             if (!this._FocusedElement && last !== -1)

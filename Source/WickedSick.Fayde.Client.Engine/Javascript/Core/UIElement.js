@@ -828,7 +828,7 @@
             canvasCtx.restore();
         }
 
-        var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZForward);
+        var walker = Fayde._VisualTreeWalker.ZForward(this);
         var child;
         while (child = walker.Step()) {
             child._DoRender(ctx, region);
@@ -863,7 +863,7 @@
             }
         }
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var element;
         while (element = walker.Step()) {
             element._SetIsLoaded(loaded);

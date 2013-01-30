@@ -4,7 +4,7 @@
 /// CODE
 /// <reference path="../Style.js"/>
 /// <reference path="../Setter.js"/>
-/// <reference path="../DeepStyleWalker.js"/>
+/// <reference path="../Walkers.js"/>
 
 (function (namespace) {
     var _StylePropertyValueProvider = Nullstone.Create("_StylePropertyValueProvider", _PropertyValueProvider, 2);
@@ -27,7 +27,7 @@
         var newValue;
         var walkPropd;
 
-        var walker = new _DeepStyleWalker(this._Style);
+        var walker = new Fayde._DeepStyleWalker(this._Style);
         var setter;
         while (setter = walker.Step()) {
             walkPropd = setter._GetValue(Fayde.Setter.PropertyProperty);
@@ -46,8 +46,8 @@
         var oldValue = undefined;
         var newValue = undefined;
 
-        var oldWalker = new _DeepStyleWalker(this._Style);
-        var newWalker = new _DeepStyleWalker(style);
+        var oldWalker = new Fayde._DeepStyleWalker(this._Style);
+        var newWalker = new Fayde._DeepStyleWalker(style);
         style._Seal();
 
         var oldSetter = oldWalker.Step();

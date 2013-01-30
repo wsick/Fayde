@@ -189,7 +189,7 @@
         this._Extents = new Rect(0, 0, size.Width, size.Height);
         this._ExtentsWithChildren = this._Extents;
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var item;
         while (item = walker.Step()) {
             if (item._GetRenderVisible())
@@ -314,7 +314,7 @@
         var desired = new Size(0, 0);
         availableSize = availableSize.Max(desired);
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             child._MeasureWithError(availableSize, error);
@@ -526,7 +526,7 @@
     FrameworkElement.Instance._ArrangeOverrideWithError = function (finalSize, error) {
         var arranged = finalSize;
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
@@ -552,7 +552,7 @@
 
         var node = uielist.Prepend(new UIElementNode(this));
         var hit = false;
-        var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.ZReverse, false);
+        var walker = Fayde._VisualTreeWalker.ZReverse(this);
         var child;
         while (child = walker.Step()) {
             child._HitTestPoint(ctx, p, uielist);
@@ -666,7 +666,7 @@
             }
 
             if (flag !== UIElementFlags.None) {
-                var measureWalker = new _DeepTreeWalker(element);
+                var measureWalker = new Fayde._DeepTreeWalker(element);
                 var child;
                 while (child = measureWalker.Step()) {
                     if (child.Visibility !== Fayde.Visibility.Visible || !child._HasFlag(flag)) {

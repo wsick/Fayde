@@ -29,7 +29,7 @@
         var newValue;
         var prop;
 
-        var walker = new _DeepStyleWalker(this._Styles);
+        var walker = new Fayde._DeepStyleWalker(this._Styles);
         var setter;
         while (setter = walker.Step()) {
             prop = setter._GetValue(Fayde.Setter.PropertyProperty);
@@ -60,8 +60,8 @@
         var oldValue;
         var newValue;
 
-        var oldWalker = new _DeepStyleWalker(this._Styles);
-        var newWalker = new _DeepStyleWalker(styles);
+        var oldWalker = new Fayde._DeepStyleWalker(this._Styles);
+        var newWalker = new Fayde._DeepStyleWalker(styles);
 
         var oldSetter = oldWalker.Step();
         var newSetter = newWalker.Step();

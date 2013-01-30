@@ -9,7 +9,7 @@
 /// <reference path="ColumnDefinitionCollection.js"/>
 /// <reference path="RowDefinitionCollection.js"/>
 /// <reference path="GridLength.js"/>
-/// <reference path="../Core/VisualTreeWalker.js"/>
+/// <reference path="../Core/Walkers.js"/>
 
 (function (namespace) {
     var _Segment = (function () {
@@ -66,7 +66,7 @@
             this._HasStarAuto = false;
             this._HasAutoStar = false;
 
-            var walker = new _VisualTreeWalker(grid, _VisualTreeWalkerDirection.Logical);
+            var walker = Fayde._VisualTreeWalker.Logical(grid);
             var child;
             while (child = walker.Step()) {
                 var starCol = false;
@@ -253,7 +253,7 @@
                 this._ExpandStarRows(totalSize);
             }
 
-            var walker = new _VisualTreeWalker(this);
+            var walker = new Fayde._VisualTreeWalker(this);
             var child;
             while (child = walker.Step()) {
                 var childSize = new Size();
@@ -380,7 +380,7 @@
             rows.GetValueAt(r).$SetValueInternal(namespace.RowDefinition.ActualHeightProperty, this._RowMatrix[r][r]._OfferedSize);
         }
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var col = Math.min(Grid.GetColumn(child), this._ColMatrixDim - 1);

@@ -170,7 +170,6 @@
     <Content Include="Javascript\Engine\AjaxJsonRequest.js" />
     <Content Include="Javascript\Engine\NavService.js" />
     <Content Include="Javascript\Core\DeferredValueExpression.js" />
-    <Content Include="Javascript\Core\TabNavigationWalker.js" />
     <Content Include="Javascript\gl-matrix-min.js" />
     <Content Include="Javascript\Media\Animation\AnimationUsingKeyFrames.js" />
     <Content Include="Javascript\Media\Animation\BeginStoryboard.js" />
@@ -257,8 +256,6 @@
     <Content Include="Javascript\Core\Core.js" />
     <Content Include="Javascript\Core\DataTemplate.js" />
     <Content Include="Javascript\Core\Collections\DependencyObjectCollection.js" />
-    <Content Include="Javascript\Core\DeepStyleWalker.js" />
-    <Content Include="Javascript\Core\DeepTreeWalker.js" />
     <Content Include="Javascript\Core\Enums.js" />
     <Content Include="Javascript\Core\PropertyValueProviders\FrameworkElementPropertyValueProvider.js" />
     <Content Include="Javascript\Core\FrameworkTemplate.js" />
@@ -282,7 +279,7 @@
     <Content Include="Javascript\Core\TemplateBindingExpression.js" />
     <Content Include="Javascript\Core\UIElementNode.js" />
     <Content Include="Javascript\Core\UnsetValue.js" />
-    <Content Include="Javascript\Core\VisualTreeWalker.js" />
+    <Content Include="Javascript\Core\Walkers.js" />
     <Content Include="Javascript\Data\BindingBase.js" />
     <Content Include="Javascript\Data\CollectionViewNode.js" />
     <Content Include="Javascript\Data\CollectionViewSource.js" />

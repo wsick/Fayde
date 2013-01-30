@@ -36,7 +36,7 @@
     Panel.Instance._ComputeBounds = function () {
         this._Extents = this._ExtentsWithChildren = this._Bounds = this._BoundsWithChildren = new Rect();
 
-        var walker = new _VisualTreeWalker(this, _VisualTreeWalkerDirection.Logical);
+        var walker = Fayde._VisualTreeWalker.Logical(this);
         var item;
         while (item = walker.Step()) {
             if (!item._GetRenderVisible())

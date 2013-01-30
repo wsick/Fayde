@@ -49,7 +49,7 @@
 
     Canvas.Instance._MeasureOverrideWithError = function (availableSize, error) {
         var childSize = new Size(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             child._MeasureWithError(childSize, error);
@@ -63,7 +63,7 @@
     //#region Arrange
 
     Canvas.Instance._ArrangeOverrideWithError = function (finalSize, error) {
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var desired = child._DesiredSize;
@@ -94,7 +94,7 @@
     };
 
     Canvas.Instance.IsLayoutContainer = function () {
-        var walker = new _DeepTreeWalker(this);
+        var walker = new Fayde._DeepTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             if (!(child instanceof Canvas) && child.IsLayoutContainer())

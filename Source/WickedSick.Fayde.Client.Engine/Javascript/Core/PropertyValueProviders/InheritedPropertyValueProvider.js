@@ -60,7 +60,7 @@
                 this.WalkTree(rootParent, child, context, props, adding);
         }
         if (element instanceof Fayde.UIElement) {
-            var walker = new _VisualTreeWalker(element, _VisualTreeWalkerDirection.Logical, true);
+            var walker = Fayde._VisualTreeWalker.Logical(element);
             var child2;
             while (child2 = walker.Step()) {
                 this.WalkTree(rootParent, child2, context, props, adding);

@@ -44,7 +44,7 @@
         var desired = new Size();
         var border = this.Padding.Plus(this.BorderThickness);
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             child._MeasureWithError(availableSize.ShrinkByThickness(border), error);
@@ -58,7 +58,7 @@
         var border = this.Padding.Plus(this.BorderThickness);
         var arranged = finalSize;
 
-        var walker = new _VisualTreeWalker(this);
+        var walker = new Fayde._VisualTreeWalker(this);
         var child;
         while (child = walker.Step()) {
             var childRect = new Rect(0, 0, finalSize.Width, finalSize.Height);
