@@ -1,9 +1,9 @@
-﻿/// <reference path="../../Core/TriggerAction.js"/>
+﻿/// <reference path="../../Core/Triggers.js"/>
 /// <reference path="Storyboard.js"/>
 /// CODE
 
 (function (namespace) {
-    var BeginStoryboard = Nullstone.Create("BeginStoryboard", TriggerAction);
+    var BeginStoryboard = Nullstone.Create("BeginStoryboard", Fayde.TriggerAction);
 
     //#region Properties
 
