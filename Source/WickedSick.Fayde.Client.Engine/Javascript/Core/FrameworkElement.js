@@ -745,7 +745,7 @@
                 var style = styles[i];
                 if (!style)
                     continue;
-                if (!Validators.StyleValidator(this, FrameworkElement.StyleProperty, style, error)) {
+                if (!Fayde.Validators.StyleValidator(this, FrameworkElement.StyleProperty, style, error)) {
                     Warn("Style validation failed. [" + error.Message + "]");
                     return;
                 }

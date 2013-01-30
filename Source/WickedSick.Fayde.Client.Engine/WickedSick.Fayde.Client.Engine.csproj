@@ -398,7 +398,6 @@
     <Content Include="Javascript\Text\TextLayoutLine.js" />
     <Content Include="Javascript\Text\TextLayoutRun.js" />
     <Content Include="Javascript\Text\WordBreakOp.js" />
-    <Content Include="Javascript\Core\Validators.js" />
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />
