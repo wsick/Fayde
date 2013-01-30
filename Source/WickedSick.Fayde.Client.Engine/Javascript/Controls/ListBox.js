@@ -215,7 +215,7 @@
             case Key.Enter:
                 if (Key.Enter !== args.Key || Fayde.Input.KeyboardNavigation.GetAcceptsReturn(this)) {
                     if (!Fayde.Input.Keyboard.HasAlt()) {
-                        var lbi = Nullstone.As(FocusManager.GetFocusedElement(), namespace.ListBoxItem);
+                        var lbi = Nullstone.As(Fayde.FocusManager.GetFocusedElement(), namespace.ListBoxItem);
                         if (lbi != null) {
                             if (Fayde.Input.Keyboard.HasControl() && lbi.IsSelected) {
                                 this.SelectedItem = null;

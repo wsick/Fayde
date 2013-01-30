@@ -871,7 +871,7 @@
     //#region Focus
 
     FrameworkElement.Instance._HasFocus = function () {
-        for (var doh = Nullstone.As(FocusManager.GetFocusedElement(), Fayde.DependencyObject) ; doh != null; doh = Fayde.VisualTreeHelper.GetParent(doh)) {
+        for (var doh = Nullstone.As(Fayde.FocusManager.GetFocusedElement(), Fayde.DependencyObject) ; doh != null; doh = Fayde.VisualTreeHelper.GetParent(doh)) {
             if (Nullstone.RefEquals(doh, this))
                 return true;
         }

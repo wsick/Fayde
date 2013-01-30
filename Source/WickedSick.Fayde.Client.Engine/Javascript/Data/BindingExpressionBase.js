@@ -179,9 +179,8 @@
         try {
             // If the user calls BindingExpresion.UpdateSource (), we must update regardless of focus state.
             // Otherwise we only update if the textbox is unfocused.
-            //TODO: FocusManager
-            //if (!force && this.IsTwoWayTextBoxText && Nullstone.RefEquals(FocusManager.GetFocusedElement(), this.Target))
-            //return;
+            if (!force && this.IsTwoWayTextBoxText && Nullstone.RefEquals(Fayde.FocusManager.GetFocusedElement(), this.Target))
+                return;
 
             if (this.PropertyPathWalker.FinalNode.IsPathBroken)
                 return;
