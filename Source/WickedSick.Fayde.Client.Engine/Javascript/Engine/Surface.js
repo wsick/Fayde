@@ -93,8 +93,8 @@
             return;
         }
 
-        if (!NameScope.GetNameScope(element)) {
-            NameScope.SetNameScope(element, new NameScope());
+        if (!Fayde.NameScope.GetNameScope(element)) {
+            Fayde.NameScope.SetNameScope(element, new NameScope());
         }
 
         this._TopLevel = element;

@@ -20,7 +20,7 @@
         parser._TemplateBindingSource = templateBindingSource;
         var shouldSetNS = false;
         if (!namescope) {
-            namescope = new NameScope();
+            namescope = new Fayde.NameScope();
             shouldSetNS = true;
         }
 
@@ -32,7 +32,7 @@
         perfTimer.Start();
         var obj = parser.CreateObject(json, namescope);
         if (shouldSetNS && obj instanceof Fayde.DependencyObject)
-            NameScope.SetNameScope(obj, namescope);
+            Fayde.NameScope.SetNameScope(obj, namescope);
         perfTimer.Stop();
 
         return obj;

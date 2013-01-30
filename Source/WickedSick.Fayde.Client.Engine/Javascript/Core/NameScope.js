@@ -2,7 +2,7 @@
 /// <reference path="DependencyObject.js"/>
 /// CODE
 
-(function (namespace) {
+(function (Fayde) {
     var NameScope = Nullstone.Create("NameScope", Fayde.DependencyObject);
 
     NameScope.Instance.Init = function () {
@@ -101,5 +101,5 @@
         this._Temporary = value;
     };
 
-    namespace.NameScope = Nullstone.FinishCreate(NameScope);
-})(window);
+    Fayde.NameScope = Nullstone.FinishCreate(NameScope);
+})(Nullstone.Namespace("Fayde"));

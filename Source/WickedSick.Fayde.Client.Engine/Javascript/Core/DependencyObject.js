@@ -770,7 +770,7 @@
         if (isTemplateItem === undefined)
             isTemplateItem = Fayde.Controls.Control.GetIsTemplateItem(this);
 
-        var scope = NameScope.GetNameScope(this);
+        var scope = Fayde.NameScope.GetNameScope(this);
         if (scope && (isTemplateItem === scope.GetIsLocked()))
             return scope.FindName(name);
 
@@ -783,7 +783,7 @@
         if (templateNamescope === undefined)
             templateNamescope = Fayde.Controls.Control.GetIsTemplateItem(this);
 
-        var scope = NameScope.GetNameScope(this);
+        var scope = Fayde.NameScope.GetNameScope(this);
         if (scope && (templateNamescope === scope.GetIsLocked()))
             return scope;
 
@@ -815,7 +815,7 @@
         var registerName = false;
         var recurse = false;
 
-        var thisNs = NameScope.GetNameScope(this);
+        var thisNs = Fayde.NameScope.GetNameScope(this);
 
         if (thisNs && thisNs._GetTemporary()) {
             mergeNamescope = true;
@@ -828,7 +828,7 @@
 
         if (mergeNamescope) {
             toNs._MergeTemporaryScope(thisNs, error);
-            this._ClearValue(NameScope.NameScopeProperty, false);
+            this._ClearValue(Fayde.NameScope.NameScopeProperty, false);
         }
 
         if (registerName) {
@@ -864,7 +864,7 @@
             return;
         this._RegisteringNames = true;
 
-        var thisNs = NameScope.GetNameScope(this);
+        var thisNs = Fayde.NameScope.GetNameScope(this);
         if (/* TODO: this._IsHydratedFromXaml() || */!thisNs || thisNs._GetTemporary()) {
             var name = this.Name;
             if (name && name.length > 0)
@@ -931,13 +931,13 @@
                 return;
         }
 
-        var thisScope = NameScope.GetNameScope(this);
+        var thisScope = Fayde.NameScope.GetNameScope(this);
         var parentScope = parent.FindNameScope();
         if (thisScope) {
             if (thisScope._GetTemporary()) {
                 if (parentScope) {
                     parentScope._MergeTemporaryScope(thisScope, error);
-                    this._ClearValue(NameScope.NameScopeProperty, false);
+                    this._ClearValue(Fayde.NameScope.NameScopeProperty, false);
                 }
             } else {
                 if (true /* TODO: this._IsHydratedFromXaml()*/) {
@@ -956,7 +956,7 @@
             }
         } else {
             if (parentScope && mergeNamesFromSubtree) {
-                var tempScope = new NameScope();
+                var tempScope = new Fayde.NameScope();
                 tempScope._SetTemporary(true);
 
                 this._RegisterAllNamesRootedAt(tempScope, error);
