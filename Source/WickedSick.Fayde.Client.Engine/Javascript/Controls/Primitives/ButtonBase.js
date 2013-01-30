@@ -2,6 +2,7 @@
 /// <reference path="../ContentControl.js"/>
 /// CODE
 /// <reference path="../Enums.js"/>
+/// <reference path="../../Core/Input/ICommand.js"/>
 
 (function (namespace) {
     var ButtonBase = Nullstone.Create("ButtonBase", Fayde.Controls.ContentControl);
@@ -25,15 +26,15 @@
     ButtonBase.IsPressedProperty = DependencyProperty.RegisterReadOnly("IsPressed", function () { return Boolean; }, ButtonBase, false, function (d, args) { d.OnIsPressedChanged(args); });
     ButtonBase.IsFocusedProperty = DependencyProperty.RegisterReadOnly("IsFocused", function () { return Boolean; }, ButtonBase, false);
 
-    ButtonBase.CommandProperty = DependencyProperty.RegisterCore("Command", function () { return ICommand; }, ButtonBase, undefined, function (d, args) { d.OnCommandPropertyChanged(args); });
+    ButtonBase.CommandProperty = DependencyProperty.RegisterCore("Command", function () { return Fayde.Input.ICommand; }, ButtonBase, undefined, function (d, args) { d.OnCommandPropertyChanged(args); });
     ButtonBase.CommandParameterProperty = DependencyProperty.RegisterCore("CommandParameter", function () { return Object; }, ButtonBase, undefined, function (d, args) { d.OnCommandParameterPropertyChanged(args); });
 
     ButtonBase.Instance.OnCommandPropertyChanged = function (args) {
-        var cmd = Nullstone.As(args.OldValue, ICommand);
+        var cmd = Nullstone.As(args.OldValue, Fayde.Input.ICommand);
         if (cmd != null)
             cmd.CanExecuteChanged.Unsubscribe(this.OnCommandCanExecuteChanged, this);
 
-        cmd = Nullstone.As(args.NewValue, ICommand);
+        cmd = Nullstone.As(args.NewValue, Fayde.Input.ICommand);
         if (cmd != null) {
             cmd.CanExecuteChanged.Subscribe(this.OnCommandCanExecuteChanged, this);
             this.IsEnabled = cmd.CanExecute(this.CommandParameter);

@@ -742,6 +742,10 @@ module Fayde.Input {
     }
     export class KeyEventArgs extends RoutedEventArgs {
     }
+    export interface ICommand {
+        Execute(parameter): void;
+        CanExecute(parameter): bool;
+    }
 }
 
 //////////////////////////////////////////////////////////
@@ -802,7 +806,7 @@ module Fayde.Documents {
         static NavigateUriProperty: DependencyProperty;
         static TargetNameProperty: DependencyProperty;
 
-        Command: Fayde.MVVM.ICommand;
+        Command: Input.ICommand;
         CommandParameter;
         MouseOverForeground: Fayde.Media.Brush;
         MouseOverTextDecorations: TextDecorations;
@@ -875,7 +879,7 @@ module Fayde.Controls {
             static IsMouseOverProperty: DependencyProperty;
             static IsPressedProperty: DependencyProperty;
             ClickMode: ClickMode;
-            Command: Fayde.MVVM.ICommand;
+            Command: Input.ICommand;
             CommandParameter;
             IsFocused: bool;
             IsMouseOver: bool;
@@ -2545,11 +2549,7 @@ module Fayde.Data {
 // MVVM
 //////////////////////////////////////////////////////////
 module Fayde.MVVM {
-    export interface ICommand {
-        Execute(parameter): void;
-        CanExecute(parameter): bool;
-    }
-    export class RelayCommand implements ICommand { 
+    export class RelayCommand implements Input.ICommand { 
         constructor (execute?: (parameter) => void, canExecute?: (parameter) => bool);
         Execute(parameter): void;
         CanExecute(parameter): bool;
