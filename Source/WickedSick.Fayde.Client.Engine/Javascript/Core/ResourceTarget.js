@@ -2,7 +2,7 @@
 /// CODE
 /// <reference path="../Markup/JsonParser.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var ResourceTarget = Nullstone.Create("ResourceTarget", undefined, 4);
 
     ResourceTarget.Instance.Init = function (json, namescope, templateBindingSource, resChain) {
@@ -16,5 +16,5 @@
         return JsonParser.Parse(this._Json, this._Namescope, this._TemplateBindingSource, this._ResChain);
     };
 
-    namespace.ResourceTarget = Nullstone.FinishCreate(ResourceTarget);
-})(window);
+    Fayde.ResourceTarget = Nullstone.FinishCreate(ResourceTarget);
+})(Nullstone.Namespace("Fayde"));

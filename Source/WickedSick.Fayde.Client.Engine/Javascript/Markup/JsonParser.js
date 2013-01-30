@@ -4,6 +4,7 @@
 /// <reference path="../Core/Collections/Collection.js"/>
 /// <reference path="../Core/DeferredValueExpression.js"/>
 /// <reference path="../Runtime/PerfTimer.js"/>
+/// <reference path="../Core/ResourceTarget.js"/>
 
 (function (namespace) {
     var JsonParser = Nullstone.Create("JsonParser");
@@ -218,7 +219,7 @@
             } else {
                 var key = subJson[i].Key;
                 if (subJson[i].Type !== Fayde.Style) {
-                    fobj = new ResourceTarget(subJson[i], namescope, this._TemplateBindingSource, this._ResChain);
+                    fobj = new Fayde.ResourceTarget(subJson[i], namescope, this._TemplateBindingSource, this._ResChain);
                 } else {
                     fobj = this.CreateObject(subJson[i], namescope, true);
                     if (!key)

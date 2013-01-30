@@ -1,5 +1,6 @@
 ﻿/// <reference path="Expression.js"/>
 /// CODE
+/// <reference path="ResourceTarget.js"/>
 
 (function (namespace) {
     var StaticResourceExpression = Nullstone.Create("StaticResourceExpression", namespace.Expression, 5);
@@ -51,7 +52,7 @@
         }
 
         var value = this.GetValue(parser._ResChain);
-        if (value instanceof ResourceTarget)
+        if (value instanceof Fayde.ResourceTarget)
             value = value.CreateResource();
         if (!value)
             throw new XamlParseException("Could not resolve StaticResource: '" + this.Key.toString() + "'.");
