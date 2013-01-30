@@ -550,7 +550,7 @@
         if (!this._InsideClip(ctx, p.X, p.Y))
             return;
 
-        var node = uielist.Prepend(new UIElementNode(this));
+        var node = uielist.Prepend(new Fayde.UIElementNode(this));
         var hit = false;
         var walker = Fayde._VisualTreeWalker.ZReverse(this);
         var child;

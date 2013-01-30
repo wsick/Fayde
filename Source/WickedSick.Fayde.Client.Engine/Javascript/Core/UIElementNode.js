@@ -3,7 +3,7 @@
 /// CODE
 /// <reference path="UIElement.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var UIElementNode = Nullstone.Create("UIElementNode", LinkedListNode, 1);
 
     UIElementNode.Instance.Init = function (element) {
@@ -11,5 +11,5 @@
         this.UIElement = element;
     };
 
-    namespace.UIElementNode = Nullstone.FinishCreate(UIElementNode);
-})(window);
+    Fayde.UIElementNode = Nullstone.FinishCreate(UIElementNode);
+})(Nullstone.Namespace("Fayde"));

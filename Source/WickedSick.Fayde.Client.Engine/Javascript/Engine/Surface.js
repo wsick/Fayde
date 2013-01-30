@@ -780,7 +780,7 @@
         this._Captured = uie;
         var newInputList = new LinkedList();
         while (uie != null) {
-            newInputList.Append(new UIElementNode(uie));
+            newInputList.Append(new Fayde.UIElementNode(uie));
             uie = uie.GetVisualParent();
         }
         this._InputList = newInputList;
@@ -1020,7 +1020,7 @@
     Surface._ElementPathToRoot = function (source) {
         var list = new LinkedList();
         while (source) {
-            list.Append(new UIElementNode(source));
+            list.Append(new Fayde.UIElementNode(source));
             source = source.GetVisualParent();
         }
         return list;

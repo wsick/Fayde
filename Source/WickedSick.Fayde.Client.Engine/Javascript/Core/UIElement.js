@@ -663,7 +663,7 @@
         return (this._Flags & UIElementFlags.TotalHitTestVisible) != 0;
     };
     UIElement.Instance._HitTestPoint = function (ctx, p, uielist) {
-        uielist.Prepend(new UIElementNode(this));
+        uielist.Prepend(new Fayde.UIElementNode(this));
     };
     UIElement.Instance._InsideObject = function (ctx, x, y) {
         return this._InsideClip(ctx, x, y);

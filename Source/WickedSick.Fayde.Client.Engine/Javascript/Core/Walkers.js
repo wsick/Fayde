@@ -101,7 +101,7 @@
         if (!top)
             return;
         this._WalkList = new LinkedList();
-        this._WalkList.Append(new UIElementNode(top));
+        this._WalkList.Append(new Fayde.UIElementNode(top));
         this._Last = null;
         this._Direction = _VisualTreeWalkerDirection.Logical;
         if (direction)
@@ -113,7 +113,7 @@
             var prepend = this._WalkList.Head;
             var child;
             while (child = walker.Step()) {
-                this._WalkList.InsertBefore(new UIElementNode(child), prepend);
+                this._WalkList.InsertBefore(new Fayde.UIElementNode(child), prepend);
             }
         }
 
