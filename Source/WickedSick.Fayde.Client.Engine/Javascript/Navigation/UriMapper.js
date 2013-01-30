@@ -20,4 +20,4 @@
     //#endregion
 
     namespace.UriMapper = Nullstone.FinishCreate(UriMapper);
-})(window);
+})(Nullstone.Namespace("Fayde.Navigation"));

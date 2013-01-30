@@ -23,7 +23,7 @@
     Frame.IsDeepLinkedProperty = DependencyProperty.Register("IsDeepLinked", function () { return Boolean; }, Frame, true);
     Frame.CurrentSourceProperty = DependencyProperty.RegisterReadOnly("CurrentSource", function () { return Uri; }, Frame);
     Frame.SourceProperty = DependencyProperty.Register("Source", function () { return Uri; }, Frame, undefined, function (d, args) { d.SourcePropertyChanged(args); });
-    Frame.UriMapperProperty = DependencyProperty.Register("UriMapper", function () { return UriMapper; }, Frame);
+    Frame.UriMapperProperty = DependencyProperty.Register("UriMapper", function () { return Fayde.Navigation.UriMapper; }, Frame);
     //JournalOwnership
     //CanGoBack
     //CanGoForward
