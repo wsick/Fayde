@@ -16,6 +16,15 @@
 /// <reference path="../Runtime/JsEx.js"/>
 
 (function (namespace) {
+    //#region FocusChangedNode
+    var FocusChangedNode = Nullstone.Create("FocusChangedNode", LinkedListNode, 2);
+    FocusChangedNode.Instance.Init = function (lostFocus, gotFocus) {
+        this.Init$LinkedListNode();
+        this.LostFocus = lostFocus;
+        this.GotFocus = gotFocus;
+    };
+    //#endregion
+
     var Surface = Nullstone.Create("Surface", undefined, 1);
 
     Surface.Instance.Init = function (app) {

@@ -6,8 +6,7 @@
 /// <reference path="../Core/UIElement.js"/>
 /// <reference path="ClockTimer.js"/>
 /// <reference path="../Runtime/JsEx.js"/>
-/// <reference path="NavService.js"/>
-/// <reference path="AjaxJsonRequest.js"/>
+/// <reference path="../Navigation/NavService.js"/>
 
 (function (namespace) {
     var App = Nullstone.Create("App", Fayde.DependencyObject);
@@ -69,7 +68,7 @@
     App.Instance.LoadInitial = function (containerId, json) {
         this.Address = new Uri(document.URL);
         this.MainSurface.Register(containerId);
-        this.NavService = new NavService(this);
+        this.NavService = new Fayde.Navigation.NavService(this);
 
         var element = JsonParser.Parse(json);
         if (element instanceof Fayde.UIElement)

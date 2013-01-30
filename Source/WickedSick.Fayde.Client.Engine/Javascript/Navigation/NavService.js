@@ -27,4 +27,4 @@
     };
 
     namespace.NavService = Nullstone.FinishCreate(NavService);
-})(window);
+})(Nullstone.Namespace("Fayde.Navigation"));

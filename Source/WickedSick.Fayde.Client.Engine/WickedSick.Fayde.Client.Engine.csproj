@@ -162,8 +162,8 @@
     <Content Include="Javascript\Core\ResourceTarget.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />
     <Content Include="Javascript\Controls\Frame.js" />
-    <Content Include="Javascript\Engine\AjaxJsonRequest.js" />
-    <Content Include="Javascript\Engine\NavService.js" />
+    <Content Include="Javascript\Runtime\AjaxJsonRequest.js" />
+    <Content Include="Javascript\Navigation\NavService.js" />
     <Content Include="Javascript\Core\DeferredValueExpression.js" />
     <Content Include="Javascript\gl-matrix-min.js" />
     <Content Include="Javascript\Media\Animation\AnimationUsingKeyFrames.js" />
@@ -203,7 +203,7 @@
     <Content Include="Javascript\Runtime\Enum.js" />
     <Content Include="Javascript\Core\RequestBringIntoViewEventArgs.js" />
     <Content Include="Javascript\Core\StaticResourceExpression.js" />
-    <Content Include="Javascript\Engine\FocusManager.js" />
+    <Content Include="Javascript\Core\FocusManager.js" />
     <Content Include="Javascript\Media\ArcSegment.js" />
     <Content Include="Javascript\Media\GeneralTransform.js" />
     <Content Include="Javascript\Media\GeometryCollection.js" />
@@ -298,7 +298,6 @@
     <Content Include="Javascript\Documents\Section.js" />
     <Content Include="Javascript\Documents\Span.js" />
     <Content Include="Javascript\Engine\ClockTimer.js" />
-    <Content Include="Javascript\Engine\FocusChangedNode.js" />
     <Content Include="Javascript\Engine\RenderContext.js" />
     <Content Include="Javascript\Markup\BindingMarkup.js" />
     <Content Include="Javascript\Markup\Markup.js" />
