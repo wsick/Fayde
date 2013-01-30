@@ -208,7 +208,7 @@ Nullstone.FinishCreate(GenerationState);
         var position;
 
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 if ((e.NewStartingIndex + 1) != this.Owner.Items.GetCount()) {
                     this.MoveExistingItems(e.NewStartingIndex, 1);
                 }
@@ -217,7 +217,7 @@ Nullstone.FinishCreate(GenerationState);
                 position = this.GeneratorPositionFromIndex(e.NewStartingIndex);
                 position.offset = 1;
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 itemCount = 1;
                 if (this.RealizedElements.Contains(e.OldStartingIndex)) {
                     itemUICount = 1;
@@ -231,7 +231,7 @@ Nullstone.FinishCreate(GenerationState);
                 }
                 this.MoveExistingItems(e.OldStartingIndex, -1);
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 if (!this.RealizedElements.Contains(e.NewStartingIndex)) {
                     return;
                 }
@@ -244,7 +244,7 @@ Nullstone.FinishCreate(GenerationState);
                 this.StartAt(newPos.index, newPos.offset, 0, true);
                 this.PrepareItemContainer(this.GenerateNext({}));
                 break;
-            case NotifyCollectionChangedAction.Reset:
+            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                 var itemCount;
                 if (!e.OldItems) {
                     itemCount = 0;
@@ -257,7 +257,7 @@ Nullstone.FinishCreate(GenerationState);
                 this.RemoveAll();
                 break;
             default:
-                Console.WriteLine("*** Critical error in ItemContainerGenerator.OnOwnerItemsItemsChanged. NotifyCollectionChangedAction.{0} is not supported", e.GetAction());
+                Console.WriteLine("*** Critical error in ItemContainerGenerator.OnOwnerItemsItemsChanged. NotifyCollectionChangedAction.{0} is not supported", e.Action);
                 break;
         }
 

@@ -132,12 +132,12 @@
         this.AddItemsToPresenter(-1, 1, this.Items.GetCount());
     };
     ItemsControl.Instance.OnItemsSourceChanged = function (e) {
-        if (!e.OldValue && Nullstone.Is(e.OldValue, INotifyCollectionChanged)) {
+        if (!e.OldValue && Nullstone.Is(e.OldValue, Fayde.Collections.INotifyCollectionChanged)) {
             e.OldValue.CollectionChanged.Unsubscribe(this._CollectionChanged, this);
         }
 
         if (e.NewValue != null) {
-            if (Nullstone.Is(e.NewValue, INotifyCollectionChanged)) {
+            if (Nullstone.Is(e.NewValue, Fayde.Collections.INotifyCollectionChanged)) {
                 e.NewValue.CollectionChanged.Subscribe(this._CollectionChanged, this);
             }
 
@@ -150,7 +150,7 @@
                 this.Items._AddImpl(e.NewValue[i]);
             }
 
-            this.OnItemsChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            this.OnItemsChanged(Fayde.Collections.NotifyCollectionChangedEventArgs.Reset());
         } else {
             this._itemsIsDataBound = false;
             this.Items._ReadOnly = false;
@@ -161,25 +161,25 @@
     };
     ItemsControl.Instance._CollectionChanged = function (sender, e) {
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 var count = e.NewItems.GetCount();
                 for (var i = 0; i < count; i++) {
                     this.Items._InsertImpl(e.NewStartingIndex + 1, e.NewItems.GetValueAt(i));
                 }
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 var count = e.OldItems.GetCount();
                 for (var i = 0; i < count; i++) {
                     this.Items._RemoveAtImpl(e.OldStartingIndex);
                 }
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 var count = e.NewItems.GetCount();
                 for (var i = 0; i < count; i++) {
                     this.Items._SetItemImpl(e.NewStartingIndex + 1, e.NewItems.GetValueAt(i));
                 }
                 break;
-            case NotifyCollectionChangedAction.Reset:
+            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                 this.Items._ClearImpl();
                 var count = this.ItemsSource.GetCount();
                 for (var i = 0; i < count; i++) {
@@ -209,13 +209,13 @@
     };
     ItemsControl.Instance.InvokeItemsChanged = function (object, e) {
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 this.SetLogicalParent(this, e.NewItems);
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 this.SetLogicalParent(null, e.OldItems);
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 this.SetLogicalParent(null, e.OldItems);
                 this.SetLogicalParent(this, e.NewItems);
                 break;
@@ -231,18 +231,18 @@
 
         var panel = this._Presenter._ElementRoot;
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Reset:
+            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                 var count = panel.Children.GetCount();
                 if (count > 0)
                     this.RemoveItemsFromPresenter(0, 0, count);
                 break;
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 this.AddItemsToPresenter(e.Position.index, e.Position.offset, e.ItemCount);
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 this.RemoveItemsFromPresenter(e.Position.index, e.Position.offset, e.ItemCount);
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 this.RemoveItemsFromPresenter(e.Position.index, e.Position.offset, e.ItemCount);
                 this.AddItemsToPresenter(e.Position.index, e.Position.offset, e.ItemCount);
                 break;

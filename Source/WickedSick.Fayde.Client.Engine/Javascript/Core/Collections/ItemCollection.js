@@ -4,7 +4,7 @@
 /// CODE
 
 (function (namespace) {
-    var ItemCollection = Nullstone.Create("ItemCollection", Fayde.PresentationFrameworkCollection, 0, [INotifyCollectionChanged]);
+    var ItemCollection = Nullstone.Create("ItemCollection", Fayde.PresentationFrameworkCollection, 0, [Fayde.Collections.INotifyCollectionChanged]);
 
     ItemCollection.Instance.Init = function () {
         this.Init$PresentationFrameworkCollection();
@@ -23,7 +23,7 @@
     ItemCollection.Instance._CheckNull = function (action, value) {
         if (value != null)
             return false;
-        if (action === NotifyCollectionChangedAction.Remove)
+        if (action === Fayde.Collections.NotifyCollectionChangedAction.Remove)
             return true;
         throw new ArgumentException();
     };

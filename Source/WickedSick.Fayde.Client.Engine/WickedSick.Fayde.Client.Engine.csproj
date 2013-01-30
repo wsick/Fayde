@@ -80,7 +80,6 @@
     <Content Include="JavascriptTests\FaydeAsserts.js" />
     <Content Include="JavascriptTests\MatrixTests.js" />
     <Content Include="JavascriptTests\NullstoneTests.js" />
-    <Content Include="Javascript\Collections\Enums.js" />
     <Content Include="Javascript\Collections\INotifyCollectionChanged.js" />
     <Content Include="Javascript\Collections\NotifyCollectionChangedEventArgs.js" />
     <Content Include="Javascript\Collections\ObservableCollection.js" />

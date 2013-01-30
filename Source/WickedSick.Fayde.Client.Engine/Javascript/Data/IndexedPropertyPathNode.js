@@ -55,7 +55,7 @@
             this.Listener = null;
         }
 
-        if (Nullstone.DoesImplement(newSource, INotifyCollectionChanged)) {
+        if (Nullstone.DoesImplement(newSource, Fayde.Collections.INotifyCollectionChanged)) {
             //TODO: CollectionChangedListener
             //this.Listener = new CollectionChangedListener(newSource, this, this.CollectionChanged);
         }

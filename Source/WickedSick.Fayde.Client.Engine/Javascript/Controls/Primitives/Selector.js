@@ -13,7 +13,7 @@
     Selector.Instance.Init = function () {
         this.Init$ItemsControl();
         this.SelectionChanged = new MulticastEvent();
-        this._SelectedItems = new ObservableCollection();
+        this._SelectedItems = new Fayde.Collections.ObservableCollection();
         this._Selection = new namespace.SelectorSelection(this);
     };
 
@@ -130,7 +130,7 @@
 
         var item;
         switch (e.Action) {
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 item = Nullstone.As(e.NewItems[0], Fayde.Controls.ListBoxItem);
                 if (item != null && item.IsSelected && !this.SelectedItems.Contains(item)) {
                     this._Selection.Select(item);
@@ -138,7 +138,7 @@
                     this._Selection.Select(this.SelectedItem);
                 }
                 break;
-            case NotifyCollectionChangedAction.Reset:
+            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                 var o;
                 var itemsSource = this.ItemsSource;
                 if (Nullstone.Is(itemsSource, Fayde.Data.ICollectionView) && this.$SynchronizeWithCurrentItem)
@@ -150,14 +150,14 @@
                 else
                     this._Selection.ClearSelection();
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 item = e.OldItems[0];
                 if (this.SelectedItems.Contains(item))
                     this._Selection.Unselect(item);
                 else if (e.OldStartingIndex <= this.SelectedIndex)
                     this._Selection.Select(this.SelectedItem);
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 item = e.OldItems[0];
                 this._Selection.Unselect(item);
                 break;

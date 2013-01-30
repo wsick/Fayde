@@ -443,7 +443,7 @@
         var viewable
 
         switch (args.Action) {
-            case NotifyCollectionChangedAction.Add:
+            case Fayde.Collections.NotifyCollectionChangedAction.Add:
                 var index = generator.IndexFromGeneratorPosition(args.Position.index, args.Position.offset);
                 if (orientation === Fayde.Orientation.Horizontal)
                     offset = this.GetHorizontalOffset();
@@ -460,7 +460,7 @@
                 else
                     this.SetVerticalOffset(offset);
                 break;
-            case NotifyCollectionChangedAction.Remove:
+            case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                 index = generator.IndexFromGeneratorPosition(args.Position.index, args.Position.offset);
                 if (orientation === Fayde.Orientation.Horizontal) {
                     offset = this.GetHorizontalOffset();
@@ -486,10 +486,10 @@
 
                 this.RemoveInternalChildRange(args.Position.index, args.Position.ItemUICount);
                 break;
-            case NotifyCollectionChangedAction.Replace:
+            case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                 this.RemoveInternalChildRange(args.Position.index, args.ItemUICount);
                 break;
-            case NotifyCollectionChangedAction.Reset:
+            case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                 break;
         }
 

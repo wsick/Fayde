@@ -1,12 +1,12 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 
-(function (namespace) {
+(function (Collections) {
     var INotifyCollectionChanged = Nullstone.Create("INotifyCollectionChanged");
 
     INotifyCollectionChanged.Instance.Init = function () {
         this.CollectionChanged = new MulticastEvent();
     };
 
-    namespace.INotifyCollectionChanged = Nullstone.FinishCreate(INotifyCollectionChanged);
-})(window);
+    Collections.INotifyCollectionChanged = Nullstone.FinishCreate(INotifyCollectionChanged);
+})(Nullstone.Namespace("Fayde.Collections"));

@@ -22,21 +22,21 @@
         try {
             this._Updating = true;
             switch (e.Action) {
-                case NotifyCollectionChangedAction.Add:
+                case Fayde.Collections.NotifyCollectionChangedAction.Add:
                     if (!this._SelectedItems.Contains(e.NewItems[0]))
                         this.AddToSelected(e.NewItems[0]);
                     break;
-                case NotifyCollectionChangedAction.Remove:
+                case Fayde.Collections.NotifyCollectionChangedAction.Remove:
                     if (this._SelectedItems.Contains(e.OldItems[0]))
                         this.RemoveFromSelected(e.OldItems[0]);
                     break;
-                case NotifyCollectionChangedAction.Replace:
+                case Fayde.Collections.NotifyCollectionChangedAction.Replace:
                     if (this._SelectedItems.Contains(e.OldItems[0]))
                         this.RemoveFromSelected(e.OldItems[0]);
                     if (!this._SelectedItems.Contains(e.NewItems[0]))
                         this.AddToSelected(e.NewItems[0]);
                     break;
-                case NotifyCollectionChangedAction.Reset:
+                case Fayde.Collections.NotifyCollectionChangedAction.Reset:
                     var items = this._SelectedItems;
                     var ownerItems = this._Owner._SelectedItems;
 

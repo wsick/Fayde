@@ -38,7 +38,7 @@
     VirtualizingPanel.Instance.OnClearChildren = function () { };
     VirtualizingPanel.Instance.OnItemsChangedInternal = function (sender, args) {
         this._InvalidateMeasure();
-        if (args.Action === NotifyCollectionChangedAction.Reset) {
+        if (args.Action === Fayde.Collections.NotifyCollectionChangedAction.Reset) {
             this.Children.Clear();
             this.ItemContainerGenerator.RemoveAll();
             this.OnClearChildren();

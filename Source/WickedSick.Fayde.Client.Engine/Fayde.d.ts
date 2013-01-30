@@ -2428,9 +2428,9 @@ module Fayde.Shapes {
 }
 
 //////////////////////////////////////////////////////////
-// DATA
+// COLLECTIONS
 //////////////////////////////////////////////////////////
-module Fayde.Data {
+module Fayde.Collections {
     export enum NotifyCollectionChangedAction {
         Add = 1,
         Remove = 2,
@@ -2438,7 +2438,14 @@ module Fayde.Data {
         Reset = 4,
     }
     export interface INotifyCollectionChanged {
-        CollectionChanged: Fayde.Data.NotifyCollectionChangedEventHandler;
+        CollectionChanged: NotifyCollectionChangedEventHandler;
+    }
+    export class NotifyCollectionChangedEventHandler extends MulticastEvent {
+        Subscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure);
+        SubscribeSpecific(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure);
+        Unsubscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure? );
+        Raise(sender, args: NotifyCollectionChangedEventArgs);
+        RaiseAsync(sender, args: NotifyCollectionChangedEventArgs);
     }
     export class NotifyCollectionChangedEventArgs extends EventArgs {
         constructor (action: NotifyCollectionChangedAction);
@@ -2449,13 +2456,6 @@ module Fayde.Data {
         OldItems: any[];
         OldStartingIndex: number;
         NewStartingIndex: number;
-    }
-    export class NotifyCollectionChangedEventHandler extends MulticastEvent {
-        Subscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure);
-        SubscribeSpecific(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure);
-        Unsubscribe(callback: (sender, args: NotifyCollectionChangedEventArgs) => void , closure, matchClosure? );
-        Raise(sender, args: NotifyCollectionChangedEventArgs);
-        RaiseAsync(sender, args: NotifyCollectionChangedEventArgs);
     }
     export class ObservableCollection implements INotifyCollectionChanged, ICollection {
         CollectionChanged: NotifyCollectionChangedEventHandler;
@@ -2474,6 +2474,12 @@ module Fayde.Data {
         Contains(value: DependencyObject): bool;
         ToArray(): DependencyObject[];
     }
+}
+
+//////////////////////////////////////////////////////////
+// DATA
+//////////////////////////////////////////////////////////
+module Fayde.Data {
     export class BindingOperations {
         static SetBinding(target: DependencyObject, dp: DependencyProperty, binding: BindingBase): BindingExpressionBase;
     }

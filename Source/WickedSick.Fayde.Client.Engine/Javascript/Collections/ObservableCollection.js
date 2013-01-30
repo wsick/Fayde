@@ -3,8 +3,8 @@
 /// <reference path="INotifyCollectionChanged.js"/>
 /// <reference path="NotifyCollectionChangedEventArgs.js"/>
 
-(function (namespace) {
-    var ObservableCollection = Nullstone.Create("ObservableCollection", Collection, 0, [INotifyCollectionChanged]);
+(function (Collections) {
+    var ObservableCollection = Nullstone.Create("ObservableCollection", Collection, 0, [Collections.INotifyCollectionChanged]);
 
     ObservableCollection.Instance.Init = function () {
         this.Init$Collection();
@@ -14,15 +14,18 @@
     ObservableCollection.Instance._RaiseChanged = function (action, oldValue, newValue, index) {
         this._RaiseChanged$Collection(action, oldValue, newValue, index);
 
+        var argsClass = Collections.NotifyCollectionChangedEventArgs;
+        var args;
         if (action === CollectionChangedArgs.Action.Reset)
-            this.CollectionChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            args = argsClass.Reset();
         else if (action === CollectionChangedArgs.Action.Replace)
-            this.CollectionChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newValue, oldValue, index));
+            args = argsClass.Replace(newValue, oldValue, index);
         else if (action === CollectionChangedArgs.Action.Add)
-            this.CollectionChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, newValue, index));
+            args = argsClass.Add(newValue, index);
         else if (action === CollectionChangedArgs.Action.Remove)
-            this.CollectionChanged.Raise(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldValue, index));
+            args = argsClass.Remove(oldValue, index);
+        this.CollectionChanged.Raise(this, args);
     };
 
-    namespace.ObservableCollection = Nullstone.FinishCreate(ObservableCollection);
-})(window);
+    Collections.ObservableCollection = Nullstone.FinishCreate(ObservableCollection);
+})(Nullstone.Namespace("Fayde.Collections"));
