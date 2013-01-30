@@ -112,7 +112,7 @@
             switch (this.Mode) {
                 case Fayde.Controls.SelectionMode.Single:
                     if (selected) {
-                        if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control)
+                        if (Fayde.Input.Keyboard.HasControl())
                             this.ClearSelection(ignoreSelectedValue);
                         else
                             this.UpdateSelectorProperties(this._SelectedItem, ownerItems.IndexOf(this._SelectedItem), ownerSelectedValue);
@@ -121,13 +121,13 @@
                     }
                     break;
                 case Fayde.Controls.SelectionMode.Extended:
-                    if ((Keyboard.Modifiers & ModifierKeys.Shift) === ModifierKeys.Shift) {
+                    if (Fayde.Input.Keyboard.HasShift()) {
                         var sIndex = ownerItems.IndexOf(this._SelectedItem);
                         if (this._SelectedItems.GetCount() === 0)
                             this.SelectRange(0, ownerItems.IndexOf(item));
                         else
                             this.SelectRange(sIndex, ownerItems.IndexOf(item));
-                    } else if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control) {
+                    } else if (Fayde.Input.Keyboard.HasControl()) {
                         if (!selected)
                             this.AddToSelected(item);
                     } else {

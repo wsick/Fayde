@@ -1,14 +1,6 @@
 ﻿/// <reference path="../../Runtime/Nullstone.js"/>
 
 (function (namespace) {
-    namespace.ModifierKeys = {
-        None: 0,
-        Alt: 1,
-        Control: 2,
-        Shift: 4,
-        Windows: 8,
-        Apple: 16
-    };
     namespace.Key = {
         // Summary:
         //     A special value indicating no key.
@@ -346,7 +338,6 @@
         //     A special value indicating the key is out of range of this enumeration.
         Unknown: 255,
     };
-
 })(window);
 
 (function (namespace) {

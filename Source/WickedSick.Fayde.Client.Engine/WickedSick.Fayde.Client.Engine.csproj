@@ -158,7 +158,6 @@
     <Content Include="Javascript\MVVM\RelayCommand.js" />
     <Content Include="Javascript\MVVM\ViewModelBase.js" />
     <Content Include="Javascript\Runtime\KeyInterop.js" />
-    <Content Include="Javascript\Core\Input\KeyCodes.js" />
     <Content Include="Javascript\Core\ISupportInitialize.js" />
     <Content Include="Javascript\Core\ResourceTarget.js" />
     <Content Include="Javascript\Core\SizeChangedEventArgs.js" />

@@ -214,10 +214,10 @@
             case Key.Space:
             case Key.Enter:
                 if (Key.Enter !== args.Key || Fayde.Input.KeyboardNavigation.GetAcceptsReturn(this)) {
-                    if ((Keyboard.Modifiers & ModifierKeys.Alt) !== ModifierKeys.Alt) {
+                    if (!Fayde.Input.Keyboard.HasAlt()) {
                         var lbi = Nullstone.As(FocusManager.GetFocusedElement(), namespace.ListBoxItem);
                         if (lbi != null) {
-                            if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control && lbi.IsSelected) {
+                            if (Fayde.Input.Keyboard.HasControl() && lbi.IsSelected) {
                                 this.SelectedItem = null;
                             } else {
                                 this.SelectedItem = this.ItemContainerGenerator.ItemFromContainer(lbi);
@@ -275,7 +275,7 @@
             var lbi = icg.ContainerFromIndex(newFocusedIndex);
             var item = icg.ItemFromContainer(lbi);
             this.ScrollIntoView(item);
-            if ((Keyboard.Modifiers & ModifierKeys.Control) === ModifierKeys.Control) {
+            if (Fayde.Input.Keyboard.HasControl()) {
                 lbi.Focus();
             } else {
                 this.SelectedItem = item;

@@ -617,7 +617,7 @@
     //#region Mouse
 
     Surface.Instance._HandleButtonRelease = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var button = evt.which ? evt.which : evt.button;
         var pos = this._GetMousePosition(evt);
 
@@ -629,7 +629,7 @@
             this._PerformReleaseCapture();
     };
     Surface.Instance._HandleButtonPress = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var button = evt.which ? evt.which : evt.button;
         var pos = this._GetMousePosition(evt);
 
@@ -639,7 +639,7 @@
         this._SetUserInitiatedEvent(false);
     };
     Surface.Instance._HandleWheel = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var delta = 0;
         if (evt.wheelDelta)
             delta = evt.wheelDelta / 120;
@@ -652,13 +652,13 @@
         this._UpdateCursorFromInputList();
     };
     Surface.Instance._HandleMove = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var pos = this._GetMousePosition(evt);
         this._HandleMouseEvent("move", null, pos);
         this._UpdateCursorFromInputList();
     };
     Surface.Instance._HandleOut = function (evt) {
-        Keyboard.RefreshModifiers(evt);
+        Fayde.Input.Keyboard.RefreshModifiers(evt);
         var pos = this._GetMousePosition(evt);
         this._HandleMouseEvent("out", null, pos);
     };
@@ -802,7 +802,7 @@
 
     Surface.Instance._HandleKeyDown = function (args) {
         this._SetUserInitiatedEvent(true);
-        Keyboard.RefreshModifiers(args);
+        Fayde.Input.Keyboard.RefreshModifiers(args);
         var handled = false;
         if (this._FocusedElement != null) {
             var focusToRoot = Surface._ElementPathToRoot(this._FocusedElement);
