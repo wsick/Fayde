@@ -198,7 +198,7 @@ Nullstone.FinishCreate(GenerationState);
         var data = {};
         if (this.ContainerItemMap.TryGetValue(container, data))
             return data.Value;
-        return DependencyProperty.UnsetValue;
+        return new Fayde.UnsetValue();
     };
 
     ItemContainerGenerator.Instance.OnOwnerItemsItemsChanged = function (sender, e) {

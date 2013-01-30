@@ -688,6 +688,7 @@ module Fayde {
         PreviousSize: Size;
         NewSize: Size;
     }
+    export class UnsetValue { }
 }
 
 class DependencyProperty {

@@ -15,7 +15,7 @@ DependencyObjectTest.prototype.testBasicValueStorage = function () {
     obj.ClearValue(TestClass.SomeProperty);
     assertSame("DependencyObject ClearValue is not working properly.", undefined, obj.$GetValue(TestClass.SomeProperty));
     assertSame("DependencyObject _ReadLocalValueImpl is not working properly.", undefined, obj._ReadLocalValueImpl(TestClass.SomeProperty));
-    assertInstanceOf("DependencyObject ReadLocalValue is not working properly.", UnsetValue, obj.ReadLocalValue(TestClass.SomeProperty));
+    assertInstanceOf("DependencyObject ReadLocalValue is not working properly.", Fayde.UnsetValue, obj.ReadLocalValue(TestClass.SomeProperty));
     obj.$SetValue(TestClass.SomeProperty, null);
     assertSame("DependencyObject GetValue is not saving 'null' properly.", null, obj.$GetValue(TestClass.SomeProperty));
 

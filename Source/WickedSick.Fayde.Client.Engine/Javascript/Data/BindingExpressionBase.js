@@ -284,7 +284,7 @@
             if (!this.PropertyPathWalker.IsPathBroken && binding.Converter) {
                 value = binding.Converter.Convert(value, this.Property.GetTargetType(), binding.ConverterParameter, binding.ConverterCulture);
             }
-            if (value === DependencyProperty.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
+            if (value instanceof Fayde.UnsetValue || this.PropertyPathWalker.IsPathBroken) {
                 value = binding.FallbackValue;
                 if (value === undefined)
                     value = propd.GetDefaultValue(this.Target);

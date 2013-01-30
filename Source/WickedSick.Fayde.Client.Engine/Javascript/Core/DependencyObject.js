@@ -165,7 +165,7 @@
         this.$SetValueInternal(propd, value);
     };
     DependencyObject.Instance.$SetValueInternal = function (propd, value) {
-        if (value instanceof UnsetValue) {
+        if (value instanceof Fayde.UnsetValue) {
             this.$ClearValue(propd);
             return;
         }
@@ -237,7 +237,7 @@
             return;
         }
 
-        if (value instanceof UnsetValue) {
+        if (value instanceof Fayde.UnsetValue) {
             this._ClearValue(propd, true);
             return;
         }
@@ -395,7 +395,7 @@
         if (error.IsErrored())
             throw error.CreateException();
         if (value === undefined)
-            return new UnsetValue();
+            return new Fayde.UnsetValue();
         return value;
     };
     DependencyObject.Instance._ReadLocalValueWithError = function (propd, error) {

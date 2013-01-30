@@ -52,11 +52,11 @@
         /// <returns type="UIElement" />
         var templateOwner = Nullstone.As(this.TemplateOwner, namespace.ContentControl);
         if (templateOwner != null) {
-            if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof UnsetValue) {
+            if (this.$ReadLocalValue(ContentPresenter.ContentProperty) instanceof Fayde.UnsetValue) {
                 this.$SetValue(ContentPresenter.ContentProperty,
                     new Fayde.TemplateBindingExpression(namespace.ContentControl.ContentProperty, ContentPresenter.ContentProperty));
             }
-            if (this.$ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof UnsetValue) {
+            if (this.$ReadLocalValue(ContentPresenter.ContentTemplateProperty) instanceof Fayde.UnsetValue) {
                 this.$SetValue(ContentPresenter.ContentTemplateProperty,
                     new Fayde.TemplateBindingExpression(namespace.ContentControl.ContentTemplateProperty, ContentPresenter.ContentTemplateProperty));
             }
