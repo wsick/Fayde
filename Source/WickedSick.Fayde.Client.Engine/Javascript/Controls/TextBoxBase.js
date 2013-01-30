@@ -5,11 +5,11 @@
 /// <reference path="../Primitives/Font.js"/>
 /// <reference path="Enums.js"/>
 /// <reference path="../Text/TextBuffer.js"/>
-/// <reference path="../Text/History/TextBoxUndoStack.js"/>
 /// <reference path="ContentPresenter.js"/>
 /// <reference path="ContentControl.js"/>
 /// <reference path="Border.js"/>
 /// <reference path="../Core/Input/Enums.js"/>
+/// <reference path="../Text/History.js"/>
 
 (function (namespace) {
     var TextBoxBase = Nullstone.Create("TextBoxBase", namespace.Control);
@@ -17,8 +17,8 @@
     TextBoxBase.Instance.Init = function () {
         this.Init$Control();
 
-        this._Undo = new _TextBoxUndoStack(10);
-        this._Redo = new _TextBoxUndoStack(10);
+        this._Undo = new Fayde.Text._TextBoxUndoStack(10);
+        this._Redo = new Fayde.Text._TextBoxUndoStack(10);
         this._Buffer = new _TextBuffer();
         this._MaxLength = 0;
 
@@ -203,11 +203,11 @@
         var action = this._Undo.Pop();
         this._Redo.Push(action);
 
-        if (action instanceof _TextBoxUndoActionInsert) {
+        if (action instanceof Fayde.Text._TextBoxUndoActionInsert) {
             this._Buffer.Cut(action._Start, action._Length);
-        } else if (action instanceof _TextBoxUndoActionDelete) {
+        } else if (action instanceof Fayde.Text._TextBoxUndoActionDelete) {
             this._Buffer.Insert(action._Start, action._Text);
-        } else if (action instanceof _TextBoxUndoActionReplace) {
+        } else if (action instanceof Fayde.Text._TextBoxUndoActionReplace) {
             this._Buffer.Cut(action._Start, action._Inserted.length);
             this._Buffer.Insert(action._Start, action._Deleted);
         }
@@ -236,13 +236,13 @@
 
         var anchor;
         var cursor;
-        if (action instanceof _TextBoxUndoActionInsert) {
+        if (action instanceof Fayde.Text._TextBoxUndoActionInsert) {
             this._Buffer.Insert(action._Start, action._Buffer._Text);
             anchor = cursor = action._Start + action._Buffer.GetLength();
-        } else if (action instanceof _TextBoxUndoActionDelete) {
+        } else if (action instanceof Fayde.Text._TextBoxUndoActionDelete) {
             this._Buffer.Cut(action._Start, action._Length);
             anchor = cursor = action._Start;
-        } else if (action instanceof _TextBoxUndoActionReplace) {
+        } else if (action instanceof Fayde.Text._TextBoxUndoActionReplace) {
             this._Buffer.Cut(action._Start, action._Length);
             this._Buffer.Insert(action._Start, action._Inserted);
             anchor = cursor = action._Start + action._Inserted.length;
@@ -564,7 +564,7 @@
         }
 
         if (length > 0) {
-            action = new _TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
+            action = new Fayde.Text._TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
             this._Undo.Push(action);
             this._Redo.Clear();
 
@@ -612,7 +612,7 @@
         }
 
         if (length > 0) {
-            action = new _TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
+            action = new Fayde.Text._TextBoxUndoActionDelete(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length);
             this._Undo.Push(action);
             this._Redo.Clear();
 
@@ -873,7 +873,7 @@
             return false;
 
         if (length > 0) {
-            action = new _TextBoxUndoActionReplace(anchor, cursor, this._Buffer, start, length, c);
+            action = new Fayde.Text._TextBoxUndoActionReplace(anchor, cursor, this._Buffer, start, length, c);
             this._Undo.Push(action);
             this._Redo.Clear();
 
@@ -881,14 +881,14 @@
         } else {
             var ins = null;
             action = this._Undo.Peek();
-            if (action instanceof _TextBoxUndoActionInsert) {
+            if (action instanceof Fayde.Text._TextBoxUndoActionInsert) {
                 ins = action;
                 if (!ins.Insert(start, c))
                     ins = null;
             }
 
             if (!ins) {
-                ins = new _TextBoxUndoActionInsert(anchor, cursor, start, c);
+                ins = new Fayde.Text._TextBoxUndoActionInsert(anchor, cursor, start, c);
                 this._Undo.Push(ins);
             }
             this._Redo.Clear();

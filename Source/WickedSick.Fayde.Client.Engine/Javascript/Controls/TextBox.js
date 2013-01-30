@@ -11,10 +11,7 @@
 /// <reference path="ContentControl.js"/>
 /// <reference path="Border.js"/>
 /// <reference path="../Text/TextBuffer.js"/>
-/// <reference path="../Text/History/TextBoxUndoAction.js"/>
-/// <reference path="../Text/History/TextBoxUndoActionDelete.js"/>
-/// <reference path="../Text/History/TextBoxUndoActionInsert.js"/>
-/// <reference path="../Text/History/TextBoxUndoActionReplace.js"/>
+/// <reference path="../Text/History.js"/>
 
 (function (namespace) {
     var TextBox = Nullstone.Create("TextBox", namespace.TextBoxBase);
@@ -183,10 +180,10 @@
 
                 if (text) {
                     if (length > 0) {
-                        action = new _TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length, text);
+                        action = new Fayde.Text._TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, start, length, text);
                         this._Buffer.Replace(start, length, text);
                     } else if (text.length > 0) {
-                        action = new _TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
+                        action = new Fayde.Text._TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, start, text);
                         this._Buffer.Insert(start, text);
                     }
                     if (action) {
@@ -253,10 +250,10 @@
             if (this._SettingValue) {
                 if (text) {
                     if (this._Buffer.GetLength() > 0) {
-                        action = new _TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.GetLength(), text);
+                        action = new Fayde.Text._TextBoxUndoActionReplace(this._SelectionAnchor, this._SelectionCursor, this._Buffer, 0, this._Buffer.GetLength(), text);
                         this._Buffer.Replace(0, this._Buffer.GetLength(), text);
                     } else {
-                        action = new _TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
+                        action = new Fayde.Text._TextBoxUndoActionInsert(this._SelectionAnchor, this._SelectionCursor, 0, text);
                         this._Buffer.Prepend(text);
                     }
 

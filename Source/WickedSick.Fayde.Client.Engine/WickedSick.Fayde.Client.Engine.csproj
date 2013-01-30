@@ -235,12 +235,8 @@
     <Content Include="Javascript\Shapes\Rectangle.js" />
     <Content Include="Javascript\Shapes\Shape.js" />
     <Content Include="JavascriptTests\fayde_core.js" />
-    <Content Include="Javascript\Text\History\TextBoxUndoAction.js" />
-    <Content Include="Javascript\Text\History\TextBoxUndoActionDelete.js" />
-    <Content Include="Javascript\Text\History\TextBoxUndoActionInsert.js" />
-    <Content Include="Javascript\Text\History\TextBoxUndoActionReplace.js" />
+    <Content Include="Javascript\Text\History.js" />
     <Content Include="Javascript\Controls\TextBoxModelChangedEventArgs.js" />
-    <Content Include="Javascript\Text\History\TextBoxUndoStack.js" />
     <Content Include="Javascript\Controls\TextBoxView.js" />
     <Content Include="Javascript\Core\BindingOperations.js" />
     <Content Include="Javascript\Core\Collections\CollectionChangedArgs.js" />
@@ -386,7 +382,6 @@
     <Content Include="Javascript\Documents\TextElement.js" />
     <Content Include="Javascript\Core\RoutedEvent.js" />
     <Content Include="Javascript\Core\RoutedEventArgs.js" />
-    <Content Include="Javascript\Text\Enums.js" />
     <Content Include="Javascript\Text\LayoutWord.js" />
     <Content Include="Javascript\Text\TextBuffer.js" />
     <Content Include="Javascript\Text\TextLayout.js" />

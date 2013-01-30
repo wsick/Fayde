@@ -3,6 +3,36 @@
 /// <reference path="../Engine/Surface.js"/>
 
 (function (namespace) {
+
+    var breakType = {
+        Unknown: 0,
+        Space: 1,
+        OpenPunctuation: 2,
+        ClosePunctuation: 3,
+        InFixSeparator: 4,
+        Numeric: 5,
+        Alphabetic: 6,
+        WordJoiner: 7,
+        ZeroWidthSpace: 8,
+        BeforeAndAfter: 9,
+        NonBreakingGlue: 10,
+        Inseparable: 11,
+        Before: 12,
+        Ideographic: 13,
+        CombiningMark: 14,
+        Contingent: 15,
+        Ambiguous: 16,
+        Quotation: 17,
+        Prefix: 18
+    };
+    var layoutWordType = {
+        Unknown: 0,
+        Numeric: 1,
+        Alphabetic: 2,
+        Ideographic: 3,
+        Inseparable: 4
+    };
+
     var TextLayout = Nullstone.Create("TextLayout");
 
     TextLayout.Instance.Init = function () {
@@ -590,12 +620,12 @@
         if (!word._BreakOps)
             word._BreakOps = [];
         word._BreakOps.splice(0, word._BreakOps.length);
-        word._Type = _LayoutWordType.Unknown;
+        word._Type = layoutWordType.Unknown;
         word._Advance = 0.0;
 
         var op = new _WordBreakOp();
         var ctype;
-        var btype = _BreakType.Unknown;
+        var btype = breakType.Unknown;
         var fixed = false;
         var newGlyph = false;
         var glyphs = 0;
@@ -616,30 +646,30 @@
             }
 
             //check previous break-type
-            if (btype === _BreakType.ClosePunctuation) {
+            if (btype === breakType.ClosePunctuation) {
                 // if anything comes after close punctuation (except infix separator), the 'word' is done
                 btype = TextLayout._GetBreakType(c);
-                if (btype !== _BreakType.InFixSeparator) {
+                if (btype !== breakType.InFixSeparator) {
                     index = start;
                     break;
                 }
-            } else if (btype === _BreakType.InFixSeparator) {
+            } else if (btype === breakType.InFixSeparator) {
                 btype = TextLayout._GetBreakType(c);
-                if (word._Type === _LayoutWordType.Numeric) {
+                if (word._Type === layoutWordType.Numeric) {
                     //only accept numbers after the infix
-                    if (btype !== _BreakType.Numeric) {
+                    if (btype !== breakType.Numeric) {
                         index = start;
                         break;
                     }
-                } else if (word._Type === _LayoutWordType.Unknown) {
+                } else if (word._Type === layoutWordType.Unknown) {
                     //only accept alphanumerics after the infix
-                    if (btype !== _BreakType.Alphabetic && btype !== _BreakType.Numeric) {
+                    if (btype !== breakType.Alphabetic && btype !== breakType.Numeric) {
                         index = start;
                         break;
                     }
                     fixed = true;
                 }
-            } else if (btype === _BreakType.WordJoiner) {
+            } else if (btype === breakType.WordJoiner) {
                 btype = TextLayout._GetBreakType(c);
                 fixed = true;
             } else {
@@ -653,9 +683,9 @@
 
             ctype = TextLayout._GetCharType(c);
 
-            if (word._Type === _LayoutWordType.Unknown) {
+            if (word._Type === layoutWordType.Unknown) {
                 word._Type = TextLayout._GetWordType(ctype, btype);
-            } else if (btype === _BreakType.OpenPunctuation) {
+            } else if (btype === breakType.OpenPunctuation) {
                 index = start;
                 break;
             } else if (TextLayout._WordTypeChanged(word._Type, c, ctype, btype)) {
@@ -692,7 +722,7 @@
         }
 
         if (index === end)
-            btype = _BreakType.Space;
+            btype = breakType.Space;
 
         while (index < end) {
             start = index;
@@ -700,7 +730,7 @@
             index++;
 
             if (TextLayout._IsLineBreak(text)) {
-                btype = _BreakType.Space;
+                btype = breakType.Space;
                 index = start;
                 break;
             }
@@ -761,7 +791,7 @@
     };
     TextLayout._LayoutWordWrapSearch = function (word, data) {
         switch (data.op.btype) {
-            case _BreakType.BeforeAndAfter:
+            case breakType.BeforeAndAfter:
                 if (i > 1 && i === word._BreakOps.length) {
                     data.op = word._BreakOps[data.i - 2];
                     data.op.SetWordBasics(word);
@@ -770,8 +800,8 @@
                     data.op.SetWordBasics(word);
                     return true;
                 }
-            case _BreakType.NonBreakingGlue:
-            case _BreakType.WordJoiner:
+            case breakType.NonBreakingGlue:
+            case breakType.WordJoiner:
                 if (data.force && data.i < word._BreakOps.length) {
                     data.op.SetWordBasics(word);
                     return true;
@@ -781,21 +811,21 @@
                     data.i--;
                 }
                 break;
-            case _BreakType.Inseparable:
+            case breakType.Inseparable:
                 if (data.lineStart && data.i < word._BreakOps.length) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.Before:
+            case breakType.Before:
                 if (data.i > 1) {
                     data.op = word._BreakOps[data.i - 2];
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.ClosePunctuation:
-                if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+            case breakType.ClosePunctuation:
+                if (data.i < word._BreakOps.length && (data.force || data.btype !== breakType.InFixSeparator)) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
@@ -804,45 +834,45 @@
                     i--;
                 }
                 break;
-            case _BreakType.InFixSeparator:
-                if (data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.Numeric)) {
+            case breakType.InFixSeparator:
+                if (data.i < word._BreakOps.length && (data.force || data.btype !== breakType.Numeric)) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 if (data.i > 1 && !data.force) {
                     data.op = word._BreakOps[data.i - 2];
-                    if (data.op._Btype === _BreakType.InFixSeparator ||
-                        data.op._Btype === _BreakType.ClosePunctuation) {
+                    if (data.op._Btype === breakType.InFixSeparator ||
+                        data.op._Btype === breakType.ClosePunctuation) {
                         data.op = word._BreakOps[data.i - 1];
                     } else {
                         i--;
                     }
                 }
                 break;
-            case _BreakType.Alphabetic:
+            case breakType.Alphabetic:
                 if ((data.lineStart || data.fixed || data.force) && data.i < word._BreakOps.length) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.Ideographic:
-                if (data.i < word._BreakOps.length && data.btype !== _BreakType.NonStarter) {
+            case breakType.Ideographic:
+                if (data.i < word._BreakOps.length && data.btype !== breakType.NonStarter) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.Numeric:
-                if (data.lineStart && data.i < word._BreakOps.length && (data.force || data.btype !== _BreakType.InFixSeparator)) {
+            case breakType.Numeric:
+                if (data.lineStart && data.i < word._BreakOps.length && (data.force || data.btype !== breakType.InFixSeparator)) {
                     data.op.SetWordBasics(word);
                     return true;
                 }
                 break;
-            case _BreakType.OpenPunctuation:
-            case _BreakType.CombiningMark:
-            case _BreakType.Contingent:
-            case _BreakType.Ambiguous:
-            case _BreakType.Quotation:
-            case _BreakType.Prefix:
+            case breakType.OpenPunctuation:
+            case breakType.CombiningMark:
+            case breakType.Contingent:
+            case breakType.Ambiguous:
+            case breakType.Quotation:
+            case breakType.Prefix:
                 if (data.force && data.i < word._BreakOps.length) {
                     data.op.SetWordBasics(word);
                     return true;
