@@ -2,7 +2,7 @@
 /// CODE
 /// <reference path="../Engine/Surface.js"/>
 
-(function (namespace) {
+(function (Text) {
 
     var breakType = {
         Unknown: 0,
@@ -32,6 +32,268 @@
         Ideographic: 3,
         Inseparable: 4
     };
+
+    //#region _LayoutWord
+
+    var _LayoutWord = Nullstone.Create("_LayoutWord");
+    _LayoutWord.Instance.Init = function () {
+        this._Advance = 0.0;
+        this._LineAdvance = 0.0;
+        this._Length = 0;
+        this._BreakOps = null;
+        this._Font = new Font();
+    };
+    Nullstone.FinishCreate(_LayoutWord);
+
+    //#endregion
+
+    //#region _WordBreakOp
+
+    var _WordBreakOp = Nullstone.Create("_WordBreakOp");
+    _WordBreakOp.Instance.Init = function () {
+        this._Advance = 0.0;
+        this._Index = 0;
+        this._Btype = 0;
+        this._C = '';
+    };
+    _WordBreakOp.Instance.Copy = function () {
+        var newOp = new _WordBreakOp();
+        newOp._Advance = this._Advance;
+        newOp._Btype = this._Btype;
+        newOp._C = this._C;
+        newOp._Index = this._Index;
+    };
+    _WordBreakOp.Instance.SetWordBasics = function (word) {
+        word._Length = this._Index;
+        word._Advance = this._Advance;
+    };
+    Nullstone.FinishCreate(_WordBreakOp);
+
+    //#endregion
+
+    //#region _TextLayoutGlyphCluster
+
+    var _TextLayoutGlyphCluster = Nullstone.Create("_TextLayoutGlyphCluster", undefined, 3);
+    _TextLayoutGlyphCluster.Instance.Init = function (text, font, selected) {
+        this._Text = text;
+        this._Selected = selected == true;
+        this._Advance = Surface.MeasureText(text, font).Width;
+    };
+    _TextLayoutGlyphCluster.Instance._Render = function (ctx, origin, attrs, x, y) {
+        /// <param name="ctx" type="_RenderContext"></param>
+        if (this._Text.length == 0 || this._Advance == 0.0)
+            return;
+        var font = attrs.GetFont();
+        var y0 = font._Ascender();
+        ctx.Translate(x, y - y0);
+
+        var brush;
+        var fontHeight = font.GetActualHeight();
+        var area = new Rect(origin.X, origin.Y, this._Advance, fontHeight);
+        if (this._Selected && (brush = attrs.GetBackground(true))) {
+            ctx.FillRect(brush, area); //selection background
+        }
+        if (!(brush = attrs.GetForeground(this._Selected)))
+            return;
+
+        var canvasCtx = ctx.CanvasContext;
+        brush.SetupBrush(canvasCtx, area);
+        var brushHtml5 = brush.ToHtml5Object();
+        canvasCtx.fillStyle = brushHtml5;
+        canvasCtx.font = font.ToHtml5Object();
+        canvasCtx.textAlign = "left";
+        canvasCtx.textBaseline = "top";
+        canvasCtx.fillText(this._Text, 0, 0);
+        DrawDebug("Text: " + this._Text + " [" + canvasCtx.fillStyle.toString() + "]");
+
+        if (attrs.IsUnderlined()) {
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(0, fontHeight);
+            canvasCtx.lineTo(this._Advance, fontHeight);
+            canvasCtx.lineWidth = 2;
+            canvasCtx.strokeStyle = brushHtml5;
+            canvasCtx.stroke();
+        }
+    };
+    Nullstone.FinishCreate(_TextLayoutGlyphCluster);
+
+    //#endregion
+
+    //#region _TextLayoutRun
+
+    var _TextLayoutRun = Nullstone.Create("_TextLayoutRun", undefined, 3);
+
+    _TextLayoutRun.Instance.Init = function (line, attrs, start) {
+        this._Clusters = [];
+        this._Attrs = attrs;
+        this._Start = start;
+        this._Line = line;
+        this._Advance = 0.0; //after layout, will contain horizontal distance this run advances
+        this._Length = 0;
+    };
+
+    _TextLayoutRun.Instance._GenerateCache = function () {
+        var selectionLength = this._Line._Layout.GetSelectionLength();
+        var selectionStart = this._Line._Layout.GetSelectionStart();
+        var text = this._Line._Layout.GetText();
+        var font = this._Attrs.GetFont();
+
+        var len;
+        var index = this._Start;
+        var cluster1;
+        var cluster2;
+        //glyph before selection
+        if (selectionLength === 0 || this._Start < selectionStart) {
+            len = selectionLength > 0 ? Math.min(selectionStart - this._Start, this._Length) : this._Length;
+            cluster1 = new _TextLayoutGlyphCluster(text.substr(this._Start, len), font);
+            this._Clusters.push(cluster1);
+            index += len;
+        }
+
+        //glyph with selection
+        var selectionEnd = selectionStart + selectionLength;
+        var runEnd = this._Start + this._Length;
+        if (index < runEnd && index < selectionEnd) {
+            len = Math.min(runEnd - index, selectionEnd - index);
+            cluster2 = new _TextLayoutGlyphCluster(text.substr(index, len), font, true);
+            this._Clusters.push(cluster2);
+            index += len;
+        }
+
+        var cluster3;
+        //glyph after selection
+        if (index < runEnd) {
+            len = runEnd - index;
+            cluster3 = new _TextLayoutGlyphCluster(text.substr(index, len), font);
+            this._Clusters.push(cluster3);
+            index += len;
+        }
+    };
+    _TextLayoutRun.Instance._ClearCache = function () {
+        this._Clusters = [];
+    };
+    _TextLayoutRun.Instance._Render = function (ctx, origin, x, y) {
+        var x0 = x;
+        if (this._Clusters.length === 0)
+            this._GenerateCache();
+
+        for (var i = 0; i < this._Clusters.length; i++) {
+            var cluster = this._Clusters[i];
+            ctx.Save();
+            cluster._Render(ctx, origin, this._Attrs, x0, y);
+            ctx.Restore();
+            x0 += cluster._Advance;
+        }
+    };
+    _TextLayoutRun.Instance.__Debug = function (allText) {
+        return allText.substr(this._Start, this._Length);
+    };
+
+    Nullstone.FinishCreate(_TextLayoutRun);
+
+    //#endregion
+
+    //#region _TextLayoutLine
+
+    var _TextLayoutLine = Nullstone.Create("_TextLayoutLine", undefined, 3);
+    _TextLayoutLine.Instance.Init = function (layout, start, offset) {
+        this._Runs = [];
+        this._Layout = layout;
+        this._Start = start;
+        this._Offset = offset;
+        this._Advance = 0.0; //after layout, will contain horizontal distance this line advances
+        this._Descend = 0.0;
+        this._Height = 0.0;
+        this._Width = 0.0;
+        this._Length = 0;
+    };
+    _TextLayoutLine.Instance.GetCursorFromX = function (offset, x) {
+        var run = null;
+        var x0 = offset.X + this._Layout._HorizontalAlignment(this._Advance);
+        var cursor = this._Offset;
+        var text = this._Layout.GetText();
+        var index = this._Start;
+        var end;
+        var c;
+
+        var i;
+        for (i = 0; i < this._Runs.length; i++) {
+            run = this._Runs[i];
+            if (x < (x0 + run._Advance))
+                break; // x is somewhere inside this run
+
+            cursor += run._Length;
+            index += run._Length;
+            x0 += run._Advance;
+            run = null;
+        }
+
+        if (run != null) {
+            index = run._Start;
+            end = run._Start + run._Length;
+            var font = run._Attrs.GetFont();
+            var m;
+            var ch;
+            while (index < end) {
+                ch = index;
+                cursor++;
+                c = text.charAt(index);
+                index++;
+                if (c === '\t')
+                    c = ' ';
+                m = Surface._MeasureWidth(c, font);
+                if (x <= x0 + (m / 2.0)) {
+                    index = ch;
+                    cursor--;
+                    break;
+                }
+                x0 += m;
+            }
+        } else if (i > 0) {
+            // x is beyond the end of the last run
+            run = this._Runs[i - 1];
+            end = run._Start + run._Length;
+            index = run._Start;
+            c = end - 1 < 0 ? null : text.charAt(end - 1);
+            if (c == '\n') {
+                cursor--;
+                end--;
+                c = end - 1 < 0 ? null : text.charAt(end - 1);
+                if (c == '\r') {
+                    cursor--;
+                    end--;
+                }
+            }
+        }
+        return cursor;
+    };
+    _TextLayoutLine.Instance._Render = function (ctx, origin, left, top) {
+        var run;
+        var x0 = left;
+        //var y0 = top + this._Height + this._Descend; //not using this: we set html5 canvas to render top-left corner of text at x,y
+        var y0 = top;
+
+        for (var i = 0; i < this._Runs.length; i++) {
+            run = this._Runs[i];
+            run._Render(ctx, origin, x0, y0);
+            x0 += run._Advance;
+        }
+    };
+    _TextLayoutLine.Instance.__Debug = function (allText) {
+        var t = "";
+        t += "\t\tRuns: " + this._Runs.length.toString() + "\n";
+        for (var i = 0; i < this._Runs.length; i++) {
+            t += "\t\t\tRun " + i.toString() + ": ";
+            t += this._Runs[i].__Debug(allText);
+            t += "\n";
+        }
+        return t;
+    };
+    Nullstone.FinishCreate(_TextLayoutLine);
+
+    //#endregion
+
+    //#region TextLayout
 
     var TextLayout = Nullstone.Create("TextLayout");
 
@@ -915,5 +1177,7 @@
     TextLayout._UpdateSelection = function (lines, pre, post) {
     };
 
-    namespace.TextLayout = Nullstone.FinishCreate(TextLayout);
-})(window);
+    Text.TextLayout = Nullstone.FinishCreate(TextLayout);
+
+    //#endregion
+})(Nullstone.Namespace("Fayde.Text"));

@@ -33,7 +33,7 @@
         this._SelectionCursor = selectionCursor;
         this._Start = start;
         this._Length = inserted.length;
-        this._Buffer = new _TextBuffer(inserted);
+        this._Buffer = new Fayde.Text._TextBuffer(inserted);
         this._Growable = isAtomic !== true;
     };
     _TextBoxUndoActionInsert.Instance.Insert = function (start, text) {

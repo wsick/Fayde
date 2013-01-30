@@ -13,7 +13,7 @@
     _TextBoxView.Instance.Init = function () {
         this.Init$FrameworkElement();
         this._Cursor = new Rect();
-        this._Layout = new TextLayout();
+        this._Layout = new Fayde.Text.TextLayout();
         this._SelectionChanged = false;
         this._HadSelectedText = false;
         this._CursorVisible = false;
@@ -39,7 +39,7 @@
             this._TextBox.ModelChanged.Subscribe(this._OnModelChanged, this);
 
             this._Layout.SetTextAttributes(new LinkedList());
-            var attrs = new _TextLayoutAttributes(this._TextBox, 0);
+            var attrs = new Fayde.Text._TextLayoutAttributes(this._TextBox, 0);
             this._Layout.GetTextAttributes().Append(attrs);
 
             this._Layout.SetTextAlignment(this._TextBox.TextAlignment);

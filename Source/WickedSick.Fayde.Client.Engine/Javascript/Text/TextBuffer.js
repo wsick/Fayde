@@ -1,8 +1,8 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 
-(function (namespace) {
-    var _TextBuffer = Nullstone.Create("_TextBuffer", null);
+(function (Text) {
+    var _TextBuffer = Nullstone.Create("_TextBuffer");
 
     _TextBuffer.Instance.Init = function () {
         this._Text = null;
@@ -50,5 +50,5 @@
         this._Text = [this._Text.slice(0, start), str, this._Text.slice(start + len)].join('');
     };
 
-    namespace._TextBuffer = Nullstone.FinishCreate(_TextBuffer);
-})(window);
+    Text._TextBuffer = Nullstone.FinishCreate(_TextBuffer);
+})(Nullstone.Namespace("Fayde.Text"));

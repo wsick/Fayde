@@ -380,17 +380,12 @@
     <Content Include="Javascript\Documents\TextElement.js" />
     <Content Include="Javascript\Core\RoutedEvent.js" />
     <Content Include="Javascript\Core\RoutedEventArgs.js" />
-    <Content Include="Javascript\Text\LayoutWord.js" />
     <Content Include="Javascript\Text\TextBuffer.js" />
     <Content Include="Javascript\Text\TextLayout.js" />
     <Content Include="Javascript\Media\Animation\Timeline.js" />
     <Content Include="Javascript\Core\UIElement.js" />
     <Content Include="Javascript\Controls\UserControl.js" />
     <Content Include="Javascript\Text\TextLayoutAttributes.js" />
-    <Content Include="Javascript\Text\TextLayoutGlyphCluster.js" />
-    <Content Include="Javascript\Text\TextLayoutLine.js" />
-    <Content Include="Javascript\Text\TextLayoutRun.js" />
-    <Content Include="Javascript\Text\WordBreakOp.js" />
     <Content Include="Javascript\Media\VSM\VisualStateManager.js" />
     <Content Include="Javascript\Core\VisualTreeHelper.js" />
     <Content Include="jquery-1.7.js" />

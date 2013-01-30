@@ -13,7 +13,7 @@
     TextBlock.Instance.Init = function () {
         this.Init$FrameworkElement();
 
-        this._Layout = new TextLayout();
+        this._Layout = new Fayde.Text.TextLayout();
 
         this._ActualHeight = 0.0;
         this._ActualWidth = 0.0;
@@ -217,11 +217,11 @@
         if (item instanceof Fayde.Documents.Run) {
             var text = item.Text;
             if (text && text.length) {
-                runs.Append(new _TextLayoutAttributes(item, length));
+                runs.Append(new Fayde.Text._TextLayoutAttributes(item, length));
                 length += text.length;
             }
         } else if (item instanceof Fayde.Documents.LineBreak) {
-            runs.Append(new _TextLayoutAttributes(item, length));
+            runs.Append(new Fayde.Text._TextLayoutAttributes(item, length));
             length += 1; //line break length
         } else if (item instanceof Fayde.Documents.Span) {
             var inlines = item.Inlines;

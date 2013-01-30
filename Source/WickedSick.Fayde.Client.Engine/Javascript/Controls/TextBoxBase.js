@@ -19,7 +19,7 @@
 
         this._Undo = new Fayde.Text._TextBoxUndoStack(10);
         this._Redo = new Fayde.Text._TextBoxUndoStack(10);
-        this._Buffer = new _TextBuffer();
+        this._Buffer = new Fayde.Text._TextBuffer();
         this._MaxLength = 0;
 
         this._Emit = _TextBoxEmitChanged.NOTHING;
