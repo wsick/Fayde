@@ -17,7 +17,7 @@
 /// <reference path="../Media/CacheMode.js"/>
 /// <reference path="../Media/Projection.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var UIElement = Nullstone.Create("UIElement", Fayde.DependencyObject);
 
     UIElement.Instance.Init = function () {
@@ -1398,5 +1398,5 @@
         return this._ID + ":" + this.constructor._TypeName + ":" + this.Name;
     };
 
-    namespace.UIElement = Nullstone.FinishCreate(UIElement);
+    Fayde.UIElement = Nullstone.FinishCreate(UIElement);
 })(Nullstone.Namespace("Fayde"));

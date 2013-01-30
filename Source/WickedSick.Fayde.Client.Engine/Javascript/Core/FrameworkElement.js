@@ -11,7 +11,7 @@
 /// <reference path="Style.js"/>
 /// <reference path="VisualTreeHelper.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var FrameworkElement = Nullstone.Create("FrameworkElement", Fayde.UIElement);
 
     FrameworkElement.Instance.Init = function () {
@@ -1223,5 +1223,5 @@
     }
     //#endif
 
-    namespace.FrameworkElement = Nullstone.FinishCreate(FrameworkElement);
+    Fayde.FrameworkElement = Nullstone.FinishCreate(FrameworkElement);
 })(Nullstone.Namespace("Fayde"));
