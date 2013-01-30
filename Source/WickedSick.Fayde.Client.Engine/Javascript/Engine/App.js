@@ -14,7 +14,7 @@
     App.Instance.Init = function () {
         this.Init$DependencyObject();
         this.MainSurface = new Surface(this);
-        this._ClockTimer = new ClockTimer();
+        this._ClockTimer = new Fayde.ClockTimer();
         this._Storyboards = [];
         this._DebugFunc = {};
 
