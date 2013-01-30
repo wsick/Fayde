@@ -23,6 +23,7 @@
         this.LostFocus = lostFocus;
         this.GotFocus = gotFocus;
     };
+    Nullstone.FinishCreate(FocusChangedNode);
     //#endregion
 
     var Surface = Nullstone.Create("Surface", undefined, 1);
