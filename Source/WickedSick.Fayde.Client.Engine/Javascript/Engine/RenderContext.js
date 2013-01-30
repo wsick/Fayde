@@ -5,7 +5,7 @@
 /// <reference path="../../gl-matrix.js"/>
 /// <reference path="../Runtime/gl-matrix-ex.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var _RenderContext = Nullstone.Create("_RenderContext", undefined, 1);
 
     _RenderContext.Instance.Init = function (surface) {
@@ -174,5 +174,5 @@
         return arr;
     };
 
-    namespace._RenderContext = Nullstone.FinishCreate(_RenderContext);
-})(window);
+    Fayde._RenderContext = Nullstone.FinishCreate(_RenderContext);
+})(Nullstone.Namespace("Fayde"));

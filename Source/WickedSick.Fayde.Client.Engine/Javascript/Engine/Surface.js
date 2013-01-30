@@ -270,7 +270,7 @@
         var layerCount = layers ? layers.length : 0;
 
         RenderDebug.Count = 0;
-        var ctx = new _RenderContext(this);
+        var ctx = new Fayde._RenderContext(this);
         ctx.Clear(region);
         ctx.CanvasContext.save();
         ctx.Clip(region);
@@ -686,7 +686,7 @@
             this._EmitMouseList(type, button, pos, delta, this._InputList);
         } else {
             this.ProcessDirtyElements();
-            var ctx = new _RenderContext(this);
+            var ctx = new Fayde._RenderContext(this);
             var newInputList = new LinkedList();
             var layers = this._Layers;
             var layerCount = layers.length;

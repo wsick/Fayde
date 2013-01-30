@@ -173,7 +173,7 @@
 
     RawPath.Instance.Draw = function (ctx) {
         var canvasCtx = ctx;
-        if (ctx instanceof _RenderContext)
+        if (ctx instanceof Fayde._RenderContext)
             canvasCtx = ctx.CanvasContext;
         canvasCtx.beginPath();
         var backing = this._Path;
