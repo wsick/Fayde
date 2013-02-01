@@ -139,8 +139,7 @@
     <Content Include="Javascript\Controls\ToolTipService.js" />
     <Content Include="Javascript\Controls\VirtualizingPanel.js" />
     <Content Include="Javascript\Controls\VirtualizingStackPanel.js" />
-    <Content Include="Javascript\Core\Collections\IListenCollectionChanged.js" />
-    <Content Include="Javascript\Core\Collections\ItemCollection.js" />
+    <Content Include="Javascript\Controls\ItemCollection.js" />
     <Content Include="Javascript\Core\Collections\PresentationFrameworkCollection.js" />
     <Content Include="Javascript\Core\Collections\RangeCollection.js" />
     <Content Include="Javascript\Core\Input\Enums.js" />
@@ -239,8 +238,6 @@
     <Content Include="Javascript\Controls\TextBoxModelChangedEventArgs.js" />
     <Content Include="Javascript\Controls\TextBoxView.js" />
     <Content Include="Javascript\Core\BindingOperations.js" />
-    <Content Include="Javascript\Core\Collections\CollectionChangedArgs.js" />
-    <Content Include="Javascript\Core\Collections\ItemChangedArgs.js" />
     <Content Include="Javascript\Core\Collections\ResourceDictionary.js" />
     <Content Include="Javascript\Core\Collections\ResourceDictionaryCollection.js" />
     <Content Include="Javascript\Core\Collections\UIElementCollection.js" />
@@ -329,7 +326,7 @@
     <Content Include="Javascript\Core\DependencyObject.js" />
     <Content Include="Javascript\Core\DependencyProperty.js" />
     <Content Include="Javascript\Engine\Dirty.js" />
-    <Content Include="Javascript\Core\Collections\Collection.js" />
+    <Content Include="Javascript\Core\Collections\InternalCollection.js" />
     <Content Include="Javascript\Core\Collections\CollectionIterator.js" />
     <Content Include="Javascript\Runtime\Dictionary.js" />
     <Content Include="Javascript\Runtime\EventArgs.js" />

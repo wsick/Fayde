@@ -1,12 +1,12 @@
 /// <reference path="../../Runtime/Nullstone.js" />
-/// <reference path="Collection.js"/>
+/// <reference path="InternalCollection.js"/>
 /// CODE
 
 (function (namespace) {
-    var ResourceDictionary = Nullstone.Create("ResourceDictionary", Collection);
+    var ResourceDictionary = Nullstone.Create("ResourceDictionary", Fayde.InternalCollection);
 
     ResourceDictionary.Instance.Init = function () {
-        this.Init$Collection();
+        this.Init$InternalCollection();
         this._KeyIndex = [];
     };
 
@@ -52,9 +52,9 @@
             oldValue = this.Get(key);
             this.Remove(oldValue);
         }
-        var index = this.Add$Collection(value);
+        var index = this.Add$InternalCollection(value);
         this._KeyIndex[key] = index;
-        this._RaiseChanged(CollectionChangedArgs.Action.Replace, oldValue, value, index);
+        this._RaiseChanged({ IsReplace: true, OldValue: oldValue, NewValue: value, Index: index });
         return true;
     };
     ResourceDictionary.Instance.Add = function (key, value) {
@@ -89,10 +89,10 @@
             //WTF: if (!from_resource_dictionary_api)...
         }
 
-        rv = this.AddedToCollection$Collection(value, error);
+        rv = this.AddedToCollection$InternalCollection(value, error);
 
         if (rv /* && !from_resource_dictionary_api */ && obj) {
-            this._RaiseChanged(CollectionChangedArgs.Action.Add, undefined, obj, obj.Name);
+            this._RaiseChanged({ IsAdd: true, NewValue: obj, Index: null }); //TODO: Add index
         }
 
         return rv;
@@ -106,11 +106,11 @@
                 obj._SetIsAttached(false);
             }
         }
-        this.RemovedFromCollection$Collection(value, isValueSafe);
+        this.RemovedFromCollection$InternalCollection(value, isValueSafe);
     };
 
     ResourceDictionary.Instance._OnIsAttachedChanged = function (value) {
-        this._OnIsAttachedChanged$Collection(value);
+        this._OnIsAttachedChanged$InternalCollection(value);
 
         for (var i = 0; i < this._ht.length; i++) {
             var obj = this._ht[i];
@@ -119,7 +119,7 @@
         }
     };
     ResourceDictionary.Instance._OnMentorChanged = function (oldValue, newValue) {
-        this._OnMentorChanged$Collection(oldValue, newValue);
+        this._OnMentorChanged$InternalCollection(oldValue, newValue);
         for (var i = 0; i < this._KeyIndex.length; i++) {
             Fayde.DependencyObject._PropagateMentor(this._KeyIndex[i], this.GetValueAt(this._KeyIndex[i]), newValue);
         }
@@ -133,7 +133,7 @@
             if (obj && obj instanceof Fayde.DependencyObject)
                 obj._RegisterAllNamesRootedAt(namescope, error);
         }
-        this._RegisterAllNamesRootedAt$Collection(namescope, error);
+        this._RegisterAllNamesRootedAt$InternalCollection(namescope, error);
     };
     ResourceDictionary.Instance._UnregisterAllNamesRootedAt = function (fromNs) {
         /// <param name="fromNs" type="NameScope"></param>
@@ -142,7 +142,7 @@
             if (obj && obj instanceof Fayde.DependencyObject)
                 obj._UnregisterAllNamesRootedAt(fromNs);
         }
-        this._UnregisterAllNamesRootedAt$Collection(fromNs);
+        this._UnregisterAllNamesRootedAt$InternalCollection(fromNs);
     };
 
     ResourceDictionary._CanBeAddedTwice = function (value) {

@@ -1,6 +1,6 @@
 ﻿/// <reference path="../DependencyObject.js"/>
 /// CODE
-/// <reference path="Collection.js"/>
+/// <reference path="InternalCollection.js"/>
 /// <reference path="../../Collections/NotifyCollectionChangedEventArgs.js"/>
 
 (function (namespace) {
@@ -8,7 +8,7 @@
 
     PresentationFrameworkCollection.Instance.Init = function () {
         this.Init$DependencyObject();
-        this._Backing = new Collection();
+        this._Backing = new Fayde.InternalCollection();
         this.ItemsChanged = new MulticastEvent();
         this.Clearing = new MulticastEvent();
     };

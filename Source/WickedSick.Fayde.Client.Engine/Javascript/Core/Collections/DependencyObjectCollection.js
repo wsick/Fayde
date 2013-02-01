@@ -1,13 +1,13 @@
 /// <reference path="../../Runtime/Nullstone.js" />
-/// <reference path="Collection.js"/>
+/// <reference path="InternalCollection.js"/>
 /// <reference path="../DependencyObject.js"/>
 /// CODE
 
 (function (namespace) {
-    var DependencyObjectCollection = Nullstone.Create("DependencyObjectCollection", Collection, 1);
+    var DependencyObjectCollection = Nullstone.Create("DependencyObjectCollection", Fayde.InternalCollection, 1);
 
     DependencyObjectCollection.Instance.Init = function (setsParent) {
-        this.Init$Collection();
+        this.Init$InternalCollection();
         this._IsSecondaryParent = false;
         this._SetsParent = setsParent == null ? true : setsParent;
     };
@@ -24,7 +24,7 @@
     };
 
     DependencyObjectCollection.Instance._OnMentorChanged = function (oldValue, newValue) {
-        this._OnMentorChanged$Collection(oldValue, newValue);
+        this._OnMentorChanged$InternalCollection(oldValue, newValue);
         for (var i = 0; i < this._ht.length; i++) {
             if (this._ht[i] instanceof Fayde.DependencyObject)
                 this._ht[i].SetMentor(newValue);
@@ -45,7 +45,7 @@
 
         value.AddPropertyChangedListener(this);
 
-        var rv = this.AddedToCollection$Collection(value, error);
+        var rv = this.AddedToCollection$InternalCollection(value, error);
         value._SetIsAttached(rv && this._IsAttached);
         if (!rv) {
             if (this._SetsParent) {
@@ -71,7 +71,7 @@
         }
     };
     DependencyObjectCollection.Instance._OnIsAttachedChanged = function (value) {
-        this._OnIsAttachedChanged$Collection(value);
+        this._OnIsAttachedChanged$InternalCollection(value);
         for (var i = 0; i < this.GetCount() ; i++) {
             var val = this.GetValueAt(i);
             if (val instanceof Fayde.DependencyObject)

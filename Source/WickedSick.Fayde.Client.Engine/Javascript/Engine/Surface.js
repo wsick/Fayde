@@ -4,7 +4,7 @@
 /// <reference path="Dirty.js"/>
 /// <reference path="Debug.js"/>
 /// <reference path="../Core/LayoutInformation.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Runtime/EventArgs.js"/>
 /// <reference path="DirtyNode.js"/>
 /// <reference path="../Primitives/Font.js"/>

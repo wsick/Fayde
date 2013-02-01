@@ -165,32 +165,25 @@
         Panel.Instance._OnCollectionChanged = function (col, args) {
             if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
                 var error = new BError();
-                switch (args.Action) {
-                    case CollectionChangedArgs.Action.Replace:
+                if (args.IsAdd || args.IsReplace) {
+                    if (args.IsReplace) {
                         if (args.OldValue instanceof Fayde.FrameworkElement)
                             args.OldValue._SetLogicalParent(null, error);
                         this._ElementRemoved(args.OldValue);
                         if (this._IsAttached)
                             this.RemoveHtmlChild(args.OldValue, args.Index);
-                        //NOTE: falls into add on purpose
-                    case CollectionChangedArgs.Action.Add:
-                        if (args.NewValue instanceof Fayde.FrameworkElement)
-                            args.NewValue._SetLogicalParent(this, error);
-                        this._ElementAdded(args.NewValue);
-                        if (this._IsAttached)
-                            this.InsertHtmlChild(args.NewValue, args.Index);
-                        break;
-                    case CollectionChangedArgs.Action.Remove:
-                        if (args.OldValue instanceof Fayde.FrameworkElement)
-                            args.OldValue._SetLogicalParent(null, error);
-                        this._ElementRemoved(args.OldValue);
-                        if (this._IsAttached)
-                            this.RemoveHtmlChild(args.OldValue, args.Index);
-                        break;
-                    case CollectionChangedArgs.Action.Clearing:
-                        break;
-                    case CollectionChangedArgs.Action.Cleared:
-                        break;
+                    }
+                    if (args.NewValue instanceof Fayde.FrameworkElement)
+                        args.NewValue._SetLogicalParent(this, error);
+                    this._ElementAdded(args.NewValue);
+                    if (this._IsAttached)
+                        this.InsertHtmlChild(args.NewValue, args.Index);
+                } else if (args.IsRemove) {
+                    if (args.OldValue instanceof Fayde.FrameworkElement)
+                        args.OldValue._SetLogicalParent(null, error);
+                    this._ElementRemoved(args.OldValue);
+                    if (this._IsAttached)
+                        this.RemoveHtmlChild(args.OldValue, args.Index);
                 }
             } else {
                 this._OnCollectionChanged$FrameworkElement(col, args);
@@ -240,26 +233,19 @@
         Panel.Instance._OnCollectionChanged = function (col, args) {
             if (this._PropertyHasValueNoAutoCreate(Panel.ChildrenProperty, col)) {
                 var error = new BError();
-                switch (args.Action) {
-                    case CollectionChangedArgs.Action.Replace:
+                if (args.IsAdd || args.IsReplace) {
+                    if (args.IsReplace) {
                         if (args.OldValue instanceof Fayde.FrameworkElement)
                             args.OldValue._SetLogicalParent(null, error);
                         this._ElementRemoved(args.OldValue);
-                        //NOTE: falls into add on purpose
-                    case CollectionChangedArgs.Action.Add:
-                        if (args.NewValue instanceof Fayde.FrameworkElement)
-                            args.NewValue._SetLogicalParent(this, error);
-                        this._ElementAdded(args.NewValue);
-                        break;
-                    case CollectionChangedArgs.Action.Remove:
-                        if (args.OldValue instanceof Fayde.FrameworkElement)
-                            args.OldValue._SetLogicalParent(null, error);
-                        this._ElementRemoved(args.OldValue);
-                        break;
-                    case CollectionChangedArgs.Action.Clearing:
-                        break;
-                    case CollectionChangedArgs.Action.Cleared:
-                        break;
+                    }
+                    if (args.NewValue instanceof Fayde.FrameworkElement)
+                        args.NewValue._SetLogicalParent(this, error);
+                    this._ElementAdded(args.NewValue);
+                } else if (args.IsRemove) {
+                    if (args.OldValue instanceof Fayde.FrameworkElement)
+                        args.OldValue._SetLogicalParent(null, error);
+                    this._ElementRemoved(args.OldValue);
                 }
             } else {
                 this._OnCollectionChanged$FrameworkElement(col, args);

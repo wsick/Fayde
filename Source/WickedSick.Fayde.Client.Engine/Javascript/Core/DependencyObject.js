@@ -453,7 +453,7 @@
                     dob._RemoveParent(this, null);
                     dob.RemovePropertyChangedListener(this, propd);
                     dob._SetIsAttached(false);
-                    if (Nullstone.Is(dob, Collection)) {
+                    if (Nullstone.Is(dob, Fayde.InternalCollection)) {
                         //TODO: Changed Event - Remove Handler
                         //TODO: Item Changed Event - Remove Handler
                     }
@@ -573,7 +573,7 @@
                 oldDO._RemoveTarget(this);
 
                 oldDO.RemovePropertyChangedListener(this, propd);
-                if (oldDO instanceof Collection) {
+                if (oldDO instanceof Fayde.InternalCollection) {
                     oldDO.Changed.Unsubscribe(this._OnCollectionChangedEH, this);
                     oldDO.ItemChanged.Unsubscribe(this._OnCollectionItemChangedEH, this);
                 }
@@ -591,7 +591,7 @@
 
                 newDO._SetResourceBase(this._GetResourceBase());
 
-                if (newDO instanceof Collection) {
+                if (newDO instanceof Fayde.InternalCollection) {
                     newDO.Changed.Subscribe(this._OnCollectionChangedEH, this);
                     newDO.ItemChanged.Subscribe(this._OnCollectionItemChangedEH, this);
                 }

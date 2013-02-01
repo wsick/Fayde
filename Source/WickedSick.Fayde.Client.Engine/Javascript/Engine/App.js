@@ -2,7 +2,7 @@
 /// <reference path="../Core/DependencyObject.js"/>
 /// CODE
 /// <reference path="Surface.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Core/UIElement.js"/>
 /// <reference path="ClockTimer.js"/>
 /// <reference path="../Runtime/JsEx.js"/>

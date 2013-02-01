@@ -1,7 +1,7 @@
 ﻿/// <reference path="../Runtime/Nullstone.js"/>
 /// CODE
 /// <reference path="Markup.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Core/DeferredValueExpression.js"/>
 /// <reference path="../Runtime/PerfTimer.js"/>
 /// <reference path="../Core/ResourceTarget.js"/>
@@ -117,7 +117,7 @@
                     coll.Add(fobj);
                 }
             }
-        } else if (dobj instanceof Collection) {
+        } else if (dobj instanceof Fayde.InternalCollection) {
             this.TrySetCollectionProperty(json.Children, dobj, null, namescope);
         }
 
@@ -184,7 +184,7 @@
         } else {
             targetType = propd.GetTargetType();
         }
-        if (!Nullstone.DoesInheritFrom(targetType, Collection))
+        if (!Nullstone.DoesInheritFrom(targetType, Fayde.InternalCollection))
             return false;
         if (!(subJson instanceof Array))
             return false;

@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="../Data/PropertyPath.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Controls/TextBlock.js"/>
 /// <reference path="UnsetValue.js"/>
 
@@ -239,7 +239,7 @@
                 return false;
         }
 
-        if ((data.collection = Nullstone.As(value, Collection)) == null)
+        if ((data.collection = Nullstone.As(value, Fayde.InternalCollection)) == null)
             return false;
         if ((value = data.collection.GetValueAt(data.i)) == null)
             return false;

@@ -1,6 +1,6 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// CODE
-/// <reference path="Collection.js"/>
+/// <reference path="InternalCollection.js"/>
 
 (function (namespace) {
     var CollectionIterator = Nullstone.Create("CollectionIterator", undefined, 1);

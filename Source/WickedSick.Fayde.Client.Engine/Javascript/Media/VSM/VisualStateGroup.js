@@ -1,7 +1,7 @@
 /// <reference path="../../Runtime/Nullstone.js" />
 /// <reference path="../../Core/DependencyObject.js"/>
 /// <reference path="../../Runtime/MulticastEvent.js"/>
-/// <reference path="../../Core/Collections/Collection.js"/>
+/// <reference path="../../Core/Collections/InternalCollection.js"/>
 /// CODE
 /// <reference path="VisualTransition.js"/>
 /// <reference path="VisualState.js"/>
@@ -119,6 +119,6 @@
 })(Nullstone.Namespace("Fayde.Media.VisualStateManager"));
 
 (function (namespace) {
-    var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", Collection);
+    var VisualStateGroupCollection = Nullstone.Create("VisualStateGroupCollection", Fayde.InternalCollection);
     namespace.VisualStateGroupCollection = Nullstone.FinishCreate(VisualStateGroupCollection);
 })(Nullstone.Namespace("Fayde.Media.VisualStateManager"));

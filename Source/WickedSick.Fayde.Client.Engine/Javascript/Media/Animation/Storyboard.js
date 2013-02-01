@@ -1,4 +1,5 @@
 /// <reference path="Timeline.js"/>
+/// <reference path="../../Core/Collections/InternalCollection.js"/>
 /// CODE
 /// <reference path="../../Primitives/TimeSpan.js"/>
 /// <reference path="../../Primitives/Duration.js"/>
@@ -187,7 +188,7 @@
 })(Nullstone.Namespace("Fayde.Media.Animation"));
 
 (function (namespace) {
-    var StoryboardCollection = Nullstone.Create("StoryboardCollection", Collection);
+    var StoryboardCollection = Nullstone.Create("StoryboardCollection", Fayde.InternalCollection);
     StoryboardCollection.Instance.IsElementType = function (obj) {
         return obj instanceof namespace.Storyboard;
     };

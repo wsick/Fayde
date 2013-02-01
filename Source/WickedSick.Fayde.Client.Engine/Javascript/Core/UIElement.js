@@ -4,7 +4,7 @@
 /// <reference path="../Controls/Canvas.js" />
 /// <reference path="../Engine/Dirty.js"/>
 /// <reference path="../Engine/App.js"/>
-/// <reference path="../Core/Collections/Collection.js"/>
+/// <reference path="../Core/Collections/InternalCollection.js"/>
 /// <reference path="../Media/Geometry.js"/>
 /// <reference path="../Media/Brush.js"/>
 /// <reference path="RequestBringIntoViewEventArgs.js"/>
@@ -1147,24 +1147,18 @@
         };
         UIElement.Instance._OnCollectionChanged = function (col, args) {
             if (this._PropertyHasValueNoAutoCreate(UIElement.TriggersProperty, col)) {
-                switch (args.Action) {
-                    case CollectionChangedArgs.Action.Replace:
-                        args.OldValue._RemoveTarget(this);
-                        //NOTE: Intentionally falling through
-                    case CollectionChangedArgs.Action.Add:
-                        args.NewValue._SetTarget(this);
-                        break;
-                    case CollectionChangedArgs.Action.Remove:
-                        args.OldValue._RemoveTarget(this);
-                        break;
-                    case CollectionChangedArgs.Action.Clearing:
-                        var count = col.GetCount();
-                        for (var i = 0; i < count; i++) {
-                            col.GetValueAt(i)._RemoveTarget(this);
-                        }
-                        break;
-                    case CollectionChangedArgs.Action.Cleared:
-                        break;
+                if (args.IsAdd) {
+                    args.NewValue._SetTarget(this);
+                } else if (args.IsReplace) {
+                    args.OldValue._RemoveTarget(this);
+                    args.NewValue._SetTarget(this);
+                } else if (args.IsRemove) {
+                    args.OldValue._RemoveTarget(this);
+                } else if (args.IsClearing) {
+                    var count = col.GetCount();
+                    for (var i = 0; i < count; i++) {
+                        col.GetValueAt(i)._RemoveTarget(this);
+                    }
                 }
             } else if (this._PropertyHasValueNoAutoCreate(UIElement.ResourcesProperty, col)) {
                 //TODO: ResourcesProperty
@@ -1364,7 +1358,7 @@
         UIElement.Instance.InvalidateChildrenFixedWidth = function () {
             var subtree = this._SubtreeObject;
             if (subtree) {
-                if (subtree instanceof Collection) {
+                if (subtree instanceof Fayde.InternalCollection) {
                     var len = subtree.GetCount();
                     for (var i = 0; i < len; i++) {
                         var item = subtree.GetValueAt(i);
@@ -1378,7 +1372,7 @@
         UIElement.Instance.InvalidateChildrenFixedHeight = function () {
             var subtree = this._SubtreeObject;
             if (subtree) {
-                if (subtree instanceof Collection) {
+                if (subtree instanceof Fayde.InternalCollection) {
                     var len = subtree.GetCount();
                     for (var i = 0; i < len; i++) {
                         var item = subtree.GetValueAt(i);

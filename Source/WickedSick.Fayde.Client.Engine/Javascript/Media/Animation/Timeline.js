@@ -1,4 +1,5 @@
 /// <reference path="../../Core/DependencyObject.js"/>
+/// <reference path="../../Core/Collections/InternalCollection.js"/>
 /// CODE
 /// <reference path="../../Primitives/Duration.js"/>
 /// <reference path="RepeatBehavior.js"/>
@@ -185,6 +186,6 @@
 })(Nullstone.Namespace("Fayde.Media.Animation"));
 
 (function (namespace) {
-    var TimelineCollection = Nullstone.Create("TimelineCollection", Collection);
+    var TimelineCollection = Nullstone.Create("TimelineCollection", Fayde.InternalCollection);
     namespace.TimelineCollection = Nullstone.FinishCreate(TimelineCollection);
 })(Nullstone.Namespace("Fayde.Media.Animation"));

@@ -1,5 +1,5 @@
 /// <reference path="Control.js"/>
-/// <reference path="../Core/Collections/IListenCollectionChanged.js" />
+/// <reference path="ItemCollection.js"/>
 /// CODE
 /// <reference path="Panel.js"/>
 /// <reference path="ItemsPresenter.js"/>
@@ -7,7 +7,7 @@
 /// <reference path="VirtualizingPanel.js"/>
 
 (function (namespace) {
-    var ItemsControl = Nullstone.Create("ItemsControl", namespace.Control, 0, [IListenCollectionChanged]);
+    var ItemsControl = Nullstone.Create("ItemsControl", namespace.Control);
 
     ItemsControl.Instance.Init = function () {
         this.Init$Control();

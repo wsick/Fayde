@@ -58,7 +58,7 @@
         };
         Span.Instance._OnCollectionChanged = function (sender, args) {
             if (this._PropertyHasValueNoAutoCreate(Span.InlinesProperty, sender)) {
-                if (args.Action === CollectionChangedArgs.Action.Add)
+                if (args.IsAdd)
                     this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
                 //this._NotifyLayoutContainerOnCollectionChanged(sender, args);
                 this.UpdateHtmlInlines(args);
@@ -71,7 +71,7 @@
     if (Fayde.IsCanvasEnabled) {
         Span.Instance._OnCollectionChanged = function (sender, args) {
             if (this._PropertyHasValueNoAutoCreate(Span.InlinesProperty, sender)) {
-                if (args.Action === CollectionChangedArgs.Action.Add)
+                if (args.IsAdd)
                     this._Providers[_PropertyPrecedence.Inherited].PropagateInheritedPropertiesOnAddingToTree(args.NewValue);
             } else {
                 this._OnCollectionChanged$Inline(sender, args);
@@ -90,19 +90,14 @@
             return this._HtmlEl;
         };
         Span.Instance.UpdateHtmlInlines = function (args) {
-            switch (args.Action) {
-                case CollectionChangedArgs.Action.Cleared:
-                    this.ClearChildrenHtml();
-                    break;
-                case CollectionChangedArgs.Action.Add:
-                    this.AddChildHtml(args.NewValue, args.Index);
-                    break;
-                case CollectionChangedArgs.Action.Remove:
-                    this.RemoveChildHtml(args.NewValue);
-                    break;
-                case CollectionChangedArgs.Action.Replace:
-                    this.ReplaceChildHtml(args.OldValue, args.NewValue);
-                    break;
+            if (args.IsCleared) {
+                this.ClearChildrenHtml();
+            } else if (args.IsAdd) {
+                this.AddChildHtml(args.NewValue, args.Index);
+            } else if (args.IsRemove) {
+                this.RemoveChildHtml(args.NewValue);
+            } else if (args.IsReplace) {
+                this.ReplaceChildHtml(args.OldValue, args.NewValue);
             }
         };
         Span.Instance.SetChildrenHtml = function (inlines) {

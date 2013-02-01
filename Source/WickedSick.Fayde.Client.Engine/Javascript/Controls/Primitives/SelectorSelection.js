@@ -2,7 +2,7 @@
 /// CODE
 /// <reference path="../Enums.js"/>
 /// <reference path="../../Collections/Enums.js"/>
-/// <reference path="../../Core/Collections/Collection.js"/>
+/// <reference path="../../Core/Collections/InternalCollection.js"/>
 
 (function (namespace) {
     var SelectorSelection = Nullstone.Create("SelectorSelection", undefined, 1);
@@ -10,7 +10,7 @@
     SelectorSelection.Instance.Init = function (owner) {
         this._Owner = owner;
         this._Owner.SelectedItems.CollectionChanged.Subscribe(this._HandleOwnerSelectionChanged, this);
-        this._SelectedItems = new Collection();
+        this._SelectedItems = new Fayde.InternalCollection();
         this.Mode = Fayde.Controls.SelectionMode.Single;
     };
 
@@ -154,7 +154,7 @@
         var ownerItems = this._Owner.Items;
         var selectedItems = this._SelectedItems;
 
-        var select = new Collection();
+        var select = new Fayde.InternalCollection();
         for (var i = startIndex; i <= endIndex; i++) {
             select.Add(ownerItems.GetValueAt(i));
         }

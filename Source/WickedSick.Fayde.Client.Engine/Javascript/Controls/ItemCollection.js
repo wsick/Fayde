@@ -1,6 +1,6 @@
-﻿/// <reference path="../../Runtime/Nullstone.js" />
-/// <reference path="PresentationFrameworkCollection.js"/>
-/// <reference path="../../Collections/INotifyCollectionChanged.js"/>
+﻿/// <reference path="../Runtime/Nullstone.js" />
+/// <reference path="../Core/Collections/PresentationFrameworkCollection.js"/>
+/// <reference path="../Collections/INotifyCollectionChanged.js"/>
 /// CODE
 
 (function (namespace) {

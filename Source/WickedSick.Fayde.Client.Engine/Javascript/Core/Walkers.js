@@ -1,7 +1,7 @@
 /// <reference path="../Runtime/Nullstone.js" />
 /// CODE
 /// <reference path="Enums.js"/>
-/// <reference path="Collections/Collection.js"/>
+/// <reference path="Collections/InternalCollection.js"/>
 /// <reference path="Collections/UIElementCollection.js"/>
 /// <reference path="Style.js"/>
 /// <reference path="Setter.js"/>
@@ -29,7 +29,7 @@
         else
             this._Direction = _VisualTreeWalkerDirection.Logical;
         if (this._Content) {
-            if (this._Content instanceof Collection) {
+            if (this._Content instanceof Fayde.InternalCollection) {
                 this._Collection = this._Content;
                 if (!(this._Content instanceof Fayde.UIElementCollection))
                     this._Direction = _VisualTreeWalkerDirection.Logical;
