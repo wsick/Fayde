@@ -5,7 +5,7 @@
 /// <reference path="../Controls/TextBlock.js"/>
 /// <reference path="UnsetValue.js"/>
 
-(function (namespace) {
+(function (Fayde) {
     var DependencyProperty = Nullstone.Create("DependencyProperty", undefined, 13);
 
     DependencyProperty._LastID = 0;
@@ -345,5 +345,6 @@
         return eval(name);
     };
 
-    namespace.DependencyProperty = Nullstone.FinishCreate(DependencyProperty);
-})(window);
+    Fayde.DependencyProperty = Nullstone.FinishCreate(DependencyProperty);
+})(Nullstone.Namespace("Fayde"));
+window.DependencyProperty = Fayde.DependencyProperty;
